@@ -4,19 +4,19 @@
 
 #include "E16DST_DST0.hh"
 
-template <class T>
-int E16DST_DST1Detector<T>::Write(E16DST_File* fp) {
-}
+//template <class T>
+//int E16DST_DST1Detector<T>::Write(E16DST_File* fp) {
+//}
+//
+//template <class T>
+//int E16DST_DST1Detector<T>::Read(E16DST_File* fp) {
+//}
+//
+//template <class T>
+//void E16DST_DST1Detector<T>::Append(E16DST_DST1Detector<T>& rhs) {
+//}
 
-template <class T>
-int E16DST_DST1Detector<T>::Read(E16DST_File* fp) {
-}
-
-template <class T>
-void E16DST_DST1Detector<T>::Append(E16DST_DST1Detector<T>& rhs) {
-}
-
-void E16DST_DST1Cluster::SetHitOrders(E16DST_DST1Detector<int>& _hit_orders) {
+void E16DST_DST1Cluster::SetHitOrders(E16DST_DST0Detector<int>& _hit_orders) {
 }
 
 double E16DST_DST1SSDHit::LocalX() {

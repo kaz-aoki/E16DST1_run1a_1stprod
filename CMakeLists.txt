@@ -26,7 +26,7 @@ link_libraries(
 
 add_library(E16DST_DST1
 	src/E16DST_DST1.cc;
-	src/E16DST_DST1TriggerHitAndClusterFactory.cc;
+	src/E16DST_DST1TriggerFactory.cc;
 )
 
 target_compile_features(E16DST_DST1 PRIVATE cxx_std_17)

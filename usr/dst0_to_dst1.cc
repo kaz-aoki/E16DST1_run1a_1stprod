@@ -54,9 +54,9 @@ int main(int argc, char* argv[]) {
 //                                  event1->GTR300XHits(),  event1->GTR300XClusters(), event1->GTR300YHits(),  event1->GTR300YClusters())
 //      E16DST_DST1SSDHitAndClusterFactory(event0->HBD(),            event1->HBDHits(),   event1->HBDClusters());
 //      E16DST_DST1SSDHitAndClusterFactory(event0->LG(),             event1->LGHits(),    event1->LGClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(), timestamp, trigger1.GTRHits(), trigger1.GTRClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(), timestamp, trigger1.HBDHits(), trigger1.HBDClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),  timestamp,  trigger1.LGHits(),  trigger1.LGClusters());
+      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(), timestamp, &trigger1.GTRHits(), &trigger1.GTRClusters());
+      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(), timestamp, &trigger1.HBDHits(), &trigger1.HBDClusters());
+      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),  timestamp, &trigger1.LGHits(),  &trigger1.LGClusters());
     
     
     
