@@ -1,5 +1,5 @@
 # E16DST1
-・e16evb02でcompileできることを確認済みです。
+・e16evb02、ccjbox6でcompileできることを確認済みです。
 
 ・src/E16DST_DST1xxxHitAndCluster.cc内に
 
