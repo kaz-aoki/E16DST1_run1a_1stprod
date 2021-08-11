@@ -3,8 +3,17 @@
 
 namespace E16DST_DST1Constant {
 
-const int    kInvalidValue = -10000;
-const double kLgTimeScale  = 960. / 1000.;
+const int                kInvalidValue              = -10000;
+const double             kLgTimeScale               = 960. / 1000.;
+const std::array<int, 6> kGtrCoincidenceStartModule = {1, 0, 0, 4, 5, 6};
+const std::array<int, 6> kHbdCoincidenceStartModule = {2, 1, 0, 4, 5, 6};
+
+enum kGtrAxis {
+  kIsX,
+  kIsY,
+  kIsYb,
+};
+  
 
 }; // namespace E16DST_DST1Constant
 

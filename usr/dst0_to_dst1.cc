@@ -1,19 +1,57 @@
 #include <iostream>
+#include <boost/program_options.hpp>
 
 //#include "E16ANA_CalibDBManager.hh"
-#include <E16DST_DST1.hh>
+#include "E16DST_DefaultCoincidenceMapPath.hh"
+#include "E16DST_DST1.hh"
+#include "E16DST_TriggerCoincidenceMap.hh"
 
 using namespace std;
+namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
     cerr << "./bin [input.dst0] [output.dst1] [run number]" << endl;
     return -1;
   }
-  auto in_file_name  = argv[1];
-  auto out_file_name = argv[2];
-  auto run_num       = stoi(argv[3]);
+//  auto in_file_name  = argv[1];
+//  auto out_file_name = argv[2];
+//  auto run_num       = stoi(argv[3]);
+  bpo::variables_map vm;
+  string in_file_name;
+  string out_file_name;
+  int run_num;
+  array<string, 12> coincidence_map_files;
+  array<string, 3>  trigger_channel_map_files;
 
+//  bpo::options_description command_options("command options");
+//  command_options.add_options()
+//    ("in",                           bpo::value<string>(&in_file_name),                                                                "Input file name (string)\n")
+//    ("out",                          bpo::value<string>(&out_file_name),                                                               "Output file name (string)\n")
+//    ("coincidence-map-file-w-mag0",  bpo::value<string>(&coincidence_map_files[0])->default_value(string(CoincidenceMapWMagFile0)),    "Coincidence map file w/ mag 0 (string)\n");
+//    ("coincidence-map-file-w-mag1",  bpo::value<string>(&coincidence_map_files[1])->default_value(string(CoincidenceMapWMagFile1)),    "Coincidence map file w/ mag 1 (string)\n");
+//    ("coincidence-map-file-w-mag2",  bpo::value<string>(&coincidence_map_files[2])->default_value(string(CoincidenceMapWMagFile2)),    "Coincidence map file w/ mag 2 (string)\n");
+//    ("coincidence-map-file-w-mag3",  bpo::value<string>(&coincidence_map_files[3])->default_value(string(CoincidenceMapWMagFile3)),    "Coincidence map file w/ mag 3 (string)\n");
+//    ("coincidence-map-file-w-mag4",  bpo::value<string>(&coincidence_map_files[4])->default_value(string(CoincidenceMapWMagFile4)),    "Coincidence map file w/ mag 4 (string)\n");
+//    ("coincidence-map-file-w-mag5",  bpo::value<string>(&coincidence_map_files[5])->default_value(string(CoincidenceMapWMagFile5)),    "Coincidence map file w/ mag 5 (string)\n");
+//    ("coincidence-map-file-wo-mag0", bpo::value<string>(&coincidence_map_files[6])->default_value(string(CoincidenceMapWoMagFile0)),   "Coincidence map file w/o mag 0 (string)\n");
+//    ("coincidence-map-file-wo-mag1", bpo::value<string>(&coincidence_map_files[7])->default_value(string(CoincidenceMapWoMagFile1)),   "Coincidence map file w/o mag 1 (string)\n");
+//    ("coincidence-map-file-wo-mag2", bpo::value<string>(&coincidence_map_files[8])->default_value(string(CoincidenceMapWoMagFile2)),   "Coincidence map file w/o mag 2 (string)\n");
+//    ("coincidence-map-file-wo-mag3", bpo::value<string>(&coincidence_map_files[9])->default_value(string(CoincidenceMapWoMagFile3)),   "Coincidence map file w/o mag 3 (string)\n");
+//    ("coincidence-map-file-wo-mag4", bpo::value<string>(&coincidence_map_files[10])->default_value(string(CoincidenceMapWoMagFile4)),  "Coincidence map file w/o mag 4 (string)\n");
+//    ("coincidence-map-file-wo-mag5", bpo::value<string>(&coincidence_map_files[11])->default_value(string(CoincidenceMapWoMagFile5)),  "Coincidence map file w/o mag 5 (string)\n");
+//    ("trigger-gtr-channel-map",      bpo::value<string>(&trigger_channel_map_files[0])->default_value(string(TriggerChannelMapFile0)), "Trigger GTR channel map file (string)\n");
+//    ("trigger-hbd-channel-map",      bpo::value<string>(&trigger_channel_map_files[1])->default_value(string(TriggerChannelMapFile1)), "Trigger HBD channel map file (string)\n");
+//    ("trigger-lg-channel-map",       bpo::value<string>(&trigger_channel_map_files[2])->default_value(string(TriggerChannelMapFile2)), "Trigger LG channel map file (string)\n");
+//
+//  auto file_check = [&vm, &in_file_name, &out_file_name]() {
+//    if (in_file_name.empty()) {
+//      throw invalid_argument("Invalid input file name: "s + in_file_name);
+//    }
+//    if (out_file_name.empty()) {
+//      throw invalid_argument("Invalid output file name: "s + out_file_name);
+//    }
+//  };
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -28,6 +66,10 @@ int main(int argc, char* argv[]) {
 //  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
 //  auto calib_file_name = calib.CalibFileName("SSD-pedestal", run_rum);
 //  std::cout << calib_file_name << std::endl;
+  
+  auto coincidence_map = new E16DST_TriggerCoincidenceMap(coincidence_map_files, trigger_channel_map_files);
+  
+  bool is_first = true;
   while (dst0->ReadAnEvent()) {
     auto event_type = dst0->EventType();
     dst1->SetEventType(event_type);
@@ -54,15 +96,15 @@ int main(int argc, char* argv[]) {
 //                                  event1->GTR300XHits(),  event1->GTR300XClusters(), event1->GTR300YHits(),  event1->GTR300YClusters())
 //      E16DST_DST1SSDHitAndClusterFactory(event0->HBD(),            event1->HBDHits(),   event1->HBDClusters());
 //      E16DST_DST1SSDHitAndClusterFactory(event0->LG(),             event1->LGHits(),    event1->LGClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(), timestamp, trigger1.GTRHits(), trigger1.GTRClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(), timestamp, trigger1.HBDHits(), trigger1.HBDClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),  timestamp,  trigger1.LGHits(),  trigger1.LGClusters());
-    
-    
-    
-    
-    
-    
+      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(),  timestamp, &trigger1.GTRHits(), &trigger1.GTRClusters());
+      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(),  timestamp, &trigger1.HBDHits(), &trigger1.HBDClusters());
+      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),   timestamp, &trigger1.LGHits(),  &trigger1.LGClusters());
+//      E16DST_DST1TriggerHitAndClusterFactory(event0->UT3().Track(), timestamp, &trigger1.Tracks(),  nullptr);
+//      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1.Trigger());
+      event1->Trigger().SetValidFlag(1);
+
+
+      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
       dst1->WriteAnEvent(event0);
@@ -75,6 +117,9 @@ int main(int argc, char* argv[]) {
     } else {
       std::cerr << "Invalid Event Type: " << event_type << std::endl;
       return -1;
+    }
+    if (is_first) {
+      is_first = false;
     }
   }
   delete dst0;

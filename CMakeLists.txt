@@ -5,48 +5,77 @@ project(E16DST1)
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
+set(CMAKE_INSTALL_PREFIX ${DIR}/../install)
 set(CMAKE_INSTALL_DATADIR ${DIR}/../install/share)
+set(CMAKE_CURRENT_BINARY_DIR ${DIR}/../build)
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 find_package(ROOT)
 if(ROOT_FOUND)
 	include(${ROOT_USE_FILE})
-	ROOT_GENERATE_DICTIONARY(G__stl_vector_vector LINKDEF include/stl_vector_vector_LinkDef.h)
 endif()
+
+find_package(Boost COMPONENTS program_options REQUIRED)
+set(Boost_LIBRARY_DIRS /opt/FairSoft/jun19p2/lib64)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}
 	include
+  E16DST
+)
+
+link_directories(
+  ${Boost_LIBRARY_DIRS}
 )
 
 link_libraries(
 	${ROOT_LIBRARIES}
+	${Boost_LIBRARIES}
+	${Boost_PROGRAM_OPTIONS_LIBRARIES}
 )
 
+#_______________________________________________________________________________
+install(DIRECTORY
+  coincidence_map
+  DESTINATION ${CMAKE_INSTALL_DATADIR}
+)
+
+#_______________________________________________________________________________
+#set(DefalutPathFiles
+#  include/E16DST_DefalutCoincidenceMapPath.hh
+#)
+#
+#foreach(lvar IN ITEMS ${DefaultPathFiles})
+##  configure_file(${lvar}.in ${lvar} @ONLY)
+#  configure_file(${lvar}.in ${CMAKE_CURRENT_BINARY_DIR}/${lvar} @ONLY)
+#message("CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR}/${lvar})
+#endforeach()
+configure_file(include/E16DST_DefaultCoincidenceMapPath.hh.in E16DST_DefaultCoincidenceMapPath.hh @ONLY)
+
+#_______________________________________________________________________________
 add_library(E16DST_DST1
-	src/E16DST_DST1.cc;
-	src/E16DST_DST1TriggerHitAndClusterFactory.cc;
-)
-
-target_compile_features(E16DST_DST1 PRIVATE cxx_std_17)
-
-target_include_directories(E16DST_DST1 PRIVATE
-	${ROOT_INCLUDE_DIRS};
-  E16DST
+  E16DST/E16DST_TriggerChannelMap.cc
+  src/E16DST_TriggerCoincidenceMap.cc
+	src/E16DST_DST1.cc
+	src/E16DST_DST1TriggerFactory.cc
 )
 
 target_link_libraries(E16DST_DST1
-	E16DST;
-)
-
-add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
-target_include_directories(dst0_to_dst1 PRIVATE
 	E16DST
 )
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
+
 target_link_libraries(dst0_to_dst1
 	E16DST_DST1
   libz.so
+#  program_options
+#  stdc++fs
 )
 
+#_______________________________________________________________________________
 add_subdirectory(E16DST)
