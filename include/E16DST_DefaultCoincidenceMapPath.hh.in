@@ -1,0 +1,22 @@
+#ifndef E16_DST_DEFALUT_COINCIDENCE_MAP_PATH_HH
+#define E16_DST_DEFALUT_COINCIDENCE_MAP_PATH_HH
+
+#include <string_view>
+
+static constexpr std::string_view CoincidenceMapWMagFile0  {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_0.coe"};
+static constexpr std::string_view CoincidenceMapWMagFile1  {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_1.coe"};
+static constexpr std::string_view CoincidenceMapWMagFile2  {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_2.coe"};
+static constexpr std::string_view CoincidenceMapWMagFile3  {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_3.coe"};
+static constexpr std::string_view CoincidenceMapWMagFile4  {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_4.coe"};
+static constexpr std::string_view CoincidenceMapWMagFile5  {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_5.coe"};
+static constexpr std::string_view CoincidenceMapWoMagFile0 {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_noMag_0.coe"};
+static constexpr std::string_view CoincidenceMapWoMagFile1 {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_noMag_1.coe"};
+static constexpr std::string_view CoincidenceMapWoMagFile2 {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_noMag_2.coe"};
+static constexpr std::string_view CoincidenceMapWoMagFile3 {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_noMag_3.coe"};
+static constexpr std::string_view CoincidenceMapWoMagFile4 {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_noMag_4.coe"};
+static constexpr std::string_view CoincidenceMapWoMagFile5 {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_noMag_5.coe"};
+static constexpr std::string_view TriggerChannelMapFile0   {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt"};
+static constexpr std::string_view TriggerChannelMapFile1   {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt"};
+static constexpr std::string_view TriggerChannelMapFile2   {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
+
+#endif // E16_DST_DEFAULT_COINCIDENCE_MAP_PATH

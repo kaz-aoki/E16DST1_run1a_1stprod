@@ -31,10 +31,10 @@
 //  int      Write(E16DST_File* fp);
 //  int      Read(E16DST_File* fp);
 //  void     Append(E16DST_DST1Detector<T>& rhs);
-//  int      GetEventSize() const { return sizeof(uint32_t) + sizeof(T) * hits.size(); }
+//  int      GetEventSize();
 // private:
 //  uint32_t       valid_flag;
-//  std::vector<T> hits;
+//  std::array<std::vector<T>, 8> hits;
 //};
 
 class E16DST_DST1Hit {
@@ -170,22 +170,11 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   ~E16DST_DST1GTRHit() {}
   void SetInvalid() override {
     SetBaseInvalid();
-//    layer_id = E16DST_DST1Constant::kInvalidValue;
-//    type = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot = E16DST_DST1Constant::kInvalidValue;
   }
-//  void SetLayerIdAndType(int _layer_id, int _type) {
-//    layer_id = _layer_id;
-//    type = _type;
-//  }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void SetTot(float _tot) { tot = _tot; }
-//  int LayerId() { return layer_id; }
-//  bool IsX() { return type == E16DST_DST1Constant::kIsX; }
-//  bool IsY() { return type == E16DST_DST1Constant::kIsY; }
-//  bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
-//  int Type() { return type;}
   float PeakHeight() override { return peak_height; }
   float Tot() { return tot; }
   double LocalX();
@@ -204,24 +193,13 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   ~E16DST_DST1GTRCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
-//    layer_id = E16DST_DST1Constant::kInvalidValue;
-//    type = E16DST_DST1Constant::kInvalidValue;
     center_of_gravity = E16DST_DST1Constant::kInvalidValue;
     tdc_pos = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
   }
-//  void SeLayerIdAndType(int _layer_id, int _type) {
-//    layer_id = _layer_id;
-//    type = _type;
-//  }
   void SetCogPos(float _center_of_gravity) { center_of_gravity = _center_of_gravity; }
   void SetTdcPos(float _tdc_pos) { tdc_pos = _tdc_pos; }
   void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-//  int LayerId() { return layer_id; }
-//  bool IsX() { return type == E16DST_DST1Constant::kIsX; }
-//  bool IsY() { return type == E16DST_DST1Constant::kIsY; }
-//  bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
-//  int Type() { return type; }
   float CogPos() { return center_of_gravity; }
   float TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
@@ -238,9 +216,17 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   float center_of_gravity; // mm
   float tdc_pos;           // mm
   float tan_incident_angle;    // radian
-//  int layer_id;                  // 0-2
-//  int type; // x, y, yb = 0, 1, 2
 };
+
+//class E16DST_DST1GTR {
+// public:
+//  E16DST_DST1GTR() {}
+//  ~E16DST_DST1GTR() {}
+//  void SetGTRHit(std::vector<E16DST_DST1GTRHit> _hit);
+// private:
+//  E16DST_DST1Detector<E16DST_DST1GTRHit>     hits;
+//  E16DST_DST1Detector<E16DST_DST1GTRCluster> clusters;
+//}
 
 class E16DST_DST1HBDHit : public E16DST_DST1Hit {
  public:
@@ -357,6 +343,8 @@ class E16DST_DST1Trigger {
  public:
   E16DST_DST1Trigger() {}
   ~E16DST_DST1Trigger() {}
+  void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
+  int ValidFlag() { return valid_flag; }
   int GetEventSize() const {}
 //  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
   E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
@@ -370,6 +358,7 @@ class E16DST_DST1Trigger {
   E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
   int NumTriggers() { return n_triggers; }
  private:
+  int valid_flag;
   E16DST_DST0Detector<E16DST_DST1TriggerHit>      gtr_hits;
   E16DST_DST0Detector<E16DST_DST1TriggerHit>      hbd_hits;
   E16DST_DST0Detector<E16DST_DST1TriggerHit>      lg_hits;

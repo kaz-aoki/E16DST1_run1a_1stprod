@@ -15,6 +15,15 @@
 //template <class T>
 //void E16DST_DST1Detector<T>::Append(E16DST_DST1Detector<T>& rhs) {
 //}
+//
+//template <class T>
+//int GetEventSize() {
+//  int size = sizeof(uint32_t);
+//  for (const auto& hit: hits) {
+//    size += sizeof(T) * hit.size();
+//  }
+//  return size;
+//}
 
 void E16DST_DST1Cluster::SetHitOrders(E16DST_DST0Detector<int>& _hit_orders) {
 }
