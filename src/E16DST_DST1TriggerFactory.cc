@@ -1,6 +1,8 @@
 #include "E16DST_DST1.hh"
 
 //#include "E16ANA_CalibDBManager.hh"
+#include "E16DST_DefaultCoincidenceMapPath.hh"
+#include "E16DST_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 
 namespace E16::DST1::Trigger {
@@ -36,9 +38,8 @@ int E16DST_DST1TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0Trigge
 
 
 
-int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST1TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST1TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST1TriggerHit>& lg_hits, E16DST_DST1Trigger* trigger) {
-  
-
+int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
+//  auto coincidence_map = new E16DST_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
 
 
 

@@ -100,6 +100,7 @@ int main(int argc, char* argv[]) {
       E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(),  timestamp, &trigger1.HBDHits(), &trigger1.HBDClusters());
       E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),   timestamp, &trigger1.LGHits(),  &trigger1.LGClusters());
 //      E16DST_DST1TriggerHitAndClusterFactory(event0->UT3().Track(), timestamp, &trigger1.Tracks(),  nullptr);
+//      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1.Trigger());
       event1->Trigger().SetValidFlag(1);
 
 
