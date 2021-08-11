@@ -24,6 +24,7 @@ include_directories(
 	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 	include
+	include/trigger
   E16DST
 )
 
@@ -53,14 +54,14 @@ install(DIRECTORY
 #  configure_file(${lvar}.in ${CMAKE_CURRENT_BINARY_DIR}/${lvar} @ONLY)
 #message("CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR}/${lvar})
 #endforeach()
-configure_file(include/E16DST_DefaultCoincidenceMapPath.hh.in E16DST_DefaultCoincidenceMapPath.hh @ONLY)
+configure_file(include/trigger/E16DST_DefaultCoincidenceMapPath.hh.in E16DST_DefaultCoincidenceMapPath.hh @ONLY)
 
 #_______________________________________________________________________________
 add_library(E16DST_DST1
   E16DST/E16DST_TriggerChannelMap.cc
-  src/E16DST_TriggerCoincidenceMap.cc
 	src/E16DST_DST1.cc
 	src/E16DST_DST1TriggerFactory.cc
+  src/trigger/E16DST_TriggerCoincidenceMap.cc
 )
 
 target_link_libraries(E16DST_DST1

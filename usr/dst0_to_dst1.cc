@@ -67,9 +67,6 @@ int main(int argc, char* argv[]) {
 //  auto calib_file_name = calib.CalibFileName("SSD-pedestal", run_rum);
 //  std::cout << calib_file_name << std::endl;
   
-  auto coincidence_map = new E16DST_TriggerCoincidenceMap(coincidence_map_files, trigger_channel_map_files);
-  
-  bool is_first = true;
   while (dst0->ReadAnEvent()) {
     auto event_type = dst0->EventType();
     dst1->SetEventType(event_type);
@@ -94,13 +91,14 @@ int main(int argc, char* argv[]) {
 //                                  event1->GTR100XHits(),  event1->GTR100XClusters(), event1->GTR100YHits(),  event1->GTR100YClusters(), event1->GTR100YbHits(), event1->GTR100YbClusters(),
 //                                  event1->GTR200XHits(),  event1->GTR200XClusters(), event1->GTR200YHits(),  event1->GTR200YClusters(),
 //                                  event1->GTR300XHits(),  event1->GTR300XClusters(), event1->GTR300YHits(),  event1->GTR300YClusters())
+      E16DST_DST1GTRFactory(event0->GTR(), &event1->GTR());
 //      E16DST_DST1SSDHitAndClusterFactory(event0->HBD(),            event1->HBDHits(),   event1->HBDClusters());
 //      E16DST_DST1SSDHitAndClusterFactory(event0->LG(),             event1->LGHits(),    event1->LGClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(),  timestamp, &trigger1.GTRHits(), &trigger1.GTRClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(),  timestamp, &trigger1.HBDHits(), &trigger1.HBDClusters());
-      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),   timestamp, &trigger1.LGHits(),  &trigger1.LGClusters());
+//      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(),  timestamp, &trigger1.GTRHits(), &trigger1.GTRClusters());
+//      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(),  timestamp, &trigger1.HBDHits(), &trigger1.HBDClusters());
+//      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),   timestamp, &trigger1.LGHits(),  &trigger1.LGClusters());
 //      E16DST_DST1TriggerHitAndClusterFactory(event0->UT3().Track(), timestamp, &trigger1.Tracks(),  nullptr);
-//      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1.Trigger());
+      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
       event1->Trigger().SetValidFlag(1);
 
 
@@ -117,9 +115,6 @@ int main(int argc, char* argv[]) {
     } else {
       std::cerr << "Invalid Event Type: " << event_type << std::endl;
       return -1;
-    }
-    if (is_first) {
-      is_first = false;
     }
   }
   delete dst0;
