@@ -25,7 +25,11 @@
 //  return size;
 //}
 
-void E16DST_DST1Cluster::SetHitOrders(E16DST_DST0Detector<int>& _hit_orders) {
+void E16DST_DST1Cluster::SetHitOrders(std::vector<int>& _hit_orders) {
+  hit_orders.Reserve(_hit_orders.size());
+  for (const auto& hit_order : _hit_orders) {
+    hit_orders.PushBack(hit_order);
+  }
 }
 
 double E16DST_DST1SSDHit::LocalX() {
@@ -44,6 +48,27 @@ TVector3 E16DST_DST1SSDCluster::LocalPos() {
 }
 
 TVector3 E16DST_DST1SSDCluster::GlobalPos() {
+}
+
+E16DST_DST1SSDModule& E16DST_DST1SSD::Module(int _module) {
+  if (_module < 101) {
+  } else if (_module < 105) {
+    return modules[_module - 101];
+  } 
+  else if (_module < 106) {
+  } else if (_module < 110) {
+    return modules[_module - 101 - 1];
+  }
+  std::cerr << "Invalid module ID (101 - 109): " << _module << std::endl;
+  std::exit(1);
+}
+
+int E16DST_DST1SSD::GetEventSize() const {
+  int size = 0;
+  for (const auto& module : modules) {
+    size += module.GetEventSize();
+  }
+  return size;
 }
 
 double E16DST_DST1GTRHit::LocalX() {
@@ -139,14 +164,22 @@ E16DST_DST0Detector<E16DST_DST1GTRCluster>& E16DST_DST1GTRModule::Clusters(int _
 E16DST_DST1GTRModule& E16DST_DST1GTR::Module(int _module) {
   if (_module < 101) {
   } else if (_module < 105) {
-    return module[_module - 101];
+    return modules[_module - 101];
   } 
   else if (_module < 106) {
   } else if (_module < 110) {
-    return module[_module - 101 - 1];
+    return modules[_module - 101 - 1];
   }
   std::cerr << "Invalid module ID (101 - 109): " << _module << std::endl;
   std::exit(1);
+}
+
+int E16DST_DST1GTR::GetEventSize() const {
+  int size = 0;
+  for (const auto& module : modules) {
+    size += module.GetEventSize();
+  }
+  return size;
 }
 
 TVector3 E16DST_DST1HBDHit::LocalPos() {
@@ -161,6 +194,27 @@ TVector3 E16DST_DST1HBDCluster::LocalPos() {
 TVector3 E16DST_DST1HBDCluster::GlobalPos() {
 }
 
+E16DST_DST1HBDModule& E16DST_DST1HBD::Module(int _module) {
+  if (_module < 101) {
+  } else if (_module < 105) {
+    return modules[_module - 101];
+  } 
+  else if (_module < 106) {
+  } else if (_module < 110) {
+    return modules[_module - 101 - 1];
+  }
+  std::cerr << "Invalid module ID (101 - 109): " << _module << std::endl;
+  std::exit(1);
+}
+
+int E16DST_DST1HBD::GetEventSize() const {
+  int size = 0;
+  for (const auto& module : modules) {
+    size += module.GetEventSize();
+  }
+  return size;
+}
+
 TVector3 E16DST_DST1LGHit::LocalPos() {
 }
 
@@ -171,6 +225,30 @@ TVector3 E16DST_DST1LGCluster::LocalPos() {
 }
 
 TVector3 E16DST_DST1LGCluster::GlobalPos() {
+}
+
+E16DST_DST1LGModule& E16DST_DST1LG::Module(int _module) {
+  if (_module < 101) {
+  } else if (_module < 105) {
+    return modules[_module - 101];
+  } 
+  else if (_module < 106) {
+  } else if (_module < 110) {
+    return modules[_module - 101 - 1];
+  }
+  std::cerr << "Invalid module ID (101 - 109): " << _module << std::endl;
+  std::exit(1);
+}
+
+int E16DST_DST1LG::GetEventSize() const {
+  int size = 0;
+  for (const auto& module : modules) {
+    size += module.GetEventSize();
+  }
+  return size;
+}
+
+int E16DST_DST1Trigger::GetEventSize() const {
 }
 
 int E16DST_DST1PhysicsEvent::Write(E16DST_File* fp) {

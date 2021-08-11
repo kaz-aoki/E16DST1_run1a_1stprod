@@ -37,6 +37,28 @@
 //  std::array<std::vector<T>, 8> hits;
 //};
 
+//class E16DST_DST1Module {
+// public:
+//  E16DST_DST1DetectorModule() {}
+//  ~E16DST_DST1DetectorModule() {}
+//  int GetEventSize() const { return hits.GetEventSize() + clusters.GetEventSize(); }
+//  E16DST_DST0Detector<E16DST_DST1Hit>& Hits() { return hits; }
+//  E16DST_DST0Detector<E16DST_DST1Cluster>& Clusters() { return clusters; }
+// private:
+//  E16DST_DST0Detector<E16DST_DST1Hit>     hits;
+//  E16DST_DST0Detector<E16DST_DST1Cluster> clusters;
+//}
+//
+//class E16DST_DST1Detector {
+// public:
+//  E16DST_DST1Detector() {}
+//  ~E16DST_DST1Detector() {}
+//  virtual int GetEventSize() const;
+//  E16DST_DST1Module& Module(int _modules);
+// private:
+//  std::array<E16DST_DST1Module, 8> modules;
+//};
+
 class E16DST_DST1Hit {
  public:
   E16DST_DST1Hit() { SetInvalid(); }
@@ -74,19 +96,19 @@ class E16DST_DST1Cluster {
   ~E16DST_DST1Cluster() {}
   virtual void              SetInvalid() { SetBaseInvalid(); }
   void                      SetBaseInvalid() {
-    module_id       = E16DST_DST1Constant::kInvalidValue;
+//    module_id       = E16DST_DST1Constant::kInvalidValue;
     max_peak_ch     = E16DST_DST1Constant::kInvalidValue;
     max_peak_height = E16DST_DST1Constant::kInvalidValue;
     timing          = E16DST_DST1Constant::kInvalidValue;
     peak_sum        = E16DST_DST1Constant::kInvalidValue;
   }
-  void                      SetModuleId(int _module_id) { module_id = _module_id; }
+//  void                      SetModuleId(int _module_id) { module_id = _module_id; }
   void                      SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
   void                      SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
   void                      SetTiming(float _timing) { timing = _timing; }
   void                      SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
-  void                      SetHitOrders(E16DST_DST0Detector<int>& _hit_orders);
-  int                       ModuleId() { return module_id; }
+  void                      SetHitOrders(std::vector<int>& _hit_orders);
+//  int                       ModuleId() { return module_id; }
   int                       MaxPeakCh() { return max_peak_ch; }
   float                     MaxPeakHeight() { return max_peak_height; }
   float                     Timing() { return timing; }
@@ -97,10 +119,11 @@ class E16DST_DST1Cluster {
   virtual TVector3          LocalPos() = 0;
   virtual TVector3          GlobalPos() = 0;
   virtual void              Print() {
-    std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
+//    std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
+    std::cout << "Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
   }
  protected:
-  int                      module_id;
+//  int                      module_id;
   int                      max_peak_ch;
   float                    max_peak_height;
   float                    timing;
@@ -164,6 +187,28 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   float tan_incident_angle;    // radian
 };
 
+class E16DST_DST1SSDModule {
+ public:
+  E16DST_DST1SSDModule() {}
+  ~E16DST_DST1SSDModule() {}
+  int GetEventSize() const { return hits.GetEventSize() + clusters.GetEventSize(); }
+  E16DST_DST0Detector<E16DST_DST1SSDHit>& Hits() { return hits; }
+  E16DST_DST0Detector<E16DST_DST1SSDCluster>& Clusters() { return clusters; }
+ private:
+  E16DST_DST0Detector<E16DST_DST1SSDHit>     hits;
+  E16DST_DST0Detector<E16DST_DST1SSDCluster> clusters;
+};
+
+class E16DST_DST1SSD {
+ public:
+  E16DST_DST1SSD() {}
+  ~E16DST_DST1SSD() {}
+  int GetEventSize() const;
+  E16DST_DST1SSDModule& Module(int _modules);
+ private:
+  std::array<E16DST_DST1SSDModule, 8> modules;
+};
+
 class E16DST_DST1GTRHit : public E16DST_DST1Hit {
  public:
   E16DST_DST1GTRHit() { SetInvalid(); }
@@ -222,6 +267,13 @@ class E16DST_DST1GTRModule {
  public:
   E16DST_DST1GTRModule() {}
   ~E16DST_DST1GTRModule() {}
+#if __cplusplus < 201703L
+  int GetEventSizeImpl() const { return 0; }
+  template <class Head, class... Tail> int GetEventSizeImpl(const Head& head, const Tail&... tail) const { return head.GetEventSize() + GetEventSizeImpl(tail...); }
+#else
+  template <class... Args> int GetEventSizeImpl(const Args&... args) const { return (... + args.GetEventSize()); }
+#endif
+  int GetEventSize() const { return GetEventSizeImpl(hits_100_x, hits_100_y, hits_100_yb, hits_200_x, hits_200_y, hits_300_x, hits_300_y, clusters_100_x, clusters_100_y, clusters_100_yb, clusters_200_x, clusters_200_y, clusters_300_x, clusters_300_y); }
   E16DST_DST0Detector<E16DST_DST1GTRHit>& Hits(int _layer, int _axis);
   E16DST_DST0Detector<E16DST_DST1GTRCluster>& Clusters(int _layer, int _axis);
  private:
@@ -245,9 +297,10 @@ class E16DST_DST1GTR {
  public:
   E16DST_DST1GTR() {}
   ~E16DST_DST1GTR() {}
-  E16DST_DST1GTRModule& Module(int _module);
+  int GetEventSize() const;
+  E16DST_DST1GTRModule& Module(int _modules);
  private:
-  std::array<E16DST_DST1GTRModule, 8> module;
+  std::array<E16DST_DST1GTRModule, 8> modules;
 };
 
 class E16DST_DST1HBDHit : public E16DST_DST1Hit {
@@ -278,6 +331,28 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
   TVector3 LocalPos() override;
   TVector3 GlobalPos() override;
   void Print() override {}
+};
+
+class E16DST_DST1HBDModule {
+ public:
+  E16DST_DST1HBDModule() {}
+  ~E16DST_DST1HBDModule() {}
+  int GetEventSize() const { return hits.GetEventSize() + clusters.GetEventSize(); }
+  E16DST_DST0Detector<E16DST_DST1HBDHit>& Hits() { return hits; }
+  E16DST_DST0Detector<E16DST_DST1HBDCluster>& Clusters() { return clusters; }
+ private:
+  E16DST_DST0Detector<E16DST_DST1HBDHit>     hits;
+  E16DST_DST0Detector<E16DST_DST1HBDCluster> clusters;
+};
+
+class E16DST_DST1HBD {
+ public:
+  E16DST_DST1HBD() {}
+  ~E16DST_DST1HBD() {}
+  int GetEventSize() const;
+  E16DST_DST1HBDModule& Module(int _modules);
+ private:
+  std::array<E16DST_DST1HBDModule, 8> modules;
 };
 
 class E16DST_DST1LGHit : public E16DST_DST1Hit {
@@ -324,6 +399,28 @@ class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
   void Print() override {}
 };
 
+class E16DST_DST1LGModule {
+ public:
+  E16DST_DST1LGModule() {}
+  ~E16DST_DST1LGModule() {}
+  int GetEventSize() const { return hits.GetEventSize() + clusters.GetEventSize(); }
+  E16DST_DST0Detector<E16DST_DST1LGHit>& Hits() { return hits; }
+  E16DST_DST0Detector<E16DST_DST1LGCluster>& Clusters() { return clusters; }
+ private:
+  E16DST_DST0Detector<E16DST_DST1LGHit>     hits;
+  E16DST_DST0Detector<E16DST_DST1LGCluster> clusters;
+};
+
+class E16DST_DST1LG {
+ public:
+  E16DST_DST1LG() {}
+  ~E16DST_DST1LG() {}
+  int GetEventSize() const;
+  E16DST_DST1LGModule& Module(int _modules);
+ private:
+  std::array<E16DST_DST1LGModule, 8> modules;
+};
+
 class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
  public:
   E16DST_DST1TriggerHit() { SetInvalid(); }
@@ -367,7 +464,7 @@ class E16DST_DST1Trigger {
   ~E16DST_DST1Trigger() {}
   void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
   int ValidFlag() { return valid_flag; }
-  int GetEventSize() const {}
+  int GetEventSize() const;
 //  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
   E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
   E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
@@ -397,7 +494,8 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
  public:
   E16DST_DST1PhysicsEvent() {}
   ~E16DST_DST1PhysicsEvent() {}
-  int GetEventSize() const override { return E16DST_DST0Event::GetEventSize() + GetEventSizeImpl(ssd_hits, ssd_clusters, gtr_100_x_hits, gtr_100_x_clusters, gtr_100_y_hits, gtr_100_y_clusters, gtr_100_yb_hits, gtr_100_yb_clusters, gtr_200_x_hits, gtr_200_x_clusters, gtr_200_y_hits, gtr_200_y_clusters, gtr_300_x_hits, gtr_300_x_clusters, gtr_300_y_hits, gtr_300_y_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters) + trigger.GetEventSize(); }
+//  int GetEventSize() const override { return E16DST_DST0Event::GetEventSize() + GetEventSizeImpl(ssd_hits, ssd_clusters, gtr_100_x_hits, gtr_100_x_clusters, gtr_100_y_hits, gtr_100_y_clusters, gtr_100_yb_hits, gtr_100_yb_clusters, gtr_200_x_hits, gtr_200_x_clusters, gtr_200_y_hits, gtr_200_y_clusters, gtr_300_x_hits, gtr_300_x_clusters, gtr_300_y_hits, gtr_300_y_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters) + trigger.GetEventSize(); }
+  int GetEventSize() const override { return E16DST_DST0Event::GetEventSize() + GetEventSizeImpl(ssd_hits, ssd_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters) + gtr.GetEventSize() + trigger.GetEventSize(); }
   int Write(E16DST_File* fp);
   int Read(E16DST_File* fp);
   void Clear();
@@ -405,20 +503,21 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   uint16_t EventType() { return E16DST_DST0EventType::Physics; }
   E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()          { return ssd_hits; }
   E16DST_DST0Detector<E16DST_DST1SSDCluster>& SSDClusters()      { return ssd_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR100XHits()      { return gtr_100_x_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR100XClusters()  { return gtr_100_x_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR100YHits()      { return gtr_100_y_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR100YClusters()  { return gtr_100_y_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR100YbHits()     { return gtr_100_yb_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR100YbClusters() { return gtr_100_yb_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR200XHits()      { return gtr_200_x_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR200XClusters()  { return gtr_200_x_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR200YHits()      { return gtr_200_y_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR200YClusters()  { return gtr_200_y_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR300XHits()      { return gtr_300_x_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR300XClusters()  { return gtr_300_x_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR300YHits()      { return gtr_300_y_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR300YClusters()  { return gtr_300_y_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR100XHits()      { return gtr_100_x_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR100XClusters()  { return gtr_100_x_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR100YHits()      { return gtr_100_y_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR100YClusters()  { return gtr_100_y_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR100YbHits()     { return gtr_100_yb_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR100YbClusters() { return gtr_100_yb_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR200XHits()      { return gtr_200_x_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR200XClusters()  { return gtr_200_x_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR200YHits()      { return gtr_200_y_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR200YClusters()  { return gtr_200_y_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR300XHits()      { return gtr_300_x_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR300XClusters()  { return gtr_300_x_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTR300YHits()      { return gtr_300_y_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTR300YClusters()  { return gtr_300_y_clusters; }
+  E16DST_DST1GTR&                             GTR()              { return gtr; }
   E16DST_DST0Detector<E16DST_DST1HBDHit>&     HBDHits()          { return hbd_hits; }
   E16DST_DST0Detector<E16DST_DST1HBDCluster>& HBDClusters()      { return hbd_clusters; }
   E16DST_DST0Detector<E16DST_DST1LGHit>&      LGHits()           { return lg_hits; }
@@ -427,20 +526,21 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
  private:
   E16DST_DST0Detector<E16DST_DST1SSDHit>     ssd_hits;
   E16DST_DST0Detector<E16DST_DST1SSDCluster> ssd_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_100_x_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_100_x_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_100_y_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_100_y_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_100_yb_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_100_yb_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_200_x_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_200_x_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_200_y_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_200_y_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_300_x_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_300_x_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_300_y_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_300_y_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_100_x_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_100_x_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_100_y_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_100_y_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_100_yb_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_100_yb_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_200_x_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_200_x_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_200_y_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_200_y_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_300_x_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_300_x_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_300_y_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_300_y_clusters;
+  E16DST_DST1GTR                             gtr;
   E16DST_DST0Detector<E16DST_DST1HBDHit>     hbd_hits;
   E16DST_DST0Detector<E16DST_DST1HBDCluster> hbd_clusters;
   E16DST_DST0Detector<E16DST_DST1LGHit>      lg_hits;
@@ -485,20 +585,11 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
 //   int ReadAnEvent(E16DST_File *fp);
 //};
 
-int E16DST_DST1SSDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>& hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>& clusters1); // return size
-//int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_100_x_1,  E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_100_x_1,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_100_y_1,  E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_100_y_1,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_100_yb_1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_100_yb_1,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_200_x_1,  E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_200_x_1,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_200_y_1,  E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_200_y_1,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_300_x_1,  E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_300_x_1,
-//                                       E16DST_DST0Detector<E16DST_DST1GTRHit>* hits_300_y_1,  E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters_300_y_1);
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1GTR& gtr);
-int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>&         hits0,                      E16DST_DST0Detector<E16DST_DST1HBDHit>*     hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>*     clusters1);
-int E16DST_DST1LGHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0LGHit>&           hits0,                      E16DST_DST0Detector<E16DST_DST1LGHit>*      hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>*      clusters1);
-int E16DST_DST1TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint64_t time_stamp, E16DST_DST0Detector<E16DST_DST1TriggerHit>* hits1, E16DST_DST0Detector<E16DST_DST1TriggerCluster>* clusters1);
-int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
+int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1SSD* ssd1); // return size
+int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1GTR* gtr1);
+int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1HBD* hbd1);
+int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>&   hits0, E16DST_DST1LG*  lg1);
+int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, uint64_t timestamp, E16DST_DST1Trigger* trigger);
 
 template <typename T>
 int E16DST_DST1IsTriggerHit(T hit);
