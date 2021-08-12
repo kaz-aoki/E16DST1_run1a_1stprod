@@ -86,14 +86,10 @@ int main(int argc, char* argv[]) {
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
-//      E16DST_DST1SSDHitAndClusterFactory(event0->SSD(),            event1->SSDHits(),   event1->SSDClusters());
-//      E16DST_DST1GTRHitAndClusterFactory(event0->GTR(),
-//                                  event1->GTR100XHits(),  event1->GTR100XClusters(), event1->GTR100YHits(),  event1->GTR100YClusters(), event1->GTR100YbHits(), event1->GTR100YbClusters(),
-//                                  event1->GTR200XHits(),  event1->GTR200XClusters(), event1->GTR200YHits(),  event1->GTR200YClusters(),
-//                                  event1->GTR300XHits(),  event1->GTR300XClusters(), event1->GTR300YHits(),  event1->GTR300YClusters())
-//      E16DST_DST1GTRFactory(event0->GTR(), &event1->GTR());
-//      E16DST_DST1SSDHitAndClusterFactory(event0->HBD(),            event1->HBDHits(),   event1->HBDClusters());
-//      E16DST_DST1SSDHitAndClusterFactory(event0->LG(),             event1->LGHits(),    event1->LGClusters());
+      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
+      E16DST_DST1GTRFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
+      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerGTR(),  timestamp, &trigger1.GTRHits(), &trigger1.GTRClusters());
 //      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerHBD(),  timestamp, &trigger1.HBDHits(), &trigger1.HBDClusters());
 //      E16DST_DST1TriggerHitAndClusterFactory(event0->TriggerLG(),   timestamp, &trigger1.LGHits(),  &trigger1.LGClusters());

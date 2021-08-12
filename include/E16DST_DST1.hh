@@ -337,10 +337,17 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
   ~E16DST_DST1HBDCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
+    first_timing    = E16DST_DST1Constant::kInvalidValue;
+    time_difference = E16DST_DST1Constant::kInvalidValue;
   }
+  float FirstTiming() { return first_timing; }
+  float TimeDifference() { return time_difference; }
   TVector3 LocalPos() override;
   TVector3 GlobalPos() override;
   void Print() override {}
+ private:
+  float first_timing;
+  float time_difference;
 };
 
 //class E16DST_DST1HBDModule {
@@ -521,7 +528,15 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
 //  E16DST_DST0Detector<E16DST_DST1GTRModule>& GTR()     { return gtr; }
 //  E16DST_DST0Detector<E16DST_DST1HBDModule>& HBD()     { return hbd; }
 //  E16DST_DST0Detector<E16DST_DST1LGModule>&  LG()      { return lg; }
-  E16DST_DST1Trigger&                        Trigger() { return trigger; }
+  E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()     { return ssd_hits; }
+  E16DST_DST0Detector<E16DST_DST1SSDCluster>& SSDClusters() { return ssd_clusters; }
+  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTRHits()     { return gtr_hits; }
+  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTRClusters() { return gtr_clusters; }
+  E16DST_DST0Detector<E16DST_DST1HBDHit>&     HBDHits()     { return hbd_hits; }
+  E16DST_DST0Detector<E16DST_DST1HBDCluster>& HBDClusters() { return hbd_clusters; }
+  E16DST_DST0Detector<E16DST_DST1LGHit>&      LGHits()      { return lg_hits; }
+  E16DST_DST0Detector<E16DST_DST1LGCluster>&  LGClusters()  { return lg_clusters; }
+  E16DST_DST1Trigger&                         Trigger()     { return trigger; }
  private:
 //  E16DST_DST1SSD     ssd;
 //  E16DST_DST1GTR     gtr;
@@ -531,7 +546,15 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
 //  E16DST_DST0Detector<E16DST_DST1GTRModule> gtr;
 //  E16DST_DST0Detector<E16DST_DST1HBDModule> hbd;
 //  E16DST_DST0Detector<E16DST_DST1LGModule>  lg;
-  E16DST_DST1Trigger                        trigger;
+  E16DST_DST0Detector<E16DST_DST1SSDHit>     ssd_hits;
+  E16DST_DST0Detector<E16DST_DST1SSDCluster> ssd_clusters;
+  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_hits;
+  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_clusters;
+  E16DST_DST0Detector<E16DST_DST1HBDHit>     hbd_hits;
+  E16DST_DST0Detector<E16DST_DST1HBDCluster> hbd_clusters;
+  E16DST_DST0Detector<E16DST_DST1LGHit>      lg_hits;
+  E16DST_DST0Detector<E16DST_DST1LGCluster>  lg_clusters;
+  E16DST_DST1Trigger                         trigger;
 };
 
 //class E16DST_DST1 {
