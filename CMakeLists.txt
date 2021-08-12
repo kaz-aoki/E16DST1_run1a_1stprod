@@ -62,6 +62,10 @@ add_library(E16DST_DST1
 	src/E16DST_DST1.cc
 	src/E16DST_DST1TriggerFactory.cc
   src/trigger/E16DST_TriggerCoincidenceMap.cc
+  src/E16ANA_GTRAnalyzer2.cc
+  src/E16ANA_GTRStripAnalyzer.cc
+  src/E16DST_DST1GTRAnalyzerMaker.cxx
+  src/E16DST_DST1GTRHitAndClusterFactory.cc
 )
 
 target_link_libraries(E16DST_DST1
