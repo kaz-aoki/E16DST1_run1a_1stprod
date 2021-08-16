@@ -20,3 +20,9 @@
 　evb: cp -r /e16/u/ichikawa/work/dst1/E16DST1/E16ANA_Geometry/include/geant4 ${E16DST1}/E16ANA_Geometry/include/
 
 　などとしてください。
+
+・dst0のsampleは例えば
+
+　evb02:/e16/w/data102z/trg/junkdata/dst0merge/run030778_sink0_000_srs_trg_lg_ssd.dst0
+ 
+ にあります。
