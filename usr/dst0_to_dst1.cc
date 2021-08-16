@@ -98,6 +98,8 @@ int main(int argc, char* argv[]) {
       E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
       event1->Trigger().SetValidFlag(1);
 
+
+// Check
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
       for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
@@ -112,6 +114,8 @@ int main(int argc, char* argv[]) {
         cluster.Print();
       }
       event1->Trigger().Print();
+//
+
 
 //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {

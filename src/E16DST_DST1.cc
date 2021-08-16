@@ -1,9 +1,5 @@
 #include "E16DST_DST1.hh"
 
-#include <TVector3.h>
-
-#include "E16DST_DST0.hh"
-
 template <class T, class U>
 int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
 }
@@ -279,7 +275,18 @@ TVector3 E16DST_DST1LGCluster::GlobalPos() {
 //}
 
 TVector3 E16DST_DST1TriggerHit::LocalPos() {
-  TVector3 pos = {0., 0., 0.};
+  static auto geometry = new E16ANA_GeometryV2("/e16/u/ichikawa/work/dst1/E16DST1/E16ANA_Geometry/database/v2/geometry_Run0b_210226_design.dat");
+  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  if (detector == E16DST_DST1Constant::kGTR300) {
+    pos = {0., 0., 0.};
+  } else if (detector == E16DST_DST1Constant::kHBD) {
+    pos = {0., 0., 0.};
+  } else if (detector == E16DST_DST1Constant::kLG) {
+    pos = geometry->LG(3 * (module_id - 101) + 1, channel_id)->GetDetectorCenter();
+//    TVector3 local_pos;
+//    local_pos.SetXYZ(0., 0., 0.);
+//    pos = geometry->LG(3 * (module_id - 101) + 1, channel_id)->GetGPos(local_pos);
+  }
   return pos;
 }
 
@@ -316,7 +323,8 @@ void E16DST_DST1Trigger::Print() {
     if (track_set.NumLGHits() == 1) {
       auto order = track_set.LGHitOrder(0);
       auto hit = lg_hits.Hit(order);
-      std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+      std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
+      << ", local position? = (" << hit.LocalPos().X() << ", " << hit.LocalPos().Y() << ", " << hit.LocalPos().Z() << ")" << std::endl;
     } else {
       std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
     }

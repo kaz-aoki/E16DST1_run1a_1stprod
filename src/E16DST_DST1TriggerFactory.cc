@@ -15,18 +15,19 @@ uint16_t E16ANA_TriggerTime(uint64_t _timestamp, uint32_t _tdc) {
   }
 }
 
-bool E16ANA_TriggerSingleHitFactory(E16DST_DST0TriggerHit& hit0, uint64_t timestamp, E16DST_DST1TriggerHit* hit1) {
+bool E16ANA_TriggerSingleHitFactory(E16DST_DST0TriggerHit& hit0, uint64_t timestamp, int detector, E16DST_DST1TriggerHit* hit1) {
   hit1->SetInvalid();
   hit1->SetIds(hit0.ModuleID(), hit0.ChannelID());
+  hit1->SetDetector(detector);
   hit1->SetTiming(float{E16ANA_TriggerTime(timestamp, hit0.Time())});
   return true;
 }
 
-int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint64_t timestamp, E16DST_DST0Detector<E16DST_DST1TriggerHit>* hits1, E16DST_DST0Detector<E16DST_DST1TriggerCluster>* clusters1) {
+int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint64_t timestamp, int detector, E16DST_DST0Detector<E16DST_DST1TriggerHit>* hits1, E16DST_DST0Detector<E16DST_DST1TriggerCluster>* clusters1) {
   auto max_hit = hits0.NumberOfHits();
   hits1->Resize(max_hit);
   for (int n_hit = 0; n_hit < max_hit; ++n_hit) {
-    E16ANA_TriggerSingleHitFactory(hits0.Hit(n_hit), timestamp, &hits1->Hit(n_hit));
+    E16ANA_TriggerSingleHitFactory(hits0.Hit(n_hit), timestamp, detector, &hits1->Hit(n_hit));
   }
   return hits1->GetEventSize() + clusters1->GetEventSize();
 }
@@ -56,13 +57,13 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   static auto coincidence_maps = new E16DST_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   
   trigger->Clear();
-  E16ANA_TriggerHitAndClusterFactory(gtr_hits, timestamp, &trigger->GTRHits(), &trigger->GTRClusters());
-  E16ANA_TriggerHitAndClusterFactory(hbd_hits, timestamp, &trigger->HBDHits(), &trigger->HBDClusters());
-  E16ANA_TriggerHitAndClusterFactory(lg_hits,  timestamp, &trigger->LGHits(),  &trigger->LGClusters());
+  E16ANA_TriggerHitAndClusterFactory(gtr_hits, timestamp, E16DST_DST1Constant::kGTR300, &trigger->GTRHits(), &trigger->GTRClusters());
+  E16ANA_TriggerHitAndClusterFactory(hbd_hits, timestamp, E16DST_DST1Constant::kHBD,    &trigger->HBDHits(), &trigger->HBDClusters());
+  E16ANA_TriggerHitAndClusterFactory(lg_hits,  timestamp, E16DST_DST1Constant::kLG,     &trigger->LGHits(),  &trigger->LGClusters());
   auto max_track =ut3.NumberOfTracks();
   trigger->Tracks().Resize(max_track);
   for (int n_track = 0; n_track < max_track; ++n_track) {
-    E16ANA_TriggerSingleHitFactory(ut3.Track(n_track), timestamp, &trigger->Tracks().Hit(n_track));
+    E16ANA_TriggerSingleHitFactory(ut3.Track(n_track), timestamp, E16DST_DST1Constant::kLG, &trigger->Tracks().Hit(n_track));
   }
   
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsGTR>, 2> gtr_maps;

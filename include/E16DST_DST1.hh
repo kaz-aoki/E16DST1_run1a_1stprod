@@ -6,6 +6,7 @@
 
 #include <TVector3.h>
 
+#include "E16ANA_GeometryV2.hh"
 #include "E16DST_Constant.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
@@ -333,11 +334,22 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
   ~E16DST_DST1TriggerHit() {}
   void SetInvalid() override {
     SetBaseInvalid();
+    detector = E16DST_DST1Constant::kInvalidValue;
   }
   void SetPeakHeight(float _peak_height) override {}
+  void SetDetector(int _detector) {
+    if (_detector < E16DST_DST1Constant::kGTR300 || _detector > E16DST_DST1Constant::kLG) {
+      std::cerr << "Invalid detector ID: " << _detector << std::endl;
+      std::exit(1);
+    }
+    detector = _detector;
+  }
   float PeakHeight() override { return E16DST_DST1Constant::kInvalidValue; }
+  int Detector() { return detector; }
   TVector3 LocalPos() override;
   TVector3 GlobalPos() override;
+ private:
+  int detector;
 };
 
 class E16DST_DST1TriggerCluster {
@@ -544,10 +556,6 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& h
 //int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1);
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
-//int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDModule>* ssd1); // change later, return size
-//int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRModule>* gtr1);
-//int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDModule>* hbd1);
-//int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>&   hits0, E16DST_DST1Detector<E16DST_DST1LGModule>*  lg1);
 int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, uint64_t timestamp, E16DST_DST1Trigger* trigger);
 
 template <typename T>
