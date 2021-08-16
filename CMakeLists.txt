@@ -25,6 +25,7 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 	include
 	include/trigger
+	include/LG
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
@@ -70,6 +71,9 @@ add_library(E16DST_DST1
   src/E16ANA_GTRStripAnalyzer.cc
   src/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
+  src/E16DST_DST1LGHitAndClusterFactory.cc
+  src/LG/E16ANA_LGBasic.cc
+  src/LG/E16ANA_LGGeometry.cc
 )
 
 target_link_libraries(E16DST_DST1

@@ -242,9 +242,17 @@ TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 //}
 
 TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
+  TVector3 gpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  TVector3 lpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  gpos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
+  lpos = geometry.LGVD(3 * (109 - module_id) + 1)->GetLPos(gpos);
+  return lpos;
 }
 
 TVector3 E16DST_DST1LGHit::GlobalPos(E16ANA_GeometryV2& geometry) {
+  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  pos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
+  return pos;
 }
 
 TVector3 E16DST_DST1LGCluster::LocalPos() {
