@@ -92,50 +92,23 @@ int main(int argc, char* argv[]) {
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-//      E16DST_DST1GTRFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
       E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
       event1->Trigger().SetValidFlag(1);
 
-
-
+      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+        auto hit = event1->GTRHits().Hit(n_hit);
+        hit.Print();
+      }
+      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
+      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
+        auto cluster = event1->GTRClusters().Hit(n_cluster);
+        cluster.Print();
+      }
       event1->Trigger().Print();
-//      cout << "Event ID: " << n_event << endl;
-//      auto max_track = event1->Trigger().TrackSets().NumberOfHits();
-//      cout << "Number of tracks: " << max_track << endl;
-//      cout << endl;
-//      for (int n_track = 0; n_track < max_track; ++n_track) {
-//        cout << "Track ID: " << n_track << endl;
-//        auto track_set = event1->Trigger().TrackSets().Hit(n_track);
-//        auto n_gtr_hits = track_set.NumGTRHits();
-//        auto n_hbd_hits = track_set.NumHBDHits();
-//        auto n_lg_hits = track_set.NumLGHits();
-//        cout << "Number of tracked GTR: " << n_gtr_hits << endl;
-//        cout << "Number of tracked HBD: " << n_hbd_hits << endl;
-//        cout << "Number of tracked LG: " << n_lg_hits << endl;
-//        for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-//          auto order = track_set.GTRHitOrder(n_hit);
-//          auto hit = event1->Trigger().GTRHits().Hit(order);
-//          cout << "Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << endl;
-//        }
-//        for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
-//          auto order = track_set.HBDHitOrder(n_hit);
-//          auto hit = event1->Trigger().HBDHits().Hit(order);
-//          cout << "Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << endl;
-//        }
-//        if (track_set.NumLGHits() == 1) {
-//          auto order = track_set.LGHitOrder(0);
-//          auto hit = event1->Trigger().LGHits().Hit(order);
-//          cout << "Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << endl;
-//        } else {
-//          cerr << "Invalid number of LG Hits: " << track_set.NumLGHits() << endl;
-//        }
-//        cout << endl;
-//      }
-//      cout << endl;
-
-
 
 //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
