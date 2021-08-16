@@ -12,3 +12,11 @@
 ・もう少し詳しいことはindicoの"analysis_meeting/2021.08.04/trigger"のスライドを見てください。
 
 ・まだ途中なので.dst1は生成できません。適宜更新していきます。
+
+・E16ANA_Geometryを使いたい場合は
+
+ccj: cp -r /ccj/w/data06a/E16/user/ozawa/sw/geant4.10.07_install/include ${E16DST1}/E16ANA_Geometry/include/geant4
+
+evb: cp -r /e16/u/ichikawa/work/dst1/E16DST1/E16ANA_Geometry/include/geant4 ${E16DST1}/E16ANA_Geometry/include/
+
+などとしてください。
