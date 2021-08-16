@@ -27,6 +27,9 @@ include_directories(
 	include/trigger
   E16DST
   E16ANA_CalibDB/include
+  E16ANA_Geometry/include
+  E16ANA_Geometry/include/geant4/Geant4
+  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units
 )
 
 link_directories(
@@ -70,6 +73,7 @@ add_library(E16DST_DST1
 )
 
 target_link_libraries(E16DST_DST1
+  E16ANA_GeometryV2
 	E16DST
 )
 
@@ -77,6 +81,7 @@ target_link_libraries(E16DST_DST1
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
+	E16ANA_GeometryV2
 	E16DST
 	E16DST_DST1
   libz.so
@@ -85,3 +90,4 @@ target_link_libraries(dst0_to_dst1
 #_______________________________________________________________________________
 add_subdirectory(E16DST)
 add_subdirectory(E16ANA_CalibDB)
+add_subdirectory(E16ANA_Geometry)

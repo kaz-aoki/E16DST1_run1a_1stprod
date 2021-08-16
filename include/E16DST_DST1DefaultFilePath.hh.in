@@ -16,8 +16,11 @@ static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_I
                                                                        "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_3.coe",
                                                                        "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_4.coe",
                                                                        "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_5.coe"};
+
 static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
+
+static constexpr std::string_view                GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
 
 #endif // E16_DST_DEFAULT_COINCIDENCE_MAP_PATH
