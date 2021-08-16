@@ -20,12 +20,10 @@ int main(int argc, char* argv[]) {
   auto out_file_name = argv[2];
   auto run_num       = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
-  bpo::variables_map vm;
+//  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
 //  int run_num;
-  array<string, 12> coincidence_map_files;
-  array<string, 3>  trigger_channel_map_files;
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -55,6 +53,9 @@ int main(int argc, char* argv[]) {
 //      throw invalid_argument("Invalid output file name: "s + out_file_name);
 //    }
 //  };
+
+  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -100,6 +101,7 @@ int main(int argc, char* argv[]) {
 
 
 // Check
+      cout << "Number of event: " << n_event << endl << endl;
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
       for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
@@ -113,7 +115,7 @@ int main(int argc, char* argv[]) {
         auto cluster = event1->GTRClusters().Hit(n_cluster);
         cluster.Print();
       }
-      event1->Trigger().Print();
+      event1->Trigger().Print(*geometry);
 //
 
 

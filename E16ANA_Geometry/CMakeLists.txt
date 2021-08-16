@@ -5,6 +5,12 @@ add_library(E16ANA_GeometryV2
 )
 
 #________________________________________________
+install(DIRECTORY
+  geometry_database
+  DESTINATION ${CMAKE_INSTALL_DATADIR}
+)
+
+#________________________________________________
 add_executable(geometryTest
   examples/geometryTest.cc
 )

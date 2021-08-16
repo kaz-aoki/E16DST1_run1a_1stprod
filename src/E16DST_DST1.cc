@@ -61,10 +61,10 @@ void E16DST_DST1Cluster::SetHitOrders(std::vector<int>& _hit_orders) {
 double E16DST_DST1SSDHit::LocalX() {
 }
 
-TVector3 E16DST_DST1SSDHit::LocalPos() {
+TVector3 E16DST_DST1SSDHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
-TVector3 E16DST_DST1SSDHit::GlobalPos() {
+TVector3 E16DST_DST1SSDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 double E16DST_DST1SSDCluster::LocalX() {
@@ -73,7 +73,7 @@ double E16DST_DST1SSDCluster::LocalX() {
 TVector3 E16DST_DST1SSDCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1SSDCluster::GlobalPos() {
+TVector3 E16DST_DST1SSDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 //E16DST_DST1SSDModule& E16DST_DST1SSD::Module(int _module) {
@@ -100,10 +100,10 @@ TVector3 E16DST_DST1SSDCluster::GlobalPos() {
 double E16DST_DST1GTRHit::LocalX() {
 }
 
-TVector3 E16DST_DST1GTRHit::LocalPos() {
+TVector3 E16DST_DST1GTRHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
-TVector3 E16DST_DST1GTRHit::GlobalPos() {
+TVector3 E16DST_DST1GTRHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 double E16DST_DST1GTRCluster::LocalX() {
@@ -112,7 +112,7 @@ double E16DST_DST1GTRCluster::LocalX() {
 TVector3 E16DST_DST1GTRCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1GTRCluster::GlobalPos() {
+TVector3 E16DST_DST1GTRCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 //E16DST_DST0Detector<E16DST_DST1GTRHit>& E16DST_DST1GTRModule::Hits(int _layer, int _axis) {
@@ -208,16 +208,16 @@ TVector3 E16DST_DST1GTRCluster::GlobalPos() {
 //  return size;
 //}
 
-TVector3 E16DST_DST1HBDHit::LocalPos() {
+TVector3 E16DST_DST1HBDHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
-TVector3 E16DST_DST1HBDHit::GlobalPos() {
+TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1HBDCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1HBDCluster::GlobalPos() {
+TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 //E16DST_DST1HBDModule& E16DST_DST1HBD::Module(int _module) {
@@ -241,16 +241,16 @@ TVector3 E16DST_DST1HBDCluster::GlobalPos() {
 //  return size;
 //}
 
-TVector3 E16DST_DST1LGHit::LocalPos() {
+TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
-TVector3 E16DST_DST1LGHit::GlobalPos() {
+TVector3 E16DST_DST1LGHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1LGCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1LGCluster::GlobalPos() {
+TVector3 E16DST_DST1LGCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 //E16DST_DST1LGModule& E16DST_DST1LG::Module(int _module) {
@@ -274,23 +274,19 @@ TVector3 E16DST_DST1LGCluster::GlobalPos() {
 //  return size;
 //}
 
-TVector3 E16DST_DST1TriggerHit::LocalPos() {
-  static auto geometry = new E16ANA_GeometryV2("/e16/u/ichikawa/work/dst1/E16DST1/E16ANA_Geometry/database/v2/geometry_Run0b_210226_design.dat");
+TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   if (detector == E16DST_DST1Constant::kGTR300) {
     pos = {0., 0., 0.};
   } else if (detector == E16DST_DST1Constant::kHBD) {
     pos = {0., 0., 0.};
   } else if (detector == E16DST_DST1Constant::kLG) {
-    pos = geometry->LG(3 * (module_id - 101) + 1, channel_id)->GetDetectorCenter();
-//    TVector3 local_pos;
-//    local_pos.SetXYZ(0., 0., 0.);
-//    pos = geometry->LG(3 * (module_id - 101) + 1, channel_id)->GetGPos(local_pos);
+    pos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
   }
   return pos;
 }
 
-TVector3 E16DST_DST1TriggerHit::GlobalPos() {
+TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {0., 0., 0.};
   return pos;
 }
@@ -323,8 +319,42 @@ void E16DST_DST1Trigger::Print() {
     if (track_set.NumLGHits() == 1) {
       auto order = track_set.LGHitOrder(0);
       auto hit = lg_hits.Hit(order);
+      std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+    } else {
+      std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+}
+
+void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
+  auto max_track = track_sets.NumberOfHits();
+  std::cout << "Number of tracks: " << max_track << std::endl << std::endl;
+  for (int n_track = 0; n_track < max_track; ++n_track) {
+    std::cout << "Track ID: " << n_track << std::endl;
+    auto track_set = track_sets.Hit(n_track);
+    auto n_gtr_hits = track_set.NumGTRHits();
+    auto n_hbd_hits = track_set.NumHBDHits();
+    auto n_lg_hits = track_set.NumLGHits();
+    std::cout << "  Number of tracked GTR: " << n_gtr_hits << std::endl;
+    for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+      auto order = track_set.GTRHitOrder(n_hit);
+      auto hit = gtr_hits.Hit(order);
+      std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+    }
+    std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
+    for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
+      auto order = track_set.HBDHitOrder(n_hit);
+      auto hit = hbd_hits.Hit(order);
+      std::cout << "    Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+    }
+    std::cout << "  Number of tracked LG: " << n_lg_hits << std::endl;
+    if (track_set.NumLGHits() == 1) {
+      auto order = track_set.LGHitOrder(0);
+      auto hit = lg_hits.Hit(order);
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
-      << ", local position? = (" << hit.LocalPos().X() << ", " << hit.LocalPos().Y() << ", " << hit.LocalPos().Z() << ")" << std::endl;
+      << ", global position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")" << std::endl;
     } else {
       std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
     }
