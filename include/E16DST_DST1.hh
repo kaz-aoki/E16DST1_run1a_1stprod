@@ -10,50 +10,51 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
 
-//template <class T, class U>
-//class E16DST_DST1Detector {
-// public:
-//  E16DST_DST1Detector() {}
-//  ~E16DST_DST1Detector() {}
-//  void     Clear() {
-//    valid_flag = 0;
-//    hits.clear();
-//    clusters.clear();
-//    hit_ptrs.clear();
-//    cluster_ptrs.clear();
-//  }
-//  void             SetValidFlag(uint32_t _valid_flag) { valid_flag = _valid_flag; }
-//  uint32_t         ValidFlag()                        { return valid_flag; }
-//  void             HitResize(int n)                   { hits.resize(n); }
-//  void             HitReserve(int n)                  { hits.reserve(n); }
-//  void             HitPushBack()                      { hits.push_back(T()); }
-//  void             HitPushBack(const T& hit)          { hits.push_back(hit); }
-//  T&               HitBack()                          { return hits.back(); }
-//  T&               Hit(int i)                         { return hits[i]; }
-//  std::vector<T>&  Hits()                             { return hits; }
-//  std::vector<T*>& HitPtrs(int module_id, int layer_id, int type);
-//  int              HitSize()                          { return hits.size(); }
-//  void             ClusterResize(int n)               { clusters.resize(n); }
-//  void             ClusterReserve(int n)              { clusters.reserve(n); }
-//  void             ClusterPushBack()                  { clusters.push_back(T()); }
-//  void             ClusterPushBack(const U& cluster)  { clusters.push_back(cluster); }
-//  U&               ClusterBack()                      { return clusters.back(); }
-//  U&               Cluster(int i)                     { return clusters[i]; }
-//  std::vector<U>&  Clusters()                         { return clusters; }
-//  std::vector<U*>& ClusterPtrs(int module_id, int layer_id, int type);
-//  int              ClusterSize()                      { return clusters.size(); }
-//  T&               ClusterMember(int cluster_id, int hit_id);
-//  int              Write(E16DST_File* fp);
-//  int              Read(E16DST_File* fp);
-//  void             Append(E16DST_DST1Detector<T, U>& rhs);
-//  int              GetEventSize();
-// private:
-//  uint32_t                     valid_flag;
-//  std::vector<T>               hits;
-//  std::vector<U>               clusters;
-//  std::vector<std::vector<T*>> hit_ptrs;
-//  std::vector<std::vector<U*>> cluster_ptrs;
-//};
+template <class T, class U>
+class E16DST_DST1Detector {
+ public:
+  E16DST_DST1Detector() {}
+  ~E16DST_DST1Detector() {}
+  void     Clear() {
+    valid_flag = 0;
+    hits.clear();
+    clusters.clear();
+    hit_ptrs.clear();
+    cluster_ptrs.clear();
+  }
+  void             SetValidFlag(uint32_t _valid_flag) { valid_flag = _valid_flag; }
+  uint32_t         ValidFlag()                        { return valid_flag; }
+  void             HitResize(int n)                   { hits.resize(n); }
+  void             HitReserve(int n)                  { hits.reserve(n); }
+  void             HitPushBack()                      { hits.push_back(T()); }
+  void             HitPushBack(const T& hit)          { hits.push_back(hit); }
+  T&               HitBack()                          { return hits.back(); }
+  T&               Hit(int i)                         { return hits[i]; }
+  std::vector<T>&  Hits()                             { return hits; }
+  std::vector<T*>& HitPtrs(int module_id, int layer_id, int type);
+  int              HitSize()                          { return hits.size(); }
+  void             ClusterResize(int n)               { clusters.resize(n); }
+  void             ClusterReserve(int n)              { clusters.reserve(n); }
+  void             ClusterPushBack()                  { clusters.push_back(T()); }
+  void             ClusterPushBack(const U& cluster)  { clusters.push_back(cluster); }
+  U&               ClusterBack()                      { return clusters.back(); }
+  U&               Cluster(int i)                     { return clusters[i]; }
+  std::vector<U>&  Clusters()                         { return clusters; }
+  std::vector<U*>& ClusterPtrs(int module_id, int layer_id, int type);
+  int              ClusterSize()                      { return clusters.size(); }
+  T&               ClusterMember(int cluster_id, int hit_id);
+  int              Write(E16DST_File* fp);
+  int              Read(E16DST_File* fp);
+  void             Append(E16DST_DST1Detector<T, U>& rhs);
+  int              GetEventSize();
+  void             Print();
+ private:
+  uint32_t                     valid_flag;
+  std::vector<T>               hits;
+  std::vector<U>               clusters;
+  std::vector<std::vector<T*>> hit_ptrs;
+  std::vector<std::vector<U*>> cluster_ptrs;
+};
 
 class E16DST_DST1Hit {
  public:

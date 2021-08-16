@@ -4,41 +4,56 @@
 
 #include "E16DST_DST0.hh"
 
-//template <class T>
-//int E16DST_DST1Detector<T>::Write(E16DST_File* fp) {
-//}
-//
-//template <class T>
-//int E16DST_DST1Detector<T>::Read(E16DST_File* fp) {
-//}
-//
-//template <class T>
-//void E16DST_DST1Detector<T>::Append(E16DST_DST1Detector<T>& rhs) {
-//}
+template <class T, class U>
+int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
+}
 
-//template <class T, class U>
-//T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
-//  if (cluster_id < 0 || cluster_id >= clusters.size()) {
-//    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
-//    std::exit(1);
-//  }
-//  auto num_hits = clusters[cluster_id].NumHits();
-//  if (hit_id < 0 || hit_id >= num_hits) {
-//    std::cerr << "Invalid hit ID in E16DST_DST1Detector::ClusterMember: " << hit_id << std::endl;
-//    std::exit(1);
-//  }
-//  auto hit_orders = clusters.HitOrders();
-//  return hits[clusters[cluster_id].HitOrder(hit_id)];
-//}
+template <class T, class U>
+int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
+}
 
-//template <class T>
-//int E16DST_DST1Detector::GetEventSize() {
-//  int size = sizeof(uint32_t);
-//  for (const auto& hit: hits) {
-//    size += sizeof(T) * hit.size();
-//  }
-//  return size;
-//}
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::Append(E16DST_DST1Detector<T, U>& rhs) {
+}
+
+template <class T, class U>
+T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
+  if (cluster_id < 0 || cluster_id >= clusters.size()) {
+    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
+    std::exit(1);
+  }
+  auto num_hits = clusters[cluster_id].NumHits();
+  if (hit_id < 0 || hit_id >= num_hits) {
+    std::cerr << "Invalid hit ID in E16DST_DST1Detector::ClusterMember: " << hit_id << std::endl;
+    std::exit(1);
+  }
+  auto hit_orders = clusters.HitOrders();
+  return hits[clusters[cluster_id].HitOrder(hit_id)];
+}
+
+template <class T, class U>
+int E16DST_DST1Detector<T, U>::GetEventSize() {
+  int size = sizeof(uint32_t);
+  for (const auto& hit: hits) {
+    size += sizeof(T) * hit.size();
+  }
+  for (const auto& cluster: clusters) {
+    size += sizeof(U) * cluster.size();
+  }
+  return size;
+}
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::Print() {
+  std::cout << "Number of hits: " << hits.size() << std::endl;
+  for (int n_hit = 0; n_hit < hits.size(); ++n_hit) {
+    hits[n_hit].Print();
+  }
+  std::cout << "Number of clusters: " << clusters.size() << std::endl;
+  for (int n_cluster = 0; n_cluster < clusters.size(); ++n_cluster) {
+    clusters[n_cluster].Print();
+  }
+}
 
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int>& _hit_orders) {
   hit_orders.Reserve(_hit_orders.size());
