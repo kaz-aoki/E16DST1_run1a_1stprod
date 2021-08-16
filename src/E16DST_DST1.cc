@@ -15,9 +15,24 @@
 //template <class T>
 //void E16DST_DST1Detector<T>::Append(E16DST_DST1Detector<T>& rhs) {
 //}
-//
+
+//template <class T, class U>
+//T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
+//  if (cluster_id < 0 || cluster_id >= clusters.size()) {
+//    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
+//    std::exit(1);
+//  }
+//  auto num_hits = clusters[cluster_id].NumHits();
+//  if (hit_id < 0 || hit_id >= num_hits) {
+//    std::cerr << "Invalid hit ID in E16DST_DST1Detector::ClusterMember: " << hit_id << std::endl;
+//    std::exit(1);
+//  }
+//  auto hit_orders = clusters.HitOrders();
+//  return hits[clusters[cluster_id].HitOrder(hit_id)];
+//}
+
 //template <class T>
-//int GetEventSize() {
+//int E16DST_DST1Detector::GetEventSize() {
 //  int size = sizeof(uint32_t);
 //  for (const auto& hit: hits) {
 //    size += sizeof(T) * hit.size();
@@ -248,8 +263,69 @@ TVector3 E16DST_DST1LGCluster::GlobalPos() {
 //  return size;
 //}
 
+TVector3 E16DST_DST1TriggerHit::LocalPos() {
+  TVector3 pos = {0., 0., 0.};
+  return pos;
+}
+
+TVector3 E16DST_DST1TriggerHit::GlobalPos() {
+  TVector3 pos = {0., 0., 0.};
+  return pos;
+}
+
 int E16DST_DST1Trigger::GetEventSize() const {
 }
 
+void E16DST_DST1Trigger::Print() {
+  auto max_track = track_sets.NumberOfHits();
+  std::cout << "Number of tracks: " << max_track << std::endl << std::endl;
+  for (int n_track = 0; n_track < max_track; ++n_track) {
+    std::cout << "Track ID: " << n_track << std::endl;
+    auto track_set = track_sets.Hit(n_track);
+    auto n_gtr_hits = track_set.NumGTRHits();
+    auto n_hbd_hits = track_set.NumHBDHits();
+    auto n_lg_hits = track_set.NumLGHits();
+    std::cout << "  Number of tracked GTR: " << n_gtr_hits << std::endl;
+    for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+      auto order = track_set.GTRHitOrder(n_hit);
+      auto hit = gtr_hits.Hit(order);
+      std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+    }
+    std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
+    for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
+      auto order = track_set.HBDHitOrder(n_hit);
+      auto hit = hbd_hits.Hit(order);
+      std::cout << "    Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+    }
+    std::cout << "  Number of tracked LG: " << n_lg_hits << std::endl;
+    if (track_set.NumLGHits() == 1) {
+      auto order = track_set.LGHitOrder(0);
+      auto hit = lg_hits.Hit(order);
+      std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+    } else {
+      std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
+    }
+    std::cout << std::endl;
+  }
+  std::cout << std::endl;
+}
+
 int E16DST_DST1PhysicsEvent::Write(E16DST_File* fp) {
+}
+
+int E16DST_DST1PhysicsEvent::Read(E16DST_File* fp) {
+}
+
+bool E16DST_DST1PhysicsEvent::Append(E16DST_DST0Event* _another_event) {
+}
+
+void E16DST_DST1PhysicsEvent::Clear() {
+  trigger.Clear();
+
+
+
+
+
+
+
 }
