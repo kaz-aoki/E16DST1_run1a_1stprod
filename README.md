@@ -24,5 +24,5 @@
 ・dst0のsampleは例えば
 
 　evb02:/e16/w/data102z/trg/junkdata/dst0merge/run030778_sink0_000_srs_trg_lg_ssd.dst0
- 
- にあります。
+
+　にあります。
