@@ -20,9 +20,9 @@ class E16DST_TriggerCoincidenceMap {
   E16DST_TriggerCoincidenceMap::Map CoincidenceMap(uint16_t _module_id, uint16_t _channel_id, bool _is_mag_field) {
     int key = 100 * _module_id + _channel_id;
     if (_is_mag_field) {
-      return maps[0][key];
-    } else {
       return maps[1][key];
+    } else {
+      return maps[0][key];
     }
   }
  private:

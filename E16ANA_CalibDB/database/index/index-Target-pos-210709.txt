@@ -1,0 +1,11 @@
+#index-Target-pos-210709.txt 210709 by S. Yokkaichi
+#    Last modified at <2021-07-09 22:56:52 >
+
+# valid only two columns:  comment for 3rd or more
+# runID filename comment
+  0    Target-pos-default-210709.txt    for error
+  9999 Target-pos-run9999-210709.txt    run0a upto 9999
+ 29999 Target-pos-run29999-210709.txt   run0b upto 29999
+ 39999 Target-pos-run39999-210709.txt   run0c upto 39999
+999999 Target-pos-default-210709.txt    for error
+

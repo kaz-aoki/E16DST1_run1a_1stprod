@@ -1,0 +1,23 @@
+#ifndef E16_DST_DEFALUT_COINCIDENCE_MAP_PATH_HH
+#define E16_DST_DEFALUT_COINCIDENCE_MAP_PATH_HH
+
+#include <array>
+#include <string_view>
+
+static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_0.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_1.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_2.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_3.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_4.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_5.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_0.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_1.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_2.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_3.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_4.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_5.coe"};
+static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt",
+                                                                         "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
+                                                                         "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
+
+#endif // E16_DST_DEFAULT_COINCIDENCE_MAP_PATH

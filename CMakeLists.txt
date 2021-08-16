@@ -26,6 +26,7 @@ include_directories(
 	include
 	include/trigger
   E16DST
+  E16ANA_CalibDB/include
 )
 
 link_directories(
@@ -54,7 +55,7 @@ install(DIRECTORY
 #  configure_file(${lvar}.in ${CMAKE_CURRENT_BINARY_DIR}/${lvar} @ONLY)
 #message("CMAKE_CURRENT_BINARY_DIR: " ${CMAKE_CURRENT_BINARY_DIR}/${lvar})
 #endforeach()
-configure_file(include/trigger/E16DST_DefaultCoincidenceMapPath.hh.in E16DST_DefaultCoincidenceMapPath.hh @ONLY)
+configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePath.hh @ONLY)
 
 #_______________________________________________________________________________
 add_library(E16DST_DST1
@@ -72,11 +73,11 @@ target_link_libraries(E16DST_DST1
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
+	E16DST
 	E16DST_DST1
   libz.so
-#  program_options
-#  stdc++fs
 )
 
 #_______________________________________________________________________________
 add_subdirectory(E16DST)
+add_subdirectory(E16ANA_CalibDB)

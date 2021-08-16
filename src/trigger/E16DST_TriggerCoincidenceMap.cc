@@ -16,24 +16,24 @@ E16DST_TriggerCoincidenceMap::E16DST_TriggerCoincidenceMap(const std::array<std:
     }
   }
   auto channel_map = E16DST_TriggerChannelMap(static_cast<std::string>(trigger_channel_map_files[0]), static_cast<std::string>(trigger_channel_map_files[1]), static_cast<std::string>(trigger_channel_map_files[2]));
-  for (int i = 0; i < 2; ++i) {
-    for (int j = 0; j < 6; ++j) {
-      if (!coe_files[i][j]) {
-        std::cerr << "Invalid trigger coincidence file: " << i << ", " << j << std::endl;
+  for (int is_mag = 0; is_mag < 2; ++is_mag) {
+    for (int lg_sfp = 0; lg_sfp < 6; ++lg_sfp) {
+      if (!coe_files[is_mag][lg_sfp]) {
+        std::cerr << "Invalid trigger coincidence file: " << is_mag << ", " << lg_sfp << std::endl;
         std::exit(1);
       }
       std::string line;
       int n_read = 0;
-      while (getline(coe_files[i][j], line)) {
+      while (getline(coe_files[is_mag][lg_sfp], line)) {
         if (n_read < 2) {
           ++n_read;
           continue;
         }
-        auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * j + n_read - 2);
+        auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
         int key = 100 * ids.moduleID + ids.channelID;
         E16DST_TriggerCoincidenceMap::Map map;
-        map.gtr_start_module = E16DST_DST1Constant::kGtrCoincidenceStartModule[j];
-        map.hbd_start_module = E16DST_DST1Constant::kHbdCoincidenceStartModule[j];
+        map.gtr_start_module = E16DST_DST1Constant::kGtrCoincidenceStartModule[lg_sfp];
+        map.hbd_start_module = E16DST_DST1Constant::kHbdCoincidenceStartModule[lg_sfp];
         map.gtr_map.fill(false);
         map.hbd_map.fill(false);
         int n_gtr_channel;
@@ -48,18 +48,18 @@ E16DST_TriggerCoincidenceMap::E16DST_TriggerCoincidenceMap(const std::array<std:
         }
         for (int ch = 0; ch < size; ++ch) {
           bool is_coin;
-          if (line[size - 2 - j] == '1') {
+          if (line[size - 2 - ch] == '1') {
             is_coin = true;
           } else {
             is_coin = false;
           }
-          if (j < n_gtr_channel) {
+          if (ch < n_gtr_channel) {
             map.gtr_map[ch] = is_coin;
           } else {
             map.hbd_map[ch - n_gtr_channel] = is_coin;
           }
         }
-        maps[i].emplace(key, map);
+        maps[is_mag].emplace(key, map);
         ++n_read;
       }
     }

@@ -1,0 +1,11 @@
+#index-SSD-pedestal-210619.txt 210620 by S. Yokkaichi
+#    Last modified at <2021-08-11 17:32:29 >
+#
+# valid only two columns:  comment for 3rd or more
+# runID filename comment
+#
+  0    SSD/pedestal/210619/SSD-pedestal-default-210619.dat    for error
+  9999 SSD/pedestal/210619/SSD-pedestal-run9999-210619.dat    run0a upto 9999
+ 29999 SSD/pedestal/210619/SSD-pedestal-run29999-210619.dat   run0b upto 29999
+ 39999 SSD/pedestal/210619/SSD-pedestal-run39999-210619.dat   run0c upto 39999
+999999 SSD/pedestal/210619/SSD-pedestal-default-210619.dat   for error
