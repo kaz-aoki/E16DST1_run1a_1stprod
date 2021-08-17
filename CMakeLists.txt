@@ -24,8 +24,8 @@ include_directories(
 	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 	include
-	include/trigger
 	include/LG
+	include/trigger
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
@@ -46,6 +46,7 @@ link_libraries(
 #_______________________________________________________________________________
 install(DIRECTORY
   coincidence_map
+  lg_calibfiles
   DESTINATION ${CMAKE_INSTALL_DATADIR}
 )
 
@@ -64,16 +65,16 @@ configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePa
 #_______________________________________________________________________________
 add_library(E16DST_DST1
   E16DST/E16DST_TriggerChannelMap.cc
-	src/E16DST_DST1.cc
-	src/E16DST_DST1TriggerFactory.cc
-  src/trigger/E16DST_TriggerCoincidenceMap.cc
   src/E16ANA_GTRAnalyzer2.cc
   src/E16ANA_GTRStripAnalyzer.cc
+	src/E16DST_DST1.cc
+	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
-  src/E16DST_DST1LGHitAndClusterFactory.cc
+  src/E16DST_DST1LGFactory.cc
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
+  src/trigger/E16DST_TriggerCoincidenceMap.cc
 )
 
 target_link_libraries(E16DST_DST1

@@ -283,19 +283,21 @@ TVector3 E16DST_DST1LGCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 //}
 
 TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
-  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
-  if (detector == E16DST_DST1Constant::kGTR300) {
-    pos = {0., 0., 0.};
-  } else if (detector == E16DST_DST1Constant::kHBD) {
-    pos = {0., 0., 0.};
-  } else if (detector == E16DST_DST1Constant::kLG) {
-    pos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
-  }
+  TVector3 pos = {0., 0., 0.};
   return pos;
 }
 
 TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
-  TVector3 pos = {0., 0., 0.};
+  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  int geometry_module_id = 3 * (109 - module_id) + 1;
+  if (detector == E16DST_DST1Constant::kGTR300) {
+    TVector3 local_pos = {0., -150. + 12.5 * (channel_id + 0.5), 0.};
+    pos = geometry.GTR3(geometry_module_id)->GetGPos(local_pos);
+  } else if (detector == E16DST_DST1Constant::kHBD) {
+    pos = {0., 0., 0.};
+  } else if (detector == E16DST_DST1Constant::kLG) {
+    pos = geometry.LG(geometry_module_id, channel_id)->GetDetectorCenter();
+  }
   return pos;
 }
 
@@ -349,7 +351,8 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
       auto order = track_set.GTRHitOrder(n_hit);
       auto hit = gtr_hits.Hit(order);
-      std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+      std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
+      << ", global position (something bad) = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
     }
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
@@ -362,7 +365,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
       auto order = track_set.LGHitOrder(0);
       auto hit = lg_hits.Hit(order);
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
-      << ", global position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")" << std::endl;
+      << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
     } else {
       std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
     }

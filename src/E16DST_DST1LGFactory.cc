@@ -3,7 +3,7 @@
 #include "E16DST_Constant.hh"
 #include "E16ANA_LGBasic.hh"
 
-int E16DST_DST1LGHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>& hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>& clusters1) {
+int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1) {
 //  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
 //  int run_id = 2255;
 //  char* file_name = calib.CalibFileName("SSD-pedestal", run_id);
@@ -22,8 +22,8 @@ int E16DST_DST1LGHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hit
   auto hit1 = new E16DST_DST1LGHit();
   //  auto cluster1 = new E16DST_DST1LGClusters();//cluster_temporary
   auto max_hit = hits0.NumberOfHits();
-  hits1.Reserve(max_hit);
-  //  clusters1.Reserve(max_hit);//cluster_temporary
+  hits1->Reserve(max_hit);
+  //  clusters1->Reserve(max_hit);//cluster_temporary
 
   int ps = E16DST_DST1Constant::kLgPeakSearchStart;
   int pe = E16DST_DST1Constant::kLgPeakSearchEnd;
@@ -128,7 +128,7 @@ int E16DST_DST1LGHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hit
       hit1->SetBaseline(baseline);
       hit1->SetBaselineRms(baselinerms);
       hit1->SetIntegral(integral);
-      hits1.PushBack(*hit1);
+      hits1->PushBack(*hit1);
       //      cluster1->SetMaxPeakCh(hit0.BlockID());//cluster_temporary
       //      cluster1->SetMaxPeakHeight(peakheight);//cluster_temporary
       //      cluster1->SetTiming(timing);//cluster_temporary
@@ -137,6 +137,6 @@ int E16DST_DST1LGHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hit
 
   }//dst0hit loop
 
-  return hits1.GetEventSize();
+  return hits1->GetEventSize();
 
 }
