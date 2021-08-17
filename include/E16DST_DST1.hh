@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "TVector3.h"
-
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GeometryV2.hh"
 #include "E16DST_Constant.hh"
@@ -69,8 +68,15 @@ class E16DST_DST1Detector {
     UpdateHitPtrs();
     UpdateClusterPtrs();
   }
-  std::vector<T*>& HitPtrs(int module_id, int layer_id, int type);
-  std::vector<U*>& ClusterPtrs(int module_id, int layer_id, int type);
+  std::vector<T*>& HitPtrs(int module_id, int layer_id, int type) {
+    Id id = {module_id, layer_id, type};
+    return hit_ptrs[id];
+  }
+  std::vector<U*>& ClusterPtrs(int module_id, int layer_id, int type) {
+    Id id = {module_id, layer_id, type};
+    return cluster_ptrs[id];
+  }
+  std::vector<T*>  ClusterMembers(int cluster_id);
   T&               ClusterMember(int cluster_id, int hit_id);
   int              Write(E16DST_File* fp);
   int              Read(E16DST_File* fp);

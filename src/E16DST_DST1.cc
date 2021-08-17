@@ -45,18 +45,6 @@ void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
 }
 
 template <class T, class U>
-std::vector<T*>& E16DST_DST1Detector<T, U>::HitPtrs(int module_id, int layer_id, int type) {
-  Id id = {module_id, layer_id, type};
-  return hit_ptrs[id];
-}
-
-template <class T, class U>
-std::vector<U*>& E16DST_DST1Detector<T, U>::ClusterPtrs(int module_id, int layer_id, int type) {
-  Id id = {module_id, layer_id, type};
-  return cluster_ptrs[id];
-}
-
-template <class T, class U>
 int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
 }
 
@@ -66,6 +54,20 @@ int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
 
 template <class T, class U>
 void E16DST_DST1Detector<T, U>::Append(E16DST_DST1Detector<T, U>& rhs) {
+}
+
+template <class T, class U>
+std::vector<T*> E16DST_DST1Detector<T, U>::ClusterMembers(int cluster_id) {
+  if (cluster_id < 0 || cluster_id >= clusters.size()) {
+    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
+    std::exit(1);
+  }
+  auto num_hits = clusters[cluster_id].NumHits();
+  std::vector<T*> hit_vector(num_hits);
+  for (int n_hit = 0; n_hit < num_hits; ++n_hit) {
+    hit_vector[n_hit] = &hits[clusters[cluster_id].HitOrder(n_hit)];
+  }
+  return hit_vector;
 }
 
 template <class T, class U>
