@@ -1,6 +1,62 @@
 #include "E16DST_DST1.hh"
 
 template <class T, class U>
+void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
+  if (detector == E16DST_DST1Constant::kInvalidValue) {
+    return;
+  }
+  hit_ptrs.clear();
+  for (const auto& hit : hits) {
+    Id id;
+    id.module_id = hit.ModuleId();
+    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+      id.layer_id = hit.LayerId();
+      id.type     = hit.Type();
+    }
+    if (hit_ptrs.count(id) == 0) {
+      std::vector hit_vector = {*hit};
+      hit_ptrs.emplace(id, hit_vector);
+    } else {
+      hit_ptrs[id].emplace_back(*hit);
+    }
+  }
+}
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
+  if (detector == E16DST_DST1Constant::kInvalidValue) {
+    return;
+  }
+  cluster_ptrs.clear();
+  for (const auto& cluster : clusters) {
+    Id id;
+    id.module_id = cluster.ModuleId();
+    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+      id.layer_id = cluster.LayerId();
+      id.type     = cluster.Type();
+    }
+    if (cluster_ptrs.count(id) == 0) {
+      std::vector cluster_vector = {*cluster};
+      cluster_ptrs.emplace(id, cluster_vector);
+    } else {
+      cluster_ptrs[id].emplace_back(*cluster);
+    }
+  }
+}
+
+template <class T, class U>
+std::vector<T*>& E16DST_DST1Detector<T, U>::HitPtrs(int module_id, int layer_id, int type) {
+  Id id = {module_id, layer_id, type};
+  return hit_ptrs[id];
+}
+
+template <class T, class U>
+std::vector<U*>& E16DST_DST1Detector<T, U>::ClusterPtrs(int module_id, int layer_id, int type) {
+  Id id = {module_id, layer_id, type};
+  return cluster_ptrs[id];
+}
+
+template <class T, class U>
 int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
 }
 

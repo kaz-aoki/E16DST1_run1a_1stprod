@@ -1,0 +1,11 @@
+#index-Trigger-param-210817.txt 210817 by M. Ichikawa
+#    Last modified at <2021-08-17 15:40>
+#
+# valid only two columns:  comment for 3rd or more
+# runID filename comment
+#
+  0    trigger/parameter/210817/trigger-parameter-default-210817.dat    for error
+  9999 trigger/parameter/210817/trigger-parameter-run9999-210817.dat    run0a upto 9999
+ 29999 trigger/parameter/210817/trigger-parameter-run29999-210817.dat   run0b upto 29999
+ 39999 trigger/parameter/210817/trigger-parameter-run39999-210817.dat   run0c upto 39999
+999999 trigger/parameter/210817/trigger-parameter-default-210817.dat   for error

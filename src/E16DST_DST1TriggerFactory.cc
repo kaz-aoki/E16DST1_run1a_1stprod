@@ -1,6 +1,6 @@
 #include "E16DST_DST1.hh"
 
-//#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16DST_TriggerChannelMap.hh"
@@ -34,6 +34,7 @@ int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit
 
 int E16ANA_TriggerSearchCoincidenceHit(int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int>* coincidence_hit_orders, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
   // must use calib DB
+  auto& calib = E16ANA_CalibDBManager::Instance();
   auto n_hits = hits.NumberOfHits();
   int n_coincidence_hits = 0;
   for (int hit_num = 0; hit_num < n_hits; ++hit_num) {

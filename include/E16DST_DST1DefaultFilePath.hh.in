@@ -4,6 +4,12 @@
 #include <array>
 #include <string_view>
 
+static constexpr std::string_view                CalibFilePath {"@CMAKE_INSTALL_DATADIR@/calib_database"};
+
+static constexpr std::string_view                GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
+
+static constexpr std::string_view                LGCalibFilePath {"@CMAKE_INSTALL_DATADIR@/lg_calibfiles"};
+
 static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_0.coe",
                                                                        "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_1.coe",
                                                                        "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_2.coe",
@@ -20,9 +26,5 @@ static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_I
 static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
-
-static constexpr std::string_view                GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
-
-static constexpr std::string_view                LGCalibFilePath {"@CMAKE_INSTALL_DATADIR@/lg_calibfiles"};
 
 #endif // E16_DST_DST1_DEFAULT_FILE_PATH

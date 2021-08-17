@@ -15,6 +15,7 @@ enum kDetector {
   kGTR300,
   kHBD,
   kLG,
+  kNumDetector,
 };
 
 enum kGtrAxis {

@@ -1,24 +1,24 @@
 #include <iostream>
-#include <boost/program_options.hpp>
+//#include <boost/program_options.hpp>
 
-//#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16DST_TriggerCoincidenceMap.hh"
 
 using namespace std;
-namespace  bpo = boost::program_options;
+//namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max event]" << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_num       = stoi(argv[3]);
+  auto run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
 //  bpo::variables_map vm;
 //  string in_file_name;
@@ -54,8 +54,14 @@ int main(int argc, char* argv[]) {
 //    }
 //  };
 
-  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(run_id);
+  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
+  std::cout << calib_file_name << std::endl;
+//  auto calib_file_name = calib.CalibFileName("SSD-pedestal", run_rum);
 
+  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -67,9 +73,6 @@ int main(int argc, char* argv[]) {
 //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
 //    return -1;
 //   }
-//  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
-//  auto calib_file_name = calib.CalibFileName("SSD-pedestal", run_rum);
-//  std::cout << calib_file_name << std::endl;
   int n_event = 0;
   while (dst0->ReadAnEvent()) {
     if (n_event >= max_event) {
@@ -124,6 +127,7 @@ int main(int argc, char* argv[]) {
         std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
         std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
       }
+      cout << endl << endl;
 //
 
 
@@ -143,6 +147,7 @@ int main(int argc, char* argv[]) {
     }
     ++n_event;
   }
+  delete geometry;
   delete dst0;
 //  dst1->Close();
   return 0;
