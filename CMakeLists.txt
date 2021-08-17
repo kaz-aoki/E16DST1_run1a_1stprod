@@ -77,6 +77,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
   src/E16DST_DST1LGFactory.cc
+  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 )
 

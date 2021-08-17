@@ -15,13 +15,14 @@ enum kDetector {
   kGTR300,
   kHBD,
   kLG,
-  kNumDetector,
+  kNumDetectors,
 };
 
 enum kGtrAxis {
   kIsX,
   kIsY,
   kIsYb,
+  kNumTypes,
 };
 
 const int kLgHitThreshold = 20;//[mV]

@@ -7,12 +7,14 @@ void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
   }
   hit_ptrs.clear();
   for (const auto& hit : hits) {
-    Id id;
-    id.module_id = hit.ModuleId();
+    int module_id = hit.ModuleId();
+    int layer_id  = 0;
+    int type      = 0;
     if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
-      id.layer_id = hit.LayerId();
-      id.type     = hit.Type();
+      layer_id = hit.LayerId();
+      type     = hit.Type();
     }
+    int id = IdSum(module_id, layer_id, type);
     if (hit_ptrs.count(id) == 0) {
       std::vector hit_vector = {*hit};
       hit_ptrs.emplace(id, hit_vector);
@@ -29,12 +31,14 @@ void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
   }
   cluster_ptrs.clear();
   for (const auto& cluster : clusters) {
-    Id id;
-    id.module_id = cluster.ModuleId();
+    int module_id = cluster.ModuleId();
+    int layer_id  = 0;
+    int type      = 0;
     if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
-      id.layer_id = cluster.LayerId();
-      id.type     = cluster.Type();
+      layer_id = cluster.LayerId();
+      type     = cluster.Type();
     }
+    int id = IdSum(module_id, layer_id, type);
     if (cluster_ptrs.count(id) == 0) {
       std::vector cluster_vector = {*cluster};
       cluster_ptrs.emplace(id, cluster_vector);
