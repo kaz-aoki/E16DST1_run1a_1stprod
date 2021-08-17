@@ -1,4 +1,4 @@
-#include "E16DST_TriggerCoincidenceMap.hh"
+#include "E16ANA_TriggerCoincidenceMap.hh"
 
 #include <array>
 #include <fstream>
@@ -8,7 +8,7 @@
 #include "E16DST_DST1Constant.hh"
 #include "E16DST_TriggerChannelMap.hh"
 
-E16DST_TriggerCoincidenceMap::E16DST_TriggerCoincidenceMap(const std::array<std::string_view, 12>& coincidence_map_files, const std::array<std::string_view, 3>& trigger_channel_map_files) {
+E16ANA_TriggerCoincidenceMap::E16ANA_TriggerCoincidenceMap(const std::array<std::string_view, 12>& coincidence_map_files, const std::array<std::string_view, 3>& trigger_channel_map_files) {
   std::array<std::array<std::ifstream, 6>, 2> coe_files;
   for (int is_mag = 0; is_mag < 2; ++is_mag) {
     for (int lg_sfp = 0; lg_sfp < 6; ++lg_sfp) {
@@ -31,7 +31,7 @@ E16DST_TriggerCoincidenceMap::E16DST_TriggerCoincidenceMap(const std::array<std:
         }
         auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
         int key = 100 * ids.moduleID + ids.channelID;
-        E16DST_TriggerCoincidenceMap::Map map;
+        E16ANA_TriggerCoincidenceMap::Map map;
         map.gtr_start_module = E16DST_DST1Constant::kGtrCoincidenceStartModule[lg_sfp];
         map.hbd_start_module = E16DST_DST1Constant::kHbdCoincidenceStartModule[lg_sfp];
         map.gtr_map.fill(false);
@@ -64,4 +64,5 @@ E16DST_TriggerCoincidenceMap::E16DST_TriggerCoincidenceMap(const std::array<std:
       }
     }
   }
+  std::cout << "Trigger coincidence map generated" << std::endl;
 }

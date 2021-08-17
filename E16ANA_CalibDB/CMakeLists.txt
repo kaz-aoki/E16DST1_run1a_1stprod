@@ -7,12 +7,12 @@ install(DIRECTORY
 add_library(E16ANA_CalibDB
   src/E16ANA_ErrorMessage.cc
   src/E16ANA_CalibDBManager.cc
-  src/E16ANA_SSDcalib.cc
 )
 
 #_________________________________________________
 add_executable(calibSample
   examples/calibSample.cc
+  src/E16ANA_SSDcalib.cc
 )
 
 target_link_libraries(calibSample

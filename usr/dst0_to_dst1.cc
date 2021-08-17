@@ -5,7 +5,6 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-#include "E16DST_TriggerCoincidenceMap.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -57,8 +56,9 @@ int main(int argc, char* argv[]) {
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
   auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
-  std::cout << calib_file_name << std::endl;
-//  auto calib_file_name = calib.CalibFileName("SSD-pedestal", run_rum);
+  cout << calib_file_name << std::endl;
+//  auto trigger_param = new E16ANA_TriggerCalibParam();
+//  trigger_param.ReadCalibData(calib.CurrentRunID());
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   

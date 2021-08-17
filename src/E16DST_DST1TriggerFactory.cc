@@ -4,7 +4,7 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16DST_TriggerChannelMap.hh"
-#include "E16DST_TriggerCoincidenceMap.hh"
+#include "E16ANA_TriggerCoincidenceMap.hh"
 
 uint16_t E16ANA_TriggerTime(uint64_t _timestamp, uint32_t _tdc) {
   int32_t time = (_timestamp * 8) % 0x40000 - _tdc;
@@ -32,6 +32,21 @@ int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit
   return hits1->GetEventSize() + clusters1->GetEventSize();
 }
 
+//int E16ANA_TriggerNumTriggers(E16DST_DST0UT3& ut3) {
+//  // must use calib DB
+//  auto& calib = E16ANA_CalibDBManager::Instance();
+//  int n_trigger = 0;
+//  auto max_track = ut3.NumberOfTracks();
+//  std:;vector<E16DST_DST0TriggerHit*> tracks(max_track);
+//  for (int n_track = 0; n_track < max_track; ++n_track) {
+//    auto track = ut3.Track(n_track);
+//    for (const auto& ref_track : tracks) {
+//      
+//
+//    }
+//    tracks[n_track] = &track;
+//  }
+
 int E16ANA_TriggerSearchCoincidenceHit(int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int>* coincidence_hit_orders, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
   // must use calib DB
   auto& calib = E16ANA_CalibDBManager::Instance();
@@ -55,7 +70,7 @@ int E16ANA_TriggerSearchCoincidenceHit(int module_id, int channel_id, E16DST_DST
 
 int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, uint64_t timestamp, E16DST_DST1Trigger* trigger) {
   static auto channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
-  static auto coincidence_maps = new E16DST_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
+  static auto coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   
   trigger->Clear();
   E16ANA_TriggerHitAndClusterFactory(gtr_hits, timestamp, E16DST_DST1Constant::kGTR300, &trigger->GTRHits(), &trigger->GTRClusters());
@@ -67,6 +82,9 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
     E16ANA_TriggerSingleHitFactory(ut3.Track(n_track), timestamp, E16DST_DST1Constant::kLG, &trigger->Tracks().Hit(n_track));
   }
   
+//  n_teriggers = E16ANA_TriggerNumTrigger(ut3);
+
+  // track_set
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsGTR>, 2> gtr_maps;
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsHBD>, 2> hbd_maps;
   E16DST_DST0UT3Hitmap hitmaps;

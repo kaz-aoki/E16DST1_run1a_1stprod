@@ -66,7 +66,12 @@ configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePa
 add_library(E16ANA
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
-  src/trigger/E16DST_TriggerCoincidenceMap.cc
+  src/trigger/E16ANA_TriggerCalib.cc
+  src/trigger/E16ANA_TriggerCoincidenceMap.cc
+)
+
+target_link_libraries(E16ANA
+  E16ANA_CalibDB
 )
 
 #_______________________________________________________________________________
