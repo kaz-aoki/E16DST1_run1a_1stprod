@@ -1,5 +1,5 @@
-#ifndef E16_DST_DEFALUT_COINCIDENCE_MAP_PATH_HH
-#define E16_DST_DEFALUT_COINCIDENCE_MAP_PATH_HH
+#ifndef E16_DST_DST1_DEFALUT_FILE_PATH_HH
+#define E16_DST_DST1_DEFALUT_FILE_PATH_HH
 
 #include <array>
 #include <string_view>
@@ -23,4 +23,6 @@ static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE
 
 static constexpr std::string_view                GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
 
-#endif // E16_DST_DEFAULT_COINCIDENCE_MAP_PATH
+static constexpr std::string_view                LGCalibFilePath {"@CMAKE_INSTALL_DATADIR@/lg_calibfiles"};
+
+#endif // E16_DST_DST1_DEFAULT_FILE_PATH

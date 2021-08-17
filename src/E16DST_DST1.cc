@@ -352,7 +352,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
       auto order = track_set.GTRHitOrder(n_hit);
       auto hit = gtr_hits.Hit(order);
       std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
-      << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
+      << ", global position (something bad) = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
     }
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
