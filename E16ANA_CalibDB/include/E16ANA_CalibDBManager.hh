@@ -76,6 +76,7 @@ class E16ANA_CalibDBManager{
 
 public:
   static E16ANA_CalibDBManager& Instance();
+  static E16ANA_CalibDBManager& Instance(std::string& path, std::string& file_name);
 private:
   const std::string DefaultPATH;
   const std::string DefaultCalibDBname;
