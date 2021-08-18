@@ -68,7 +68,9 @@ add_library(E16ANA
   src/LG/E16ANA_LGGeometry.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
+  E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
 )
+
 
 target_link_libraries(E16ANA
   E16ANA_CalibDB

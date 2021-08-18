@@ -2,14 +2,19 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1GTRAnalyzerMaker.hh"
 #include "OnlineGTRUtility.h"
-#include "E16ANA_GTRPedestal.h"
+//#include "E16ANA_GTRPedestal.h"
+#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_GTRcalib.hh"
 
 
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters, E16ANA_GTRPedestal *gtr_pedestal) {
+int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters) {
     static bool isFirst = true;
     static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
         gtr_analyzers = new E16DST_DST1GTRAnalyzerMaker();
+        E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
+        E16ANA_GTRcalibPedestal gtrped;
+        gtrped.ReadCalibData( calib.CurrentRunID());
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdX, 150.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdY, 300.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTOTThresholdX, 75.0);
@@ -25,12 +30,13 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 E16ANA_GTRAnalyzer2 *analyzer = gtr_analyzers->Chamber(mid, lid);
                 int n_strips = analyzer->GetNumberOfStrips();
                 for(int strip_id = 0; strip_id < n_strips; strip_id++){
-                    double ped = gtr_pedestal->GetPedestal(mid, lid, strip_id).Value();
-                    double sigma = gtr_pedestal->GetPedestal(mid, lid, strip_id).Sigma();
+                    double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
+                    double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
                     analyzer->SetPedestal(strip_id, ped);
                     analyzer->SetPedestalSigma(strip_id, sigma);
                 }
             }
+        
         }
         isFirst = false;
         std::cout << "GTR Analyzer parameters are set :: should be called ONLY ONCE " << std::endl;
