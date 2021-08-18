@@ -35,6 +35,21 @@ int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit
 //int E16ANA_TriggerNumTriggers(E16DST_DST0UT3& ut3) {
 //  // must use calib DB
 //  auto& calib = E16ANA_CalibDBManager::Instance();
+//  auto trigger_param = new E16ANA_TriggerCalibParam();
+//  trigger_param->ReadConstantData(calib.CurrentRunID());
+//  auto trigger_type = ut3.TriggerType();
+//  if (trigger_type == E16DST_DST1Constant::kMultiTrack || trigger_type == E16DST_DST1Constant::kClock || trigger_type == E16DST_DST1Constant::kNim) {
+//    return 1;
+//  } else if (trigger_type == E16DST_DST1Constant::k1Track) {
+//    return ut3.
+//  if (trigger_type == E16DST_DST1Constant::kTrackCOrreration) {
+//    
+// 
+//
+//
+//
+//
+//
 //  int n_trigger = 0;
 //  auto max_track = ut3.NumberOfTracks();
 //  std:;vector<E16DST_DST0TriggerHit*> tracks(max_track);
@@ -46,6 +61,12 @@ int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit
 //    }
 //    tracks[n_track] = &track;
 //  }
+
+
+
+
+
+
 
 int E16ANA_TriggerSearchCoincidenceHit(int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int>* coincidence_hit_orders, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
   // must use calib DB

@@ -351,7 +351,6 @@ TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
 
 TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
-//  int geometry_module_id = 3 * (109 - module_id) + 1;
   int geometry_module_id = ModuleId2020To2013(module_id);
   if (detector == E16DST_DST1Constant::kGTR300) {
     TVector3 local_pos = {0., -150. + 12.5 * (channel_id + 0.5), 0.};

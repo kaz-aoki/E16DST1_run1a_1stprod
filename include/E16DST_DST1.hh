@@ -74,9 +74,7 @@ class E16DST_DST1Detector {
   int              GetEventSize();
   void             Print();
  private:
-  int                                      IdSum(int module_id, int layer_id, int type) {
-    return 10000 * module_id + 100 * layer_id + type;
-  }
+  int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
   uint32_t                                 valid_flag;
   int                                      detector;
   std::vector<T>                           hits;
@@ -528,10 +526,10 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   void Clear() override;
   bool Append(E16DST_DST0Event* _another_event) override;
   uint16_t EventType() { return E16DST_DST0EventType::Physics; }
-//  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD()     { return ssd; }
-//  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR()     { return gtr; }
-//  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD()     { return hbd; }
-  E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()      { return lg; }
+//  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
+//  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
+//  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD() { return hbd; }
+  E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()  { return lg; }
   E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()     { return ssd_hits; }
   E16DST_DST0Detector<E16DST_DST1SSDCluster>& SSDClusters() { return ssd_clusters; }
   E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTRHits()     { return gtr_hits; }

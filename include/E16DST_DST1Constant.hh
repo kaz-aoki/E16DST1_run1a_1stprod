@@ -24,8 +24,19 @@ enum kGtrAxis {
   kIsX,
   kIsY,
   kIsYb,
-  kNumTypes,
+  kNumAxisTypes,
 };
+
+enum kTriggerType {
+  kTrackCorreration,
+  kLRTrack,
+  k1Track,
+  kMultiTrack,
+  kClock,
+  kNim,
+  kNumTriggerTypes,
+};
+
 
 const int kLgHitThreshold = 20;//[mV]
 const int kLgHitTimingStart = 50;//[ns]
@@ -42,10 +53,6 @@ const int kLgIntegralEnd = 50;//[cell] +peaktime
 const std::array<std::array<int, 11>, 3> kModuleId2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},
                                                                  {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
                                                                  {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
-
-//const std::array<std::array<int, 9>, 3> kModuleId2020To2013_27 = {{{24, 21, 18, 15, 12, 9,  6, 3, 0},
-//                                                                   {25, 22, 19, 16, 13, 10, 7, 4, 1},
-//                                                                   {26, 23, 20, 17, 14, 11, 8, 5, 2}}}; // HBD, LG
 
 }; // namespace E16DST_DST1Constant
 
