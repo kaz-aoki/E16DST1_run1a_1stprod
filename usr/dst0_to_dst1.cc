@@ -1,24 +1,28 @@
 #include <iostream>
-#include <boost/program_options.hpp>
+//#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-#include "E16DST_TriggerCoincidenceMap.hh"
+
+#include "E16ANA_TriggerCoincidenceMap.hh"
+#include "E16ANA_GTRPedestal.h"
 
 using namespace std;
-namespace  bpo = boost::program_options;
+//namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event]" << endl;
+//    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event] [pedestal]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] [gtr_pedestal]" << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_id       = stoi(argv[3]);
+  auto run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
 //  bpo::variables_map vm;
 //  string in_file_name;
@@ -54,28 +58,34 @@ int main(int argc, char* argv[]) {
 //    }
 //  };
 
-  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(run_id);
+  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
+  cout << calib_file_name << std::endl;
+//auto trigger_param = new E16ANA_TriggerCalibParam();
+//trigger_param->ReadConstantData(calib.CurrentRunID());
+//trigger_param->Print();
 
+  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
+  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
+  gtr_pedestal->Read(argv[5]);
 //  auto dst1 = new E16DST_DST1();
 //  auto dst1 = new E16DST_DST0();
 //  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
 //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
 //    return -1;
 //   }
-  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
-  //  auto calib_file_name = calib.CalibFileName("LG-drs4assign", run_num);
-  //  std::cout << calib_file_name << std::endl;
-  calib.SetRunID(run_id);
-
 
   int n_event = 0;
+  int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
-    if (n_event >= max_event) {
+    if (max_event != -1 && n_physics_event >= max_event) {
       break;
     }
     if (n_event % 1000 == 0) {
@@ -96,9 +106,11 @@ int main(int argc, char* argv[]) {
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtr_pedestal),
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
+//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
+      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
+      E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
       E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
       event1->Trigger().SetValidFlag(1);
 
@@ -120,10 +132,20 @@ int main(int argc, char* argv[]) {
       }
       event1->Trigger().Print(*geometry);
 
-      auto lghit = event1->LGHits().Hit(0);                                                          
-      lghit.Print();                                                                                 
-      std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-      std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+      if (event1->LGHits().NumberOfHits() != 0) {
+        auto lghit = event1->LGHits().Hit(0);                                                          
+        lghit.Print();                                                                                 
+        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+      }
+
+      if (event1->LG().NumHits() != 0) {
+        auto lghit = event1->LG().Hit(0);                                                          
+        lghit.Print();                                                                                 
+        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+      }
+      cout << endl << endl;
 //
 
 
@@ -142,7 +164,9 @@ int main(int argc, char* argv[]) {
       return -1;
     }
     ++n_event;
+    ++n_physics_event;
   }
+  delete geometry;
   delete dst0;
 //  dst1->Close();
   return 0;

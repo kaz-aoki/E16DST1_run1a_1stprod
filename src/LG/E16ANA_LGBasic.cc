@@ -5,7 +5,9 @@
 #include <map>
 
 #include "E16ANA_LGBasic.hh"
+
 #include "E16ANA_CalibDBManager.hh"
+#include "E16DST_DST1DefaultFilePath.hh"
 
 #include <algorithm>
 #include <unordered_map>   
@@ -198,13 +200,32 @@ E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(int ip){
 
 
 
+/*
+string channelmap_path = "../../lg_calibfiles/ch_pp_20200522_run0.txt";
+string drs4assign_path = "../../lg_calibfiles/pp_map_20210214_run0b.txt";
+string drs4assign_path_run0a = "../../lg_calibfiles/pp_map_20200522_run0.txt";
+string timeoffset_path = "../../lg_calibfiles/timeoffset_20210220_tagtime3132.txt";
+string binary_path = "../../lg_calibfiles/map.dat";
+*/
+//string channelmap_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/ch_pp_20200522_run0.txt";
+//string drs4assign_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/pp_map_20210214_run0b.txt";
+//string drs4assign_path_run0a = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/pp_map_20200522_run0.txt";
+//string timeoffset_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/timeoffset_20210220_tagtime3132.txt";
+//string binary_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/map.dat";
+auto lg_calib_file_path = static_cast<std::string>(LGCalibFilePath);
+//string channelmap_path       = lg_calib_file_path + "/ch_pp_20200522_run0.txt";
+//string drs4assign_path       = lg_calib_file_path + "/pp_map_20210214_run0b.txt";
+//string drs4assign_path_run0a = lg_calib_file_path + "/pp_map_20200522_run0.txt";
+//string timeoffset_path       = lg_calib_file_path + "/timeoffset_20210220_tagtime3132.txt";
+string binary_path           = lg_calib_file_path + "/map.dat";
+
 
 //string channelmap_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/ch_pp_20200522_run0.txt";
 //string drs4assign_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/pp_map_20210214_run0b.txt";
 //string drs4assign_path = "/e16/u/nakasuga/E16/DST1/E16DST1/E16ANA_CalibDB/calib_database/LG/drs4assign/210818/LG-drs4assign-run39999-210818.txt";
 //string drs4assign_path_run0a = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/pp_map_20200522_run0.txt";
 //string timeoffset_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/timeoffset_20210220_tagtime3132.txt";
-string binary_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/map.dat";
+	//string binary_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/map.dat";
 /*
 string E16ANA_LGBasic::file_channelmap(){
 	return channelmap_path;

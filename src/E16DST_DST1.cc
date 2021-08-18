@@ -1,6 +1,54 @@
 #include "E16DST_DST1.hh"
 
 template <class T, class U>
+void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
+  if (detector == E16DST_DST1Constant::kInvalidValue) {
+    return;
+  }
+  hit_ptrs.clear();
+  for (const auto& hit : hits) {
+    int module_id = hit.ModuleId();
+    int layer_id  = 0;
+    int type      = 0;
+    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+      layer_id = hit.LayerId();
+      type     = hit.Type();
+    }
+    int id = IdSum(module_id, layer_id, type);
+    if (hit_ptrs.count(id) == 0) {
+      std::vector hit_vector = {*hit};
+      hit_ptrs.emplace(id, hit_vector);
+    } else {
+      hit_ptrs[id].emplace_back(*hit);
+    }
+  }
+}
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
+  if (detector == E16DST_DST1Constant::kInvalidValue) {
+    return;
+  }
+  cluster_ptrs.clear();
+  for (const auto& cluster : clusters) {
+    int module_id = cluster.ModuleId();
+    int layer_id  = 0;
+    int type      = 0;
+    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+      layer_id = cluster.LayerId();
+      type     = cluster.Type();
+    }
+    int id = IdSum(module_id, layer_id, type);
+    if (cluster_ptrs.count(id) == 0) {
+      std::vector cluster_vector = {*cluster};
+      cluster_ptrs.emplace(id, cluster_vector);
+    } else {
+      cluster_ptrs[id].emplace_back(*cluster);
+    }
+  }
+}
+
+template <class T, class U>
 int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
 }
 
@@ -10,6 +58,20 @@ int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
 
 template <class T, class U>
 void E16DST_DST1Detector<T, U>::Append(E16DST_DST1Detector<T, U>& rhs) {
+}
+
+template <class T, class U>
+std::vector<T*> E16DST_DST1Detector<T, U>::ClusterMembers(int cluster_id) {
+  if (cluster_id < 0 || cluster_id >= clusters.size()) {
+    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
+    std::exit(1);
+  }
+  auto num_hits = clusters[cluster_id].NumHits();
+  std::vector<T*> hit_vector(num_hits);
+  for (int n_hit = 0; n_hit < num_hits; ++n_hit) {
+    hit_vector[n_hit] = &hits[clusters[cluster_id].HitOrder(n_hit)];
+  }
+  return hit_vector;
 }
 
 template <class T, class U>
@@ -283,19 +345,22 @@ TVector3 E16DST_DST1LGCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 //}
 
 TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
-  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
-  if (detector == E16DST_DST1Constant::kGTR300) {
-    pos = {0., 0., 0.};
-  } else if (detector == E16DST_DST1Constant::kHBD) {
-    pos = {0., 0., 0.};
-  } else if (detector == E16DST_DST1Constant::kLG) {
-    pos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
-  }
+  TVector3 pos = {0., 0., 0.};
   return pos;
 }
 
 TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
-  TVector3 pos = {0., 0., 0.};
+  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+//  int geometry_module_id = 3 * (109 - module_id) + 1;
+  int geometry_module_id = ModuleId2020To2013(module_id);
+  if (detector == E16DST_DST1Constant::kGTR300) {
+    TVector3 local_pos = {0., -150. + 12.5 * (channel_id + 0.5), 0.};
+    pos = geometry.GTR3(geometry_module_id)->GetGPos(local_pos);
+  } else if (detector == E16DST_DST1Constant::kHBD) {
+    pos = {0., 0., 0.};
+  } else if (detector == E16DST_DST1Constant::kLG) {
+    pos = geometry.LG(geometry_module_id, channel_id)->GetDetectorCenter();
+  }
   return pos;
 }
 
@@ -349,7 +414,8 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
       auto order = track_set.GTRHitOrder(n_hit);
       auto hit = gtr_hits.Hit(order);
-      std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << std::endl;
+      std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
+      << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
     }
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
@@ -362,7 +428,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
       auto order = track_set.LGHitOrder(0);
       auto hit = lg_hits.Hit(order);
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
-      << ", global position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")" << std::endl;
+      << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
     } else {
       std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
     }

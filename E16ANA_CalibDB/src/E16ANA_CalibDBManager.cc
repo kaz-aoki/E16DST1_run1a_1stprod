@@ -1,3 +1,5 @@
+//2021-08-19, modified by ichikawa
+//            to use in E16DST1
 //2021-08-11, uploaded by yokkaich
 //E16ANA_CalibDBManager.cc 210619 by S. Yokkaichi
 //    Last modified at <2021-08-11 20:31:08 >
@@ -15,7 +17,7 @@ using namespace std;
 #include "E16DST_DST1DefaultFilePath.hh"
 
 E16ANA_CalibDBManager::E16ANA_CalibDBManager():
-  //  DefaultPATH("/e16/u/nakasuga/E16/DST1/E16DST1/E16ANA_CalibDB/calib_database/"), 
+//  DefaultPATH("/ccj/u/E16/database/calib/"), 
   DefaultPATH(static_cast<std::string>(CalibFilePath) + "/"), 
   DefaultCalibDBname("E16calibDB.txt")
 {
@@ -23,6 +25,7 @@ E16ANA_CalibDBManager::E16ANA_CalibDBManager():
    currentRunID = 0;
   CalibDBfileSet(DefaultPATH, DefaultCalibDBname);
 }
+
 void E16ANA_CalibDBManager::SetRunID(int runID){
     currentRunID = runID; 
     E16INFO("runID= %d",runID);
