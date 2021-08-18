@@ -6,11 +6,9 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-<<<<<<< HEAD
-#include "E16DST_TriggerCoincidenceMap.hh"
+
+#include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16ANA_GTRPedestal.h"
-=======
->>>>>>> ed155e4621511f472cd052c999aa99438503b325
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -83,6 +81,7 @@ int main(int argc, char* argv[]) {
 //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
 //    return -1;
 //   }
+
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
