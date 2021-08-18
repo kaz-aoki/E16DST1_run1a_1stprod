@@ -1,4 +1,4 @@
-//#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_Constant.hh"
 #include "E16ANA_LGBasic.hh"
@@ -12,7 +12,7 @@ int E16DST_DST1LGHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hit
 
 //  static E16ANA_LGBasic *lgbasic = new E16ANA_LGBasic;
   static E16ANA_LGBasic lgbasic;
-  bool is_first=true;
+  static bool is_first=true;
   if(is_first){
     lgbasic.MakeMap();//read calib_files
     lgbasic.SetMap();//make channel_map

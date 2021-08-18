@@ -77,6 +77,7 @@ add_library(E16DST_DST1
 )
 
 target_link_libraries(E16DST_DST1
+	E16ANA_CalibDB
   E16ANA_GeometryV2
 	E16DST
 )
@@ -85,6 +86,7 @@ target_link_libraries(E16DST_DST1
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
+	E16ANA_CalibDB
 	E16ANA_GeometryV2
 	E16DST
 	E16DST_DST1

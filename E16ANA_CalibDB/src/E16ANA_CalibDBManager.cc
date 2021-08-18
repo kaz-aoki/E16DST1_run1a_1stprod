@@ -14,7 +14,7 @@ using namespace std;
 #include "E16ANA_CalibDBManager.hh" 
 
 E16ANA_CalibDBManager::E16ANA_CalibDBManager():
-  DefaultPATH("/ccj/u/E16/database/calib/"), 
+  DefaultPATH("/e16/u/nakasuga/E16/DST1/E16DST1/E16ANA_CalibDB/calib_database/"), 
   DefaultCalibDBname("E16calibDB.txt")
 {
   E16INFO("DB Initialized");

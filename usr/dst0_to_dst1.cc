@@ -1,7 +1,7 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 
-//#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
@@ -67,9 +67,12 @@ int main(int argc, char* argv[]) {
 //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
 //    return -1;
 //   }
-//  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
-//  auto calib_file_name = calib.CalibFileName("SSD-pedestal", run_rum);
-//  std::cout << calib_file_name << std::endl;
+  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
+  //  auto calib_file_name = calib.CalibFileName("LG-drs4assign", run_num);
+  //  std::cout << calib_file_name << std::endl;
+  calib.SetRunID(run_num);
+
+
   int n_event = 0;
   while (dst0->ReadAnEvent()) {
     if (n_event >= max_event) {
