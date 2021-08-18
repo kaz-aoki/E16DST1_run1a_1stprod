@@ -19,6 +19,8 @@
 template <class T, class U>
 class E16DST_DST1Detector {
  public:
+  using value_type0 = T;
+  using value_type1 = U;
   E16DST_DST1Detector() {}
   ~E16DST_DST1Detector() {}
   void Clear() {
@@ -29,7 +31,7 @@ class E16DST_DST1Detector {
     hit_ptrs.clear();
     cluster_ptrs.clear();
   }
-  void             SetValidFlag(uint32_t _valid_flag) { valid_flag = _valid_flag; }
+  void             SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
   void             SetDetector(int _detector) {
     if (_detector >= E16DST_DST1Constant::kNumDetectors) {
       std::cerr << "Invalid detector ID: " << _detector << std::endl;
@@ -38,7 +40,7 @@ class E16DST_DST1Detector {
       detector = _detector;
     }
   }
-  uint32_t         ValidFlag()                        { return valid_flag; }
+  int              ValidFlag()                        { return valid_flag; }
   int              Detector()                         { return detector; }
   void             HitResize(int n)                   { hits.resize(n); }
   void             HitReserve(int n)                  { hits.reserve(n); }
@@ -79,13 +81,114 @@ class E16DST_DST1Detector {
   void             Print();
  private:
   int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
-  uint32_t                                 valid_flag;
+  int                                      valid_flag;
   int                                      detector;
   std::vector<T>                           hits;
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
   std::unordered_map<int, std::vector<U*>> cluster_ptrs;
 };
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
+  if (detector == E16DST_DST1Constant::kInvalidValue) {
+    return;
+  }
+  hit_ptrs.clear();
+  for (const auto& hit : hits) {
+    int module_id = hit.ModuleId();
+    int layer_id  = 0;
+    int type      = 0;
+    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+      layer_id = hit.LayerId();
+      type     = hit.Type();
+    }
+    int id = IdSum(module_id, layer_id, type);
+    if (hit_ptrs.count(id) == 0) {
+      std::vector hit_vector = {*hit};
+      hit_ptrs.emplace(id, hit_vector);
+    } else {
+      hit_ptrs[id].emplace_back(*hit);
+    }
+  }
+}
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
+  if (detector == E16DST_DST1Constant::kInvalidValue) {
+    return;
+  }
+  cluster_ptrs.clear();
+  for (const auto& cluster : clusters) {
+    int module_id = cluster.ModuleId();
+    int layer_id  = 0;
+    int type      = 0;
+    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+      layer_id = cluster.LayerId();
+      type     = cluster.Type();
+    }
+    int id = IdSum(module_id, layer_id, type);
+    if (cluster_ptrs.count(id) == 0) {
+      std::vector cluster_vector = {*cluster};
+      cluster_ptrs.emplace(id, cluster_vector);
+    } else {
+      cluster_ptrs[id].emplace_back(*cluster);
+    }
+  }
+}
+
+template <class T, class U>
+std::vector<T*> E16DST_DST1Detector<T, U>::ClusterMembers(int cluster_id) {
+  if (cluster_id < 0 || cluster_id >= clusters.size()) {
+    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
+    std::exit(1);
+  }
+  auto num_hits = clusters[cluster_id].NumHits();
+  std::vector<T*> hit_vector(num_hits);
+  for (int n_hit = 0; n_hit < num_hits; ++n_hit) {
+    hit_vector[n_hit] = &hits[clusters[cluster_id].HitOrder(n_hit)];
+  }
+  return hit_vector;
+}
+
+template <class T, class U>
+T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
+  if (cluster_id < 0 || cluster_id >= clusters.size()) {
+    std::cerr << "Invalid cluster ID in E16DST_DST1Detector::ClusterMember: " << cluster_id << std::endl;
+    std::exit(1);
+  }
+  auto num_hits = clusters[cluster_id].NumHits();
+  if (hit_id < 0 || hit_id >= num_hits) {
+    std::cerr << "Invalid hit ID in E16DST_DST1Detector::ClusterMember: " << hit_id << std::endl;
+    std::exit(1);
+  }
+  auto hit_orders = clusters.HitOrders();
+  return hits[clusters[cluster_id].HitOrder(hit_id)];
+}
+
+template <class T, class U>
+int E16DST_DST1Detector<T, U>::GetEventSize() {
+  int size = sizeof(uint32_t);
+  for (const auto& hit: hits) {
+    size += sizeof(T) * hit.size();
+  }
+  for (const auto& cluster: clusters) {
+    size += sizeof(U) * cluster.size();
+  }
+  return size;
+}
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::Print() {
+  std::cout << "Number of hits: " << hits.size() << std::endl;
+  for (auto& hit : hits) {
+    hit.Print();
+  }
+  std::cout << "Number of clusters: " << clusters.size() << std::endl;
+  for (auto& cluster : clusters) {
+    cluster.Print();
+  }
+}
 
 class E16DST_DST1Hit {
  public:
@@ -494,9 +597,13 @@ class E16DST_DST1Trigger {
 //  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
 //  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
   int NumTriggers() { return n_triggers; }
+  bool IsTriggerHit(E16DST_DST1GTRHit& hit);
+  bool IsTriggerHit(E16DST_DST1HBDHit& hit);
+  bool IsTriggerHit(E16DST_DST1LGHit&  hit);
   void Print();
   void Print(E16ANA_GeometryV2& geometry);
  private:
+  bool SearchTriggerHit(E16DST_DST0Detector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
   int valid_flag;
   E16DST_DST0Detector<E16DST_DST1TriggerHit>      gtr_hits;
   E16DST_DST0Detector<E16DST_DST1TriggerCluster>  gtr_clusters;
@@ -519,6 +626,58 @@ class E16DST_DST1Trigger {
   int n_triggers;
 };
 
+//class E16DST_DST1Trigger {
+// public:
+//  E16DST_DST1Trigger() {}
+//  ~E16DST_DST1Trigger() {}
+//  void Clear() {
+//    valid_flag = E16DST_DST1Constant::kInvalidValue;
+//    gtr_hits.Clear();
+//    hbd_hits.Clear();
+//    lg_hits.Clear();
+////    gtr_hits.clear();
+////    gtr_clusters.clear();
+////    hbd_hits.clear();
+////    hbd_clusters.clear();
+////    lg_hits.clear();
+////    lg_clusters.clear();
+////    tracks.clear();
+////    hit_sets.clear();
+////    track_sets.clear();
+//  }
+//  void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
+//  int ValidFlag() { return valid_flag; }
+//  int GetEventSize() const;
+////  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
+//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
+//  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
+////  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
+////  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
+////  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
+////  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
+////  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
+////  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
+////  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
+////  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
+////  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
+//  int NumTriggers() { return n_triggers; }
+//  void Print();
+//  void Print(E16ANA_GeometryV2& geometry);
+// private:
+//  int valid_flag;
+//  E16DST_DST0Detector<E16DST_DST0TriggerHit> gtr_hits;
+//  E16DST_DST0Detector<E16DST_DST0TriggerHit> hbd_hits;
+//  E16DST_DST0Detector<E16DST_DST0TriggerHit> lg_hits;
+//  E16DST_DST0UT3                             ut3;
+//};
+
 class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
  public:
   E16DST_DST1PhysicsEvent() {}
@@ -531,7 +690,7 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   bool Append(E16DST_DST0Event* _another_event) override;
   uint16_t EventType() { return E16DST_DST0EventType::Physics; }
 //  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
-//  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
+  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
 //  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD() { return hbd; }
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()  { return lg; }
   E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()     { return ssd_hits; }
@@ -545,7 +704,7 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST1Trigger&                         Trigger()     { return trigger; }
  private:
 //  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd;
-//  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr;
+  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr;
 //  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
   E16DST_DST0Detector<E16DST_DST1SSDHit>     ssd_hits;
@@ -600,14 +759,11 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size
 class E16DST_DST1GTRAnalyzerMaker;
 int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1, E16ANA_GTRPedestal *gtr_pedestal);
+int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16ANA_GTRPedestal& gtr_pedestal, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
 //int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1);
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1);
 int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, uint64_t timestamp, E16DST_DST1Trigger* trigger);
-
-template <typename T>
-int E16DST_DST1IsTriggerHit(T hit);
-
 
 #endif

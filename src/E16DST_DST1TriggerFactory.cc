@@ -90,6 +90,9 @@ int E16ANA_TriggerSearchCoincidenceHit(int module_id, int channel_id, E16DST_DST
 }
 
 int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, uint64_t timestamp, E16DST_DST1Trigger* trigger) {
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  bool is_mag_field = true; // tmp
+  
   static auto channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
   static auto coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   
@@ -134,21 +137,43 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
       }
     }
   }
- 
+
   auto track_set = new E16DST_DST1TriggerTrackSet();
   auto n_tracks = ut3.NumberOfTracks();
   trigger->TrackSets().Reserve(n_tracks);
+  auto run_id = calib.CurrentRunID();
+  std::array<int, 2> coarse_time;
+  coarse_time.fill(E16DST_DST1Constant::kInvalidValue);
+  for (int track_num = 0; track_num < n_tracks; ++track_num) {
+    auto track = ut3.Track(track_num);
+    int track_coarse_time = track.Time() / 64;
+    if (coarse_time[0] == E16DST_DST1Constant::kInvalidValue) {
+      coarse_time[0] = track_coarse_time;
+    } else if (track_coarse_time != coarse_time[0]) {
+      coarse_time[1] = track_coarse_time;
+      break;
+    }
+  }
+  std::sort(coarse_time.begin(), coarse_time.end());
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
     track_set->Clear();
     auto track = ut3.Track(track_num);
     int is_new;
-    if (track.HitNumber() < 64) {
-      is_new = 0;
+    if (run_id < 30000) {
+      int track_coarse_time = track.Time() / 64;
+      if (track_coarse_time == coarse_time[0]) {
+        is_new = 0;
+      } else {
+        is_new = 1;
+      }
     } else {
-      is_new = 1;
+      if (track.HitNumber() < 64) {
+        is_new = 0;
+      } else {
+        is_new = 1;
+      }
     }
     track_set->LGHitOrders().emplace_back(track_num);
-    bool is_mag_field = true; // tmp
     auto coincidence_map = coincidence_maps->CoincidenceMap(track.ModuleID(), track.ChannelID(), is_mag_field);
     for (int channel = 0; channel < coincidence_map.gtr_map.size(); ++channel) {
       if (coincidence_map.gtr_map[channel] && gtr_maps[is_new][E16DST_Constant::NTriggerChannelsGTR * coincidence_map.gtr_start_module + channel]) {
@@ -166,5 +191,38 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   }
   delete track_set;
   track_set = nullptr;
+
+  auto hit_set = new E16DST_DST1TriggerTrackSet();
+  auto n_hits = lg_hits.NumberOfHits();
+  for (int hit_num = 0; hit_num < n_hits; ++hit_num) {
+    hit_set->Clear();
+    auto hit = lg_hits.Hit(hit_num);
+    int is_new;
+    auto hit_coarse_time = hit.Time() / 64;
+    if (hit_coarse_time == coarse_time[0]) {
+      is_new = 0;
+    } else if (hit_coarse_time == coarse_time[1]) {
+      is_new = 1;
+    } else {
+      continue;
+    }
+    hit_set->LGHitOrders().emplace_back(hit_num);
+    auto coincidence_map = coincidence_maps->CoincidenceMap(hit.ModuleID(), hit.ChannelID(), is_mag_field);
+    for (int channel = 0; channel < coincidence_map.gtr_map.size(); ++channel) {
+      if (coincidence_map.gtr_map[channel] && gtr_maps[is_new][E16DST_Constant::NTriggerChannelsGTR * coincidence_map.gtr_start_module + channel]) {
+        auto ids = channel_map->GetDetectorIDs(32 * (coincidence_map.gtr_start_module + int{channel / E16DST_Constant::NTriggerChannelsGTR}) + channel % E16DST_Constant::NTriggerChannelsGTR);
+        E16ANA_TriggerSearchCoincidenceHit(ids.moduleID, ids.channelID, gtr_hits, &hit_set->GTRHitOrders(), &hit_set->GTRUnrecordedHits());
+      }
+    }
+    for (int channel = 0; channel < coincidence_map.hbd_map.size(); ++channel) {
+      if (coincidence_map.hbd_map[channel] && hbd_maps[is_new][E16DST_Constant::NTriggerChannelsHBD * coincidence_map.hbd_start_module + channel]) {
+        auto ids = channel_map->GetDetectorIDs(256 + 64 * coincidence_map.hbd_start_module + 32 * int{channel / (E16DST_Constant::NTriggerChannelsHBD / 2)} + channel % (E16DST_Constant::NTriggerChannelsHBD / 2));
+        E16ANA_TriggerSearchCoincidenceHit(ids.moduleID, ids.channelID, hbd_hits, &hit_set->HBDHitOrders(), &hit_set->HBDUnrecordedHits());
+      }
+    }
+    trigger->HitSets().PushBack(*hit_set);
+  }
+  delete hit_set;
+  hit_set = nullptr;
   return 1;
 }
