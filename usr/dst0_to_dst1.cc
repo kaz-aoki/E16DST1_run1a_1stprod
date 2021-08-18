@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_num       = stoi(argv[3]);
+  auto run_id       = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
 //  bpo::variables_map vm;
 //  string in_file_name;
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
   E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
   //  auto calib_file_name = calib.CalibFileName("LG-drs4assign", run_num);
   //  std::cout << calib_file_name << std::endl;
-  calib.SetRunID(run_num);
+  calib.SetRunID(run_id);
 
 
   int n_event = 0;

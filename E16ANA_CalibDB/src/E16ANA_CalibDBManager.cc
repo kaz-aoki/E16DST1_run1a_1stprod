@@ -12,9 +12,11 @@ using namespace std;
 
 #include "E16ANA_ErrorMessage.hh" 
 #include "E16ANA_CalibDBManager.hh" 
+#include "E16DST_DST1DefaultFilePath.hh"
 
 E16ANA_CalibDBManager::E16ANA_CalibDBManager():
-  DefaultPATH("/e16/u/nakasuga/E16/DST1/E16DST1/E16ANA_CalibDB/calib_database/"), 
+  //  DefaultPATH("/e16/u/nakasuga/E16/DST1/E16DST1/E16ANA_CalibDB/calib_database/"), 
+  DefaultPATH(static_cast<std::string>(CalibFilePath) + "/"), 
   DefaultCalibDBname("E16calibDB.txt")
 {
   E16INFO("DB Initialized");
