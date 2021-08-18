@@ -354,8 +354,8 @@ TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 //  int geometry_module_id = 3 * (109 - module_id) + 1;
   int geometry_module_id = ModuleId2020To2013(module_id);
   if (detector == E16DST_DST1Constant::kGTR300) {
-//    TVector3 local_pos = {0., -150. + 12.5 * (channel_id + 0.5), 0.};
-//    pos = geometry.GTR3(geometry_module_id)->GetGPos(local_pos);
+    TVector3 local_pos = {0., -150. + 12.5 * (channel_id + 0.5), 0.};
+    pos = geometry.GTR3(geometry_module_id)->GetGPos(local_pos);
   } else if (detector == E16DST_DST1Constant::kHBD) {
     pos = {0., 0., 0.};
   } else if (detector == E16DST_DST1Constant::kLG) {
@@ -415,7 +415,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
       auto order = track_set.GTRHitOrder(n_hit);
       auto hit = gtr_hits.Hit(order);
       std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId()
-      << ", global position (something bad) = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
+      << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
     }
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {

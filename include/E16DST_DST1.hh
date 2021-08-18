@@ -390,7 +390,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
  private:
   int ModuleId2020To2013(int module_id) override {
     if (detector == E16DST_DST1Constant::kSSD || detector == E16DST_DST1Constant::kGTR300) {
-      return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1];
+      return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100];
     } else if (detector == E16DST_DST1Constant::kHBD || detector == E16DST_DST1Constant::kLG) {
       return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1];
     } else {
