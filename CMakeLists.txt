@@ -71,6 +71,7 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
+  src/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
