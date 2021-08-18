@@ -10,7 +10,6 @@ E16DST_DST1GTRAnalyzerMaker::E16DST_DST1GTRAnalyzerMaker()
     }
 }
 
-
 E16DST_DST1GTRAnalyzerMaker::~E16DST_DST1GTRAnalyzerMaker()
 {
    for (auto &a : analyzer_map) {
@@ -59,4 +58,3 @@ void E16DST_DST1GTRAnalyzerMaker::Set(void (E16ANA_GTRAnalyzer2::*f)(double), do
       (a.second->*f)(th);
    }
 }
-

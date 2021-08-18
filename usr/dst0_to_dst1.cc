@@ -6,14 +6,15 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16DST_TriggerCoincidenceMap.hh"
+#include "E16ANA_GTRPedestal.h"
 
 using namespace std;
 namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event] [pedestal]" << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -61,6 +62,8 @@ int main(int argc, char* argv[]) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
+  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
+  gtr_pedestal->Read(argv[5]);
 //  auto dst1 = new E16DST_DST1();
 //  auto dst1 = new E16DST_DST0();
 //  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
@@ -93,12 +96,12 @@ int main(int argc, char* argv[]) {
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtr_pedestal),
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
-      event1->Trigger().SetValidFlag(1);
+//      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
+//      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
+//      event1->Trigger().SetValidFlag(1);
 
 
 // Check
