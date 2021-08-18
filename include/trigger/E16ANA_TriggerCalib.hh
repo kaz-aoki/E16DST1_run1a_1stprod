@@ -2,6 +2,7 @@
 #define E16ANA_TRIGGER_CALIB_HH
 
 #include <array>
+#include <iostream>
 #include <string>
 
 //class E16ANA_TriggerCalibParam {
@@ -24,6 +25,13 @@ class E16ANA_TriggerCalibParam {
   ~E16ANA_TriggerCalibParam() {}
   bool ReadConstantData(int run_id);
   bool ReadConstantDataByLocal(int run_id, std::string index_file_name);
+  int  Ut3FirmVersion(int n) {
+    if (n < ut3_firm_version.size()) {
+      return ut3_firm_version[n];
+    } else {
+      return -1;
+    }
+  }
   int  CoincidenceWindow(int n) {
     if (n < coincidence_windows.size()) {
       return coincidence_windows[n];
@@ -53,11 +61,17 @@ class E16ANA_TriggerCalibParam {
       return -1;
     }
   }
+  void Print() {
+    for (const auto& parameter :  parameters) {
+      std::cout << parameter << std::endl;
+    }
+  }
  private:
   bool ReadConstantDataCore(int run_id, std::string index_file_name);
   union {
-    std::array<int, 35> parameters;
+    std::array<int, 39> parameters;
     struct {
+      std::array<int, 4>  ut3_firm_version;
       std::array<int, 2>  coincidence_windows;
       int                 minimum_width;
       int                 maximum_width;

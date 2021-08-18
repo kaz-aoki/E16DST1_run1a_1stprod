@@ -2,6 +2,7 @@
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
@@ -12,7 +13,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max event]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)]" << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -57,8 +58,9 @@ int main(int argc, char* argv[]) {
   calib.SetRunID(run_id);
   auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
   cout << calib_file_name << std::endl;
-//  auto trigger_param = new E16ANA_TriggerCalibParam();
-//  trigger_param.ReadCalibData(calib.CurrentRunID());
+//auto trigger_param = new E16ANA_TriggerCalibParam();
+//trigger_param->ReadConstantData(calib.CurrentRunID());
+//trigger_param->Print();
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -74,8 +76,9 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
   int n_event = 0;
+  int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
-    if (n_event >= max_event) {
+    if (max_event != -1 && n_physics_event >= max_event) {
       break;
     }
     if (n_event % 1000 == 0) {
@@ -154,6 +157,7 @@ int main(int argc, char* argv[]) {
       return -1;
     }
     ++n_event;
+    ++n_physics_event;
   }
   delete geometry;
   delete dst0;

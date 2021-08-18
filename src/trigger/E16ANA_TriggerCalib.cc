@@ -18,8 +18,8 @@ bool E16ANA_TriggerCalibParam::ReadConstantDataCore(int run_id, std::string inde
   auto item = map.lower_bound(run_id);
   std::stringstream ss;
   ss << static_cast<std::string>(item->second);
-  for (int n_param = 0; parameters.size(); ++n_param) {
-    ss >> parameters[n_param];
+  for (auto& parameter : parameters) {
+    ss >> parameter;
   }
   in_file.close();
   delete in_file_ptr;
