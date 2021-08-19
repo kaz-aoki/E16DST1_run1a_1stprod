@@ -95,9 +95,9 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   auto& calib = E16ANA_CalibDBManager::Instance();
   bool is_mag_field = true; // tmp
   
-  static auto channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
-  static auto coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
-  
+  static auto* channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
+  static auto* coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
+
   trigger->Clear();
   E16ANA_TriggerHitAndClusterFactory(gtr_hits, timestamp, E16DST_DST1Constant::kGTR300, &trigger->GTRHits(), &trigger->GTRClusters());
   E16ANA_TriggerHitAndClusterFactory(hbd_hits, timestamp, E16DST_DST1Constant::kHBD,    &trigger->HBDHits(), &trigger->HBDClusters());
@@ -147,7 +147,7 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   std::array<int, 2> coarse_time;
   coarse_time.fill(E16DST_DST1Constant::kInvalidValue);
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
-    auto track = ut3.Track(track_num);
+    auto& track = ut3.Track(track_num);
     int track_coarse_time = track.Time() / 64;
     if (coarse_time[0] == E16DST_DST1Constant::kInvalidValue) {
       coarse_time[0] = track_coarse_time;
@@ -161,7 +161,7 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
     trigger->TrackSets().PushBack(E16DST_DST1TriggerTrackSet());
     auto& track_set = trigger->TrackSets().Hit(track_num);
     track_set.Clear();
-    auto track = ut3.Track(track_num);
+    auto& track = ut3.Track(track_num);
     int is_new;
     if (run_id < 30000) {
       int track_coarse_time = track.Time() / 64;
@@ -178,7 +178,7 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
       }
     }
     track_set.LGHitOrders().emplace_back(track_num);
-    auto coincidence_map = coincidence_maps->CoincidenceMap(track.ModuleID(), track.ChannelID(), is_mag_field);
+    auto& coincidence_map = coincidence_maps->CoincidenceMap(track.ModuleID(), track.ChannelID(), is_mag_field);
     for (int channel = 0; channel < coincidence_map.gtr_map.size(); ++channel) {
       if (coincidence_map.gtr_map[channel] && gtr_maps[is_new][E16DST_Constant::NTriggerChannelsGTR * coincidence_map.gtr_start_module + channel]) {
         auto ids = channel_map->GetDetectorIDs(32 * (coincidence_map.gtr_start_module + int{channel / E16DST_Constant::NTriggerChannelsGTR}) + channel % E16DST_Constant::NTriggerChannelsGTR);
@@ -203,7 +203,7 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
     trigger->HitSets().PushBack(E16DST_DST1TriggerTrackSet());
     auto& hit_set = trigger->HitSets().Hit(hit_num);
     hit_set.Clear();
-    auto hit = lg_hits.Hit(hit_num);
+    auto& hit = lg_hits.Hit(hit_num);
     int is_new;
     auto hit_coarse_time = hit.Time() / 64;
     if (hit_coarse_time == coarse_time[0]) {
@@ -214,7 +214,7 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
       continue;
     }
     hit_set.LGHitOrders().emplace_back(hit_num);
-    auto coincidence_map = coincidence_maps->CoincidenceMap(hit.ModuleID(), hit.ChannelID(), is_mag_field);
+    auto& coincidence_map = coincidence_maps->CoincidenceMap(hit.ModuleID(), hit.ChannelID(), is_mag_field);
     for (int channel = 0; channel < coincidence_map.gtr_map.size(); ++channel) {
       if (coincidence_map.gtr_map[channel] && gtr_maps[is_new][E16DST_Constant::NTriggerChannelsGTR * coincidence_map.gtr_start_module + channel]) {
         auto ids = channel_map->GetDetectorIDs(32 * (coincidence_map.gtr_start_module + int{channel / E16DST_Constant::NTriggerChannelsGTR}) + channel % E16DST_Constant::NTriggerChannelsGTR);
