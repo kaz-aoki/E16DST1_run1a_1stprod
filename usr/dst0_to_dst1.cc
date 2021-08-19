@@ -4,11 +4,11 @@
 #include "E16ANA_CalibDBManager.hh"
 //#include "E16ANA_GTRCalib.hh"
 #include "E16ANA_TriggerCalib.hh"
+#include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16ANA_TriggerCoincidenceMap.hh"
-//#include "E16ANA_GTRPedestal.h"
 
 
 using namespace std;
@@ -61,8 +61,8 @@ int main(int argc, char* argv[]) {
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
-  cout << calib_file_name << std::endl;
+//  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
+//  cout << calib_file_name << std::endl;
 //auto trigger_param = new E16ANA_TriggerCalibParam();
 //trigger_param->ReadConstantData(calib.CurrentRunID());
 //trigger_param->Print();
@@ -107,12 +107,19 @@ int main(int argc, char* argv[]) {
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
+<<<<<<< HEAD
       E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+=======
+      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtr_pedestal),
+      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, *gtr_pedestal, &event1->GTR());
+>>>>>>> upstream/main
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
+      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
       E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
+      event1->GTR().SetValidFlag(1);
+      event1->LG().SetValidFlag(1);
       event1->Trigger().SetValidFlag(1);
 
 
@@ -125,8 +132,8 @@ int main(int argc, char* argv[]) {
         hit.Print();
       }
       auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
       cout << endl << endl;
+      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
       for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
         auto cluster = event1->GTRClusters().Hit(n_cluster);
         cluster.Print();
@@ -134,6 +141,7 @@ int main(int argc, char* argv[]) {
 //        std::cout<<"GPos GTR:("<<cluster.GlobalPos(*geometry).X()<< ","<<cluster.GlobalPos(*geometry).Y()<<","<<cluster.GlobalPos(*geometry).Z()<<")"<<std::endl;     
 
       }
+      event1->GTR().Print();
       event1->Trigger().Print(*geometry);
 
       if (event1->LGHits().NumberOfHits() != 0) {
