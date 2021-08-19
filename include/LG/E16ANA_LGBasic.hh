@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "E16DST_DST0.hh"
+#include "E16ANA_CalibDBManager.hh"
 //#include "LGDST0ANA.h"
 #include <unordered_map>
 #include <iostream>
@@ -38,7 +39,6 @@ struct ch_pp{
 //static E16ANA_LGBasic* lgbasic = new E16ANA_LGBasic();
 //void LGSetUp();
 void MakeMap();
-void MakeMap_run0a();
 void SetMap();
 
 unordered_map<string, ch_pp*>*  lgdatamap = new unordered_map<string, ch_pp*>;
@@ -48,10 +48,11 @@ unordered_map<int, ch_pp*>*  lgdatamap_ip = new unordered_map<int, ch_pp*>;
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
 
-string file_channelmap();
-string file_drs4assign();
-string file_drs4assign_run0a();
-string file_timeoffset();
+
+  //string file_channelmap();
+  //string file_drs4assign();
+  //string file_drs4assign_run0a();
+  //string file_timeoffset();
 string file_binary();
 
 
