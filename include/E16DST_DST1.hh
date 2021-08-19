@@ -542,10 +542,13 @@ class E16DST_DST1TriggerTrackSet {
   ~E16DST_DST1TriggerTrackSet() {}
   void Clear() {
     gtr_hit_orders.clear();
+    gtr_hit_is_used.clear();
     gtr_unrecorded_hits.clear();
     hbd_hit_orders.clear();
+    hbd_hit_is_used.clear();
     hbd_unrecorded_hits.clear();
     lg_hit_orders.clear();
+    lg_hit_is_used.clear();
     lg_unrecorded_hits.clear();
   }
   int                          NumGTRHits()            { return gtr_hit_orders.size(); }
@@ -715,12 +718,9 @@ class E16DST_DST1Track {
  public:
   E16DST_DST1Track() {}
   ~E16DST_DST1Track() {}
-  void SetSSDCluster(E16DST_DST1SSDCluster* _cluster) { ssd_cluster = _cluster; }
-  void SetGTRCluster(E16DST_DST1GTRCluster* _cluster) { gtr_clusters[_cluster->LayerId()] = _cluster; }
  private:
-  E16DST_DST1SSDCluster* ssd_cluster;
-  std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
-  E16DST_DST1LGHit*      lg_hit;
+  std::array<float, 3> initial_point_at_target_plain;
+  std::array<float, 3> initial_momentum_at_initial_point;
 };
 
 class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
@@ -809,5 +809,6 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1);
 int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
+int E16DST_DST1TrackFactory();
 
 #endif

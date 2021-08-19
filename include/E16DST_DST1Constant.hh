@@ -54,7 +54,8 @@ const int kLgIntegralStart = -20;//[cell] +peaktime
 const int kLgIntegralEnd = 50;//[cell] +peaktime
 
 // Trigger
-const int                kMrgDelayOrder               = 4;
+const int                kMrgDelayOrderNs             = 4;
+const int                kMrgTransmitCycleNs          = 64;
 const std::array<int, 6> kGtrCoincidenceStartModule   = {1, 0, 0, 4, 5, 6};
 const std::array<int, 6> kHbdCoincidenceStartModule   = {2, 1, 0, 4, 5, 6};
 const int                kNumGtr300YSignalChannel     = 216;
