@@ -120,6 +120,8 @@ int main(int argc, char* argv[]) {
 
 
 // Check
+      auto event_id = event0->EventID();
+      cout << "Event ID: " << event_id << endl;
 //      cout << "Number of event: " << n_event << endl << endl;
 //      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
 //      cout << "Number of GTR hits: " << n_gtr_hits << endl;

@@ -1,17 +1,5 @@
 #include "E16DST_DST1.hh"
 
-template <class T, class U>
-int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
-}
-
-template <class T, class U>
-int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
-}
-
-template <class T, class U>
-void E16DST_DST1Detector<T, U>::Append(E16DST_DST1Detector<T, U>& rhs) {
-}
-
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int>& _hit_orders) {
   hit_orders.Reserve(_hit_orders.size());
   for (const auto& hit_order : _hit_orders) {
