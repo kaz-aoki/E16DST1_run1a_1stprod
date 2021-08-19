@@ -5,20 +5,6 @@
 #include <iostream>
 #include <string>
 
-//class E16ANA_TriggerCalibParam {
-// public:
-////  static const int kDataSize = ;
-//  E16ANA_TriggerCalibParam() {}
-//  ~E16ANA_TriggerCalibParam() {}
-//  bool ReadCalibData(int run_id);
-////  bool ReadCalibDataByLocal(std::string local_calib_file_name);
-////  bool WriteCalibData(std::string file_name);
-// private:
-// bool ReadCalibDataCore(FILE* ifp);
-// bool is_mag;
-// int  coincidence_window; 
-//};
-
 class E16ANA_TriggerCalibParam {
  public:
   E16ANA_TriggerCalibParam() {}
