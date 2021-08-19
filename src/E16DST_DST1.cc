@@ -145,26 +145,26 @@ void E16DST_DST1Trigger::Print() {
   std::cout << "Number of tracks: " << max_track << std::endl << std::endl;
   for (int n_track = 0; n_track < max_track; ++n_track) {
     std::cout << "Track ID: " << n_track << std::endl;
-    auto track_set = track_sets.Hit(n_track);
+    auto& track_set = track_sets.Hit(n_track);
     auto n_gtr_hits = track_set.NumGTRHits();
     auto n_hbd_hits = track_set.NumHBDHits();
     auto n_lg_hits = track_set.NumLGHits();
     std::cout << "  Number of tracked GTR: " << n_gtr_hits << std::endl;
     for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
       auto order = track_set.GTRHitOrder(n_hit);
-      auto hit = gtr_hits.Hit(order);
+      auto& hit = gtr_hits.Hit(order);
       std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing() << std::endl;
     }
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
       auto order = track_set.HBDHitOrder(n_hit);
-      auto hit = hbd_hits.Hit(order);
+      auto& hit = hbd_hits.Hit(order);
       std::cout << "    Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing() << std::endl;
     }
     std::cout << "  Number of tracked LG: " << n_lg_hits << std::endl;
     if (track_set.NumLGHits() == 1) {
       auto order = track_set.LGHitOrder(0);
-      auto hit = lg_hits.Hit(order);
+      auto& hit = tracks.Hit(order);
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing() << std::endl;
     } else {
       std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
@@ -179,14 +179,14 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
   std::cout << "Number of tracks: " << max_track << std::endl << std::endl;
   for (int n_track = 0; n_track < max_track; ++n_track) {
     std::cout << "Track ID: " << n_track << std::endl;
-    auto track_set = track_sets.Hit(n_track);
+    auto& track_set = track_sets.Hit(n_track);
     auto n_gtr_hits = track_set.NumGTRHits();
     auto n_hbd_hits = track_set.NumHBDHits();
     auto n_lg_hits = track_set.NumLGHits();
     std::cout << "  Number of tracked GTR: " << n_gtr_hits << std::endl;
     for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
       auto order = track_set.GTRHitOrder(n_hit);
-      auto hit = gtr_hits.Hit(order);
+      auto& hit = gtr_hits.Hit(order);
       std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing()
       << ", local position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")"
       << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
@@ -194,7 +194,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
       auto order = track_set.HBDHitOrder(n_hit);
-      auto hit = hbd_hits.Hit(order);
+      auto& hit = hbd_hits.Hit(order);
       std::cout << "    Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing()
       << ", local position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")"
       << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
@@ -202,7 +202,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     std::cout << "  Number of tracked LG: " << n_lg_hits << std::endl;
     if (track_set.NumLGHits() == 1) {
       auto order = track_set.LGHitOrder(0);
-      auto hit = lg_hits.Hit(order);
+      auto& hit = tracks.Hit(order);
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing()
       << ", local position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")"
       << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
