@@ -35,12 +35,15 @@ TVector3 E16DST_DST1GTRHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 double E16DST_DST1GTRCluster::LocalX() {
+//    return center_of_gravity; 
 }
 
 TVector3 E16DST_DST1GTRCluster::LocalPos() {
+//    return TVector3(center_of_gravity, 0.0, 0.0);
 }
 
 TVector3 E16DST_DST1GTRCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
+//    TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id).GetGPos(center_of_grabity, 0.0, 0.0));
 }
 
 TVector3 E16DST_DST1HBDHit::LocalPos(E16ANA_GeometryV2& geometry) {

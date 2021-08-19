@@ -5,7 +5,7 @@
 #include "E16ANA_GTRPedestal.h"
 
 
-int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16ANA_GTRPedestal& gtr_pedestal, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1) {
+int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1GTRCluster>* gtr1) {
     static bool isFirst = true;
     static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
