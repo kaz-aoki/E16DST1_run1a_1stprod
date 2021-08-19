@@ -13,6 +13,7 @@ enum kDetector {
   kHBD,
   kLG,
   kNumDetectors,
+  kNumTriggerOffset = 3,
 };
 
 enum kGtrAxis {
@@ -39,6 +40,7 @@ const std::array<std::array<int, 11>, 3> kModuleId2020To2013 = {{{30, 27, 24, 21
                                                                  {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
 
 // LG
+const double             kLgTimeScale                 = 960. / 1000.;
 const int kLgHitThreshold = 20;//[mV]
 const int kLgHitTimingStart = 50;//[ns]
 const int kLgHitTimingEnd = 150;//[ns]
@@ -52,7 +54,7 @@ const int kLgIntegralStart = -20;//[cell] +peaktime
 const int kLgIntegralEnd = 50;//[cell] +peaktime
 
 // Trigger
-const double             kLgTimeScale                 = 960. / 1000.;
+const int                kMrgDelayOrder               = 4;
 const std::array<int, 6> kGtrCoincidenceStartModule   = {1, 0, 0, 4, 5, 6};
 const std::array<int, 6> kHbdCoincidenceStartModule   = {2, 1, 0, 4, 5, 6};
 const int                kNumGtr300YSignalChannel     = 216;

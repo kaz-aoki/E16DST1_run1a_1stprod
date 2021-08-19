@@ -3,13 +3,11 @@
 
 #include "E16ANA_CalibDBManager.hh"
 //#include "E16ANA_GTRCalib.hh"
-#include "E16ANA_TriggerCalib.hh"
+//#include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-#include "E16ANA_TriggerCoincidenceMap.hh"
-
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -105,7 +103,6 @@ int main(int argc, char* argv[]) {
       auto trigger_gtr_hits0 = event0->TriggerGTR();
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
-      auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
       E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
@@ -113,7 +110,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
       E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
+      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
       event1->GTR().SetValidFlag(1);
       event1->LG().SetValidFlag(1);
       event1->Trigger().SetValidFlag(1);
