@@ -107,12 +107,8 @@ int main(int argc, char* argv[]) {
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-<<<<<<< HEAD
       E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
-=======
-      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtr_pedestal),
-      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, *gtr_pedestal, &event1->GTR());
->>>>>>> upstream/main
+//      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
