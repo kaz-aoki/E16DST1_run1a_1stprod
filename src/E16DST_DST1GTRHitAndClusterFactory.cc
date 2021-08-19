@@ -70,8 +70,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     dst1_h->SetPeakHeight(h.StripCharge(j));
                     dst1_h->SetTot(h.StripTimeOverThreshold(j));
                     hit_orders_x.push_back(order_x);
-                    dst1_hits->
-                        PushBack(*dst1_h);
+                    dst1_hits->PushBack(*dst1_h);
                     order_x++;
                 }
                 auto dst1_cl = new E16DST_DST1GTRCluster();
@@ -86,6 +85,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 dst1_cl->SetTdcPos(h.TdcHit());
                 dst1_cl->SetTanTheta(h.TanTheta());
                 dst1_clusters->PushBack(*dst1_cl);
+                delete dst1_h;
+                delete dst1_cl;
             }
             int order_y = 0;
             std::vector<E16ANA_GTRAnalyzedStripHit> &hits1 = gtr_analyzers->Chamber(mid, lid)->GetStripY()->GetAnalyzedHits(); 
@@ -115,6 +116,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 dst1_cl->SetTanTheta(h.TanTheta());
                 dst1_cl->SetHitOrders(hit_orders_y);
                 dst1_clusters->PushBack(*dst1_cl);
+                delete dst1_h;
+                delete dst1_cl;
             }
             
             if(lid != 0)continue;
@@ -146,6 +149,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 dst1_cl->SetTanTheta(h.TanTheta());
                 dst1_cl->SetHitOrders(hit_orders_yb);
                 dst1_clusters->PushBack(*dst1_cl);
+                delete dst1_h;
+                delete dst1_cl;
             }
         }
     }
