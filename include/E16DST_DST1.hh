@@ -537,6 +537,18 @@ T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
 }
 
 template <class T, class U>
+int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
+}
+
+template <class T, class U>
+int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
+}
+
+template <class T, class U>
+void E16DST_DST1Detector<T, U>::Append(E16DST_DST1Detector<T, U>& rhs) {
+}
+
+template <class T, class U>
 int E16DST_DST1Detector<T, U>::GetEventSize() {
   int size = sizeof(uint32_t);
   for (const auto& hit: hits) {
