@@ -118,21 +118,23 @@ int main(int argc, char* argv[]) {
 
 
 // Check
-      cout << "Number of event: " << n_event << endl << endl;
-      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-      cout << "Number of GTR hits: " << n_gtr_hits << endl;
-      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-        auto hit = event1->GTRHits().Hit(n_hit);
-        hit.Print();
-      }
-      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-      cout << endl << endl;
-      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-        auto cluster = event1->GTRClusters().Hit(n_cluster);
-        cluster.Print();
-      }
-      event1->GTR().Print();
+//      cout << "Number of event: " << n_event << endl << endl;
+//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//      cout << "Number of GTR hits: " << n_gtr_hits << endl;
+//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+//        auto hit = event1->GTRHits().Hit(n_hit);
+//        hit.Print();
+//      }
+//      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
+//      cout << endl << endl;
+//      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
+//      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
+//        auto cluster = event1->GTRClusters().Hit(n_cluster);
+//        cluster.Print();
+//      }
+//
+//      event1->GTR().Print();
+      
       event1->Trigger().Print(*geometry);
 
       if (event1->LGHits().NumberOfHits() != 0) {
