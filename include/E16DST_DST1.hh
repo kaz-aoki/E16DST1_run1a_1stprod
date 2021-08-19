@@ -16,6 +16,376 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
 
+class E16DST_DST1Hit {
+ public:
+  E16DST_DST1Hit() { SetInvalid(); }
+  ~E16DST_DST1Hit() {}
+  virtual void     SetInvalid() { SetBaseInvalid(); }
+  void             SetBaseInvalid() {
+    module_id  = E16DST_DST1Constant::kInvalidValue;
+    channel_id = E16DST_DST1Constant::kInvalidValue;
+    timing     = E16DST_DST1Constant::kInvalidValue;
+  }
+  void             SetIds(uint16_t _module_id, uint16_t _channel_id) {
+    module_id  = _module_id;
+    channel_id = _channel_id;
+  }
+  void             SetTiming(float _timing) { timing = _timing; }
+  virtual void     SetPeakHeight(float _peak_height) = 0;
+  int16_t          ModuleId() { return module_id; }
+  int16_t          ChannelId() { return channel_id; }
+  float            Timing() { return timing; }
+  virtual float    PeakHeight() = 0;
+  virtual TVector3 LocalPos(E16ANA_GeometryV2& geometry) = 0;
+  virtual TVector3 GlobalPos(E16ANA_GeometryV2& geometry) = 0;
+  virtual void     Print() {
+    std::cout << "Module ID: " << module_id << ", Channel ID: " << channel_id << ", Timing: " << timing << std::endl;
+  }
+ protected:
+  virtual int ModuleId2020To2013(int module_id) = 0;
+  int16_t     module_id;
+  int16_t     channel_id;
+  float       timing; // 50% of peak
+};
+
+class E16DST_DST1Cluster {
+ public:
+  E16DST_DST1Cluster() { SetInvalid(); }
+  ~E16DST_DST1Cluster() {}
+  virtual void              SetInvalid() { SetBaseInvalid(); }
+  void                      SetBaseInvalid() {
+    module_id       = E16DST_DST1Constant::kInvalidValue;
+    max_peak_ch     = E16DST_DST1Constant::kInvalidValue;
+    max_peak_height = E16DST_DST1Constant::kInvalidValue;
+    timing          = E16DST_DST1Constant::kInvalidValue;
+    peak_sum        = E16DST_DST1Constant::kInvalidValue;
+  }
+  void                      SetModuleId(int _module_id) { module_id = _module_id; }
+  void                      SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
+  void                      SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
+  void                      SetTiming(float _timing) { timing = _timing; }
+  void                      SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
+  void                      SetHitOrders(std::vector<int>& _hit_orders);
+  int                       ModuleId() { return module_id; }
+  int                       MaxPeakCh() { return max_peak_ch; }
+  float                     MaxPeakHeight() { return max_peak_height; }
+  float                     Timing() { return timing; }
+  float                     PeakSum() { return peak_sum; }
+  int                       NumHits() { return hit_orders.NumberOfHits(); }
+  E16DST_DST0Detector<int>& HitOrders() { return hit_orders; }
+  int                       HitOrder(int n) { return hit_orders.Hit(n); }
+  virtual TVector3          LocalPos() = 0;
+  virtual TVector3          GlobalPos(E16ANA_GeometryV2& geometry) = 0;
+  virtual void              Print() {
+    std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
+  }
+ protected:
+  virtual int              ModuleId2020To2013(int module_id) = 0;
+  int                      module_id;
+  int                      max_peak_ch;
+  float                    max_peak_height;
+  float                    timing;
+  float                    peak_sum;
+  E16DST_DST0Detector<int> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+};
+
+class E16DST_DST1SSDHit : public E16DST_DST1Hit {
+ public:
+  E16DST_DST1SSDHit() { SetInvalid(); }
+  ~E16DST_DST1SSDHit() {}
+  void     SetInvalid() override {
+    SetBaseInvalid();
+    peak_height = E16DST_DST1Constant::kInvalidValue;
+    hit_time    = E16DST_DST1Constant::kInvalidValue;
+    peak_time   = E16DST_DST1Constant::kInvalidValue;
+  }
+  void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
+  void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
+  void     SetPeakTime(float _peak_time) { peak_time = _peak_time; }
+  float    PeakHeight() override { return peak_height; }
+  float    HitTime() { return hit_time; }
+  float    PeakTime() { return peak_time; }
+  double   LocalX();
+  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  float peak_height;
+  float hit_time;
+  float peak_time;
+};
+
+class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
+ public:
+  E16DST_DST1SSDCluster() { SetInvalid(); }
+  ~E16DST_DST1SSDCluster() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
+    tdc_pos            = E16DST_DST1Constant::kInvalidValue;
+    tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+  }
+  void     SetCogPos(float _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
+  void     SetTdcPos(float _tdc_pos)              { tdc_pos = _tdc_pos; }
+  void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  float    CogPos() { return center_of_gravity; }
+  float    TdcPos() { return tdc_pos; }
+  float    TanTheta() { return tan_incident_angle; }
+  double   LocalX();
+  TVector3 LocalPos() override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  void     Print() override {
+    std::cout << "E16DST_DST1SSDCluster : "
+              << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
+              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
+              << " [mm]" << std::endl;
+  }
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  float center_of_gravity; // mm
+  float tdc_pos;           // mm
+  float tan_incident_angle;    // radian
+};
+
+class E16DST_DST1GTRHit : public E16DST_DST1Hit {
+ public:
+  E16DST_DST1GTRHit() { SetInvalid(); }
+  ~E16DST_DST1GTRHit() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    layer_id    = E16DST_DST1Constant::kInvalidValue;
+    type        = E16DST_DST1Constant::kInvalidValue;
+    peak_height = E16DST_DST1Constant::kInvalidValue;
+    tot         = E16DST_DST1Constant::kInvalidValue;
+  }
+  void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
+  void SetType(int16_t _type) { type = _type; }
+  void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
+  void SetTot(float _tot) { tot = _tot; }
+  int16_t LayerId() { return layer_id; }
+  bool IsX() { return type == E16DST_DST1Constant::kIsX; }
+  bool IsY() { return type == E16DST_DST1Constant::kIsY; }
+  bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
+  int16_t Type() { return type; }
+  float PeakHeight() override { return peak_height; }
+  float Tot() { return tot; }
+  double LocalX();
+  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+ private:
+  int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  int16_t layer_id;
+  int16_t type;
+  float   peak_height;
+  float   tot;
+ };
+
+class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
+ public:
+  E16DST_DST1GTRCluster() { SetInvalid(); }
+  ~E16DST_DST1GTRCluster() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    layer_id           = E16DST_DST1Constant::kInvalidValue;
+    type               = E16DST_DST1Constant::kInvalidValue;
+    center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
+    tdc_pos            = E16DST_DST1Constant::kInvalidValue;
+    tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+  }
+  void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
+  void SetType(int16_t _type) { type = _type; }
+  void SetCogPos(float _center_of_gravity) { center_of_gravity = _center_of_gravity; }
+  void SetTdcPos(float _tdc_pos) { tdc_pos = _tdc_pos; }
+  void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  int16_t LayerId() { return layer_id; }
+  bool IsX() { return type == E16DST_DST1Constant::kIsX; }
+  bool IsY() { return type == E16DST_DST1Constant::kIsY; }
+  bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
+  int16_t Type() { return type; }
+  float CogPos() { return center_of_gravity; }
+  float TdcPos() { return tdc_pos; }
+  float TanTheta() { return tan_incident_angle; }
+  double LocalX();
+  TVector3 LocalPos() override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  void Print() override {
+    std::cout << "E16DST_DST1GTRCluster : "
+              << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
+              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
+              << " [mm]" << std::endl;
+  }
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  int16_t layer_id;
+  int16_t type;
+  float center_of_gravity; // mm
+  float tdc_pos;           // mm
+  float tan_incident_angle;    // radian
+};
+
+class E16DST_DST1HBDHit : public E16DST_DST1Hit {
+ public:
+  E16DST_DST1HBDHit(){}
+  ~E16DST_DST1HBDHit(){}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    peak_height = E16DST_DST1Constant::kInvalidValue;
+  }
+  void SetPeakHeight(float _peak_height) override { peak_height = peak_height; }
+  float PeakHeight() override { return peak_height; }
+  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  void Print() override {
+  }
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+  float peak_height;
+};
+
+class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
+ public:
+  E16DST_DST1HBDCluster() { SetInvalid(); }
+  ~E16DST_DST1HBDCluster() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    first_timing    = E16DST_DST1Constant::kInvalidValue;
+    time_difference = E16DST_DST1Constant::kInvalidValue;
+  }
+  float FirstTiming() { return first_timing; }
+  float TimeDifference() { return time_difference; }
+  TVector3 LocalPos() override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  void Print() override {}
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+  float first_timing;
+  float time_difference;
+};
+
+class E16DST_DST1LGHit : public E16DST_DST1Hit {
+ public:
+  E16DST_DST1LGHit() { SetInvalid(); }
+  ~E16DST_DST1LGHit() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    peak_height = E16DST_DST1Constant::kInvalidValue;
+    peak_time= E16DST_DST1Constant::kInvalidValue;
+    baseline = E16DST_DST1Constant::kInvalidValue;
+    baseline_rms = E16DST_DST1Constant::kInvalidValue;
+    integral = E16DST_DST1Constant::kInvalidValue;
+  }
+  void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
+  void SetPeakTime(int _peak_time) { peak_time = _peak_time; }
+  void SetBaseline(float _baseline) { baseline = _baseline; }
+  void SetBaselineRms(float _baseline_rms) { baseline_rms = _baseline_rms; }
+  void SetIntegral(float _integral) { integral = _integral; }
+  float PeakHeight() override { return peak_height; }
+  int PeakTime() { return peak_time; }
+  float Baseline() { return baseline; }
+  float BaselineRms() { return baseline_rms; }
+  float Integral() { return integral; }
+  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+  float peak_height;
+  int   peak_time;
+  float baseline;
+  float baseline_rms;
+  float integral; // baseline subtracted
+};
+
+class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
+ public:
+  E16DST_DST1LGCluster() {}
+  ~E16DST_DST1LGCluster() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+  }
+  TVector3 LocalPos() override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  void Print() override {}
+ private:
+  int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+};
+
+class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
+ public:
+  E16DST_DST1TriggerHit() { SetInvalid(); }
+  ~E16DST_DST1TriggerHit() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    detector = E16DST_DST1Constant::kInvalidValue;
+  }
+  void SetPeakHeight(float _peak_height) override {}
+  void SetDetector(int _detector) {
+    if (_detector < E16DST_DST1Constant::kGTR300 || _detector > E16DST_DST1Constant::kLG) {
+      std::cerr << "Invalid detector ID: " << _detector << std::endl;
+      std::exit(1);
+    }
+    detector = _detector;
+  }
+  float PeakHeight() override { return E16DST_DST1Constant::kInvalidValue; }
+  int Detector() { return detector; }
+  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+ private:
+  int ModuleId2020To2013(int module_id) override {
+    if (detector == E16DST_DST1Constant::kSSD || detector == E16DST_DST1Constant::kGTR300) {
+      return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100];
+    } else if (detector == E16DST_DST1Constant::kHBD || detector == E16DST_DST1Constant::kLG) {
+      return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1];
+    } else {
+      return E16DST_DST1Constant::kInvalidValue;
+    }
+  }
+  int detector;
+};
+
+class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
+ public:
+  E16DST_DST1TriggerCluster() {}
+  ~E16DST_DST1TriggerCluster() {}
+ private:
+  int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+};
+
+class E16DST_DST1TriggerTrackSet {
+ public:
+  E16DST_DST1TriggerTrackSet() {}
+  ~E16DST_DST1TriggerTrackSet() {}
+  void              Clear() {
+    gtr_hit_orders.clear();
+    gtr_unrecorded_hits.clear();
+    hbd_hit_orders.clear();
+    hbd_unrecorded_hits.clear();
+    lg_hit_orders.clear();
+    lg_unrecorded_hits.clear();
+  }
+  int                          NumGTRHits()            { return gtr_hit_orders.size(); }
+  std::vector<int>&            GTRHitOrders()          { return gtr_hit_orders; }
+  int                          GTRHitOrder(int n)      { return gtr_hit_orders[n]; }
+  std::vector<E16DST_DST0Hit>& GTRUnrecordedHits()     { return gtr_unrecorded_hits; }
+  E16DST_DST0Hit&              GTRUnrecordedHit(int n) { return gtr_unrecorded_hits[n]; }
+  int                          NumHBDHits()            { return hbd_hit_orders.size(); }
+  std::vector<int>&            HBDHitOrders()          { return hbd_hit_orders; }
+  int                          HBDHitOrder(int n)      { return hbd_hit_orders[n]; }
+  std::vector<E16DST_DST0Hit>& HBDUnrecordedHits()     { return hbd_unrecorded_hits; }
+  E16DST_DST0Hit&              HBDUnrecordedHit(int n) { return hbd_unrecorded_hits[n]; }
+  int                          NumLGHits()             { return lg_hit_orders.size(); }
+  std::vector<int>&            LGHitOrders()           { return lg_hit_orders; }
+  int                          LGHitOrder(int n)       { return lg_hit_orders[n]; }
+  std::vector<E16DST_DST0Hit>& LGUnrecordedHits()      { return lg_unrecorded_hits; }
+  E16DST_DST0Hit&              LGUnrecordedHit(int n)  { return lg_unrecorded_hits[n]; }
+ private:
+  std::vector<int>            gtr_hit_orders;
+  std::vector<E16DST_DST0Hit> gtr_unrecorded_hits;
+  std::vector<int>            hbd_hit_orders;
+  std::vector<E16DST_DST0Hit> hbd_unrecorded_hits;
+  std::vector<int>            lg_hit_orders; // always 1 element in run0
+  std::vector<E16DST_DST0Hit> lg_unrecorded_hits; // always no element in run0
+};
+
 template <class T, class U>
 class E16DST_DST1Detector {
  public:
@@ -190,365 +560,6 @@ void E16DST_DST1Detector<T, U>::Print() {
   }
 }
 
-class E16DST_DST1Hit {
- public:
-  E16DST_DST1Hit() { SetInvalid(); }
-  ~E16DST_DST1Hit() {}
-  virtual void     SetInvalid() { SetBaseInvalid(); }
-  void             SetBaseInvalid() {
-    module_id  = E16DST_DST1Constant::kInvalidValue;
-    channel_id = E16DST_DST1Constant::kInvalidValue;
-    timing     = E16DST_DST1Constant::kInvalidValue;
-  }
-  void             SetIds(uint16_t _module_id, uint16_t _channel_id) {
-    module_id  = _module_id;
-    channel_id = _channel_id;
-  }
-  void             SetTiming(float _timing) { timing = _timing; }
-  virtual void     SetPeakHeight(float _peak_height) = 0;
-  int16_t          ModuleId() { return module_id; }
-  int16_t          ChannelId() { return channel_id; }
-  float            Timing() { return timing; }
-  virtual float    PeakHeight() = 0;
-  virtual TVector3 LocalPos(E16ANA_GeometryV2& geometry) = 0;
-  virtual TVector3 GlobalPos(E16ANA_GeometryV2& geometry) = 0;
-  virtual void     Print() {
-    std::cout << "Module ID: " << module_id << ", Channel ID: " << channel_id << ", Timing: " << timing << std::endl;
-  }
- protected:
-  virtual int ModuleId2020To2013(int module_id) = 0;
-  int16_t     module_id;
-  int16_t     channel_id;
-  float       timing; // 50% of peak
-};
-
-class E16DST_DST1Cluster {
- public:
-  E16DST_DST1Cluster() { SetInvalid(); }
-  ~E16DST_DST1Cluster() {}
-  virtual void              SetInvalid() { SetBaseInvalid(); }
-  void                      SetBaseInvalid() {
-    module_id       = E16DST_DST1Constant::kInvalidValue;
-    max_peak_ch     = E16DST_DST1Constant::kInvalidValue;
-    max_peak_height = E16DST_DST1Constant::kInvalidValue;
-    timing          = E16DST_DST1Constant::kInvalidValue;
-    peak_sum        = E16DST_DST1Constant::kInvalidValue;
-  }
-  void                      SetModuleId(int _module_id) { module_id = _module_id; }
-  void                      SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
-  void                      SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
-  void                      SetTiming(float _timing) { timing = _timing; }
-  void                      SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
-  void                      SetHitOrders(std::vector<int>& _hit_orders);
-  int                       ModuleId() { return module_id; }
-  int                       MaxPeakCh() { return max_peak_ch; }
-  float                     MaxPeakHeight() { return max_peak_height; }
-  float                     Timing() { return timing; }
-  float                     PeakSum() { return peak_sum; }
-  int                       NumHits() { return hit_orders.NumberOfHits(); }
-  E16DST_DST0Detector<int>& HitOrders() { return hit_orders; }
-  int                       HitOrder(int n) { return hit_orders.Hit(n); }
-  virtual TVector3          LocalPos() = 0;
-  virtual TVector3          GlobalPos(E16ANA_GeometryV2& geometry) = 0;
-  virtual void              Print() {
-    std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
-  }
- protected:
-  virtual int              ModuleId2020To2013(int module_id) = 0;
-  int                      module_id;
-  int                      max_peak_ch;
-  float                    max_peak_height;
-  float                    timing;
-  float                    peak_sum;
-  E16DST_DST0Detector<int> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
-};
-
-class E16DST_DST1SSDHit : public E16DST_DST1Hit {
- public:
-  E16DST_DST1SSDHit() { SetInvalid(); }
-  ~E16DST_DST1SSDHit() {}
-  void     SetInvalid() override {
-    SetBaseInvalid();
-    peak_height = E16DST_DST1Constant::kInvalidValue;
-    hit_time    = E16DST_DST1Constant::kInvalidValue;
-    peak_time   = E16DST_DST1Constant::kInvalidValue;
-  }
-  void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
-  void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
-  void     SetPeakTime(float _peak_time) { peak_time = _peak_time; }
-  float    PeakHeight() override { return peak_height; }
-  float    HitTime() { return hit_time; }
-  float    PeakTime() { return peak_time; }
-  double   LocalX();
-  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
- private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  float peak_height;
-  float hit_time;
-  float peak_time;
-};
-
-class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
- public:
-  E16DST_DST1SSDCluster() { SetInvalid(); }
-  ~E16DST_DST1SSDCluster() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
-    tdc_pos            = E16DST_DST1Constant::kInvalidValue;
-    tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
-  }
-  void     SetCogPos(float _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
-  void     SetTdcPos(float _tdc_pos)              { tdc_pos = _tdc_pos; }
-  void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-  float    CogPos() { return center_of_gravity; }
-  float    TdcPos() { return tdc_pos; }
-  float    TanTheta() { return tan_incident_angle; }
-  double   LocalX();
-  TVector3 LocalPos() override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  void     Print() override {
-    std::cout << "E16DST_DST1SSDCluster : "
-              << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
-              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
-              << " [mm]" << std::endl;
-  }
- private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  float center_of_gravity; // mm
-  float tdc_pos;           // mm
-  float tan_incident_angle;    // radian
-};
-
-class E16DST_DST1GTRHit : public E16DST_DST1Hit {
- public:
-  E16DST_DST1GTRHit() { SetInvalid(); }
-  ~E16DST_DST1GTRHit() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    layer_id    = E16DST_DST1Constant::kInvalidValue;
-    type        = E16DST_DST1Constant::kInvalidValue;
-    peak_height = E16DST_DST1Constant::kInvalidValue;
-    tot         = E16DST_DST1Constant::kInvalidValue;
-  }
-  void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
-  void SetType(int16_t _type) { type = _type; }
-  void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
-  void SetTot(float _tot) { tot = _tot; }
-  int16_t LayerId() { return layer_id; }
-  bool IsX() { return type == E16DST_DST1Constant::kIsX; }
-  bool IsY() { return type == E16DST_DST1Constant::kIsY; }
-  bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
-  int16_t Type() { return type; }
-  float PeakHeight() override { return peak_height; }
-  float Tot() { return tot; }
-  double LocalX();
-  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
- private:
-  int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  int16_t layer_id;
-  int16_t type;
-  float   peak_height;
-  float   tot;
- };
-
-class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
- public:
-  E16DST_DST1GTRCluster() { SetInvalid(); }
-  ~E16DST_DST1GTRCluster() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    center_of_gravity = E16DST_DST1Constant::kInvalidValue;
-    tdc_pos = E16DST_DST1Constant::kInvalidValue;
-    tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
-  }
-  void SetCogPos(float _center_of_gravity) { center_of_gravity = _center_of_gravity; }
-  void SetTdcPos(float _tdc_pos) { tdc_pos = _tdc_pos; }
-  void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-  float CogPos() { return center_of_gravity; }
-  float TdcPos() { return tdc_pos; }
-  float TanTheta() { return tan_incident_angle; }
-  double LocalX();
-  TVector3 LocalPos() override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  void Print() override {
-    std::cout << "E16DST_DST1GTRCluster : "
-              << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
-              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
-              << " [mm]" << std::endl;
-  }
- private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  float center_of_gravity; // mm
-  float tdc_pos;           // mm
-  float tan_incident_angle;    // radian
-};
-
-class E16DST_DST1HBDHit : public E16DST_DST1Hit {
- public:
-  E16DST_DST1HBDHit(){}
-  ~E16DST_DST1HBDHit(){}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    peak_height = E16DST_DST1Constant::kInvalidValue;
-  }
-  void SetPeakHeight(float _peak_height) override { peak_height = peak_height; }
-  float PeakHeight() override { return peak_height; }
-  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  void Print() override {
-  }
- private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-  float peak_height;
-};
-
-class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
- public:
-  E16DST_DST1HBDCluster() { SetInvalid(); }
-  ~E16DST_DST1HBDCluster() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    first_timing    = E16DST_DST1Constant::kInvalidValue;
-    time_difference = E16DST_DST1Constant::kInvalidValue;
-  }
-  float FirstTiming() { return first_timing; }
-  float TimeDifference() { return time_difference; }
-  TVector3 LocalPos() override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  void Print() override {}
- private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-  float first_timing;
-  float time_difference;
-};
-
-class E16DST_DST1LGHit : public E16DST_DST1Hit {
- public:
-  E16DST_DST1LGHit() { SetInvalid(); }
-  ~E16DST_DST1LGHit() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    peak_height = E16DST_DST1Constant::kInvalidValue;
-    peak_time= E16DST_DST1Constant::kInvalidValue;
-    baseline = E16DST_DST1Constant::kInvalidValue;
-    baseline_rms = E16DST_DST1Constant::kInvalidValue;
-    integral = E16DST_DST1Constant::kInvalidValue;
-  }
-  void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
-  void SetPeakTime(int _peak_time) { peak_time = _peak_time; }
-  void SetBaseline(float _baseline) { baseline = _baseline; }
-  void SetBaselineRms(float _baseline_rms) { baseline_rms = _baseline_rms; }
-  void SetIntegral(float _integral) { integral = _integral; }
-  float PeakHeight() override { return peak_height; }
-  int PeakTime() { return peak_time; }
-  float Baseline() { return baseline; }
-  float BaselineRms() { return baseline_rms; }
-  float Integral() { return integral; }
-  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
- private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-  float peak_height;
-  int   peak_time;
-  float baseline;
-  float baseline_rms;
-  float integral; // baseline subtracted
-};
-
-class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
- public:
-  E16DST_DST1LGCluster() {}
-  ~E16DST_DST1LGCluster() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-  }
-  TVector3 LocalPos() override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  void Print() override {}
- private:
-  int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-};
-
-class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
- public:
-  E16DST_DST1TriggerHit() { SetInvalid(); }
-  ~E16DST_DST1TriggerHit() {}
-  void SetInvalid() override {
-    SetBaseInvalid();
-    detector = E16DST_DST1Constant::kInvalidValue;
-  }
-  void SetPeakHeight(float _peak_height) override {}
-  void SetDetector(int _detector) {
-    if (_detector < E16DST_DST1Constant::kGTR300 || _detector > E16DST_DST1Constant::kLG) {
-      std::cerr << "Invalid detector ID: " << _detector << std::endl;
-      std::exit(1);
-    }
-    detector = _detector;
-  }
-  float PeakHeight() override { return E16DST_DST1Constant::kInvalidValue; }
-  int Detector() { return detector; }
-  TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
-  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
- private:
-  int ModuleId2020To2013(int module_id) override {
-    if (detector == E16DST_DST1Constant::kSSD || detector == E16DST_DST1Constant::kGTR300) {
-      return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100];
-    } else if (detector == E16DST_DST1Constant::kHBD || detector == E16DST_DST1Constant::kLG) {
-      return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1];
-    } else {
-      return E16DST_DST1Constant::kInvalidValue;
-    }
-  }
-  int detector;
-};
-
-class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
- public:
-  E16DST_DST1TriggerCluster() {}
-  ~E16DST_DST1TriggerCluster() {}
- private:
-  int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-};
-
-class E16DST_DST1TriggerTrackSet {
- public:
-  E16DST_DST1TriggerTrackSet() {}
-  ~E16DST_DST1TriggerTrackSet() {}
-  void              Clear() {
-    gtr_hit_orders.clear();
-    gtr_unrecorded_hits.clear();
-    hbd_hit_orders.clear();
-    hbd_unrecorded_hits.clear();
-    lg_hit_orders.clear();
-    lg_unrecorded_hits.clear();
-  }
-  int                          NumGTRHits()            { return gtr_hit_orders.size(); }
-  std::vector<int>&            GTRHitOrders()          { return gtr_hit_orders; }
-  int                          GTRHitOrder(int n)      { return gtr_hit_orders[n]; }
-  std::vector<E16DST_DST0Hit>& GTRUnrecordedHits()     { return gtr_unrecorded_hits; }
-  E16DST_DST0Hit&              GTRUnrecordedHit(int n) { return gtr_unrecorded_hits[n]; }
-  int                          NumHBDHits()            { return hbd_hit_orders.size(); }
-  std::vector<int>&            HBDHitOrders()          { return hbd_hit_orders; }
-  int                          HBDHitOrder(int n)      { return hbd_hit_orders[n]; }
-  std::vector<E16DST_DST0Hit>& HBDUnrecordedHits()     { return hbd_unrecorded_hits; }
-  E16DST_DST0Hit&              HBDUnrecordedHit(int n) { return hbd_unrecorded_hits[n]; }
-  int                          NumLGHits()             { return lg_hit_orders.size(); }
-  std::vector<int>&            LGHitOrders()           { return lg_hit_orders; }
-  int                          LGHitOrder(int n)       { return lg_hit_orders[n]; }
-  std::vector<E16DST_DST0Hit>& LGUnrecordedHits()      { return lg_unrecorded_hits; }
-  E16DST_DST0Hit&              LGUnrecordedHit(int n)  { return lg_unrecorded_hits[n]; }
- private:
-  std::vector<int>            gtr_hit_orders;
-  std::vector<E16DST_DST0Hit> gtr_unrecorded_hits;
-  std::vector<int>            hbd_hit_orders;
-  std::vector<E16DST_DST0Hit> hbd_unrecorded_hits;
-  std::vector<int>            lg_hit_orders; // always 1 element in run0
-  std::vector<E16DST_DST0Hit> lg_unrecorded_hits; // always no element in run0
-};
-
 class E16DST_DST1Trigger {
  public:
   E16DST_DST1Trigger() {}
@@ -677,6 +688,18 @@ class E16DST_DST1Trigger {
 //  E16DST_DST0Detector<E16DST_DST0TriggerHit> lg_hits;
 //  E16DST_DST0UT3                             ut3;
 //};
+
+class E16DST_DST1Track {
+ public:
+  E16DST_DST1Track() {}
+  ~E16DST_DST1Track() {}
+  void SetSSDCluster(E16DST_DST1SSDCluster* _cluster) { ssd_cluster = _cluster; }
+  void SetGTRCluster(E16DST_DST1GTRCluster* _cluster) { gtr_clusters[_cluster->LayerId()] = _cluster; }
+ private:
+  E16DST_DST1SSDCluster* ssd_cluster;
+  std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
+  E16DST_DST1LGHit*      lg_hit;
+};
 
 class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
  public:
