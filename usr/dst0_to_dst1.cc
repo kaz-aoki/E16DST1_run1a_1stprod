@@ -154,15 +154,15 @@ int main(int argc, char* argv[]) {
 //        std::cout<<"GTR :: LPos:("<<gtrhit.LocalX()<< " )"<<std::endl;  
  //     }      
 
-      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-        auto gtrhit = event1->GTRHits().Hit(n_hit);                                                          
+//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+//        auto gtrhit = event1->GTRHits().Hit(n_hit);                                                          
 //        gtrhit.Print();                                                                                 
-        std::cout<<"GTR :: LPos:("<<gtrhit.LocalPos(*geometry).X()<< ","<<gtrhit.LocalPos(*geometry).Y()<<","<<gtrhit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GTR :: GPos:("<<gtrhit.GlobalPos(*geometry).X()<< ","<<gtrhit.GlobalPos(*geometry).Y()<<","<<gtrhit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+//        std::cout<<"GTR :: LPos:("<<gtrhit.LocalPos(*geometry).X()<< ","<<gtrhit.LocalPos(*geometry).Y()<<","<<gtrhit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+//        std::cout<<"GTR :: GPos:("<<gtrhit.GlobalPos(*geometry).X()<< ","<<gtrhit.GlobalPos(*geometry).Y()<<","<<gtrhit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
 //      }
-      std::cout << std::endl << std::endl;
-    }
+//      std::cout << std::endl << std::endl;
+//    }
 
 //      if (event1->LGHits().NumberOfHits() != 0) {
 //        auto lghit = event1->LGHits().Hit(0);                                                          
