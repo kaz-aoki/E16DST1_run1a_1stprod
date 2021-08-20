@@ -17,7 +17,7 @@ class E16ANA_TriggerCoincidenceMap {
   };
   E16ANA_TriggerCoincidenceMap(const std::array<std::string_view, 12>& coincidence_map_files, const std::array<std::string_view, 3>& trigger_channel_map_files);
   ~E16ANA_TriggerCoincidenceMap() {}
-  E16ANA_TriggerCoincidenceMap::Map CoincidenceMap(uint16_t _module_id, uint16_t _channel_id, bool _is_mag_field) {
+  E16ANA_TriggerCoincidenceMap::Map& CoincidenceMap(uint16_t _module_id, uint16_t _channel_id, bool _is_mag_field) {
     int key = 100 * _module_id + _channel_id;
     if (_is_mag_field) {
       return maps[1][key];
