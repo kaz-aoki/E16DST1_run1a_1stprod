@@ -71,7 +71,6 @@ add_library(E16ANA
   E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
 )
 
-
 target_link_libraries(E16ANA
   E16ANA_CalibDB
 )

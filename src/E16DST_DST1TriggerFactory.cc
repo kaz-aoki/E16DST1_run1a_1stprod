@@ -11,11 +11,9 @@ int E16ANA_TriggerTime(uint32_t trigger_tdc, uint32_t tdc) {
   return int{trigger_tdc} - int{tdc};
 }
 
-bool E16ANA_TriggerSingleHitFactory(E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector, E16DST_DST1TriggerHit* hit1) {
-  auto& calib = E16ANA_CalibDBManager::Instance();
-  static auto* trigger_param = new E16ANA_TriggerCalibParam();
-  auto delay         = trigger_param->MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
-  auto trigger_delay = trigger_param->MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
+bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector, E16DST_DST1TriggerHit* hit1) {
+  auto delay         = trigger_param.MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
+  auto trigger_delay = trigger_param.MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
   hit1->SetInvalid();
   hit1->SetIds(hit0.ModuleID(), hit0.ChannelID());
   hit1->SetDetector(detector);
@@ -23,50 +21,39 @@ bool E16ANA_TriggerSingleHitFactory(E16DST_DST0TriggerHit& hit0, uint32_t trigge
   return true;
 }
 
-int E16ANA_TriggerHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint32_t trigger_tdc, int detector, E16DST_DST0Detector<E16DST_DST1TriggerHit>* hits1, E16DST_DST0Detector<E16DST_DST1TriggerCluster>* clusters1) {
+int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint32_t trigger_tdc, int detector, E16DST_DST0Detector<E16DST_DST1TriggerHit>* hits1, E16DST_DST0Detector<E16DST_DST1TriggerCluster>* clusters1) {
   auto max_hit = hits0.NumberOfHits();
   hits1->Resize(max_hit);
   for (int n_hit = 0; n_hit < max_hit; ++n_hit) {
-    E16ANA_TriggerSingleHitFactory(hits0.Hit(n_hit), trigger_tdc, detector, &hits1->Hit(n_hit));
+    E16ANA_TriggerSingleHitFactory(trigger_param, hits0.Hit(n_hit), trigger_tdc, detector, &hits1->Hit(n_hit));
   }
   return hits1->GetEventSize() + clusters1->GetEventSize();
 }
 
-//int E16ANA_TriggerNumTriggers(E16DST_DST0UT3& ut3) {
-//  // must use calib DB
-//  auto& calib = E16ANA_CalibDBManager::Instance();
-//  auto trigger_param = new E16ANA_TriggerCalibParam();
-//  trigger_param->ReadConstantData(calib.CurrentRunID());
-//  auto trigger_type = ut3.TriggerType();
-//  if (trigger_type == E16DST_DST1Constant::kMultiTrack || trigger_type == E16DST_DST1Constant::kClock || trigger_type == E16DST_DST1Constant::kNim) {
-//    return 1;
-//  } else if (trigger_type == E16DST_DST1Constant::k1Track) {
-//    return ut3.
-//  if (trigger_type == E16DST_DST1Constant::kTrackCOrreration) {
-//    
-// 
-//
-//
-//
-//
-//
-//  int n_trigger = 0;
-//  auto max_track = ut3.NumberOfTracks();
-//  std:;vector<E16DST_DST0TriggerHit*> tracks(max_track);
-//  for (int n_track = 0; n_track < max_track; ++n_track) {
-//    auto track = ut3.Track(n_track);
-//    for (const auto& ref_track : tracks) {
-//      
-//
-//    }
-//    tracks[n_track] = &track;
-//  }
-
-
-
-
-
-
+int E16ANA_TriggerNumTriggers(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0UT3& ut3) {
+  auto trigger_type = ut3.TriggerType();
+  if (trigger_type == E16DST_DST1Constant::kMultiTrack || trigger_type == E16DST_DST1Constant::kClock || trigger_type == E16DST_DST1Constant::kNim) {
+    return 1;
+  } else if (trigger_type == E16DST_DST1Constant::k1Track) {
+    return ut3.NumberOfTracks();
+  } else if (trigger_type == E16DST_DST1Constant::kTrackCorreration) {
+    int n_trigger = 0;
+//2    auto 
+    
+    auto max_track = ut3.NumberOfTracks();
+    std::vector<E16DST_DST0TriggerHit*> tracks(max_track);
+    for (int n_track = 0; n_track < max_track; ++n_track) {
+      auto track = ut3.Track(n_track);
+      for (const auto& ref_track : tracks) {
+        
+  
+      }
+      tracks[n_track] = &track;
+    }
+    return n_trigger;
+  }
+  return -1;
+}
 
 int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_time, int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int>* coincidence_hit_orders, std::vector<bool>* coincidence_hit_is_used, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
   auto n_hits = hits.NumberOfHits();
@@ -94,29 +81,25 @@ int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_
   return n_coincidence_hits;
 }
 
-int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
-  auto& calib = E16ANA_CalibDBManager::Instance();
-  static auto* trigger_param = new E16ANA_TriggerCalibParam();
+int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
   bool is_mag_field = true; // tmp
-  auto gtr_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param->CoincidenceWindow(E16DST_DST1Constant::kGTR300 - E16DST_DST1Constant::kNumTriggerOffset);
-  auto hbd_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param->CoincidenceWindow(E16DST_DST1Constant::kHBD    - E16DST_DST1Constant::kNumTriggerOffset);
+  auto gtr_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kGTR300 - E16DST_DST1Constant::kNumTriggerOffset);
+  auto hbd_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kHBD    - E16DST_DST1Constant::kNumTriggerOffset);
 
   static auto* channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
   static auto* coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   trigger->Clear();
 
   auto trigger_tdc = ut3.TriggerTime();
-  E16ANA_TriggerHitAndClusterFactory(gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR300, &trigger->GTRHits(), &trigger->GTRClusters());
-  E16ANA_TriggerHitAndClusterFactory(hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD,    &trigger->HBDHits(), &trigger->HBDClusters());
-  E16ANA_TriggerHitAndClusterFactory(lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,     &trigger->LGHits(),  &trigger->LGClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR300, &trigger->GTRHits(), &trigger->GTRClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD,    &trigger->HBDHits(), &trigger->HBDClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,     &trigger->LGHits(),  &trigger->LGClusters());
   auto max_track =ut3.NumberOfTracks();
   trigger->Tracks().Resize(max_track);
   for (int n_track = 0; n_track < max_track; ++n_track) {
-    E16ANA_TriggerSingleHitFactory(ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks().Hit(n_track));
+    E16ANA_TriggerSingleHitFactory(trigger_param, ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks().Hit(n_track));
   }
   
-//  n_teriggers = E16ANA_TriggerNumTrigger(ut3);
-
   // track_set
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsGTR>, 2> gtr_maps;
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsHBD>, 2> hbd_maps;
@@ -147,7 +130,8 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   }
 
   auto n_tracks = ut3.NumberOfTracks();
-  trigger->TrackSets().Reserve(n_tracks);
+  trigger->TrackSets().Resize(n_tracks);
+auto& calib = E16ANA_CalibDBManager::Instance();
   auto run_id = calib.CurrentRunID();
   std::array<int, 2> coarse_time;
   coarse_time.fill(E16DST_DST1Constant::kInvalidValue);
@@ -163,7 +147,6 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   }
   std::sort(coarse_time.begin(), coarse_time.end());
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
-    trigger->TrackSets().PushBack(E16DST_DST1TriggerTrackSet());
     auto& track_set = trigger->TrackSets().Hit(track_num);
     track_set.Clear();
     auto& track = ut3.Track(track_num);
@@ -199,9 +182,8 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   }
 
   auto n_hits = lg_hits.NumberOfHits();
-  trigger->HitSets().Reserve(n_hits);
+  trigger->HitSets().Resize(n_hits);
   for (int hit_num = 0; hit_num < n_hits; ++hit_num) {
-    trigger->HitSets().PushBack(E16DST_DST1TriggerTrackSet());
     auto& hit_set = trigger->HitSets().Hit(hit_num);
     hit_set.Clear();
     auto& hit = lg_hits.Hit(hit_num);
@@ -229,5 +211,8 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
       }
     }
   }
+  
+  trigger->SetNumTriggers(E16ANA_TriggerNumTriggers(trigger_param, ut3));
+
   return 1;
 }

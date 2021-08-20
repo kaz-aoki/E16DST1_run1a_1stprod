@@ -3,7 +3,7 @@
 
 #include "E16ANA_CalibDBManager.hh"
 //#include "E16ANA_GTRCalib.hh"
-//#include "E16ANA_TriggerCalib.hh"
+#include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
@@ -59,11 +59,8 @@ int main(int argc, char* argv[]) {
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-//  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
-//  cout << calib_file_name << std::endl;
-//auto trigger_param = new E16ANA_TriggerCalibParam();
-//trigger_param->ReadConstantData(calib.CurrentRunID());
-//trigger_param->Print();
+  auto trigger_param = new E16ANA_TriggerCalibParam();
+  trigger_param->ReadConstantData(calib.CurrentRunID());
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -110,7 +107,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
       event1->GTR().SetValidFlag(1);
       event1->LG().SetValidFlag(1);
       event1->Trigger().SetValidFlag(1);
