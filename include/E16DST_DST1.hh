@@ -6,12 +6,7 @@
 #include <vector>
 
 #include "TVector3.h"
-#include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GeometryV2.hh"
-#include "E16ANA_GTRPedestal.h"
-#include "OnlineGTRUtility.h"
-#include "E16DST_DST1GTRAnalyzerMaker.hh"
-#include "E16ANA_GTRAnalyzer2.h"
 #include "E16DST_Constant.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"

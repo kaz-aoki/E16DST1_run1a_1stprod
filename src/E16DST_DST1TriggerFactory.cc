@@ -86,9 +86,6 @@ int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_
     }
   }
   if (n_coincidence_hits == 0) {
-//    auto hit = new E16DST_DST0Hit();
-//    hit->SetIDs(module_id, channel_id);
-//    unrecorded_hits->emplace_back(*hit);
     unrecorded_hits->push_back(E16DST_DST0Hit());
     unrecorded_hits->back().SetIDs(module_id, channel_id);
     coincidence_hit_orders->emplace_back(-unrecorded_hits->size());
@@ -124,7 +121,6 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsGTR>, 2> gtr_maps;
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsHBD>, 2> hbd_maps;
   E16DST_DST0UT3Hitmap hitmaps;
-//std::cout << std::endl;
   for (int packet = 0; packet < 2; ++packet) {
     if (packet == 0) {
       hitmaps = ut3.HitmapOld();
@@ -150,7 +146,6 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
     }
   }
 
-//  auto track_set = new E16DST_DST1TriggerTrackSet();
   auto n_tracks = ut3.NumberOfTracks();
   trigger->TrackSets().Reserve(n_tracks);
   auto run_id = calib.CurrentRunID();
@@ -201,12 +196,8 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
         E16ANA_TriggerSearchCoincidenceHit(hbd_coincidence_window, track_coarse_time, ids.moduleID, ids.channelID, hbd_hits, &track_set.HBDHitOrders(), &track_set.HBDHitIsUsed(), &track_set.HBDUnrecordedHits());
       }
     }
-//    trigger->TrackSets().PushBack(*track_set);
   }
-//  delete track_set;
-//  track_set = nullptr;
 
-//  auto hit_set = new E16DST_DST1TriggerTrackSet();
   auto n_hits = lg_hits.NumberOfHits();
   trigger->HitSets().Reserve(n_hits);
   for (int hit_num = 0; hit_num < n_hits; ++hit_num) {
@@ -237,9 +228,6 @@ int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hi
         E16ANA_TriggerSearchCoincidenceHit(hbd_coincidence_window, hit_coarse_time, ids.moduleID, ids.channelID, hbd_hits, &hit_set.HBDHitOrders(), &hit_set.HBDHitIsUsed(), &hit_set.HBDUnrecordedHits());
       }
     }
-//    trigger->HitSets().PushBack(*hit_set);
   }
-//  delete hit_set;
-//  hit_set = nullptr;
   return 1;
 }
