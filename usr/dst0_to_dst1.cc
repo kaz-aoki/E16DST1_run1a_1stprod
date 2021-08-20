@@ -15,7 +15,6 @@ using namespace std;
 int main(int argc, char* argv[]) {
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
-//    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event] [pedestal]" << endl;
     cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
@@ -116,6 +115,9 @@ int main(int argc, char* argv[]) {
 // Check
       auto event_id = event0->EventID();
       cout << "Event ID: " << event_id << endl;
+// SSD
+
+// GTR
 //      cout << "Number of event: " << n_event << endl << endl;
 //      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
 //      cout << "Number of GTR hits: " << n_gtr_hits << endl;
@@ -130,11 +132,7 @@ int main(int argc, char* argv[]) {
 //        auto cluster = event1->GTRClusters().Hit(n_cluster);
 //        cluster.Print();
 //      }
-//
-//      event1->GTR().Print();
-      
-//      event1->Trigger().Print(*geometry);
-
+//      
 //      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
 //      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
 //      if (event1->GTRHits().NumberOfHits() != 0) {
@@ -146,18 +144,21 @@ int main(int argc, char* argv[]) {
 //      if (event1->GTRHits().NumberOfHits() != 0) {
 //        auto gtrhit = event1->GTRHits().Hit(n_hit);
 //        std::cout<<"GTR :: LPos:("<<gtrhit.LocalX()<< " )"<<std::endl;  
- //     }      
-
-      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-        auto gtrhit = event1->GTRHits().Hit(n_hit);                                                          
-//        gtrhit.Print();                                                                                 
-        std::cout<<"GTR :: LPos:("<<gtrhit.LocalPos(*geometry).X()<< ","<<gtrhit.LocalPos(*geometry).Y()<<","<<gtrhit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GTR :: GPos:("<<gtrhit.GlobalPos(*geometry).X()<< ","<<gtrhit.GlobalPos(*geometry).Y()<<","<<gtrhit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+//      }      
+//
+//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+//        auto gtrhit = event1->GTRHits().Hit(n_hit);                                                          
+////        gtrhit.Print();                                                                                 
+//        std::cout<<"GTR :: LPos:("<<gtrhit.LocalPos(*geometry).X()<< ","<<gtrhit.LocalPos(*geometry).Y()<<","<<gtrhit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+//        std::cout<<"GTR :: GPos:("<<gtrhit.GlobalPos(*geometry).X()<< ","<<gtrhit.GlobalPos(*geometry).Y()<<","<<gtrhit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+////      }
+//      std::cout << std::endl << std::endl;
 //      }
-      std::cout << std::endl << std::endl;
-    }
 
+// HBD
+
+// LG
 //      if (event1->LGHits().NumberOfHits() != 0) {
 //        auto lghit = event1->LGHits().Hit(0);                                                          
 //        lghit.Print();                                                                                 
@@ -165,12 +166,19 @@ int main(int argc, char* argv[]) {
 //        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
 //      }
 
+// trigger
+      event1->Trigger().Print(*geometry);
+
+// other
+//      event1->GTR().Print();
+//
 //      if (event1->LG().NumHits() != 0) {
 //        auto lghit = event1->LG().Hit(0);                                                          
 //        lghit.Print();                                                                                 
 //        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
 //        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
 //      }
+
       cout << endl << endl;
 //
 

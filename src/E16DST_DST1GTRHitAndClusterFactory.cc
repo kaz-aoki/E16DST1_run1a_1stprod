@@ -59,7 +59,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
         for(int lid=0; lid< 3 ; lid++){
             int order_x = 0;
             std::vector<E16ANA_GTRAnalyzedStripHit> &hits0 = gtr_analyzers->Chamber(mid, lid)->GetStripX()->GetAnalyzedHits();
-            std::vector<int> hit_orders_x;
+            std::vector<int16_t> hit_orders_x;
             for(int i = 0 ; i < hits0.size(); i++){
                 E16ANA_GTRAnalyzedStripHit &h = hits0[i];
                 for(int j=0; j < h.NumHit(); j++){
@@ -95,7 +95,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
             hits0.clear();
             int order_y = 0;
             std::vector<E16ANA_GTRAnalyzedStripHit> &hits1 = gtr_analyzers->Chamber(mid, lid)->GetStripY()->GetAnalyzedHits(); 
-            std::vector<int> hit_orders_y;
+            std::vector<int16_t> hit_orders_y;
             for(int i = 0 ; i < hits1.size(); i++){
                 E16ANA_GTRAnalyzedStripHit &h = hits1[i];
                 for(int j=0; j < h.NumHit(); j++){
@@ -132,7 +132,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
             if(lid != 0)continue;
             int order_yb = 0;
             std::vector<E16ANA_GTRAnalyzedStripHit> &hits2 = static_cast<E16ANA_GTR100Analyzer *>(gtr_analyzers->Chamber(mid, 0))->GetStripYb()->GetAnalyzedHits();
-            std::vector<int> hit_orders_yb;
+            std::vector<int16_t> hit_orders_yb;
             for(int i = 0 ; i < hits2.size(); i++){
                 E16ANA_GTRAnalyzedStripHit &h = hits2[i];
                 for(int j=0; j < h.NumHit(); j++){
