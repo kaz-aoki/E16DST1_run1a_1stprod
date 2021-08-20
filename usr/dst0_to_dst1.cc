@@ -5,7 +5,7 @@
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
-//#include "E16ANA_GTRCalib.hh"
+#include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
@@ -64,7 +64,8 @@ int main(int argc, char* argv[]) {
   calib.SetRunID(run_id);
   auto trigger_param = new E16ANA_TriggerCalibParam();
   trigger_param->ReadConstantData(calib.CurrentRunID());
-
+  E16ANA_GTRcalibPedestal gtrped;
+  gtrped.ReadCalibData( calib.CurrentRunID() );
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -105,7 +106,7 @@ int main(int argc, char* argv[]) {
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
@@ -119,36 +120,47 @@ int main(int argc, char* argv[]) {
 
 // Check
 
-      cout << "Number of event: " << n_event << endl << endl;
-      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-      cout << "Number of GTR hits: " << n_gtr_hits << endl;
-      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-        auto hit = event1->GTRHits().Hit(n_hit);
-        hit.Print();
-      }
-      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-      cout << endl << endl;
-      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-        auto cluster = event1->GTRClusters().Hit(n_cluster);
-        cluster.Print();
-      }
-      event1->Trigger().Print(*geometry);
 
-      if (event1->LGHits().NumberOfHits() != 0) {
-        auto lghit = event1->LGHits().Hit(0);                                                          
-        lghit.Print();                                                                                 
-        cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
-        cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
-      }
+//------------------------GTR-----------------------------------------------------//
+//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//        cout << "Number of GTR hits: " << n_gtr_hits << endl;
 
-      if (event1->LG().NumHits() != 0) {
-        auto lghit = event1->LG().Hit(0);                                                          
-        lghit.Print();                                                                                 
-        cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
-        cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
-      }
-      cout << endl << endl;
+
+
+
+//------------------------GTR end ------------------------------------------------//
+//
+//      cout << "Number of event: " << n_event << endl << endl;
+//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//      cout << "Number of GTR hits: " << n_gtr_hits << endl;
+//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+//        auto hit = event1->GTRHits().Hit(n_hit);
+//        hit.Print();
+//      }
+//      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
+//      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
+//      cout << endl << endl;
+//      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
+//        auto cluster = event1->GTRClusters().Hit(n_cluster);
+//        cluster.Print();
+//      }
+//
+//      event1->Trigger().Print(*geometry);
+//
+//      if (event1->LGHits().NumberOfHits() != 0) {
+//        auto lghit = event1->LGHits().Hit(0);                                                          
+//        lghit.Print();                                                                                 
+//        cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
+//        cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
+//      }
+//
+//      if (event1->LG().NumHits() != 0) {
+//        auto lghit = event1->LG().Hit(0);                                                          
+//        lghit.Print();                                                                                 
+//        cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
+//        cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
+//      }
+//      cout << endl << endl;
 // Check
 
 //      dst1->WriteAnEvent();
