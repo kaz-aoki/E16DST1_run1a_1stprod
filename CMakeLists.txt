@@ -46,7 +46,7 @@ link_libraries(
 #_______________________________________________________________________________
 install(DIRECTORY
   coincidence_map
-  lg_calibfiles
+#  lg_calibfiles
   DESTINATION ${CMAKE_INSTALL_DATADIR}
 )
 
