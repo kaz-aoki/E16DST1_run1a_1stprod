@@ -30,3 +30,9 @@
 　evb02:/e16/w/data102z/trg/junkdata/dst0merge/run030778_sink0_000_srs_trg_lg_ssd.dst0
 
 　にあります。
+ 
+・CalibDBの基本的な運用方針 (うまくいかない場合はとりあえず従わなくてよい)
+
+　CalibDBManager、Calibxxxyyy (各検出器のDB class) はmainで呼び、runが変わるたびにManagerと各検出器のclassにsetする。
+
+　Factory(E16ANA_Calibxxxyyy& xxx_yyy)などのように各検出器classを参照渡しする。
