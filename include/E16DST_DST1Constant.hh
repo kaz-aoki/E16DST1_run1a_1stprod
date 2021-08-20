@@ -52,17 +52,7 @@ const std::array<int, 3> nstrips_y = {72, 144, 216};
 
 // LG
 const double             kLgTimeScale                 = 960. / 1000.;
-const int kLgHitThreshold = 20;//[mV]
-const int kLgHitTimingStart = 50;//[ns]
-const int kLgHitTimingEnd = 150;//[ns]
 
-const int kLgPeakSearchStart = 5;//[cell]
-const int kLgPeakSearchEnd = 200;//[cell]
-const int kLgTimingSearchRegion = 20;//[cell] before peaktime
-const int kLgBaselineStart = -100;//[cell] +peaktime
-const int kLgBaselineEnd = -50;//[cell] +peaktime
-const int kLgIntegralStart = -20;//[cell] +peaktime
-const int kLgIntegralEnd = 50;//[cell] +peaktime
 
 // Trigger
 const int                kMrgDelayOrderNs             = 4;
