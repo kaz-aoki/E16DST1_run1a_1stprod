@@ -8,8 +8,6 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-#include "E16ANA_TriggerCoincidenceMap.hh"
-
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -61,11 +59,8 @@ int main(int argc, char* argv[]) {
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-//  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
-//  cout << calib_file_name << std::endl;
-//auto trigger_param = new E16ANA_TriggerCalibParam();
-//trigger_param->ReadConstantData(calib.CurrentRunID());
-//trigger_param->Print();
+  auto trigger_param = new E16ANA_TriggerCalibParam();
+  trigger_param->ReadConstantData(calib.CurrentRunID());
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -105,15 +100,14 @@ int main(int argc, char* argv[]) {
       auto trigger_gtr_hits0 = event0->TriggerGTR();
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
-      auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
       E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
+//      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
+      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
       event1->GTR().SetValidFlag(1);
       event1->LG().SetValidFlag(1);
       event1->Trigger().SetValidFlag(1);
@@ -177,7 +171,7 @@ int main(int argc, char* argv[]) {
 //        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
 //        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
 //      }
-//      cout << endl << endl;
+      cout << endl << endl;
 //
 
 

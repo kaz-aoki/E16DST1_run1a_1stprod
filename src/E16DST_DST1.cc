@@ -239,6 +239,10 @@ bool E16DST_DST1Trigger::IsTriggerHit(E16DST_DST1LGHit& hit) {
   return SearchTriggerHit(lg_hits, hit.ModuleId(), hit.ChannelId());
 }
 
+//std::vector<E16DS_DST1TriggerHit*> E16DST_DST1Trigger::HitsIncludedTrackSet(bool is_track, int n) {
+//  std::vector<E16DST_DST1TriggerHit*> hits;
+//}
+
 void E16DST_DST1Trigger::Print() {
   auto max_track = track_sets.NumberOfHits();
   std::cout << "Number of tracks: " << max_track << std::endl << std::endl;

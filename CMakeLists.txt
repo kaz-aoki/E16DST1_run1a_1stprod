@@ -71,7 +71,6 @@ add_library(E16ANA
   E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
 )
 
-
 target_link_libraries(E16ANA
   E16ANA_CalibDB
 )
@@ -86,7 +85,7 @@ add_library(E16DST_DST1
 #  src/E16DST_DST1GTRFactory_dst1_detector.cc
   src/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
-  src/E16DST_DST1LGFactory_dst1_detector.cc
+#  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 )
 
