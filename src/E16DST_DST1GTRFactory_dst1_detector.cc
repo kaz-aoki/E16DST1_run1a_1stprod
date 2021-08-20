@@ -5,18 +5,11 @@
 #include "E16ANA_GTRPedestal.h"
 
 
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters, E16ANA_GTRPedestal *gtr_pedestal) {
+int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1GTRCluster>* gtr1) {
     static bool isFirst = true;
     static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers;
-//    static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers = new E16DST_DST1GTRAnalyzerMaker();
     if(isFirst){
         gtr_analyzers = new E16DST_DST1GTRAnalyzerMaker();
-        for(int m=100;m<=110; m++){
-            gtr_analyzers->analyzer_map[OnlineGTR::IDs(m,0).value64] = new E16ANA_GTR100Analyzer();
-            gtr_analyzers->analyzer_map[OnlineGTR::IDs(m,1).value64] = new E16ANA_GTR200Analyzer();
-            gtr_analyzers->analyzer_map[OnlineGTR::IDs(m,2).value64] = new E16ANA_GTR300Analyzer();
-        
-        }
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdX, 150.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdY, 300.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTOTThresholdX, 75.0);
@@ -27,48 +20,39 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetBadPedestalSigmaThresholdY, 150.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTimeWindowMin, 0.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTimeWindowMax, 1000.0);
-        
-        for(int mid=101; mid<= 109; mid++){
+        for(int mid=100; mid<= 110; mid++){
             for(int lid = 0; lid < 3 ; lid ++){
                 E16ANA_GTRAnalyzer2 *analyzer = gtr_analyzers->Chamber(mid, lid);
                 int n_strips = analyzer->GetNumberOfStrips();
                 for(int strip_id = 0; strip_id < n_strips; strip_id++){
-                    double ped = gtr_pedestal->GetPedestal(mid, lid, strip_id).Value();
-                    std::cout << "oed " << ped << std::endl;
+                    double ped = gtr_pedestal.GetPedestal(mid, lid, strip_id).Value();
+                    double sigma = gtr_pedestal.GetPedestal(mid, lid, strip_id).Sigma();
                     analyzer->SetPedestal(strip_id, ped);
+                    analyzer->SetPedestalSigma(strip_id, sigma);
                 }
             }
         }
         isFirst = false;
         std::cout << "GTR Analyzer parameters are set :: should be called ONLY ONCE " << std::endl;
     }
-    int noh = dst0_hits.NumberOfHits();
-    std::cout << " size of dst0 hit " << noh << std::endl;
+    int noh = hits0.NumberOfHits();
     for (auto &a : gtr_analyzers->analyzer_map){
         a.second->Clear();
-    }
-    
+    }    
     for(int i =0; i < noh ; i++){
-        E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
+        E16DST_DST0GTRHit &hit = hits0.Hit(i);
         int mid = hit.ModuleID();
         int lid = hit.LayerID();
         int sid = hit.StripID();
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
-//        std::cout << " pointer  " << &gtr_analyzers->analyzer_map[OnlineGTR::IDs(106, 0).value64] << std::endl;
     }
-    for(int m=101; m< 109; m++){
-        for(int l=0; l<3; l++){
-        gtr_analyzers->analyzer_map[OnlineGTR::IDs(m, l).value64]->AnalyzeV0();
-    //    for (auto &a : gtr_analyzers->analyzer_map){
-//        a.second->AnalyzeV0();
- //       std::cout << " pointer2  " << &gtr_analyzers->analyzer_map[OnlineGTR::IDs(106, 0).value64] << std::endl;
-    }}
-    
-    for(int mid=102; mid < 109 ; mid++){
+        for(auto &a : gtr_analyzers->analyzer_map){
+            a.second->AnalyzeV0();
+        }
+    for(int mid=100; mid < 110 ; mid++){
         for(int lid=0; lid< 3 ; lid++){
             int order_x = 0;
             std::vector<E16ANA_GTRAnalyzedStripHit> &hits0 = gtr_analyzers->Chamber(mid, lid)->GetStripX()->GetAnalyzedHits();
-            std::cout << " size of dst1 hit " << hits0.size() << std::endl;
             std::vector<int> hit_orders_x;
             for(int i = 0 ; i < hits0.size(); i++){
                 E16ANA_GTRAnalyzedStripHit &h = hits0[i];
@@ -80,9 +64,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     dst1_h->SetPeakHeight(h.StripCharge(j));
                     dst1_h->SetTot(h.StripTimeOverThreshold(j));
                     hit_orders_x.push_back(order_x);
-                    std::cout << "strip charge =  " <<  h.StripCharge(j) << std::endl;
-                    dst1_hits->
-                        PushBack(*dst1_h);
+                    gtr1->Hits().
+                        push_back(*dst1_h);
                     order_x++;
                 }
                 auto dst1_cl = new E16DST_DST1GTRCluster();
@@ -96,9 +79,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 dst1_cl->SetCogPos(h.CogHit());
                 dst1_cl->SetTdcPos(h.TdcHit());
                 dst1_cl->SetTanTheta(h.TanTheta());
-                dst1_clusters->PushBack(*dst1_cl);
+                gtr1->Clusters().push_back(*dst1_cl);
             }
-
             int order_y = 0;
             std::vector<E16ANA_GTRAnalyzedStripHit> &hits1 = gtr_analyzers->Chamber(mid, lid)->GetStripY()->GetAnalyzedHits(); 
             std::vector<int> hit_orders_y;
@@ -112,7 +94,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     dst1_h->SetPeakHeight(h.StripCharge(j));
                     dst1_h->SetTot(h.StripTimeOverThreshold(j));
                     hit_orders_y.push_back(order_y);
-                    dst1_hits->PushBack(*dst1_h);
+                    gtr1->Hits().push_back(*dst1_h);
                     order_y++;
                 }
                 auto dst1_cl = new E16DST_DST1GTRCluster();
@@ -126,7 +108,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 dst1_cl->SetTdcPos(h.TdcHit());
                 dst1_cl->SetTanTheta(h.TanTheta());
                 dst1_cl->SetHitOrders(hit_orders_y);
-                dst1_clusters->PushBack(*dst1_cl);
+                gtr1->Clusters().push_back(*dst1_cl);
             }
             
             if(lid != 0)continue;
@@ -143,7 +125,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     dst1_h->SetPeakHeight(h.StripCharge(j));
                     dst1_h->SetTot(h.StripTimeOverThreshold(j));
                     hit_orders_yb.push_back(order_yb);
-                    dst1_hits->PushBack(*dst1_h);
+                    gtr1->Hits().push_back(*dst1_h);
                     order_yb++;
                 }
                 auto dst1_cl = new E16DST_DST1GTRCluster();
@@ -157,7 +139,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 dst1_cl->SetTdcPos(h.TdcHit());
                 dst1_cl->SetTanTheta(h.TanTheta());
                 dst1_cl->SetHitOrders(hit_orders_yb);
-                dst1_clusters->PushBack(*dst1_cl);
+                gtr1->Clusters().push_back(*dst1_cl);
             }
         }
     }

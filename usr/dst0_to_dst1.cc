@@ -5,22 +5,21 @@
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
+//#include "E16ANA_GTRCalib.hh"
 #include "E16ANA_TriggerCalib.hh"
+#include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-
-#include "E16ANA_TriggerCoincidenceMap.hh"
-#include "E16ANA_GTRPedestal.h"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 6) {
+  if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
 //    cerr << "./bin [input.dst0] [output.dst1] [run number] [max event] [pedestal]" << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] [gtr_pedestal]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -63,18 +62,9 @@ int main(int argc, char* argv[]) {
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
-  cout << calib_file_name << std::endl;
-//auto trigger_param = new E16ANA_TriggerCalibParam();
-//trigger_param->ReadConstantData(calib.CurrentRunID());
-//trigger_param->Print();
-  TFile *froot = new TFile(out_file_name,"recreate");
-  TH1F *hlgph = new TH1F("hlgph","LG PeakHeight",20000,-10000,10000);
-  TH1F *hlgpt = new TH1F("hlgpt","LG PeakTime",20000,-10000,10000);
-  TH1F *hlgtm = new TH1F("hlgtm","LG Timing",20000,-10000,10000);
-  TH1F *hlgbs = new TH1F("hlgbs","LG Baseline",20000,-10000,10000);
-  TH1F *hlgbr = new TH1F("hlgbr","LG BaselineRms",20000,-10000,10000);
-  TH1F *hlgit = new TH1F("hlgit","LG Integral",20000,-10000,10000);
+  auto trigger_param = new E16ANA_TriggerCalibParam();
+  trigger_param->ReadConstantData(calib.CurrentRunID());
+
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -83,8 +73,8 @@ int main(int argc, char* argv[]) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
-  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
-  gtr_pedestal->Read(argv[5]);
+//  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
+//  gtr_pedestal->Read(argv[5]);
 //  auto dst1 = new E16DST_DST1();
 //  auto dst1 = new E16DST_DST0();
 //  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
@@ -114,20 +104,22 @@ int main(int argc, char* argv[]) {
       auto trigger_gtr_hits0 = event0->TriggerGTR();
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
-      auto timestamp         = event0->TimeStamp();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtr_pedestal),
+      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
+//      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      //      E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
-      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
+//      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
+      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+      event1->GTR().SetValidFlag(1);
+      event1->LG().SetValidFlag(1);
       event1->Trigger().SetValidFlag(1);
 
 
 // Check
+
       cout << "Number of event: " << n_event << endl << endl;
-      /*
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
       for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
@@ -142,16 +134,10 @@ int main(int argc, char* argv[]) {
         cluster.Print();
       }
       event1->Trigger().Print(*geometry);
-      */
+
       if (event1->LGHits().NumberOfHits() != 0) {
         auto lghit = event1->LGHits().Hit(0);                                                          
         lghit.Print();                                                                                 
-	hlgph->Fill(lghit.PeakHeight());
-	hlgpt->Fill(lghit.PeakTime());
-	hlgtm->Fill(lghit.Timing());
-	hlgbs->Fill(lghit.Baseline());
-	hlgbr->Fill(lghit.BaselineRms());
-	hlgit->Fill(lghit.Integral());
         cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
         cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
       }
@@ -182,8 +168,6 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
-  froot->Write();
-  froot->Close();
 
   delete geometry;
   delete dst0;

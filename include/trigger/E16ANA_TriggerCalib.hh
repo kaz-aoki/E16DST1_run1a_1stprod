@@ -5,20 +5,6 @@
 #include <iostream>
 #include <string>
 
-//class E16ANA_TriggerCalibParam {
-// public:
-////  static const int kDataSize = ;
-//  E16ANA_TriggerCalibParam() {}
-//  ~E16ANA_TriggerCalibParam() {}
-//  bool ReadCalibData(int run_id);
-////  bool ReadCalibDataByLocal(std::string local_calib_file_name);
-////  bool WriteCalibData(std::string file_name);
-// private:
-// bool ReadCalibDataCore(FILE* ifp);
-// bool is_mag;
-// int  coincidence_window; 
-//};
-
 class E16ANA_TriggerCalibParam {
  public:
   E16ANA_TriggerCalibParam() {}
@@ -61,6 +47,13 @@ class E16ANA_TriggerCalibParam {
       return -1;
     }
   }
+  int MrgDelay(int n) {
+    if (n < mrg_delay.size()) {
+      return mrg_delay[n];
+    } else {
+      return -1;
+    }
+  }
   void Print() {
     for (const auto& parameter :  parameters) {
       std::cout << parameter << std::endl;
@@ -69,7 +62,7 @@ class E16ANA_TriggerCalibParam {
  private:
   bool ReadConstantDataCore(int run_id, std::string index_file_name);
   union {
-    std::array<int, 39> parameters;
+    std::array<int, 42> parameters;
     struct {
       std::array<int, 4>  ut3_firm_version;
       std::array<int, 2>  coincidence_windows;
@@ -83,6 +76,7 @@ class E16ANA_TriggerCalibParam {
       int                 track_threshold;
       std::array<int, 18> nim_valid;
       std::array<int, 7>  trigger_prescale;
+      std::array<int, 3>  mrg_delay;
     };
   };
 };
