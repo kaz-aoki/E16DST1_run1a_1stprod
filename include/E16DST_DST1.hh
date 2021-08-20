@@ -6,12 +6,8 @@
 #include <vector>
 
 #include "TVector3.h"
-#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_GeometryV2.hh"
-#include "E16ANA_GTRPedestal.h"
-#include "OnlineGTRUtility.h"
-#include "E16DST_DST1GTRAnalyzerMaker.hh"
-#include "E16ANA_GTRAnalyzer2.h"
 #include "E16DST_Constant.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
@@ -350,42 +346,6 @@ class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
   int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
 };
 
-class E16DST_DST1TriggerTrackSet {
- public:
-  E16DST_DST1TriggerTrackSet() {}
-  ~E16DST_DST1TriggerTrackSet() {}
-  void              Clear() {
-    gtr_hit_orders.clear();
-    gtr_unrecorded_hits.clear();
-    hbd_hit_orders.clear();
-    hbd_unrecorded_hits.clear();
-    lg_hit_orders.clear();
-    lg_unrecorded_hits.clear();
-  }
-  int                          NumGTRHits()            { return gtr_hit_orders.size(); }
-  std::vector<int>&            GTRHitOrders()          { return gtr_hit_orders; }
-  int                          GTRHitOrder(int n)      { return gtr_hit_orders[n]; }
-  std::vector<E16DST_DST0Hit>& GTRUnrecordedHits()     { return gtr_unrecorded_hits; }
-  E16DST_DST0Hit&              GTRUnrecordedHit(int n) { return gtr_unrecorded_hits[n]; }
-  int                          NumHBDHits()            { return hbd_hit_orders.size(); }
-  std::vector<int>&            HBDHitOrders()          { return hbd_hit_orders; }
-  int                          HBDHitOrder(int n)      { return hbd_hit_orders[n]; }
-  std::vector<E16DST_DST0Hit>& HBDUnrecordedHits()     { return hbd_unrecorded_hits; }
-  E16DST_DST0Hit&              HBDUnrecordedHit(int n) { return hbd_unrecorded_hits[n]; }
-  int                          NumLGHits()             { return lg_hit_orders.size(); }
-  std::vector<int>&            LGHitOrders()           { return lg_hit_orders; }
-  int                          LGHitOrder(int n)       { return lg_hit_orders[n]; }
-  std::vector<E16DST_DST0Hit>& LGUnrecordedHits()      { return lg_unrecorded_hits; }
-  E16DST_DST0Hit&              LGUnrecordedHit(int n)  { return lg_unrecorded_hits[n]; }
- private:
-  std::vector<int>            gtr_hit_orders;
-  std::vector<E16DST_DST0Hit> gtr_unrecorded_hits;
-  std::vector<int>            hbd_hit_orders;
-  std::vector<E16DST_DST0Hit> hbd_unrecorded_hits;
-  std::vector<int>            lg_hit_orders; // always 1 element in run0
-  std::vector<E16DST_DST0Hit> lg_unrecorded_hits; // always no element in run0
-};
-
 template <class T, class U>
 class E16DST_DST1Detector {
  public:
@@ -572,6 +532,54 @@ void E16DST_DST1Detector<T, U>::Print() {
   }
 }
 
+class E16DST_DST1TriggerTrackSet {
+ public:
+  E16DST_DST1TriggerTrackSet() {}
+  ~E16DST_DST1TriggerTrackSet() {}
+  void Clear() {
+    gtr_hit_orders.clear();
+    gtr_hit_is_used.clear();
+    gtr_unrecorded_hits.clear();
+    hbd_hit_orders.clear();
+    hbd_hit_is_used.clear();
+    hbd_unrecorded_hits.clear();
+    lg_hit_orders.clear();
+    lg_hit_is_used.clear();
+    lg_unrecorded_hits.clear();
+  }
+  int                          NumGTRHits()            { return gtr_hit_orders.size(); }
+  std::vector<int>&            GTRHitOrders()          { return gtr_hit_orders; }
+  int                          GTRHitOrder(int n)      { return gtr_hit_orders[n]; }
+  std::vector<bool>&           GTRHitIsUsed()          { return gtr_hit_is_used; }
+  bool                         GTRHitIsUsed(int n)     { return gtr_hit_is_used[n]; }
+  std::vector<E16DST_DST0Hit>& GTRUnrecordedHits()     { return gtr_unrecorded_hits; }
+  E16DST_DST0Hit&              GTRUnrecordedHit(int n) { return gtr_unrecorded_hits[n]; }
+  int                          NumHBDHits()            { return hbd_hit_orders.size(); }
+  std::vector<int>&            HBDHitOrders()          { return hbd_hit_orders; }
+  int                          HBDHitOrder(int n)      { return hbd_hit_orders[n]; }
+  std::vector<bool>&           HBDHitIsUsed()          { return hbd_hit_is_used; }
+  bool                         HBDHitIsUsed(int n)     { return hbd_hit_is_used[n]; }
+  std::vector<E16DST_DST0Hit>& HBDUnrecordedHits()     { return hbd_unrecorded_hits; }
+  E16DST_DST0Hit&              HBDUnrecordedHit(int n) { return hbd_unrecorded_hits[n]; }
+  int                          NumLGHits()             { return lg_hit_orders.size(); }
+  std::vector<int>&            LGHitOrders()           { return lg_hit_orders; }
+  int                          LGHitOrder(int n)       { return lg_hit_orders[n]; }
+  std::vector<bool>&           LGHitIsUsed()           { return lg_hit_is_used; }
+  bool                         LGHitIsUsed(int n)      { return lg_hit_is_used[n]; }
+  std::vector<E16DST_DST0Hit>& LGUnrecordedHits()      { return lg_unrecorded_hits; }
+  E16DST_DST0Hit&              LGUnrecordedHit(int n)  { return lg_unrecorded_hits[n]; }
+ private:
+  std::vector<int>            gtr_hit_orders;
+  std::vector<bool>           gtr_hit_is_used;
+  std::vector<E16DST_DST0Hit> gtr_unrecorded_hits;
+  std::vector<int>            hbd_hit_orders;
+  std::vector<bool>           hbd_hit_is_used;
+  std::vector<E16DST_DST0Hit> hbd_unrecorded_hits;
+  std::vector<int>            lg_hit_orders; // always 1 element in run0
+  std::vector<bool>           lg_hit_is_used; // always 1 element in run0
+  std::vector<E16DST_DST0Hit> lg_unrecorded_hits; // always no element in run0
+};
+
 class E16DST_DST1Trigger {
  public:
   E16DST_DST1Trigger() {}
@@ -598,6 +606,7 @@ class E16DST_DST1Trigger {
 //    track_sets.clear();
   }
   void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
+  void SetNumTriggers(int _n_triggers) { n_triggers = _n_triggers; }
   int ValidFlag() { return valid_flag; }
   int GetEventSize() const;
 //  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
@@ -623,6 +632,7 @@ class E16DST_DST1Trigger {
   bool IsTriggerHit(E16DST_DST1GTRHit& hit);
   bool IsTriggerHit(E16DST_DST1HBDHit& hit);
   bool IsTriggerHit(E16DST_DST1LGHit&  hit);
+//  std:::vector<E16DST_DST1TriggerHit*> HitsIncludedTrackSet(bool is_track, int n);
   void Print();
   void Print(E16ANA_GeometryV2& geometry);
  private:
@@ -705,19 +715,15 @@ class E16DST_DST1Track {
  public:
   E16DST_DST1Track() {}
   ~E16DST_DST1Track() {}
-  void SetSSDCluster(E16DST_DST1SSDCluster* _cluster) { ssd_cluster = _cluster; }
-  void SetGTRCluster(E16DST_DST1GTRCluster* _cluster) { gtr_clusters[_cluster->LayerId()] = _cluster; }
  private:
-  E16DST_DST1SSDCluster* ssd_cluster;
-  std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
-  E16DST_DST1LGHit*      lg_hit;
+  std::array<float, 3> initial_point_at_target_plain;
+  std::array<float, 3> initial_momentum_at_initial_point;
 };
 
 class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
  public:
   E16DST_DST1PhysicsEvent() {}
   ~E16DST_DST1PhysicsEvent() {}
-//  int GetEventSize() const override { return E16DST_DST0Event::GetEventSize() + GetEventSizeImpl(ssd_hits, ssd_clusters, gtr_100_x_hits, gtr_100_x_clusters, gtr_100_y_hits, gtr_100_y_clusters, gtr_100_yb_hits, gtr_100_yb_clusters, gtr_200_x_hits, gtr_200_x_clusters, gtr_200_y_hits, gtr_200_y_clusters, gtr_300_x_hits, gtr_300_x_clusters, gtr_300_y_hits, gtr_300_y_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters) + trigger.GetEventSize(); }
 //  int GetEventSize() const override { return E16DST_DST0Event::GetEventSize() + ssd.GetEventSize() + gtr.GetEventSize() + hbd.GetEventSize() + lg.GetEventSize() + trigger.GetEventSize(); }
   int Write(E16DST_File* fp) override;
   int Read(E16DST_File* fp) override;
@@ -799,6 +805,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& h
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1);
-int E16DST_DST1TriggerFactory(E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, uint64_t timestamp, E16DST_DST1Trigger* trigger);
+int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
+int E16DST_DST1TrackFactory();
 
 #endif
