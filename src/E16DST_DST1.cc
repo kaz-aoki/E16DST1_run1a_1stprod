@@ -306,8 +306,9 @@ TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 gpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   TVector3 lpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
-  gpos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
-  lpos = geometry.LGVD(3 * (109 - module_id) + 1)->GetLPos(gpos);
+  int mod = ModuleId2020To2013(module_id);
+  gpos = geometry.LG( mod, channel_id )->GetDetectorCenter();
+  lpos = geometry.LGVD( mod )->GetLPos(gpos);
   return lpos;
 }
 

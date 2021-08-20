@@ -1,4 +1,7 @@
 #include <iostream>
+#include <TROOT.h>
+#include <TH1.h>
+#include <TFile.h>
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
@@ -65,6 +68,13 @@ int main(int argc, char* argv[]) {
 //auto trigger_param = new E16ANA_TriggerCalibParam();
 //trigger_param->ReadConstantData(calib.CurrentRunID());
 //trigger_param->Print();
+  TFile *froot = new TFile(out_file_name,"recreate");
+  TH1F *hlgph = new TH1F("hlgph","LG PeakHeight",20000,-10000,10000);
+  TH1F *hlgpt = new TH1F("hlgpt","LG PeakTime",20000,-10000,10000);
+  TH1F *hlgtm = new TH1F("hlgtm","LG Timing",20000,-10000,10000);
+  TH1F *hlgbs = new TH1F("hlgbs","LG Baseline",20000,-10000,10000);
+  TH1F *hlgbr = new TH1F("hlgbr","LG BaselineRms",20000,-10000,10000);
+  TH1F *hlgit = new TH1F("hlgit","LG Integral",20000,-10000,10000);
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -110,13 +120,14 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
+      //      E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
       E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
       event1->Trigger().SetValidFlag(1);
 
 
 // Check
       cout << "Number of event: " << n_event << endl << endl;
+      /*
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
       for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
@@ -131,23 +142,28 @@ int main(int argc, char* argv[]) {
         cluster.Print();
       }
       event1->Trigger().Print(*geometry);
-
+      */
       if (event1->LGHits().NumberOfHits() != 0) {
         auto lghit = event1->LGHits().Hit(0);                                                          
         lghit.Print();                                                                                 
-        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+	hlgph->Fill(lghit.PeakHeight());
+	hlgpt->Fill(lghit.PeakTime());
+	hlgtm->Fill(lghit.Timing());
+	hlgbs->Fill(lghit.Baseline());
+	hlgbr->Fill(lghit.BaselineRms());
+	hlgit->Fill(lghit.Integral());
+        cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
+        cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
       }
 
       if (event1->LG().NumHits() != 0) {
         auto lghit = event1->LG().Hit(0);                                                          
         lghit.Print();                                                                                 
-        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+        cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<endl;  
+        cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<endl;     
       }
       cout << endl << endl;
-//
-
+// Check
 
 //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
@@ -166,6 +182,9 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+  froot->Write();
+  froot->Close();
+
   delete geometry;
   delete dst0;
 //  dst1->Close();

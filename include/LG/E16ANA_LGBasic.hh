@@ -4,6 +4,8 @@
 #include <vector>
 #include "E16DST_DST0.hh"
 #include "E16ANA_CalibDBManager.hh"
+#include "E16DST_DST1Constant.hh"
+#include "E16ANA_LGConstant.hh"
 //#include "LGDST0ANA.h"
 #include <unordered_map>
 #include <iostream>
@@ -48,12 +50,15 @@ unordered_map<int, ch_pp*>*  lgdatamap_ip = new unordered_map<int, ch_pp*>;
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
 
+void LGWFPeak(float* dat, float* peak, int* peakx, float* timing);
+void LGWFBaseline(float* dat, int peakx, float* baseline, float* baselinerms);
+void LGWFIntegral(float* dat, int peakx, float baseline, float* integral, float* falltime);
 
   //string file_channelmap();
   //string file_drs4assign();
   //string file_drs4assign_run0a();
   //string file_timeoffset();
-string file_binary();
+  //string file_binary();
 
 
 ~E16ANA_LGBasic(){

@@ -27,17 +27,6 @@ enum kGtrAxis {
   kNumTypes,
 };
 
-const int kLgHitThreshold = 20;//[mV]
-const int kLgHitTimingStart = 50;//[ns]
-const int kLgHitTimingEnd = 150;//[ns]
-
-const int kLgPeakSearchStart = 5;//[cell]
-const int kLgPeakSearchEnd = 200;//[cell]
-const int kLgTimingSearchRegion = 20;//[cell] before peaktime
-const int kLgBaselineStart = -100;//[cell] +peaktime
-const int kLgBaselineEnd = -50;//[cell] +peaktime
-const int kLgIntegralStart = -20;//[cell] +peaktime
-const int kLgIntegralEnd = 50;//[cell] +peaktime
 
 const std::array<std::array<int, 11>, 3> kModuleId2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},
                                                                  {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},

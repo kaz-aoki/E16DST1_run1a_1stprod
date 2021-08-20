@@ -46,7 +46,7 @@ link_libraries(
 #_______________________________________________________________________________
 install(DIRECTORY
   coincidence_map
-  lg_calibfiles
+#  lg_calibfiles
   DESTINATION ${CMAKE_INSTALL_DATADIR}
 )
 
@@ -83,7 +83,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1GTRHitAndClusterFactory.cc
   src/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
-  src/E16DST_DST1LGFactory_dst1_detector.cc
+#  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 )
 
