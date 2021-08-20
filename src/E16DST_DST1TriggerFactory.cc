@@ -30,6 +30,21 @@ int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, 
   return hits1->GetEventSize() + clusters1->GetEventSize();
 }
 
+bool E16ANA_TriggerIsGenerateTrigger(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& track0, E16DST_DST0TriggerHit& track1) {
+  auto min_width    = trigger_param.MinimumWidth();
+  auto max_width    = trigger_param.MaximumWidth();
+  auto time_width   = trigger_param.TimeWidth();
+  auto is_hbd_cut   = trigger_param.IsHBDCut();
+  auto is_y_cut     = trigger_param.IsYCut();
+  auto is_max_width = trigger_param.IsMaximumWidth();
+  int pos_width = 7 * (track0.ModuleID() - track1.ModuleID()) + track0.ChannelID() / 10 - track1.ChannelID() / 10;
+
+
+
+
+  return false;
+}
+
 int E16ANA_TriggerNumTriggers(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0UT3& ut3) {
   auto trigger_type = ut3.TriggerType();
   if (trigger_type == E16DST_DST1Constant::kMultiTrack || trigger_type == E16DST_DST1Constant::kClock || trigger_type == E16DST_DST1Constant::kNim) {
@@ -38,24 +53,23 @@ int E16ANA_TriggerNumTriggers(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
     return ut3.NumberOfTracks();
   } else if (trigger_type == E16DST_DST1Constant::kTrackCorreration) {
     int n_trigger = 0;
-//2    auto 
-    
     auto max_track = ut3.NumberOfTracks();
     std::vector<E16DST_DST0TriggerHit*> tracks(max_track);
-    for (int n_track = 0; n_track < max_track; ++n_track) {
-      auto track = ut3.Track(n_track);
-      for (const auto& ref_track : tracks) {
-        
-  
+    for (int n_track0 = 0; n_track0 < max_track; ++n_track0) {
+      auto& track0 = ut3.Track(n_track0);
+      for (int n_track1 = n_track0; n_track1 < max_track; ++n_track1) {
+        auto& track1 = ut3.Track(n_track1);
+        if (E16ANA_TriggerIsGenerateTrigger(trigger_param, track0, track1)) {
+          ++n_trigger;
+        }
       }
-      tracks[n_track] = &track;
     }
     return n_trigger;
   }
   return -1;
 }
 
-int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_time, int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int>* coincidence_hit_orders, std::vector<bool>* coincidence_hit_is_used, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
+int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_time, int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int16_t>* coincidence_hit_orders, std::vector<bool>* coincidence_hit_is_used, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
   auto n_hits = hits.NumberOfHits();
   int n_coincidence_hits = 0;
   for (int hit_num = 0; hit_num < n_hits; ++hit_num) {

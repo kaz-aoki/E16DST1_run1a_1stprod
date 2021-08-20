@@ -94,8 +94,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 std::vector<E16ANA_GTRAnalyzedStripHit> &hitsyb = static_cast<E16ANA_GTR100Analyzer *>(gtr_analyzers->Chamber(mid, 0))->GetStripYb()->GetAnalyzedHits();
                 v_anahits.push_back(hitsyb);
             }
-            std::array<std::vector<int>, 3>  t_hit_indexs;
-            std::array<int, 3> indexs = {0,0,0};
+            std::array<std::vector<int16_t>, 3>  t_hit_indexs;
+            std::array<int16_t, 3> indexs = {0,0,0};
             t_hit_indexs[0].clear();
             t_hit_indexs[1].clear();
             t_hit_indexs[2].clear();
@@ -130,6 +130,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     cl.SetTanTheta(anahit.TanTheta());
                     cl_id++;
                 }       
+>>>>>>> upstream/main
             }
             
         }

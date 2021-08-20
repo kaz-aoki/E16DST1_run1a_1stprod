@@ -1,7 +1,7 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1Constant.hh"
 
-void E16DST_DST1Cluster::SetHitOrders(std::vector<int>& _hit_orders) {
+void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
   hit_orders.Reserve(_hit_orders.size());
   for (const auto& hit_order : _hit_orders) {
     hit_orders.PushBack(hit_order);
