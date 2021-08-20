@@ -11,6 +11,8 @@
 
 ・もう少し詳しいことはindicoの"analysis_meeting/2021.08.04/trigger"のスライドを見てください。
 
+　-> geometryはE16ANA_GeometryV2の定義に従ってください。
+
 ・まだ途中なので.dst1は生成できません。適宜更新していきます。
 
 ・E16ANA_Geometryを使いたい場合は
@@ -19,7 +21,9 @@
 
 　evb: cp -r /e16/u/ichikawa/work/dst1/E16DST1/E16ANA_Geometry/include/geant4 ${E16DST1}/E16ANA_Geometry/include/
 
-　などとしてください。
+　などとするかinclude_directoriesに入れてください。
+ 
+ evbにもgeant4があるそうなのでそのうちそこを見るように変えます。
 
 ・dst0のsampleは例えば
 
