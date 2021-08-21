@@ -35,14 +35,20 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
-    float waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
-    float peakheight = E16DST_DST1Constant::kInvalidValue;
+    //float waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+    //float peakheight = E16DST_DST1Constant::kInvalidValue;
+    double waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+    double peakheight = E16DST_DST1Constant::kInvalidValue;
     int peaktime = E16DST_DST1Constant::kInvalidValue;
-    float timing = E16DST_DST1Constant::kInvalidValue;
-    float baseline = E16DST_DST1Constant::kInvalidValue;
-    float baselinerms = E16DST_DST1Constant::kInvalidValue;
-    float integral = E16DST_DST1Constant::kInvalidValue;
-    float falltime = E16DST_DST1Constant::kInvalidValue;
+    //float timing = E16DST_DST1Constant::kInvalidValue;
+    //float baseline = E16DST_DST1Constant::kInvalidValue;
+    //float baselinerms = E16DST_DST1Constant::kInvalidValue;
+    //float integral = E16DST_DST1Constant::kInvalidValue;
+    double timing = E16DST_DST1Constant::kInvalidValue;
+    double baseline = E16DST_DST1Constant::kInvalidValue;
+    double baselinerms = E16DST_DST1Constant::kInvalidValue;
+    double integral = E16DST_DST1Constant::kInvalidValue;
+    int falltime = E16DST_DST1Constant::kInvalidValue;
 
 
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
@@ -54,18 +60,23 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     lgbasic.LGWFBaseline(waveform, peaktime, &baseline, &baselinerms);
     lgbasic.LGWFIntegral(waveform, peaktime, baseline, &integral, &falltime);
 
-    if( (falltime-peaktime)>5 && peakheight>E16ANA_LGConstant::kHitThreshold && E16ANA_LGConstant::kHitTimingStart<timing && timing<E16ANA_LGConstant::kHitTimingEnd){
-      hit1->SetTiming(timing);
-      hit1->SetPeakHeight(peakheight);
+    if( (falltime-peaktime)>5 && 
+	peakheight>E16ANA_LGConstant::kHitThreshold && 
+	timing>E16ANA_LGConstant::kHitTimingStart && 
+	timing<E16ANA_LGConstant::kHitTimingEnd ){
+      //timing>E16ANA_LGConstant::kHitTimingStart && 
+      //timing<E16ANA_LGConstant::kHitTimingEnd ){
+      hit1->SetTiming((float)timing);
+      hit1->SetPeakHeight((float)peakheight);
       hit1->SetPeakTime(peaktime);
-      hit1->SetBaseline(baseline);
-      hit1->SetBaselineRms(baselinerms);
-      hit1->SetIntegral(integral);
+      hit1->SetBaseline((float)baseline);
+      hit1->SetBaselineRms((float)baselinerms);
+      hit1->SetIntegral((float)integral);
       hits1->PushBack(*hit1);
-      //      cluster1->SetMaxPeakCh(hit0.BlockID());//cluster_temporary
-      //      cluster1->SetMaxPeakHeight(peakheight);//cluster_temporary
-      //      cluster1->SetTiming(timing);//cluster_temporary
-      //      cluster1->SetMaxPeakSum(peakheight);//cluster_temporary
+      //      cluster1->SetMaxPeakCh(hit0.BlockID());
+      //      cluster1->SetMaxPeakHeight(peakheight);
+      //      cluster1->SetTiming(timing);
+      //      cluster1->SetMaxPeakSum(peakheight);
     }
 
   }//dst0hit loop

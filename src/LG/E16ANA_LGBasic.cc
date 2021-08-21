@@ -274,7 +274,7 @@ E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(int ip){
 	return spec;  
 		}
 
-void E16ANA_LGBasic::LGWFPeak(float* dat, float* peak, int* peakx, float* timing){
+void E16ANA_LGBasic::LGWFPeak(double* dat, double* peak, int* peakx, double* timing){
 
   //  auto spec = this->GetSpec(hit0.ModuleID(),hit0.BlockID());
   //  double wftype = spec->WF_TYPE;//relative gain of DRS4module
@@ -294,7 +294,7 @@ void E16ANA_LGBasic::LGWFPeak(float* dat, float* peak, int* peakx, float* timing
 
   for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){//timing search
     int cell = *peakx - i;
-    float peakhalf = *peak/2.;
+    double peakhalf = *peak/2.;
     if(cell<0||cell>E16DST_Constant::NSamplesLG){
       *timing=E16DST_DST1Constant::kInvalidValue;
       break;
@@ -312,10 +312,10 @@ void E16ANA_LGBasic::LGWFPeak(float* dat, float* peak, int* peakx, float* timing
 
 }
 
-void E16ANA_LGBasic::LGWFBaseline(float* dat, int peakx, float* baseline, float* baselinerms){
+void E16ANA_LGBasic::LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms){
 
-  float baseline_sum = 0.;
-  float baseline_sq_sum = 0.;
+  double baseline_sum = 0.;
+  double baseline_sq_sum = 0.;
   int nb=0;
   for(int cell=(peakx+E16ANA_LGConstant::kBaselineStart); cell<(peakx+E16ANA_LGConstant::kBaselineEnd); cell++){
     if(cell<0||cell>E16DST_Constant::NSamplesLG){
@@ -325,17 +325,17 @@ void E16ANA_LGBasic::LGWFBaseline(float* dat, int peakx, float* baseline, float*
     baseline_sq_sum += dat[cell]*dat[cell];
     nb++;
   }
-  *baseline = baseline_sum/(float)nb;
-  *baselinerms = sqrt( baseline_sq_sum/(float)nb - (*baseline)*(*baseline) );
+  *baseline = baseline_sum/(double)nb;
+  *baselinerms = sqrt( baseline_sq_sum/(double)nb - (*baseline)*(*baseline) );
   //std::cout<<"baseline:"<<baseline<<std::endl;
   //std::cout<<"baselinerms:"<<baselinerms<<std::endl;
   //baseline calculation
 
 }
 
-void E16ANA_LGBasic::LGWFIntegral(float* dat, int peakx, float baseline, float* integral, float* falltime){
+void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int* falltime){
 
-  float integral_sum = 0.;
+  double integral_sum = 0.;
   bool peakcheck = false;
   int fallcount = 0;
   for(int cell=(peakx+E16ANA_LGConstant::kIntegralStart); cell<(peakx+E16ANA_LGConstant::kIntegralEnd); cell++){
