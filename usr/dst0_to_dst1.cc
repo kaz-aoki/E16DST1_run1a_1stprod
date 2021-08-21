@@ -69,6 +69,8 @@ int main(int argc, char* argv[]) {
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
   auto dst0 = new E16DST_DST0();
+
+
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
@@ -123,20 +125,27 @@ int main(int argc, char* argv[]) {
 // SSD
 
 // GTR
+//      E16DST_DST1GTRHistCheck(event1->GTRHits(), event1->GTRClusters());
+      
+      
       cout << "Number of event: " << n_event << endl << endl;
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
-      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-        auto hit = event1->GTRHits().Hit(n_hit);
-        hit.Print();
-      }
+//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+//        auto hit = event1->GTRHits().Hit(n_hit);
+//       hit.Print();
+  //    }
       auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
       cout << endl << endl;
       cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
       for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-        auto cluster = event1->GTRClusters().Hit(n_cluster);
-        cluster.Print();
+         auto cluster = event1->GTRClusters().Hit(n_cluster);
+//            cluster.ModuleId();
+//        cluster.Print();
       }
+
+
+
       
 // HBD
 
