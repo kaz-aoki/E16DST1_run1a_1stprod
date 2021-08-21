@@ -26,24 +26,26 @@ public:
 
 class E16ANA_SSDcalibPedestal{
 private:
-  double pedestal[6][3][128][8];
-  double sigma[6][3][128][8];
+  double pedestal[6][768][8];
+  double sigma[6][768][8];
   //apvmodule[0-5], apvchip[0-2], strip[0-127], sample[0-7] ped/sigma
   static const int datasize = 6*3*128*8;
   bool ReadCalibDataCore(FILE* ifp);
 
 public:
   bool ReadCalibData(int runID);
+  bool ReadCalibData1(int runID);
+  bool ReadCalibData2(int runID);
   bool ReadCalibDataByLocal(std::string localcalibfilename);
 
   bool WriteCalibData(std::string filename, 
-    double**** wpedestal, double**** wsigma);
+    double*** wpedestal, double*** wsigma);
 
-  double Pedestal(int module, int apv, int strip, int sample){
-    return pedestal[module][apv][strip][sample];
+  double Pedestal(int module, int strip, int sample){
+    return pedestal[module][strip][sample];
   }
-  double Sigma(int module, int apv, int strip, int sample){
-    return sigma[module][apv][strip][sample];
+  double Sigma(int module, int strip, int sample){
+    return sigma[module][strip][sample];
   }
 
 };

@@ -7,8 +7,61 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
+//----arimizu include----
+#include <TH1I.h>
+#include <TCanvas.h>
+//----end arimizu include----
+
 using namespace std;
 //namespace  bpo = boost::program_options;
+
+//----arimizu plot----
+int Canv(int module){
+  if(module==0){
+    return 2;
+  }
+  else if(module==1){
+    return 4;
+  }
+  else if(module==2){
+    return 6;
+  }
+  else if(module==3){
+    return 1;
+  }
+  else if(module==4){
+    return 3;
+  }
+  else if(module==5){
+    return 5;
+  }
+  return -1;
+}
+
+int Module(int Module){
+  if(Module==102){
+    return 2;
+  }
+  else if(Module==103){
+    return 1;
+  }
+  else if(Module==104){
+    return 0;
+  }
+  else if(Module==106){
+    return 3;
+  }
+  else if(Module==107){
+    return 4;
+  }
+  else if(Module==108){
+    return 5;
+  }
+  else{
+    return -1;
+  }
+}
+//----end arimizu plot----
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
@@ -54,6 +107,18 @@ int main(int argc, char* argv[]) {
 //    }
 //  };
 
+
+
+  //----arimizu plot----
+  const int n_module = 6;
+  TH1I *h_HitID[n_module];
+  for(int i=0; i<n_module; i++){
+    h_HitID[i] = new TH1I(Form("hitID[%d]",i),"h",768,0,768);
+  }
+  //----end arimizu polt----
+
+
+
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
   auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
@@ -98,15 +163,40 @@ int main(int argc, char* argv[]) {
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
-//      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters()),
-//      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
-      E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
-      event1->Trigger().SetValidFlag(1);
+      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
+      //E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters());
+      //E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
+      //E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
+      //E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
+      //E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
+      //E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
+      //event1->Trigger().SetValidFlag(1);
 
+
+  //----arimizu plot----
+
+      int n_ssd_clusterhits = event1->SSDClusters().NumberOfHits();
+      for(int i=0; i<n_ssd_clusterhits; i++){
+	auto &c1=event1->SSDClusters().Hit(i);
+	int n = c1.NumHits();
+	cout << "cluster/hits= " << i << "/" << n << endl;
+      }
+      auto n_ssd_hits = event1->SSDHits().NumberOfHits();
+      for(int n_hit=0; n_hit < n_ssd_hits; n_hit++){
+	auto &hit = event1->SSDHits().Hit(n_hit);
+	cout << n_hit << " module=" << hit.ModuleId() << endl;
+	for(int module=0; module<n_module; module++){
+	  //	   cout << "Module=" << hit.ModuleId() << endl;
+	  //	   cout << "module=" << Module(hit.ModuleId()) << endl;
+	  if(Module(hit.ModuleId())==module){
+	    h_HitID[module]->Fill(hit.ChannelId());
+	  }
+	  else{
+	    //	    cout << "!!!!" << endl;
+	  }
+	}
+      }
+  //----end arimizu plot----
 
 // Check
       cout << "Number of event: " << n_event << endl << endl;
@@ -159,6 +249,24 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+
+  //----arimizu plot----
+  TCanvas *c1 = new TCanvas("c1","c1",0,0,1000,700);
+  c1->Clear();
+  c1->Divide(2,3);
+  for(int module=0; module<n_module; module++){
+    c1->cd(Canv(module));
+    h_HitID[module]->Draw();
+  }
+  c1->SaveAs("ssd_plot.pdf");
+  //----end arimizu plot----
+
+
+
+
+
+
   delete geometry;
   delete dst0;
 //  dst1->Close();

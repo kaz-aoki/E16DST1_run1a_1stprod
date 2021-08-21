@@ -68,6 +68,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGGeometry.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
+  E16ANA_CalibDB/src/E16ANA_SSDcalib.cc
 )
 
 target_link_libraries(E16ANA
@@ -77,6 +78,10 @@ target_link_libraries(E16ANA
 #_______________________________________________________________________________
 add_library(E16DST_DST1
 	src/E16DST_DST1.cc
+  src/E16ANA_SSDAnalyzer.cc
+  src/E16ANA_SSDStripAnalyzer.cc
+  src/E16DST_DST1SSDAnalyzerMaker.cxx
+  src/E16DST_DST1SSDFactory.cc
   src/E16ANA_GTRAnalyzer2.cc
   src/E16ANA_GTRStripAnalyzer.cc
   src/E16DST_DST1GTRAnalyzerMaker.cxx
