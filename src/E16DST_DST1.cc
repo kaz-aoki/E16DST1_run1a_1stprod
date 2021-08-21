@@ -11,10 +11,10 @@ void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
 double E16DST_DST1SSDHit::LocalX() {
 }
 
-TVector3 E16DST_DST1SSDHit::LocalPos() {
+TVector3 E16DST_DST1SSDHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
-TVector3 E16DST_DST1SSDHit::GlobalPos() {
+TVector3 E16DST_DST1SSDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 double E16DST_DST1SSDCluster::LocalX() {
@@ -23,7 +23,7 @@ double E16DST_DST1SSDCluster::LocalX() {
 TVector3 E16DST_DST1SSDCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1SSDCluster::GlobalPos() {
+TVector3 E16DST_DST1SSDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 double E16DST_DST1GTRHit::LocalX() {
@@ -148,13 +148,13 @@ TVector3 E16DST_DST1GTRCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1HBDHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
-TVector3 E16DST_DST1HBDHit::GlobalPos() {
+TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1HBDCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1HBDCluster::GlobalPos() {
+TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
@@ -166,13 +166,16 @@ TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
   return lpos;
 }
 
-TVector3 E16DST_DST1LGHit::GlobalPos() {
+TVector3 E16DST_DST1LGHit::GlobalPos(E16ANA_GeometryV2& geometry) {
+  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  pos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
+  return pos;
 }
 
 TVector3 E16DST_DST1LGCluster::LocalPos() {
 }
 
-TVector3 E16DST_DST1LGCluster::GlobalPos() {
+TVector3 E16DST_DST1LGCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
