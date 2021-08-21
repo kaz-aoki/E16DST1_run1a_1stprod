@@ -14,6 +14,7 @@ add_library(E16ANA_CalibDB
 add_executable(MakeSSDCalibfile
   examples/MakeSSDCalibfile.cc
   src/E16ANA_SSDcalib.cc
+#  src/E16ANA_GTRcalib.cc
 )
 
 #target_link_libraries(calibSample

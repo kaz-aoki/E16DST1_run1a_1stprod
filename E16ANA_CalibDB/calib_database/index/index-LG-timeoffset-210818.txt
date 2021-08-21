@@ -1,0 +1,3 @@
+#run_num	filename_timeoffset (is not implemented in DST1)	comment
+9999	LG/timeoffset/210818/LG-timeoffset-run9999-210818.txt	run0a
+39999	LG/timeoffset/210818/LG-timeoffset-run39999-210818.txt	run0b,c

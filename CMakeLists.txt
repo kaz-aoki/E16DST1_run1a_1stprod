@@ -46,7 +46,7 @@ link_libraries(
 #_______________________________________________________________________________
 install(DIRECTORY
   coincidence_map
-  lg_calibfiles
+#  lg_calibfiles
   DESTINATION ${CMAKE_INSTALL_DATADIR}
 )
 
@@ -69,6 +69,8 @@ add_library(E16ANA
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   E16ANA_CalibDB/src/E16ANA_SSDcalib.cc
+  E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
+
 )
 
 target_link_libraries(E16ANA
@@ -86,8 +88,10 @@ add_library(E16DST_DST1
   src/E16ANA_GTRStripAnalyzer.cc
   src/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
+#  src/E16DST_DST1GTRFactory_dst1_detector.cc
+  src/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
-  src/E16DST_DST1LGFactory_dst1_detector.cc
+#  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 )
 

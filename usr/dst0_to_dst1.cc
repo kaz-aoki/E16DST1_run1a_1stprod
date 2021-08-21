@@ -1,8 +1,13 @@
 #include <iostream>
+#include <TROOT.h>
+#include <TH1.h>
+#include <TFile.h>
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
+#include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
@@ -66,7 +71,7 @@ int Module(int Module){
 int main(int argc, char* argv[]) {
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -121,11 +126,10 @@ int main(int argc, char* argv[]) {
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  auto calib_file_name = calib.CalibFileName("Trigger-parameter", run_id);
-  cout << calib_file_name << std::endl;
-//auto trigger_param = new E16ANA_TriggerCalibParam();
-//trigger_param->ReadConstantData(calib.CurrentRunID());
-//trigger_param->Print();
+  auto trigger_param = new E16ANA_TriggerCalibParam();
+  trigger_param->ReadConstantData(calib.CurrentRunID());
+  E16ANA_GTRcalibPedestal gtrped;
+  gtrped.ReadCalibData( calib.CurrentRunID() );
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -134,12 +138,15 @@ int main(int argc, char* argv[]) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
+//  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
+//  gtr_pedestal->Read(argv[5]);
 //  auto dst1 = new E16DST_DST1();
 //  auto dst1 = new E16DST_DST0();
 //  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
 //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
 //    return -1;
 //   }
+
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -198,7 +205,12 @@ int main(int argc, char* argv[]) {
       }
   //----end arimizu plot----
 
-// Check
+// Check begin
+      auto event_id = event0->EventID();
+      cout << "Event ID: " << event_id << endl;
+// SSD
+
+// GTR
       cout << "Number of event: " << n_event << endl << endl;
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
@@ -207,14 +219,16 @@ int main(int argc, char* argv[]) {
         hit.Print();
       }
       auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
       cout << endl << endl;
+      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
       for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
         auto cluster = event1->GTRClusters().Hit(n_cluster);
         cluster.Print();
       }
-      event1->Trigger().Print(*geometry);
+      
+// HBD
 
+// LG
       if (event1->LGHits().NumberOfHits() != 0) {
         auto lghit = event1->LGHits().Hit(0);                                                          
         lghit.Print();                                                                                 
@@ -222,15 +236,21 @@ int main(int argc, char* argv[]) {
         std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
       }
 
-      if (event1->LG().NumHits() != 0) {
-        auto lghit = event1->LG().Hit(0);                                                          
-        lghit.Print();                                                                                 
-        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-      }
-      cout << endl << endl;
-//
+// trigger
+      event1->Trigger().Print(*geometry);
 
+// other
+//      event1->GTR().Print();
+//
+//      if (event1->LG().NumHits() != 0) {
+//        auto lghit = event1->LG().Hit(0);                                                          
+//        lghit.Print();                                                                                 
+//        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+//        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+//      }
+
+      cout << endl << endl;
+// Check end
 
 //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
@@ -261,6 +281,7 @@ int main(int argc, char* argv[]) {
   }
   c1->SaveAs("ssd_plot.pdf");
   //----end arimizu plot----
+
 
 
 

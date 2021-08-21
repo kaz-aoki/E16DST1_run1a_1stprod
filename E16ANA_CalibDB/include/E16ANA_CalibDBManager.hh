@@ -56,7 +56,7 @@ CalibDBManager memo
      *.dat: binary
 
 - full-path completion
-     topdir (CalibPATH) /ccj/u/E16/database/calib/
+     topdir (CalibPATH) /e16/u/nakasuga/E16/DST1/E16DST1/E16ANA_CalibDB/calib_database/
    should be changed when other site as KEKCC/Hokusai
 
 ----------------------------------------------
