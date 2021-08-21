@@ -11,6 +11,7 @@ class E16ANA_TriggerCalibParam {
   ~E16ANA_TriggerCalibParam() {}
   bool ReadConstantData(int run_id);
   bool ReadConstantDataByLocal(int run_id, std::string index_file_name);
+  int RunId() { return run_id; }
   int  Ut3FirmVersion(int n) {
     if (n < ut3_firm_version.size()) {
       return ut3_firm_version[n];
@@ -60,7 +61,8 @@ class E16ANA_TriggerCalibParam {
     }
   }
  private:
-  bool ReadConstantDataCore(int run_id, std::string index_file_name);
+  bool ReadConstantDataCore(int _run_id, std::string _index_file_name);
+  int run_id;
   union {
     std::array<int, 42> parameters;
     struct {

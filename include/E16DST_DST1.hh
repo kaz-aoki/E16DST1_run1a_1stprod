@@ -587,48 +587,30 @@ class E16DST_DST1Trigger {
   ~E16DST_DST1Trigger() {}
   void Clear() {
     valid_flag = E16DST_DST1Constant::kInvalidValue;
-    gtr_hits.Clear();
-    gtr_clusters.Clear();
-    hbd_hits.Clear();
-    hbd_clusters.Clear();
-    lg_hits.Clear();
-    lg_clusters.Clear();
-    tracks.Clear();
-    hit_sets.Clear();
-    track_sets.Clear();
-//    gtr_hits.clear();
-//    gtr_clusters.clear();
-//    hbd_hits.clear();
-//    hbd_clusters.clear();
-//    lg_hits.clear();
-//    lg_clusters.clear();
-//    tracks.clear();
-//    hit_sets.clear();
-//    track_sets.clear();
+    gtr_hits.clear();
+    gtr_clusters.clear();
+    hbd_hits.clear();
+    hbd_clusters.clear();
+    lg_hits.clear();
+    lg_clusters.clear();
+    tracks.clear();
+    hit_sets.clear();
+    track_sets.clear();
   }
   void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
   void SetNumTriggers(int16_t _n_triggers) { n_triggers = _n_triggers; }
   int16_t ValidFlag() { return valid_flag; }
   int GetEventSize() const;
 //  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-//  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-//  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-//  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-//  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-//  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-//  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-//  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-//  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-//  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
+  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
+  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
+  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
+  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
+  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
+  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
+  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
+  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
+  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
   int16_t NumTriggers() { return n_triggers; }
   bool IsTriggerHit(E16DST_DST1GTRHit& hit);
   bool IsTriggerHit(E16DST_DST1HBDHit& hit);
@@ -637,81 +619,19 @@ class E16DST_DST1Trigger {
   void Print();
   void Print(E16ANA_GeometryV2& geometry);
  private:
-  bool SearchTriggerHit(E16DST_DST0Detector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
+  bool SearchTriggerHit(std::vector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
   int16_t valid_flag;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      gtr_hits;
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>  gtr_clusters;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      hbd_hits;
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>  hbd_clusters;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      lg_hits;
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>  lg_clusters;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      tracks;
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet> hit_sets;
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet> track_sets;
-//  std::vector<E16DST_DST1TriggerHit>      gtr_hits;
-//  std::vector<E16DST_DST1TriggerCluster>  gtr_clusters;
-//  std::vector<E16DST_DST1TriggerHit>      hbd_hits;
-//  std::vector<E16DST_DST1TriggerCluster>  hbd_clusters;
-//  std::vector<E16DST_DST1TriggerHit>      lg_hits;
-//  std::vector<E16DST_DST1TriggerCluster>  lg_clusters;
-//  std::vector<E16DST_DST1TriggerHit>      tracks;
-//  std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
-//  std::vector<E16DST_DST1TriggerTrackSet> track_sets;
+  std::vector<E16DST_DST1TriggerHit>      gtr_hits;
+  std::vector<E16DST_DST1TriggerCluster>  gtr_clusters;
+  std::vector<E16DST_DST1TriggerHit>      hbd_hits;
+  std::vector<E16DST_DST1TriggerCluster>  hbd_clusters;
+  std::vector<E16DST_DST1TriggerHit>      lg_hits;
+  std::vector<E16DST_DST1TriggerCluster>  lg_clusters;
+  std::vector<E16DST_DST1TriggerHit>      tracks;
+  std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
+  std::vector<E16DST_DST1TriggerTrackSet> track_sets;
   int16_t n_triggers;
 };
-
-//class E16DST_DST1Trigger {
-// public:
-//  E16DST_DST1Trigger() {}
-//  ~E16DST_DST1Trigger() {}
-//  void Clear() {
-//    valid_flag = E16DST_DST1Constant::kInvalidValue;
-//    gtr_hits.Clear();
-//    hbd_hits.Clear();
-//    lg_hits.Clear();
-////    gtr_hits.clear();
-////    gtr_clusters.clear();
-////    hbd_hits.clear();
-////    hbd_clusters.clear();
-////    lg_hits.clear();
-////    lg_clusters.clear();
-////    tracks.clear();
-////    hit_sets.clear();
-////    track_sets.clear();
-//  }
-//  void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
-//  int16_t ValidFlag() { return valid_flag; }
-//  int GetEventSize() const;
-////  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-////  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-////  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-////  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-////  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-////  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-////  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-////  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-////  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-////  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-//  int16_t NumTriggers() { return n_triggers; }
-//  void Print();
-//  void Print(E16ANA_GeometryV2& geometry);
-// private:
-//  int16_t valid_flag;
-//  E16DST_DST0Detector<E16DST_DST0TriggerHit> gtr_hits;
-//  E16DST_DST0Detector<E16DST_DST0TriggerHit> hbd_hits;
-//  E16DST_DST0Detector<E16DST_DST0TriggerHit> lg_hits;
-//  E16DST_DST0UT3                             ut3;
-//  int16_t n_triggers;
-//};
 
 class E16DST_DST1Track {
  public:
