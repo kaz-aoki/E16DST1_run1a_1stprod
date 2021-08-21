@@ -337,3 +337,13 @@ bool E16DST_DST1PhysicsEvent::Append(E16DST_DST0Event* _another_event) {
 void E16DST_DST1PhysicsEvent::Clear() {
   trigger.Clear();
 }
+
+//E16DST_DST1Header() {
+//}
+//
+//~E16DST_DST1Header() {
+//}
+//
+//int E16DST_DST1Header::Write(std::fstream* fp) {
+//  return fp->write(reinterpret_cast<char*>(this), sizeof(*this));
+//}

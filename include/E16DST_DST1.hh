@@ -213,6 +213,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
+//  int GetSize() override { return GetBaseSize() + sizeof(layer_id) + sizeof(type) + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void Print() override {
     std::cout << "E16DST_DST1GTRCluster : "
               << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
@@ -516,9 +517,17 @@ template <class T, class U>
 int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
 //  auto header = new E16DST_DST1Header();
 //  // set header value
-//  header->Write(fp);
-//  int write_size = fp->Write(reinterpret_cast<char*>(valid_flag))
+//  int write_size = header->Write(fp);
 //  if (version == 0) {
+//    auto length = sizeof(T) * NumHits();
+//    write_size += fp->write(reinterpret_cast<char*>(hits.data()), length);
+//    for (auto& cluster : clusters) {
+//      int length = cluster.GetSize();
+//      write_size += fp->write(reinterpret_cast<char*>(&length), sizeof(length));
+//      write_size += fp->write(reinterpret_cast<char*>(*cluster), length);
+//    }
+//  }
+//  return write_size;
 }
 
 template <class T, class U>
@@ -527,14 +536,14 @@ int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
 
 template <class T, class U>
 int E16DST_DST1Detector<T, U>::GetSize() {
-//  int size = sizeof(uint32_t);
-//  for (const auto& hit: hits) {
-//    size += sizeof(T) * hit.size();
-//  }
-//  for (auto& cluster : clusters) {
-//    size += cluster.GetSize();
-//  }
-//  return size;
+  int size = sizeof(uint32_t);
+  for (const auto& hit: hits) {
+    size += sizeof(T) * hit.size();
+  }
+  for (auto& cluster : clusters) {
+    size += cluster.GetSize();
+  }
+  return size;
 }
 
 template <class T, class U>
@@ -702,42 +711,42 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST1Trigger                         trigger;
 };
 
-union E16DST_DST1Header {
-  int8_t buffer[E16DST_DST1Constant::kHeaderSize];
-  struct {
-    int8_t magic_word[4];
-    int    data_type;
-  };
-  struct Detector {
-    int8_t magic_word[4];
-    int    data_type;
-    int    detector_id;
-    int    detector_version;
-    int    component_id[E16DST_DST1Constant::kNumDetectorComponents];
-    int    component_version[E16DST_DST1Constant::kNumDetectorComponents];
-    int    component_size_4byte[E16DST_DST1Constant::kNumDetectorComponents];
-  };
-  struct Trigger {
-    int8_t magic_word[4];
-    int    data_type;
-  };
-  struct Scaler {
-    int8_t magic_word[4];
-    int    data_type;
-  };
-  struct SpillStart {
-    int8_t magic_word[4];
-    int    data_type;
-  };
-  struct SpillEnd {
-    int8_t magic_word[4];
-    int    data_type;
-  };
-  E16DST_DST1Header();
-  ~E16DST_DST1Header();
-  int Write(std::fstream* fp);
-  int Read(std::fstream* fp);
-};
+//union E16DST_DST1Header {
+//  int8_t buffer[E16DST_DST1Constant::kHeaderSize];
+//  struct {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct Detector {
+//    int8_t magic_word[4];
+//    int    data_type;
+//    int    detector_id;
+//    int    detector_version;
+//    int    component_id[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    component_version[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    component_size_4byte[E16DST_DST1Constant::kNumDetectorComponents];
+//  };
+//  struct Trigger {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct Scaler {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct SpillStart {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct SpillEnd {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  E16DST_DST1Header();
+//  ~E16DST_DST1Header();
+//  int Write(std::fstream* fp);
+//  int Read(std::fstream* fp);
+//};
 
 //class E16DST_DST1RecordType {
 // public:
@@ -791,43 +800,6 @@ union E16DST_DST1Header {
 //  ~E16DST_DST1PhysicsRecord() {}
 // private:
 //  
-//};
-
-//class E16DST_DST1 {
-//public:
-//   enum {
-////      Version = 5, // should be incremented when a major update is implemented
-//      WriteMode = 0,
-//      ReadMode = 1
-//   };
-//   enum {
-//      Auto,
-//      NonCompressed,
-//      ZlibGzip
-//   };
-//   E16DST_DST1();
-//   ~E16DST_DST1();
-//   bool Open(std::string file_name, int open_mode, int compress_mode = Auto);
-//   void Close() { if (file) file->close(); };
-//   E16DST_DST0Event *Event() { return event; };
-//   uint16_t EventType() { return eventType.EventType(); };
-//   int GetEventSize() const { return sizeof(E16DST_DST0EventType) + event->GetEventSize(); }
-//   void SetEventType(uint16_t type);
-//   void WriteAnEvent() { WriteAnEvent(file); };
-//   int ReadAnEvent() { return ReadAnEvent(file); };
-//   void WriteAnEvent(uint16_t type, E16DST_DST0Event *_event);
-//   void WriteAnEvent(E16DST_DST0Event *_event) { WriteAnEvent(_event->EventType(), _event); };
-////   void SetStartTime(uint16_t _hour, uint16_t _min, uint16_t _sec) { header.SetStartTime(_hour, _min, _sec); };
-////   void SetTrgVer(uint32_t _trgVer) { header.SetTrgVer(_trgVer); };
-//private:
-//   //int open_mode;
-//   E16DST_DST0Header header;
-//   E16DST_DST0EventType eventType;
-//   E16DST_DST0Event *event;
-//   E16DST_DST0Event *eventStorage[E16DST_DST0EventType::NEventTypes];
-//   E16DST_File *file{nullptr};
-//   void WriteAnEvent(E16DST_File *fp);
-//   int ReadAnEvent(E16DST_File *fp);
 //};
 
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size
