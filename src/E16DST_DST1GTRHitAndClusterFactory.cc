@@ -132,7 +132,6 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     cl.SetTanTheta(anahit.TanTheta());
                     cl_id++;
                 }       
->>>>>>> upstream/main
             }
             
         }

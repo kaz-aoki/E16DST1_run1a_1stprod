@@ -760,6 +760,60 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST1Trigger                         trigger;
 };
 
+//class E16DST_DST1RecordType {
+// public:
+//  E16DST_DST1RecordType();
+//  ~E16DST_DST1RecordType();
+//  void SetType(int _type) { type = _type; };
+//  int Type() { return type; }
+//  void Write((E16DST_FileIO* fp);
+//  void Read(E16DST_FileIO* fp);
+// private:
+//  int type;
+//};
+//
+//class E16DST_DST1RecordHeader {
+// public:
+//  E16DST_DST1RecordHeader() {}
+//  ~E16DST_DST1RecordHeader() {}
+//  void SetVersion(int _version) { version = _version; }
+//  void SetSize4Byte(int _size_4byte) { size_4byte = _size_4byte; }
+//  int Version() { return version; }
+//  int Size4Byte() { return size_4byte; }
+//  void Write(E16DST_FileIO* fp);
+//  void Read(E16DST_FileIO* fp);
+// protected:
+//  int version;
+//  int64_t size_4byte;
+//};
+//
+//class E16DST_DST1PhysicsRecordHeader : public E16DS_DST1RecordHEader {
+// public:
+//  E16DST_DST1PhysicsRecordHeader() {}
+//  ~E16DST_DST1PhysicsRecordHeader() {}
+//};
+//
+//class E16DST_DST1Record {
+// public:
+//  E16DST_DST1Record() {}
+//  ~E16DST_DST1Record() {}
+//  void SetVersion(int _version) { version = _version; }
+//  void SetRunId(int _run_id) { run_id = _run_id; }
+//  int Version() { return version; }
+//  int RunId() { return run_id; }
+// protected:
+//  int version;
+//  int run_id;
+//}
+//
+//class E16DST_DST1PhysicsRecord : public E16DST_DST1Record {
+// public:
+//  E16DST_DST1PhysicsRecord() {}
+//  ~E16DST_DST1PhysicsRecord() {}
+// private:
+//  
+//};
+
 //class E16DST_DST1 {
 //public:
 //   enum {
