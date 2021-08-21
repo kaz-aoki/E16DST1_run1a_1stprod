@@ -7,14 +7,14 @@
 #include "E16ANA_GTRcalib.hh"
 
 
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters) {
+int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters, E16ANA_GTRcalibPedestal &gtrped) {
     static bool isFirst = true;
     static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
         gtr_analyzers = new E16DST_DST1GTRAnalyzerMaker();
-        E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
-        E16ANA_GTRcalibPedestal gtrped;
-        gtrped.ReadCalibData( calib.CurrentRunID());
+//        E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
+//        E16ANA_GTRcalibPedestal gtrped;
+//n        gtrped.ReadCalibData( calib.CurrentRunID());
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdX, 150.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdY, 300.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTOTThresholdX, 75.0);
@@ -30,13 +30,12 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 E16ANA_GTRAnalyzer2 *analyzer = gtr_analyzers->Chamber(mid, lid);
                 int n_strips = analyzer->GetNumberOfStrips();
                 for(int strip_id = 0; strip_id < n_strips; strip_id++){
-                    double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
-                    double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
-                    analyzer->SetPedestal(strip_id, ped);
-                    analyzer->SetPedestalSigma(strip_id, sigma);
+                double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
+                double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
+                analyzer->SetPedestal(strip_id, ped);
+                analyzer->SetPedestalSigma(strip_id, sigma);
                 }
-            }
-        
+            }     
         }
         isFirst = false;
         std::cout << "GTR Analyzer parameters are set :: should be called ONLY ONCE " << std::endl;
@@ -74,8 +73,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
             for(int t=0; t < v_anahits.size(); t++){//t == 0, 1, 2 means X, Y, Yb respectively
                 dst1_clusters_size += v_anahits[t].get().size();
                 for(int i =0; i<v_anahits[t].get().size();i++){
-                    dst1_hits_size += v_anahits[t].get()[i].NumHit();
-            
+                    dst1_hits_size += v_anahits[t].get()[i].NumHit();        
                 }
             }
         }
@@ -96,8 +94,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                 std::vector<E16ANA_GTRAnalyzedStripHit> &hitsyb = static_cast<E16ANA_GTR100Analyzer *>(gtr_analyzers->Chamber(mid, 0))->GetStripYb()->GetAnalyzedHits();
                 v_anahits.push_back(hitsyb);
             }
-            std::array<std::vector<int>, 3>  t_hit_indexs;
-            std::array<int, 3> indexs = {0,0,0};
+            std::array<std::vector<int16_t>, 3>  t_hit_indexs;
+            std::array<int16_t, 3> indexs = {0,0,0};
             t_hit_indexs[0].clear();
             t_hit_indexs[1].clear();
             t_hit_indexs[2].clear();
@@ -132,6 +130,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     cl.SetTanTheta(anahit.TanTheta());
                     cl_id++;
                 }       
+
             }
             
         }
@@ -295,6 +294,6 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
 //            hits2.clear();
 //        }
 //    }
-    return 0;  
-
+//    return 0;  
+    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * dst1_clusters_size;
 }

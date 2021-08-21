@@ -11,6 +11,7 @@
 #include "E16DST_Constant.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
+#include "E16ANA_GTRcalib.hh"
 
 class E16DST_DST1Hit {
  public:
@@ -22,7 +23,7 @@ class E16DST_DST1Hit {
     channel_id = E16DST_DST1Constant::kInvalidValue;
     timing     = E16DST_DST1Constant::kInvalidValue;
   }
-  void             SetIds(uint16_t _module_id, uint16_t _channel_id) {
+  void             SetIds(int16_t _module_id, int16_t _channel_id) {
     module_id  = _module_id;
     channel_id = _channel_id;
   }
@@ -56,33 +57,33 @@ class E16DST_DST1Cluster {
     timing          = E16DST_DST1Constant::kInvalidValue;
     peak_sum        = E16DST_DST1Constant::kInvalidValue;
   }
-  void                      SetModuleId(int _module_id) { module_id = _module_id; }
-  void                      SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
-  void                      SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
-  void                      SetTiming(float _timing) { timing = _timing; }
-  void                      SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
-  void                      SetHitOrders(std::vector<int>& _hit_orders);
-  int                       ModuleId() { return module_id; }
-  int                       MaxPeakCh() { return max_peak_ch; }
-  float                     MaxPeakHeight() { return max_peak_height; }
-  float                     Timing() { return timing; }
-  float                     PeakSum() { return peak_sum; }
-  int                       NumHits() { return hit_orders.NumberOfHits(); }
-  E16DST_DST0Detector<int>& HitOrders() { return hit_orders; }
-  int                       HitOrder(int n) { return hit_orders.Hit(n); }
-  virtual TVector3          LocalPos() = 0;
-  virtual TVector3          GlobalPos(E16ANA_GeometryV2& geometry) = 0;
-  virtual void              Print() {
+  void                          SetModuleId(int16_t _module_id) { module_id = _module_id; }
+  void                          SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
+  void                          SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
+  void                          SetTiming(float _timing) { timing = _timing; }
+  void                          SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
+  void                          SetHitOrders(std::vector<int16_t>& _hit_orders);
+  int16_t                       ModuleId() { return module_id; }
+  int                           MaxPeakCh() { return max_peak_ch; }
+  float                         MaxPeakHeight() { return max_peak_height; }
+  float                         Timing() { return timing; }
+  float                         PeakSum() { return peak_sum; }
+  int                           NumHits() { return hit_orders.NumberOfHits(); }
+  E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
+  int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
+  virtual TVector3              LocalPos() = 0;
+  virtual TVector3              GlobalPos(E16ANA_GeometryV2& geometry) = 0;
+  virtual void                  Print() {
     std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
   }
  protected:
-  virtual int              ModuleId2020To2013(int module_id) = 0;
-  int                      module_id;
-  int                      max_peak_ch;
-  float                    max_peak_height;
-  float                    timing;
-  float                    peak_sum;
-  E16DST_DST0Detector<int> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+  virtual int                  ModuleId2020To2013(int module_id) = 0;
+  int16_t                      module_id;
+  int                          max_peak_ch;
+  float                        max_peak_height;
+  float                        timing;
+  float                        peak_sum;
+  E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
 };
 
 class E16DST_DST1SSDHit : public E16DST_DST1Hit {
@@ -121,11 +122,11 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
   }
-  void     SetCogPos(float _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
-  void     SetTdcPos(float _tdc_pos)              { tdc_pos = _tdc_pos; }
+  void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
+  void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-  float    CogPos() { return center_of_gravity; }
-  float    TdcPos() { return tdc_pos; }
+  double   CogPos() { return center_of_gravity; }
+  double   TdcPos() { return tdc_pos; }
   float    TanTheta() { return tan_incident_angle; }
   double   LocalX();
   TVector3 LocalPos() override;
@@ -137,10 +138,10 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
               << " [mm]" << std::endl;
   }
  private:
-  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  float center_of_gravity; // mm
-  float tdc_pos;           // mm
-  float tan_incident_angle;    // radian
+  int    ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  double center_of_gravity; // mm
+  double tdc_pos;           // mm
+  float  tan_incident_angle;    // radian
 };
 
 class E16DST_DST1GTRHit : public E16DST_DST1Hit {
@@ -190,16 +191,16 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   }
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
-  void SetCogPos(float _center_of_gravity) { center_of_gravity = _center_of_gravity; }
-  void SetTdcPos(float _tdc_pos) { tdc_pos = _tdc_pos; }
+  void SetCogPos(double _center_of_gravity) { center_of_gravity = _center_of_gravity; }
+  void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
   void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
   int16_t LayerId() { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
   bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
   int16_t Type() { return type; }
-  float CogPos() { return center_of_gravity; }
-  float TdcPos() { return tdc_pos; }
+  double CogPos() { return center_of_gravity; }
+  double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
   double LocalX();
   TVector3 LocalPos() override;
@@ -214,8 +215,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
   int16_t type;
-  float center_of_gravity; // mm
-  float tdc_pos;           // mm
+  double center_of_gravity; // mm
+  double tdc_pos;           // mm
   float tan_incident_angle;    // radian
 };
 
@@ -314,7 +315,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
     detector = E16DST_DST1Constant::kInvalidValue;
   }
   void SetPeakHeight(float _peak_height) override {}
-  void SetDetector(int _detector) {
+  void SetDetector(int16_t _detector) {
     if (_detector < E16DST_DST1Constant::kGTR300 || _detector > E16DST_DST1Constant::kLG) {
       std::cerr << "Invalid detector ID: " << _detector << std::endl;
       std::exit(1);
@@ -322,7 +323,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
     detector = _detector;
   }
   float PeakHeight() override { return E16DST_DST1Constant::kInvalidValue; }
-  int Detector() { return detector; }
+  int16_t Detector() { return detector; }
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
  private:
@@ -335,7 +336,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
       return E16DST_DST1Constant::kInvalidValue;
     }
   }
-  int detector;
+  int16_t detector;
 };
 
 class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
@@ -361,8 +362,8 @@ class E16DST_DST1Detector {
     hit_ptrs.clear();
     cluster_ptrs.clear();
   }
-  void             SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
-  void             SetDetector(int _detector) {
+  void             SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
+  void             SetDetector(int16_t _detector) {
     if (_detector >= E16DST_DST1Constant::kNumDetectors) {
       std::cerr << "Invalid detector ID: " << _detector << std::endl;
       std::exit(1);
@@ -370,8 +371,8 @@ class E16DST_DST1Detector {
       detector = _detector;
     }
   }
-  int              ValidFlag()                        { return valid_flag; }
-  int              Detector()                         { return detector; }
+  int16_t          ValidFlag()                        { return valid_flag; }
+  int16_t          Detector()                         { return detector; }
   void             HitResize(int n)                   { hits.resize(n); }
   void             HitReserve(int n)                  { hits.reserve(n); }
   void             HitPushBack()                      { hits.push_back(T()); }
@@ -411,8 +412,8 @@ class E16DST_DST1Detector {
   void             Print();
  private:
   int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
-  int                                      valid_flag;
-  int                                      detector;
+  int16_t                                  valid_flag;
+  int16_t                                  detector;
   std::vector<T>                           hits;
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
@@ -548,34 +549,34 @@ class E16DST_DST1TriggerTrackSet {
     lg_unrecorded_hits.clear();
   }
   int                          NumGTRHits()            { return gtr_hit_orders.size(); }
-  std::vector<int>&            GTRHitOrders()          { return gtr_hit_orders; }
-  int                          GTRHitOrder(int n)      { return gtr_hit_orders[n]; }
+  std::vector<int16_t>&        GTRHitOrders()          { return gtr_hit_orders; }
+  int16_t                      GTRHitOrder(int n)      { return gtr_hit_orders[n]; }
   std::vector<bool>&           GTRHitIsUsed()          { return gtr_hit_is_used; }
   bool                         GTRHitIsUsed(int n)     { return gtr_hit_is_used[n]; }
   std::vector<E16DST_DST0Hit>& GTRUnrecordedHits()     { return gtr_unrecorded_hits; }
   E16DST_DST0Hit&              GTRUnrecordedHit(int n) { return gtr_unrecorded_hits[n]; }
   int                          NumHBDHits()            { return hbd_hit_orders.size(); }
-  std::vector<int>&            HBDHitOrders()          { return hbd_hit_orders; }
-  int                          HBDHitOrder(int n)      { return hbd_hit_orders[n]; }
+  std::vector<int16_t>&        HBDHitOrders()          { return hbd_hit_orders; }
+  int16_t                      HBDHitOrder(int n)      { return hbd_hit_orders[n]; }
   std::vector<bool>&           HBDHitIsUsed()          { return hbd_hit_is_used; }
   bool                         HBDHitIsUsed(int n)     { return hbd_hit_is_used[n]; }
   std::vector<E16DST_DST0Hit>& HBDUnrecordedHits()     { return hbd_unrecorded_hits; }
   E16DST_DST0Hit&              HBDUnrecordedHit(int n) { return hbd_unrecorded_hits[n]; }
   int                          NumLGHits()             { return lg_hit_orders.size(); }
-  std::vector<int>&            LGHitOrders()           { return lg_hit_orders; }
-  int                          LGHitOrder(int n)       { return lg_hit_orders[n]; }
+  std::vector<int16_t>&        LGHitOrders()           { return lg_hit_orders; }
+  int16_t                      LGHitOrder(int n)       { return lg_hit_orders[n]; }
   std::vector<bool>&           LGHitIsUsed()           { return lg_hit_is_used; }
   bool                         LGHitIsUsed(int n)      { return lg_hit_is_used[n]; }
   std::vector<E16DST_DST0Hit>& LGUnrecordedHits()      { return lg_unrecorded_hits; }
   E16DST_DST0Hit&              LGUnrecordedHit(int n)  { return lg_unrecorded_hits[n]; }
  private:
-  std::vector<int>            gtr_hit_orders;
+  std::vector<int16_t>        gtr_hit_orders;
   std::vector<bool>           gtr_hit_is_used;
   std::vector<E16DST_DST0Hit> gtr_unrecorded_hits;
-  std::vector<int>            hbd_hit_orders;
+  std::vector<int16_t>        hbd_hit_orders;
   std::vector<bool>           hbd_hit_is_used;
   std::vector<E16DST_DST0Hit> hbd_unrecorded_hits;
-  std::vector<int>            lg_hit_orders; // always 1 element in run0
+  std::vector<int16_t>        lg_hit_orders; // always 1 element in run0
   std::vector<bool>           lg_hit_is_used; // always 1 element in run0
   std::vector<E16DST_DST0Hit> lg_unrecorded_hits; // always no element in run0
 };
@@ -605,9 +606,9 @@ class E16DST_DST1Trigger {
 //    hit_sets.clear();
 //    track_sets.clear();
   }
-  void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
-  void SetNumTriggers(int _n_triggers) { n_triggers = _n_triggers; }
-  int ValidFlag() { return valid_flag; }
+  void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
+  void SetNumTriggers(int16_t _n_triggers) { n_triggers = _n_triggers; }
+  int16_t ValidFlag() { return valid_flag; }
   int GetEventSize() const;
 //  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
   E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
@@ -628,7 +629,7 @@ class E16DST_DST1Trigger {
 //  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
 //  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
 //  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-  int NumTriggers() { return n_triggers; }
+  int16_t NumTriggers() { return n_triggers; }
   bool IsTriggerHit(E16DST_DST1GTRHit& hit);
   bool IsTriggerHit(E16DST_DST1HBDHit& hit);
   bool IsTriggerHit(E16DST_DST1LGHit&  hit);
@@ -637,7 +638,7 @@ class E16DST_DST1Trigger {
   void Print(E16ANA_GeometryV2& geometry);
  private:
   bool SearchTriggerHit(E16DST_DST0Detector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
-  int valid_flag;
+  int16_t valid_flag;
   E16DST_DST0Detector<E16DST_DST1TriggerHit>      gtr_hits;
   E16DST_DST0Detector<E16DST_DST1TriggerCluster>  gtr_clusters;
   E16DST_DST0Detector<E16DST_DST1TriggerHit>      hbd_hits;
@@ -656,7 +657,7 @@ class E16DST_DST1Trigger {
 //  std::vector<E16DST_DST1TriggerHit>      tracks;
 //  std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
 //  std::vector<E16DST_DST1TriggerTrackSet> track_sets;
-  int n_triggers;
+  int16_t n_triggers;
 };
 
 //class E16DST_DST1Trigger {
@@ -678,8 +679,8 @@ class E16DST_DST1Trigger {
 ////    hit_sets.clear();
 ////    track_sets.clear();
 //  }
-//  void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
-//  int ValidFlag() { return valid_flag; }
+//  void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
+//  int16_t ValidFlag() { return valid_flag; }
 //  int GetEventSize() const;
 ////  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
 //  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
@@ -700,15 +701,16 @@ class E16DST_DST1Trigger {
 ////  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
 ////  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
 ////  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-//  int NumTriggers() { return n_triggers; }
+//  int16_t NumTriggers() { return n_triggers; }
 //  void Print();
 //  void Print(E16ANA_GeometryV2& geometry);
 // private:
-//  int valid_flag;
+//  int16_t valid_flag;
 //  E16DST_DST0Detector<E16DST_DST0TriggerHit> gtr_hits;
 //  E16DST_DST0Detector<E16DST_DST0TriggerHit> hbd_hits;
 //  E16DST_DST0Detector<E16DST_DST0TriggerHit> lg_hits;
 //  E16DST_DST0UT3                             ut3;
+//  int16_t n_triggers;
 //};
 
 class E16DST_DST1Track {
@@ -716,8 +718,8 @@ class E16DST_DST1Track {
   E16DST_DST1Track() {}
   ~E16DST_DST1Track() {}
  private:
-  std::array<float, 3> initial_point_at_target_plain;
-  std::array<float, 3> initial_momentum_at_initial_point;
+  std::array<double, 3> initial_point_at_target_plain;
+  std::array<double, 3> initial_momentum_at_initial_point;
 };
 
 class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
@@ -799,7 +801,7 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size
 class E16DST_DST1GTRAnalyzerMaker;
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1);
+int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1, E16ANA_GTRcalibPedestal &gtrped);
 //int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
 //int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1);
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
