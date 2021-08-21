@@ -208,6 +208,15 @@ TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   return pos;
 }
 
+int E16DST_DST1TriggerTrackSet::GetEventSize() {
+}
+
+int E16DST_DST1TriggerTrackSet::Write(std::fstream* fp) {
+}
+
+int E16DST_DST1TriggerTrackSet::Read(std::fstream* fp) {
+}
+
 int E16DST_DST1Trigger::GetEventSize() const {
 }
 
