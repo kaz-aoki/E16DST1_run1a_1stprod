@@ -50,8 +50,8 @@ class E16DST_DST1Cluster {
  public:
   E16DST_DST1Cluster() { SetInvalid(); }
   ~E16DST_DST1Cluster() {}
-  virtual void              SetInvalid() { SetBaseInvalid(); }
-  void                      SetBaseInvalid() {
+  virtual void                  SetInvalid() { SetBaseInvalid(); }
+  void                          SetBaseInvalid() {
     module_id       = E16DST_DST1Constant::kInvalidValue;
     max_peak_ch     = E16DST_DST1Constant::kInvalidValue;
     max_peak_height = E16DST_DST1Constant::kInvalidValue;
@@ -71,9 +71,12 @@ class E16DST_DST1Cluster {
   float                         PeakSum() { return peak_sum; }
   int                           NumHits() { return hit_orders.NumberOfHits(); }
   E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
+//  std::vector<int16_t>&         HitOrders() { return hit_orders; }
   int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
   virtual TVector3              LocalPos() = 0;
   virtual TVector3              GlobalPos(E16ANA_GeometryV2& geometry) = 0;
+//  int                           GetBaseSize() { return sizeof(module_id) + sizeof(int16_t) + sizeof(max_peak_ch) + sizeof(max_peak_height) + sizeof(timing) + sizeof(peak_sum) + sizeof(int16_t) * hit_orders.size(); }
+  virtual int                   GetSize() = 0;
   virtual void                  Print() {
     std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
   }
@@ -85,6 +88,7 @@ class E16DST_DST1Cluster {
   float                        timing;
   float                        peak_sum;
   E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+//  std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
 };
 
 class E16DST_DST1SSDHit : public E16DST_DST1Hit {
@@ -132,6 +136,8 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double   LocalX();
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int      GetSize() override {};
+//  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void     Print() override {
     std::cout << "E16DST_DST1SSDCluster : "
               << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
@@ -206,6 +212,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double LocalX();
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int GetSize() override {}
   void Print() override {
     std::cout << "E16DST_DST1GTRCluster : "
               << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
@@ -413,7 +420,7 @@ class E16DST_DST1Detector {
   T&               ClusterMember(int cluster_id, int hit_id);
   int              Write(std::fstream* fp);
   int              Read(E16DST_File* fp);
-  int              GetEventSize();
+  int              GetSize();
   void             Print();
  private:
   int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
@@ -519,15 +526,15 @@ int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
 }
 
 template <class T, class U>
-int E16DST_DST1Detector<T, U>::GetEventSize() {
-  int size = sizeof(uint32_t);
-  for (const auto& hit: hits) {
-    size += sizeof(T) * hit.size();
-  }
-  for (const auto& cluster: clusters) {
-    size += sizeof(U) * cluster.size();
-  }
-  return size;
+int E16DST_DST1Detector<T, U>::GetSize() {
+//  int size = sizeof(uint32_t);
+//  for (const auto& hit: hits) {
+//    size += sizeof(T) * hit.size();
+//  }
+//  for (auto& cluster : clusters) {
+//    size += cluster.GetSize();
+//  }
+//  return size;
 }
 
 template <class T, class U>
