@@ -51,8 +51,7 @@ const std::array<int, 3> nstrips_y = {72, 144, 216};
 //const int nstrips_300y = 216;
 
 // LG
-const double             kLgTimeScale                 = 960. / 1000.;
-
+const double kLgTimeScale = 960. / 1000.;
 
 // Trigger
 const int                kMrgDelayOrderNs             = 4;
@@ -63,6 +62,10 @@ const int                kNumGtr300YSignalChannel     = 216;
 const double             kGtr300ModuleSize            = 600;
 const double             kHbdModuleSize               = 600;
 const int                kNumHbdTriggerChannelOneAxis = 6;
+
+// data
+const int kHeaderSize            = 1024;
+const int kNumDetectorComponents = 16;
 
 }; // namespace E16DST_DST1Constant
 

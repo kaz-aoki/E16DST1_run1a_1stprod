@@ -21,13 +21,13 @@ bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16
   return true;
 }
 
-int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint32_t trigger_tdc, int detector, E16DST_DST0Detector<E16DST_DST1TriggerHit>* hits1, E16DST_DST0Detector<E16DST_DST1TriggerCluster>* clusters1) {
+int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint32_t trigger_tdc, int detector, std::vector<E16DST_DST1TriggerHit>* hits1, std::vector<E16DST_DST1TriggerCluster>* clusters1) {
   auto max_hit = hits0.NumberOfHits();
-  hits1->Resize(max_hit);
+  hits1->resize(max_hit);
   for (int n_hit = 0; n_hit < max_hit; ++n_hit) {
-    E16ANA_TriggerSingleHitFactory(trigger_param, hits0.Hit(n_hit), trigger_tdc, detector, &hits1->Hit(n_hit));
+    E16ANA_TriggerSingleHitFactory(trigger_param, hits0.Hit(n_hit), trigger_tdc, detector, &hits1->at(n_hit));
   }
-  return hits1->GetEventSize() + clusters1->GetEventSize();
+  return hits1->size() * sizeof(E16DST_DST1TriggerHit);
 }
 
 bool E16ANA_TriggerIsGenerateTrigger(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& track0, E16DST_DST0TriggerHit& track1) {
@@ -109,9 +109,9 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD,    &trigger->HBDHits(), &trigger->HBDClusters());
   E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,     &trigger->LGHits(),  &trigger->LGClusters());
   auto max_track =ut3.NumberOfTracks();
-  trigger->Tracks().Resize(max_track);
+  trigger->Tracks().resize(max_track);
   for (int n_track = 0; n_track < max_track; ++n_track) {
-    E16ANA_TriggerSingleHitFactory(trigger_param, ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks().Hit(n_track));
+    E16ANA_TriggerSingleHitFactory(trigger_param, ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks()[n_track]);
   }
   
   // track_set
@@ -144,9 +144,8 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   }
 
   auto n_tracks = ut3.NumberOfTracks();
-  trigger->TrackSets().Resize(n_tracks);
-auto& calib = E16ANA_CalibDBManager::Instance();
-  auto run_id = calib.CurrentRunID();
+  trigger->TrackSets().resize(n_tracks);
+  auto run_id = trigger_param.RunId();
   std::array<int, 2> coarse_time;
   coarse_time.fill(E16DST_DST1Constant::kInvalidValue);
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
@@ -161,7 +160,7 @@ auto& calib = E16ANA_CalibDBManager::Instance();
   }
   std::sort(coarse_time.begin(), coarse_time.end());
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
-    auto& track_set = trigger->TrackSets().Hit(track_num);
+    auto& track_set = trigger->TrackSets()[track_num];
     track_set.Clear();
     auto& track = ut3.Track(track_num);
     int is_new;
@@ -196,9 +195,9 @@ auto& calib = E16ANA_CalibDBManager::Instance();
   }
 
   auto n_hits = lg_hits.NumberOfHits();
-  trigger->HitSets().Resize(n_hits);
+  trigger->HitSets().resize(n_hits);
   for (int hit_num = 0; hit_num < n_hits; ++hit_num) {
-    auto& hit_set = trigger->HitSets().Hit(hit_num);
+    auto& hit_set = trigger->HitSets()[hit_num];
     hit_set.Clear();
     auto& hit = lg_hits.Hit(hit_num);
     int is_new;
