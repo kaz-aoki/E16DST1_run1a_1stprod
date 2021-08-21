@@ -338,12 +338,21 @@ void E16DST_DST1PhysicsEvent::Clear() {
   trigger.Clear();
 }
 
-//E16DST_DST1Header() {
-//}
-//
-//~E16DST_DST1Header() {
-//}
-//
-//int E16DST_DST1Header::Write(std::fstream* fp) {
-//  return fp->write(reinterpret_cast<char*>(this), sizeof(*this));
-//}
+E16DST_DST1Header::E16DST_DST1Header() {
+}
+
+E16DST_DST1Header::~E16DST_DST1Header() {
+}
+
+int E16DST_DST1Header::Write(std::fstream* fp) {
+  fp->write(reinterpret_cast<char*>(this), sizeof(E16DST_DST1Header));
+  return sizeof(E16DST_DST1Header);
+}
+
+int E16DST_DST1Header::Read(std::fstream* fp) {
+  fp->read(reinterpret_cast<char*>(this), sizeof(E16DST_DST1Header));
+  return sizeof(E16DST_DST1Header);
+}
+
+bool E16DST_DST1Header::Check() {
+}
