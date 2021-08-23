@@ -318,36 +318,41 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
   std::cout << std::endl;
 }
 
-int E16DST_DST1PhysicsEvent::Write(E16DST_File* fp) {
-}
-
-int E16DST_DST1PhysicsEvent::Read(E16DST_File* fp) {
-}
-
-bool E16DST_DST1PhysicsEvent::Append(E16DST_DST0Event* _another_event) {
-}
-
-void E16DST_DST1PhysicsEvent::Clear() {
-  trigger.Clear();
-}
-
-E16DST_DST1Header::E16DST_DST1Header() {
-}
-
-E16DST_DST1Header::~E16DST_DST1Header() {
-}
-
-int E16DST_DST1Header::Write(std::fstream* fp) {
-  int length = sizeof(E16DST_DST1Header);
+int E16DST_DST1RecordHeader::Write(std::fstream* fp) {
+  int length = sizeof(E16DST_DST1RecordHeader);
   fp->write(reinterpret_cast<char*>(this), length);
   return length;
 }
 
-int E16DST_DST1Header::Read(std::fstream* fp) {
-  int length = sizeof(E16DST_DST1Header);
+int E16DST_DST1RecordHeader::Read(std::fstream* fp) {
+  int length = sizeof(E16DST_DST1RecordHeader);
   fp->read(reinterpret_cast<char*>(this), length);
   return length;
 }
 
-bool E16DST_DST1Header::Check() {
+E16DST_DST1DetectorHeader::E16DST_DST1DetectorHeader() {
+  magic_word[0] = 'd';
+  magic_word[1] = 's';
+  magic_word[2] = 't';
+  magic_word[3] = '1';
+}
+
+int E16DST_DST1DetectorHeader::Write(std::fstream* fp) {
+  int length = sizeof(E16DST_DST1DetectorHeader);
+  fp->write(reinterpret_cast<char*>(this), length);
+  return length;
+}
+
+int E16DST_DST1DetectorHeader::Read(std::fstream* fp) {
+  int length = sizeof(E16DST_DST1DetectorHeader);
+  fp->read(reinterpret_cast<char*>(this), length);
+  return length;
+}
+
+bool E16DST_DST1DetectorHeader::Check() {
+  if (magic_word[0] != 'd' || magic_word[1] != 's' || magic_word[2] != 't' || magic_word[3] != '1') {
+    std::cerr << "E16DST_DST1DetectorHeader::Check(): wrong magic" << std::endl;
+    return false;
+  }
+  return true;
 }

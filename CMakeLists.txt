@@ -40,7 +40,8 @@ include_directories(
 #)
 
 link_libraries(
-	${ROOT_LIBRARIES}
+	libz.so
+  ${ROOT_LIBRARIES}
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
 )
@@ -104,7 +105,6 @@ target_link_libraries(dst0_to_dst1
 	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
-  libz.so
 )
 
 #_______________________________________________________________________________
@@ -114,7 +114,6 @@ target_link_libraries(dst0_to_dst1_ssd_check
 	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
-  libz.so
 )
 
 #_______________________________________________________________________________
@@ -124,7 +123,6 @@ target_link_libraries(dst0_to_dst1_gtr_check
 	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
-  libz.so
 )
 
 #_______________________________________________________________________________
@@ -134,7 +132,6 @@ target_link_libraries(dst0_to_dst1_hbd_check
 	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
-  libz.so
 )
 
 #_______________________________________________________________________________
@@ -144,7 +141,6 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
-  libz.so
 )
 
 #_______________________________________________________________________________
@@ -154,7 +150,24 @@ target_link_libraries(dst0_to_dst1_trigger_check
 	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
-  libz.so
+)
+
+#_______________________________________________________________________________
+add_executable(write_test usr/write_test.cc)
+
+target_link_libraries(write_test
+#  E16ANA_CalibDB
+#  E16DST
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(read_test usr/read_test.cc)
+
+target_link_libraries(read_test
+#  E16ANA_CalibDB
+#  E16DST
+  E16DST_DST1
 )
 
 #_______________________________________________________________________________

@@ -33,6 +33,15 @@ enum kTriggerType {
   kNumTriggerTypes,
 };
 
+enum kRecordType {
+  kDetector,
+  kTrigger,
+  kScaler,
+  kSpillStart,
+  kSpillEnd,
+  kNumRecordTypes,
+};
+
 // Common
 const int                kInvalidValue              = -10000;
 const std::array<std::array<int, 11>, 3> kModuleId2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},

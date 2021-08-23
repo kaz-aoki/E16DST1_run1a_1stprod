@@ -365,28 +365,31 @@ class E16DST_DST1Detector {
   ~E16DST_DST1Detector() {}
   void Clear() {
     valid_flag = 0;
-    detector = E16DST_DST1Constant::kInvalidValue;
+    detector_id = E16DST_DST1Constant::kInvalidValue;
     hits.clear();
     clusters.clear();
     hit_ptrs.clear();
     cluster_ptrs.clear();
   }
   void             SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
-  void             SetDetector(int16_t _detector) {
-    if (_detector >= E16DST_DST1Constant::kNumDetectors) {
-      std::cerr << "Invalid detector ID: " << _detector << std::endl;
-      std::exit(1);
-    } else {
-      detector = _detector;
-    }
+  void             SetIds(int16_t _detector_id, int16_t _hits_id, int16_t _clusters_id) {
+    detector_id      = _detector_id;
+    hits_version     = _hits_id;
+    clusters_version = _clusters_id;
   }
-  void             SetVersion(int16_t _version, int16_t _hit_version, int16_t _cluster_version) {
-    version         = _version;
-    hit_version     = _hit_version;
-    cluster_version = _cluster_version;
+//  void             SetVersion(int16_t _detector_version, int16_t _hits_version, int16_t _clusters_version) {
+  void             SetVersion(int16_t _hits_version, int16_t _clusters_version) {
+//    detector_version = _detector_version;
+    hits_version     = _hits_version;
+    clusters_version = _clusters_version;
   }
   int16_t          ValidFlag()                        { return valid_flag; }
-  int16_t          Detector()                         { return detector; }
+  int16_t          DetectorId()                       { return detector_id; }
+//  int16_t          DetectorVersion()                  { return detector_version; }
+  int16_t          HitsId()                           { return hits_id; }
+  int16_t          HitsVersion()                      { return hits_version; }
+  int16_t          ClustersId()                       { return clusters_id; }
+  int16_t          ClsutersVersion()                  { return clusters_version; }
   void             ResizeHit(int n)                   { hits.resize(n); }
   void             ReserveHit(int n)                  { hits.reserve(n); }
   void             PushBackHit()                      { hits.push_back(T()); }
@@ -426,16 +429,16 @@ class E16DST_DST1Detector {
  private:
   int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
   int16_t                                  valid_flag;
-  int16_t                                  detector;
-  int16_t                                  version;
-  int16_t                                  hit_version;
-  int16_t                                  cluster_version;
+  int16_t                                  detector_id;
+//  int16_t                                  detector_version;
+  int16_t                                  hits_id;
+  int16_t                                  hits_version;
+  int16_t                                  clusters_id;
+  int16_t                                  clusters_version;
   std::vector<T>                           hits;
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
   std::unordered_map<int, std::vector<U*>> cluster_ptrs;
-//  std::vector<T*>                          hit_data_ptrs; // to read different version data
-//  std::vector<U*>                          cluster_data_ptrs; // to read different version data
 };
 
 class E16DST_DST1TriggerTrackSet {
@@ -557,10 +560,10 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST1PhysicsEvent() {}
   ~E16DST_DST1PhysicsEvent() {}
   int GetEventSize() const override {}
-  int Write(E16DST_File* fp) override;
-  int Read(E16DST_File* fp) override;
-  void Clear() override;
-  bool Append(E16DST_DST0Event* _another_event) override;
+  int Write(E16DST_File* fp) override {};
+  int Read(E16DST_File* fp) override {};
+  void Clear() override {};
+  bool Append(E16DST_DST0Event* _another_event) override {};
   uint16_t EventType() { return E16DST_DST0EventType::Physics; }
   E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
@@ -591,54 +594,32 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST1Trigger                         trigger;
 };
 
-class E16DST_DST1RecordType {
+class E16DST_DST1RecordHeader {
  public:
-  E16DST_DST1RecordType();
-  ~E16DST_DST1RecordType();
-  void SetType(int _type) { type = _type; };
-  int Type() { return type; }
-  void Write(std::fstream* fp);
-  void Read(std::fstream* fp);
+  E16DST_DST1RecordHeader() {}
+  ~E16DST_DST1RecordHeader() {}
+  void SetType(int _type)    { type = _type; };
+  int Type()                 { return type; }
+  int Write(std::fstream* fp);
+  int Read(std::fstream* fp);
  private:
   int type;
 };
 
-union E16DST_DST1Header {
+union E16DST_DST1DetectorHeader {
   int8_t buffer[E16DST_DST1Constant::kHeaderSize];
   struct {
     int8_t magic_word[4];
-    int    data_type;
-  };
-  struct {
-    int8_t magic_word[4];
-    int    data_type;
-    int    detector_id;
     int    detector_version;
-    int    const_component_id[E16DST_DST1Constant::kNumDetectorComponents];
-    int    const_component_version[E16DST_DST1Constant::kNumDetectorComponents];
-    int    const_component_size[E16DST_DST1Constant::kNumDetectorComponents];
-    int    var_component_id[E16DST_DST1Constant::kNumDetectorComponents];
-    int    var_component_version[E16DST_DST1Constant::kNumDetectorComponents];
-    int    var_component_size[E16DST_DST1Constant::kNumDetectorComponents];
-  } Detector;
-  struct {
-    int8_t magic_word[4];
-    int    data_type;
-  } Trigger;
-  struct {
-    int8_t magic_word[4];
-    int    data_type;
-  } Scaler;
-  struct {
-    int8_t magic_word[4];
-    int    data_type;
-  } SpillStart;
-  struct {
-    int8_t magic_word[4];
-    int    data_type;
-  } SpillEnd;
-  E16DST_DST1Header();
-  ~E16DST_DST1Header();
+    int    detector_id;
+//    int    const_component_id[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    const_component_version[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    const_component_size[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    var_component_id[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    var_component_version[E16DST_DST1Constant::kNumDetectorComponents];
+  };
+  E16DST_DST1DetectorHeader();
+  ~E16DST_DST1DetectorHeader() {}
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
   bool Check();
@@ -647,7 +628,7 @@ union E16DST_DST1Header {
 
 template <class T, class U>
 void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
-  if (detector == E16DST_DST1Constant::kInvalidValue) {
+  if (detector_id == E16DST_DST1Constant::kInvalidValue) {
     return;
   }
   hit_ptrs.clear();
@@ -655,7 +636,7 @@ void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
     int module_id = hit.ModuleId();
     int layer_id  = 0;
     int type      = 0;
-    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+    if (detector_id == E16DST_DST1Constant::kGTR100 || detector_id == E16DST_DST1Constant::kGTR200 || detector_id == E16DST_DST1Constant::kGTR300) {
       layer_id = hit.LayerId();
       type     = hit.Type();
     }
@@ -671,7 +652,7 @@ void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
 
 template <class T, class U>
 void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
-  if (detector == E16DST_DST1Constant::kInvalidValue) {
+  if (detector_id == E16DST_DST1Constant::kInvalidValue) {
     return;
   }
   cluster_ptrs.clear();
@@ -679,7 +660,7 @@ void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
     int module_id = cluster.ModuleId();
     int layer_id  = 0;
     int type      = 0;
-    if (detector == E16DST_DST1Constant::kGTR100 || detector == E16DST_DST1Constant::kGTR200 || detector == E16DST_DST1Constant::kGTR300) {
+    if (detector_id == E16DST_DST1Constant::kGTR100 || detector_id == E16DST_DST1Constant::kGTR200 || detector_id == E16DST_DST1Constant::kGTR300) {
       layer_id = cluster.LayerId();
       type     = cluster.Type();
     }
@@ -724,19 +705,23 @@ T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
 
 template <class T, class U>
 int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
-  auto header = new E16DST_DST1Header();
-  // set header value
+  auto header = new E16DST_DST1DetectorHeader();
+  header->detector_id      = detector_id;
+  header->detector_version = 0;
+//  header->const_component_id[0]      = hits_id;
+//  header->const_component_version[0] = hits_version;
+//  header->const_component_size[0]    = sizeof(T) * NumHits();
+//  header->var_component_id[0]        = clusters_id;
+//  header->var_component_version[0]   = clusters_version;
   int write_size = header->Write(fp);
-  if (version == 0) {
-    int hit_length = sizeof(T) * NumHits();
-    write_size += hit_length;
-    fp->write(reinterpret_cast<char*>(hits.data()), hit_length);
-    for (auto& cluster : clusters) {
-      int cluster_length = cluster.GetSize();
-      write_size += sizeof(cluster_length) + cluster_length;
-      fp->write(reinterpret_cast<char*>(&cluster_length), sizeof(cluster_length));
-      fp->write(reinterpret_cast<char*>(*cluster), cluster_length);
-    }
+  int hit_length = sizeof(T) * NumHits();
+  write_size += hit_length;
+  fp->write(reinterpret_cast<char*>(hits.data()), hit_length);
+  for (auto& cluster : clusters) {
+    int cluster_length = cluster.GetSize();
+    write_size += sizeof(cluster_length) + cluster_length;
+    fp->write(reinterpret_cast<char*>(&cluster_length), sizeof(cluster_length));
+    fp->write(reinterpret_cast<char*>(*cluster), cluster_length);
   }
   return write_size;
 }
@@ -744,21 +729,21 @@ int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
 template <class T, class U>
 int E16DST_DST1Detector<T, U>::Read(std::fstream* fp) {
   int read_size = 0;
-  read_size += sizeof(E16DST_DST1Header);
-  auto buf = fp->read(reinterpret_cast<char*>(this), sizeof(E16DST_DST1Header));
-  auto header = reinterpret_cast<E16DST_DST1Header*>(buf);
-  if (header->Detector.detector_version == 0) {
-    for (int component_index = 0; component_index < E16DST_DST1Constant::kNumDetectorComponents; ++component_index) {
-      auto component_id = header->Detector.const_component_id[component_index];
-      if (component_id == E16DST_DST1Constant::kInvalidValue) {
-        break;
-      }
-      auto component_version = header->Detector.const_component_version[component_index];
-      auto component_size    = header->Detector.const_component_size[component_index];
-      
-      }
-
-  }
+//  read_size += sizeof(E16DST_DST1DetectorHeader);
+//  auto buf = fp->read(reinterpret_cast<char*>(this), sizeof(E16DST_DST1DetectorHeader));
+//  auto header = reinterpret_cast<E16DST_DST1DetectorHeader*>(buf);
+//  if (header->detector_version == 0) {
+//    for (int component_index = 0; component_index < E16DST_DST1Constant::kNumDetectorComponents; ++component_index) {
+//      auto component_id = header->const_component_id[component_index];
+//      if (component_id == E16DST_DST1Constant::kInvalidValue) {
+//        break;
+//      }
+//      auto component_version = header->const_component_version[component_index];
+//      auto component_size    = header->const_component_size[component_index];
+//      
+//      }
+//
+//  }
   return read_size;
 }
 
