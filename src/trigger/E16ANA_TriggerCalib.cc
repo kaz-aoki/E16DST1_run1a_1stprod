@@ -6,10 +6,11 @@
 
 #include "E16ANA_CalibDBManager.hh"
 
-bool E16ANA_TriggerCalibParam::ReadConstantDataCore(int run_id, std::string index_file_name) {
+bool E16ANA_TriggerCalibParam::ReadConstantDataCore(int _run_id, std::string _index_file_name) {
+  run_id = _run_id;
   auto& calib = E16ANA_CalibDBManager::Instance();
   bool flag = true;
-  auto in_file_ptr = calib.CalibStreamOpenTextByLocalName(index_file_name);
+  auto in_file_ptr = calib.CalibStreamOpenTextByLocalName(_index_file_name);
   if (in_file_ptr == nullptr) {
     return false;
   }

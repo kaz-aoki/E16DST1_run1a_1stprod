@@ -208,13 +208,20 @@ TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   return pos;
 }
 
+int E16DST_DST1TriggerTrackSet::GetEventSize() {
+}
+
+int E16DST_DST1TriggerTrackSet::Write(std::fstream* fp) {
+}
+
+int E16DST_DST1TriggerTrackSet::Read(std::fstream* fp) {
+}
+
 int E16DST_DST1Trigger::GetEventSize() const {
 }
 
-bool E16DST_DST1Trigger::SearchTriggerHit(E16DST_DST0Detector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id) {
-  auto num_hits = hits.NumberOfHits();
-  for (int n_hit = 0; n_hit < num_hits; ++n_hit) {
-    auto& hit = hits.Hit(n_hit);
+bool E16DST_DST1Trigger::SearchTriggerHit(std::vector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id) {
+  for (auto& hit : hits) {
     if (hit.ModuleId() == module_id && hit.ChannelId() == channel_id) {
       return true;
     }
@@ -245,30 +252,30 @@ bool E16DST_DST1Trigger::IsTriggerHit(E16DST_DST1LGHit& hit) {
 //}
 
 void E16DST_DST1Trigger::Print() {
-  auto max_track = track_sets.NumberOfHits();
+  auto max_track = track_sets.size();
   std::cout << "Number of tracks: " << max_track << std::endl << std::endl;
   for (int n_track = 0; n_track < max_track; ++n_track) {
     std::cout << "Track ID: " << n_track << std::endl;
-    auto& track_set = track_sets.Hit(n_track);
+    auto& track_set = track_sets[n_track];
     auto n_gtr_hits = track_set.NumGTRHits();
     auto n_hbd_hits = track_set.NumHBDHits();
     auto n_lg_hits = track_set.NumLGHits();
     std::cout << "  Number of tracked GTR: " << n_gtr_hits << std::endl;
     for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
       auto order = track_set.GTRHitOrder(n_hit);
-      auto& hit = gtr_hits.Hit(order);
+      auto& hit = gtr_hits[order];
       std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing() << std::endl;
     }
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
       auto order = track_set.HBDHitOrder(n_hit);
-      auto& hit = hbd_hits.Hit(order);
+      auto& hit = hbd_hits[order];
       std::cout << "    Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing() << std::endl;
     }
     std::cout << "  Number of tracked LG: " << n_lg_hits << std::endl;
     if (track_set.NumLGHits() == 1) {
       auto order = track_set.LGHitOrder(0);
-      auto& hit = tracks.Hit(order);
+      auto& hit = tracks[order];
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing() << std::endl;
     } else {
       std::cerr << "    Invalid number of LG Hits: " << track_set.NumLGHits() << std::endl;
@@ -279,18 +286,18 @@ void E16DST_DST1Trigger::Print() {
 }
 
 void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
-  auto max_track = track_sets.NumberOfHits();
+  auto max_track = track_sets.size();
   std::cout << "Number of tracks: " << max_track << std::endl << std::endl;
   for (int n_track = 0; n_track < max_track; ++n_track) {
     std::cout << "Track ID: " << n_track << std::endl;
-    auto& track_set = track_sets.Hit(n_track);
+    auto& track_set = track_sets[n_track];
     auto n_gtr_hits = track_set.NumGTRHits();
     auto n_hbd_hits = track_set.NumHBDHits();
     auto n_lg_hits = track_set.NumLGHits();
     std::cout << "  Number of tracked GTR: " << n_gtr_hits << std::endl;
     for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
       auto order = track_set.GTRHitOrder(n_hit);
-      auto& hit = gtr_hits.Hit(order);
+      auto& hit = gtr_hits[order];
       std::cout << "    Tracked GTR hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing()
       << ", local position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")"
       << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
@@ -298,7 +305,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     std::cout << "  Number of tracked HBD: " << n_hbd_hits << std::endl;
     for (int n_hit = 0; n_hit < n_hbd_hits; ++n_hit) {
       auto order = track_set.HBDHitOrder(n_hit);
-      auto& hit = hbd_hits.Hit(order);
+      auto& hit = hbd_hits[order];
       std::cout << "    Tracked HBD hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing()
       << ", local position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")"
       << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
@@ -306,7 +313,7 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     std::cout << "  Number of tracked LG: " << n_lg_hits << std::endl;
     if (track_set.NumLGHits() == 1) {
       auto order = track_set.LGHitOrder(0);
-      auto& hit = tracks.Hit(order);
+      auto& hit = tracks[order];
       std::cout << "    Tracked LG hit: order = " << order << ", module = " << hit.ModuleId() << ", channel = " << hit.ChannelId() << ", timing = " << hit.Timing()
       << ", local position = (" << hit.LocalPos(geometry).X() << ", " << hit.LocalPos(geometry).Y() << ", " << hit.LocalPos(geometry).Z() << ")"
       << ", global position = (" << hit.GlobalPos(geometry).X() << ", " << hit.GlobalPos(geometry).Y() << ", " << hit.GlobalPos(geometry).Z() << ")" << std::endl;
@@ -330,3 +337,13 @@ bool E16DST_DST1PhysicsEvent::Append(E16DST_DST0Event* _another_event) {
 void E16DST_DST1PhysicsEvent::Clear() {
   trigger.Clear();
 }
+
+//E16DST_DST1Header() {
+//}
+//
+//~E16DST_DST1Header() {
+//}
+//
+//int E16DST_DST1Header::Write(std::fstream* fp) {
+//  return fp->write(reinterpret_cast<char*>(this), sizeof(*this));
+//}

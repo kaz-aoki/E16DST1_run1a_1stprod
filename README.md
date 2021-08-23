@@ -36,3 +36,7 @@
 　CalibDBManager、Calibxxxyyy (各検出器のDB class) はmainで呼び、runが変わるたびにManagerと各検出器のclassにsetする。
 
 　Factory(E16ANA_Calibxxxyyy& xxx_yyy)などのように各検出器classを参照渡しする。
+
+・プログラムのチェックはdst0_to_dst1.ccではなくdst0_to_dst1_xxx_check.ccを使ってください。
+
+　それ以外の書き換えであればdst0_to_dst1.ccを編集して構いません。他のdst0_to_dst1_xxx_check.ccを編集はしなくて大丈夫です。
