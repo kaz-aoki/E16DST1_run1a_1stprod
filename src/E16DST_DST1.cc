@@ -17,9 +17,6 @@ TVector3 E16DST_DST1SSDHit::LocalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1SSDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
-double E16DST_DST1SSDCluster::LocalX() {
-}
-
 TVector3 E16DST_DST1SSDCluster::LocalPos() {
 }
 
@@ -115,10 +112,6 @@ TVector3 E16DST_DST1GTRHit::GlobalPos(E16ANA_GeometryV2& geometry) {
     TVector3 gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
     return gpos;
 
-}
-
-double E16DST_DST1GTRCluster::LocalX() {
-    return center_of_gravity; 
 }
 
 TVector3 E16DST_DST1GTRCluster::LocalPos() {
@@ -345,13 +338,15 @@ E16DST_DST1Header::~E16DST_DST1Header() {
 }
 
 int E16DST_DST1Header::Write(std::fstream* fp) {
-  fp->write(reinterpret_cast<char*>(this), sizeof(E16DST_DST1Header));
-  return sizeof(E16DST_DST1Header);
+  int length = sizeof(E16DST_DST1Header);
+  fp->write(reinterpret_cast<char*>(this), length);
+  return length;
 }
 
 int E16DST_DST1Header::Read(std::fstream* fp) {
-  fp->read(reinterpret_cast<char*>(this), sizeof(E16DST_DST1Header));
-  return sizeof(E16DST_DST1Header);
+  int length = sizeof(E16DST_DST1Header);
+  fp->read(reinterpret_cast<char*>(this), length);
+  return length;
 }
 
 bool E16DST_DST1Header::Check() {

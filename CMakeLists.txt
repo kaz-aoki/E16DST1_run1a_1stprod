@@ -19,6 +19,8 @@ endif()
 #find_package(Boost COMPONENTS program_options REQUIRED)
 #set(Boost_LIBRARY_DIRS /opt/FairSoft/jun19p2/lib64)
 
+#find_package(Geant4 REQUIRED)
+
 include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
@@ -82,9 +84,9 @@ add_library(E16DST_DST1
   src/E16ANA_GTRStripAnalyzer.cc
   src/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
-#  src/E16DST_DST1GTRFactory_dst1_detector.cc
   src/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
+#  src/E16DST_DST1GTRFactory_dst1_detector.cc
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 )

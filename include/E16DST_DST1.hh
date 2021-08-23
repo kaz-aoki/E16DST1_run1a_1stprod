@@ -133,7 +133,7 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double   CogPos() { return center_of_gravity; }
   double   TdcPos() { return tdc_pos; }
   float    TanTheta() { return tan_incident_angle; }
-  double   LocalX();
+  double   LocalX() { return center_of_gravity; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int      GetSize() override {};
@@ -209,7 +209,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
-  double LocalX();
+  double LocalX() { return center_of_gravity; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -420,7 +420,7 @@ class E16DST_DST1Detector {
   std::vector<T*>  ClusterMembers(int cluster_id);
   T&               ClusterMember(int cluster_id, int hit_id);
   int              Write(std::fstream* fp);
-  int              Read(E16DST_File* fp);
+  int              Read(std::fstream* fp);
   int              GetSize();
   void             Print();
  private:
@@ -434,6 +434,8 @@ class E16DST_DST1Detector {
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
   std::unordered_map<int, std::vector<U*>> cluster_ptrs;
+//  std::vector<T*>                          hit_data_ptrs; // to read different version data
+//  std::vector<U*>                          cluster_data_ptrs; // to read different version data
 };
 
 class E16DST_DST1TriggerTrackSet {
@@ -554,15 +556,15 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
  public:
   E16DST_DST1PhysicsEvent() {}
   ~E16DST_DST1PhysicsEvent() {}
-//  int GetEventSize() const override { return E16DST_DST0Event::GetEventSize() + ssd.GetEventSize() + gtr.GetEventSize() + hbd.GetEventSize() + lg.GetEventSize() + trigger.GetEventSize(); }
+  int GetEventSize() const override {}
   int Write(E16DST_File* fp) override;
   int Read(E16DST_File* fp) override;
   void Clear() override;
   bool Append(E16DST_DST0Event* _another_event) override;
   uint16_t EventType() { return E16DST_DST0EventType::Physics; }
-//  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
+  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
-//  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD() { return hbd; }
+  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD() { return hbd; }
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()  { return lg; }
   E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()     { return ssd_hits; }
   E16DST_DST0Detector<E16DST_DST1SSDCluster>& SSDClusters() { return ssd_clusters; }
@@ -574,9 +576,9 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST0Detector<E16DST_DST1LGCluster>&  LGClusters()  { return lg_clusters; }
   E16DST_DST1Trigger&                         Trigger()     { return trigger; }
  private:
-//  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd;
+  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd;
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr;
-//  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
+  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
   E16DST_DST0Detector<E16DST_DST1SSDHit>     ssd_hits;
   E16DST_DST0Detector<E16DST_DST1SSDCluster> ssd_clusters;
@@ -587,6 +589,18 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST0Detector<E16DST_DST1LGHit>      lg_hits;
   E16DST_DST0Detector<E16DST_DST1LGCluster>  lg_clusters;
   E16DST_DST1Trigger                         trigger;
+};
+
+class E16DST_DST1RecordType {
+ public:
+  E16DST_DST1RecordType();
+  ~E16DST_DST1RecordType();
+  void SetType(int _type) { type = _type; };
+  int Type() { return type; }
+  void Write(std::fstream* fp);
+  void Read(std::fstream* fp);
+ private:
+  int type;
 };
 
 union E16DST_DST1Header {
@@ -600,9 +614,12 @@ union E16DST_DST1Header {
     int    data_type;
     int    detector_id;
     int    detector_version;
-    int    component_id[E16DST_DST1Constant::kNumDetectorComponents];
-    int    component_version[E16DST_DST1Constant::kNumDetectorComponents];
-    int    component_size_4byte[E16DST_DST1Constant::kNumDetectorComponents];
+    int    const_component_id[E16DST_DST1Constant::kNumDetectorComponents];
+    int    const_component_version[E16DST_DST1Constant::kNumDetectorComponents];
+    int    const_component_size[E16DST_DST1Constant::kNumDetectorComponents];
+    int    var_component_id[E16DST_DST1Constant::kNumDetectorComponents];
+    int    var_component_version[E16DST_DST1Constant::kNumDetectorComponents];
+    int    var_component_size[E16DST_DST1Constant::kNumDetectorComponents];
   } Detector;
   struct {
     int8_t magic_word[4];
@@ -626,60 +643,6 @@ union E16DST_DST1Header {
   int Read(std::fstream* fp);
   bool Check();
 };
-
-//class E16DST_DST1RecordType {
-// public:
-//  E16DST_DST1RecordType();
-//  ~E16DST_DST1RecordType();
-//  void SetType(int _type) { type = _type; };
-//  int Type() { return type; }
-//  void Write((E16DST_FileIO* fp);
-//  void Read(E16DST_FileIO* fp);
-// private:
-//  int type;
-//};
-//
-//class E16DST_DST1RecordHeader {
-// public:
-//  E16DST_DST1RecordHeader() {}
-//  ~E16DST_DST1RecordHeader() {}
-//  void SetVersion(int _version) { version = _version; }
-//  void SetSize4Byte(int _size_4byte) { size_4byte = _size_4byte; }
-//  int Version() { return version; }
-//  int Size4Byte() { return size_4byte; }
-//  void Write(E16DST_FileIO* fp);
-//  void Read(E16DST_FileIO* fp);
-// protected:
-//  int version;
-//  int64_t size_4byte;
-//};
-//
-//class E16DST_DST1PhysicsRecordHeader : public E16DS_DST1RecordHEader {
-// public:
-//  E16DST_DST1PhysicsRecordHeader() {}
-//  ~E16DST_DST1PhysicsRecordHeader() {}
-//};
-//
-//class E16DST_DST1Record {
-// public:
-//  E16DST_DST1Record() {}
-//  ~E16DST_DST1Record() {}
-//  void SetVersion(int _version) { version = _version; }
-//  void SetRunId(int _run_id) { run_id = _run_id; }
-//  int Version() { return version; }
-//  int RunId() { return run_id; }
-// protected:
-//  int version;
-//  int run_id;
-//}
-//
-//class E16DST_DST1PhysicsRecord : public E16DST_DST1Record {
-// public:
-//  E16DST_DST1PhysicsRecord() {}
-//  ~E16DST_DST1PhysicsRecord() {}
-// private:
-//  
-//};
 
 
 template <class T, class U>
@@ -779,12 +742,22 @@ int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
 }
 
 template <class T, class U>
-int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
+int E16DST_DST1Detector<T, U>::Read(std::fstream* fp) {
   int read_size = 0;
-  auto header = new E16DST_DST1Header();
   read_size += sizeof(E16DST_DST1Header);
-  fp->read(reinterpret_cast<char*>(*header), sizeof(E16DST_DST1Header));
+  auto buf = fp->read(reinterpret_cast<char*>(this), sizeof(E16DST_DST1Header));
+  auto header = reinterpret_cast<E16DST_DST1Header*>(buf);
   if (header->Detector.detector_version == 0) {
+    for (int component_index = 0; component_index < E16DST_DST1Constant::kNumDetectorComponents; ++component_index) {
+      auto component_id = header->Detector.const_component_id[component_index];
+      if (component_id == E16DST_DST1Constant::kInvalidValue) {
+        break;
+      }
+      auto component_version = header->Detector.const_component_version[component_index];
+      auto component_size    = header->Detector.const_component_size[component_index];
+      
+      }
+
   }
   return read_size;
 }
@@ -814,15 +787,15 @@ void E16DST_DST1Detector<T, U>::Print() {
 }
 
 
-int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size
-int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size
+int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1);
 //class E16DST_DST1GTRAnalyzerMaker;
 int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1, E16ANA_GTRcalibPedestal &gtrped);
-//int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
-//int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1);
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
-int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1);
+//int E16DST_DST1SSDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* gtr1);
+int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
+//int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
+int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
 int E16DST_DST1TrackFactory();
 
