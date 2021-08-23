@@ -82,13 +82,13 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
 
-  TFile* froot = new TFile(out_file_name,"recreate");
-  TH1F* hlgph = new TH1F("hlgph","LGPeak",10000,0,1000);
-  TH1I* hlgpt = new TH1I("hlgpt","LGPeakTime",20000,-10000,10000);
-  TH1F* hlgtm = new TH1F("hlgtm","LGTiming",20000,-10000,10000);
-  TH1F* hlgbs = new TH1F("hlgbs","LGBaseline",20000,-10000,10000);
-  TH1F* hlgbr = new TH1F("hlgbr","LGBaselineRms",20000,-10000,10000);
-  TH1F* hlgit = new TH1F("hlgit","LGIntegral",20000,-10000,10000);
+//  TFile* froot = new TFile(out_file_name,"recreate");
+//  TH1F* hlgph = new TH1F("hlgph","LGPeak",10000,0,1000);
+//  TH1I* hlgpt = new TH1I("hlgpt","LGPeakTime",20000,-10000,10000);
+//  TH1F* hlgtm = new TH1F("hlgtm","LGTiming",20000,-10000,10000);
+//  TH1F* hlgbs = new TH1F("hlgbs","LGBaseline",20000,-10000,10000);
+//  TH1F* hlgbr = new TH1F("hlgbr","LGBaselineRms",20000,-10000,10000);
+//  TH1F* hlgit = new TH1F("hlgit","LGIntegral",20000,-10000,10000);
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -131,6 +131,7 @@ int main(int argc, char* argv[]) {
 // SSD
 
 // GTR
+/*
       cout << "Number of event: " << n_event << endl << endl;
       auto n_gtr_hits = event1->GTRHits().NumberOfHits();
       cout << "Number of GTR hits: " << n_gtr_hits << endl;
@@ -145,13 +146,14 @@ int main(int argc, char* argv[]) {
         auto cluster = event1->GTRClusters().Hit(n_cluster);
         cluster.Print();
       }
-      
+*/      
 // HBD
 
 // LG
       if (event1->LGHits().NumberOfHits() != 0) {
         auto lghit = event1->LGHits().Hit(0);                                                          
         lghit.Print();                                                                                 
+	std::cout<<lghit.ModuleId()<<" "<<lghit.ChannelId()<<std::endl;
         std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
         std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
 	  std::cout<<lghit.PeakHeight()<<" "<<lghit.PeakTime()<<" "<<lghit.Timing()<<" "<<lghit.Baseline()<<" "<<lghit.BaselineRms()<<" "<<lghit.Integral()<<std::endl;
@@ -192,8 +194,8 @@ int main(int argc, char* argv[]) {
     ++n_physics_event;
   }
 
-  froot->Write();
-  froot->Close();
+  //  froot->Write();
+  //  froot->Close();
 
   delete geometry;
   delete dst0;

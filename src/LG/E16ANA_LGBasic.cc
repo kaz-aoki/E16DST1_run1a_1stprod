@@ -226,6 +226,10 @@ void E16ANA_LGBasic::SetMap(){
 	*specpoint=spec;
 	(* this->lgdatamap)[key] =  specpoint;
 	(* this->lgdatamap_ip)[key_ip] =  specpoint;
+	//int mod = spec.MODULE-100;
+	//int blk = spec.BLOCK;
+	//lgdatamap[mod][blk] = *specpoint;
+	//lgdatamap_ip[key_ip] = *specpoint;
 	//delete specpoint;
 	}//while loop
 	fclose(fp_map);
@@ -276,12 +280,7 @@ E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(int ip){
 
 void E16ANA_LGBasic::LGWFPeak(double* dat, double* peak, int* peakx, double* timing){
 
-  //  auto spec = this->GetSpec(hit0.ModuleID(),hit0.BlockID());
-  //  double wftype = spec->WF_TYPE;//relative gain of DRS4module
-
   for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){//peak search
-    //    int ph = hit0.Waveform()[cell];
-    //    dat[cell] = ph*wftype;
     if(dat[cell]>*peak){
       if( E16ANA_LGConstant::kPeakSearchStart<cell && cell<E16ANA_LGConstant::kPeakSearchEnd ){
 	*peak = dat[cell];
@@ -304,7 +303,10 @@ void E16ANA_LGBasic::LGWFPeak(double* dat, double* peak, int* peakx, double* tim
       break;
     }
     if(!(cell==*peakx)&&dat[cell]<peakhalf){
-      *timing=(peakhalf-dat[cell])*(1./E16ANA_LGConstant::kTimeScale)/(dat[cell-1]-dat[cell])+cell;
+      *timing=(peakhalf-dat[cell])*(1./E16ANA_LGConstant::kTimeScale)/(dat[cell+1]-dat[cell])+cell;
+      if(cell==(*peakx-1)){//remove the event like spike noise
+	*timing=-10000;
+      }
       break;
     }
     }//timing search
@@ -329,7 +331,6 @@ void E16ANA_LGBasic::LGWFBaseline(double* dat, int peakx, double* baseline, doub
   *baselinerms = sqrt( baseline_sq_sum/(double)nb - (*baseline)*(*baseline) );
   //std::cout<<"baseline:"<<baseline<<std::endl;
   //std::cout<<"baselinerms:"<<baselinerms<<std::endl;
-  //baseline calculation
 
 }
 
@@ -338,13 +339,14 @@ void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, doubl
   double integral_sum = 0.;
   bool peakcheck = false;
   int fallcount = 0;
+  *falltime = peakx+E16ANA_LGConstant::kIntegralEnd;
   for(int cell=(peakx+E16ANA_LGConstant::kIntegralStart); cell<(peakx+E16ANA_LGConstant::kIntegralEnd); cell++){
     if(cell<0||cell>E16DST_Constant::NSamplesLG){
       integral_sum = E16DST_DST1Constant::kInvalidValue;
       break;
     }
     integral_sum += dat[cell]-baseline;
-    if((dat[cell]-baseline)<(dat[peakx]-baseline)*0.1&&peakcheck==false&&cell>peakx){
+    if((dat[cell]-baseline)<(dat[peakx]-baseline)*0.1&&peakcheck==false&&cell>peakx){//get falltime
       if(fallcount>1){
 	std::cout<<"FalltimeSearch is failed."<<std::endl;
 	continue;
@@ -354,9 +356,9 @@ void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, doubl
       if(fallcount>1){
 	peakcheck=true;
       }
-    }
+    }//get falltime
   }
-  *integral = integral_sum;
+  *integral = integral_sum/50.;//ohm
     //std::cout<<"integral:"<<integral<<std::endl;
 
 }
