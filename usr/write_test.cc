@@ -21,9 +21,9 @@ int main(int argc, char* argv[]) {
   record_header->Write(out_file);
   delete record_header;
 
-  auto detector_header = new E16DST_DST1DetectorHeader();
-  detector_header->Write(out_file);
-  delete detector_header;
+//  auto detector_header = new E16DST_DST1DetectorHeader();
+//  detector_header->Write(out_file);
+//  delete detector_header;
 
   out_file->close();
   delete out_file;

@@ -201,6 +201,12 @@ TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   return pos;
 }
 
+int E16DST_DST1DetectorHeader::Read(std::fstream* fp) {
+  int read_size = sizeof(E16DST_DST1DetectorHeader);
+  fp->read(reinterpret_cast<char*>(this), read_size);
+  return read_size;
+}
+
 int E16DST_DST1TriggerTrackSet::GetEventSize() {
 }
 
@@ -330,29 +336,14 @@ int E16DST_DST1RecordHeader::Read(std::fstream* fp) {
   return length;
 }
 
-E16DST_DST1DetectorHeader::E16DST_DST1DetectorHeader() {
-  magic_word[0] = 'd';
-  magic_word[1] = 's';
-  magic_word[2] = 't';
-  magic_word[3] = '1';
-}
-
-int E16DST_DST1DetectorHeader::Write(std::fstream* fp) {
-  int length = sizeof(E16DST_DST1DetectorHeader);
-  fp->write(reinterpret_cast<char*>(this), length);
-  return length;
-}
-
-int E16DST_DST1DetectorHeader::Read(std::fstream* fp) {
-  int length = sizeof(E16DST_DST1DetectorHeader);
-  fp->read(reinterpret_cast<char*>(this), length);
-  return length;
-}
-
-bool E16DST_DST1DetectorHeader::Check() {
-  if (magic_word[0] != 'd' || magic_word[1] != 's' || magic_word[2] != 't' || magic_word[3] != '1') {
-    std::cerr << "E16DST_DST1DetectorHeader::Check(): wrong magic" << std::endl;
-    return false;
-  }
-  return true;
-}
+//int E16DST_DST1DetectorHeader::Write(std::fstream* fp) {
+//  int length = sizeof(E16DST_DST1DetectorHeader);
+//  fp->write(reinterpret_cast<char*>(this), length);
+//  return length;
+//}
+//
+//int E16DST_DST1DetectorHeader::Read(std::fstream* fp) {
+//  int length = sizeof(E16DST_DST1DetectorHeader);
+//  fp->read(reinterpret_cast<char*>(this), length);
+//  return length;
+//}

@@ -136,7 +136,7 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double   LocalX() { return center_of_gravity; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  int      GetSize() override {};
+  int      GetSize() override {}
 //  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void     Print() override {
     std::cout << "E16DST_DST1SSDCluster : "
@@ -356,40 +356,64 @@ class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
   int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
 };
 
+class E16DST_DST1DetectorHeader {
+ public:
+  E16DST_DST1DetectorHeader() {}
+  ~E16DST_DST1DetectorHeader() {}
+  void SetValidFlag(int _valid_flag) { valid_flag = _valid_flag; }
+  void SetDetectorVersion(int16_t _detector_version) { detector_version = _detector_version; }
+  void SetDetectorId(int16_t _detector_id) { detector_id = _detector_id; }
+  void SetNumConstComponents(int16_t _n_const_components) { n_const_components = _n_const_components; }
+  void SetNumVarComponents(int16_t _n_var_components) { n_var_components = _n_var_components; }
+  void SetConstComponent(int n, int16_t version, int16_t id, int16_t qty) {
+    const_component_version[n] = version;
+    const_component_id[n]      = id;
+    const_component_qty[n]     = qty;
+  }
+  void SetVarComponent(int n, int16_t version, int16_t id, int16_t qty) {
+    var_component_version[n] = version;
+    var_component_id[n]      = id;
+    var_component_qty[n]     = qty;
+  }
+  int     ValidFlag()                  { return valid_flag; }
+  int16_t DetectorVersion()            { return detector_version; }
+  int16_t DetectorId()                 { return detector_id; }
+  int16_t NumConstComponents()         { return n_const_components; }
+  int16_t NumVarComponents()           { return n_var_components; }
+  int16_t ConstComponentVersion(int n) { return const_component_version[n]; }
+  int16_t ConstComponentId(int n)      { return const_component_id[n]; }
+  int16_t ConstComponentQty(int n)     { return const_component_qty[n]; }
+  int16_t VarComponentVersion(int n)   { return var_component_version[n]; }
+  int16_t VarComponentId(int n)        { return var_component_id[n]; }
+  int16_t VarComponentQty(int n)       { return var_component_qty[n]; }
+  virtual int Read(std::fstream* fp);
+ protected:
+  int valid_flag;
+  int16_t detector_version;
+  int16_t detector_id;
+  int16_t n_const_components;
+  int16_t n_var_components;
+  int16_t const_component_version[E16DST_DST1Constant::kNumDetectorComponents];
+  int16_t const_component_id[E16DST_DST1Constant::kNumDetectorComponents];
+  int16_t const_component_qty[E16DST_DST1Constant::kNumDetectorComponents];
+  int16_t var_component_version[E16DST_DST1Constant::kNumDetectorComponents];
+  int16_t var_component_id[E16DST_DST1Constant::kNumDetectorComponents];
+  int16_t var_component_qty[E16DST_DST1Constant::kNumDetectorComponents];
+};
+
 template <class T, class U>
-class E16DST_DST1Detector {
+class E16DST_DST1Detector : public E16DST_DST1DetectorHeader {
  public:
   using value_type0 = T;
   using value_type1 = U;
   E16DST_DST1Detector() {}
   ~E16DST_DST1Detector() {}
   void Clear() {
-    valid_flag = 0;
-    detector_id = E16DST_DST1Constant::kInvalidValue;
     hits.clear();
     clusters.clear();
     hit_ptrs.clear();
     cluster_ptrs.clear();
   }
-  void             SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
-  void             SetIds(int16_t _detector_id, int16_t _hits_id, int16_t _clusters_id) {
-    detector_id      = _detector_id;
-    hits_version     = _hits_id;
-    clusters_version = _clusters_id;
-  }
-//  void             SetVersion(int16_t _detector_version, int16_t _hits_version, int16_t _clusters_version) {
-  void             SetVersion(int16_t _hits_version, int16_t _clusters_version) {
-//    detector_version = _detector_version;
-    hits_version     = _hits_version;
-    clusters_version = _clusters_version;
-  }
-  int16_t          ValidFlag()                        { return valid_flag; }
-  int16_t          DetectorId()                       { return detector_id; }
-//  int16_t          DetectorVersion()                  { return detector_version; }
-  int16_t          HitsId()                           { return hits_id; }
-  int16_t          HitsVersion()                      { return hits_version; }
-  int16_t          ClustersId()                       { return clusters_id; }
-  int16_t          ClsutersVersion()                  { return clusters_version; }
   void             ResizeHit(int n)                   { hits.resize(n); }
   void             ReserveHit(int n)                  { hits.reserve(n); }
   void             PushBackHit()                      { hits.push_back(T()); }
@@ -423,18 +447,11 @@ class E16DST_DST1Detector {
   std::vector<T*>  ClusterMembers(int cluster_id);
   T&               ClusterMember(int cluster_id, int hit_id);
   int              Write(std::fstream* fp);
-  int              Read(std::fstream* fp);
+  int              Read(std::fstream* fp) override;
   int              GetSize();
   void             Print();
  private:
   int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
-  int16_t                                  valid_flag;
-  int16_t                                  detector_id;
-//  int16_t                                  detector_version;
-  int16_t                                  hits_id;
-  int16_t                                  hits_version;
-  int16_t                                  clusters_id;
-  int16_t                                  clusters_version;
   std::vector<T>                           hits;
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
@@ -598,31 +615,15 @@ class E16DST_DST1RecordHeader {
  public:
   E16DST_DST1RecordHeader() {}
   ~E16DST_DST1RecordHeader() {}
-  void SetType(int _type)    { type = _type; };
-  int Type()                 { return type; }
-  int Write(std::fstream* fp);
-  int Read(std::fstream* fp);
+  void    SetType(int _type)       { type = _type; };
+  void    SetVersion(int _version) { version= _version; };
+  int16_t Type()                    { return type; }
+  int16_t Version()                 { return version; }
+  int     Write(std::fstream* fp);
+  int     Read(std::fstream* fp);
  private:
-  int type;
-};
-
-union E16DST_DST1DetectorHeader {
-  int8_t buffer[E16DST_DST1Constant::kHeaderSize];
-  struct {
-    int8_t magic_word[4];
-    int    detector_version;
-    int    detector_id;
-//    int    const_component_id[E16DST_DST1Constant::kNumDetectorComponents];
-//    int    const_component_version[E16DST_DST1Constant::kNumDetectorComponents];
-//    int    const_component_size[E16DST_DST1Constant::kNumDetectorComponents];
-//    int    var_component_id[E16DST_DST1Constant::kNumDetectorComponents];
-//    int    var_component_version[E16DST_DST1Constant::kNumDetectorComponents];
-  };
-  E16DST_DST1DetectorHeader();
-  ~E16DST_DST1DetectorHeader() {}
-  int Write(std::fstream* fp);
-  int Read(std::fstream* fp);
-  bool Check();
+  int16_t type;
+  int16_t version;
 };
 
 
@@ -703,48 +704,43 @@ T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
   return hits[clusters[cluster_id].HitOrder(hit_id)];
 }
 
-template <class T, class U>
+template <class T, class U> // to make hits and clusters size (4 byte) even number
 int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
-  auto header = new E16DST_DST1DetectorHeader();
-  header->detector_id      = detector_id;
-  header->detector_version = 0;
-//  header->const_component_id[0]      = hits_id;
-//  header->const_component_version[0] = hits_version;
-//  header->const_component_size[0]    = sizeof(T) * NumHits();
-//  header->var_component_id[0]        = clusters_id;
-//  header->var_component_version[0]   = clusters_version;
-  int write_size = header->Write(fp);
-  int hit_length = sizeof(T) * NumHits();
-  write_size += hit_length;
-  fp->write(reinterpret_cast<char*>(hits.data()), hit_length);
-  for (auto& cluster : clusters) {
-    int cluster_length = cluster.GetSize();
-    write_size += sizeof(cluster_length) + cluster_length;
-    fp->write(reinterpret_cast<char*>(&cluster_length), sizeof(cluster_length));
-    fp->write(reinterpret_cast<char*>(*cluster), cluster_length);
-  }
-  return write_size;
+//  int write_size = sizeof(E16DST_DST1DetectorHeader);
+//  fp->write(reinterpret_cast<char*>(this), write_size);
+//  int hits_length = sizeof(T) * NumHits();
+//  write_size += hits_length;
+//  fp->write(reinterpret_cast<char*>(hits.data()), hits_length);
+//  auto cluster_qty = clusters.size();
+//  std::vector<int16_t> cluster_sizes;
+//  int cluster_total_size = 0;
+//  for (int i= 0; i < cluster_qty; ++i) {
+//    cluster_sizes[i] = sizeof(clusters[i]);
+//    cluster_total_size += sizeof(clusters[i]);
+//  }
+//  int cluster_sizes_length = sizeof(cluster_sizes);
+//  write_size += cluster_sizes_length;
+//  fp->write(reinterpret_cast<char*>(cluster_sizes.data()), cluster_sizes_length);
+//  write_size += cluster_total_size;
+//  fp->write(reinterpret_cast<char*>(clusters.data()), cluster_total_size);
+//  return write_size;
 }
 
 template <class T, class U>
 int E16DST_DST1Detector<T, U>::Read(std::fstream* fp) {
-  int read_size = 0;
-//  read_size += sizeof(E16DST_DST1DetectorHeader);
-//  auto buf = fp->read(reinterpret_cast<char*>(this), sizeof(E16DST_DST1DetectorHeader));
-//  auto header = reinterpret_cast<E16DST_DST1DetectorHeader*>(buf);
-//  if (header->detector_version == 0) {
-//    for (int component_index = 0; component_index < E16DST_DST1Constant::kNumDetectorComponents; ++component_index) {
-//      auto component_id = header->const_component_id[component_index];
-//      if (component_id == E16DST_DST1Constant::kInvalidValue) {
-//        break;
-//      }
-//      auto component_version = header->const_component_version[component_index];
-//      auto component_size    = header->const_component_size[component_index];
-//      
-//      }
-//
+//  hits.resize(const_component_qty[0]);
+//  int read_size = sizeof(T) * const_component_qty[0];
+//  fp->read(reinterpret_cast<char*>(hits.data()), read_size);
+//  std::vector<int16_t> cluster_sizes(var_component_qty[0]);
+//  int cluster_sizes_length = sizeof(int16_t) * var_component_qty[0];
+//  read_size += cluster_sizes_length;
+//  fp->read(reinterpret_cast<char*>(cluster_sizes.data()), cluster_sizes_length);
+//  clusters.resize(var_component_qty[0]);
+//  for (int i = 0; i < var_component_qty[0]; ++i) {
+//    read_size += cluster_sizes[i];
+//    fp->read(reinterpret_cast<char*>(clusters.data() + i), cluster_sizes[i]);
 //  }
-  return read_size;
+//  return read_size;
 }
 
 template <class T, class U>
