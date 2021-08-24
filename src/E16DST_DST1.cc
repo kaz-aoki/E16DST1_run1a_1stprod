@@ -1,4 +1,5 @@
 #include "E16DST_DST1.hh"
+#include "E16ANA_TriggerConstant.hh"
 #include "E16DST_DST1Constant.hh"
 
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
@@ -175,11 +176,11 @@ TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int geometry_module_id = ModuleId2020To2013(module_id);
   if (detector == E16DST_DST1Constant::kGTR) {
-    TVector3 local_pos = {0., - E16DST_DST1Constant::kGtr300ModuleSize / 2 + (double{E16DST_DST1Constant::kGtr300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
+    TVector3 local_pos = {0., - E16ANA_TriggerConstant::kGTR300ModuleSize / 2 + (double{E16ANA_TriggerConstant::kGTR300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kHBD) {
-    int x = - E16DST_DST1Constant::kHbdModuleSize / 2 + (double{E16DST_DST1Constant::kHbdModuleSize} / E16DST_DST1Constant::kNumHbdTriggerChannelOneAxis) * (channel_id % 10 + 0.5);
-    int y = - E16DST_DST1Constant::kHbdModuleSize / 2 + (double{E16DST_DST1Constant::kHbdModuleSize} / E16DST_DST1Constant::kNumHbdTriggerChannelOneAxis) * (channel_id / 10 + 0.5);
+    int x = - E16ANA_TriggerConstant::kHBDModuleSize / 2 + (double{E16ANA_TriggerConstant::kHBDModuleSize} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (channel_id % 10 + 0.5);
+    int y = - E16ANA_TriggerConstant::kHBDModuleSize / 2 + (double{E16ANA_TriggerConstant::kHBDModuleSize} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (channel_id / 10 + 0.5);
     TVector3 local_pos = {x, y, 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kLG) {
@@ -235,7 +236,7 @@ bool E16DST_DST1Trigger::IsTriggerHit(E16DST_DST1GTRHit& hit) {
     return false;
   }
   int module_id = hit.ModuleId();
-  int channel_id = E16DST_Constant::NTriggerChannelsGTR - 1 - hit.ChannelId() / (E16DST_DST1Constant::kNumGtr300YSignalChannel / E16DST_Constant::NTriggerChannelsGTR);
+  int channel_id = E16DST_Constant::NTriggerChannelsGTR - 1 - hit.ChannelId() / (E16ANA_TriggerConstant::kNumGTR300YSignalChannel / E16DST_Constant::NTriggerChannelsGTR);
   return SearchTriggerHit(gtr_hits, module_id, channel_id);
 }
 
