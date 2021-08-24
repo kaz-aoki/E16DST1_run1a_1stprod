@@ -1,17 +1,18 @@
 #ifndef E16DST_DST1_HH
 #define E16DST_DST1_HH
 
+#include <fstream>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
 
 #include "TVector3.h"
-#include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_GeometryV2.hh"
+#include "E16ANA_GTRcalib.hh"
+#include "E16ANA_TriggerCalib.hh"
 #include "E16DST_Constant.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
-#include "E16ANA_GTRcalib.hh"
 
 class E16DST_DST1Hit {
  public:
@@ -49,8 +50,8 @@ class E16DST_DST1Cluster {
  public:
   E16DST_DST1Cluster() { SetInvalid(); }
   ~E16DST_DST1Cluster() {}
-  virtual void              SetInvalid() { SetBaseInvalid(); }
-  void                      SetBaseInvalid() {
+  virtual void                  SetInvalid() { SetBaseInvalid(); }
+  void                          SetBaseInvalid() {
     module_id       = E16DST_DST1Constant::kInvalidValue;
     max_peak_ch     = E16DST_DST1Constant::kInvalidValue;
     max_peak_height = E16DST_DST1Constant::kInvalidValue;
@@ -70,9 +71,12 @@ class E16DST_DST1Cluster {
   float                         PeakSum() { return peak_sum; }
   int                           NumHits() { return hit_orders.NumberOfHits(); }
   E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
+//  std::vector<int16_t>&         HitOrders() { return hit_orders; }
   int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
   virtual TVector3              LocalPos() = 0;
   virtual TVector3              GlobalPos(E16ANA_GeometryV2& geometry) = 0;
+//  int                           GetBaseSize() { return sizeof(module_id) + sizeof(int16_t) + sizeof(max_peak_ch) + sizeof(max_peak_height) + sizeof(timing) + sizeof(peak_sum) + sizeof(int16_t) * hit_orders.size(); }
+  virtual int                   GetSize() = 0;
   virtual void                  Print() {
     std::cout << "Module ID: " << module_id << ", Max peak channel: " << max_peak_ch << ", Max peak height: " << max_peak_height << ", Timing: " << timing << ", Peak sum: " << peak_sum << ", Number of hits: " << NumHits() << std::endl;
   }
@@ -84,6 +88,7 @@ class E16DST_DST1Cluster {
   float                        timing;
   float                        peak_sum;
   E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+//  std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
 };
 
 class E16DST_DST1SSDHit : public E16DST_DST1Hit {
@@ -131,6 +136,8 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double   LocalX();
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int      GetSize() override {};
+//  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void     Print() override {
     std::cout << "E16DST_DST1SSDCluster : "
               << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
@@ -205,6 +212,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double LocalX();
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int GetSize() override {}
+//  int GetSize() override { return GetBaseSize() + sizeof(layer_id) + sizeof(type) + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void Print() override {
     std::cout << "E16DST_DST1GTRCluster : "
               << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
@@ -371,21 +380,26 @@ class E16DST_DST1Detector {
       detector = _detector;
     }
   }
+  void             SetVersion(int16_t _version, int16_t _hit_version, int16_t _cluster_version) {
+    version         = _version;
+    hit_version     = _hit_version;
+    cluster_version = _cluster_version;
+  }
   int16_t          ValidFlag()                        { return valid_flag; }
   int16_t          Detector()                         { return detector; }
-  void             HitResize(int n)                   { hits.resize(n); }
-  void             HitReserve(int n)                  { hits.reserve(n); }
-  void             HitPushBack()                      { hits.push_back(T()); }
-  void             HitPushBack(const T& hit)          { hits.push_back(hit); }
-  T&               HitBack()                          { return hits.back(); }
+  void             ResizeHit(int n)                   { hits.resize(n); }
+  void             ReserveHit(int n)                  { hits.reserve(n); }
+  void             PushBackHit()                      { hits.push_back(T()); }
+  void             PushBackHit(const T& hit)          { hits.push_back(hit); }
+  T&               BackHit()                          { return hits.back(); }
   T&               Hit(int i)                         { return hits[i]; }
   std::vector<T>&  Hits()                             { return hits; }
   int              NumHits()                          { return hits.size(); }
-  void             ClusterResize(int n)               { clusters.resize(n); }
-  void             ClusterReserve(int n)              { clusters.reserve(n); }
-  void             ClusterPushBack()                  { clusters.push_back(T()); }
-  void             ClusterPushBack(const U& cluster)  { clusters.push_back(cluster); }
-  U&               ClusterBack()                      { return clusters.back(); }
+  void             ResizeCluster(int n)               { clusters.resize(n); }
+  void             ReserveCluster(int n)              { clusters.reserve(n); }
+  void             PushBackCluster()                  { clusters.push_back(T()); }
+  void             PushBackCluster(const U& cluster)  { clusters.push_back(cluster); }
+  U&               BackCluster()                      { return clusters.back(); }
   U&               Cluster(int i)                     { return clusters[i]; }
   std::vector<U>&  Clusters()                         { return clusters; }
   int              NumClusters()                      { return clusters.size(); }
@@ -405,15 +419,17 @@ class E16DST_DST1Detector {
   }
   std::vector<T*>  ClusterMembers(int cluster_id);
   T&               ClusterMember(int cluster_id, int hit_id);
-  int              Write(E16DST_File* fp);
+  int              Write(std::fstream* fp);
   int              Read(E16DST_File* fp);
-  void             Append(E16DST_DST1Detector<T, U>& rhs);
-  int              GetEventSize();
+  int              GetSize();
   void             Print();
  private:
   int                                      IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
   int16_t                                  valid_flag;
   int16_t                                  detector;
+  int16_t                                  version;
+  int16_t                                  hit_version;
+  int16_t                                  cluster_version;
   std::vector<T>                           hits;
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
@@ -498,7 +514,20 @@ T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
 }
 
 template <class T, class U>
-int E16DST_DST1Detector<T, U>::Write(E16DST_File* fp) {
+int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
+//  auto header = new E16DST_DST1Header();
+//  // set header value
+//  int write_size = header->Write(fp);
+//  if (version == 0) {
+//    auto length = sizeof(T) * NumHits();
+//    write_size += fp->write(reinterpret_cast<char*>(hits.data()), length);
+//    for (auto& cluster : clusters) {
+//      int length = cluster.GetSize();
+//      write_size += fp->write(reinterpret_cast<char*>(&length), sizeof(length));
+//      write_size += fp->write(reinterpret_cast<char*>(*cluster), length);
+//    }
+//  }
+//  return write_size;
 }
 
 template <class T, class U>
@@ -506,17 +535,13 @@ int E16DST_DST1Detector<T, U>::Read(E16DST_File* fp) {
 }
 
 template <class T, class U>
-void E16DST_DST1Detector<T, U>::Append(E16DST_DST1Detector<T, U>& rhs) {
-}
-
-template <class T, class U>
-int E16DST_DST1Detector<T, U>::GetEventSize() {
+int E16DST_DST1Detector<T, U>::GetSize() {
   int size = sizeof(uint32_t);
   for (const auto& hit: hits) {
     size += sizeof(T) * hit.size();
   }
-  for (const auto& cluster: clusters) {
-    size += sizeof(U) * cluster.size();
+  for (auto& cluster : clusters) {
+    size += cluster.GetSize();
   }
   return size;
 }
@@ -537,6 +562,7 @@ class E16DST_DST1TriggerTrackSet {
  public:
   E16DST_DST1TriggerTrackSet() {}
   ~E16DST_DST1TriggerTrackSet() {}
+  int GetEventSize();
   void Clear() {
     gtr_hit_orders.clear();
     gtr_hit_is_used.clear();
@@ -569,6 +595,8 @@ class E16DST_DST1TriggerTrackSet {
   bool                         LGHitIsUsed(int n)      { return lg_hit_is_used[n]; }
   std::vector<E16DST_DST0Hit>& LGUnrecordedHits()      { return lg_unrecorded_hits; }
   E16DST_DST0Hit&              LGUnrecordedHit(int n)  { return lg_unrecorded_hits[n]; }
+  int Write(std::fstream* fp);
+  int Read(std::fstream* fp);
  private:
   std::vector<int16_t>        gtr_hit_orders;
   std::vector<bool>           gtr_hit_is_used;
@@ -587,48 +615,30 @@ class E16DST_DST1Trigger {
   ~E16DST_DST1Trigger() {}
   void Clear() {
     valid_flag = E16DST_DST1Constant::kInvalidValue;
-    gtr_hits.Clear();
-    gtr_clusters.Clear();
-    hbd_hits.Clear();
-    hbd_clusters.Clear();
-    lg_hits.Clear();
-    lg_clusters.Clear();
-    tracks.Clear();
-    hit_sets.Clear();
-    track_sets.Clear();
-//    gtr_hits.clear();
-//    gtr_clusters.clear();
-//    hbd_hits.clear();
-//    hbd_clusters.clear();
-//    lg_hits.clear();
-//    lg_clusters.clear();
-//    tracks.clear();
-//    hit_sets.clear();
-//    track_sets.clear();
+    gtr_hits.clear();
+    gtr_clusters.clear();
+    hbd_hits.clear();
+    hbd_clusters.clear();
+    lg_hits.clear();
+    lg_clusters.clear();
+    tracks.clear();
+    hit_sets.clear();
+    track_sets.clear();
   }
   void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
   void SetNumTriggers(int16_t _n_triggers) { n_triggers = _n_triggers; }
   int16_t ValidFlag() { return valid_flag; }
   int GetEventSize() const;
 //  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-//  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-//  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-//  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-//  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-//  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-//  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-//  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-//  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-//  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
+  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
+  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
+  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
+  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
+  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
+  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
+  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
+  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
+  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
   int16_t NumTriggers() { return n_triggers; }
   bool IsTriggerHit(E16DST_DST1GTRHit& hit);
   bool IsTriggerHit(E16DST_DST1HBDHit& hit);
@@ -636,82 +646,22 @@ class E16DST_DST1Trigger {
 //  std:::vector<E16DST_DST1TriggerHit*> HitsIncludedTrackSet(bool is_track, int n);
   void Print();
   void Print(E16ANA_GeometryV2& geometry);
+  int Write(std::fstream* fp);
+  int Read(std::fstream* fp);
  private:
-  bool SearchTriggerHit(E16DST_DST0Detector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
+  bool SearchTriggerHit(std::vector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
   int16_t valid_flag;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      gtr_hits;
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>  gtr_clusters;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      hbd_hits;
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>  hbd_clusters;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      lg_hits;
-  E16DST_DST0Detector<E16DST_DST1TriggerCluster>  lg_clusters;
-  E16DST_DST0Detector<E16DST_DST1TriggerHit>      tracks;
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet> hit_sets;
-  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet> track_sets;
-//  std::vector<E16DST_DST1TriggerHit>      gtr_hits;
-//  std::vector<E16DST_DST1TriggerCluster>  gtr_clusters;
-//  std::vector<E16DST_DST1TriggerHit>      hbd_hits;
-//  std::vector<E16DST_DST1TriggerCluster>  hbd_clusters;
-//  std::vector<E16DST_DST1TriggerHit>      lg_hits;
-//  std::vector<E16DST_DST1TriggerCluster>  lg_clusters;
-//  std::vector<E16DST_DST1TriggerHit>      tracks;
-//  std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
-//  std::vector<E16DST_DST1TriggerTrackSet> track_sets;
+  std::vector<E16DST_DST1TriggerHit>      gtr_hits;
+  std::vector<E16DST_DST1TriggerCluster>  gtr_clusters;
+  std::vector<E16DST_DST1TriggerHit>      hbd_hits;
+  std::vector<E16DST_DST1TriggerCluster>  hbd_clusters;
+  std::vector<E16DST_DST1TriggerHit>      lg_hits;
+  std::vector<E16DST_DST1TriggerCluster>  lg_clusters;
+  std::vector<E16DST_DST1TriggerHit>      tracks;
+  std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
+  std::vector<E16DST_DST1TriggerTrackSet> track_sets;
   int16_t n_triggers;
 };
-
-//class E16DST_DST1Trigger {
-// public:
-//  E16DST_DST1Trigger() {}
-//  ~E16DST_DST1Trigger() {}
-//  void Clear() {
-//    valid_flag = E16DST_DST1Constant::kInvalidValue;
-//    gtr_hits.Clear();
-//    hbd_hits.Clear();
-//    lg_hits.Clear();
-////    gtr_hits.clear();
-////    gtr_clusters.clear();
-////    hbd_hits.clear();
-////    hbd_clusters.clear();
-////    lg_hits.clear();
-////    lg_clusters.clear();
-////    tracks.clear();
-////    hit_sets.clear();
-////    track_sets.clear();
-//  }
-//  void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
-//  int16_t ValidFlag() { return valid_flag; }
-//  int GetEventSize() const;
-////  int GetEventSize() const { return GetEventSizeImpl(gtr_hits, gtr_clusters, hbd_hits, hbd_clusters, lg_hits, lg_clusters, tracks, hit_sets, track_sets) + sizeof(int); }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-//  E16DST_DST0Detector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-////  std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
-////  std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
-////  std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
-////  std::vector<E16DST_DST1TriggerCluster>&  HBDClusters() { return hbd_clusters; }
-////  std::vector<E16DST_DST1TriggerHit>&      LGHits()      { return lg_hits; }
-////  std::vector<E16DST_DST1TriggerCluster>&  LGClusters()  { return lg_clusters; }
-////  std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
-////  std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
-////  std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
-//  int16_t NumTriggers() { return n_triggers; }
-//  void Print();
-//  void Print(E16ANA_GeometryV2& geometry);
-// private:
-//  int16_t valid_flag;
-//  E16DST_DST0Detector<E16DST_DST0TriggerHit> gtr_hits;
-//  E16DST_DST0Detector<E16DST_DST0TriggerHit> hbd_hits;
-//  E16DST_DST0Detector<E16DST_DST0TriggerHit> lg_hits;
-//  E16DST_DST0UT3                             ut3;
-//  int16_t n_triggers;
-//};
 
 class E16DST_DST1Track {
  public:
@@ -761,41 +711,95 @@ class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
   E16DST_DST1Trigger                         trigger;
 };
 
-//class E16DST_DST1 {
-//public:
-//   enum {
-////      Version = 5, // should be incremented when a major update is implemented
-//      WriteMode = 0,
-//      ReadMode = 1
-//   };
-//   enum {
-//      Auto,
-//      NonCompressed,
-//      ZlibGzip
-//   };
-//   E16DST_DST1();
-//   ~E16DST_DST1();
-//   bool Open(std::string file_name, int open_mode, int compress_mode = Auto);
-//   void Close() { if (file) file->close(); };
-//   E16DST_DST0Event *Event() { return event; };
-//   uint16_t EventType() { return eventType.EventType(); };
-//   int GetEventSize() const { return sizeof(E16DST_DST0EventType) + event->GetEventSize(); }
-//   void SetEventType(uint16_t type);
-//   void WriteAnEvent() { WriteAnEvent(file); };
-//   int ReadAnEvent() { return ReadAnEvent(file); };
-//   void WriteAnEvent(uint16_t type, E16DST_DST0Event *_event);
-//   void WriteAnEvent(E16DST_DST0Event *_event) { WriteAnEvent(_event->EventType(), _event); };
-////   void SetStartTime(uint16_t _hour, uint16_t _min, uint16_t _sec) { header.SetStartTime(_hour, _min, _sec); };
-////   void SetTrgVer(uint32_t _trgVer) { header.SetTrgVer(_trgVer); };
-//private:
-//   //int open_mode;
-//   E16DST_DST0Header header;
-//   E16DST_DST0EventType eventType;
-//   E16DST_DST0Event *event;
-//   E16DST_DST0Event *eventStorage[E16DST_DST0EventType::NEventTypes];
-//   E16DST_File *file{nullptr};
-//   void WriteAnEvent(E16DST_File *fp);
-//   int ReadAnEvent(E16DST_File *fp);
+//union E16DST_DST1Header {
+//  int8_t buffer[E16DST_DST1Constant::kHeaderSize];
+//  struct {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct Detector {
+//    int8_t magic_word[4];
+//    int    data_type;
+//    int    detector_id;
+//    int    detector_version;
+//    int    component_id[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    component_version[E16DST_DST1Constant::kNumDetectorComponents];
+//    int    component_size_4byte[E16DST_DST1Constant::kNumDetectorComponents];
+//  };
+//  struct Trigger {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct Scaler {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct SpillStart {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  struct SpillEnd {
+//    int8_t magic_word[4];
+//    int    data_type;
+//  };
+//  E16DST_DST1Header();
+//  ~E16DST_DST1Header();
+//  int Write(std::fstream* fp);
+//  int Read(std::fstream* fp);
+//};
+
+//class E16DST_DST1RecordType {
+// public:
+//  E16DST_DST1RecordType();
+//  ~E16DST_DST1RecordType();
+//  void SetType(int _type) { type = _type; };
+//  int Type() { return type; }
+//  void Write((E16DST_FileIO* fp);
+//  void Read(E16DST_FileIO* fp);
+// private:
+//  int type;
+//};
+//
+//class E16DST_DST1RecordHeader {
+// public:
+//  E16DST_DST1RecordHeader() {}
+//  ~E16DST_DST1RecordHeader() {}
+//  void SetVersion(int _version) { version = _version; }
+//  void SetSize4Byte(int _size_4byte) { size_4byte = _size_4byte; }
+//  int Version() { return version; }
+//  int Size4Byte() { return size_4byte; }
+//  void Write(E16DST_FileIO* fp);
+//  void Read(E16DST_FileIO* fp);
+// protected:
+//  int version;
+//  int64_t size_4byte;
+//};
+//
+//class E16DST_DST1PhysicsRecordHeader : public E16DS_DST1RecordHEader {
+// public:
+//  E16DST_DST1PhysicsRecordHeader() {}
+//  ~E16DST_DST1PhysicsRecordHeader() {}
+//};
+//
+//class E16DST_DST1Record {
+// public:
+//  E16DST_DST1Record() {}
+//  ~E16DST_DST1Record() {}
+//  void SetVersion(int _version) { version = _version; }
+//  void SetRunId(int _run_id) { run_id = _run_id; }
+//  int Version() { return version; }
+//  int RunId() { return run_id; }
+// protected:
+//  int version;
+//  int run_id;
+//}
+//
+//class E16DST_DST1PhysicsRecord : public E16DST_DST1Record {
+// public:
+//  E16DST_DST1PhysicsRecord() {}
+//  ~E16DST_DST1PhysicsRecord() {}
+// private:
+//  
 //};
 
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1); // return size

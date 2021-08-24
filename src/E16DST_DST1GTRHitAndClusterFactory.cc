@@ -120,7 +120,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     cl.SetMaxPeakCh(anahit.MaxStripId());
                     cl.SetMaxPeakHeight(anahit.MaxValue());
                     cl.SetTiming(anahit.Timing());
-                    cl.SetPeakSum(anahit.Timing());
+                    cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
                     cl.SetCogPos(anahit.CogHit());
                     cl.SetTdcPos(anahit.TdcHit());
                     cl.SetTanTheta(anahit.TanTheta());

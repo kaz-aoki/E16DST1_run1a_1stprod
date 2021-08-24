@@ -106,6 +106,56 @@ target_link_libraries(dst0_to_dst1
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_ssd_check usr/dst0_to_dst1_ssd_check.cc)
+
+target_link_libraries(dst0_to_dst1_ssd_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+  libz.so
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
+
+target_link_libraries(dst0_to_dst1_gtr_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+  libz.so
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+  libz.so
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
+
+target_link_libraries(dst0_to_dst1_lg_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+  libz.so
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
+
+target_link_libraries(dst0_to_dst1_trigger_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+  libz.so
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_CalibDB)
 add_subdirectory(E16ANA_Geometry)
 add_subdirectory(E16DST)
