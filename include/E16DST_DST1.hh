@@ -58,13 +58,13 @@ class E16DST_DST1Cluster {
     timing          = E16DST_DST1Constant::kInvalidValue;
     peak_sum        = E16DST_DST1Constant::kInvalidValue;
   }
-  void                          SetModuleId(int16_t _module_id) { module_id = _module_id; }
+  void                          SetModuleId(int _module_id) { module_id = _module_id; }
   void                          SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
   void                          SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
   void                          SetTiming(float _timing) { timing = _timing; }
   void                          SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
   void                          SetHitOrders(std::vector<int16_t>& _hit_orders);
-  int16_t                       ModuleId() { return module_id; }
+  int                           ModuleId() { return module_id; }
   int                           MaxPeakCh() { return max_peak_ch; }
   float                         MaxPeakHeight() { return max_peak_height; }
   float                         Timing() { return timing; }
@@ -82,7 +82,7 @@ class E16DST_DST1Cluster {
   }
  protected:
   virtual int                  ModuleId2020To2013(int module_id) = 0;
-  int16_t                      module_id;
+  int                          module_id;
   int                          max_peak_ch;
   float                        max_peak_height;
   float                        timing;
@@ -325,7 +325,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
   }
   void SetPeakHeight(float _peak_height) override {}
   void SetDetector(int16_t _detector) {
-    if (_detector < E16DST_DST1Constant::kGTR300 || _detector > E16DST_DST1Constant::kLG) {
+    if (_detector < E16DST_DST1Constant::kGTR || _detector > E16DST_DST1Constant::kLG) {
       std::cerr << "Invalid detector ID: " << _detector << std::endl;
       std::exit(1);
     }
@@ -337,7 +337,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
  private:
   int ModuleId2020To2013(int module_id) override {
-    if (detector == E16DST_DST1Constant::kSSD || detector == E16DST_DST1Constant::kGTR300) {
+    if (detector == E16DST_DST1Constant::kGTR) {
       return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100];
     } else if (detector == E16DST_DST1Constant::kHBD || detector == E16DST_DST1Constant::kLG) {
       return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1];
@@ -345,7 +345,7 @@ class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
       return E16DST_DST1Constant::kInvalidValue;
     }
   }
-  int16_t detector;
+  int detector;
 };
 
 class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
@@ -354,6 +354,7 @@ class E16DST_DST1TriggerCluster : public E16DST_DST1Cluster {
   ~E16DST_DST1TriggerCluster() {}
  private:
   int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+  int detector;
 };
 
 class E16DST_DST1DetectorHeader {
@@ -551,6 +552,7 @@ class E16DST_DST1Trigger {
  private:
   bool SearchTriggerHit(std::vector<E16DST_DST1TriggerHit>& hits, int module_id, int channel_id);
   int16_t valid_flag;
+  int16_t n_triggers;
   std::vector<E16DST_DST1TriggerHit>      gtr_hits;
   std::vector<E16DST_DST1TriggerCluster>  gtr_clusters;
   std::vector<E16DST_DST1TriggerHit>      hbd_hits;
@@ -560,7 +562,6 @@ class E16DST_DST1Trigger {
   std::vector<E16DST_DST1TriggerHit>      tracks;
   std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
   std::vector<E16DST_DST1TriggerTrackSet> track_sets;
-  int16_t n_triggers;
 };
 
 class E16DST_DST1Track {
@@ -637,7 +638,7 @@ void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
     int module_id = hit.ModuleId();
     int layer_id  = 0;
     int type      = 0;
-    if (detector_id == E16DST_DST1Constant::kGTR100 || detector_id == E16DST_DST1Constant::kGTR200 || detector_id == E16DST_DST1Constant::kGTR300) {
+    if (detector_id == E16DST_DST1Constant::kGTR) {
       layer_id = hit.LayerId();
       type     = hit.Type();
     }
@@ -661,7 +662,7 @@ void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
     int module_id = cluster.ModuleId();
     int layer_id  = 0;
     int type      = 0;
-    if (detector_id == E16DST_DST1Constant::kGTR100 || detector_id == E16DST_DST1Constant::kGTR200 || detector_id == E16DST_DST1Constant::kGTR300) {
+    if (detector_id == E16DST_DST1Constant::kGTR) {
       layer_id = cluster.LayerId();
       type     = cluster.Type();
     }

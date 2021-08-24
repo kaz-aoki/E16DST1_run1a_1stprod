@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 //      }
 //
 //// trigger
-//      event1->Trigger().Print(*geometry);
+      event1->Trigger().Print(*geometry);
 //
 //// other
 ////      event1->GTR().Print();

@@ -7,17 +7,26 @@
 #include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_TriggerCoincidenceMap.hh"
 
-int E16ANA_TriggerTime(uint32_t trigger_tdc, uint32_t tdc) {
-  return int{trigger_tdc} - int{tdc};
+int E16ANA_TriggerTime(E16ANA_TriggerCalibParam& trigger_param, int detector, uint32_t trigger_tdc, uint32_t tdc) {
+  auto delay         = trigger_param.MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
+  auto trigger_delay = trigger_param.MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
+  int offset = 0;
+  if (int{trigger_tdc} - int{tdc} > 10000) {
+    offset = -0x40000;
+  } else if (int{trigger_tdc} - int{tdc} < -10000) {
+    offset = 0x40000;
+  }
+  return int{trigger_tdc} - int{tdc} + E16DST_DST1Constant::kMrgDelayOrderNs * (trigger_delay - delay) + offset;
 }
 
 bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector, E16DST_DST1TriggerHit* hit1) {
-  auto delay         = trigger_param.MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
-  auto trigger_delay = trigger_param.MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
+//  auto delay         = trigger_param.MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
+//  auto trigger_delay = trigger_param.MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
   hit1->SetInvalid();
   hit1->SetIds(hit0.ModuleID(), hit0.ChannelID());
   hit1->SetDetector(detector);
-  hit1->SetTiming(float{E16ANA_TriggerTime(trigger_tdc, hit0.Time()) + E16DST_DST1Constant::kMrgDelayOrderNs * (trigger_delay - delay)});
+//  hit1->SetTiming(float{E16ANA_TriggerTime(trigger_tdc, hit0.Time()) + E16DST_DST1Constant::kMrgDelayOrderNs * (trigger_delay - delay)});
+  hit1->SetTiming(float{E16ANA_TriggerTime(trigger_param, detector, trigger_tdc, hit0.Time())});
   return true;
 }
 
@@ -97,17 +106,17 @@ int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_
 
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
   bool is_mag_field = true; // tmp
-  auto gtr_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kGTR300 - E16DST_DST1Constant::kNumTriggerOffset);
-  auto hbd_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kHBD    - E16DST_DST1Constant::kNumTriggerOffset);
+  auto gtr_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kGTR - E16DST_DST1Constant::kNumTriggerOffset);
+  auto hbd_coincidence_window = E16DST_DST1Constant::kMrgTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kHBD - E16DST_DST1Constant::kNumTriggerOffset);
 
   static auto* channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
   static auto* coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   trigger->Clear();
 
   auto trigger_tdc = ut3.TriggerTime();
-  E16ANA_TriggerHitAndClusterFactory(trigger_param, gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR300, &trigger->GTRHits(), &trigger->GTRClusters());
-  E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD,    &trigger->HBDHits(), &trigger->HBDClusters());
-  E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,     &trigger->LGHits(),  &trigger->LGClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR, &trigger->GTRHits(), &trigger->GTRClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD, &trigger->HBDHits(), &trigger->HBDClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,  &trigger->LGHits(),  &trigger->LGClusters());
   auto max_track =ut3.NumberOfTracks();
   trigger->Tracks().resize(max_track);
   for (int n_track = 0; n_track < max_track; ++n_track) {

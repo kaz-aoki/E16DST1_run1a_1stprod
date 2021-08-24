@@ -7,13 +7,11 @@ namespace E16DST_DST1Constant {
 
 enum kDetector {
   kSSD,
-  kGTR100,
-  kGTR200,
-  kGTR300,
+  kGTR,
   kHBD,
   kLG,
   kNumDetectors,
-  kNumTriggerOffset = 3,
+  kNumTriggerOffset = 1,
 };
 
 enum kGtrAxis {
@@ -74,7 +72,7 @@ const int                kNumHbdTriggerChannelOneAxis = 6;
 
 // data
 const int kHeaderSize            = 1024;
-const int kNumDetectorComponents = 16;
+const int kNumDetectorComponents = 16; // must be even number
 
 }; // namespace E16DST_DST1Constant
 

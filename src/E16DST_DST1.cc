@@ -174,7 +174,7 @@ TVector3 E16DST_DST1LGCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int geometry_module_id = ModuleId2020To2013(module_id);
-  if (detector == E16DST_DST1Constant::kGTR300) {
+  if (detector == E16DST_DST1Constant::kGTR) {
     TVector3 local_pos = {0., - E16DST_DST1Constant::kGtr300ModuleSize / 2 + (double{E16DST_DST1Constant::kGtr300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kHBD) {
@@ -191,7 +191,7 @@ TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1TriggerHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int geometry_module_id = ModuleId2020To2013(module_id);
-  if (detector == E16DST_DST1Constant::kGTR300) {
+  if (detector == E16DST_DST1Constant::kGTR) {
     return geometry.GTR(geometry_module_id, 2)->GetGPos(LocalPos(geometry));
   } else if (detector == E16DST_DST1Constant::kHBD) {
     return geometry.HBD(geometry_module_id)->GetGPos(LocalPos(geometry));
