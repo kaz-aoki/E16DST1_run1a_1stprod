@@ -53,4 +53,4 @@ const int kNumDetectorComponents = 16; // must be even number
 
 }; // namespace E16DST_DST1Constant
 
-#endif
+#endif // E16DST_DST1CONSTANT_HH

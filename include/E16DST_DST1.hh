@@ -261,6 +261,7 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
   float TimeDifference() { return time_difference; }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int GetSize() override {}
   void Print() override {}
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
@@ -310,6 +311,7 @@ class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
   }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int GetSize() override {}
   void Print() override {}
  private:
   int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
@@ -707,41 +709,41 @@ T& E16DST_DST1Detector<T, U>::ClusterMember(int cluster_id, int hit_id) {
 
 template <class T, class U> // to make hits and clusters size (4 byte) even number
 int E16DST_DST1Detector<T, U>::Write(std::fstream* fp) {
-//  int write_size = sizeof(E16DST_DST1DetectorHeader);
-//  fp->write(reinterpret_cast<char*>(this), write_size);
-//  int hits_length = sizeof(T) * NumHits();
-//  write_size += hits_length;
-//  fp->write(reinterpret_cast<char*>(hits.data()), hits_length);
-//  auto cluster_qty = clusters.size();
-//  std::vector<int16_t> cluster_sizes;
-//  int cluster_total_size = 0;
-//  for (int i= 0; i < cluster_qty; ++i) {
-//    cluster_sizes[i] = sizeof(clusters[i]);
-//    cluster_total_size += sizeof(clusters[i]);
-//  }
-//  int cluster_sizes_length = sizeof(cluster_sizes);
-//  write_size += cluster_sizes_length;
-//  fp->write(reinterpret_cast<char*>(cluster_sizes.data()), cluster_sizes_length);
-//  write_size += cluster_total_size;
-//  fp->write(reinterpret_cast<char*>(clusters.data()), cluster_total_size);
-//  return write_size;
+  int write_size = sizeof(E16DST_DST1DetectorHeader);
+  fp->write(reinterpret_cast<char*>(this), write_size);
+  int hits_length = sizeof(T) * NumHits();
+  write_size += hits_length;
+  fp->write(reinterpret_cast<char*>(hits.data()), hits_length);
+  auto cluster_qty = clusters.size();
+  std::vector<int16_t> cluster_sizes;
+  int cluster_total_size = 0;
+  for (int i= 0; i < cluster_qty; ++i) {
+    cluster_sizes[i] = sizeof(clusters[i]);
+    cluster_total_size += sizeof(clusters[i]);
+  }
+  int cluster_sizes_length = sizeof(cluster_sizes);
+  write_size += cluster_sizes_length;
+  fp->write(reinterpret_cast<char*>(cluster_sizes.data()), cluster_sizes_length);
+  write_size += cluster_total_size;
+  fp->write(reinterpret_cast<char*>(clusters.data()), cluster_total_size);
+  return write_size;
 }
 
 template <class T, class U>
 int E16DST_DST1Detector<T, U>::Read(std::fstream* fp) {
-//  hits.resize(const_component_qty[0]);
-//  int read_size = sizeof(T) * const_component_qty[0];
-//  fp->read(reinterpret_cast<char*>(hits.data()), read_size);
-//  std::vector<int16_t> cluster_sizes(var_component_qty[0]);
-//  int cluster_sizes_length = sizeof(int16_t) * var_component_qty[0];
-//  read_size += cluster_sizes_length;
-//  fp->read(reinterpret_cast<char*>(cluster_sizes.data()), cluster_sizes_length);
-//  clusters.resize(var_component_qty[0]);
-//  for (int i = 0; i < var_component_qty[0]; ++i) {
-//    read_size += cluster_sizes[i];
-//    fp->read(reinterpret_cast<char*>(clusters.data() + i), cluster_sizes[i]);
-//  }
-//  return read_size;
+  hits.resize(const_component_qty[0]);
+  int read_size = sizeof(T) * const_component_qty[0];
+  fp->read(reinterpret_cast<char*>(hits.data()), read_size);
+  std::vector<int16_t> cluster_sizes(var_component_qty[0]);
+  int cluster_sizes_length = sizeof(int16_t) * var_component_qty[0];
+  read_size += cluster_sizes_length;
+  fp->read(reinterpret_cast<char*>(cluster_sizes.data()), cluster_sizes_length);
+  clusters.resize(var_component_qty[0]);
+  for (int i = 0; i < var_component_qty[0]; ++i) {
+    read_size += cluster_sizes[i];
+    fp->read(reinterpret_cast<char*>(clusters.data() + i), cluster_sizes[i]);
+  }
+  return read_size;
 }
 
 template <class T, class U>
@@ -779,6 +781,6 @@ int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hi
 //int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
-int E16DST_DST1TrackFactory();
+//int E16DST_DST1TrackFactory(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& ssd, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& gtr, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& hbd, E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>& lg, E16DST_DST1Track* track);
 
 #endif

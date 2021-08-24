@@ -54,9 +54,9 @@ int main(int argc, char* argv[]) {
       if (const_component_version[0] == 0 && const_component_id[0] == kSSD && var_component_version[0] == 0 && var_component_id[0] == kSSD) {
         auto ssd = reinterpret_cast<E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>*>(detector_header);
         ssd->Read(in_file);
-//      } else if (const_component_version[0] == 0 && const_component_id[0] == kGTR && var_component_version[0] == 0 && var_component_id[0] == kGTR) {
-//        auto gtr = reinterpret_cast<E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>*>(detector_header);
-//        gtr->Read(in_file);
+      } else if (const_component_version[0] == 0 && const_component_id[0] == kGTR && var_component_version[0] == 0 && var_component_id[0] == kGTR) {
+        auto gtr = reinterpret_cast<E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>*>(detector_header);
+        gtr->Read(in_file);
       } else if (const_component_version[0] == 0 && const_component_id[0] == kHBD && var_component_version[0] == 0 && var_component_id[0] == kHBD) {
         auto hbd = reinterpret_cast<E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>*>(detector_header);
         hbd->Read(in_file);

@@ -156,8 +156,6 @@ target_link_libraries(dst0_to_dst1_trigger_check
 add_executable(write_test usr/write_test.cc)
 
 target_link_libraries(write_test
-#  E16ANA_CalibDB
-#  E16DST
   E16DST_DST1
 )
 
@@ -165,8 +163,6 @@ target_link_libraries(write_test
 add_executable(read_test usr/read_test.cc)
 
 target_link_libraries(read_test
-#  E16ANA_CalibDB
-#  E16DST
   E16DST_DST1
 )
 
