@@ -566,13 +566,44 @@ class E16DST_DST1Trigger {
   std::vector<E16DST_DST1TriggerTrackSet> track_sets;
 };
 
+class E16DST_DST1WireTrack {
+ public:
+  E16DST_DST1WireTrack() {}
+  ~E16DST_DST1WireTrack() {}
+  void SetWireId(int _wire_id) { wire_id = _wire_id; }
+  void SetInitialPosAtWirePlane(int n, TVector3 _initial_pos) { initial_pos_at_wire_plane[n] = _initial_pos; }
+  void SetInitialMom(int n, TVector3 _initial_mom) { initial_mom[n] = _initial_mom; }
+  int      WireId() { return wire_id; }
+
+  TVector3 InitialPosAtWirePlane(int n) { return initial_pos_at_wire_plane[n]; }
+  TVector3 InitialMom(int n) { return initial_mom[n]; }
+ private:
+  int                     wire_id;
+  std::array<TVector3, 4> initial_pos_at_wire_plane;
+  std::array<TVector3, 4> initial_mom;
+  std::array<int16_t, 4>  original_cluster_index;
+
+};
+
 class E16DST_DST1Track {
  public:
   E16DST_DST1Track() {}
   ~E16DST_DST1Track() {}
+  void SetIsCnontained(int n, bool _is_contained) { is_contained[n] = _is_contained; }
+  void SetInitialPosAtTargetPlane(int n, TVector3 _pos) { initial_pos_at_target_plane[n] = _pos; }
+  void SetInitialMom(int n, TVector3 _mom) { initial_mom[n] = _mom; }
+  void SetOriginalClusterINdex(int n, int _index) { original_cluster_index[n] = _index; }
+  bool IsContained(int n) { return is_contained[n]; }
+  TVector3 InitialPosAtTargetPlane(int n) { return initial_pos_at_target_plane[n]; }
+  TVector3 InitialMom(int n) { return initial_mom[n]; }
+  int      OriginalClusterIndex(int n) { return original_cluster_index[n]; }
  private:
-  std::array<double, 3> initial_point_at_target_plain;
-  std::array<double, 3> initial_momentum_at_initial_point;
+  std::array<bool, 4>     is_contained;
+  std::array<TVector3, 3> initial_pos_at_target_plane; // z = -20, 0, 20
+  std::array<TVector3, 3> initial_mom;
+  std::array<int16_t, 4>  original_cluster_index;
+//  std::vector<int16_t>    
+
 };
 
 class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
@@ -628,6 +659,20 @@ class E16DST_DST1RecordHeader {
   int16_t type;
   int16_t version;
 };
+
+
+int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1);
+//class E16DST_DST1GTRAnalyzerMaker;
+int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1, E16ANA_GTRcalibPedestal &gtrped);
+int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
+int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
+//int E16DST_DST1SSDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* gtr1);
+int E16DST_DST1GTRFactoryDST1Detector(E16ANA_GTRcalibPedestal& gtrped, E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
+//int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
+int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
+int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
+int E16DST_DST1WireTrackFactory(E16DST_DST1PhysicsEvent& event, std::vector<E16DST_DST1WireTrack>* track);
+int E16DST_DST1TrackFactory(E16DST_DST1PhysicsEvent& event, std::vector<E16DST_DST1Track>* track);
 
 
 template <class T, class U>
@@ -769,18 +814,5 @@ void E16DST_DST1Detector<T, U>::Print() {
     cluster.Print();
   }
 }
-
-
-int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1);
-//class E16DST_DST1GTRAnalyzerMaker;
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1, E16ANA_GTRcalibPedestal &gtrped);
-int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
-int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
-//int E16DST_DST1SSDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* gtr1);
-int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
-//int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
-int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
-int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
-//int E16DST_DST1TrackFactory(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& ssd, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& gtr, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& hbd, E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>& lg, E16DST_DST1Track* track);
 
 #endif
