@@ -31,8 +31,9 @@ include_directories(
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
-  E16ANA_Geometry/include/geant4/Geant4
-  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units
+#  E16ANA_Geometry/include/geant4/Geant4
+#  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units
+  /ccj/u/E16/include/Geant4 # ccj
 )
 
 #link_directories(
@@ -87,7 +88,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1GTRHitAndClusterFactory.cc
   src/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
-#  src/E16DST_DST1GTRFactory_dst1_detector.cc
+  src/E16DST_DST1GTRFactory_dst1_detector.cc
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 )
