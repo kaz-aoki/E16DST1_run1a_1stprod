@@ -167,6 +167,13 @@ target_link_libraries(read_test
 )
 
 #_______________________________________________________________________________
+add_executable(write_test_gtr usr/write_test_gtr.cc)
+
+target_link_libraries(write_test_gtr
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_CalibDB)
 add_subdirectory(E16ANA_Geometry)
 add_subdirectory(E16DST)
