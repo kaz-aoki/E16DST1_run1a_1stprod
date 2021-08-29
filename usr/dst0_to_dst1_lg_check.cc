@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-//      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
+      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
       E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
       event1->GTR().SetValidFlag(1);
@@ -140,13 +140,14 @@ int main(int argc, char* argv[]) {
 //// HBD
 //
 //// LG
-//      if (event1->LGHits().NumberOfHits() != 0) {
-//        auto lghit = event1->LGHits().Hit(0);                                                          
-//        lghit.Print();                                                                                 
-//        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-//        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-//      }
-//
+      if (event1->LGHits().NumberOfHits() != 0) {
+        auto lghit = event1->LGHits().Hit(0);                                                          
+        lghit.Print();                                                                                 
+        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+	std::cout<<lghit.PeakHeight()<<std::endl;
+      }
+
 //// trigger
 //      event1->Trigger().Print(*geometry);
 //

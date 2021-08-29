@@ -83,6 +83,14 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
 
+//  TFile* froot = new TFile(out_file_name,"recreate");
+//  TH1F* hlgph = new TH1F("hlgph","LGPeak",10000,0,1000);
+//  TH1I* hlgpt = new TH1I("hlgpt","LGPeakTime",20000,-10000,10000);
+//  TH1F* hlgtm = new TH1F("hlgtm","LGTiming",20000,-10000,10000);
+//  TH1F* hlgbs = new TH1F("hlgbs","LGBaseline",20000,-10000,10000);
+//  TH1F* hlgbr = new TH1F("hlgbr","LGBaselineRms",20000,-10000,10000);
+//  TH1F* hlgit = new TH1F("hlgit","LGIntegral",20000,-10000,10000);
+
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -122,6 +130,7 @@ int main(int argc, char* argv[]) {
 //      auto event_id = event0->EventID();
 //      cout << "Event ID: " << event_id << endl;
 //// SSD
+
 //
 //// GTR
       cout << "Number of event: " << n_event << endl << endl;
@@ -166,6 +175,7 @@ int main(int argc, char* argv[]) {
 //      cout << endl << endl;
 //// Check end
 
+
 //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
@@ -183,6 +193,9 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+  //  froot->Write();
+  //  froot->Close();
 
   delete geometry;
   delete dst0;
