@@ -1,7 +1,7 @@
-//---based on E16ANA_GTRPedestal, written by T. Murakami 20210818 ----
-#ifndef E16ANA_GTRcalib_hh
-#define E16ANA_GTRcalib_hh
+#ifndef E16ANA_GTRcalib_h
+#define E16ANA_GTRcalib_h
 
+//---based on E16ANA_GTRPedestal, written by T. Murakami 20210818 ----
 #include <cmath>
 #include <string>
 #include <unordered_map>
@@ -81,5 +81,4 @@ public:
 private:
    std::unordered_map<uint64_t, Pedestal> pedestal_map;
 };
-
-#endif // E16ANA_GTRcalib_hh
+#endif // E16ANA_GTRcalib_h
