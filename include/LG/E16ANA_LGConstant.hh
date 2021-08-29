@@ -12,11 +12,11 @@ const int kHitTimingStart = 50;//[ns]
 const int kHitTimingEnd = 150;//[ns]
 
 const int kPeakSearchStart = 5;//[cell]
-const int kPeakSearchEnd = 200;//[cell]
+const int kPeakSearchEnd = 160;//[cell]
 const int kTimingSearchRegion = 20;//[cell] before peaktime
-const int kBaselineStart = -100;//[cell] +peaktime
-const int kBaselineEnd = -50;//[cell] +peaktime
-const int kIntegralStart = -20;//[cell] +peaktime
+const int kBaselineStart = -60;//[cell] +peaktime
+const int kBaselineEnd = -10;//[cell] +peaktime
+const int kIntegralStart = -10;//[cell] +peaktime
 const int kIntegralEnd = 50;//[cell] +peaktime
 
 
