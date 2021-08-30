@@ -87,6 +87,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1LGFactory.cc
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
+  src/GTRCheckHist.cc
 )
 
 target_link_libraries(E16DST_DST1
