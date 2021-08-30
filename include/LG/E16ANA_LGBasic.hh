@@ -47,12 +47,15 @@ unordered_map<string, ch_pp*>*  lgdatamap = new unordered_map<string, ch_pp*>;
 
 unordered_map<int, ch_pp*>*  lgdatamap_ip = new unordered_map<int, ch_pp*>;
 
+  //ch_pp lgdatamap[10][60];
+  //ch_pp lgdatamap_ip[50];
+
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
 
-void LGWFPeak(float* dat, float* peak, int* peakx, float* timing);
-void LGWFBaseline(float* dat, int peakx, float* baseline, float* baselinerms);
-void LGWFIntegral(float* dat, int peakx, float baseline, float* integral, float* falltime);
+void LGWFPeak(double* dat, double* peak, int* peakx, double* timing);
+void LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms);
+void LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int* falltime);
 
   //string file_channelmap();
   //string file_drs4assign();
