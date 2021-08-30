@@ -941,8 +941,9 @@ int E16DST_DST1GTRFactoryDST1Detector(E16ANA_GTRcalibPedestal& gtrped, E16DST_DS
 //int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
-int E16DST_DST1WireTrackFactory(E16DST_DST1PhysicsEvent& event, std::vector<E16DST_DST1WireTrack>* track);
-int E16DST_DST1TrackFactory(E16DST_DST1PhysicsEvent& event, std::vector<E16DST_DST1Track>* track);
+int E16DST_DST1WireTrackFactory(E16DST_DST1SSDCluster& ssd_clusters, E16DST_DST1GTRCluster& gtr_clusters, E16DST_DST1WireTrack* wire_tracks);
+//int E16DST_DST1WireTrackFactory(E16DST_DST1PhysicsRecord& record);
+int E16DST_DST1TrackFactory(E16DST_DST1PhysicsRecord& record);
 
 
 template <class T, class U>
