@@ -162,6 +162,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot         = E16DST_DST1Constant::kInvalidValue;
   }
+
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
@@ -216,9 +217,12 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 //  int GetSize() override { return GetBaseSize() + sizeof(layer_id) + sizeof(type) + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void Print() override {
     std::cout << "E16DST_DST1GTRCluster : "
-              << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
-              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
-              << " [mm]" << std::endl;
+              << "Num hit strips = " << NumHits() << 
+              //", Cluster charge = " << peak_sum
+//              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
+              //<<
+             // " [mm]" 
+             << std::endl;
   }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
