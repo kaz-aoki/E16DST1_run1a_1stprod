@@ -1,7 +1,7 @@
 //#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1.hh"
-#include "E16DST_DST1GTRAnalyzerMaker.hh"
-#include "OnlineGTRUtility.h"
+#include "GTR/E16ANA_GTRAnalyzerMaker.hh"
+#include "GTR/OnlineGTRUtility.h"
 //#include "E16ANA_GTRPedestal.h"
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
@@ -12,9 +12,9 @@ int E16DST_DST1GTRFactoryDST1Detector(E16ANA_GTRcalibPedestal &gtrped, E16DST_DS
     auto& dst1_clusters = gtr1->Clusters();
     
     static bool isFirst = true;
-    static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers;
+    static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
-        gtr_analyzers = new E16DST_DST1GTRAnalyzerMaker();
+        gtr_analyzers = new E16ANA_GTRAnalyzerMaker();
 //        E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
 //        E16ANA_GTRcalibPedestal gtrped;
 //n        gtrped.ReadCalibData( calib.CurrentRunID());
