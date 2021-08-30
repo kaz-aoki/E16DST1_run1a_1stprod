@@ -254,7 +254,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 //              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
               //<<
              // " [mm]" 
-             << std::endl;
+              std::endl;
   }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
