@@ -1,12 +1,11 @@
 #include "E16DST_DST1.hh"
+
 #include "E16ANA_TriggerConstant.hh"
 #include "E16DST_DST1Constant.hh"
 
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
-  hit_orders.Reserve(_hit_orders.size());
-  for (const auto& hit_order : _hit_orders) {
-    hit_orders.PushBack(hit_order);
-  }
+  hit_orders.clear();
+  std::copy(_hit_orders.begin(), _hit_orders.end(), std::back_inserter(hit_orders));
 }
 
 double E16DST_DST1SSDHit::LocalX() {
@@ -323,6 +322,28 @@ void E16DST_DST1Trigger::Print(E16ANA_GeometryV2& geometry) {
     std::cout << std::endl;
   }
   std::cout << std::endl;
+}
+
+int E16DST_DST1PhysicsRecord::Write(std::fstream* fp) {
+  int write_size = sizeof(E16DST_DST1PhysicsHeader);
+  fp->write(reinterpret_cast<char*>(this), write_size);
+  write_size += ssd.Write(fp);
+  write_size += gtr.Write(fp);
+  write_size += hbd.Write(fp);
+  write_size += lg.Write(fp);
+//  write_size += trigger.Write(fp);
+  return write_size;
+}
+
+int E16DST_DST1PhysicsRecord::Read(std::fstream* fp) {
+  int read_size = sizeof(E16DST_DST1PhysicsHeader);
+  fp->read(reinterpret_cast<char*>(this), read_size);
+  read_size += ssd.Read(fp);
+  read_size += gtr.Read(fp);
+  read_size += hbd.Read(fp);
+  read_size += lg.Read(fp);
+//  read_size += trigger.Read(fp);
+  return read_size;
 }
 
 int E16DST_DST1RecordHeader::Write(std::fstream* fp) {

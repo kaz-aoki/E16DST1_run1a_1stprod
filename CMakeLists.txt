@@ -31,9 +31,10 @@ include_directories(
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
-#  E16ANA_Geometry/include/geant4/Geant4
-#  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units
-  /ccj/u/E16/include/Geant4 # ccj
+  E16ANA_Geometry/include/geant4/Geant4 # evb
+  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units #evb
+#  /ccj/u/E16/include/Geant4 # ccj
+  E16ANA_Waveform/include
 )
 
 #link_directories(
@@ -154,27 +155,35 @@ target_link_libraries(dst0_to_dst1_trigger_check
 )
 
 #_______________________________________________________________________________
-add_executable(write_test usr/write_test.cc)
-
-target_link_libraries(write_test
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(read_test usr/read_test.cc)
-
-target_link_libraries(read_test
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(write_test_gtr usr/write_test_gtr.cc)
-
-target_link_libraries(write_test_gtr
-  E16DST_DST1
-)
-
+#add_executable(write_test usr/write_test.cc)
+#
+#target_link_libraries(write_test
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
+#add_executable(read_test usr/read_test.cc)
+#
+#target_link_libraries(read_test
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
+#add_executable(write_test_gtr usr/write_test_gtr.cc)
+#
+#target_link_libraries(write_test_gtr
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
+#add_executable(read_test_gtr usr/read_test_gtr.cc)
+#
+#target_link_libraries(read_test_gtr
+#  E16DST_DST1
+#)
+#
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_CalibDB)
 add_subdirectory(E16ANA_Geometry)
+add_subdirectory(E16ANA_Waveform)
 add_subdirectory(E16DST)

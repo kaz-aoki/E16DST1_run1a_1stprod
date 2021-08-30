@@ -3,6 +3,8 @@
 
 #include <array>
 
+#include "TVector3.h"
+
 namespace E16DST_DST1Constant {
 
 enum kDetector {
@@ -22,8 +24,7 @@ enum kGtrAxis {
 };
 
 enum kRecordType {
-  kDetector,
-  kTrigger,
+  kPhysics,
   kScaler,
   kSpillStart,
   kSpillEnd,
@@ -32,6 +33,7 @@ enum kRecordType {
 
 // Common
 const int kInvalidValue = -10000;
+const TVector3 kInvalidVector = {-10000, -10000, -10000};
 const std::array<std::array<int, 11>, 3> kModuleId2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},
                                                                  {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
                                                                  {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
@@ -48,8 +50,9 @@ const std::array<int, 3> nstrips_y = {72, 144, 216};
 //const int nstrips_300y = 216;
 
 // data
-const int kHeaderSize            = 1024;
-const int kNumDetectorComponents = 16; // must be even number
+const int kReserve = 1024;
+//const int kHeaderSize            = 1024;
+//const int kNumDetectorComponents = 16; // must be even number
 
 }; // namespace E16DST_DST1Constant
 
