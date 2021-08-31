@@ -17,8 +17,205 @@
 
 using namespace std;
 
+void E16ANA_LGBasic::SetMap(){
+  //unordered_map<string, ch_pp*> mapdata;
+
+        E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+	FILE* fp_map = calib.CalibFileOpenBinary("LG-specmap", calib.CurrentRunID() );
+	if ( fp_map==NULL ) {
+		std::cout<<"[Error] spec map file is not found !"<<std::endl;
+		exit(1);
+	}
+
+	while( feof(fp_map)==0 ){
+	ch_pp spec;
+	fread((char*)&spec,sizeof(spec),1,fp_map);
+	std::string key = std::to_string(spec.MODULE)+std::to_string(spec.BLOCK);	
+
+	int key_ip = spec.IP;	
+	double typeflag = spec.WF_TYPE;
+	if(typeflag == 0){
+		spec.WF_TYPE =0.44;
+		}
+	if(typeflag == 1){
+                spec.WF_TYPE = 0.27;
+                }
+	//cout<<" IP "<<key_ip<<" factor"<<spec.WF_TYPE<<endl;
+	ch_pp* specpoint = new ch_pp;
+	*specpoint=spec;
+	//(* this->lgdatamap)[key] =  specpoint;
+	//(* this->lgdatamap_ip)[key_ip] =  specpoint;
+	int mod = spec.MODULE;
+	int blk = spec.BLOCK;
+	if(!(0<=mod&&mod<110&&0<=blk&&blk<60&&0<=key_ip&&key_ip<100)){
+	  std::cerr<<"read invalid ID in specmap file"<<std::endl;
+	  exit(1);
+	}
+	else{
+	  lgspecmap[mod][blk] = *specpoint;
+	  lgspecmap_ip[key_ip] = *specpoint;
+	}
+	//delete specpoint;
+	}//while loop
+	fclose(fp_map);
+	
+}
+
+E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(uint16_t module, uint16_t block){
+  //std::string key = std::to_string(module)+std::to_string(block);
+  //auto spec = (* this->lgdatamap)[key];
+  E16ANA_LGBasic::ch_pp* spec = &lgspecmap[module][block];
+  return spec;
+}
+
+E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(int ip){
+  //auto spec = (* this->lgdatamap_ip)[ip];
+  E16ANA_LGBasic::ch_pp* spec = &lgspecmap_ip[ip];
+  return spec;  
+}
+
+void E16ANA_LGBasic::SetCalibMap(){
+
+        E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+	FILE* fp_t0 = calib.CalibFileOpenBinary("LG-t0bych", calib.CurrentRunID() );
+	if ( fp_t0==NULL ) {
+		std::cout<<"[Error] t0 map file is not found !"<<std::endl;
+		exit(1);
+	}
+	int module, block;
+	double t0_mean;
+	double t0_sigma;
+	while( feof(fp_t0)==0 ){
+	  fscanf(fp_t0, "%d %d %lf %lf", &module, &block, &t0_mean, &t0_sigma );
+	  if(!(0<=module&&module<110&&0<=block&&block<60)){
+	    std::cerr<<"read invalid ID in t0map file"<<std::endl;
+	    exit(1);
+	  }
+	  else{
+	    t0map[module][block] = t0_mean;
+	  }
+	}//while loop
+	fclose(fp_t0);
+
+	FILE* fp_gain = calib.CalibFileOpenBinary("LG-gainbych", calib.CurrentRunID() );
+	if ( fp_gain==NULL ) {
+		std::cout<<"[Error] gain map file is not found !"<<std::endl;
+		exit(1);
+	}
+	double gain_mean;
+	double gain_sigma;
+	while( feof(fp_gain)==0 ){
+	  fscanf(fp_gain, "%d %d %lf %lf", &module, &block, &gain_mean, &gain_sigma );
+	  if(!(0<=module&&module<110&&0<=block&&block<60)){
+	    std::cerr<<"read invalid ID in gainmap file"<<std::endl;
+	    exit(1);
+	  }
+	  else{
+	    gainmap[module][block] = gain_mean;
+	  }
+	}//while loop
+	fclose(fp_gain);
+
+}
+
+double E16ANA_LGBasic::GetT0(uint16_t module, uint16_t block){
+  double t0 = t0map[module][block];
+  return t0;
+}
+
+double E16ANA_LGBasic::GetGain(uint16_t module, uint16_t block){
+  double gain = gainmap[module][block];
+  return gain;
+}
+
+void E16ANA_LGBasic::LGWFPeak(double* dat, double* peak, int* peakx, double* timing){
+
+  for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){//peak search
+    if(dat[cell]>*peak){
+      if( E16ANA_LGConstant::kPeakSearchStart<cell && cell<E16ANA_LGConstant::kPeakSearchEnd ){
+	*peak = dat[cell];
+	*peakx = cell;
+      }
+    }
+  }//peak search
+  //std::cout<<"peakheight:"<<peakheight<<std::endl;
+  //std::cout<<"peaktime:"<<peaktime<<std::endl;
+
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){//timing search
+    int cell = *peakx - i;
+    double peakhalf = *peak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      *timing=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(dat[cell]>*peak){
+      *timing=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(!(cell==*peakx)&&dat[cell]<peakhalf){
+      *timing=(peakhalf-dat[cell])*(1./E16ANA_LGConstant::kTimeScale)/(dat[cell+1]-dat[cell])+cell;
+      if(cell==(*peakx-1)){//remove the event like spike noise
+	*timing=-10000;
+      }
+      break;
+    }
+    }//timing search
 
 
+}
+
+void E16ANA_LGBasic::LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms){
+
+  double baseline_sum = 0.;
+  double baseline_sq_sum = 0.;
+  int nb=0;
+  for(int cell=(peakx+E16ANA_LGConstant::kBaselineStart); cell<(peakx+E16ANA_LGConstant::kBaselineEnd); cell++){
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      continue;
+    }
+    baseline_sum += dat[cell];
+    baseline_sq_sum += dat[cell]*dat[cell];
+    nb++;
+  }
+  *baseline = baseline_sum/(double)nb;
+  *baselinerms = sqrt( baseline_sq_sum/(double)nb - (*baseline)*(*baseline) );
+  //std::cout<<"baseline:"<<baseline<<std::endl;
+  //std::cout<<"baselinerms:"<<baselinerms<<std::endl;
+
+}
+
+void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int* falltime){
+
+  double integral_sum = 0.;
+  bool peakcheck = false;
+  int fallcount = 0;
+  *falltime = peakx+E16ANA_LGConstant::kIntegralEnd;
+  for(int cell=(peakx+E16ANA_LGConstant::kIntegralStart); cell<(peakx+E16ANA_LGConstant::kIntegralEnd); cell++){
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      integral_sum = E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    integral_sum += dat[cell]-baseline;
+    if((dat[cell]-baseline)<(dat[peakx]-baseline)*0.1&&peakcheck==false&&cell>peakx){//get falltime
+      if(fallcount>1){
+	std::cout<<"FalltimeSearch is failed."<<std::endl;
+	continue;
+      }
+      *falltime = cell;
+      fallcount += 1;
+      if(fallcount>1){
+	peakcheck=true;
+      }
+    }//get falltime
+  }
+  *integral = integral_sum/50.;//ohm
+    //std::cout<<"integral:"<<integral<<std::endl;
+
+}
+
+
+
+/*
 void E16ANA_LGBasic::MakeMap(){
 
 
@@ -124,9 +321,18 @@ void E16ANA_LGBasic::MakeMap(){
 	fclose(fp_ch_pp);
 
 #endif
+}
+*/
+
+
+
+
+/*ash ver
+void E16ANA_LGBasic::MakeMap(){
+
 	//channelmap
 
-	/*read calib_files old ver
+	//read calib_files old ver
 	std::ifstream ifs_ip_pp(file_drs4assign());
 	if (!ifs_ip_pp) {
 		std::cout<<"[Error] pp map file is not found !"<<std::endl;
@@ -190,53 +396,8 @@ void E16ANA_LGBasic::MakeMap(){
 	}
 	}
 	fout.close();
-	*/
 }
 
-void E16ANA_LGBasic::SetMap(){
-	unordered_map<string, ch_pp*> mapdata;
-
-	//fstream fmap;
-	//fmap.open(file_binary(), ios::binary | ios::in);
-        E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
-	FILE* fp_map = calib.CalibFileOpenBinary("LG-specmap", calib.CurrentRunID() );
-	if ( fp_map==NULL ) {
-		std::cout<<"[Error] spec map file is not found !"<<std::endl;
-		exit(1);
-	}
-
-
-	//while(!fmap.eof()){
-	while( feof(fp_map)==0 ){
-	ch_pp spec;
-	//fmap.read((char*)&spec, sizeof(spec));
-	fread((char*)&spec,sizeof(spec),1,fp_map);
-	std::string key = std::to_string(spec.MODULE)+std::to_string(spec.BLOCK);	
-
-	int key_ip = spec.IP;	
-	double typeflag = spec.WF_TYPE;
-	if(typeflag == 0){
-		spec.WF_TYPE =0.44;
-		}
-	if(typeflag == 1){
-                spec.WF_TYPE = 0.27;
-                }
-	//cout<<" IP "<<key_ip<<" factor"<<spec.WF_TYPE<<endl;
-	ch_pp* specpoint = new ch_pp;
-	*specpoint=spec;
-	(* this->lgdatamap)[key] =  specpoint;
-	(* this->lgdatamap_ip)[key_ip] =  specpoint;
-	//int mod = spec.MODULE-100;
-	//int blk = spec.BLOCK;
-	//lgdatamap[mod][blk] = *specpoint;
-	//lgdatamap_ip[key_ip] = *specpoint;
-	//delete specpoint;
-	}//while loop
-	fclose(fp_map);
-	
-}
-
-/*ash ver
 void E16ANA_LGBasic::SetMap(){
 	unordered_map<string, ch_pp*> mapdata;
 
@@ -266,103 +427,6 @@ void E16ANA_LGBasic::SetMap(){
 
 	}
 */	
-
-E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(uint16_t module, uint16_t block){
-	std::string key = std::to_string(module)+std::to_string(block);
-	auto spec = (* this->lgdatamap)[key];
-	return spec;  
-		}
-
-E16ANA_LGBasic::ch_pp* E16ANA_LGBasic::GetSpec(int ip){
-	auto spec = (* this->lgdatamap_ip)[ip];
-	return spec;  
-		}
-
-void E16ANA_LGBasic::LGWFPeak(double* dat, double* peak, int* peakx, double* timing){
-
-  for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){//peak search
-    if(dat[cell]>*peak){
-      if( E16ANA_LGConstant::kPeakSearchStart<cell && cell<E16ANA_LGConstant::kPeakSearchEnd ){
-	*peak = dat[cell];
-	*peakx = cell;
-      }
-    }
-  }//peak search
-  //std::cout<<"peakheight:"<<peakheight<<std::endl;
-  //std::cout<<"peaktime:"<<peaktime<<std::endl;
-
-  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){//timing search
-    int cell = *peakx - i;
-    double peakhalf = *peak/2.;
-    if(cell<0||cell>E16DST_Constant::NSamplesLG){
-      *timing=E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    if(dat[cell]>*peak){
-      *timing=E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    if(!(cell==*peakx)&&dat[cell]<peakhalf){
-      *timing=(peakhalf-dat[cell])*(1./E16ANA_LGConstant::kTimeScale)/(dat[cell+1]-dat[cell])+cell;
-      if(cell==(*peakx-1)){//remove the event like spike noise
-	*timing=-10000;
-      }
-      break;
-    }
-    }//timing search
-
-
-}
-
-void E16ANA_LGBasic::LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms){
-
-  double baseline_sum = 0.;
-  double baseline_sq_sum = 0.;
-  int nb=0;
-  for(int cell=(peakx+E16ANA_LGConstant::kBaselineStart); cell<(peakx+E16ANA_LGConstant::kBaselineEnd); cell++){
-    if(cell<0||cell>E16DST_Constant::NSamplesLG){
-      continue;
-    }
-    baseline_sum += dat[cell];
-    baseline_sq_sum += dat[cell]*dat[cell];
-    nb++;
-  }
-  *baseline = baseline_sum/(double)nb;
-  *baselinerms = sqrt( baseline_sq_sum/(double)nb - (*baseline)*(*baseline) );
-  //std::cout<<"baseline:"<<baseline<<std::endl;
-  //std::cout<<"baselinerms:"<<baselinerms<<std::endl;
-
-}
-
-void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int* falltime){
-
-  double integral_sum = 0.;
-  bool peakcheck = false;
-  int fallcount = 0;
-  *falltime = peakx+E16ANA_LGConstant::kIntegralEnd;
-  for(int cell=(peakx+E16ANA_LGConstant::kIntegralStart); cell<(peakx+E16ANA_LGConstant::kIntegralEnd); cell++){
-    if(cell<0||cell>E16DST_Constant::NSamplesLG){
-      integral_sum = E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    integral_sum += dat[cell]-baseline;
-    if((dat[cell]-baseline)<(dat[peakx]-baseline)*0.1&&peakcheck==false&&cell>peakx){//get falltime
-      if(fallcount>1){
-	std::cout<<"FalltimeSearch is failed."<<std::endl;
-	continue;
-      }
-      *falltime = cell;
-      fallcount += 1;
-      if(fallcount>1){
-	peakcheck=true;
-      }
-    }//get falltime
-  }
-  *integral = integral_sum/50.;//ohm
-    //std::cout<<"integral:"<<integral<<std::endl;
-
-}
-
 
 //string channelmap_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/ch_pp_20200522_run0.txt";
 //string drs4assign_path = "/e16/u/nakasuga/E16/DST1/E16DST1/lg_calibfiles/pp_map_20210214_run0b.txt";

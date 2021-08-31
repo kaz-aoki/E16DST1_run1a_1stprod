@@ -10,6 +10,7 @@
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
+#include "E16ANA_LGBasic.hh"
 #include "E16DST_Constant.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
@@ -331,11 +332,13 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float Baseline() { return baseline; }
   float BaselineRms() { return baseline_rms; }
   float Integral() { return integral; }
+  float GetCalibTiming(E16ANA_LGBasic& lgbasic);
+  float GetEnergyDeposit(E16ANA_LGBasic& lgbasic);
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-  float peak_height;
+  float peak_height;// baseline subtracted
   int   peak_time;
   float baseline;
   float baseline_rms;

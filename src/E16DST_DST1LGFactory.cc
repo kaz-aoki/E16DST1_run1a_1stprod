@@ -6,12 +6,11 @@
 
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1) {
 
-//  static E16ANA_LGBasic *lgbasic = new E16ANA_LGBasic;
   static E16ANA_LGBasic lgbasic;
   static bool is_first=true;
   if(is_first){
-    lgbasic.MakeMap();//read calib_files
-    lgbasic.SetMap();//make channel_map
+    //lgbasic.MakeMap();//read calib_files and make a binary file
+    lgbasic.SetMap();//make channel_map from binary file
     is_first=false;
   }
 
@@ -52,7 +51,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     peakheight = peakheight - baseline;
     lgbasic.LGWFIntegral(waveform, peaktime, baseline, &integral, &falltime);
 
-    if( (falltime-peaktime)>5 && //to remove spike noise
+    if( (falltime-peaktime)>5 && //to remove spike noises
 	peakheight>E16ANA_LGConstant::kHitThreshold && 
 	timing>E16ANA_LGConstant::kHitTimingStart && 
 	timing<E16ANA_LGConstant::kHitTimingEnd ){

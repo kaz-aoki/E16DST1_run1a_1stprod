@@ -10,6 +10,7 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+#include "E16ANA_LGBasic.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -28,6 +29,17 @@ int main(int argc, char* argv[]) {
 //  string in_file_name;
 //  string out_file_name;
 //  int run_num;
+
+
+  TFile *fout = new TFile(out_file_name,"recreate");
+  TH1F *hph = new TH1F("hph","PeakHeight",20000,-10000,10000);
+  TH1F *hpt = new TH1F("hpt","PeakTime",20000,-10000,10000);
+  TH1F *htm = new TH1F("htm","Timing",20000,-10000,10000);
+  TH1F *hbl = new TH1F("hbl","Baseline",20000,-10000,10000);
+  TH1F *hbr = new TH1F("hbr","BaselineRms",20000,-10000,10000);
+  TH1F *hit = new TH1F("hit","Integral",20000,-10000,10000);
+  TH1F *ht0 = new TH1F("ht0","CalibedTiming",20000,-10000,10000);
+  TH1F *hed = new TH1F("hed","EnergyDeposit",20000,-10000,10000);
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -64,6 +76,8 @@ int main(int argc, char* argv[]) {
   trigger_param->ReadConstantData(calib.CurrentRunID());
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
+  E16ANA_LGBasic lgbasic;
+  lgbasic.SetCalibMap();//it is necessary to use calib_timing and calib_gain
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -104,16 +118,16 @@ int main(int argc, char* argv[]) {
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
+//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      event1->GTR().SetValidFlag(1);
+//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+//      event1->GTR().SetValidFlag(1);
       event1->LG().SetValidFlag(1);
-      event1->Trigger().SetValidFlag(1);
+      //      event1->Trigger().SetValidFlag(1);
 
 
 //// Check begin
@@ -140,12 +154,25 @@ int main(int argc, char* argv[]) {
 //// HBD
 //
 //// LG
+      int n_lghits = event1->LGHits().NumberOfHits();
       if (event1->LGHits().NumberOfHits() != 0) {
-        auto lghit = event1->LGHits().Hit(0);                                                          
-        lghit.Print();                                                                                 
-        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-	std::cout<<lghit.PeakHeight()<<std::endl;
+	for(int i=0;i<n_lghits;i++){//hit loop
+	  auto lghit = event1->LGHits().Hit(i);                                                          
+	  lghit.Print();                                                                                 
+	  std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+	  std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+	  std::cout<<"ph       : "<<lghit.PeakHeight()<<std::endl;
+	  std::cout<<"T0_func  : "<<lghit.GetCalibTiming(lgbasic)<<std::endl;
+	  std::cout<<"Gain_func: "<<lghit.GetEnergyDeposit(lgbasic)<<std::endl;
+	  hph->Fill(lghit.PeakHeight());
+	  hpt->Fill(lghit.PeakTime());
+	  htm->Fill(lghit.Timing());
+	  hbl->Fill(lghit.Baseline());
+	  hbr->Fill(lghit.BaselineRms());
+	  hit->Fill(lghit.Integral());
+	  ht0->Fill(lghit.GetCalibTiming(lgbasic));
+	  hed->Fill(lghit.GetEnergyDeposit(lgbasic));
+	}//hit loop
       }
 
 //// trigger
@@ -181,6 +208,9 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+  fout->Write();
+
 
   delete geometry;
   delete dst0;
