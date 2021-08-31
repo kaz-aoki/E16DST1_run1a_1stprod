@@ -2,6 +2,7 @@
 #include <TROOT.h>
 #include <TH1.h>
 #include <TFile.h>
+#include <TCanvas.h>
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
@@ -10,6 +11,7 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+#include "GTR/GTRCheckHist.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -66,33 +68,31 @@ int main(int argc, char* argv[]) {
   gtrped.ReadCalibData( calib.CurrentRunID() );
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  
+  auto *gtrhist = new GTRCheckHist();
+
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
-//  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
-//  gtr_pedestal->Read(argv[5]);
-//  auto dst1 = new E16DST_DST1();
-//  auto dst1 = new E16DST_DST0();
-//  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
-//    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
-//    return -1;
-//   }
 
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
-    if (max_event != -1 && n_physics_event >= max_event) {
+ //   if (max_event != -1 && n_physics_event >= max_event) {
+    if (max_event != -1 && n_event >= max_event) {
       break;
     }
     if (n_event % 1000 == 0) {
       cout << "Number of event: " << n_event << endl;
     }
+    if (dst0->EventType() != E16DST_DST0EventType::Physics){
+        std::cout << "Event ID = " << dst0->Event()->EventID() << " is not Physics Event, Event Type =" << dst0->Event()->EventType() << std::endl;
+        continue;
+    }
+    
     auto event_type = dst0->EventType();
 //    dst1->SetEventType(event_type);
-    if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 //      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
       auto event1 = new E16DST_DST1PhysicsEvent();
@@ -105,81 +105,73 @@ int main(int argc, char* argv[]) {
       auto trigger_lg_hits0  = event0->TriggerLG();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
       std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
+      std::cout << "n_event = " << n_event << ", cluster size " << event1->GTRClusters().NumberOfHits() << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      event1->GTR().SetValidFlag(1);
-      event1->LG().SetValidFlag(1);
-      event1->Trigger().SetValidFlag(1);
+//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+//      event1->GTR().SetValidFlag(1);
+//      event1->LG().SetValidFlag(1);
+//      event1->Trigger().SetValidFlag(1);
+
+   gtrhist->Fill(&event1->GTRHits(), &event1->GTRClusters());
 
 
-//// Check begin
-//      auto event_id = event0->EventID();
-//      cout << "Event ID: " << event_id << endl;
-//// SSD
-//
-//// GTR
-//      cout << "Number of event: " << n_event << endl << endl;
-//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-//      cout << "Number of GTR hits: " << n_gtr_hits << endl;
-//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
+// GTR
+//    cout << "Number of event: " << n_event << endl << endl;
+//    auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//    cout << "Number of GTR hits: " << n_gtr_hits << endl;
+//    for(int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
 //        auto hit = event1->GTRHits().Hit(n_hit);
-//        hit.Print();
-//      }
-//      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-//      cout << endl << endl;
-//      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-//      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-//        auto cluster = event1->GTRClusters().Hit(n_cluster);
-//        cluster.Print();
-//      }
-//      
-//// HBD
-//
-//// LG
-//      if (event1->LGHits().NumberOfHits() != 0) {
-//        auto lghit = event1->LGHits().Hit(0);                                                          
-//        lghit.Print();                                                                                 
-//        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-//        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-//      }
-//
-//// trigger
-//      event1->Trigger().Print(*geometry);
-//
-//// other
-////      event1->GTR().Print();
-////
-////      if (event1->LG().NumHits() != 0) {
-////        auto lghit = event1->LG().Hit(0);                                                          
-////        lghit.Print();                                                                                 
-////        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-////        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-////      }
-//
-//      cout << endl << endl;
-//// Check end
-
-//      dst1->WriteAnEvent();
-    } else if (event_type == E16DST_DST0EventType::Scaler) {
-      auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
-    } else if (event_type == E16DST_DST0EventType::SpillStart) {
-      auto event0 = dynamic_cast<E16DST_DST0SpillStartEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
-    } else if (event_type == E16DST_DST0EventType::SpillEnd) {
-      auto event0 = dynamic_cast<E16DST_DST0SpillEndEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
-    } else {
-      std::cerr << "Invalid Event Type: " << event_type << std::endl;
-      return -1;
+////        hit.Print();
+//    }
+    auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
+    cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
+    for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
+        std::cout << "n_cluster = " << n_cluster << std::endl;
+       auto cluster = event1->GTRClusters().Hit(n_cluster);
+       cluster.Print();
     }
-    ++n_event;
+//    dst1->WriteAnEvent();
+//    }
+   ++n_event;
     ++n_physics_event;
   }
+
+  TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
+  TString pdf_name;
+  pdf_name.Form("gtrtest.pdf");
+  c1->SaveAs(pdf_name + "[", "pdf");
+
+  TCanvas *c_cl_charge[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_charge[m-102] = new TCanvas("cc", "cc", 1024, 768);
+    c_cl_charge[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_charge[m-102]->cd(l+1);
+        gtrhist->h_cl_charge[m-100][l]->Draw();
+    }
+    c_cl_charge[m-102]->SaveAs(pdf_name, "pdf");
+  }
+  TCanvas *c_cl_local_x[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_local_x[m-102] = new TCanvas("clx", "clx", 1024, 768);
+    c_cl_local_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_local_x[m-102]->cd(l+1);
+        gtrhist->h_cl_local_x[m-100][l]->Draw();
+    }
+    c_cl_local_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+  c1->SaveAs( pdf_name + "]", "pdf");
+
 
   delete geometry;
   delete dst0;

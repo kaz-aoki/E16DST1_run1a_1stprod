@@ -1,7 +1,7 @@
 //#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1.hh"
-#include "E16DST_DST1GTRAnalyzerMaker.hh"
-#include "OnlineGTRUtility.h"
+#include "GTR/E16ANA_GTRAnalyzerMaker.hh"
+#include "GTR/OnlineGTRUtility.h"
 //#include "E16ANA_GTRPedestal.h"
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
@@ -9,9 +9,9 @@
 
 int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters, E16ANA_GTRcalibPedestal &gtrped) {
     static bool isFirst = true;
-    static E16DST_DST1GTRAnalyzerMaker *gtr_analyzers;
+    static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
-        gtr_analyzers = new E16DST_DST1GTRAnalyzerMaker();
+        gtr_analyzers = new E16ANA_GTRAnalyzerMaker();
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdX, 150.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdY, 300.0);
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTOTThresholdX, 75.0);
@@ -122,7 +122,12 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     cl.SetTiming(anahit.Timing());
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
                     cl.SetCogPos(anahit.CogHit());
-                    cl.SetTdcPos(anahit.TdcHit());
+                    if(isnan(anahit.TdcHit())){
+                        std::cout << "TDC hit pos is nan" << std::endl;
+                    }
+                    else{
+                        cl.SetTdcPos(anahit.TdcHit());
+                    }
                     cl.SetTanTheta(anahit.TanTheta());
                     cl_id++;
                 }       

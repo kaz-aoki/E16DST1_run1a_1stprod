@@ -83,15 +83,16 @@ target_link_libraries(E16ANA
 #_______________________________________________________________________________
 add_library(E16DST_DST1
 	src/E16DST_DST1.cc
-  src/E16ANA_GTRAnalyzer2.cc
-  src/E16ANA_GTRStripAnalyzer.cc
-  src/E16DST_DST1GTRAnalyzerMaker.cxx
+  src/GTR/E16ANA_GTRAnalyzer2.cc
+  src/GTR/E16ANA_GTRStripAnalyzer.cc
+  src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
-  src/E16ANA_GTRPedestal.cc
+  src/GTR/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
+  src/GTR/GTRCheckHist.cc
 )
 
 target_link_libraries(E16DST_DST1
