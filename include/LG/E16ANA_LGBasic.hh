@@ -38,20 +38,18 @@ struct ch_pp{
         };
 
 
-//static E16ANA_LGBasic* lgbasic = new E16ANA_LGBasic();
 //void LGSetUp();
-void MakeMap();
+//void MakeMap();
 void SetMap();
+void SetCalibMap();
 
-unordered_map<string, ch_pp*>*  lgdatamap = new unordered_map<string, ch_pp*>;
-
-unordered_map<int, ch_pp*>*  lgdatamap_ip = new unordered_map<int, ch_pp*>;
-
-  //ch_pp lgdatamap[10][60];
-  //ch_pp lgdatamap_ip[50];
+  //unordered_map<string, ch_pp*>*  lgdatamap = new unordered_map<string, ch_pp*>;
+  //unordered_map<int, ch_pp*>*  lgdatamap_ip = new unordered_map<int, ch_pp*>;
 
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
+double GetT0(uint16_t module, uint16_t block);
+double GetGain(uint16_t module, uint16_t block);
 
 void LGWFPeak(double* dat, double* peak, int* peakx, double* timing);
 void LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms);
@@ -66,8 +64,8 @@ void LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int
 
 ~E16ANA_LGBasic(){
 	//lgdatamap->clear();
-	delete lgdatamap;
-	delete lgdatamap_ip;
+	//delete lgdatamap;
+	//delete lgdatamap_ip;
 	//lgdatamap_ip->clear();
 };
 protected:
@@ -82,6 +80,10 @@ struct ip_pp{
 
 private:
 
+ch_pp lgspecmap[110][60];
+ch_pp lgspecmap_ip[100];
+double t0map[110][60];
+double gainmap[110][60];
 
 };
 

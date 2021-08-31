@@ -2,6 +2,7 @@
 
 #include "E16ANA_TriggerConstant.hh"
 #include "E16DST_DST1Constant.hh"
+#include "E16ANA_LGBasic.hh"
 
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
   hit_orders.clear();
@@ -150,6 +151,16 @@ TVector3 E16DST_DST1HBDCluster::LocalPos() {
 TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
+float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){
+  float param = lgbasic.GetT0(module_id, channel_id);
+  return timing+100.-param;
+}
+
+float E16DST_DST1LGHit::GetEnergyDeposit(E16ANA_LGBasic& lgbasic){
+  float param = lgbasic.GetGain(module_id, channel_id);
+  return param*peak_height;
+}
+
 TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 gpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   TVector3 lpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
@@ -161,7 +172,8 @@ TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
 
 TVector3 E16DST_DST1LGHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
-  pos = geometry.LG(3 * (109 - module_id) + 1, channel_id)->GetDetectorCenter();
+  int mod = ModuleId2020To2013(module_id);
+  pos = geometry.LG( mod, channel_id)->GetDetectorCenter();
   return pos;
 }
 
