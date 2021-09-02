@@ -2,6 +2,7 @@
 #include <TROOT.h>
 #include <TH1.h>
 #include <TFile.h>
+#include <TTree.h>
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
@@ -32,14 +33,54 @@ int main(int argc, char* argv[]) {
 
 
   TFile *fout = new TFile(out_file_name,"recreate");
-  TH1F *hph = new TH1F("hph","PeakHeight",20000,-10000,10000);
-  TH1F *hpt = new TH1F("hpt","PeakTime",20000,-10000,10000);
-  TH1F *htm = new TH1F("htm","Timing",20000,-10000,10000);
-  TH1F *hbl = new TH1F("hbl","Baseline",20000,-10000,10000);
-  TH1F *hbr = new TH1F("hbr","BaselineRms",20000,-10000,10000);
-  TH1F *hit = new TH1F("hit","Integral",20000,-10000,10000);
-  TH1F *ht0 = new TH1F("ht0","CalibedTiming",20000,-10000,10000);
-  TH1F *hed = new TH1F("hed","EnergyDeposit",20000,-10000,10000);
+  TTree *tree = new TTree("tree","tree");
+
+  //TH1F *hph = new TH1F("hph","PeakHeight",1100,-100,1000);
+  //TH1F *hpt = new TH1F("hpt","PeakTime",200,0,200);
+  //TH1F *htm = new TH1F("htm","Timing",200,0,200);
+  //TH1F *hbl = new TH1F("hbl","Baseline",200,-100,100);
+  //TH1F *hbr = new TH1F("hbr","BaselineRms",200,-100,100);
+  //TH1F *hit = new TH1F("hit","Integral",1100,-100,1000);
+  //TH1F *ht0 = new TH1F("ht0","CalibTiming",1000,0,200);
+  //TH1F *hed = new TH1F("hed","EnergyDeposit",1100,-1,10);
+  TH1F *hph[7][56];
+  TH1F *hpt[7][56];
+  TH1F *htm[7][56];
+  TH1F *hbl[7][56];
+  TH1F *hbr[7][56];
+  TH1F *hit[7][56];
+  TH1F *ht0[7][56];
+  TH1F *hed[7][56];
+  for(int i=0;i<7;i++){
+    for(int j=0;j<56;j++){
+      hph[i][j] = new TH1F(Form("hph%d%d",i,j),Form("PeakHeight%d%d",i,j),1100,-100,1000);
+      hpt[i][j] = new TH1F(Form("hpt%d%d",i,j),Form("PeakTime%d%d",i,j),200,0,200);
+      htm[i][j] = new TH1F(Form("htm%d%d",i,j),Form("Timing%d%d",i,j),200,0,200);
+      hbl[i][j] = new TH1F(Form("hbl%d%d",i,j),Form("Baseline%d%d",i,j),200,-100,100);
+      hbr[i][j] = new TH1F(Form("hbr%d%d",i,j),Form("BaselineRms%d%d",i,j),200,-100,100);
+      hit[i][j] = new TH1F(Form("hit%d%d",i,j),Form("Integral%d%d",i,j),1100,-100,1000);
+      ht0[i][j] = new TH1F(Form("ht0%d%d",i,j),Form("CalibTiming%d%d",i,j),1000,0,200);
+      hed[i][j] = new TH1F(Form("hed%d%d",i,j),Form("EnergyDeposit%d%d",i,j),1100,-1,10);
+    }
+  }
+  uint16_t module, block;
+  float peakheight, timing, baseline, baselinerms, integral, calibtiming, energydeposit;
+  int event, peaktime;
+  double gpos[3];
+  double lpos[3];
+  tree->Branch("Event",&event,"Event/I");
+  tree->Branch("Module",&module,"Module/s");
+  tree->Branch("Block",&block,"Block/s");
+  tree->Branch("PeakHeight",&peakheight,"PeakHeight/F");
+  tree->Branch("PeakTime",&peaktime,"PeakTime/I");
+  tree->Branch("Timing",&timing,"timing/F");
+  tree->Branch("Baseline",&baseline,"Baseline/F");
+  tree->Branch("BaselineRms",&baselinerms,"BaselineRms/F");
+  tree->Branch("Integral",&integral,"Integral/F");
+  tree->Branch("CalibTiming",&calibtiming,"CalibTiming/F");
+  tree->Branch("EnergyDeposit",&energydeposit,"EnergyDeposit/F");
+  tree->Branch("Gpos",gpos,"Gpos[3]/D");
+  tree->Branch("Lpos",lpos,"Lpos[3]/D");
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -77,7 +118,7 @@ int main(int argc, char* argv[]) {
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
-  lgbasic.SetCalibMap();//it is necessary to use calib_timing and calib_gain
+  lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -154,24 +195,42 @@ int main(int argc, char* argv[]) {
 //// HBD
 //
 //// LG
+      event = event0->EventID();
       int n_lghits = event1->LGHits().NumberOfHits();
       if (event1->LGHits().NumberOfHits() != 0) {
 	for(int i=0;i<n_lghits;i++){//hit loop
 	  auto lghit = event1->LGHits().Hit(i);                                                          
-	  lghit.Print();                                                                                 
-	  std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-	  std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-	  std::cout<<"ph       : "<<lghit.PeakHeight()<<std::endl;
-	  std::cout<<"T0_func  : "<<lghit.GetCalibTiming(lgbasic)<<std::endl;
-	  std::cout<<"Gain_func: "<<lghit.GetEnergyDeposit(lgbasic)<<std::endl;
-	  hph->Fill(lghit.PeakHeight());
-	  hpt->Fill(lghit.PeakTime());
-	  htm->Fill(lghit.Timing());
-	  hbl->Fill(lghit.Baseline());
-	  hbr->Fill(lghit.BaselineRms());
-	  hit->Fill(lghit.Integral());
-	  ht0->Fill(lghit.GetCalibTiming(lgbasic));
-	  hed->Fill(lghit.GetEnergyDeposit(lgbasic));
+	  //lghit.Print();                                                                                 
+	  //std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
+	  //std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
+	  //std::cout<<"ph       : "<<lghit.PeakHeight()<<std::endl;
+	  //std::cout<<"T0_func  : "<<lghit.GetCalibTiming(lgbasic)<<std::endl;
+	  //std::cout<<"Gain_func: "<<lghit.GetEnergyDeposit(lgbasic)<<std::endl;
+	  module = lghit.ModuleId();
+	  block = lghit.ChannelId();
+	  peakheight = lghit.PeakHeight();
+	  peaktime = lghit.PeakTime();
+	  timing = lghit.Timing();
+	  baseline = lghit.Baseline();
+	  baselinerms = lghit.BaselineRms();
+	  integral = lghit.Integral();
+	  calibtiming = lghit.GetCalibTiming(lgbasic);
+	  energydeposit = lghit.GetEnergyDeposit(lgbasic);
+	  gpos[0] = lghit.GlobalPos(*geometry).X();
+	  gpos[1] = lghit.GlobalPos(*geometry).Y();
+	  gpos[2] = lghit.GlobalPos(*geometry).Z();
+	  lpos[0] = lghit.LocalPos(*geometry).X();
+	  lpos[1] = lghit.LocalPos(*geometry).Y();
+	  lpos[2] = lghit.LocalPos(*geometry).Z();
+	  tree->Fill();
+	  hph[module-102][block]->Fill(lghit.PeakHeight());
+	  hpt[module-102][block]->Fill(lghit.PeakTime());
+	  htm[module-102][block]->Fill(lghit.Timing());
+	  hbl[module-102][block]->Fill(lghit.Baseline());
+	  hbr[module-102][block]->Fill(lghit.BaselineRms());
+	  hit[module-102][block]->Fill(lghit.Integral());
+	  ht0[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic));
+	  hed[module-102][block]->Fill(lghit.GetEnergyDeposit(lgbasic));
 	}//hit loop
       }
 
@@ -210,7 +269,7 @@ int main(int argc, char* argv[]) {
   }
 
   fout->Write();
-
+  fout->Close();
 
   delete geometry;
   delete dst0;

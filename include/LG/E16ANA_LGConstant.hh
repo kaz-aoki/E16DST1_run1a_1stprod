@@ -7,7 +7,7 @@ namespace E16ANA_LGConstant {
 
 const double             kTimeScale               = 960. / 1000.;
 
-const int kHitThreshold = 20;//[mV]
+const int kHitThreshold = 5;//[mV]
 const int kHitTimingStart = 50;//[ns]
 const int kHitTimingEnd = 150;//[ns]
 

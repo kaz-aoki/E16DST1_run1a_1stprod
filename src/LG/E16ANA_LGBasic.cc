@@ -193,7 +193,8 @@ void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, doubl
   for(int cell=(peakx+E16ANA_LGConstant::kIntegralStart); cell<(peakx+E16ANA_LGConstant::kIntegralEnd); cell++){
     if(cell<0||cell>E16DST_Constant::NSamplesLG){
       integral_sum = E16DST_DST1Constant::kInvalidValue;
-      break;
+      *integral = E16DST_DST1Constant::kInvalidValue;
+      return;
     }
     integral_sum += dat[cell]-baseline;
     if((dat[cell]-baseline)<(dat[peakx]-baseline)*0.1&&peakcheck==false&&cell>peakx){//get falltime
@@ -207,8 +208,8 @@ void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, doubl
 	peakcheck=true;
       }
     }//get falltime
-  }
-  *integral = integral_sum/50.;//ohm
+  }//cell loop
+  *integral = integral_sum/50./E16ANA_LGConstant::kTimeScale;//[pC]
     //std::cout<<"integral:"<<integral<<std::endl;
 
 }
