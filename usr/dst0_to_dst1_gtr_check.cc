@@ -145,20 +145,44 @@ int main(int argc, char* argv[]) {
   pdf_name.Form("gtrtest.pdf");
   c1->SaveAs(pdf_name + "[", "pdf");
 
-  TCanvas *c_cl_charge[10]; 
+  TCanvas *c_cl_charge_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
   for(int m=102; m < 109 ; m++){
     if(m == 105) continue;
-    c_cl_charge[m-102] = new TCanvas("cc", "cc", 1024, 768);
-    c_cl_charge[m-102]->Divide(2,2);
+    c_cl_charge_x[m-102] = new TCanvas("ccx", "ccx", 1024, 768);
+    c_cl_charge_x[m-102]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_charge[m-102]->cd(l+1);
-        gtrhist->h_cl_charge[m-100][l]->Draw();
+        c_cl_charge_x[m-102]->cd(l+1);
+        gtrhist->h_cl_charge_x[m-100][l]->Draw();
     }
-    c_cl_charge[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_charge_x[m-102]->SaveAs(pdf_name, "pdf");
   }
+ 
+  TCanvas *c_cl_charge_y[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_charge_y[m-102] = new TCanvas("ccy", "ccy", 1024, 768);
+    c_cl_charge_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_charge_y[m-102]->cd(l+1);
+        gtrhist->h_cl_charge_y[m-100][l]->Draw();
+    }
+    c_cl_charge_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
+  
+  TCanvas *c_cl_charge_yb[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_charge_yb[m-102] = new TCanvas("ccyb", "ccyb", 1024, 768);
+    c_cl_charge_yb[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_charge_yb[m-102]->cd(l+1);
+        gtrhist->h_cl_charge_yb[m-100][l]->Draw();
+    }
+    c_cl_charge_yb[m-102]->SaveAs(pdf_name, "pdf");
+  }
+  
   TCanvas *c_cl_local_x[10]; 
-  //= new TCanvas("cl charge ", 100,0,100);
   for(int m=102; m < 109 ; m++){
     if(m == 105) continue;
     c_cl_local_x[m-102] = new TCanvas("clx", "clx", 1024, 768);
@@ -169,7 +193,79 @@ int main(int argc, char* argv[]) {
     }
     c_cl_local_x[m-102]->SaveAs(pdf_name, "pdf");
   }
+
+  TCanvas *c_cl_local_y[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_local_y[m-102] = new TCanvas("cly", "cly", 1024, 768);
+    c_cl_local_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_local_x[m-102]->cd(l+1);
+        gtrhist->h_cl_local_y[m-100][l]->Draw();
+    }
+    c_cl_local_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
+   TCanvas *c_cl_local_yb[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_local_yb[m-102] = new TCanvas("clyb", "clyb", 1024, 768);
+    c_cl_local_yb[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_local_yb[m-102]->cd(l+1);
+        gtrhist->h_cl_local_yb[m-100][l]->Draw();
+    }
+    c_cl_local_yb[m-102]->SaveAs(pdf_name, "pdf");
+  }
  
+  TCanvas *c_cl_max_peak_x[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_max_peak_x[m-102] = new TCanvas("clmpx", "clmpx", 1024, 768);
+    c_cl_max_peak_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_max_peak_x[m-102]->cd(l+1);
+        gtrhist->h_cl_max_peak_x[m-100][l]->Draw();
+    }
+    c_cl_max_peak_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+  
+  TCanvas *c_cl_max_peak_y[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_max_peak_y[m-102] = new TCanvas("clmpy", "clmpy", 1024, 768);
+    c_cl_max_peak_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_max_peak_y[m-102]->cd(l+1);
+        gtrhist->h_cl_max_peak_y[m-100][l]->Draw();
+    }
+    c_cl_max_peak_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
+
+  TCanvas *c_cl_max_peak_yb[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_max_peak_yb[m-102] = new TCanvas("clmpyb", "clmpyb", 1024, 768);
+    c_cl_max_peak_yb[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_max_peak_yb[m-102]->cd(l+1);
+        gtrhist->h_cl_max_peak_yb[m-100][l]->Draw();
+    }
+    c_cl_max_peak_yb[m-102]->SaveAs(pdf_name, "pdf");
+  }
+
+  TCanvas *c_cl_max_peak_ch_x[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_max_peak_ch_x[m-102] = new TCanvas("clmpchx", "clmpchx", 1024, 768);
+    c_cl_max_peak_ch_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_max_peak_ch_x[m-102]->cd(l+1);
+        gtrhist->h_cl_max_peak_ch_x[m-100][l]->Draw();
+    }
+    c_cl_max_peak_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+
   c1->SaveAs( pdf_name + "]", "pdf");
 
 
