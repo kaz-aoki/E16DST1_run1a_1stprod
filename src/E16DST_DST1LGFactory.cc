@@ -51,32 +51,10 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     peakheight = peakheight - baseline;
     lgbasic.LGWFIntegral(waveform, peaktime, baseline, &integral, &falltime);
 
-    if( (falltime-peaktime)>5 && //to remove spike noises
+    if( (falltime-peaktime)>5 && //to remove spike noise
 	peakheight>E16ANA_LGConstant::kHitThreshold && 
 	timing>E16ANA_LGConstant::kHitTimingStart && 
 	timing<E16ANA_LGConstant::kHitTimingEnd ){
-      /*
-      hit1->SetInvalid();
-      hit1->SetIds(hit0.ModuleID(), hit0.BlockID());
-      hit1->SetTiming((float)timing);
-      hit1->SetPeakHeight((float)peakheight);
-      hit1->SetPeakTime(peaktime);
-      hit1->SetBaseline((float)baseline);
-      hit1->SetBaselineRms((float)baselinerms);
-      hit1->SetIntegral((float)integral);
-      hits1->PushBack(*hit1);
-      */
-      /*
-      auto& hit1 = hits1->Hit(n_dst1hit);
-      hit1.SetInvalid();
-      hit1.SetIds(hit0.ModuleID(), hit0.BlockID());
-      hit1.SetTiming((float)timing);
-      hit1.SetPeakHeight((float)peakheight);
-      hit1.SetPeakTime(peaktime);
-      hit1.SetBaseline((float)baseline);
-      hit1.SetBaselineRms((float)baselinerms);
-      hit1.SetIntegral((float)integral);
-      */
       hits1->Hit(n_dst1hit).SetInvalid();
       hits1->Hit(n_dst1hit).SetIds(hit0.ModuleID(), hit0.BlockID());
       hits1->Hit(n_dst1hit).SetTiming((float)timing);

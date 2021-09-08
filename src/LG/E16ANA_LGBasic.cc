@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <TH1.h>
+#include <TSpectrum.h>
 
 #include "E16ANA_LGBasic.hh"
 #include "E16DST_DST1Constant.hh"
@@ -15,7 +17,7 @@
 #include <algorithm>
 #include <unordered_map>   
 
-using namespace std;
+using namespace E16ANA_LGConstant;
 
 void E16ANA_LGBasic::SetMap(){
   //unordered_map<string, ch_pp*> mapdata;
@@ -211,6 +213,56 @@ void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, doubl
   }//cell loop
   *integral = integral_sum/50./E16ANA_LGConstant::kTimeScale;//[pC]
     //std::cout<<"integral:"<<integral<<std::endl;
+
+}
+
+int E16ANA_LGBasic::LGWFPeakSearch(double* dat, double* xpos, double* ypos){
+
+  TH1F *h = new TH1F("h","h",kTPeakSearchRegion,0,kTPeakSearchRegion);
+  //  TSpectrum* s = new TSpectrum(10);//max_npeaks
+  double _xpos[10] = {0};
+  double _ypos[10] = {0};
+
+
+  int na=0;
+  for(int cell=kTPeakSearchStart; cell<kTPeakSearchEnd; cell++){//peak search
+    h->Fill(na,(int)dat[cell]);
+    na++;
+  }//peak search
+
+  //  int npeaks = s->Search(h, 3, "new", 0.1);
+  int npeaks = 1;
+
+  for(int i=0; i<10; i++){
+    xpos[i] = _xpos[i];
+  }
+
+  delete h;
+  //  delete s;
+
+  /*
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){//timing search
+    int cell = *peakx - i;
+    double peakhalf = *peak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      *timing=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(dat[cell]>*peak){
+      *timing=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(!(cell==*peakx)&&dat[cell]<peakhalf){
+      *timing=(peakhalf-dat[cell])*(1./E16ANA_LGConstant::kTimeScale)/(dat[cell+1]-dat[cell])+cell;
+      if(cell==(*peakx-1)){//remove the event like spike noise
+	*timing=-10000;
+      }
+      break;
+    }
+    }//timing search
+  */
+
+  return npeaks;
 
 }
 

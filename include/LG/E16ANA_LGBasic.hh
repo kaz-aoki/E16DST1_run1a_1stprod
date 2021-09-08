@@ -54,6 +54,7 @@ double GetGain(uint16_t module, uint16_t block);
 void LGWFPeak(double* dat, double* peak, int* peakx, double* timing);
 void LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms);
 void LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int* falltime);
+int LGWFPeakSearch(double* dat, double* xpos, double* ypos);
 
   //string file_channelmap();
   //string file_drs4assign();
