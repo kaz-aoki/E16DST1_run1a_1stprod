@@ -19,6 +19,9 @@ public:
     TH1D *h_cl_local_x[10][3];
     TH1D *h_cl_local_y[10][3];
     TH1D *h_cl_local_yb[10][3];
+    TH1D *h_cl_timing_x[10][3];
+    TH1D *h_cl_timing_y[10][3];
+    TH1D *h_cl_timing_yb[10][3];
     TH1D *h_cl_max_peak_x[10][3];
     TH1D *h_cl_max_peak_y[10][3];
     TH1D *h_cl_max_peak_yb[10][3];

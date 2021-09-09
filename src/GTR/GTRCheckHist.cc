@@ -34,8 +34,12 @@ GTRCheckHist::~GTRCheckHist(){
     
 for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
-            delete h_cl_charge[m-100][l];
+            delete h_cl_charge_x[m-100][l];
+            delete h_cl_charge_y[m-100][l];
+            delete h_cl_charge_yb[m-100][l];
             delete h_cl_local_x[m-100][l];
+            delete h_cl_local_y[m-100][l];
+            delete h_cl_local_yb[m-100][l];
         }
     }
 }
@@ -59,10 +63,18 @@ void GTRCheckHist::Fill(E16DST_DST0Detector<E16DST_DST1GTRHit> *hits, E16DST_DST
         if(cl.Type() == 1){
             h_cl_charge_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.PeakSum());
             h_cl_local_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.LocalX());
+            h_cl_max_peak_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.MaxPeakHeight());
+            h_cl_max_peak_ch_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.MaxPeakCh());
+            h_cl_tdcpos_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TdcPos());
+            h_cl_tan_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TanTheta());
         }
         if(cl.Type() == 2){
             h_cl_charge_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.PeakSum());
             h_cl_local_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.LocalX());
+            h_cl_max_peak_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.MaxPeakHeight());
+            h_cl_max_peak_ch_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.MaxPeakCh());
+            h_cl_tdcpos_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TdcPos());
+            h_cl_tan_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TanTheta());
         }
 
     }
