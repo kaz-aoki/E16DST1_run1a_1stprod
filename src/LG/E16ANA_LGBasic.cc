@@ -219,10 +219,7 @@ void E16ANA_LGBasic::LGWFIntegral(double* dat, int peakx, double baseline, doubl
 int E16ANA_LGBasic::LGWFPeakSearch(double* dat, double* xpos, double* ypos){
 
   TH1F *h = new TH1F("h","h",kTPeakSearchRegion,0,kTPeakSearchRegion);
-  //  TSpectrum* s = new TSpectrum(10);//max_npeaks
-  double _xpos[10] = {0};
-  double _ypos[10] = {0};
-
+  TSpectrum* s = new TSpectrum(20);//max_npeaks
 
   int na=0;
   for(int cell=kTPeakSearchStart; cell<kTPeakSearchEnd; cell++){//peak search
@@ -230,15 +227,15 @@ int E16ANA_LGBasic::LGWFPeakSearch(double* dat, double* xpos, double* ypos){
     na++;
   }//peak search
 
-  //  int npeaks = s->Search(h, 3, "new", 0.1);
-  int npeaks = 1;
+  int npeaks = s->Search(h, 3, "new", 0.1);
 
-  for(int i=0; i<10; i++){
-    xpos[i] = _xpos[i];
+  for(int i=0; i<20; i++){
+    xpos[i] = s->GetPositionX()[i];
+    ypos[i] = s->GetPositionY()[i];
   }
 
   delete h;
-  //  delete s;
+  delete s;
 
   /*
   for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){//timing search

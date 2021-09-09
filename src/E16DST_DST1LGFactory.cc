@@ -39,7 +39,9 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     double baselinerms = E16DST_DST1Constant::kInvalidValue;
     double integral = E16DST_DST1Constant::kInvalidValue;
     int falltime = E16DST_DST1Constant::kInvalidValue;
-
+    int npeaks = E16DST_DST1Constant::kInvalidValue;
+    double xpos[20] = {E16DST_DST1Constant::kInvalidValue};
+    double ypos[20] = {E16DST_DST1Constant::kInvalidValue};
 
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
       int ph = hit0.Waveform()[cell];
@@ -50,6 +52,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     lgbasic.LGWFBaseline(waveform, peaktime, &baseline, &baselinerms);
     peakheight = peakheight - baseline;
     lgbasic.LGWFIntegral(waveform, peaktime, baseline, &integral, &falltime);
+    npeaks = lgbasic.LGWFPeakSearch(waveform, xpos, ypos);
 
     if( (falltime-peaktime)>5 && //to remove spike noise
 	peakheight>E16ANA_LGConstant::kHitThreshold && 
@@ -63,6 +66,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       hits1->Hit(n_dst1hit).SetBaseline((float)baseline);
       hits1->Hit(n_dst1hit).SetBaselineRms((float)baselinerms);
       hits1->Hit(n_dst1hit).SetIntegral((float)integral);
+      hits1->Hit(n_dst1hit).SetNpeaks((int)npeaks);
 
       //      cluster1->SetMaxPeakCh(hit0.BlockID());
       //      cluster1->SetMaxPeakHeight(peakheight);

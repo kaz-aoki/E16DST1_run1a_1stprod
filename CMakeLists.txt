@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
+set(CMAKE_CXX_FLAGS "-lSpectrum")
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -68,7 +69,7 @@ install(DIRECTORY
 configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePath.hh @ONLY)
 
 #_______________________________________________________________________________
-set_source_files_properties(src/LG/E16ANA_LGBasic.cc PROPERTIES COMPILE_OPTIONS "-lSpectrum")
+#set_source_files_properties(src/LG/E16ANA_LGBasic.cc PROPERTIES COMPILE_OPTIONS "-lSpectrum")
 
 add_library(E16ANA
   src/LG/E16ANA_LGBasic.cc
@@ -190,5 +191,3 @@ add_subdirectory(E16ANA_CalibDB)
 add_subdirectory(E16ANA_Geometry)
 add_subdirectory(E16ANA_Waveform)
 add_subdirectory(E16DST)
-
-#add_compile_options("dst0_to_dst1_lg_check -lSpectrum")

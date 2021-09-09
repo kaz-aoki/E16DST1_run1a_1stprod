@@ -197,6 +197,7 @@ int main(int argc, char* argv[]) {
 //// LG
       event = event0->EventID();
       int n_lghits = event1->LGHits().NumberOfHits();
+      std::cout<<"Event: "<<event<<"  Nhits: "<<n_lghits<<std::endl;
       if (event1->LGHits().NumberOfHits() != 0) {
 	for(int i=0;i<n_lghits;i++){//hit loop
 	  auto& lghit = event1->LGHits().Hit(i);                                                          
@@ -206,6 +207,8 @@ int main(int argc, char* argv[]) {
 	  //std::cout<<"ph       : "<<lghit.PeakHeight()<<std::endl;
 	  //std::cout<<"T0_func  : "<<lghit.GetCalibTiming(lgbasic)<<std::endl;
 	  //std::cout<<"Gain_func: "<<lghit.GetEnergyDeposit(lgbasic)<<std::endl;
+	  std::cout<<"Npeaks: "<<lghit.Npeaks()<<"  PulseHeight: "<<lghit.PeakHeight()<<std::endl;
+
 	  module = lghit.ModuleId();
 	  block = lghit.ChannelId();
 	  peakheight = lghit.PeakHeight();
