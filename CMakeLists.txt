@@ -87,6 +87,8 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
+  src/E16DST_DST1WireTrackFactory.cc
+  src/GTR/E16ANA_STRAnalyzer.cc
   src/GTR/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
