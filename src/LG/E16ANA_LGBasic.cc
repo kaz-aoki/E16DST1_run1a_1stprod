@@ -227,7 +227,7 @@ int E16ANA_LGBasic::LGWFPeakSearch(double* dat, double* xpos, double* ypos){
     na++;
   }//peak search
 
-  int npeaks = s->Search(h, 3, "new", 0.1);
+  int npeaks = s->Search(h, 3, "new", 0.2);
 
   for(int i=0; i<20; i++){
     xpos[i] = s->GetPositionX()[i];

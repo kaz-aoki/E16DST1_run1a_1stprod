@@ -51,6 +51,7 @@ int main(int argc, char* argv[]) {
   TH1F *hit[7][56];
   TH1F *ht0[7][56];
   TH1F *hed[7][56];
+  TH1F *hnp[7][56];
   for(int i=0;i<7;i++){
     for(int j=0;j<56;j++){
       hph[i][j] = new TH1F(Form("hph%d%d",i,j),Form("PeakHeight%d%d",i,j),1100,-100,1000);
@@ -61,11 +62,12 @@ int main(int argc, char* argv[]) {
       hit[i][j] = new TH1F(Form("hit%d%d",i,j),Form("Integral%d%d",i,j),1100,-100,1000);
       ht0[i][j] = new TH1F(Form("ht0%d%d",i,j),Form("CalibTiming%d%d",i,j),1000,0,200);
       hed[i][j] = new TH1F(Form("hed%d%d",i,j),Form("EnergyDeposit%d%d",i,j),1100,-1,10);
+      hnp[i][j] = new TH1F(Form("hnp%d%d",i,j),Form("Npeaks%d%d",i,j),20,0,20);
     }
   }
   uint16_t module, block;
   float peakheight, timing, baseline, baselinerms, integral, calibtiming, energydeposit;
-  int event, peaktime;
+  int event, peaktime, npeaks;
   double gpos[3];
   double lpos[3];
   tree->Branch("Event",&event,"Event/I");
@@ -79,6 +81,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("Integral",&integral,"Integral/F");
   tree->Branch("CalibTiming",&calibtiming,"CalibTiming/F");
   tree->Branch("EnergyDeposit",&energydeposit,"EnergyDeposit/F");
+  tree->Branch("Npeaks",&npeaks,"Npeaks/I");
   tree->Branch("Gpos",gpos,"Gpos[3]/D");
   tree->Branch("Lpos",lpos,"Lpos[3]/D");
 
@@ -197,7 +200,7 @@ int main(int argc, char* argv[]) {
 //// LG
       event = event0->EventID();
       int n_lghits = event1->LGHits().NumberOfHits();
-      std::cout<<"Event: "<<event<<"  Nhits: "<<n_lghits<<std::endl;
+      //std::cout<<"Event: "<<event<<"  Nhits: "<<n_lghits<<std::endl;
       if (event1->LGHits().NumberOfHits() != 0) {
 	for(int i=0;i<n_lghits;i++){//hit loop
 	  auto& lghit = event1->LGHits().Hit(i);                                                          
@@ -207,7 +210,7 @@ int main(int argc, char* argv[]) {
 	  //std::cout<<"ph       : "<<lghit.PeakHeight()<<std::endl;
 	  //std::cout<<"T0_func  : "<<lghit.GetCalibTiming(lgbasic)<<std::endl;
 	  //std::cout<<"Gain_func: "<<lghit.GetEnergyDeposit(lgbasic)<<std::endl;
-	  std::cout<<"Npeaks: "<<lghit.Npeaks()<<"  PulseHeight: "<<lghit.PeakHeight()<<std::endl;
+	  //std::cout<<"Npeaks: "<<lghit.Npeaks()<<"  PulseHeight: "<<lghit.PeakHeight()<<std::endl;
 
 	  module = lghit.ModuleId();
 	  block = lghit.ChannelId();
@@ -217,6 +220,7 @@ int main(int argc, char* argv[]) {
 	  baseline = lghit.Baseline();
 	  baselinerms = lghit.BaselineRms();
 	  integral = lghit.Integral();
+	  npeaks = lghit.Npeaks();
 	  calibtiming = lghit.GetCalibTiming(lgbasic);
 	  energydeposit = lghit.GetEnergyDeposit(lgbasic);
 	  gpos[0] = lghit.GlobalPos(*geometry).X();
@@ -234,6 +238,7 @@ int main(int argc, char* argv[]) {
 	  hit[module-102][block]->Fill(lghit.Integral());
 	  ht0[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic));
 	  hed[module-102][block]->Fill(lghit.GetEnergyDeposit(lgbasic));
+	  hnp[module-102][block]->Fill(lghit.Npeaks());
 	}//hit loop
       }
 
