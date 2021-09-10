@@ -92,11 +92,14 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
             }
             std::array<std::vector<int16_t>, 3>  t_hit_indexs;
             std::array<int16_t, 3> indexs = {0,0,0};
-            t_hit_indexs[0].clear();
-            t_hit_indexs[1].clear();
-            t_hit_indexs[2].clear();
+//            t_hit_indexs[0].clear();
+//            t_hit_indexs[1].clear();
+//            t_hit_indexs[2].clear();
             for(int t=0; t < v_anahits.size(); t++){//t == 0, 1, 2 means X, Y, Yb respectively, namely, type
                 for(int i =0; i<v_anahits[t].get().size();i++){
+                    t_hit_indexs[0].clear();
+                    t_hit_indexs[1].clear();
+                    t_hit_indexs[2].clear();
                     E16ANA_GTRAnalyzedStripHit &anahit = v_anahits[t].get()[i];
                     for(int j=0; j<anahit.NumHit(); j++){
                         E16DST_DST1GTRHit &h = dst1_hits->Hit(h_id);
@@ -115,7 +118,10 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     cl.SetInvalid();
                     cl.SetModuleId(mid);
                     cl.SetLayerId(lid);
+                    std::cout << "t, t_hit_indexs[t] = " << t_hit_indexs[t].size() << std::endl;
+                    std::cout << "hit size = " << cl.NumHits() << std::endl;
                     cl.SetHitOrders(t_hit_indexs[t]);
+                    std::cout << "hit size after = " << cl.NumHits() << std::endl;
                     cl.SetType(t);
                     cl.SetMaxPeakCh(anahit.MaxStripId());
                     cl.SetMaxPeakHeight(anahit.MaxValue());
