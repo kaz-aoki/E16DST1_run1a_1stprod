@@ -146,15 +146,21 @@ TVector3 E16DST_DST1GTRCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1HBDHit::LocalPos(E16ANA_GeometryV2& geometry) {
+  return lpos;
 }
 
-TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
+TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) { 
+  TVector3 gpos = geometry.HBD(ModuleId2020To2013(module_id))->GetGPos(lpos);
+  return gpos;
 }
 
 TVector3 E16DST_DST1HBDCluster::LocalPos() {
+  return lpos;
 }
 
 TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
+  TVector3 gpos = geometry.HBD(ModuleId2020To2013(module_id))->GetGPos(lpos);
+  return gpos;
 }
 
 TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
