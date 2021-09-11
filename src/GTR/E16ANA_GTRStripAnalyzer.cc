@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "E16ANA_GTRStripAnalyzer.h"
+#include "GTR/E16ANA_GTRStripAnalyzer.h"
 //#include "E16ANA_WaveformFitter.h"
 //#include "E16ANA_Waveform2dFitter.h"
 
@@ -66,6 +66,9 @@ void E16ANA_GTRStripAnalyzer::SetFadc(int strip_id, int16_t *waveform)
 {
    for (int j = 0; j < n_sampling; j++) {
       fadc[strip_id][j] = waveform[j] - fadc_ped[strip_id];
+      if( strip_id== 100 ){
+//        std::cout << "wave form j0 = " << waveform[j] << ", ped = "  <<fadc_ped[strip_id] << ", sigma = "<< fadc_ped_sigma[strip_id] <<  std::endl;
+      }
    }
 }
 

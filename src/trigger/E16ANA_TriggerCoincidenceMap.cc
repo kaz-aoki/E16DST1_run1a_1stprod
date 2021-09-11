@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-#include "E16DST_DST1Constant.hh"
+#include "E16ANA_TriggerConstant.hh"
 #include "E16DST_TriggerChannelMap.hh"
 
 E16ANA_TriggerCoincidenceMap::E16ANA_TriggerCoincidenceMap(const std::array<std::string_view, 12>& coincidence_map_files, const std::array<std::string_view, 3>& trigger_channel_map_files) {
@@ -32,8 +32,8 @@ E16ANA_TriggerCoincidenceMap::E16ANA_TriggerCoincidenceMap(const std::array<std:
         auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
         int key = 100 * ids.moduleID + ids.channelID;
         E16ANA_TriggerCoincidenceMap::Map map;
-        map.gtr_start_module = E16DST_DST1Constant::kGtrCoincidenceStartModule[lg_sfp];
-        map.hbd_start_module = E16DST_DST1Constant::kHbdCoincidenceStartModule[lg_sfp];
+        map.gtr_start_module = E16ANA_TriggerConstant::kGTRCoincidenceStartModule[lg_sfp];
+        map.hbd_start_module = E16ANA_TriggerConstant::kHBDCoincidenceStartModule[lg_sfp];
         map.gtr_map.fill(false);
         map.hbd_map.fill(false);
         int n_gtr_channel;
