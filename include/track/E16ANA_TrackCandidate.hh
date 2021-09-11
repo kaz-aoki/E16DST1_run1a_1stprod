@@ -28,6 +28,7 @@
 
 class E16ANA_TrackClusterPair {
  public:
+  E16ANA_TrackClusterPair() {}
   E16ANA_TrackClusterPair(E16ANA_DetectorGeometry* _geom)
       : set_flag(0),
         layer_order(E16DST_DST1Constant::kInvalidValue), module_id(E16DST_DST1Constant::kInvalidValue),
@@ -93,25 +94,29 @@ class E16ANA_TrackCandidate {
       residual_pos = E16DST_DST1Constant::kInvalidVector;
     }
   };
-  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
+  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, 2> _tmp_geoms)
       : geometry(_geometry), bfield_map(_bfield_map),
-        cluster_pairs({nullptr, nullptr, nullptr, nullptr}),
-        tmp_geoms({{_geometry->HBD(ModuleID2020To2013_27(101)),
-                    _geometry->HBD(ModuleID2020To2013_27(102)),
-                    _geometry->HBD(ModuleID2020To2013_27(103)),
-                    _geometry->HBD(ModuleID2020To2013_27(104)),
-                    _geometry->HBD(ModuleID2020To2013_27(106)),
-                    _geometry->HBD(ModuleID2020To2013_27(107)),
-                    _geometry->HBD(ModuleID2020To2013_27(108)),
-                    _geometry->HBD(ModuleID2020To2013_27(109))},
-                   {_geometry->LGVD(ModuleID2020To2013_27(101)),
-                    _geometry->LGVD(ModuleID2020To2013_27(102)),
-                    _geometry->LGVD(ModuleID2020To2013_27(103)),
-                    _geometry->LGVD(ModuleID2020To2013_27(104)),
-                    _geometry->LGVD(ModuleID2020To2013_27(106)),
-                    _geometry->LGVD(ModuleID2020To2013_27(107)),
-                    _geometry->LGVD(ModuleID2020To2013_27(108)),
-                    _geometry->LGVD(ModuleID2020To2013_27(109))}}) {}
+        tmp_geoms(_tmp_geoms) {}
+//        tmp_geoms({{_geometry->HBD(ModuleID2020To2013_27(101)),
+//                    _geometry->HBD(ModuleID2020To2013_27(102)),
+//                    _geometry->HBD(ModuleID2020To2013_27(103)),
+//                    _geometry->HBD(ModuleID2020To2013_27(104)),
+//                    _geometry->HBD(ModuleID2020To2013_27(106)),
+//                    _geometry->HBD(ModuleID2020To2013_27(107)),
+//                    _geometry->HBD(ModuleID2020To2013_27(108)),
+//                    _geometry->HBD(ModuleID2020To2013_27(109))},
+//                   {_geometry->LGVD(ModuleID2020To2013_27(101)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(102)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(103)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(104)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(106)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(107)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(108)),
+//                    _geometry->LGVD(ModuleID2020To2013_27(109))}}) {}
+  E16ANA_TrackCandidate& operator = (const E16ANA_TrackCandidate& rhs) {
+    Copy(rhs);
+    return (*this);
+  }
   ~E16ANA_TrackCandidate() {}
   void SetTrackID(int _track_id) { track_id = _track_id; }
   void SetCharge(double _charge) { charge = _charge; }
@@ -167,10 +172,26 @@ class E16ANA_TrackCandidate {
   double Fit(E16ANA_MultiTrack* fitter, bool vertex_fix_flag, bool py_fix_flag);
   void ProjectionLG(E16ANA_MultiTrack* fitter);
  private:
-  enum {
-    kNumLayers = 4,
-    kNumDetectorLayers = 6
-  };
+  void Copy(const E16ANA_TrackCandidate& rhs) {
+    this->geometry = rhs.geometry;
+    this->bfield_map = rhs.bfield_map;
+    this->track_id = rhs.track_id;
+    this->target_id = rhs.target_id;
+    this->cluster_pairs = rhs.cluster_pairs;
+    this->charge = rhs.charge;
+    this->vtx = rhs.vtx;
+    this->mom = rhs.mom;
+    this->sigma = rhs.sigma;
+    this->vtx_fit = rhs.vtx_fit;
+    this->mom_fit = rhs.mom_fit;
+    this->vtx_sigma = rhs.vtx_sigma;
+    this->fit_results = rhs.fit_results;
+    this->chisq = rhs.chisq;
+    this->hbd_hits = rhs.hbd_hits;
+    this->hbd_clusters = rhs.hbd_clusters;
+    this->lg_hits = rhs.lg_hits;
+    this->lg_clusters = rhs.lg_clusters;
+  }
   static int ModuleID2020To2013(int _module_id) { return E16ANA_TrackConstant::kModuleID2020To2013[_module_id / 100][_module_id % 100]; }
   static int ModuleID2013To2020(int _module_id);
   static int ModuleID2020To2013_27(int _module_id) { return E16ANA_TrackConstant::kModuleID2020To2013[_module_id / 100][_module_id % 100 + 1]; }
@@ -191,7 +212,7 @@ class E16ANA_TrackCandidate {
   TVector3 vtx_sigma;
   std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
   double chisq;
-  const std::array<std::array<E16ANA_DetectorGeometry*, 8>, 2> tmp_geoms;
+  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
   std::vector<E16DST_DST1HBDHit*> hbd_hits;
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
   std::vector<E16DST_DST1LGHit*> lg_hits;

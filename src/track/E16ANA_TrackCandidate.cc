@@ -27,7 +27,7 @@ TVector3 E16ANA_TrackCandidate::CalcRoughMomentum(const TVector3& gxz0, const TV
 
 bool E16ANA_TrackCandidate::CalcRoughMomentum() {
   int l0 = -1, l1 = -1;
-  for (int l = 0; l < kNumLayers; ++l) {
+  for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
     if (c.SetFlag() == 0) {
       continue;
@@ -63,7 +63,7 @@ void E16ANA_TrackCandidate::SetSingleTrackFit(E16ANA_MultiTrack* single_track, i
     fit_results[l].set_flag = 1;
     ++l;
   }
-  auto module_id = cluster_pairs[kNumLayers - 1].ModuleID();
+  auto module_id = cluster_pairs[E16ANA_TrackConstant::kNumTrackingLayers - 1].ModuleID();
   for (int layer_index = E16ANA_TrackConstant::kNumTrackingLayers; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
     for (const auto& geom : tmp_geoms[layer_index - E16ANA_TrackConstant::kNumTrackingLayers])
     single_track->AddHit(track_id, l, geom, {0., 0., 0.}, {0., 0., 0.});
@@ -77,7 +77,7 @@ void E16ANA_TrackCandidate::ProjectionLG(E16ANA_MultiTrack* fitter) {
 }
 
 void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
-  for (int l = 0; l < kNumDetectorLayers; ++l) {
+  for (int l = 0; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
     fit_results[l].Clear();
     std::vector<TVector3> lpos;
     std::vector<TVector3> lmom;
@@ -101,7 +101,7 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
     }
     fit_results[l].set_flag = 1;
     fit_results[l].layer_order = l;
-    if (l < kNumLayers) {
+    if (l < E16ANA_TrackConstant::kNumTrackingLayers) {
       fit_results[l].module_id = ModuleID2013To2020(mid[0]);
     } else {
       fit_results[l].module_id = ModuleID2013To2020_27(mid[0]);
