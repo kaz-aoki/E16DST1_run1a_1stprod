@@ -19,6 +19,7 @@ endif()
 #find_package(Boost COMPONENTS program_options REQUIRED)
 #set(Boost_LIBRARY_DIRS /opt/FairSoft/jun19p2/lib64)
 
+#set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
 include_directories(
@@ -28,13 +29,16 @@ include_directories(
 	include
 	include/LG
 	include/trigger
+	include/track
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
-  E16ANA_Geometry/include/geant4/Geant4 # evb
-  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units #evb
-#  /ccj/u/E16/include/Geant4 # ccj
+  E16ANA_MagneticFieldMap/include
+  E16ANA_Tracking/include
   E16ANA_Waveform/include
+  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
+  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
+#  /ccj/u/E16/include/Geant4 # ccj
 )
 
 #link_directories(
@@ -73,6 +77,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGGeometry.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
+  src/track/E16ANA_TrackCandidate.cc
   E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
 )
 
@@ -183,7 +188,12 @@ target_link_libraries(dst0_to_dst1_trigger_check
 #)
 #
 #_______________________________________________________________________________
+#add_library(E16ANA_Track src/track/E16ANA_Track.cc)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_CalibDB)
 add_subdirectory(E16ANA_Geometry)
+add_subdirectory(E16ANA_MagneticFieldMap)
+add_subdirectory(E16ANA_Tracking)
 add_subdirectory(E16ANA_Waveform)
 add_subdirectory(E16DST)

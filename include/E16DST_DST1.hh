@@ -690,21 +690,49 @@ class E16DST_DST1WireTrack {
 
 class E16DST_DST1Track {
  public:
-  E16DST_DST1Track() {}
+  E16DST_DST1Track()
+      : initial_pos_at_target_plane({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
+        initial_mom({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
+        tan_theta({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}),
+        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}) {}
   ~E16DST_DST1Track() {}
-  void SetInitialPosAtTargetPlane(int n, TVector3 _pos) { initial_pos_at_target_plane[n] = _pos; }
-  void SetInitialMom(int n, TVector3 _mom) { initial_mom[n] = _mom; }
-  void SetOriginalClusterINdex(int n, int _index) { original_cluster_index[n] = _index; }
-  bool IsContained(int n) { return is_contained[n]; }
-  TVector3 InitialPosAtTargetPlane(int n) { return initial_pos_at_target_plane[n]; }
-  TVector3 InitialMom(int n) { return initial_mom[n]; }
-  int      OriginalClusterIndex(int n) { return original_cluster_index[n]; }
+  void Clear() {
+    for (auto& pos : initial_pos_at_target_plane) {
+      pos = E16DST_DST1Constant::kInvalidVector;
+    }
+    for (auto& mom : initial_mom) {
+      mom = E16DST_DST1Constant::kInvalidVector;
+    }
+    for (auto& angle : tan_theta) {
+      angle = E16DST_DST1Constant::kInvalidValue;
+    }
+    for (auto& index : original_cluster_indexes) {
+      index = E16DST_DST1Constant::kInvalidValue;
+    }
+    hbd_indexes.clear();
+    lg_indexes.clear();
+  }
+  void                  SetInitialPosAtTargetPlane(int n, TVector3 _pos) { initial_pos_at_target_plane[n] = _pos; }
+  void                  SetInitialMom(int n, TVector3 _mom) { initial_mom[n] = _mom; }
+  void                  SetTanTheta(int n, float angle) { tan_theta[n] = angle; }
+  void                  SetOriginalClusterINdex(int n, int _index) { original_cluster_indexes[n] = _index; }
+  TVector3              InitialPosAtTargetPlane(int n) { return initial_pos_at_target_plane[n]; }
+  TVector3              InitialMom(int n) { return initial_mom[n]; }
+  float                 TanTheta(int n) { return tan_theta[n]; }
+  int                   OriginalClusterIndex(int n) { return original_cluster_indexes[n]; }
+  int                   NumHBDIndexes() { return hbd_indexes.size(); }
+  int16_t               HBDIndex(int n) { return hbd_indexes[n]; }
+  std::vector<int16_t>& HBDIndexes() { return hbd_indexes; }
+  int                   NumLGIndexes() { return lg_indexes.size(); }
+  int16_t               LGIndex(int n) { return lg_indexes[n]; }
+  std::vector<int16_t>& LGIndexes() { return lg_indexes; }
  private:
-  std::array<bool, 4>     is_contained;
   std::array<TVector3, 3> initial_pos_at_target_plane; // z = -20, 0, 20
   std::array<TVector3, 3> initial_mom;
-  std::array<int16_t, 4>  original_cluster_index;
-//  std::vector<int16_t>    
+  std::array<float,    6> tan_theta;
+  std::array<int16_t,  4> original_cluster_indexes;
+  std::vector<int16_t>    hbd_indexes;
+  std::vector<int16_t>    lg_indexes;
 
 };
 
@@ -867,12 +895,14 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
     hbd.Clear();
     lg.Clear();
 //    trigger.Clear();
+    track.Clear();
   }
   E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD()     { return ssd; }
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR()     { return gtr; }
   E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD()     { return hbd; }
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()      { return lg; }
 //  E16DST_DST1Trigger&                                            Trigger() { return trigger; }
+  E16DST_DST1Track&                                              Track()   { return track; }
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
  private:
@@ -881,6 +911,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
 //  E16DST_DST1Trigger                                            trigger;
+  E16DST_DST1Track                                              track;
 };
 
 class E16DST_DST1RecordHeader {

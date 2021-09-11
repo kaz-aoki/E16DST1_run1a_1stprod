@@ -28,4 +28,6 @@ static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
 
+static constexpr std::string_view MagneticFieldMapFile("@CMAKE_INSTALL_DATADIR@/magnetic_field_map_database/Bmap-SKS-block-far-191218-2450A.binary");
+
 #endif // E16_DST_DST1_DEFAULT_FILE_PATH
