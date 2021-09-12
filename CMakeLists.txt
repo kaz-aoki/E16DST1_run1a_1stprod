@@ -29,12 +29,13 @@ include_directories(
 	include
 	include/LG
 	include/trigger
+	include/HBD
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
-  E16ANA_Geometry/include/geant4/Geant4 # evb
-  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units #evb
-#  /ccj/u/E16/include/Geant4 # ccj
+#  E16ANA_Geometry/include/geant4/Geant4 # evb
+#  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units #evb
+  /ccj/u/E16/include/Geant4 # ccj
   E16ANA_Waveform/include
 )
 
@@ -93,9 +94,16 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
-#  src/E16DST_DST1LGFactory_dst1_detector.cc
-	src/E16DST_DST1TriggerFactory.cc
+#src/E16DST_DST1LGFactory_dst1_detector.cc
+  src/E16DST_DST1TriggerFactory.cc
   src/GTR/GTRCheckHist.cc
+  src/E16DST_DST1HBDHitAndClusterFactory.cc
+  src/HBD/E16ANA_HBDChannelManager.cc
+  src/HBD/E16ANA_HBDClusterAnalysis.cc
+  src/HBD/E16ANA_HBDCut.cc
+  src/HBD/E16ANA_HBDCalibration.cc
+  src/HBD/E16ANA_HBDGeometry.cc
+  src/HBD/E16ANA_HBDTH2Hex.cc
 )
 
 target_link_libraries(E16DST_DST1

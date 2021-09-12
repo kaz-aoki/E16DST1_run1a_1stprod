@@ -15,25 +15,28 @@
 
 class E16ANA_WaveformFitter{
 public:
-   E16ANA_WaveformFitter(const std::string &file_name);
-   ~E16ANA_WaveformFitter();
-   //void SetWaveform(const std::vector<int> &_fadc);
-   void SetWaveform(const double *_fadc, int size);
-   void SetWaveform(const std::vector<int> &_fadc);
-   void SetWaveform(const std::vector<double> &_fadc){waveform = _fadc;};
-   //void Clear();
-   void Fit();
-   //double GetChi2();
-   void SetNumWaveforms(int _n_wave){n_wave = _n_wave;};
-   int GetNumWaveforms(){return n_wave;};
-   //double GetWaveformTime(int i){return pars_time[i];};
-   //double GetWaveformPeak(int i){return pars_peak[i];};
-   double GetWaveformTime(int i){return fit_params[i].time;};
-   double GetWaveformPeak(int i){return fit_params[i].peak;};
-   //double MinuitFunction(const std::vector<double> &pars);
-   double MinuitFunction(const double *pars);
-   void PrintFitCheck(TH1F *h, TGraph *g);
-
+  E16ANA_WaveformFitter(const std::string &file_name);
+  ~E16ANA_WaveformFitter();
+  //void SetWaveform(const std::vector<int> &_fadc);
+  void SetWaveform(const double *_fadc, int size);
+  void SetWaveform(const std::vector<int> &_fadc);
+  void SetWaveform(const std::vector<double> &_fadc){waveform = _fadc;};
+  //void Clear();
+  void Fit();
+  //double GetChi2();
+  void SetNumWaveforms(int _n_wave){n_wave = _n_wave;};
+  int GetNumWaveforms(){return n_wave;};
+  //double GetWaveformTime(int i){return pars_time[i];};
+  //double GetWaveformPeak(int i){return pars_peak[i];};
+  double GetWaveformTime(int i){return fit_params[i].time;};
+  double GetWaveformPeak(int i){return fit_params[i].peak;};
+  //double MinuitFunction(const std::vector<double> &pars);
+  double MinuitFunction(const double *pars);
+  void PrintFitCheck(TH1F *h, TGraph *g);
+  void SetNoiseSigma(double _noise_sigma){noise_sigma = _noise_sigma;};
+  void SetClockPeriod(double _clock_period){clock_period = _clock_period;};
+  double GetTimeOverThreshold(const int i, const double rel_height);
+  
 private:
    struct fit_param_t {
       double peak;

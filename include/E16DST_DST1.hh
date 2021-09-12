@@ -269,10 +269,13 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 class E16DST_DST1HBDHit : public E16DST_DST1Hit {
  public:
   E16DST_DST1HBDHit()
-      : peak_height(E16DST_DST1Constant::kInvalidValue) {}
+    : chi2(E16DST_DST1Constant::kInvalidValue),
+      peak_height(E16DST_DST1Constant::kInvalidValue),
+      lpos(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue){};
   ~E16DST_DST1HBDHit(){}
   void SetInvalid() override {
     SetBaseInvalid();
+    chi2 = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     lpos = TVector3(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue);
   }
@@ -294,25 +297,29 @@ class E16DST_DST1HBDHit : public E16DST_DST1Hit {
 class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
  public:
   E16DST_DST1HBDCluster()
-      : first_timing(E16DST_DST1Constant::kInvalidValue),
-        time_difference(E16DST_DST1Constant::kInvalidValue) {}
+      : fastest_timing(E16DST_DST1Constant::kInvalidValue),
+        time_difference(E16DST_DST1Constant::kInvalidValue),
+	csize(E16DST_DST1Constant::kInvalidValue),
+	eprob(E16DST_DST1Constant::kInvalidValue),
+	lpos(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue,E16DST_DST1Constant::kInvalidValue){};
   ~E16DST_DST1HBDCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
     fastest_timing    = E16DST_DST1Constant::kInvalidValue;
     time_difference = E16DST_DST1Constant::kInvalidValue;
     csize = E16DST_DST1Constant::kInvalidValue;
+    eprob = E16DST_DST1Constant::kInvalidValue;
     lpos = TVector3(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue);
   }
   void SetFastestTiming(float _fastest_timing){ fastest_timing = _fastest_timing; };
   void SetTimeDifference(float _time_difference){ time_difference = _time_difference; };
   void SetClusterSize(int _csize){ csize = _csize; };
   void SetLocalPos(TVector3 _lpos){ lpos = _lpos; };
-  void SetEProb(float _e_prob){ e_prob = _e_prob; };
+  void SetEProb(float _eprob){ eprob = _eprob; };
   float FastestTiming() { return fastest_timing; }
   float TimeDifference() { return time_difference; }
   int ClusterSize(){ return csize; };
-  float IsE(){ return e_prob;};
+  float IsE(){ return eprob;};
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -322,7 +329,7 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
   float fastest_timing;
   float time_difference;
   int csize; //cluster size = the number of pads belonging to a cluster
-  float e_prob;
+  float eprob;
   TVector3 lpos;
 };
 
