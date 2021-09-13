@@ -263,7 +263,6 @@ class E16ANA_TrackCandidates {
   static constexpr int kNumTrackingLayersWTarget = 1 + E16ANA_TrackConstant::kNumTrackingLayers;
   static constexpr int kNumGTRLayers = E16ANA_TrackConstant::kNumTrackingLayers - 1;
   static constexpr double kGTRTimeDiffThreshold = 40.;
-  static constexpr double kLGResidualThreshold = 100.;
   static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
   static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                                                              1. / (kXSigma[1] * kXSigma[1]),
@@ -277,6 +276,9 @@ class E16ANA_TrackCandidates {
   static constexpr int kNumRaughFitDegree = 3;
   static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {100., 10.};
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
+  static constexpr double kHBDProjectionThreshold = 20.;
+  static constexpr double kLGProjectionThreshold = 150.;
+  static constexpr double kLGResidualThreshold = 150.;
   static TVector3 Lotate(double rot_cos, double rot_sin, const TVector3& pos) {
     auto x =  rot_cos * pos.Z() + rot_sin * pos.X();
     auto z = -rot_sin * pos.Z() + rot_cos * pos.X();
@@ -307,6 +309,7 @@ class E16ANA_TrackCandidates {
   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
   void SetTrackCandidates();
+  void SetHBDAndLGSignals();
   void RequireLGCut();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;

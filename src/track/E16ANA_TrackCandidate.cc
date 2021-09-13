@@ -428,6 +428,46 @@ void E16ANA_TrackCandidates::SetTrackCandidates() {
   }
 }
 
+void E16ANA_TrackCandidates::SetHBDAndLGSignals() {
+  auto& hbd = record->HBD();
+  auto& lg  = record->LG();
+  for (auto& cands : track_candidates) {
+    for (auto& cand : cands) {
+      auto& hbd_fit = cand.LocalFitResult(E16ANA_TrackConstant::kHBD);
+      auto& lg_fit  = cand.LocalFitResult(E16ANA_TrackConstant::kLG);
+      auto& hbd_fit_pos = hbd_fit.local_pos;
+      auto& lg_fit_pos  = hbd_fit.local_pos;
+      auto& hbd_hits     = hbd.HitPtrs(hbd_fit.module_id, 0, 0);
+      auto& hbd_clusters = hbd.ClusterPtrs(hbd_fit.module_id, 0, 0);
+      auto& lg_hits      = lg.HitPtrs(lg_fit.module_id, 0, 0);
+      auto& lg_clusters  = lg.ClusterPtrs(lg_fit.module_id, 0, 0);
+      for (auto& hit : hbd_hits) {
+        if (fabs((hit->LocalPos(*geometry) - hbd_fit_pos).Mag()) < kHBDProjectionThreshold) {
+          cand.ProjectionHBDHits().emplace_back(hit);
+        }
+      }
+      for (auto& cluster : hbd_clusters) {
+        if (fabs((cluster->LocalPos() - hbd_fit_pos).Mag()) < kHBDProjectionThreshold) {
+          cand.ProjectionHBDClusters().emplace_back(cluster);
+        }
+      }
+      for (auto& hit : lg_hits) {
+        if (fabs((hit->LocalPos(*geometry) - lg_fit_pos).Mag()) < kLGProjectionThreshold) {
+          cand.ProjectionLGHits().emplace_back(hit);
+        }
+      }
+      for (auto& cluster : lg_clusters) {
+        if (fabs((cluster->LocalPos() - lg_fit_pos).Mag()) < kLGProjectionThreshold) {
+          cand.ProjectionLGClusters().emplace_back(cluster);
+        }
+      }
+    }
+  }
+  return;
+}
+
+
+
 void E16ANA_TrackCandidates::RequireLGCut() {
   for (int tgt_index = 0; tgt_index < E16ANA_TrackConstant::kNumTargets; ++tgt_index) {
     for (auto& cand : track_candidates[tgt_index]) {
@@ -451,6 +491,7 @@ void E16ANA_TrackCandidates::SelectTracks() {
     cands.clear();
   }
   SetTrackCandidates();
+  SetHBDAndLGSignals();
   RequireLGCut();
   std::array<std::vector<E16DST_DST1Cluster*>, E16ANA_TrackConstant::kNumTrackingLayers> used_clusters;
   for (int tgt_index = 0; tgt_index < E16ANA_TrackConstant::kNumTargets; ++tgt_index) {
