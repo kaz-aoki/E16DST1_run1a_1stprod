@@ -188,9 +188,6 @@ target_link_libraries(dst0_to_dst1_trigger_check
 #)
 #
 #_______________________________________________________________________________
-#add_library(E16ANA_Track src/track/E16ANA_Track.cc)
-
-#_______________________________________________________________________________
 add_subdirectory(E16ANA_CalibDB)
 add_subdirectory(E16ANA_Geometry)
 add_subdirectory(E16ANA_MagneticFieldMap)
