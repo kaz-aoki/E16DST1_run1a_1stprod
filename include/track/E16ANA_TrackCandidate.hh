@@ -64,7 +64,7 @@ class E16ANA_TrackClusterPair {
   int ModuleID() { return module_id; }
   E16ANA_DetectorGeometry* Geometry() { return geom; }
   E16DST_DST1Cluster* Cluster(int type) { return clusters[type]; }
-  TVector3 LocalPos() { return local_pos; }
+  TVector3& LocalPos() { return local_pos; }
   TVector3 GlobalPos() { return geom->GetGPos(local_pos); }
  private:
   int set_flag;
@@ -140,11 +140,12 @@ class E16ANA_TrackCandidate {
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
   void SetDefaultSigma();
   int TrackID() { return track_id; }
+  int TargetID() { return target_id; }
   double Charge() { return charge; }
   TVector3 Vertex() { return vtx; }
   TVector3 Sigma(int n) { return sigma[n]; }
   TVector3 FitVertex() { return vtx_fit; }
-  TVector3 FitMomntum() { return mom_fit; }
+  TVector3 FitMomentum() { return mom_fit; }
   TVector3 FitSigma() { return vtx_sigma; }
   const FitResult& LocalFitResult(int n) const { return fit_results[n]; }
   double ChiSquare() { return chisq; }
@@ -176,6 +177,16 @@ class E16ANA_TrackCandidate {
   void UpdateFitResult(E16ANA_MultiTrack* fitter);
   double Fit(E16ANA_MultiTrack* fitter, bool vertex_fix_flag, bool py_fix_flag);
   void ProjectionLG(E16ANA_MultiTrack* fitter);
+  void Print() {
+    std::cout << "Track ID: " << track_id << ", Target ID: " << target_id << std::endl;
+    std::cout << "Tracking Layers" << std::endl;
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+      auto& pair = cluster_pairs[i];
+      auto& local_pos = pair.LocalPos();
+      std::cout << "  Layer ID: " << i << ", Module ID: " << pair.ModuleID() << std::endl;
+      std::cout << "  Local Position: (" << local_pos.X() << ", " << local_pos.Y() << ", " << local_pos.Z() << std::endl;
+    }
+  }
  private:
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
@@ -197,10 +208,10 @@ class E16ANA_TrackCandidate {
     this->lg_hits = rhs.lg_hits;
     this->lg_clusters = rhs.lg_clusters;
   }
+  static int ModuleID2013To2020(int _module_id) { return E16ANA_TrackConstant::kModuleID2013To2020[_module_id]; }
   static int ModuleID2020To2013(int _module_id) { return E16ANA_TrackConstant::kModuleID2020To2013[_module_id / 100][_module_id % 100]; }
-  static int ModuleID2013To2020(int _module_id);
+  static int ModuleID2013To2020_27(int _module_id) { return E16ANA_TrackConstant::kModuleID2013To2020[_module_id - 3]; }
   static int ModuleID2020To2013_27(int _module_id) { return E16ANA_TrackConstant::kModuleID2020To2013[_module_id / 100][_module_id % 100 + 1]; }
-  static int ModuleID2013To2020_27(int _module_id);
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   int track_id;
@@ -233,8 +244,15 @@ class E16ANA_TrackCandidates {
                          E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), tmp_geoms(_tmp_geoms), record(_record) {}
   ~E16ANA_TrackCandidates() {}
-  int NumTrackCandidates() { return track_candidates.size(); }
+  int NumTrackCandidates(int n) { return track_candidates[n].size(); }
   void SelectTracks();
+  void Print() {
+    for (auto& cands : track_candidates) {
+      for (auto& cand : cands) {
+        cand.Print();
+      }
+    }
+  }
  private:
   struct OneAxisClusterSet {
     int target_id;
@@ -286,12 +304,11 @@ class E16ANA_TrackCandidates {
     corr->at(2) = line[0][0] * zx[2] + line[0][1] * zx[1] + line[0][2] * zx[0];
     return;
   }
-//  static bool IsXTrackCandidate(double tgt_z, const std::array<TVector3*, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
   void SetTrackCandidates();
   void RequireLGCut();
-  int SelectTargetID();
+  void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;

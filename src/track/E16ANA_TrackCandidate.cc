@@ -450,6 +450,7 @@ void E16ANA_TrackCandidates::SelectTracks() {
   for (auto& cands : selected_track_candidates) {
     cands.clear();
   }
+  SetTrackCandidates();
   RequireLGCut();
   std::array<std::vector<E16DST_DST1Cluster*>, E16ANA_TrackConstant::kNumTrackingLayers> used_clusters;
   for (int tgt_index = 0; tgt_index < E16ANA_TrackConstant::kNumTargets; ++tgt_index) {
@@ -494,5 +495,26 @@ void E16ANA_TrackCandidates::SelectTracks() {
   }
 }
 
-int E16ANA_TrackCandidates::SelectTargetID() {
+void E16ANA_TrackCandidates::AddTracksToRecord() {
+  auto& tracks = record->Tracks().Tracks();
+  for (int target_index = 0; target_index < E16DST_DST1Constant::kNumTargets; ++target_index) {
+    int prev_n_tracks = tracks.size();
+    tracks.resize(prev_n_tracks + NumTrackCandidates(target_index));
+    for (int track_index = 0; track_index < NumTrackCandidates(target_index); ++track_index) {
+      auto& cand = track_candidates[target_index][track_index];
+      auto& track = tracks[prev_n_tracks + track_index];
+      track.SetTargetID(target_index);
+      track.SetInitialPosAtTargetPlane(cand.FitVertex());
+      track.SetInitialMom(cand.FitMomentum());
+      for (int i = 0; i < E16DST_DST1Constant::kNumTrackingLayers; ++i) {
+        auto& local_mom = cand.LocalFitResult(i).local_mom;
+        track.SetTanTheta(i, local_mom.X() / local_mom.Z());
+      } // HBD, LG
+      track.SetHBDHitPtrs(cand.ProjectionHBDHits());
+      track.SetHBDClusterPtrs(cand.ProjectionHBDClusters());
+      track.SetLGHitPtrs(cand.ProjectionLGHits());
+      track.SetLGClusterPtrs(cand.ProjectionLGClusters());
+    }
+  }
+  return;
 }

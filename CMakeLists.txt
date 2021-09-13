@@ -11,6 +11,7 @@ set(CMAKE_CURRENT_BINARY_DIR ${DIR}/../build)
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
+set(CMAKE_CXX_FLAGS -lMinuit)
 find_package(ROOT)
 if(ROOT_FOUND)
 	include(${ROOT_USE_FILE})
@@ -83,6 +84,9 @@ add_library(E16ANA
 
 target_link_libraries(E16ANA
   E16ANA_CalibDB
+  E16ANA_GeometryV2
+  E16ANA_MagneticFieldMap
+  E16ANA_Tracking
 )
 
 #_______________________________________________________________________________
@@ -97,11 +101,11 @@ add_library(E16DST_DST1
   src/E16DST_DST1GTRFactory_dst1_detector.cc
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
+	src/E16DST_DST1TrackFactory.cc
 )
 
 target_link_libraries(E16DST_DST1
   E16ANA
-  E16ANA_GeometryV2
 	E16DST
 )
 

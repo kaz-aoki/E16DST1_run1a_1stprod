@@ -8,6 +8,8 @@ static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/calib_
 
 static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
 
+static constexpr std::string_view MagneticFieldMapFile("@CMAKE_INSTALL_DATADIR@/magnetic_field_map_database/Bmap-SKS-block-far-191218-2450A.binary");
+
 //static constexpr std::string_view LGCalibFilePath {"@CMAKE_INSTALL_DATADIR@/lg_calibfiles"};
 
 
@@ -27,7 +29,5 @@ static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_I
 static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
-
-static constexpr std::string_view MagneticFieldMapFile("@CMAKE_INSTALL_DATADIR@/magnetic_field_map_database/Bmap-SKS-block-far-191218-2450A.binary");
 
 #endif // E16_DST_DST1_DEFAULT_FILE_PATH

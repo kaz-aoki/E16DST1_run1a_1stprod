@@ -19,11 +19,17 @@ constexpr int kNumDetectorLayers = 6;
 constexpr int kNumRemainingLayers = kNumDetectorLayers - kNumTrackingLayers;
 constexpr int kNumTargets = 3;
 constexpr int kNumModules = 8;
+constexpr int kNumFullModulesWidth = 11;
+constexpr int kNumFullModulesHeight = 3;
+constexpr int kNumFullModules = kNumFullModulesWidth * kNumFullModulesHeight;
 constexpr std::array<int, kNumModules> kModuleIDs = {101, 102, 103, 104, 106, 107, 108, 109};
 constexpr std::array<double, kNumTargets> kTargetZ = {-20., 0., 20.};
-constexpr std::array<std::array<int, 11>, 3> kModuleID2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},
-                                                                 {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
-                                                                 {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
+constexpr std::array<int, kNumFullModules> kModuleID2013To2020 = {{10, 110, 210, 9, 109, 209, 8, 108, 208, 7, 107, 207,
+                                                                    6, 116, 216, 5, 105, 205, 4, 104, 204, 3, 103, 203,
+                                                                    2, 112, 212, 1, 101, 201, 0, 100, 200}};
+constexpr std::array<std::array<int, kNumFullModulesWidth>, kNumFullModulesHeight> kModuleID2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},
+                                                                                                           {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
+                                                                                                           {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
 }; // E16ANA_TrackConstant
 
 #endif // E16ANA_TRACK_CONSTANT_HH

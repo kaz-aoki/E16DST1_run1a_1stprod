@@ -8,6 +8,7 @@
 
 #include "TVector3.h"
 #include "E16ANA_GeometryV2.hh"
+#include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_Constant.hh"
@@ -688,52 +689,146 @@ class E16DST_DST1WireTrack {
   std::vector<int16_t> lg_indexes;
 };
 
+//class E16DST_DST1Track {
+// public:
+//  E16DST_DST1Track()
+//      : initial_pos_at_target_plane({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
+//        initial_mom({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
+//        tan_theta({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue
+//                   E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}),
+//        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}) {}
+//  ~E16DST_DST1Track() {}
+//  void Clear() {
+//    for (auto& pos : initial_pos_at_target_plane) {
+//      pos = E16DST_DST1Constant::kInvalidVector;
+//    }
+//    for (auto& mom : initial_mom) {
+//      mom = E16DST_DST1Constant::kInvalidVector;
+//    }
+//    for (auto& angle : tan_theta) {
+//      angle = E16DST_DST1Constant::kInvalidValue;
+//    }
+//    for (auto& index : original_cluster_indexes) {
+//      index = E16DST_DST1Constant::kInvalidValue;
+//    }
+//    hbd_indexes.clear();
+//    lg_indexes.clear();
+//  }
+//  void                  SetInitialPosAtTargetPlane(int n, TVector3 _pos) { initial_pos_at_target_plane[n] = _pos; }
+//  void                  SetInitialMom(int n, TVector3 _mom) { initial_mom[n] = _mom; }
+//  void                  SetTanTheta(int n, float angle) { tan_theta[n] = angle; }
+//  void                  SetOriginalClusterINdex(int n, int _index) { original_cluster_indexes[n] = _index; }
+//  TVector3              InitialPosAtTargetPlane(int n) { return initial_pos_at_target_plane[n]; }
+//  TVector3              InitialMom(int n) { return initial_mom[n]; }
+//  float                 TanTheta(int n) { return tan_theta[n]; }
+//  int                   OriginalClusterIndex(int n) { return original_cluster_indexes[n]; }
+//  int                   NumHBDIndexes() { return hbd_indexes.size(); }
+//  int16_t               HBDIndex(int n) { return hbd_indexes[n]; }
+//  std::vector<int16_t>& HBDIndexes() { return hbd_indexes; }
+//  int                   NumLGIndexes() { return lg_indexes.size(); }
+//  int16_t               LGIndex(int n) { return lg_indexes[n]; }
+//  std::vector<int16_t>& LGIndexes() { return lg_indexes; }
+// private:
+//  std::array<TVector3, 3> initial_pos_at_target_plane; // z = -20, 0, 20
+//  std::array<TVector3, 3> initial_mom;
+//  std::array<float,    6> tan_theta;
+//  std::array<int16_t,  4> original_cluster_indexes;
+//  std::vector<int16_t>    hbd_indexes;
+//  std::vector<int16_t>    lg_indexes;
+//};
+
 class E16DST_DST1Track {
  public:
   E16DST_DST1Track()
-      : initial_pos_at_target_plane({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
-        initial_mom({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
-        tan_theta({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}),
-        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}) {}
+      : initial_pos_at_target_plane(E16DST_DST1Constant::kInvalidVector), initial_mom(E16DST_DST1Constant::kInvalidVector),
+        tan_theta({{E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue,
+                   E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}}),
+        original_cluster_ptrs({nullptr, nullptr, nullptr, nullptr}) {}
   ~E16DST_DST1Track() {}
   void Clear() {
-    for (auto& pos : initial_pos_at_target_plane) {
-      pos = E16DST_DST1Constant::kInvalidVector;
-    }
-    for (auto& mom : initial_mom) {
-      mom = E16DST_DST1Constant::kInvalidVector;
-    }
+    initial_pos_at_target_plane = E16DST_DST1Constant::kInvalidVector;
+    initial_mom = E16DST_DST1Constant::kInvalidVector;
     for (auto& angle : tan_theta) {
       angle = E16DST_DST1Constant::kInvalidValue;
     }
-    for (auto& index : original_cluster_indexes) {
-      index = E16DST_DST1Constant::kInvalidValue;
+    for (auto& ptr : original_cluster_ptrs) {
+      ptr = nullptr;
     }
-    hbd_indexes.clear();
-    lg_indexes.clear();
+    hbd_hit_ptrs.clear();
+    hbd_cluster_ptrs.clear();
+    lg_hit_ptrs.clear();
+    lg_cluster_ptrs.clear();
   }
-  void                  SetInitialPosAtTargetPlane(int n, TVector3 _pos) { initial_pos_at_target_plane[n] = _pos; }
-  void                  SetInitialMom(int n, TVector3 _mom) { initial_mom[n] = _mom; }
-  void                  SetTanTheta(int n, float angle) { tan_theta[n] = angle; }
-  void                  SetOriginalClusterINdex(int n, int _index) { original_cluster_indexes[n] = _index; }
-  TVector3              InitialPosAtTargetPlane(int n) { return initial_pos_at_target_plane[n]; }
-  TVector3              InitialMom(int n) { return initial_mom[n]; }
-  float                 TanTheta(int n) { return tan_theta[n]; }
-  int                   OriginalClusterIndex(int n) { return original_cluster_indexes[n]; }
-  int                   NumHBDIndexes() { return hbd_indexes.size(); }
-  int16_t               HBDIndex(int n) { return hbd_indexes[n]; }
-  std::vector<int16_t>& HBDIndexes() { return hbd_indexes; }
-  int                   NumLGIndexes() { return lg_indexes.size(); }
-  int16_t               LGIndex(int n) { return lg_indexes[n]; }
-  std::vector<int16_t>& LGIndexes() { return lg_indexes; }
+  void                                       SetTargetID(int _target_id) { target_id = _target_id; }
+  void                                       SetInitialPosAtTargetPlane(TVector3 _pos) { initial_pos_at_target_plane = _pos; }
+  void                                       SetInitialMom(TVector3 _mom) { initial_mom = _mom; }
+  void                                       SetTanTheta(int n, float angle) { tan_theta[n] = angle; }
+  void                                       SetOriginalClusterPtr(int n, E16DST_DST1Cluster* _ptr) { original_cluster_ptrs[n] = _ptr; }
+  void                                       ClearHBDHitPtr() { hbd_hit_ptrs.clear(); }
+  void                                       ClearHBDClusterPtr() { hbd_cluster_ptrs.clear(); }
+  void                                       ClearLGHitPtr() { lg_hit_ptrs.clear(); }
+  void                                       ClearLGClusterPtr() { lg_cluster_ptrs.clear(); }
+  void                                       EmplaceBackHBDHitPtr(E16DST_DST1HBDHit* _hit) { hbd_hit_ptrs.emplace_back(_hit); }
+  void                                       EmplaceBackHBDClusterPtr(E16DST_DST1HBDCluster* _cluster) { hbd_cluster_ptrs.emplace_back(_cluster); }
+  void                                       EmplaceBackLGHitPtr(E16DST_DST1LGHit* _hit) { lg_hit_ptrs.emplace_back(_hit); }
+  void                                       EmplaceBackLGClusterPtr(E16DST_DST1LGCluster* _cluster) { lg_cluster_ptrs.emplace_back(_cluster); }
+  void                                       SetHBDHitPtrs(const std::vector<E16DST_DST1HBDHit*>& _hits) {
+    hbd_hit_ptrs.clear();
+    std::copy(_hits.begin(), _hits.end(), std::back_inserter(hbd_hit_ptrs));
+  }
+  void                                       SetHBDClusterPtrs(const std::vector<E16DST_DST1HBDCluster*>& _clusters) {
+    hbd_cluster_ptrs.clear();
+    std::copy(_clusters.begin(), _clusters.end(), std::back_inserter(hbd_cluster_ptrs));
+  }
+  void                                       SetLGHitPtrs(const std::vector<E16DST_DST1LGHit*>& _hits) {
+    lg_hit_ptrs.clear();
+    std::copy(_hits.begin(), _hits.end(), std::back_inserter(lg_hit_ptrs));
+  }
+  void                                       SetLGClusterPtrs(const std::vector<E16DST_DST1LGCluster*>& _clusters) {
+    lg_cluster_ptrs.clear();
+    std::copy(_clusters.begin(), _clusters.end(), std::back_inserter(lg_cluster_ptrs));
+  }
+  int                                        TargetID() { return target_id; }
+  TVector3                                   InitialPosAtTargetPlane() { return initial_pos_at_target_plane; }
+  TVector3                                   InitialMom() { return initial_mom; }
+  float                                      TanTheta(int n) { return tan_theta[n]; }
+  E16DST_DST1Cluster*                        OriginalClusterPtr(int n) { return original_cluster_ptrs[n]; }
+  int                                        NumHBDHitPtrs() { return hbd_hit_ptrs.size(); }
+  E16DST_DST1HBDHit*                         HBDHitPtr(int n) { return hbd_hit_ptrs[n]; }
+  const std::vector<E16DST_DST1HBDHit*>&     HBDHitPtr() const { return hbd_hit_ptrs; }
+  int                                        NumHBDClusterPtrs() { return hbd_cluster_ptrs.size(); }
+  E16DST_DST1HBDCluster*                     HBDClusterPtr(int n) { return hbd_cluster_ptrs[n]; }
+  const std::vector<E16DST_DST1HBDCluster*>& HBDClusterPtr() const { return hbd_cluster_ptrs; }
+  int                                        NumLGHitPtrs() { return lg_hit_ptrs.size(); }
+  E16DST_DST1LGHit*                          LGHitPtr(int n) { return lg_hit_ptrs[n]; }
+  const std::vector<E16DST_DST1LGHit*>&      LGHitPtr() const { return lg_hit_ptrs; }
+  int                                        NumLGClusterPtrs() { return lg_cluster_ptrs.size(); }
+  E16DST_DST1LGCluster*                      LGClusterPtr(int n) { return lg_cluster_ptrs[n]; }
+  const std::vector<E16DST_DST1LGCluster*>&  LGClusterPtr() const { return lg_cluster_ptrs; }
  private:
-  std::array<TVector3, 3> initial_pos_at_target_plane; // z = -20, 0, 20
-  std::array<TVector3, 3> initial_mom;
-  std::array<float,    6> tan_theta;
-  std::array<int16_t,  4> original_cluster_indexes;
-  std::vector<int16_t>    hbd_indexes;
-  std::vector<int16_t>    lg_indexes;
+  int                    target_id;
+  TVector3               initial_pos_at_target_plane;
+  TVector3               initial_mom;
+  std::array<float, E16DST_DST1Constant::kNumDetectorLayersWTarget>   tan_theta;
+  std::array<E16DST_DST1Cluster*, E16DST_DST1Constant::kNumTrackingLayers> original_cluster_ptrs;
+  std::vector<E16DST_DST1HBDHit*> hbd_hit_ptrs;
+  std::vector<E16DST_DST1HBDCluster*> hbd_cluster_ptrs;
+  std::vector<E16DST_DST1LGHit*> lg_hit_ptrs;
+  std::vector<E16DST_DST1LGCluster*> lg_cluster_ptrs;
+};
 
+class E16DST_DST1Tracks {
+ public:
+  E16DST_DST1Tracks() {}
+  ~E16DST_DST1Tracks() {}
+  int NumTracks() { return tracks.size(); }
+  E16DST_DST1Track& Track(int n) { return tracks[n]; }
+  std::vector<E16DST_DST1Track>& Tracks() { return tracks; }
+  void Clear() { tracks.clear(); }
+  int Write(std::fstream* fp);
+  int Read(std::fstream* fp);
+ private:
+  std::vector<E16DST_DST1Track> tracks;
 };
 
 class E16DST_DST1DetectorHeader {
@@ -895,14 +990,14 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
     hbd.Clear();
     lg.Clear();
 //    trigger.Clear();
-    track.Clear();
+    tracks.Clear();
   }
   E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD()     { return ssd; }
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR()     { return gtr; }
   E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD()     { return hbd; }
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()      { return lg; }
 //  E16DST_DST1Trigger&                                            Trigger() { return trigger; }
-  E16DST_DST1Track&                                              Track()   { return track; }
+  E16DST_DST1Tracks&                                             Tracks()  { return tracks; }
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
  private:
@@ -911,7 +1006,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
 //  E16DST_DST1Trigger                                            trigger;
-  E16DST_DST1Track                                              track;
+  E16DST_DST1Tracks                                             tracks;
 };
 
 class E16DST_DST1RecordHeader {
@@ -974,7 +1069,8 @@ int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
 int E16DST_DST1WireTrackFactory(E16DST_DST1SSDCluster& ssd_clusters, E16DST_DST1GTRCluster& gtr_clusters, E16DST_DST1WireTrack* wire_tracks);
 //int E16DST_DST1WireTrackFactory(E16DST_DST1PhysicsRecord* record);
-int E16DST_DST1TrackFactory(E16DST_DST1PhysicsRecord* record);
+int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16DST_DST1PhysicsRecord* record);
+//int E16DST_DST1TrackFactory(E16DST_DST1PhysicsRecord* record);
 
 
 template <class T, class U>
