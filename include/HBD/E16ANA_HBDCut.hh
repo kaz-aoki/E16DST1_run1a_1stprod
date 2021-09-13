@@ -1,5 +1,5 @@
-#ifndef E16ANA_HBDCalibration_h
-#define E16ANA_HBDCalibration_h
+#ifndef E16ANA_HBDCut_h
+#define E16ANA_HBDCut_h
 
 #include "E16ANA_HBDCut.hh"
 
