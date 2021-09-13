@@ -331,11 +331,13 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetBaseline(float _baseline) { baseline = _baseline; }
   void SetBaselineRms(float _baseline_rms) { baseline_rms = _baseline_rms; }
   void SetIntegral(float _integral) { integral = _integral; }
+  void SetNpeaks(int _npeaks) { npeaks = _npeaks; }
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
   float BaselineRms() { return baseline_rms; }
   float Integral() { return integral; }
+  int Npeaks() { return npeaks; }
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
   float GetEnergyDeposit(E16ANA_LGBasic& lgbasic);
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
@@ -347,6 +349,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float baseline;
   float baseline_rms;
   float integral; // baseline subtracted
+  int npeaks;
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {

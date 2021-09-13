@@ -152,12 +152,12 @@ TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){
-  float param = lgbasic.GetT0(module_id, channel_id);
+  double param = lgbasic.GetT0(module_id, channel_id);
   return timing+100.-param;
 }
 
 float E16DST_DST1LGHit::GetEnergyDeposit(E16ANA_LGBasic& lgbasic){
-  float param = lgbasic.GetGain(module_id, channel_id);
+  double param = lgbasic.GetGain(module_id, channel_id);
   return param*peak_height;
 }
 
