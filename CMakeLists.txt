@@ -12,7 +12,7 @@ set(CMAKE_CURRENT_BINARY_DIR ${DIR}/../build)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 set(CMAKE_CXX_FLAGS -lMinuit)
-find_package(ROOT REQUIRED)
+find_package(ROOT)
 if(ROOT_FOUND)
 	include(${ROOT_USE_FILE})
 endif()
@@ -40,9 +40,9 @@ include_directories(
   E16ANA_TargetInfo/include
   E16ANA_Tracking/include
   E16ANA_Waveform/include
-#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
-#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
-  /ccj/u/E16/include/Geant4 # ccj
+  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
+  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
+#  /ccj/u/E16/include/Geant4 # ccj
 )
 
 #link_directories(

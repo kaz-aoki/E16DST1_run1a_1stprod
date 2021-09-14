@@ -1,3 +1,4 @@
+//2021-09-14, uploaded by ichikawa
 //2021-09-12, uploaded by yokkaich
 //2021-08-20, uploaded by yokkaich
 //2021-02-27, uploaded by nakai
@@ -24,6 +25,8 @@
 #include <G4RotationMatrix.hh>
 
 #include "E16ANA_Geometry.hh"
+
+using namespace CLHEP;
 
 class E16ANA_DetectorGeometry {
    // Abstract class
