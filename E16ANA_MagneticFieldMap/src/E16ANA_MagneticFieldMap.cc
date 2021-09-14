@@ -1,3 +1,4 @@
+//2021-09-12, uploaded by yokkaich
 //2020-09-16, uploaded by yokkaich
 //2020-08-30, uploaded by yokkaich
 //2016-05-02, uploaded by nakai
@@ -43,6 +44,22 @@ using namespace std;
 
 const int MaxChar = 1024;
 
+static E16ANA_MagneticFieldMap* globalPointer=NULL;
+
+void E16ANA_MagneticFieldMap::SetGlobalPointer( E16ANA_MagneticFieldMap* p ) {
+  if( globalPointer != NULL ){delete globalPointer;}
+  globalPointer=p;
+}
+E16ANA_MagneticFieldMap* E16ANA_MagneticFieldMap::GlobalPointer() {
+
+    //initialized, if not yet
+    if (globalPointer == NULL){
+      E16FATAL("not initialized. Please set filename. exit(1)");
+	exit(1);
+    }
+
+    return globalPointer;
+}
 
 void E16ANA_MagneticFieldMap3D::SetSmearParameters(){
    smear_bx = 0.00; // percent
@@ -215,9 +232,9 @@ int E16ANA_MagneticFieldMap3D::WriteBinaryFile(const std::string &file_name){
 }
 
 ///////////////////////////////////
-int E16ANA_MagneticFieldMap3D::Initialize_binary( const char* filename)
+int E16ANA_MagneticFieldMap3D::Initialize_binary( const char* filename){
 ///////////////////////////////////
-{
+
 
   char str[MaxChar];
   double x, y, z, bx, by, bz;
@@ -235,14 +252,14 @@ int E16ANA_MagneticFieldMap3D::Initialize_binary( const char* filename)
 #ifdef  USE_ZLIB
   gzFile fp;
   if( (fp=gzopen( filename,"rb"))==0 ){
-    E16FATAL("open fail gz map file: %s",filename);
-    exit(-1);
+    E16FATAL("open fail gz map file: %s : exit(1)",filename);
+    exit(1);
   }
 #else
   FILE *fp;
   if( (fp=fopen( filename,"rb"))==0 ){
-    E16FATAL("open fail text map file: %s",filename);
-    exit(-1);
+    E16FATAL("open fail bin map file: %s : exit(1)",filename);
+    exit(1);
   }
 #endif
 
@@ -311,82 +328,84 @@ int E16ANA_MagneticFieldMap3D::Initialize_binary( const char* filename)
 #ifdef USE_ZLIB
   while( gzread(fp, buf3, sizeof(double)*24 ) == 24*8 ){
 #else
-  while( fread(buf3, sizeof(double), 24, fp) == 24){
+    while( fread(buf3, sizeof(double), 24, fp) == 24){
 #endif
-         x=buf3[ 0];    y=buf3[ 1];    z=buf3[ 2]; 
-        bx=buf3[ 3];   by=buf3[ 4];   bz=buf3[ 5];
-       bxx=buf3[ 6];  bxy=buf3[ 7];  bxz=buf3[ 8];
-       byx=buf3[ 9];  byy=buf3[10];  byz=buf3[11];
-       bzx=buf3[12];  bzy=buf3[13];  bzz=buf3[14];
+      x=buf3[ 0];    y=buf3[ 1];    z=buf3[ 2]; 
+      bx=buf3[ 3];   by=buf3[ 4];   bz=buf3[ 5];
+      bxx=buf3[ 6];  bxy=buf3[ 7];  bxz=buf3[ 8];
+      byx=buf3[ 9];  byy=buf3[10];  byz=buf3[11];
+      bzx=buf3[12];  bzy=buf3[13];  bzz=buf3[14];
       bxyx=buf3[15]; bxyy=buf3[16]; bxyz=buf3[17];
       byzx=buf3[18]; byzy=buf3[19]; byzz=buf3[20];
       bzxx=buf3[21]; bzxy=buf3[22]; bzxz=buf3[23];
 
 
-	int ix = int((x-X0+0.5*dX)/dX);
-	int iy = int((y-Y0+0.5*dY)/dY);
-	int iz = int((z-Z0+0.5*dZ)/dZ);
-	if( ix<0 || ix>=Nx || iy<0 || iy>=Ny || iz<0 || iz>=Nz ){
-	  E16WARNING("Invalid Range at ncall %d %s",ncall, str);
-	  //	  string mes=str;
-	  //	  cerr << "[" << funcname << "]: Invalid Range at ncall "<<ncall<<endl;
-	  //	  cerr << mes << endl;
-	  cerr << x  << "," << y << "," << z  << endl;
-	  cerr << ix  << "," << iy << "," << iz  << endl;
-  	  cerr << Ny  << "," << dY << ","  << Y0  << endl;
-	}
-	else{
-	  B[ix][iy][iz].x = bx;
-	  B[ix][iy][iz].y = by;
-	  B[ix][iy][iz].z = bz;
-	  B_x[ix][iy][iz].x = bxx;
-	  B_x[ix][iy][iz].y = bxy;
-	  B_x[ix][iy][iz].z = bxz;
-	  B_y[ix][iy][iz].x = byx;
-	  B_y[ix][iy][iz].y = byy;
-	  B_y[ix][iy][iz].z = byz;
-	  B_z[ix][iy][iz].x = bzx;
-	  B_z[ix][iy][iz].y = bzy;
-	  B_z[ix][iy][iz].z = bzz;
-	  B_xy[ix][iy][iz].x = bxyx;
-	  B_xy[ix][iy][iz].y = bxyy;
-	  B_xy[ix][iy][iz].z = bxyz;
-	  B_yz[ix][iy][iz].x = byzx;
-	  B_yz[ix][iy][iz].y = byzy;
-	  B_yz[ix][iy][iz].z = byzz;
-	  B_zx[ix][iy][iz].x = bzxx;
-	  B_zx[ix][iy][iz].y = bzxy;
-	  B_zx[ix][iy][iz].z = bzxz;
-	  /*double dB=0.;
-         B[ix][iy][iz].x = G4RandGauss::shoot(bx, dB);
+      int ix = int((x-X0+0.5*dX)/dX);
+      int iy = int((y-Y0+0.5*dY)/dY);
+      int iz = int((z-Z0+0.5*dZ)/dZ);
+      if( ix<0 || ix>=Nx || iy<0 || iy>=Ny || iz<0 || iz>=Nz ){
+	E16WARNING("Invalid Range at ncall %d %s",ncall, str);
+	//	  string mes=str;
+	//	  cerr << "[" << funcname << "]: Invalid Range at ncall "<<ncall<<endl;
+	//	  cerr << mes << endl;
+	cerr << x  << "," << y << "," << z  << endl;
+	cerr << ix  << "," << iy << "," << iz  << endl;
+	cerr << Ny  << "," << dY << ","  << Y0  << endl;
+      }
+      else{
+	B[ix][iy][iz].x = bx;
+	B[ix][iy][iz].y = by;
+	B[ix][iy][iz].z = bz;
+	B_x[ix][iy][iz].x = bxx;
+	B_x[ix][iy][iz].y = bxy;
+	B_x[ix][iy][iz].z = bxz;
+	B_y[ix][iy][iz].x = byx;
+	B_y[ix][iy][iz].y = byy;
+	B_y[ix][iy][iz].z = byz;
+	B_z[ix][iy][iz].x = bzx;
+	B_z[ix][iy][iz].y = bzy;
+	B_z[ix][iy][iz].z = bzz;
+	B_xy[ix][iy][iz].x = bxyx;
+	B_xy[ix][iy][iz].y = bxyy;
+	B_xy[ix][iy][iz].z = bxyz;
+	B_yz[ix][iy][iz].x = byzx;
+	B_yz[ix][iy][iz].y = byzy;
+	B_yz[ix][iy][iz].z = byzz;
+	B_zx[ix][iy][iz].x = bzxx;
+	B_zx[ix][iy][iz].y = bzxy;
+	B_zx[ix][iy][iz].z = bzxz;
+	/*double dB=0.;
+	  B[ix][iy][iz].x = G4RandGauss::shoot(bx, dB);
 	  B[ix][iy][iz].y = G4RandGauss::shoot(by, dB);
 	  B[ix][iy][iz].z = G4RandGauss::shoot(bz, dB);*/
 
-	}//invalid range
+      }//invalid range
 
-	ncall++; 
-  }     /* while( fread ) */
+      ncall++; 
+    }     /* while( fread ) */
 
 #ifdef USE_ZLIB
-  gzclose(fp);
+    gzclose(fp);
 #else
-  fclose(fp);
+    fclose(fp);
 #endif
 
-  return ncall;
-  }
+    return ncall;
+}
+
 ////////////////////////////////
-  int E16ANA_MagneticFieldMap3D::Initialize_shift(Hep3Vector shiftV){
-    int n = Initialize_binary();
-    X0= X0+shiftV.x();
-    Y0= Y0+shiftV.y();
-    Z0= Z0+shiftV.z();
-    return n;
-  }
+int E16ANA_MagneticFieldMap3D::Initialize_shift(Hep3Vector shiftV){
+  int n = Initialize_binary();
+  X0= X0+shiftV.x();
+  Y0= Y0+shiftV.y();
+  Z0= Z0+shiftV.z();
+  return n;
+}
+
 ///////////////////////////////////
-int E16ANA_MagneticFieldMap3D::MapConvert( char* filename)
+int E16ANA_MagneticFieldMap3D::MapConvert( char* filename){
 ///////////////////////////////////
-{
+
 
   FILE *fp;
   char str[MaxChar];

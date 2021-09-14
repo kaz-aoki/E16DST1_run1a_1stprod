@@ -1,3 +1,4 @@
+//2021-09-12, uploaded by yokkaich
 //2020-09-16, uploaded by yokkaich
 //2020-08-30, uploaded by yokkaich
 //2016-05-02, uploaded by nakai
@@ -41,9 +42,12 @@
 
 #include "E16ANA_ErrorMessage.hh"
 
-
 class E16ANA_MagneticFieldMap
 {
+public:
+  static E16ANA_MagneticFieldMap* GlobalPointer();
+  static void SetGlobalPointer( E16ANA_MagneticFieldMap* p);
+
 public:
   E16ANA_MagneticFieldMap(){}
   virtual ~E16ANA_MagneticFieldMap()  { }
@@ -80,19 +84,20 @@ private:
   E16ANA_MagneticFieldMap3D & operator = ( const E16ANA_MagneticFieldMap3D & );
 
 public:
-  int Initialize( void );
-
-  bool GetFieldValue( const double point[3], double *Bfield, int bcflag ) const; 
-  bool GetFieldValue_Tesla( const double point[3], double *Bfield, int bcflag ) const; 
-
-  void SetFieldMap( const std::string & filename )
-   { FieldMapFileName = filename; }
-
+  int Initialize( void );//read text map
   int Initialize_binary( const char* bindatafilename);
   int Initialize_binary(){
     return Initialize_binary( FieldMapFileName.c_str() );
   };
-  int MapConvert( char* writefilename);// textmap ->bininary map
+
+  bool GetFieldValue( const double point[3], double *Bfield, int bcflag ) const; 
+  bool GetFieldValue_Tesla( const double point[3], double *Bfield, int bcflag ) const; 
+
+  //  void SetFieldMap( const std::string & filename )
+  //   { FieldMapFileName = filename; }
+
+//-------------for map study tools------------
+  int MapConvert( char* writefilename);// text map ->bininary map
 
   int Initialize_shift(CLHEP::Hep3Vector shiftV);
   int WriteBinaryFile(const std::string &file_name);

@@ -1,10 +1,12 @@
+//2021-09-12, uploaded by yokkaich
+//2021-08-20, uploaded by yokkaich
 //2021-02-27, uploaded by nakai
 //2020-10-27, uploaded by yokkaich
 //2016-11-22, uploaded by nakai
 //2016-05-02, uploaded by nakai
 //2016-04-01, uploaded by nakai
 //E16ANA_GeometryV2.hh 201023 by W.Nakai
-//    Last modified at <2020-10-24 20:13:46 >
+//    Last modified at <2021-09-12 22:28:57 >
 
 #ifndef E16ANA_GeometryV2_hh
 #define E16ANA_GeometryV2_hh
@@ -22,8 +24,6 @@
 #include <G4RotationMatrix.hh>
 
 #include "E16ANA_Geometry.hh"
-
-using namespace CLHEP;
 
 class E16ANA_DetectorGeometry {
    // Abstract class
@@ -160,6 +160,10 @@ private:
 
 class E16ANA_GeometryV2 : public E16ANA_Geometry {
 public:
+  static E16ANA_GeometryV2* GlobalPointer();
+  static void SetGlobalPointer( E16ANA_GeometryV2* p);
+
+public:
    E16ANA_GeometryV2(); // for testing purposes only
    E16ANA_GeometryV2(const std::string &filename);
    ~E16ANA_GeometryV2();
@@ -196,7 +200,7 @@ public:
    const E16ANA_DetectorGeometry* HBD(int module) const {
       return hbd_geometry[module];
    }
-  const E16ANA_DetectorGeometry* SSD(int module,int layer) const {
+   const E16ANA_DetectorGeometry* SSD(int module,int layer) const {
       return ssd_geometry[module][layer];
    };
    const E16ANA_DetectorGeometry* SSD(int module) const {
@@ -208,6 +212,16 @@ public:
    const E16ANA_DetectorGeometry* LG(int module, int block) const {
       return lg_geometry[module][block];
    };
+
+  //XXXFrame(): 
+  // return rotation and position described keyword 'Frame' in the file,
+  // not for each module
+   const E16ANA_DetectorGeometry* GTRFrame(int i) const {//gtr/ssd type
+     return gtr_frame_geometry[i];//0-10
+   };
+   const E16ANA_DetectorGeometry* HBDFrame(int i) const {//hbd/LGVD type
+     return hbd_geometry[i + n_hbd_modules];//0-8
+   }
 
    // conversion from V1 to V2
    void SetValuesFromV1(E16ANA_GeometryV1 *geom_v1);
@@ -356,7 +370,8 @@ private:
    E16ANA_DetectorGeometry *ssd_geometry[n_ssd_modules];
    */
    E16ANA_DetectorGeometry ***gtr_geometry;
-   E16ANA_DetectorGeometry **hbd_geometry;
+   E16ANA_DetectorGeometry **gtr_frame_geometry;   //gtr/ssd type
+   E16ANA_DetectorGeometry **hbd_geometry;          
    //E16ANA_DetectorGeometry **lg_geometry;
    E16ANA_DetectorGeometry **lgvd_geometry;
    E16ANA_DetectorGeometry ***lg_geometry;

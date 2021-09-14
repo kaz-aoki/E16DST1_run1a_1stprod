@@ -12,7 +12,7 @@ set(CMAKE_CURRENT_BINARY_DIR ${DIR}/../build)
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 set(CMAKE_CXX_FLAGS -lMinuit)
-find_package(ROOT)
+find_package(ROOT REQUIRED)
 if(ROOT_FOUND)
 	include(${ROOT_USE_FILE})
 endif()
@@ -33,17 +33,21 @@ include_directories(
 	include/track
   E16DST
   E16ANA_CalibDB/include
+  E16ANA_ErrorMessage/include
   E16ANA_Geometry/include
   E16ANA_MagneticFieldMap/include
+  E16ANA_RundependentName/include
+  E16ANA_TargetInfo/include
   E16ANA_Tracking/include
   E16ANA_Waveform/include
-  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
-  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
-#  /ccj/u/E16/include/Geant4 # ccj
+#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
+#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
+  /ccj/u/E16/include/Geant4 # ccj
 )
 
 #link_directories(
-#  ${Boost_LIBRARY_DIRS}
+#  /ccj/u/E16/lib64
+##  ${Boost_LIBRARY_DIRS}
 #)
 
 link_libraries(
@@ -193,8 +197,11 @@ target_link_libraries(dst0_to_dst1_trigger_check
 #
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_CalibDB)
+add_subdirectory(E16ANA_ErrorMessage)
 add_subdirectory(E16ANA_Geometry)
 add_subdirectory(E16ANA_MagneticFieldMap)
+add_subdirectory(E16ANA_RundependentName)
+add_subdirectory(E16ANA_TargetInfo)
 add_subdirectory(E16ANA_Tracking)
 add_subdirectory(E16ANA_Waveform)
 add_subdirectory(E16DST)
