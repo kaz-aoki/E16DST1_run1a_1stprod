@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
+set(CMAKE_CXX_FLAGS "-lSpectrum")
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -28,6 +29,7 @@ include_directories(
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 	include
+	include/HBD
 	include/LG
 	include/trigger
 	include/track
@@ -81,6 +83,8 @@ install(DIRECTORY
 configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePath.hh @ONLY)
 
 #_______________________________________________________________________________
+#set_source_files_properties(src/LG/E16ANA_LGBasic.cc PROPERTIES COMPILE_OPTIONS "-lSpectrum")
+
 add_library(E16ANA
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
@@ -104,16 +108,25 @@ target_link_libraries(E16ANA
 #_______________________________________________________________________________
 add_library(E16DST_DST1
 	src/E16DST_DST1.cc
-  src/E16ANA_GTRAnalyzer2.cc
-  src/E16ANA_GTRStripAnalyzer.cc
-  src/E16DST_DST1GTRAnalyzerMaker.cxx
+  src/GTR/E16ANA_GTRAnalyzer2.cc
+  src/GTR/E16ANA_GTRStripAnalyzer.cc
+  src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
-  src/E16ANA_GTRPedestal.cc
+  src/GTR/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
-  src/E16DST_DST1GTRFactory_dst1_detector.cc
-#  src/E16DST_DST1LGFactory_dst1_detector.cc
+  src/GTR/GTRCheckHist.cc
+  src/E16DST_DST1HBDHitAndClusterFactory.cc
+  src/HBD/E16ANA_HBDChannelManager.cc
+  src/HBD/E16ANA_HBDClusterAnalysis.cc
+  src/HBD/E16ANA_HBDCut.cc
+  src/HBD/E16ANA_HBDCalibration.cc
+  src/HBD/E16ANA_HBDGeometry.cc
+  src/HBD/E16ANA_HBDTH2Hex.cc
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
+  
+  src/E16DST_DST1GTRFactory_dst1_detector.cc
+#  src/E16DST_DST1LGFactory_dst1_detector.cc
   
   src/ssd_dst1_dummy.cc
 )

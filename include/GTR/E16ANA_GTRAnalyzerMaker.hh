@@ -1,5 +1,5 @@
-#ifndef E16DST_DST1GTRAnalyzerMaker_hh
-#define E16DST_DST1GTRAnalyzerMaker_hh
+#ifndef E16ANA_GTRAnalyzerMaker_hh
+#define E16ANA_GTRAnalyzerMaker_hh
 
 
 #include "E16ANA_GTRAnalyzer2.h"
@@ -8,11 +8,11 @@
 #include "OnlineGTRUtility.h"
 #include "E16DST_DST1.hh"
 
-class E16DST_DST1GTRAnalyzerMaker {
+class E16ANA_GTRAnalyzerMaker {
 public:
     enum { n_layers = 3 };
-    E16DST_DST1GTRAnalyzerMaker();
-    ~E16DST_DST1GTRAnalyzerMaker();
+    E16ANA_GTRAnalyzerMaker();
+    ~E16ANA_GTRAnalyzerMaker();
    bool Exists(uint16_t module_id, uint16_t layer_id);
    void Clear();
    void SetThresholdX(double th);
@@ -29,4 +29,4 @@ private:
 
 
 
-#endif //E16DST_DST1GTRAnalyzerMaker_hh
+#endif //E16ANAGTRAnalyzerMaker_hh
