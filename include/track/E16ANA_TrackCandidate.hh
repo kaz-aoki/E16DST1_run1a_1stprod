@@ -12,6 +12,11 @@
 #include "E16ANA_MultiTrack.hh"
 #include "E16DST_DST1.hh"
 
+#include "TFile.h"
+#include "TGraph.h"
+#include "TH1.h"
+#include "TTree.h"
+
 //class E16ANA_TrackAnalyzedHit {
 // public:
 //  E16ANA_TrackAnalyzedHit() {}
@@ -329,151 +334,147 @@ class E16ANA_TrackCandidates {
 };
 
 //class OutputFile {
-// public:
-//  OutputFile(const std::string _file_name) {
-//    file = new TFile(_file_name, "recreate");
-//    tree = new TTree("tree", "tree");
-//  }
-//  ~OutputFile() {}
-// private:
-//  TFile* file;
-//  TTree* tree;
-//  tree->Branch("g4_event_id", &g4_event_id);
-//  tree->Branch("good_flag", &good_flag);
-//  tree->Branch("dfit_flag", &dfit_flag);
-//  tree->Branch("VTXpos", &VTXpos);
-//  tree->Branch("VTXpos_cp", &VTXpos_cp);
-//  tree->Branch("VTXpos_fitd", &VTXpos_fitd);
-//  tree->Branch("chisq_fitd", &chisq_fitd);
-//  tree->Branch("mass_org", &mass_org);
-//  tree->Branch("bg_org", &bg_org);
-//  tree->Branch("mass_fitd", &mass_fitd);
-//  tree->Branch("bg_fitd", &bg_fitd);
-//  tree->Branch("nGTRFrame1hit", &nGTRFrame1hit);
-//  tree->Branch("nGTRFrame2hit", &nGTRFrame2hit);
-//  tree->Branch("nGTRFrame3hit", &nGTRFrame3hit);
-//  for (int i = 0; i < n_primaries; ++i) {
-//     tree->Branch(Form("chisq%d_fits",i), &chisq_fits[i]);
-//     tree->Branch(Form("VTXpos%d_fits",i), &VTXpos_fits[i]);
-//     tree->Branch(Form("VTXmom%d",i), &VTXmom[i]);
-//     tree->Branch(Form("VTXmom%d_quad",i), &VTXmom_quad[i]);
-//     tree->Branch(Form("VTXmom%d_fits",i), &VTXmom_fits[i]);
-//     tree->Branch(Form("VTXmom%d_fitd",i), &VTXmom_fitd[i]);
-//     tree->Branch(Form("GTR1id%d",i), &GTR1id[i]);
-//     tree->Branch(Form("GTR2id%d",i), &GTR2id[i]);
-//     tree->Branch(Form("GTR3id%d",i), &GTR3id[i]);
-//     tree->Branch(Form("SSDid%d",i), &SSDid[i]);
-//     tree->Branch(Form("GTR1gPos%d_g4",i), &GTR1gPos_g4[i]);
-//     tree->Branch(Form("GTR2gPos%d_g4",i), &GTR2gPos_g4[i]);
-//     tree->Branch(Form("GTR3gPos%d_g4",i), &GTR3gPos_g4[i]);
-//     tree->Branch(Form("GTR1lPos%d_g4",i), &GTR1lPos_g4[i]);
-//     tree->Branch(Form("GTR2lPos%d_g4",i), &GTR2lPos_g4[i]);
-//     tree->Branch(Form("GTR3lPos%d_g4",i), &GTR3lPos_g4[i]);
-//     tree->Branch(Form("GTR1gMom%d_g4",i), &GTR1gMom_g4[i]);
-//     tree->Branch(Form("GTR2gMom%d_g4",i), &GTR2gMom_g4[i]);
-//     tree->Branch(Form("GTR3gMom%d_g4",i), &GTR3gMom_g4[i]);
-//     tree->Branch(Form("GTR1lMom%d_g4",i), &GTR1lMom_g4[i]);
-//     tree->Branch(Form("GTR2lMom%d_g4",i), &GTR2lMom_g4[i]);
-//     tree->Branch(Form("GTR3lMom%d_g4",i), &GTR3lMom_g4[i]);
-//     tree->Branch(Form("GTR1gPos%d_ana",i), &GTR1gPos_ana[i]);
-//     tree->Branch(Form("GTR2gPos%d_ana",i), &GTR2gPos_ana[i]);
-//     tree->Branch(Form("GTR3gPos%d_ana",i), &GTR3gPos_ana[i]);
-//     tree->Branch(Form("GTR1lPos%d_ana",i), &GTR1lPos_ana[i]);
-//     tree->Branch(Form("GTR2lPos%d_ana",i), &GTR2lPos_ana[i]);
-//     tree->Branch(Form("GTR3lPos%d_ana",i), &GTR3lPos_ana[i]);
-//     tree->Branch(Form("GTR1gPos%d_fitd",i), &GTR1gPos_fitd[i]);
-//     tree->Branch(Form("GTR2gPos%d_fitd",i), &GTR2gPos_fitd[i]);
-//     tree->Branch(Form("GTR3gPos%d_fitd",i), &GTR3gPos_fitd[i]);
-//     tree->Branch(Form("GTR1lPos%d_fitd",i), &GTR1lPos_fitd[i]);
-//     tree->Branch(Form("GTR2lPos%d_fitd",i), &GTR2lPos_fitd[i]);
-//     tree->Branch(Form("GTR3lPos%d_fitd",i), &GTR3lPos_fitd[i]);
-//     tree->Branch(Form("GTR1lMom%d_fitd",i), &GTR1lMom_fitd[i]);
-//     tree->Branch(Form("GTR2lMom%d_fitd",i), &GTR2lMom_fitd[i]);
-//     tree->Branch(Form("GTR3lMom%d_fitd",i), &GTR3lMom_fitd[i]);
-//     tree->Branch(Form("SSDgPos%d_g4",i), &SSDgPos_g4[i]);
-//     tree->Branch(Form("SSDlPos%d_g4",i), &SSDlPos_g4[i]);
-//     tree->Branch(Form("SSDgMom%d_g4",i), &SSDgMom_g4[i]);
-//     tree->Branch(Form("SSDlMom%d_g4",i), &SSDlMom_g4[i]);
-//     new(&GTR1lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR2lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR3lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR1lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR2lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR3lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&SSDgPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&SSDlPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&SSDlPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&SSDlPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR1lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR2lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
-//     new(&GTR3lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
-//     for(int k=0; k<3; k++){
-//        new(&GTR_cluster[k][i]) TClonesArray("TVector3", n_max_hits);
-//     }
-//     for(int j=0; j<n_max_hits; j++){
-//        new(GTR1lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR2lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR3lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR1lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR2lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR3lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
-//        new(SSDgPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
-//        new(SSDlPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
-//        new(SSDlPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR1lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR2lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
-//        new(GTR3lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
-//        new(SSDlPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
-//        for(int k=0; k<3; k++){
-//           new(GTR_cluster[k][i][j]) TVector3(error_value, error_value, error_value);
-//        }
-//     }
-//     tree->Branch(Form("nGTR1lPos%d_multi_ana",i), &nGTR1lPos_multi_ana[i]);
-//     tree->Branch(Form("nGTR2lPos%d_multi_ana",i), &nGTR2lPos_multi_ana[i]);
-//     tree->Branch(Form("nGTR3lPos%d_multi_ana",i), &nGTR3lPos_multi_ana[i]);
-//     tree->Branch(Form("nGTR1lPos%d_multi_fitd",i), &nGTR1lPos_multi_fitd[i]);
-//     tree->Branch(Form("nGTR2lPos%d_multi_fitd",i), &nGTR2lPos_multi_fitd[i]);
-//     tree->Branch(Form("nGTR3lPos%d_multi_fitd",i), &nGTR3lPos_multi_fitd[i]);
-//     tree->Branch(Form("GTR1lPos%d_multi_ana",i), &GTR1lPos_multi_ana[i]);
-//     tree->Branch(Form("GTR2lPos%d_multi_ana",i), &GTR2lPos_multi_ana[i]);
-//     tree->Branch(Form("GTR3lPos%d_multi_ana",i), &GTR3lPos_multi_ana[i]);
-//     tree->Branch(Form("GTR1lPos%d_multi_fitd",i), &GTR1lPos_multi_fitd[i]);
-//     tree->Branch(Form("GTR2lPos%d_multi_fitd",i), &GTR2lPos_multi_fitd[i]);
-//     tree->Branch(Form("GTR3lPos%d_multi_fitd",i), &GTR3lPos_multi_fitd[i]);
-//     tree->Branch(Form("nSSDgPos%d_multi_ana",i), &nSSDgPos_multi_ana[i]);
-//     tree->Branch(Form("nSSDlPos%d_multi_ana",i), &nSSDlPos_multi_ana[i]);
-//     tree->Branch(Form("nSSDlPos%d_multi_fitd",i), &nSSDlPos_multi_fitd[i]);
-//     tree->Branch(Form("SSDgPos%d_multi_ana",i), &SSDgPos_multi_ana[i]);
-//     tree->Branch(Form("SSDlPos%d_multi_ana",i), &SSDlPos_multi_ana[i]);
-//     tree->Branch(Form("SSDlPos%d_multi_fitd",i), &SSDlPos_multi_fitd[i]);
-//     tree->Branch(Form("nGTR1lPos%d_multi_fits",i), &nGTR1lPos_multi_fits[i]);
-//     tree->Branch(Form("nGTR2lPos%d_multi_fits",i), &nGTR2lPos_multi_fits[i]);
-//     tree->Branch(Form("nGTR3lPos%d_multi_fits",i), &nGTR3lPos_multi_fits[i]);
-//     tree->Branch(Form("nSSDlPos%d_multi_fits",i), &nSSDlPos_multi_fits[i]);
-//     tree->Branch(Form("GTR1lPos%d_multi_fits",i), &GTR1lPos_multi_fits[i]);
-//     tree->Branch(Form("GTR2lPos%d_multi_fits",i), &GTR2lPos_multi_fits[i]);
-//     tree->Branch(Form("GTR3lPos%d_multi_fits",i), &GTR3lPos_multi_fits[i]);
-//     tree->Branch(Form("SSDlPos%d_multi_fits",i), &SSDlPos_multi_fits[i]);
-//     for(int k=0; k<3; k++){
-//        tree->Branch(Form("GTR%d_cluster%d",k+1,i), &GTR_cluster[k][i]);
-//        tree->Branch(Form("GTR%d_cluster_id%d",k+1,i), &GTR_cluster_id[k][i]);
-//     }
-//     tree->Branch("cluster_width_x", cluster_width_x, Form("cluster_width_x[%d]/D",n_primaries*3));
-//     tree->Branch("cluster_width_y", cluster_width_y, Form("cluster_width_y[%d]/D",n_primaries*3));
+//public:
+//   OutputFile(char *fname_out) : n_max_hits(400) {
+//      file = TFile::Open(fname_out, "recreate");
+//      tree = new TTree("tree", "tree");
+//      tree->Branch("g4_event_id", &g4_event_id);
+//      tree->Branch("good_flag", &good_flag);
+//      tree->Branch("dfit_flag", &dfit_flag);
+//      tree->Branch("VTXpos", &VTXpos);
+//      tree->Branch("VTXpos_cp", &VTXpos_cp);
+//      tree->Branch("VTXpos_fitd", &VTXpos_fitd);
+//      tree->Branch("chisq_fitd", &chisq_fitd);
+//      tree->Branch("mass_org", &mass_org);
+//      tree->Branch("bg_org", &bg_org);
+//      tree->Branch("mass_fitd", &mass_fitd);
+//      tree->Branch("bg_fitd", &bg_fitd);
+//      tree->Branch("nGTRFrame1hit", &nGTRFrame1hit);
+//      tree->Branch("nGTRFrame2hit", &nGTRFrame2hit);
+//      tree->Branch("nGTRFrame3hit", &nGTRFrame3hit);
+//      for(int i=0; i<n_primaries; i++){
+//         tree->Branch(Form("chisq%d_fits",i), &chisq_fits[i]);
+//         tree->Branch(Form("VTXpos%d_fits",i), &VTXpos_fits[i]);
+//         tree->Branch(Form("VTXmom%d",i), &VTXmom[i]);
+//         tree->Branch(Form("VTXmom%d_quad",i), &VTXmom_quad[i]);
+//         tree->Branch(Form("VTXmom%d_fits",i), &VTXmom_fits[i]);
+//         tree->Branch(Form("VTXmom%d_fitd",i), &VTXmom_fitd[i]);
+//         tree->Branch(Form("GTR1id%d",i), &GTR1id[i]);
+//         tree->Branch(Form("GTR2id%d",i), &GTR2id[i]);
+//         tree->Branch(Form("GTR3id%d",i), &GTR3id[i]);
+//         tree->Branch(Form("SSDid%d",i), &SSDid[i]);
+//         tree->Branch(Form("GTR1gPos%d_g4",i), &GTR1gPos_g4[i]);
+//         tree->Branch(Form("GTR2gPos%d_g4",i), &GTR2gPos_g4[i]);
+//         tree->Branch(Form("GTR3gPos%d_g4",i), &GTR3gPos_g4[i]);
+//         tree->Branch(Form("GTR1lPos%d_g4",i), &GTR1lPos_g4[i]);
+//         tree->Branch(Form("GTR2lPos%d_g4",i), &GTR2lPos_g4[i]);
+//         tree->Branch(Form("GTR3lPos%d_g4",i), &GTR3lPos_g4[i]);
+//         tree->Branch(Form("GTR1gMom%d_g4",i), &GTR1gMom_g4[i]);
+//         tree->Branch(Form("GTR2gMom%d_g4",i), &GTR2gMom_g4[i]);
+//         tree->Branch(Form("GTR3gMom%d_g4",i), &GTR3gMom_g4[i]);
+//         tree->Branch(Form("GTR1lMom%d_g4",i), &GTR1lMom_g4[i]);
+//         tree->Branch(Form("GTR2lMom%d_g4",i), &GTR2lMom_g4[i]);
+//         tree->Branch(Form("GTR3lMom%d_g4",i), &GTR3lMom_g4[i]);
+//         tree->Branch(Form("GTR1gPos%d_ana",i), &GTR1gPos_ana[i]);
+//         tree->Branch(Form("GTR2gPos%d_ana",i), &GTR2gPos_ana[i]);
+//         tree->Branch(Form("GTR3gPos%d_ana",i), &GTR3gPos_ana[i]);
+//         tree->Branch(Form("GTR1lPos%d_ana",i), &GTR1lPos_ana[i]);
+//         tree->Branch(Form("GTR2lPos%d_ana",i), &GTR2lPos_ana[i]);
+//         tree->Branch(Form("GTR3lPos%d_ana",i), &GTR3lPos_ana[i]);
+//         tree->Branch(Form("GTR1gPos%d_fitd",i), &GTR1gPos_fitd[i]);
+//         tree->Branch(Form("GTR2gPos%d_fitd",i), &GTR2gPos_fitd[i]);
+//         tree->Branch(Form("GTR3gPos%d_fitd",i), &GTR3gPos_fitd[i]);
+//         tree->Branch(Form("GTR1lPos%d_fitd",i), &GTR1lPos_fitd[i]);
+//         tree->Branch(Form("GTR2lPos%d_fitd",i), &GTR2lPos_fitd[i]);
+//         tree->Branch(Form("GTR3lPos%d_fitd",i), &GTR3lPos_fitd[i]);
+//         tree->Branch(Form("GTR1lMom%d_fitd",i), &GTR1lMom_fitd[i]);
+//         tree->Branch(Form("GTR2lMom%d_fitd",i), &GTR2lMom_fitd[i]);
+//         tree->Branch(Form("GTR3lMom%d_fitd",i), &GTR3lMom_fitd[i]);
+//         tree->Branch(Form("SSDgPos%d_g4",i), &SSDgPos_g4[i]);
+//         tree->Branch(Form("SSDlPos%d_g4",i), &SSDlPos_g4[i]);
+//         tree->Branch(Form("SSDgMom%d_g4",i), &SSDgMom_g4[i]);
+//         tree->Branch(Form("SSDlMom%d_g4",i), &SSDlMom_g4[i]);
+//         new(&GTR1lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR2lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR3lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR1lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR2lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR3lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&SSDgPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&SSDlPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&SSDlPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&SSDlPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR1lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR2lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//         new(&GTR3lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//         for(int k=0; k<3; k++){
+//            new(&GTR_cluster[k][i]) TClonesArray("TVector3", n_max_hits);
+//         }
+//         for(int j=0; j<n_max_hits; j++){
+//            new(GTR1lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR2lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR3lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR1lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR2lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR3lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//            new(SSDgPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//            new(SSDlPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//            new(SSDlPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR1lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR2lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//            new(GTR3lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//            new(SSDlPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//            for(int k=0; k<3; k++){
+//               new(GTR_cluster[k][i][j]) TVector3(error_value, error_value, error_value);
+//            }
+//         }
+//         tree->Branch(Form("nGTR1lPos%d_multi_ana",i), &nGTR1lPos_multi_ana[i]);
+//         tree->Branch(Form("nGTR2lPos%d_multi_ana",i), &nGTR2lPos_multi_ana[i]);
+//         tree->Branch(Form("nGTR3lPos%d_multi_ana",i), &nGTR3lPos_multi_ana[i]);
+//         tree->Branch(Form("nGTR1lPos%d_multi_fitd",i), &nGTR1lPos_multi_fitd[i]);
+//         tree->Branch(Form("nGTR2lPos%d_multi_fitd",i), &nGTR2lPos_multi_fitd[i]);
+//         tree->Branch(Form("nGTR3lPos%d_multi_fitd",i), &nGTR3lPos_multi_fitd[i]);
+//         tree->Branch(Form("GTR1lPos%d_multi_ana",i), &GTR1lPos_multi_ana[i]);
+//         tree->Branch(Form("GTR2lPos%d_multi_ana",i), &GTR2lPos_multi_ana[i]);
+//         tree->Branch(Form("GTR3lPos%d_multi_ana",i), &GTR3lPos_multi_ana[i]);
+//         tree->Branch(Form("GTR1lPos%d_multi_fitd",i), &GTR1lPos_multi_fitd[i]);
+//         tree->Branch(Form("GTR2lPos%d_multi_fitd",i), &GTR2lPos_multi_fitd[i]);
+//         tree->Branch(Form("GTR3lPos%d_multi_fitd",i), &GTR3lPos_multi_fitd[i]);
+//         tree->Branch(Form("nSSDgPos%d_multi_ana",i), &nSSDgPos_multi_ana[i]);
+//         tree->Branch(Form("nSSDlPos%d_multi_ana",i), &nSSDlPos_multi_ana[i]);
+//         tree->Branch(Form("nSSDlPos%d_multi_fitd",i), &nSSDlPos_multi_fitd[i]);
+//         tree->Branch(Form("SSDgPos%d_multi_ana",i), &SSDgPos_multi_ana[i]);
+//         tree->Branch(Form("SSDlPos%d_multi_ana",i), &SSDlPos_multi_ana[i]);
+//         tree->Branch(Form("SSDlPos%d_multi_fitd",i), &SSDlPos_multi_fitd[i]);
+//         tree->Branch(Form("nGTR1lPos%d_multi_fits",i), &nGTR1lPos_multi_fits[i]);
+//         tree->Branch(Form("nGTR2lPos%d_multi_fits",i), &nGTR2lPos_multi_fits[i]);
+//         tree->Branch(Form("nGTR3lPos%d_multi_fits",i), &nGTR3lPos_multi_fits[i]);
+//         tree->Branch(Form("nSSDlPos%d_multi_fits",i), &nSSDlPos_multi_fits[i]);
+//         tree->Branch(Form("GTR1lPos%d_multi_fits",i), &GTR1lPos_multi_fits[i]);
+//         tree->Branch(Form("GTR2lPos%d_multi_fits",i), &GTR2lPos_multi_fits[i]);
+//         tree->Branch(Form("GTR3lPos%d_multi_fits",i), &GTR3lPos_multi_fits[i]);
+//         tree->Branch(Form("SSDlPos%d_multi_fits",i), &SSDlPos_multi_fits[i]);
+//         for(int k=0; k<3; k++){
+//            tree->Branch(Form("GTR%d_cluster%d",k+1,i), &GTR_cluster[k][i]);
+//            tree->Branch(Form("GTR%d_cluster_id%d",k+1,i), &GTR_cluster_id[k][i]);
+//         }
+//         tree->Branch("cluster_width_x", cluster_width_x, Form("cluster_width_x[%d]/D",n_primaries*3));
+//         tree->Branch("cluster_width_y", cluster_width_y, Form("cluster_width_y[%d]/D",n_primaries*3));
 //
-//     g_track_xz[i] = new TGraph();
-//     g_track_xy[i] = new TGraph();
-//     g_track_zy[i] = new TGraph();
-//     g_track_xyz[i] = new TGraph2D();
-//     g_strack_xz[i] = new TGraph();
-//  }
-//  for(int i=0; i<33; i++){
-//     for(int j=0; j<3; j++){
-//        tree->Branch(Form("gtr_strips_%02d%02d"         ,i,j), &gtr_strips         [i][j]);
-//        tree->Branch(Form("gtr_hit_strips_%02d%02d"     ,i,j), &gtr_hit_strips     [i][j]);
-//        tree->Branch(Form("gtr_strip_occupancy_%02d%02d",i,j), &gtr_strip_occupancy[i][j]);
-//     }
-//  }
+//         g_track_xz[i] = new TGraph();
+//         g_track_xy[i] = new TGraph();
+//         g_track_zy[i] = new TGraph();
+//         g_track_xyz[i] = new TGraph2D();
+//         g_strack_xz[i] = new TGraph();
+//      }
+//      for(int i=0; i<33; i++){
+//         for(int j=0; j<3; j++){
+//            tree->Branch(Form("gtr_strips_%02d%02d"         ,i,j), &gtr_strips         [i][j]);
+//            tree->Branch(Form("gtr_hit_strips_%02d%02d"     ,i,j), &gtr_hit_strips     [i][j]);
+//            tree->Branch(Form("gtr_strip_occupancy_%02d%02d",i,j), &gtr_strip_occupancy[i][j]);
+//         }
+//      }
+//   };
 //   void Clear(){
 //      module_org.clear();
 //      g4_event_id = error_value;
@@ -938,6 +939,7 @@ class E16ANA_TrackCandidates {
 //   void Clear(TVector3 *v){
 //      v->SetXYZ(error_value, error_value, error_value);
 //   }
+//
 //};
 
 #endif // E16ANA_TRACKCANDIDATE_HH

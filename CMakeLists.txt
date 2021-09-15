@@ -40,8 +40,6 @@ include_directories(
   E16ANA_TargetInfo/include
   E16ANA_Tracking/include
   E16ANA_Waveform/include
-#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
-#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
   /opt/E16/include/Geant4 # evb
 #  /ccj/u/E16/include/Geant4 # ccj
 )
@@ -116,6 +114,8 @@ add_library(E16DST_DST1
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
+  
+  src/ssd_dst1_dummy.cc
 )
 
 target_link_libraries(E16DST_DST1

@@ -7,7 +7,7 @@
 #include "E16ANA_GTRcalib.hh"
 
 
-int E16DST_DST1GTRFactoryDST1Detector(E16ANA_GTRcalibPedestal &gtrped, E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1) {
+int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1) {
     auto& dst1_hits     = gtr1->Hits();
     auto& dst1_clusters = gtr1->Clusters();
     
