@@ -11,11 +11,17 @@ enum {
   kGTR200,
   kGTR300,
   kHBD,
-  kLG
+  kLG,
+  kLG0 = 5,
+  kLG1 = 6,
+  kLG2 = 7,
+  kNumDetectorLayers = 8
 };
 
 constexpr int kNumTrackingLayers = 4;
-constexpr int kNumDetectorLayers = 6;
+//constexpr int kNumDetectorLayers = 6;
+constexpr int kNumLGLayers = 3;
+//constexpr int kNumDetectorLayers = 8; // SSD, GTR x 3, HBD, LG x 3
 constexpr int kNumRemainingLayers = kNumDetectorLayers - kNumTrackingLayers;
 constexpr int kNumTargets = 3;
 constexpr int kNumModules = 8;

@@ -98,9 +98,10 @@ class E16ANA_TrackCandidate {
       residual_pos = E16DST_DST1Constant::kInvalidVector;
     }
   };
-  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, 2> _tmp_geoms)
-      : geometry(_geometry), bfield_map(_bfield_map),
-        tmp_geoms(_tmp_geoms) {}
+//  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, 2> _tmp_geoms)
+  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
+      : geometry(_geometry), bfield_map(_bfield_map) {}
+//        tmp_geoms(_tmp_geoms) {}
 //        tmp_geoms({{_geometry->HBD(ModuleID2020To2013_27(101)),
 //                    _geometry->HBD(ModuleID2020To2013_27(102)),
 //                    _geometry->HBD(ModuleID2020To2013_27(103)),
@@ -148,6 +149,7 @@ class E16ANA_TrackCandidate {
   TVector3 FitMomentum() { return mom_fit; }
   TVector3 FitSigma() { return vtx_sigma; }
   const FitResult& LocalFitResult(int n) const { return fit_results[n]; }
+  const std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> LocalFitResults() const { return fit_results; }
   double ChiSquare() { return chisq; }
   E16ANA_TrackClusterPair& ClusterPair(int layer_index) { return cluster_pairs[layer_index]; }
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers>& ClusterPairs() { return cluster_pairs; }
@@ -176,7 +178,6 @@ class E16ANA_TrackCandidate {
   void SetSingleTrackFit(E16ANA_MultiTrack* single_track, int _track_id);
   void UpdateFitResult(E16ANA_MultiTrack* fitter);
   double Fit(E16ANA_MultiTrack* fitter, bool vertex_fix_flag, bool py_fix_flag);
-  void ProjectionLG(E16ANA_MultiTrack* fitter);
   void Print() {
     std::cout << "Track ID: " << track_id << ", Target ID: " << target_id << std::endl;
     std::cout << "Tracking Layers" << std::endl;
@@ -188,6 +189,8 @@ class E16ANA_TrackCandidate {
     }
   }
  private:
+//  static const int kNumLGLayers = 3;
+  static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
     this->bfield_map = rhs.bfield_map;
@@ -228,7 +231,7 @@ class E16ANA_TrackCandidate {
   TVector3 vtx_sigma;
   std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
   double chisq;
-  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
+//  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
   std::vector<E16DST_DST1HBDHit*> hbd_hits;
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
   std::vector<E16DST_DST1LGHit*> lg_hits;
@@ -243,6 +246,8 @@ class E16ANA_TrackCandidates {
                          std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> _tmp_geoms,
                          E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), tmp_geoms(_tmp_geoms), record(_record) {}
+//                         E16DST_DST1PhysicsRecord* _record, OutputFile* _file)
+//      : geometry(_geometry), bfield_map(_bfield_map), tmp_geoms(_tmp_geoms), record(_record) { file = _file; }
   ~E16ANA_TrackCandidates() {}
   int NumTrackCandidates(int n) { return track_candidates[n].size(); }
   void SelectTracks();
@@ -319,6 +324,620 @@ class E16ANA_TrackCandidates {
   std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
   int most_likely_target_id;
   std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
+
+//  OutputFile* file;
 };
+
+//class OutputFile {
+// public:
+//  OutputFile(const std::string _file_name) {
+//    file = new TFile(_file_name, "recreate");
+//    tree = new TTree("tree", "tree");
+//  }
+//  ~OutputFile() {}
+// private:
+//  TFile* file;
+//  TTree* tree;
+//  tree->Branch("g4_event_id", &g4_event_id);
+//  tree->Branch("good_flag", &good_flag);
+//  tree->Branch("dfit_flag", &dfit_flag);
+//  tree->Branch("VTXpos", &VTXpos);
+//  tree->Branch("VTXpos_cp", &VTXpos_cp);
+//  tree->Branch("VTXpos_fitd", &VTXpos_fitd);
+//  tree->Branch("chisq_fitd", &chisq_fitd);
+//  tree->Branch("mass_org", &mass_org);
+//  tree->Branch("bg_org", &bg_org);
+//  tree->Branch("mass_fitd", &mass_fitd);
+//  tree->Branch("bg_fitd", &bg_fitd);
+//  tree->Branch("nGTRFrame1hit", &nGTRFrame1hit);
+//  tree->Branch("nGTRFrame2hit", &nGTRFrame2hit);
+//  tree->Branch("nGTRFrame3hit", &nGTRFrame3hit);
+//  for (int i = 0; i < n_primaries; ++i) {
+//     tree->Branch(Form("chisq%d_fits",i), &chisq_fits[i]);
+//     tree->Branch(Form("VTXpos%d_fits",i), &VTXpos_fits[i]);
+//     tree->Branch(Form("VTXmom%d",i), &VTXmom[i]);
+//     tree->Branch(Form("VTXmom%d_quad",i), &VTXmom_quad[i]);
+//     tree->Branch(Form("VTXmom%d_fits",i), &VTXmom_fits[i]);
+//     tree->Branch(Form("VTXmom%d_fitd",i), &VTXmom_fitd[i]);
+//     tree->Branch(Form("GTR1id%d",i), &GTR1id[i]);
+//     tree->Branch(Form("GTR2id%d",i), &GTR2id[i]);
+//     tree->Branch(Form("GTR3id%d",i), &GTR3id[i]);
+//     tree->Branch(Form("SSDid%d",i), &SSDid[i]);
+//     tree->Branch(Form("GTR1gPos%d_g4",i), &GTR1gPos_g4[i]);
+//     tree->Branch(Form("GTR2gPos%d_g4",i), &GTR2gPos_g4[i]);
+//     tree->Branch(Form("GTR3gPos%d_g4",i), &GTR3gPos_g4[i]);
+//     tree->Branch(Form("GTR1lPos%d_g4",i), &GTR1lPos_g4[i]);
+//     tree->Branch(Form("GTR2lPos%d_g4",i), &GTR2lPos_g4[i]);
+//     tree->Branch(Form("GTR3lPos%d_g4",i), &GTR3lPos_g4[i]);
+//     tree->Branch(Form("GTR1gMom%d_g4",i), &GTR1gMom_g4[i]);
+//     tree->Branch(Form("GTR2gMom%d_g4",i), &GTR2gMom_g4[i]);
+//     tree->Branch(Form("GTR3gMom%d_g4",i), &GTR3gMom_g4[i]);
+//     tree->Branch(Form("GTR1lMom%d_g4",i), &GTR1lMom_g4[i]);
+//     tree->Branch(Form("GTR2lMom%d_g4",i), &GTR2lMom_g4[i]);
+//     tree->Branch(Form("GTR3lMom%d_g4",i), &GTR3lMom_g4[i]);
+//     tree->Branch(Form("GTR1gPos%d_ana",i), &GTR1gPos_ana[i]);
+//     tree->Branch(Form("GTR2gPos%d_ana",i), &GTR2gPos_ana[i]);
+//     tree->Branch(Form("GTR3gPos%d_ana",i), &GTR3gPos_ana[i]);
+//     tree->Branch(Form("GTR1lPos%d_ana",i), &GTR1lPos_ana[i]);
+//     tree->Branch(Form("GTR2lPos%d_ana",i), &GTR2lPos_ana[i]);
+//     tree->Branch(Form("GTR3lPos%d_ana",i), &GTR3lPos_ana[i]);
+//     tree->Branch(Form("GTR1gPos%d_fitd",i), &GTR1gPos_fitd[i]);
+//     tree->Branch(Form("GTR2gPos%d_fitd",i), &GTR2gPos_fitd[i]);
+//     tree->Branch(Form("GTR3gPos%d_fitd",i), &GTR3gPos_fitd[i]);
+//     tree->Branch(Form("GTR1lPos%d_fitd",i), &GTR1lPos_fitd[i]);
+//     tree->Branch(Form("GTR2lPos%d_fitd",i), &GTR2lPos_fitd[i]);
+//     tree->Branch(Form("GTR3lPos%d_fitd",i), &GTR3lPos_fitd[i]);
+//     tree->Branch(Form("GTR1lMom%d_fitd",i), &GTR1lMom_fitd[i]);
+//     tree->Branch(Form("GTR2lMom%d_fitd",i), &GTR2lMom_fitd[i]);
+//     tree->Branch(Form("GTR3lMom%d_fitd",i), &GTR3lMom_fitd[i]);
+//     tree->Branch(Form("SSDgPos%d_g4",i), &SSDgPos_g4[i]);
+//     tree->Branch(Form("SSDlPos%d_g4",i), &SSDlPos_g4[i]);
+//     tree->Branch(Form("SSDgMom%d_g4",i), &SSDgMom_g4[i]);
+//     tree->Branch(Form("SSDlMom%d_g4",i), &SSDlMom_g4[i]);
+//     new(&GTR1lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR2lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR3lPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR1lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR2lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR3lPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&SSDgPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&SSDlPos_multi_ana[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&SSDlPos_multi_fitd[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&SSDlPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR1lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR2lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//     new(&GTR3lPos_multi_fits[i]) TClonesArray("TVector3", n_max_hits);
+//     for(int k=0; k<3; k++){
+//        new(&GTR_cluster[k][i]) TClonesArray("TVector3", n_max_hits);
+//     }
+//     for(int j=0; j<n_max_hits; j++){
+//        new(GTR1lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR2lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR3lPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR1lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR2lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR3lPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//        new(SSDgPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//        new(SSDlPos_multi_ana[i][j]) TVector3(error_value, error_value, error_value);
+//        new(SSDlPos_multi_fitd[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR1lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR2lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//        new(GTR3lPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//        new(SSDlPos_multi_fits[i][j]) TVector3(error_value, error_value, error_value);
+//        for(int k=0; k<3; k++){
+//           new(GTR_cluster[k][i][j]) TVector3(error_value, error_value, error_value);
+//        }
+//     }
+//     tree->Branch(Form("nGTR1lPos%d_multi_ana",i), &nGTR1lPos_multi_ana[i]);
+//     tree->Branch(Form("nGTR2lPos%d_multi_ana",i), &nGTR2lPos_multi_ana[i]);
+//     tree->Branch(Form("nGTR3lPos%d_multi_ana",i), &nGTR3lPos_multi_ana[i]);
+//     tree->Branch(Form("nGTR1lPos%d_multi_fitd",i), &nGTR1lPos_multi_fitd[i]);
+//     tree->Branch(Form("nGTR2lPos%d_multi_fitd",i), &nGTR2lPos_multi_fitd[i]);
+//     tree->Branch(Form("nGTR3lPos%d_multi_fitd",i), &nGTR3lPos_multi_fitd[i]);
+//     tree->Branch(Form("GTR1lPos%d_multi_ana",i), &GTR1lPos_multi_ana[i]);
+//     tree->Branch(Form("GTR2lPos%d_multi_ana",i), &GTR2lPos_multi_ana[i]);
+//     tree->Branch(Form("GTR3lPos%d_multi_ana",i), &GTR3lPos_multi_ana[i]);
+//     tree->Branch(Form("GTR1lPos%d_multi_fitd",i), &GTR1lPos_multi_fitd[i]);
+//     tree->Branch(Form("GTR2lPos%d_multi_fitd",i), &GTR2lPos_multi_fitd[i]);
+//     tree->Branch(Form("GTR3lPos%d_multi_fitd",i), &GTR3lPos_multi_fitd[i]);
+//     tree->Branch(Form("nSSDgPos%d_multi_ana",i), &nSSDgPos_multi_ana[i]);
+//     tree->Branch(Form("nSSDlPos%d_multi_ana",i), &nSSDlPos_multi_ana[i]);
+//     tree->Branch(Form("nSSDlPos%d_multi_fitd",i), &nSSDlPos_multi_fitd[i]);
+//     tree->Branch(Form("SSDgPos%d_multi_ana",i), &SSDgPos_multi_ana[i]);
+//     tree->Branch(Form("SSDlPos%d_multi_ana",i), &SSDlPos_multi_ana[i]);
+//     tree->Branch(Form("SSDlPos%d_multi_fitd",i), &SSDlPos_multi_fitd[i]);
+//     tree->Branch(Form("nGTR1lPos%d_multi_fits",i), &nGTR1lPos_multi_fits[i]);
+//     tree->Branch(Form("nGTR2lPos%d_multi_fits",i), &nGTR2lPos_multi_fits[i]);
+//     tree->Branch(Form("nGTR3lPos%d_multi_fits",i), &nGTR3lPos_multi_fits[i]);
+//     tree->Branch(Form("nSSDlPos%d_multi_fits",i), &nSSDlPos_multi_fits[i]);
+//     tree->Branch(Form("GTR1lPos%d_multi_fits",i), &GTR1lPos_multi_fits[i]);
+//     tree->Branch(Form("GTR2lPos%d_multi_fits",i), &GTR2lPos_multi_fits[i]);
+//     tree->Branch(Form("GTR3lPos%d_multi_fits",i), &GTR3lPos_multi_fits[i]);
+//     tree->Branch(Form("SSDlPos%d_multi_fits",i), &SSDlPos_multi_fits[i]);
+//     for(int k=0; k<3; k++){
+//        tree->Branch(Form("GTR%d_cluster%d",k+1,i), &GTR_cluster[k][i]);
+//        tree->Branch(Form("GTR%d_cluster_id%d",k+1,i), &GTR_cluster_id[k][i]);
+//     }
+//     tree->Branch("cluster_width_x", cluster_width_x, Form("cluster_width_x[%d]/D",n_primaries*3));
+//     tree->Branch("cluster_width_y", cluster_width_y, Form("cluster_width_y[%d]/D",n_primaries*3));
+//
+//     g_track_xz[i] = new TGraph();
+//     g_track_xy[i] = new TGraph();
+//     g_track_zy[i] = new TGraph();
+//     g_track_xyz[i] = new TGraph2D();
+//     g_strack_xz[i] = new TGraph();
+//  }
+//  for(int i=0; i<33; i++){
+//     for(int j=0; j<3; j++){
+//        tree->Branch(Form("gtr_strips_%02d%02d"         ,i,j), &gtr_strips         [i][j]);
+//        tree->Branch(Form("gtr_hit_strips_%02d%02d"     ,i,j), &gtr_hit_strips     [i][j]);
+//        tree->Branch(Form("gtr_strip_occupancy_%02d%02d",i,j), &gtr_strip_occupancy[i][j]);
+//     }
+//  }
+//   void Clear(){
+//      module_org.clear();
+//      g4_event_id = error_value;
+//      good_flag = error_value;
+//      dfit_flag = error_value;
+//      Clear(VTXpos);
+//      Clear(VTXpos_cp);
+//      Clear(VTXpos_fitd);
+//      chisq_fitd = error_value;
+//      mass_org = error_value;
+//      bg_org = error_value;
+//      mass_fitd = error_value;
+//      bg_fitd = error_value;
+//      nGTRFrame1hit = error_value;
+//      nGTRFrame2hit = error_value;
+//      nGTRFrame3hit = error_value;
+//      for(int i=0; i<n_primaries; i++){
+//         chisq_fits[i] = error_value;
+//         Clear(VTXpos_fits[i]);
+//         GTR1id[i] = error_value;
+//         GTR2id[i] = error_value;
+//         GTR3id[i] = error_value;
+//         SSDid[i] = error_value;
+//         Clear(VTXmom[i]);
+//         Clear(VTXmom_quad[i]);
+//         Clear(VTXmom_fits[i]);
+//         Clear(VTXmom_fitd[i]);
+//         Clear(GTR1gPos_g4[i]);
+//         Clear(GTR2gPos_g4[i]);
+//         Clear(GTR3gPos_g4[i]);
+//         Clear(GTR1lPos_g4[i]);
+//         Clear(GTR2lPos_g4[i]);
+//         Clear(GTR3lPos_g4[i]);
+//         Clear(GTR1gMom_g4[i]);
+//         Clear(GTR2gMom_g4[i]);
+//         Clear(GTR3gMom_g4[i]);
+//         Clear(GTR1lMom_g4[i]);
+//         Clear(GTR2lMom_g4[i]);
+//         Clear(GTR3lMom_g4[i]);
+//         Clear(SSDgPos_g4[i]);
+//         Clear(SSDlPos_g4[i]);
+//         Clear(SSDgMom_g4[i]);
+//         Clear(SSDlMom_g4[i]);
+//         Clear(GTR1gPos_ana[i]);
+//         Clear(GTR2gPos_ana[i]);
+//         Clear(GTR3gPos_ana[i]);
+//         Clear(GTR1lPos_ana[i]);
+//         Clear(GTR2lPos_ana[i]);
+//         Clear(GTR3lPos_ana[i]);
+//         Clear(GTR1gPos_fitd[i]);
+//         Clear(GTR2gPos_fitd[i]);
+//         Clear(GTR3gPos_fitd[i]);
+//         Clear(GTR1lPos_fitd[i]);
+//         Clear(GTR2lPos_fitd[i]);
+//         Clear(GTR3lPos_fitd[i]);
+//         Clear(GTR1lMom_fitd[i]);
+//         Clear(GTR2lMom_fitd[i]);
+//         Clear(GTR3lMom_fitd[i]);
+//         for(int j=0; j<n_max_hits; j++){
+//            Clear((TVector3*)GTR1lPos_multi_ana[i][j]);
+//            Clear((TVector3*)GTR2lPos_multi_ana[i][j]);
+//            Clear((TVector3*)GTR3lPos_multi_ana[i][j]);
+//            Clear((TVector3*)GTR1lPos_multi_fitd[i][j]);
+//            Clear((TVector3*)GTR2lPos_multi_fitd[i][j]);
+//            Clear((TVector3*)GTR3lPos_multi_fitd[i][j]);
+//            Clear((TVector3*)GTR1lPos_multi_fits[i][j]);
+//            Clear((TVector3*)GTR2lPos_multi_fits[i][j]);
+//            Clear((TVector3*)GTR3lPos_multi_fits[i][j]);
+//            Clear((TVector3*)SSDgPos_multi_ana[i][j]);
+//            Clear((TVector3*)SSDlPos_multi_ana[i][j]);
+//            Clear((TVector3*)SSDlPos_multi_fitd[i][j]);
+//            Clear((TVector3*)SSDlPos_multi_fits[i][j]);
+//            Clear((TVector3*)GTR_cluster[0][i][j]);
+//            Clear((TVector3*)GTR_cluster[1][i][j]);
+//            Clear((TVector3*)GTR_cluster[2][i][j]);
+//         }
+//         GTR_cluster_id[0][i].clear();
+//         GTR_cluster_id[1][i].clear();
+//         GTR_cluster_id[2][i].clear();
+//         nGTR1lPos_multi_ana[i] = 0;
+//         nGTR2lPos_multi_ana[i] = 0;
+//         nGTR3lPos_multi_ana[i] = 0;
+//         nGTR1lPos_multi_fitd[i] = 0;
+//         nGTR2lPos_multi_fitd[i] = 0;
+//         nGTR3lPos_multi_fitd[i] = 0;
+//
+//         nGTR1lPos_multi_fits[i] = 0;
+//         nGTR2lPos_multi_fits[i] = 0;
+//         nGTR3lPos_multi_fits[i] = 0;
+//
+//         nSSDgPos_multi_ana[i] = 0;
+//         nSSDlPos_multi_ana[i] = 0;
+//         nSSDlPos_multi_fitd[i] = 0;
+//         nSSDlPos_multi_fits[i] = 0;
+//         for(int j=0; j<3; j++){
+//            cluster_width_x[i*3+j] = error_value;
+//            cluster_width_y[i*3+j] = error_value;
+//         }
+//      }
+//      for(int i=0; i<33; i++){
+//         for(int j=0; j<3; j++){
+//            gtr_strips         [i][j].clear();
+//            gtr_hit_strips     [i][j].clear();
+//            gtr_strip_occupancy[i][j].clear();
+//         }
+//      }
+//   };
+//   void TreeFill(){
+//      if(good_flag == 1) tree->Fill();
+//   };
+//   void SaveAndClose(){
+//      file->Write();
+//      for(int i=0; i<n_primaries; i++){
+//         g_track_xz[i]->Write();
+//         g_track_xy[i]->Write();
+//         g_track_zy[i]->Write();
+//         g_track_xyz[i]->Write(); // TGraph2D
+//         g_strack_xz[i]->Write();
+//      }
+//      file->Close();
+//   };
+//
+//   void SetG4EventInfo(E16ANA_G4Event &g4event){
+//      g4_event_id = g4event.G4EventID();
+//      nGTRFrame1hit = g4event.GTRFrame1().Noh();
+//      nGTRFrame2hit = g4event.GTRFrame2().Noh();
+//      nGTRFrame3hit = g4event.GTRFrame3().Noh();
+//   };
+//   void SetPrimaryTracks(E16ANA_G4Track &t_pos, E16ANA_G4Track &t_ele){
+//      VTXpos = t_pos.TVertex(); // mm -> mm
+//      VTXmom[0] = t_pos.PTV();
+//      VTXmom[1] = t_ele.PTV();
+//   };
+//   void SetInvMassOrg(double mass, double bg){
+//      mass_org = mass;
+//      bg_org = bg;
+//   };
+//   void SetQuadraticFitData(const TVector3 &p0, const TVector3 &p1){
+//      VTXmom_quad[0] = p0;
+//      VTXmom_quad[1] = p1;
+//   };
+//   void SetSingleFitData(const TVector3 v[2], const TVector3 &vcp, const TVector3 p[2], const double chisq[2]){
+//      for(int i=0; i<n_primaries; i++){
+//         VTXpos_fits[i] = v[i];
+//         VTXmom_fits[i] = p[i];
+//         chisq_fits[i] = chisq[i];
+//      }
+//      VTXpos_cp = vcp;
+//   };
+//   void SetDoubleFitData(
+//         double chi2, double mass, double bg,
+//         const TVector3 &vtx, const TVector3 &p_pos, const TVector3 &p_ele
+//         ){
+//      chisq_fitd = chi2;
+//      mass_fitd = mass;
+//      bg_fitd = bg;
+//      VTXpos_fitd = vtx; // mm -> mm
+//      VTXmom_fitd[0] = p_pos;
+//      VTXmom_fitd[1] = p_ele;
+//   };
+//   void SetGTRPosG4(const TVector3 &gpos, const TVector3 &lpos, const TVector3 &gmom, const TVector3 &lmom, int module, int id){ // mm -> mm
+//      if(id%3 == 0){
+//         GTR1gPos_g4[id/3] = gpos;
+//         GTR1lPos_g4[id/3] = lpos;
+//         GTR1gMom_g4[id/3] = gmom;
+//         GTR1lMom_g4[id/3] = lmom;
+//         GTR1id[id/3] = module;
+//      }else if(id%3 == 1){
+//         GTR2gPos_g4[id/3] = gpos;
+//         GTR2lPos_g4[id/3] = lpos;
+//         GTR2gMom_g4[id/3] = gmom;
+//         GTR2lMom_g4[id/3] = lmom;
+//         GTR2id[id/3] = module;
+//      }else if(id%3 == 2){
+//         GTR3gPos_g4[id/3] = gpos;
+//         GTR3lPos_g4[id/3] = lpos;
+//         GTR3gMom_g4[id/3] = gmom;
+//         GTR3lMom_g4[id/3] = lmom;
+//         GTR3id[id/3] = module;
+//      }
+//   };
+//   void SetSSDPosG4(const TVector3 &gpos, const TVector3 &lpos, const TVector3 &gmom, const TVector3 &lmom, int module, int track_id){ // mm -> mm
+//      SSDgPos_g4[track_id] = gpos;
+//      SSDlPos_g4[track_id] = lpos;
+//      SSDgMom_g4[track_id] = gmom;
+//      SSDlMom_g4[track_id] = lmom;
+//      SSDid[track_id] = module;
+//   }
+//   void SetGTRPosAna(const TVector3 &gpos, const TVector3 &lpos, double width_x, double width_y, int id){ // mm -> mm
+//      if(id%3 == 0){
+//         GTR1gPos_ana[id/3] = gpos;
+//         GTR1lPos_ana[id/3] = lpos;
+//      }else if(id%3 == 1){
+//         GTR2gPos_ana[id/3] = gpos;
+//         GTR2lPos_ana[id/3] = lpos;
+//      }else if(id%3 == 2){
+//         GTR3gPos_ana[id/3] = gpos;
+//         GTR3lPos_ana[id/3] = lpos;
+//      }
+//      cluster_width_x[id] = width_x;
+//      cluster_width_y[id] = width_y;
+//   };
+//   void SetGTRPosDoubleFit(const TVector3 &gpos, const TVector3 &lpos, const TVector3 &lmom, int id){ // mm -> mm
+//      if(id%3 == 0){
+//         GTR1gPos_fitd[id/3] = gpos;
+//         GTR1lPos_fitd[id/3] = lpos;
+//         GTR1lMom_fitd[id/3] = lmom;
+//      }else if(id%3 == 1){
+//         GTR2gPos_fitd[id/3] = gpos;
+//         GTR2lPos_fitd[id/3] = lpos;
+//         GTR2lMom_fitd[id/3] = lmom;
+//      }else if(id%3 == 2){
+//         GTR3gPos_fitd[id/3] = gpos;
+//         GTR3lPos_fitd[id/3] = lpos;
+//         GTR3lMom_fitd[id/3] = lmom;
+//      }
+//   };
+//   void SetGTRPosMultiAna(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      if(id%3 == 0){
+//         nGTR1lPos_multi_ana[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR1lPos_multi_ana[id/3][i]);
+//         }
+//      }else if(id%3 == 1){
+//         nGTR2lPos_multi_ana[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR2lPos_multi_ana[id/3][i]);
+//         }
+//      }else if(id%3 == 2){
+//         nGTR3lPos_multi_ana[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR3lPos_multi_ana[id/3][i]);
+//         }
+//      }
+//   };
+//   void SetGTRPosMultiSingleFit(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      if(id%3 == 0){
+//         nGTR1lPos_multi_fits[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR1lPos_multi_fits[id/3][i]);
+//         }
+//      }else if(id%3 == 1){
+//         nGTR2lPos_multi_fits[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR2lPos_multi_fits[id/3][i]);
+//         }
+//      }else if(id%3 == 2){
+//         nGTR3lPos_multi_fits[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR3lPos_multi_fits[id/3][i]);
+//         }
+//      }
+//   };
+//   void SetGTRPosMultiDoubleFit(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      if(id%3 == 0){
+//         nGTR1lPos_multi_fitd[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR1lPos_multi_fitd[id/3][i]);
+//         }
+//      }else if(id%3 == 1){
+//         nGTR2lPos_multi_fitd[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR2lPos_multi_fitd[id/3][i]);
+//         }
+//      }else if(id%3 == 2){
+//         nGTR3lPos_multi_fitd[id/3] = lpos.size();
+//         for(int i=0; i<n_filled_hits; i++){
+//            SetToObject(&lpos[i], GTR3lPos_multi_fitd[id/3][i]);
+//         }
+//      }
+//   };
+//   void SetSSDPosMultiAna(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      nSSDlPos_multi_ana[id] = lpos.size();
+//      for(int i=0; i<n_filled_hits; i++){
+//         SetToObject(&lpos[i], SSDlPos_multi_ana[id][i]);
+//      }
+//   };
+//   void SetSSDPosBkgAna(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      nSSDgPos_multi_ana[id] = lpos.size();
+//      for(int i=0; i<n_filled_hits; i++){
+//         SetToObject(&lpos[i], SSDgPos_multi_ana[id][i]);
+//      }
+//   };
+//   void SetSSDPosMultiSingleFit(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      nSSDlPos_multi_fits[id] = lpos.size();
+//      for(int i=0; i<n_filled_hits; i++){
+//         SetToObject(&lpos[i], SSDlPos_multi_fits[id][i]);
+//      }
+//   };
+//
+//   void SetSSDPosMultiDoubleFit(const std::vector<TVector3> &lpos, int id){
+//      int n_filled_hits = min((int)lpos.size(), n_max_hits);
+//      nSSDlPos_multi_fitd[id] = lpos.size();
+//      for(int i=0; i<n_filled_hits; i++){
+//         SetToObject(&lpos[i], SSDlPos_multi_fitd[id][i]);
+//      }
+//   };
+//   void SetToObject(const TVector3 *v, TObject *obj){
+//      TVector3 *temp_ptr = (TVector3*)obj;
+//      //temp_ptr->SetXYZ(v->X()*10.0, v->Y()*10.0, v->Z()*10.0); // cm -> mm
+//      temp_ptr->SetXYZ(v->X(), v->Y(), v->Z()); // mm -> mm
+//   };
+//   void SetGood(int a){good_flag = a;};
+//   void SetDfitFlag(int a){dfit_flag = a;};
+//
+//   void SetGTRCluster(E16ANA_GTRAnalyzedHit* hit, int id){
+//      int track = id/3;
+//      int layer = id%3;
+//      int cluster = (GTR_cluster_id[layer][track].empty()) ? 0 : GTR_cluster_id[layer][track].back()+1;
+//      E16ANA_GTRAnalyzedStripHit *strip = hit->XstripHit();
+//      for(int i=0; i<strip->NumHit(); i++){
+//         int j = GTR_cluster_id[layer][track].size();
+//         GTR_cluster_id[layer][track].push_back(cluster);
+//         TVector3 lpos(strip->StripPos(i), -10000.0, strip->StripPosZ(i));
+//         SetToObject(&lpos, GTR_cluster[layer][track][j]);
+//      }
+//   };
+//
+//   void SetSingleTrackSteps(int track_id, const std::vector<TVector3> &track_steps){
+//      g_strack_xz[track_id]->Set(0);
+//      for(int i=0; i<(int)track_steps.size(); i++){
+//         g_strack_xz[track_id]->SetPoint(i,track_steps[i].X(),track_steps[i].Z());
+//      }
+//   };
+//   void SetTrackSteps(int track_id, const std::vector<TVector3> &track_steps){
+//      g_track_xz[track_id]->Set(0);
+//      g_track_xy[track_id]->Set(0);
+//      g_track_zy[track_id]->Set(0);
+//      g_track_xyz[track_id]->Set(0);
+//      for(int i=0; i<(int)track_steps.size(); i++){
+//         g_track_xz[track_id]->SetPoint(i,track_steps[i].X(),track_steps[i].Z());
+//         g_track_xy[track_id]->SetPoint(i,track_steps[i].X(),track_steps[i].Y());
+//         g_track_zy[track_id]->SetPoint(i,track_steps[i].Z(),track_steps[i].Y());
+//         g_track_xyz[track_id]->SetPoint(i,track_steps[i].X(),track_steps[i].Y(),track_steps[i].Z());
+//      }
+//   };
+//   void SetGTRStripOccupancy(int i, int j, E16ANA_GTRStripResponse *s){
+//      gtr_strips         [i][j].push_back(s->GetNumStrips());
+//      gtr_hit_strips     [i][j].push_back(s->GetNumHitStrips());
+//      gtr_strip_occupancy[i][j].push_back(s->GetOccupancy());
+//   };
+//
+//private:
+//   TFile *file;
+//   TTree *tree;
+//
+//   enum {n_primaries = 2, error_value = -10000};
+//
+//   TGraph *g_track_xz[n_primaries];
+//   TGraph *g_track_xy[n_primaries];
+//   TGraph *g_track_zy[n_primaries];
+//   TGraph2D *g_track_xyz[n_primaries];
+//   TGraph *g_strack_xz[n_primaries];
+//
+//   int g4_event_id;
+//   int good_flag;
+//   int dfit_flag;
+//   TVector3 VTXpos;
+//   TVector3 VTXpos_cp;
+//   TVector3 VTXpos_fits[n_primaries];
+//   TVector3 VTXpos_fitd;
+//   double chisq_fits[n_primaries];
+//   double chisq_fitd;
+//   double mass_org;
+//   double bg_org;
+//   double mass_fitd;
+//   double bg_fitd;
+//   int nGTRFrame1hit;
+//   int nGTRFrame2hit;
+//   int nGTRFrame3hit;
+//   int GTR1id[n_primaries];
+//   int GTR2id[n_primaries];
+//   int GTR3id[n_primaries];
+//   int SSDid[n_primaries];
+//   TVector3 VTXmom[n_primaries];
+//   TVector3 VTXmom_quad[n_primaries];
+//   TVector3 VTXmom_fits[n_primaries];
+//   TVector3 VTXmom_fitd[n_primaries];
+//   TVector3 GTR1gPos_g4[n_primaries];
+//   TVector3 GTR2gPos_g4[n_primaries];
+//   TVector3 GTR3gPos_g4[n_primaries];
+//   TVector3 GTR1lPos_g4[n_primaries];
+//   TVector3 GTR2lPos_g4[n_primaries];
+//   TVector3 GTR3lPos_g4[n_primaries];
+//   TVector3 GTR1gMom_g4[n_primaries];
+//   TVector3 GTR2gMom_g4[n_primaries];
+//   TVector3 GTR3gMom_g4[n_primaries];
+//   TVector3 GTR1lMom_g4[n_primaries];
+//   TVector3 GTR2lMom_g4[n_primaries];
+//   TVector3 GTR3lMom_g4[n_primaries];
+//   TVector3 SSDgPos_g4[n_primaries];
+//   TVector3 SSDlPos_g4[n_primaries];
+//   TVector3 SSDgMom_g4[n_primaries];
+//   TVector3 SSDlMom_g4[n_primaries];
+//   TVector3 GTR1gPos_ana[n_primaries];
+//   TVector3 GTR2gPos_ana[n_primaries];
+//   TVector3 GTR3gPos_ana[n_primaries];
+//   TVector3 GTR1lPos_ana[n_primaries];
+//   TVector3 GTR2lPos_ana[n_primaries];
+//   TVector3 GTR3lPos_ana[n_primaries];
+//   TVector3 GTR1gPos_fitd[n_primaries];
+//   TVector3 GTR2gPos_fitd[n_primaries];
+//   TVector3 GTR3gPos_fitd[n_primaries];
+//   TVector3 GTR1lPos_fitd[n_primaries];
+//   TVector3 GTR2lPos_fitd[n_primaries];
+//   TVector3 GTR3lPos_fitd[n_primaries];
+//   TVector3 GTR1lMom_fitd[n_primaries];
+//   TVector3 GTR2lMom_fitd[n_primaries];
+//   TVector3 GTR3lMom_fitd[n_primaries];
+//   double cluster_width_x[n_primaries*3];
+//   double cluster_width_y[n_primaries*3];
+//
+//   const int n_max_hits;
+//   int nGTR1lPos_multi_ana[n_primaries];
+//   int nGTR2lPos_multi_ana[n_primaries];
+//   int nGTR3lPos_multi_ana[n_primaries];
+//   int nGTR1lPos_multi_fitd[n_primaries];
+//   int nGTR2lPos_multi_fitd[n_primaries];
+//   int nGTR3lPos_multi_fitd[n_primaries];
+//
+//   int nGTR1lPos_multi_fits[n_primaries];
+//   int nGTR2lPos_multi_fits[n_primaries];
+//   int nGTR3lPos_multi_fits[n_primaries];
+//
+//   TClonesArray GTR1lPos_multi_ana[n_primaries];
+//   TClonesArray GTR2lPos_multi_ana[n_primaries];
+//   TClonesArray GTR3lPos_multi_ana[n_primaries];
+//   TClonesArray GTR1lPos_multi_fitd[n_primaries];
+//   TClonesArray GTR2lPos_multi_fitd[n_primaries];
+//   TClonesArray GTR3lPos_multi_fitd[n_primaries];
+//   TClonesArray GTR1lPos_multi_fits[n_primaries];
+//   TClonesArray GTR2lPos_multi_fits[n_primaries];
+//   TClonesArray GTR3lPos_multi_fits[n_primaries];
+//
+//   TClonesArray GTR_cluster[3][n_primaries];
+//   std::vector<int> GTR_cluster_id[3][n_primaries];
+//
+//   int nSSDgPos_multi_ana[n_primaries];
+//   int nSSDlPos_multi_ana[n_primaries];
+//   int nSSDlPos_multi_fitd[n_primaries];
+//   int nSSDlPos_multi_fits[n_primaries];
+//   TClonesArray SSDgPos_multi_ana[n_primaries];
+//   TClonesArray SSDlPos_multi_ana[n_primaries];
+//   TClonesArray SSDlPos_multi_fitd[n_primaries];
+//   TClonesArray SSDlPos_multi_fits[n_primaries];
+//
+//   std::vector<int> module_org;
+//
+//   std::vector<int> gtr_strips[33][3];
+//   std::vector<int> gtr_hit_strips[33][3];
+//   std::vector<double> gtr_strip_occupancy[33][3];
+//
+//   void Clear(TVector3 &v){
+//      v.SetXYZ(error_value, error_value, error_value);
+//   }
+//   void Clear(TVector3 *v){
+//      v->SetXYZ(error_value, error_value, error_value);
+//   }
+//};
 
 #endif // E16ANA_TRACKCANDIDATE_HH

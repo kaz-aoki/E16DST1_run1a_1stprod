@@ -66,8 +66,11 @@ int main(int argc, char* argv[]) {
   gtrped.ReadCalibData( calib.CurrentRunID() );
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  E16ANA_GeometryV2::SetGlobalPointer(geometry);
   auto bfield_map_3d = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map_3d);
   auto bfield_map = dynamic_cast<E16ANA_MagneticFieldMap*>(bfield_map_3d);
+
 
   auto record = new E16DST_DST1PhysicsRecord();
 

@@ -64,16 +64,23 @@ void E16ANA_TrackCandidate::SetSingleTrackFit(E16ANA_MultiTrack* single_track, i
     ++l;
   }
   auto module_id = cluster_pairs[E16ANA_TrackConstant::kNumTrackingLayers - 1].ModuleID();
-  for (int layer_index = E16ANA_TrackConstant::kNumTrackingLayers; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
-    for (const auto& geom : tmp_geoms[layer_index - E16ANA_TrackConstant::kNumTrackingLayers])
-    single_track->AddHit(track_id, l, geom, {0., 0., 0.}, {0., 0., 0.});
+  for (int l = E16ANA_TrackConstant::kNumTrackingLayers; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
+//    for (const auto& geom : tmp_geoms[layer_index - E16ANA_TrackConstant::kNumTrackingLayers])
+//    single_track->AddHit(track_id, l, geom, {0., 0., 0.}, {0., 0., 0.});
+    for (int mid = module_id - 1; mid <= module_id + 1; ++module_id) {
+      if (mid < E16ANA_TrackConstant::kModuleIDs[0] || mid > E16ANA_TrackConstant::kModuleIDs[E16ANA_TrackConstant::kNumModules - 1]) {
+        continue;
+      }
+      auto mid2013 = ModuleID2020To2013_27(mid);
+      if (l = E16ANA_TrackConstant::kHBD) {
+        auto tmp_geom = geometry->HBD(mid2013);
+        single_track->AddHit(track_id, l, tmp_geom, {0., 0., 0.}, {0., 0., 0.});
+      } else {
+        auto tmp_geom = geometry->LG(mid2013, kTypicalLGBlocks[l - E16ANA_TrackConstant::kLG]);
+        single_track->AddHit(track_id, l, tmp_geom, {0., 0., 0.}, {0., 0., 0.});
+      }
+    }
   }
-}
-
-void E16ANA_TrackCandidate::ProjectionLG(E16ANA_MultiTrack* fitter) {
-//  fitter->Clear();
-//  for (int block_index = 0; block_index < E16DST_Constant::NBlocksLG) {
-//    fitter->AddHit(0, 0, geom)
 }
 
 void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
@@ -413,7 +420,8 @@ void E16ANA_TrackCandidates::SetTrackCandidates() {
       if (!is_same_module) {
         continue;
       }
-      track_candidates[x_cand.target_id].emplace_back(E16ANA_TrackCandidate(geometry, bfield_map, tmp_geoms));
+//      track_candidates[x_cand.target_id].emplace_back(E16ANA_TrackCandidate(geometry, bfield_map, tmp_geoms));
+      track_candidates[x_cand.target_id].emplace_back(E16ANA_TrackCandidate(geometry, bfield_map));
       auto& tmp_cand = track_candidates[x_cand.target_id].back();
       tmp_cand.SetTrackID(track_candidates.size() - 1);
       tmp_cand.SetCharge(x_cand.charge);
@@ -433,32 +441,36 @@ void E16ANA_TrackCandidates::SetHBDAndLGSignals() {
   auto& lg  = record->LG();
   for (auto& cands : track_candidates) {
     for (auto& cand : cands) {
-      auto& hbd_fit = cand.LocalFitResult(E16ANA_TrackConstant::kHBD);
-      auto& lg_fit  = cand.LocalFitResult(E16ANA_TrackConstant::kLG);
-      auto& hbd_fit_pos = hbd_fit.local_pos;
-      auto& lg_fit_pos  = hbd_fit.local_pos;
-      auto& hbd_hits     = hbd.HitPtrs(hbd_fit.module_id, 0, 0);
-      auto& hbd_clusters = hbd.ClusterPtrs(hbd_fit.module_id, 0, 0);
-      auto& lg_hits      = lg.HitPtrs(lg_fit.module_id, 0, 0);
-      auto& lg_clusters  = lg.ClusterPtrs(lg_fit.module_id, 0, 0);
-      for (auto& hit : hbd_hits) {
-        if (fabs((hit->LocalPos(*geometry) - hbd_fit_pos).Mag()) < kHBDProjectionThreshold) {
-          cand.ProjectionHBDHits().emplace_back(hit);
-        }
-      }
-      for (auto& cluster : hbd_clusters) {
-        if (fabs((cluster->LocalPos() - hbd_fit_pos).Mag()) < kHBDProjectionThreshold) {
-          cand.ProjectionHBDClusters().emplace_back(cluster);
-        }
-      }
-      for (auto& hit : lg_hits) {
-        if (fabs((hit->LocalPos(*geometry) - lg_fit_pos).Mag()) < kLGProjectionThreshold) {
-          cand.ProjectionLGHits().emplace_back(hit);
-        }
-      }
-      for (auto& cluster : lg_clusters) {
-        if (fabs((cluster->LocalPos() - lg_fit_pos).Mag()) < kLGProjectionThreshold) {
-          cand.ProjectionLGClusters().emplace_back(cluster);
+      auto& fit_results = cand.LocalFitResults();
+      for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
+        auto& fit_pos = fit_results[l].local_pos;
+        auto fit_module_id = fit_results[l].module_id;
+        if (l == E16ANA_TrackConstant::kHBD) {
+          auto& hits = hbd.HitPtrs(fit_module_id, 0, 0);
+          auto& clusters = hbd.ClusterPtrs(fit_module_id, 0, 0);
+          for (auto& hit : hits) {
+            if (fabs((hit->LocalPos(*geometry) - fit_pos).Mag()) < kHBDProjectionThreshold) {
+              cand.ProjectionHBDHits().emplace_back(hit);
+            }
+          }
+          for (auto& cluster : clusters) {
+            if (fabs((cluster->LocalPos() - fit_pos).Mag()) < kHBDProjectionThreshold) {
+              cand.ProjectionHBDClusters().emplace_back(cluster);
+            }
+          }
+        } else {
+          auto& hits = lg.HitPtrs(fit_module_id, 0, 0);
+          auto& clusters = lg.ClusterPtrs(fit_module_id, 0, 0);
+          for (auto& hit : hits) {
+            if (fabs((hit->LocalPos(*geometry) - fit_pos).Mag()) < kLGProjectionThreshold) {
+              cand.ProjectionLGHits().emplace_back(hit);
+            }
+          }
+          for (auto& cluster : clusters) {
+            if (fabs((cluster->LocalPos() - fit_pos).Mag()) < kLGProjectionThreshold) {
+              cand.ProjectionLGClusters().emplace_back(cluster);
+            }
+          }
         }
       }
     }

@@ -40,21 +40,27 @@ include_directories(
   E16ANA_TargetInfo/include
   E16ANA_Tracking/include
   E16ANA_Waveform/include
-  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
-  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
+#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/global/management/include #evb
+#  /home/yokkaich/work/200130/FairSoft/transport/geant4/source/externals/clhep/include #evb
+  /opt/E16/include/Geant4 # evb
 #  /ccj/u/E16/include/Geant4 # ccj
 )
 
-#link_directories(
-#  /ccj/u/E16/lib64
-##  ${Boost_LIBRARY_DIRS}
-#)
+link_directories(
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
+#  ${Boost_LIBRARY_DIRS}
+)
 
 link_libraries(
 	libz.so
+ # libG4clhep.so
   ${ROOT_LIBRARIES}
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
+  libG4clhep.so
+#  libHepPDT.so
+#  libHepPID.so
 )
 
 #_______________________________________________________________________________
@@ -88,9 +94,13 @@ add_library(E16ANA
 
 target_link_libraries(E16ANA
   E16ANA_CalibDB
+  E16ANA_ErrorMessage
   E16ANA_GeometryV2
   E16ANA_MagneticFieldMap
+  E16ANA_RundependentName
+  E16ANA_TargetInfo
   E16ANA_Tracking
+  E16ANA_Waveform
 )
 
 #_______________________________________________________________________________
