@@ -125,6 +125,8 @@ int main(int argc, char* argv[]) {
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
+  auto record = new E16DST_DST1PhysicsRecord();
+
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -153,7 +155,7 @@ int main(int argc, char* argv[]) {
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 //      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-      auto event1 = new E16DST_DST1PhysicsEvent();
+//      auto event1 = new E16DST_DST1PhysicsEvent();
       //      auto& ssd_hits0         = event0->SSD();
       //      auto& gtr_hits0         = event0->GTR();
       //      auto& hbd_hits0         = event0->HBD();
@@ -161,16 +163,20 @@ int main(int argc, char* argv[]) {
       //      auto& trigger_gtr_hits0 = event0->TriggerGTR();
       //      auto& trigger_hbd_hits0 = event0->TriggerHBD();
       //      auto& trigger_lg_hits0  = event0->TriggerLG();
+      E16DST_DST0Detector<E16DST_DST1LGHit> lg_hits1;
+      E16DST_DST0Detector<E16DST_DST1LGCluster> lg_clusters1;
+//      auto& lg_hits1 = record->LG().Hits();
+//      auto& lg_clusters1 = record->LG().Clusters();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
+//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   lg_hits1,  lg_clusters1);
+      E16DST_DST1LGFactory(lg_hits0,   &lg_hits1,  &lg_clusters1);
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      event1->GTR().SetValidFlag(1);
-      event1->LG().SetValidFlag(1);
+//      event1->LG().SetValidFlag(1);
       //      event1->Trigger().SetValidFlag(1);
 
 
@@ -199,11 +205,11 @@ int main(int argc, char* argv[]) {
 //
 //// LG
       event = event0->EventID();
-      int n_lghits = event1->LGHits().NumberOfHits();
+      int n_lghits = lg_hits1.NumberOfHits();
       //std::cout<<"Event: "<<event<<"  Nhits: "<<n_lghits<<std::endl;
-      if (event1->LGHits().NumberOfHits() != 0) {
+      if (lg_hits1.NumberOfHits() != 0) {
 	for(int i=0;i<n_lghits;i++){//hit loop
-	  auto& lghit = event1->LGHits().Hit(i);                                                          
+	  auto& lghit = lg_hits1.Hit(i);                                                          
 	  //lghit.Print();                                                                                 
 	  //std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
 	  //std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
@@ -260,7 +266,8 @@ int main(int argc, char* argv[]) {
 
 //      dst1->WriteAnEvent();
 //      delete event0;
-      delete event1;
+//      delete event1;
+      delete record;
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());

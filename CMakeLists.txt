@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-set(CMAKE_CXX_FLAGS "-lSpectrum")
+set(CMAKE_CXX_FLAGS "-lMinuit -lSpectrum")
+
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -12,7 +13,6 @@ set(CMAKE_CURRENT_BINARY_DIR ${DIR}/../build)
 
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
-set(CMAKE_CXX_FLAGS -lMinuit)
 find_package(ROOT)
 if(ROOT_FOUND)
 	include(${ROOT_USE_FILE})
@@ -53,14 +53,11 @@ link_directories(
 )
 
 link_libraries(
-	libz.so
- # libG4clhep.so
   ${ROOT_LIBRARIES}
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
   libG4clhep.so
-#  libHepPDT.so
-#  libHepPID.so
+	libz.so
 )
 
 #_______________________________________________________________________________
@@ -125,10 +122,9 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
   
+#  src/ssd_dst1_dummy.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
 #  src/E16DST_DST1LGFactory_dst1_detector.cc
-  
-  src/ssd_dst1_dummy.cc
 )
 
 target_link_libraries(E16DST_DST1
@@ -181,16 +177,16 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16DST_DST1
 )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
-
-target_link_libraries(dst0_to_dst1_trigger_check
-	E16ANA_CalibDB
-	E16DST
-	E16DST_DST1
-)
-
-#_______________________________________________________________________________
+##_______________________________________________________________________________
+#add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
+#
+#target_link_libraries(dst0_to_dst1_trigger_check
+#	E16ANA_CalibDB
+#	E16DST
+#	E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 #add_executable(write_test usr/write_test.cc)
 #
 #target_link_libraries(write_test

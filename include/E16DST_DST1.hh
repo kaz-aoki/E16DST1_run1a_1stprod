@@ -38,6 +38,8 @@ class E16DST_DST1Hit {
   void             SetTiming(float _timing) { timing = _timing; }
   virtual void     SetPeakHeight(float _peak_height) = 0;
   int16_t          ModuleId() { return module_id; }
+  virtual int16_t  LayerId() { return 0; }
+  virtual int16_t  Type() { return 0; }
   int16_t          ChannelId() { return channel_id; }
   float            Timing() { return timing; }
   virtual float    PeakHeight() = 0;
@@ -82,6 +84,8 @@ class E16DST_DST1Cluster {
   void                          SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
   void                          SetHitOrders(std::vector<int16_t>& _hit_orders);
   int                           ModuleId() { return module_id; }
+  virtual int16_t               LayerId() { return 0; }
+  virtual int16_t               Type() { return 0; }
   int                           MaxPeakCh() { return max_peak_ch; }
   float                         MaxPeakHeight() { return max_peak_height; }
   float                         Timing() { return timing; }
@@ -196,11 +200,11 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   void SetType(int16_t _type) { type = _type; }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void SetTot(float _tot) { tot = _tot; }
-  int16_t LayerId() { return layer_id; }
+  int16_t LayerId() override { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
   bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
-  int16_t Type() { return type; }
+  int16_t Type() override { return type; }
   float PeakHeight() override { return peak_height; }
   float Tot() { return tot; }
   double LocalX();
@@ -236,11 +240,11 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   void SetCogPos(double _center_of_gravity) { center_of_gravity = _center_of_gravity; }
   void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
   void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-  int16_t LayerId() { return layer_id; }
+  int16_t LayerId() override { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
   bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
-  int16_t Type() { return type; }
+  int16_t Type() override { return type; }
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
@@ -252,11 +256,9 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   void Print() override {
     std::cout << "E16DST_DST1GTRCluster : "
               << "Num hit strips = " << NumHits() << 
-              //", Cluster charge = " << peak_sum
-//              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
-              //<<
-             // " [mm]" 
-              std::endl;
+              ", Cluster charge = " << peak_sum
+              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
+              << " [mm]" << std::endl;
   }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
@@ -867,18 +869,18 @@ class E16DST_DST1Tracks {
 
 class E16DST_DST1DetectorHeader {
  public:
-  E16DST_DST1DetectorHeader()
+  E16DST_DST1DetectorHeader(int16_t _detector_version, int16_t _detector_id, int16_t _hit_version, int16_t _cluster_version)
       : valid_flag(E16DST_DST1Constant::kInvalidValue),
-        detector_version(0),                             detector_id(E16DST_DST1Constant::kInvalidValue),
-        hit_version(E16DST_DST1Constant::kInvalidValue), cluster_version(E16DST_DST1Constant::kInvalidValue),
-        num_hits(E16DST_DST1Constant::kInvalidValue),    num_clusters(E16DST_DST1Constant::kInvalidValue),
+        detector_version(_detector_version),          detector_id(_detector_id),
+        hit_version(_hit_version),                    cluster_version(_cluster_version),
+        num_hits(E16DST_DST1Constant::kInvalidValue), num_clusters(E16DST_DST1Constant::kInvalidValue),
         reserve() {}
   ~E16DST_DST1DetectorHeader() {}
   void        ClearHeader() {
     valid_flag      = E16DST_DST1Constant::kInvalidValue;
-    detector_id     = E16DST_DST1Constant::kInvalidValue;
-    hit_version     = E16DST_DST1Constant::kInvalidValue;
-    cluster_version = E16DST_DST1Constant::kInvalidValue;
+//    detector_id     = E16DST_DST1Constant::kInvalidValue;
+//    hit_version     = E16DST_DST1Constant::kInvalidValue;
+//    cluster_version = E16DST_DST1Constant::kInvalidValue;
     num_hits        = E16DST_DST1Constant::kInvalidValue;
     num_clusters    = E16DST_DST1Constant::kInvalidValue;
     reserve.fill(E16DST_DST1Constant::kInvalidValue);
@@ -913,7 +915,8 @@ class E16DST_DST1Detector : public E16DST_DST1DetectorHeader {
  public:
   using value_type0 = T;
   using value_type1 = U;
-  E16DST_DST1Detector() { Clear(); }
+//  E16DST_DST1Detector() : E16DST_DST1DetectorHeader(int16_t _detector_version, int16_t _detector_id, int16_t _hit_version, int16_t _cluster_version) { Clear(); }
+  using E16DST_DST1DetectorHeader::E16DST_DST1DetectorHeader;
   ~E16DST_DST1Detector() {}
   void Clear() {
     ClearHeader();
@@ -944,12 +947,28 @@ class E16DST_DST1Detector : public E16DST_DST1DetectorHeader {
     UpdateHitPtrs();
     UpdateClusterPtrs();
   }
+  int              NumHitPtrs(int module_id, int layer_id, int type) {
+    auto id_sum = IdSum(module_id, layer_id, type);
+    if (hit_ptrs.count(id_sum) == 1) {
+      return hit_ptrs[id_sum].size();
+    } else {
+      return 0;
+    }
+  }
+  int              NumClusterPtrs(int module_id, int layer_id, int type) {
+    auto id_sum = IdSum(module_id, layer_id, type);
+    if (cluster_ptrs.count(id_sum) == 1) {
+      return cluster_ptrs[id_sum].size();
+    } else {
+      return 0;
+    }
+  }
   std::vector<T*>& HitPtrs(int module_id, int layer_id, int type) {
-    int id_sum = IdSum(module_id, layer_id, type);
+    auto id_sum = IdSum(module_id, layer_id, type);
     return hit_ptrs[id_sum];
   }
   std::vector<U*>& ClusterPtrs(int module_id, int layer_id, int type) {
-    int id_sum = IdSum(module_id, layer_id, type);
+    auto id_sum = IdSum(module_id, layer_id, type);
     return cluster_ptrs[id_sum];
   }
   std::vector<T*>  ClusterMembers(int cluster_id);
@@ -959,51 +978,51 @@ class E16DST_DST1Detector : public E16DST_DST1DetectorHeader {
   int              GetSize();
   void             Print();
  private:
-  int IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
+  static int IdSum(int module_id, int layer_id, int type) { return 10000 * module_id + 100 * layer_id + type; }
   std::vector<T>                           hits;
   std::vector<U>                           clusters;
   std::unordered_map<int, std::vector<T*>> hit_ptrs;
   std::unordered_map<int, std::vector<U*>> cluster_ptrs;
 };
 
-class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
- public:
-  E16DST_DST1PhysicsEvent() {}
-  ~E16DST_DST1PhysicsEvent() {}
-  int GetEventSize() const override {}
-  int Write(E16DST_File* fp) override {};
-  int Read(E16DST_File* fp) override {};
-  void Clear() override {};
-  bool Append(E16DST_DST0Event* _another_event) override {};
-  uint16_t EventType() { return E16DST_DST0EventType::Physics; }
-  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
-  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
-  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD() { return hbd; }
-  E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()  { return lg; }
-  E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()     { return ssd_hits; }
-  E16DST_DST0Detector<E16DST_DST1SSDCluster>& SSDClusters() { return ssd_clusters; }
-  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTRHits()     { return gtr_hits; }
-  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTRClusters() { return gtr_clusters; }
-  E16DST_DST0Detector<E16DST_DST1HBDHit>&     HBDHits()     { return hbd_hits; }
-  E16DST_DST0Detector<E16DST_DST1HBDCluster>& HBDClusters() { return hbd_clusters; }
-  E16DST_DST0Detector<E16DST_DST1LGHit>&      LGHits()      { return lg_hits; }
-  E16DST_DST0Detector<E16DST_DST1LGCluster>&  LGClusters()  { return lg_clusters; }
-  E16DST_DST1Trigger&                         Trigger()     { return trigger; }
- private:
-  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd;
-  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr;
-  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
-  E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
-  E16DST_DST0Detector<E16DST_DST1SSDHit>     ssd_hits;
-  E16DST_DST0Detector<E16DST_DST1SSDCluster> ssd_clusters;
-  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_hits;
-  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_clusters;
-  E16DST_DST0Detector<E16DST_DST1HBDHit>     hbd_hits;
-  E16DST_DST0Detector<E16DST_DST1HBDCluster> hbd_clusters;
-  E16DST_DST0Detector<E16DST_DST1LGHit>      lg_hits;
-  E16DST_DST0Detector<E16DST_DST1LGCluster>  lg_clusters;
-  E16DST_DST1Trigger                         trigger;
-};
+//class E16DST_DST1PhysicsEvent : public E16DST_DST0Event {
+// public:
+//  E16DST_DST1PhysicsEvent() {}
+//  ~E16DST_DST1PhysicsEvent() {}
+//  int GetEventSize() const override {}
+//  int Write(E16DST_File* fp) override {};
+//  int Read(E16DST_File* fp) override {};
+//  void Clear() override {};
+//  bool Append(E16DST_DST0Event* _another_event) override {};
+//  uint16_t EventType() { return E16DST_DST0EventType::Physics; }
+//  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD() { return ssd; }
+//  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR() { return gtr; }
+//  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD() { return hbd; }
+//  E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()  { return lg; }
+//  E16DST_DST0Detector<E16DST_DST1SSDHit>&     SSDHits()     { return ssd_hits; }
+//  E16DST_DST0Detector<E16DST_DST1SSDCluster>& SSDClusters() { return ssd_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>&     GTRHits()     { return gtr_hits; }
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster>& GTRClusters() { return gtr_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1HBDHit>&     HBDHits()     { return hbd_hits; }
+//  E16DST_DST0Detector<E16DST_DST1HBDCluster>& HBDClusters() { return hbd_clusters; }
+//  E16DST_DST0Detector<E16DST_DST1LGHit>&      LGHits()      { return lg_hits; }
+//  E16DST_DST0Detector<E16DST_DST1LGCluster>&  LGClusters()  { return lg_clusters; }
+//  E16DST_DST1Trigger&                         Trigger()     { return trigger; }
+// private:
+//  E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd;
+//  E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr;
+//  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
+//  E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
+//  E16DST_DST0Detector<E16DST_DST1SSDHit>     ssd_hits;
+//  E16DST_DST0Detector<E16DST_DST1SSDCluster> ssd_clusters;
+//  E16DST_DST0Detector<E16DST_DST1GTRHit>     gtr_hits;
+//  E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_clusters;
+//  E16DST_DST0Detector<E16DST_DST1HBDHit>     hbd_hits;
+//  E16DST_DST0Detector<E16DST_DST1HBDCluster> hbd_clusters;
+//  E16DST_DST0Detector<E16DST_DST1LGHit>      lg_hits;
+//  E16DST_DST0Detector<E16DST_DST1LGCluster>  lg_clusters;
+//  E16DST_DST1Trigger                         trigger;
+//};
 
 class E16DST_DST1PhysicsHeader {
  public:
@@ -1016,7 +1035,13 @@ class E16DST_DST1PhysicsHeader {
 
 class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
  public:
-  E16DST_DST1PhysicsRecord() { Clear(); }
+  E16DST_DST1PhysicsRecord()
+      : ssd(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>(0, E16DST_DST1Constant::kSSD, 0, 0)),
+        gtr(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>(0, E16DST_DST1Constant::kGTR, 0, 0)),
+        hbd(E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>(0, E16DST_DST1Constant::kHBD, 0, 0)),
+        lg(E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>(0, E16DST_DST1Constant::kLG, 0, 0)) {
+    Clear();
+  }
   ~E16DST_DST1PhysicsRecord() {}
   void Clear() { 
     ssd.Clear();
@@ -1098,7 +1123,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& h
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
 //int E16DST_DST1SSDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* gtr1);
-int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);
+int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal& gtrped);
 //int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
@@ -1114,20 +1139,22 @@ void E16DST_DST1Detector<T, U>::UpdateHitPtrs() {
     return;
   }
   hit_ptrs.clear();
-  for (const auto& hit : hits) {
-    int module_id = hit.ModuleId();
-    int layer_id  = 0;
-    int type      = 0;
-    if (detector_id == E16DST_DST1Constant::kGTR) {
-      layer_id = hit.LayerId();
-      type     = hit.Type();
-    }
-    int id = IdSum(module_id, layer_id, type);
+  for (auto& hit : hits) {
+    auto module_id = hit.ModuleId();
+    auto layer_id  = hit.LayerId();
+    auto type      = hit.Type();
+//    int  layer_id  = 0;
+//    int  type      = 0;
+//    if (typeid(T) == typeid(E16DST_DST1GTRHit)) {
+//      layer_id = hit.LayerId();
+//      type     = hit.Type();
+//    }
+    auto id = IdSum(module_id, layer_id, type);
     if (hit_ptrs.count(id) == 0) {
-      std::vector hit_vector = {*hit};
+      std::vector hit_vector = {&hit};
       hit_ptrs.emplace(id, hit_vector);
     } else {
-      hit_ptrs[id].emplace_back(*hit);
+      hit_ptrs[id].emplace_back(&hit);
     }
   }
 }
@@ -1138,20 +1165,22 @@ void E16DST_DST1Detector<T, U>::UpdateClusterPtrs() {
     return;
   }
   cluster_ptrs.clear();
-  for (const auto& cluster : clusters) {
-    int module_id = cluster.ModuleId();
-    int layer_id  = 0;
-    int type      = 0;
-    if (detector_id == E16DST_DST1Constant::kGTR) {
-      layer_id = cluster.LayerId();
-      type     = cluster.Type();
-    }
-    int id = IdSum(module_id, layer_id, type);
+  for (auto& cluster : clusters) {
+    auto module_id = cluster.ModuleId();
+    auto layer_id  = cluster.LayerId();
+    auto type      = cluster.Type();
+//    int layer_id  = 0;
+//    int type      = 0;
+//    if (typeid(U) == typeid(E16DST_DST1GTRCluster)) {
+//      layer_id = cluster.LayerId();
+//      type     = cluster.Type();
+//    }
+    auto id = IdSum(module_id, layer_id, type);
     if (cluster_ptrs.count(id) == 0) {
-      std::vector cluster_vector = {*cluster};
+      std::vector cluster_vector = {&cluster};
       cluster_ptrs.emplace(id, cluster_vector);
     } else {
-      cluster_ptrs[id].emplace_back(*cluster);
+      cluster_ptrs[id].emplace_back(&cluster);
     }
   }
 }

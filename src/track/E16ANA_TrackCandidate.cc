@@ -156,7 +156,6 @@ void E16ANA_TrackCandidates::CalcInverseMatrix(const std::array<double, kNumTrac
   return;
 }
 
-//bool E16ANA_TrackCandidates::IsXTrackCandidate(double tgt_z, const std::array<TVector3*, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set) {
 bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[cluster_set->target_id];
   std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> pos_set = {cluster_set->ssd_cluster->GlobalPos(*geometry),
@@ -328,7 +327,16 @@ void E16ANA_TrackCandidates::SetTrackCandidates() {
 //                    auto tgt_z = E16ANA_TrackConstant::kTargetZ[tgt_index];
                     cluster_set->target_id= tgt_index;
 //                    if (IsXTrackCandidate(tgt_z, x_pos_set)) {
+//std::cout << "SSD" << std::endl;
+//ssd_cluster->Print();
+//std::cout << "GTR100" << std::endl;
+//gtr100x_cluster->Print();
+//std::cout << "GTR200" << std::endl;
+//gtr200x_cluster->Print();
+//std::cout << "GTR300" << std::endl;
+//gtr300x_cluster->Print();
                     if (IsXTrackCandidate(cluster_set)) {
+std::cout << "few" << std::endl;
 //                      cluster_sets[0].emplace_back(OneAxisClusterSet());
 //                      auto& cluster_set = cluster_sets[0].back();
 //                      cluster_set.tgt_z = tgt_z;
@@ -477,8 +485,6 @@ void E16ANA_TrackCandidates::SetHBDAndLGSignals() {
   }
   return;
 }
-
-
 
 void E16ANA_TrackCandidates::RequireLGCut() {
   for (int tgt_index = 0; tgt_index < E16ANA_TrackConstant::kNumTargets; ++tgt_index) {
