@@ -12,6 +12,7 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "GTR/GTRCheckHist.hh"
+#include "E16ANA_TargetInfo.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -67,6 +68,10 @@ int main(int argc, char* argv[]) {
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
 
+  E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
+  targets.ReadInfoWithRunID( calib.CurrentRunID());
+  targets.Print();
+
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
 
@@ -78,6 +83,7 @@ int main(int argc, char* argv[]) {
 
   int n_event = 0;
   int n_physics_event = 0;
+/*
   while (dst0->ReadAnEvent()) {
  //   if (max_event != -1 && n_physics_event >= max_event) {
     if (max_event != -1 && n_event >= max_event) {
@@ -147,7 +153,7 @@ int main(int argc, char* argv[]) {
    ++n_event;
     ++n_physics_event;
   }
-
+*/
   TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
   TString pdf_name;
   pdf_name.Form("gtrtest.pdf");

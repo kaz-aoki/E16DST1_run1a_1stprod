@@ -32,9 +32,9 @@ include_directories(
   E16DST
   E16ANA_CalibDB/include
   E16ANA_Geometry/include
-  E16ANA_Geometry/include/geant4/Geant4 # evb
-  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units #evb
-#  /ccj/u/E16/include/Geant4 # ccj
+#  E16ANA_Geometry/include/geant4/Geant4 # evb
+#  E16ANA_Geometry/include/geant4/Geant4/CLHEP/Units #evb
+  /ccj/u/E16/include/Geant4 # ccj
   E16ANA_Waveform/include
 )
 
@@ -47,6 +47,9 @@ link_libraries(
   ${ROOT_LIBRARIES}
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
+	/ccj/u/E16/libG4CLHEP/libG4clhep.so #ccj
+	/ccj/u/E16/libG4CLHEP/libHepPDT.so #ccj
+	/ccj/u/E16/libG4CLHEP/libHepPID.so #ccj
 )
 
 #_______________________________________________________________________________
@@ -77,6 +80,7 @@ add_library(E16ANA
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
+  E16ANA_CalibDB/src/E16ANA_TargetInfo.cc
 )
 
 target_link_libraries(E16ANA
