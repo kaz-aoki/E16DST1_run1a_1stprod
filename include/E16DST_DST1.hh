@@ -344,12 +344,12 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-  float peak_height;// baseline subtracted
+  float peak_height; // baseline subtracted
   int   peak_time;
   float baseline;
   float baseline_rms;
   float integral; // baseline subtracted
-  int npeaks;
+  int npeaks; // around the trigger timing
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {

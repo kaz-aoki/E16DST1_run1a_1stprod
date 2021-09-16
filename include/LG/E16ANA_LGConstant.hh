@@ -19,9 +19,9 @@ const int kBaselineEnd = -10;//[cell] +peaktime
 const int kIntegralStart = -10;//[cell] +peaktime
 const int kIntegralEnd = 50;//[cell] +peaktime
 
-const int kTPeakSearchRegion = 190;
-const int kTPeakSearchStart = 5;
-const int kTPeakSearchEnd = 195;
+  //const int kTPeakSearchRegion = 190;
+  //const int kTPeakSearchStart = 5;
+  //const int kTPeakSearchEnd = 195;
 
 
 

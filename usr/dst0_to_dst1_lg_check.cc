@@ -12,6 +12,7 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16ANA_LGBasic.hh"
+#include "E16ANA_LGWaveform.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
