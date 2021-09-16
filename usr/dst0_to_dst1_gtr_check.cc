@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
-
+  
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -101,17 +101,21 @@ int main(int argc, char* argv[]) {
 //    dst1->SetEventType(event_type);
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 //      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-      auto event1 = new E16DST_DST1PhysicsEvent();
-      auto ssd_hits0         = event0->SSD();
-      auto gtr_hits0         = event0->GTR();
-      auto hbd_hits0         = event0->HBD();
-      auto lg_hits0          = event0->LG();
-      auto trigger_gtr_hits0 = event0->TriggerGTR();
-      auto trigger_hbd_hits0 = event0->TriggerHBD();
-      auto trigger_lg_hits0  = event0->TriggerLG();
+//      auto event1 = new E16DST_DST1PhysicsEvent();
+      auto& ssd_hits0         = event0->SSD();
+      auto& gtr_hits0         = event0->GTR();
+      auto& hbd_hits0         = event0->HBD();
+      auto& lg_hits0          = event0->LG();
+      auto& trigger_gtr_hits0 = event0->TriggerGTR();
+      auto& trigger_hbd_hits0 = event0->TriggerHBD();
+      auto& trigger_lg_hits0  = event0->TriggerLG();
+      E16DST_DST0Detector<E16DST_DST1GTRHit> gtr_hits;
+      E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_clusters;
+//      auto& gtr_hits = record->GTR().Hits();
+//      auto& gtr_clusters = record->GTR().Clusters();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
-      std::cout << "n_event = " << n_event << ", cluster size " << event1->GTRClusters().NumberOfHits() << std::endl;
+      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
+      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.NumberOfHits() << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
@@ -122,29 +126,29 @@ int main(int argc, char* argv[]) {
 //      event1->LG().SetValidFlag(1);
 //      event1->Trigger().SetValidFlag(1);
 
-   gtrhist->Fill(&event1->GTRHits(), &event1->GTRClusters());
+   gtrhist->Fill(&gtr_hits, &gtr_clusters);
 
 
 // GTR
 //    cout << "Number of event: " << n_event << endl << endl;
-//    auto n_gtr_hits = event1->GTRHits().NumberOfHits();
+//    auto n_gtr_hits = gtr_hits.NumberOfHits();
 //    cout << "Number of GTR hits: " << n_gtr_hits << endl;
 //    for(int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-//        auto hit = event1->GTRHits().Hit(n_hit);
+//        auto hit = gtr_hits.Hit(n_hit);
 ////        hit.Print();
 //    }
 
-    int n_gtr_hits = event1->GTRHits().NumberOfHits();
+    int n_gtr_hits = gtr_hits.NumberOfHits();
     for(int i = 0; i < n_gtr_hits ; i++){
-        auto hit = event1->GTRHits().Hit(i);
+        auto hit = gtr_hits.Hit(i);
         std::cout << "hit ph" << hit.PeakHeight() << ", timing =  " << hit.Timing() << "tot = "<< hit.Tot() << std::endl;
     }
 
-    auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
+    auto n_gtr_clusters = gtr_clusters.NumberOfHits();
     cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
     for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
        std::cout << "n_cluster = " << n_cluster << std::endl;
-       auto cluster = event1->GTRClusters().Hit(n_cluster);
+       auto cluster = gtr_clusters.Hit(n_cluster);
        std::cout << "mid = " << cluster.ModuleId() << "layer id = " << cluster.LayerId() <<std::endl;
        cluster.Print();
     }

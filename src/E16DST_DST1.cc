@@ -13,15 +13,20 @@ double E16DST_DST1SSDHit::LocalX() {
 }
 
 TVector3 E16DST_DST1SSDHit::LocalPos(E16ANA_GeometryV2& geometry) {
+  double local_x = (channel_id - 128 * 3) * 600. / (128 * 6); // tmp
+  return TVector3(local_x, 0., 0.);
 }
 
 TVector3 E16DST_DST1SSDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
+  return geometry.SSD(ModuleId2020To2013(module_id))->GetGPos(LocalPos(geometry)); // tmp
 }
 
 TVector3 E16DST_DST1SSDCluster::LocalPos() {
+  return TVector3(0., 0., 0.);
 }
 
 TVector3 E16DST_DST1SSDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
+  return geometry.SSD(ModuleId2020To2013(module_id))->GetGPos(LocalPos()); // tmp
 }
 
 double E16DST_DST1GTRHit::LocalX() {
@@ -140,15 +145,21 @@ TVector3 E16DST_DST1GTRCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1HBDHit::LocalPos(E16ANA_GeometryV2& geometry) {
+  return lpos;
 }
 
-TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
+TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) { 
+  TVector3 gpos = geometry.HBD(ModuleId2020To2013(module_id))->GetGPos(lpos);
+  return gpos;
 }
 
 TVector3 E16DST_DST1HBDCluster::LocalPos() {
+  return lpos;
 }
 
 TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
+  TVector3 gpos = geometry.HBD(ModuleId2020To2013(module_id))->GetGPos(lpos);
+  return gpos;
 }
 
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){

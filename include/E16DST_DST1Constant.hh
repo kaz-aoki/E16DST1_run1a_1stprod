@@ -50,6 +50,11 @@ const int n_gtr_layers = 3;
 //const int nstrips_300x = 864;
 //const int nstrips_300y = 216;
 
+// Track
+const int kNumTargets = 3;
+const int kNumDetectorLayersWTarget = 6;
+const int kNumTrackingLayers = 4;
+
 // data
 const int kReserve = 1024;
 //const int kHeaderSize            = 1024;

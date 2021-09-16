@@ -5,8 +5,11 @@ install(DIRECTORY
 
 #_________________________________________________
 add_library(E16ANA_CalibDB
-  src/E16ANA_ErrorMessage.cc
   src/E16ANA_CalibDBManager.cc
+)
+
+target_link_libraries(E16ANA_CalibDB
+  E16ANA_ErrorMessage
 )
 
 #_________________________________________________
