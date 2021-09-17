@@ -17,6 +17,7 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
   auto track_candidates = new E16ANA_TrackCandidates(&geometry, &bfield_map, fitter, record);
   track_candidates->SelectTracks();
   track_candidates->Print();
+//  track_candidates->PrintSelected();
   delete track_candidates;
   return 0;
 }

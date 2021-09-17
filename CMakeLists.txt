@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-#set(CMAKE_CXX_FLAGS "-lMinuit -lSpectrum")
-#set(CMAKE_CXX_FLAGS "-pg -lMinuit -lSpectrum")
-set(CMAKE_CXX_FLAGS "-g -lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
+set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-O2 -g -lMinuit -lSpectrum")
 
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
@@ -124,9 +124,9 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
   
-#  src/ssd_dst1_dummy.cc
+  src/ssd_dst1_dummy.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
-#  src/E16DST_DST1LGFactory_dst1_detector.cc
+  src/E16DST_DST1LGFactory_dst1_detector.cc
 )
 
 target_link_libraries(E16DST_DST1
@@ -179,16 +179,16 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16DST_DST1
 )
 
-##_______________________________________________________________________________
-#add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
-#
-#target_link_libraries(dst0_to_dst1_trigger_check
-#	E16ANA_CalibDB
-#	E16DST
-#	E16DST_DST1
-#)
-#
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
+
+target_link_libraries(dst0_to_dst1_trigger_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
 #add_executable(write_test usr/write_test.cc)
 #
 #target_link_libraries(write_test
