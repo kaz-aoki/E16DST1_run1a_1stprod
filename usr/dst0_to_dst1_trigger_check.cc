@@ -67,10 +67,11 @@ int main(int argc, char* argv[]) {
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
-  auto bfield_map_3d = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map_3d);
-  auto bfield_map = dynamic_cast<E16ANA_MagneticFieldMap*>(bfield_map_3d);
-
+  auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+//  auto bfield_map = new E16ANA_MagneticFieldMap3D("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary");
+  bfield_map->Initialize_binary();
+  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+  auto fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
 
   auto record = new E16DST_DST1PhysicsRecord();
 
@@ -122,7 +123,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, record);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
 //      event1->GTR().SetValidFlag(1);
 //      event1->LG().SetValidFlag(1);
 //      event1->Trigger().SetValidFlag(1);
