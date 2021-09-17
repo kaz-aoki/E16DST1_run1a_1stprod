@@ -121,7 +121,7 @@ void E16ANA_LGBasic::SetCalibMap(){
 }
 
 double E16ANA_LGBasic::GetT0(uint16_t module, uint16_t block){
-  double t0 = t0map[module][block];
+  double t0 = t0map[module][block];//[ns]
   return t0;
 }
 

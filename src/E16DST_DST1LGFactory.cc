@@ -59,6 +59,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     lgwf.Integral(waveform, peaktime, baseline, &integral, &falltime);
     npeaks = lgwf.PeakSearch(waveform, t0, mwf, peakxs, peakys);
     lgwf.Fit(waveform, mwf, npeaks, peakxs, peakys);
+    lgwf.FitMethod(waveform,t0);
 
 
     //if( (falltime-peaktime)>5 && //to remove spike noise
