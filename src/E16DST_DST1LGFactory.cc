@@ -36,6 +36,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
     double t0 = lgbasic.GetT0(hit0.ModuleID(),hit0.BlockID());
     double waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+    double mwf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};//modified waveform
     double peakheight = E16DST_DST1Constant::kInvalidValue;
     int peaktime = E16DST_DST1Constant::kInvalidValue;
     double timing = E16DST_DST1Constant::kInvalidValue;
@@ -44,8 +45,8 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     double integral = E16DST_DST1Constant::kInvalidValue;
     int falltime = E16DST_DST1Constant::kInvalidValue;
     int npeaks = E16DST_DST1Constant::kInvalidValue;
-    double xpos[20] = {E16DST_DST1Constant::kInvalidValue};
-    double ypos[20] = {E16DST_DST1Constant::kInvalidValue};
+    double peakxs[20] = {E16DST_DST1Constant::kInvalidValue};
+    double peakys[20] = {E16DST_DST1Constant::kInvalidValue};
 
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
       int ph = hit0.Waveform()[cell];
@@ -56,8 +57,8 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     lgwf.Baseline(waveform, peaktime, &baseline, &baselinerms);
     peakheight = peakheight - baseline;
     lgwf.Integral(waveform, peaktime, baseline, &integral, &falltime);
-    npeaks = lgwf.PeakSearch(waveform, t0, xpos, ypos);
-    lgwf.Fit(waveform, npeaks, xpos, ypos);
+    npeaks = lgwf.PeakSearch(waveform, t0, mwf, peakxs, peakys);
+    lgwf.Fit(waveform, mwf, npeaks, peakxs, peakys);
 
 
     //if( (falltime-peaktime)>5 && //to remove spike noise
