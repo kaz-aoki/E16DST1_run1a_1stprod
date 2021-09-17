@@ -27,11 +27,17 @@ void Baseline(double* dat, int peakx, double* baseline, double* baselinerms);
 void Integral(double* dat, int peakx, double baseline, double* integral, int* falltime);
 int PeakSearch(double* dat, double t0, double* peakxs, double* peakys);
 
+void SetTemplate();
+double Template1(double* x, double* par);
+double Template2(double* x, double* par);
+double Template3(double* x, double* par);
+int Fit(double* dat, int npeaks, double* peakxs, double* peakys);
+
 protected:
 
 private:
 
-  //  TGraph* gtmpl;
+TGraph* gtmpl;
 
 };
 

@@ -13,6 +13,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
   if(is_first){
     lgbasic.SetMap();//make channel_map from binary file
     lgbasic.SetCalibMap();
+    lgwf.SetTemplate();
     is_first=false;
   }
 
@@ -56,6 +57,8 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     peakheight = peakheight - baseline;
     lgwf.Integral(waveform, peaktime, baseline, &integral, &falltime);
     npeaks = lgwf.PeakSearch(waveform, t0, xpos, ypos);
+    lgwf.Fit(waveform, npeaks, xpos, ypos);
+
 
     //if( (falltime-peaktime)>5 && //to remove spike noise
     //peakheight>E16ANA_LGConstant::kHitThreshold && 

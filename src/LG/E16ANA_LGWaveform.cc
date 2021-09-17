@@ -5,6 +5,7 @@
 #include <map>
 #include <math.h>
 #include <TH1.h>
+#include <TGraph.h>
 #include <TSpectrum.h>
 
 #include "E16ANA_LGBasic.hh"
@@ -176,38 +177,56 @@ int E16ANA_LGWaveform::PeakSearch(double* dat, double t0, double* peakxs, double
 
 }
 
-/*
+
 void E16ANA_LGWaveform::SetTemplate(){
 
   E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
-  FILE* fp_t0 = calib.CalibFileOpenBinary("LG-t0bych", calib.CurrentRunID() );
-  if ( fp_t0==NULL ) {
-    std::cout<<"[Error] t0 map file is not found !"<<std::endl;
+  FILE* fp_wf = calib.CalibFileOpenBinary("LG-WFtemplate", calib.CurrentRunID() );
+  if ( fp_wf==NULL ) {
+    std::cout<<"[Error] wf template file is not found !"<<std::endl;
     exit(1);
   }
-  int module, block;
-  double t0_mean;
-  double t0_sigma;
-  while( feof(fp_t0)==0 ){
-    fscanf(fp_t0, "%d %d %lf %lf", &module, &block, &t0_mean, &t0_sigma );
-    if(!(0<=module&&module<110&&0<=block&&block<60)){
-      std::cerr<<"read invalid ID in t0map file"<<std::endl;
-      exit(1);
-    }
-    else{
-      t0map[module][block] = t0_mean;
-    }
-  }//while loop
-  fclose(fp_t0);
 
+  double xt, yt;
+  std::vector<double> x;
+  std::vector<double> y;
+  while( feof(fp_wf)==0 ){
+    fscanf(fp_wf, "%lf %lf", &xt, &yt );
+    x.push_back(xt);
+    y.push_back(yt);
+  }
+
+  gtmpl = new TGraph(110,&x[0],&y[0]);
+
+  fclose(fp_wf);
+}
+
+double E16ANA_LGWaveform::Template1(double* x, double* par){
+
+  return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140.+par[3];
+
+}
+
+double E16ANA_LGWaveform::Template2(double* x, double* par){
+
+  return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140.+(gtmpl->Eval((x[0]-par[3])*par[4]))*par[5]/140.+par[6];
+
+}
+
+double E16ANA_LGWaveform::Template3(double* x, double* par){
+
+  return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140. + (gtmpl->Eval((x[0]-par[3])*par[4]))*par[5]/140. + (gtmpl->Eval((x[0]-par[6])*par[7]))*par[8]/140.+par[9];
 
 }
 
 
 int E16ANA_LGWaveform::Fit(double* dat, int npeaks, double* peakxs, double* peakys){
 
+  double *x = gtmpl->GetX();
+  double *y = gtmpl->GetY();
+
   return npeaks;
 
 }
-*/
+
 
