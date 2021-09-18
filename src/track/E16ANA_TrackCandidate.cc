@@ -75,6 +75,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 }
 
 void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
+  projection_flag = 0;
   fitter->Clear();
   if (chisq >= 1.0e10) {
     return;
@@ -84,10 +85,11 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
   TVector3 lsigma(0., 0., 0.);
   auto module_id = cluster_pairs[E16ANA_TrackConstant::kNumTrackingLayers - 1].ModuleID();
   for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
-    for (int mid = module_id - 1; mid <= module_id + 1; ++mid) {
-      if (mid < E16ANA_TrackConstant::kModuleIDs[0] || mid > E16ANA_TrackConstant::kModuleIDs[E16ANA_TrackConstant::kNumModules - 1]) {
-        continue;
-      }
+//    for (int mid = module_id - 2; mid <= module_id + 2; ++mid) {
+//      if (mid == 105 || mid < E16ANA_TrackConstant::kModuleIDs[0] || mid > E16ANA_TrackConstant::kModuleIDs[E16ANA_TrackConstant::kNumModules - 1]) {
+//        continue;
+//      }
+    for (int mid = 101; mid <= 109; ++mid) {
       auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(mid);
       if (l == E16ANA_TrackConstant::kHBD) {
         auto tmp_geom = geometry->HBD(mid2013);
@@ -95,37 +97,76 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
       } else {
         auto tmp_geom = geometry->LG(mid2013, kTypicalLGBlocks[l - E16ANA_TrackConstant::kLG]);
         fitter->AddHit(tid, l, tmp_geom, lpos, lsigma);
+//        for (const auto& b : kLGBlocks[l - E16ANA_TrackConstant::kLG0]) {
+//          auto tmp_geom = geometry->LG(mid2013, b);
+//          fitter->AddHit(tid, l, tmp_geom, lpos, lsigma);
+//        }
+//        if (l == 5) {
+//          auto tmp_geom = geometry->LGVD(mid2013);
+//          fitter->AddHit(tid, l, tmp_geom, lpos, lsigma);
+//        }
       }
     }
   }
-  fitter->RungeKuttaTracking(0, vtx_fit, mom_fit, charge);
+  fitter->RungeKuttaTracking(tid, vtx_fit, mom_fit, charge);
   for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
     fit_results[l].Clear();
-    std::vector<TVector3> lpos;
-    std::vector<TVector3> lmom;
-    std::vector<int> mid;
-    fitter->GetFitLPos(0, l, mid, lpos);
-    fitter->GetFitLMom(0, l, mid, lmom);
-    TVector3 gpos;
-    TVector3 gmom;
-    if (l <= E16ANA_TrackConstant::kHBD) {
-      gpos = geometry->HBD(mid[0])->GetGPos(lpos[0]);
-      gmom = geometry->HBD(mid[0])->GetGMom(lmom[0]);
-    } else {
-      gpos = geometry->LG(mid[0], kTypicalLGBlocks[l - E16ANA_TrackConstant::kHBD])->GetGPos(lpos[0]);
-      gmom = geometry->LG(mid[0], kTypicalLGBlocks[l - E16ANA_TrackConstant::kHBD])->GetGMom(lmom[0]);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    std::vector<TVector3> lmoms;
+    fitter->GetFitLPos(0, l, mids, lposs);
+    fitter->GetFitLMom(0, l, mids, lmoms);
+    std::vector<FitResult> results;
+    double r;
+    int min_r_hit = E16DST_DST1Constant::kInvalidValue;
+    for (int hit_index = 0; hit_index < mids.size(); ++hit_index) {
+      auto mid = mids[hit_index];
+      auto mid2020 = E16ANA_TrackConstant::ModuleID2013To2020_27(mids[hit_index]);
+      auto lpos = lposs[hit_index];
+      auto lmom = lmoms[hit_index];
+      if (fabs(lpos.X()) >= fabs(E16DST_DST1Constant::kInvalidValue)) {
+        continue;
+      }
+      results.emplace_back(FitResult());
+      auto& result = results.back();
+      TVector3 gpos;
+      TVector3 gmom;
+      if (l <= E16ANA_TrackConstant::kHBD) {
+        gpos = geometry->HBD(mid)->GetGPos(lpos);
+        gmom = geometry->HBD(mid)->GetGMom(lmom);
+      } else {
+        gpos = geometry->LG(mid, kTypicalLGBlocks[l - E16ANA_TrackConstant::kHBD])->GetGPos(lpos);
+        gmom = geometry->LG(mid, kTypicalLGBlocks[l - E16ANA_TrackConstant::kHBD])->GetGMom(lmom);
+      }
+      result.Set(l, mid2020, lpos, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+      if (hit_index == 0) {
+        min_r_hit = 0;
+        r = gpos.Mag();
+      } else if (gpos.Mag() < r) {
+        min_r_hit = hit_index;
+        r = gpos.Mag();
+      }
     }
-    if (fabs(gpos.X()) > 10000. ) {
+    if (min_r_hit == E16DST_DST1Constant::kInvalidValue) {
       continue;
     }
-    fit_results[l].set_flag = 1;
-    fit_results[l].layer_order = l;
-    fit_results[l].module_id = E16ANA_TrackConstant::ModuleID2013To2020_27(mid[0]);
-    fit_results[l].local_pos = lpos[0];
-    fit_results[l].local_mom = lmom[0];
-    fit_results[l].global_pos = gpos;
-    fit_results[l].global_mom = gmom;
+    fit_results[l] = results[min_r_hit];
+    projection_flag += pow(2, l - E16ANA_TrackConstant::kHBD);
   }
+auto& track_steps = fitter->GetTrackSteps(tid);
+for (int s = 0; s < track_steps.size(); ++s) {
+  auto& step = track_steps[s];
+  E16MESSAGE("step %d: (%lf, %lf, %lf), r = %lf", s, step.X(), step.Y(), step.Z(), step.Mag());
+}
+for (int l = 4; l < 8; ++l) {
+  auto& result = fit_results[l];
+  auto& gpos = result.global_pos;
+  if (result.set_flag == 0) {
+    E16INFO("%s: RK failure", E16ANA_TrackConstant::kDetectorName[l].c_str());
+  } else {
+    E16INFO("%s: (%lf, %lf, %lf), r = %lf", E16ANA_TrackConstant::kDetectorName[l].c_str(), gpos.X(), gpos.Y(), gpos.Z(), gpos.Mag());
+  }
+}
   return;
 }
 
@@ -143,6 +184,7 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
     fitter->GetFitLMom(0, l, mid, lmom);
     TVector3 gpos;
     TVector3 gmom;
+    auto mid2020 = E16ANA_TrackConstant::ModuleID2013To2020(mid[0]);
     if (l <= E16ANA_TrackConstant::kSSD) {
       gpos = geometry->SSD(mid[0])->GetGPos(lpos[0]);
       gmom = geometry->SSD(mid[0])->GetGMom(lmom[0]);
@@ -150,14 +192,8 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
       gpos = geometry->GTR(mid[0], l - 1)->GetGPos(lpos[0]);
       gmom = geometry->GTR(mid[0], l - 1)->GetGMom(lmom[0]);
     }
-    fit_results[l].set_flag = 1;
-    fit_results[l].layer_order = l;
-    fit_results[l].module_id = E16ANA_TrackConstant::ModuleID2013To2020(mid[0]);
-    fit_results[l].local_pos = lpos[0];
-    fit_results[l].local_mom = lmom[0];
-    fit_results[l].global_pos = gpos;
-    fit_results[l].global_mom = gmom;
-    fit_results[l].residual_pos = cluster_pairs[l].LocalPos() - lpos[0];
+    auto rpos = cluster_pairs[l].LocalPos() - lpos[0];
+    fit_results[l].Set(l, mid2020, lpos[0], lmom[0], gpos, gmom, rpos);
   }
   Projection(fitter);
   return;
@@ -521,13 +557,11 @@ void E16ANA_TrackCandidates::SearchHBDAndLGHits() {
   for (auto& cands : track_candidates) {
     for (auto& cand : cands) {
       if (cand.ChiSquare() >= 1.0e10) {
-E16INFO("bad chi square");
         continue;
       }
       auto& fit_results = cand.LocalFitResults();
       for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
         if (fit_results[l].set_flag == 0) {
-E16INFO("not set flag, chi square: %lf", cand.ChiSquare());
           continue;
         }
         auto& fit_pos = fit_results[l].global_pos;

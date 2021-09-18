@@ -99,7 +99,19 @@ class E16ANA_TrackCandidate {
 //      block_id = -1;
       local_pos = E16DST_DST1Constant::kInvalidVector;
       local_mom = E16DST_DST1Constant::kInvalidVector;
+      global_pos = E16DST_DST1Constant::kInvalidVector;
+      global_mom = E16DST_DST1Constant::kInvalidVector;
       residual_pos = E16DST_DST1Constant::kInvalidVector;
+    }
+    void Set(int _layer_order, int _module_id, TVector3 _local_pos, TVector3 _local_mom, TVector3 _global_pos, TVector3 _global_mom, TVector3 _residual_pos) {
+      set_flag = 1;
+      layer_order = _layer_order;
+      module_id = _module_id;
+      local_pos = _local_pos;
+      local_mom = _local_mom;
+      global_pos = _global_pos;
+      global_mom = _global_mom;
+      residual_pos = _residual_pos;
     }
   };
 //  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, 2> _tmp_geoms)
@@ -154,6 +166,7 @@ sigma[0].SetX(0.);
   int TargetID() { return target_id; }
   double Charge() { return charge; }
   TVector3 Vertex() { return vtx; }
+  TVector3 Momentum() { return mom; }
   TVector3 Sigma(int n) { return sigma[n]; }
   TVector3 FitVertex() { return vtx_fit; }
   TVector3 FitMomentum() { return mom_fit; }
@@ -163,6 +176,7 @@ sigma[0].SetX(0.);
   double ChiSquare() { return chisq; }
   int MinimizeStatus() { return minimize_status; }
   int MatrixStatus() { return matrix_status; }
+  int ProjectionFlag() { return projection_flag; }
   E16ANA_TrackClusterPair& ClusterPair(int layer_index) { return cluster_pairs[layer_index]; }
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers>& ClusterPairs() { return cluster_pairs; }
   std::vector<E16DST_DST1HBDHit*>& ProjectedHBDHits() { return hbd_hits; }
@@ -178,17 +192,19 @@ if (chisq >= 1.0e10) {
     std::cout << "Chi Square: " << chisq << ", Minimize Status: " << minimize_status << ", Matrix Status: " << matrix_status << std::endl;
     std::cout << "  Vertex Position: (" << vtx_fit.X() << ", " << vtx_fit.Y() << ", " << vtx_fit.Z() << ")" << std::endl;
     std::cout << "  Vertex Momentum: (" << mom_fit.X() << ", " << mom_fit.Y() << ", " << mom_fit.Z() << ")" << std::endl;
-    std::cout << "  Tracking Layers" << std::endl;
     for (int l = 0; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
-//      std::cout << "    Layer ID: " << i << ", Module ID: " << pair.ModuleID() << std::endl;
-      std::cout << "    Layer ID: " << l << ", Module ID: " << fit_results[l].module_id << std::endl;
+      std::cout << "  Detector: " << E16ANA_TrackConstant::kDetectorName[l] << " (Layer ID: " << l << "), Module ID: " << fit_results[l].module_id << std::endl;
+      auto fit_local_pos = fit_results[l].local_pos;
       auto fit_global_pos = fit_results[l].global_pos;
       if (l < E16ANA_TrackConstant::kNumTrackingLayers) {
         auto& pair = cluster_pairs[l];
+        auto local_pos = pair.LocalPos();
         auto global_pos = pair.GlobalPos();
-        std::cout << "    Global Position (Hit): (" << global_pos.X()     << ", " << global_pos.Y()     << ", " << global_pos.Z()     << ")" << std::endl;
+        std::cout << "    Local  Position (Hit): (" << local_pos.X()  << ", " << local_pos.Y()  << ", " << local_pos.Z()  << ")" << std::endl;
+        std::cout << "    Global Position (Hit): (" << global_pos.X() << ", " << global_pos.Y() << ", " << global_pos.Z() << ")" << std::endl;
       }
       if (fit_results[l].set_flag == 1) {
+        std::cout << "    Local  Position (Fit): (" << fit_local_pos.X()  << ", " << fit_local_pos.Y()  << ", " << fit_local_pos.Z()  << ")" << std::endl;
         std::cout << "    Global Position (Fit): (" << fit_global_pos.X() << ", " << fit_global_pos.Y() << ", " << fit_global_pos.Z() << ")" << std::endl;
       } else {
         std::cout << "    Runge Kutta Failure" << std::endl;
@@ -198,6 +214,9 @@ if (chisq >= 1.0e10) {
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
+//  static constexpr std::array<std::vector<int>, E16ANA_TrackConstant::kNumLGLayers> kLGBlocks = {{{0,  1 , 2,  3,  4,  5,     50, 51, 52, 53, 54, 55},
+//                                                                                                 {10, 11, 12, 13, 14, 15,     40, 41, 42, 43, 44, 45},
+//                                                                                                 {20, 21, 22, 23, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36}}};
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
   void Copy(const E16ANA_TrackCandidate& rhs) {
@@ -259,7 +278,8 @@ if (chisq >= 1.0e10) {
   double chisq;
   int minimize_status;
   int matrix_status;
-//  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
+  // projection
+  int projection_flag; // bit0: HBD, 1: LG0, 2: LG1, 3: LG2
   std::vector<E16DST_DST1HBDHit*> hbd_hits;
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
   std::vector<E16DST_DST1LGHit*> lg_hits;
@@ -279,7 +299,15 @@ class E16ANA_TrackCandidates {
   }
   bool VertexFixFlag() { return vertex_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
+  int NumTrackCandidates() {
+    int n_cands = 0;
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
+      n_cands += track_candidates.size();
+    }
+    return n_cands;
+  }
   int NumTrackCandidates(int n) { return track_candidates[n].size(); }
+  std::vector<E16ANA_TrackCandidate>& TrackCandidates(int n) { return track_candidates[n]; }
   void SelectTracks();
   void Print() {
     for (auto& cands : track_candidates) {
@@ -287,6 +315,7 @@ class E16ANA_TrackCandidates {
         cand.Print();
       }
     }
+    std::cout << "Number of track candidates: " << NumTrackCandidates() << std::endl;
   }
   void PrintSelected() {
     for (auto& cands : selected_track_candidates) {
@@ -355,20 +384,210 @@ class E16ANA_TrackCandidates {
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
-//  void RequireLGCut();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* fitter;
-//  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
   bool vertex_fix_flag;
   bool py_fix_flag;
   E16DST_DST1PhysicsRecord* record;
   std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
   int most_likely_target_id;
   std::array<std::vector<E16ANA_TrackCandidate*>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
+};
 
-//  OutputFile* file;
+class CheckFile {
+ public:
+  CheckFile(char* file_name = "~/tmp/tmp.root")
+      : file(TFile(file_name, "recreate")) {
+    tree = new TTree("tree", "tree");
+    tree->Branch("event_id", &event_id, "event_id/I");
+    tree->Branch("track_id", &track_id, "track_id/I");
+    tree->Branch("chi_square", &chi_square, "chi_square/D");
+    tree->Branch("vtx_gpos_hit", &vtx_gpos_hit);
+    tree->Branch("ssd_module_id", &ssd_module_id), "ssd_module_id/I";
+    tree->Branch("gtr1_module_id", &gtr1_module_id), "gtr1_module_id/I";
+    tree->Branch("gtr2_module_id", &gtr2_module_id), "gtr2_module_id/I";
+    tree->Branch("gtr3_module_id", &gtr3_module_id), "gtr3_module_id/I";
+    tree->Branch("hbd_module_id", &hbd_module_id), "hbd_module_id/I";
+    tree->Branch("lg0_module_id", &lg0_module_id), "lg0_module_id/I";
+    tree->Branch("lg1_module_id", &lg1_module_id), "lg1_module_id/I";
+    tree->Branch("lg2_module_id", &lg2_module_id), "lg2_module_id/I";
+    tree->Branch("ssd_lpos_hit", &ssd_lpos_hit);
+    tree->Branch("ssd_gpos_hit", &ssd_gpos_hit);
+    tree->Branch("gtr1_lpos_hit", &gtr1_lpos_hit);
+    tree->Branch("gtr1_gpos_hit", &gtr1_gpos_hit);
+    tree->Branch("gtr2_lpos_hit", &gtr2_lpos_hit);
+    tree->Branch("gtr2_gpos_hit", &gtr2_gpos_hit);
+    tree->Branch("gtr3_lpos_hit", &gtr3_lpos_hit);
+    tree->Branch("gtr3_gpos_hit", &gtr3_gpos_hit);
+    tree->Branch("hbd_lpos_fit", &hbd_lpos_fit);
+    tree->Branch("vtx_gpos_fit", &vtx_gpos_fit);
+    tree->Branch("ssd_lpos_fit", &ssd_lpos_fit);
+    tree->Branch("ssd_gpos_fit", &ssd_gpos_fit);
+    tree->Branch("gtr1_lpos_fit", &gtr1_lpos_fit);
+    tree->Branch("gtr1_gpos_fit", &gtr1_gpos_fit);
+    tree->Branch("gtr2_lpos_fit", &gtr2_lpos_fit);
+    tree->Branch("gtr2_gpos_fit", &gtr2_gpos_fit);
+    tree->Branch("gtr3_lpos_fit", &gtr3_lpos_fit);
+    tree->Branch("gtr3_gpos_fit", &gtr3_gpos_fit);
+    tree->Branch("hbd_lpos_fit", &hbd_lpos_fit);
+    tree->Branch("hbd_gpos_fit", &hbd_gpos_fit);
+    tree->Branch("lg0_lpos_fit", &lg0_lpos_fit);
+    tree->Branch("lg0_gpos_fit", &lg0_gpos_fit);
+    tree->Branch("lg1_lpos_fit", &lg1_lpos_fit);
+    tree->Branch("lg1_gpos_fit", &lg1_gpos_fit);
+    tree->Branch("lg2_lpos_fit", &lg2_lpos_fit);
+    tree->Branch("lg2_gpos_fit", &lg2_gpos_fit);
+  };
+  ~CheckFile() {
+    for (int i = 0; i < xz_track_graphs.size(); ++i) {
+      auto& xz_gr = xz_track_graphs[i];
+      auto& ry_gr = xz_track_graphs[i];
+      xz_gr->SetName(Form("xz_%d", i));
+      xz_gr->SetTitle(Form("xz_%d", i));
+      xz_gr->Write();
+      ry_gr->SetName(Form("ry_%d", i));
+      ry_gr->SetTitle(Form("ry_%d", i));
+      ry_gr->Write();
+    }
+    file.Write();
+  }
+  void AddFit(const TVector3& vtx, const TVector3& mom,  const std::array<E16ANA_TrackCandidate::FitResult, E16ANA_TrackConstant::kNumDetectorLayers>& fit_results) {
+    const int n_point = E16ANA_TrackConstant::kNumDetectorLayers;
+    double x[n_point], y[n_point], z[n_point], r[n_point];
+    for (int i = 0; i < n_point; ++i) {
+      auto& result = fit_results[i];
+      if (result.set_flag == 0) {
+        continue;
+      }
+      auto mid = result.module_id;
+      auto lpos = result.local_pos;
+      auto gpos = result.global_pos;
+      x[i] = gpos.X();
+      y[i] = gpos.Y();
+      z[i] = gpos.Z();
+      r[i] = sqrt(x[i] * x[i] + z[i] * z[i]);
+      if (i == 0) {
+        ssd_module_id = mid;
+        ssd_lpos_fit = lpos;
+        ssd_gpos_fit = gpos;
+      } else if (i == 1) {
+        gtr1_module_id = mid;
+        gtr1_lpos_fit = lpos;
+        gtr1_gpos_fit = gpos;
+      } else if (i == 2) {
+        gtr2_module_id = mid;
+        gtr2_lpos_fit = lpos;
+        gtr2_gpos_fit = gpos;
+      } else if (i == 3) {
+        gtr3_module_id = mid;
+        gtr3_lpos_fit = lpos;
+        gtr3_gpos_fit = gpos;
+      } else if (i == 4) {
+        hbd_module_id = mid;
+        hbd_lpos_fit = lpos;
+        hbd_gpos_fit = gpos;
+      } else if (i == 5) {
+        lg0_module_id = mid;
+        lg0_lpos_fit = lpos;
+        lg0_gpos_fit = gpos;
+      } else if (i == 6) {
+        lg1_module_id = mid;
+        lg1_lpos_fit = lpos;
+        lg1_gpos_fit = gpos;
+      } else if (i == 7) {
+        lg2_module_id = mid;
+        lg2_lpos_fit = lpos;
+        lg2_gpos_fit = gpos;
+      }
+    }
+    xz_track_graphs.emplace_back(new TGraph(n_point, x, z));
+    ry_track_graphs.emplace_back(new TGraph(n_point, r, y));
+    vtx_gpos_fit = vtx;
+    vtx_gmom_fit = mom;
+    return;
+  }
+  void AddHit(TVector3& vtx, TVector3& mom, std::array<E16ANA_TrackClusterPair, 4>& cluster_pairs) {
+    vtx_gpos_hit = vtx;
+    vtx_gmom_hit = mom;
+    for (int i = 0; i < 4; ++i) {
+      auto& clst = cluster_pairs[i];
+      auto lpos = clst.LocalPos();
+      auto gpos = clst.GlobalPos();
+      if (i == 0) {
+        ssd_lpos_hit = lpos;
+        ssd_gpos_hit = gpos;
+      } else if (i == 1) {
+        gtr1_lpos_hit = lpos;
+        gtr1_gpos_hit = gpos;
+      } else if (i == 2) {
+        gtr2_lpos_hit = lpos;
+        gtr2_gpos_hit = gpos;
+      } else if (i == 3) {
+        gtr3_lpos_hit = lpos;
+        gtr3_gpos_hit = gpos;
+      }
+    }
+    return;
+  }
+  void AddEntry(int _event_id, E16ANA_TrackCandidate& cand) {
+    event_id = _event_id;
+    track_id = cand.TrackID();
+    chi_square = cand.ChiSquare();
+    auto&& vtx = cand.Vertex();
+    auto&& mom = cand.Momentum();
+    auto&& vtx_fit = cand.FitVertex();
+    auto&& mom_fit = cand.FitMomentum();
+    const auto& fit_results = cand.LocalFitResults();
+    AddFit(vtx_fit, mom_fit, fit_results);
+    AddHit(vtx, mom, cand.ClusterPairs());
+    tree->Fill();
+  }
+ private:
+  TFile file;
+  TTree* tree;
+  int event_id;
+  int track_id;
+  double chi_square;
+  TVector3 vtx_gpos_hit;
+  TVector3 vtx_gmom_hit;
+  int ssd_module_id;
+  int gtr1_module_id;
+  int gtr2_module_id;
+  int gtr3_module_id;
+  int hbd_module_id;
+  int lg0_module_id;
+  int lg1_module_id;
+  int lg2_module_id;
+  TVector3 ssd_lpos_hit;
+  TVector3 ssd_gpos_hit;
+  TVector3 gtr1_lpos_hit;
+  TVector3 gtr1_gpos_hit;
+  TVector3 gtr2_lpos_hit;
+  TVector3 gtr2_gpos_hit;
+  TVector3 gtr3_lpos_hit;
+  TVector3 gtr3_gpos_hit;
+  TVector3 vtx_gpos_fit;
+  TVector3 vtx_gmom_fit;
+  TVector3 ssd_lpos_fit;
+  TVector3 ssd_gpos_fit;
+  TVector3 gtr1_lpos_fit;
+  TVector3 gtr1_gpos_fit;
+  TVector3 gtr2_lpos_fit;
+  TVector3 gtr2_gpos_fit;
+  TVector3 gtr3_lpos_fit;
+  TVector3 gtr3_gpos_fit;
+  TVector3 hbd_lpos_fit;
+  TVector3 hbd_gpos_fit;
+  TVector3 lg0_lpos_fit;
+  TVector3 lg0_gpos_fit;
+  TVector3 lg1_lpos_fit;
+  TVector3 lg1_gpos_fit;
+  TVector3 lg2_lpos_fit;
+  TVector3 lg2_gpos_fit;
+  std::vector<TGraph*> xz_track_graphs;
+  std::vector<TGraph*> ry_track_graphs;
 };
 
 #endif // E16ANA_TRACKCANDIDATE_HH

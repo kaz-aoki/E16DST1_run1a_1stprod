@@ -126,7 +126,9 @@ add_library(E16DST_DST1
   
   src/ssd_dst1_dummy.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
+  src/E16DST_DST1HBDFactory_dst1_detector.cc
   src/E16DST_DST1LGFactory_dst1_detector.cc
+#  src/track/E16ANA_TrackCandidate.cc
 )
 
 target_link_libraries(E16DST_DST1

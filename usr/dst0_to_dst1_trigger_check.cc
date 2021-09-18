@@ -9,7 +9,10 @@
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
+#include "E16DST_DST1Factory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+
+#include "E16ANA_TrackCandidate.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -89,15 +92,16 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
 
+  CheckFile check_file;
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
     if (max_event != -1 && n_physics_event >= max_event) {
       break;
     }
-    if (n_event % 1000 == 0) {
+//    if (n_event % 1000 == 0) {
       cout << "Number of event: " << n_event << endl;
-    }
+//    }
     auto event_type = dst0->EventType();
 //    dst1->SetEventType(event_type);
     if (event_type == E16DST_DST0EventType::Physics) {
@@ -123,7 +127,21 @@ int main(int argc, char* argv[]) {
       E16DST_DST1LGFactoryDST1Detector(lg_hits0, &record->LG());
       record->LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
+//      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file);
+
+//      E16ANA_TrackCandidates track_candidates(geometry, bfield_map, fitter, record);
+//      track_candidates.SelectTracks();
+//      track_candidates.Print();
+////      track_candidates->PrintSelected();
+//      for (int i = 0; i < 3; ++i) {
+//        for (auto& cand : track_candidates.TrackCandidates(i)) {
+//          check_file.AddEntry(n_physics_event, cand);
+//        }
+//      }
+
+
+//      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file);
 //      event1->GTR().SetValidFlag(1);
 //      event1->LG().SetValidFlag(1);
 //      event1->Trigger().SetValidFlag(1);
