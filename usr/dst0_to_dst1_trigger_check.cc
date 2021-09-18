@@ -9,7 +9,7 @@
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
-#include "E16DST_DST1Factory.hh"
+#include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
 #include "E16ANA_TrackCandidate.hh"

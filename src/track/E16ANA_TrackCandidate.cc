@@ -164,7 +164,7 @@ for (int l = 4; l < 8; ++l) {
   if (result.set_flag == 0) {
     E16INFO("%s: RK failure", E16ANA_TrackConstant::kDetectorName[l].c_str());
   } else {
-    E16INFO("%s: (%lf, %lf, %lf), r = %lf", E16ANA_TrackConstant::kDetectorName[l].c_str(), gpos.X(), gpos.Y(), gpos.Z(), gpos.Mag());
+    E16INFO("%s, Module ID = %d: (%lf, %lf, %lf), r = %lf", E16ANA_TrackConstant::kDetectorName[l].c_str(), result.module_id, gpos.X(), gpos.Y(), gpos.Z(), gpos.Mag());
   }
 }
   return;

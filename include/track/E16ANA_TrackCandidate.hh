@@ -404,6 +404,8 @@ class CheckFile {
     tree->Branch("event_id", &event_id, "event_id/I");
     tree->Branch("track_id", &track_id, "track_id/I");
     tree->Branch("chi_square", &chi_square, "chi_square/D");
+    tree->Branch("gposs_hit", &gposs_hit);
+    tree->Branch("gposs_fit", &gposs_fit);
     tree->Branch("vtx_gpos_hit", &vtx_gpos_hit);
     tree->Branch("ssd_module_id", &ssd_module_id), "ssd_module_id/I";
     tree->Branch("gtr1_module_id", &gtr1_module_id), "gtr1_module_id/I";
@@ -454,6 +456,10 @@ class CheckFile {
     file.Write();
   }
   void AddFit(const TVector3& vtx, const TVector3& mom,  const std::array<E16ANA_TrackCandidate::FitResult, E16ANA_TrackConstant::kNumDetectorLayers>& fit_results) {
+    gposs_fit.clear();
+    gposs_fit.emplace_back(vtx);
+    vtx_gpos_fit = vtx;
+    vtx_gmom_fit = mom;
     const int n_point = E16ANA_TrackConstant::kNumDetectorLayers;
     double x[n_point], y[n_point], z[n_point], r[n_point];
     for (int i = 0; i < n_point; ++i) {
@@ -464,6 +470,7 @@ class CheckFile {
       auto mid = result.module_id;
       auto lpos = result.local_pos;
       auto gpos = result.global_pos;
+      gposs_fit.emplace_back(gpos);
       x[i] = gpos.X();
       y[i] = gpos.Y();
       z[i] = gpos.Z();
@@ -509,12 +516,15 @@ class CheckFile {
     return;
   }
   void AddHit(TVector3& vtx, TVector3& mom, std::array<E16ANA_TrackClusterPair, 4>& cluster_pairs) {
+    gposs_hit.clear();
+    gposs_hit.emplace_back(vtx);
     vtx_gpos_hit = vtx;
     vtx_gmom_hit = mom;
     for (int i = 0; i < 4; ++i) {
       auto& clst = cluster_pairs[i];
       auto lpos = clst.LocalPos();
       auto gpos = clst.GlobalPos();
+      gposs_hit.emplace_back(gpos);
       if (i == 0) {
         ssd_lpos_hit = lpos;
         ssd_gpos_hit = gpos;
@@ -550,8 +560,12 @@ class CheckFile {
   int event_id;
   int track_id;
   double chi_square;
+  std::vector<TVector3> gposs_hit;
+  std::vector<TVector3> gposs_fit;
   TVector3 vtx_gpos_hit;
   TVector3 vtx_gmom_hit;
+  TVector3 vtx_gpos_fit;
+  TVector3 vtx_gmom_fit;
   int ssd_module_id;
   int gtr1_module_id;
   int gtr2_module_id;
@@ -568,8 +582,6 @@ class CheckFile {
   TVector3 gtr2_gpos_hit;
   TVector3 gtr3_lpos_hit;
   TVector3 gtr3_gpos_hit;
-  TVector3 vtx_gpos_fit;
-  TVector3 vtx_gmom_fit;
   TVector3 ssd_lpos_fit;
   TVector3 ssd_gpos_fit;
   TVector3 gtr1_lpos_fit;
