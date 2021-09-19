@@ -39,23 +39,25 @@ class E16ANA_TrackClusterPair {
         clusters({nullptr, nullptr}),
         local_pos(E16DST_DST1Constant::kInvalidVector) {}
   ~E16ANA_TrackClusterPair() {}
-  void Set(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, E16DST_DST1Cluster* x_cluster) { // SSD
+  void Set(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _global_pos, E16DST_DST1Cluster* x_cluster) { // SSD
     set_flag = 1;
     layer_order = _layer_order;
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = nullptr;
     local_pos = {dynamic_cast<E16DST_DST1SSDCluster*>(x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
-    global_pos = _geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id))->GetGPos(local_pos);
+//    global_pos = _geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id))->GetGPos(local_pos);
+    global_pos = _global_pos;
   }
-  void Set(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, E16DST_DST1Cluster* x_cluster, E16DST_DST1Cluster* y_cluster) { // GTR
+  void Set(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _x_global_pos, const TVector3& _y_global_pos, E16DST_DST1Cluster* x_cluster, E16DST_DST1Cluster* y_cluster) { // GTR
     set_flag = 1;
     layer_order = _layer_order;
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = y_cluster;
     local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(x_cluster)->LocalPos().X(), dynamic_cast<E16DST_DST1GTRCluster*>(y_cluster)->LocalPos().Y(), 0.}; // z = 0?
-    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
+//    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
+    global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
   void Clear() {
     set_flag = 0;
@@ -328,7 +330,9 @@ class E16ANA_TrackCandidates {
   struct OneAxisClusterSet {
     int target_id;
     int charge;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
     E16DST_DST1SSDCluster* ssd_cluster;
+//    std::array<E16DST_DST1GTRCluster*, kNumGTRLayers> gtr_clusters;
     std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
   };
   static constexpr int kNumTrackingLayersWTarget = 1 + E16ANA_TrackConstant::kNumTrackingLayers;
