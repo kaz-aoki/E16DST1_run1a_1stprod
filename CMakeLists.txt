@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-set(CMAKE_CXX_FLAGS "-lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-pg -lMinuit -lSpectrum")
+set(CMAKE_CXX_FLAGS "-g -lMinuit -lSpectrum")
 
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
@@ -31,6 +33,8 @@ include_directories(
 	include
 	include/HBD
 	include/LG
+    include/SSD
+	include/GTR
 	include/trigger
 	include/track
   E16DST
@@ -47,8 +51,8 @@ include_directories(
 )
 
 link_directories(
-  /opt/E16/lib64-gcc8/clhep # evb
-#  /ccj/u/E16/lib64 #ccj
+#  /opt/E16/lib64-gcc8/clhep # evb
+  /ccj/u/E16/lib64 #ccj
 #  ${Boost_LIBRARY_DIRS}
 )
 
@@ -56,10 +60,8 @@ link_libraries(
   ${ROOT_LIBRARIES}
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
-<<<<<<< HEAD
-	/ccj/u/E16/libG4CLHEP/libG4clhep.so #ccj
-	/ccj/u/E16/libG4CLHEP/libHepPDT.so #ccj
-	/ccj/u/E16/libG4CLHEP/libHepPID.so #ccj
+  libG4clhep.so
+	libz.so
 )
 
 #_______________________________________________________________________________
@@ -91,7 +93,6 @@ add_library(E16ANA
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
   E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
-  E16ANA_CalibDB/src/E16ANA_TargetInfo.cc
 )
 
 target_link_libraries(E16ANA
@@ -112,8 +113,6 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
   src/E16DST_DST1GTRHitAndClusterFactory.cc
-  src/E16DST_DST1WireTrackFactory.cc
-  src/GTR/E16ANA_STRAnalyzer.cc
   src/GTR/E16ANA_GTRPedestal.cc
   src/E16DST_DST1LGFactory.cc
   src/GTR/GTRCheckHist.cc
@@ -126,6 +125,8 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDTH2Hex.cc
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
+  src/E16DST_DST1WireTrackFactory.cc
+  src/GTR/E16ANA_STRAnalyzer.cc
   
 #  src/ssd_dst1_dummy.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
@@ -181,6 +182,15 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16DST
 	E16DST_DST1
 )
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_straight_check usr/dst0_to_dst1_straight_check.cc)
+
+target_link_libraries(dst0_to_dst1_straight_check
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+)
+
 
 ##_______________________________________________________________________________
 #add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
