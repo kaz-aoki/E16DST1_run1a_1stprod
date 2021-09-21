@@ -1,3 +1,4 @@
+//2021-09-21, uploaded by ichikawa
 //2021-02-27, uploaded by nakai
 //2016-11-22, uploaded by nakai
 //2016-05-02, uploaded by nakai
@@ -90,6 +91,7 @@ public:
          SetCharge(i, charge[i]);
       }
    };
+   void SetMaxSteps(int _max_steps) { max_steps = _max_steps; }
 
    /* Add measured points (hits) */
    //    track_id    : ID number of tracks in this class
@@ -128,6 +130,8 @@ public:
    };
    int GetMinimizeStatus(){return minimize_status;};
    int GetMatrixStatus(){return matrix_status;};
+   int GetNumCalls(){return n_calls;};
+   int GetMaxSteps(){return max_steps;};
    /* Get TVector3s from Hit_t */
    // Module wide (module-by-module)
    //    track_id     : input, ID number of tracks in this class
@@ -252,6 +256,8 @@ private:
    //*-*                    1 = approximation only, not accurate
    //*-*                    2 = full matrix, but forced positive-definite
    //*-*                    3 = full accurate covariance matrix
+   int n_calls;
+   int max_steps;
 
    struct Hit_t {
       TVector3 lpos;

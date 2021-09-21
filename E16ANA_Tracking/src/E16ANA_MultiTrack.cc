@@ -1,3 +1,4 @@
+//2021-09-21, uploaded by ichikawa
 //2021-02-27, uploaded by nakai
 //2016-11-22, uploaded by nakai
 //2016-05-02, uploaded by nakai
@@ -39,6 +40,7 @@ void E16ANA_MultiTrack::Clear(){
       }
       GTRlPos[i].clear();
    }
+   max_steps = 10000;
 }
 
 void E16ANA_MultiTrack::SetCharge(int track_id, double charge){
@@ -254,7 +256,8 @@ int E16ANA_MultiTrack::RungeKuttaTrackingToNextHit(int track_id, LayerHits_t &ne
             std::cout << "E16ANA_MultiTrack::RungeKuttaTrackingToNextHit : Out of tracking region." << std::endl;
          }
          break;
-      }else if(n_steps > 10000){
+//      }else if(n_steps > 10000){
+      }else if(n_steps > max_steps){
          if(print_level >= 1){
             std::cout << "E16ANA_MultiTrack::RungeKuttaTrackingToNextHit : Excess max number of steps." << std::endl;
          }
@@ -318,12 +321,14 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
       minuit->SetFixedVariable(1, "Vertex_Y", vertex_init.Y());
    }else{
       //minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, -20.0, 20.0); // mm
-      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20.0, vertex_init.X()+20.0); // mm // update 2021-02-24
+//      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20.0, vertex_init.X()+20.0); // mm // update 2021-02-24
+      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-3., vertex_init.X()+3.); // mm // update 2021-09-20
       if(pyfixflag){
          minuit->SetFixedVariable(1, "Vertex_Y", vertex_init.Y());
       }else{
          //minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20.0, 20.0); // mm
-         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20.0, vertex_init.Y()+20.0); // mm // update 2021-02-24
+//         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20.0, vertex_init.Y()+20.0); // mm // update 2021-02-24
+         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-3.0, vertex_init.Y()+3.0); // mm // update 2021-09-20
       }
    }
    /*
@@ -365,6 +370,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    }
    minimize_status = minuit->Minimize();
    matrix_status = minuit->CovMatrixStatus();
+   n_calls = minuit->NCalls();
    double chisq = minuit->MinValue();
    vertex_fit.SetXYZ(
          minuit->X()[0],
