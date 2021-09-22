@@ -231,7 +231,7 @@ sigma[0].SetX(0.);
 //                                                                                                 {20, 21, 22, 23, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36}}};
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
-  static constexpr int kTrackingMaxSteps = 200;
+  static constexpr int kTrackingMaxSteps = 400;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
@@ -367,6 +367,8 @@ class E16ANA_TrackCandidates {
                                                                              1. / (kXSigma[3] * kXSigma[3]),
                                                                              1. / (kXSigma[4] * kXSigma[4])};
   static constexpr double kGTRYDiffThreshold = 20.;
+  static constexpr double kGTRPeakSumThresholdX = 180.;
+  static constexpr double kGTRPeakSumThresholdY = 10.;
   static constexpr std::array<double, kNumGTRLayers> kYSigma = {1., 1., 1.};
   static constexpr std::array<double, kNumGTRLayers> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                                                  1. / (kYSigma[1] * kYSigma[1]),

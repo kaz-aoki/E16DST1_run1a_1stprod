@@ -531,12 +531,21 @@ void E16ANA_TrackCandidates::SearchTrackCandidates() {
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
+              if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX) {
+                continue;
+              }
               cluster_set->gtr_clusters[0] = gtr100x_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPos(*geometry);
               for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
+                if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX) {
+                  continue;
+                }
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
                 cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPos(*geometry);
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
+                  if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX) {
+                    continue;
+                  }
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPos(*geometry);
 //                  n_xsearch += 3;
@@ -572,12 +581,21 @@ void E16ANA_TrackCandidates::SearchTrackCandidates() {
         auto& gtr100y_cluster_ptrs  = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsY);
         auto& gtr100yb_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsYb);
         for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
+          if (gtr300y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
+            continue;
+          }
           cluster_set->gtr_clusters[2] = gtr300y_cluster;
           cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPos(*geometry);
           for (const auto& gtr200y_cluster : gtr200y_cluster_ptrs) {
+            if (gtr200y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
+              continue;
+            }
             cluster_set->gtr_clusters[1] = gtr200y_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200y_cluster->GlobalPos(*geometry);
             for (const auto& gtr100y_cluster : gtr100y_cluster_ptrs) {
+              if (gtr100y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
+                continue;
+              }
               cluster_set->gtr_clusters[0] = gtr100y_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100y_cluster->GlobalPos(*geometry);
               if (IsYTrackCandidate(*cluster_set)) {
@@ -585,6 +603,9 @@ void E16ANA_TrackCandidates::SearchTrackCandidates() {
               }
             }
             for (const auto& gtr100yb_cluster : gtr100yb_cluster_ptrs) {
+              if (gtr100yb_cluster->PeakSum() < kGTRPeakSumThresholdY) {
+                continue;
+              }
               cluster_set->gtr_clusters[0] = gtr100yb_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100yb_cluster->GlobalPos(*geometry);
               if (IsYTrackCandidate(*cluster_set)) {
