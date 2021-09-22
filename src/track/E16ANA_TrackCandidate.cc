@@ -539,6 +539,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidates() {
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPos(*geometry);
+//                  n_xsearch += 3;
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id= tgt_index;
                     if (IsXTrackCandidate(cluster_set)) {
@@ -783,6 +784,7 @@ void E16ANA_TrackCandidates::SelectTracks() {
       selected_track_candidates[tgt_index].emplace_back(&track_candidate);
     }
   }
+  return;
 }
 
 void E16ANA_TrackCandidates::AddTracksToRecord() {

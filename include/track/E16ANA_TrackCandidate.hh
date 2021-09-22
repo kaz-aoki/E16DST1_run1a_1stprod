@@ -231,7 +231,7 @@ sigma[0].SetX(0.);
 //                                                                                                 {20, 21, 22, 23, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36}}};
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
-  static constexpr int kTrackingMaxSteps = 300;
+  static constexpr int kTrackingMaxSteps = 200;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
@@ -306,6 +306,7 @@ class E16ANA_TrackCandidates {
  public:
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
+//    n_xsearch = 0;
     for (auto& cands : track_candidates) {
       cands.clear();
     }
@@ -319,6 +320,7 @@ class E16ANA_TrackCandidates {
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
+//  int NumXSearch() { return n_xsearch; }
   int NumTrackCandidates() {
     int n_cands = 0;
     for (auto& cands : track_candidates) {
@@ -420,6 +422,7 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
+//  int n_xsearch;
   std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
   int most_likely_target_id;
   std::array<std::vector<E16ANA_TrackCandidate*>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
@@ -485,13 +488,23 @@ class CheckFile {
       ry_gr->Write();
     }
     for (int i = 0; i < good_xz_track_graphs.size(); ++i) {
-      auto& xz_gr = xz_track_graphs[i];
-      auto& ry_gr = xz_track_graphs[i];
+      auto& xz_gr = good_xz_track_graphs[i];
+      auto& ry_gr = good_xz_track_graphs[i];
       xz_gr->SetName(Form("good_xz_%d", i));
       xz_gr->SetTitle(Form("good_xz_%d", i));
       xz_gr->Write();
       ry_gr->SetName(Form("good_ry_%d", i));
       ry_gr->SetTitle(Form("good_ry_%d", i));
+      ry_gr->Write();
+    }
+    for (int i = 0; i < xz_track_graphs_hit.size(); ++i) {
+      auto& xz_gr = xz_track_graphs_hit[i];
+      auto& ry_gr = xz_track_graphs_hit[i];
+      xz_gr->SetName(Form("xz_hit_%d", i));
+      xz_gr->SetTitle(Form("xz_hit_%d", i));
+      xz_gr->Write();
+      ry_gr->SetName(Form("ry_hit_%d", i));
+      ry_gr->SetTitle(Form("ry_hit_%d", i));
       ry_gr->Write();
     }
     file.Write();
@@ -565,10 +578,15 @@ class CheckFile {
     return;
   }
   void AddHit(TVector3& vtx, TVector3& mom, std::array<E16ANA_TrackClusterPair, 4>& cluster_pairs) {
+    int n_point = 5;
+    double x[5], y[5], z[5], r[5];
     gposs_hit.clear();
     gposs_hit.emplace_back(vtx);
     vtx_gpos_hit = vtx;
     vtx_gmom_hit = mom;
+    x[0] = vtx(0);
+    y[0] = vtx(1);
+    z[0] = vtx(2);
     for (int i = 0; i < 4; ++i) {
       auto& clst = cluster_pairs[i];
       auto lpos = clst.LocalPos();
@@ -587,7 +605,13 @@ class CheckFile {
         gtr3_lpos_hit = lpos;
         gtr3_gpos_hit = gpos;
       }
+      x[1 + i] = gpos(0);
+      y[1 + i] = gpos(1);
+      z[1 + i] = gpos(2);
+      r[1 + i] = sqrt(x[1 + i] * x[1 + i] + z[1 + i] * z[1 + i]);
     }
+    xz_track_graphs_hit.emplace_back(new TGraph(n_point, x, z));
+    ry_track_graphs_hit.emplace_back(new TGraph(n_point, r, y));
     return;
   }
   void AddEntry(int _event_id, E16ANA_TrackCandidate& cand) {
@@ -651,6 +675,8 @@ class CheckFile {
   TVector3 lg1_gpos_fit;
   TVector3 lg2_lpos_fit;
   TVector3 lg2_gpos_fit;
+  std::vector<TGraph*> xz_track_graphs_hit;
+  std::vector<TGraph*> ry_track_graphs_hit;
   std::vector<TGraph*> xz_track_graphs;
   std::vector<TGraph*> ry_track_graphs;
   std::vector<TGraph*> good_xz_track_graphs;
