@@ -29,7 +29,7 @@ private:
   double pedestal[6][768][8];
   double sigma[6][768][8];
   //apvmodule[0-5], apvchip[0-2], strip[0-127], sample[0-7] ped/sigma
-  static const int datasize = 6*3*128*8;
+  static const int datasize = 6*768*8;
   bool ReadCalibDataCore(FILE* ifp);
 
 public:
