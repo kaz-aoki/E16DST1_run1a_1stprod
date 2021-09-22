@@ -15,16 +15,6 @@
 
 ・まだ途中なので.dst1は生成できません。適宜更新していきます。
 
-・E16ANA_Geometryを使いたい場合は
-
-　ccj: cp -r /ccj/w/data06a/E16/user/ozawa/sw/geant4.10.07_install/include ${E16DST1}/E16ANA_Geometry/include/geant4
-
-　evb: cp -r /e16/u/ichikawa/work/dst1/E16DST1/E16ANA_Geometry/include/geant4 ${E16DST1}/E16ANA_Geometry/include/
-
-　などとするかinclude_directoriesに入れてください。
- 
- evbにもgeant4があるそうなのでそのうちそこを見るように変えます。
-
 ・dst0のsampleは例えば
 
 　evb02:/e16/w/data102z/trg/junkdata/dst0merge/run030778_sink0_000_srs_trg_lg_ssd.dst0
@@ -36,3 +26,7 @@
 　CalibDBManager、Calibxxxyyy (各検出器のDB class) はmainで呼び、runが変わるたびにManagerと各検出器のclassにsetする。
 
 　Factory(E16ANA_Calibxxxyyy& xxx_yyy)などのように各検出器classを参照渡しする。
+
+・プログラムのチェックはdst0_to_dst1.ccではなくdst0_to_dst1_xxx_check.ccを使ってください。
+
+　それ以外の書き換えであればdst0_to_dst1.ccを編集して構いません。他のdst0_to_dst1_xxx_check.ccを編集はしなくて大丈夫です。

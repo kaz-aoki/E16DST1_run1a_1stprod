@@ -17,8 +17,8 @@
 #include <map>
 #include <algorithm>
 
-#include "E16ANA_GTRAnalyzer2.h"
-#include "E16ANA_GTRStripAnalyzer.h"
+#include "GTR/E16ANA_GTRAnalyzer2.h"
+#include "GTR/E16ANA_GTRStripAnalyzer.h"
 
 using namespace std;
 

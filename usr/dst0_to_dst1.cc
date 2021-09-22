@@ -8,7 +8,6 @@
 #include "E16ANA_SSDcalib.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
-#include "E16ANA_TriggerCoincidenceMap.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
@@ -142,6 +141,8 @@ int main(int argc, char* argv[]) {
 
   
   auto dst0 = new E16DST_DST0();
+
+
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
@@ -154,6 +155,14 @@ int main(int argc, char* argv[]) {
   //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
   //    return -1;
   //   }
+
+//  TFile* froot = new TFile(out_file_name,"recreate");
+//  TH1F* hlgph = new TH1F("hlgph","LGPeak",10000,0,1000);
+//  TH1I* hlgpt = new TH1I("hlgpt","LGPeakTime",20000,-10000,10000);
+//  TH1F* hlgtm = new TH1F("hlgtm","LGTiming",20000,-10000,10000);
+//  TH1F* hlgbs = new TH1F("hlgbs","LGBaseline",20000,-10000,10000);
+//  TH1F* hlgbr = new TH1F("hlgbr","LGBaselineRms",20000,-10000,10000);
+//  TH1F* hlgit = new TH1F("hlgit","LGIntegral",20000,-10000,10000);
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -168,8 +177,9 @@ int main(int argc, char* argv[]) {
     //    dst1->SetEventType(event_type);
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
-      //      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-      auto event1 = new E16DST_DST1PhysicsEvent();
+//      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
+//      auto event1 = new E16DST_DST1PhysicsEvent();
+
       auto ssd_hits0         = event0->SSD();
       auto gtr_hits0         = event0->GTR();
       auto hbd_hits0         = event0->HBD();
@@ -177,161 +187,11 @@ int main(int argc, char* argv[]) {
       auto trigger_gtr_hits0 = event0->TriggerGTR();
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
-      auto timestamp         = event0->TimeStamp();
-      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      //E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters());
-      //E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-      //E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-      //E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      //E16DST_DST1LGFactoryDST1Detector(lg_hits0,   &event1->LG());
-      //E16DST_DST1TriggerFactory(event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), timestamp, &event1->Trigger());
-      //event1->Trigger().SetValidFlag(1);
+////      }
+//
+//      cout << endl << endl;
+//// Check end
 
-
-      //----arimizu plot----
-
-      int n_ssd_clusterhits = event1->SSDClusters().NumberOfHits();
-      for(int i=0; i<n_ssd_clusterhits; i++){
-	auto &c1=event1->SSDClusters().Hit(i);
-	int n = c1.NumHits();
-	int m = c1.ModuleId();
-	c_HitID[c_mid(m)]->Fill(c1.CogPos());
-	c_Timing->Fill(c1.Timing());
-	c_PeakSum->Fill(c1.PeakSum());
-	c_TDC->Fill(c1.TdcPos());
-	c_TanTheta->Fill(c1.TanTheta());
-      }
-      auto n_ssd_hits = event1->SSDHits().NumberOfHits();
-      for(int n_hit=0; n_hit < n_ssd_hits; n_hit++){
-	auto &hit = event1->SSDHits().Hit(n_hit);
-	h_HitTime->Fill(hit.HitTime());
-	h_PeakTime->Fill(hit.PeakTime());
-	h_PeakHeight->Fill(hit.PeakHeight());
-	for(int module=0; module<n_module; module++){
-	  if(c_module[hit.ModuleId()-101]==module){
-	    h_HitID[module]->Fill(hit.ChannelId());
-	  }
-	  else{
-	    //	    cout << "!!!!" << endl;
-	  }
-	}
-      }
-
-
-      // E16ANA_SSDcalibPedestal ssdped;
-      // ssdped.ReadCalibData(calib.CurrentRunID());
-      // E16ANA_SSDcalibTimeConstant ssdtime;
-      // ssdtime.ReadConstantData(calib.CurrentRunID());
-      // double offset = ssdtime.TDCoffset();
-      // double timegain = ssdtime.TDCtimeGain();
-
-      // int n_max = ssd_hits0.NumberOfHits();
-      // TF1 *f_fit[n_max];
-      // vector<vector<int>> adc;
-      // vector<vector<double>> time;
-      // adc.resize(n_max);
-      // time.resize(n_max);
-
-      // for(int i=0; i<n_max; i++){
-      // 	f_fit[i] = new TF1("fitfunc", "[1]*(x-[2])/[0]*exp(-(x-[2])/[0])",0,200);
-      // 	E16DST_DST0SSDHit &h0 = ssd_hits0.Hit(i);
-      // 	int mid = h0.ModuleID();
-      // 	int sid = h0.StripID();
-      // 	adc.at(i).resize(8);
-      // 	time.at(i).resize(8);
-      // 	for(int j=0; j<8; j++){
-      // 	  adc.at(i).at(j) = h0.Waveform()[j] - ssdped.Pedestal(c_mid(mid), sid, j);
-      // 	  time.at(i).at(j) = 25*j + (h0.TDC()-offset)*timegain;
-      // 	}
-      // }
-      // //      cout << "adc.at(0).at(0)=" << adc.at(0).at(0) << endl;
-	
-      // TCanvas *c2 = new TCanvas("c2","c2",0,0,1000,700);
-      // c2->SaveAs(output_pdf_name+"[","pdf");
-      // c2->Clear();
-      // c2->Divide(5,5);
-      // int i=0;
-      // int k=0;
-      // int max;
-      // max = event1->SSDHits().NumberOfHits();
-      // while(i<25){
-      // 	if(k>=max){
-      // 	  break;
-      // 	}
-      // 	auto &hit = event1->SSDHits().Hit(k);
-
-      // 	//	cout << "peaktime=" << hit.PeakTime() << endl;
-      // 	// if(hit.PeakTime()!=140){
-      // 	//   //	  cout << "peak=" << hit.PeakTime() << endl;
-      // 	//   c2->cd(i+1);
-      // 	//   double ADC[8];
-      // 	//   double TIME[8];
-      // 	//   for(int j=0;j<8;j++){
-      // 	//     ADC[j] = adc.at(k).at(j);
-      // 	//     TIME[j] = time.at(k).at(j);
-      // 	//   }
-      // 	//   TGraph* gr = new TGraph(8, TIME, ADC);
-      // 	//   gr->Draw("AP");
-      // 	//   f_fit[i] -> SetParameter(0,hit.PeakTime());
-      // 	//   f_fit[i] -> SetParameter(1,hit.PeakHeight());
-      // 	//   f_fit[i] -> SetParameter(2,hit.HitTime());
-      // 	//   f_fit[i] -> Draw("same");
-      // 	//   i++;
-      // 	// }
-      // 	k++;
-      // }
-      // c2->SaveAs(output_pdf_name,"pdf");
-      // c2->SaveAs(output_pdf_name+"]","pdf");     
-
-
-      //----end arimizu plot----
-
-      // Check begin
-      auto event_id = event0->EventID();
-      cout << "Event ID: " << event_id << endl;
-      // SSD
-
-      // GTR
-      cout << "Number of event: " << n_event << endl << endl;
-      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-      cout << "Number of GTR hits: " << n_gtr_hits << endl;
-      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-        auto hit = event1->GTRHits().Hit(n_hit);
-        hit.Print();
-      }
-      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-      cout << endl << endl;
-      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-        auto cluster = event1->GTRClusters().Hit(n_cluster);
-        cluster.Print();
-      }
-      
-      // HBD
-
-      // LG
-      if (event1->LGHits().NumberOfHits() != 0) {
-        auto lghit = event1->LGHits().Hit(0);                                                          
-        lghit.Print();                                                                                 
-        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-      }
-
-      // trigger
-      event1->Trigger().Print(*geometry);
-
-      // other
-      //      event1->GTR().Print();
-      //
-      //      if (event1->LG().NumHits() != 0) {
-      //        auto lghit = event1->LG().Hit(0);                                                          
-      //        lghit.Print();                                                                                 
-      //        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-      //        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-      //      }
-
-      cout << endl << endl;
-      // Check end
 
       //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
@@ -351,69 +211,8 @@ int main(int argc, char* argv[]) {
     ++n_physics_event;
   }
 
-
-  //----arimizu plot----
-  TCanvas *c1 = new TCanvas("c1","c1",0,0,1000,700);
-  TString plotname = "ssd_plot.pdf";
-  c1->SaveAs(plotname+"[","pdf");
-  
-  c1->Clear();
-  c1->Divide(2,3);
-  for(int module=0; module<n_module; module++){
-    c1->cd(c_canv[module]);
-    h_HitID[module]->Draw();
-  }
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  gStyle->SetOptStat("nermou");
-  h_HitTime->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  h_PeakTime->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  h_PeakHeight->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  c1->Divide(2,3);
-  for(int module=0; module<n_module; module++){
-    c1->cd(c_canv[module]);
-    c_HitID[module]->Draw();
-  }
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  c_Timing->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  c_PeakSum->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  c_TDC->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  c_TanTheta->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->Clear();
-  c_ClusterSize->Draw();
-  c1->SaveAs(plotname,"pdf");
-
-  c1->SaveAs(plotname+"]","pdf");
-
-  //----end arimizu plot----
-
-
-
-
-
+  //  froot->Write();
+  //  froot->Close();
 
 
   delete geometry;

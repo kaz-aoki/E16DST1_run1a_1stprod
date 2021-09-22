@@ -70,7 +70,7 @@ int get_mode(int16_t* v_wave){
   return mode_num;
 }
 
-int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1) {
+int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, std::vector<E16DST_DST1SSDHit>* hits1, std::vector<E16DST_DST1SSDCluster>* clusters1) {
   //  E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
   //  int run_id = 2255;
   //  char* file_name = calib.CalibFileName("SSD-pedestal", run_id);
@@ -201,8 +201,8 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
       dst1_hits_size += ha_temp.NumHit();
     }
   }
-  hits1->Resize(dst1_hits_size);
-  clusters1->Resize(dst1_clusters_size);
+  hits1->resize(dst1_hits_size);
+  clusters1->resize(dst1_clusters_size);
 
 
   int h_id_in_event=0;
@@ -218,7 +218,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
       E16ANA_SSDAnalyzedStripHit &ha = hits_0a[i];//get information of analyzed hit(cluster) for each module
       for(int j=0; j<ha.NumHit(); j++){ //number of hit per cluster
 	E16ANA_SSDSingleStripHit &hs = hits_0s[h_id_in_module];
-	E16DST_DST1SSDHit &hit1 = hits1->Hit(h_id_in_event);
+	E16DST_DST1SSDHit &hit1 = hits1->at(h_id_in_event);
 	hit1.SetInvalid();
 	hit1.SetIds(mid, ha.StripID(j));
 	hit1.SetTiming(ha.StripTiming(j));
@@ -230,7 +230,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
 	h_id_in_module++;
 	h_id_in_cluster++;
       }
-      E16DST_DST1SSDCluster &cluster1 = clusters1->Hit(cl_id_in_event);
+      E16DST_DST1SSDCluster &cluster1 = clusters1->at(cl_id_in_event);
       cluster1.SetInvalid();
       cluster1.SetModuleId(mid);
       cluster1.SetTiming(ha.Timing());
@@ -357,5 +357,6 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
   }
 
 
-  return hits1->GetEventSize();
+//  return hits1->GetEventSize();
+  return 1;
 }

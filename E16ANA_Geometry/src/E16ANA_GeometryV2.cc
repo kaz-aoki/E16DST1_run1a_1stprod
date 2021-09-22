@@ -1,3 +1,5 @@
+//2021-09-12, uploaded by yokkaich
+//2021-08-20, uploaded by yokkaich
 //2021-02-27, uploaded by nakai
 //2020-10-27, uploaded by yokkaich
 //2016-11-22, uploaded by nakai
@@ -8,6 +10,8 @@
 #include <bitset>
 
 #include <TMath.h>
+
+#include "E16ANA_ErrorMessage.hh"
 
 using namespace std;
 
@@ -114,6 +118,23 @@ void E16ANA_PlanarGeometry::LocalTranslate(const TVector3 &delta_r){
 }
 
 /* -------- E16ANA_GeometryV2 -------- */
+
+static E16ANA_GeometryV2* globalPointer=NULL;
+
+void E16ANA_GeometryV2::SetGlobalPointer( E16ANA_GeometryV2* p ) {
+  if( globalPointer != NULL ){delete globalPointer;}
+  globalPointer=p;
+}
+E16ANA_GeometryV2* E16ANA_GeometryV2::GlobalPointer() {
+
+    //initialized, if not yet
+    if (globalPointer == NULL){
+      E16FATAL("not initialized. Please set filename. exit(1)");
+	exit(1);
+    }
+
+    return globalPointer;
+}
 
 std::ostream& operator<<(std::ostream &os, const E16ANA_GeometryV2::Params_t &rhs){
    for(int i=0; i<3; i++){
@@ -222,9 +243,12 @@ void E16ANA_GeometryV2::Node_t::TranslateAndRotate(const std::string &tree_str, 
    std::string key = design_str+delimiter+tree_str+name;
    std::string key_error = error_str+delimiter+tree_str+name;
 
+   //   cerr<<"T-R "<<name<<" "<<key<<" "<<_params[key].rot[1]<<endl;
+   
    // operation order is error -> design
    this->TranslateAndRotate(_params[key_error]);
    this->TranslateAndRotate(_params[key]);
+
 }
 
 void E16ANA_GeometryV2::Node_t::Print(int depth){
@@ -338,7 +362,9 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
    for(int i=0; i<n_ssd_modules; i++){
       ssd_geometry[i] = new E16ANA_DetectorGeometry*[n_ssd_layers];
    }
-   hbd_geometry = new E16ANA_DetectorGeometry*[n_hbd_modules];
+   hbd_geometry = new E16ANA_DetectorGeometry*[n_hbd_modules+n_hbd_modules/3 ];
+   gtr_frame_geometry = new E16ANA_DetectorGeometry*[n_gtr_modules/3 ];
+
    lgvd_geometry = new E16ANA_DetectorGeometry*[n_lg_modules];
    lg_geometry = new E16ANA_DetectorGeometry**[n_lg_modules];
    for(int i=0; i<n_lg_modules; i++){
@@ -351,7 +377,9 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
    Node_t *lgvd = new Node_t(lgvd_str);
    Node_t *lg = new Node_t(lg_str);
    Leaf_t *gtr_leaf[n_gtr_modules][n_gtr_layers];
+   Leaf_t *gtr_frame_leaf[n_gtr_modules/3];
    Leaf_t *hbd_leaf[n_hbd_modules];
+   Leaf_t *hbd_frame_leaf[n_hbd_modules/3];
    Leaf_t *ssd_leaf[n_ssd_modules][n_ssd_layers];
    Leaf_t *lgvd_leaf[n_lg_modules];
    Leaf_t *lg_leaf[n_lg_modules][n_lg_blocks];
@@ -374,7 +402,24 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
       node_name = GetNumString(chamber_str, i);
       hbd_geometry[i] = new E16ANA_PlanarGeometry(hbd_str,i,0);
       hbd_leaf[i] = new Leaf_t(node_name, hbd_geometry[i]);
+      //      cerr<<"hbd-leaf "<<node_name<<" "<<i<<" "<<endl;
    }
+
+   for(int i=0; i<n_hbd_modules/3; i++){
+     //      node_name = GetNumString(frame_str, i);
+      node_name = GetNumString("FRAME", i);
+      int j=i+n_hbd_modules;
+      hbd_geometry[j] = new E16ANA_PlanarGeometry(hbd_str,j,0);
+      hbd_frame_leaf[i] = new Leaf_t(node_name, hbd_geometry[j]);
+      //      cerr<<"frame-leaf "<<node_name<<" "<<i<<" "<<j<<endl;
+   }
+   for(int i=0; i<n_gtr_modules/3; i++){
+      node_name = GetNumString("FRAME", i);
+      gtr_frame_geometry[i] = new E16ANA_PlanarGeometry("GTR_FRAME",i,0);
+      gtr_frame_leaf[i] = new Leaf_t(node_name, gtr_frame_geometry[i]);
+      //      cerr<<"frame-leaf "<<node_name<<" "<<i<<" "<<j<<endl;
+   }
+
 #if 0
    for(int i=0; i<n_ssd_modules; i++){
       node_name = GetNumString(chamber_str, i);
@@ -415,6 +460,7 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
          gtr_ladder->AddChild(gtr_leaf[i*3+2][j]);
          gtr_frame->AddChild(gtr_ladder);
       }
+      gtr_frame->AddChild(gtr_frame_leaf[i]);
       gtr->AddChild(gtr_frame);
    }
 
@@ -425,8 +471,11 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
       hbd_frame->AddChild(hbd_leaf[i*3  ]);
       hbd_frame->AddChild(hbd_leaf[i*3+1]);
       hbd_frame->AddChild(hbd_leaf[i*3+2]);
+      hbd_frame->AddChild(hbd_frame_leaf[i]);
       hbd->AddChild(hbd_frame);
+      //      hbd->AddChild(hbd_frame_leaf[i]);
    }
+
 
    // construct SSD tree
 #if 0
