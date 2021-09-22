@@ -162,7 +162,6 @@ class E16ANA_TrackCandidate {
       s = kSigma;
     }
     sigma[0].SetY(0.);
-sigma[0].SetX(0.);
   }
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
@@ -330,7 +329,8 @@ class E16ANA_TrackCandidates {
   }
   int NumTrackCandidates(int n) { return track_candidates[n].size(); }
   std::vector<E16ANA_TrackCandidate>& TrackCandidates(int n) { return track_candidates[n]; }
-  void SelectTracks();
+  std::vector<E16ANA_TrackCandidate*>& SelectedTrackCandidates(int n) { return selected_track_candidates[n]; }
+  void Analyze();
   void Print() {
     for (auto& cands : track_candidates) {
       for (auto& cand : cands) {
@@ -379,6 +379,7 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
   static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kLGProjectionThreshold = 150.; // 98.
+  static constexpr double kVertexSquareThreshold = 5. * 5.;
   static TVector3 Lotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
     auto z = rot_sin * pos.X() + rot_cos * (pos.X() - offset);
@@ -416,6 +417,7 @@ class E16ANA_TrackCandidates {
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
+  void SortTracks();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
@@ -424,11 +426,11 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
-//  int n_xsearch;
   std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
-  int most_likely_target_id;
   std::array<std::vector<E16ANA_TrackCandidate*>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
+  int most_likely_target_id;
 };
+
 
 class CheckFile {
  public:
@@ -440,9 +442,6 @@ class CheckFile {
     tree->Branch("chi_square", &chi_square, "chi_square/D");
     tree->Branch("n_steps", &n_steps, "n_steps/I");
     tree->Branch("n_calls", &n_calls, "n_calls/I");
-    tree->Branch("gposs_hit", &gposs_hit);
-    tree->Branch("gposs_fit", &gposs_fit);
-    tree->Branch("vtx_gpos_hit", &vtx_gpos_hit);
     tree->Branch("ssd_module_id", &ssd_module_id), "ssd_module_id/I";
     tree->Branch("gtr1_module_id", &gtr1_module_id), "gtr1_module_id/I";
     tree->Branch("gtr2_module_id", &gtr2_module_id), "gtr2_module_id/I";
@@ -451,6 +450,13 @@ class CheckFile {
     tree->Branch("lg0_module_id", &lg0_module_id), "lg0_module_id/I";
     tree->Branch("lg1_module_id", &lg1_module_id), "lg1_module_id/I";
     tree->Branch("lg2_module_id", &lg2_module_id), "lg2_module_id/I";
+    tree->Branch("gx_hit", &gx_hit);
+    tree->Branch("gy_hit", &gy_hit);
+    tree->Branch("gz_hit", &gz_hit);
+    tree->Branch("gx_fit", &gx_fit);
+    tree->Branch("gy_fit", &gy_fit);
+    tree->Branch("gz_fit", &gz_fit);
+    tree->Branch("vtx_gpos_hit", &vtx_gpos_hit);
     tree->Branch("ssd_lpos_hit", &ssd_lpos_hit);
     tree->Branch("ssd_gpos_hit", &ssd_gpos_hit);
     tree->Branch("gtr1_lpos_hit", &gtr1_lpos_hit);
@@ -569,6 +575,14 @@ class CheckFile {
         lg2_gpos_fit = gpos;
       }
     }
+    gx_fit.resize(9);
+    gy_fit.resize(9);
+    gz_fit.resize(9);
+    for (int i = 0; i < 9; ++i) {
+      gx_fit[i] = gposs_fit[i](0);
+      gy_fit[i] = gposs_fit[i](1);
+      gz_fit[i] = gposs_fit[i](2);
+    }
     xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
     ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
     if (chi_square < 10000000) {
@@ -612,6 +626,14 @@ class CheckFile {
       z[1 + i] = gpos(2);
       r[1 + i] = sqrt(x[1 + i] * x[1 + i] + z[1 + i] * z[1 + i]);
     }
+    gx_hit.resize(9);
+    gy_hit.resize(9);
+    gz_hit.resize(9);
+    for (int i = 0; i < 9; ++i) {
+      gx_hit[i] = gposs_hit[i](0);
+      gy_hit[i] = gposs_hit[i](1);
+      gz_hit[i] = gposs_hit[i](2);
+    }
     xz_track_graphs_hit.emplace_back(new TGraph(n_point, x, z));
     ry_track_graphs_hit.emplace_back(new TGraph(n_point, r, y));
     return;
@@ -640,7 +662,13 @@ class CheckFile {
   int n_steps;
   int n_calls;
   std::vector<TVector3> gposs_hit;
+  std::vector<double> gx_hit;
+  std::vector<double> gy_hit;
+  std::vector<double> gz_hit;
   std::vector<TVector3> gposs_fit;
+  std::vector<double> gx_fit;
+  std::vector<double> gy_fit;
+  std::vector<double> gz_fit;
   TVector3 vtx_gpos_hit;
   TVector3 vtx_gmom_hit;
   TVector3 vtx_gpos_fit;

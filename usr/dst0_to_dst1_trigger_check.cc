@@ -14,6 +14,8 @@
 
 #include "E16ANA_TrackCandidate.hh"
 
+#include "TCanvas.h"
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -115,8 +117,7 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
-//      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1SSDFactory_dummy(ssd_hits0, &record->SSD());
+      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD().Hits(), &record->SSD().Clusters());
       record->SSD().UpdatePtrs();
 //      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped);
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
@@ -129,23 +130,6 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
       E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file);
-
-//      E16ANA_TrackCandidates track_candidates(geometry, bfield_map, fitter, record);
-//      track_candidates.SelectTracks();
-//      track_candidates.Print();
-////      track_candidates->PrintSelected();
-//      for (int i = 0; i < 3; ++i) {
-//        for (auto& cand : track_candidates.TrackCandidates(i)) {
-//          check_file.AddEntry(n_physics_event, cand);
-//        }
-//      }
-
-
-//      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file);
-//      event1->GTR().SetValidFlag(1);
-//      event1->LG().SetValidFlag(1);
-//      event1->Trigger().SetValidFlag(1);
-
 
 //// Check begin
 //      auto event_id = event0->EventID();

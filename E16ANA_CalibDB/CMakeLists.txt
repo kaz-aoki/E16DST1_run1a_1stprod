@@ -13,12 +13,14 @@ target_link_libraries(E16ANA_CalibDB
 )
 
 #_________________________________________________
-add_executable(calibSample
-  examples/calibSample.cc
+#add_executable(calibSample
+add_executable(MakeSSDCalibfile
+  examples/MakeSSDCalibfile.cc
   src/E16ANA_SSDcalib.cc
 #  src/E16ANA_GTRcalib.cc
 )
 
-target_link_libraries(calibSample
+#target_link_libraries(calibSample
+target_link_libraries(MakeSSDCalibfile
   E16ANA_CalibDB
 )

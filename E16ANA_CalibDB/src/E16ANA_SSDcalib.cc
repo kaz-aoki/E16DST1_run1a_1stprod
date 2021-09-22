@@ -90,6 +90,8 @@ bool E16ANA_SSDcalibPedestal::ReadCalibData(int runID){
     return false;
    }
 }
+
+
 bool E16ANA_SSDcalibPedestal::ReadCalibDataCore(FILE* ifp){
     //ifp is already checked
 
@@ -110,7 +112,7 @@ bool E16ANA_SSDcalibPedestal::ReadCalibDataCore(FILE* ifp){
 }
 
 bool E16ANA_SSDcalibPedestal::WriteCalibData(string filename, 
-  double**** wpedestal, double**** wsigma){
+  double*** wpedestal, double*** wsigma){
 
   FILE* ofp = fopen(filename.c_str(), "wb");
   bool flag=true;
