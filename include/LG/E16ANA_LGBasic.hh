@@ -63,7 +63,7 @@ struct ip_pp{
   static int ngtmpl;
   static double gtmplx[200];
   static double gtmply[200];
-  double tmplwidth; //[cell]
+  static double tmplwidth; //[cell]
 
 private:
 

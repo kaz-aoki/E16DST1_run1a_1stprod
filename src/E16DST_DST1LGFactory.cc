@@ -8,7 +8,6 @@
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1) {
 
   static E16ANA_LGBasic lgbasic;
-  //  static E16ANA_LGWaveform lgwf;
   static bool is_first=true;
   if(is_first){
     lgbasic.SetMap();//make channel_map from binary file
@@ -36,35 +35,28 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
     double t0 = lgbasic.GetT0(hit0.ModuleID(),hit0.BlockID());
     double waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
-    /*
-    double mwf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};//modified waveform
-    double peakheight = E16DST_DST1Constant::kInvalidValue;
-    int peaktime = E16DST_DST1Constant::kInvalidValue;
-    double timing = E16DST_DST1Constant::kInvalidValue;
-    double baseline = E16DST_DST1Constant::kInvalidValue;
-    double baselinerms = E16DST_DST1Constant::kInvalidValue;
-    double integral = E16DST_DST1Constant::kInvalidValue;
-    int falltime = E16DST_DST1Constant::kInvalidValue;
-    int npeaks = E16DST_DST1Constant::kInvalidValue;
-    double peakxs[20] = {E16DST_DST1Constant::kInvalidValue};
-    double peakys[20] = {E16DST_DST1Constant::kInvalidValue};
-    */
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
       int ph = hit0.Waveform()[cell];
       waveform[cell] = ph*wftype;
     }
-    /*
-    lgwf.Peak(waveform, &peakheight, &peaktime, &timing);
-    lgwf.Baseline(waveform, peaktime, &baseline, &baselinerms);
-    peakheight = peakheight - baseline;
-    lgwf.Integral(waveform, peaktime, baseline, &integral, &falltime);
-    npeaks = lgwf.PeakSearch(waveform, t0, mwf, peakxs, peakys); fifna
-    lgwf.Fit(waveform, mwf, npeaks, peakxs, peakys);
-    lgwf.FitMethod(waveform,t0);
-    */
+
     E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
-    //lgwf->SimpleMethod(waveform);
+    //lgwf->SimpleMethod(waveform);// use this method in low-intensity run (less than 1e9)
     lgwf->FitMethod(waveform,t0);
+
+    int fitflag = lgwf->GetFitOK();
+    int npsfit = lgwf->GetNpsFit();
+    bool spikeflag = lgwf->GetSpikeFlag();
+
+    if( fitflag==0&&npsfit==0 ){
+      //std::cout<<"no hit"<<std::endl;
+      continue;
+    }
+    if( fitflag==1&&spikeflag==true ){
+      //std::cout<<"it is spike noise"<<std::endl;
+      continue;
+    }
+
     double timing = lgwf->GetTiming();
     double peakheight = lgwf->GetPeak();
     double peaktime = lgwf->GetPeakx();
@@ -72,21 +64,21 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     double baselinerms = lgwf->GetBaselineRms();
     double integral = lgwf->GetIntegral();
     double falltime = lgwf->GetFalltime();
+
     int npeaks = lgwf->GetNpeaks();
     int npeak = 0;
-    for(int l=0;l<npeaks;l++){
-      //int npsfit = lgwf->GetNpsFit();
-      int fitflag = lgwf->GetFitOK();
+    for(int l=0;l<npeaks;l++){//npeaks loop
       double fitpeak = lgwf->GetPeaks()[l];
-      float fitpeaktime = lgwf->GetPeakxs()[l];
+      double fitpeaktime = lgwf->GetPeakxs()[l];
       double fittiming = lgwf->GetTimings()[l];
       double fitwidth = lgwf->GetWidths()[l];
       double fitchi2 = lgwf->GetChi2s()[l];
 
       //if( (falltime-peaktime)>5 && //to remove spike noise
       //peakheight>E16ANA_LGConstant::kHitThreshold && 
-      //timing>E16ANA_LGConstant::kHitTimingStart && 
-      //timing<E16ANA_LGConstant::kHitTimingEnd ){
+      if( peaktime>E16ANA_LGConstant::kHitTimeStart && 
+	peaktime<E16ANA_LGConstant::kHitTimeEnd && timing>-100 ){//dst1hit condition
+
       hits1->Hit(n_dst1hit).SetInvalid();
       hits1->Hit(n_dst1hit).SetIds(hit0.ModuleID(), hit0.BlockID());
 
@@ -111,10 +103,12 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       //      cluster1->SetMaxPeakSum(peakheight);
       npeak++;
       n_dst1hit++;
-      //}dst1hit condition
-    }
-    delete lgwf;
 
+      }//dst1hit conidition
+
+    }//npeaks loop
+
+    delete lgwf;
 
   }//dst0hit loop
 

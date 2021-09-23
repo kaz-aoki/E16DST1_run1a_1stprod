@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
   TH1F *ht0[7][56];
   TH1F *hed[7][56];
   TH1F *hnp[7][56];
+  TH1F *hff[7][56];
   TH1F *hfp[7][56];
   TH1F *hfx[7][56];
   TH1F *hft[7][56];
@@ -68,12 +69,13 @@ int main(int argc, char* argv[]) {
       hit[i][j] = new TH1F(Form("hit%d%d",i,j),Form("Integral%d%d",i,j),1100,-100,1000);
       ht0[i][j] = new TH1F(Form("ht0%d%d",i,j),Form("CalibTiming%d%d",i,j),1000,0,200);
       hed[i][j] = new TH1F(Form("hed%d%d",i,j),Form("EnergyDeposit%d%d",i,j),1100,-1,10);
-      hnp[i][j] = new TH1F(Form("hnp%d%d",i,j),Form("Npeaks%d%d",i,j),20,0,20);
-      hfp[i][j] = new TH1F(Form("hfp%d%d",i,j),Form("FitPeak%d%d",i,j),20,0,20);
-      hfx[i][j] = new TH1F(Form("hfx%d%d",i,j),Form("FitPeakTime%d%d",i,j),20,0,20);
-      hft[i][j] = new TH1F(Form("hft%d%d",i,j),Form("FitTiming%d%d",i,j),20,0,20);
-      hfw[i][j] = new TH1F(Form("hfw%d%d",i,j),Form("FitWidth%d%d",i,j),20,0,20);
-      hfc[i][j] = new TH1F(Form("hfc%d%d",i,j),Form("FitChi2%d%d",i,j),20,0,20);
+      hnp[i][j] = new TH1F(Form("hnp%d%d",i,j),Form("Npeaks%d%d",i,j),5,0,5);
+      hff[i][j] = new TH1F(Form("hff%d%d",i,j),Form("FitFlag%d%d",i,j),5,0,5);
+      hfp[i][j] = new TH1F(Form("hfp%d%d",i,j),Form("FitPeak%d%d",i,j),1100,-100,1000);
+      hfx[i][j] = new TH1F(Form("hfx%d%d",i,j),Form("FitPeakTime%d%d",i,j),200,0,200);
+      hft[i][j] = new TH1F(Form("hft%d%d",i,j),Form("FitTiming%d%d",i,j),200,0,200);
+      hfw[i][j] = new TH1F(Form("hfw%d%d",i,j),Form("FitWidth%d%d",i,j),200,0,2);
+      hfc[i][j] = new TH1F(Form("hfc%d%d",i,j),Form("FitChi2%d%d",i,j),200,0,50);
     }
   }
   uint16_t module, block;
@@ -100,8 +102,8 @@ int main(int argc, char* argv[]) {
   tree->Branch("FitTiming",&fittiming,"FitTiming/F");
   tree->Branch("FitWidth",&fitwidth,"FitWidth/F");
   tree->Branch("FitChi2",&fitchi2,"FitChi2/F");
-  tree->Branch("Gpos",gpos,"Gpos[3]/D");
-  tree->Branch("Lpos",lpos,"Lpos[3]/D");
+  //tree->Branch("Gpos",gpos,"Gpos[3]/D");
+  //tree->Branch("Lpos",lpos,"Lpos[3]/D");
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -248,12 +250,12 @@ int main(int argc, char* argv[]) {
 	  fitchi2 = lghit.FitChi2();
 	  calibtiming = lghit.GetCalibTiming(lgbasic);
 	  energydeposit = lghit.GetEnergyDeposit(lgbasic);
-	  gpos[0] = lghit.GlobalPos(*geometry).X();
-	  gpos[1] = lghit.GlobalPos(*geometry).Y();
-	  gpos[2] = lghit.GlobalPos(*geometry).Z();
-	  lpos[0] = lghit.LocalPos(*geometry).X();
-	  lpos[1] = lghit.LocalPos(*geometry).Y();
-	  lpos[2] = lghit.LocalPos(*geometry).Z();
+	  //gpos[0] = lghit.GlobalPos(*geometry).X();
+	  //gpos[1] = lghit.GlobalPos(*geometry).Y();
+	  //gpos[2] = lghit.GlobalPos(*geometry).Z();
+	  //lpos[0] = lghit.LocalPos(*geometry).X();
+	  //lpos[1] = lghit.LocalPos(*geometry).Y();
+	  //lpos[2] = lghit.LocalPos(*geometry).Z();
 	  tree->Fill();
 	  if(npeak==0){
 	  hph[module-102][block]->Fill(lghit.PeakHeight());
@@ -265,6 +267,7 @@ int main(int argc, char* argv[]) {
 	  ht0[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic));
 	  hed[module-102][block]->Fill(lghit.GetEnergyDeposit(lgbasic));
 	  hnp[module-102][block]->Fill(lghit.Npeaks());
+	  hff[module-102][block]->Fill(lghit.FitFlag());
 	  }
 	  hfp[module-102][block]->Fill(lghit.FitPeak());
 	  hfx[module-102][block]->Fill(lghit.FitPeakTime());

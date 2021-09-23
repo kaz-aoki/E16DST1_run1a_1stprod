@@ -126,7 +126,7 @@ void E16ANA_LGWaveform::CalcTiming(){
       timing=E16DST_DST1Constant::kInvalidValue;
       break;
     }
-    if(!(cell==peakx)&&wf[cell]<peakhalf){
+    if((cell!=peakx)&&wf[cell]<peakhalf){
       timing=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
       if(cell==(peakx-1)){//remove the event like spike noise
 	timing=-10000;
