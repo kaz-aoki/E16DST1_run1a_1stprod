@@ -24,7 +24,13 @@
 
 using namespace E16ANA_LGConstant;
 
-TGraph* E16ANA_LGWaveform::gtmpl = nullptr;
+int E16ANA_LGWaveform::n_call = 0;
+int E16ANA_LGWaveform::n_fit0 = 0;
+int E16ANA_LGWaveform::n_fit1[3] = {0};
+int E16ANA_LGWaveform::n_fit2[3] = {0};
+int E16ANA_LGWaveform::n_fit3[3] = {0};
+int E16ANA_LGWaveform::n_fit4 = 0;
+//TGraph* E16ANA_LGWaveform::gtmpl = nullptr;
 
 E16ANA_LGWaveform::E16ANA_LGWaveform()
     : peak(E16DST_DST1Constant::kInvalidValue),
@@ -35,9 +41,13 @@ E16ANA_LGWaveform::E16ANA_LGWaveform()
       integral(E16DST_DST1Constant::kInvalidValue),
       falltime(E16DST_DST1Constant::kInvalidValue),
       offset(E16DST_DST1Constant::kInvalidValue),
+      pxmin(E16DST_DST1Constant::kInvalidValue),
+      pxmax(E16DST_DST1Constant::kInvalidValue),
       nps_full(E16DST_DST1Constant::kInvalidValue),
       nps_short(E16DST_DST1Constant::kInvalidValue),
-      nps_fit(E16DST_DST1Constant::kInvalidValue) {
+      nps_fit(E16DST_DST1Constant::kInvalidValue),
+      npeaks(E16DST_DST1Constant::kInvalidValue),
+      fitOK(0) {
 
     for(int i=0;i<E16DST_Constant::NSamplesLG;i++){
       wf[i] = E16DST_DST1Constant::kInvalidValue;
@@ -51,7 +61,13 @@ E16ANA_LGWaveform::E16ANA_LGWaveform()
       pxs_short[i] = E16DST_DST1Constant::kInvalidValue;
       ps_fit[i] = E16DST_DST1Constant::kInvalidValue;
       pxs_fit[i] = E16DST_DST1Constant::kInvalidValue;
+      peaks[i] = E16DST_DST1Constant::kInvalidValue;
+      peakxs[i] = E16DST_DST1Constant::kInvalidValue;
+      widths[i] = E16DST_DST1Constant::kInvalidValue;
+      timings[i] = E16DST_DST1Constant::kInvalidValue;
+      chi2s[i] = E16DST_DST1Constant::kInvalidValue;
     }
+    n_call++;
   }
 
 void E16ANA_LGWaveform::SimpleMethod(double* _wf){
@@ -63,6 +79,13 @@ void E16ANA_LGWaveform::SimpleMethod(double* _wf){
   peak = peak - baseline;
   CalcIntegral();
 
+  spikeflag = false;
+  if(falltime-peakx<5){
+    spikeflag = true;
+  }
+
+  npeaks = 1;
+
 }
 
 void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
@@ -70,7 +93,10 @@ void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
   SimpleMethod(_wf);
   SetT0(t0);
   CalcWaveforms();
-  CalcPeaks();
+  //CalcPeaks();
+  PeakSearch();
+  //AllFit();
+  Fit();
 
 }
 
@@ -101,7 +127,7 @@ void E16ANA_LGWaveform::CalcTiming(){
       break;
     }
     if(!(cell==peakx)&&wf[cell]<peakhalf){
-      timing=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell;
+      timing=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
       if(cell==(peakx-1)){//remove the event like spike noise
 	timing=-10000;
       }
@@ -124,8 +150,15 @@ void E16ANA_LGWaveform::CalcBaseline(){
     baseline_sq_sum += wf[cell]*wf[cell];
     nb++;
   }
-  baseline = baseline_sum/(double)nb;
-  baselinerms = sqrt( baseline_sq_sum/(double)nb - baseline*baseline );
+  if(nb>3){
+    baseline = baseline_sum/(double)nb;
+    baselinerms = sqrt( baseline_sq_sum/(double)nb - baseline*baseline );
+  }
+  else{
+    baseline = 0;
+    baselinerms = 0;
+  }
+
 
 }
 
@@ -176,12 +209,55 @@ void E16ANA_LGWaveform::CalcWaveforms(){
 
 }
 
-void E16ANA_LGWaveform::CalcPeaks(){
+void E16ANA_LGWaveform::PeakSearch(){
 
   nps_full = PeakSearchFull(pxs_full, ps_full);
   nps_short = PeakSearchShort(pxs_short, ps_short);
-  CalcOffset();
-  nps_fit = Fit(pxs_fit, ps_fit);
+
+}
+
+void E16ANA_LGWaveform::Fit(){
+
+  if(nps_short==1){
+    if(BaselineCorrect()){
+      fitOK = 0;
+    }
+    else{//incorrect baseline
+      CalcOffset();
+      nps_fit = FitTmpl1(pxs_fit, ps_fit);
+      npeaks = nps_fit;
+    }
+  }
+  else if(nps_short==2){
+    CalcOffset();
+    nps_fit = FitTmpl2(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==3){
+    CalcOffset();
+    nps_fit = FitTmpl3(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==0){
+    fitOK = 0;
+    n_fit0++;
+  }
+  else{
+    fitOK = 0;
+    n_fit4++;
+  }
+
+  if(fitOK==0){
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    timings[0] = timing+100.-t0;
+  }
+
+  if(fitOK==2){
+    npeaks = nps_short;
+  }
 
 }
 
@@ -197,32 +273,37 @@ int E16ANA_LGWaveform::PeakSearchFull(double* pxs, double* ps){
   }
 
   //my peaksearch
-  int npeaks = 0;
-  std::vector<double> peakxs;
-  std::vector<double> peaks;
+  int mynps = 0;
+  //std::vector<double> peakxs;
+  //std::vector<double> peaks;
+  double mypxs[30];
+  double myps[30];
   for(int j=5; j<(E16DST_Constant::NSamplesLG-5); j++){
-    int th = mwf[j]*0.1;
+    //int th = mwf[j]*0.1;
     if( dwf[j-4]>=0&&dwf[j-3]>=0&&dwf[j-2]>=0&&dwf[j-1]>=0&&dwf[j]>0 &&
         dwf[j+1]<=0&&dwf[j+2]<=0&&dwf[j+3]<=0&&dwf[j+4]<=0 &&
         mwf[j]>10 ){
-      peakxs.push_back((double)j);
-      peaks.push_back(mwf[j]);
-      npeaks++;
+      //peakxs.push_back((double)j);
+      //peaks.push_back(mwf[j]);
+      mypxs[mynps] = (double)j;
+      myps[mynps] = mwf[j];
+      mynps++;
     }
   }
 
   int pstype = 0;//peak search type. 0: use TSpectrum, 1: my algorithm
   if(nps>3){
     pstype = 1;
-    nps = npeaks;
+    nps = mynps;
     for(int i=0; i<nps; i++){
-      pxs[i] = peakxs[i];
-      ps[i] = peaks[i];
+      pxs[i] = mypxs[i];
+      ps[i] = myps[i];
     }
   }
 
   delete hwf;
   delete s;
+
   return nps;
 
 }
@@ -244,18 +325,42 @@ int E16ANA_LGWaveform::PeakSearchShort(double* pxs, double* ps){
 
 }
 
+bool E16ANA_LGWaveform::BaselineCorrect(){
+
+  bool flag = true;
+  double t0cell = nstocell(t0);
+  for(int i=0; i<nps_full; i++){
+    if( t0cell+E16ANA_LGConstant::kBaselineStart<pxs_full[i] && pxs_full[i]<t0cell+E16ANA_LGConstant::kBaselineEnd ){
+      flag = false;
+    }
+  }
+
+  return flag;
+
+}
+
 void E16ANA_LGWaveform::CalcOffset(){
 
   double ibg = 0;
   int nbg = 0;
-  int pxmin = 200;
-  int pxmax = 0;
+  pxmin = 200;
+  pxmax = 0;
+  /*
   for(int p=0; p<nps_full; p++){
     if(pxs_full[p]<pxmin){
       pxmin=pxs_full[p];
     }
     if(pxs_full[p]>pxmax){
       pxmax=pxs_full[p];
+    }
+  }
+  */
+  for(int p=0; p<nps_short; p++){
+    if(pxs_short[p]<pxmin){
+      pxmin=pxs_short[p];
+    }
+    if(pxs_short[p]>pxmax){
+      pxmax=pxs_short[p];
     }
   }
 
@@ -272,7 +377,7 @@ void E16ANA_LGWaveform::CalcOffset(){
   offset = ibg/double(nbg);
 
 }
-
+/*
 void E16ANA_LGWaveform::SetTemplate(){
 
   E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
@@ -295,7 +400,9 @@ void E16ANA_LGWaveform::SetTemplate(){
 
   fclose(fp_wf);
 }
+*/
 
+/*
 double E16ANA_LGWaveform::Template1(double* x, double* par){
 
   return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140.+par[3];
@@ -313,6 +420,482 @@ double E16ANA_LGWaveform::Template3(double* x, double* par){
   return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140. + (gtmpl->Eval((x[0]-par[3])*par[4]))*par[5]/140. + (gtmpl->Eval((x[0]-par[6])*par[7]))*par[8]/140.+par[9];
 
 }
+*/
+
+double E16ANA_LGWaveform::Template1(double* x, double* par){
+
+  double xt = (x[0]-par[0])*par[1];
+  double x1, x2;
+  double y1, y2;
+  for(int i=0;i<ngtmpl;i++){
+    if(gtmplx[i]>xt){
+      x1 = gtmplx[i-1];
+      x2 = gtmplx[i];
+      y1 = gtmply[i-1];
+      y2 = gtmply[i];
+      break;
+    }
+  }
+  double yt = y1 + (y2-y1)/(x2-x1)*(xt-x1);
+
+  return yt*par[2]/140.+par[3];
+
+}
+
+double E16ANA_LGWaveform::Template2(double* x, double* par){
+
+  double xt[2];
+  xt[0] = (x[0]-par[0])*par[1];
+  xt[1] = (x[0]-par[3])*par[4];
+  double x1[2];
+  double x2[2];
+  double y1[2];
+  double y2[2];
+  bool isfirst[2] = {false};
+  for(int i=0;i<ngtmpl;i++){
+    if(isfirst[0]==false&&gtmplx[i]>xt[0]){
+      x1[0] = gtmplx[i-1];
+      x2[0] = gtmplx[i];
+      y1[0] = gtmply[i-1];
+      y2[0] = gtmply[i];
+      isfirst[0] = true;
+    }
+    if(isfirst[1]==false&&gtmplx[i]>xt[1]){
+      x1[1] = gtmplx[i-1];
+      x2[1] = gtmplx[i];
+      y1[1] = gtmply[i-1];
+      y2[1] = gtmply[i];
+      isfirst[1] = true;
+    }
+    if(isfirst[0]==true&&isfirst[1]==true){
+      break;
+    }
+  }
+  double yt[2];
+  yt[0] = y1[0] + (y2[0]-y1[0])/(x2[0]-x1[0])*(xt[0]-x1[0]);
+  yt[1] = y1[1] + (y2[1]-y1[1])/(x2[1]-x1[1])*(xt[1]-x1[1]);
+
+
+  return yt[0]*par[2]/140.+yt[1]*par[5]/140.+par[6];
+  //return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140.+(gtmpl->Eval((x[0]-par[3])*par[4]))*par[5]/140.+par[6];
+
+}
+
+double E16ANA_LGWaveform::Template3(double* x, double* par){
+
+  double xt[3];
+  xt[0] = (x[0]-par[0])*par[1];
+  xt[1] = (x[0]-par[3])*par[4];
+  xt[1] = (x[0]-par[6])*par[7];
+  double x1[3];
+  double x2[3];
+  double y1[3];
+  double y2[3];
+  bool isfirst[3] = {false};
+  for(int i=0;i<ngtmpl;i++){
+    if(isfirst[0]==false&&gtmplx[i]>xt[0]){
+      x1[0] = gtmplx[i-1];
+      x2[0] = gtmplx[i];
+      y1[0] = gtmply[i-1];
+      y2[0] = gtmply[i];
+      isfirst[0] = true;
+    }
+    if(isfirst[1]==false&&gtmplx[i]>xt[1]){
+      x1[1] = gtmplx[i-1];
+      x2[1] = gtmplx[i];
+      y1[1] = gtmply[i-1];
+      y2[1] = gtmply[i];
+      isfirst[1] = true;
+    }
+    if(isfirst[2]==false&&gtmplx[i]>xt[2]){
+      x1[2] = gtmplx[i-1];
+      x2[2] = gtmplx[i];
+      y1[2] = gtmply[i-1];
+      y2[2] = gtmply[i];
+      isfirst[2] = true;
+    }
+    if(isfirst[0]==true&&isfirst[1]==true&&isfirst[2]==true){
+      break;
+    }
+  }
+  double yt[3];
+  yt[0] = y1[0] + (y2[0]-y1[0])/(x2[0]-x1[0])*(xt[0]-x1[0]);
+  yt[1] = y1[1] + (y2[1]-y1[1])/(x2[1]-x1[1])*(xt[1]-x1[1]);
+  yt[2] = y1[2] + (y2[2]-y1[2])/(x2[2]-x1[2])*(xt[2]-x1[2]);
+
+  return yt[0]*par[2]/140. + yt[1]*par[5]/140. + yt[2]*par[8]/140.+par[9];
+  //return (gtmpl->Eval((x[0]-par[0])*par[1]))*par[2]/140. + (gtmpl->Eval((x[0]-par[3])*par[4]))*par[5]/140. + (gtmpl->Eval((x[0]-par[6])*par[7]))*par[8]/140.+par[9];
+
+}
+
+int E16ANA_LGWaveform::FitTmpl1(double* pxs, double* ps){
+
+  //set TGraph
+  int nps = 0;
+  double x[E16DST_Constant::NSamplesLG];
+  double ex[E16DST_Constant::NSamplesLG] = {0.};
+  double ey[E16DST_Constant::NSamplesLG];
+  for(int i=0;i<E16DST_Constant::NSamplesLG;i++){
+    x[i] = i;
+    ey[i]=mwf[i]*0.05+1.2;
+  }
+  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+
+  //fit
+  Double_t chi2,Ndof,baseline;
+  Double_t m, s, v;
+
+  TF1* tmpl1 = new TF1("tmpl1",Template1,0,200,4);
+  tmpl1->SetParameters(pxs_short[0],0.95,ps_short[0]-offset,offset);		
+  //tmpl1->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
+  tmpl1->SetParLimits(1,0,2);
+  //tmpl1->SetParLimits(3,offset-2,offset+2);
+  wf->Fit("tmpl1","Q","Q",pxmin-20,pxmax+30);
+  chi2 = tmpl1->GetChisquare();
+  Ndof = tmpl1->GetNDF();
+  m = tmpl1->GetParameter(0);
+  s = tmpl1->GetParameter(1);
+  v = tmpl1->GetParameter(2);
+  baseline = tmpl1->GetParameter(3);
+  n_fit1[0]++;
+
+  if(chi2/Ndof<2&&0.5<s&&s<1.5&&0<v&&ps_short[0]-30<v&&v<ps_short[0]+30){
+    nps = 1;
+    pxs[0] = pxs_short[0];
+    ps[0] = ps_short[0];
+    fitOK = 1;
+    peaks[0] = v;
+    peakxs[0] = m;
+    widths[0] = s;
+    timings[0] = (m + tmplwidth*s)*(1./E16ANA_LGConstant::kTimeScale);
+    chi2s[0] = chi2/Ndof;
+
+    /*draw
+    if(n_fit1[1]<100){
+      c1s[n_fit1[1]] = new TCanvas(Form("c1s%d",n_fit1[1]),Form("c1s%d",n_fit1[1]),700,500);
+      wf->Draw("AL*");
+      wf->SetTitle(Form("CHI2:%f, M:%f, S:%f, V:%f, T0:%f",chi2/Ndof, m, s, v, t0));
+      if(n_fit1[1]==0){
+	c1s[n_fit1[1]]->SaveAs(outfit1suc + "[", "pdf");
+      }
+      c1s[n_fit1[1]]->SaveAs(outfit1suc,"pdf");
+      if(n_fit1[1]==99){
+	c1s[n_fit1[1]]->SaveAs(outfit1suc + "]", "pdf");
+      }
+      delete c1s[n_fit1[1]];
+    }
+    draw*/
+
+    n_fit1[1]++;
+  }
+
+  else{
+    nps = 0;
+    pxs[0] = pxs_short[0];
+    ps[0] = ps_short[0];
+    fitOK = 2;
+    peaks[0] = ps_short[0] - offset;
+    peakxs[0] = pxs_short[0];
+    widths[0] = s;
+    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    chi2s[0] = chi2/Ndof;
+
+    /*draw
+    if(n_fit1[2]<100){
+      c1f[n_fit1[2]] = new TCanvas(Form("c1f%d",n_fit1[2]),Form("c1f%d",n_fit1[2]),700,500);
+      wf->Draw("AL*");
+      wf->SetTitle(Form("CHI2:%f, M:%f, S:%f, V:%f, T0:%f",chi2/Ndof, m, s, v, t0));
+      if(n_fit1[2]==0){
+	c1f[n_fit1[2]]->SaveAs(outfit1fail + "[", "pdf");
+      }
+      c1f[n_fit1[2]]->SaveAs(outfit1fail,"pdf");
+      if(n_fit1[2]==99){
+	c1f[n_fit1[2]]->SaveAs(outfit1fail + "]", "pdf");
+      }
+      delete c1f[n_fit1[2]];
+    }
+    */
+    n_fit1[2]++;
+  }
+
+  delete tmpl1;
+  delete wf;
+
+  return nps;
+
+}
+
+int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
+
+  //set TGraph
+  int nps = 0;
+  double x[E16DST_Constant::NSamplesLG];
+  double ex[E16DST_Constant::NSamplesLG] = {0.};
+  double ey[E16DST_Constant::NSamplesLG];
+  for(int i=0;i<E16DST_Constant::NSamplesLG;i++){
+    x[i] = i;
+    ey[i]=mwf[i]*0.05+1.2;
+  }
+  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+
+  //fit
+  Double_t chi2,Ndof,baseline;
+  Double_t m[2];
+  Double_t s[2];
+  Double_t v[2];
+
+  TF1* tmpl2 = new TF1("tmpl2",Template2,0,200,7);
+  tmpl2->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset,offset);
+  tmpl2->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
+  tmpl2->SetParLimits(1,0,2);
+  tmpl2->SetParLimits(2,ps_short[0]-50,ps_short[0]+50);
+  tmpl2->SetParLimits(3,pxs_short[1]-15,pxs_short[1]+15);
+  tmpl2->SetParLimits(4,0,2);
+  tmpl2->SetParLimits(5,ps_short[1]-50,ps_short[1]+50);
+  //tmpl2->SetParLimits(6,offset-2,offset+2);
+  wf->Fit("tmpl2","Q","Q",pxs_short[0]-20,pxs_short[0]+30);//why?
+  //wf->Fit("tmpl2","Q","Q",pxmin-20,pxmax+30);
+  chi2 = tmpl2->GetChisquare();
+  Ndof = tmpl2->GetNDF();
+  for(int i=0;i<2;i++){
+    m[i] = tmpl2->GetParameter(0+i*3);
+    s[i] = tmpl2->GetParameter(1+i*3);
+    v[i] = tmpl2->GetParameter(2+i*3);
+  }
+  offset = tmpl2->GetParameter(6);
+  n_fit2[0]++;
+
+  if(chi2/Ndof<2&&0.5<s[0]&&s[0]<1.5&&0<v[0]&&ps_short[0]-30<v[0]&&v[0]<ps_short[0]+30){
+    fitOK = 1;
+    pxs[nps] = pxs_short[0];
+    ps[nps] = ps_short[0];
+    peaks[nps] = v[0];
+    peakxs[nps] = m[0];
+    widths[nps] = s[0];
+    timings[nps] = (m[0] + tmplwidth*s[0])*(1./E16ANA_LGConstant::kTimeScale);
+    chi2s[nps] = chi2/Ndof;
+    nps++;
+  }
+  if(chi2/Ndof<2&&0.5<s[1]&&s[1]<1.5&&0<v[1]&&ps_short[1]-30<v[1]&&v[1]<ps_short[1]+30){
+    fitOK = 1;
+    pxs[nps] = pxs_short[1];
+    ps[nps] = ps_short[1];
+    peaks[nps] = v[1];
+    peakxs[nps] = m[1];
+    widths[nps] = s[1];
+    timings[nps] = (m[1] + tmplwidth*s[1])*(1./E16ANA_LGConstant::kTimeScale);
+    chi2s[nps] = chi2/Ndof;
+    nps++;
+  }
+
+  /*draw
+  if(nps==2||nps==1){
+    if(n_fit2[1]<100){
+      c2s[n_fit2[1]] = new TCanvas(Form("c2s%d",n_fit2[1]),Form("c2s%d",n_fit2[1]),700,500);
+      wf->Draw("AL*");
+      wf->SetTitle(Form("<%dPULSE> CHI2:%1.1f, S:%2.1f, %1.1f, %3.1f, D:%2.1f, %1.1f, %3.1f, T0:%2.1f",nps, chi2/Ndof, m[0], s[0], v[0], m[1], s[1], v[1], t0));
+      if(n_fit2[1]==0){
+	c2s[n_fit2[1]]->SaveAs(outfit2suc + "[", "pdf");
+      }
+      c2s[n_fit2[1]]->SaveAs(outfit2suc,"pdf");
+      if(n_fit2[1]==99){
+	c2s[n_fit2[1]]->SaveAs(outfit2suc + "]", "pdf");
+      }
+      delete c2s[n_fit2[1]];
+    }
+    n_fit2[1]++;
+  }
+  */
+  if(nps==0){
+    fitOK = 2;
+    pxs[0] = pxs_short[0];
+    ps[0] = ps_short[0];
+    peaks[0] = ps_short[0] - offset;
+    peakxs[0] = pxs_short[0];
+    widths[0] = s[0];
+    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    chi2s[0] = chi2/Ndof;
+    pxs[1] = pxs_short[1];
+    ps[1] = ps_short[1];
+    peaks[1] = ps_short[1];
+    peakxs[1] = pxs_short[1];
+    widths[1] = s[1];
+    timings[1] = (pxs_short[1] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    chi2s[1] = chi2/Ndof;
+
+    /*draw
+    if(n_fit2[2]<30){
+      c2f[n_fit2[2]] = new TCanvas(Form("c2f%d",n_fit2[2]),Form("c2f%d",n_fit2[2]),700,500);
+      wf->Draw("AL*");
+      wf->SetTitle(Form("<%dPULSE> CHI2:%1.1f, S:%2.1f, %1.1f, %3.1f, D:%2.1f, %1.1f, %3.1f, T0:%2.1f",nps, chi2/Ndof, m[0], s[0], v[0], m[1], s[1], v[1], t0));
+      if(n_fit2[2]==0){
+	c2f[n_fit2[2]]->SaveAs(outfit2fail + "[", "pdf");
+      }
+      c2f[n_fit2[2]]->SaveAs(outfit2fail,"pdf");
+      if(n_fit2[2]==29){
+	c2f[n_fit2[2]]->SaveAs(outfit2fail + "]", "pdf");
+      }
+      delete c2f[n_fit2[2]];
+    }
+    */
+    n_fit2[2]++;
+  }
+
+  delete tmpl2;
+  delete wf;
+
+  return nps;
+
+}
+
+int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
+
+  //set TGraph
+  int nps = 0;
+  double x[E16DST_Constant::NSamplesLG];
+  double ex[E16DST_Constant::NSamplesLG] = {0.};
+  double ey[E16DST_Constant::NSamplesLG];
+  for(int i=0;i<E16DST_Constant::NSamplesLG;i++){
+    x[i] = i;
+    ey[i]=mwf[i]*0.05+1.2;
+  }
+  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+
+  //fit
+  Double_t chi2,Ndof,baseline;
+  Double_t m[3];
+  Double_t s[3];
+  Double_t v[3];
+
+  TF1* tmpl3 = new TF1("tmpl3",Template3,0,200,10);
+  tmpl3->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset, pxs_short[2],0.95,ps_short[2]-offset, offset);
+  tmpl3->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
+  //tmpl3->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
+  tmpl3->SetParLimits(1,0,2);
+  tmpl3->SetParLimits(3,pxs_short[1]-15,pxs_short[1]+15);
+  //tmpl3->SetParLimits(5,ps_short[1]-15,ps_short[1]+15);
+  tmpl3->SetParLimits(4,0,2);
+  tmpl3->SetParLimits(6,pxs_short[2]-15,pxs_short[2]+15);
+  //tmpl3->SetParLimits(8,ps_short[2]-15,ps_short[2]+15);
+  tmpl3->SetParLimits(7,0,2);
+  //tmpl3->SetParLimits(9,offset-2,offset+2);
+  wf->Fit("tmpl3","Q","Q",pxs_short[0]-20,pxs_short[0]+30);//why?
+  //wf->Fit("tmpl3","Q","Q",pxmin-20,pxmax+30);
+  chi2 = tmpl3->GetChisquare();
+  Ndof = tmpl3->GetNDF();
+  for(int i=0;i<3;i++){
+    m[i] = tmpl3->GetParameter(0+i*3);
+    s[i] = tmpl3->GetParameter(1+i*3);
+    v[i] = tmpl3->GetParameter(2+i*3);
+  }
+  offset = tmpl3->GetParameter(9);
+  n_fit3[0]++;
+
+  for(int i=0;i<3;i++){
+    if(chi2/Ndof<2&&0.5<s[i]&&s[i]<1.5&&0<v[i]&&ps_short[i]-30<v[i]&&v[i]<ps_short[i]+30){
+      fitOK = 1;
+      pxs[nps] = pxs_short[i];
+      ps[nps] = ps_short[i];
+      peaks[nps] = v[i];
+      peakxs[nps] = m[i];
+      widths[nps] = s[i];
+      //timings[nps] = m[i];
+      timings[nps] = (m[i] + tmplwidth*s[i])*(1./E16ANA_LGConstant::kTimeScale);
+      chi2s[nps] = chi2/Ndof;
+      nps++;
+    }
+  }
+
+  /*draw
+  if(nps==3||nps==2||nps==1){
+    //    std::cout<<"FIT3 SUCCESS: "<<n_fit3[1]<<" "<<nps<<std::endl;
+    fitOK = 1;
+    if(n_fit3[1]<10){
+      c3s[n_fit3[1]] = new TCanvas(Form("c3s%d",n_fit3[1]),Form("c3s%d",n_fit3[1]),700,500);
+      wf->Draw("AL*");
+      wf->SetTitle(Form("<%dPULSE> CHI2:%1.1f, S:%2.1f, %1.1f, %3.1f, D:%2.1f, %1.1f, %3.1f, T:%2.1f, %1.1f, %3.1f, T0:%2.1f",nps, chi2/Ndof, m[0], s[0], v[0], m[1], s[1], v[1], m[2], s[2], v[2], t0));
+      if(n_fit3[1]==0){
+	c3s[n_fit3[1]]->SaveAs(outfit3suc + "[", "pdf");
+      }
+      c3s[n_fit3[1]]->SaveAs(outfit3suc,"pdf");
+      if(n_fit3[1]==9){
+	c3s[n_fit3[1]]->SaveAs(outfit3suc + "]", "pdf");
+      }
+      delete c3s[n_fit3[1]];
+    }
+    n_fit3[1]++;
+  }
+  */
+  if(nps==0){
+    fitOK = 2;
+    for(int i=0;i<3;i++){
+      peaks[i] = ps_short[i] - offset;
+      peakxs[i] = pxs_short[i];
+      widths[i] = s[i];
+      timings[i] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+      chi2s[i] = chi2/Ndof;
+    }
+    //peaks[0] = peak;
+    //peakxs[0] = peakx;
+    //widths[0] = E16DST_DST1Constant::kInvalidValue;
+    //timings[0] = timing+100.-t0;
+    //chi2s[0] = chi2/Ndof;
+    /*draw
+    if(n_fit3[2]<10){
+      c3f[n_fit3[2]] = new TCanvas(Form("c3f%d",n_fit3[2]),Form("c3f%d",n_fit3[2]),700,500);
+      wf->Draw("AL*");
+      wf->SetTitle(Form("<%dPULSE> CHI2:%1.1f, S:%2.1f, %1.1f, %3.1f, D:%2.1f, %1.1f, %3.1f, T:%2.1f, %1.1f, %3.1f, T0:%2.1f",nps, chi2/Ndof, m[0], s[0], v[0], m[1], s[1], v[1], m[2], s[2], v[2], t0));
+      if(n_fit3[2]==0){
+	c3f[n_fit3[2]]->SaveAs(outfit3fail + "[", "pdf");
+      }
+      c3f[n_fit3[2]]->SaveAs(outfit3fail,"pdf");
+      if(n_fit3[2]==9){
+	c3f[n_fit3[2]]->SaveAs(outfit3fail + "]", "pdf");
+      }
+      delete c3f[n_fit3[2]];
+    }
+    */
+    n_fit3[2]++;
+  }
+
+  delete tmpl3;
+  delete wf;
+
+  return nps;
+
+}
+
+
+void E16ANA_LGWaveform::DrawWf(){
+
+  //set TGraph
+  int nps = 0;
+  double x[E16DST_Constant::NSamplesLG];
+  double ex[E16DST_Constant::NSamplesLG] = {0.};
+  double ey[E16DST_Constant::NSamplesLG];
+  for(int i=0;i<E16DST_Constant::NSamplesLG;i++){
+    x[i] = i;
+    ey[i]=mwf[i]*0.05+1.2;
+  }
+  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+
+  if(n_fit0<100){
+    c0[n_fit0] = new TCanvas(Form("c0%d",n_fit0),Form("c0%d",n_fit0),700,500);
+    wf->Draw("AL*");
+    if(n_fit0==0){
+      c0[n_fit0]->SaveAs(outfit0 + "[", "pdf");
+    }
+    c0[n_fit0]->SaveAs(outfit0,"pdf");
+    if(n_fit0==99){
+      c0[n_fit0]->SaveAs(outfit0 + "]", "pdf");
+    }
+    delete c0[n_fit0];
+  }
+
+  delete wf;
+
+}
+
 
 int E16ANA_LGWaveform::Fit(double* pxs, double* ps){
 
@@ -337,82 +920,79 @@ int E16ANA_LGWaveform::Fit(double* pxs, double* ps){
 
   if(nps_short==1){
 
-    TF1* temp1 = new TF1("temp1",Template1,0,200,4);
-    temp1->SetParameters(pxs_short[0],0.95,ps_short[0]-offset,offset);		
-    //temp1->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
-    temp1->SetParLimits(1,0,2);
-    //temp1->SetParLimits(3,offset-2,offset+2);
-
+    TF1* tmpl1 = new TF1("tmpl1",Template1,0,200,4);
+    tmpl1->SetParameters(pxs_short[0],0.95,ps_short[0]-offset,offset);		
+    //tmpl1->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
+    tmpl1->SetParLimits(1,0,2);
+    //tmpl1->SetParLimits(3,offset-2,offset+2);
     /*
-    TString outtemp = "./outtemp.pdf";
+    TString outtmpl = "./outtmpl.pdf";
     TCanvas *c = new TCanvas("c","c",700,500);
-    temp1->Draw("L*");
-    c->SaveAs(outtemp,"pdf");
+    tmpl1->Draw("L*");
+    c->SaveAs(outtmpl,"pdf");
     */
-
-
-    wf->Fit("temp1","Q","Q",pxmin-20,pxmax+30);
-    chi2 = temp1->GetChisquare();
-    Ndof = temp1->GetNDF();
-    m1 = temp1->GetParameter(0);
-    s1 = temp1->GetParameter(1);
-    v1 = temp1->GetParameter(2);
-    baseline = temp1->GetParameter(3);
-    delete temp1;
+    wf->Fit("tmpl1","Q","Q",pxmin-20,pxmax+30);
+    chi2 = tmpl1->GetChisquare();
+    Ndof = tmpl1->GetNDF();
+    m1 = tmpl1->GetParameter(0);
+    s1 = tmpl1->GetParameter(1);
+    v1 = tmpl1->GetParameter(2);
+    baseline = tmpl1->GetParameter(3);
+    delete tmpl1;
 
   }
   else if(nps_short==2){
 
-    TF1* temp2 = new TF1("temp2",Template2,0,200,7);
-    temp2->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset,offset);                            
-    temp2->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
-    temp2->SetParLimits(1,0,2);
-    temp2->SetParLimits(2,ps_short[0]-50,ps_short[0]+50);
-    temp2->SetParLimits(3,pxs_short[1]-15,pxs_short[1]+15);
-    temp2->SetParLimits(4,0,2);
-    temp2->SetParLimits(5,ps_short[1]-50,ps_short[1]+50);
-    //temp2->SetParLimits(6,offset-2,offset+2);
-    wf->Fit("temp2","Q","Q",pxs_short[0]-20,pxs_short[0]+30);
-    chi2 = temp2->GetChisquare();
-    Ndof = temp2->GetNDF();
-    m1 = temp2->GetParameter(0);
-    s1 = temp2->GetParameter(1);
-    v1 = temp2->GetParameter(2);
-    m2 = temp2->GetParameter(3);
-    s2 = temp2->GetParameter(4);
-    v2 = temp2->GetParameter(5);
-    baseline = temp2->GetParameter(6);
-    delete temp2;
+    TF1* tmpl2 = new TF1("tmpl2",Template2,0,200,7);
+    tmpl2->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset,offset);                            
+    tmpl2->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
+    tmpl2->SetParLimits(1,0,2);
+    tmpl2->SetParLimits(2,ps_short[0]-50,ps_short[0]+50);
+    tmpl2->SetParLimits(3,pxs_short[1]-15,pxs_short[1]+15);
+    tmpl2->SetParLimits(4,0,2);
+    tmpl2->SetParLimits(5,ps_short[1]-50,ps_short[1]+50);
+    //tmpl2->SetParLimits(6,offset-2,offset+2);
+    wf->Fit("tmpl2","Q","Q",pxs_short[0]-20,pxs_short[0]+30);
+    chi2 = tmpl2->GetChisquare();
+    Ndof = tmpl2->GetNDF();
+    m1 = tmpl2->GetParameter(0);
+    s1 = tmpl2->GetParameter(1);
+    v1 = tmpl2->GetParameter(2);
+    m2 = tmpl2->GetParameter(3);
+    s2 = tmpl2->GetParameter(4);
+    v2 = tmpl2->GetParameter(5);
+    baseline = tmpl2->GetParameter(6);
+    delete tmpl2;
 
   }
   else if(nps_short==3){
 
-    TF1* temp3 = new TF1("temp3",Template3,0,200,10);
-    temp3->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset, pxs_short[2],0.95,ps_short[2]-offset, offset);
-    temp3->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
-    //temp3->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
-    temp3->SetParLimits(1,0,2);
-    temp3->SetParLimits(3,pxs_short[1]-15,pxs_short[1]+15);
-    //temp3->SetParLimits(5,ps_short[1]-15,ps_short[1]+15);
-    temp3->SetParLimits(4,0,2);
-    temp3->SetParLimits(6,pxs_short[2]-15,pxs_short[2]+15);
-    //temp3->SetParLimits(8,ps_short[2]-15,ps_short[2]+15);
-    temp3->SetParLimits(7,0,2);
-    //temp3->SetParLimits(9,offset-2,offset+2);
-    wf->Fit("temp3","Q","Q",pxs_short[0]-20,pxs_short[0]+30);
-    chi2 = temp3->GetChisquare();
-    Ndof = temp3->GetNDF();
-    m1 = temp3->GetParameter(0);
-    s1 = temp3->GetParameter(1);
-    v1 = temp3->GetParameter(2);
-    m2 = temp3->GetParameter(3);
-    s2 = temp3->GetParameter(4);
-    v2 = temp3->GetParameter(5);
-    m3 = temp3->GetParameter(6);
-    s3 = temp3->GetParameter(7);
-    v3 = temp3->GetParameter(8);
-    baseline = temp3->GetParameter(9);
-    delete temp3;
+    TF1* tmpl3 = new TF1("tmpl3",Template3,0,200,10);
+    tmpl3->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset, pxs_short[2],0.95,ps_short[2]-offset, offset);
+    tmpl3->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
+    //tmpl3->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
+    tmpl3->SetParLimits(1,0,2);
+    tmpl3->SetParLimits(3,pxs_short[1]-15,pxs_short[1]+15);
+    //tmpl3->SetParLimits(5,ps_short[1]-15,ps_short[1]+15);
+    tmpl3->SetParLimits(4,0,2);
+    tmpl3->SetParLimits(6,pxs_short[2]-15,pxs_short[2]+15);
+    //tmpl3->SetParLimits(8,ps_short[2]-15,ps_short[2]+15);
+    tmpl3->SetParLimits(7,0,2);
+    //tmpl3->SetParLimits(9,offset-2,offset+2);
+    wf->Fit("tmpl3","Q","Q",pxs_short[0]-20,pxs_short[0]+30);
+    chi2 = tmpl3->GetChisquare();
+    Ndof = tmpl3->GetNDF();
+    m1 = tmpl3->GetParameter(0);
+    s1 = tmpl3->GetParameter(1);
+    v1 = tmpl3->GetParameter(2);
+    m2 = tmpl3->GetParameter(3);
+    s2 = tmpl3->GetParameter(4);
+    v2 = tmpl3->GetParameter(5);
+    m3 = tmpl3->GetParameter(6);
+    s3 = tmpl3->GetParameter(7);
+    v3 = tmpl3->GetParameter(8);
+    baseline = tmpl3->GetParameter(9);
+    delete tmpl3;
 
   }
 
@@ -576,9 +1156,84 @@ int E16ANA_LGWaveform::PeakSearch(double* dat, double t0, double* mwf, double* p
 
 }
 
-int E16ANA_LGWaveform::Fit(double* dat, double* mwf, int npeaks, double* peakxs, double* peakys){
+/*
+void E16ANA_LGWaveform::AllFit(){
 
-  return npeaks;
+  CalcOffset();
+  if(nps_short==1){
+    nps_fit = FitTmpl1(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==2){
+    nps_fit = FitTmpl2(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==3){
+    nps_fit = FitTmpl3(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==0){
+    fitOK = 0;
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    //    DrawWf();
+    n_fit0++;
+  }
+  else{
+    fitOK = 0;
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    n_fit4++;
+  }
+
+  if(nps_fit==0&&npeaks==0){
+    npeaks = 1;
+  }
 
 }
 
+void E16ANA_LGWaveform::CalcPeaks(){
+
+  nps_full = PeakSearchFull(pxs_full, ps_full);
+  nps_short = PeakSearchShort(pxs_short, ps_short);
+  CalcOffset();
+  if(nps_short==1){
+    nps_fit = FitTmpl1(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==2){
+    nps_fit = FitTmpl2(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==3){
+    nps_fit = FitTmpl3(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==0){
+    fitOK = 0;
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    //    DrawWf();
+    n_fit0++;
+  }
+  else{
+    fitOK = 0;
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    n_fit4++;
+  }
+
+  if(nps_fit==0&&npeaks==0){
+    npeaks = 1;
+  }
+
+}
+*/

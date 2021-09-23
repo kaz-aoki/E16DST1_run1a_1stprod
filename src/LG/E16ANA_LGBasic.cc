@@ -19,6 +19,15 @@
 
 using namespace E16ANA_LGConstant;
 
+TGraph* E16ANA_LGBasic::gtmpl = nullptr;
+int E16ANA_LGBasic::ngtmpl = E16DST_DST1Constant::kInvalidValue;
+double E16ANA_LGBasic::gtmplx[200] = {E16DST_DST1Constant::kInvalidValue};
+double E16ANA_LGBasic::gtmply[200] = {E16DST_DST1Constant::kInvalidValue};
+
+E16ANA_LGBasic::E16ANA_LGBasic(){
+
+}
+
 void E16ANA_LGBasic::SetMap(){
   //unordered_map<string, ch_pp*> mapdata;
 
@@ -130,3 +139,45 @@ double E16ANA_LGBasic::GetGain(uint16_t module, uint16_t block){
   return gain;
 }
 
+void E16ANA_LGBasic::SetTemplate(){
+
+  E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+  FILE* fp_wf = calib.CalibFileOpenBinary("LG-WFtemplate", calib.CurrentRunID() );
+  if ( fp_wf==NULL ) {
+    std::cout<<"[Error] wf template file is not found !"<<std::endl;
+    exit(1);
+  }
+
+  double xt, yt;
+  std::vector<double> x;
+  std::vector<double> y;
+  int j=0;
+  int peakx;
+  double peaky;
+  while( feof(fp_wf)==0 ){
+    fscanf(fp_wf, "%lf %lf", &xt, &yt );
+    x.push_back(xt);
+    y.push_back(yt);
+    gtmplx[j] = xt;
+    gtmply[j] = yt;
+    if(xt==0){
+      peakx = j;
+      peaky = yt;
+    }
+    j++;
+  }
+  ngtmpl = j;
+
+  gtmpl = new TGraph(110,&x[0],&y[0]);
+
+  for(int i=0;i<20;i++){
+    int cell = peakx - i;
+    double peakhalf = peaky/2.;
+    if((cell!=peakx)&&y[cell]<peakhalf){
+      tmplwidth=(peakhalf-y[cell])/(y[cell+1]-y[cell])+ cell - peakx;
+      break;
+    }
+  }
+
+  fclose(fp_wf);
+}

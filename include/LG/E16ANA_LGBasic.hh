@@ -18,7 +18,8 @@ class E16ANA_LGBasic
 
 public:
 
-E16ANA_LGBasic(){};
+  //E16ANA_LGBasic(){};
+E16ANA_LGBasic();
 
 struct ch_pp{
         char LorR;
@@ -39,6 +40,7 @@ struct ch_pp{
 
 void SetMap();
 void SetCalibMap();
+void SetTemplate();
 
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
@@ -57,12 +59,20 @@ struct ip_pp{
         int WF_TYPE;
         };
 
+  static TGraph* gtmpl;
+  static int ngtmpl;
+  static double gtmplx[200];
+  static double gtmply[200];
+  double tmplwidth; //[cell]
+
 private:
 
 ch_pp lgspecmap[110][60];
 ch_pp lgspecmap_ip[100];
 double t0map[110][60];
 double gainmap[110][60];
+
+
 
 };
 

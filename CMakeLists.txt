@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-set(CMAKE_CXX_FLAGS "-lSpectrum")
+set(CMAKE_CXX_FLAGS "-lSpectrum -pg")
+set(CMAKE_EXE_LINKER_FLAGS "-pg")
+set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -150,6 +152,15 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16DST_DST1
 )
 
+#_______________________________________________________________________________
+#add_executable(lg_check_standalone usr/lg_check_standalone.cc)
+#
+#target_link_libraries(lg_check_standalone
+#	E16ANA_CalibDB
+#	E16DST
+#	E16DST_DST1
+#)
+#
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 

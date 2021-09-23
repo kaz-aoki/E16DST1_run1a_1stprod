@@ -6,50 +6,21 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1Constant.hh"
 #include "E16ANA_LGConstant.hh"
+#include "E16ANA_LGBasic.hh"
 #include <set>
 #include <TGraph.h>
+#include <TString.h>
+#include <TCanvas.h>
 #include <TH1.h>
 
 
-class E16ANA_LGWaveform
+class E16ANA_LGWaveform : E16ANA_LGBasic
 {
 
 public:
 
-  /*
-  E16ANA_LGWaveform()
-    : peak(E16DST_DST1Constant::kInvalidValue),
-      peakx(E16DST_DST1Constant::kInvalidValue),
-      timing(E16DST_DST1Constant::kInvalidValue),
-      baseline(E16DST_DST1Constant::kInvalidValue),
-      baselinerms(E16DST_DST1Constant::kInvalidValue),
-      integral(E16DST_DST1Constant::kInvalidValue),
-      falltime(E16DST_DST1Constant::kInvalidValue),
-      offset(E16DST_DST1Constant::kInvalidValue),
-      nps_full(E16DST_DST1Constant::kInvalidValue),
-      nps_short(E16DST_DST1Constant::kInvalidValue),
-      nps_fit(E16DST_DST1Constant::kInvalidValue) {
-
-    for(int i=0;i<E16DST_Constant::NSamplesLG;i++){
-      wf[i] = E16DST_DST1Constant::kInvalidValue;
-      dwf[i] = E16DST_DST1Constant::kInvalidValue;
-      mwf[i] = E16DST_DST1Constant::kInvalidValue;
-      hwf = new TH1F("hwf","hwf",200,0.5,200.5);
-    }
-    for(int i=0;i<30;i++){
-      ps_full[i] = E16DST_DST1Constant::kInvalidValue;
-      pxs_full[i] = E16DST_DST1Constant::kInvalidValue;
-      ps_short[i] = E16DST_DST1Constant::kInvalidValue;
-      pxs_short[i] = E16DST_DST1Constant::kInvalidValue;
-      ps_fit[i] = E16DST_DST1Constant::kInvalidValue;
-      pxs_fit[i] = E16DST_DST1Constant::kInvalidValue;
-    }
-  }
-  */
   E16ANA_LGWaveform();
     ~E16ANA_LGWaveform(){}
-  //~E16ANA_LGWaveform(){delete hwf;}
-
 
   //conventional method
   void SimpleMethod(double* _wf);
@@ -68,21 +39,38 @@ public:
   double GetBaseline(){return baseline;}
   double GetBaselineRms(){return baselinerms;}
   double GetIntegral(){return integral;}
+  int GetFalltime(){return falltime;}
+  bool GetSpikeFlag(){return spikeflag;}
 
   //fitting method
   void FitMethod(double* _wf, double t0);
   void SetT0(double _t0){t0 = _t0;}
   void CalcWaveforms();
-  void CalcPeaks();
+  //void CalcPeaks();
+  void PeakSearch();
+  void Fit();
+  //void AllFit();
+  bool BaselineCorrect();
   void CalcOffset();
   int PeakSearchFull(double* pxs, double* ps);
   int PeakSearchShort(double* pxs, double* ps);
+  int FitTmpl1(double* pxs, double* ps);
+  int FitTmpl2(double* pxs, double* ps);
+  int FitTmpl3(double* pxs, double* ps);
   int Fit(double* pxs, double* ps);
-  int GetNpeaks(){return nps_fit;}
-  double* GetPeaks(){return ps_fit;}
-  double* GetPeakxs(){return pxs_fit;}
+  void DrawWf();
+  int GetNpsFull(){return nps_full;}
+  int GetNpsShort(){return nps_short;}
+  int GetNpsFit(){return nps_fit;}
+  int GetNpeaks(){return npeaks;}
+  int GetFitOK(){return fitOK;}
+  double* GetPeaks(){return peaks;}
+  double* GetPeakxs(){return peakxs;}
+  double* GetWidths(){return widths;}
+  double* GetTimings(){return timings;}
+  double* GetChi2s(){return chi2s;}
 
-  void SetTemplate();
+//  void SetTemplate();
   static double Template1(double* x, double* par);
   static double Template2(double* x, double* par);
   static double Template3(double* x, double* par);
@@ -97,7 +85,6 @@ public:
   void Baseline(double* dat, int peakx, double* baseline, double* baselinerms);
   void Integral(double* dat, int peakx, double baseline, double* integral, int* falltime);
   int PeakSearch(double* dat, double t0, double* mwf, double* peakxs, double* peakys);
-  int Fit(double* dat, double* mwf, int npeaks, double* peakxs, double* peakys);
 
 
 protected:
@@ -113,6 +100,7 @@ private:
   double baselinerms;
   double integral;
   int falltime;
+  bool spikeflag;
 
   double dwf[E16DST_Constant::NSamplesLG]; //diff
   double mwf[E16DST_Constant::NSamplesLG]; //modified waveform (remove spike noise)
@@ -128,9 +116,42 @@ private:
   int nps_fit; //Npeaks: fit result
   double ps_fit[30];
   double pxs_fit[30];
+  int npeaks;// final value
+  int fitOK;// 0: not performed fitting, 1: fit OK, 2: fit failed
+  double peaks[30];
+  double peakxs[30];
+  double widths[30];
+  double timings[30];
+  double chi2s[30];
+
 
   TH1F* hwf;
-  static TGraph* gtmpl;
+//  static TGraph* gtmpl;
+
+  //for check
+  static int n_call;
+  static int n_fit0;
+  static int n_fit1[3];
+  static int n_fit2[3];
+  static int n_fit3[3];
+  static int n_fit4;
+
+TString outfit0 = "tmpltest/outfit0.pdf";
+TString outfit1suc = "tmpltest/outfit1suc.pdf";
+TString outfit1fail = "tmpltest/outfit1fail.pdf";
+TString outfit2suc = "tmpltest/outfit2suc.pdf";
+TString outfit2fail = "tmpltest/outfit2fail.pdf";
+TString outfit3suc = "tmpltest/outfit3suc.pdf";
+TString outfit3fail = "tmpltest/outfit3fail.pdf";
+TCanvas *c0[100];
+TCanvas *c1s[100];
+TCanvas *c1f[100];
+TCanvas *c2s[50];
+TCanvas *c2f[30];
+TCanvas *c3s[100];
+TCanvas *c3f[100];
+
+
 
 };
 
