@@ -50,10 +50,12 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
     if( fitflag==0&&npsfit==0 ){
       //std::cout<<"no hit"<<std::endl;
+      delete lgwf;
       continue;
     }
     if( fitflag==1&&spikeflag==true ){
       //std::cout<<"it is spike noise"<<std::endl;
+      delete lgwf;
       continue;
     }
 

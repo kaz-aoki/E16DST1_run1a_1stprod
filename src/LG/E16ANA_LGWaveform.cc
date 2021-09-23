@@ -247,6 +247,7 @@ void E16ANA_LGWaveform::Fit(){
     n_fit4++;
   }
 
+
   if(fitOK==0){
     nps_fit = nps_short;
     npeaks = 1;
@@ -255,9 +256,11 @@ void E16ANA_LGWaveform::Fit(){
     timings[0] = timing+100.-t0;
   }
 
+
   if(fitOK==2){
     npeaks = nps_short;
   }
+
 
 }
 
