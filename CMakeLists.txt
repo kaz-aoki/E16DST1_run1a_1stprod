@@ -5,7 +5,6 @@ project(E16DST1)
 #set(CMAKE_CXX_FLAGS "-lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-pg -lMinuit -lSpectrum")
 set(CMAKE_CXX_FLAGS "-g -lMinuit -lSpectrum")
-
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -45,13 +44,13 @@ include_directories(
   E16ANA_TargetInfo/include
   E16ANA_Tracking/include
   E16ANA_Waveform/include
-  /opt/E16/include/Geant4 # evb
-#  /ccj/u/E16/include/Geant4 # ccj
+#  /opt/E16/include/Geant4 # evb
+  /ccj/u/E16/include/Geant4 # ccj
 )
 
 link_directories(
-  /opt/E16/lib64-gcc8/clhep # evb
-#  /ccj/u/E16/lib64 #ccj
+#  /opt/E16/lib64-gcc8/clhep # evb
+  /ccj/u/E16/lib64 #ccj
 #  ${Boost_LIBRARY_DIRS}
 )
 
@@ -88,6 +87,7 @@ configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePa
 add_library(E16ANA
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
+  src/LG/E16ANA_LGWaveform.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   E16ANA_CalibDB/src/E16ANA_SSDcalib.cc

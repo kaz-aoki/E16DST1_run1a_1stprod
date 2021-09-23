@@ -163,7 +163,7 @@ TVector3 E16DST_DST1HBDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){
-  double param = lgbasic.GetT0(module_id, channel_id);
+  double param = lgbasic.GetT0(module_id, channel_id);// [ns]
   return timing+100.-param;
 }
 

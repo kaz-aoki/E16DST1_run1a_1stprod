@@ -360,24 +360,45 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetBaselineRms(float _baseline_rms) { baseline_rms = _baseline_rms; }
   void SetIntegral(float _integral) { integral = _integral; }
   void SetNpeaks(int _npeaks) { npeaks = _npeaks; }
+  void SetNpeak(int _npeak) { npeak = _npeak; }
+  void SetFitFlag(int _fitflag) { fitflag = _fitflag; }
+  void SetFitPeak(float _fitpeak) { fitpeak = _fitpeak; }
+  void SetFitPeakTime(float _fitpeaktime) { fitpeaktime = _fitpeaktime; }
+  void SetFitTiming(float _fittiming) { fittiming = _fittiming; }
+  void SetFitWidth(float _fitwidth) { fitwidth = _fitwidth; }
+  void SetFitChi2(float _fitchi2) { fitchi2 = _fitchi2; }
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
   float BaselineRms() { return baseline_rms; }
   float Integral() { return integral; }
   int Npeaks() { return npeaks; }
+  int Npeak() { return npeak; }
+  int FitFlag() { return fitflag; }
+  float FitPeak() { return fitpeak; }
+  float FitPeakTime() { return fitpeaktime; }
+  float FitTiming() { return fittiming; }
+  float FitWidth() { return fitwidth; }
+  float FitChi2() { return fitchi2; }
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
   float GetEnergyDeposit(E16ANA_LGBasic& lgbasic);
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
-  float peak_height;// baseline subtracted
+  float peak_height; // baseline subtracted
   int   peak_time;
   float baseline;
   float baseline_rms;
   float integral; // baseline subtracted
   int npeaks;
+  int npeak;
+  int fitflag; // 0: not fitted (no pulse), 1: fit OK, 2: fit failed
+  float fitpeak;
+  float fitpeaktime;
+  float fittiming;// calibrated channel by channel
+  float fitwidth;
+  float fitchi2;
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {

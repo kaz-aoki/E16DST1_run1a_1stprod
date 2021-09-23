@@ -3,14 +3,16 @@
 #include "E16DST_Constant.hh"
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGConstant.hh"
+#include "E16ANA_LGWaveform.hh"
 
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1) {
 
   static E16ANA_LGBasic lgbasic;
   static bool is_first=true;
   if(is_first){
-    //lgbasic.MakeMap();//read calib_files and make a binary file
     lgbasic.SetMap();//make channel_map from binary file
+    lgbasic.SetCalibMap();
+    lgbasic.SetTemplate();
     is_first=false;
   }
 
@@ -18,7 +20,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
   //  auto cluster1 = new E16DST_DST1LGClusters();
   auto max_hit = hits0.NumberOfHits();
   //  hits1->Reserve(max_hit);
-  hits1->Resize(max_hit);
+  hits1->Resize(max_hit*2);
   //  clusters1->Reserve(max_hit);
 
   int n_dst1hit = 0;
@@ -31,49 +33,82 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
+    double t0 = lgbasic.GetT0(hit0.ModuleID(),hit0.BlockID());
     double waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
-    double peakheight = E16DST_DST1Constant::kInvalidValue;
-    int peaktime = E16DST_DST1Constant::kInvalidValue;
-    double timing = E16DST_DST1Constant::kInvalidValue;
-    double baseline = E16DST_DST1Constant::kInvalidValue;
-    double baselinerms = E16DST_DST1Constant::kInvalidValue;
-    double integral = E16DST_DST1Constant::kInvalidValue;
-    int falltime = E16DST_DST1Constant::kInvalidValue;
-    int npeaks = E16DST_DST1Constant::kInvalidValue;
-    double xpos[20] = {E16DST_DST1Constant::kInvalidValue};
-    double ypos[20] = {E16DST_DST1Constant::kInvalidValue};
-
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
       int ph = hit0.Waveform()[cell];
       waveform[cell] = ph*wftype;
     }
 
-    lgbasic.LGWFPeak(waveform, &peakheight, &peaktime, &timing);
-    lgbasic.LGWFBaseline(waveform, peaktime, &baseline, &baselinerms);
-    peakheight = peakheight - baseline;
-    lgbasic.LGWFIntegral(waveform, peaktime, baseline, &integral, &falltime);
-    npeaks = lgbasic.LGWFPeakSearch(waveform, xpos, ypos);
+    E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
+    //lgwf->SimpleMethod(waveform);// use this method in low-intensity run (less than 1e9)
+    lgwf->FitMethod(waveform,t0);
 
-    if( (falltime-peaktime)>5 && //to remove spike noise
-	peakheight>E16ANA_LGConstant::kHitThreshold && 
-	timing>E16ANA_LGConstant::kHitTimingStart && 
-	timing<E16ANA_LGConstant::kHitTimingEnd ){
+    int fitflag = lgwf->GetFitOK();
+    int npsfit = lgwf->GetNpsFit();
+    bool spikeflag = lgwf->GetSpikeFlag();
+
+    if( fitflag==0&&npsfit==0 ){
+      //std::cout<<"no hit"<<std::endl;
+      continue;
+    }
+    if( fitflag==1&&spikeflag==true ){
+      //std::cout<<"it is spike noise"<<std::endl;
+      continue;
+    }
+
+    double timing = lgwf->GetTiming();
+    double peakheight = lgwf->GetPeak();
+    double peaktime = lgwf->GetPeakx();
+    double baseline = lgwf->GetBaseline();
+    double baselinerms = lgwf->GetBaselineRms();
+    double integral = lgwf->GetIntegral();
+    double falltime = lgwf->GetFalltime();
+
+    int npeaks = lgwf->GetNpeaks();
+    int npeak = 0;
+    for(int l=0;l<npeaks;l++){//npeaks loop
+      double fitpeak = lgwf->GetPeaks()[l];
+      double fitpeaktime = lgwf->GetPeakxs()[l];
+      double fittiming = lgwf->GetTimings()[l];
+      double fitwidth = lgwf->GetWidths()[l];
+      double fitchi2 = lgwf->GetChi2s()[l];
+
+      //if( (falltime-peaktime)>5 && //to remove spike noise
+      //peakheight>E16ANA_LGConstant::kHitThreshold && 
+      if( peaktime>E16ANA_LGConstant::kHitTimeStart && 
+	peaktime<E16ANA_LGConstant::kHitTimeEnd && timing>-100 ){//dst1hit condition
+
       hits1->Hit(n_dst1hit).SetInvalid();
       hits1->Hit(n_dst1hit).SetIds(hit0.ModuleID(), hit0.BlockID());
+
       hits1->Hit(n_dst1hit).SetTiming((float)timing);
       hits1->Hit(n_dst1hit).SetPeakHeight((float)peakheight);
       hits1->Hit(n_dst1hit).SetPeakTime(peaktime);
       hits1->Hit(n_dst1hit).SetBaseline((float)baseline);
       hits1->Hit(n_dst1hit).SetBaselineRms((float)baselinerms);
       hits1->Hit(n_dst1hit).SetIntegral((float)integral);
+      //hits1->Hit(n_dst1hit).SetNpeaks((int)npsfit);
       hits1->Hit(n_dst1hit).SetNpeaks((int)npeaks);
-
+      hits1->Hit(n_dst1hit).SetNpeak((int)npeak);
+      hits1->Hit(n_dst1hit).SetFitFlag((int)fitflag);
+      hits1->Hit(n_dst1hit).SetFitPeak((float)fitpeak);
+      hits1->Hit(n_dst1hit).SetFitPeakTime((float)fitpeaktime);
+      hits1->Hit(n_dst1hit).SetFitTiming((float)fittiming);
+      hits1->Hit(n_dst1hit).SetFitWidth((float)fitwidth);
+      hits1->Hit(n_dst1hit).SetFitChi2((float)fitchi2);
       //      cluster1->SetMaxPeakCh(hit0.BlockID());
       //      cluster1->SetMaxPeakHeight(peakheight);
       //      cluster1->SetTiming(timing);
       //      cluster1->SetMaxPeakSum(peakheight);
+      npeak++;
       n_dst1hit++;
-    }
+
+      }//dst1hit conidition
+
+    }//npeaks loop
+
+    delete lgwf;
 
   }//dst0hit loop
 

@@ -6,7 +6,6 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1Constant.hh"
 #include "E16ANA_LGConstant.hh"
-//#include "LGDST0ANA.h"
 #include <unordered_map>
 #include <iostream>
 #include <set>
@@ -19,7 +18,8 @@ class E16ANA_LGBasic
 
 public:
 
-E16ANA_LGBasic(){};
+  //E16ANA_LGBasic(){};
+E16ANA_LGBasic();
 
 struct ch_pp{
         char LorR;
@@ -38,36 +38,16 @@ struct ch_pp{
         };
 
 
-//void LGSetUp();
-//void MakeMap();
 void SetMap();
 void SetCalibMap();
-
-  //unordered_map<string, ch_pp*>*  lgdatamap = new unordered_map<string, ch_pp*>;
-  //unordered_map<int, ch_pp*>*  lgdatamap_ip = new unordered_map<int, ch_pp*>;
+void SetTemplate();
 
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
 double GetT0(uint16_t module, uint16_t block);
 double GetGain(uint16_t module, uint16_t block);
 
-void LGWFPeak(double* dat, double* peak, int* peakx, double* timing);
-void LGWFBaseline(double* dat, int peakx, double* baseline, double* baselinerms);
-void LGWFIntegral(double* dat, int peakx, double baseline, double* integral, int* falltime);
-int LGWFPeakSearch(double* dat, double* xpos, double* ypos);
-
-  //string file_channelmap();
-  //string file_drs4assign();
-  //string file_drs4assign_run0a();
-  //string file_timeoffset();
-  //string file_binary();
-
-
 ~E16ANA_LGBasic(){
-	//lgdatamap->clear();
-	//delete lgdatamap;
-	//delete lgdatamap_ip;
-	//lgdatamap_ip->clear();
 };
 protected:
 
@@ -79,12 +59,20 @@ struct ip_pp{
         int WF_TYPE;
         };
 
+  static TGraph* gtmpl;
+  static int ngtmpl;
+  static double gtmplx[200];
+  static double gtmply[200];
+  static double tmplwidth; //[cell]
+
 private:
 
 ch_pp lgspecmap[110][60];
 ch_pp lgspecmap_ip[100];
 double t0map[110][60];
 double gainmap[110][60];
+
+
 
 };
 
