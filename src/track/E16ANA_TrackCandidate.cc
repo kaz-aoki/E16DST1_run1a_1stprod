@@ -395,8 +395,8 @@ void E16ANA_TrackCandidates::SearchTrackCandidates() {
   }
   auto& ssd = record->SSD();
   auto& gtr = record->GTR();
-//E16INFO("number of SSD clusters: %d", ssd.NumClusters());
-//E16INFO("number of GTR clusters: %d", gtr.NumClusters());
+E16INFO("number of SSD clusters: %d", ssd.NumClusters());
+E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
   cluster_sets[1].reserve(kNumReserveTracks[1]);

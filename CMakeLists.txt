@@ -5,6 +5,8 @@ project(E16DST1)
 #set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
 set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -g -lMinuit -lSpectrum")
+set(CMAKE_EXE_LINKER_FLAGS "-pg")
+set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
