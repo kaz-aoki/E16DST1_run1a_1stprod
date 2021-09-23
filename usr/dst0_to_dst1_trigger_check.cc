@@ -66,7 +66,15 @@ int main(int argc, char* argv[]) {
   gtrped.ReadCalibData( calib.CurrentRunID() );
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  
+  E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+//  auto bfield_map = new E16ANA_MagneticFieldMap3D("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary");
+  bfield_map->Initialize_binary();
+  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+  auto fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+
+  auto record = new E16DST_DST1PhysicsRecord();
+
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -95,25 +103,30 @@ int main(int argc, char* argv[]) {
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 //      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-      auto event1 = new E16DST_DST1PhysicsEvent();
-      auto ssd_hits0         = event0->SSD();
-      auto gtr_hits0         = event0->GTR();
-      auto hbd_hits0         = event0->HBD();
-      auto lg_hits0          = event0->LG();
-      auto trigger_gtr_hits0 = event0->TriggerGTR();
-      auto trigger_hbd_hits0 = event0->TriggerHBD();
-      auto trigger_lg_hits0  = event0->TriggerLG();
+//      auto event1 = new E16DST_DST1PhysicsEvent();
+      auto& ssd_hits0         = event0->SSD();
+      auto& gtr_hits0         = event0->GTR();
+      auto& hbd_hits0         = event0->HBD();
+      auto& lg_hits0          = event0->LG();
+      auto& trigger_gtr_hits0 = event0->TriggerGTR();
+      auto& trigger_hbd_hits0 = event0->TriggerHBD();
+      auto& trigger_lg_hits0  = event0->TriggerLG();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
-//      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
+      E16DST_DST1SSDFactory_dummy(ssd_hits0, &record->SSD());
+      record->SSD().UpdatePtrs();
+//      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped);
+//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
+      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
+      record->GTR().UpdatePtrs();
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
+//      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      event1->GTR().SetValidFlag(1);
-      event1->LG().SetValidFlag(1);
-      event1->Trigger().SetValidFlag(1);
+//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
+//      event1->GTR().SetValidFlag(1);
+//      event1->LG().SetValidFlag(1);
+//      event1->Trigger().SetValidFlag(1);
 
 
 //// Check begin
@@ -148,7 +161,7 @@ int main(int argc, char* argv[]) {
 //      }
 //
 //// trigger
-      event1->Trigger().Print(*geometry);
+//      event1->Trigger().Print(*geometry);
 //
 //// other
 ////      event1->GTR().Print();
