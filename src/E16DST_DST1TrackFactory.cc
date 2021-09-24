@@ -21,14 +21,15 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
 //  track_candidates.Print();
   track_candidates.PrintSelected();
   
-  for (int i = 0; i < 3; ++i) {
+//  for (int i = 0; i < 3; ++i) {
 //    for (auto& cand : track_candidates.TrackCandidates(i)) {
 //      check_file->AddEntry(n_calls, cand);
 //    }
-    for (auto& cand : track_candidates.SelectedTrackCandidates(i)) {
+//    for (auto& cand : track_candidates.SelectedTrackCandidates(i)) {
+    for (auto& cand : track_candidates.SelectedTrackCandidates()) {
       check_file->AddEntry(n_calls, *cand);
     }
-  }
+//  }
   ++n_calls;
   n_cands += track_candidates.NumTrackCandidates();
   std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;

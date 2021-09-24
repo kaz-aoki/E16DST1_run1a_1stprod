@@ -304,11 +304,12 @@ class E16ANA_TrackCandidate {
 class E16ANA_TrackCandidates {
  public:
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
-      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
-//    n_xsearch = 0;
-    for (auto& cands : track_candidates) {
-      cands.clear();
-    }
+//      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
+      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
+//    for (auto& cands : track_candidates) {
+//      cands.clear();
+//    }
+  track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
   void SetFlags(bool _vertex_xy_fix_flag, bool _py_fix_flag, bool _vertex_z_fix_flag) {
@@ -321,36 +322,41 @@ class E16ANA_TrackCandidates {
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
 //  int NumXSearch() { return n_xsearch; }
   int NumTrackCandidates() {
-    int n_cands = 0;
-    for (auto& cands : track_candidates) {
-      n_cands += cands.size();
-    }
-    return n_cands;
+//    int n_cands = 0;
+//    for (auto& cands : track_candidates) {
+//      n_cands += cands.size();
+//    }
+//    return n_cands;
+    return track_candidates.size();
   }
-  int NumTrackCandidates(int n) { return track_candidates[n].size(); }
-  std::vector<E16ANA_TrackCandidate>& TrackCandidates(int n) { return track_candidates[n]; }
-  std::vector<E16ANA_TrackCandidate*>& SelectedTrackCandidates(int n) { return selected_track_candidates[n]; }
+//  int NumTrackCandidates(int n) { return track_candidates[n].size(); }
+//  std::vector<E16ANA_TrackCandidate>& TrackCandidates(int n) { return track_candidates[n]; }
+  std::vector<E16ANA_TrackCandidate>& TrackCandidates() { return track_candidates; }
+  std::vector<E16ANA_TrackCandidate*>& SelectedTrackCandidates() { return selected_track_candidates; }
   void Analyze();
   void Print() {
-    for (auto& cands : track_candidates) {
-      for (auto& cand : cands) {
+//    for (auto& cands : track_candidates) {
+//      for (auto& cand : cands) {
+    for (auto& cand : track_candidates) {
         cand.Print();
-      }
+//      }
     }
     std::cout << "Number of track candidates: " << NumTrackCandidates() << std::endl;
   }
   void PrintSelected() {
-    for (auto& cands : selected_track_candidates) {
-      for (auto& cand : cands) {
+//    for (auto& cands : selected_track_candidates) {
+//      for (auto& cand : cands) {
+    for (auto& cand : selected_track_candidates) {
         cand->Print();
-      }
+//      }
     }
   }
  private:
   struct OneAxisClusterSet {
-    int target_id;
-    int charge;
+    int target_id; // only x
+    int charge; // only x
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
+//    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
 //    std::array<E16DST_DST1GTRCluster*, kNumGTRLayers> gtr_clusters;
     std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
@@ -359,23 +365,28 @@ class E16ANA_TrackCandidates {
   static constexpr int kNumGTRLayers = E16ANA_TrackConstant::kNumTrackingLayers - 1;
   static constexpr std::array<int, 2> kNumRaughFitDegree = {3, 2}; // x, y
   static constexpr std::array<double, kNumGTRLayers> kGTRSizeCoef = {2.7, 1.4, 1.};
-  static constexpr double kGTRTimeDiffThreshold = 40.;
+  // parameter
+//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
+  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
   static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
   static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                                                              1. / (kXSigma[1] * kXSigma[1]),
                                                                              1. / (kXSigma[2] * kXSigma[2]),
                                                                              1. / (kXSigma[3] * kXSigma[3]),
                                                                              1. / (kXSigma[4] * kXSigma[4])};
-  static constexpr double kGTRYDiffThreshold = 20.;
-  static constexpr double kGTRPeakSumThresholdX = 180.;
-  static constexpr double kGTRPeakSumThresholdY = 10.;
   static constexpr std::array<double, kNumGTRLayers> kYSigma = {1., 1., 1.};
   static constexpr std::array<double, kNumGTRLayers> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                                                  1. / (kYSigma[1] * kYSigma[1]),
                                                                  1. / (kYSigma[2] * kYSigma[2])};
-  static constexpr double kRaughFitTargetXThreshold = 5.; // tmp
-  static constexpr double kRaughFitTargetYThreshold = 15.; // tmp
-  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.};
+  static constexpr int kMinHitsInXCluster = 2;
+  static constexpr double kGTRYDiffThreshold = 20.;
+  static constexpr double kGTRPeakSumThresholdX = 180.;
+  static constexpr double kGTRPeakSumThresholdY = 10.;
+  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
+//  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
+//  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {10., 0., 0.001}; // coef[1] not used
+  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {25., 0., 0.001}; // coef[1] nbot used. ozawa v8
+  static constexpr std::array<double, kNumRaughFitDegree[1]> kRaughYFitCoefficient = {15., 0.}; // coef[1] not used.
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
   static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kLGProjectionThreshold = 150.; // 98.
@@ -385,7 +396,7 @@ class E16ANA_TrackCandidates {
     auto z = rot_sin * pos.X() + rot_cos * (pos.X() - offset);
     return TVector3(x, 0, z);
   }
-//  static void CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos);
+  static void CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos);
   static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, kNumTrackingLayersWTarget>* zz, std::array<double, kNumRaughFitDegree[0]>* zx) {
     auto x = lotated_pos.X();
     auto z = lotated_pos.Z();
@@ -414,6 +425,12 @@ class E16ANA_TrackCandidates {
 //  static void CalcChiSquare();
   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
+  bool ExistADCCorrelation(float x_adc, float y_adc) {
+    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
+      return true;
+    }
+    return false;
+  }
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
@@ -426,8 +443,10 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
-  std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
-  std::array<std::vector<E16ANA_TrackCandidate*>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
+//  std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
+//  std::array<std::vector<E16ANA_TrackCandidate*>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
+  std::vector<E16ANA_TrackCandidate> track_candidates;
+  std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   int most_likely_target_id;
 };
 
