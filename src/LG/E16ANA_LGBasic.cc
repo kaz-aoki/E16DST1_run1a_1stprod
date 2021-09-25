@@ -179,7 +179,7 @@ void E16ANA_LGBasic::SetTemplate(){
       break;
     }
   }
-    std::cout<<"TEMPLATE WIDTH "<<tmplwidth<<std::endl;
+  //std::cout<<"TEMPLATE WIDTH "<<tmplwidth<<std::endl;
 
   fclose(fp_wf);
 }

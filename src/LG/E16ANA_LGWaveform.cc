@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <math.h>
+#include <sys/time.h>
 #include <TH1.h>
 #include <TF1.h>
 #include <TGraph.h>
@@ -40,6 +41,7 @@ E16ANA_LGWaveform::E16ANA_LGWaveform()
       baselinerms(E16DST_DST1Constant::kInvalidValue),
       integral(E16DST_DST1Constant::kInvalidValue),
       falltime(E16DST_DST1Constant::kInvalidValue),
+      hitflag(E16DST_DST1Constant::kInvalidValue),
       offset(E16DST_DST1Constant::kInvalidValue),
       pxmin(E16DST_DST1Constant::kInvalidValue),
       pxmax(E16DST_DST1Constant::kInvalidValue),
@@ -70,6 +72,18 @@ E16ANA_LGWaveform::E16ANA_LGWaveform()
     n_call++;
   }
 
+/*
+int PrintTime(char* mes, int prevtime){
+  struct timeval measuretime;
+  gettimeofday(&measuretime, NULL);
+  int thistime = measuretime.tv_usec;
+  std::cerr << "PT " << mes << " " << thistime << " [us] " ;
+  std::cerr << thistime-prevtime << " [us]" << std::endl;
+  return thistime;
+}
+*/
+
+
 void E16ANA_LGWaveform::SimpleMethod(double* _wf){
 
   SetWaveform(_wf);
@@ -88,17 +102,85 @@ void E16ANA_LGWaveform::SimpleMethod(double* _wf){
 
 }
 
+void E16ANA_LGWaveform::MethodForTrack(double* _wf, double t0){
+
+  SimpleMethod(_wf);
+  SetT0(t0);
+
+  if(peak>8&&spikeflag==false){
+    CalcWaveforms();
+    PeakSearch();
+    if(nps_short==1){
+      hitflag = 1;
+      peak = ps_short[0];
+      peakx = pxs_short[0];
+      CalcTiming();
+    }
+    else if(nps_short>1){
+      hitflag = 1;
+      peak = ps_short[1];
+      peakx = pxs_short[2];
+      CalcTiming();
+    }
+    else{
+      hitflag = 0;
+    }
+  }
+  else{
+    fitOK = 0;
+    nps_fit = 0;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    timings[0] = timing+100.-t0;
+  }
+
+  npeaks = 1;
+
+}
+
 void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
 
   SimpleMethod(_wf);
   SetT0(t0);
-  CalcWaveforms();
-  //CalcPeaks();
-  PeakSearch();
-  //AllFit();
-  Fit();
+
+  if(peak>8&&spikeflag==false){
+  //  if(spikeflag==false){
+    CalcWaveforms();
+    PeakSearch();
+    Fit();
+  }
+  else{
+    fitOK = 0;
+    nps_fit = 0;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    timings[0] = timing+100.-t0;
+    //std::cout<<n_fit0<<std::endl;
+    //n_fit0++;
+  }
 
 }
+
+/*
+void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
+
+  int thistime = 0;
+  thistime = PrintTime("init SimpleMethod", thistime);
+  SimpleMethod(_wf);
+  SetT0(t0);
+  CalcWaveforms();
+  //CalcPeaks();
+  thistime = PrintTime("init PeakSearch", thistime);
+  PeakSearch();
+  //AllFit();
+  thistime = PrintTime("init Fit", thistime);
+  Fit();
+  thistime = PrintTime("end Fit", thistime);
+
+}
+*/
 
 void E16ANA_LGWaveform::CalcPeak(){
 
@@ -240,11 +322,11 @@ void E16ANA_LGWaveform::Fit(){
   }
   else if(nps_short==0){
     fitOK = 0;
-    n_fit0++;
+    //n_fit0++;
   }
   else{
     fitOK = 0;
-    n_fit4++;
+    //n_fit4++;
   }
 
 
@@ -268,7 +350,8 @@ int E16ANA_LGWaveform::PeakSearchFull(double* pxs, double* ps){
 
   //N peaks search
   TSpectrum* s = new TSpectrum(30);
-  int nps = s->Search(hwf, 2, "new", 0.1);
+  //int nps = s->Search(hwf, 2, "new", 0.1);
+  int nps = s->Search(hwf, 2, "nodraw", 0.1);
 
   for(int i=0; i<nps; i++){
     pxs[i] = s->GetPositionX()[i];
