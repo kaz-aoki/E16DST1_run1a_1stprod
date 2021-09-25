@@ -41,19 +41,30 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     }
 
     E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
-    //lgwf->SimpleMethod(waveform);// use this method in low-intensity run (less than 1e9)
-    lgwf->FitMethod(waveform,t0);
+    //lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
+    lgwf->FitMethod(waveform,t0); // 14 event/sec @1e10
+
+
+    int hitflag = lgwf->GetHitFlag();
+
+    /*
+    if( hitflag==0 ){ // applied in MethodForTrack
+      //std::cout<<"no hit for track"<<std::endl;
+      delete lgwf;
+      continue;
+    }
+    */
 
     int fitflag = lgwf->GetFitOK();
     int npsfit = lgwf->GetNpsFit();
     bool spikeflag = lgwf->GetSpikeFlag();
 
-    if( fitflag==0&&npsfit==0 ){
+    if( fitflag==0&&npsfit==0 ){ // applied in FitMethod
       //std::cout<<"no hit"<<std::endl;
       delete lgwf;
       continue;
     }
-    if( fitflag==1&&spikeflag==true ){
+    if( fitflag==0&&npsfit==1&&spikeflag==true ){ // applied in FitMethod
       //std::cout<<"it is spike noise"<<std::endl;
       delete lgwf;
       continue;

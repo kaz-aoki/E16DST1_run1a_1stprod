@@ -42,6 +42,9 @@ public:
   int GetFalltime(){return falltime;}
   bool GetSpikeFlag(){return spikeflag;}
 
+  void MethodForTrack(double* _wf, double t0);
+  int GetHitFlag(){return hitflag;}
+
   //fitting method
   void FitMethod(double* _wf, double t0);
   void SetT0(double _t0){t0 = _t0;}
@@ -49,7 +52,7 @@ public:
   //void CalcPeaks();
   void PeakSearch();
   void Fit();
-  //void AllFit();
+  void AllFit();
   bool BaselineCorrect();
   void CalcOffset();
   int PeakSearchFull(double* pxs, double* ps);
@@ -101,6 +104,8 @@ private:
   double integral;
   int falltime;
   bool spikeflag;
+
+  int hitflag;
 
   double dwf[E16DST_Constant::NSamplesLG]; //diff
   double mwf[E16DST_Constant::NSamplesLG]; //modified waveform (remove spike noise)
