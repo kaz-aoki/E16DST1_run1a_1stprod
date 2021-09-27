@@ -41,11 +41,13 @@ struct ch_pp{
 void SetMap();
 void SetCalibMap();
 void SetTemplate();
+void SetDeadChannelMap();
 
 ch_pp* GetSpec(uint16_t module, uint16_t block);
 ch_pp* GetSpec(int ip);
 double GetT0(uint16_t module, uint16_t block);
 double GetGain(uint16_t module, uint16_t block);
+int GetDeadChannel(uint16_t module, uint16_t block);
 
 ~E16ANA_LGBasic(){
 };
@@ -71,8 +73,7 @@ ch_pp lgspecmap[110][60];
 ch_pp lgspecmap_ip[100];
 double t0map[110][60];
 double gainmap[110][60];
-
-
+int deadchmap[110][60];
 
 };
 

@@ -183,3 +183,32 @@ void E16ANA_LGBasic::SetTemplate(){
 
   fclose(fp_wf);
 }
+
+void E16ANA_LGBasic::SetDeadChannelMap(){
+
+  E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+  FILE* fp_dc = calib.CalibFileOpenBinary("LG-deadch", calib.CurrentRunID() );
+  if ( fp_dc==NULL ) {
+    std::cout<<"[Error] dead channel map file is not found !"<<std::endl;
+    exit(1);
+  }
+  int module, block;
+  int ch_status;
+  while( feof(fp_dc)==0 ){
+    fscanf(fp_dc, "%d %d %d", &module, &block, &ch_status );
+    if(!(0<=module&&module<110&&0<=block&&block<60)){
+      std::cerr<<"read invalid ID in dead channel map file"<<std::endl;
+      exit(1);
+    }
+    else{
+      deadchmap[module][block] = ch_status;
+    }
+  }
+  fclose(fp_dc);
+
+}
+
+int E16ANA_LGBasic::GetDeadChannel(uint16_t module, uint16_t block){
+  int status = deadchmap[module][block];
+  return status;
+}
