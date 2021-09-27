@@ -1,4 +1,0 @@
-#run_num	filename_drs4assign	comment
-9999	LG/drs4assign/210818/LG-drs4assign-run9999-210818.txt	run0a
-20178	LG/drs4assign/210818/LG-drs4assign-run20178-210818.txt	run0b: exchange DRS4_ip30 for ip31
-39999	LG/drs4assign/210818/LG-drs4assign-run39999-210818.txt	run0b,c

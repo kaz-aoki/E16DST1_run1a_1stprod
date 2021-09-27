@@ -94,7 +94,8 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
 
-  CheckFile check_file;
+//  CheckFile check_file;
+  CheckFile check_file(out_file_name);
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {

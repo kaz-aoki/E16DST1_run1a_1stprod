@@ -10,6 +10,7 @@
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_MultiTrack.hh"
+#include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
 
 #include "TFile.h"
@@ -74,7 +75,7 @@ class E16ANA_TrackClusterPair {
   TVector3& GlobalPos() { return global_pos; }
  private:
   int set_flag;
-  int layer_order; // all detector (layer_id: only GTR in E16ANA_MultiTrack)
+  int layer_order; // order in all detectors (E16ANA_MutiTrack::layer_id: only in GTR)
   int module_id;
   std::array<E16DST_DST1Cluster*, 2> clusters; // x, y
   TVector3 local_pos;
@@ -87,7 +88,6 @@ class E16ANA_TrackCandidate {
     int set_flag;
     int layer_order;
     int module_id;
-//    int block_id; // only LG
     TVector3 local_pos;
     TVector3 local_mom;
     TVector3 global_pos;
@@ -98,7 +98,6 @@ class E16ANA_TrackCandidate {
       set_flag = 0;
       layer_order = E16DST_DST1Constant::kInvalidValue;
       module_id = E16DST_DST1Constant::kInvalidValue;
-//      block_id = E16DST_DST1Constant::kInvalidValue;
       local_pos = E16DST_DST1Constant::kInvalidVector;
       local_mom = E16DST_DST1Constant::kInvalidVector;
       global_pos = E16DST_DST1Constant::kInvalidVector;
@@ -116,26 +115,8 @@ class E16ANA_TrackCandidate {
       residual_pos = _residual_pos;
     }
   };
-//  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, 2> _tmp_geoms)
   E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
       : geometry(_geometry), bfield_map(_bfield_map) {}
-//        tmp_geoms(_tmp_geoms) {}
-//        tmp_geoms({{_geometry->HBD(ModuleID2020To2013_27(101)),
-//                    _geometry->HBD(ModuleID2020To2013_27(102)),
-//                    _geometry->HBD(ModuleID2020To2013_27(103)),
-//                    _geometry->HBD(ModuleID2020To2013_27(104)),
-//                    _geometry->HBD(ModuleID2020To2013_27(106)),
-//                    _geometry->HBD(ModuleID2020To2013_27(107)),
-//                    _geometry->HBD(ModuleID2020To2013_27(108)),
-//                    _geometry->HBD(ModuleID2020To2013_27(109))},
-//                   {_geometry->LGVD(ModuleID2020To2013_27(101)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(102)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(103)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(104)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(106)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(107)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(108)),
-//                    _geometry->LGVD(ModuleID2020To2013_27(109))}}) {}
   E16ANA_TrackCandidate& operator = (const E16ANA_TrackCandidate& rhs) {
     Copy(rhs);
     return (*this);
@@ -145,23 +126,14 @@ class E16ANA_TrackCandidate {
   void SetCharge(double _charge) { charge = _charge; }
   void SetVertex(int _target_id) {
     target_id = _target_id;
-    if (target_id == 0) {
-      vtx = {0., 0., -20.};
-    } else if (target_id == 1) {
-      vtx = {0., 0., 0.};
-    } else if (target_id == 2) {
-      vtx = {0., 0., 20.};
-    } else {
-      std::cerr << "Invalid target ID (0 - 2): " << target_id << std::endl;
-      std::exit(1);
-    }
+    vtx = {0., 0., E16ANA_TrackConstant::kTargetZ[target_id]};
   }
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
   void SetDefaultSigma() {
     for (auto& s : sigma) {
       s = kSigma;
     }
-    sigma[0].SetY(0.);
+    sigma[0].SetY(0.); // SSD-y
   }
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
@@ -182,6 +154,8 @@ class E16ANA_TrackCandidate {
   int ProjectionFlag() { return projection_flag; }
   E16ANA_TrackClusterPair& ClusterPair(int layer_index) { return cluster_pairs[layer_index]; }
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers>& ClusterPairs() { return cluster_pairs; }
+  std::array<TVector3, E16ANA_TrackConstant::kNumTargets>& PosAtTargets() { return pos_at_targets; }
+  std::array<TVector3, E16ANA_TrackConstant::kNumTargets>& MomAtTargets() { return mom_at_targets; }
   std::vector<E16DST_DST1HBDHit*>& ProjectedHBDHits() { return hbd_hits; }
   std::vector<E16DST_DST1HBDCluster*>& ProjectedHBDClusters() { return hbd_clusters; }
   std::vector<E16DST_DST1LGHit*>& ProjectedLGHits() { return lg_hits; }
@@ -213,10 +187,6 @@ class E16ANA_TrackCandidate {
         std::cout << "    Runge Kutta Failure" << std::endl;
       }
     }
-//    std::cout << "  HBD Hit" << std::endl;
-//    for (auto& hit : hbd_hits) {
-//      std::cout << "    Module ID: " << hit.ModuleId() << ", Channel ID: " << hit.ChannelId() << std::endl;
-//    }
     std::cout << "  Number of Projection LG Hits: " << lg_hits.size() << std::endl;
     for (auto& hit : lg_hits) {
       std::cout << "    Module ID: " << hit->ModuleId() << ", Channel ID: " << hit->ChannelId() << ", Timing: " << hit->Timing()  << std::endl;
@@ -225,12 +195,9 @@ class E16ANA_TrackCandidate {
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
-//  static constexpr std::array<std::vector<int>, E16ANA_TrackConstant::kNumLGLayers> kLGBlocks = {{{0,  1 , 2,  3,  4,  5,     50, 51, 52, 53, 54, 55},
-//                                                                                                 {10, 11, 12, 13, 14, 15,     40, 41, 42, 43, 44, 45},
-//                                                                                                 {20, 21, 22, 23, 24, 25, 26, 30, 31, 32, 33, 34, 35, 36}}};
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
-  static constexpr int kTrackingMaxSteps = 400;
+  static constexpr int kTrackingMaxSteps = 200;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
@@ -294,6 +261,8 @@ class E16ANA_TrackCandidate {
   int n_steps;
   int n_calls;
   // projection
+  std::array<TVector3, E16ANA_TrackConstant::kNumTargets> pos_at_targets;
+  std::array<TVector3, E16ANA_TrackConstant::kNumTargets> mom_at_targets;
   int projection_flag; // bit0: HBD, 1: LG0, 2: LG1, 3: LG2
   std::vector<E16DST_DST1HBDHit*> hbd_hits;
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
@@ -320,7 +289,6 @@ class E16ANA_TrackCandidates {
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
-//  int NumXSearch() { return n_xsearch; }
   int NumTrackCandidates() {
 //    int n_cands = 0;
 //    for (auto& cands : track_candidates) {
@@ -365,6 +333,7 @@ class E16ANA_TrackCandidates {
   static constexpr int kNumGTRLayers = E16ANA_TrackConstant::kNumTrackingLayers - 1;
   static constexpr std::array<int, 2> kNumRaughFitDegree = {3, 2}; // x, y
   static constexpr std::array<double, kNumGTRLayers> kGTRSizeCoef = {2.7, 1.4, 1.};
+  static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
   // parameter
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
   static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
@@ -379,17 +348,16 @@ class E16ANA_TrackCandidates {
                                                                  1. / (kYSigma[1] * kYSigma[1]),
                                                                  1. / (kYSigma[2] * kYSigma[2])};
   static constexpr int kMinHitsInXCluster = 2;
-  static constexpr double kGTRYDiffThreshold = 20.;
+  static constexpr double kGTRYDiffThreshold = 20.; // mm
   static constexpr double kGTRPeakSumThresholdX = 180.;
   static constexpr double kGTRPeakSumThresholdY = 10.;
   static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
 //  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {10., 0., 0.001}; // coef[1] not used
-  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {25., 0., 0.001}; // coef[1] nbot used. ozawa v8
+  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {25., 0., 0.001}; // coef[1] not used. ozawa v8
   static constexpr std::array<double, kNumRaughFitDegree[1]> kRaughYFitCoefficient = {15., 0.}; // coef[1] not used.
-  static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
   static constexpr double kHBDProjectionThreshold = 20.;
-  static constexpr double kLGProjectionThreshold = 150.; // 98.
+  static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kVertexSquareThreshold = 5. * 5.;
   static TVector3 Lotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
@@ -423,9 +391,9 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
-  bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
-  bool ExistADCCorrelation(float x_adc, float y_adc) {
+  static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
+  static bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
+  static bool ExistADCCorrelation(float x_adc, float y_adc) {
     if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
       return true;
     }
@@ -435,6 +403,7 @@ class E16ANA_TrackCandidates {
   void Fit();
   void SearchHBDAndLGHits();
   void SortTracks();
+  void ProjectionTarget();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
@@ -453,7 +422,7 @@ class E16ANA_TrackCandidates {
 
 class CheckFile {
  public:
-  CheckFile(char* file_name = "~/tmp/tmp.root")
+  CheckFile(char* file_name = "tmp.root")
       : file(TFile(file_name, "recreate")) {
     tree = new TTree("tree", "tree");
     tree->Branch("event_id", &event_id, "event_id/I");
@@ -502,6 +471,12 @@ class CheckFile {
     tree->Branch("lg1_gpos_fit", &lg1_gpos_fit);
     tree->Branch("lg2_lpos_fit", &lg2_lpos_fit);
     tree->Branch("lg2_gpos_fit", &lg2_gpos_fit);
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+      residual_x[i] = new TH1D(Form("residual_x_%d", i), Form("residual_x_%d", i), 2000, -200., 200.);
+      residual_y[i] = new TH1D(Form("residual_y_%d", i), Form("residual_y_%d", i), 2000, -200., 200.);
+      residual_z[i] = new TH1D(Form("residual_z_%d", i), Form("residual_z_%d", i), 2000, -200., 200.);
+      residual_r[i] = new TH1D(Form("residual_r_%d", i), Form("residual_r_%d", i), 2000, -200., 200.);
+    }
   };
   ~CheckFile() {
     for (int i = 0; i < xz_track_graphs.size(); ++i) {
@@ -610,6 +585,13 @@ class CheckFile {
     }
     vtx_gpos_fit = vtx;
     vtx_gmom_fit = mom;
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+      auto& respos = fit_results[i].residual_pos;
+      residual_x[i]->Fill(respos.X());
+      residual_y[i]->Fill(respos.Y());
+      residual_z[i]->Fill(respos.Z());
+      residual_r[i]->Fill(respos.Mag());
+    }
     return;
   }
   void AddHit(TVector3& vtx, TVector3& mom, std::array<E16ANA_TrackClusterPair, 4>& cluster_pairs) {
@@ -730,6 +712,10 @@ class CheckFile {
   std::vector<TGraph*> ry_track_graphs;
   std::vector<TGraph*> good_xz_track_graphs;
   std::vector<TGraph*> good_ry_track_graphs;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_x;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_y;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_z;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_r;
 };
 
 #endif // E16ANA_TRACKCANDIDATE_HH

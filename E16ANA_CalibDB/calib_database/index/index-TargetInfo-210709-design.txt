@@ -1,4 +1,0 @@
-#index-TargetInfo-210709-design.txt 210709 by S. Yokkaichi
-#    Last modified at <2021-07-09 22:53:11 >
-#
-
