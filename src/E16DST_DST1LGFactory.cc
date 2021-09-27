@@ -4,15 +4,17 @@
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGConstant.hh"
 #include "E16ANA_LGWaveform.hh"
+#include "E16ANA_LGDeadChannel.hh"
 
-int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1) {
+int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1, int fitoption ) {
 
   static E16ANA_LGBasic lgbasic;
   static bool is_first=true;
   if(is_first){
-    lgbasic.SetMap();//make channel_map from binary file
+    lgbasic.SetMap();
     lgbasic.SetCalibMap();
     lgbasic.SetTemplate();
+    lgbasic.SetDeadChannelMap();
     is_first=false;
   }
 
@@ -34,6 +36,12 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
     double t0 = lgbasic.GetT0(hit0.ModuleID(),hit0.BlockID());
+    int ch_status = lgbasic.GetDeadChannel(hit0.ModuleID(),hit0.BlockID());
+    if( ch_status!=0 ){
+      //std::cout<<"Dead Channel Status: "<<hit0.ModuleID()<<" "<<hit0.BlockID()<<" "<<ch_status<<std::endl;
+      continue;
+    }
+
     double waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
       int ph = hit0.Waveform()[cell];
@@ -41,8 +49,17 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     }
 
     E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
-    //lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
-    lgwf->FitMethod(waveform,t0); // 14 event/sec @1e10
+    if(fitoption==0){
+      lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
+    }
+    else if(fitoption==1){
+      lgwf->FitMethod(waveform,t0); // 14 event/sec @1e10
+    }
+    else{
+      std::cout<<fitoption<<" is Invalid FitOption"<<std::endl;
+      delete lgwf;
+      exit(1);
+    }
 
 
     int hitflag = lgwf->GetHitFlag();

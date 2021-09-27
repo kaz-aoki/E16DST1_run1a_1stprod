@@ -6,6 +6,7 @@
 
 namespace E16ANA_LGConstant {
 
+const int n_blocks = 38;
 const double             kTimeScale               = 960. / 1000.;
 
 const int kHitThreshold = 5;//[mV]
