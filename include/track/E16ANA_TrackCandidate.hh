@@ -154,7 +154,9 @@ class E16ANA_TrackCandidate {
   int ProjectionFlag() { return projection_flag; }
   E16ANA_TrackClusterPair& ClusterPair(int layer_index) { return cluster_pairs[layer_index]; }
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers>& ClusterPairs() { return cluster_pairs; }
+  TVector3 PosAtTarget(int n) { return pos_at_targets[n]; }
   std::array<TVector3, E16ANA_TrackConstant::kNumTargets>& PosAtTargets() { return pos_at_targets; }
+  TVector3 MomAtTarget(int n) { return mom_at_targets[n]; }
   std::array<TVector3, E16ANA_TrackConstant::kNumTargets>& MomAtTargets() { return mom_at_targets; }
   std::vector<E16DST_DST1HBDHit*>& ProjectedHBDHits() { return hbd_hits; }
   std::vector<E16DST_DST1HBDCluster*>& ProjectedHBDClusters() { return hbd_clusters; }
@@ -273,11 +275,7 @@ class E16ANA_TrackCandidate {
 class E16ANA_TrackCandidates {
  public:
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
-//      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
-//    for (auto& cands : track_candidates) {
-//      cands.clear();
-//    }
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -289,35 +287,28 @@ class E16ANA_TrackCandidates {
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
-  int NumTrackCandidates() {
-//    int n_cands = 0;
-//    for (auto& cands : track_candidates) {
-//      n_cands += cands.size();
-//    }
-//    return n_cands;
-    return track_candidates.size();
-  }
-//  int NumTrackCandidates(int n) { return track_candidates[n].size(); }
-//  std::vector<E16ANA_TrackCandidate>& TrackCandidates(int n) { return track_candidates[n]; }
+  int NumTrackCandidates() { return track_candidates.size(); }
   std::vector<E16ANA_TrackCandidate>& TrackCandidates() { return track_candidates; }
+  int NumSelectedTrackCandidates() { return selected_track_candidates.size(); }
   std::vector<E16ANA_TrackCandidate*>& SelectedTrackCandidates() { return selected_track_candidates; }
   void Analyze();
-  void Print() {
-//    for (auto& cands : track_candidates) {
-//      for (auto& cand : cands) {
-    for (auto& cand : track_candidates) {
+  void Print(int i) {
+    if (i % 2 == 1) {
+      std::cout << "Track Candidates:" << std::endl;
+      for (auto& cand : track_candidates) {
         cand.Print();
-//      }
+      }
+    }
+    i /= 2;
+    if (i % 2 == 1) {
+      std::cout << "Selected Track Candidates:" << std::endl;
+      for (auto& cand : selected_track_candidates) {
+std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
+        cand->Print();
+      }
     }
     std::cout << "Number of track candidates: " << NumTrackCandidates() << std::endl;
-  }
-  void PrintSelected() {
-//    for (auto& cands : selected_track_candidates) {
-//      for (auto& cand : cands) {
-    for (auto& cand : selected_track_candidates) {
-        cand->Print();
-//      }
-    }
+    std::cout << "Number of selected track candidates: " << NumSelectedTrackCandidates() << std::endl;
   }
  private:
   struct OneAxisClusterSet {
@@ -412,8 +403,6 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
-//  std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
-//  std::array<std::vector<E16ANA_TrackCandidate*>, E16ANA_TrackConstant::kNumTargets> selected_track_candidates;
   std::vector<E16ANA_TrackCandidate> track_candidates;
   std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   int most_likely_target_id;
@@ -475,38 +464,38 @@ class CheckFile {
       residual_x[i] = new TH1D(Form("residual_x_%d", i), Form("residual_x_%d", i), 2000, -200., 200.);
       residual_y[i] = new TH1D(Form("residual_y_%d", i), Form("residual_y_%d", i), 2000, -200., 200.);
       residual_z[i] = new TH1D(Form("residual_z_%d", i), Form("residual_z_%d", i), 2000, -200., 200.);
-      residual_r[i] = new TH1D(Form("residual_r_%d", i), Form("residual_r_%d", i), 2000, -200., 200.);
+      residual_r[i] = new TH1D(Form("residual_r_%d", i), Form("residual_r_%d", i), 2000,    0., 400.);
     }
   };
   ~CheckFile() {
     for (int i = 0; i < xz_track_graphs.size(); ++i) {
       auto& xz_gr = xz_track_graphs[i];
       auto& ry_gr = xz_track_graphs[i];
-      xz_gr->SetName(Form("xz_%d", i));
-      xz_gr->SetTitle(Form("xz_%d", i));
+      xz_gr->SetName(Form("xz_%06d", i));
+      xz_gr->SetTitle(Form("xz_%06d", i));
       xz_gr->Write();
-      ry_gr->SetName(Form("ry_%d", i));
-      ry_gr->SetTitle(Form("ry_%d", i));
+      ry_gr->SetName(Form("ry_%06d", i));
+      ry_gr->SetTitle(Form("ry_%06d", i));
       ry_gr->Write();
     }
     for (int i = 0; i < good_xz_track_graphs.size(); ++i) {
       auto& xz_gr = good_xz_track_graphs[i];
       auto& ry_gr = good_xz_track_graphs[i];
-      xz_gr->SetName(Form("good_xz_%d", i));
-      xz_gr->SetTitle(Form("good_xz_%d", i));
+      xz_gr->SetName(Form("good_xz_%06d", i));
+      xz_gr->SetTitle(Form("good_xz_%06d", i));
       xz_gr->Write();
-      ry_gr->SetName(Form("good_ry_%d", i));
-      ry_gr->SetTitle(Form("good_ry_%d", i));
+      ry_gr->SetName(Form("good_ry_%06d", i));
+      ry_gr->SetTitle(Form("good_ry_%06d", i));
       ry_gr->Write();
     }
     for (int i = 0; i < xz_track_graphs_hit.size(); ++i) {
       auto& xz_gr = xz_track_graphs_hit[i];
       auto& ry_gr = xz_track_graphs_hit[i];
-      xz_gr->SetName(Form("xz_hit_%d", i));
-      xz_gr->SetTitle(Form("xz_hit_%d", i));
+      xz_gr->SetName(Form("xz_hit_%06d", i));
+      xz_gr->SetTitle(Form("xz_hit_%06d", i));
       xz_gr->Write();
-      ry_gr->SetName(Form("ry_hit_%d", i));
-      ry_gr->SetTitle(Form("ry_hit_%d", i));
+      ry_gr->SetName(Form("ry_hit_%06d", i));
+      ry_gr->SetTitle(Form("ry_hit_%06d", i));
       ry_gr->Write();
     }
     file.Write();

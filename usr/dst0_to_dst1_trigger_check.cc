@@ -20,15 +20,16 @@ using namespace std;
 //namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.root (0)] [output.root (1)] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
-  auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
+  auto out_file_name0 = argv[2];
+  auto out_file_name1 = argv[3];
+  auto run_id        = stoi(argv[4]);
+  auto max_event     = stoi(argv[5]);
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -95,7 +96,8 @@ int main(int argc, char* argv[]) {
 //   }
 
 //  CheckFile check_file;
-  CheckFile check_file(out_file_name);
+  CheckFile check_file0(out_file_name0);
+  CheckFile check_file1(out_file_name1);
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -130,7 +132,7 @@ int main(int argc, char* argv[]) {
       record->LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file0, &check_file1);
 
 //// Check begin
 //      auto event_id = event0->EventID();
@@ -166,6 +168,8 @@ int main(int argc, char* argv[]) {
 //// trigger
 //      event1->Trigger().Print(*geometry);
 //
+// track
+      record->Tracks().Print();
 //// other
 ////      event1->GTR().Print();
 ////

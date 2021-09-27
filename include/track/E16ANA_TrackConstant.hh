@@ -25,6 +25,7 @@ constexpr int kNumTrackingLayers = 4;
 constexpr int kNumLGLayers = 3;
 //constexpr int kNumDetectorLayers = 8; // SSD, GTR x 3, HBD, LG x 3
 constexpr int kNumRemainingLayers = kNumDetectorLayers - kNumTrackingLayers;
+constexpr int kNumClusters = 7; // SSD, GTR x 2 x 3
 constexpr int kNumTargets = 3;
 constexpr int kNumModules = 8;
 constexpr int kNumFullModulesWidth = 11;

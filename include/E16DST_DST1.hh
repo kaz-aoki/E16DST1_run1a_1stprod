@@ -11,6 +11,7 @@
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_MultiTrack.hh"
 #include "E16ANA_GTRcalib.hh"
+#include "E16ANA_TrackConstant.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_LGBasic.hh"
 #include "E16DST_Constant.hh"
@@ -777,25 +778,22 @@ class E16DST_DST1WireTrack {
 class E16DST_DST1Track {
  public:
   E16DST_DST1Track()
-//      : initial_pos_at_target_plane(E16DST_DST1Constant::kInvalidVector), initial_mom(E16DST_DST1Constant::kInvalidVector),
-      : tan_theta({{E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue,
-                   E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}}),
-        original_cluster_ptrs({nullptr, nullptr, nullptr, nullptr}) {}
+      : original_cluster_ptrs({nullptr, nullptr, nullptr, nullptr}) {}
   ~E16DST_DST1Track() {}
   void Clear() {
     initial_pos_at_target_plane.fill(E16DST_DST1Constant::kInvalidVector);
-    initial_mom.fill(E16DST_DST1Constant::kInvalidVector);
-    tan_theta.fill(E16DST_DST1Constant::kInvalidValue);
+    initial_mom_at_target_plane.fill(E16DST_DST1Constant::kInvalidVector);
     original_cluster_ptrs.fill(nullptr);
     hbd_hit_ptrs.clear();
     hbd_cluster_ptrs.clear();
     lg_hit_ptrs.clear();
     lg_cluster_ptrs.clear();
   }
-//  void SetTargetID(int _target_id) { target_id = _target_id; }
-  void SetInitialPosAtTargetPlane(int n, TVector3 _pos) { initial_pos_at_target_plane[n] = _pos; }
-  void SetInitialMom(int n, TVector3 _mom) { initial_mom[n] = _mom; }
-  void SetTanTheta(int n, float angle) { tan_theta[n] = angle; }
+  void SetInitialPosAtTargetPlane(int n, const TVector3& _pos) { initial_pos_at_target_plane[n] = _pos; }
+  void SetInitialMomAtTargetPlane(int n, const TVector3& _mom) { initial_mom_at_target_plane[n] = _mom; }
+  void SetHitPos(int n, const TVector3& _pos) { hit_pos[n] = _pos; }
+  void SetHitMom(int n, const TVector3& _mom) { hit_mom[n] = _mom; }
+//  void SetTanTheta(int n, float angle) { tan_theta[n] = angle; }
   void SetOriginalClusterPtr(int n, E16DST_DST1Cluster* _ptr) { original_cluster_ptrs[n] = _ptr; }
   void ClearHBDHitPtr() { hbd_hit_ptrs.clear(); }
   void ClearHBDClusterPtr() { hbd_cluster_ptrs.clear(); }
@@ -821,29 +819,43 @@ class E16DST_DST1Track {
     lg_cluster_ptrs.clear();
     std::copy(_clusters.begin(), _clusters.end(), std::back_inserter(lg_cluster_ptrs));
   }
-//  int                                        TargetID() { return target_id; }
   TVector3                                   InitialPosAtTargetPlane(int n) { return initial_pos_at_target_plane[n]; }
-  TVector3                                   InitialMom(int n) { return initial_mom[n]; }
-  float                                      TanTheta(int n) { return tan_theta[n]; }
+  TVector3                                   InitialMomAtTargetPlane(int n) { return initial_mom_at_target_plane[n]; }
+  TVector3                                   HitPos(int n) { return hit_pos[n]; }
+  TVector3                                   HitMom(int n) { return hit_mom[n]; }
+  float                                      TanTheta(int n) { return hit_mom[n].X() / hit_mom[n].Z(); }
   E16DST_DST1Cluster*                        OriginalClusterPtr(int n) { return original_cluster_ptrs[n]; }
   int                                        NumHBDHitPtrs() { return hbd_hit_ptrs.size(); }
   E16DST_DST1HBDHit*                         HBDHitPtr(int n) { return hbd_hit_ptrs[n]; }
-  const std::vector<E16DST_DST1HBDHit*>&     HBDHitPtr() const { return hbd_hit_ptrs; }
+  const std::vector<E16DST_DST1HBDHit*>&     HBDHitPtrs() const { return hbd_hit_ptrs; }
   int                                        NumHBDClusterPtrs() { return hbd_cluster_ptrs.size(); }
   E16DST_DST1HBDCluster*                     HBDClusterPtr(int n) { return hbd_cluster_ptrs[n]; }
-  const std::vector<E16DST_DST1HBDCluster*>& HBDClusterPtr() const { return hbd_cluster_ptrs; }
+  const std::vector<E16DST_DST1HBDCluster*>& HBDClusterPtrs() const { return hbd_cluster_ptrs; }
   int                                        NumLGHitPtrs() { return lg_hit_ptrs.size(); }
   E16DST_DST1LGHit*                          LGHitPtr(int n) { return lg_hit_ptrs[n]; }
-  const std::vector<E16DST_DST1LGHit*>&      LGHitPtr() const { return lg_hit_ptrs; }
+  const std::vector<E16DST_DST1LGHit*>&      LGHitPtrs() const { return lg_hit_ptrs; }
   int                                        NumLGClusterPtrs() { return lg_cluster_ptrs.size(); }
   E16DST_DST1LGCluster*                      LGClusterPtr(int n) { return lg_cluster_ptrs[n]; }
-  const std::vector<E16DST_DST1LGCluster*>&  LGClusterPtr() const { return lg_cluster_ptrs; }
+  const std::vector<E16DST_DST1LGCluster*>&  LGClusterPtrs() const { return lg_cluster_ptrs; }
+  void Print() {
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
+      auto& pos = initial_pos_at_target_plane[i];
+      auto& mom = initial_mom_at_target_plane[i];
+      E16INFO("Target: %d, Position: (%lf, %lf, %lf), Momentum: (%lf, %lf, %lf)", i, pos(0), pos(1), pos(2), mom(0), mom(1), mom(2));
+    }
+    for (int i = 0; i< E16ANA_TrackConstant::kNumDetectorLayers; ++i) {
+      auto& pos = hit_pos[i];
+      auto& mom = hit_mom[i];
+      E16INFO("Detector: %s, Position: (%lf, %lf, %lf), Momentum: (%lf, %lf, %lf)", E16ANA_TrackConstant::kDetectorName[i].c_str(), pos(0), pos(1), pos(2), mom(0), mom(1), mom(2));
+    }
+  }
  private:
-//  int                    target_id;
-  std::array<TVector3, E16DST_DST1Constant::kNumTargets> initial_pos_at_target_plane;
-  std::array<TVector3, E16DST_DST1Constant::kNumTargets> initial_mom;
-  std::array<float, E16DST_DST1Constant::kNumDetectorLayersWTarget> tan_theta;
-  std::array<E16DST_DST1Cluster*, E16DST_DST1Constant::kNumTrackingLayers> original_cluster_ptrs;
+  std::array<TVector3, E16ANA_TrackConstant::kNumTargets> initial_pos_at_target_plane;
+  std::array<TVector3, E16ANA_TrackConstant::kNumTargets> initial_mom_at_target_plane;
+  std::array<TVector3, E16ANA_TrackConstant::kNumDetectorLayers> hit_pos;
+  std::array<TVector3, E16ANA_TrackConstant::kNumDetectorLayers> hit_mom;
+//  std::array<float, E16DST_DST1Constant::kNumDetectorLayers> hit_tan_theta;
+  std::array<E16DST_DST1Cluster*, E16ANA_TrackConstant::kNumClusters> original_cluster_ptrs;
   std::vector<E16DST_DST1HBDHit*> hbd_hit_ptrs;
   std::vector<E16DST_DST1HBDCluster*> hbd_cluster_ptrs;
   std::vector<E16DST_DST1LGHit*> lg_hit_ptrs;
@@ -860,6 +872,14 @@ class E16DST_DST1Tracks {
   void Clear() { tracks.clear(); }
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
+  void Print() {
+    E16INFO("Number of Tracks: %d", tracks.size());
+    for (int i = 0; i < tracks.size(); ++i) {
+      E16INFO("Track: %d", i);
+      tracks[i].Print();
+    }
+    return;
+  }
  private:
   std::vector<E16DST_DST1Track> tracks;
 };

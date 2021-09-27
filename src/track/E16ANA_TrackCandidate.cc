@@ -682,7 +682,7 @@ void E16ANA_TrackCandidates::SortTracks() {
 
 void E16ANA_TrackCandidates::ProjectionTarget() {
   double step_size = 1.;
-  int array_size = 30;
+  int array_size = 100;
   Hep3Vector cross_pos;
   Hep3Vector cross_mom;
   for (auto& cand : selected_track_candidates) {
@@ -694,14 +694,12 @@ void E16ANA_TrackCandidates::ProjectionTarget() {
     Hep3Vector vtx_mom(t_vtx_mom(0), t_vtx_mom(1), t_vtx_mom(2));
     E16ANA_StepTrack step_track(bfield_map, vtx_pos, vtx_mom, cand->Charge(), step_size, array_size);
     for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
-      if (step_track.CrossZconstPlane(E16ANA_TrackConstant::kTargetZ[i], cross_pos, cross_mom) != -1) {
+      if (step_track.CrossZconstPlane(E16ANA_TrackConstant::kTargetZ[i], cross_pos, cross_mom) == -1) {
         pos[i] = E16DST_DST1Constant::kInvalidVector;
         mom[i] = E16DST_DST1Constant::kInvalidVector;
       } else {
-        for (int j = 0; j < 3; ++j) {
-          pos[i](j) = cross_pos(j);
-          mom[i](j) = cross_mom(j);
-        }
+        pos[i].SetXYZ(cross_pos.x(), cross_pos.y(), cross_pos.z());
+        mom[i].SetXYZ(cross_mom.x(), cross_mom.y(), cross_mom.z());
       }
     }
   }
@@ -709,47 +707,50 @@ void E16ANA_TrackCandidates::ProjectionTarget() {
 }
 
 void E16ANA_TrackCandidates::Analyze() {
-//  for (auto& cands : selected_track_candidates) {
-//    cands.clear();
-//  }
   track_candidates.clear();
   selected_track_candidates.clear();
   SearchTrackCandidates();
-//E16INFO("number of track candidate: %d", track_candidates[0].size());
-//E16INFO("number of track candidate: %d", track_candidates[1].size());
-//E16INFO("number of track candidate: %d", track_candidates[2].size());
 E16INFO("number of track candidate: %d", track_candidates.size());
-  Fit();
-  SearchHBDAndLGHits();
-  SortTracks();
+//  Fit();
+//  SearchHBDAndLGHits();
+//  SortTracks();
+//  ProjectionTarget();
+//  AddTracksToRecord();
   return;
 }
 
 void E16ANA_TrackCandidates::AddTracksToRecord() {
   auto& tracks = record->Tracks().Tracks();
-//  for (int target_index = 0; target_index < E16DST_DST1Constant::kNumTargets; ++target_index) {
-//    int prev_n_tracks = tracks.size();
-//    tracks.resize(prev_n_tracks + NumTrackCandidates(target_index));
-    tracks.resize(selected_track_candidates.size());
-//    for (int track_index = 0; track_index < NumTrackCandidates(target_index); ++track_index) {
-    for (int track_index = 0; track_index < selected_track_candidates.size(); ++track_index) {
-//      auto& cand = track_candidates[target_index][track_index];
-//      auto& track = tracks[prev_n_tracks + track_index];
-      auto& cand = track_candidates[track_index];
-      auto& track = tracks[track_index];
-//      track.SetTargetID(target_index);
-//      track.SetInitialPosAtTargetPlane(cand.FitVertex()); // bad
-//      track.SetInitialMom(cand.FitMomentum()); // bad
-      for (int i = 0; i < E16ANA_TrackConstant::kNumDetectorLayers; ++i) {
-        auto& local_mom = cand.LocalFitResult(i).local_mom;
-        track.SetTanTheta(i, local_mom.X() / local_mom.Z());
-      }
-//      track.Set
-      track.SetHBDHitPtrs(cand.ProjectedHBDHits());
-      track.SetHBDClusterPtrs(cand.ProjectedHBDClusters());
-      track.SetLGHitPtrs(cand.ProjectedLGHits());
-      track.SetLGClusterPtrs(cand.ProjectedLGClusters());
+  tracks.resize(selected_track_candidates.size());
+  for (int track_index = 0; track_index < selected_track_candidates.size(); ++track_index) {
+    auto& cand = track_candidates[track_index];
+    auto& track = tracks[track_index];
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
+      track.SetInitialPosAtTargetPlane(i, cand.PosAtTarget(i));
+      track.SetInitialMomAtTargetPlane(i, cand.MomAtTarget(i));
     }
-//  }
+    for (int i = 0; i < E16ANA_TrackConstant::kNumDetectorLayers; ++i) {
+      auto& lpos = cand.LocalFitResult(i).local_pos;
+      auto& lmom = cand.LocalFitResult(i).local_mom;
+      track.SetHitPos(i, lpos);
+      track.SetHitMom(i, lmom);
+    }
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+      for (int j = 0; j < 2; ++j) {
+        if (i == E16ANA_TrackConstant::kSSD) {
+          if (j == 0) {
+            track.SetOriginalClusterPtr(2 * i + j, cand.ClusterPair(i).Cluster(j));
+          } else {
+            continue;
+          }
+        }
+        track.SetOriginalClusterPtr(2 * i + j - 1, cand.ClusterPair(i).Cluster(j));
+      }
+    }
+    track.SetHBDHitPtrs(cand.ProjectedHBDHits());
+    track.SetHBDClusterPtrs(cand.ProjectedHBDClusters());
+    track.SetLGHitPtrs(cand.ProjectedLGHits());
+    track.SetLGClusterPtrs(cand.ProjectedLGClusters());
+  }
   return;
 }
