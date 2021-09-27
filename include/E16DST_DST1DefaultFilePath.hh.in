@@ -12,6 +12,7 @@ static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/databas
 
 //static constexpr std::string_view MagneticFieldMapFile("@CMAKE_INSTALL_DATADIR@/fieldmap/Bmap-SKS-block-far-191218-2450A.binary");
 static constexpr std::string_view MagneticFieldMapFile("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary"); // evb
+//static constexpr std::string_view MagneticFieldMapFile("/ccj/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary"); // ccj
 
 //static constexpr std::string_view LGCalibFilePath {"@CMAKE_INSTALL_DATADIR@/lg_calibfiles"};
 
