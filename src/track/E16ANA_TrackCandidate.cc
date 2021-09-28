@@ -215,6 +215,20 @@ double E16ANA_TrackCandidate::Fit(E16ANA_MultiTrack* fitter, bool vertex_xy_fix_
   return chisq;
 }
 
+bool E16ANA_TrackCandidates::IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set) {
+  double coef1_0 = pos_set[1].X() / (pos_set[1].Z() - tgt_z);
+  double coef0_0 = -1. * coef1_0 * tgt_z;
+  double dist0   = fabs(coef1_0 * pos_set[0].Z() + coef0_0 + -1. * pos_set[0].X()) / sqrt(coef1_0 * coef1_0 + 1.);
+  double coef1_1 = (pos_set[3].X() - pos_set[1].X()) / (pos_set[3].Z() - pos_set[1].Z());
+  double coef0_1 = pos_set[1].X() -1. * coef1_1 * pos_set[1].Z();
+  double dist1   = fabs(coef1_1 * pos_set[2].Z() -1. * pos_set[2].X() + coef0_1) / sqrt(coef1_1 * coef1_1 + 1.);
+  if (dist1 > (15. / 4.) * dist0 + 10. ||
+      dist1 < (8. / 6.) * (dist0 - 4.)) {
+    return false;
+  }
+  return true;
+}
+
 void E16ANA_TrackCandidates::CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos) {
   (*lotated_pos)[0] = {0., 0., 0.};
   (*lotated_pos)[1] = Lotate(rot_cos, rot_sin, tgt_z, pos[0]);
@@ -266,6 +280,11 @@ void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTracki
 bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[cluster_set->target_id];
+  
+  if (!IsCurveCorrelation(tgt_z, pos_set)) {
+    return false;
+  }
+  
   std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos;
 //  auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kGTR300].X(), pos_set[E16ANA_TrackConstant::kGTR300].Z() - tgt_z);
   auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kSSD].X(), pos_set[E16ANA_TrackConstant::kSSD].Z() - tgt_z); // ozawa v8
@@ -395,7 +414,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
-              if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX) {
+              if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100]) {
                 continue;
               }
               if (gtr100x_cluster->NumHits() < kMinHitsInXCluster) {
@@ -404,7 +423,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               cluster_set->gtr_clusters[0] = gtr100x_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPos(*geometry);
               for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
-                if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX) {
+                if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200]) {
                   continue;
                 }
                 if (gtr200x_cluster->NumHits() < kMinHitsInXCluster) {
@@ -413,7 +432,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
                 cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPos(*geometry);
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
-                  if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX) {
+                  if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300]) {
                     continue;
                   }
                   if (gtr300x_cluster->NumHits() < kMinHitsInXCluster) {
@@ -624,6 +643,9 @@ void E16ANA_TrackCandidates::SortTracks() {
     });
 //    for (auto& track_candidate : track_candidates[tgt_index]) {
     for (auto& cand : track_candidates) {
+      if (cand.ChiSquare() > 1.0e9 || cand.MinimizeStatus() == 0) {
+        break;
+      }
       if (cand.ProjectedLGHits().size() == 0) {
         continue;
       }
@@ -694,12 +716,12 @@ void E16ANA_TrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
   SearchTrackCandidates();
-//E16INFO("number of track candidate: %d", track_candidates.size());
-//  Fit();
-//  SearchHBDAndLGHits();
-//  SortTracks();
-//  ProjectionTarget();
-//  AddTracksToRecord();
+E16INFO("number of track candidate: %d", track_candidates.size());
+  Fit();
+  SearchHBDAndLGHits();
+  SortTracks();
+  ProjectionTarget();
+  AddTracksToRecord();
   return;
 }
 

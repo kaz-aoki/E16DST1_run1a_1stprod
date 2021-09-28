@@ -303,7 +303,6 @@ class E16ANA_TrackCandidates {
     if (i % 2 == 1) {
       std::cout << "Selected Track Candidates:" << std::endl;
       for (auto& cand : selected_track_candidates) {
-std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
         cand->Print();
       }
     }
@@ -330,7 +329,7 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
   static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
-  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {50., 0.1, 0.3, 0.3, 0.3};
+  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
   static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                                                              1. / (kXSigma[1] * kXSigma[1]),
                                                                              1. / (kXSigma[2] * kXSigma[2]),
@@ -342,7 +341,8 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
                                                                  1. / (kYSigma[2] * kYSigma[2])};
   static constexpr int kMinHitsInXCluster = 2;
   static constexpr double kGTRYDiffThreshold = 20.; // mm
-  static constexpr double kGTRPeakSumThresholdX = 180.;
+//  static constexpr double kGTRPeakSumThresholdX = 180.;
+  static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.};
   static constexpr double kGTRPeakSumThresholdY = 10.;
   static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
 //  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
@@ -352,6 +352,8 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
   static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kVertexSquareThreshold = 5. * 5.;
+  
+  static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
   static TVector3 Lotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
     auto z = rot_sin * pos.X() + rot_cos * (pos.Z() - offset);
@@ -384,7 +386,6 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
     (*coef)[2] = line[0][0] * zx[2] + line[0][1] * zx[1] + line[0][2] * zx[0];
     return;
   }
-//  static void CalcQuadCurve();
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
