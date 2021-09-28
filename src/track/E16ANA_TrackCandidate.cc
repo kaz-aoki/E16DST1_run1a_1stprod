@@ -1,8 +1,5 @@
 #include "E16ANA_TrackCandidate.hh"
 
-#include "TF1.h"
-#include "TROOT.h"
-
 TVector3 E16ANA_TrackCandidate::CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1) {
   TVector3 rough_mom;
   TVector3 u0 = ConformalTransformation(gxz0);
@@ -250,12 +247,25 @@ void E16ANA_TrackCandidates::CalcInverseMatrix(const std::array<double, kNumTrac
   return;
 }
 
+void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
+                   std::array<double, kNumTrackingLayersWTarget>* zz,
+                   std::array<double, kNumRaughFitDegree[0]>* zx,
+                   std::array<double, kNumRaughFitDegree[0]>* coef) {
+  zz->fill(0.);
+  zx->fill(0.);
+  for (int i = 0; i < kNumTrackingLayersWTarget; ++i) {
+    AddMatrixElement(kXWeight[i], lotated_pos[i], zz, zx);
+  }
+  std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]> line;
+  CalcInverseMatrix(*zz, &line);
+//  std::array<double, kNumTrackingLayersWTarget> fit_z_diff;
+  CalcCoefficients(*zx, line, coef);
+  return;
+}
+
 bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[cluster_set->target_id];
-//  if (pos_set[3].X() * pos_set[0].X() < 0. || pos_set[3].X() * pos_set[1].X() < 0. || pos_set[3].X() * pos_set[2].X() < 0.) {
-//    return false;
-//  }
   std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos;
 //  auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kGTR300].X(), pos_set[E16ANA_TrackConstant::kGTR300].Z() - tgt_z);
   auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kSSD].X(), pos_set[E16ANA_TrackConstant::kSSD].Z() - tgt_z); // ozawa v8
@@ -265,17 +275,8 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
 
   std::array<double, kNumTrackingLayersWTarget> zz;
   std::array<double, kNumRaughFitDegree[0]> zx;
-//  CalcQuadCurve();
-  zz.fill(0.);
-  zx.fill(0.);
-  for (int i = 0; i < kNumTrackingLayersWTarget; ++i) {
-    AddMatrixElement(kXWeight[i], lotated_pos[i], &zz, &zx);
-  }
-  std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]> line;
-  CalcInverseMatrix(zz, &line);
   std::array<double, kNumRaughFitDegree[0]> coef;
-  std::array<double, kNumTrackingLayersWTarget> fit_z_diff;
-  CalcCoefficients(zx, line, &coef);
+  CalcQuadCurve(lotated_pos, &zz, &zx, &coef);
   cluster_set->charge = coef[2] > 0 ? 1 : -1;
 
 //  CalcTargetZ();
@@ -309,10 +310,9 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
 
 //  CalcChiSquare();
   double chi2_cand = 0.;
-  double fit_posx[kNumTrackingLayersWTarget];
   for (int i = 0; i < kNumTrackingLayersWTarget; ++i) {
-    fit_posx[i] = coef[2] * lotated_pos[i].Z() * lotated_pos[i].Z() + coef[1] * lotated_pos[i].Z() + coef[0];
-    chi2_cand += kXWeight[i] * (fit_posx[i] - lotated_pos[i].X()) * (fit_posx[i] - lotated_pos[i].X());
+    double fit_posx = coef[2] * lotated_pos[i].Z() * lotated_pos[i].Z() + coef[1] * lotated_pos[i].Z() + coef[0];
+    chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
   }
 
   if (chi2_cand < kRaughFitChiSquareThreshold[0] && fabs(coef[0]) < kRaughXFitCoefficient[0] && fabs(coef[2]) < kRaughXFitCoefficient[2]) {
@@ -327,9 +327,6 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(const OneAxisClusterSet& cluster_
   std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
                                            sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
                                            sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-//  if (fabs(kGTRSizeCoef[0] * gtr_y[0] + kGTRSizeCoef[1] * gtr_y[1]) > kGTRYDiffThreshold ||
-//      fabs(kGTRSizeCoef[0] * gtr_y[0] + kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold ||
-//      fabs(kGTRSizeCoef[1] * gtr_y[1] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold) { // Is GTR 100 y right?
   if (fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[1] * gtr_y[1]) > kGTRYDiffThreshold ||
       fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold ||
       fabs(kGTRSizeCoef[1] * gtr_y[1] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold) {
@@ -363,10 +360,6 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(const OneAxisClusterSet& cluster_
 }
 
 void E16ANA_TrackCandidates::SearchTrackCandidates() {
-//  for (auto& cands : track_candidates) {
-//    cands.clear();
-//    cands.reserve(kNumReserveTracks[2]);
-//  }
   track_candidates.clear();
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& ssd = record->SSD();
@@ -432,7 +425,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id= tgt_index;
                     if (IsXTrackCandidate(cluster_set)) {
-//                      cluster_sets[0].emplace_back(*cluster_set);
                       is_cand = true;
                       break;
                     }
@@ -529,11 +521,8 @@ E16INFO("number of y candidates: %d", cluster_sets[1].size());
       if (!is_same_module) {
         continue;
       }
-//      track_candidates[x_cand.target_id].emplace_back(E16ANA_TrackCandidate(geometry, bfield_map));
       track_candidates.emplace_back(E16ANA_TrackCandidate(geometry, bfield_map));
-//      auto& tmp_cand = track_candidates[x_cand.target_id].back();
       auto& tmp_cand = track_candidates.back();
-//      tmp_cand.SetTrackID(track_candidates[x_cand.target_id].size() - 1);
       tmp_cand.SetTrackID(track_candidates.size() - 1);
       tmp_cand.SetCharge(x_cand.charge);
       tmp_cand.SetVertex(x_cand.target_id);
@@ -548,11 +537,6 @@ E16INFO("number of y candidates: %d", cluster_sets[1].size());
 }
 
 void E16ANA_TrackCandidates::Fit() {
-//  for (int target_index = 0; target_index < E16ANA_TrackConstant::kNumTargets; ++target_index) {
-//    for (auto& cand : track_candidates[target_index]) {
-//      cand.Fit(fitter, vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag);
-//    }
-//  }
   for (auto& cand : track_candidates) {
     cand.Fit(fitter, vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag);
   }
@@ -710,7 +694,7 @@ void E16ANA_TrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
   SearchTrackCandidates();
-E16INFO("number of track candidate: %d", track_candidates.size());
+//E16INFO("number of track candidate: %d", track_candidates.size());
 //  Fit();
 //  SearchHBDAndLGHits();
 //  SortTracks();

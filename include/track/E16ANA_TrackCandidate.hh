@@ -199,7 +199,7 @@ class E16ANA_TrackCandidate {
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
-  static constexpr int kTrackingMaxSteps = 200;
+  static constexpr int kTrackingMaxSteps = 300;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
@@ -325,10 +325,12 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
   static constexpr std::array<int, 2> kNumRaughFitDegree = {3, 2}; // x, y
   static constexpr std::array<double, kNumGTRLayers> kGTRSizeCoef = {2.7, 1.4, 1.};
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
+//  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
   static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
-  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
+//  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
+  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {50., 0.1, 0.3, 0.3, 0.3};
   static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                                                              1. / (kXSigma[1] * kXSigma[1]),
                                                                              1. / (kXSigma[2] * kXSigma[2]),
@@ -352,7 +354,7 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
   static constexpr double kVertexSquareThreshold = 5. * 5.;
   static TVector3 Lotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
-    auto z = rot_sin * pos.X() + rot_cos * (pos.X() - offset);
+    auto z = rot_sin * pos.X() + rot_cos * (pos.Z() - offset);
     return TVector3(x, 0, z);
   }
   static void CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos);
@@ -369,6 +371,10 @@ std::cout << cand->ChiSquare() << ", " << cand->MinimizeStatus() << std::endl;
     (*zx)[0] += w * x;
     return;
   }
+  static void CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
+                            std::array<double, kNumTrackingLayersWTarget>* zz,
+                            std::array<double, kNumRaughFitDegree[0]>* zx,
+                            std::array<double, kNumRaughFitDegree[0]>* coef);
   static void CalcInverseMatrix(const std::array<double, 1 + E16ANA_TrackConstant::kNumTrackingLayers>& zz, std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>* line);
   static void CalcCoefficients(const std::array<double, kNumRaughFitDegree[0]>& zx,
                                const std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>& line,
@@ -465,6 +471,10 @@ class CheckFile {
       residual_y[i] = new TH1D(Form("residual_y_%d", i), Form("residual_y_%d", i), 2000, -200., 200.);
       residual_z[i] = new TH1D(Form("residual_z_%d", i), Form("residual_z_%d", i), 2000, -200., 200.);
       residual_r[i] = new TH1D(Form("residual_r_%d", i), Form("residual_r_%d", i), 2000,    0., 400.);
+      good_residual_x[i] = new TH1D(Form("good_residual_x_%d", i), Form("good_residual_x_%d", i), 2000, -200., 200.);
+      good_residual_y[i] = new TH1D(Form("good_residual_y_%d", i), Form("good_residual_y_%d", i), 2000, -200., 200.);
+      good_residual_z[i] = new TH1D(Form("good_residual_z_%d", i), Form("good_residual_z_%d", i), 2000, -200., 200.);
+      good_residual_r[i] = new TH1D(Form("good_residual_r_%d", i), Form("good_residual_r_%d", i), 2000,    0., 400.);
     }
   };
   ~CheckFile() {
@@ -580,6 +590,12 @@ class CheckFile {
       residual_y[i]->Fill(respos.Y());
       residual_z[i]->Fill(respos.Z());
       residual_r[i]->Fill(respos.Mag());
+      if (chi_square < 1000000.) {
+        good_residual_x[i]->Fill(respos.X());
+        good_residual_y[i]->Fill(respos.Y());
+        good_residual_z[i]->Fill(respos.Z());
+        good_residual_r[i]->Fill(respos.Mag());
+      }
     }
     return;
   }
@@ -705,6 +721,10 @@ class CheckFile {
   std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_y;
   std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_z;
   std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_r;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_x;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_y;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_z;
+  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_r;
 };
 
 #endif // E16ANA_TRACKCANDIDATE_HH
