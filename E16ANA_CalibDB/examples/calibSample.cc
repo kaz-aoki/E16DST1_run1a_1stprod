@@ -16,10 +16,10 @@ using namespace std;
 //===========================================
 void  SSD_CalibUsageSample(){
   E16MESSAGE("start");
-  E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+  E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();//make singleton instance
 
   E16ANA_SSDcalibTimeConstant ssdtime;
-  ssdtime.ReadConstantData( calib.CurrentRunID() );
+  ssdtime.ReadConstantData( calib.CurrentRunID() );//set tdcTimeGain,tdcOffset
   
   cerr<<"runID,tgain,toff="<<calib.CurrentRunID() <<" ";
   cerr<< ssdtime.TDCtimeGain() <<" "<<ssdtime.TDCoffset() <<endl;
@@ -31,29 +31,29 @@ void  SSD_CalibUsageSample(){
   E16ANA_SSDcalibPedestal ssdped;
   //apvmodule[0-5], apvchip[0-2], strip[0-127], sample[0-7] ped/sigma
 
-  double ped[6][3][128][8]={0};
-  double sigma[6][3][128][8]={0};
+  double ped[6][768][8]={0};
+  double sigma[6][768][8]={0};
 
-    ped  [2][0][10][1]= 300.1;
-    sigma[2][1][10][0]=  35.1;
+  // ped  [2][0][10][1]= 300.1;
+  // sigma[2][1][10][0]=  35.1;
 
   ssdped.WriteCalibData("localSSDpedestal.dat", 
-    (double****)ped, (double****)sigma);
+			(double***)ped, (double***)sigma);//write ped,sigma to localSSDpedestal.dat
 
-  ssdped.ReadCalibDataByLocal("localSSDpedestal.dat");
-  for(int i=0;i<3;i++){
-    cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
-    cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
-  }
-  ssdped.ReadCalibData( 888888 );
-  for(int i=0;i<3;i++){
-    cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
-    cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
-  }
+  ssdped.ReadCalibDataByLocal("localSSDpedestal.dat");//open localSSDpedestal.dat
+  // for(int i=0;i<3;i++){
+  //   cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
+  // }
+  ssdped.ReadCalibData( 888888 );//fopen calib-file for runID=888888
+  // for(int i=0;i<3;i++){
+  //   cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
+  // }
 
   //---------------------------------------------
   calib.CalibDBfileResetByLocal("./calib/","tempcalibDB.txt");
@@ -72,12 +72,12 @@ void  SSD_CalibUsageSample(){
     E16FATAL("ssd calib read error");
     //    exit(1);
   }
-  for(int i=0;i<3;i++){
-    cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
-    cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
-  }
+  // for(int i=0;i<3;i++){
+  //   cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
+  // }
 
   //---------------------------------------------
   calib.CalibDBfileResetDefault();
@@ -86,12 +86,12 @@ void  SSD_CalibUsageSample(){
   if( !flag2 ){
     E16FATAL("ssd calib read error");
   }
-  for(int i=0;i<3;i++){
-    cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
-    cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
-  }
+  // for(int i=0;i<3;i++){
+  //   cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
+  // }
 
 
 }
@@ -108,12 +108,12 @@ void  SSD_DST1Factory( E16ANA_SSDcalibTimeConstant& ssdtime,
   cerr<< ssdtime.TDCtimeGain() <<" "<<ssdtime.TDCoffset() <<endl;
 
   cerr<<"pedestal/sigma sample"<<endl;
-  for(int i=0;i<3;i++){
-    cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
-    cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
-    cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
-  }
+  // for(int i=0;i<3;i++){
+  //   cerr<< ssdped.Pedestal(2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 0)<<" ";
+  //   cerr<< ssdped.Pedestal(2, i, 10, 1)<<" ";
+  //   cerr<< ssdped.Sigma   (2, i, 10, 1)<<endl;
+  // }
 
 }
 
@@ -150,6 +150,7 @@ int main(int argc, char **argv){
   //sample of CalibDBManager usage
   //make a pedestal file, using localfile, etc.
   SSD_CalibUsageSample();
+
 
   return 0;
 

@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 //      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-      auto event1 = new E16DST_DST1PhysicsEvent();
+//      auto event1 = new E16DST_DST1PhysicsEvent();
       auto ssd_hits0         = event0->SSD();
       auto gtr_hits0         = event0->GTR();
       auto hbd_hits0         = event0->HBD();
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
       auto trigger_hbd_hits0 = event0->TriggerHBD();
       auto trigger_lg_hits0  = event0->TriggerLG();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
+//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
       
 //HBD---------------
@@ -125,10 +125,10 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      event1->GTR().SetValidFlag(1);
-      event1->LG().SetValidFlag(1);
-      event1->Trigger().SetValidFlag(1);
+//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+//      event1->GTR().SetValidFlag(1);
+//      event1->LG().SetValidFlag(1);
+//      event1->Trigger().SetValidFlag(1);
 
 
 //// Check begin
