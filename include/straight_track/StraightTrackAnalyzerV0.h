@@ -1,0 +1,641 @@
+#ifndef StraightTrackAnalyzerV0_h
+#define StraightTrackAnalyzerV0_h 1
+
+#include "OnlineGTRUtility.h"
+#include "E16ANA_GTRAnalyzer2.h"
+#include "E16ANA_GTRPedestal.h"
+#include "E16ANA_GTRStripAnalyzer.h"
+#include "E16DST_DST0.hh"
+#include "GTRGeometry.h"
+#include "E16ANA_SSDAnalyzer.h"
+#include "E16ANA_SSDStripAnalyzer.h"
+//#include "E16ANA_SSDPedestal.h"
+#include "E16DST_DST1.hh"
+
+#include <memory>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TString.h>
+#include <TCanvas.h>
+#include <TGraphErrors.h>
+//#include <E16ANA_Geometry.hh>
+#include <E16ANA_GeometryV2.hh>
+#include <functional>
+#include <algorithm>
+const int gtrmaxhit = 20;
+const double th_chi2 = 5;//chisquare threshold 
+const double th_chi2_first = 5;//chisquare threshold 
+const double th_chi2_second = 5;//chisquare threshold 
+const double th_chi2_third = 5;//chisquare threshold 
+const double th_chi2_y = 3;//chisquare threshold 
+const int min_ip_gap = 100;// this should be caluculated precisely
+
+
+enum {
+   n_layers = 3,//gtr layer
+	n_samples = 4,//  gtr*3
+};
+
+
+    inline int ModuleID_2013to2020_33(int id )
+    {
+    const int moduleID_2013to2020_33[33] = {
+        10, 110, 210, 9, 109, 209, 8, 108, 208, 7, 107, 207, 6, 106, 206,
+        5, 105, 205,
+        4,  104, 204, 3, 103, 203, 2, 102, 202, 1, 101, 201, 0, 100, 200 };
+    return  moduleID_2013to2020_33[ id ];
+    }
+    inline int ModuleID_2020to2013_33(int id ){//GTR,SSD
+    const int module_id_kawama33[3][11] = {
+        {30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0},
+        {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
+        {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}};
+    return module_id_kawama33[ id / 100][id % 100];
+    }
+    inline int ModuleID_2013to2020_27( int id ){// //LG,HBD
+    const int moduleID_2013to2020_27[27] = {
+        9, 109, 209, 8, 108, 208, 7, 107, 207,  6, 106, 206,
+        5, 105, 205,
+        4, 104, 204, 3, 103, 203, 2, 102, 202,  1, 101, 201};
+    return  moduleID_2013to2020_27[ id ];
+    }
+    inline int ModuleID_2020to2013_27(int id ){//LG,HBD
+    const int module_id_kawama27[3][9] = {
+        {24, 21, 18, 15, 12, 9, 6, 3, 0 },
+        {25, 22, 19, 16, 13, 10, 7, 4, 1},
+        {26, 23, 20, 17, 14, 11, 8, 5, 2}};
+    int id2=(id %100) -1;
+    return module_id_kawama27[ id / 100][ id2 ];
+}
+
+
+class E16ANA_XZTrackCandidate {
+public:
+    E16ANA_XZTrackCandidate() {
+//        SetInvalid();
+    };
+    ~E16ANA_XZTrackCandidate() {};
+    void SetModuleID(int m){
+        module_id = m;
+    }
+    void SetInvalid(){
+        module_id = -100;
+        chi2 = kInvalidValue;
+        tgt_z = kInvalidValue;
+    }
+    void SetXHit100(E16DST_DST1GTRCluster *xhit){xcluster100 = xhit;}
+    void SetXHit200(E16DST_DST1GTRCluster *xhit){xcluster200 = xhit;}
+    void SetXHit300(E16DST_DST1GTRCluster *xhit){xcluster300 = xhit;}
+    void SetXHitSSD(E16DST_DST1SSDCluster *xhit){xclusterssd = xhit;}
+    void SetXHit100(E16ANA_GTRAnalyzedStripHit *xhit){xhit100 = xhit;}
+    void SetXHit200(E16ANA_GTRAnalyzedStripHit *xhit){xhit200 = xhit;}
+    void SetXHit300(E16ANA_GTRAnalyzedStripHit *xhit){xhit300 = xhit;}
+    void SetXHitSSD(E16ANA_SSDAnalyzedStripHit *shit){xhitssd = shit;}
+    void SetFitSample100(TVector2 _fit_sample_100){fit_sample100 = _fit_sample_100;}
+    void SetFitSample200(TVector2 _fit_sample_200){fit_sample200 = _fit_sample_200;}
+    void SetFitSample300(TVector2 _fit_sample_300){fit_sample300  = _fit_sample_300;}
+    TVector2 GetFitSample100(){return fit_sample100;}
+    TVector2 GetFitSample200(){return fit_sample200;}
+    TVector2 GetFitSample300(){return fit_sample300;}
+    void SetChi2(double _chi2){chi2 = _chi2;}
+	void SetChi2ExSSD(double _chi2){chi2_ex_ssd = _chi2;}	
+	void SetChi2Ex100(double _chi2){chi2_ex_100 = _chi2;}	
+	void SetChi2Ex200(double _chi2){chi2_ex_200 = _chi2;}	
+	void SetChi2Ex300(double _chi2){chi2_ex_300 = _chi2;		}	
+    void SetTgtZ(double z){tgt_z = z;}
+	void SetDistance(double d){distance = d;}
+	void SetResidual100(double residual){residual_100 = residual;}
+	void SetResidual200(double residual){residual_200 = residual;}
+	void SetResidual300(double residual){residual_300 = residual;}
+	void SetResidualSSD(double residual){residual_ssd = residual;}
+ 	void SetID100Hit(int _i){id100hit = _i;}
+    void SetID200Hit(int _j){id200hit = _j;}
+    void SetID300Hit(int _k){id300hit = _k;}
+    void SetIDSSDHit(int _l){idssdhit = _l;}
+    void SetTrackID(int id){        track_id = id;    }
+    void SetPt0OnTrack(TVector2 tv){pt0_on_track = tv;    }
+    void SetPt1OnTrack(TVector2 tv){pt1_on_track = tv;    }
+    void SetPt2OnTrack(TVector2 tv){pt2_on_track = tv;    }
+    int ModuleID(){return module_id;    }
+    double Chi2() const{return chi2;    }
+	double Chi2ExSSD() const{return chi2_ex_ssd;	}
+	double Chi2Ex100() const{return chi2_ex_100;	}
+	double Chi2Ex200() const{return chi2_ex_200;	}
+	double Chi2Ex300() const{return chi2_ex_300;	}
+    double TgtZ(){return tgt_z;}
+    double Residual100(){return residual_100;}
+    double Residual200(){return residual_200;}
+    double Residual300(){return residual_300;}
+    double ResidualSSD(){return residual_ssd;}
+    int ID100Hit() const{return id100hit;}
+    int ID200Hit() const{return id200hit;}
+    int ID300Hit() const{return id300hit;}
+    int IDSSDHit() const{return idssdhit;}
+    int TrackID() {return track_id;}
+    double Distance() {        return distance;    }
+    E16DST_DST1SSDCluster *GetXClusterSSD(){
+        return xclusterssd;
+    }
+    E16DST_DST1GTRCluster *GetXCluster100(){
+        return xcluster100;
+    }
+    E16DST_DST1GTRCluster *GetXCluster200(){
+        return xcluster200;
+    }
+    E16DST_DST1GTRCluster *GetXCluster300(){
+        return xcluster300;
+    }
+
+    E16ANA_GTRAnalyzedStripHit *GetXHit100(){
+        return xhit100;
+    }
+    E16ANA_GTRAnalyzedStripHit *GetXHit200(){
+        return xhit200;
+    }
+    E16ANA_GTRAnalyzedStripHit *GetXHit300(){
+        return xhit300;
+    }
+    E16ANA_SSDAnalyzedStripHit *GetXHitSSD(){
+		return xhitssd;
+  	}
+    TVector2 &Pt0OnTrack() {
+        return pt0_on_track;
+    }
+    TVector2 &Pt1OnTrack() {
+        return pt1_on_track;
+    }
+    TVector2 &Pt2OnTrack(){
+        return pt2_on_track;
+    }
+    enum {
+        kInvalidValue = -20000,
+    };
+
+    static bool CompareTrackPredicate(std::shared_ptr<E16ANA_XZTrackCandidate> lhs, std::shared_ptr<E16ANA_XZTrackCandidate> rhs){return (lhs->chi2 < rhs->chi2);}
+    struct CompareTrackFunctor
+    :public std::binary_function<std::shared_ptr<E16ANA_XZTrackCandidate>, std::shared_ptr<E16ANA_XZTrackCandidate>, bool>
+    {
+        bool operator()( std::shared_ptr<E16ANA_XZTrackCandidate> lhs, std::shared_ptr<E16ANA_XZTrackCandidate>rhs)
+        {
+            return (lhs->chi2 < rhs->chi2);
+        }
+    };
+
+    static bool CompareDistancePredicate(std::shared_ptr<E16ANA_XZTrackCandidate> lhs, std::shared_ptr<E16ANA_XZTrackCandidate> rhs){return (lhs->distance < rhs->distance);}
+    struct CompareDistanceFunctor
+    :public std::binary_function<std::shared_ptr<E16ANA_XZTrackCandidate>, std::shared_ptr<E16ANA_XZTrackCandidate>, bool>
+    {
+        bool operator()( std::shared_ptr<E16ANA_XZTrackCandidate> lhs, std::shared_ptr<E16ANA_XZTrackCandidate> rhs)
+        {
+            return (lhs->distance < rhs->distance);
+        }
+    };
+
+private:
+    int module_id;
+    int id100hit;
+    int id200hit;
+    int id300hit;
+    int idssdhit;
+    int track_id;
+    double chi2;
+    double chi2_ex_ssd;//
+    double chi2_ex_100;
+    double chi2_ex_200;
+    double chi2_ex_300;
+    double tgt_z;
+    double distance; //nearest target
+//    std::vector<TVector2> v_fit_samples;
+    E16ANA_GTRAnalyzedStripHit *xhit100;
+    E16ANA_GTRAnalyzedStripHit *xhit200;
+    E16ANA_GTRAnalyzedStripHit *xhit300;
+    E16ANA_SSDAnalyzedStripHit *xhitssd;
+ 	E16DST_DST1GTRCluster *xcluster100;
+ 	E16DST_DST1GTRCluster *xcluster200;
+ 	E16DST_DST1GTRCluster *xcluster300;
+ 	E16DST_DST1SSDCluster *xclusterssd;
+    TVector2 fit_sample100;
+    TVector2 fit_sample200;
+    TVector2 fit_sample300;
+    double residual_100;
+    double residual_200;
+    double residual_300;
+    double residual_ssd;
+    TVector2 pt0_on_track;
+    TVector2 pt1_on_track;
+    TVector2 pt2_on_track;
+   //iE16ANA_SSDAnalyzedStripHit *xhitssd;
+};
+
+class E16ANA_XZCrossPoint {
+public:
+	E16ANA_XZCrossPoint(){};
+	~E16ANA_XZCrossPoint(){};
+	void SetCoordinateX(double x){
+		coordinateX = x;
+	}
+	void SetCoordinateZ(double z){coordinateZ = z;	}
+	void SetDistance(double d){		distance  = d;	}
+	void SetTgtZ1(double z1){		tgt_z1 = z1;	}
+	void SetTgtZ2(double z2){		tgt_z2 = z2;	}
+	double CoordinateX(){		return coordinateX;	}
+	double CoordinateZ(){		return coordinateZ;	}
+	double Distance() const{		return distance;	}
+	double TgtZ1(){		return tgt_z1;	}
+	double TgtZ2(){		return tgt_z2;	}
+    void SetXZTrack1(std::shared_ptr<E16ANA_XZTrackCandidate> _xz_track){        xz_track1 = _xz_track;    }
+    void SetXZTrack2(std::shared_ptr<E16ANA_XZTrackCandidate> _xz_track){        xz_track2 = _xz_track;    }
+
+    std::shared_ptr<E16ANA_XZTrackCandidate> &GetXZTrackCandidate1(){        return xz_track1;    }
+    std::shared_ptr<E16ANA_XZTrackCandidate> &GetXZTrackCandidate2(){        return xz_track2;    }
+    void SetTrack1ID(int i){
+        track1_id = i;
+    }
+    void SetTrack2ID(int i){
+        track2_id = i;
+    }
+    int Track1ID() const{
+        return track1_id;
+    }
+    int Track2ID() const{
+        return track2_id;
+    }
+
+    static bool CompareCrossPredicate(std::shared_ptr<E16ANA_XZCrossPoint> lhs, std::shared_ptr<E16ANA_XZCrossPoint> rhs){return (lhs->distance < rhs->distance);}
+    struct CompareCrossFunctor
+    :public std::binary_function<std::shared_ptr<E16ANA_XZCrossPoint>, std::shared_ptr<E16ANA_XZCrossPoint>, bool>
+    {
+        bool operator()( std::shared_ptr<E16ANA_XZCrossPoint> lhs, std::shared_ptr<E16ANA_XZCrossPoint> rhs)
+            {
+            return (lhs->distance < rhs->distance);
+        }
+    };
+
+private:
+	double coordinateX;
+	double coordinateZ;
+	double distance;
+	double tgt_z1;
+	double tgt_z2;
+    int track1_id;
+    int track2_id;
+    std::shared_ptr<E16ANA_XZTrackCandidate> xz_track1;
+    std::shared_ptr<E16ANA_XZTrackCandidate> xz_track2;
+};
+
+class E16ANA_YTrackCandidate {
+public:
+	E16ANA_YTrackCandidate() {
+		SetInvalid();
+	};
+	~E16ANA_YTrackCandidate() {};
+	void SetModuleID(int m){
+		module_id = m;
+	}
+	void SetInvalid(){
+		module_id = -100;
+		chi2 = kInvalidValue;
+		tgt_pos = kInvalidValue;
+	}
+	void SetYHit100(E16DST_DST1GTRCluster *yhit){yhit100 = yhit;}
+	void SetYHit200(E16DST_DST1GTRCluster *yhit){yhit200 = yhit;}
+	void SetYHit300(E16DST_DST1GTRCluster *yhit){yhit300 = yhit;}
+//	void SetYHit100(E16ANA_GTRAnalyzedStripHit *yhit){yhit100 = yhit;}
+//	void SetYHit200(E16ANA_GTRAnalyzedStripHit *yhit){yhit200 = yhit;}
+//	void SetYHit300(E16ANA_GTRAnalyzedStripHit *yhit){yhit300 = yhit;}
+	void SetFitSample100(TVector2 _fit_sample_100){		fit_sample100 = _fit_sample_100;	}
+	void SetFitSample200(TVector2 _fit_sample_200){		fit_sample200 = _fit_sample_200;	}
+	void SetFitSample300(TVector2 _fit_sample_300){		fit_sample300  = _fit_sample_300;	}
+	TVector2 GetFitSample100(){		return fit_sample100;	}
+	TVector2 GetFitSample200(){		return fit_sample200;	}
+	TVector2 GetFitSample300(){		return fit_sample300;	}
+	void SetChi2(double _chi2){		chi2 = _chi2;			}	
+	void SetTgtPos(double y){		tgt_pos = y;	}
+	void SetResidual100(double residual){		residual_100 = residual;	}
+	void SetResidual200(double residual){		residual_200 = residual;	}
+	void SetResidual300(double residual){		residual_300 = residual;	}
+	void SetID100Hit(int _i){		id100hit = _i;	}
+	void SetID200Hit(int _j){		id200hit = _j;	}
+	void SetID300Hit(int _k){		id300hit = _k;	}
+    void SetPt0OnTrack(TVector2 tv){        pt0_on_track = tv;    }
+    void SetPt1OnTrack(TVector2 tv){        pt1_on_track = tv;}
+    void SetPt2OnTrack(TVector2 tv){        pt2_on_track = tv;    }
+	int ModuleID(){		return module_id;	}
+	double Chi2() const{		return chi2;	}
+	double TgtPos(){		return tgt_pos;	}
+	double Residual100(){		return residual_100;	}
+	double Residual200(){		return residual_200;	}
+	double Residual300(){		return residual_300;	}
+	double ResidualSSD(){		return residual_ssd;	}
+	int ID100Hit() const{		return id100hit;	}
+	int ID200Hit() const{		return id200hit;	}
+	int ID300Hit() const{		return id300hit;	}
+//	int IDSSDHit() const{
+//		return idssdhit;
+//	}
+    TVector2 &Pt0OnTrack(){return pt0_on_track;}
+    TVector2 &Pt1OnTrack(){        return pt1_on_track;    }
+    TVector2 &Pt2OnTrack(){        return pt2_on_track;    }
+    static bool CompareTrackPredicate(E16ANA_YTrackCandidate lhs, E16ANA_YTrackCandidate rhs){return (lhs.chi2 < rhs.chi2);}
+    struct CompareTrackFunctor
+    :public std::binary_function<E16ANA_YTrackCandidate, E16ANA_YTrackCandidate, bool>
+    {
+        bool operator()( E16ANA_YTrackCandidate lhs, E16ANA_YTrackCandidate rhs)
+        {
+            return (lhs.chi2 < rhs.chi2);
+        }
+    };
+	E16DST_DST1GTRCluster *GetYHit100(){
+		return yhit100;
+	}
+	E16DST_DST1GTRCluster *GetYHit200(){
+		return yhit200;
+	}
+	E16DST_DST1GTRCluster *GetYHit300(){
+		return yhit300;
+	}
+	enum {
+		kInvalidValue = -10000,
+	};
+private:
+
+	int module_id;
+	int id100hit;
+	int id200hit;
+	int id300hit;
+	double chi2;
+	double tgt_pos;
+	std::vector<TVector2> v_fit_samples;
+	E16DST_DST1GTRCluster *yhit100;
+	E16DST_DST1GTRCluster *yhit200;
+	E16DST_DST1GTRCluster *yhit300;
+//	E16ANA_GTRAnalyzedStripHit *yhit100;
+//	E16ANA_GTRAnalyzedStripHit *yhit200;
+//	E16ANA_GTRAnalyzedStripHit *yhit300;	
+	TVector2 fit_sample100;
+	TVector2 fit_sample200;
+	TVector2 fit_sample300;
+	double residual_100;
+	double residual_200;
+	double residual_300;
+	double residual_ssd;
+    TVector2 pt0_on_track;
+    TVector2 pt1_on_track;
+    TVector2 pt2_on_track;
+};
+
+class E16ANA_XYZStraightTrack {
+public:
+    E16ANA_XYZStraightTrack(){
+        has_matched_asdhit = 0;
+        has_matched_lghit = 0;
+    };
+    ~E16ANA_XYZStraightTrack(){};
+
+    void SetXZTrack(std::shared_ptr<E16ANA_XZTrackCandidate> _xz_track){
+        xz_track = _xz_track;
+    }
+    void SetYTrack(std::shared_ptr<E16ANA_YTrackCandidate> _y_track){
+        y_track = _y_track;
+    }
+    void Set_hasMatchedASDHit(int num){
+        has_matched_asdhit = num;
+    }
+    int hasMatchedASDHit(){
+        return has_matched_asdhit;
+    }
+    void Set_hasMatchedLGHit(int num){
+        has_matched_lghit = num;
+    }
+    int hasMatchedLGHit(){
+        return has_matched_lghit;
+    }
+
+    std::shared_ptr<E16ANA_XZTrackCandidate> &GetXZTrackCandidate(){
+        return xz_track;
+    }
+    std::shared_ptr<E16ANA_YTrackCandidate> &GetYTrackCandidate(){
+        return y_track;
+    }
+	void SetTwoPointsOnTrack(TVector3 pt0, TVector3 pt1){
+		TwoPointsOnTrack.push_back(pt0);
+		TwoPointsOnTrack.push_back(pt1);
+	};
+	
+   	std::vector<TVector3> &GetTwoPointsOnTrack(){
+		return TwoPointsOnTrack;
+	} 
+    void SetLGCrossPos(TVector3 pt){
+        lg_cross_pos = pt;
+    }
+    TVector3 &GetLGCrossPos(){
+        return lg_cross_pos;
+    }
+    void SetLGModuleID(int m){
+        lg_mod_id = m;
+    }
+    void SetLGChannelID(int c){
+        lg_channel_id = c;
+    }
+    int GetLGModuleID(){
+        return lg_mod_id;
+    }
+    int GetLGChannelID(){
+        return lg_channel_id;
+    }
+
+private:
+    std::shared_ptr<E16ANA_XZTrackCandidate> xz_track;
+    std::shared_ptr<E16ANA_YTrackCandidate> y_track;
+   	std::vector<TVector3> TwoPointsOnTrack; 
+    int has_matched_asdhit;
+    int has_matched_lghit;
+    TVector3 lg_cross_pos;
+    int lg_mod_id;
+    int lg_channel_id;
+};
+
+
+
+class StraightTrackAnalyzerV0 {
+public:
+   // std::unique_ptr<AnalyzerMap> ana_maps;
+    StraightTrackAnalyzerV0(){}
+    virtual ~StraightTrackAnalyzerV0(){}
+    void OneModule2DAnalyze(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0b,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits1,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+    void XZStraightAnalyze(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2,
+                            int *index_xz);
+    void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+ 
+
+
+
+    void YRStraightAnalyze( std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0b,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits1,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+    void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, 
+                              std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk
+            );
+//    void MatchingXYZandLeaveTargetTrack(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, 
+//                              std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk
+//            );
+    void Make2DCrossPoint(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands,  E16ANA_GeometryV2 *geom);
+
+    double GetGTRModulePhi(E16ANA_GeometryV2 *geom, int module_id);
+    std::vector<long double> LeastSquareMethod(std::vector<TVector2> &tv_v_pos, std::vector<double> sigma_x);
+    std::vector<double> CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate> trk2); 
+	void XZStraightAnalyzeOnlyGTR(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
+                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
+                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
+                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+                        );
+
+    void Analyze(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_tracks, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_tracks, E16ANA_GeometryV2 *geom_v2);
+
+    void Clear();
+
+    OnlineGTR::HashMap<E16ANA_GTRAnalyzer2*> gtr_analyzer_map;
+    OnlineGTR::HashMap<E16ANA_SSDAnalyzer*> ssd_analyzer_map;
+    E16ANA_GTRAnalyzer2 *Chamber(uint16_t module_id, uint16_t layer_id){
+        return gtr_analyzer_map[OnlineGTR::IDs(module_id, layer_id).value64];
+    };
+    E16ANA_SSDAnalyzer *SSD_Sensor(uint16_t module_id, uint16_t layer_id){
+        return ssd_analyzer_map[OnlineGTR::IDs(module_id, layer_id).value64];
+    };
+//   void SetThresholdX(double th);
+//   void SetThresholdY(double th);
+//   void SetTOTThresholdX(double th);
+//   void SetTOTThresholdY(double th);
+//   void Set(void (E16ANA_GTRAnalyzer2::*f)(double), double th);
+    
+    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
+    void FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2);
+    std::vector<long double> CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *ssd_hit,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits0,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits1,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits2,
+                      E16ANA_GeometryV2 *geom_v2, 
+                      double phi,
+                      int kawama_module,
+                      int except);
+   void SearchSSDHit(std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &cps, std::vector<std::reference_wrapper<std::vector<E16ANA_SSDAnalyzedStripHit>>> &v_shits, E16ANA_GeometryV2 *gome_v2);
+ 
+    std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZTrackCandidates(){return xz_trk_cands;};
+    std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &GetYTrackCandidates(){return y_trk_cands;};
+    std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> &GetXYZStraightTrack(){return xyz_st_trk;};
+    std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZSelectedTrack(){return xz_trk_selected;};
+    std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &GetCrossPoints(){return cross_points;}
+    std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZTracksEveSel(){return xz_trks_evesel;}
+
+protected:
+    std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trk_cands;
+    std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trk_selected;
+    std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> y_trk_cands;
+    std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> xyz_st_trk;
+    std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> cross_points;
+    std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trks_evesel;
+};
+
+
+class StraightTrackAnalyzerOfWire : public StraightTrackAnalyzerV0 {
+public :
+    StraightTrackAnalyzerOfWire();
+    ~StraightTrackAnalyzerOfWire();
+    void FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2);
+    std::vector<long double> CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *ssd_hit,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits0,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits1,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits2,
+                      E16ANA_GeometryV2 *geom_v2, 
+                      double phi,
+                      int kawama_module,
+                      int except);
+    
+private :
+};
+
+class StraightTrackAnalyzerOfWireV1 : public StraightTrackAnalyzerV0 { //track selection only by GTR
+public : 
+    StraightTrackAnalyzerOfWireV1(double x1, double z1, double x2, double z2);
+    ~StraightTrackAnalyzerOfWireV1();
+    void Analyze(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_tracks, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_tracks, E16ANA_GeometryV2 *geom_v2);
+    void Analyze(std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> &st_tracks, E16ANA_GeometryV2 *geom_v2);
+    void XZStraightAnalyzeOnlyGTR2(
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+                        );
+    void XZStraightAnalyzeOnlyGTR(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
+                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
+                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
+                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+                        );
+    void OneModule2DAnalyze(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0b,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits1,
+                            std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+    void OneModuleAnalyze2(
+							E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+							E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+	void Make3DCrossPoint(std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> &st_trks, E16ANA_GeometryV2 *geom);
+
+
+    std::vector<double> CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate> trk2); 
+    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
+
+    void Make2DCrossPoint(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands,  E16ANA_GeometryV2 *geom);
+
+
+   void SearchSSDHit(std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &cps, std::vector<std::reference_wrapper<std::vector<E16ANA_SSDAnalyzedStripHit>>> &v_shits, E16ANA_GeometryV2 *gome_v2);
+   void SearchSSDHit(std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &cps, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>  *v_ssdhits, E16ANA_GeometryV2 *gome_v2);
+private : 
+	double wire_x1;
+	double wire_z1;
+	double wire_x2;
+	double wire_z2;
+};
+
+#endif //StraightTrakAnalyzerV0

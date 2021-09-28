@@ -1,3 +1,7 @@
+//this is test for wire track factory 
+//
+//
+//
 #include <iostream>
 #include <TROOT.h>
 #include <TH1.h>
@@ -14,6 +18,8 @@
 #include "GTR/GTRCheckHist.hh"
 #include "E16ANA_TargetInfo.hh"
 #include "E16ANA_RundependentName.hh"
+#include "straight_track/StraightTrackAnalyzerV0.h"
+#include "E16DST_DST1.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -28,49 +34,12 @@ int main(int argc, char* argv[]) {
   auto out_file_name = argv[2];
   auto run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
-//  bpo::variables_map vm;
-//  string in_file_name;
-//  string out_file_name;
-//  int run_num;
-
-//  bpo::options_description command_options("command options");
-//  command_options.add_options()
-//    ("in",                           bpo::value<string>(&in_file_name),                                                                "Input file name (string)\n")
-//    ("out",                          bpo::value<string>(&out_file_name),                                                               "Output file name (string)\n")
-//    ("coincidence-map-file-w-mag0",  bpo::value<string>(&coincidence_map_files[0])->default_value(string(CoincidenceMapWMagFile0)),    "Coincidence map file w/ mag 0 (string)\n");
-//    ("coincidence-map-file-w-mag1",  bpo::value<string>(&coincidence_map_files[1])->default_value(string(CoincidenceMapWMagFile1)),    "Coincidence map file w/ mag 1 (string)\n");
-//    ("coincidence-map-file-w-mag2",  bpo::value<string>(&coincidence_map_files[2])->default_value(string(CoincidenceMapWMagFile2)),    "Coincidence map file w/ mag 2 (string)\n");
-//    ("coincidence-map-file-w-mag3",  bpo::value<string>(&coincidence_map_files[3])->default_value(string(CoincidenceMapWMagFile3)),    "Coincidence map file w/ mag 3 (string)\n");
-//    ("coincidence-map-file-w-mag4",  bpo::value<string>(&coincidence_map_files[4])->default_value(string(CoincidenceMapWMagFile4)),    "Coincidence map file w/ mag 4 (string)\n");
-//    ("coincidence-map-file-w-mag5",  bpo::value<string>(&coincidence_map_files[5])->default_value(string(CoincidenceMapWMagFile5)),    "Coincidence map file w/ mag 5 (string)\n");
-//    ("coincidence-map-file-wo-mag0", bpo::value<string>(&coincidence_map_files[6])->default_value(string(CoincidenceMapWoMagFile0)),   "Coincidence map file w/o mag 0 (string)\n");
-//    ("coincidence-map-file-wo-mag1", bpo::value<string>(&coincidence_map_files[7])->default_value(string(CoincidenceMapWoMagFile1)),   "Coincidence map file w/o mag 1 (string)\n");
-//    ("coincidence-map-file-wo-mag2", bpo::value<string>(&coincidence_map_files[8])->default_value(string(CoincidenceMapWoMagFile2)),   "Coincidence map file w/o mag 2 (string)\n");
-//    ("coincidence-map-file-wo-mag3", bpo::value<string>(&coincidence_map_files[9])->default_value(string(CoincidenceMapWoMagFile3)),   "Coincidence map file w/o mag 3 (string)\n");
-//    ("coincidence-map-file-wo-mag4", bpo::value<string>(&coincidence_map_files[10])->default_value(string(CoincidenceMapWoMagFile4)),  "Coincidence map file w/o mag 4 (string)\n");
-//    ("coincidence-map-file-wo-mag5", bpo::value<string>(&coincidence_map_files[11])->default_value(string(CoincidenceMapWoMagFile5)),  "Coincidence map file w/o mag 5 (string)\n");
-//    ("trigger-gtr-channel-map",      bpo::value<string>(&trigger_channel_map_files[0])->default_value(string(TriggerChannelMapFile0)), "Trigger GTR channel map file (string)\n");
-//    ("trigger-hbd-channel-map",      bpo::value<string>(&trigger_channel_map_files[1])->default_value(string(TriggerChannelMapFile1)), "Trigger HBD channel map file (string)\n");
-//    ("trigger-lg-channel-map",       bpo::value<string>(&trigger_channel_map_files[2])->default_value(string(TriggerChannelMapFile2)), "Trigger LG channel map file (string)\n");
-//
-//  auto file_check = [&vm, &in_file_name, &out_file_name]() {
-//    if (in_file_name.empty()) {
-//      throw invalid_argument("Invalid input file name: "s + in_file_name);
-//    }
-//    if (out_file_name.empty()) {
-//      throw invalid_argument("Invalid output file name: "s + out_file_name);
-//    }
-//  };
-
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-//  auto geometry = new E16ANA_GeoemtryV2(static_cast<std::string>(GeometryFile));
-//  E16ANA_GeometryV2::SetGlobalPointer(geometry);
-  
   E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
   string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
-     E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
-     E16ANA_GeometryV2::SetGlobalPointer(geom);
+  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
+  E16ANA_GeometryV2::SetGlobalPointer(geom);
 
   auto trigger_param = new E16ANA_TriggerCalibParam();
   trigger_param->ReadConstantData(calib.CurrentRunID());
@@ -84,11 +53,11 @@ int main(int argc, char* argv[]) {
   auto *gtrhist = new GTRCheckHist();
   
   auto dst0 = new E16DST_DST0();
+
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
-
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -103,81 +72,23 @@ int main(int argc, char* argv[]) {
         std::cout << "Event ID = " << dst0->Event()->EventID() << " is not Physics Event, Event Type =" << dst0->Event()->EventType() << std::endl;
         continue;
     }
-    
+//
+//
     auto event_type = dst0->EventType();
-//    dst1->SetEventType(event_type);
-      auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
-//      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-//      auto event1 = new E16DST_DST1PhysicsEvent();
-      auto& ssd_hits0         = event0->SSD();
-      auto& gtr_hits0         = event0->GTR();
-      auto& hbd_hits0         = event0->HBD();
-      auto& lg_hits0          = event0->LG();
-      auto& trigger_gtr_hits0 = event0->TriggerGTR();
-      auto& trigger_hbd_hits0 = event0->TriggerHBD();
-      auto& trigger_lg_hits0  = event0->TriggerLG();
-//	  E16DST_DST1SSDFactory_dummy(ssd_hits0, &record->SSD());
-//	  record->SSD().UpdatePtrs();
-      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
-	  record->GTR().UpdatePtrs();
-	  
-	  E16DST_DST1WireTrackFactory(record->SSD(), record->GTR(), geom);
-
-//      E16DST_DST0Detector<E16DST_DST1GTRHit> gtr_hits;
-//      E16DST_DST0Detector<E16DST_DST1GTRCluster> gtr_clusters;
-//	  E16DST_DST1WireTrack wire_tracks;
-//      auto& gtr_hits = record->GTR().Hits();
-//      auto& gtr_clusters = record->GTR().Clusters();
-//      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
-//      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.NumberOfHits() << std::endl;
-
-//        E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
-//      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
-//      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-//      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-//      event1->GTR().SetValidFlag(1);
-//      event1->LG().SetValidFlag(1);
-//      event1->Trigger().SetValidFlag(1);
-//
-   
-//   E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd_detector<ssd_hits, ssd_clusters >;
-//   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr_detector<gtr_hits, gtr_clusters >;
- //  E16DST_DST1WireTrackFactory(event1->SSD(),event1->GTR() , &wire_tracks, geometry);
-//   gtrhist->Fill(&gtr_hits, &gtr_clusters, &wire_tracks, geom);
-
-
-// GTR
-//    cout << "Number of event: " << n_event << endl << endl;
-//    auto n_gtr_hits = gtr_hits.NumberOfHits();
-//    cout << "Number of GTR hits: " << n_gtr_hits << endl;
-//    for(int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-//        auto hit = gtr_hits.Hit(n_hit);
-////        hit.Print();
-//    }
-
-//    int n_gtr_hits = gtr_hits.NumberOfHits();
-//    for(int i = 0; i < n_gtr_hits ; i++){
-//        auto hit = gtr_hits.Hit(i);
-//        std::cout << "hit ph" << hit.PeakHeight() << ", timing =  " << hit.Timing() << "tot = "<< hit.Tot() << std::endl;
-//    }
-//
-//    auto n_gtr_clusters = gtr_clusters.NumberOfHits();
-//    cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-//    for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-//       std::cout << "n_cluster = " << n_cluster << std::endl;
-//       auto cluster = gtr_clusters.Hit(n_cluster);
-//       std::cout << "mid = " << cluster.ModuleId() << "layer id = " << cluster.LayerId() <<std::endl;
-//       cluster.Print();
-//    }
-////    dst1->WriteAnEvent();
-////    }
-   ++n_event;
+    E16DST_DST0PhysicsEvent *event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
+    auto& gtr_hits0 = event0->GTR();
+    auto& ssd_hits0 = event0->SSD();
+    E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
+    record->GTR().UpdatePtrs();
+//    &record->GTR();
+	std::vector<E16DST_DST1StraightTrack2D> st_tracks;
+    E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+//	gtrhist->Fill();	
+    ++n_event;
     ++n_physics_event;
   }
-  
+
+ 
 
 //  TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
 //  TString pdf_name;

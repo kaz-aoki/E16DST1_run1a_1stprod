@@ -37,6 +37,7 @@ include_directories(
 	include/GTR
 	include/trigger
 	include/track
+	include/straight_track
   E16DST
   E16ANA_CalibDB/include
   E16ANA_ErrorMessage/include
@@ -109,6 +110,8 @@ target_link_libraries(E16ANA
 #_______________________________________________________________________________
 add_library(E16DST_DST1
 	src/E16DST_DST1.cc
+  src/SSD/E16ANA_SSDAnalyzer.cc
+  src/SSD/E16ANA_SSDStripAnalyzer.cc
   src/GTR/E16ANA_GTRAnalyzer2.cc
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
@@ -127,6 +130,7 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TrackFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
   src/GTR/E16ANA_STRAnalyzer.cc
+  src/straight_track/StraightTrackAnalyzerV0.cc
   
 #  src/ssd_dst1_dummy.cc
   src/E16DST_DST1GTRFactory_dst1_detector.cc
@@ -190,6 +194,22 @@ target_link_libraries(dst0_to_dst1_straight_check
 	E16DST
 	E16DST_DST1
 )
+#_______________________________________________________________________________
+add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
+
+target_link_libraries(run_StraightTrackAnalyzer
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+#add_executable(run_StraightTrackAnalyzer_test usr/run_StraightTrackAnalyzer_test.cc)
+
+#target_link_libraries(run_StraightTrackAnalyzer_test
+#	E16ANA_CalibDB
+#	E16DST
+#	E16DST_DST1
+#)
 
 
 ##_______________________________________________________________________________
