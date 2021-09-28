@@ -10,6 +10,10 @@ E16ANA_HBDClusterAnalysis::E16ANA_HBDClusterAnalysis(const int _module_id): modu
 {
 }
 
+E16ANA_HBDClusterAnalysis::E16ANA_HBDClusterAnalysis()
+{
+}
+
 E16ANA_HBDClusterAnalysis::~E16ANA_HBDClusterAnalysis()
 {
 }
