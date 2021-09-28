@@ -14,12 +14,14 @@ public:
   int GetNWavesDST1(){ return n_waves_dst1; };
   int GetThCSizeDST1(){ return th_csize_dst1; };
   double GetThCChargeDST1(){ return th_ccharge_dst1; };
-  
+  double GetNSigmaCADCDST1(){ return n_sigma_cadc;};
+
 private:
   double n_sigma_wf_dst1;
   int n_waves_dst1;
   int th_csize_dst1;
   double th_ccharge_dst1;
+  double n_sigma_cadc;
 };
 
 #endif // E16ANA_HBDCut_h

@@ -36,6 +36,10 @@ constexpr std::array<int, kNumFullModules> kModuleID2013To2020 = {{10, 110, 210,
 constexpr std::array<std::array<int, kNumFullModulesWidth>, kNumFullModulesHeight> kModuleID2020To2013 = {{{30, 27, 24, 21, 18, 15, 12, 9,  6, 3, 0},
                                                                                                            {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
                                                                                                            {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
+static int ModuleID2013To2020(int _module_id) { return kModuleID2013To2020[_module_id]; }
+static int ModuleID2020To2013(int _module_id) { return kModuleID2020To2013[_module_id / 100][_module_id % 100]; }
+static int ModuleID2013To2020_27(int _module_id) { return kModuleID2013To2020[_module_id - 3]; }
+static int ModuleID2020To2013_27(int _module_id) { return kModuleID2020To2013[_module_id / 100][_module_id % 100 + 1]; }
 }; // E16ANA_TrackConstant
 
 #endif // E16ANA_TRACK_CONSTANT_HH

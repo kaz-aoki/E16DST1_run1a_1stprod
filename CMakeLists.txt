@@ -5,7 +5,6 @@ project(E16DST1)
 #set(CMAKE_CXX_FLAGS "-lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-pg -lMinuit -lSpectrum")
 set(CMAKE_CXX_FLAGS "-g -lMinuit -lSpectrum")
-
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -90,10 +89,14 @@ configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePa
 add_library(E16ANA
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
+  src/LG/E16ANA_LGWaveform.cc
+  src/LG/E16ANA_LGDeadChannel.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
+  E16ANA_CalibDB/src/E16ANA_SSDcalib.cc
   src/track/E16ANA_TrackCandidate.cc
   E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
+
 )
 
 target_link_libraries(E16ANA
@@ -110,8 +113,10 @@ target_link_libraries(E16ANA
 #_______________________________________________________________________________
 add_library(E16DST_DST1
 	src/E16DST_DST1.cc
-  src/SSD/E16ANA_SSDAnalyzer.cc
-  src/SSD/E16ANA_SSDStripAnalyzer.cc
+  src/E16ANA_SSDAnalyzer.cc
+  src/E16ANA_SSDStripAnalyzer.cc
+  src/E16DST_DST1SSDAnalyzerMaker.cxx
+  src/E16DST_DST1SSDFactory.cc
   src/GTR/E16ANA_GTRAnalyzer2.cc
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
@@ -140,6 +145,7 @@ add_library(E16DST_DST1
 target_link_libraries(E16DST_DST1
   E16ANA
 	E16DST
+E16ANA_Waveform
 )
 
 #_______________________________________________________________________________

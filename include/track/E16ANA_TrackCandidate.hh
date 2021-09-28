@@ -33,29 +33,29 @@
 
 class E16ANA_TrackClusterPair {
  public:
-  E16ANA_TrackClusterPair() {}
-  E16ANA_TrackClusterPair(E16ANA_DetectorGeometry* _geom)
+  E16ANA_TrackClusterPair()
       : set_flag(0),
         layer_order(E16DST_DST1Constant::kInvalidValue), module_id(E16DST_DST1Constant::kInvalidValue),
-        geom(_geom),
         clusters({nullptr, nullptr}),
-        local_pos({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue}) {}
+        local_pos(E16DST_DST1Constant::kInvalidVector) {}
   ~E16ANA_TrackClusterPair() {}
-  void Set(E16ANA_GeometryV2& geometry, int _layer_order, int _module_id, E16DST_DST1Cluster* x_cluster) { // SSD
+  void Set(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, E16DST_DST1Cluster* x_cluster) { // SSD
     set_flag = 1;
     layer_order = _layer_order;
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = nullptr;
     local_pos = {dynamic_cast<E16DST_DST1SSDCluster*>(x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+    global_pos = _geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id))->GetGPos(local_pos);
   }
-  void Set(E16ANA_GeometryV2& geometry, int _layer_order, int _module_id, E16DST_DST1Cluster* x_cluster, E16DST_DST1Cluster* y_cluster) { // GTR
+  void Set(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, E16DST_DST1Cluster* x_cluster, E16DST_DST1Cluster* y_cluster) { // GTR
     set_flag = 1;
     layer_order = _layer_order;
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = y_cluster;
     local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(x_cluster)->LocalPos().X(), dynamic_cast<E16DST_DST1GTRCluster*>(y_cluster)->LocalPos().Y(), 0.}; // z = 0?
+    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
   }
   void Clear() {
     set_flag = 0;
@@ -67,17 +67,16 @@ class E16ANA_TrackClusterPair {
   int SetFlag() { return set_flag; }
   int LayerOrder() { return layer_order; }
   int ModuleID() { return module_id; }
-  E16ANA_DetectorGeometry* Geometry() { return geom; }
   E16DST_DST1Cluster* Cluster(int type) { return clusters[type]; }
   TVector3& LocalPos() { return local_pos; }
-  TVector3 GlobalPos() { return geom->GetGPos(local_pos); }
+  TVector3& GlobalPos() { return global_pos; }
  private:
   int set_flag;
   int layer_order; // all detector (layer_id: only GTR in E16ANA_MultiTrack)
   int module_id;
-  E16ANA_DetectorGeometry* geom;
   std::array<E16DST_DST1Cluster*, 2> clusters; // x, y
   TVector3 local_pos;
+  TVector3 global_pos;
 };
 
 class E16ANA_TrackCandidate {
@@ -144,7 +143,11 @@ class E16ANA_TrackCandidate {
     }
   }
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
-  void SetDefaultSigma();
+  void SetDefaultSigma() {
+    for (auto& s : sigma) {
+      s = kSigma;
+    }
+  }
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
   double Charge() { return charge; }
@@ -162,40 +165,26 @@ class E16ANA_TrackCandidate {
   std::vector<E16DST_DST1HBDCluster*>& ProjectionHBDClusters() { return hbd_clusters; }
   std::vector<E16DST_DST1LGHit*>& ProjectionLGHits() { return lg_hits; }
   std::vector<E16DST_DST1LGCluster*>& ProjectionLGClusters() { return lg_clusters; }
-  static TVector3 ConformalTransformation(const TVector3& h) {
-    double u = h.X() / (h.X() * h.X() + h.Z() + h.Z());
-    double v = h.Z() / (h.X() * h.X() + h.Z() + h.Z());
-    return TVector3(u, 0, v);
-  }
-  static double CalcPhaseDiff(const TVector3& v0, const TVector3& v1) {
-    double p0 = atan2(v0.X(), v0.Z());
-    double p1 = atan2(v1.X(), v1.Z());
-    double diff = p0 - p1;
-    if (diff > TMath::Pi()) {
-      diff = diff - 2. * TMath::Pi();
-    } else if (diff < -TMath::Pi()) {
-      diff = diff + 2. * TMath::Pi();
-    }
-    return diff;
-  }
-  static TVector3 CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1);
-  bool CalcRoughMomentum();
-  void SetSingleTrackFit(E16ANA_MultiTrack* single_track, int _track_id);
-  void UpdateFitResult(E16ANA_MultiTrack* fitter);
   double Fit(E16ANA_MultiTrack* fitter, bool vertex_fix_flag, bool py_fix_flag);
   void Print() {
     std::cout << "Track ID: " << track_id << ", Target ID: " << target_id << std::endl;
-    std::cout << "Tracking Layers" << std::endl;
+    std::cout << "  Vertex Position: (" << vtx_fit.X() << ", " << vtx_fit.Y() << ", " << vtx_fit.Z() << ")" << std::endl;
+    std::cout << "  Vertex Momentum: (" << mom_fit.X() << ", " << mom_fit.Y() << ", " << mom_fit.Z() << ")" << std::endl;
+    std::cout << "  Tracking Layers" << std::endl;
     for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
       auto& pair = cluster_pairs[i];
-      auto& local_pos = pair.LocalPos();
-      std::cout << "  Layer ID: " << i << ", Module ID: " << pair.ModuleID() << std::endl;
-      std::cout << "  Local Position: (" << local_pos.X() << ", " << local_pos.Y() << ", " << local_pos.Z() << std::endl;
+      auto global_pos = pair.GlobalPos();
+      auto fit_global_pos = fit_results[i].global_pos;
+      std::cout << "    Layer ID: " << i << ", Module ID: " << pair.ModuleID() << std::endl;
+      std::cout << "    Global Position (Hit): (" << global_pos.X()     << ", " << global_pos.Y()     << ", " << global_pos.Z()     << ")" << std::endl;
+      std::cout << "    Global Position (Fit): (" << fit_global_pos.X() << ", " << fit_global_pos.Y() << ", " << fit_global_pos.Z() << ")" << std::endl;
     }
   }
  private:
 //  static const int kNumLGLayers = 3;
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
+  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
+  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
     this->bfield_map = rhs.bfield_map;
@@ -220,6 +209,27 @@ class E16ANA_TrackCandidate {
   static int ModuleID2020To2013(int _module_id) { return E16ANA_TrackConstant::kModuleID2020To2013[_module_id / 100][_module_id % 100]; }
   static int ModuleID2013To2020_27(int _module_id) { return E16ANA_TrackConstant::kModuleID2013To2020[_module_id - 3]; }
   static int ModuleID2020To2013_27(int _module_id) { return E16ANA_TrackConstant::kModuleID2020To2013[_module_id / 100][_module_id % 100 + 1]; }
+  static TVector3 ConformalTransformation(const TVector3& h) {
+    double u = h.X() / (h.X() * h.X() + h.Z() + h.Z());
+    double v = h.Z() / (h.X() * h.X() + h.Z() + h.Z());
+    return TVector3(u, 0, v);
+  }
+  static double CalcPhaseDiff(const TVector3& v0, const TVector3& v1) {
+    double p0 = atan2(v0.X(), v0.Z());
+    double p1 = atan2(v1.X(), v1.Z());
+    double diff = p0 - p1;
+    if (diff > TMath::Pi()) {
+      diff = diff - 2. * TMath::Pi();
+    } else if (diff < -TMath::Pi()) {
+      diff = diff + 2. * TMath::Pi();
+    }
+    return diff;
+  }
+  static TVector3 CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1);
+  bool CalcRoughMomentum();
+  void SetTrackFit(E16ANA_MultiTrack* single_track);
+  void Projection(E16ANA_MultiTrack* fitter);
+  void UpdateFitResult(E16ANA_MultiTrack* fitter);
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   int track_id;
@@ -245,15 +255,17 @@ class E16ANA_TrackCandidate {
 
 class E16ANA_TrackCandidates {
  public:
-//  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16DST_DST1PhysicsRecord* _record)
-//      : geometry(_geometry), bfield_map(_bfield_map), record(_record) {}
-  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map,
-                         std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> _tmp_geoms,
+  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter,
+//                         std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> _tmp_geoms,
                          E16DST_DST1PhysicsRecord* _record)
-      : geometry(_geometry), bfield_map(_bfield_map), tmp_geoms(_tmp_geoms), record(_record) {}
-//                         E16DST_DST1PhysicsRecord* _record, OutputFile* _file)
-//      : geometry(_geometry), bfield_map(_bfield_map), tmp_geoms(_tmp_geoms), record(_record) { file = _file; }
+      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_fix_flag(false), py_fix_flag(false), record(_record) {}
   ~E16ANA_TrackCandidates() {}
+  void SetFlags(bool _vertex_fox_flag, bool _py_fix_flag) {
+    vertex_fix_flag = _vertex_fox_flag;
+    py_fix_flag = _py_fix_flag;
+  }
+  bool VertexFixFlag() { return vertex_fix_flag; }
+  bool PyFixFlag() { return py_fix_flag; }
   int NumTrackCandidates(int n) { return track_candidates[n].size(); }
   void SelectTracks();
   void Print() {
@@ -283,7 +295,9 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<double, kNumGTRLayers> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                                                  1. / (kYSigma[1] * kYSigma[1]),
                                                                  1. / (kYSigma[2]  * kYSigma[2])};
-  static constexpr int kNumRaughFitDegree = 3;
+  static constexpr std::array<int, 2> kNumRaughFitDegree = {3, 2}; // x, y
+  static constexpr double kRaughFitTargetXThreshold = 5.; // tmp
+  static constexpr double kRaughFitTargetYThreshold = 15.; // tmp
   static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {100., 10.};
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
   static constexpr double kHBDProjectionThreshold = 20.;
@@ -294,10 +308,10 @@ class E16ANA_TrackCandidates {
     auto z = -rot_sin * pos.Z() + rot_cos * pos.X();
     return TVector3(x, 0, z);
   }
-  static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, kNumTrackingLayersWTarget>* zz, std::array<double, kNumTrackingLayersWTarget>* zx) {
+  static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, kNumTrackingLayersWTarget>* zz, std::array<double, kNumRaughFitDegree[0]>* zx) {
     auto x = lotated_pos.X();
     auto z = lotated_pos.Z();
-    zz->at(4) += w * z * z * z * z;
+    zz->at(4) += w * z * z * z * z; // delete at
     zz->at(3) += w * z * z * z;
     zz->at(2) += w * z * z;
     zz->at(1) += w * z;
@@ -307,24 +321,28 @@ class E16ANA_TrackCandidates {
     zx->at(0) += w * x;
     return;
   }
-  static void CalcInverseMatrix(const std::array<double, 1 + E16ANA_TrackConstant::kNumTrackingLayers>& zz, std::array<std::array<double, kNumRaughFitDegree>, kNumRaughFitDegree>* line);
+  static void CalcInverseMatrix(const std::array<double, 1 + E16ANA_TrackConstant::kNumTrackingLayers>& zz, std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>* line);
   static void CalcCoefficients(const std::array<double, kNumTrackingLayersWTarget>& zx,
-                               const std::array<std::array<double, kNumRaughFitDegree>, kNumRaughFitDegree>& line,
-                               std::array<double, kNumRaughFitDegree>* corr) {
-    corr->at(0) = line[2][0] * zx[2] + line[2][1] * zx[1] + line[2][2] * zx[0];
-    corr->at(1) = line[1][0] * zx[2] + line[1][1] * zx[1] + line[1][2] * zx[0];
-    corr->at(2) = line[0][0] * zx[2] + line[0][1] * zx[1] + line[0][2] * zx[0];
+                               const std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>& line,
+                               std::array<double, kNumRaughFitDegree[0]>* corr) {
+    (*corr)[0] = line[2][0] * zx[2] + line[2][1] * zx[1] + line[2][2] * zx[0];
+    (*corr)[1] = line[1][0] * zx[2] + line[1][1] * zx[1] + line[1][2] * zx[0];
+    (*corr)[2] = line[0][0] * zx[2] + line[0][1] * zx[1] + line[0][2] * zx[0];
     return;
   }
   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
-  void SetTrackCandidates();
-  void SetHBDAndLGSignals();
+  void SetTrackCandidates(); // Set -> Make
+  void Fit();
+  void SetHBDAndLGSignals(); // Set -> Search
   void RequireLGCut();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
-  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
+  E16ANA_MultiTrack* fitter;
+//  const std::array<std::array<E16ANA_DetectorGeometry*, E16ANA_TrackConstant::kNumModules>, E16ANA_TrackConstant::kNumRemainingLayers> tmp_geoms;
+  bool vertex_fix_flag;
+  bool py_fix_flag;
   E16DST_DST1PhysicsRecord* record;
   std::array<std::vector<E16ANA_TrackCandidate>, E16ANA_TrackConstant::kNumTargets> track_candidates;
   int most_likely_target_id;
