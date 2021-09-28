@@ -43,6 +43,7 @@ const double gtr_strip_pitch_x = 0.35;
 const double gtr_strip_pitch_y = 1.40;
 const std::array<int, 3> nstrips_x = {288, 576, 864};
 const std::array<int, 3> nstrips_y = {72, 144, 216};
+const int n_gtr_layers = 3;
 //const int nstrips_100y = 72;
 ////const int nstrips_200x = 576;
 //const int nstrips_200y = 144;
