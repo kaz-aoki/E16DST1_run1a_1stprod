@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
       hbd_cut->ReadCutData(calib.CurrentRunID());
       std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
       E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
-      E16DST_DST1HBDHitAndClusterFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &event1->HBDHits(), &event1->HBDClusters());
+//      E16DST_DST1HBDHitAndClusterFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &event1->HBDHits(), &event1->HBDClusters());
 //HBD---------------
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());

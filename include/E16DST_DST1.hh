@@ -728,6 +728,78 @@ class E16DST_DST1Trigger {
   std::vector<E16DST_DST1TriggerTrackSet> track_sets;
 };
 
+class E16DST_DST1StraightTrack2D {
+public:
+  E16DST_DST1StraightTrack2D()
+//      : wire_x(E16DST_DST1Constant::kInvalidValue)
+//        initial_pos_at_wire_yz(E16DST_DST1Constant::kInvalidVector),
+//        initial_mom(E16DST_DST1Constant::kInvalidVector),
+//        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue})
+         {}
+  ~E16DST_DST1StraightTrack2D() {}
+  void Clear(){
+//    wire_x                 = E16DST_DST1Constant::kInvalidValue;
+//    initial_pos_at_wire_yz = E16DST_DST1Constant::kInvalidVector;
+//    initial_mom            = E16DST_DST1Constant::kInvalidVector;
+//    original_cluster_indexes.fill(E16DST_DST1Constant::kInvalidValue);
+//    hbd_indexes.clear();
+//    lg_indexes.clear();
+    }
+//
+//
+   int16_t ModuleID(){return module_id;}
+   float Chi2(){return chi2;} 
+   float TgtZ(){return tgt_z;} 
+   float Distance(){return distance;} 
+   float SSDResidualExSelf(){return residual_ssd_ex_self;} 
+   E16DST_DST1SSDCluster* SSDCluster(){return xclusterssd ;} 
+   E16DST_DST1GTRCluster* GTR100XCluster(){return xcluster100 ;} 
+   E16DST_DST1GTRCluster* GTR200XCluster(){return xcluster200 ;} 
+   E16DST_DST1GTRCluster* GTR300XCluster(){return xcluster300 ;} 
+   TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
+   TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
+   TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
+   void SetModuleID(float _mid){module_id = _mid;}
+   void SetChi2(float _chi2){chi2 = _chi2;}
+   void SetTgtZ(float _tgtz){tgt_z = _tgtz;}
+   void SetDistance(float _distance){distance = _distance;}
+   void SetSSDResidualExSelf(float _res){residual_ssd_ex_self = _res;}
+   void SetSSDCluster(E16DST_DST1SSDCluster *_cluster){xclusterssd = _cluster;}
+   void SetGTR100XCluster(E16DST_DST1GTRCluster *_cluster){xcluster100 = _cluster;}
+   void SetGTR200XCluster(E16DST_DST1GTRCluster *_cluster){xcluster200 = _cluster;}
+   void SetGTR300XCluster(E16DST_DST1GTRCluster *_cluster){xcluster300 = _cluster;}
+   void SetPtOnTrackGTR100(TVector2 _pt0){point_on_track_gtr100 = _pt0;}
+   void SetPtOnTrackGTR300(TVector2 _pt0){point_on_track_gtr300 = _pt0;}
+   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
+   
+private:
+   int16_t module_id;
+//   int16_t id100hit; 
+//   int16_t id200hit; 
+//   int16_t id300hit; 
+   float chi2;
+   float tgt_z;
+   float distance;//from a nearest target
+   E16DST_DST1SSDCluster *xclusterssd;
+   E16DST_DST1GTRCluster *xcluster100;
+   E16DST_DST1GTRCluster *xcluster200;
+   E16DST_DST1GTRCluster *xcluster300;
+   TVector2 point_on_track_gtr100;	
+   TVector2 point_on_track_gtr300;	
+   TVector2 point_on_track_3000mm;
+   float residual_ssd_ex_self;
+   float residual_100;	
+   float residual_200;	
+   float residual_300;
+   TVector2 pt0_on_track;	
+   TVector2 pt1_on_track;	
+   TVector2 pt2_on_track;	
+   
+//
+//
+};
+
+
 class E16DST_DST1WireTrack {
  public:
   E16DST_DST1WireTrack()
@@ -766,7 +838,7 @@ class E16DST_DST1WireTrack {
   std::vector<int16_t> hbd_indexes;
   std::vector<int16_t> lg_indexes;
 };
-
+//
 //class E16DST_DST1Track {
 // public:
 //  E16DST_DST1Track()
@@ -1169,7 +1241,8 @@ int E16DST_DST1GTRFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0GTRHit>& hi
 //int E16DST_DST1HBDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* gtr1);
 int E16DST_DST1LGFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>*  lg1);
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
-int E16DST_DST1WireTrackFactory(E16DST_DST1SSDCluster& ssd_clusters, E16DST_DST1GTRCluster& gtr_clusters, E16DST_DST1WireTrack* wire_tracks);
+//int E16DST_DST1WireTrackFactory(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> &ssd_detector, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> &gtr_detector, E16ANA_GeometryV2 *geom);
+int E16DST_DST1WireTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,std::vector<E16DST_DST1StraightTrack2D> &st_tracks,  E16ANA_GTRcalibPedestal& gtrped, E16ANA_GeometryV2 *geom);
 //int E16DST_DST1WireTrackFactory(E16DST_DST1PhysicsRecord* record);
 int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record);
 //int E16DST_DST1TrackFactory(E16DST_DST1PhysicsRecord* record);
