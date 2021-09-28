@@ -134,7 +134,6 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
-  src/GTR/E16ANA_STRAnalyzer.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   
 #  src/ssd_dst1_dummy.cc
