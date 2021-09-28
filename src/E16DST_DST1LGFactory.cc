@@ -9,12 +9,13 @@
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1, int fitoption ) {
 
   static E16ANA_LGBasic lgbasic;
+  static E16ANA_LGDeadChannel lgdead;
   static bool is_first=true;
   if(is_first){
     lgbasic.SetMap();
     lgbasic.SetCalibMap();
     lgbasic.SetTemplate();
-    lgbasic.SetDeadChannelMap();
+    lgdead.ReadDeadChannelData();
     is_first=false;
   }
 
@@ -36,9 +37,9 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
     double t0 = lgbasic.GetT0(hit0.ModuleID(),hit0.BlockID());
-    int ch_status = lgbasic.GetDeadChannel(hit0.ModuleID(),hit0.BlockID());
-    if( ch_status!=0 ){
-      //std::cout<<"Dead Channel Status: "<<hit0.ModuleID()<<" "<<hit0.BlockID()<<" "<<ch_status<<std::endl;
+    int status = lgdead.Status(hit0.ModuleID(),hit0.BlockID());
+    if( status!=0 ){
+      //std::cout<<"Dead Channel Status: "<<hit0.ModuleID()<<" "<<hit0.BlockID()<<" "<<status<<std::endl;
       continue;
     }
 
@@ -100,6 +101,38 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     for(int l=0;l<npeaks;l++){//npeaks loop
       double fitpeak = lgwf->GetPeaks()[l];
       double fitpeaktime = lgwf->GetPeakxs()[l];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       double fittiming = lgwf->GetTimings()[l];
       double fitwidth = lgwf->GetWidths()[l];
       double fitchi2 = lgwf->GetChi2s()[l];
