@@ -140,6 +140,7 @@ add_library(E16DST_DST1
 target_link_libraries(E16DST_DST1
   E16ANA
 	E16DST
+E16ANA_Waveform
 )
 
 #_______________________________________________________________________________

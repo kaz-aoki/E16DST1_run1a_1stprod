@@ -1,0 +1,1 @@
+/usr/bin/c++  -lSpectrum   CMakeFiles/geometryTest.dir/examples/geometryTest.cc.o  -o /ccj/u/kkanno/e16/E16DST1/install/bin/geometryTest  -lz /ccj/u/kkanno/e16/E16DST1/install/lib/libE16ANA_GeometryV2.a -lz 

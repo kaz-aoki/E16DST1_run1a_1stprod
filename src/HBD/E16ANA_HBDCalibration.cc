@@ -22,9 +22,11 @@ bool E16ANA_HBDCalibration::ReadCalibrationData(const int runID){
   
   std::string hbd_pedestal_file = calib.CalibFileName("HBD-pedestal", runID);
   std::string hbd_gain_file = calib.CalibFileName("HBD-gain", runID);
+  std::string hbd_gain_calibration_status = calib.CalibFileName("HBD-calib-status", runID);
   
   this->ReadPedestalAndNoiseFile(hbd_pedestal_file.c_str());
   this->ReadGainFile(hbd_gain_file.c_str());
+  this->ReadGainCalibrationStatusFile(hbd_gain_calibration_status.c_str());
 }
 
 bool E16ANA_HBDCalibration::ReadPedestalAndNoiseFile(const char *filename){
@@ -85,6 +87,31 @@ bool E16ANA_HBDCalibration::ReadGainFile(const char *filename){
   }
   else{
     std::cerr<<__func__<<" invalid calibration filename"<<std::endl;
+    return false;
+  }
+}
+
+bool E16ANA_HBDCalibration::ReadGainCalibrationStatusFile(const char *filename){
+  std::ifstream fin(filename);
+  
+  int status;
+  if( fin ){
+    std::string buf_line;
+    for(;;){
+      if(fin.eof()) break;
+      std::getline(fin, buf_line);
+      
+      if(buf_line[0] == '#' || buf_line[0] == '\0') continue;
+
+      std::stringstream ss(buf_line);
+      ss>>status;
+      if(status == 0) gain_calibration_status = true;//normal operation (high)
+      if(status == 1) gain_calibration_status = false;//low gain operation (default)
+      return true;
+    }    
+  }
+  else{
+    std::cerr<<__func__<<" invalid calibration status filename"<<std::endl;
     return false;
   }
 }
