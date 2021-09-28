@@ -192,14 +192,7 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16DST
 	E16DST_DST1
 )
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_straight_check usr/dst0_to_dst1_straight_check.cc)
 
-target_link_libraries(dst0_to_dst1_straight_check
-	E16ANA_CalibDB
-	E16DST
-	E16DST_DST1
-)
 #_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
