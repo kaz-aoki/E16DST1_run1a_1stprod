@@ -15,6 +15,9 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1Constant.hh"
 
+#include "E16ANA_HBDCalibration.hh"
+#include "E16ANA_HBDCut.hh"
+#include "E16ANA_WaveformFitter.hh"
 //#pragma pack(2)
 
 class E16DST_DST1Hit {
@@ -301,7 +304,11 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
         time_difference(E16DST_DST1Constant::kInvalidValue),
 	csize(E16DST_DST1Constant::kInvalidValue),
 	eprob(E16DST_DST1Constant::kInvalidValue),
-	lpos(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue,E16DST_DST1Constant::kInvalidValue){};
+	cprob(E16DST_DST1Constant::kInvalidValue),
+	sadc(E16DST_DST1Constant::kInvalidValue),
+	lpos(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue,E16DST_DST1Constant::kInvalidValue),
+	lpos_w_adc(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue,E16DST_DST1Constant::kInvalidValue){};
+  
   ~E16DST_DST1HBDCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
@@ -309,19 +316,28 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
     time_difference = E16DST_DST1Constant::kInvalidValue;
     csize = E16DST_DST1Constant::kInvalidValue;
     eprob = E16DST_DST1Constant::kInvalidValue;
+    cprob = E16DST_DST1Constant::kInvalidValue;
+    sadc = E16DST_DST1Constant::kInvalidValue;
     lpos = TVector3(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue);
+    lpos_w_adc = TVector3(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue);
   }
   void SetFastestTiming(float _fastest_timing){ fastest_timing = _fastest_timing; };
   void SetTimeDifference(float _time_difference){ time_difference = _time_difference; };
   void SetClusterSize(int _csize){ csize = _csize; };
   void SetLocalPos(TVector3 _lpos){ lpos = _lpos; };
+  void SetLocalPosWADC(TVector3 _lpos){ lpos_w_adc = _lpos; };
   void SetEProb(float _eprob){ eprob = _eprob; };
+  void SetCProb(float _cprob){ cprob = _cprob; };
+  void SetSADC(float _sadc){ sadc = _sadc; };
   float FastestTiming() { return fastest_timing; }
   float TimeDifference() { return time_difference; }
   int ClusterSize(){ return csize; };
   float IsE(){ return eprob;};
+  float IsChargedParticle(){ return cprob;};
+  float SADC(){ return sadc; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPosWADC(E16ANA_GeometryV2& geometry);
   int GetSize() override {}
   void Print() override {}
  private:
@@ -330,7 +346,11 @@ class E16DST_DST1HBDCluster : public E16DST_DST1Cluster {
   float time_difference;
   int csize; //cluster size = the number of pads belonging to a cluster
   float eprob;
+  float cprob;
+  float sadc;
   TVector3 lpos;
+  TVector3 lpos_w_adc;
+  int calib_status;
 };
 
 class E16DST_DST1LGHit : public E16DST_DST1Hit {
@@ -968,7 +988,7 @@ class E16DST_DST1RecordHeader {
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST0Detector<E16DST_DST1SSDHit>* hits1, E16DST_DST0Detector<E16DST_DST1SSDCluster>* clusters1);
 //class E16DST_DST1GTRAnalyzerMaker;
 int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST0Detector<E16DST_DST1GTRHit>* hits1, E16DST_DST0Detector<E16DST_DST1GTRCluster>* clusters1, E16ANA_GTRcalibPedestal &gtrped);
-int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
+int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16ANA_HBDCalibration *hbd_calib, E16ANA_HBDCut *hbd_cut, E16ANA_WaveformFitter *wf1d_fitter, E16DST_DST0Detector<E16DST_DST1HBDHit>* hits1, E16DST_DST0Detector<E16DST_DST1HBDCluster>* clusters1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0,   E16DST_DST0Detector<E16DST_DST1LGHit>* hits1,  E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1);
 //int E16DST_DST1SSDFactoryDST1Detector(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* gtr1);
 int E16DST_DST1GTRFactoryDST1Detector(E16ANA_GTRcalibPedestal& gtrped, E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1);

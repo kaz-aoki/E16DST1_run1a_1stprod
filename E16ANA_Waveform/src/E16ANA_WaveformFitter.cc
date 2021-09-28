@@ -79,6 +79,21 @@ void E16ANA_WaveformFitter::PrintFitCheck(TH1F *h, TGraph *g){
    }
 }
 
+double E16ANA_WaveformFitter::GetTimeOverThreshold(const int ith_wave, const double rel_height){
+  double f = 0.;
+  if(0. <= rel_height && rel_height <= 1){
+    double t0 = this->GetWaveformTime(ith_wave);
+    for(int i=0; i<100; i++){// nsec
+      double x = wf_temp->GetValue(i);
+      if(x >= rel_height){
+        f = t0 + i;
+        break;
+      }
+    }
+  }
+  return f;
+}
+
 void E16ANA_WaveformFitter::SetWaveform(const double *_fadc, int size){
    waveform.clear();
    waveform.resize(size);

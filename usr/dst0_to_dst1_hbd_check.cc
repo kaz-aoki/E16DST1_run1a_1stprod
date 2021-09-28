@@ -11,6 +11,12 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
+//-----HBD
+#include "E16ANA_HBDCalibration.hh"
+#include "E16ANA_HBDCut.hh"
+#include "E16ANA_WaveformFitter.hh"
+//-----HBD
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -106,7 +112,16 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
       std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
-//      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
+      
+//HBD---------------
+      E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
+      hbd_calib->ReadCalibrationData(calib.CurrentRunID());
+      E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
+      hbd_cut->ReadCutData(calib.CurrentRunID());
+      std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+      E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+      E16DST_DST1HBDHitAndClusterFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &event1->HBDHits(), &event1->HBDClusters());
+//HBD---------------
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
@@ -138,7 +153,8 @@ int main(int argc, char* argv[]) {
 //      }
 //      
 //// HBD
-//
+     
+
 //// LG
 //      if (event1->LGHits().NumberOfHits() != 0) {
 //        auto lghit = event1->LGHits().Hit(0);                                                          

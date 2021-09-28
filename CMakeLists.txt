@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-set(CMAKE_CXX_FLAGS "-lSpectrum")
+#set(CMAKE_CXX_FLAGS "-lSpectrum")
+set(CMAKE_CXX_FLAGS "-lSpectrum -lMinuit")
 set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${DIR}/../install/bin)
 set(LIBRARY_OUTPUT_PATH ${DIR}/../install/lib)
@@ -110,6 +111,7 @@ target_link_libraries(E16DST_DST1
   E16ANA
   E16ANA_GeometryV2
 	E16DST
+E16ANA_Waveform
 )
 
 #_______________________________________________________________________________
