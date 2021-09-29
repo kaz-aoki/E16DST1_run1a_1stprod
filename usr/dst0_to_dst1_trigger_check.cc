@@ -22,7 +22,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.root (0)] [output.root (1)] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.root (all tracks)] [output.root (selected tracks)] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];

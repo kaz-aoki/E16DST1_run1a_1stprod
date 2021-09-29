@@ -577,11 +577,15 @@ class CheckFile {
       gy_fit[i] = gposs_fit[i](1);
       gz_fit[i] = gposs_fit[i](2);
     }
-    xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
-    ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
-    if (chi_square < 10000000) {
-      good_xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
-      good_ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
+    if (xz_track_graphs.size() < 100) {
+      xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
+      ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
+    }
+    if (good_xz_track_graphs.size() < 100) {
+      if (chi_square < 10000000) {
+        good_xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
+        good_ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
+      }
     }
     vtx_gpos_fit = vtx;
     vtx_gmom_fit = mom;
@@ -641,8 +645,10 @@ class CheckFile {
       gy_hit[i] = gposs_hit[i](1);
       gz_hit[i] = gposs_hit[i](2);
     }
-    xz_track_graphs_hit.emplace_back(new TGraph(n_point, x, z));
-    ry_track_graphs_hit.emplace_back(new TGraph(n_point, r, y));
+    if (xz_track_graphs_hit.size() < 100) {
+      xz_track_graphs_hit.emplace_back(new TGraph(n_point, x, z));
+      ry_track_graphs_hit.emplace_back(new TGraph(n_point, r, y));
+    }
     return;
   }
   void AddEntry(int _event_id, E16ANA_TrackCandidate& cand) {
