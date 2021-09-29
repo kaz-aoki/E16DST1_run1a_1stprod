@@ -1,0 +1,11 @@
+#Target-run0-wireL-210801.txt 210910 by S. Yokkaichi
+#    Last modified at <2021-09-10 15:25:28 >
+#
+#
+#patternID / number of targets
+2 2
+# x,y,z ,  sigmax,sigmay,sigmaz[mm]  A,  name  #comment
++20.0   0.0   -40.0    0.05  10.0   0.05    184  W
++20.0   0.0   +40.0    0.05  10.0   0.05    184  W
+
+
