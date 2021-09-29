@@ -1,5 +1,5 @@
-#ifndef HBD_Constant_h
-#define HBD_Constant_h
+#ifndef E16ANA_HBDConstant_h
+#define E16ANA_HBDConstant_h
 
 #include "E16DST_Constant.hh"
 

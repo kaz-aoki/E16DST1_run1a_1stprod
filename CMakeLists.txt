@@ -37,6 +37,8 @@ include_directories(
 	include/HBD
 	include/GTR
 	include/LG
+    include/SSD
+	include/GTR
 	include/trigger
 	include/track
   E16DST
@@ -92,6 +94,8 @@ add_library(E16ANA
 #  E16ANA_CalibDB/src/E16ANA_GTRcalib.cc
   src/LG/E16ANA_LGBasic.cc
   src/LG/E16ANA_LGGeometry.cc
+  src/LG/E16ANA_LGWaveform.cc
+  src/LG/E16ANA_LGDeadChannel.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -132,6 +136,8 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDTH2Hex.cc
 	src/E16DST_DST1TriggerFactory.cc
 	src/E16DST_DST1TrackFactory.cc
+  src/E16DST_DST1WireTrackFactory.cc
+  src/straight_track/StraightTrackAnalyzerV0.cc
   
   src/E16DST_DST1GTRFactory_dst1_detector.cc
 #  src/E16DST_DST1HBDFactory_dst1_detector.cc
@@ -141,6 +147,7 @@ add_library(E16DST_DST1
 target_link_libraries(E16DST_DST1
   E16ANA
 	E16DST
+E16ANA_Waveform
 )
 
 #_______________________________________________________________________________
@@ -202,6 +209,15 @@ target_link_libraries(dst0_to_dst1_trigger_check
 #	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
+)
+
+#_______________________________________________________________________________
+add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
+
+target_link_libraries(run_StraightTrackAnalyzer
+	E16ANA_CalibDB
+	E16DST
+	E16DST_DST1
 )
 
 #_______________________________________________________________________________

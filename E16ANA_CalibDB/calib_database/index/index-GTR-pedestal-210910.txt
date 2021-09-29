@@ -1,0 +1,21 @@
+#index-SSD-pedestal-210619.txt 210620 by S. Yokkaichi
+#    Last modified at <2021-08-11 17:32:29 >
+#
+# valid only two columns:  comment for 3rd or more
+# runID filename comment
+#
+  0    GTR/pedestal/210910/gtr_pedestal_030202.txt    for error
+#  9999 SSD/pedestal/210619/SSD-pedestal-run9999-210619.idat    run0a upto 9999
+# 29999 SSD/pedestal/210619/SSD-pedestal-run29999-210619.dat   run0b upto 29999
+# 39999 SSD/pedestal/210619/SSD-pedestal-run39999-210619.dat   run0c upto 39999
+  30270 GTR/pedestal/210910/gtr_pedestal_030202.txt    
+  30345 GTR/pedestal/210910/gtr_pedestal_030346.txt    
+  30402 GTR/pedestal/210910/gtr_pedestal_030202.txt    
+  30440 GTR/pedestal/210910/gtr_pedestal_030441.txt    
+  30470 GTR/pedestal/210910/gtr_pedestal_030346.txt    
+  30539 GTR/pedestal/210910/gtr_pedestal_030540.txt    
+  30694 GTR/pedestal/210910/gtr_pedestal_030614.txt 
+  30778 GTR/pedestal/210910/gtr_pedestal_030695.txt 
+  30799 GTR/pedestal/210910/gtr_pedestal_030799.txt 
+  30873 GTR/pedestal/210910/gtr_pedestal_030833.txt 
+  999999 GTR/pedestal/210910/gtr_pedestal_030202.txt    for error

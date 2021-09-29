@@ -92,7 +92,11 @@ string E16ANA_CalibDBManager::SearchIndexFileForCalibFileName(string indexfilena
   s>>comment;
 
   ifs.close();
+
   return string(CalibPATH + filename);
+
+
+
 
 }
 
@@ -101,6 +105,8 @@ string E16ANA_CalibDBManager::CalibFileName(string key, int runID){
   string calibfilename("");
   if( indexfilename != "" ){
     calibfilename = SearchIndexFileForCalibFileName(indexfilename, runID);
+   std::cout << std::endl;
+   std::cout << "calibfile =  " << calibfilename<< std::endl;
   }
   return calibfilename;
 }
