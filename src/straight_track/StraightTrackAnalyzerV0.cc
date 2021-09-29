@@ -3,7 +3,6 @@
 #include "TGraphErrors.h"
 #include <TF1.h>
 #include "StraightTrackAnalyzerV0.h"
-#include "GTRGeometry.h"
 #include "OnlineGTRUtility.h"
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_CalibDBManager.hh"
