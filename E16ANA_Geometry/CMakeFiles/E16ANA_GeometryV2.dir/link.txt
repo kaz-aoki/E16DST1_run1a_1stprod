@@ -1,2 +1,0 @@
-/usr/bin/ar qc /ccj/u/kkanno/e16/E16DST1/install/lib/libE16ANA_GeometryV2.a  CMakeFiles/E16ANA_GeometryV2.dir/src/E16ANA_GeometryV2.cc.o CMakeFiles/E16ANA_GeometryV2.dir/src/E16ANA_Geometry.cc.o CMakeFiles/E16ANA_GeometryV2.dir/src/E16ANA_Transform.cc.o
-/usr/bin/ranlib /ccj/u/kkanno/e16/E16DST1/install/lib/libE16ANA_GeometryV2.a

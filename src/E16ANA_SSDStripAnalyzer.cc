@@ -801,8 +801,8 @@ void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
       temp_cc += fadc_peak[id];
       // temp_cog += fadc_peak[id]*id;
       temp_cog += fadc_peak[id] * GetPosition(id);
-      cout << "id=" << id << endl;
-      cout << "pos=" << GetPosition(id) << endl;
+//      cout << "id=" << id << endl;
+//      cout << "pos=" << GetPosition(id) << endl;
       hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id]);
    }
    temp_cog /= temp_cc;

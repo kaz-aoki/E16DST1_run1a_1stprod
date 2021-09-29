@@ -9,21 +9,27 @@
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
+#include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+
+#include "E16ANA_TrackCandidate.hh"
+
+#include "TCanvas.h"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.root (0)] [output.root (1)] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
-  auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
+  auto out_file_name0 = argv[2];
+  auto out_file_name1 = argv[3];
+  auto run_id        = stoi(argv[4]);
+  auto max_event     = stoi(argv[5]);
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -89,15 +95,18 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
 
+//  CheckFile check_file;
+  CheckFile check_file0(out_file_name0);
+  CheckFile check_file1(out_file_name1);
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
     if (max_event != -1 && n_physics_event >= max_event) {
       break;
     }
-    if (n_event % 1000 == 0) {
+//    if (n_event % 1000 == 0) {
       cout << "Number of event: " << n_event << endl;
-    }
+//    }
     auto event_type = dst0->EventType();
 //    dst1->SetEventType(event_type);
     if (event_type == E16DST_DST0EventType::Physics) {
@@ -111,23 +120,19 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
-//      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      E16DST_DST1SSDFactory_dummy(ssd_hits0, &record->SSD());
+      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD().Hits(), &record->SSD().Clusters());
       record->SSD().UpdatePtrs();
 //      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped);
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
       E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
       record->GTR().UpdatePtrs();
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-//      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
+      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &record->LG());
+      record->LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
-//      event1->GTR().SetValidFlag(1);
-//      event1->LG().SetValidFlag(1);
-//      event1->Trigger().SetValidFlag(1);
-
+//      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file0, &check_file1);
 
 //// Check begin
 //      auto event_id = event0->EventID();
@@ -163,6 +168,8 @@ int main(int argc, char* argv[]) {
 //// trigger
 //      event1->Trigger().Print(*geometry);
 //
+// track
+      record->Tracks().Print();
 //// other
 ////      event1->GTR().Print();
 ////
