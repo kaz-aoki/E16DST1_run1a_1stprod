@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
       record->GTR().UpdatePtrs();
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &record->LG());
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
       record->LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);

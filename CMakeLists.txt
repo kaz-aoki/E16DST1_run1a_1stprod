@@ -37,9 +37,10 @@ include_directories(
 	include/HBD
 	include/GTR
 	include/LG
-    include/SSD
+  include/SSD
 	include/GTR
 	include/trigger
+	include/straight_track
 	include/track
   E16DST
 #  E16ANA_CalibDB/include
@@ -123,31 +124,28 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRAnalyzer2.cc
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
-  src/E16DST_DST1GTRHitAndClusterFactory.cc
   src/GTR/E16ANA_GTRPedestal.cc
-  src/E16DST_DST1LGFactory.cc
   src/GTR/GTRCheckHist.cc
-  src/E16DST_DST1HBDHitAndClusterFactory.cc
   src/HBD/E16ANA_HBDChannelManager.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
   src/HBD/E16ANA_HBDCut.cc
   src/HBD/E16ANA_HBDCalibration.cc
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
+  src/E16DST_DST1GTRHitAndClusterFactory.cc
+  src/E16DST_DST1LGFactory.cc
+  src/E16DST_DST1HBDHitAndClusterFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
-	src/E16DST_DST1TrackFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
+	src/E16DST_DST1TrackFactory.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
-  
+
   src/E16DST_DST1GTRFactory_dst1_detector.cc
-#  src/E16DST_DST1HBDFactory_dst1_detector.cc
-  src/E16DST_DST1LGFactory_dst1_detector.cc
 )
 
 target_link_libraries(E16DST_DST1
   E16ANA
 	E16DST
-E16ANA_Waveform
 )
 
 #_______________________________________________________________________________
@@ -215,7 +213,7 @@ target_link_libraries(dst0_to_dst1_trigger_check
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
-	E16ANA_CalibDB
+#	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
 )
