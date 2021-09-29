@@ -22,7 +22,7 @@ TVector3 E16DST_DST1SSDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1SSDCluster::LocalPos() {
-  return TVector3(0., 0., 0.);
+  return TVector3(center_of_gravity, 0., 0.);
 }
 
 TVector3 E16DST_DST1SSDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {

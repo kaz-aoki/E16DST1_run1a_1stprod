@@ -1,2 +1,0 @@
-#run_num	filename_gainbych	comment
-39999	LG/WFtemplate/210916/LG-WFtemplate-run39999-210916.txt	behind SL in run0a
