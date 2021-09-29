@@ -1,6 +1,8 @@
 # E16DST1
 ・e16evb02、ccjbox6でcompileできることを確認済みです。
 
+・CmakeLists.txtに二か所、include/E16DST_DST1DefaultFilePath.hh.inに一か所evb<->ccjで選択が必要な行があるので、それぞれで使うときは確認してください。
+
 ・src/E16DST_DST1xxxHitAndCluster.cc内に
 
 　int E16DST_DST1xxxHitAndCluster()と
