@@ -10,6 +10,9 @@
 　E16DST_DST1xxxHit (とCluster) ::LocalPos(), GlobalPos()
 
 　を実装してください。
+ 
+
+・run0b (DST version4) のデータを見る場合はE16DSTに古いE16DSTを持ってきて使ってください。
 
 ・もう少し詳しいことはindicoの"analysis_meeting/2021.08.04/trigger"のスライドを見てください。
 
