@@ -6,7 +6,7 @@
 #include "E16ANA_GTRPedestal.h"
 #include "E16ANA_GTRStripAnalyzer.h"
 #include "E16DST_DST0.hh"
-#include "GTRGeometry.h"
+//#include "GTRGeometry.h"
 #include "E16ANA_SSDAnalyzer.h"
 #include "E16ANA_SSDStripAnalyzer.h"
 //#include "E16ANA_SSDPedestal.h"
