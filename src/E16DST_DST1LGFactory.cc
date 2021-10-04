@@ -6,7 +6,7 @@
 #include "E16ANA_LGWaveform.hh"
 #include "E16ANA_LGDeadChannel.hh"
 
-int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST0Detector<E16DST_DST1LGHit>* hits1, E16DST_DST0Detector<E16DST_DST1LGCluster>* clusters1, int fitoption ) {
+int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1, int fitoption ) {
 
   static E16ANA_LGBasic lgbasic;
   static E16ANA_LGDeadChannel lgdead;
@@ -21,9 +21,10 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
   //  auto hit1 = new E16DST_DST1LGHit();
   //  auto cluster1 = new E16DST_DST1LGClusters();
+  auto& hits1 = lg1->Hits();
   auto max_hit = hits0.NumberOfHits();
-  //  hits1->Reserve(max_hit);
-  hits1->Resize(max_hit*2);
+  //  hits1.Reserve(max_hit);
+  hits1.resize(max_hit*2);
   //  clusters1->Reserve(max_hit);
 
   int n_dst1hit = 0;
@@ -110,24 +111,24 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       if( peaktime>E16ANA_LGConstant::kHitTimeStart && 
 	peaktime<E16ANA_LGConstant::kHitTimeEnd && timing>-100 ){//dst1hit condition
 
-      hits1->Hit(n_dst1hit).SetInvalid();
-      hits1->Hit(n_dst1hit).SetIds(hit0.ModuleID(), hit0.BlockID());
+      hits1[n_dst1hit].SetInvalid();
+      hits1[n_dst1hit].SetIds(hit0.ModuleID(), hit0.BlockID());
 
-      hits1->Hit(n_dst1hit).SetTiming((float)timing);
-      hits1->Hit(n_dst1hit).SetPeakHeight((float)peakheight);
-      hits1->Hit(n_dst1hit).SetPeakTime(peaktime);
-      hits1->Hit(n_dst1hit).SetBaseline((float)baseline);
-      hits1->Hit(n_dst1hit).SetBaselineRms((float)baselinerms);
-      hits1->Hit(n_dst1hit).SetIntegral((float)integral);
-      //hits1->Hit(n_dst1hit).SetNpeaks((int)npsfit);
-      hits1->Hit(n_dst1hit).SetNpeaks((int)npeaks);
-      hits1->Hit(n_dst1hit).SetNpeak((int)npeak);
-      hits1->Hit(n_dst1hit).SetFitFlag((int)fitflag);
-      hits1->Hit(n_dst1hit).SetFitPeak((float)fitpeak);
-      hits1->Hit(n_dst1hit).SetFitPeakTime((float)fitpeaktime);
-      hits1->Hit(n_dst1hit).SetFitTiming((float)fittiming);
-      hits1->Hit(n_dst1hit).SetFitWidth((float)fitwidth);
-      hits1->Hit(n_dst1hit).SetFitChi2((float)fitchi2);
+      hits1[n_dst1hit].SetTiming((float)timing);
+      hits1[n_dst1hit].SetPeakHeight((float)peakheight);
+      hits1[n_dst1hit].SetPeakTime(peaktime);
+      hits1[n_dst1hit].SetBaseline((float)baseline);
+      hits1[n_dst1hit].SetBaselineRms((float)baselinerms);
+      hits1[n_dst1hit].SetIntegral((float)integral);
+      //hits1.Hit(n_dst1hit).SetNpeaks((int)npsfit);
+      hits1[n_dst1hit].SetNpeaks((int)npeaks);
+      hits1[n_dst1hit].SetNpeak((int)npeak);
+      hits1[n_dst1hit].SetFitFlag((int)fitflag);
+      hits1[n_dst1hit].SetFitPeak((float)fitpeak);
+      hits1[n_dst1hit].SetFitPeakTime((float)fitpeaktime);
+      hits1[n_dst1hit].SetFitTiming((float)fittiming);
+      hits1[n_dst1hit].SetFitWidth((float)fitwidth);
+      hits1[n_dst1hit].SetFitChi2((float)fitchi2);
       //      cluster1->SetMaxPeakCh(hit0.BlockID());
       //      cluster1->SetMaxPeakHeight(peakheight);
       //      cluster1->SetTiming(timing);
@@ -143,8 +144,9 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
   }//dst0hit loop
 
-  hits1->Resize(n_dst1hit);
+  hits1.resize(n_dst1hit);
 
-  return hits1->GetEventSize();
+//  return hits1.GetEventSize();
+  return 1;
 
 }
