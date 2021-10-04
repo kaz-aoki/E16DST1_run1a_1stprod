@@ -184,7 +184,7 @@ void E16ANA_LGBasic::SetTemplate(){
   fclose(fp_wf);
 }
 
-void E16ANA_LGBasic::SetDeadChannelMap(){
+void E16ANA_LGBasic::ReadDeadChannelData(){
 
   E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
   FILE* fp_dc = calib.CalibFileOpenBinary("LG-deadch", calib.CurrentRunID() );
@@ -208,7 +208,7 @@ void E16ANA_LGBasic::SetDeadChannelMap(){
 
 }
 
-int E16ANA_LGBasic::GetDeadChannel(uint16_t module, uint16_t block){
+int E16ANA_LGBasic::DeadChannelStatus(uint16_t module, uint16_t block){
   int status = deadchmap[module][block];
   return status;
 }
