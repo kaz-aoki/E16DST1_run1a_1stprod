@@ -11,6 +11,7 @@
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+#include "E16DST_DST1DetectorFactory.hh"
 
 //----arimizu include----
 #include <TH1I.h>
@@ -190,9 +191,9 @@ int main(int argc, char* argv[]) {
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
       auto timestamp         = event0->TimeStamp();
-      vector<E16DST_DST1SSDHit> hits;
-      vector<E16DST_DST1SSDCluster> clusters;
-      E16DST_DST1SSDFactory(ssd_hits0, &hits, &clusters);
+      auto& hits = record->SSD().Hits();
+      auto& clusters = record->SSD().Clusters();
+      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       //E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters());
       //E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
       //E16DST_DST1LGHitAndClusterFactorylg_hits0,   event1->LGHits(),  event1->LGClusters());
