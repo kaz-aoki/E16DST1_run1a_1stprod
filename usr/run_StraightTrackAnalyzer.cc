@@ -20,6 +20,7 @@
 #include "E16ANA_RundependentName.hh"
 #include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16DST_DST1.hh"
+#include "E16DST_DST1DetectorFactory.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
     E16DST_DST0PhysicsEvent *event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
     auto& gtr_hits0 = event0->GTR();
     auto& ssd_hits0 = event0->SSD();
-    E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
+    E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
     record->GTR().UpdatePtrs();
 //    &record->GTR();
 	std::vector<E16DST_DST1StraightTrack2D> st_tracks;
