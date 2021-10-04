@@ -101,38 +101,6 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     for(int l=0;l<npeaks;l++){//npeaks loop
       double fitpeak = lgwf->GetPeaks()[l];
       double fitpeaktime = lgwf->GetPeakxs()[l];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       double fittiming = lgwf->GetTimings()[l];
       double fitwidth = lgwf->GetWidths()[l];
       double fitchi2 = lgwf->GetChi2s()[l];
