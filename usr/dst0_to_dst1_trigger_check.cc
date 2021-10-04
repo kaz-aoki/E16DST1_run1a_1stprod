@@ -120,11 +120,11 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
-      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD().Hits(), &record->SSD().Clusters());
+      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       record->SSD().UpdatePtrs();
 //      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped);
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
-      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
+      E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       record->GTR().UpdatePtrs();
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
