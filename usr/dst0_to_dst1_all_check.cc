@@ -10,10 +10,19 @@
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
+#include "E16DST_Constant.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGWaveform.hh"
+
+#include "E16ANA_WaveformFitter.hh"
+#include "E16ANA_HBDCalibration.hh"
+#include "E16ANA_HBDCut.hh"
+#include "E16ANA_HBDGeometry.hh"
+#include "E16ANA_HBDChannelManager.hh"
+#include "E16ANA_HBDConstant.hh"
+#include "E16ANA_HBDClusterAnalysis.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -97,22 +106,34 @@ int main(int argc, char* argv[]) {
   */
 
   int event;
-  const int NMOD = 8;
+  const int HMAX = 100;
   const int CMAX = 100;
-  int lg_nm;
-  int lg_nh[NMOD];
-  int lg_nc[NMOD];
-  float lg_cs[NMOD][CMAX];
-  float lg_tdc[NMOD][CMAX];
-  float lg_adc[NMOD][CMAX];
+  int hbd_nh;
+  int hbd_nc;
+  int hbd_m[CMAX];
+  float hbd_cs[CMAX];
+  float hbd_tdc[CMAX];
+  float hbd_adc[CMAX];
+  int lg_nh;
+  int lg_nc;
+  int lg_m[HMAX];
+  float lg_cs[HMAX];
+  float lg_tdc[HMAX];
+  float lg_adc[HMAX];
 
   tree->Branch("Event",&event,"Event/I");
-  tree->Branch("lg_nm",&lg_nm,"lg_nm/I");
-  tree->Branch("lg_nh",lg_nh,"lg_nh[lg_nm]/I");
-  tree->Branch("lg_nc",lg_nc,"lg_nc[lg_nm]/I");
-  tree->Branch("lg_cs",&lg_cs,"lg_cs[lg_nm][lg_nc[lg_nm]]/F");
-  tree->Branch("lg_tdc",&lg_tdc,"lg_cs[lg_nm][lg_nc[lg_nm]]/F");
-  tree->Branch("lg_adc",&lg_adc,"lg_cs[lg_nm][lg_nc[lg_nm]]/F");
+  tree->Branch("hbd_nh",&hbd_nh,"hbd_nh/I");
+  tree->Branch("hbd_nc",&hbd_nc,"hbd_nc/I");
+  tree->Branch("hbd_m",hbd_m,"hbd_m[hbd_nc]/I");
+  tree->Branch("hbd_cs",hbd_cs,"hbd_cs[hbd_nc]/F");
+  tree->Branch("hbd_tdc",hbd_tdc,"hbd_tdc[hbd_nc]/F");
+  tree->Branch("hbd_adc",hbd_adc,"hbd_adc[hbd_nc]/F");
+  tree->Branch("lg_nh",&lg_nh,"lg_nh/I");
+  tree->Branch("lg_nc",&lg_nc,"lg_nc/I");
+  tree->Branch("lg_m",lg_m,"lg_m[lg_nh]/I");
+  tree->Branch("lg_cs",lg_cs,"lg_cs[lg_nh]/F");
+  tree->Branch("lg_tdc",lg_tdc,"lg_tdc[lg_nh]/F");
+  tree->Branch("lg_adc",lg_adc,"lg_adc[lg_nh]/F");
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -161,14 +182,20 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
-////////      E16DST_DST0Detector<E16DST_DST1LGHit> lg_hits1;
-////////      E16DST_DST0Detector<E16DST_DST1LGCluster> lg_clusters1;
-////////      auto& lg_hits1 = record->LG().Hits();
-////////      auto& lg_clusters1 = record->LG().Clusters();
+
+      //HBD initialize
+      E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
+      hbd_calib->ReadCalibrationData(calib.CurrentRunID());
+      E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
+      hbd_cut->ReadCutData(calib.CurrentRunID());
+      std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+      E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+      //HBD
+
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
-//      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
+      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 
@@ -176,72 +203,46 @@ int main(int argc, char* argv[]) {
 //// Check begin
       //auto event_id = event0->EventID();
       //cout << "Event ID: " << event_id << endl;
+
+      event = event0->EventID();
+
 //// SSD
 //
 //// GTR
-//      cout << "Number of event: " << n_event << endl << endl;
-//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-//      cout << "Number of GTR hits: " << n_gtr_hits << endl;
-//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-//        auto hit = event1->GTRHits().Hit(n_hit);
-//        hit.Print();
-//      }
-//      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-//      cout << endl << endl;
-//      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-//      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-//        auto cluster = event1->GTRClusters().Hit(n_cluster);
-//        cluster.Print();
-//      }
 //      
 //// HBD
+      auto& hbd_hits1 = record->HBD().Hits();
+      auto& hbd_clusters1 = record->HBD().Clusters();
+      hbd_nh = hbd_hits1.size();
+      hbd_nc = hbd_clusters1.size();
+      if (hbd_clusters1.size() != 0) {
+	for(int i=0;i<hbd_nc;i++){//cluster loop
+	  auto& hbdcluster = hbd_clusters1[i];
+	  hbd_m[i] = hbdcluster.ModuleId();
+	  hbd_cs[i] = hbdcluster.ClusterSize();
+	  hbd_tdc[i] = hbdcluster.FastestTiming();
+	  hbd_adc[i] = hbdcluster.SADC();
+	}//cluster loop
+      }//hbd cluster bool
+
+      tree->Fill();
 //
 //// LG
-      event = event0->EventID();
-      lg_nm = 8;
-      for(int i=0;i<lg_nm;i++){
-	lg_nh[i] = 0;
-	lg_nc[i] = 0;
-      }
       auto& lg_hits1 = record->LG().Hits();
       auto& lg_clusters1 = record->LG().Clusters();
-      int n_lghits = lg_hits1.size();
-      int n_lgclusters = lg_clusters1.size();
-      int module;
+      lg_nh = lg_hits1.size();
+      lg_nc = lg_clusters1.size();
       if (lg_hits1.size() != 0) {
-	for(int i=0;i<n_lghits;i++){//hit loop
+	for(int i=0;i<lg_nh;i++){//hit loop
 	  auto& lghit = lg_hits1[i];
-	  module = lghit.ModuleId();
-	  for(int i=0;i<lg_nm;i++){
-	    if(module==m_cid(i)){
-	      int ct = c_mid(module);
-	      lg_cs[ct][lg_nh[ct]] = 1;
-	      lg_tdc[ct][lg_nh[ct]] = lghit.FitTiming();
-	      lg_adc[ct][lg_nh[ct]] = lghit.FitPeak();
-	      lg_nh[ct]++;
-	      break;
-	    }
-	  }
+	  lg_m[i] = lghit.ModuleId();
+	  lg_cs[i] = 1;
+	  lg_tdc[i] = lghit.FitTiming();
+	  lg_adc[i] = lghit.FitPeak();
 	}//hit loop
       }//lg hit bool
 
-      if (lg_clusters1.size() != 0) {
-	for(int i=0;i<n_lgclusters;i++){//cluster loop
-	  auto& lgcluster = lg_clusters1[i];
-	  module = lgcluster.ModuleId();
-	  for(int i=0;i<lg_nm;i++){
-	    if(module==m_cid(i)){
-	      int ct = c_mid(module);
-	      lg_nc[ct]++;
-	      break;
-	    }
-	  }
-	}//cluster loop
-      }//lg cluster bool
-
       tree->Fill();
-
-
 
 //// trigger
 //      event1->Trigger().Print(*geometry);

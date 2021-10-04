@@ -185,6 +185,7 @@ target_link_libraries(dst0_to_dst1_all_check
 #	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
+	E16ANA
 )
 
 #_______________________________________________________________________________
