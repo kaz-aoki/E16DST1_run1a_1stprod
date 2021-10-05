@@ -12,13 +12,14 @@
 
 #include "TVector3.h"
 
-int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
-				       E16ANA_HBDCalibration *hbd_calib,
-				       E16ANA_HBDCut *hbd_cut,
-				       E16ANA_WaveformFitter *wf1d_fitter,
-				       E16DST_DST0Detector<E16DST_DST1HBDHit>* dst1_hits,
-				       E16DST_DST0Detector<E16DST_DST1HBDCluster>* dst1_clusters)
+int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
+  E16ANA_HBDCalibration *hbd_calib,
+  E16ANA_HBDCut *hbd_cut,
+  E16ANA_WaveformFitter *wf1d_fitter,
+  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* hbd1)
 {
+  auto& dst1_hits = hbd1->Hits();
+  auto& dst1_clusters = hbd1->Clusters();
   //----------- const
   int n_modules = E16DST_Constant::NModules;//number of hbd modules
   int n_samples = E16DST_Constant::NSamplesHBD;//number of apv25 samples
@@ -73,7 +74,7 @@ int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& d
     is_dst0hit = hbd_calib->HitDecision(mid, pid, out_waveform, n_sigma);
     
     if(is_dst0hit && hbd_calib->GetGain(mid, pid) > 0.){// gain < 0. happens when gain calib. is wrong or dead channel
-      E16DST_DST1HBDHit &dst1_hit = dst1_hits->Hit(dst1_hid);
+      E16DST_DST1HBDHit &dst1_hit = dst1_hits[dst1_hid];
       wf1d_fitter->SetNoiseSigma(hbd_calib->GetNoise(mid, pid));//noise of first sampling point, can be optimized
       wf1d_fitter->SetWaveform(out_waveform, n_samples);
       wf1d_fitter->Fit();
@@ -107,7 +108,7 @@ int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& d
     for(auto cl : clusters){
       double e_prob = 0.;
       double c_prob = 0.;
-      E16DST_DST1HBDCluster &dst1_cl = dst1_clusters->Hit(dst1_cid);
+      E16DST_DST1HBDCluster &dst1_cl = dst1_clusters[dst1_cid];
       dst1_cl.SetInvalid();
       dst1_cl.SetModuleId(cl.module_id);
       dst1_cl.SetMaxPeakCh(cl.max_pe_id);
@@ -145,8 +146,8 @@ int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& d
     }
   }
   
-  dst1_hits->Resize(dst1_hid);
-  dst1_clusters->Resize(dst1_cid);
+  dst1_hits.resize(dst1_hid);
+  dst1_clusters.resize(dst1_cid);
   
   return sizeof(E16DST_DST1HBDHit)*dst1_hid + sizeof(E16DST_DST1HBDCluster)*dst1_cid;
 }

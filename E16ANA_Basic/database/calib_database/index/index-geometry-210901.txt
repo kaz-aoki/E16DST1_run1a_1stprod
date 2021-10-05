@@ -1,0 +1,11 @@
+#index-geometry-210901.txt 210912 by S. Yokkaichi
+#    Last modified at <2021-09-12 22:37:55 >
+#
+# valid only two columns:  comment for 3rd or more
+# runID filename comment
+#
+  0    geometry/v2/geometry_Run0a_201029_design.dat
+  9999 geometry/v2/geometry_Run0b_210226_design.dat   run0a
+ 29999 geometry/v2/geometry_Run0b_210226_design.dat   run0b
+ 39999 geometry/v2/geometry_Run0b_210226_design.dat   run0c
+999999 geometry/v2/geometry_200606.dat                test

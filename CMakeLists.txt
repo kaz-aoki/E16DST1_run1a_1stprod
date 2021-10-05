@@ -37,19 +37,12 @@ include_directories(
 	include/HBD
 	include/GTR
 	include/LG
-    include/SSD
+  include/SSD
 	include/GTR
 	include/trigger
+	include/straight_track
 	include/track
   E16DST
-#  E16ANA_CalibDB/include
-#  E16ANA_ErrorMessage/include
-#  E16ANA_Geometry/include
-#  E16ANA_MagneticFieldMap/include
-#  E16ANA_RundependentName/include
-#  E16ANA_TargetInfo/include
-#  E16ANA_Tracking/include
-#  E16ANA_Waveform/include
   E16ANA_Basic/include
 )
 
@@ -102,52 +95,40 @@ add_library(E16ANA
 )
 
 target_link_libraries(E16ANA
-#  E16ANA_CalibDB
-#  E16ANA_ErrorMessage
-#  E16ANA_GeometryV2
-#  E16ANA_MagneticFieldMap
-#  E16ANA_RundependentName
-#  E16ANA_TargetInfo
-#  E16ANA_Tracking
-#  E16ANA_Waveform
   E16ANA_Basic
 )
 
 #_______________________________________________________________________________
 add_library(E16DST_DST1
-	src/E16DST_DST1.cc
   src/E16ANA_SSDAnalyzer.cc
   src/E16ANA_SSDStripAnalyzer.cc
   src/E16DST_DST1SSDAnalyzerMaker.cxx
-  src/E16DST_DST1SSDFactory.cc
   src/GTR/E16ANA_GTRAnalyzer2.cc
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
-  src/E16DST_DST1GTRHitAndClusterFactory.cc
   src/GTR/E16ANA_GTRPedestal.cc
-  src/E16DST_DST1LGFactory.cc
   src/GTR/GTRCheckHist.cc
-  src/E16DST_DST1HBDHitAndClusterFactory.cc
   src/HBD/E16ANA_HBDChannelManager.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
   src/HBD/E16ANA_HBDCut.cc
   src/HBD/E16ANA_HBDCalibration.cc
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
-	src/E16DST_DST1TriggerFactory.cc
-	src/E16DST_DST1TrackFactory.cc
-  src/E16DST_DST1WireTrackFactory.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   
-  src/E16DST_DST1GTRFactory_dst1_detector.cc
-#  src/E16DST_DST1HBDFactory_dst1_detector.cc
-  src/E16DST_DST1LGFactory_dst1_detector.cc
+	src/E16DST_DST1.cc
+  src/E16DST_DST1SSDFactory.cc
+  src/E16DST_DST1GTRFactory.cc
+  src/E16DST_DST1HBDFactory.cc
+  src/E16DST_DST1LGFactory.cc
+	src/E16DST_DST1TriggerFactory.cc
+  src/E16DST_DST1WireTrackFactory.cc
+	src/E16DST_DST1TrackFactory.cc
 )
 
 target_link_libraries(E16DST_DST1
   E16ANA
 	E16DST
-E16ANA_Waveform
 )
 
 #_______________________________________________________________________________
@@ -155,7 +136,6 @@ add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
 	E16DST_DST1
-#	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
 )
@@ -165,7 +145,7 @@ add_executable(dst0_to_dst1_ssd_check usr/dst0_to_dst1_ssd_check.cc)
 
 target_link_libraries(dst0_to_dst1_ssd_check
 	E16DST_DST1
-#	E16ANA_CalibDB
+  E16ANA
 	E16ANA_Basic
 	E16DST
 )
@@ -175,7 +155,6 @@ add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
 
 target_link_libraries(dst0_to_dst1_gtr_check
 	E16DST_DST1
-#	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
 )
@@ -185,7 +164,6 @@ add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
 
 target_link_libraries(dst0_to_dst1_hbd_check
 	E16DST_DST1
-#	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
 )
@@ -195,9 +173,19 @@ add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
 
 target_link_libraries(dst0_to_dst1_lg_check
 	E16DST_DST1
+	E16ANA_Basic
+	E16DST
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
+
+target_link_libraries(dst0_to_dst1_all_check
+	E16DST_DST1
 #	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
+	E16ANA
 )
 
 #_______________________________________________________________________________
@@ -206,7 +194,6 @@ add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 target_link_libraries(dst0_to_dst1_trigger_check
 	E16DST_DST1
   E16ANA
-#	E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
 )
@@ -215,7 +202,6 @@ target_link_libraries(dst0_to_dst1_trigger_check
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
-	E16ANA_CalibDB
 	E16DST
 	E16DST_DST1
 )
@@ -249,13 +235,5 @@ target_link_libraries(run_StraightTrackAnalyzer
 #)
 #
 #_______________________________________________________________________________
-#add_subdirectory(E16ANA_CalibDB)
-#add_subdirectory(E16ANA_ErrorMessage)
-#add_subdirectory(E16ANA_Geometry)
-#add_subdirectory(E16ANA_MagneticFieldMap)
-#add_subdirectory(E16ANA_RundependentName)
-#add_subdirectory(E16ANA_TargetInfo)
-#add_subdirectory(E16ANA_Tracking)
-#add_subdirectory(E16ANA_Waveform)
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

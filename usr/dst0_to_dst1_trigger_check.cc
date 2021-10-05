@@ -22,7 +22,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.root (0)] [output.root (1)] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.root (all tracks)] [output.root (selected tracks)] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -120,15 +120,15 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
-      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD().Hits(), &record->SSD().Clusters());
+      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       record->SSD().UpdatePtrs();
 //      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped);
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
-      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &record->GTR(), gtrped);
+      E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       record->GTR().UpdatePtrs();
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
-      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &record->LG());
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
       record->LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);

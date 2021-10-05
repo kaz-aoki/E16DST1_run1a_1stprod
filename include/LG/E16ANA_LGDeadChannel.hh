@@ -11,15 +11,15 @@ class E16ANA_LGDeadChannel {
 public:
   E16ANA_LGDeadChannel();
   ~E16ANA_LGDeadChannel();
-  bool ReadFile(const char* filename);
-  //bool ReadDeadChannelData(const int runID);
-  bool ReadDeadChannelData();
+  //  bool ReadFile(const char* filename);
+  //  bool ReadDeadChannelData(const int runID);
+  void ReadDeadChannelData();
   bool IsOK(const int module_id, const int block_id);
   bool IsDead(const int module_id, const int block_id);
   bool IsNoisy(const int module_id, const int block_id);
   bool IsHot(const int module_id, const int block_id);
   int Status(const int module_id, const int block_id);
-  void GetOKChannels(const int module_id, std::vector<int> &ok_chs);
+  //  void GetOKChannels(const int module_id, std::vector<int> &ok_chs);
   
 private:
   enum {

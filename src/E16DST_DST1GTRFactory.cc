@@ -7,7 +7,9 @@
 #include "E16ANA_GTRcalib.hh"
 
 
-int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST0Detector<E16DST_DST1GTRHit> *dst1_hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> * dst1_clusters, E16ANA_GTRcalibPedestal &gtrped) {
+int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal &gtrped) {
+    auto& dst1_hits = gtr1->Hits();
+    auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;
     static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
@@ -74,8 +76,8 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
             }
         }
     }
-    dst1_hits->Resize(dst1_hits_size);
-    dst1_clusters->Resize(dst1_clusters_size);
+    dst1_hits.resize(dst1_hits_size);
+    dst1_clusters.resize(dst1_clusters_size);
     int cl_id = 0;// cluster id 
     int h_id = 0;// hit id
     for(int mid=100; mid < 110 ; mid++){
@@ -102,7 +104,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                     t_hit_indexs[2].clear();
                     E16ANA_GTRAnalyzedStripHit &anahit = v_anahits[t].get()[i];
                     for(int j=0; j<anahit.NumHit(); j++){
-                        E16DST_DST1GTRHit &h = dst1_hits->Hit(h_id);
+                        E16DST_DST1GTRHit &h = dst1_hits[h_id];
                         h.SetInvalid();
                         h.SetIds(mid, anahit.StripID(j));
                         h.SetLayerId(lid);
@@ -114,7 +116,7 @@ int E16DST_DST1GTRHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& d
                         h_id++;
                         indexs[t]++;
                     }
-                    E16DST_DST1GTRCluster &cl = dst1_clusters->Hit(cl_id);
+                    E16DST_DST1GTRCluster &cl = dst1_clusters[cl_id];
                     cl.SetInvalid();
                     cl.SetModuleId(mid);
                     cl.SetLayerId(lid);
