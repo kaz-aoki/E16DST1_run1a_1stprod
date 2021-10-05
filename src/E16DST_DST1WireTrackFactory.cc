@@ -49,8 +49,8 @@ int E16DST_DST1WireTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
     for(int mid = 100; mid< 110; mid++){
  		straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
 	}
-    ssd1->Clear();
-    gtr1->Clear();
+//    ssd1->Clear();
+//    gtr1->Clear();
 //--- 2D
     straight_analyzer->Analyze(straight_analyzer->GetXZTrackCandidates(), straight_analyzer->GetYTrackCandidates(), geom);
 //------
