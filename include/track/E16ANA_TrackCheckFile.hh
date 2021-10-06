@@ -68,12 +68,13 @@ class E16ANA_TrackCheckFile {
     tree->Branch("hbd_cluster_gy",  &hbd_cluster_gy);
     tree->Branch("hbd_cluster_gz",  &hbd_cluster_gz);
     tree->Branch("n_lg_hits", &n_lg_hits);
-    tree->Branch("lg_hit_mid", &lg_hit_mid);
-    tree->Branch("lg_hit_x",   &lg_hit_x);
-    tree->Branch("lg_hit_y",   &lg_hit_y);
-    tree->Branch("lg_hit_gx",  &lg_hit_gx);
-    tree->Branch("lg_hit_gy",  &lg_hit_gy);
-    tree->Branch("lg_hit_gz",  &lg_hit_gz);
+    tree->Branch("lg_hit_mid",  &lg_hit_mid);
+    tree->Branch("lg_hit_x",    &lg_hit_x);
+    tree->Branch("lg_hit_y",    &lg_hit_y);
+    tree->Branch("lg_hit_gx",   &lg_hit_gx);
+    tree->Branch("lg_hit_gy",   &lg_hit_gy);
+    tree->Branch("lg_hit_gz",   &lg_hit_gz);
+    tree->Branch("lg_hit_time", &lg_hit_time);
     // Track
     tree->Branch("n_cands", &n_cands, "n_cands/I");
     tree->Branch("n_selected", &n_selected, "n_selected/I");
@@ -287,6 +288,7 @@ class E16ANA_TrackCheckFile {
     lg_hit_gx.resize(n_lg_hits);
     lg_hit_gy.resize(n_lg_hits);
     lg_hit_gz.resize(n_lg_hits);
+    lg_hit_time.resize(n_lg_hits);
     for (int i = 0; i < n_lg_hits; ++i) {
       auto& hit = record.LG().Hit(i);
       lg_hit_mid[i] = hit.ModuleId();
@@ -297,6 +299,7 @@ class E16ANA_TrackCheckFile {
       lg_hit_gx[i] = gpos.X();
       lg_hit_gy[i] = gpos.Y();
       lg_hit_gz[i] = gpos.Z();
+      lg_hit_time[i] = hit.Timing();
     }
   }
   void AddCandidate(E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
@@ -584,6 +587,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> lg_hit_gx;
   std::vector<double> lg_hit_gy;
   std::vector<double> lg_hit_gz;
+  std::vector<float> lg_hit_time;
   // Track
   int n_cands;
   int n_selected;
