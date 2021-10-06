@@ -124,12 +124,22 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
       }
       auto nstps_tmp = fitter->GetTrackSteps(tid).size();
       if (result.set_flag == 0) {
-        result.Set(l, mid, lpos, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+        if (l == E16ANA_TrackConstant::kHBD) {
+          result.Set(l, mid, lpos, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+        } else {
+          auto lpos_lgvd = geometry->LGVD(mid2013)->GetLPos(gpos);
+          result.Set(l, mid, lpos_lgvd, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+        }
         nstps = nstps_tmp;
 //        r = gpos.Mag();
       } else if (nstps_tmp < nstps) {
 //      } else if (gpos.Mag() < r) {
-        result.Set(l, mid, lpos, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+        if (l == E16ANA_TrackConstant::kHBD) {
+          result.Set(l, mid, lpos, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+        } else {
+          auto lpos_lgvd = geometry->LGVD(mid2013)->GetLPos(gpos);
+          result.Set(l, mid, lpos_lgvd, lmom, gpos, gmom, E16DST_DST1Constant::kInvalidVector);
+        }
         nstps = nstps_tmp;
 //        r = gpos.Mag();
       }
@@ -335,13 +345,14 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   }
 
   if (chi2_cand < kRaughFitChiSquareThreshold[0] && fabs(coef[0]) < kRaughXFitCoefficient[0] && fabs(coef[2]) < kRaughXFitCoefficient[2]) {
+    cluster_set->chi_square = chi2_cand;
     return true;
   }
   return false;
 }
 
-bool E16ANA_TrackCandidates::IsYTrackCandidate(const OneAxisClusterSet& cluster_set) {
-  auto& pos_set = cluster_set.global_poss;
+bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
+  auto& pos_set = cluster_set->global_poss;
   std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
   std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
                                            sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
@@ -373,6 +384,7 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(const OneAxisClusterSet& cluster_
     chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
   }
   if (chi2_cand < kRaughFitChiSquareThreshold[1] && fabs(coef[0]) < kRaughYFitCoefficient[0]) {
+    cluster_set->chi_square = chi2_cand;
     return true;
   }
   return false;
@@ -494,7 +506,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               }
               cluster_set->gtr_clusters[0] = gtr100y_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100y_cluster->GlobalPos(*geometry);
-              if (IsYTrackCandidate(*cluster_set)) {
+              if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               }
             }
@@ -504,7 +516,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               }
               cluster_set->gtr_clusters[0] = gtr100yb_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100yb_cluster->GlobalPos(*geometry);
-              if (IsYTrackCandidate(*cluster_set)) {
+              if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               }
             }
@@ -643,6 +655,7 @@ void E16ANA_TrackCandidates::SortTracks() {
     });
 //    for (auto& track_candidate : track_candidates[tgt_index]) {
     for (auto& cand : track_candidates) {
+      cand.SetIsSelected(false);
       if (cand.ChiSquare() > 1.0e9 || cand.MinimizeStatus() == 0) {
         break;
       }
@@ -680,6 +693,7 @@ void E16ANA_TrackCandidates::SortTracks() {
         continue;
       }
 //      selected_track_candidates[tgt_index].emplace_back(&track_candidate);
+      cand.SetIsSelected(true);
       selected_track_candidates.emplace_back(&cand);
     }
 //  }

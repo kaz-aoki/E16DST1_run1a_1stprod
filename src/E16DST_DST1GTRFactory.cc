@@ -120,10 +120,10 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetInvalid();
                     cl.SetModuleId(mid);
                     cl.SetLayerId(lid);
-                    std::cout << "t, t_hit_indexs[t] = " << t_hit_indexs[t].size() << std::endl;
-                    std::cout << "hit size = " << cl.NumHits() << std::endl;
+//                    std::cout << "t, t_hit_indexs[t] = " << t_hit_indexs[t].size() << std::endl;
+//                    std::cout << "hit size = " << cl.NumHits() << std::endl;
                     cl.SetHitOrders(t_hit_indexs[t]);
-                    std::cout << "hit size after = " << cl.NumHits() << std::endl;
+//                    std::cout << "hit size after = " << cl.NumHits() << std::endl;
                     cl.SetType(t);
                     cl.SetMaxPeakCh(anahit.MaxStripId());
                     cl.SetMaxPeakHeight(anahit.MaxValue());
@@ -131,7 +131,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
                     cl.SetCogPos(anahit.CogHit());
                     if(isnan(anahit.TdcHit())){
-                        std::cout << "TDC hit pos is nan" << std::endl;
+//                        std::cout << "TDC hit pos is nan" << std::endl;
                     }
                     else{
                         cl.SetTdcPos(anahit.TdcHit());

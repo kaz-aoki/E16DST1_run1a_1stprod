@@ -116,13 +116,14 @@ class E16ANA_TrackCandidate {
     }
   };
   E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
-      : geometry(_geometry), bfield_map(_bfield_map) {}
+      : geometry(_geometry), bfield_map(_bfield_map), is_selected(false) {}
   E16ANA_TrackCandidate& operator = (const E16ANA_TrackCandidate& rhs) {
     Copy(rhs);
     return (*this);
   }
   ~E16ANA_TrackCandidate() {}
   void SetTrackID(int _track_id) { track_id = _track_id; }
+  void SetIsSelected(bool _is_selected) { is_selected = _is_selected; }
   void SetCharge(double _charge) { charge = _charge; }
   void SetVertex(int _target_id) {
     target_id = _target_id;
@@ -137,6 +138,7 @@ class E16ANA_TrackCandidate {
   }
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
+  bool IsSelected() { return is_selected; }
   double Charge() { return charge; }
   TVector3 Vertex() { return vtx; }
   TVector3 Momentum() { return mom; }
@@ -194,6 +196,15 @@ class E16ANA_TrackCandidate {
       std::cout << "    Module ID: " << hit->ModuleId() << ", Channel ID: " << hit->ChannelId() << ", Timing: " << hit->Timing()  << std::endl;
     }
   }
+  // tmp
+  void SetXCoef(int n, double coef) { x_coef[n] = coef; }
+  void SetXChiSquare(double _chi_square) { x_chi_square = _chi_square; }
+  void SetYCoef(int n, double coef) { y_coef[n] = coef; }
+  void SetYChiSquare(double _chi_square) { y_chi_square = _chi_square; }
+  double XCoef(int n) { return x_coef[n]; }
+  double XChiSquare() { return x_chi_square; }
+  double YCoef(int n) { return y_coef[n]; }
+  double YChiSquare() { return y_chi_square; }
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
@@ -245,13 +256,19 @@ class E16ANA_TrackCandidate {
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   int track_id;
-  int target_id; // <-> vtx
+  int target_id;
+  bool is_selected;
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers> cluster_pairs;
   // Preset Value
   double charge;
   TVector3 vtx;
   TVector3 mom;
   std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> sigma;
+  // raugh fit chi square (tmp?)
+  std::array<double, 3> x_coef;
+  double x_chi_square;
+  std::array<double, 2> y_coef;
+  double y_chi_square;
   // Fit Result
   TVector3 vtx_fit;
   TVector3 mom_fit; // each cluster?
@@ -311,6 +328,7 @@ class E16ANA_TrackCandidates {
   }
  private:
   struct OneAxisClusterSet {
+    double chi_square;
     int target_id; // only x
     int charge; // only x
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
@@ -390,7 +408,7 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
   static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
-  static bool IsYTrackCandidate(const OneAxisClusterSet& cluster_set);
+  static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
   static bool ExistADCCorrelation(float x_adc, float y_adc) {
     if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
       return true;
@@ -413,325 +431,6 @@ class E16ANA_TrackCandidates {
   std::vector<E16ANA_TrackCandidate> track_candidates;
   std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   int most_likely_target_id;
-};
-
-
-class CheckFile {
- public:
-  CheckFile(char* file_name = "tmp.root")
-      : file(TFile(file_name, "recreate")) {
-    tree = new TTree("tree", "tree");
-    tree->Branch("event_id", &event_id, "event_id/I");
-    tree->Branch("track_id", &track_id, "track_id/I");
-    tree->Branch("chi_square", &chi_square, "chi_square/D");
-    tree->Branch("n_steps", &n_steps, "n_steps/I");
-    tree->Branch("n_calls", &n_calls, "n_calls/I");
-    tree->Branch("ssd_module_id", &ssd_module_id), "ssd_module_id/I";
-    tree->Branch("gtr1_module_id", &gtr1_module_id), "gtr1_module_id/I";
-    tree->Branch("gtr2_module_id", &gtr2_module_id), "gtr2_module_id/I";
-    tree->Branch("gtr3_module_id", &gtr3_module_id), "gtr3_module_id/I";
-    tree->Branch("hbd_module_id", &hbd_module_id), "hbd_module_id/I";
-    tree->Branch("lg0_module_id", &lg0_module_id), "lg0_module_id/I";
-    tree->Branch("lg1_module_id", &lg1_module_id), "lg1_module_id/I";
-    tree->Branch("lg2_module_id", &lg2_module_id), "lg2_module_id/I";
-    tree->Branch("gx_hit", &gx_hit);
-    tree->Branch("gy_hit", &gy_hit);
-    tree->Branch("gz_hit", &gz_hit);
-    tree->Branch("gx_fit", &gx_fit);
-    tree->Branch("gy_fit", &gy_fit);
-    tree->Branch("gz_fit", &gz_fit);
-    tree->Branch("vtx_gpos_hit", &vtx_gpos_hit);
-    tree->Branch("ssd_lpos_hit", &ssd_lpos_hit);
-    tree->Branch("ssd_gpos_hit", &ssd_gpos_hit);
-    tree->Branch("gtr1_lpos_hit", &gtr1_lpos_hit);
-    tree->Branch("gtr1_gpos_hit", &gtr1_gpos_hit);
-    tree->Branch("gtr2_lpos_hit", &gtr2_lpos_hit);
-    tree->Branch("gtr2_gpos_hit", &gtr2_gpos_hit);
-    tree->Branch("gtr3_lpos_hit", &gtr3_lpos_hit);
-    tree->Branch("gtr3_gpos_hit", &gtr3_gpos_hit);
-    tree->Branch("hbd_lpos_fit", &hbd_lpos_fit);
-    tree->Branch("vtx_gpos_fit", &vtx_gpos_fit);
-    tree->Branch("ssd_lpos_fit", &ssd_lpos_fit);
-    tree->Branch("ssd_gpos_fit", &ssd_gpos_fit);
-    tree->Branch("gtr1_lpos_fit", &gtr1_lpos_fit);
-    tree->Branch("gtr1_gpos_fit", &gtr1_gpos_fit);
-    tree->Branch("gtr2_lpos_fit", &gtr2_lpos_fit);
-    tree->Branch("gtr2_gpos_fit", &gtr2_gpos_fit);
-    tree->Branch("gtr3_lpos_fit", &gtr3_lpos_fit);
-    tree->Branch("gtr3_gpos_fit", &gtr3_gpos_fit);
-    tree->Branch("hbd_lpos_fit", &hbd_lpos_fit);
-    tree->Branch("hbd_gpos_fit", &hbd_gpos_fit);
-    tree->Branch("lg0_lpos_fit", &lg0_lpos_fit);
-    tree->Branch("lg0_gpos_fit", &lg0_gpos_fit);
-    tree->Branch("lg1_lpos_fit", &lg1_lpos_fit);
-    tree->Branch("lg1_gpos_fit", &lg1_gpos_fit);
-    tree->Branch("lg2_lpos_fit", &lg2_lpos_fit);
-    tree->Branch("lg2_gpos_fit", &lg2_gpos_fit);
-    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
-      residual_x[i] = new TH1D(Form("residual_x_%d", i), Form("residual_x_%d", i), 2000, -200., 200.);
-      residual_y[i] = new TH1D(Form("residual_y_%d", i), Form("residual_y_%d", i), 2000, -200., 200.);
-      residual_z[i] = new TH1D(Form("residual_z_%d", i), Form("residual_z_%d", i), 2000, -200., 200.);
-      residual_r[i] = new TH1D(Form("residual_r_%d", i), Form("residual_r_%d", i), 2000,    0., 400.);
-      good_residual_x[i] = new TH1D(Form("good_residual_x_%d", i), Form("good_residual_x_%d", i), 2000, -200., 200.);
-      good_residual_y[i] = new TH1D(Form("good_residual_y_%d", i), Form("good_residual_y_%d", i), 2000, -200., 200.);
-      good_residual_z[i] = new TH1D(Form("good_residual_z_%d", i), Form("good_residual_z_%d", i), 2000, -200., 200.);
-      good_residual_r[i] = new TH1D(Form("good_residual_r_%d", i), Form("good_residual_r_%d", i), 2000,    0., 400.);
-    }
-  };
-  ~CheckFile() {
-    for (int i = 0; i < xz_track_graphs.size(); ++i) {
-      auto& xz_gr = xz_track_graphs[i];
-      auto& ry_gr = xz_track_graphs[i];
-      xz_gr->SetName(Form("xz_%06d", i));
-      xz_gr->SetTitle(Form("xz_%06d", i));
-      xz_gr->Write();
-      ry_gr->SetName(Form("ry_%06d", i));
-      ry_gr->SetTitle(Form("ry_%06d", i));
-      ry_gr->Write();
-    }
-    for (int i = 0; i < good_xz_track_graphs.size(); ++i) {
-      auto& xz_gr = good_xz_track_graphs[i];
-      auto& ry_gr = good_xz_track_graphs[i];
-      xz_gr->SetName(Form("good_xz_%06d", i));
-      xz_gr->SetTitle(Form("good_xz_%06d", i));
-      xz_gr->Write();
-      ry_gr->SetName(Form("good_ry_%06d", i));
-      ry_gr->SetTitle(Form("good_ry_%06d", i));
-      ry_gr->Write();
-    }
-    for (int i = 0; i < xz_track_graphs_hit.size(); ++i) {
-      auto& xz_gr = xz_track_graphs_hit[i];
-      auto& ry_gr = xz_track_graphs_hit[i];
-      xz_gr->SetName(Form("xz_hit_%06d", i));
-      xz_gr->SetTitle(Form("xz_hit_%06d", i));
-      xz_gr->Write();
-      ry_gr->SetName(Form("ry_hit_%06d", i));
-      ry_gr->SetTitle(Form("ry_hit_%06d", i));
-      ry_gr->Write();
-    }
-    file.Write();
-  }
-  void AddFit(const TVector3& vtx, const TVector3& mom, const std::array<E16ANA_TrackCandidate::FitResult, E16ANA_TrackConstant::kNumDetectorLayers>& fit_results, double chi_square) {
-    const int n_point = E16ANA_TrackConstant::kNumDetectorLayers;
-    double x[1 + n_point], y[1 + n_point], z[1 + n_point], r[1 + n_point];
-    gposs_fit.clear();
-    gposs_fit.emplace_back(vtx);
-    vtx_gpos_fit = vtx;
-    vtx_gmom_fit = mom;
-    x[0] = vtx(0);
-    y[0] = vtx(1);
-    z[0] = vtx(2);
-    r[0] = sqrt(x[0] * x[0] + z[0] + z[0]);
-    for (int i = 0; i < n_point; ++i) {
-      auto& result = fit_results[i];
-      if (result.set_flag == 0) {
-        continue;
-      }
-      auto mid = result.module_id;
-      auto lpos = result.local_pos;
-      auto gpos = result.global_pos;
-      gposs_fit.emplace_back(gpos);
-      x[1 + i] = gpos.X();
-      y[1 + i] = gpos.Y();
-      z[1 + i] = gpos.Z();
-      r[1 + i] = sqrt(x[1 + i] * x[1 + i] + z[1 + i] * z[1 + i]);
-      if (i == 0) {
-        ssd_module_id = mid;
-        ssd_lpos_fit = lpos;
-        ssd_gpos_fit = gpos;
-      } else if (i == 1) {
-        gtr1_module_id = mid;
-        gtr1_lpos_fit = lpos;
-        gtr1_gpos_fit = gpos;
-      } else if (i == 2) {
-        gtr2_module_id = mid;
-        gtr2_lpos_fit = lpos;
-        gtr2_gpos_fit = gpos;
-      } else if (i == 3) {
-        gtr3_module_id = mid;
-        gtr3_lpos_fit = lpos;
-        gtr3_gpos_fit = gpos;
-      } else if (i == 4) {
-        hbd_module_id = mid;
-        hbd_lpos_fit = lpos;
-        hbd_gpos_fit = gpos;
-      } else if (i == 5) {
-        lg0_module_id = mid;
-        lg0_lpos_fit = lpos;
-        lg0_gpos_fit = gpos;
-      } else if (i == 6) {
-        lg1_module_id = mid;
-        lg1_lpos_fit = lpos;
-        lg1_gpos_fit = gpos;
-      } else if (i == 7) {
-        lg2_module_id = mid;
-        lg2_lpos_fit = lpos;
-        lg2_gpos_fit = gpos;
-      }
-    }
-    gx_fit.resize(9);
-    gy_fit.resize(9);
-    gz_fit.resize(9);
-    for (int i = 0; i < 9; ++i) {
-      gx_fit[i] = gposs_fit[i](0);
-      gy_fit[i] = gposs_fit[i](1);
-      gz_fit[i] = gposs_fit[i](2);
-    }
-    if (xz_track_graphs.size() < 100) {
-      xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
-      ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
-    }
-    if (good_xz_track_graphs.size() < 100) {
-      if (chi_square < 10000000) {
-        good_xz_track_graphs.emplace_back(new TGraph(1 + n_point, x, z));
-        good_ry_track_graphs.emplace_back(new TGraph(1 + n_point, r, y));
-      }
-    }
-    vtx_gpos_fit = vtx;
-    vtx_gmom_fit = mom;
-    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
-      auto& respos = fit_results[i].residual_pos;
-      residual_x[i]->Fill(respos.X());
-      residual_y[i]->Fill(respos.Y());
-      residual_z[i]->Fill(respos.Z());
-      residual_r[i]->Fill(respos.Mag());
-      if (chi_square < 1000000.) {
-        good_residual_x[i]->Fill(respos.X());
-        good_residual_y[i]->Fill(respos.Y());
-        good_residual_z[i]->Fill(respos.Z());
-        good_residual_r[i]->Fill(respos.Mag());
-      }
-    }
-    return;
-  }
-  void AddHit(TVector3& vtx, TVector3& mom, std::array<E16ANA_TrackClusterPair, 4>& cluster_pairs) {
-    int n_point = 5;
-    double x[5], y[5], z[5], r[5];
-    gposs_hit.clear();
-    gposs_hit.emplace_back(vtx);
-    vtx_gpos_hit = vtx;
-    vtx_gmom_hit = mom;
-    x[0] = vtx(0);
-    y[0] = vtx(1);
-    z[0] = vtx(2);
-    for (int i = 0; i < 4; ++i) {
-      auto& clst = cluster_pairs[i];
-      auto lpos = clst.LocalPos();
-      auto gpos = clst.GlobalPos();
-      gposs_hit.emplace_back(gpos);
-      if (i == 0) {
-        ssd_lpos_hit = lpos;
-        ssd_gpos_hit = gpos;
-      } else if (i == 1) {
-        gtr1_lpos_hit = lpos;
-        gtr1_gpos_hit = gpos;
-      } else if (i == 2) {
-        gtr2_lpos_hit = lpos;
-        gtr2_gpos_hit = gpos;
-      } else if (i == 3) {
-        gtr3_lpos_hit = lpos;
-        gtr3_gpos_hit = gpos;
-      }
-      x[1 + i] = gpos(0);
-      y[1 + i] = gpos(1);
-      z[1 + i] = gpos(2);
-      r[1 + i] = sqrt(x[1 + i] * x[1 + i] + z[1 + i] * z[1 + i]);
-    }
-    gx_hit.resize(9);
-    gy_hit.resize(9);
-    gz_hit.resize(9);
-    for (int i = 0; i < 9; ++i) {
-      gx_hit[i] = gposs_hit[i](0);
-      gy_hit[i] = gposs_hit[i](1);
-      gz_hit[i] = gposs_hit[i](2);
-    }
-    if (xz_track_graphs_hit.size() < 100) {
-      xz_track_graphs_hit.emplace_back(new TGraph(n_point, x, z));
-      ry_track_graphs_hit.emplace_back(new TGraph(n_point, r, y));
-    }
-    return;
-  }
-  void AddEntry(int _event_id, E16ANA_TrackCandidate& cand) {
-    event_id = _event_id;
-    track_id = cand.TrackID();
-    chi_square = cand.ChiSquare();
-    n_steps = cand.NumSteps();
-    n_calls = cand.NumCalls();
-    auto&& vtx = cand.Vertex();
-    auto&& mom = cand.Momentum();
-    auto&& vtx_fit = cand.FitVertex();
-    auto&& mom_fit = cand.FitMomentum();
-    const auto& fit_results = cand.LocalFitResults();
-    AddFit(vtx_fit, mom_fit, fit_results, chi_square);
-    AddHit(vtx, mom, cand.ClusterPairs());
-    tree->Fill();
-  }
- private:
-  TFile file;
-  TTree* tree;
-  int event_id;
-  int track_id;
-  double chi_square;
-  int n_steps;
-  int n_calls;
-  std::vector<TVector3> gposs_hit;
-  std::vector<double> gx_hit;
-  std::vector<double> gy_hit;
-  std::vector<double> gz_hit;
-  std::vector<TVector3> gposs_fit;
-  std::vector<double> gx_fit;
-  std::vector<double> gy_fit;
-  std::vector<double> gz_fit;
-  TVector3 vtx_gpos_hit;
-  TVector3 vtx_gmom_hit;
-  TVector3 vtx_gpos_fit;
-  TVector3 vtx_gmom_fit;
-  int ssd_module_id;
-  int gtr1_module_id;
-  int gtr2_module_id;
-  int gtr3_module_id;
-  int hbd_module_id;
-  int lg0_module_id;
-  int lg1_module_id;
-  int lg2_module_id;
-  TVector3 ssd_lpos_hit;
-  TVector3 ssd_gpos_hit;
-  TVector3 gtr1_lpos_hit;
-  TVector3 gtr1_gpos_hit;
-  TVector3 gtr2_lpos_hit;
-  TVector3 gtr2_gpos_hit;
-  TVector3 gtr3_lpos_hit;
-  TVector3 gtr3_gpos_hit;
-  TVector3 ssd_lpos_fit;
-  TVector3 ssd_gpos_fit;
-  TVector3 gtr1_lpos_fit;
-  TVector3 gtr1_gpos_fit;
-  TVector3 gtr2_lpos_fit;
-  TVector3 gtr2_gpos_fit;
-  TVector3 gtr3_lpos_fit;
-  TVector3 gtr3_gpos_fit;
-  TVector3 hbd_lpos_fit;
-  TVector3 hbd_gpos_fit;
-  TVector3 lg0_lpos_fit;
-  TVector3 lg0_gpos_fit;
-  TVector3 lg1_lpos_fit;
-  TVector3 lg1_gpos_fit;
-  TVector3 lg2_lpos_fit;
-  TVector3 lg2_gpos_fit;
-  std::vector<TGraph*> xz_track_graphs_hit;
-  std::vector<TGraph*> ry_track_graphs_hit;
-  std::vector<TGraph*> xz_track_graphs;
-  std::vector<TGraph*> ry_track_graphs;
-  std::vector<TGraph*> good_xz_track_graphs;
-  std::vector<TGraph*> good_ry_track_graphs;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_x;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_y;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_z;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> residual_r;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_x;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_y;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_z;
-  std::array<TH1D*, E16ANA_TrackConstant::kNumTrackingLayers> good_residual_r;
 };
 
 #endif // E16ANA_TRACKCANDIDATE_HH
