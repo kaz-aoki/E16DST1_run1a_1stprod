@@ -172,19 +172,19 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
     auto& track = ut3.Track(track_num);
     int is_new;
     int track_coarse_time = track.Time() / E16ANA_TriggerConstant::kMRGTransmitCycleNs;
-    if (run_id < 30000) {
+//    if (run_id < 30000) {
       if (track_coarse_time == coarse_time[0]) {
         is_new = 0;
       } else {
         is_new = 1;
       }
-    } else {
-      if (track.HitNumber() < 64) {
-        is_new = 0;
-      } else {
-        is_new = 1;
-      }
-    }
+//    } else {
+//      if (track.HitNumber() < 64) {
+//        is_new = 0;
+//      } else {
+//        is_new = 1;
+//      }
+//    }
     track_set.LGHitOrders().emplace_back(track_num);
     auto& coincidence_map = coincidence_maps->CoincidenceMap(track.ModuleID(), track.ChannelID(), is_mag_field);
     for (int channel = 0; channel < coincidence_map.gtr_map.size(); ++channel) {
