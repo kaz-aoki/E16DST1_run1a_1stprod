@@ -76,6 +76,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("lg_hit_gz",   &lg_hit_gz);
     tree->Branch("lg_hit_time", &lg_hit_time);
     // Track
+    tree->Branch("n_x_cands", &n_x_cands, "n_x_cands/I");
+    tree->Branch("n_y_cands", &n_y_cands, "n_y_cands/I");
     tree->Branch("n_cands", &n_cands, "n_cands/I");
     tree->Branch("n_selected", &n_selected, "n_selected/I");
     tree->Branch("is_selected", &is_selected);
@@ -323,6 +325,8 @@ class E16ANA_TrackCheckFile {
     }
   }
   void AddCandidate(E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
+    n_x_cands = cands.NumXCandidates();
+    n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
     n_selected = cands.NumSelectedTrackCandidates();
     is_selected.resize(n_cands);
@@ -609,6 +613,8 @@ class E16ANA_TrackCheckFile {
   std::vector<double> lg_hit_gz;
   std::vector<float> lg_hit_time;
   // Track
+  int n_x_cands;
+  int n_y_cands;
   int n_cands;
   int n_selected;
   std::vector<bool> is_selected;

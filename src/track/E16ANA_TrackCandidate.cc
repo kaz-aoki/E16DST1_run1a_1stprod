@@ -526,9 +526,11 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
     }
   }
   delete cluster_set;
-
-E16INFO("number of x candidates: %d", cluster_sets[0].size());
-E16INFO("number of y candidates: %d", cluster_sets[1].size());
+  n_x_cands = cluster_sets[0].size();
+  n_y_cands = cluster_sets[1].size();
+E16INFO("number of x candidates: %d", n_x_cands);
+E16INFO("number of y candidates: %d", n_y_cands);
+  
   for (const auto& x_cand : cluster_sets[0]) {
     auto& ssdx = *x_cand.ssd_cluster;
     auto& gtrx = x_cand.gtr_clusters;

@@ -303,6 +303,8 @@ class E16ANA_TrackCandidates {
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
+  int NumXCandidates() { return n_x_cands; }
+  int NumYCandidates() { return n_y_cands; }
   int NumTrackCandidates() { return track_candidates.size(); }
   std::vector<E16ANA_TrackCandidate>& TrackCandidates() { return track_candidates; }
   int NumSelectedTrackCandidates() { return selected_track_candidates.size(); }
@@ -428,6 +430,8 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
+  int n_x_cands;
+  int n_y_cands;
   std::vector<E16ANA_TrackCandidate> track_candidates;
   std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   int most_likely_target_id;
