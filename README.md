@@ -1,6 +1,8 @@
 # E16DST1
 ・e16evb02、ccjbox6でcompileできることを確認済みです。
 
+・CmakeLists.txtに二か所、include/E16DST_DST1DefaultFilePath.hh.inに一か所evb<->ccjで選択が必要な行があるので、それぞれで使うときは確認してください。
+
 ・src/E16DST_DST1xxxHitAndCluster.cc内に
 
 　int E16DST_DST1xxxHitAndCluster()と
@@ -8,6 +10,9 @@
 　E16DST_DST1xxxHit (とCluster) ::LocalPos(), GlobalPos()
 
 　を実装してください。
+ 
+
+・run0b (DST version4) のデータを見る場合はE16DSTに古いE16DSTを持ってきて使ってください。
 
 ・もう少し詳しいことはindicoの"analysis_meeting/2021.08.04/trigger"のスライドを見てください。
 

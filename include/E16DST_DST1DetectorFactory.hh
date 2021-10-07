@@ -3,8 +3,13 @@
 
 #include "E16ANA_WaveformFitter.hh"
 #include "E16ANA_HBDCalibration.hh"
+#include "E16ANA_HBDChannelManager.hh"
+#include "E16ANA_HBDConstant.hh"
+#include "E16ANA_HBDClusterAnalysis.hh"
 #include "E16ANA_HBDCut.hh"
+#include "E16ANA_HBDGeometry.hh"
 #include "E16ANA_TrackCandidate.hh"
+
 #include "E16ANA_TrackCheckFile.hh"
 
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* ssd1);

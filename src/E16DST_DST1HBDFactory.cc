@@ -12,11 +12,11 @@
 
 #include "TVector3.h"
 
-int E16DST_DST1HBDHitAndClusterFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
-				       E16ANA_HBDCalibration *hbd_calib,
-				       E16ANA_HBDCut *hbd_cut,
-				       E16ANA_WaveformFitter *wf1d_fitter,
-				       E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* hbd1)
+int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
+  E16ANA_HBDCalibration *hbd_calib,
+  E16ANA_HBDCut *hbd_cut,
+  E16ANA_WaveformFitter *wf1d_fitter,
+  E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* hbd1)
 {
   auto& dst1_hits = hbd1->Hits();
   auto& dst1_clusters = hbd1->Clusters();

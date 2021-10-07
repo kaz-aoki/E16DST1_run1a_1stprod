@@ -246,7 +246,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
   }
 
   //plot
-
+  /*
   // TCanvas *c0 = new TCanvas("c","c",0,0,1000,700);
   // TH1D *h0_hittime;
   // h0_hittime = new TH1D("hit time","h",150,-50,100);
@@ -357,7 +357,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
     }
     isSecondplot0=true;
   }
-
+  */
 
 //  return hits1->GetEventSize();
   return 1;

@@ -27,6 +27,9 @@ bool E16ANA_HBDCalibration::ReadCalibrationData(const int runID){
   this->ReadPedestalAndNoiseFile(hbd_pedestal_file.c_str());
   this->ReadGainFile(hbd_gain_file.c_str());
   this->ReadGainCalibrationStatusFile(hbd_gain_calibration_status.c_str());
+
+  return true;
+
 }
 
 bool E16ANA_HBDCalibration::ReadPedestalAndNoiseFile(const char *filename){
