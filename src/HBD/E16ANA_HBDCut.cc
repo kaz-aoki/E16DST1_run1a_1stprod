@@ -22,7 +22,6 @@ bool E16ANA_HBDCut::ReadCutData(const int runID){
   this->ReadFile(hbd_cut_file.c_str());
 
   return true;
-
 }
 
 bool E16ANA_HBDCut::ReadFile(const char *filename){
