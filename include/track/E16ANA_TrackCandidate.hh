@@ -204,7 +204,8 @@ class E16ANA_TrackCandidate {
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
-  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
+//  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
+  static inline const TVector3 kVertexError = {0., 0., 0.};
   static constexpr int kTrackingMaxSteps = 300;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
@@ -288,7 +289,7 @@ class E16ANA_TrackCandidates {
  public:
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter),
-        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
+        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
