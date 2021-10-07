@@ -13,11 +13,6 @@
 #include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
 
-#include "TFile.h"
-#include "TGraph.h"
-#include "TH1.h"
-#include "TTree.h"
-
 //class E16ANA_TrackAnalyzedHit {
 // public:
 //  E16ANA_TrackAnalyzedHit() {}
@@ -292,15 +287,18 @@ class E16ANA_TrackCandidate {
 class E16ANA_TrackCandidates {
  public:
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
-      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
+      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter),
+        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
+  void SetIsUseLayer(int n, bool _is_used) { is_used_layer[n] = _is_used; }
   void SetFlags(bool _vertex_xy_fix_flag, bool _py_fix_flag, bool _vertex_z_fix_flag) {
     vertex_xy_fix_flag = _vertex_xy_fix_flag;
     py_fix_flag = _py_fix_flag;
     vertex_z_fix_flag = _vertex_z_fix_flag;
   }
+  bool IsUsedLayer(int n) { return is_used_layer[n]; }
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
@@ -424,6 +422,7 @@ class E16ANA_TrackCandidates {
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* fitter;
+  std::array<bool, E16ANA_TrackConstant::kNumTrackingLayers> is_used_layer;
   bool vertex_xy_fix_flag;
   bool py_fix_flag;
   bool vertex_z_fix_flag;

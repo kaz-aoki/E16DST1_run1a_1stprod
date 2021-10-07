@@ -82,6 +82,9 @@ class E16ANA_TrackCheckFile {
     tree->Branch("chi_square", &chi_square);
     tree->Branch("n_steps", &n_steps);
     tree->Branch("n_calls", &n_calls);
+    tree->Branch("rk_hit_mom_gx", &rk_hit_mom_gx);
+    tree->Branch("rk_hit_mom_gy", &rk_hit_mom_gy);
+    tree->Branch("rk_hit_mom_gz", &rk_hit_mom_gz);
     tree->Branch("rk_hit_tgt_gx", &rk_hit_tgt_gx);
     tree->Branch("rk_hit_tgt_gy", &rk_hit_tgt_gy);
     tree->Branch("rk_hit_tgt_gz", &rk_hit_tgt_gz);
@@ -97,6 +100,9 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr300_gx", &rk_hit_gtr300_gx);
     tree->Branch("rk_hit_gtr300_gy", &rk_hit_gtr300_gy);
     tree->Branch("rk_hit_gtr300_gz", &rk_hit_gtr300_gz);
+    tree->Branch("rk_fit_mom_gx", &rk_fit_mom_gx);
+    tree->Branch("rk_fit_mom_gy", &rk_fit_mom_gy);
+    tree->Branch("rk_fit_mom_gz", &rk_fit_mom_gz);
     tree->Branch("rk_fit_tgt_gx", &rk_fit_tgt_gx);
     tree->Branch("rk_fit_tgt_gy", &rk_fit_tgt_gy);
     tree->Branch("rk_fit_tgt_gz", &rk_fit_tgt_gz);

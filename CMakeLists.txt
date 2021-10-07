@@ -136,8 +136,6 @@ add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
 	E16DST_DST1
-	E16ANA_Basic
-	E16DST
 )
 
 #_______________________________________________________________________________
@@ -145,9 +143,6 @@ add_executable(dst0_to_dst1_ssd_check usr/dst0_to_dst1_ssd_check.cc)
 
 target_link_libraries(dst0_to_dst1_ssd_check
 	E16DST_DST1
-  E16ANA
-	E16ANA_Basic
-	E16DST
 )
 
 #_______________________________________________________________________________
@@ -155,8 +150,6 @@ add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
 
 target_link_libraries(dst0_to_dst1_gtr_check
 	E16DST_DST1
-	E16ANA_Basic
-	E16DST
 )
 
 #_______________________________________________________________________________
@@ -164,8 +157,6 @@ add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
 
 target_link_libraries(dst0_to_dst1_hbd_check
 	E16DST_DST1
-	E16ANA_Basic
-	E16DST
 )
 
 #_______________________________________________________________________________
@@ -173,8 +164,6 @@ add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
 
 target_link_libraries(dst0_to_dst1_lg_check
 	E16DST_DST1
-	E16ANA_Basic
-	E16DST
 )
 
 #_______________________________________________________________________________
@@ -182,9 +171,6 @@ add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
 target_link_libraries(dst0_to_dst1_trigger_check
 	E16DST_DST1
-  E16ANA
-	E16ANA_Basic
-	E16DST
 )
 
 #_______________________________________________________________________________
