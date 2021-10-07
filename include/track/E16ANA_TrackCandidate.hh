@@ -206,7 +206,8 @@ class E16ANA_TrackCandidate {
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
 //  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
   static inline const TVector3 kVertexError = {0., 0., 0.};
-  static constexpr int kTrackingMaxSteps = 300;
+//  static constexpr int kTrackingMaxSteps = 300;
+  static constexpr int kTrackingMaxSteps = 400;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
@@ -371,7 +372,8 @@ class E16ANA_TrackCandidates {
   static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kVertexSquareThreshold = 5. * 5.;
-  
+
+  static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
   static TVector3 Lotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);

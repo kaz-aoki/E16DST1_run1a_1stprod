@@ -406,19 +406,23 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
     if (ssd_module_id == 105) {
       continue;
     }
+    auto is_l = IsLModule(ssd_module_id);
     auto& ssd_cluster_ptrs = ssd.ClusterPtrs(ssd_module_id, 0, 0);
     for (const auto& gtr100_module_id : E16ANA_TrackConstant::kModuleIDs) {
-      if (abs(gtr100_module_id - ssd_module_id) > 1) {
+//      if (abs(gtr100_module_id - ssd_module_id) > 1) {
+      if (is_l != IsLModule(gtr100_module_id)) {
         continue;
       }
       auto& gtr100x_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsX);
       for (const auto& gtr200_module_id : E16ANA_TrackConstant::kModuleIDs) {
-        if (abs(gtr200_module_id - ssd_module_id) > 1) {
+//        if (abs(gtr200_module_id - ssd_module_id) > 1) {
+        if (is_l != IsLModule(gtr200_module_id)) {
           continue;
         }
         auto& gtr200x_cluster_ptrs = gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsX);
         for (const auto& gtr300_module_id : E16ANA_TrackConstant::kModuleIDs) {
-          if (abs(gtr300_module_id - ssd_module_id) > 1) {
+//          if (abs(gtr300_module_id - ssd_module_id) > 1) {
+          if (is_l != IsLModule(gtr300_module_id)) {
             continue;
           }
           auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
@@ -476,14 +480,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
     if (gtr300_module_id == 105) {
       continue;
     }
+    auto is_l = IsLModule(gtr300_module_id);
     auto& gtr300y_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsY);
     for (const auto& gtr200_module_id : E16ANA_TrackConstant::kModuleIDs) {
-      if (abs(gtr200_module_id - gtr300_module_id) > 1) {
+//      if (abs(gtr200_module_id - gtr300_module_id) > 1) {
+      if (is_l != IsLModule(gtr200_module_id)) {
         continue;
       }
       auto& gtr200y_cluster_ptrs = gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsY);
       for (const auto& gtr100_module_id : E16ANA_TrackConstant::kModuleIDs) {
-        if (abs(gtr100_module_id - gtr300_module_id) > 1) {
+//        if (abs(gtr100_module_id - gtr300_module_id) > 1) {
+        if (is_l != IsLModule(gtr100_module_id)) {
           continue;
         }
         auto& gtr100y_cluster_ptrs  = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsY);
@@ -647,58 +654,56 @@ void E16ANA_TrackCandidates::SearchHBDAndLGHits() {
 
 void E16ANA_TrackCandidates::SortTracks() {
   std::array<std::vector<E16DST_DST1Cluster*>, E16ANA_TrackConstant::kNumTrackingLayers> used_clusters;
-//  for (int tgt_index = 0; tgt_index < E16ANA_TrackConstant::kNumTargets; ++tgt_index) {
-    for (auto& clsts : used_clusters) {
-      clsts.clear();
+  for (auto& clsts : used_clusters) {
+    clsts.clear();
+  }
+  std::sort(track_candidates.begin(), track_candidates.end(), [](auto& lhs, auto& rhs) {
+    return lhs.ChiSquare() < rhs.ChiSquare();
+  });
+  for (auto& cand : track_candidates) {
+    cand.SetIsSelected(false);
+    if (cand.ChiSquare() > 1.0e9) {
+      break;
     }
-//    std::sort(track_candidates[tgt_index].begin(), track_candidates[tgt_index].end(), [](auto& lhs, auto& rhs) {
-    std::sort(track_candidates.begin(), track_candidates.end(), [](auto& lhs, auto& rhs) {
-      return lhs.ChiSquare() < rhs.ChiSquare();
-    });
-//    for (auto& track_candidate : track_candidates[tgt_index]) {
-    for (auto& cand : track_candidates) {
-      cand.SetIsSelected(false);
-      if (cand.ChiSquare() > 1.0e9 || cand.MinimizeStatus() == 0) {
-        break;
+    if (cand.MinimizeStatus() == 0) {
+      continue;
+    }
+    if (cand.ProjectedLGHits().size() == 0) {
+      continue;
+    }
+//    auto vtx = cand.FitVertex();
+//    if (vtx(0) * vtx(0) + vtx(1) * vtx(1) > kVertexSquareThreshold) {
+//      continue;
+//    }
+    bool is_used = false;
+    for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+      int n_types = 2;
+      if (l == E16DST_DST1Constant::kSSD) {
+        n_types = 1;
       }
-      if (cand.ProjectedLGHits().size() == 0) {
-        continue;
-      }
-//      auto vtx = cand.FitVertex();
-//      if (vtx(0) * vtx(0) + vtx(1) * vtx(1) > kVertexSquareThreshold) {
-//        continue;
-//      }
-      bool is_used = false;
-      for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
-        int n_types = 2;
-        if (l == E16DST_DST1Constant::kSSD) {
-          n_types = 1;
-        }
-        for (int type = 0; type < n_types; ++type) {
-          auto cluster = cand.ClusterPair(l).Cluster(type);
-          for (const auto& clst : used_clusters[l]) {
-            if (cluster == clst) {
-              is_used = true;
-              break;
-            }
-          }
-          if (is_used) {
+      for (int type = 0; type < n_types; ++type) {
+        auto cluster = cand.ClusterPair(l).Cluster(type);
+        for (const auto& clst : used_clusters[l]) {
+          if (cluster == clst) {
+            is_used = true;
             break;
           }
-          used_clusters[l].emplace_back(cluster);
         }
         if (is_used) {
           break;
         }
+        used_clusters[l].emplace_back(cluster);
       }
       if (is_used) {
-        continue;
+        break;
       }
-//      selected_track_candidates[tgt_index].emplace_back(&track_candidate);
-      cand.SetIsSelected(true);
-      selected_track_candidates.emplace_back(&cand);
     }
-//  }
+    if (is_used) {
+      continue;
+    }
+    cand.SetIsSelected(true);
+    selected_track_candidates.emplace_back(&cand);
+  }
   return;
 }
 
