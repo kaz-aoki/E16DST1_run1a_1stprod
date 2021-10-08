@@ -730,6 +730,153 @@ class E16DST_DST1Trigger {
   std::vector<E16DST_DST1TriggerTrackSet> track_sets;
 };
 
+class E16DST_DST1StraightTrack3D {
+public:
+  E16DST_DST1StraightTrack3D()
+//      : wire_x(E16DST_DST1Constant::kInvalidValue)
+//        initial_pos_at_wire_yz(E16DST_DST1Constant::kInvalidVector),
+//        initial_mom(E16DST_DST1Constant::kInvalidVector),
+//        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue})
+         {}
+  ~E16DST_DST1StraightTrack3D() {}
+  void Clear(){
+//    wire_x                 = E16DST_DST1Constant::kInvalidValue;
+//    initial_pos_at_wire_yz = E16DST_DST1Constant::kInvalidVector;
+//    initial_mom            = E16DST_DST1Constant::kInvalidVector;
+//    original_cluster_indexes.fill(E16DST_DST1Constant::kInvalidValue);
+//    hbd_indexes.clear();
+//    lg_indexes.clear();
+    }
+//
+   void SetModuleID(int16_t ){ module_id = m;}
+   int16_t ModuleID(){return module_id;}
+   void SetXTrackID(int16_t id){xtrk_id = id;}
+   void SetYTrackID(int16_t id){ytrk_id = id;}
+   int16_t XTrackID(){return xtrk_id;}
+   int16_t YTrackID(){return xtrk_id;}
+   void SetChi2X(float chi){chi2_x = chi;}
+   float Chi2X(){return chi2_x;} 
+   float Chi2Y(){return chi2_y;} 
+   void SetChi2Y(float chi){chi2_y = chi;}
+//   float TgtZ(){return tgt_z;} 
+
+//   float Distance(){return distance;} 
+//   float SSDResidualExSelf(){return residual_ssd_ex_self;} 
+   E16DST_DST1SSDCluster* SSDCluster(){return xclusterssd ;} 
+   E16DST_DST1GTRCluster* GTR100XCluster(){return xcluster100 ;} 
+   E16DST_DST1GTRCluster* GTR200XCluster(){return xcluster200 ;} 
+   E16DST_DST1GTRCluster* GTR300XCluster(){return xcluster300 ;} 
+   E16DST_DST1GTRCluster* GTR100YCluster(){return ycluster100 ;} 
+   E16DST_DST1GTRCluster* GTR200YCluster(){return ycluster200 ;} 
+   E16DST_DST1GTRCluster* GTR300YCluster(){return ycluster300 ;}
+    
+//   TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
+//   TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
+//   TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
+//   void SetModuleID(float _mid){module_id = _mid;}
+//   void SetChi2(float _chi2){chi2 = _chi2;}
+   float TgtPosZ(){return tgt_pos_z;}
+   float TgtPosY(){return tgt_pos_y;}
+   void SetTgtPosZ(float _tgtz){tgt_pos_z = _tgtz;}
+   void SetTgtPosY(float _tgty){tgt_pos_y = _tgty;}
+   void SetFitAX(float fit){fit_a_x = fit;}
+   void SetFitBX(float fit){fit_b_x = fit;}
+   void SetFitAY(float fit){fit_a_y = fit;}
+   void SetFitBY(float fit){fit_b_y = fit;} 
+   float FitAX(){return fit_a_x;}
+   float FitBX(){return fit_b_x;}
+   float FitAY(){return fit_a_y;}
+   float FitBY(){return fit_b_y;}
+   void SetDistanceFromTgtXZ(float _distance){distance_fromtgt_xz = _distance;}
+   void SetDistanceFromTgtYR(float _distance){distance_fromtgt_yr = _distance;}
+   float DistanceFromTgtXZ(){return distance_fromtgt_xz;}
+   float DistanceFromTgtYR(){return distance_fromtgt_yr;}
+   void SetResidualSSD(float _residualssd){residualssd =_residualssd; }
+   void SetFitResidual100X(float _residual){fit_residual100_x =_residual; }
+   void SetFitResidual200X(float _residual){fit_residual200_x =_residual; }
+   void SetFitResidual300X(float _residual){fit_residual300_x =_residual; }
+   void SetFitResidual100Y(float _residual){fit_residual100_y =_residual; }
+   void SetFitResidual200Y(float _residual){fit_residual200_y =_residual; }
+   void SetFitResidual300Y(float _residual){fit_residual300_y =_residual; }
+   float ResidualSSD(){return residualssd;}//
+   float FitResidual100X(){return fit_residual100_x;}
+   float FitResidual200X(){return fit_residual200_x;}
+   float FitResidual300X(){return fit_residual300_x;}
+   float FitResidual100Y(){return fit_residual100_y;}
+   float FitResidual200Y(){return fit_residual200_y;}
+   float FitResidual300Y(){return fit_residual300_y;}
+//   void SetSSDResidualExSelf(float _res){residual_ssd_ex_self = _res;}
+   void SetSSDCluster(E16DST_DST1SSDCluster *_cluster){xclusterssd = _cluster;}
+   void SetGTR100XCluster(E16DST_DST1GTRCluster *_cluster){xcluster100 = _cluster;}
+   void SetGTR200XCluster(E16DST_DST1GTRCluster *_cluster){xcluster200 = _cluster;}
+   void SetGTR300XCluster(E16DST_DST1GTRCluster *_cluster){xcluster300 = _cluster;}
+   void SetGTR100YCluster(E16DST_DST1GTRCluster *_cluster){ycluster100 = _cluster;}
+   void SetGTR200YCluster(E16DST_DST1GTRCluster *_cluster){ycluster200 = _cluster;}
+   void SetGTR300YCluster(E16DST_DST1GTRCluster *_cluster){ycluster300 = _cluster;}
+   void SetFitPtOnGTR100(TVector3 tv){fitpt_ongtr100 = tv;}
+   void SetFitPtOnGTR200(TVector3 tv){fitpt_ongtr200 = tv;}
+   void SetFitPtOnGTR300(TVector3 tv){fitpt_ongtr300 = tv;}
+   TVector3 FitPtOnGTR100(){return fitpt_ongtr100;}
+   TVector3 FitPtOnGTR200(){return fitpt_ongtr200;}
+   TVector3 FitPtOnGTR300(){return fitpt_ongtr300;}
+//   void SetPtOnTrackGTR100(TVector2 _pt0){point_on_track_gtr100 = _pt0;}
+//   void SetPtOnTrackGTR300(TVector2 _pt0){point_on_track_gtr300 = _pt0;}
+//   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
+//   
+private:
+   int16_t module_id;
+   int16_t xtrk_id;
+   int16_t ytrk_id;
+//   int16_t idssdxhit; 
+//   int16_t id100xhit; 
+//   int16_t id200xhit; 
+//   int16_t id300xhit; 
+//   int16_t id100yhit; 
+//   int16_t id200yhit; 
+//   int16_t id300yhit; 
+   float fit_a_x;
+   float fit_b_x;
+   float fit_a_y;
+   float fit_b_y;
+   float chi2_x;
+   float chi2_y;
+   float tgt_pos_z;//intercept with track
+   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
+   float distance_fromtgt_xz;
+   float distance_fromtgt_yr;//distance  from the nearest target on YR plane to the track, should be almost 0 if the track is true
+   float residualssd;//residual ssd, fit without itself
+   float fit_residual100_x; //fit including itself
+   float fit_residual200_x;
+   float fit_residual300_x;
+   float fit_residual100_y;
+   float fit_residual200_y;
+   float fit_residual300_y;
+//   float tgt_z;
+//   float distance;//from a nearest target
+   E16DST_DST1SSDCluster *xclusterssd;
+   E16DST_DST1GTRCluster *xcluster100;
+   E16DST_DST1GTRCluster *xcluster200;
+   E16DST_DST1GTRCluster *xcluster300;
+   E16DST_DST1GTRCluster *ycluster100;
+   E16DST_DST1GTRCluster *ycluster200;
+   E16DST_DST1GTRCluster *ycluster300;
+   TVector3 fitpt_ongtr100;
+   TVector3 fitpt_ongtr200;
+   TVector3 fitpt_ongtr300;
+//   TVector2 point_on_track_gtr100;	
+//   TVector2 point_on_track_gtr300;	
+//   TVector2 point_on_track_3000mm;
+//   float residual_ssd_ex_self;
+//   float residual_100;	
+//   float residual_200;	
+//   float residual_300;
+//   TVector2 pt0_on_track;	
+//   TVector2 pt1_on_track;	
+//   TVector2 pt2_on_track;	
+};
+
+
+
 class E16DST_DST1StraightTrack2D {
 public:
   E16DST_DST1StraightTrack2D()
@@ -796,10 +943,9 @@ private:
    TVector2 pt0_on_track;	
    TVector2 pt1_on_track;	
    TVector2 pt2_on_track;	
-   
-//
-//
 };
+
+
 
 
 class E16DST_DST1WireTrack {

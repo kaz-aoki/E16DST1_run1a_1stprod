@@ -36,7 +36,8 @@ void StraightTrackAnalyzerV0::Clear(){
     xz_trks_evesel.shrink_to_fit();
 }
 void StraightTrackAnalyzerOfWireV1::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
-    XZStraightAnalyzeOnlyGTR2(gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
+    XZStraightAnalyzeOnlyGTR2(ssd1->ClusterPtrs(mid, 0, 0),
+							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
 							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
 							  gtr1->ClusterPtrs(mid, 2, 0), //GTR300 X 
 							  mid, 
@@ -62,7 +63,7 @@ void StraightTrackAnalyzerV0::OneModule2DAnalyze(std::vector<E16ANA_SSDAnalyzedS
 
 
 void StraightTrackAnalyzerOfWireV1::OneModule2DAnalyze(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits, std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0, std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1, std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2, std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0, std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits0b,  std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits1, std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
-    XZStraightAnalyzeOnlyGTR(ssd_hits, gtr_xhits0, gtr_xhits1, gtr_xhits2,  mid, geom_v2);
+//    XZStraightAnalyzeOnlyGTR(ssd_hits, gtr_xhits0, gtr_xhits1, gtr_xhits2,  mid, geom_v2);
 //    XZStraightAnalyze(ssd_hits, gtr_xhits0, gtr_xhits1, gtr_xhits2,  mid, geom_v2);
 //    YRStraightAnalyze(gtr_yhits0, gtr_yhits0b, gtr_yhits1, gtr_yhits2, mid, geom_v2);
 }
@@ -681,12 +682,14 @@ std::vector<long double> StraightTrackAnalyzerOfWire::CalcChamberResidual(E16ANA
     }
 }
 
-void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
-    std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos;
+void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
+    std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
     std::vector<TVector2> v_fit_samples ;
     std::vector<double> sigma_x = {0.2, 0.2, 0.2};
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
+	double rphi;
+	if(101<mid&&mid<109) rphi = Agtr[mid-102];
     int index = 0;
     for(int i=0; i < (int)gtr_xhits0.size(); i++){
         for(int j=0; j < (int)gtr_xhits1.size(); j++){
@@ -704,12 +707,66 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 //                    std::cout << "cog pos" << hits[l]->CogPos() << std::endl;
                     l_hitpos.push_back(G4ThreeVector(hits[l]->CogPos(), 0, 0));
                     g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
+//                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
+                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
                     v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
                 }
                 std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
                 if(v_results1[0] < th_chi2_first){
+					double min = 9999;
+					double min2 = 9999;
+					int id_m = 0;
+					for(int m=0; m<(int)ssd_xhits.size(); m++){
+						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
+						G4ThreeVector ref = G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(G4ThreeVector(hssd->CogPos(),0, 0)));
+						G4ThreeVector ref2 = ref.rotateY(rphi);
+						double resx = fabs(ref2.x() - (ref2.z() * v_results1[2] + v_results1[1]));
+						if(resx < min){
+							id_m = m;
+							min2 = min;
+							min = resx;
+						}
+						else if(resx < min2){		
+							min2 = resx;
+						}
+					}
+					for(int m = id_m; m<id_m+1; m++){
+						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
+						l_ssd_hitpos.clear();	
+						g_ssd_hitpos.clear();	
+						rot_ssd_pos.clear();
+						l_ssd_hitpos.push_back(G4ThreeVector(hssd->CogPos(), 0, 0));
+						g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
+						rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(rphi)));
+						std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x);//wo SSD
+						if(v_results2[0] < th_chi2_second){
                         std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
+ 						trk->SetResidualSSD2(min2);	
+						trk->SetResidualSSD(rot_ssd_pos[0].x() - (rot_ssd_pos[0].z()*v_results2[2] + v_results2[1]));
+						trk->SetResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results2[2]+v_results2[1]));
+						trk->SetResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results2[2]+v_results2[1]));
+						trk->SetResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results2[2]+v_results2[1]));
+						trk->SetFitA(v_results2[1]);
+						trk->SetFitB(v_results2[2]);
+						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].x(), 0, rot_pos[0].z()*v_results2[2]+v_results2[1]);
+						G4ThreeVector glb_origin0 = rot_pt0.rotateY(-rphi);
+						trk->SetFitPtOnGTR100(TVector2(glb_origin0.x(), glb_origin0.z()));
+					
+						G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].x(), 0, rot_pos[1].z()*v_results2[2]+v_results2[1]);
+						G4ThreeVector glb_origin1 = rot_pt1.rotateY(-rphi);
+						trk->SetFitPtOnGTR200(TVector2(glb_origin1.x(), glb_origin1.z()));
+
+
+						G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].x(), 0, rot_pos[2].z()*v_results2[2]+v_results2[1]);
+						G4ThreeVector glb_origin2 = rot_pt2.rotateY(-rphi);
+						trk->SetFitPtOnGTR300(TVector2(glb_origin2.x(), glb_origin2.z()));
+	
+//						trk->SetFitPointOn100(TVector2());
+						trk->SetFitResSSD(TVector2(rot_ssd_pos[0].z()*v_results2[2] + v_results2[1], rot_ssd_pos[0].z()));
+						trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results2[2] + v_results2[1], rot_pos[0].z()));
+						trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results2[2] + v_results2[1], rot_pos[1].z()));
+						trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results2[2] + v_results2[1], rot_pos[2].z()));
+						trk->SetIDSSDHit(m);
                         trk->SetID100Hit(i);
 	           	        trk->SetID200Hit(j);
             	        trk->SetID300Hit(k);
@@ -719,14 +776,27 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 //                        trk->SetResidual100(v_results2[3]);
 //	        	        trk->SetResidual200(v_results2[4]);
 //               	        trk->SetResidual300(v_results2[5]);
+						
+						TVector2 w1(wire_x1, wire_z1);
+						TVector2 w2(wire_x2, wire_z2);
+						TVector2 rot_w1 = w1.Rotate(-rphi);
+						TVector2 rot_w2 = w2.Rotate(-rphi);
+						double dis1 = (rot_w1.Y()*v_results2[2]-(rot_w1.X()) + v_results2[1])/sqrt(1+v_results2[2]*v_results2[2]);
+						double dis2 = (rot_w2.Y()*v_results2[2]-(rot_w2.X()) + v_results2[1])/sqrt(1+v_results2[2]*v_results2[2]);
+						trk->SetDistance(dis1);
+						if(fabs(dis2)< fabs(dis1)) trk->SetDistance(dis2);
                     	trk->SetXHit100(hits[0]);
         	            trk->SetXHit200(hits[1]);
     	        	    trk->SetXHit300(hits[2]);
+    	        	    trk->SetXHitSSD(hssd);
                         trk->SetTrackID(index);
                         xz_trk_cands.push_back(trk);
                         index++;
-                    }
-                    v_results1.clear();
+						}
+						v_results2.clear();
+					}
+				}
+                v_results1.clear();
             }
         }
     }
@@ -843,14 +913,13 @@ void StraightTrackAnalyzerV0::XZStraightAnalyzeOnlyGTR(std::vector<E16ANA_SSDAna
     }
 }
 
-void StraightTrackAnalyzerV0::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
-	std::vector<double> sigma_y = {0.3, 0.3, 0.3};	
+    double rphi = phi - 1.570796;
+	std::vector<double> sigma_y = {0.5, 0.5, 0.5};	
 	std::vector<TVector2> v_fit_samples; 
-	std::vector<G4ThreeVector> l_hitpos;
-	std::vector<G4ThreeVector> g_hitpos;
-	std::vector<G4ThreeVector> rot_pos;
+	std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos;
     G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
 	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
 	double r100  = sqrt(r100_2);
@@ -873,7 +942,7 @@ void StraightTrackAnalyzerV0::YRStraightAnalyze2(std::vector<E16DST_DST1GTRClust
                 for(int l = 0; l <3; l++){
                     l_hitpos.push_back(G4ThreeVector(0, hits[l]->CogPos(), 0));
                     g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
+                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
                     v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].y()));
                 }
   //              std::cout << "v fir sample = " << v_fit_samples[2].Y() << std::endl;
@@ -885,7 +954,28 @@ void StraightTrackAnalyzerV0::YRStraightAnalyze2(std::vector<E16DST_DST1GTRClust
 					trk->SetModuleID(mid);
 //					y_trk_cand[index].SetChi2(v_results[0]);
                     trk->SetChi2(v_results[0]);
-					trk->SetTgtPos(v_results[1]);
+					trk->SetResidual100(rot_pos[0].y() - (rot_pos[0].z()*v_results[2]+v_results[1]));
+					trk->SetResidual200(rot_pos[1].y() - (rot_pos[1].z()*v_results[2]+v_results[1]));
+					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
+					trk->SetFitA(v_results[1]);
+					trk->SetFitB(v_results[2]);
+			
+					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
+					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
+					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
+					TVector2 w1(wire_x1, wire_z1);
+					TVector2 w2(wire_x2, wire_z2);
+					TVector2 rot_w1 = w1.Rotate(-rphi);
+					TVector2 rot_w2 = w2.Rotate(-rphi);
+					double dis1 = (rot_w1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);
+					double dis2 = (rot_w2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);
+					trk->SetDistance(dis1);	
+					trk->SetTgtPos(wire_z1);
+					if(fabs(dis2)<fabs(dis1) ){
+						trk->SetDistance(dis2);
+						trk->SetTgtPos(wire_z2);
+					}
+//					trk->SetTgtPos(v_results[1]);
 //                    std::cout << "v_results = " << v_results[1] << std::endl;
 					double a = v_results[1];
 					double b = v_results[2];
@@ -947,7 +1037,28 @@ void StraightTrackAnalyzerV0::YRStraightAnalyze2(std::vector<E16DST_DST1GTRClust
 					trk->SetModuleID(mid);
 //					y_trk_cand[index].SetChi2(v_results[0]);
                     trk->SetChi2(v_results[0]);
-					trk->SetTgtPos(v_results[1]);
+//					trk->SetTgtPos(v_results[1]);
+					trk->SetResidual100(rot_pos[0].y() - (rot_pos[0].z()*v_results[2]+v_results[1]));
+					trk->SetResidual200(rot_pos[1].y() - (rot_pos[1].z()*v_results[2]+v_results[1]));
+					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
+					trk->SetFitA(v_results[1]);
+					trk->SetFitB(v_results[2]);
+					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
+					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
+					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
+					TVector2 w1(wire_x1, wire_z1);
+					TVector2 w2(wire_x2, wire_z2);
+					TVector2 rot_w1 = w1.Rotate(-rphi);
+					TVector2 rot_w2 = w2.Rotate(-rphi);
+					double dis1 = (rot_w1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);
+					double dis2 = (rot_w2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);
+					trk->SetDistance(dis1);	
+					trk->SetTgtPos(wire_z1);
+					if(fabs(dis2)<fabs(dis1) ){
+						trk->SetDistance(dis2);
+						trk->SetTgtPos(wire_z2);
+					}
+
 					double a = v_results[1];
 					double b = v_results[2];
 					double zpos_x_at100 = b*(r100) + a;
@@ -1009,28 +1120,32 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
     double timing_y0, timing_y1, timing_y2, timing_x0, timing_x1, timing_x2;
     int index = 0;
     double time_diff;
-//    std::cout << "finding xyz track" << std::endl;
-//    xyz_st_trk.resize(y_trk_cands.size()* xz_trk_cands.size());
     for(int i = 0; i<y_trk_cands.size(); i++){
         std::shared_ptr<E16ANA_YTrackCandidate> y_track = y_trk_cands[i];
-        if( fabs(y_track->TgtPos()) > 10 ) continue;
-        timing_y0 = y_track->GetYHit100()->Timing();
-        timing_y1 = y_track->GetYHit200()->Timing();
-        timing_y2 = y_track->GetYHit300()->Timing();
+        timing_y0 = y_track->GetYCluster100()->Timing();
+        timing_y1 = y_track->GetYCluster200()->Timing();
+        timing_y2 = y_track->GetYCluster300()->Timing();
         for(int j=0; j<xz_trk_cands.size(); j++){
             std::shared_ptr<E16ANA_XZTrackCandidate> xz_track =xz_trk_cands[j];
             timing_x0 = xz_track->GetXCluster100()->Timing();
             timing_x1 = xz_track->GetXCluster200()->Timing();
             timing_x2 = xz_track->GetXCluster300()->Timing();
-            if(fabs(timing_x0 - timing_y0)<60 &&  fabs(timing_x1 - timing_y1)<80 && fabs(timing_x2 - timing_y2)<80){
+			if(fabs(y_track->TgtPos() - xz_track->TgtZ()) > 10 ) continue; //matching which wire 
+            if(fabs(timing_x0 - timing_y0)<25 &&  fabs(timing_x1 - timing_y1)<40 && fabs(timing_x2 - timing_y2)<40){
                     std::shared_ptr<E16ANA_XYZStraightTrack> trk = std::make_shared<E16ANA_XYZStraightTrack>();
                     trk->SetXZTrack(xz_track);
                     trk->SetYTrack(y_track);
-					TVector3 pt0 = TVector3(xz_track->Pt0OnTrack().X(), y_track->Pt0OnTrack().Y(), xz_track->Pt0OnTrack().Y());
-					TVector3 pt2 = TVector3(xz_track->Pt2OnTrack().X(), y_track->Pt2OnTrack().Y(), xz_track->Pt2OnTrack().Y());
-					trk->SetTwoPointsOnTrack(pt0, pt2);
+					trk->SetYTrackID(i);
+					trk->SetXTrackID(j);
+//					TVector3 pt0 = TVector3(xz_track->Pt0OnTrack().X(), y_track->Pt0OnTrack().Y(), xz_track->Pt0OnTrack().Y());
+//					TVector3 pt2 = TVector3(xz_track->Pt2OnTrack().X(), y_track->Pt2OnTrack().Y(), xz_track->Pt2OnTrack().Y());
+//					trk->SetTwoPointsOnTrack(pt0, pt2);
+					trk->SetFitPtOnGTR100(TVector3(xz_track->FitPtOnGTR100().X(), y_track->GetFitRes100().X(), xz_track->FitPtOnGTR100().Y()));
+					trk->SetFitPtOnGTR200(TVector3(xz_track->FitPtOnGTR200().X(), y_track->GetFitRes200().X(), xz_track->FitPtOnGTR200().Y()));
+					trk->SetFitPtOnGTR300(TVector3(xz_track->FitPtOnGTR300().X(), y_track->GetFitRes300().X(), xz_track->FitPtOnGTR300().Y()));
                     xyz_st_trk.push_back(trk);
 //					SetPointsOn3DTrack(xz_track, y_track);
+					std::cout << "trk id(x, y) = " << j<<", " <<i << std::endl; 
                     index++;
             }
         }
@@ -1066,10 +1181,6 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
         }
     }
 */
-
-
-
-
 }
 
 
