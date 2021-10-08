@@ -82,8 +82,8 @@ int main(int argc, char* argv[]) {
     E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
     record->GTR().UpdatePtrs();
 //    &record->GTR();
-	std::vector<E16DST_DST1StraightTrack2D> st_tracks;
-    E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+	std::vector<E16DST_DST1StraightTrack3D> st_tracks;
+    E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
 //	gtrhist->Fill();	
     ++n_event;
     ++n_physics_event;
