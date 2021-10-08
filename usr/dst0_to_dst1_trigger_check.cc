@@ -12,7 +12,7 @@
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
-#include "E16ANA_TrackCandidate.hh"
+#include "E16ANA_TrackCheckFile.hh"
 
 #include "TCanvas.h"
 
@@ -20,16 +20,14 @@ using namespace std;
 //namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 6) {
-    cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.root (all tracks)] [output.root (selected tracks)] [run ID] [max physics event (all: -1)] " << endl;
+  if (argc != 5) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
-  auto out_file_name0 = argv[2];
-  auto out_file_name1 = argv[3];
-  auto run_id        = stoi(argv[4]);
-  auto max_event     = stoi(argv[5]);
+  auto out_file_name = argv[2];
+  auto run_id        = stoi(argv[3]);
+  auto max_event     = stoi(argv[4]);
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -96,8 +94,9 @@ int main(int argc, char* argv[]) {
 //   }
 
 //  CheckFile check_file;
-  CheckFile check_file0(out_file_name0);
-  CheckFile check_file1(out_file_name1);
+//  CheckFile check_file0(out_file_name0);
+//  CheckFile check_file1(out_file_name1);
+  E16ANA_TrackCheckFile check_file(out_file_name);
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -127,12 +126,11 @@ int main(int argc, char* argv[]) {
       E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       record->GTR().UpdatePtrs();
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-//      E16DST_DST1LGFactory(lg_hits0,   &event1->LGHits(),  &event1->LGClusters());
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
       record->LG().UpdatePtrs();
-//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record->Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record);
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file0, &check_file1);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, fitter, record, &check_file);
 
 //// Check begin
 //      auto event_id = event0->EventID();

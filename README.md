@@ -35,3 +35,11 @@
 ・プログラムのチェックはdst0_to_dst1.ccではなくdst0_to_dst1_xxx_check.ccを使ってください。
 
 　それ以外の書き換えであればdst0_to_dst1.ccを編集して構いません。他のdst0_to_dst1_xxx_check.ccを編集はしなくて大丈夫です。
+
+・run0b (DST0 Version4) について解析する場合は、
+
+　cd E16DST
+ 
+　git checkout 094ffb8
+ 
+　としてversion4のE16DSTをとってきてください。
