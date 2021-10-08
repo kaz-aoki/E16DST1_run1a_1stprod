@@ -72,6 +72,8 @@ int main(int argc, char* argv[]) {
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
   hbd_cut->ReadCutData(calib.CurrentRunID());
   std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+  E16ANA_LGBasic lgbasic;
+  lgbasic.SetCalibMap();
   E16ANA_TriggerCalibParam trigger_param;
   trigger_param.ReadConstantData(calib.CurrentRunID());
 
@@ -114,8 +116,6 @@ int main(int argc, char* argv[]) {
       auto& trigger_lg_hits0  = event0->TriggerLG();
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().UpdatePtrs();
-//      E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped);
-//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped);
       record.GTR().UpdatePtrs();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
@@ -195,6 +195,5 @@ int main(int argc, char* argv[]) {
 
   delete geometry;
   delete dst0;
-//  dst1->Close();
   return 0;
 }
