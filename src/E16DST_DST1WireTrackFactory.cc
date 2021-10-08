@@ -57,15 +57,11 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
 //	st_tracks.resize(trks_size);
-	std::cout << "trks size = " <<trks_size << std::endl;
 	for(int i=0; i<trks_size; i++){
 		std::shared_ptr<E16ANA_XYZStraightTrack> t = straight_analyzer->GetXYZStraightTracks()[i];
 		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
 		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
 		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
-		std::cout << "i = " << i << std::endl;
-		std::cout << "module id = " << tx->ModuleID() << std::endl;
-		std::cout << "tracks size  = " << st_tracks.size() << std::endl;
 		
 		trk->SetModuleID(tx->ModuleID());
 		trk->SetModuleID(tx->ModuleID());

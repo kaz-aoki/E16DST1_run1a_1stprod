@@ -722,7 +722,6 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 						double resx = fabs(ref2.x() - (ref2.z() * v_results1[2] + v_results1[1]));
 						if(resx < min){
 							id_m = m;
-							std::cout << "m " << id_m << std::endl;
 							min2 = min;
 							min = resx;
 						}
@@ -732,7 +731,6 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 					}
 					for(int m = id_m; m<id_m+1; m++){
 						if(ssd_xhits.size() == 0 )continue;
-						std::cout << "ssd id = " << m << ", " << id_m << std::endl;
 						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
 						
 						l_ssd_hitpos.clear();	
