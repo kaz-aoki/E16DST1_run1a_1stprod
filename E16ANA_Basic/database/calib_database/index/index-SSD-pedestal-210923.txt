@@ -46,7 +46,7 @@
  20876 SSD/pedestal/210923/SSD-pedestal-run20876-210923.dat   run0b upto 20876
  21018 SSD/pedestal/210923/SSD-pedestal-run21018-210923.dat   run0b upto 21018, also used for run30000~30009	
 # 29999 SSD/pedestal/210923/pedestal_run0c.dat   run0b upto 29999
- 21018 SSD/pedestal/210922/SSD-pedestal-run21018-210922.dat   run0c upto 30009
+# 21018 SSD/pedestal/210922/SSD-pedestal-run21018-210922.dat   run0c upto 30009
  30034 SSD/pedestal/210922/SSD-pedestal-run30034-210922.dat   run0c upto 30034
  30058 SSD/pedestal/210922/SSD-pedestal-run30058-210922.dat   run0c upto 30058
  30063 SSD/pedestal/210922/SSD-pedestal-run30063-210922.dat   run0c upto 30063
