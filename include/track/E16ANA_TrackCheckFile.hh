@@ -80,6 +80,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_y_cands", &n_y_cands, "n_y_cands/I");
     tree->Branch("n_cands", &n_cands, "n_cands/I");
     tree->Branch("n_selected", &n_selected, "n_selected/I");
+    tree->Branch("n_pairs", &n_pairs, "n_pairs/I");
     tree->Branch("is_selected", &is_selected);
     tree->Branch("chi_square", &chi_square);
     tree->Branch("n_steps", &n_steps);
@@ -125,6 +126,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_fit_gtr300_gy",  &rk_fit_gtr300_gy);
     tree->Branch("rk_fit_gtr300_gz",  &rk_fit_gtr300_gz);
     tree->Branch("rk_fit_hbd_mid", &rk_fit_hbd_mid);
+    tree->Branch("rk_fit_hbd_x",   &rk_fit_hbd_x);
+    tree->Branch("rk_fit_hbd_y",   &rk_fit_hbd_y);
     tree->Branch("rk_fit_hbd_gx",  &rk_fit_hbd_gx);
     tree->Branch("rk_fit_hbd_gy",  &rk_fit_hbd_gy);
     tree->Branch("rk_fit_hbd_gz",  &rk_fit_hbd_gz);
@@ -153,6 +156,27 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_res_gtr200_y", &rk_res_gtr200_y);
     tree->Branch("rk_res_gtr300_x", &rk_res_gtr300_x);
     tree->Branch("rk_res_gtr300_y", &rk_res_gtr300_y);
+    tree->Branch("rk_proj_tgt0_gx", &rk_proj_tgt0_gx);
+    tree->Branch("rk_proj_tgt0_gy", &rk_proj_tgt0_gy);
+    tree->Branch("rk_proj_tgt0_gz", &rk_proj_tgt0_gz);
+    tree->Branch("rk_proj_tgt1_gx", &rk_proj_tgt1_gx);
+    tree->Branch("rk_proj_tgt1_gy", &rk_proj_tgt1_gy);
+    tree->Branch("rk_proj_tgt1_gz", &rk_proj_tgt1_gz);
+    tree->Branch("rk_proj_tgt2_gx", &rk_proj_tgt2_gx);
+    tree->Branch("rk_proj_tgt2_gy", &rk_proj_tgt2_gy);
+    tree->Branch("rk_proj_tgt2_gz", &rk_proj_tgt2_gz);
+    tree->Branch("rk_proj_hbd0_mid", &rk_proj_hbd0_mid);
+    tree->Branch("rk_proj_hbd0_x",   &rk_proj_hbd0_x);
+    tree->Branch("rk_proj_hbd0_y",   &rk_proj_hbd0_y);
+    tree->Branch("rk_proj_hbd1_mid", &rk_proj_hbd1_mid);
+    tree->Branch("rk_proj_hbd1_x",   &rk_proj_hbd1_x);
+    tree->Branch("rk_proj_hbd1_y",   &rk_proj_hbd1_y);
+    tree->Branch("rk_proj_hbd2_mid", &rk_proj_hbd2_mid);
+    tree->Branch("rk_proj_hbd2_x",   &rk_proj_hbd2_x);
+    tree->Branch("rk_proj_hbd2_y",   &rk_proj_hbd2_y);
+    tree->Branch("rk_proj_hbd3_mid", &rk_proj_hbd3_mid);
+    tree->Branch("rk_proj_hbd3_x",   &rk_proj_hbd3_x);
+    tree->Branch("rk_proj_hbd3_y",   &rk_proj_hbd3_y);
     tree->Branch("rk_proj_lg0_mid", &rk_proj_lg0_mid);
     tree->Branch("rk_proj_lg0_x",   &rk_proj_lg0_x);
     tree->Branch("rk_proj_lg0_y",   &rk_proj_lg0_y);
@@ -165,6 +189,9 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_lg3_mid", &rk_proj_lg3_mid);
     tree->Branch("rk_proj_lg3_x",   &rk_proj_lg3_x);
     tree->Branch("rk_proj_lg3_y",   &rk_proj_lg3_y);
+    tree->Branch("rk_vtx_gx", &rk_vtx_gx);
+    tree->Branch("rk_vtx_gy", &rk_vtx_gy);
+    tree->Branch("rk_vtx_gz", &rk_vtx_gz);
   };
   ~E16ANA_TrackCheckFile() { file.Write(); }
   void AddEntry(int _event_id, E16ANA_GeometryV2& geometry, E16DST_DST1PhysicsRecord& record, E16ANA_TrackCandidates& cands) {
@@ -329,6 +356,7 @@ class E16ANA_TrackCheckFile {
     n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
     n_selected = cands.NumSelectedTrackCandidates();
+    n_pairs = cands.NumSelectedTrackCandidatePairs();
     is_selected.resize(n_cands);
     chi_square.resize(n_cands);
     n_steps.resize(n_cands);
@@ -374,6 +402,8 @@ class E16ANA_TrackCheckFile {
     rk_fit_gtr300_gy.resize(n_cands);
     rk_fit_gtr300_gz.resize(n_cands);
     rk_fit_hbd_mid.resize(n_cands);
+    rk_fit_hbd_x.resize(n_cands);
+    rk_fit_hbd_y.resize(n_cands);
     rk_fit_hbd_gx.resize(n_cands);
     rk_fit_hbd_gy.resize(n_cands);
     rk_fit_hbd_gz.resize(n_cands);
@@ -402,6 +432,27 @@ class E16ANA_TrackCheckFile {
     rk_res_gtr200_y.resize(n_cands);
     rk_res_gtr300_x.resize(n_cands);
     rk_res_gtr300_y.resize(n_cands);
+    rk_proj_tgt0_gx.resize(n_cands);
+    rk_proj_tgt0_gy.resize(n_cands);
+    rk_proj_tgt0_gz.resize(n_cands);
+    rk_proj_tgt1_gx.resize(n_cands);
+    rk_proj_tgt1_gy.resize(n_cands);
+    rk_proj_tgt1_gz.resize(n_cands);
+    rk_proj_tgt2_gx.resize(n_cands);
+    rk_proj_tgt2_gy.resize(n_cands);
+    rk_proj_tgt2_gz.resize(n_cands);
+    rk_proj_hbd0_mid.resize(n_cands);
+    rk_proj_hbd0_x.resize(n_cands);
+    rk_proj_hbd0_y.resize(n_cands);
+    rk_proj_hbd1_mid.resize(n_cands);
+    rk_proj_hbd1_x.resize(n_cands);
+    rk_proj_hbd1_y.resize(n_cands);
+    rk_proj_hbd2_mid.resize(n_cands);
+    rk_proj_hbd2_x.resize(n_cands);
+    rk_proj_hbd2_y.resize(n_cands);
+    rk_proj_hbd3_mid.resize(n_cands);
+    rk_proj_hbd3_x.resize(n_cands);
+    rk_proj_hbd3_y.resize(n_cands);
     rk_proj_lg0_mid.resize(n_cands);
     rk_proj_lg0_x.resize(n_cands);
     rk_proj_lg0_y.resize(n_cands);
@@ -414,6 +465,9 @@ class E16ANA_TrackCheckFile {
     rk_proj_lg3_mid.resize(n_cands);
     rk_proj_lg3_x.resize(n_cands);
     rk_proj_lg3_y.resize(n_cands);
+    rk_vtx_gx.resize(n_pairs);
+    rk_vtx_gy.resize(n_pairs);
+    rk_vtx_gz.resize(n_pairs);
     for (int i = 0; i < n_cands; ++i) {
       auto& cand = cands.TrackCandidates()[i];
       is_selected[i] = cand.IsSelected();
@@ -481,6 +535,9 @@ class E16ANA_TrackCheckFile {
       rk_res_gtr300_x[i] = fits[3].residual_pos.X();
       rk_res_gtr300_y[i] = fits[3].residual_pos.Y();
       rk_fit_hbd_mid[i] = fits[4].module_id;
+      auto& hbdfit_lpos = fits[4].local_pos;
+      rk_fit_hbd_x[i] = hbdfit_lpos.X();
+      rk_fit_hbd_y[i] = hbdfit_lpos.Y();
       auto& hbdfit_gpos = fits[4].global_pos;
       rk_fit_hbd_gx[i] = hbdfit_gpos.X();
       rk_fit_hbd_gy[i] = hbdfit_gpos.Y();
@@ -509,6 +566,60 @@ class E16ANA_TrackCheckFile {
       rk_fit_lg_a_gx[i] = lgafit_gpos.X();
       rk_fit_lg_a_gy[i] = lgafit_gpos.Y();
       rk_fit_lg_a_gz[i] = lgafit_gpos.Z();
+      auto proj_tgt0 = cand.PosAtTarget(0);
+      rk_proj_tgt0_gx[i] = proj_tgt0.X();
+      rk_proj_tgt0_gy[i] = proj_tgt0.Y();
+      rk_proj_tgt0_gz[i] = proj_tgt0.Z();
+      auto proj_tgt1 = cand.PosAtTarget(1);
+      rk_proj_tgt1_gx[i] = proj_tgt1.X();
+      rk_proj_tgt1_gy[i] = proj_tgt1.Y();
+      rk_proj_tgt1_gz[i] = proj_tgt1.Z();
+      auto proj_tgt2 = cand.PosAtTarget(2);
+      rk_proj_tgt2_gx[i] = proj_tgt2.X();
+      rk_proj_tgt2_gy[i] = proj_tgt2.Y();
+      rk_proj_tgt2_gz[i] = proj_tgt2.Z();
+      auto& proj_hbd_clusters = cand.ProjectedHBDClusters();
+      rk_proj_hbd0_mid[i] = -10000;
+      rk_proj_hbd0_x[i] = -10000.;
+      rk_proj_hbd0_y[i] = -10000.;
+      rk_proj_hbd1_mid[i] = -10000;
+      rk_proj_hbd1_x[i] = -10000.;
+      rk_proj_hbd1_y[i] = -10000.;
+      rk_proj_hbd2_mid[i] = -10000;
+      rk_proj_hbd2_x[i] = -10000.;
+      rk_proj_hbd2_y[i] = -10000.;
+      rk_proj_hbd3_mid[i] = -10000;
+      rk_proj_hbd3_x[i] = -10000.;
+      rk_proj_hbd3_y[i] = -10000.;
+      auto n_hbd_proj = proj_hbd_clusters.size();
+      if (n_hbd_proj >= 1) {
+        auto& hbdclst = proj_hbd_clusters[0];
+        rk_proj_hbd0_mid[i] = hbdclst->ModuleId();
+        auto proj_hbdlpos = hbdclst->LocalPos();
+        rk_proj_hbd0_x[i] = proj_hbdlpos.X();
+        rk_proj_hbd0_y[i] = proj_hbdlpos.Y();
+      }
+      if (n_hbd_proj >= 2) {
+        auto& hbdclst = proj_hbd_clusters[1];
+        rk_proj_hbd1_mid[i] = hbdclst->ModuleId();
+        auto proj_hbdlpos = hbdclst->LocalPos();
+        rk_proj_hbd1_x[i] = proj_hbdlpos.X();
+        rk_proj_hbd1_y[i] = proj_hbdlpos.Y();
+      }
+      if (n_hbd_proj >= 3) {
+        auto& hbdclst = proj_hbd_clusters[0];
+        rk_proj_hbd2_mid[i] = hbdclst->ModuleId();
+        auto proj_hbdlpos = hbdclst->LocalPos();
+        rk_proj_hbd2_x[i] = proj_hbdlpos.X();
+        rk_proj_hbd2_y[i] = proj_hbdlpos.Y();
+      }
+      if (n_hbd_proj >= 4) {
+        auto& hbdclst = proj_hbd_clusters[0];
+        rk_proj_hbd3_mid[i] = hbdclst->ModuleId();
+        auto proj_hbdlpos = hbdclst->LocalPos();
+        rk_proj_hbd3_x[i] = proj_hbdlpos.X();
+        rk_proj_hbd3_y[i] = proj_hbdlpos.Y();
+      }
       auto& proj_lg_hits = cand.ProjectedLGHits();
       rk_proj_lg0_mid[i] = -10000;
       rk_proj_lg0_x[i] = -10000.;
@@ -522,35 +633,41 @@ class E16ANA_TrackCheckFile {
       rk_proj_lg3_mid[i] = -10000;
       rk_proj_lg3_x[i] = -10000.;
       rk_proj_lg3_y[i] = -10000.;
-      auto n_proj = proj_lg_hits.size();
-      if (n_proj >= 1) {
+      auto n_lg_proj = proj_lg_hits.size();
+      if (n_lg_proj >= 1) {
         auto& lghit = proj_lg_hits[0];
         rk_proj_lg0_mid[i] = lghit->ModuleId();
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg0_x[i] = lglpos.X();
         rk_proj_lg0_y[i] = lglpos.Y();
       }
-      if (n_proj >= 2) {
+      if (n_lg_proj >= 2) {
         auto& lghit = proj_lg_hits[1];
         rk_proj_lg1_mid[i] = lghit->ModuleId();
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg1_x[i] = lglpos.X();
         rk_proj_lg1_y[i] = lglpos.Y();
       }
-      if (n_proj >= 3) {
+      if (n_lg_proj >= 3) {
         auto& lghit = proj_lg_hits[0];
         rk_proj_lg2_mid[i] = lghit->ModuleId();
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg2_x[i] = lglpos.X();
         rk_proj_lg2_y[i] = lglpos.Y();
       }
-      if (n_proj >= 4) {
+      if (n_lg_proj >= 4) {
         auto& lghit = proj_lg_hits[0];
         rk_proj_lg3_mid[i] = lghit->ModuleId();
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg3_x[i] = lglpos.X();
         rk_proj_lg3_y[i] = lglpos.Y();
       }
+    }
+    for (int i = 0; i < n_pairs; ++i) {
+      auto& pair_vtx = cands.SelectedTrackCandidatePair(i)->vtx;
+      rk_vtx_gx[i] = pair_vtx.X();
+      rk_vtx_gy[i] = pair_vtx.Y();
+      rk_vtx_gz[i] = pair_vtx.Z();
     }
   }
   TFile file;
@@ -617,6 +734,7 @@ class E16ANA_TrackCheckFile {
   int n_y_cands;
   int n_cands;
   int n_selected;
+  int n_pairs;
   std::vector<bool> is_selected;
   std::vector<double> chi_square;
   std::vector<int> n_steps;
@@ -645,39 +763,41 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_fit_tgt_gx;
   std::vector<double> rk_fit_tgt_gy;
   std::vector<double> rk_fit_tgt_gz;
-  std::vector<double> rk_fit_ssd_mid;
+  std::vector<int> rk_fit_ssd_mid;
   std::vector<double> rk_fit_ssd_gx;
   std::vector<double> rk_fit_ssd_gy;
   std::vector<double> rk_fit_ssd_gz;
-  std::vector<double> rk_fit_gtr100_mid;
+  std::vector<int> rk_fit_gtr100_mid;
   std::vector<double> rk_fit_gtr100_gx;
   std::vector<double> rk_fit_gtr100_gy;
   std::vector<double> rk_fit_gtr100_gz;
-  std::vector<double> rk_fit_gtr200_mid;
+  std::vector<int> rk_fit_gtr200_mid;
   std::vector<double> rk_fit_gtr200_gx;
   std::vector<double> rk_fit_gtr200_gy;
   std::vector<double> rk_fit_gtr200_gz;
-  std::vector<double> rk_fit_gtr300_mid;
+  std::vector<int> rk_fit_gtr300_mid;
   std::vector<double> rk_fit_gtr300_gx;
   std::vector<double> rk_fit_gtr300_gy;
   std::vector<double> rk_fit_gtr300_gz;
-  std::vector<double> rk_fit_hbd_mid;
+  std::vector<int> rk_fit_hbd_mid;
+  std::vector<double> rk_fit_hbd_x;
+  std::vector<double> rk_fit_hbd_y;
   std::vector<double> rk_fit_hbd_gx;
   std::vector<double> rk_fit_hbd_gy;
   std::vector<double> rk_fit_hbd_gz;
-  std::vector<double> rk_fit_lg_c_mid;
+  std::vector<int> rk_fit_lg_c_mid;
   std::vector<double> rk_fit_lg_c_x;
   std::vector<double> rk_fit_lg_c_y;
   std::vector<double> rk_fit_lg_c_gx;
   std::vector<double> rk_fit_lg_c_gy;
   std::vector<double> rk_fit_lg_c_gz;
-  std::vector<double> rk_fit_lg_b_mid;
+  std::vector<int> rk_fit_lg_b_mid;
   std::vector<double> rk_fit_lg_b_x;
   std::vector<double> rk_fit_lg_b_y;
   std::vector<double> rk_fit_lg_b_gx;
   std::vector<double> rk_fit_lg_b_gy;
   std::vector<double> rk_fit_lg_b_gz;
-  std::vector<double> rk_fit_lg_a_mid;
+  std::vector<int> rk_fit_lg_a_mid;
   std::vector<double> rk_fit_lg_a_x;
   std::vector<double> rk_fit_lg_a_y;
   std::vector<double> rk_fit_lg_a_gx;
@@ -690,18 +810,42 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_res_gtr200_y;
   std::vector<double> rk_res_gtr300_x;
   std::vector<double> rk_res_gtr300_y;
-  std::vector<double> rk_proj_lg0_mid;
+  std::vector<double> rk_proj_tgt0_gx;
+  std::vector<double> rk_proj_tgt0_gy;
+  std::vector<double> rk_proj_tgt0_gz;
+  std::vector<double> rk_proj_tgt1_gx;
+  std::vector<double> rk_proj_tgt1_gy;
+  std::vector<double> rk_proj_tgt1_gz;
+  std::vector<double> rk_proj_tgt2_gx;
+  std::vector<double> rk_proj_tgt2_gy;
+  std::vector<double> rk_proj_tgt2_gz;
+  std::vector<int> rk_proj_hbd0_mid;
+  std::vector<double> rk_proj_hbd0_x;
+  std::vector<double> rk_proj_hbd0_y;
+  std::vector<int> rk_proj_hbd1_mid;
+  std::vector<double> rk_proj_hbd1_x;
+  std::vector<double> rk_proj_hbd1_y;
+  std::vector<int> rk_proj_hbd2_mid;
+  std::vector<double> rk_proj_hbd2_x;
+  std::vector<double> rk_proj_hbd2_y;
+  std::vector<int> rk_proj_hbd3_mid;
+  std::vector<double> rk_proj_hbd3_x;
+  std::vector<double> rk_proj_hbd3_y;
+  std::vector<int> rk_proj_lg0_mid;
   std::vector<double> rk_proj_lg0_x;
   std::vector<double> rk_proj_lg0_y;
-  std::vector<double> rk_proj_lg1_mid;
+  std::vector<int> rk_proj_lg1_mid;
   std::vector<double> rk_proj_lg1_x;
   std::vector<double> rk_proj_lg1_y;
-  std::vector<double> rk_proj_lg2_mid;
+  std::vector<int> rk_proj_lg2_mid;
   std::vector<double> rk_proj_lg2_x;
   std::vector<double> rk_proj_lg2_y;
-  std::vector<double> rk_proj_lg3_mid;
+  std::vector<int> rk_proj_lg3_mid;
   std::vector<double> rk_proj_lg3_x;
   std::vector<double> rk_proj_lg3_y;
+  std::vector<double> rk_vtx_gx;
+  std::vector<double> rk_vtx_gy;
+  std::vector<double> rk_vtx_gz;
 };
 
 #endif // E16ANA_TRACKCHECKFILE_HH
