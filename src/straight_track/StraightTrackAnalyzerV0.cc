@@ -1130,6 +1130,7 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
             timing_x0 = xz_track->GetXCluster100()->Timing();
             timing_x1 = xz_track->GetXCluster200()->Timing();
             timing_x2 = xz_track->GetXCluster300()->Timing();
+			if(fabs(y_track->TgtPos() - xz_track->TgtZ()) > 10 ) continue; //matching which wire 
             if(fabs(timing_x0 - timing_y0)<25 &&  fabs(timing_x1 - timing_y1)<40 && fabs(timing_x2 - timing_y2)<40){
                     std::shared_ptr<E16ANA_XYZStraightTrack> trk = std::make_shared<E16ANA_XYZStraightTrack>();
                     trk->SetXZTrack(xz_track);
