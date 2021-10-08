@@ -27,6 +27,8 @@ bool E16ANA_HBDCalibration::ReadCalibrationData(const int runID){
   this->ReadPedestalAndNoiseFile(hbd_pedestal_file.c_str());
   this->ReadGainFile(hbd_gain_file.c_str());
   this->ReadGainCalibrationStatusFile(hbd_gain_calibration_status.c_str());
+
+  return true;
 }
 
 bool E16ANA_HBDCalibration::ReadPedestalAndNoiseFile(const char *filename){
@@ -146,14 +148,14 @@ bool E16ANA_HBDCalibration::GetCalibratedSignal(const int module_id, const int p
     if(pedestal[index][pad_id].size() > 1){
       for(int i=0; i<n_samples; i++){
 	out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(i);
-	return true;
       }
+      return true;
     }
     else{
       for(int i=0; i<n_samples; i++){
 	out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(0);
-	return true;
       }
+      return true;
     }
   }
   else{

@@ -1,0 +1,16 @@
+# valid only two columns:  comment for 3rd or more
+# runID filename comment
+#
+  0    HBD/gain/210831/HBD-gain-default-210831.dat    for error
+  9999 HBD/gain/210831/HBD-gain-default-210831.dat    run0a upto 9999
+ 29999 HBD/gain/210831/HBD-gain-default-210831.dat   run0b upto 29999
+ 30716 HBD/gain/210831/HBD-gain-default-210831.dat   run0b upto 29999
+ 30718 HBD/gain/210831/HBD-gain-run030717-run030718-210831.dat   run0c vector meon
+ 30719 HBD/gain/210831/HBD-gain-run030719-210831.dat   run0c vector meson
+ 30727 HBD/gain/210831/HBD-gain-run030727-210831.dat   run0c vector meson
+ 30735 HBD/gain/210831/HBD-gain-run030735-210831.dat   run0c vector meson
+ 30741 HBD/gain/210831/HBD-gain-run030741-210831.dat   run0c vector meson
+ 30758 HBD/gain/210831/HBD-gain-run030758-210831.dat   run0c vector meson
+ 30778 HBD/gain/210831/HBD-gain-run030772-210831.dat   run0c vector meson
+ 39999 HBD/gain/210831/HBD-gain-default-210831.dat   run0c upto 39999
+999999 HBD/gain/210831/HBD-gain-default-210831.dat   for error

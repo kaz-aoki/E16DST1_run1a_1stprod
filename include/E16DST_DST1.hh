@@ -288,9 +288,10 @@ class E16DST_DST1HBDHit : public E16DST_DST1Hit {
     lpos = TVector3(E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue);
   }
   void SetChi2(float _chi2){ chi2 = _chi2;};
-  void SetPeakHeight(float _peak_height) override { peak_height = peak_height; }
+  void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void SetLocalPos(TVector3 _lpos){ lpos = _lpos; };
   float PeakHeight() override { return peak_height; }
+  float Chi2(){return chi2;};
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   void Print() override {

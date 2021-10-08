@@ -6,13 +6,13 @@
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
-#include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_Constant.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGWaveform.hh"
 
@@ -23,6 +23,12 @@
 #include "E16ANA_HBDChannelManager.hh"
 #include "E16ANA_HBDConstant.hh"
 #include "E16ANA_HBDClusterAnalysis.hh"
+
+#include "E16ANA_GTRcalib.hh"
+#include "GTR/GTRCheckHist.hh"
+#include "E16ANA_TargetInfo.hh"
+
+
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -68,84 +74,133 @@ int main(int argc, char* argv[]) {
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
 
-  /*
-  TH1F *hph[7][56];
-  TH1F *hpt[7][56];
-  TH1F *htm[7][56];
-  TH1F *hbl[7][56];
-  TH1F *hbr[7][56];
-  TH1F *hit[7][56];
-  TH1F *ht0[7][56];
-  TH1F *hed[7][56];
-  TH1F *hnp[7][56];
-  TH1F *hff[7][56];
-  TH1F *hfp[7][56];
-  TH1F *hfx[7][56];
-  TH1F *hft[7][56];
-  TH1F *hfw[7][56];
-  TH1F *hfc[7][56];
-  for(int i=0;i<7;i++){
-    for(int j=0;j<56;j++){
-      hph[i][j] = new TH1F(Form("hph%d%d",i,j),Form("PeakHeight%d%d",i,j),1100,-100,1000);
-      hpt[i][j] = new TH1F(Form("hpt%d%d",i,j),Form("PeakTime%d%d",i,j),200,0,200);
-      htm[i][j] = new TH1F(Form("htm%d%d",i,j),Form("Timing%d%d",i,j),200,0,200);
-      hbl[i][j] = new TH1F(Form("hbl%d%d",i,j),Form("Baseline%d%d",i,j),200,-100,100);
-      hbr[i][j] = new TH1F(Form("hbr%d%d",i,j),Form("BaselineRms%d%d",i,j),200,-100,100);
-      hit[i][j] = new TH1F(Form("hit%d%d",i,j),Form("Integral%d%d",i,j),1100,-100,1000);
-      ht0[i][j] = new TH1F(Form("ht0%d%d",i,j),Form("CalibTiming%d%d",i,j),1000,0,200);
-      hed[i][j] = new TH1F(Form("hed%d%d",i,j),Form("EnergyDeposit%d%d",i,j),1100,-1,10);
-      hnp[i][j] = new TH1F(Form("hnp%d%d",i,j),Form("Npeaks%d%d",i,j),5,0,5);
-      hff[i][j] = new TH1F(Form("hff%d%d",i,j),Form("FitFlag%d%d",i,j),5,0,5);
-      hfp[i][j] = new TH1F(Form("hfp%d%d",i,j),Form("FitPeak%d%d",i,j),1100,-100,1000);
-      hfx[i][j] = new TH1F(Form("hfx%d%d",i,j),Form("FitPeakTime%d%d",i,j),200,0,200);
-      hft[i][j] = new TH1F(Form("hft%d%d",i,j),Form("FitTiming%d%d",i,j),200,0,200);
-      hfw[i][j] = new TH1F(Form("hfw%d%d",i,j),Form("FitWidth%d%d",i,j),200,0,2);
-      hfc[i][j] = new TH1F(Form("hfc%d%d",i,j),Form("FitChi2%d%d",i,j),200,0,50);
-    }
-  }
-  */
-
   int event;
-  const int HMAX = 100;
-  const int CMAX = 100;
+  const int HMAX = 1000;
+  const int CMAX = 1000;
+
+  int ssd_nh;
+  int ssd_nc;
+  int ssd_m[CMAX];
+  int ssd_cs[CMAX];
+  float ssd_tdc[CMAX];
+  float ssd_adc[CMAX];
+  float ssd_lx[CMAX];
+  int gtr_nh, gtr_nc;
+  int g100_nh;
+  int g100_nc;
+  int g100_m[CMAX];
+  int g100_cs[CMAX];
+  float g100_tdc[CMAX];
+  float g100_adc[CMAX];
+  float g100_lx[CMAX];
+  float g100_ly[CMAX];
+  int g200_nh;
+  int g200_nc;
+  int g200_m[CMAX];
+  int g200_cs[CMAX];
+  float g200_tdc[CMAX];
+  float g200_adc[CMAX];
+  float g200_lx[CMAX];
+  float g200_ly[CMAX];
+  int g300_nh;
+  int g300_nc;
+  int g300_m[CMAX];
+  int g300_cs[CMAX];
+  float g300_tdc[CMAX];
+  float g300_adc[CMAX];
+  float g300_lx[CMAX];
+  float g300_ly[CMAX];
   int hbd_nh;
   int hbd_nc;
   int hbd_m[CMAX];
-  float hbd_cs[CMAX];
+  int hbd_cs[CMAX];
   float hbd_tdc[CMAX];
   float hbd_adc[CMAX];
+  float hbd_lx[CMAX];
+  float hbd_ly[CMAX];
   int lg_nh;
   int lg_nc;
   int lg_m[HMAX];
-  float lg_cs[HMAX];
+  int lg_cs[HMAX];
   float lg_tdc[HMAX];
   float lg_adc[HMAX];
+  float lg_lx[HMAX];
+  float lg_ly[HMAX];
 
   tree->Branch("Event",&event,"Event/I");
+  tree->Branch("ssd_nh",&ssd_nh,"ssd_nh/I");
+  tree->Branch("ssd_nc",&ssd_nc,"ssd_nc/I");
+  tree->Branch("ssd_m",ssd_m,"ssd_m[ssd_nc]/I");
+  tree->Branch("ssd_cs",ssd_cs,"ssd_cs[ssd_nc]/I");
+  tree->Branch("ssd_tdc",ssd_tdc,"ssd_tdc[ssd_nc]/F");
+  tree->Branch("ssd_adc",ssd_adc,"ssd_adc[ssd_nc]/F");
+  tree->Branch("ssd_lx",ssd_lx,"ssd_lx[ssd_nc]/F");
+  tree->Branch("gtr_nh",&gtr_nh,"gtr_nh/I");
+  tree->Branch("gtr_nc",&gtr_nc,"gtr_nc/I");
+  tree->Branch("g100_nh",&g100_nh,"g100_nh/I");
+  tree->Branch("g100_nc",&g100_nc,"g100_nc/I");
+  tree->Branch("g100_m",g100_m,"g100_m[g100_nc]/I");
+  tree->Branch("g100_cs",g100_cs,"g100_cs[g100_nc]/I");
+  tree->Branch("g100_tdc",g100_tdc,"g100_tdc[g100_nc]/F");
+  tree->Branch("g100_adc",g100_adc,"g100_adc[g100_nc]/F");
+  tree->Branch("g100_lx",g100_lx,"g100_lx[g100_nc]/F");
+  tree->Branch("g100_ly",g100_ly,"g100_ly[g100_nc]/F");
+  tree->Branch("g200_nh",&g200_nh,"g200_nh/I");
+  tree->Branch("g200_nc",&g200_nc,"g200_nc/I");
+  tree->Branch("g200_m",g200_m,"g200_m[g200_nc]/I");
+  tree->Branch("g200_cs",g200_cs,"g200_cs[g200_nc]/I");
+  tree->Branch("g200_tdc",g200_tdc,"g200_tdc[g200_nc]/F");
+  tree->Branch("g200_adc",g200_adc,"g200_adc[g200_nc]/F");
+  tree->Branch("g200_lx",g200_lx,"g200_lx[g200_nc]/F");
+  tree->Branch("g200_ly",g200_ly,"g200_ly[g200_nc]/F");
+  tree->Branch("g300_nh",&g300_nh,"g300_nh/I");
+  tree->Branch("g300_nc",&g300_nc,"g300_nc/I");
+  tree->Branch("g300_m",g300_m,"g300_m[g300_nc]/I");
+  tree->Branch("g300_cs",g300_cs,"g300_cs[g300_nc]/I");
+  tree->Branch("g300_tdc",g300_tdc,"g300_tdc[g300_nc]/F");
+  tree->Branch("g300_adc",g300_adc,"g300_adc[g300_nc]/F");
+  tree->Branch("g300_lx",g300_lx,"g300_lx[g300_nc]/F");
+  tree->Branch("g300_ly",g300_ly,"g300_ly[g300_nc]/F");
   tree->Branch("hbd_nh",&hbd_nh,"hbd_nh/I");
   tree->Branch("hbd_nc",&hbd_nc,"hbd_nc/I");
   tree->Branch("hbd_m",hbd_m,"hbd_m[hbd_nc]/I");
-  tree->Branch("hbd_cs",hbd_cs,"hbd_cs[hbd_nc]/F");
+  tree->Branch("hbd_cs",hbd_cs,"hbd_cs[hbd_nc]/I");
   tree->Branch("hbd_tdc",hbd_tdc,"hbd_tdc[hbd_nc]/F");
   tree->Branch("hbd_adc",hbd_adc,"hbd_adc[hbd_nc]/F");
+  tree->Branch("hbd_lx",hbd_lx,"hbd_lx[hbd_nc]/F");
+  tree->Branch("hbd_ly",hbd_ly,"hbd_ly[hbd_nc]/F");
   tree->Branch("lg_nh",&lg_nh,"lg_nh/I");
   tree->Branch("lg_nc",&lg_nc,"lg_nc/I");
   tree->Branch("lg_m",lg_m,"lg_m[lg_nh]/I");
-  tree->Branch("lg_cs",lg_cs,"lg_cs[lg_nh]/F");
+  tree->Branch("lg_cs",lg_cs,"lg_cs[lg_nh]/I");
   tree->Branch("lg_tdc",lg_tdc,"lg_tdc[lg_nh]/F");
   tree->Branch("lg_adc",lg_adc,"lg_adc[lg_nh]/F");
+  tree->Branch("lg_lx",lg_lx,"lg_lx[lg_nh]/F");
+  tree->Branch("lg_ly",lg_ly,"lg_ly[lg_nh]/F");
+
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  //auto trigger_param = new E16ANA_TriggerCalibParam();
-  //trigger_param->ReadConstantData(calib.CurrentRunID());
-  //E16ANA_GTRcalibPedestal gtrped;
-  //gtrped.ReadCalibData( calib.CurrentRunID() );
+  auto trigger_param = new E16ANA_TriggerCalibParam();
+  trigger_param->ReadConstantData(calib.CurrentRunID());
+  E16ANA_GTRcalibPedestal gtrped;
+  gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
   lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
-
+  E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
+  targets.ReadInfoWithRunID( calib.CurrentRunID());
+  targets.Print();
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  
+
+  //HBD initialize
+  E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
+  hbd_calib->ReadCalibrationData(calib.CurrentRunID());
+  E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
+  hbd_cut->ReadCutData(calib.CurrentRunID());
+  std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+
+
   auto record = new E16DST_DST1PhysicsRecord();
 
   auto dst0 = new E16DST_DST0();
@@ -153,14 +208,6 @@ int main(int argc, char* argv[]) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
-//  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
-//  gtr_pedestal->Read(argv[5]);
-//  auto dst1 = new E16DST_DST1();
-//  auto dst1 = new E16DST_DST0();
-//  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
-//    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
-//    return -1;
-//   }
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -184,17 +231,15 @@ int main(int argc, char* argv[]) {
       auto& trigger_lg_hits0  = event0->TriggerLG();
 
       //HBD initialize
-      E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
-      hbd_calib->ReadCalibrationData(calib.CurrentRunID());
-      E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
-      hbd_cut->ReadCutData(calib.CurrentRunID());
-      std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
-      E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
-      //HBD
+      //E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
+      //hbd_calib->ReadCalibrationData(calib.CurrentRunID());
+      //E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
+      //hbd_cut->ReadCutData(calib.CurrentRunID());
+      //std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+      //E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
 
-//      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
-//      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
+      E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
+      E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
@@ -206,11 +251,104 @@ int main(int argc, char* argv[]) {
 
       event = event0->EventID();
 
-//// SSD
-//
-//// GTR
-//      
-//// HBD
+// SSD
+      auto& ssd_hits1 = record->SSD().Hits();
+      auto& ssd_clusters1 = record->SSD().Clusters();
+      ssd_nh = ssd_hits1.size();
+      ssd_nc = ssd_clusters1.size();
+      if (ssd_clusters1.size() != 0) {
+	for(int i=0;i<ssd_nc;i++){//cluster loop
+	  auto& ssdcluster = ssd_clusters1[i];
+	  ssd_m[i] = ssdcluster.ModuleId();
+	  ssd_cs[i] = ssdcluster.NumHits();
+	  ssd_tdc[i] = ssdcluster.Timing();
+	  ssd_adc[i] = ssdcluster.PeakSum();
+	  ssd_lx[i] = ssdcluster.CogPos();
+	}//cluster loop
+      }//ssd cluster bool
+
+// GTR
+
+      auto& gtr_hits1 = record->GTR().Hits();
+      auto& gtr_clusters1 = record->GTR().Clusters();
+      gtr_nh = gtr_hits1.size();
+      gtr_nc = gtr_clusters1.size();
+
+      //hits
+      g100_nh = 0;
+      g200_nh = 0;
+      g300_nh = 0;
+      if (gtr_hits1.size() != 0) {
+	for(int i=0;i<gtr_nh;i++){//hit loop
+	  auto& gtrhit = gtr_hits1[i];
+	  if(gtrhit.LayerId()==0){
+	    g100_nh++;
+	  } else if(gtrhit.LayerId()==1){
+	    g200_nh++;
+	  } else if(gtrhit.LayerId()==2){
+	    g300_nh++;
+	  } else{
+	  }
+	}//hit loop
+      }//gtr hit bool
+
+      //clusters
+      g100_nc = 0;
+      g200_nc = 0;
+      g300_nc = 0;
+      if (gtr_clusters1.size() != 0) {
+	for(int i=0;i<gtr_nc;i++){//cluster loop
+	  auto& gtrcluster = gtr_clusters1[i];
+	  if(gtrcluster.LayerId()==0){
+	    g100_m[g100_nc] = gtrcluster.ModuleId();
+	    g100_cs[g100_nc] = gtrcluster.NumHits();
+	    g100_tdc[g100_nc] = gtrcluster.Timing();
+	    g100_adc[g100_nc] = gtrcluster.PeakSum();
+	    if(gtrcluster.IsX()){
+	      g100_lx[g100_nc] = gtrcluster.CogPos();
+	      g100_ly[g100_nc] = -1000;
+	    }
+	    else{
+	      g100_lx[g100_nc] = -1000;
+	      g100_ly[g100_nc] = gtrcluster.CogPos();
+	    }
+	    g100_nc++;
+	  } else if(gtrcluster.LayerId()==1){
+	    g200_m[g200_nc] = gtrcluster.ModuleId();
+	    g200_cs[g200_nc] = gtrcluster.NumHits();
+	    g200_tdc[g200_nc] = gtrcluster.Timing();
+	    g200_adc[g200_nc] = gtrcluster.PeakSum();
+	    if(gtrcluster.IsX()){
+	      g200_lx[g200_nc] = gtrcluster.CogPos();
+	      g200_ly[g200_nc] = -1000;
+	    }
+	    else{
+	      g200_lx[g200_nc] = -1000;
+	      g200_ly[g200_nc] = gtrcluster.CogPos();
+	    }
+	    g200_nc++;
+	  } else if(gtrcluster.LayerId()==2){
+	    g300_m[g300_nc] = gtrcluster.ModuleId();
+	    g300_cs[g300_nc] = gtrcluster.NumHits();
+	    g300_tdc[g300_nc] = gtrcluster.Timing();
+	    g300_adc[g300_nc] = gtrcluster.PeakSum();
+	    if(gtrcluster.IsX()){
+	      g300_lx[g300_nc] = gtrcluster.CogPos();
+	      g300_ly[g300_nc] = -1000;
+	    }
+	    else{
+	      g300_lx[g300_nc] = -1000;
+	      g300_ly[g300_nc] = gtrcluster.CogPos();
+	    }
+	    g300_nc++;
+	  } else{
+	  }
+
+	}//cluster loop
+      }//gtr cluster bool
+
+// HBD
+
       auto& hbd_hits1 = record->HBD().Hits();
       auto& hbd_clusters1 = record->HBD().Clusters();
       hbd_nh = hbd_hits1.size();
@@ -220,14 +358,15 @@ int main(int argc, char* argv[]) {
 	  auto& hbdcluster = hbd_clusters1[i];
 	  hbd_m[i] = hbdcluster.ModuleId();
 	  hbd_cs[i] = hbdcluster.ClusterSize();
-	  hbd_tdc[i] = hbdcluster.FastestTiming();
-	  hbd_adc[i] = hbdcluster.SADC();
+	  hbd_tdc[i] = hbdcluster.Timing();
+	  hbd_adc[i] = hbdcluster.PeakSum();
+	  hbd_lx[i] = hbdcluster.LocalPos().X();
+	  hbd_ly[i] = hbdcluster.LocalPos().Y();
 	}//cluster loop
       }//hbd cluster bool
 
-      tree->Fill();
-//
-//// LG
+
+// LG
       auto& lg_hits1 = record->LG().Hits();
       auto& lg_clusters1 = record->LG().Clusters();
       lg_nh = lg_hits1.size();
@@ -239,6 +378,13 @@ int main(int argc, char* argv[]) {
 	  lg_cs[i] = 1;
 	  lg_tdc[i] = lghit.FitTiming();
 	  lg_adc[i] = lghit.FitPeak();
+	  lg_lx[i] = lghit.LocalPos(*geometry).X();
+	  lg_ly[i] = lghit.LocalPos(*geometry).Y();
+	  //hcs[5][c_mid(lg_m[i])]->Fill(lg_cs[i]);
+	  //htd[5][c_mid(lg_m[i])]->Fill(lg_td[i]);
+	  //had[5][c_mid(lg_m[i])]->Fill(lg_ad[i]);
+	  //hlx[5][c_mid(lg_m[i])]->Fill(lg_lx[i]);
+	  //hly[5][c_mid(lg_m[i])]->Fill(lg_ly[i]);
 	}//hit loop
       }//lg hit bool
 
@@ -252,6 +398,9 @@ int main(int argc, char* argv[]) {
 //      dst1->WriteAnEvent();
 //      delete event0;
 //      delete record;
+//      delete hbd_calib;
+//      delete hbd_cut;
+//      delete wf1d_fitter;
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());

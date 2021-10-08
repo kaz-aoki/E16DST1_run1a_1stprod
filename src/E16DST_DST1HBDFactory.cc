@@ -20,6 +20,10 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
 {
   auto& dst1_hits = hbd1->Hits();
   auto& dst1_clusters = hbd1->Clusters();
+
+  dst1_hits.resize(dst0_hits.NumberOfHits()*2.);
+  dst1_clusters.resize(dst0_hits.NumberOfHits());
+  
   //----------- const
   int n_modules = E16DST_Constant::NModules;//number of hbd modules
   int n_samples = E16DST_Constant::NSamplesHBD;//number of apv25 samples
@@ -65,7 +69,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   }
   //prepare for clustering
   
-  for (int ith_dst0hit = 0; ith_dst0hit < dst0_hits.NumberOfHits(); ith_dst0hit++){
+  for(int ith_dst0hit = 0; ith_dst0hit < dst0_hits.NumberOfHits(); ith_dst0hit++){
     E16DST_DST0HBDHit dst0_hit = dst0_hits.Hit(ith_dst0hit);
     in_waveform = dst0_hit.Waveform();
     mid = dst0_hit.ModuleID();
@@ -80,7 +84,6 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       wf1d_fitter->Fit();
       
       double t0 = wf1d_fitter->GetWaveformTime(0);
-      
       //----this template fit seem to underestimte the peak height
       peak = wf1d_fitter->GetWaveformPeak(0);//in units of adc
       //----should be modified
@@ -89,16 +92,16 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       pe = peak*hbd_calib->GetGain(mid, pid);
       double par[2] = {peak, t0};
       chi2 = wf1d_fitter->MinuitFunction(par);
-	
+      
       dst1_hit.SetInvalid();
       dst1_hit.SetIds(mid, pid);
       dst1_hit.SetChi2(chi2);
       dst1_hit.SetPeakHeight(pe);//peak should be expressed in units of p.e.
       dst1_hit.SetTiming(timing);//50% of maximum peak height
       dst1_hit.SetLocalPos(E16ANA_HBDGeometry::GetPadLocalCOG(mid, pid));
-      
       cs.at(E16ANA_HBDChannelManager::ConvMIDE16ToK(mid)).SetData(mid, pid, peak, pe, timing, dst1_hid);
       dst1_hid++;
+
     }
   }
   

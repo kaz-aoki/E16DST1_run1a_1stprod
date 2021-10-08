@@ -214,10 +214,14 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
     std::vector<E16ANA_SSDAnalyzedStripHit> &hits_0a = ssd_analyzers->analyzer_map[OnlineGTR::IDs(mid, 0).value64]->GetStripX()->GetAnalyzedHits();//vector: get information of all analyzed hit for module=mid
     
     int h_id_in_module=0;
+    float sumtiming = 0;//nakasuga
+    int ntiming = 0;//nakasuga
     for(int i=0; i<hits_0a.size(); i++){//number of cluster (module=mid)
       vector<short> hit_indexs;
       int h_id_in_cluster=0;
       E16ANA_SSDAnalyzedStripHit &ha = hits_0a[i];//get information of analyzed hit(cluster) for each module
+      sumtiming = 0;//nakasuga
+      ntiming = 0;//nakasuga
       for(int j=0; j<ha.NumHit(); j++){ //number of hit per cluster
 	E16ANA_SSDSingleStripHit &hs = hits_0s[h_id_in_module];
 	E16DST_DST1SSDHit &hit1 = hits1[h_id_in_event];
@@ -231,11 +235,20 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
 	h_id_in_event++;
 	h_id_in_module++;
 	h_id_in_cluster++;
+	if(ha.StripTiming(j)>0){//nakasuga
+	  sumtiming += ha.StripTiming(j);//nakasuga
+	  ntiming++;//nakasuga
+	}//nakasuga
       }
+      if(ntiming==0){//nakasuga
+	ntiming = 1;//nakasuga
+	sumtiming = -1000;//nakasuga
+      }//nakasuga
       E16DST_DST1SSDCluster &cluster1 = clusters1[cl_id_in_event];
       cluster1.SetInvalid();
       cluster1.SetModuleId(mid);
-      cluster1.SetTiming(ha.Timing());
+      //cluster1.SetTiming(ha.Timing());
+      cluster1.SetTiming(sumtiming/(float)ntiming);//nakasuga
       cluster1.SetPeakSum(ha.ClusterCharge());
       cluster1.SetCogPos(ha.CogHit());
       cluster1.SetTdcPos(ha.TdcHit());
@@ -246,7 +259,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
   }
 
   //plot
-
+  /*
   // TCanvas *c0 = new TCanvas("c","c",0,0,1000,700);
   // TH1D *h0_hittime;
   // h0_hittime = new TH1D("hit time","h",150,-50,100);
@@ -357,7 +370,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
     }
     isSecondplot0=true;
   }
-
+  */
 
 //  return hits1->GetEventSize();
   return 1;
