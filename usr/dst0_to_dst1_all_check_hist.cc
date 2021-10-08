@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
   TTree *tree = new TTree("tree","tree");
 
   int event;
+
   const int HMAX = 1000;
   const int CMAX = 1000;
 
@@ -127,6 +128,7 @@ int main(int argc, char* argv[]) {
   float lg_lx[HMAX];
   float lg_ly[HMAX];
 
+  /*
   tree->Branch("Event",&event,"Event/I");
   tree->Branch("ssd_nh",&ssd_nh,"ssd_nh/I");
   tree->Branch("ssd_nc",&ssd_nc,"ssd_nc/I");
@@ -177,6 +179,37 @@ int main(int argc, char* argv[]) {
   tree->Branch("lg_adc",lg_adc,"lg_adc[lg_nh]/F");
   tree->Branch("lg_lx",lg_lx,"lg_lx[lg_nh]/F");
   tree->Branch("lg_ly",lg_ly,"lg_ly[lg_nh]/F");
+  */
+  const char par[7][12] = {"Nhits", "Nclusters", "ClusterSize", "Tdc", "Adc", "Lx", "Ly"};
+  const char det[6][10] = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG"};
+  const char mod[8][5] = {"101", "102", "103", "104", "106", "107", "108", "109"};
+
+  TH1F* hnh[6][8];
+  TH1F* hnc[6][8];
+  TH1F* hcs[6][8];
+  TH1F* htd[6][8];
+  TH1F* had[6][8];
+  TH1F* hlx[6][8];
+  TH1F* hly[6][8];
+  for(int i=0;i<6;i++){//det loop
+    for(int j=0;j<8;j++){// mod loop
+      hnh[i][j] = new TH1F(Form("hnh%d%d",i,j),Form("%s%s%s",par[0],det[i],mod[j]),1000,0,1000);
+      hnc[i][j] = new TH1F(Form("hnc%d%d",i,j),Form("%s%s%s",par[1],det[i],mod[j]),300,0,300);
+      hcs[i][j] = new TH1F(Form("hcs%d%d",i,j),Form("%s%s%s",par[2],det[i],mod[j]),50,0,50);
+      htd[i][j] = new TH1F(Form("htd%d%d",i,j),Form("%s%s%s",par[3],det[i],mod[j]),600,0,600);
+      hlx[i][j] = new TH1F(Form("hlx%d%d",i,j),Form("%s%s%s",par[5],det[i],mod[j]),800,-400,400);
+      hly[i][j] = new TH1F(Form("hly%d%d",i,j),Form("%s%s%s",par[6],det[i],mod[j]),800,-400,400);
+    }
+  }
+  for(int j=0;j<8;j++){// mod loop
+    had[0][j] = new TH1F(Form("had%d%d",0,j),Form("%s%s%s",par[4],det[0],mod[j]),100,0,10000);//ssd
+    had[1][j] = new TH1F(Form("had%d%d",1,j),Form("%s%s%s",par[4],det[1],mod[j]),100,0,50000);//gtr100
+    had[2][j] = new TH1F(Form("had%d%d",2,j),Form("%s%s%s",par[4],det[2],mod[j]),100,0,50000);//gtr200
+    had[3][j] = new TH1F(Form("had%d%d",3,j),Form("%s%s%s",par[4],det[3],mod[j]),100,0,50000);//gtr300
+    had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),1000,0,0.01);//hbd
+    had[5][j] = new TH1F(Form("had%d%d",5,j),Form("%s%s%s",par[4],det[5],mod[j]),1000,0,1000);//lg
+  }
+
 
 
   auto& calib = E16ANA_CalibDBManager::Instance();
@@ -244,6 +277,11 @@ int main(int argc, char* argv[]) {
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 
+      record->SSD().UpdatePtrs();
+      record->GTR().UpdatePtrs();
+      record->HBD().UpdatePtrs();
+      record->LG().UpdatePtrs();
+
 
 //// Check begin
       //auto event_id = event0->EventID();
@@ -252,143 +290,95 @@ int main(int argc, char* argv[]) {
       event = event0->EventID();
 
 // SSD
-      auto& ssd_hits1 = record->SSD().Hits();
-      auto& ssd_clusters1 = record->SSD().Clusters();
-      ssd_nh = ssd_hits1.size();
-      ssd_nc = ssd_clusters1.size();
-      if (ssd_clusters1.size() != 0) {
-	for(int i=0;i<ssd_nc;i++){//cluster loop
-	  auto& ssdcluster = ssd_clusters1[i];
-	  ssd_m[i] = ssdcluster.ModuleId();
-	  ssd_cs[i] = ssdcluster.NumHits();
-	  ssd_tdc[i] = ssdcluster.Timing();
-	  ssd_adc[i] = ssdcluster.PeakSum();
-	  ssd_lx[i] = ssdcluster.CogPos();
-	}//cluster loop
-      }//ssd cluster bool
+      for(int j=0;j<8;j++){//module loop
+	int mod = m_cid(j);
+	auto& ssd_hits1 = record->SSD().HitPtrs(mod,0,0);
+	auto& ssd_clusters1 = record->SSD().ClusterPtrs(mod,0,0);
+	ssd_nh = ssd_hits1.size();
+	ssd_nc = ssd_clusters1.size();
+	hnh[0][j]->Fill(ssd_nh);
+	hnc[0][j]->Fill(ssd_nc);
+	if (ssd_clusters1.size() != 0) {
+	  for(int i=0;i<ssd_nc;i++){//cluster loop
+	    auto& ssdcluster = ssd_clusters1[i];
+	    hcs[0][j]->Fill(ssdcluster->NumHits());
+	    htd[0][j]->Fill(ssdcluster->Timing());
+	    had[0][j]->Fill(ssdcluster->PeakSum());
+	    hlx[0][j]->Fill(ssdcluster->CogPos());
+	  }//cluster loop
+	}//ssd cluster bool
+      }//module loop
 
 // GTR
 
-      auto& gtr_hits1 = record->GTR().Hits();
-      auto& gtr_clusters1 = record->GTR().Clusters();
-      gtr_nh = gtr_hits1.size();
-      gtr_nc = gtr_clusters1.size();
-
-      //hits
-      g100_nh = 0;
-      g200_nh = 0;
-      g300_nh = 0;
-      if (gtr_hits1.size() != 0) {
-	for(int i=0;i<gtr_nh;i++){//hit loop
-	  auto& gtrhit = gtr_hits1[i];
-	  if(gtrhit.LayerId()==0){
-	    g100_nh++;
-	  } else if(gtrhit.LayerId()==1){
-	    g200_nh++;
-	  } else if(gtrhit.LayerId()==2){
-	    g300_nh++;
-	  } else{
-	  }
-	}//hit loop
-      }//gtr hit bool
-
-      //clusters
-      g100_nc = 0;
-      g200_nc = 0;
-      g300_nc = 0;
-      if (gtr_clusters1.size() != 0) {
-	for(int i=0;i<gtr_nc;i++){//cluster loop
-	  auto& gtrcluster = gtr_clusters1[i];
-	  if(gtrcluster.LayerId()==0){
-	    g100_m[g100_nc] = gtrcluster.ModuleId();
-	    g100_cs[g100_nc] = gtrcluster.NumHits();
-	    g100_tdc[g100_nc] = gtrcluster.Timing();
-	    g100_adc[g100_nc] = gtrcluster.PeakSum();
-	    if(gtrcluster.IsX()){
-	      g100_lx[g100_nc] = gtrcluster.CogPos();
-	      g100_ly[g100_nc] = -1000;
-	    }
-	    else{
-	      g100_lx[g100_nc] = -1000;
-	      g100_ly[g100_nc] = gtrcluster.CogPos();
-	    }
-	    g100_nc++;
-	  } else if(gtrcluster.LayerId()==1){
-	    g200_m[g200_nc] = gtrcluster.ModuleId();
-	    g200_cs[g200_nc] = gtrcluster.NumHits();
-	    g200_tdc[g200_nc] = gtrcluster.Timing();
-	    g200_adc[g200_nc] = gtrcluster.PeakSum();
-	    if(gtrcluster.IsX()){
-	      g200_lx[g200_nc] = gtrcluster.CogPos();
-	      g200_ly[g200_nc] = -1000;
-	    }
-	    else{
-	      g200_lx[g200_nc] = -1000;
-	      g200_ly[g200_nc] = gtrcluster.CogPos();
-	    }
-	    g200_nc++;
-	  } else if(gtrcluster.LayerId()==2){
-	    g300_m[g300_nc] = gtrcluster.ModuleId();
-	    g300_cs[g300_nc] = gtrcluster.NumHits();
-	    g300_tdc[g300_nc] = gtrcluster.Timing();
-	    g300_adc[g300_nc] = gtrcluster.PeakSum();
-	    if(gtrcluster.IsX()){
-	      g300_lx[g300_nc] = gtrcluster.CogPos();
-	      g300_ly[g300_nc] = -1000;
-	    }
-	    else{
-	      g300_lx[g300_nc] = -1000;
-	      g300_ly[g300_nc] = gtrcluster.CogPos();
-	    }
-	    g300_nc++;
-	  } else{
-	  }
-
-	}//cluster loop
-      }//gtr cluster bool
+      for(int j=0;j<8;j++){//module loop
+	int mod = m_cid(j);
+	for(int k=0;k<3;k++){//layer loop
+	  for(int l=0;l<3;l++){//type loop
+	    auto& gtr_hits1 = record->GTR().HitPtrs(mod,k,l);
+	    auto& gtr_clusters1 = record->GTR().ClusterPtrs(mod,k,l);
+	    gtr_nh = gtr_hits1.size();
+	    gtr_nc = gtr_clusters1.size();
+	    hnh[k+1][j]->Fill(gtr_nh);
+	    hnc[k+1][j]->Fill(gtr_nc);
+	    if (gtr_clusters1.size() != 0) {
+	      for(int i=0;i<gtr_nc;i++){//cluster loop
+		auto& gtrcluster = gtr_clusters1[i];
+		hcs[k+1][j]->Fill(gtrcluster->NumHits());
+		htd[k+1][j]->Fill(gtrcluster->Timing());
+		had[k+1][j]->Fill(gtrcluster->PeakSum());
+		if(l==0){hlx[k+1][j]->Fill(gtrcluster->CogPos());}
+		else{hly[k+1][j]->Fill(gtrcluster->CogPos());}
+	      }//cluster loop
+	    }//gtr cluster bool
+	  }//type loop
+	}//layer loop
+      }//module loop
 
 // HBD
 
-      auto& hbd_hits1 = record->HBD().Hits();
-      auto& hbd_clusters1 = record->HBD().Clusters();
-      hbd_nh = hbd_hits1.size();
-      hbd_nc = hbd_clusters1.size();
-      if (hbd_clusters1.size() != 0) {
-	for(int i=0;i<hbd_nc;i++){//cluster loop
-	  auto& hbdcluster = hbd_clusters1[i];
-	  hbd_m[i] = hbdcluster.ModuleId();
-	  hbd_cs[i] = hbdcluster.ClusterSize();
-	  hbd_tdc[i] = hbdcluster.Timing();
-	  hbd_adc[i] = hbdcluster.PeakSum();
-	  hbd_lx[i] = hbdcluster.LocalPos().X();
-	  hbd_ly[i] = hbdcluster.LocalPos().Y();
-	}//cluster loop
-      }//hbd cluster bool
-
+      for(int j=0;j<8;j++){//module loop
+	int mod = m_cid(j);
+	auto& hbd_hits1 = record->HBD().HitPtrs(mod,0,0);;
+	auto& hbd_clusters1 = record->HBD().ClusterPtrs(mod,0,0);
+	hbd_nh = hbd_hits1.size();
+	hbd_nc = hbd_clusters1.size();
+	hnh[4][j]->Fill(hbd_nh);
+	hnc[4][j]->Fill(hbd_nc);
+	if (hbd_clusters1.size() != 0) {
+	  for(int i=0;i<hbd_nc;i++){//cluster loop
+	    auto& hbdcluster = hbd_clusters1[i];
+	    hcs[4][j]->Fill(hbdcluster->ClusterSize());
+	    htd[4][j]->Fill(hbdcluster->Timing());
+	    had[4][j]->Fill(hbdcluster->PeakSum());
+	    hlx[4][j]->Fill(hbdcluster->LocalPos().X());
+	    hly[4][j]->Fill(hbdcluster->LocalPos().Y());
+	  }//cluster loop
+	}//hbd cluster bool
+      }//module loop
 
 // LG
-      auto& lg_hits1 = record->LG().Hits();
-      auto& lg_clusters1 = record->LG().Clusters();
-      lg_nh = lg_hits1.size();
-      lg_nc = lg_clusters1.size();
-      if (lg_hits1.size() != 0) {
-	for(int i=0;i<lg_nh;i++){//hit loop
-	  auto& lghit = lg_hits1[i];
-	  lg_m[i] = lghit.ModuleId();
-	  lg_cs[i] = 1;
-	  lg_tdc[i] = lghit.FitTiming();
-	  lg_adc[i] = lghit.FitPeak();
-	  lg_lx[i] = lghit.LocalPos(*geometry).X();
-	  lg_ly[i] = lghit.LocalPos(*geometry).Y();
-	  //hcs[5][c_mid(lg_m[i])]->Fill(lg_cs[i]);
-	  //htd[5][c_mid(lg_m[i])]->Fill(lg_td[i]);
-	  //had[5][c_mid(lg_m[i])]->Fill(lg_ad[i]);
-	  //hlx[5][c_mid(lg_m[i])]->Fill(lg_lx[i]);
-	  //hly[5][c_mid(lg_m[i])]->Fill(lg_ly[i]);
-	}//hit loop
-      }//lg hit bool
 
-      tree->Fill();
+      for(int j=0;j<8;j++){//module loop
+	int mod = m_cid(j);
+	auto& lg_hits1 = record->LG().HitPtrs(mod,0,0);;
+	auto& lg_clusters1 = record->LG().ClusterPtrs(mod,0,0);
+	lg_nh = lg_hits1.size();
+	lg_nc = lg_clusters1.size();
+	hnh[5][j]->Fill(lg_nh);
+	hnc[5][j]->Fill(lg_nc);
+	if (lg_hits1.size() != 0) {
+	  for(int i=0;i<lg_nh;i++){//cluster loop
+	    auto& lghit = lg_hits1[i];
+	    hcs[5][j]->Fill(1);
+	    htd[5][j]->Fill(lghit->FitTiming());
+	    had[5][j]->Fill(lghit->FitPeak());
+	    hlx[5][j]->Fill(lghit->LocalPos(*geometry).X());
+	    hly[5][j]->Fill(lghit->LocalPos(*geometry).Y());
+	  }//cluster loop
+	}//lg cluster bool
+      }//module loop
+
 
 //// trigger
 //      event1->Trigger().Print(*geometry);
@@ -398,9 +388,6 @@ int main(int argc, char* argv[]) {
 //      dst1->WriteAnEvent();
 //      delete event0;
 //      delete record;
-//      delete hbd_calib;
-//      delete hbd_cut;
-//      delete wf1d_fitter;
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());

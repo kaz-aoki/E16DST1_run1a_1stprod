@@ -19,21 +19,13 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     is_first=false;
   }
 
-  //  auto hit1 = new E16DST_DST1LGHit();
-  //  auto cluster1 = new E16DST_DST1LGClusters();
   auto& hits1 = lg1->Hits();
   auto max_hit = hits0.NumberOfHits();
-  //  hits1.Reserve(max_hit);
   hits1.resize(max_hit*2);
-  //  clusters1->Reserve(max_hit);
 
   int n_dst1hit = 0;
   for (int n_hit = 0; n_hit < hits0.NumberOfHits(); ++n_hit) {//dst0hit loop
-    //    hit1->SetInvalid();
-    //    cluster1->SetInvalid();
     auto hit0 = hits0.Hit(n_hit);
-    //    hit1->SetIds(hit0.ModuleID(), hit0.BlockID());
-    //    cluster1->SetModuleId(hit0.ModuleID());
 
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
@@ -129,10 +121,6 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       hits1[n_dst1hit].SetFitTiming((float)fittiming);
       hits1[n_dst1hit].SetFitWidth((float)fitwidth);
       hits1[n_dst1hit].SetFitChi2((float)fitchi2);
-      //      cluster1->SetMaxPeakCh(hit0.BlockID());
-      //      cluster1->SetMaxPeakHeight(peakheight);
-      //      cluster1->SetTiming(timing);
-      //      cluster1->SetMaxPeakSum(peakheight);
       npeak++;
       n_dst1hit++;
 
