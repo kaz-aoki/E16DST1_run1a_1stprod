@@ -56,7 +56,7 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
-//	st_tracks.resize(trks_size);
+	st_tracks.reserve(trks_size);
 	for(int i=0; i<trks_size; i++){
 		std::shared_ptr<E16ANA_XYZStraightTrack> t = straight_analyzer->GetXYZStraightTracks()[i];
 		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
