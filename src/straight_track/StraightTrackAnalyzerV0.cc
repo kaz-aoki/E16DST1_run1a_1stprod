@@ -125,7 +125,6 @@ void StraightTrackAnalyzerOfWireV1::Analyze(std::vector<std::shared_ptr<E16ANA_X
 
 void StraightTrackAnalyzerOfWireV1::Make3DCrossPoint(std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> &st_tracks, E16ANA_GeometryV2 *geom){
 	
-
 }
 
 void StraightTrackAnalyzerV0::Analyze(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_tracks, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_tracks, E16ANA_GeometryV2 *geom_v2){
@@ -717,12 +716,13 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 					double min2 = 9999;
 					int id_m = 0;
 					for(int m=0; m<(int)ssd_xhits.size(); m++){
-						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
-						G4ThreeVector ref = G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(G4ThreeVector(hssd->CogPos(),0, 0)));
+						E16DST_DST1SSDCluster* hssd1 = ssd_xhits[m];
+						G4ThreeVector ref = G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(G4ThreeVector(hssd1->CogPos(),0, 0)));
 						G4ThreeVector ref2 = ref.rotateY(rphi);
 						double resx = fabs(ref2.x() - (ref2.z() * v_results1[2] + v_results1[1]));
 						if(resx < min){
 							id_m = m;
+							std::cout << "m " << id_m << std::endl;
 							min2 = min;
 							min = resx;
 						}
@@ -731,7 +731,10 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 						}
 					}
 					for(int m = id_m; m<id_m+1; m++){
+						if(ssd_xhits.size() == 0 )continue;
+						std::cout << "ssd id = " << m << ", " << id_m << std::endl;
 						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
+						
 						l_ssd_hitpos.clear();	
 						g_ssd_hitpos.clear();	
 						rot_ssd_pos.clear();
@@ -800,6 +803,14 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
             }
         }
     }
+	ssd_xhits.clear();
+	gtr_xhits0.clear();
+	gtr_xhits1.clear();
+	gtr_xhits2.clear();
+	ssd_xhits.shrink_to_fit();
+	gtr_xhits0.shrink_to_fit();
+	gtr_xhits1.shrink_to_fit();
+	gtr_xhits2.shrink_to_fit();
 }
 
 

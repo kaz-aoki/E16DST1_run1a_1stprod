@@ -748,7 +748,7 @@ public:
 //    lg_indexes.clear();
     }
 //
-   void SetModuleID(int16_t ){ module_id = m;}
+   void SetModuleID(int m){ module_id = m;}
    int16_t ModuleID(){return module_id;}
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
@@ -824,7 +824,7 @@ public:
 //   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
 //   
 private:
-   int16_t module_id;
+   int module_id;
    int16_t xtrk_id;
    int16_t ytrk_id;
 //   int16_t idssdxhit; 

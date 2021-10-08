@@ -26,8 +26,10 @@ GTRCheckHist::GTRCheckHist(){
             h_cl_tan_x[m-100][l] = new TH1D(Form("cl_tan_x%d_%d",m, l), Form("cl_tan_x%d_%d",m, l),20, -4, 4);
             h_cl_tan_y[m-100][l] = new TH1D(Form("cl_tan_y%d_%d",m, l), Form("cl_tan_x%d_%d",m, l),20, -4, 4);
             h_cl_tan_yb[m-100][l] = new TH1D(Form("cl_tan_yb%d_%d",m, l), Form("cl_tan_x%d_%d",m, l),20, -4, 4);
-           
+ 			
         }
+//-------straight_track -----------//
+		h_tgt_z[m-100] = new TH1D(Form("h_tgt_z_m%d", m), Form("h_tgt_z_m%d", m), 400, -50, 50);          
     }
 }
 GTRCheckHist::~GTRCheckHist(){
@@ -78,4 +80,11 @@ void GTRCheckHist::Fill(E16DST_DST0Detector<E16DST_DST1GTRHit> *hits, E16DST_DST
         }
 
     }
+}
+
+void GTRCheckHist::Fill(std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks){
+	for(int i=0; i<st_tracks.size();i++){	
+		auto trk = st_tracks[i];
+		h_tgt_z[trk->ModuleID()- 100]->Fill(trk->DistanceFromTgtXZ());
+	}	
 }

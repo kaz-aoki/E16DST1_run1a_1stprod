@@ -9,7 +9,7 @@
 #include "E16ANA_RundependentName.hh"
 using namespace std;
 
-int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<E16DST_DST1StraightTrack3D> &st_tracks, E16ANA_GTRcalibPedestal &gtrped,  E16ANA_GeometryV2 *geom){
+int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks, E16ANA_GTRcalibPedestal &gtrped,  E16ANA_GeometryV2 *geom){
 	static bool isFirst = true;
 	static StraightTrackAnalyzerOfWireV1 *straight_analyzer;
 	if(isFirst){
@@ -56,44 +56,53 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
-	st_tracks.resize(trks_size);
+//	st_tracks.resize(trks_size);
+	std::cout << "trks size = " <<trks_size << std::endl;
 	for(int i=0; i<trks_size; i++){
-		std::shared_ptr<E16ANA_XYZStraightTrack> &t = straight_analyzer->GetXYZStraightTracks()[i];
-		std::shared_ptr<E16ANA_XZTrackCandidate> &tx = t->GetXZTrackCandidate();
-		std::shared_ptr<E16ANA_YTrackCandidate> &ty = t->GetYTrackCandidate();
-		st_tracks[i].SetModuleID(tx->ModuleID());
-		st_tracks[i].SetXTrackID(t->XTrackID());
-		st_tracks[i].SetYTrackID(t->YTrackID());
-		st_tracks[i].SetChi2X(tx->Chi2());
-		st_tracks[i].SetChi2Y(ty->Chi2());
-		st_tracks[i].SetTgtPosZ(tx->TgtZ());
-		st_tracks[i].SetTgtPosY(ty->TgtPos());
-	    st_tracks[i].SetFitAX(tx->GetFitA());
-	    st_tracks[i].SetFitBX(tx->GetFitB());
-	    st_tracks[i].SetFitAY(ty->GetFitA());
-	    st_tracks[i].SetFitBY(ty->GetFitB());
-		st_tracks[i].SetDistanceFromTgtXZ(tx->Distance());
-		st_tracks[i].SetDistanceFromTgtYR(ty->Distance());
-		st_tracks[i].SetResidualSSD(tx->ResidualSSD());
-		st_tracks[i].SetFitResidual100X(tx->Residual100());
-		st_tracks[i].SetFitResidual200X(tx->Residual200());
-		st_tracks[i].SetFitResidual300X(tx->Residual300());
-		st_tracks[i].SetFitResidual100Y(ty->Residual100());
-		st_tracks[i].SetFitResidual200Y(ty->Residual200());
-		st_tracks[i].SetFitResidual300Y(ty->Residual300());
-		st_tracks[i].SetSSDCluster(tx->GetXClusterSSD());
-		st_tracks[i].SetGTR100XCluster(tx->GetXCluster100());
-		st_tracks[i].SetGTR200XCluster(tx->GetXCluster200());
-		st_tracks[i].SetGTR300XCluster(tx->GetXCluster300());
-		st_tracks[i].SetGTR100YCluster(ty->GetYCluster100());
-		st_tracks[i].SetGTR200YCluster(ty->GetYCluster200());
-		st_tracks[i].SetGTR300YCluster(ty->GetYCluster300());
-		st_tracks[i].SetFitPtOnGTR100(t->FitPtOnGTR100());
-		st_tracks[i].SetFitPtOnGTR200(t->FitPtOnGTR200());
-		st_tracks[i].SetFitPtOnGTR300(t->FitPtOnGTR300());
+		std::shared_ptr<E16ANA_XYZStraightTrack> t = straight_analyzer->GetXYZStraightTracks()[i];
+		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
+		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
+		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
+		std::cout << "i = " << i << std::endl;
+		std::cout << "module id = " << tx->ModuleID() << std::endl;
+		std::cout << "tracks size  = " << st_tracks.size() << std::endl;
+		
+		trk->SetModuleID(tx->ModuleID());
+		trk->SetModuleID(tx->ModuleID());
+		trk->SetXTrackID(t->XTrackID());
+		trk->SetYTrackID(t->YTrackID());
+		trk->SetChi2X(tx->Chi2());
+		trk->SetChi2Y(ty->Chi2());
+		trk->SetTgtPosZ(tx->TgtZ());
+		trk->SetTgtPosY(ty->TgtPos());
+	    trk->SetFitAX(tx->GetFitA());
+	    trk->SetFitBX(tx->GetFitB());
+	    trk->SetFitAY(ty->GetFitA());
+	    trk->SetFitBY(ty->GetFitB());
+		trk->SetDistanceFromTgtXZ(tx->Distance());
+		trk->SetDistanceFromTgtYR(ty->Distance());
+		trk->SetResidualSSD(tx->ResidualSSD());
+		trk->SetFitResidual100X(tx->Residual100());
+		trk->SetFitResidual200X(tx->Residual200());
+		trk->SetFitResidual300X(tx->Residual300());
+		trk->SetFitResidual100Y(ty->Residual100());
+		trk->SetFitResidual200Y(ty->Residual200());
+		trk->SetFitResidual300Y(ty->Residual300());
+		trk->SetSSDCluster(tx->GetXClusterSSD());
+		trk->SetGTR100XCluster(tx->GetXCluster100());
+		trk->SetGTR200XCluster(tx->GetXCluster200());
+		trk->SetGTR300XCluster(tx->GetXCluster300());
+		trk->SetGTR100YCluster(ty->GetYCluster100());
+		trk->SetGTR200YCluster(ty->GetYCluster200());
+		trk->SetGTR300YCluster(ty->GetYCluster300());
+		trk->SetFitPtOnGTR100(t->FitPtOnGTR100());
+		trk->SetFitPtOnGTR200(t->FitPtOnGTR200());
+		trk->SetFitPtOnGTR300(t->FitPtOnGTR300());
+
 //		st_tracks[i].SetPtOnTrackGTR100(t->Pt0OnTrack());
 //		st_tracks[i].SetPtOnTrackGTR300(t->Pt1OnTrack());
 //		st_tracks[i].SetPtOnTrack3000mm(t->Pt2OnTrack());
+		st_tracks.push_back(trk);
 	}
 
 
