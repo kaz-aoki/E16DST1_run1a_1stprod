@@ -557,6 +557,10 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
       E16ANA_SSDSingleStripHit temp;
       temp.SetFitValues(t0+rise_time, t0, -1, scale, rise_time);
       ssd_single_hits.push_back(temp);
+
+      delete fit_func;
+      delete graph_wave;
+
     }
   }
   return 0;
@@ -641,6 +645,10 @@ double E16ANA_SSDStripAnalyzer::HitWaveFit_noPedestal() {
 	scale=-1000;
 	t0=-1000;
       }
+
+      delete fit_func;
+      delete graph_wave;
+
     }
   }
   return 0;

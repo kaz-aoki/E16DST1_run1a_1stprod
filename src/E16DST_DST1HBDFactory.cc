@@ -20,6 +20,10 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
 {
   auto& dst1_hits = hbd1->Hits();
   auto& dst1_clusters = hbd1->Clusters();
+  auto max_hit = dst0_hits.NumberOfHits();
+  dst1_hits.resize(max_hit);
+  dst1_clusters.resize(max_hit);
+
   //----------- const
   int n_modules = E16DST_Constant::NModules;//number of hbd modules
   int n_samples = E16DST_Constant::NSamplesHBD;//number of apv25 samples

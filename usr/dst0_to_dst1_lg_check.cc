@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   lg_hits1,  lg_clusters1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      event1->GTR().SetValidFlag(1);
