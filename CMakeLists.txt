@@ -37,7 +37,7 @@ include_directories(
 	include/HBD
 	include/GTR
 	include/LG
-  include/SSD
+#  include/SSD
 	include/GTR
 	include/trigger
 	include/straight_track
@@ -170,6 +170,28 @@ target_link_libraries(dst0_to_dst1_lg_check
 add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
 
 target_link_libraries(dst0_to_dst1_all_check
+	E16DST_DST1
+#	E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_all_check_hist usr/dst0_to_dst1_all_check_hist.cc)
+
+target_link_libraries(dst0_to_dst1_all_check_hist
+	E16DST_DST1
+#	E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
+
+target_link_libraries(dst0_to_dst1_strack_check
 	E16DST_DST1
 #	E16ANA_CalibDB
 	E16ANA_Basic

@@ -6,3 +6,10 @@ E16DST_DST1SSDAnalyzerMaker::E16DST_DST1SSDAnalyzerMaker(){
     analyzer_map[OnlineGTR::IDs(moduleID,0).value64] = new E16ANA_SSDAnalyzer();
   }
 }
+
+E16DST_DST1SSDAnalyzerMaker::~E16DST_DST1SSDAnalyzerMaker()
+{
+   for (auto &a : analyzer_map) {
+      delete a.second;
+   }
+}

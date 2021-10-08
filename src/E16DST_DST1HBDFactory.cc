@@ -20,7 +20,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
 {
   auto& dst1_hits = hbd1->Hits();
   auto& dst1_clusters = hbd1->Clusters();
-  
+
   dst1_hits.resize(dst0_hits.NumberOfHits()*2.);
   dst1_clusters.resize(dst0_hits.NumberOfHits());
   
