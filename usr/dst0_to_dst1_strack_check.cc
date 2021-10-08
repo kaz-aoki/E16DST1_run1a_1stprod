@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
       record->LG().UpdatePtrs();
 
       std::vector<E16DST_DST1StraightTrack2D> st_tracks;
-      E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+//      E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
 
 
       int ntracks = st_tracks.size();
