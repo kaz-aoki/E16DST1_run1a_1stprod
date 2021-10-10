@@ -108,9 +108,9 @@ class E16ANA_TrackCandidate {
   void SetTrackID(int _track_id) { track_id = _track_id; }
   void SetIsSelected(bool _is_selected) { is_selected = _is_selected; }
   void SetCharge(int _charge) { charge = _charge; }
-  void SetVertex(int _target_id) {
+  void SetInitPos(int _target_id) {
     target_id = _target_id;
-    vtx = {0., 0., E16ANA_TrackConstant::kTargetZ[target_id]};
+    init_pos = {0., 0., E16ANA_TrackConstant::kTargetZ[target_id]};
   }
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
   void SetDefaultSigma() {
@@ -119,16 +119,20 @@ class E16ANA_TrackCandidate {
     }
     sigma[0].SetY(0.); // SSD-y
   }
+  TVector3 Sigma() { return kSigma; }
+  TVector3 InitPosError() { return kInitPosError; }
+  int TrackingMaxSteps() { return kTrackingMaxSteps; }
+  int ProjectionMaxSteps() { return kProjectionMaxSteps; }
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
   bool IsSelected() { return is_selected; }
   int Charge() { return charge; }
-  TVector3 Vertex() { return vtx; }
-  TVector3 Momentum() { return mom; }
+  TVector3 InitPos() { return init_pos; }
+  TVector3 InitMom() { return init_mom; }
   TVector3 Sigma(int n) { return sigma[n]; }
-  TVector3 FitVertex() { return vtx_fit; }
-  TVector3 FitMomentum() { return mom_fit; }
-  TVector3 FitSigma() { return vtx_sigma; }
+  TVector3 FitInitPos() { return init_pos_fit; }
+  TVector3 FitInitMom() { return init_mom_fit; }
+  TVector3 FitInitPosSigma() { return init_pos_sigma; }
   const FitResult& LocalFitResult(int n) const { return fit_results[n]; }
   const std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> LocalFitResults() const { return fit_results; }
   double ChiSquare() { return chisq; }
@@ -152,32 +156,38 @@ class E16ANA_TrackCandidate {
     if (chisq >= 1.0e10 || minimize_status == 0) {
       return;
     }
-    std::cout << "Track ID: " << track_id << ", Target ID: " << target_id << ", Charge: " << charge << std::endl;
-    std::cout << "Chi Square: " << chisq << ", Minimize Status: " << minimize_status << ", Matrix Status: " << matrix_status << std::endl;
-    std::cout << "  Vertex Position: (" << vtx_fit.X() << ", " << vtx_fit.Y() << ", " << vtx_fit.Z() << ")" << std::endl;
-    std::cout << "  Vertex Momentum: (" << mom_fit.X() << ", " << mom_fit.Y() << ", " << mom_fit.Z() << ")" << std::endl;
+    std::cout << "Track ID : " << track_id << ", Target ID : " << target_id << ", Charge : " << charge << std::endl;
+    std::cout << "Chi Square : " << chisq << ", Minimize Status : " << minimize_status << ", Matrix Status : " << matrix_status << std::endl;
+    std::cout << "  Initial Position : (" << init_pos_fit.X() << ", " << init_pos_fit.Y() << ", " << init_pos_fit.Z() << ")" << std::endl;
+    std::cout << "  Initial Momentum : (" << init_mom_fit.X() << ", " << init_mom_fit.Y() << ", " << init_mom_fit.Z() << ")" << std::endl;
     for (int l = 0; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
-      std::cout << "  Detector: " << E16ANA_TrackConstant::kDetectorName[l] << " (Layer ID: " << l << "), Module ID: " << fit_results[l].module_id << std::endl;
+      std::cout << "  Detector : " << E16ANA_TrackConstant::kDetectorName[l] << " (Layer ID : " << l << "), Module ID : " << fit_results[l].module_id << std::endl;
       auto fit_local_pos = fit_results[l].local_pos;
       auto fit_global_pos = fit_results[l].global_pos;
       if (l < E16ANA_TrackConstant::kNumTrackingLayers) {
         auto& pair = cluster_pairs[l];
         auto local_pos = pair.LocalPos();
         auto global_pos = pair.GlobalPos();
-        std::cout << "    Local  Position (Hit): (" << local_pos.X()  << ", " << local_pos.Y()  << ", " << local_pos.Z()  << ")" << std::endl;
-        std::cout << "    Global Position (Hit): (" << global_pos.X() << ", " << global_pos.Y() << ", " << global_pos.Z() << ")" << std::endl;
+        std::cout << "    Local  Position (Hit) : (" << local_pos.X()  << ", " << local_pos.Y()  << ", " << local_pos.Z()  << ")" << std::endl;
+        std::cout << "    Global Position (Hit) : (" << global_pos.X() << ", " << global_pos.Y() << ", " << global_pos.Z() << ")" << std::endl;
       }
       if (fit_results[l].set_flag == 1) {
-        std::cout << "    Local  Position (Fit): (" << fit_local_pos.X()  << ", " << fit_local_pos.Y()  << ", " << fit_local_pos.Z()  << ")" << std::endl;
-        std::cout << "    Global Position (Fit): (" << fit_global_pos.X() << ", " << fit_global_pos.Y() << ", " << fit_global_pos.Z() << ")" << std::endl;
+        std::cout << "    Local  Position (Fit) : (" << fit_local_pos.X()  << ", " << fit_local_pos.Y()  << ", " << fit_local_pos.Z()  << ")" << std::endl;
+        std::cout << "    Global Position (Fit) : (" << fit_global_pos.X() << ", " << fit_global_pos.Y() << ", " << fit_global_pos.Z() << ")" << std::endl;
       } else {
         std::cout << "    Runge Kutta Failure" << std::endl;
       }
     }
-    std::cout << "  Number of Projection LG Hits: " << lg_hits.size() << std::endl;
+    std::cout << "  Number of Projection LG Hits : " << lg_hits.size() << std::endl;
     for (auto& hit : lg_hits) {
-      std::cout << "    Module ID: " << hit->ModuleId() << ", Channel ID: " << hit->ChannelId() << ", Timing: " << hit->Timing()  << std::endl;
+      std::cout << "    Module ID : " << hit->ModuleId() << ", Channel ID : " << hit->ChannelId() << ", Timing : " << hit->Timing()  << std::endl;
     }
+  }
+  void PrintParam() {
+    std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
+    std::cout << "Initial Position Error : (" << kInitPosError(0) << ", " << kInitPosError(1) << ", " << kInitPosError(2) << ")" << std::endl;
+    std::cout << "Runge Kutta Tracking Max Steps : " << kTrackingMaxSteps << std::endl;
+    std::cout << "Runge Kutta Projection Max Steps : " << kProjectionMaxSteps << std::endl;
   }
   // tmp
   void SetXCoef(int n, double coef) { x_coef[n] = coef; }
@@ -191,9 +201,10 @@ class E16ANA_TrackCandidate {
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
+  // parameter
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
 //  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
-  static inline const TVector3 kVertexError = {0., 0., 0.};
+  static inline const TVector3 kInitPosError = {0., 0., 0.};
 //  static constexpr int kTrackingMaxSteps = 300;
   static constexpr int kTrackingMaxSteps = 400;
   static constexpr int kProjectionMaxSteps = 2000;
@@ -202,16 +213,28 @@ class E16ANA_TrackCandidate {
     this->bfield_map = rhs.bfield_map;
     this->track_id = rhs.track_id;
     this->target_id = rhs.target_id;
+    this->is_selected = rhs.is_selected;
     this->cluster_pairs = rhs.cluster_pairs;
     this->charge = rhs.charge;
-    this->vtx = rhs.vtx;
-    this->mom = rhs.mom;
+    this->init_pos = rhs.init_pos;
+    this->init_mom = rhs.init_mom;
     this->sigma = rhs.sigma;
-    this->vtx_fit = rhs.vtx_fit;
-    this->mom_fit = rhs.mom_fit;
-    this->vtx_sigma = rhs.vtx_sigma;
+    this->x_coef = rhs.x_coef;
+    this->x_chi_square = rhs.x_chi_square;
+    this->y_coef = rhs.y_coef;
+    this->y_chi_square = rhs.y_chi_square;
+    this->init_pos_fit = rhs.init_pos_fit;
+    this->init_mom_fit = rhs.init_mom_fit;
+    this->init_pos_sigma = rhs.init_pos_sigma;
     this->fit_results = rhs.fit_results;
     this->chisq = rhs.chisq;
+    this->minimize_status = rhs.minimize_status;
+    this->matrix_status = rhs.matrix_status;
+    this->n_steps = rhs.n_steps;
+    this->n_calls = rhs.n_calls;
+    this->pos_at_targets = rhs.pos_at_targets;
+    this->mom_at_targets = rhs.mom_at_targets;
+    this->projection_flag = rhs.projection_flag;
     this->hbd_hits = rhs.hbd_hits;
     this->hbd_clusters = rhs.hbd_clusters;
     this->lg_hits = rhs.lg_hits;
@@ -246,8 +269,8 @@ class E16ANA_TrackCandidate {
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers> cluster_pairs;
   // Preset Value
   int charge;
-  TVector3 vtx;
-  TVector3 mom;
+  TVector3 init_pos;
+  TVector3 init_mom;
   std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> sigma;
   // raugh fit chi square (tmp?)
   std::array<double, 3> x_coef;
@@ -255,9 +278,9 @@ class E16ANA_TrackCandidate {
   std::array<double, 2> y_coef;
   double y_chi_square;
   // Fit Result
-  TVector3 vtx_fit;
-  TVector3 mom_fit;
-  TVector3 vtx_sigma;
+  TVector3 init_pos_fit;
+  TVector3 init_mom_fit;
+  TVector3 init_pos_sigma;
   std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
   double chisq;
   int minimize_status;
@@ -290,7 +313,7 @@ class E16ANA_TrackCandidates {
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter),
-        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
+        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -304,6 +327,23 @@ class E16ANA_TrackCandidates {
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
+  double GTRTimeDiffThreshold(int n) { return kGTRTimeDiffThreshold[n]; }
+  double XSigma(int n) { return kXSigma[n]; }
+  double XWeight(int n) { return kXWeight[n]; }
+  double YSigma(int n) { return kYSigma[n]; }
+  double YWeight(int n) { return kYWeight[n]; }
+  int MinHitsInXCluster() { return kMinHitsInXCluster; }
+  double GTRYDiffThreshold() { return kGTRYDiffThreshold; }
+  double GTRPeakSumThresholdX(int n) { return kGTRPeakSumThresholdX[n]; }
+  double GTRPeakSumThresholdY() { return kGTRPeakSumThresholdY; }
+  double RaughFitChiSquareThreshold(int n) { return kRaughFitChiSquareThreshold[n]; }
+  double RaughXFitCoefficientThreshold(int n) { return kRaughXFitCoefficientThreshold[n]; }
+  double RaughYFitCoefficientThreshold(int n) { return kRaughYFitCoefficientThreshold[n]; }
+  double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
+  double LGProjectionThreshold() { return kLGProjectionThreshold; }
+  double VertexSquareThreshold() { return kVertexSquareThreshold; }
+  double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
+  int StepTrackArraySize() { return kStepTrackArraySize; }
   int NumXCandidates() { return n_x_cands; }
   int NumYCandidates() { return n_y_cands; }
   int NumTrackCandidates() { return track_candidates.size(); }
@@ -321,26 +361,50 @@ class E16ANA_TrackCandidates {
   void Analyze();
   void Print(int i) {
     if (i % 2 == 1) {
-      std::cout << "Track Candidates:" << std::endl;
+      std::cout << "Track Candidates :" << std::endl;
       for (auto& cand : track_candidates) {
         cand.Print();
       }
     }
     i /= 2;
     if (i % 2 == 1) {
-      std::cout << "Selected Track Candidates:" << std::endl;
+      std::cout << "Selected Track Candidates :" << std::endl;
       for (auto& cand : selected_track_candidates) {
         cand->Print();
       }
     }
-    std::cout << "Number of track candidates: " << NumTrackCandidates() << std::endl;
-    std::cout << "Number of selected track candidates: " << NumSelectedTrackCandidates() << std::endl;
+    std::cout << "Number of track candidates : " << NumTrackCandidates() << std::endl;
+    std::cout << "Number of selected track candidates : " << NumSelectedTrackCandidates() << std::endl;
+  }
+  void PrintParam() {
+    std::cout << "GTR Time Difference Threshold :" << std::endl;
+    std::cout << "  GTR100 : " << kGTRTimeDiffThreshold[0] << ", GTR200 : " << kGTRTimeDiffThreshold[1] << ", GTR300 : " << kGTRTimeDiffThreshold[2] << std::endl;
+    std::cout << "Sigma at X Rough Fit :" << std::endl;
+    std::cout << "  Target : " << kXSigma[0] << ", SSD : " << kXSigma[1] << ", GTR100 : " << kXSigma[2] << ", GTR200 : " << kXSigma[3] << ", GTR300 : " << kXSigma[4] << std::endl;
+    std::cout << "Sigma at Y Rough Fit :" << std::endl;
+    std::cout << "  GTR100 : " << kYSigma[0] << ", GTR200 : " << kYSigma[2] << ", GTR300 : " << kYSigma[2] << std::endl;
+    std::cout << "Minimum Hits in X Cluster : " << kMinHitsInXCluster << std::endl;
+    std::cout << "GTR Position Difference Threshold between Layers at Y Candidate Search : " << kGTRYDiffThreshold << std::endl;
+    std::cout << "GTR X ADC Peak Sum Threshold :" << std::endl;
+    std::cout << "  GTR100 : " << kGTRPeakSumThresholdX[0] << ", GTR200 : " << kGTRPeakSumThresholdX[1] << ", GTR300 : " << kGTRPeakSumThresholdX[2] << std::endl;
+    std::cout << "GTR Y ADC Peak Sum Threshold : " << kGTRPeakSumThresholdY << std::endl;
+    std::cout << "Raugh Fit Chi Square Threshold :" << std::endl;
+    std::cout << "  X : " << kRaughFitChiSquareThreshold[0] << ", Y : " << kRaughFitChiSquareThreshold[1] << std::endl;
+    std::cout << "X Raugh Fit Coefficient Threshold : " 
+              << kRaughXFitCoefficientThreshold[0] << ", " << kRaughXFitCoefficientThreshold[1] << kRaughXFitCoefficientThreshold[2] << std::endl;
+    std::cout << "Y Raugh Fit Coefficient Threshold : " << kRaughYFitCoefficientThreshold[0] << ", " << kRaughYFitCoefficientThreshold[1] << std::endl;
+    std::cout << "HBD Projection Threshold : " << kHBDProjectionThreshold << std::endl;
+    std::cout << "LG  Projection Threshold : " << kLGProjectionThreshold << std::endl;
+    std::cout << "Vertex Threshold (square) : " << kVertexSquareThreshold << std::endl;
+    std::cout << "E16ANA_StepTrack Step Size [cm] : " << kStepTrackStepSizeCm << std::endl;
+    std::cout << "E16ANA_StepTrack Array Size : " << kStepTrackArraySize << std::endl;
   }
  private:
   struct OneAxisClusterSet {
-    double chi_square;
     int target_id; // only x
     int charge; // only x
+    double chi_square;
+    std::array<double, 3> coefs;
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
 //    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
@@ -374,13 +438,15 @@ class E16ANA_TrackCandidates {
   static constexpr double kGTRPeakSumThresholdY = 10.;
   static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
 //  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
-//  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {10., 0., 0.001}; // coef[1] not used
-  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficient = {25., 0., 0.001}; // coef[1] not used. ozawa v8
-  static constexpr std::array<double, kNumRaughFitDegree[1]> kRaughYFitCoefficient = {15., 0.}; // coef[1] not used.
+//  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
+  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
+  static constexpr std::array<double, kNumRaughFitDegree[1]> kRaughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kVertexSquareThreshold = 5. * 5.;
+  static constexpr double kStepTrackStepSizeCm = 0.1; // cm
+  static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);

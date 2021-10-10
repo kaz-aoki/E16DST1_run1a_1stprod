@@ -42,9 +42,9 @@ bool E16ANA_TrackCandidate::CalcRoughMomentum() {
   if (l0 < 0 || l1 < 0 || l0 == l1) {
     return false;
   } else if (l0 < l1) {
-    mom = CalcRoughMomentum(cluster_pairs[l0].GlobalPos(), cluster_pairs[l1].GlobalPos());
+    init_mom = CalcRoughMomentum(cluster_pairs[l0].GlobalPos(), cluster_pairs[l1].GlobalPos());
   }else{
-    mom = CalcRoughMomentum(cluster_pairs[l1].GlobalPos(), cluster_pairs[l0].GlobalPos());
+    init_mom = CalcRoughMomentum(cluster_pairs[l1].GlobalPos(), cluster_pairs[l0].GlobalPos());
   }
   return true;
 }
@@ -58,8 +58,8 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   }
   int tid = 0; // only 1 track is fitted by the fitter
   single_track->Clear();
-  single_track->SetInitialVertex(vtx, kVertexError);
-  single_track->SetInitialMomentum(tid, mom);
+  single_track->SetInitialVertex(init_pos, kInitPosError);
+  single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
@@ -105,7 +105,7 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
         fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
       }
       fitter->SetMaxSteps(kProjectionMaxSteps);
-      fitter->RungeKuttaTracking(tid, vtx_fit, mom_fit, charge);
+      fitter->RungeKuttaTracking(tid, init_pos_fit, init_mom_fit, charge);
       fitter->GetFitLPos(tid, lid, mids, lposs);
       fitter->GetFitLMom(tid, lid, mids, lmoms);
       auto lpos = lposs[hid];
@@ -168,8 +168,8 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
 void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
   int tid = 0;
   int hid = 0;
-  vtx_fit = fitter->GetFitVertex();
-  mom_fit = fitter->GetFitMomentum(tid);
+  init_pos_fit = fitter->GetFitVertex();
+  init_mom_fit = fitter->GetFitMomentum(tid);
   minimize_status = fitter->GetMinimizeStatus();
   matrix_status = fitter->GetMatrixStatus();
   n_steps = fitter->GetTrackSteps(tid).size();
@@ -344,8 +344,11 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
     chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
   }
 
-  if (chi2_cand < kRaughFitChiSquareThreshold[0] && fabs(coef[0]) < kRaughXFitCoefficient[0] && fabs(coef[2]) < kRaughXFitCoefficient[2]) {
+  if (chi2_cand < kRaughFitChiSquareThreshold[0] && fabs(coef[0]) < kRaughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRaughXFitCoefficientThreshold[2]) {
     cluster_set->chi_square = chi2_cand;
+    for (int i = 0; i < kNumRaughFitDegree[0]; ++i) {
+      cluster_set->coefs[i] = coef[i];
+    }
     return true;
   }
   return false;
@@ -383,8 +386,11 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
     fit_y[i] = coef[0] + coef[1] * gtr_r[i];
     chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
   }
-  if (chi2_cand < kRaughFitChiSquareThreshold[1] && fabs(coef[0]) < kRaughYFitCoefficient[0]) {
+  if (chi2_cand < kRaughFitChiSquareThreshold[1] && fabs(coef[0]) < kRaughYFitCoefficientThreshold[0]) {
     cluster_set->chi_square = chi2_cand;
+    for (int i = 0; i < kNumRaughFitDegree[1]; ++i) {
+      cluster_set->coefs[i] = coef[i];
+    }
     return true;
   }
   return false;
@@ -565,8 +571,16 @@ E16INFO("number of y candidates: %d", n_y_cands);
       auto& tmp_cand = track_candidates.back();
       tmp_cand.SetTrackID(track_candidates.size() - 1);
       tmp_cand.SetCharge(x_cand.charge);
-      tmp_cand.SetVertex(x_cand.target_id);
+      tmp_cand.SetInitPos(x_cand.target_id);
       tmp_cand.SetDefaultSigma();
+      tmp_cand.SetXChiSquare(x_cand.chi_square);
+      tmp_cand.SetYChiSquare(y_cand.chi_square);
+      for (int i = 0; i < kNumRaughFitDegree[0]; ++i) {
+        tmp_cand.SetXCoef(i, x_cand.coefs[i]);
+      }
+      for (int i = 0; i < kNumRaughFitDegree[1]; ++i) {
+        tmp_cand.SetYCoef(i, y_cand.coefs[i]);
+      }
       auto& cluster_pairs = tmp_cand.ClusterPairs();
       cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);
       for (int i = 0; i < kNumGTRLayers; ++i) {
@@ -711,26 +725,30 @@ void E16ANA_TrackCandidates::SortTracks() {
 }
 
 void E16ANA_TrackCandidates::ProjectionTarget() {
-  double step_size = 1.;
-  int array_size = 100;
   Hep3Vector cross_pos;
   Hep3Vector cross_mom;
-//  for (auto& cand : selected_track_candidates) {
   for (auto& cand : track_candidates) {
     auto& pos = cand.PosAtTargets();
     auto& mom = cand.MomAtTargets();
-    auto t_vtx_pos = cand.FitVertex();
-    auto t_vtx_mom = cand.FitMomentum();
-    Hep3Vector vtx_pos(t_vtx_pos(0) * 0.1, t_vtx_pos(1) * 0.1, t_vtx_pos(2) * 0.1);
-    Hep3Vector vtx_mom(t_vtx_mom(0), t_vtx_mom(1), t_vtx_mom(2));
-    E16ANA_StepTrack step_track(bfield_map, vtx_pos, vtx_mom, cand.Charge(), step_size, array_size);
+    if (cand.ChiSquare() > 1.0e9) {
+      for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
+        pos[i] = E16DST_DST1Constant::kInvalidVector;
+        mom[i] = E16DST_DST1Constant::kInvalidVector;
+      }
+      continue;
+    }
+    auto t_init_pos = cand.FitInitPos();
+    auto t_init_mom = cand.FitInitMom();
+    Hep3Vector init_pos(t_init_pos(0) * 0.1, t_init_pos(1) * 0.1, t_init_pos(2) * 0.1);
+    Hep3Vector init_mom(t_init_mom(0),       t_init_mom(1),       t_init_mom(2));
+    E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, cand.Charge(), kStepTrackStepSizeCm, kStepTrackArraySize);
     for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
-      if (step_track.CrossZconstPlane(E16ANA_TrackConstant::kTargetZ[i], cross_pos, cross_mom) == -1) {
+      if (step_track.CrossZconstPlane(E16ANA_TrackConstant::kTargetZ[i] * 0.1, cross_pos, cross_mom) == -1) {
         pos[i] = E16DST_DST1Constant::kInvalidVector;
         mom[i] = E16DST_DST1Constant::kInvalidVector;
       } else {
         pos[i].SetXYZ(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
-        mom[i].SetXYZ(cross_mom.x(), cross_mom.y(), cross_mom.z());
+        mom[i].SetXYZ(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
       }
     }
   }
@@ -738,20 +756,18 @@ void E16ANA_TrackCandidates::ProjectionTarget() {
 }
 
 double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
-  double step_size = 1.;
-  int array_size = 100;
   auto& cand_minus = track_pair->cand_minus;
   auto& cand_plus  = track_pair->cand_plus;
-  auto t_init_pos0 = cand_minus->FitVertex();
-  auto t_init_mom0 = cand_minus->FitMomentum();
-  auto t_init_pos1 = cand_plus->FitVertex();
-  auto t_init_mom1 = cand_plus->FitMomentum();
+  auto t_init_pos0 = cand_minus->FitInitPos();
+  auto t_init_mom0 = cand_minus->FitInitMom();
+  auto t_init_pos1 = cand_plus->FitInitPos();
+  auto t_init_mom1 = cand_plus->FitInitMom();
   Hep3Vector init_pos0(t_init_pos0(0) * 0.1, t_init_pos0(1) * 0.1, t_init_pos0(2) * 0.1);
   Hep3Vector init_mom0(t_init_mom0(0),       t_init_mom0(1),       t_init_mom0(2));
   Hep3Vector init_pos1(t_init_pos1(0) * 0.1, t_init_pos1(1) * 0.1, t_init_pos1(2) * 0.1);
   Hep3Vector init_mom1(t_init_mom1(0),       t_init_mom1(1),       t_init_mom1(2));
-  E16ANA_StepTrack step_track0(bfield_map, init_pos0, init_mom0, -1, step_size, array_size);
-  E16ANA_StepTrack step_track1(bfield_map, init_pos1, init_mom1,  1, step_size, array_size);
+  E16ANA_StepTrack step_track0(bfield_map, init_pos0, init_mom0, -1, kStepTrackStepSizeCm, kStepTrackArraySize);
+  E16ANA_StepTrack step_track1(bfield_map, init_pos1, init_mom1,  1, kStepTrackStepSizeCm, kStepTrackArraySize);
   double distance;
   Hep3Vector cross_point;
   Hep3Vector mom0;
