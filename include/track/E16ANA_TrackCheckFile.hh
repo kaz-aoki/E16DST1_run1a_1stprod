@@ -795,6 +795,7 @@ class E16ANA_TrackCheckFile {
     }
     for (int i = 0; i < n_pairs; ++i) {
       auto pair = cands.SelectedTrackCandidatePair(i);
+      rk_pair_distance[i] = pair->distance;
       rk_pair_minus_track_id[i] = pair->cand_minus->TrackID();
       rk_pair_plus_track_id[i] = pair->cand_plus->TrackID();
       auto mgpos = pair->mom_minus;
