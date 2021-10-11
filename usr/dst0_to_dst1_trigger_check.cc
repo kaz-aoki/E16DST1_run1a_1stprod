@@ -63,6 +63,13 @@ int main(int argc, char* argv[]) {
 //    }
 //  };
 
+  FILE* fp = fopen(in_file_name, "r");
+  if (!fp) {
+    cerr << "could not open file : " << in_file_name << endl;
+    return -1;
+  }
+  fclose(fp);
+
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
   E16ANA_GTRcalibPedestal gtrped;
