@@ -15,8 +15,8 @@
 
 class E16ANA_TrackCheckFile {
  public:
-  E16ANA_TrackCheckFile(char* file_name = "tmp.root")
-      : file(TFile(file_name, "recreate")) {
+  E16ANA_TrackCheckFile(char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
+      : file(TFile(file_name, "recreate")), run_id(_run_id) {
     t_param = new TTree("param", "param");
     tree = new TTree("tree", "tree");
     // Hit, Cluster
@@ -40,6 +40,7 @@ class E16ANA_TrackCheckFile {
     t_param->Branch("step_track_step_size_cm", &step_track_step_size_cm, "step_track_step_size_cm/D");
     t_param->Branch("step_track_array_size", &step_track_array_size, "step_track_array_size/I");
     
+    tree->Branch("run_id", &run_id, "run_id/I");
     tree->Branch("event_id", &event_id, "event_id/I");
     tree->Branch("n_ssd_clusters", &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
@@ -102,6 +103,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_cands", &n_cands, "n_cands/I");
     tree->Branch("n_selected", &n_selected, "n_selected/I");
     tree->Branch("n_pairs", &n_pairs, "n_pairs/I");
+    tree->Branch("track_id", &track_id);
     tree->Branch("is_selected", &is_selected);
     tree->Branch("x_raugh_fit_chi_square", &x_raugh_fit_chi_square);
     tree->Branch("x_raugh_fit_coef0", &x_raugh_fit_coef0);
@@ -226,6 +228,15 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_lg3_mid", &rk_proj_lg3_mid);
     tree->Branch("rk_proj_lg3_x",   &rk_proj_lg3_x);
     tree->Branch("rk_proj_lg3_y",   &rk_proj_lg3_y);
+    tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
+    tree->Branch("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx);
+    tree->Branch("rk_pair_minus_mom_gy", &rk_pair_minus_mom_gy);
+    tree->Branch("rk_pair_minus_mom_gz", &rk_pair_minus_mom_gz);
+    tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
+    tree->Branch("rk_pair_plus_mom_gx", &rk_pair_plus_mom_gx);
+    tree->Branch("rk_pair_plus_mom_gy", &rk_pair_plus_mom_gy);
+    tree->Branch("rk_pair_plus_mom_gz", &rk_pair_plus_mom_gz);
+    tree->Branch("rk_pair_distance", &rk_pair_distance);
     tree->Branch("rk_vtx_gx", &rk_vtx_gx);
     tree->Branch("rk_vtx_gy", &rk_vtx_gy);
     tree->Branch("rk_vtx_gz", &rk_vtx_gz);
@@ -555,6 +566,15 @@ class E16ANA_TrackCheckFile {
     rk_proj_lg3_mid.resize(n_cands);
     rk_proj_lg3_x.resize(n_cands);
     rk_proj_lg3_y.resize(n_cands);
+    rk_pair_minus_track_id.resize(n_pairs);
+    rk_pair_minus_mom_gx.resize(n_pairs);
+    rk_pair_minus_mom_gy.resize(n_pairs);
+    rk_pair_minus_mom_gz.resize(n_pairs);
+    rk_pair_plus_track_id.resize(n_pairs);
+    rk_pair_plus_mom_gx.resize(n_pairs);
+    rk_pair_plus_mom_gy.resize(n_pairs);
+    rk_pair_plus_mom_gz.resize(n_pairs);
+    rk_pair_distance.resize(n_pairs);
     rk_vtx_gx.resize(n_pairs);
     rk_vtx_gy.resize(n_pairs);
     rk_vtx_gz.resize(n_pairs);
@@ -774,7 +794,18 @@ class E16ANA_TrackCheckFile {
       }
     }
     for (int i = 0; i < n_pairs; ++i) {
-      auto& pair_vtx = cands.SelectedTrackCandidatePair(i)->vtx;
+      auto pair = cands.SelectedTrackCandidatePair(i);
+      rk_pair_minus_track_id[i] = pair->cand_minus->TrackID();
+      rk_pair_plus_track_id[i] = pair->cand_plus->TrackID();
+      auto mgpos = pair->mom_minus;
+      rk_pair_minus_mom_gx[i] = mgpos(0);
+      rk_pair_minus_mom_gy[i] = mgpos(1);
+      rk_pair_minus_mom_gz[i] = mgpos(2);
+      auto pgpos = pair->mom_plus;
+      rk_pair_plus_mom_gx[i] = pgpos(0);
+      rk_pair_plus_mom_gy[i] = pgpos(1);
+      rk_pair_plus_mom_gz[i] = pgpos(2);
+      auto& pair_vtx = pair->vtx;
       rk_vtx_gx[i] = pair_vtx.X();
       rk_vtx_gy[i] = pair_vtx.Y();
       rk_vtx_gz[i] = pair_vtx.Z();
@@ -804,6 +835,7 @@ class E16ANA_TrackCheckFile {
   double step_track_step_size_cm;
   int step_track_array_size;
   // Common
+  int run_id;
   int event_id;
   // Hit, Cluster
   int n_ssd_clusters;
@@ -867,6 +899,7 @@ class E16ANA_TrackCheckFile {
   int n_cands;
   int n_selected;
   int n_pairs;
+  std::vector<int> track_id;
   std::vector<bool> is_selected;
   std::vector<double> x_raugh_fit_chi_square;
   std::vector<double> x_raugh_fit_coef0;
@@ -991,9 +1024,15 @@ class E16ANA_TrackCheckFile {
   std::vector<int> rk_proj_lg3_mid;
   std::vector<double> rk_proj_lg3_x;
   std::vector<double> rk_proj_lg3_y;
-//  std::vector<double> rk_pair_minus_gx;
-//  std::vector<double> rk_pair_minus_gy;
-//  std::vector<double> rk_pair_minus_gz;
+  std::vector<int> rk_pair_minus_track_id;
+  std::vector<double> rk_pair_minus_mom_gx;
+  std::vector<double> rk_pair_minus_mom_gy;
+  std::vector<double> rk_pair_minus_mom_gz;
+  std::vector<int> rk_pair_plus_track_id;
+  std::vector<double> rk_pair_plus_mom_gx;
+  std::vector<double> rk_pair_plus_mom_gy;
+  std::vector<double> rk_pair_plus_mom_gz;
+  std::vector<double> rk_pair_distance;
   std::vector<double> rk_vtx_gx;
   std::vector<double> rk_vtx_gy;
   std::vector<double> rk_vtx_gz;

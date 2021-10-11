@@ -303,6 +303,7 @@ class E16ANA_TrackCandidates {
     E16ANA_TrackCandidate* cand_minus;
     E16ANA_TrackCandidate* cand_plus;
     TVector3 vtx;
+    double distance;
     TVector3 mom_minus;
     TVector3 mom_plus;
     void Clear() {

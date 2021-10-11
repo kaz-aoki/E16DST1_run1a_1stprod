@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
   E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
 
-  E16ANA_TrackCheckFile check_file(out_file_name);
+  E16ANA_TrackCheckFile check_file(out_file_name, run_id);
   
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {

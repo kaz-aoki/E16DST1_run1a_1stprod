@@ -774,9 +774,10 @@ double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
   Hep3Vector mom1;
   auto flag = step_track0.Cross(step_track1, &distance, &cross_point, &mom0, &mom1);
   track_pair->vtx = {cross_point.x() * 10., cross_point.y() * 10., cross_point.z() * 10.};
+  track_pair->distance = distance;
   track_pair->mom_minus = {mom0.x(), mom0.y(), mom0.z()};
   track_pair->mom_plus  = {mom1.x(), mom1.y(), mom1.z()};
-  return distance;
+  return distance * 10.;
 }
 
 void E16ANA_TrackCandidates::SelectTrackPairs() {
