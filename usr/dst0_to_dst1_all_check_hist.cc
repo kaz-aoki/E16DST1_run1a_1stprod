@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
     had[1][j] = new TH1F(Form("had%d%d",1,j),Form("%s%s%s",par[4],det[1],mod[j]),100,0,50000);//gtr100
     had[2][j] = new TH1F(Form("had%d%d",2,j),Form("%s%s%s",par[4],det[2],mod[j]),100,0,50000);//gtr200
     had[3][j] = new TH1F(Form("had%d%d",3,j),Form("%s%s%s",par[4],det[3],mod[j]),100,0,50000);//gtr300
-    had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),1000,0,0.01);//hbd
+    had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),2000,0,20);//hbd
     had[5][j] = new TH1F(Form("had%d%d",5,j),Form("%s%s%s",par[4],det[5],mod[j]),1000,0,1000);//lg
   }
 
@@ -315,6 +315,7 @@ int main(int argc, char* argv[]) {
 	int mod = m_cid(j);
 	for(int k=0;k<3;k++){//layer loop
 	  for(int l=0;l<3;l++){//type loop
+	    if(l==2&&k!=0){continue;}
 	    auto& gtr_hits1 = record->GTR().HitPtrs(mod,k,l);
 	    auto& gtr_clusters1 = record->GTR().ClusterPtrs(mod,k,l);
 	    gtr_nh = gtr_hits1.size();
