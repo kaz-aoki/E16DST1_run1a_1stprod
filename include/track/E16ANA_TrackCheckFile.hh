@@ -236,7 +236,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx);
     tree->Branch("rk_pair_minus_mom_gy", &rk_pair_minus_mom_gy);
     tree->Branch("rk_pair_minus_mom_gz", &rk_pair_minus_mom_gz);
-    tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
+    tree->Branch("rk_pair_plus_track_id", &rk_pair_plus_track_id);
     tree->Branch("rk_pair_plus_chi_square", &rk_pair_plus_chi_square);
     tree->Branch("rk_pair_plus_mom_gx", &rk_pair_plus_mom_gx);
     tree->Branch("rk_pair_plus_mom_gy", &rk_pair_plus_mom_gy);
