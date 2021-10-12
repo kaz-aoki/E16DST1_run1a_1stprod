@@ -688,10 +688,16 @@ void E16ANA_TrackCandidates::SortTracks() {
     if (cand.ProjectedLGHits().size() == 0) {
       continue;
     }
-//    auto vtx = cand.FitVertex();
-//    if (vtx(0) * vtx(0) + vtx(1) * vtx(1) > kVertexSquareThreshold) {
-//      continue;
-//    }
+    bool is_near_target = false;
+    for (auto& pos : cand.PosAtTargets()) {
+      if (pos.Mag() < kNearTargetThreshold) {
+        is_near_target = true;
+        break;
+      }
+    }
+    if (!is_near_target) {
+      continue;
+    }
     bool is_used = false;
     for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
       int n_types = 2;
@@ -884,7 +890,6 @@ E16INFO("number of track candidate: %d", track_candidates.size());
   ProjectionTarget();
   SearchHBDAndLGHits();
   SortTracks();
-//  ProjectionTarget();
   MakeTrackPairs();
   AddTracksToRecord();
   return;

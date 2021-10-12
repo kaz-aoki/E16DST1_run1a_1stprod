@@ -342,7 +342,7 @@ class E16ANA_TrackCandidates {
   double RaughYFitCoefficientThreshold(int n) { return kRaughYFitCoefficientThreshold[n]; }
   double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
   double LGProjectionThreshold() { return kLGProjectionThreshold; }
-  double VertexSquareThreshold() { return kVertexSquareThreshold; }
+  double NearTargetThreshold() { return kNearTargetThreshold; }
   double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
   int StepTrackArraySize() { return kStepTrackArraySize; }
   int NumXCandidates() { return n_x_cands; }
@@ -396,7 +396,7 @@ class E16ANA_TrackCandidates {
     std::cout << "Y Raugh Fit Coefficient Threshold : " << kRaughYFitCoefficientThreshold[0] << ", " << kRaughYFitCoefficientThreshold[1] << std::endl;
     std::cout << "HBD Projection Threshold : " << kHBDProjectionThreshold << std::endl;
     std::cout << "LG  Projection Threshold : " << kLGProjectionThreshold << std::endl;
-    std::cout << "Vertex Threshold (square) : " << kVertexSquareThreshold << std::endl;
+    std::cout << "Near Target Threshold : " << kNearTargetThreshold << std::endl;
     std::cout << "E16ANA_StepTrack Step Size [cm] : " << kStepTrackStepSizeCm << std::endl;
     std::cout << "E16ANA_StepTrack Array Size : " << kStepTrackArraySize << std::endl;
   }
@@ -445,7 +445,7 @@ class E16ANA_TrackCandidates {
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
-  static constexpr double kVertexSquareThreshold = 5. * 5.;
+  static constexpr double kNearTargetThreshold = 10.;
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
 

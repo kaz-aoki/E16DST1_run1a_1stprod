@@ -36,12 +36,15 @@ class E16ANA_TrackCheckFile {
     t_param->Branch("raugh_y_fit_coefficient_threhold", raugh_y_fit_coefficient_threhold, "raugh_y_fit_coefficient_threhold[2]/D");
     t_param->Branch("hbd_projection_threshold", &hbd_projection_threshold, "hbd_projection_threshold/D");
     t_param->Branch("lg_projection_threshold", &lg_projection_threshold, "lg_projection_threshold/D");
-    t_param->Branch("vtx_square_threshold", &vtx_square_threshold, "vtx_square_threshold/D");
+    t_param->Branch("near_target_threshold", &near_target_threshold, "near_target_threshold/D");
     t_param->Branch("step_track_step_size_cm", &step_track_step_size_cm, "step_track_step_size_cm/D");
     t_param->Branch("step_track_array_size", &step_track_array_size, "step_track_array_size/I");
     
     tree->Branch("run_id", &run_id, "run_id/I");
     tree->Branch("event_id", &event_id, "event_id/I");
+    tree->Branch("spill_id", &spill_id, "spill_id/I");
+    tree->Branch("timestamp_in_spill", &timestamp_in_spill, "timestamp_in_spill/l");
+    tree->Branch("n_fill", &n_fill, "n_fill/I");
     tree->Branch("n_ssd_clusters", &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
     tree->Branch("ssd_cluster_x",   &ssd_cluster_x);
@@ -274,19 +277,15 @@ class E16ANA_TrackCheckFile {
     }
     hbd_projection_threshold = cands.HBDProjectionThreshold();
     lg_projection_threshold = cands.LGProjectionThreshold();
-    vtx_square_threshold = cands.VertexSquareThreshold();
+    near_target_threshold = cands.NearTargetThreshold();
     step_track_step_size_cm = cands.StepTrackStepSizeCm();
     step_track_array_size= cands.StepTrackArraySize();
     t_param->Fill();
   }
-  void AddEntry(int _event_id, E16ANA_GeometryV2& geometry, E16DST_DST1PhysicsRecord& record, E16ANA_TrackCandidates& cands) {
+  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, E16DST_DST1PhysicsRecord& record) {
     event_id = _event_id;
-    AddRecord(geometry, record);
-    AddCandidate(geometry, cands);
-    tree->Fill();
-  }
- private:
-  void AddRecord(E16ANA_GeometryV2& geometry, E16DST_DST1PhysicsRecord& record) {
+    spill_id = _spill_id;
+    timestamp_in_spill = _timestamp_in_spill;
     n_ssd_clusters = record.SSD().NumClusters();
     ssd_cluster_mid.resize(n_ssd_clusters);
     ssd_cluster_x.resize(n_ssd_clusters);
@@ -436,6 +435,15 @@ class E16ANA_TrackCheckFile {
       lg_hit_time[i] = hit.Timing();
     }
   }
+//  void AddEntry(int _event_id, E16ANA_GeometryV2& geometry, E16DST_DST1PhysicsRecord& record, E16ANA_TrackCandidates& cands) {
+  void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
+//    event_id = _event_id;
+//    AddRecord(geometry, record);
+    n_fill = _n_fill;
+    AddCandidate(geometry, cands);
+    tree->Fill();
+  }
+ private:
   void AddCandidate(E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
     n_x_cands = cands.NumXCandidates();
     n_y_cands = cands.NumYCandidates();
@@ -832,12 +840,15 @@ class E16ANA_TrackCheckFile {
   double raugh_y_fit_coefficient_threhold[2];
   double hbd_projection_threshold;
   double lg_projection_threshold;
-  double vtx_square_threshold;
+  double near_target_threshold;
   double step_track_step_size_cm;
   int step_track_array_size;
   // Common
   int run_id;
   int event_id;
+  int spill_id;
+  uint64_t timestamp_in_spill;
+  int n_fill;
   // Hit, Cluster
   int n_ssd_clusters;
   std::vector<int> ssd_cluster_mid;

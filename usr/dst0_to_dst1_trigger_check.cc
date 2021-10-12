@@ -137,6 +137,7 @@ int main(int argc, char* argv[]) {
       record.LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record, &check_file);
 
 //// Check begin
