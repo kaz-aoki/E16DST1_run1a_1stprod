@@ -350,8 +350,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    if(vertex_z_fixflag){
       minuit->SetFixedVariable(2, "Vertex_Z", vertex_init.Z());
    }else{
-//      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, vertex_init.Z()-20.0, vertex_init.Z()+20.0);
-      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -20.0, 20.0); // update 2021-09-27
+      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, vertex_init.Z()-20.0, vertex_init.Z()+20.0);
    }
    for(int i=0; i<n_tracks; i++){
       minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),

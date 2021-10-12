@@ -89,6 +89,7 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
   for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
     fit_results[l].Clear();
     auto& result = fit_results[l];
+    result.Clear();
     int nstps;
 //    double r;
     for (int mid = module_id - 2; mid <= module_id + 2; ++mid) {
@@ -345,6 +346,7 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   }
 
   if (chi2_cand < kRaughFitChiSquareThreshold[0] && fabs(coef[0]) < kRaughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRaughXFitCoefficientThreshold[2]) {
+    cluster_set->xy = tgt_x_cand;
     cluster_set->chi_square = chi2_cand;
     for (int i = 0; i < kNumRaughFitDegree[0]; ++i) {
       cluster_set->coefs[i] = coef[i];
@@ -387,6 +389,7 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
     chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
   }
   if (chi2_cand < kRaughFitChiSquareThreshold[1] && fabs(coef[0]) < kRaughYFitCoefficientThreshold[0]) {
+    cluster_set->xy = coef[0];
     cluster_set->chi_square = chi2_cand;
     for (int i = 0; i < kNumRaughFitDegree[1]; ++i) {
       cluster_set->coefs[i] = coef[i];
@@ -571,7 +574,9 @@ E16INFO("number of y candidates: %d", n_y_cands);
       auto& tmp_cand = track_candidates.back();
       tmp_cand.SetTrackID(track_candidates.size() - 1);
       tmp_cand.SetCharge(x_cand.charge);
-      tmp_cand.SetInitPos(x_cand.target_id);
+      tmp_cand.SetInitX(x_cand.xy);
+      tmp_cand.SetInitY(y_cand.xy);
+      tmp_cand.SetInitZ(x_cand.target_id);
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
       tmp_cand.SetYChiSquare(y_cand.chi_square);

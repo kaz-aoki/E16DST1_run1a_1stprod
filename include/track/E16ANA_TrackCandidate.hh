@@ -59,6 +59,7 @@ class E16ANA_TrackClusterPair {
   int layer_order; // order in all detectors (E16ANA_MutiTrack::layer_id: only in GTR)
   int module_id;
   std::array<E16DST_DST1Cluster*, 2> clusters; // x, y
+//  std::array<std::shared_ptr<E16DST_DST1Cluster>, 2> clusters; // x, y
   TVector3 local_pos;
   TVector3 global_pos;
 };
@@ -108,9 +109,11 @@ class E16ANA_TrackCandidate {
   void SetTrackID(int _track_id) { track_id = _track_id; }
   void SetIsSelected(bool _is_selected) { is_selected = _is_selected; }
   void SetCharge(int _charge) { charge = _charge; }
-  void SetInitPos(int _target_id) {
+  void SetInitX(double _x) { init_pos.SetX(_x); }
+  void SetInitY(double _y) { init_pos.SetY(_y); }
+  void SetInitZ(int _target_id) {
     target_id = _target_id;
-    init_pos = {0., 0., E16ANA_TrackConstant::kTargetZ[target_id]};
+    init_pos.SetZ(E16ANA_TrackConstant::kTargetZ[target_id]);
   }
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
   void SetDefaultSigma() {
@@ -403,6 +406,7 @@ class E16ANA_TrackCandidates {
  private:
   struct OneAxisClusterSet {
     int target_id; // only x
+    int xy;
     int charge; // only x
     double chi_square;
     std::array<double, 3> coefs;

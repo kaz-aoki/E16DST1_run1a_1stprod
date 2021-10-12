@@ -45,61 +45,62 @@ class E16ANA_TrackCheckFile {
     tree->Branch("spill_id", &spill_id, "spill_id/I");
     tree->Branch("timestamp_in_spill", &timestamp_in_spill, "timestamp_in_spill/l");
     tree->Branch("n_fill", &n_fill, "n_fill/I");
-    tree->Branch("n_ssd_clusters", &n_ssd_clusters, "n_ssd_clusters/I");
+    tree->Branch("n_ssd_clusters",  &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
     tree->Branch("ssd_cluster_x",   &ssd_cluster_x);
     tree->Branch("ssd_cluster_gx",  &ssd_cluster_gx);
     tree->Branch("ssd_cluster_gz",  &ssd_cluster_gz);
-    tree->Branch("n_gtr100x_clusters", &n_gtr100x_clusters, "n_gtr100x_clusters/I");
+    tree->Branch("ssd_cluster_t",   &ssd_cluster_t);
+    tree->Branch("n_gtr100x_clusters",  &n_gtr100x_clusters, "n_gtr100x_clusters/I");
     tree->Branch("gtr100x_cluster_mid", &gtr100x_cluster_mid);
     tree->Branch("gtr100x_cluster_x",   &gtr100x_cluster_x);
     tree->Branch("gtr100x_cluster_gx",  &gtr100x_cluster_gx);
     tree->Branch("gtr100x_cluster_gz",  &gtr100x_cluster_gz);
-    tree->Branch("n_gtr200x_clusters", &n_gtr200x_clusters, "n_gtr200x_clusters/I");
+    tree->Branch("gtr100x_cluster_t",   &gtr100x_cluster_t);
+    tree->Branch("n_gtr200x_clusters",  &n_gtr200x_clusters, "n_gtr200x_clusters/I");
     tree->Branch("gtr200x_cluster_mid", &gtr200x_cluster_mid);
     tree->Branch("gtr200x_cluster_x",   &gtr200x_cluster_x);
     tree->Branch("gtr200x_cluster_gx",  &gtr200x_cluster_gx);
     tree->Branch("gtr200x_cluster_gz",  &gtr200x_cluster_gz);
-    tree->Branch("n_gtr300x_clusters", &n_gtr300x_clusters, "n_gtr300x_clusters/I");
+    tree->Branch("gtr200x_cluster_t",   &gtr200x_cluster_t);
+    tree->Branch("n_gtr300x_clusters",  &n_gtr300x_clusters, "n_gtr300x_clusters/I");
     tree->Branch("gtr300x_cluster_mid", &gtr300x_cluster_mid);
     tree->Branch("gtr300x_cluster_x",   &gtr300x_cluster_x);
     tree->Branch("gtr300x_cluster_gx",  &gtr300x_cluster_gx);
     tree->Branch("gtr300x_cluster_gz",  &gtr300x_cluster_gz);
-    tree->Branch("n_gtr100y_clusters", &n_gtr100y_clusters, "n_gtr100y_clusters/I");
+    tree->Branch("gtr300x_cluster_t",   &gtr300x_cluster_t);
+    tree->Branch("n_gtr100y_clusters",  &n_gtr100y_clusters, "n_gtr100y_clusters/I");
     tree->Branch("gtr100y_cluster_mid", &gtr100y_cluster_mid);
-    tree->Branch("gtr100x_cluster_y",   &gtr100x_cluster_y);
-    tree->Branch("gtr100y_cluster_gy",  &gtr100y_cluster_gy);
-    tree->Branch("gtr100y_cluster_gr",  &gtr100y_cluster_gr);
-    tree->Branch("n_gtr100yb_clusters", &n_gtr100yb_clusters, "n_gtr100yb_clusters/I");
+    tree->Branch("gtr100y_cluster_y",   &gtr100y_cluster_y);
+    tree->Branch("gtr100y_cluster_t",   &gtr100y_cluster_t);
+    tree->Branch("n_gtr100yb_clusters",  &n_gtr100yb_clusters, "n_gtr100yb_clusters/I");
     tree->Branch("gtr100yb_cluster_mid", &gtr100yb_cluster_mid);
-    tree->Branch("gtr100yb_cluster_x",   &gtr100yb_cluster_x);
-    tree->Branch("gtr100yb_cluster_gy",  &gtr100yb_cluster_gy);
-    tree->Branch("gtr100yb_cluster_gr",  &gtr100yb_cluster_gr);
-    tree->Branch("n_gtr200y_clusters", &n_gtr200y_clusters, "n_gtr200y_clusters/I");
+    tree->Branch("gtr100yb_cluster_y",   &gtr100yb_cluster_y);
+    tree->Branch("gtr100yb_cluster_t",   &gtr100yb_cluster_t);
+    tree->Branch("n_gtr200y_clusters",  &n_gtr200y_clusters, "n_gtr200y_clusters/I");
     tree->Branch("gtr200y_cluster_mid", &gtr200y_cluster_mid);
-    tree->Branch("gtr200x_cluster_y",   &gtr200x_cluster_y);
-    tree->Branch("gtr200y_cluster_gy",  &gtr200y_cluster_gy);
-    tree->Branch("gtr200y_cluster_gr",  &gtr200y_cluster_gr);
-    tree->Branch("n_gtr300y_clusters", &n_gtr300y_clusters, "n_gtr300y_clusters/I");
+    tree->Branch("gtr200y_cluster_y",   &gtr200y_cluster_y);
+    tree->Branch("gtr200y_cluster_t",   &gtr200y_cluster_t);
+    tree->Branch("n_gtr300y_clusters",  &n_gtr300y_clusters, "n_gtr300y_clusters/I");
     tree->Branch("gtr300y_cluster_mid", &gtr300y_cluster_mid);
-    tree->Branch("gtr300x_cluster_y",   &gtr300x_cluster_y);
-    tree->Branch("gtr300y_cluster_gy",  &gtr300y_cluster_gy);
-    tree->Branch("gtr300y_cluster_gr",  &gtr300y_cluster_gr);
-    tree->Branch("n_hbd_clusters", &n_hbd_clusters, "n_hbd_clusters/I");
+    tree->Branch("gtr300y_cluster_y",   &gtr300y_cluster_y);
+    tree->Branch("gtr300y_cluster_t",   &gtr300y_cluster_t);
+    tree->Branch("n_hbd_clusters",  &n_hbd_clusters, "n_hbd_clusters/I");
     tree->Branch("hbd_cluster_mid", &hbd_cluster_mid);
     tree->Branch("hbd_cluster_x",   &hbd_cluster_x);
     tree->Branch("hbd_cluster_y",   &hbd_cluster_y);
     tree->Branch("hbd_cluster_gx",  &hbd_cluster_gx);
     tree->Branch("hbd_cluster_gy",  &hbd_cluster_gy);
     tree->Branch("hbd_cluster_gz",  &hbd_cluster_gz);
-    tree->Branch("n_lg_hits", &n_lg_hits, "n_lg_hits/I");
+    tree->Branch("hbd_cluster_t",   &hbd_cluster_t);
+    tree->Branch("n_lg_hits",   &n_lg_hits, "n_lg_hits/I");
     tree->Branch("lg_hit_mid",  &lg_hit_mid);
     tree->Branch("lg_hit_x",    &lg_hit_x);
     tree->Branch("lg_hit_y",    &lg_hit_y);
     tree->Branch("lg_hit_gx",   &lg_hit_gx);
     tree->Branch("lg_hit_gy",   &lg_hit_gy);
     tree->Branch("lg_hit_gz",   &lg_hit_gz);
-    tree->Branch("lg_hit_time", &lg_hit_time);
+    tree->Branch("lg_hit_t",    &lg_hit_t);
     // Track
     tree->Branch("n_x_cands", &n_x_cands, "n_x_cands/I");
     tree->Branch("n_y_cands", &n_y_cands, "n_y_cands/I");
@@ -127,15 +128,22 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_ssd_gx", &rk_hit_ssd_gx);
     tree->Branch("rk_hit_ssd_gy", &rk_hit_ssd_gy);
     tree->Branch("rk_hit_ssd_gz", &rk_hit_ssd_gz);
+    tree->Branch("rk_hit_ssd_t",  &rk_hit_ssd_t);
     tree->Branch("rk_hit_gtr100_gx", &rk_hit_gtr100_gx);
     tree->Branch("rk_hit_gtr100_gy", &rk_hit_gtr100_gy);
     tree->Branch("rk_hit_gtr100_gz", &rk_hit_gtr100_gz);
+    tree->Branch("rk_hit_gtr100_xt",  &rk_hit_gtr100_xt);
+    tree->Branch("rk_hit_gtr100_yt",  &rk_hit_gtr100_yt);
     tree->Branch("rk_hit_gtr200_gx", &rk_hit_gtr200_gx);
     tree->Branch("rk_hit_gtr200_gy", &rk_hit_gtr200_gy);
     tree->Branch("rk_hit_gtr200_gz", &rk_hit_gtr200_gz);
+    tree->Branch("rk_hit_gtr200_xt",  &rk_hit_gtr200_xt);
+    tree->Branch("rk_hit_gtr200_yt",  &rk_hit_gtr200_yt);
     tree->Branch("rk_hit_gtr300_gx", &rk_hit_gtr300_gx);
     tree->Branch("rk_hit_gtr300_gy", &rk_hit_gtr300_gy);
     tree->Branch("rk_hit_gtr300_gz", &rk_hit_gtr300_gz);
+    tree->Branch("rk_hit_gtr300_xt",  &rk_hit_gtr300_xt);
+    tree->Branch("rk_hit_gtr300_yt",  &rk_hit_gtr300_yt);
     tree->Branch("rk_fit_init_mom_gx", &rk_fit_init_mom_gx);
     tree->Branch("rk_fit_init_mom_gy", &rk_fit_init_mom_gy);
     tree->Branch("rk_fit_init_mom_gz", &rk_fit_init_mom_gz);
@@ -198,39 +206,47 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_tgt2_gx", &rk_proj_tgt2_gx);
     tree->Branch("rk_proj_tgt2_gy", &rk_proj_tgt2_gy);
     tree->Branch("rk_proj_tgt2_gz", &rk_proj_tgt2_gz);
-    tree->Branch("rk_proj_tgt_mom0_gx", &rk_proj_tgt_mom0_gx);
-    tree->Branch("rk_proj_tgt_mom0_gy", &rk_proj_tgt_mom0_gy);
-    tree->Branch("rk_proj_tgt_mom0_gz", &rk_proj_tgt_mom0_gz);
-    tree->Branch("rk_proj_tgt_mom1_gx", &rk_proj_tgt_mom1_gx);
-    tree->Branch("rk_proj_tgt_mom1_gy", &rk_proj_tgt_mom1_gy);
-    tree->Branch("rk_proj_tgt_mom1_gz", &rk_proj_tgt_mom1_gz);
-    tree->Branch("rk_proj_tgt_mom2_gx", &rk_proj_tgt_mom2_gx);
-    tree->Branch("rk_proj_tgt_mom2_gy", &rk_proj_tgt_mom2_gy);
-    tree->Branch("rk_proj_tgt_mom2_gz", &rk_proj_tgt_mom2_gz);
+    tree->Branch("rk_proj_tgt0_mom_gx", &rk_proj_tgt0_mom_gx);
+    tree->Branch("rk_proj_tgt0_mom_gy", &rk_proj_tgt0_mom_gy);
+    tree->Branch("rk_proj_tgt0_mom_gz", &rk_proj_tgt0_mom_gz);
+    tree->Branch("rk_proj_tgt1_mom_gx", &rk_proj_tgt1_mom_gx);
+    tree->Branch("rk_proj_tgt1_mom_gy", &rk_proj_tgt1_mom_gy);
+    tree->Branch("rk_proj_tgt1_mom_gz", &rk_proj_tgt1_mom_gz);
+    tree->Branch("rk_proj_tgt2_mom_gx", &rk_proj_tgt2_mom_gx);
+    tree->Branch("rk_proj_tgt2_mom_gy", &rk_proj_tgt2_mom_gy);
+    tree->Branch("rk_proj_tgt2_mom_gz", &rk_proj_tgt2_mom_gz);
     tree->Branch("rk_proj_hbd0_mid", &rk_proj_hbd0_mid);
     tree->Branch("rk_proj_hbd0_x",   &rk_proj_hbd0_x);
     tree->Branch("rk_proj_hbd0_y",   &rk_proj_hbd0_y);
+    tree->Branch("rk_proj_hbd0_t",   &rk_proj_hbd0_t);
     tree->Branch("rk_proj_hbd1_mid", &rk_proj_hbd1_mid);
     tree->Branch("rk_proj_hbd1_x",   &rk_proj_hbd1_x);
     tree->Branch("rk_proj_hbd1_y",   &rk_proj_hbd1_y);
+    tree->Branch("rk_proj_hbd1_t",   &rk_proj_hbd1_t);
     tree->Branch("rk_proj_hbd2_mid", &rk_proj_hbd2_mid);
     tree->Branch("rk_proj_hbd2_x",   &rk_proj_hbd2_x);
     tree->Branch("rk_proj_hbd2_y",   &rk_proj_hbd2_y);
+    tree->Branch("rk_proj_hbd2_t",   &rk_proj_hbd2_t);
     tree->Branch("rk_proj_hbd3_mid", &rk_proj_hbd3_mid);
     tree->Branch("rk_proj_hbd3_x",   &rk_proj_hbd3_x);
     tree->Branch("rk_proj_hbd3_y",   &rk_proj_hbd3_y);
+    tree->Branch("rk_proj_hbd3_t",   &rk_proj_hbd3_t);
     tree->Branch("rk_proj_lg0_mid", &rk_proj_lg0_mid);
     tree->Branch("rk_proj_lg0_x",   &rk_proj_lg0_x);
     tree->Branch("rk_proj_lg0_y",   &rk_proj_lg0_y);
+    tree->Branch("rk_proj_lg0_t",   &rk_proj_lg0_t);
     tree->Branch("rk_proj_lg1_mid", &rk_proj_lg1_mid);
     tree->Branch("rk_proj_lg1_x",   &rk_proj_lg1_x);
     tree->Branch("rk_proj_lg1_y",   &rk_proj_lg1_y);
+    tree->Branch("rk_proj_lg1_t",   &rk_proj_lg1_t);
     tree->Branch("rk_proj_lg2_mid", &rk_proj_lg2_mid);
     tree->Branch("rk_proj_lg2_x",   &rk_proj_lg2_x);
     tree->Branch("rk_proj_lg2_y",   &rk_proj_lg2_y);
+    tree->Branch("rk_proj_lg2_t",   &rk_proj_lg2_t);
     tree->Branch("rk_proj_lg3_mid", &rk_proj_lg3_mid);
     tree->Branch("rk_proj_lg3_x",   &rk_proj_lg3_x);
     tree->Branch("rk_proj_lg3_y",   &rk_proj_lg3_y);
+    tree->Branch("rk_proj_lg3_t",   &rk_proj_lg3_t);
     tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
     tree->Branch("rk_pair_minus_chi_square", &rk_pair_minus_chi_square);
     tree->Branch("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx);
@@ -293,6 +309,7 @@ class E16ANA_TrackCheckFile {
     ssd_cluster_x.resize(n_ssd_clusters);
     ssd_cluster_gx.resize(n_ssd_clusters);
     ssd_cluster_gz.resize(n_ssd_clusters);
+    ssd_cluster_t.resize(n_ssd_clusters);
     for (int i = 0; i < n_ssd_clusters; ++i) {
       auto& clst = record.SSD().Cluster(i);
       ssd_cluster_mid[i] = clst.ModuleId();
@@ -300,6 +317,7 @@ class E16ANA_TrackCheckFile {
       auto gpos = clst.GlobalPos(geometry);
       ssd_cluster_gx[i] = gpos.X();
       ssd_cluster_gz[i] = gpos.Z();
+      ssd_cluster_t[i] = clst.Timing();
     }
     n_gtr100x_clusters = 0;
     n_gtr200x_clusters = 0;
@@ -312,30 +330,29 @@ class E16ANA_TrackCheckFile {
     gtr100x_cluster_x.clear();
     gtr100x_cluster_gx.clear();
     gtr100x_cluster_gz.clear();
+    gtr100x_cluster_t.clear();
     gtr200x_cluster_mid.clear();
     gtr200x_cluster_x.clear();
     gtr200x_cluster_gx.clear();
     gtr200x_cluster_gz.clear();
+    gtr200x_cluster_t.clear();
     gtr300x_cluster_mid.clear();
     gtr300x_cluster_x.clear();
     gtr300x_cluster_gx.clear();
     gtr300x_cluster_gz.clear();
+    gtr300x_cluster_t.clear();
     gtr100y_cluster_mid.clear();
-    gtr100x_cluster_y.clear();
-    gtr100y_cluster_gy.clear();
-    gtr100y_cluster_gr.clear();
+    gtr100y_cluster_y.clear();
+    gtr100y_cluster_t.clear();
     gtr100yb_cluster_mid.clear();
-    gtr100yb_cluster_x.clear();
-    gtr100yb_cluster_gy.clear();
-    gtr100yb_cluster_gr.clear();
+    gtr100yb_cluster_y.clear();
+    gtr100yb_cluster_t.clear();
     gtr200y_cluster_mid.clear();
-    gtr200x_cluster_y.clear();
-    gtr200y_cluster_gy.clear();
-    gtr200y_cluster_gr.clear();
+    gtr200y_cluster_y.clear();
+    gtr200y_cluster_t.clear();
     gtr300y_cluster_mid.clear();
-    gtr300x_cluster_y.clear();
-    gtr300y_cluster_gy.clear();
-    gtr300y_cluster_gr.clear();
+    gtr300y_cluster_y.clear();
+    gtr300y_cluster_t.clear();
     auto n_gtr_clusters = record.GTR().NumClusters();
     for (int i = 0; i < n_gtr_clusters; ++i) {
       auto& clst = record.GTR().Cluster(i);
@@ -349,20 +366,17 @@ class E16ANA_TrackCheckFile {
           auto gpos = clst.GlobalPos(geometry);
           gtr100x_cluster_gx.emplace_back(gpos.X());
           gtr100x_cluster_gz.emplace_back(gpos.Z());
+          gtr100x_cluster_t.emplace_back(clst.Timing());
         } else if (type == 1) {
           ++n_gtr100y_clusters;
           gtr100y_cluster_mid.emplace_back(clst.ModuleId());
-          gtr100x_cluster_y.emplace_back(clst.LocalX());
-          auto gpos = clst.GlobalPos(geometry);
-          gtr100y_cluster_gy.emplace_back(gpos.X());
-          gtr100y_cluster_gr.emplace_back(gpos.Z());
+          gtr100y_cluster_y.emplace_back(clst.LocalX());
+          gtr100y_cluster_t.emplace_back(clst.Timing());
         } else {
           ++n_gtr100yb_clusters;
           gtr100yb_cluster_mid.emplace_back(clst.ModuleId());
-          gtr100yb_cluster_x.emplace_back(clst.LocalX());
-          auto gpos = clst.GlobalPos(geometry);
-          gtr100yb_cluster_gy.emplace_back(gpos.X());
-          gtr100yb_cluster_gr.emplace_back(gpos.Z());
+          gtr100yb_cluster_y.emplace_back(clst.LocalX());
+          gtr100yb_cluster_t.emplace_back(clst.Timing());
         }
       } else if (lid == 1) {
         if (type == 0) {
@@ -372,13 +386,12 @@ class E16ANA_TrackCheckFile {
           auto gpos = clst.GlobalPos(geometry);
           gtr200x_cluster_gx.emplace_back(gpos.X());
           gtr200x_cluster_gz.emplace_back(gpos.Z());
+          gtr200x_cluster_t.emplace_back(clst.Timing());
         } else if (type == 1) {
           ++n_gtr200y_clusters;
           gtr200y_cluster_mid.emplace_back(clst.ModuleId());
-          gtr200x_cluster_y.emplace_back(clst.LocalX());
-          auto gpos = clst.GlobalPos(geometry);
-          gtr200y_cluster_gy.emplace_back(gpos.X());
-          gtr200y_cluster_gr.emplace_back(gpos.Z());
+          gtr200y_cluster_y.emplace_back(clst.LocalX());
+          gtr200y_cluster_t.emplace_back(clst.Timing());
         }
       } else {
         if (type == 0) {
@@ -388,13 +401,12 @@ class E16ANA_TrackCheckFile {
           auto gpos = clst.GlobalPos(geometry);
           gtr300x_cluster_gx.emplace_back(gpos.X());
           gtr300x_cluster_gz.emplace_back(gpos.Z());
+          gtr300x_cluster_t.emplace_back(clst.Timing());
         } else if (type == 1) {
           ++n_gtr300y_clusters;
           gtr300y_cluster_mid.emplace_back(clst.ModuleId());
-          gtr300x_cluster_y.emplace_back(clst.LocalX());
-          auto gpos = clst.GlobalPos(geometry);
-          gtr300y_cluster_gy.emplace_back(gpos.X());
-          gtr300y_cluster_gr.emplace_back(gpos.Z());
+          gtr300y_cluster_y.emplace_back(clst.LocalX());
+          gtr300y_cluster_t.emplace_back(clst.Timing());
         }
       }
     }
@@ -405,6 +417,7 @@ class E16ANA_TrackCheckFile {
     hbd_cluster_gx.resize(n_hbd_clusters);
     hbd_cluster_gy.resize(n_hbd_clusters);
     hbd_cluster_gz.resize(n_hbd_clusters);
+    hbd_cluster_t.resize(n_hbd_clusters);
     for (int i = 0; i < n_hbd_clusters; ++i) {
       auto& clst = record.HBD().Cluster(i);
       hbd_cluster_mid[i] = clst.ModuleId();
@@ -415,6 +428,7 @@ class E16ANA_TrackCheckFile {
       hbd_cluster_gx[i] = gpos.X();
       hbd_cluster_gy[i] = gpos.Y();
       hbd_cluster_gz[i] = gpos.Z();
+      hbd_cluster_t[i] = clst.Timing();
     }
     n_lg_hits = record.LG().NumHits();
     lg_hit_mid.resize(n_lg_hits);
@@ -423,7 +437,7 @@ class E16ANA_TrackCheckFile {
     lg_hit_gx.resize(n_lg_hits);
     lg_hit_gy.resize(n_lg_hits);
     lg_hit_gz.resize(n_lg_hits);
-    lg_hit_time.resize(n_lg_hits);
+    lg_hit_t.resize(n_lg_hits);
     for (int i = 0; i < n_lg_hits; ++i) {
       auto& hit = record.LG().Hit(i);
       lg_hit_mid[i] = hit.ModuleId();
@@ -434,7 +448,7 @@ class E16ANA_TrackCheckFile {
       lg_hit_gx[i] = gpos.X();
       lg_hit_gy[i] = gpos.Y();
       lg_hit_gz[i] = gpos.Z();
-      lg_hit_time[i] = hit.Timing();
+      lg_hit_t[i] = hit.Timing();
     }
   }
 //  void AddEntry(int _event_id, E16ANA_GeometryV2& geometry, E16DST_DST1PhysicsRecord& record, E16ANA_TrackCandidates& cands) {
@@ -452,6 +466,7 @@ class E16ANA_TrackCheckFile {
     n_cands = cands.NumTrackCandidates();
     n_selected = cands.NumSelectedTrackCandidates();
     n_pairs = cands.NumSelectedTrackCandidatePairs();
+    track_id.resize(n_cands);
     is_selected.resize(n_cands);
     x_raugh_fit_chi_square.resize(n_cands);
     x_raugh_fit_coef0.resize(n_cands);
@@ -472,15 +487,22 @@ class E16ANA_TrackCheckFile {
     rk_hit_ssd_gx.resize(n_cands);
     rk_hit_ssd_gy.resize(n_cands);
     rk_hit_ssd_gz.resize(n_cands);
+    rk_hit_ssd_t.resize(n_cands);
     rk_hit_gtr100_gx.resize(n_cands);
     rk_hit_gtr100_gy.resize(n_cands);
     rk_hit_gtr100_gz.resize(n_cands);
+    rk_hit_gtr100_xt.resize(n_cands);
+    rk_hit_gtr100_yt.resize(n_cands);
     rk_hit_gtr200_gx.resize(n_cands);
     rk_hit_gtr200_gy.resize(n_cands);
     rk_hit_gtr200_gz.resize(n_cands);
+    rk_hit_gtr200_xt.resize(n_cands);
+    rk_hit_gtr200_yt.resize(n_cands);
     rk_hit_gtr300_gx.resize(n_cands);
     rk_hit_gtr300_gy.resize(n_cands);
     rk_hit_gtr300_gz.resize(n_cands);
+    rk_hit_gtr300_xt.resize(n_cands);
+    rk_hit_gtr300_yt.resize(n_cands);
     rk_fit_init_mom_gx.resize(n_cands);
     rk_fit_init_mom_gy.resize(n_cands);
     rk_fit_init_mom_gz.resize(n_cands);
@@ -543,39 +565,47 @@ class E16ANA_TrackCheckFile {
     rk_proj_tgt2_gx.resize(n_cands);
     rk_proj_tgt2_gy.resize(n_cands);
     rk_proj_tgt2_gz.resize(n_cands);
-    rk_proj_tgt_mom0_gx.resize(n_cands);
-    rk_proj_tgt_mom0_gy.resize(n_cands);
-    rk_proj_tgt_mom0_gz.resize(n_cands);
-    rk_proj_tgt_mom1_gx.resize(n_cands);
-    rk_proj_tgt_mom1_gy.resize(n_cands);
-    rk_proj_tgt_mom1_gz.resize(n_cands);
-    rk_proj_tgt_mom2_gx.resize(n_cands);
-    rk_proj_tgt_mom2_gy.resize(n_cands);
-    rk_proj_tgt_mom2_gz.resize(n_cands);
+    rk_proj_tgt0_mom_gx.resize(n_cands);
+    rk_proj_tgt0_mom_gy.resize(n_cands);
+    rk_proj_tgt0_mom_gz.resize(n_cands);
+    rk_proj_tgt1_mom_gx.resize(n_cands);
+    rk_proj_tgt1_mom_gy.resize(n_cands);
+    rk_proj_tgt1_mom_gz.resize(n_cands);
+    rk_proj_tgt2_mom_gx.resize(n_cands);
+    rk_proj_tgt2_mom_gy.resize(n_cands);
+    rk_proj_tgt2_mom_gz.resize(n_cands);
     rk_proj_hbd0_mid.resize(n_cands);
     rk_proj_hbd0_x.resize(n_cands);
     rk_proj_hbd0_y.resize(n_cands);
+    rk_proj_hbd0_t.resize(n_cands);
     rk_proj_hbd1_mid.resize(n_cands);
     rk_proj_hbd1_x.resize(n_cands);
     rk_proj_hbd1_y.resize(n_cands);
+    rk_proj_hbd1_t.resize(n_cands);
     rk_proj_hbd2_mid.resize(n_cands);
     rk_proj_hbd2_x.resize(n_cands);
     rk_proj_hbd2_y.resize(n_cands);
+    rk_proj_hbd2_t.resize(n_cands);
     rk_proj_hbd3_mid.resize(n_cands);
     rk_proj_hbd3_x.resize(n_cands);
     rk_proj_hbd3_y.resize(n_cands);
+    rk_proj_hbd3_t.resize(n_cands);
     rk_proj_lg0_mid.resize(n_cands);
     rk_proj_lg0_x.resize(n_cands);
     rk_proj_lg0_y.resize(n_cands);
+    rk_proj_lg0_t.resize(n_cands);
     rk_proj_lg1_mid.resize(n_cands);
     rk_proj_lg1_x.resize(n_cands);
     rk_proj_lg1_y.resize(n_cands);
+    rk_proj_lg1_t.resize(n_cands);
     rk_proj_lg2_mid.resize(n_cands);
     rk_proj_lg2_x.resize(n_cands);
     rk_proj_lg2_y.resize(n_cands);
+    rk_proj_lg2_t.resize(n_cands);
     rk_proj_lg3_mid.resize(n_cands);
     rk_proj_lg3_x.resize(n_cands);
     rk_proj_lg3_y.resize(n_cands);
+    rk_proj_lg3_t.resize(n_cands);
     rk_pair_minus_track_id.resize(n_pairs);
     rk_pair_minus_chi_square.resize(n_pairs);
     rk_pair_minus_mom_gx.resize(n_pairs);
@@ -592,6 +622,7 @@ class E16ANA_TrackCheckFile {
     rk_vtx_gz.resize(n_pairs);
     for (int i = 0; i < n_cands; ++i) {
       auto& cand = cands.TrackCandidates()[i];
+      track_id[i] = cand.TrackID();
       is_selected[i] = cand.IsSelected();
       chi_square[i] = cand.ChiSquare();
       n_steps[i] = cand.NumSteps();
@@ -616,18 +647,32 @@ class E16ANA_TrackCheckFile {
       rk_hit_ssd_gx[i] = ssdhit_gpos.X();
       rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
       rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
+      auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
+      rk_hit_ssd_t[i]  = ssd_clst->Timing();
       auto& gtr100hit_gpos = pairs[1].GlobalPos();
       rk_hit_gtr100_gx[i] = gtr100hit_gpos.X();
       rk_hit_gtr100_gy[i] = gtr100hit_gpos.Y();
       rk_hit_gtr100_gz[i] = gtr100hit_gpos.Z();
+      auto gtr100_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
+      auto gtr100_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(1));
+      rk_hit_gtr100_xt[i]  = gtr100_xclst->Timing();
+      rk_hit_gtr100_yt[i]  = gtr100_yclst->Timing();
       auto& gtr200hit_gpos = pairs[2].GlobalPos();
       rk_hit_gtr200_gx[i] = gtr200hit_gpos.X();
       rk_hit_gtr200_gy[i] = gtr200hit_gpos.Y();
       rk_hit_gtr200_gz[i] = gtr200hit_gpos.Z();
+      auto gtr200_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
+      auto gtr200_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(1));
+      rk_hit_gtr200_xt[i]  = gtr200_xclst->Timing();
+      rk_hit_gtr200_yt[i]  = gtr200_yclst->Timing();
       auto& gtr300hit_gpos = pairs[3].GlobalPos();
       rk_hit_gtr300_gx[i] = gtr300hit_gpos.X();
       rk_hit_gtr300_gy[i] = gtr300hit_gpos.Y();
       rk_hit_gtr300_gz[i] = gtr300hit_gpos.Z();
+      auto gtr300_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
+      auto gtr300_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(1));
+      rk_hit_gtr300_xt[i]  = gtr300_xclst->Timing();
+      rk_hit_gtr300_yt[i]  = gtr300_yclst->Timing();
       auto fit_init_mom = cand.FitInitMom();
       rk_fit_init_mom_gx[i] = fit_init_mom.X();
       rk_fit_init_mom_gy[i] = fit_init_mom.Y();
@@ -709,30 +754,34 @@ class E16ANA_TrackCheckFile {
       rk_proj_tgt2_gy[i] = proj_tgt2.Y();
       rk_proj_tgt2_gz[i] = proj_tgt2.Z();
       auto proj_tgt_mom0 = cand.MomAtTarget(0);
-      rk_proj_tgt_mom0_gx[i] = proj_tgt_mom0.X();
-      rk_proj_tgt_mom0_gy[i] = proj_tgt_mom0.Y();
-      rk_proj_tgt_mom0_gz[i] = proj_tgt_mom0.Z();
+      rk_proj_tgt0_mom_gx[i] = proj_tgt_mom0.X();
+      rk_proj_tgt0_mom_gy[i] = proj_tgt_mom0.Y();
+      rk_proj_tgt0_mom_gz[i] = proj_tgt_mom0.Z();
       auto proj_tgt_mom1 = cand.MomAtTarget(1);
-      rk_proj_tgt_mom1_gx[i] = proj_tgt_mom1.X();
-      rk_proj_tgt_mom1_gy[i] = proj_tgt_mom1.Y();
-      rk_proj_tgt_mom1_gz[i] = proj_tgt_mom1.Z();
+      rk_proj_tgt1_mom_gx[i] = proj_tgt_mom1.X();
+      rk_proj_tgt1_mom_gy[i] = proj_tgt_mom1.Y();
+      rk_proj_tgt1_mom_gz[i] = proj_tgt_mom1.Z();
       auto proj_tgt_mom2 = cand.MomAtTarget(2);
-      rk_proj_tgt_mom2_gx[i] = proj_tgt_mom2.X();
-      rk_proj_tgt_mom2_gy[i] = proj_tgt_mom2.Y();
-      rk_proj_tgt_mom2_gz[i] = proj_tgt_mom2.Z();
+      rk_proj_tgt2_mom_gx[i] = proj_tgt_mom2.X();
+      rk_proj_tgt2_mom_gy[i] = proj_tgt_mom2.Y();
+      rk_proj_tgt2_mom_gz[i] = proj_tgt_mom2.Z();
       auto& proj_hbd_clusters = cand.ProjectedHBDClusters();
       rk_proj_hbd0_mid[i] = -10000;
       rk_proj_hbd0_x[i] = -10000.;
       rk_proj_hbd0_y[i] = -10000.;
+      rk_proj_hbd0_t[i] = -10000.;
       rk_proj_hbd1_mid[i] = -10000;
       rk_proj_hbd1_x[i] = -10000.;
       rk_proj_hbd1_y[i] = -10000.;
+      rk_proj_hbd1_t[i] = -10000.;
       rk_proj_hbd2_mid[i] = -10000;
       rk_proj_hbd2_x[i] = -10000.;
       rk_proj_hbd2_y[i] = -10000.;
+      rk_proj_hbd2_t[i] = -10000.;
       rk_proj_hbd3_mid[i] = -10000;
       rk_proj_hbd3_x[i] = -10000.;
       rk_proj_hbd3_y[i] = -10000.;
+      rk_proj_hbd3_t[i] = -10000.;
       auto n_hbd_proj = proj_hbd_clusters.size();
       if (n_hbd_proj >= 1) {
         auto& hbdclst = proj_hbd_clusters[0];
@@ -740,6 +789,7 @@ class E16ANA_TrackCheckFile {
         auto proj_hbdlpos = hbdclst->LocalPos();
         rk_proj_hbd0_x[i] = proj_hbdlpos.X();
         rk_proj_hbd0_y[i] = proj_hbdlpos.Y();
+        rk_proj_hbd0_t[i] = hbdclst->Timing();
       }
       if (n_hbd_proj >= 2) {
         auto& hbdclst = proj_hbd_clusters[1];
@@ -747,6 +797,7 @@ class E16ANA_TrackCheckFile {
         auto proj_hbdlpos = hbdclst->LocalPos();
         rk_proj_hbd1_x[i] = proj_hbdlpos.X();
         rk_proj_hbd1_y[i] = proj_hbdlpos.Y();
+        rk_proj_hbd1_t[i] = hbdclst->Timing();
       }
       if (n_hbd_proj >= 3) {
         auto& hbdclst = proj_hbd_clusters[0];
@@ -754,6 +805,7 @@ class E16ANA_TrackCheckFile {
         auto proj_hbdlpos = hbdclst->LocalPos();
         rk_proj_hbd2_x[i] = proj_hbdlpos.X();
         rk_proj_hbd2_y[i] = proj_hbdlpos.Y();
+        rk_proj_hbd2_t[i] = hbdclst->Timing();
       }
       if (n_hbd_proj >= 4) {
         auto& hbdclst = proj_hbd_clusters[0];
@@ -761,20 +813,25 @@ class E16ANA_TrackCheckFile {
         auto proj_hbdlpos = hbdclst->LocalPos();
         rk_proj_hbd3_x[i] = proj_hbdlpos.X();
         rk_proj_hbd3_y[i] = proj_hbdlpos.Y();
+        rk_proj_hbd3_t[i] = hbdclst->Timing();
       }
       auto& proj_lg_hits = cand.ProjectedLGHits();
       rk_proj_lg0_mid[i] = -10000;
       rk_proj_lg0_x[i] = -10000.;
       rk_proj_lg0_y[i] = -10000.;
+      rk_proj_lg0_t[i] = -10000.;
       rk_proj_lg1_mid[i] = -10000;
       rk_proj_lg1_x[i] = -10000.;
       rk_proj_lg1_y[i] = -10000.;
+      rk_proj_lg1_t[i] = -10000.;
       rk_proj_lg2_mid[i] = -10000;
       rk_proj_lg2_x[i] = -10000.;
       rk_proj_lg2_y[i] = -10000.;
+      rk_proj_lg2_t[i] = -10000.;
       rk_proj_lg3_mid[i] = -10000;
       rk_proj_lg3_x[i] = -10000.;
       rk_proj_lg3_y[i] = -10000.;
+      rk_proj_lg3_t[i] = -10000.;
       auto n_lg_proj = proj_lg_hits.size();
       if (n_lg_proj >= 1) {
         auto& lghit = proj_lg_hits[0];
@@ -782,6 +839,7 @@ class E16ANA_TrackCheckFile {
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg0_x[i] = lglpos.X();
         rk_proj_lg0_y[i] = lglpos.Y();
+        rk_proj_lg0_t[i] = lghit->Timing();
       }
       if (n_lg_proj >= 2) {
         auto& lghit = proj_lg_hits[1];
@@ -789,6 +847,7 @@ class E16ANA_TrackCheckFile {
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg1_x[i] = lglpos.X();
         rk_proj_lg1_y[i] = lglpos.Y();
+        rk_proj_lg1_t[i] = lghit->Timing();
       }
       if (n_lg_proj >= 3) {
         auto& lghit = proj_lg_hits[0];
@@ -796,6 +855,7 @@ class E16ANA_TrackCheckFile {
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg2_x[i] = lglpos.X();
         rk_proj_lg2_y[i] = lglpos.Y();
+        rk_proj_lg2_t[i] = lghit->Timing();
       }
       if (n_lg_proj >= 4) {
         auto& lghit = proj_lg_hits[0];
@@ -803,6 +863,7 @@ class E16ANA_TrackCheckFile {
         auto lglpos = lghit->LocalPos(geometry);
         rk_proj_lg3_x[i] = lglpos.X();
         rk_proj_lg3_y[i] = lglpos.Y();
+        rk_proj_lg3_t[i] = lghit->Timing();
       }
     }
     for (int i = 0; i < n_pairs; ++i) {
@@ -861,41 +922,41 @@ class E16ANA_TrackCheckFile {
   std::vector<double> ssd_cluster_x;
   std::vector<double> ssd_cluster_gx;
   std::vector<double> ssd_cluster_gz;
+  std::vector<double> ssd_cluster_t;
   int n_gtr100x_clusters;
   std::vector<int> gtr100x_cluster_mid;
   std::vector<double> gtr100x_cluster_x;
   std::vector<double> gtr100x_cluster_gx;
   std::vector<double> gtr100x_cluster_gz;
+  std::vector<double> gtr100x_cluster_t;
   int n_gtr200x_clusters;
   std::vector<int> gtr200x_cluster_mid;
   std::vector<double> gtr200x_cluster_x;
   std::vector<double> gtr200x_cluster_gx;
   std::vector<double> gtr200x_cluster_gz;
+  std::vector<double> gtr200x_cluster_t;
   int n_gtr300x_clusters;
   std::vector<int> gtr300x_cluster_mid;
   std::vector<double> gtr300x_cluster_x;
   std::vector<double> gtr300x_cluster_gx;
   std::vector<double> gtr300x_cluster_gz;
+  std::vector<double> gtr300x_cluster_t;
   int n_gtr100y_clusters;
   std::vector<int> gtr100y_cluster_mid;
-  std::vector<double> gtr100x_cluster_y;
-  std::vector<double> gtr100y_cluster_gy;
-  std::vector<double> gtr100y_cluster_gr;
+  std::vector<double> gtr100y_cluster_y;
+  std::vector<double> gtr100y_cluster_t;
   int n_gtr100yb_clusters;
   std::vector<int> gtr100yb_cluster_mid;
-  std::vector<double> gtr100yb_cluster_x;
-  std::vector<double> gtr100yb_cluster_gy;
-  std::vector<double> gtr100yb_cluster_gr;
+  std::vector<double> gtr100yb_cluster_y;
+  std::vector<double> gtr100yb_cluster_t;
   int n_gtr200y_clusters;
   std::vector<int> gtr200y_cluster_mid;
-  std::vector<double> gtr200x_cluster_y;
-  std::vector<double> gtr200y_cluster_gy;
-  std::vector<double> gtr200y_cluster_gr;
+  std::vector<double> gtr200y_cluster_y;
+  std::vector<double> gtr200y_cluster_t;
   int n_gtr300y_clusters;
   std::vector<int> gtr300y_cluster_mid;
-  std::vector<double> gtr300x_cluster_y;
-  std::vector<double> gtr300y_cluster_gy;
-  std::vector<double> gtr300y_cluster_gr;
+  std::vector<double> gtr300y_cluster_y;
+  std::vector<double> gtr300y_cluster_t;
   int n_hbd_clusters;
   std::vector<int> hbd_cluster_mid;
   std::vector<double> hbd_cluster_x;
@@ -903,6 +964,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> hbd_cluster_gx;
   std::vector<double> hbd_cluster_gy;
   std::vector<double> hbd_cluster_gz;
+  std::vector<double> hbd_cluster_t;
   int n_lg_hits;
   std::vector<int> lg_hit_mid;
   std::vector<double> lg_hit_x;
@@ -910,7 +972,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> lg_hit_gx;
   std::vector<double> lg_hit_gy;
   std::vector<double> lg_hit_gz;
-  std::vector<float> lg_hit_time;
+  std::vector<float> lg_hit_t;
   // Track
   int n_x_cands;
   int n_y_cands;
@@ -938,15 +1000,22 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_ssd_gx;
   std::vector<double> rk_hit_ssd_gy;
   std::vector<double> rk_hit_ssd_gz;
+  std::vector<double> rk_hit_ssd_t;
   std::vector<double> rk_hit_gtr100_gx;
   std::vector<double> rk_hit_gtr100_gy;
   std::vector<double> rk_hit_gtr100_gz;
+  std::vector<double> rk_hit_gtr100_xt;
+  std::vector<double> rk_hit_gtr100_yt;
   std::vector<double> rk_hit_gtr200_gx;
   std::vector<double> rk_hit_gtr200_gy;
   std::vector<double> rk_hit_gtr200_gz;
+  std::vector<double> rk_hit_gtr200_xt;
+  std::vector<double> rk_hit_gtr200_yt;
   std::vector<double> rk_hit_gtr300_gx;
   std::vector<double> rk_hit_gtr300_gy;
   std::vector<double> rk_hit_gtr300_gz;
+  std::vector<double> rk_hit_gtr300_xt;
+  std::vector<double> rk_hit_gtr300_yt;
   std::vector<double> rk_fit_init_mom_gx;
   std::vector<double> rk_fit_init_mom_gy;
   std::vector<double> rk_fit_init_mom_gz;
@@ -1009,39 +1078,47 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_proj_tgt2_gx;
   std::vector<double> rk_proj_tgt2_gy;
   std::vector<double> rk_proj_tgt2_gz;
-  std::vector<double> rk_proj_tgt_mom0_gx;
-  std::vector<double> rk_proj_tgt_mom0_gy;
-  std::vector<double> rk_proj_tgt_mom0_gz;
-  std::vector<double> rk_proj_tgt_mom1_gx;
-  std::vector<double> rk_proj_tgt_mom1_gy;
-  std::vector<double> rk_proj_tgt_mom1_gz;
-  std::vector<double> rk_proj_tgt_mom2_gx;
-  std::vector<double> rk_proj_tgt_mom2_gy;
-  std::vector<double> rk_proj_tgt_mom2_gz;
+  std::vector<double> rk_proj_tgt0_mom_gx;
+  std::vector<double> rk_proj_tgt0_mom_gy;
+  std::vector<double> rk_proj_tgt0_mom_gz;
+  std::vector<double> rk_proj_tgt1_mom_gx;
+  std::vector<double> rk_proj_tgt1_mom_gy;
+  std::vector<double> rk_proj_tgt1_mom_gz;
+  std::vector<double> rk_proj_tgt2_mom_gx;
+  std::vector<double> rk_proj_tgt2_mom_gy;
+  std::vector<double> rk_proj_tgt2_mom_gz;
   std::vector<int> rk_proj_hbd0_mid;
   std::vector<double> rk_proj_hbd0_x;
   std::vector<double> rk_proj_hbd0_y;
+  std::vector<double> rk_proj_hbd0_t;
   std::vector<int> rk_proj_hbd1_mid;
   std::vector<double> rk_proj_hbd1_x;
   std::vector<double> rk_proj_hbd1_y;
+  std::vector<double> rk_proj_hbd1_t;
   std::vector<int> rk_proj_hbd2_mid;
   std::vector<double> rk_proj_hbd2_x;
   std::vector<double> rk_proj_hbd2_y;
+  std::vector<double> rk_proj_hbd2_t;
   std::vector<int> rk_proj_hbd3_mid;
   std::vector<double> rk_proj_hbd3_x;
   std::vector<double> rk_proj_hbd3_y;
+  std::vector<double> rk_proj_hbd3_t;
   std::vector<int> rk_proj_lg0_mid;
   std::vector<double> rk_proj_lg0_x;
   std::vector<double> rk_proj_lg0_y;
+  std::vector<double> rk_proj_lg0_t;
   std::vector<int> rk_proj_lg1_mid;
   std::vector<double> rk_proj_lg1_x;
   std::vector<double> rk_proj_lg1_y;
+  std::vector<double> rk_proj_lg1_t;
   std::vector<int> rk_proj_lg2_mid;
   std::vector<double> rk_proj_lg2_x;
   std::vector<double> rk_proj_lg2_y;
+  std::vector<double> rk_proj_lg2_t;
   std::vector<int> rk_proj_lg3_mid;
   std::vector<double> rk_proj_lg3_x;
   std::vector<double> rk_proj_lg3_y;
+  std::vector<double> rk_proj_lg3_t;
   std::vector<int> rk_pair_minus_track_id;
   std::vector<double> rk_pair_minus_chi_square;
   std::vector<double> rk_pair_minus_mom_gx;
