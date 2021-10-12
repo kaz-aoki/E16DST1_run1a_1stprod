@@ -232,10 +232,12 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_lg3_x",   &rk_proj_lg3_x);
     tree->Branch("rk_proj_lg3_y",   &rk_proj_lg3_y);
     tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
+    tree->Branch("rk_pair_minus_chi_square", &rk_pair_minus_chi_square);
     tree->Branch("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx);
     tree->Branch("rk_pair_minus_mom_gy", &rk_pair_minus_mom_gy);
     tree->Branch("rk_pair_minus_mom_gz", &rk_pair_minus_mom_gz);
     tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
+    tree->Branch("rk_pair_plus_chi_square", &rk_pair_plus_chi_square);
     tree->Branch("rk_pair_plus_mom_gx", &rk_pair_plus_mom_gx);
     tree->Branch("rk_pair_plus_mom_gy", &rk_pair_plus_mom_gy);
     tree->Branch("rk_pair_plus_mom_gz", &rk_pair_plus_mom_gz);
@@ -575,10 +577,12 @@ class E16ANA_TrackCheckFile {
     rk_proj_lg3_x.resize(n_cands);
     rk_proj_lg3_y.resize(n_cands);
     rk_pair_minus_track_id.resize(n_pairs);
+    rk_pair_minus_chi_square.resize(n_pairs);
     rk_pair_minus_mom_gx.resize(n_pairs);
     rk_pair_minus_mom_gy.resize(n_pairs);
     rk_pair_minus_mom_gz.resize(n_pairs);
     rk_pair_plus_track_id.resize(n_pairs);
+    rk_pair_plus_chi_square.resize(n_pairs);
     rk_pair_plus_mom_gx.resize(n_pairs);
     rk_pair_plus_mom_gy.resize(n_pairs);
     rk_pair_plus_mom_gz.resize(n_pairs);
@@ -806,6 +810,8 @@ class E16ANA_TrackCheckFile {
       rk_pair_distance[i] = pair->distance;
       rk_pair_minus_track_id[i] = pair->cand_minus->TrackID();
       rk_pair_plus_track_id[i] = pair->cand_plus->TrackID();
+      rk_pair_minus_chi_square[i] = pair->cand_minus->ChiSquare();
+      rk_pair_plus_chi_square[i] = pair->cand_plus->ChiSquare();
       auto mgpos = pair->mom_minus;
       rk_pair_minus_mom_gx[i] = mgpos(0);
       rk_pair_minus_mom_gy[i] = mgpos(1);
@@ -1037,10 +1043,12 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_proj_lg3_x;
   std::vector<double> rk_proj_lg3_y;
   std::vector<int> rk_pair_minus_track_id;
+  std::vector<double> rk_pair_minus_chi_square;
   std::vector<double> rk_pair_minus_mom_gx;
   std::vector<double> rk_pair_minus_mom_gy;
   std::vector<double> rk_pair_minus_mom_gz;
   std::vector<int> rk_pair_plus_track_id;
+  std::vector<double> rk_pair_plus_chi_square;
   std::vector<double> rk_pair_plus_mom_gx;
   std::vector<double> rk_pair_plus_mom_gy;
   std::vector<double> rk_pair_plus_mom_gz;
