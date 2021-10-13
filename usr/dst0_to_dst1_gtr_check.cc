@@ -13,6 +13,7 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "GTR/GTRCheckHist.hh"
 #include "E16ANA_TargetInfo.hh"
+#include "E16DST_DST1DetectorFactory.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -71,8 +72,8 @@ int main(int argc, char* argv[]) {
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
   targets.Print();
-
-  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  auto record = new E16DST_DST1PhysicsRecord();
+//  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
   
   auto dst0 = new E16DST_DST0();
@@ -83,7 +84,6 @@ int main(int argc, char* argv[]) {
 
   int n_event = 0;
   int n_physics_event = 0;
-/*
   while (dst0->ReadAnEvent()) {
  //   if (max_event != -1 && n_physics_event >= max_event) {
     if (max_event != -1 && n_event >= max_event) {
@@ -114,8 +114,10 @@ int main(int argc, char* argv[]) {
 //      auto& gtr_hits = record->GTR().Hits();
 //      auto& gtr_clusters = record->GTR().Clusters();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
-      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.NumberOfHits() << std::endl;
+	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
+	record->GTR().UpdatePtrs();
+//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
+//      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.NumberOfHits() << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
@@ -126,7 +128,8 @@ int main(int argc, char* argv[]) {
 //      event1->LG().SetValidFlag(1);
 //      event1->Trigger().SetValidFlag(1);
 
-   gtrhist->Fill(&gtr_hits, &gtr_clusters);
+//   gtrhist->Fill(&gtr_hits, &gtr_clusters);
+   gtrhist->Fill(&record->GTR());
 
 
 // GTR
@@ -138,30 +141,70 @@ int main(int argc, char* argv[]) {
 ////        hit.Print();
 //    }
 
-    int n_gtr_hits = gtr_hits.NumberOfHits();
-    for(int i = 0; i < n_gtr_hits ; i++){
-        auto hit = gtr_hits.Hit(i);
-        std::cout << "hit ph" << hit.PeakHeight() << ", timing =  " << hit.Timing() << "tot = "<< hit.Tot() << std::endl;
-    }
+//    int n_gtr_hits = gtr_hits.NumberOfHits();
+//    for(int i = 0; i < n_gtr_hits ; i++){
+//        auto hit = gtr_hits.Hit(i);
+//        std::cout << "hit ph" << hit.PeakHeight() << ", timing =  " << hit.Timing() << "tot = "<< hit.Tot() << std::endl;
+//    }
 
-    auto n_gtr_clusters = gtr_clusters.NumberOfHits();
-    cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-    for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-       std::cout << "n_cluster = " << n_cluster << std::endl;
-       auto cluster = gtr_clusters.Hit(n_cluster);
-       std::cout << "mid = " << cluster.ModuleId() << "layer id = " << cluster.LayerId() <<std::endl;
-       cluster.Print();
-    }
+//    auto n_gtr_clusters = gtr_clusters.NumberOfHits();
+  //  cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
+    //for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
+//       std::cout << "n_cluster = " << n_cluster << std::endl;
+//       auto cluster = gtr_clusters.Hit(n_cluster);
+//       std::cout << "mid = " << cluster.ModuleId() << "layer id = " << cluster.LayerId() <<std::endl;
+//       cluster.Print();
+//    }
 //    dst1->WriteAnEvent();
 //    }
    ++n_event;
     ++n_physics_event;
   }
-*/
   TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
   TString pdf_name;
   pdf_name.Form("gtrtest.pdf");
   c1->SaveAs(pdf_name + "[", "pdf");
+
+  TCanvas *c_cl_numhits_x[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_numhits_x[m-102] = new TCanvas(Form("ccn%d", m-102) , Form("ccn%d", m-102), 1024, 768);
+    c_cl_numhits_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_numhits_x[m-102]->cd(l+1);
+        gtrhist->h_cl_numhits_x[m-100][l]->Draw();
+    }
+    c_cl_numhits_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+
+   TCanvas *c_cl_numhits_y[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_numhits_y[m-102] = new TCanvas(Form("ccny%d", m-102) , Form("ccny%d", m-102), 1024, 768);
+    c_cl_numhits_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_numhits_y[m-102]->cd(l+1);
+        gtrhist->h_cl_numhits_y[m-100][l]->Draw();
+    }
+    c_cl_numhits_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+   TCanvas *c_cl_numhits_yb[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_numhits_yb[m-102] = new TCanvas(Form("ccnyb%d", m-102) , Form("ccnyb%d", m-102), 1024, 768);
+    c_cl_numhits_yb[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_numhits_yb[m-102]->cd(l+1);
+        gtrhist->h_cl_numhits_yb[m-100][l]->Draw();
+    }
+    c_cl_numhits_yb[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+
 
   TCanvas *c_cl_charge_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
@@ -356,7 +399,7 @@ int main(int argc, char* argv[]) {
   c1->SaveAs( pdf_name + "]", "pdf");
 
 
-  delete geometry;
+//  delete geometry;
   delete dst0;
 //  dst1->Close();
   return 0;

@@ -22,11 +22,11 @@
 #include <functional>
 #include <algorithm>
 const int gtrmaxhit = 20;
-const double th_chi2 = 5;//chisquare threshold 
-const double th_chi2_first = 5;//chisquare threshold 
-const double th_chi2_second = 5;//chisquare threshold 
-const double th_chi2_third = 5;//chisquare threshold 
-const double th_chi2_y = 3;//chisquare threshold 
+const double th_chi2 = 20;//chisquare threshold 
+const double th_chi2_first = 20;//chisquare threshold 
+const double th_chi2_second = 20;//chisquare threshold 
+const double th_chi2_third = 20;//chisquare threshold 
+const double th_chi2_y = 20;//chisquare threshold 
 const int min_ip_gap = 100;// this should be caluculated precisely
 const double Agtr[] = {1.295, 0.882, 0.469, 0, -0.469, -0.882, -1.295};
 
