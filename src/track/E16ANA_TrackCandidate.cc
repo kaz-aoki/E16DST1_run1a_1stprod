@@ -74,6 +74,9 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
   projection_flag = 0;
   fitter->Clear();
+  for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
+    fit_results[l].Clear();
+  }
   if (chisq >= 1.0e10) {
     return;
   }
@@ -87,7 +90,6 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
   std::vector<TVector3> lposs;
   std::vector<TVector3> lmoms;
   for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
-    fit_results[l].Clear();
     auto& result = fit_results[l];
     result.Clear();
     int nstps;

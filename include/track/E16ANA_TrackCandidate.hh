@@ -406,7 +406,7 @@ class E16ANA_TrackCandidates {
  private:
   struct OneAxisClusterSet {
     int target_id; // only x
-    int xy;
+    double xy;
     int charge; // only x
     double chi_square;
     std::array<double, 3> coefs;
