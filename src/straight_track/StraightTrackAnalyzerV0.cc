@@ -684,12 +684,14 @@ std::vector<long double> StraightTrackAnalyzerOfWire::CalcChamberResidual(E16ANA
 void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
     std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
     std::vector<TVector2> v_fit_samples ;
-    std::vector<double> sigma_x = {0.2, 0.2, 0.2};
+    std::vector<double> sigma_x = {0.3, 0.3, 0.3};
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
-	double rphi;
+	double rphi = 0;
 	if(101<mid&&mid<109) rphi = Agtr[mid-102];
     int index = 0;
+//	std::cout << "100 size = " << gtr_xhits0.size() << ", 200 size = " << gtr_xhits1.size() << ", 300 size = " << gtr_xhits2.size() << std::endl;
+//	std::cout <<"gtrxhit size = " <<  gtr_xhits0.size() * gtr_xhits1.size() * gtr_xhits2.size() << std::endl;
     for(int i=0; i < (int)gtr_xhits0.size(); i++){
         for(int j=0; j < (int)gtr_xhits1.size(); j++){
             for(int k=0; k < (int)gtr_xhits2.size(); k++){
@@ -708,10 +710,12 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
                     g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
 //                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
                     rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
-                    v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
+                    //v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
+                    v_fit_samples.push_back(TVector2(rot_pos[l].z(), rot_pos[l].x()));
                 }
                 std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
                 if(v_results1[0] < th_chi2_first){
+//				std::cout <<"chi2  = " <<  v_results1[0] << std::endl;
 					double min = 9999;
 					double min2 = 9999;
 					int id_m = 0;
@@ -801,6 +805,7 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
             }
         }
     }
+//	std::cout << "traksss " << index << std::endl;
 	ssd_xhits.clear();
 	gtr_xhits0.clear();
 	gtr_xhits1.clear();
@@ -952,7 +957,8 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
                     l_hitpos.push_back(G4ThreeVector(0, hits[l]->CogPos(), 0));
                     g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
                     rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
-                    v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].y()));
+                    //v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].y()));
+                    v_fit_samples.push_back(TVector2(rot_pos[l].z(), rot_pos[l].y()));
                 }
   //              std::cout << "v fir sample = " << v_fit_samples[2].Y() << std::endl;
 				std::vector<long double> &&v_results = LeastSquareMethod(v_fit_samples, sigma_y );//return chi2, a,b (a+bx)
@@ -1412,13 +1418,19 @@ std::vector<long double> StraightTrackAnalyzerV0::LeastSquareMethod(std::vector<
 			std::cout << "size of pos vec = " << v_size << std::endl;
 			std::cout << "size of sigma vec = " << v_sig_size << std::endl;}
 	double wt=0, t=0, sx=0, sy=0, st2=0, ss = 0, sxoss = 0;
-	double a=0, b=0, siga=0, sigb=0, chi2=0;//a+bx
+	double sx2=0, sxy=0;
+	//double a=0, b=0, siga=0, sigb=0, chi2=0;//a+bx
 	for(int i = 0; i < v_size; i++){
-		wt = 1.0 / sqr(sigma_x[i]);
-		ss += wt;
-		sx += tv_v_pos[i].X() * wt ;
-		sy += tv_v_pos[i].Y() * wt ;
+		wt = 1.0 /sigma_x[i]/sigma_x[i];
+		ss  += wt;
+		sx  += tv_v_pos[i].X() * wt ;
+		sy  += tv_v_pos[i].Y() * wt ;
+		sx2 += tv_v_pos[i].X() *tv_v_pos[i].X() * wt ;
+		sxy += tv_v_pos[i].Y() *tv_v_pos[i].X() * wt ;
 	}
+	double a = (sx*sxy-sx2*sy)/(sx*sx-ss*sx2);
+	double b = (sx*sy-ss*sxy)/(sx*sx-ss*sx2);
+	/*
 	sxoss = sx/ss;
 	for(int i=0; i < v_size; i++ ){
 		t = (tv_v_pos[i].X() -sxoss)/sigma_x[i];
@@ -1429,7 +1441,8 @@ std::vector<long double> StraightTrackAnalyzerV0::LeastSquareMethod(std::vector<
 	a = (sy-sx*b)/ss;
 	siga = sqrt((1.0 + sx*sx/(ss*st2)/ss));
 	sigb = sqrt(1.0/st2);
-	chi2 = 0.0;
+	*/
+	double chi2 = 0.0;
 	for(int i=0; i < v_size; i++){
 		chi2 += sqr((tv_v_pos[i].Y()- a-(b*tv_v_pos[i].X()))/sigma_x[i]);
 //		q = Gammq(0.5 * (n_sample-2), 0.5* (chi2));
@@ -1461,6 +1474,66 @@ std::vector<long double> StraightTrackAnalyzerV0::LeastSquareMethod(std::vector<
 	}
 */
 	return lst_sq_results;
+
+//
+//
+//
+//	int v_size = tv_v_pos.size();
+//	int v_sig_size = sigma_x.size();
+//	if(v_size != sigma_x.size()){
+//			std::cout << " sizes of vectors btw positions and sigmas are different  " << std::endl;
+//			std::cout << "size of pos vec = " << v_size << std::endl;
+//			std::cout << "size of sigma vec = " << v_sig_size << std::endl;}
+//	double wt=0, t=0, sx=0, sy=0, st2=0, ss = 0, sxoss = 0;
+//	double a=0, b=0, siga=0, sigb=0, chi2=0;//a+bx
+//	for(int i = 0; i < v_size; i++){
+//		wt = 1.0 / sqr(sigma_x[i]);
+//		ss += wt;
+//		sx += tv_v_pos[i].X() * wt ;
+//		sy += tv_v_pos[i].Y() * wt ;
+//	}
+//	sxoss = sx/ss;
+//	for(int i=0; i < v_size; i++ ){
+//		t = (tv_v_pos[i].X() -sxoss)/sigma_x[i];
+//		st2 += t*t;
+//		b += t*tv_v_pos[i].Y()/sigma_x[i]; 
+//	}
+//	b /= st2;
+//	a = (sy-sx*b)/ss;
+//	siga = sqrt((1.0 + sx*sx/(ss*st2)/ss));
+//	sigb = sqrt(1.0/st2);
+//	chi2 = 0.0;
+//	for(int i=0; i < v_size; i++){
+//		chi2 += sqr((tv_v_pos[i].Y()- a-(b*tv_v_pos[i].X()))/sigma_x[i]);
+////		q = Gammq(0.5 * (n_sample-2), 0.5* (chi2));
+//	}
+//	std::vector<long double> lst_sq_results;
+//	lst_sq_results.clear();
+//	lst_sq_results.push_back(chi2);
+//    //std::cout << "chi2  = " << chi2 << std::endl;
+//	lst_sq_results.push_back(a);
+//	lst_sq_results.push_back(b);
+////	std::vector<double> residual;
+//	for(int i = 0; i<v_size; i++){
+//		lst_sq_results.push_back(tv_v_pos[i].Y()- a-(b*tv_v_pos[i].X()));
+//	}
+//	/*
+//	double residue[3] = {0, 0, 0};
+//	if(chi2 < th_chi2){
+//		for(int i = 0; i < 3; i++){
+//			residue[i] = tv_v_pos[i].Y()- a-(b*tv_v_pos[i].X());
+//		}
+//		h_residue[0]->Fill(residue[0]);
+//		h_residue[1]->Fill(residue[1]);
+//		h_residue[2]->Fill(residue[2]);
+////		std::cout << "a " << a << std::endl;
+//		if(b == 0){
+//		std::cout << "b is 0 ? " << b << std::endl;}
+//		h_fitted_a[0]->Fill(a);
+//		h_fitted_b[0]->Fill(b);
+//	}
+//*/
+//	return lst_sq_results;
 }
 
 double StraightTrackAnalyzerV0::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2){//a+bx
@@ -1594,9 +1667,9 @@ double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, do
     trk->SetPt1OnTrack(pt1);
     trk->SetPt2OnTrack(pt2);
     
-//    double tgt_z = (pt1.Y()-pt0.Y())*(-20.0)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = -20
-    double tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = 20
-    //std::cout << "wire pos = " << tgt_z << std::end
+//    double tgt_z1 = (pt1.Y()-pt0.Y())*(-20.0)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = -20
+    double tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
+	
     ref_pt0.Clear();
     ref_pt1.Clear();
     pt0.Clear();

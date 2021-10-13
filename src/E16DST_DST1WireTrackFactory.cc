@@ -9,7 +9,7 @@
 #include "E16ANA_RundependentName.hh"
 using namespace std;
 
-int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks, E16ANA_GTRcalibPedestal &gtrped,  E16ANA_GeometryV2 *geom){
+int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> &st_tracks, E16ANA_GTRcalibPedestal &gtrped,  E16ANA_GeometryV2 *geom){
 	static bool isFirst = true;
 	static StraightTrackAnalyzerOfWireV1 *straight_analyzer;
 	if(isFirst){
@@ -47,14 +47,43 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 
 //--- search linear tracks on XZ and YR planes 
     straight_analyzer->Clear();
-    for(int mid = 100; mid< 110; mid++){
+   int nxy = 0;
+   for(int mid = 100; mid< 110; mid++){
  		straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
 	}
-// 
+
+//	int arr[10][2] = {0};
+//	for(int mid= 100; mid<110; mid++){
+//		for(int i=0; i < straight_analyzer->GetXZTrackCandidates().size();  i++){
+//	 		if(straight_analyzer->GetXZTrackCandidates()[i]->ModuleID()== mid ){
+//				arr[mid-100][0]++;
+//			}
+//		}
+//		for(int i=0; i < straight_analyzer->GetYTrackCandidates().size(); i++){
+//	 		if(straight_analyzer->GetYTrackCandidates()[i]->ModuleID()== mid ){
+//				arr[mid-100][1]++;
+//			}
+//		}
+//	}
+//	for(int i=0; i<10; i++){
+////		std::cout << "y, x  = " << arr[i][1] << ", " << arr[i][0] << std::endl;
+//		nxy += arr[i][0] * arr[i][1];
+//	}
+//	
+//	if(straight_analyzer->GetYTrackCandidates().size() != 0) std::cout <<"xy00= " <<nxy << std::endl; 
+//	if(nxy!=0){
+//		for(int i=0; i<10; i++){
+//		std::cout << "y, x  = " << arr[i][1] << ", " << arr[i][0] << std::endl;
+//		}
+//	}
+//	std::cout << "x size : = " << straight_analyzer->GetXZTrackCandidates().size() << std::endl;
+//	std::cout << "x size : = " << straight_analyzer->GetXZTrackCandidates().size() << std::endl;
+//	std::cout << "xy size : = " << straight_analyzer->GetYTrackCandidates().size()*straight_analyzer->GetXZTrackCandidates().size()  << std::endl;
 	
 	straight_analyzer->MatchingXYHitsAfterLinearFit(straight_analyzer->GetXZTrackCandidates(), straight_analyzer->GetYTrackCandidates());
 
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
+//	std::cout << "size : = " << trks_size << std::endl;
 	st_tracks.clear();
 	st_tracks.reserve(trks_size);
 	for(int i=0; i<trks_size; i++){
