@@ -9,6 +9,7 @@
 #include "E16ANA_HBDChannelManager.hh"
 #include "E16ANA_HBDConstant.hh"
 #include "E16ANA_HBDClusterAnalysis.hh"
+#include "E16ANA_HBDDeadChannel.hh"
 
 #include "TVector3.h"
 
@@ -42,32 +43,26 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   int dst1_hid = 0;
   int dst1_cid = 0;
   
-  //----------- get calib manager
-  auto &calib = E16ANA_CalibDBManager::Instance();
-
+  //----------- get gain calibration status
+  bool gain_calibration_status = hbd_calib->GetGainCalibrationStatus();//true: normal operation, false: low gain
+  
   //----------- get cut criteria
-  //std::string hbd_cut_filename = calib.CalibFileName("HBD-cut", 0);
-  //E16ANA_HBDCut hbd_cut;
-  //hbd_cut.ReadFile(hbd_cut_filename.c_str());
-  double n_sigma = hbd_cut->GetNSigmaWfDST1();//dst0 hit discard criterion
+  double n_sigma = hbd_cut->GetNSigmaWfDST1();//dst0 hit discard criterion, adc noise*n_sigma
   int n_waves = hbd_cut->GetNWavesDST1(); //number of acceptable waves in each waveform
   int th_csize = hbd_cut->GetThCSizeDST1(); //required cluster size for an electron candidate
   double th_ccharge = hbd_cut->GetThCChargeDST1(); //required cluster charge for an electron candidate
   double n_sigma_cadc = hbd_cut->GetNSigmaCADCDST1(); //required cluster adc for a charged particle
   
   //----------- prepare for waveform fit
-  //std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
-  //E16ANA_WaveformFitter wf1d_fitter(hbd_waveform_template);
   wf1d_fitter->SetNumWaveforms(n_waves);
   wf1d_fitter->SetClockPeriod(HBD_Circuit_Constant::apv25_period);
 
-  //prepare for clustering
+  //----------- prepare for clustering
   std::vector<E16ANA_HBDClusterAnalysis> cs;
   cs.resize(n_modules);
   for(int i=0; i<n_modules; i++){
     cs.at(i).SetModuleID(E16ANA_HBDChannelManager::ConvMIDKToE16(i));
   }
-  //prepare for clustering
   
   for(int ith_dst0hit = 0; ith_dst0hit < dst0_hits.NumberOfHits(); ith_dst0hit++){
     E16DST_DST0HBDHit dst0_hit = dst0_hits.Hit(ith_dst0hit);
@@ -77,7 +72,15 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
     hbd_calib->GetCalibratedSignal(mid, pid, in_waveform, out_waveform);
     is_dst0hit = hbd_calib->HitDecision(mid, pid, out_waveform, n_sigma);
     
-    if(is_dst0hit && hbd_calib->GetGain(mid, pid) > 0.){// gain < 0. happens when gain calib. is wrong or dead channel
+    if(is_dst0hit
+       && ((hbd_calib->GetGain(mid, pid) == 0. && !gain_calibration_status) ||
+	   (hbd_calib->GetGain(mid, pid) >  0. &&  gain_calibration_status))
+       && hbd_calib->GetDeadChannel()->IsOK(mid, pid)
+       ){/* dst0 hit is mandatry.
+	    and
+	    (gain calibration not performed || gain value is correct && gain calibration performed)
+	    and
+	    not dead ch */
       E16DST_DST1HBDHit &dst1_hit = dst1_hits[dst1_hid];
       wf1d_fitter->SetNoiseSigma(hbd_calib->GetNoise(mid, pid));//noise of first sampling point, can be optimized
       wf1d_fitter->SetWaveform(out_waveform, n_samples);
@@ -96,7 +99,11 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       dst1_hit.SetInvalid();
       dst1_hit.SetIds(mid, pid);
       dst1_hit.SetChi2(chi2);
-      dst1_hit.SetPeakHeight(pe);//peak should be expressed in units of p.e.
+      if(gain_calibration_status){
+	dst1_hit.SetPeakHeight(pe);//peak should be expressed in units of p.e.
+      }else{
+	dst1_hit.SetPeakHeight(peak);
+      }
       dst1_hit.SetTiming(timing);//50% of maximum peak height
       dst1_hit.SetLocalPos(E16ANA_HBDGeometry::GetPadLocalCOG(mid, pid));
       cs.at(E16ANA_HBDChannelManager::ConvMIDE16ToK(mid)).SetData(mid, pid, peak, pe, timing, dst1_hid);
@@ -117,13 +124,12 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       dst1_cl.SetMaxPeakCh(cl.max_pe_id);
       dst1_cl.SetMaxPeakHeight(cl.max_pe);
       dst1_cl.SetTiming(cl.average_time);
-      dst1_cl.SetPeakSum(cl.spe);
       dst1_cl.SetSADC(cl.sadc);
       dst1_cl.SetHitOrders(cl.dst_id);
-      
       dst1_cl.SetFastestTiming(cl.fastest_tdc);
       dst1_cl.SetTimeDifference(cl.time_diff);
       dst1_cl.SetClusterSize(cl.size);
+      
       if(cl.spe >= th_ccharge && cl.size >= th_csize) e_prob = 1.;
       dst1_cl.SetEProb(e_prob);
 
@@ -136,10 +142,12 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       if(th_cadc*n_sigma_cadc <= cl.sadc) c_prob = 1.; 
       dst1_cl.SetCProb(c_prob);
       TVector3 lpos;
-      if(hbd_calib->GetGainCalibrationStatus()){//gain calib normal operation
+      if(gain_calibration_status){//gain calib normal operation
 	lpos = TVector3(cl.lpos_w_pe[0], cl.lpos_w_pe[1], cl.lpos_w_pe[2]);
+	dst1_cl.SetPeakSum(cl.spe);
       }else{//gain calib not done, low-gain operation
 	lpos = TVector3(cl.lpos_w_adc[0], cl.lpos_w_adc[1], cl.lpos_w_adc[2]);
+	dst1_cl.SetPeakSum(cl.sadc);
       }
       TVector3 lpos_adc(cl.lpos_w_adc[0], cl.lpos_w_adc[1], cl.lpos_w_adc[2]);
       dst1_cl.SetLocalPos(lpos);

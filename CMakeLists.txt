@@ -109,6 +109,7 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRPedestal.cc
   src/GTR/GTRCheckHist.cc
   src/HBD/E16ANA_HBDChannelManager.cc
+  src/HBD/E16ANA_HBDDeadChannel.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
   src/HBD/E16ANA_HBDCut.cc
   src/HBD/E16ANA_HBDCalibration.cc
