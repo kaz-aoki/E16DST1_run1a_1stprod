@@ -86,8 +86,8 @@ int main(int argc, char* argv[]) {
 
 //    &record->GTR();
 	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-    
 	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+	if(st_tracks.size() != 0)std::cout << "st_tracks size =  " << st_tracks.size() << std::endl;
 	gtrhist->Fill(st_tracks);
 //	gtrhist->Fill();	
     ++n_event;
