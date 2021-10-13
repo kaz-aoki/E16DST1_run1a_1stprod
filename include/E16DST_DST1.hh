@@ -403,6 +403,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
+  float GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing);
   float GetEnergyDeposit(E16ANA_LGBasic& lgbasic);
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
