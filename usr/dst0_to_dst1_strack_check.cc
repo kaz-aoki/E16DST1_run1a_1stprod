@@ -87,64 +87,124 @@ int main(int argc, char* argv[]) {
 
   int event;
 
-  const int HMAX = 1000;
-  const int CMAX = 1000;
-  const int TMAX = 1000;
+  const int SMAX = 100;
+  const int LMAX = 50;
 
   int ntr;
-  int module[TMAX];
-  float chi2x[TMAX];
-  float chi2y[TMAX];
-  float tgtz[TMAX];
-  float tgty[TMAX];
-  float distzx[TMAX];
-  float distyr[TMAX];
-  float res0[TMAX];
-  float res1[TMAX];
-  float res2[TMAX];
-  float res3[TMAX];
-  float res1y[TMAX];
-  float res2y[TMAX];
-  float res3y[TMAX];
+  int ssd_nhs;
+  int ssd_ncs;
+  int lg_nhs;
+  int lg_ncs;
 
-  int ssd_nhs[TMAX];
-  int ssd_ncs[TMAX];
-  int lg_nhs[TMAX];
-  int lg_ncs[TMAX];
-  double ssdclx[TMAX];
-  double lgclx[TMAX];
-  double lgcly[TMAX];
+  int trkindex;
+  int module;
+  float chi2x;
+  float chi2y;
+  float tgtz;
+  float tgty;
+  float distzx;
+  float distyr;
+  float res0;
+  float res1;
+  float res2;
+  float res3;
+  float res1y;
+  float res2y;
+  float res3y;
+  float gtr100x, gtr100y, gtr100z;
+  float gtr200x, gtr200y, gtr200z;
+  float gtr300x, gtr300y, gtr300z;
+
+  double ssdcpt;
+  double ssdres;
+  double ssdadc;
+  double ssdtdc;
+  double ssdhitres[SMAX];
+  double ssdhitadc[SMAX];
+  double ssdhittdc[SMAX];
+  double ssdhitgx[SMAX];
+  double ssdhitgy[SMAX];
+  double ssdhitgz[SMAX];
+
+  double angle;
+  int modulelg;
+  int block;
+  double lgcptx;
+  double lgresx;
+  double lgcpty;
+  double lgresy;
+  double lgadc;
+  double lgtdc;
+  double lghitresx[LMAX];
+  double lghitresy[LMAX];
+  double lghitadc[LMAX];
+  double lghittdc[LMAX];
+  double lghitgx[LMAX];
+  double lghitgy[LMAX];
+  double lghitgz[LMAX];
+
 
   tree->Branch("ntr",&ntr,"ntr/I");
-  tree->Branch("module",module,"module[ntr]/I");
-  tree->Branch("chi2x",chi2x,"chi2x[ntr]/F");
-  tree->Branch("chi2y",chi2y,"chi2y[ntr]/F");
-  tree->Branch("tgtz",tgtz,"tgtz[ntr]/F");
-  tree->Branch("tgty",tgty,"tgty[ntr]/F");
-  tree->Branch("distzx",distzx,"distzx[ntr]/F");
-  tree->Branch("distyr",distyr,"distyr[ntr]/F");
-  tree->Branch("res0",res0,"res0[ntr]/F");
-  tree->Branch("res1",res1,"res1[ntr]/F");
-  tree->Branch("res2",res2,"res2[ntr]/F");
-  tree->Branch("res3",res3,"res3[ntr]/F");
-  tree->Branch("res1y",res1y,"res1y[ntr]/F");
-  tree->Branch("res2y",res2y,"res2y[ntr]/F");
-  tree->Branch("res3y",res3y,"res3y[ntr]/F");
+  tree->Branch("ssd_nhs",&ssd_nhs,"ssd_nhs/I");
+  tree->Branch("ssd_ncs",&ssd_ncs,"ssd_ncs/I");
+  tree->Branch("lg_nhs",&lg_nhs,"lg_nhs/I");
+  tree->Branch("lg_ncs",&lg_ncs,"lg_ncs/I");
 
-  tree->Branch("ssd_nhs",ssd_nhs,"ssd_nhs[ntr]/I");
-  tree->Branch("ssd_ncs",ssd_ncs,"ssd_ncs[ntr]/I");
-  tree->Branch("lg_nhs",lg_nhs,"lg_nhs[ntr]/I");
-  tree->Branch("lg_ncs",lg_ncs,"lg_ncs[ntr]/I");
-  tree->Branch("ssdclx",ssdclx,"ssdclx[ntr]/D");
-  tree->Branch("lgclx",lgclx,"lgclx[ntr]/D");
-  tree->Branch("lgcly",lgcly,"lgcly[ntr]/D");
+  tree->Branch("trkindex",&trkindex,"trkindex/I");
+  tree->Branch("module",&module,"module/I");
+  tree->Branch("chi2x",&chi2x,"chi2x/F");
+  tree->Branch("chi2y",&chi2y,"chi2y/F");
+  tree->Branch("tgtz",&tgtz,"tgtz/F");
+  tree->Branch("tgty",&tgty,"tgty/F");
+  tree->Branch("distzx",&distzx,"distzx/F");
+  tree->Branch("distyr",&distyr,"distyr/F");
+  tree->Branch("res0",&res0,"res0/F");
+  tree->Branch("res1",&res1,"res1/F");
+  tree->Branch("res2",&res2,"res2/F");
+  tree->Branch("res3",&res3,"res3/F");
+  tree->Branch("res1y",&res1y,"res1y/F");
+  tree->Branch("res2y",&res2y,"res2y/F");
+  tree->Branch("res3y",&res3y,"res3y/F");
+  tree->Branch("gtr100x",&gtr100x,"gtr100x/F");
+  tree->Branch("gtr100y",&gtr100y,"gtr100y/F");
+  tree->Branch("gtr100z",&gtr100z,"gtr100z/F");
+  tree->Branch("gtr200x",&gtr200x,"gtr200x/F");
+  tree->Branch("gtr200y",&gtr200y,"gtr200y/F");
+  tree->Branch("gtr200z",&gtr200z,"gtr200z/F");
+  tree->Branch("gtr300x",&gtr300x,"gtr300x/F");
+  tree->Branch("gtr300y",&gtr300y,"gtr300y/F");
+  tree->Branch("gtr300z",&gtr300z,"gtr300z/F");
 
-  TH1F *hssdrx = new TH1F("hssdrx","SSDResidualLx",800,-400,400);
-  TH1F *hlgrx = new TH1F("hlgrx","LGResidualLx",800,-400,400);
-  TH1F *hlgry = new TH1F("hlgry","LGResidualLy",800,-400,400);
-  TH1F *hssdrxn = new TH1F("hssdrxn","SSDResidualLxNearHit",800,-400,400);
-  TH1F *hlgrxn = new TH1F("hlgrxn","LGResidualLx1NearHit",800,-400,400);
-  TH1F *hlgryn = new TH1F("hlgryn","LGResidualLy1NearHit",800,-400,400);
+  tree->Branch("ssdcpt",&ssdcpt,"ssdcpt/D");
+  tree->Branch("ssdres",&ssdres,"ssdres/D");
+  tree->Branch("ssdadc",&ssdadc,"ssdadc/D");
+  tree->Branch("ssdtdc",&ssdtdc,"ssdtdc/D");
+  tree->Branch("ssdhitres",ssdhitres,"ssdhitres[ssd_ncs]/D");
+  tree->Branch("ssdhitadc",ssdhitadc,"ssdhitadc[ssd_ncs]/D");
+  tree->Branch("ssdhittdc",ssdhittdc,"ssdhittdc[ssd_ncs]/D");
+  tree->Branch("ssdhitgx",ssdhitgx,"ssdhitgx[ssd_ncs]/D");
+  tree->Branch("ssdhitgy",ssdhitgy,"ssdhitgy[ssd_ncs]/D");
+  tree->Branch("ssdhitgz",ssdhitgz,"ssdhitgz[ssd_ncs]/D");
+
+  tree->Branch("angle",&angle,"angle/D");
+  tree->Branch("modulelg",&modulelg,"modulelg/I");
+  tree->Branch("block",&block,"block/I");
+  tree->Branch("lgcptx",&lgcptx,"lgcptx/D");
+  tree->Branch("lgcpty",&lgcpty,"lgcpty/D");
+  tree->Branch("lgresx",&lgresx,"lgresx/D");
+  tree->Branch("lgresy",&lgresy,"lgresy/D");
+  tree->Branch("lgadc",&lgadc,"lgadc/D");
+  tree->Branch("lgtdc",&lgtdc,"lgtdc/D");
+  tree->Branch("lghitresx",lghitresx,"lghitresx[lg_ncs]/D");
+  tree->Branch("lghitresy",lghitresy,"lghitresy[lg_ncs]/D");
+  tree->Branch("lghitadc",lghitadc,"lghitadc[lg_ncs]/D");
+  tree->Branch("lghittdc",lghittdc,"lghittdc[lg_ncs]/D");
+  tree->Branch("lghitgx",lghitgx,"lghitgx[lg_ncs]/D");
+  tree->Branch("lghitgy",lghitgy,"lghitgy[lg_ncs]/D");
+  tree->Branch("lghitgz",lghitgz,"lghitgz[lg_ncs]/D");
+
+  //TH2F* ssdxz = new TH2F("ssdxz","ssdxz",2000,-1000,1000,2000,-1000,1000);
+  //TH2F* ssdzy = new TH2F("ssdzy","ssdzy",2000,-1000,1000,2000,-1000,1000);
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -192,7 +252,7 @@ int main(int argc, char* argv[]) {
       cout << "Number of event: " << n_event << endl;
     }
     auto event_type = dst0->EventType();
-////////    dst1->SetEventType(event_type);
+
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
       auto& ssd_hits0         = event0->SSD();
@@ -214,88 +274,113 @@ int main(int argc, char* argv[]) {
       record->HBD().UpdatePtrs();
       record->LG().UpdatePtrs();
 
-      //std::vector<E16DST_DST1StraightTrack2D> st_tracks;
-      //E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
-
       std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
       E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
       record->SSD().UpdatePtrs();
 
+
+      //analysis
       int ntracks = st_tracks.size();
       ntr = ntracks;
       for(int i=0;i<ntracks;i++){
+	trkindex = i;
 	auto& st_track = st_tracks[i];
-	module[i] = st_track->ModuleID();
-	chi2x[i] = st_track->Chi2X();
-	chi2y[i] = st_track->Chi2Y();
-	tgtz[i] = st_track->TgtPosZ();
-	tgty[i] = st_track->TgtPosY();
-	distzx[i] = st_track->DistanceFromTgtXZ();
-	distyr[i] = st_track->DistanceFromTgtYR();
-	res0[i] = st_track->ResidualSSD();
-	res1[i] = st_track->FitResidual100X();
-	res2[i] = st_track->FitResidual200X();
-	res3[i] = st_track->FitResidual300X();
-	res1y[i] = st_track->FitResidual100Y();
-	res2y[i] = st_track->FitResidual200Y();
-	res3y[i] = st_track->FitResidual300Y();
+	module = st_track->ModuleID();
+	chi2x = st_track->Chi2X();
+	chi2y = st_track->Chi2Y();
+	tgtz = st_track->TgtPosZ();
+	tgty = st_track->TgtPosY();
+	distzx = st_track->DistanceFromTgtXZ();
+	distyr = st_track->DistanceFromTgtYR();
+	res0 = st_track->ResidualSSD();
+	res1 = st_track->FitResidual100X();
+	res2 = st_track->FitResidual200X();
+	res3 = st_track->FitResidual300X();
+	res1y = st_track->FitResidual100Y();
+	res2y = st_track->FitResidual200Y();
+	res3y = st_track->FitResidual300Y();
 
 	//extrapolation
-	std::cout<<"TRACK MODULE "<<module[i]<<std::endl;
+	//std::cout<<"TRACK MODULE "<<module<<std::endl;
 	TVector3 g100 = st_track->FitPtOnGTR100();
 	TVector3 g200 = st_track->FitPtOnGTR200();
 	TVector3 g300 = st_track->FitPtOnGTR300();
-	std::cout<<"GTR100Global "<<g100.X()<<" "<<g100.Y()<<" "<<g100.Z()<<std::endl;
-	std::cout<<"GTR200Global "<<g200.X()<<" "<<g200.Y()<<" "<<g200.Z()<<std::endl;
-	std::cout<<"GTR300Global "<<g300.X()<<" "<<g300.Y()<<" "<<g300.Z()<<std::endl;
+	gtr100x = g100.X();
+	gtr100y = g100.Y();
+	gtr100z = g100.Z();
+	gtr200x = g200.X();
+	gtr200y = g200.Y();
+	gtr200z = g200.Z();
+	gtr300x = g300.X();
+	gtr300y = g300.Y();
+	gtr300z = g300.Z();
 	TVector3 p1 = 5*(g300-g100)+g100;//for LG
 	TVector3 p2 = (-1)*(g300-g100)+g100;// for SSD
 
 	//Cross point at SSD plane
-	int mid0 = ModuleID_2020to2013_33(module[i]);
+	int mid0 = ModuleID_2020to2013_33(module);
 	TVector3 l100 = geom->GTR1(mid0)->GetLPos(g100);
 	TVector3 l200 = geom->GTR2(mid0)->GetLPos(g200);
 	TVector3 l300 = geom->GTR3(mid0)->GetLPos(g300);
-	std::cout<<"GTR100Local  "<<l100.X()<<" "<<l100.Y()<<" "<<l100.Z()<<std::endl;
-	std::cout<<"GTR200Local  "<<l200.X()<<" "<<l200.Y()<<" "<<l200.Z()<<std::endl;
-	std::cout<<"GTR300Local  "<<l300.X()<<" "<<l300.Y()<<" "<<l300.Z()<<std::endl;
+	//std::cout<<"GTR100Local  "<<l100.X()<<" "<<l100.Y()<<" "<<l100.Z()<<std::endl;
+	//std::cout<<"GTR200Local  "<<l200.X()<<" "<<l200.Y()<<" "<<l200.Z()<<std::endl;
+	//std::cout<<"GTR300Local  "<<l300.X()<<" "<<l300.Y()<<" "<<l300.Z()<<std::endl;
 	TVector3 clpos0;
 	double lz;
 	bool iscrossedssd = geom->SSD(mid0)->IsCrossed(p1, p2, clpos0, lz);
 	if(iscrossedssd){
-	  ssdclx[i] = clpos0.X();
+	  ssdcpt = clpos0.X();
 	}
 	else{
 	  std::cout<<"ERROR::: SSD extrapolation is failed"<<std::endl;
-	  ssdclx[i] = -10000;
+	  ssdcpt = -10000;
 	}
 
 	//residual at SSD plane
-	auto& ssd_hits1 = record->SSD().HitPtrs(module[i],0,0);
-	auto& ssd_clusters1 = record->SSD().ClusterPtrs(module[i],0,0);
-	ssd_nhs[i] = ssd_hits1.size();
-	ssd_ncs[i] = ssd_clusters1.size();
+	auto& ssd_hits1 = record->SSD().HitPtrs(module,0,0);
+	auto& ssd_clusters1 = record->SSD().ClusterPtrs(module,0,0);
+	ssd_nhs = ssd_hits1.size();
+	//if(ssd_hits1.size() != 0){
+	//for(int nhs=0;nhs<ssd_nhs;nhs++){
+	//auto& ssdhit = ssd_hits1[nhs];
+	//ssdgx[i] = ssdhit->GlobalPos(*geom).X();
+	//ssdgy[i] = ssdhit->GlobalPos(*geom).Y();
+	//ssdgz[i] = ssdhit->GlobalPos(*geom).Z();
+	//ssdxz->Fill(ssdhit->GlobalPos(*geom).X(),ssdhit->GlobalPos(*geom).Z());
+	//ssdzy->Fill(ssdhit->GlobalPos(*geom).Z(),ssdhit->GlobalPos(*geom).Y());
+	//}
+	//}
+	ssd_ncs = ssd_clusters1.size();
 	if (ssd_clusters1.size() != 0) {
-	  double nearres = 10000;
 	  int nearindex = -10000;
-	  for(int ncs=0;ncs<ssd_ncs[i];ncs++){
+	  double nearres = 10000;
+	  for(int ncs=0;ncs<ssd_ncs;ncs++){
 	    auto& ssdcluster = ssd_clusters1[ncs];
-	    std::cout<<"SSD COGPOS: "<<ssdcluster->CogPos()<<", CROSS PT: "<<ssdclx[i]<<std::endl;
-	    double res = ssdcluster->CogPos() - ssdclx[i];
-	    hssdrx->Fill(res);
+	    //std::cout<<"SSD COGPOS: "<<ssdcluster->CogPos()<<", CROSS PT: "<<ssdcpt<<std::endl;
+	    double res = ssdcluster->CogPos() - ssdcpt;
+	    ssdhitres[i] = res;
+	    ssdhitadc[i] = ssdcluster->PeakSum();
+	    ssdhittdc[i] = ssdcluster->Timing();
+	    ssdhitgx[i] = ssdcluster->GlobalPos(*geom).X();
+	    ssdhitgy[i] = ssdcluster->GlobalPos(*geom).Y();
+	    ssdhitgz[i] = ssdcluster->GlobalPos(*geom).Z();
 	    if(fabs(res)<fabs(nearres)){
 	      nearindex = ncs;
 	      nearres = res;
 	    }
 	  }
-	  hssdrxn->Fill(nearres);
+	  if(nearindex>=0){
+	    ssdres = nearres;
+	    ssdadc = ssdhitadc[nearindex];
+	    ssdtdc = ssdhittdc[nearindex];
+	  }
 	}
 
 
 	//Cross point at LG plane
 	double ea = atan2(g300.Y(), g300.Mag());
-	std::cout<<"ANGLE "<<rtod(ea)<<std::endl;
-	int block;
+	angle = rtod(ea);
+	//int block;
 	if(ea<=dtor(15)&&ea>dtor(10)){
 	  block = 50;
 	}
@@ -316,12 +401,12 @@ int main(int argc, char* argv[]) {
 	}
 	else{
 	  std::cout<<"ERROR::: out of acceptance****************"<<std::endl;
-	  lgclx[i] = -10000;
-	  lgcly[i] = -10000;
+	  lgcptx = -10000;
+	  lgcpty = -10000;
 	  continue;
 	}
 
-	int mid[3] = {ModuleID_2020to2013_27(module[i]-1), ModuleID_2020to2013_27(module[i]), ModuleID_2020to2013_27(module[i]+1)};
+	int mid[3] = {ModuleID_2020to2013_27(module-1), ModuleID_2020to2013_27(module), ModuleID_2020to2013_27(module+1)};
 	TVector3 clpostemp[3];
 	TVector3 cgpos[3];
 	cgpos[0].SetXYZ(10000,10000,10000);
@@ -329,11 +414,11 @@ int main(int argc, char* argv[]) {
 	cgpos[2].SetXYZ(10000,10000,10000);
 	TVector3 clpos[3];
 	bool isclg1 = geom->LG(mid[1],block)->IsCrossed(p1, p2, clpostemp[1], lz);
-	std::cout<<"LG CROSS LOCALT POS: "<<clpostemp[1].X()<<" "<<clpostemp[1].Y()<<" "<<clpostemp[1].Z()<<std::endl;
+	//std::cout<<"LG CROSS LOCALT POS: "<<clpostemp[1].X()<<" "<<clpostemp[1].Y()<<" "<<clpostemp[1].Z()<<std::endl;
 	cgpos[1] = geom->LG(mid[1],block)->GetGPos(clpostemp[1]);
-	std::cout<<"LG CROSS GLOBAL POS: "<<cgpos[1].X()<<" "<<cgpos[1].Y()<<" "<<cgpos[1].Z()<<std::endl;
+	//std::cout<<"LG CROSS GLOBAL POS: "<<cgpos[1].X()<<" "<<cgpos[1].Y()<<" "<<cgpos[1].Z()<<std::endl;
 	clpos[1] = geom->LGVD(mid[1])->GetLPos(cgpos[1]);
-	std::cout<<"LG CROSS LOCAL  POS: "<<clpos[1].X()<<" "<<clpos[1].Y()<<" "<<clpos[1].Z()<<std::endl;
+	//std::cout<<"LG CROSS LOCAL  POS: "<<clpos[1].X()<<" "<<clpos[1].Y()<<" "<<clpos[1].Z()<<std::endl;
 	int index = 1;
 	bool isclg0 = geom->LG(mid[0],block)->IsCrossed(p1, p2, clpos[0], lz);
 	cgpos[0] = geom->LG(mid[0],block)->GetGPos(clpos[0]);
@@ -343,47 +428,69 @@ int main(int argc, char* argv[]) {
 	if(cgpos[2].Mag()<cgpos[index].Mag()){index = 2;}
 
 	if(isclg0||isclg1||isclg2){
-	  lgclx[i] = clpos[index].X();
-	  lgcly[i] = clpos[index].Y();
+	  lgcptx = clpos[index].X();
+	  lgcpty = clpos[index].Y();
 	  //std::cout<<"LGGlobal: "<<cgpos[index].X()<<" "<<cgpos[index].Y()<<" "<<cgpos[index].Z()<<" "<<cgpos[index].Mag()<<std::endl;
 	}
 	else{
 	  std::cout<<"ERROR::: LG extrapolation is failed"<<std::endl;
-	  lgclx[i] = -10000;
-	  lgcly[i] = -10000;
+	  lgcptx = -10000;
+	  lgcpty = -10000;
 	}
 
 	//residual at LG plane
-	int modulelg = ModuleID_2013to2020_27(mid[index]);
-	std::cout<<"compare mod: "<<module[i]<<" "<<modulelg<<" "<<block<<std::endl;
+	modulelg = ModuleID_2013to2020_27(mid[index]);
+	//std::cout<<"compare mod: "<<module<<" "<<modulelg<<" "<<block<<std::endl;
 	auto& lg_hits1 = record->LG().HitPtrs(modulelg,0,0);
 	auto& lg_clusters1 = record->LG().ClusterPtrs(modulelg,0,0);
-	lg_nhs[i] = lg_hits1.size();
-	lg_ncs[i] = lg_clusters1.size();
-	//std::cout<<lg_nhs[i]<<" "<<lg_ncs[i]<<std::endl;
+	lg_nhs = lg_hits1.size();
+	lg_ncs = lg_clusters1.size();
+	//std::cout<<lg_nhs<<" "<<lg_ncs<<std::endl;
 	if (lg_hits1.size() != 0) {
+	  int nearindex = -10000;
 	  double nearresx = 10000;
 	  double nearresy = 10000;
-	  for(int nhs=0;nhs<lg_nhs[i];nhs++){//cluster loop
+	  for(int nhs=0;nhs<lg_nhs;nhs++){//cluster loop
 	    auto& lghit = lg_hits1[nhs];
+	    double resx = lghit->LocalPos(*geom).X() - lgcptx;
+	    double resy = lghit->LocalPos(*geom).Y() - lgcpty;
+	    lghitresx[i] = resx;
+	    lghitresy[i] = resy;
+	    lghitadc[i] = lghit->FitPeak();
+	    lghittdc[i] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    lghitgx[i] = lghit->GlobalPos(*geom).X();
+	    lghitgy[i] = lghit->GlobalPos(*geom).Y();
+	    lghitgz[i] = lghit->GlobalPos(*geom).Z();
 	    int lglocaly = lghit->ChannelId()/10;
 	    if(lglocaly*10==block){
-	      std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgclx[i]<<std::endl;
-	      double resx = lghit->LocalPos(*geom).X() - lgclx[i];
-	      double resy = lghit->LocalPos(*geom).Y() - lgcly[i];
-	      hlgrx->Fill(resx);
-	      hlgry->Fill(resy);
+	      //std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgcptx<<std::endl;
+	      if(fabs(resx)<fabs(nearresx)){
+		nearindex = nhs;
+		nearresx = resx;
+		nearresy = resy;
+	      }
+	      //if(fabs(resy)<fabs(nearresy)){
+	      //nearresy = resy;
+	      //}
 	    }
 	  }//cluster loop
-	  hlgrxn->Fill(nearresx);
-	  hlgryn->Fill(nearresy);
+	  if(nearindex>=0){
+	    lgresx = nearresx;
+	    lgresy = nearresy;
+	    lgadc = lghitadc[nearindex];
+	    lgtdc = lghittdc[nearindex];
+	  }
 	}//lg cluster bool
 
-	std::cout<<"******************************"<<std::endl;
+	//std::cout<<"******************************"<<std::endl;
+
+
+      tree->Fill();
+
 
       }//ntracks
 
-      tree->Fill();
+
 
 
 //// Check begin

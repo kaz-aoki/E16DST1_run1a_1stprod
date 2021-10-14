@@ -305,8 +305,8 @@ int main(int argc, char* argv[]) {
 	ssd_nc = ssd_clusters1.size();
 	hnh[0][j]->Fill(ssd_nh);
 	hnc[0][j]->Fill(ssd_nc);
-	hnh[0][9]->Fill(ssd_nh);
-	hnc[0][9]->Fill(ssd_nc);
+	hnh[0][8]->Fill(ssd_nh);
+	hnc[0][8]->Fill(ssd_nc);
 	if (ssd_clusters1.size() != 0) {
 	  for(int i=0;i<ssd_nc;i++){//cluster loop
 	    auto& ssdcluster = ssd_clusters1[i];
@@ -314,10 +314,10 @@ int main(int argc, char* argv[]) {
 	    htd[0][j]->Fill(ssdcluster->Timing());
 	    had[0][j]->Fill(ssdcluster->PeakSum());
 	    hlx[0][j]->Fill(ssdcluster->CogPos());
-	    hcs[0][9]->Fill(ssdcluster->NumHits());
-	    htd[0][9]->Fill(ssdcluster->Timing());
-	    had[0][9]->Fill(ssdcluster->PeakSum());
-	    hlx[0][9]->Fill(ssdcluster->CogPos());
+	    hcs[0][8]->Fill(ssdcluster->NumHits());
+	    htd[0][8]->Fill(ssdcluster->Timing());
+	    had[0][8]->Fill(ssdcluster->PeakSum());
+	    hlx[0][8]->Fill(ssdcluster->CogPos());
 	  }//cluster loop
 	}//ssd cluster bool
       }//module loop
@@ -335,24 +335,24 @@ int main(int argc, char* argv[]) {
 	    gtr_nc = gtr_clusters1.size();
 	    hnh[k+1][j]->Fill(gtr_nh);
 	    hnc[k+1][j]->Fill(gtr_nc);
-	    hnh[k+1][9]->Fill(gtr_nh);
-	    hnc[k+1][9]->Fill(gtr_nc);
+	    hnh[k+1][8]->Fill(gtr_nh);
+	    hnc[k+1][8]->Fill(gtr_nc);
 	    if (gtr_clusters1.size() != 0) {
 	      for(int i=0;i<gtr_nc;i++){//cluster loop
 		auto& gtrcluster = gtr_clusters1[i];
 		hcs[k+1][j]->Fill(gtrcluster->NumHits());
 		htd[k+1][j]->Fill(gtrcluster->Timing());
 		had[k+1][j]->Fill(gtrcluster->PeakSum());
-		hcs[k+1][9]->Fill(gtrcluster->NumHits());
-		htd[k+1][9]->Fill(gtrcluster->Timing());
-		had[k+1][9]->Fill(gtrcluster->PeakSum());
+		hcs[k+1][8]->Fill(gtrcluster->NumHits());
+		htd[k+1][8]->Fill(gtrcluster->Timing());
+		had[k+1][8]->Fill(gtrcluster->PeakSum());
 		if(l==0){
 		  hlx[k+1][j]->Fill(gtrcluster->CogPos());
-		  hlx[k+1][9]->Fill(gtrcluster->CogPos());
+		  hlx[k+1][8]->Fill(gtrcluster->CogPos());
 		}
 		else{
 		  hly[k+1][j]->Fill(gtrcluster->CogPos());
-		  hly[k+1][9]->Fill(gtrcluster->CogPos());
+		  hly[k+1][8]->Fill(gtrcluster->CogPos());
 		}
 	      }//cluster loop
 	    }//gtr cluster bool
@@ -370,8 +370,8 @@ int main(int argc, char* argv[]) {
 	hbd_nc = hbd_clusters1.size();
 	hnh[4][j]->Fill(hbd_nh);
 	hnc[4][j]->Fill(hbd_nc);
-	hnh[4][9]->Fill(hbd_nh);
-	hnc[4][9]->Fill(hbd_nc);
+	hnh[4][8]->Fill(hbd_nh);
+	hnc[4][8]->Fill(hbd_nc);
 	if (hbd_clusters1.size() != 0) {
 	  for(int i=0;i<hbd_nc;i++){//cluster loop
 	    auto& hbdcluster = hbd_clusters1[i];
@@ -380,11 +380,11 @@ int main(int argc, char* argv[]) {
 	    had[4][j]->Fill(hbdcluster->PeakSum());
 	    hlx[4][j]->Fill(hbdcluster->LocalPos().X());
 	    hly[4][j]->Fill(hbdcluster->LocalPos().Y());
-	    hcs[4][9]->Fill(hbdcluster->ClusterSize());
-	    htd[4][9]->Fill(hbdcluster->Timing());
-	    had[4][9]->Fill(hbdcluster->PeakSum());
-	    hlx[4][9]->Fill(hbdcluster->LocalPos().X());
-	    hly[4][9]->Fill(hbdcluster->LocalPos().Y());
+	    hcs[4][8]->Fill(hbdcluster->ClusterSize());
+	    htd[4][8]->Fill(hbdcluster->Timing());
+	    had[4][8]->Fill(hbdcluster->PeakSum());
+	    hlx[4][8]->Fill(hbdcluster->LocalPos().X());
+	    hly[4][8]->Fill(hbdcluster->LocalPos().Y());
 	  }//cluster loop
 	}//hbd cluster bool
       }//module loop
@@ -399,8 +399,8 @@ int main(int argc, char* argv[]) {
 	lg_nc = lg_clusters1.size();
 	hnh[5][j]->Fill(lg_nh);
 	hnc[5][j]->Fill(lg_nc);
-	hnh[5][9]->Fill(lg_nh);
-	hnc[5][9]->Fill(lg_nc);
+	hnh[5][8]->Fill(lg_nh);
+	hnc[5][8]->Fill(lg_nc);
 	if (lg_hits1.size() != 0) {
 	  for(int i=0;i<lg_nh;i++){//cluster loop
 	    auto& lghit = lg_hits1[i];
@@ -410,11 +410,11 @@ int main(int argc, char* argv[]) {
 	    had[5][j]->Fill(lghit->FitPeak());
 	    hlx[5][j]->Fill(lghit->LocalPos(*geometry).X());
 	    hly[5][j]->Fill(lghit->LocalPos(*geometry).Y());
-	    hcs[5][9]->Fill(1);
-	    htd[5][9]->Fill( lghit->GetCalibTiming(lgbasic, lghit->FitTiming()) );
-	    had[5][9]->Fill(lghit->FitPeak());
-	    hlx[5][9]->Fill(lghit->LocalPos(*geometry).X());
-	    hly[5][9]->Fill(lghit->LocalPos(*geometry).Y());
+	    hcs[5][8]->Fill(1);
+	    htd[5][8]->Fill( lghit->GetCalibTiming(lgbasic, lghit->FitTiming()) );
+	    had[5][8]->Fill(lghit->FitPeak());
+	    hlx[5][8]->Fill(lghit->LocalPos(*geometry).X());
+	    hly[5][8]->Fill(lghit->LocalPos(*geometry).Y());
 	  }//cluster loop
 	}//lg cluster bool
       }//module loop
