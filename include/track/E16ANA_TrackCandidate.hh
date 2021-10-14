@@ -117,12 +117,16 @@ class E16ANA_TrackCandidate {
   }
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
   void SetDefaultSigma() {
-    for (auto& s : sigma) {
-      s = kSigma;
+//    for (auto& s : sigma) {
+//      s = kSigma;
+//    }
+//    sigma[0].SetY(0.); // SSD-y
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+      sigma[i] = kSigmas[i];
     }
-    sigma[0].SetY(0.); // SSD-y
   }
   TVector3 Sigma() { return kSigma; }
+  TVector3 EachSigma(int n) { return kSigmas[n]; }
   TVector3 InitPosError() { return kInitPosError; }
   int TrackingMaxSteps() { return kTrackingMaxSteps; }
   int ProjectionMaxSteps() { return kProjectionMaxSteps; }
@@ -188,6 +192,9 @@ class E16ANA_TrackCandidate {
   }
   void PrintParam() {
     std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+      std::cout << "  " << E16ANA_TrackConstant::kDetectorName[i] << " : ("  << kSigmas[i](0) << ", " << kSigmas[i](1) << ", " << kSigmas[i](2) << ")" << std::endl;
+    }
     std::cout << "Initial Position Error : (" << kInitPosError(0) << ", " << kInitPosError(1) << ", " << kInitPosError(2) << ")" << std::endl;
     std::cout << "Runge Kutta Tracking Max Steps : " << kTrackingMaxSteps << std::endl;
     std::cout << "Runge Kutta Projection Max Steps : " << kProjectionMaxSteps << std::endl;
@@ -206,6 +213,7 @@ class E16ANA_TrackCandidate {
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
   // parameter
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
+  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 //  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
   static inline const TVector3 kInitPosError = {0., 0., 0.};
 //  static constexpr int kTrackingMaxSteps = 300;

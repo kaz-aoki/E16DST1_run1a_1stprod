@@ -21,6 +21,10 @@ class E16ANA_TrackCheckFile {
     tree = new TTree("tree", "tree");
     // Hit, Cluster
     t_param->Branch("sigma", &sigma);
+    t_param->Branch("each_sigmas0", &each_sigmas0);
+    t_param->Branch("each_sigmas1", &each_sigmas1);
+    t_param->Branch("each_sigmas2", &each_sigmas2);
+    t_param->Branch("each_sigmas3", &each_sigmas3);
     t_param->Branch("init_pos_error", &init_pos_error);
     t_param->Branch("tracking_max_steps", &tracking_max_steps, "tracking_max_steps/I");
     t_param->Branch("projection_max_steps", &projection_max_steps, "projection_max_steps/I");
@@ -266,6 +270,10 @@ class E16ANA_TrackCheckFile {
   void AddParam(E16ANA_TrackCandidates& cands) {
     auto& cand = cands.TrackCandidate(0);
     sigma = cand.Sigma();
+    each_sigmas0 = cand.EachSigma(0);
+    each_sigmas1 = cand.EachSigma(1);
+    each_sigmas2 = cand.EachSigma(2);
+    each_sigmas3 = cand.EachSigma(3);
     init_pos_error = cand.InitPosError();
     tracking_max_steps = cand.TrackingMaxSteps();
     projection_max_steps = cand.ProjectionMaxSteps();
@@ -892,6 +900,10 @@ class E16ANA_TrackCheckFile {
   TTree* tree;
   // Parameter
   TVector3 sigma;
+  TVector3 each_sigmas0;
+  TVector3 each_sigmas1;
+  TVector3 each_sigmas2;
+  TVector3 each_sigmas3;
   TVector3 init_pos_error;
   int tracking_max_steps;
   int projection_max_steps;
