@@ -31,8 +31,8 @@ include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-  /opt/E16/include/Geant4 # evb
-#  /ccj/u/E16/include/Geant4 # ccj
+#  /opt/E16/include/Geant4 # evb
+  /ccj/u/E16/include/Geant4 # ccj
 	include
 	include/HBD
 	include/GTR
@@ -48,8 +48,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-  /opt/E16/lib64-gcc8/clhep # evb
-#  /ccj/u/E16/lib64 #ccj
+#  /opt/E16/lib64-gcc8/clhep # evb
+  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
@@ -109,6 +109,7 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRPedestal.cc
   src/GTR/GTRCheckHist.cc
   src/HBD/E16ANA_HBDChannelManager.cc
+  src/HBD/E16ANA_HBDDeadChannel.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
   src/HBD/E16ANA_HBDCut.cc
   src/HBD/E16ANA_HBDCalibration.cc

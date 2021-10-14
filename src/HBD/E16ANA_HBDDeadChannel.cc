@@ -50,10 +50,10 @@ bool E16ANA_HBDDeadChannel::ReadFile(const char *filename){
 
 bool E16ANA_HBDDeadChannel::ReadDeadChannelData(const int runID){
   E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
-  
   std::string hbd_dead_channel_file = calib.CalibFileName("HBD-dead-ch", runID);
-  
   this->ReadFile(hbd_dead_channel_file.c_str());
+
+  return true;
 }
 
 bool E16ANA_HBDDeadChannel::IsOK(const int module_id, const int pad_id){

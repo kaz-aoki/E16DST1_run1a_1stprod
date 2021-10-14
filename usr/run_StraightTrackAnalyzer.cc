@@ -79,11 +79,16 @@ int main(int argc, char* argv[]) {
     E16DST_DST0PhysicsEvent *event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
     auto& gtr_hits0 = event0->GTR();
     auto& ssd_hits0 = event0->SSD();
+    E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
     E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
     record->GTR().UpdatePtrs();
+    record->SSD().UpdatePtrs();
+
 //    &record->GTR();
-	std::vector<E16DST_DST1StraightTrack2D> st_tracks;
-    E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
+	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+	if(st_tracks.size() != 0)std::cout << "st_tracks size =  " << st_tracks.size() << std::endl;
+	gtrhist->Fill(st_tracks);
 //	gtrhist->Fill();	
     ++n_event;
     ++n_physics_event;
@@ -91,10 +96,22 @@ int main(int argc, char* argv[]) {
 
  
 
-//  TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
-//  TString pdf_name;
-//  pdf_name.Form("gtrtest.pdf");
-//  c1->SaveAs(pdf_name + "[", "pdf");
+  TCanvas *c0 = new TCanvas("c0", "c0", 1024, 768);
+  TString pdf_name;
+  pdf_name.Form("gtrtest.pdf");
+  c0->SaveAs(pdf_name + "[", "pdf");
+
+  TCanvas *c1 = new TCanvas();
+  c1->Divide(3,2);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c1->cd(m-101);
+    gtrhist->h_tgt_z[m-100]->Draw();
+  }
+  c1->SaveAs(pdf_name, "pdf");
+
+
+
 //
 //  TCanvas *c_cl_charge_x[10]; 
 //  //= new TCanvas("cl charge ", 100,0,100);
@@ -286,7 +303,7 @@ int main(int argc, char* argv[]) {
 //  }
 // 
 //
-//  c1->SaveAs( pdf_name + "]", "pdf");
+  c0->SaveAs( pdf_name + "]", "pdf");
 //
 
 //  delete geometry;

@@ -1,6 +1,7 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDChannelManager.hh"
+#include "E16ANA_HBDDeadChannel.hh"
 
 #include <string>
 #include <cmath>
@@ -11,6 +12,7 @@
 
 E16ANA_HBDCalibration::E16ANA_HBDCalibration()
 {
+  hbd_dead = new E16ANA_HBDDeadChannel();
 }
 
 E16ANA_HBDCalibration::~E16ANA_HBDCalibration()
@@ -23,11 +25,13 @@ bool E16ANA_HBDCalibration::ReadCalibrationData(const int runID){
   std::string hbd_pedestal_file = calib.CalibFileName("HBD-pedestal", runID);
   std::string hbd_gain_file = calib.CalibFileName("HBD-gain", runID);
   std::string hbd_gain_calibration_status = calib.CalibFileName("HBD-calib-status", runID);
+  std::string hbd_dead_ch_file = calib.CalibFileName("HBD-dead-ch", runID);
   
   this->ReadPedestalAndNoiseFile(hbd_pedestal_file.c_str());
   this->ReadGainFile(hbd_gain_file.c_str());
   this->ReadGainCalibrationStatusFile(hbd_gain_calibration_status.c_str());
-
+  hbd_dead->ReadFile(hbd_dead_ch_file.c_str());
+  
   return true;
 }
 

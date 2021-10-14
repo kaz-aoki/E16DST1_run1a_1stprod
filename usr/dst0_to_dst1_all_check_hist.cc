@@ -182,33 +182,40 @@ int main(int argc, char* argv[]) {
   */
   const char par[7][12] = {"Nhits", "Nclusters", "ClusterSize", "Tdc", "Adc", "Lx", "Ly"};
   const char det[6][10] = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG"};
-  const char mod[8][5] = {"101", "102", "103", "104", "106", "107", "108", "109"};
+  const char mod[9][5] = {"101", "102", "103", "104", "106", "107", "108", "109", "All"};
 
-  TH1F* hnh[6][8];
-  TH1F* hnc[6][8];
-  TH1F* hcs[6][8];
-  TH1F* htd[6][8];
-  TH1F* had[6][8];
-  TH1F* hlx[6][8];
-  TH1F* hly[6][8];
+  TH1F* hnh[6][9];
+  TH1F* hnc[6][9];
+  TH1F* hcs[6][9];
+  TH1F* htd[6][9];
+  TH1F* had[6][9];
+  TH1F* hlx[6][9];
+  TH1F* hly[6][9];
   for(int i=0;i<6;i++){//det loop
-    for(int j=0;j<8;j++){// mod loop
+    for(int j=0;j<9;j++){// mod loop
       hnh[i][j] = new TH1F(Form("hnh%d%d",i,j),Form("%s%s%s",par[0],det[i],mod[j]),1000,0,1000);
       hnc[i][j] = new TH1F(Form("hnc%d%d",i,j),Form("%s%s%s",par[1],det[i],mod[j]),300,0,300);
       hcs[i][j] = new TH1F(Form("hcs%d%d",i,j),Form("%s%s%s",par[2],det[i],mod[j]),50,0,50);
       htd[i][j] = new TH1F(Form("htd%d%d",i,j),Form("%s%s%s",par[3],det[i],mod[j]),600,0,600);
       hlx[i][j] = new TH1F(Form("hlx%d%d",i,j),Form("%s%s%s",par[5],det[i],mod[j]),800,-400,400);
-      hly[i][j] = new TH1F(Form("hly%d%d",i,j),Form("%s%s%s",par[6],det[i],mod[j]),800,-400,400);
+      hly[i][j] = new TH1F(Form("hly%d%d",i,j),Form("%s%s%s",par[6],det[i],mod[j]),200,-400,400);
     }
   }
-  for(int j=0;j<8;j++){// mod loop
+  for(int j=0;j<9;j++){// mod loop
     had[0][j] = new TH1F(Form("had%d%d",0,j),Form("%s%s%s",par[4],det[0],mod[j]),100,0,10000);//ssd
     had[1][j] = new TH1F(Form("had%d%d",1,j),Form("%s%s%s",par[4],det[1],mod[j]),100,0,50000);//gtr100
     had[2][j] = new TH1F(Form("had%d%d",2,j),Form("%s%s%s",par[4],det[2],mod[j]),100,0,50000);//gtr200
     had[3][j] = new TH1F(Form("had%d%d",3,j),Form("%s%s%s",par[4],det[3],mod[j]),100,0,50000);//gtr300
-    had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),1000,0,0.01);//hbd
+    had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),2000,0,20);//hbd
     had[5][j] = new TH1F(Form("had%d%d",5,j),Form("%s%s%s",par[4],det[5],mod[j]),1000,0,1000);//lg
   }
+
+  TH1F* hic = new TH1F("hic","IC Count",200,0,200);//spill event
+  TH1F* him = new TH1F("him","IM SingleRate",200,0,200);//scaler event
+  TH1F* hlgl = new TH1F("hlgl","LG106-30 SingleRate",200,0,200);//scaler event
+  TH1F* hlgr = new TH1F("hlgr","LG104-36 SingleRate",200,0,200);//scaler event
+
+
 
 
 
@@ -298,6 +305,8 @@ int main(int argc, char* argv[]) {
 	ssd_nc = ssd_clusters1.size();
 	hnh[0][j]->Fill(ssd_nh);
 	hnc[0][j]->Fill(ssd_nc);
+	hnh[0][9]->Fill(ssd_nh);
+	hnc[0][9]->Fill(ssd_nc);
 	if (ssd_clusters1.size() != 0) {
 	  for(int i=0;i<ssd_nc;i++){//cluster loop
 	    auto& ssdcluster = ssd_clusters1[i];
@@ -305,6 +314,10 @@ int main(int argc, char* argv[]) {
 	    htd[0][j]->Fill(ssdcluster->Timing());
 	    had[0][j]->Fill(ssdcluster->PeakSum());
 	    hlx[0][j]->Fill(ssdcluster->CogPos());
+	    hcs[0][9]->Fill(ssdcluster->NumHits());
+	    htd[0][9]->Fill(ssdcluster->Timing());
+	    had[0][9]->Fill(ssdcluster->PeakSum());
+	    hlx[0][9]->Fill(ssdcluster->CogPos());
 	  }//cluster loop
 	}//ssd cluster bool
       }//module loop
@@ -315,20 +328,32 @@ int main(int argc, char* argv[]) {
 	int mod = m_cid(j);
 	for(int k=0;k<3;k++){//layer loop
 	  for(int l=0;l<3;l++){//type loop
+	    if(l==2&&k!=0){continue;}
 	    auto& gtr_hits1 = record->GTR().HitPtrs(mod,k,l);
 	    auto& gtr_clusters1 = record->GTR().ClusterPtrs(mod,k,l);
 	    gtr_nh = gtr_hits1.size();
 	    gtr_nc = gtr_clusters1.size();
 	    hnh[k+1][j]->Fill(gtr_nh);
 	    hnc[k+1][j]->Fill(gtr_nc);
+	    hnh[k+1][9]->Fill(gtr_nh);
+	    hnc[k+1][9]->Fill(gtr_nc);
 	    if (gtr_clusters1.size() != 0) {
 	      for(int i=0;i<gtr_nc;i++){//cluster loop
 		auto& gtrcluster = gtr_clusters1[i];
 		hcs[k+1][j]->Fill(gtrcluster->NumHits());
 		htd[k+1][j]->Fill(gtrcluster->Timing());
 		had[k+1][j]->Fill(gtrcluster->PeakSum());
-		if(l==0){hlx[k+1][j]->Fill(gtrcluster->CogPos());}
-		else{hly[k+1][j]->Fill(gtrcluster->CogPos());}
+		hcs[k+1][9]->Fill(gtrcluster->NumHits());
+		htd[k+1][9]->Fill(gtrcluster->Timing());
+		had[k+1][9]->Fill(gtrcluster->PeakSum());
+		if(l==0){
+		  hlx[k+1][j]->Fill(gtrcluster->CogPos());
+		  hlx[k+1][9]->Fill(gtrcluster->CogPos());
+		}
+		else{
+		  hly[k+1][j]->Fill(gtrcluster->CogPos());
+		  hly[k+1][9]->Fill(gtrcluster->CogPos());
+		}
 	      }//cluster loop
 	    }//gtr cluster bool
 	  }//type loop
@@ -345,6 +370,8 @@ int main(int argc, char* argv[]) {
 	hbd_nc = hbd_clusters1.size();
 	hnh[4][j]->Fill(hbd_nh);
 	hnc[4][j]->Fill(hbd_nc);
+	hnh[4][9]->Fill(hbd_nh);
+	hnc[4][9]->Fill(hbd_nc);
 	if (hbd_clusters1.size() != 0) {
 	  for(int i=0;i<hbd_nc;i++){//cluster loop
 	    auto& hbdcluster = hbd_clusters1[i];
@@ -353,6 +380,11 @@ int main(int argc, char* argv[]) {
 	    had[4][j]->Fill(hbdcluster->PeakSum());
 	    hlx[4][j]->Fill(hbdcluster->LocalPos().X());
 	    hly[4][j]->Fill(hbdcluster->LocalPos().Y());
+	    hcs[4][9]->Fill(hbdcluster->ClusterSize());
+	    htd[4][9]->Fill(hbdcluster->Timing());
+	    had[4][9]->Fill(hbdcluster->PeakSum());
+	    hlx[4][9]->Fill(hbdcluster->LocalPos().X());
+	    hly[4][9]->Fill(hbdcluster->LocalPos().Y());
 	  }//cluster loop
 	}//hbd cluster bool
       }//module loop
@@ -367,14 +399,22 @@ int main(int argc, char* argv[]) {
 	lg_nc = lg_clusters1.size();
 	hnh[5][j]->Fill(lg_nh);
 	hnc[5][j]->Fill(lg_nc);
+	hnh[5][9]->Fill(lg_nh);
+	hnc[5][9]->Fill(lg_nc);
 	if (lg_hits1.size() != 0) {
 	  for(int i=0;i<lg_nh;i++){//cluster loop
 	    auto& lghit = lg_hits1[i];
 	    hcs[5][j]->Fill(1);
-	    htd[5][j]->Fill(lghit->FitTiming());
+	    //htd[5][j]->Fill(lghit->FitTiming());
+	    htd[5][j]->Fill( lghit->GetCalibTiming(lgbasic, lghit->FitTiming()) );
 	    had[5][j]->Fill(lghit->FitPeak());
 	    hlx[5][j]->Fill(lghit->LocalPos(*geometry).X());
 	    hly[5][j]->Fill(lghit->LocalPos(*geometry).Y());
+	    hcs[5][9]->Fill(1);
+	    htd[5][9]->Fill( lghit->GetCalibTiming(lgbasic, lghit->FitTiming()) );
+	    had[5][9]->Fill(lghit->FitPeak());
+	    hlx[5][9]->Fill(lghit->LocalPos(*geometry).X());
+	    hly[5][9]->Fill(lghit->LocalPos(*geometry).Y());
 	  }//cluster loop
 	}//lg cluster bool
       }//module loop
@@ -390,7 +430,8 @@ int main(int argc, char* argv[]) {
 //      delete record;
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
-      auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
+      //auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
+      //E16DST_DST0UT3 ut3 = evnet0->UT3();
 //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillStart) {
       auto event0 = dynamic_cast<E16DST_DST0SpillStartEvent*>(dst0->Event());
