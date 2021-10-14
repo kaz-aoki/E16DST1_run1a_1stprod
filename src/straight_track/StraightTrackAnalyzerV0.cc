@@ -1165,7 +1165,6 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
 					trk->SetFitPtOnGTR100(TVector3(xz_track->FitPtOnGTR100().X(), y_track->GetFitRes100().X(), xz_track->FitPtOnGTR100().Y()));
 					trk->SetFitPtOnGTR200(TVector3(xz_track->FitPtOnGTR200().X(), y_track->GetFitRes200().X(), xz_track->FitPtOnGTR200().Y()));
 					trk->SetFitPtOnGTR300(TVector3(xz_track->FitPtOnGTR300().X(), y_track->GetFitRes300().X(), xz_track->FitPtOnGTR300().Y()));
-					std::cout<<"IN MATCHING: "<<y_track->GetFitRes100().X()<<" "<<y_track->GetFitRes200().X()<<" "<<y_track->GetFitRes300().X()<<std::endl;
                     xyz_st_trk.push_back(trk);
 //					SetPointsOn3DTrack(xz_track, y_track);
 					std::cout << "trk id(x, y) = " << j<<", " <<i << std::endl; 
