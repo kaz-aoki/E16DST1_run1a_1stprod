@@ -142,53 +142,9 @@ int main(int argc, char* argv[]) {
   TH1F *hssdrx = new TH1F("hssdrx","SSDResidualLx",800,-400,400);
   TH1F *hlgrx = new TH1F("hlgrx","LGResidualLx",800,-400,400);
   TH1F *hlgry = new TH1F("hlgry","LGResidualLy",800,-400,400);
-  TH1F *hssdrxn = new TH1F("hssdrxn","SSDResidualLx1Hit",800,-400,400);
-  TH1F *hlgrxn = new TH1F("hlgrxn","LGResidualLx1Hit",800,-400,400);
-  TH1F *hlgryn = new TH1F("hlgryn","LGResidualLy1Hit",800,-400,400);
-
-
-  /*
-  const char par[8][12] = {"Nhits", "Nclusters", "ClusterSize", "Tdc", "Adc", "Lx", "Ly", "Residual"};
-  const char det[6][10] = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG"};
-  const char mod[8][5] = {"101", "102", "103", "104", "106", "107", "108", "109"};
-
-  TH1F* hnh[6][8];
-  TH1F* hnc[6][8];
-  TH1F* hcs[6][8];
-  TH1F* htd[6][8];
-  TH1F* had[6][8];
-  TH1F* hlx[6][8];
-  TH1F* hly[6][8];
-  TH1F* hre[6][8];
-
-  TH1F* hres[8];
-  TH1F* htgz[8];
-  TH1F* hch2[8];
-
-  for(int i=0;i<6;i++){//det loop
-    for(int j=0;j<8;j++){// mod loop
-      hnh[i][j] = new TH1F(Form("hnh%d%d",i,j),Form("%s%s%s",par[0],det[i],mod[j]),1000,0,1000);
-      hnc[i][j] = new TH1F(Form("hnc%d%d",i,j),Form("%s%s%s",par[1],det[i],mod[j]),300,0,300);
-      hcs[i][j] = new TH1F(Form("hcs%d%d",i,j),Form("%s%s%s",par[2],det[i],mod[j]),50,0,50);
-      htd[i][j] = new TH1F(Form("htd%d%d",i,j),Form("%s%s%s",par[3],det[i],mod[j]),600,0,600);
-      hlx[i][j] = new TH1F(Form("hlx%d%d",i,j),Form("%s%s%s",par[5],det[i],mod[j]),800,-400,400);
-      hly[i][j] = new TH1F(Form("hly%d%d",i,j),Form("%s%s%s",par[6],det[i],mod[j]),800,-400,400);
-      hre[i][j] = new TH1F(Form("hre%d%d",i,j),Form("%s%s%s",par[7],det[i],mod[j]),8000,-400,400);
-    }
-  }
-  for(int j=0;j<8;j++){// mod loop
-    had[0][j] = new TH1F(Form("had%d%d",0,j),Form("%s%s%s",par[4],det[0],mod[j]),100,0,10000);//ssd
-    had[1][j] = new TH1F(Form("had%d%d",1,j),Form("%s%s%s",par[4],det[1],mod[j]),100,0,50000);//gtr100
-    had[2][j] = new TH1F(Form("had%d%d",2,j),Form("%s%s%s",par[4],det[2],mod[j]),100,0,50000);//gtr200
-    had[3][j] = new TH1F(Form("had%d%d",3,j),Form("%s%s%s",par[4],det[3],mod[j]),100,0,50000);//gtr300
-    had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),1000,0,0.01);//hbd
-    had[5][j] = new TH1F(Form("had%d%d",5,j),Form("%s%s%s",par[4],det[5],mod[j]),1000,0,1000);//lg
-    hres[j] = new TH1F(Form("hres%d%d",0,j),Form("%s%s%s","Residual","Track",mod[j]),1000,-100,100);//track
-    htgz[j] = new TH1F(Form("htgz%d%d",0,j),Form("%s%s%s","TargetZ","Track",mod[j]),1000,-100,100);//track
-    hch2[j] = new TH1F(Form("hch2%d%d",0,j),Form("%s%s%s","Chi2","Track",mod[j]),1000,0,100);//track
-  }
-  */
-
+  TH1F *hssdrxn = new TH1F("hssdrxn","SSDResidualLxNearHit",800,-400,400);
+  TH1F *hlgrxn = new TH1F("hlgrxn","LGResidualLx1NearHit",800,-400,400);
+  TH1F *hlgryn = new TH1F("hlgryn","LGResidualLy1NearHit",800,-400,400);
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -289,21 +245,24 @@ int main(int argc, char* argv[]) {
 	TVector3 g100 = st_track->FitPtOnGTR100();
 	TVector3 g200 = st_track->FitPtOnGTR200();
 	TVector3 g300 = st_track->FitPtOnGTR300();
-	std::cout<<"GTR100Output "<<g100.X()<<" "<<g100.Y()<<" "<<g100.Z()<<std::endl;
-	std::cout<<"GTR200Output "<<g200.X()<<" "<<g200.Y()<<" "<<g200.Z()<<std::endl;
-	std::cout<<"GTR300Output "<<g300.X()<<" "<<g300.Y()<<" "<<g300.Z()<<std::endl;
+	std::cout<<"GTR100Global "<<g100.X()<<" "<<g100.Y()<<" "<<g100.Z()<<std::endl;
+	std::cout<<"GTR200Global "<<g200.X()<<" "<<g200.Y()<<" "<<g200.Z()<<std::endl;
+	std::cout<<"GTR300Global "<<g300.X()<<" "<<g300.Y()<<" "<<g300.Z()<<std::endl;
 	TVector3 p1 = 5*(g300-g100)+g100;//for LG
 	TVector3 p2 = (-1)*(g300-g100)+g100;// for SSD
 
 	//Cross point at SSD plane
 	int mid0 = ModuleID_2020to2013_33(module[i]);
-	std::cout<<"GTR100Local "<<geom->GTR1(mid0)->GetLPos(g100).X()<<" "<<geom->GTR1(mid0)->GetLPos(g100).Y()<<std::endl;
-	std::cout<<"GTR300Local "<<geom->GTR3(mid0)->GetLPos(g300).X()<<" "<<geom->GTR3(mid0)->GetLPos(g300).Y()<<std::endl;
+	TVector3 l100 = geom->GTR1(mid0)->GetLPos(g100);
+	TVector3 l200 = geom->GTR2(mid0)->GetLPos(g200);
+	TVector3 l300 = geom->GTR3(mid0)->GetLPos(g300);
+	std::cout<<"GTR100Local  "<<l100.X()<<" "<<l100.Y()<<" "<<l100.Z()<<std::endl;
+	std::cout<<"GTR200Local  "<<l200.X()<<" "<<l200.Y()<<" "<<l200.Z()<<std::endl;
+	std::cout<<"GTR300Local  "<<l300.X()<<" "<<l300.Y()<<" "<<l300.Z()<<std::endl;
 	TVector3 clpos0;
 	double lz;
 	bool iscrossedssd = geom->SSD(mid0)->IsCrossed(p1, p2, clpos0, lz);
 	if(iscrossedssd){
-	  std::cout<<clpos0.X()<<" "<<clpos0.Z()<<std::endl;
 	  ssdclx[i] = clpos0.X();
 	}
 	else{
@@ -317,19 +276,25 @@ int main(int argc, char* argv[]) {
 	ssd_nhs[i] = ssd_hits1.size();
 	ssd_ncs[i] = ssd_clusters1.size();
 	if (ssd_clusters1.size() != 0) {
+	  double nearres = 10000;
+	  int nearindex = -10000;
 	  for(int ncs=0;ncs<ssd_ncs[i];ncs++){
 	    auto& ssdcluster = ssd_clusters1[ncs];
 	    std::cout<<"SSD COGPOS: "<<ssdcluster->CogPos()<<", CROSS PT: "<<ssdclx[i]<<std::endl;
-	    hssdrx->Fill(ssdcluster->CogPos() - ssdclx[i]);
-	    if(abs(ssdcluster->CogPos()-ssdclx[i])){
-
+	    double res = ssdcluster->CogPos() - ssdclx[i];
+	    hssdrx->Fill(res);
+	    if(fabs(res)<fabs(nearres)){
+	      nearindex = ncs;
+	      nearres = res;
 	    }
 	  }
+	  hssdrxn->Fill(nearres);
 	}
 
 
 	//Cross point at LG plane
 	double ea = atan2(g300.Y(), g300.Mag());
+	std::cout<<"ANGLE "<<rtod(ea)<<std::endl;
 	int block;
 	if(ea<=dtor(15)&&ea>dtor(10)){
 	  block = 50;
@@ -357,13 +322,18 @@ int main(int argc, char* argv[]) {
 	}
 
 	int mid[3] = {ModuleID_2020to2013_27(module[i]-1), ModuleID_2020to2013_27(module[i]), ModuleID_2020to2013_27(module[i]+1)};
-	TVector3 clpos[3];
+	TVector3 clpostemp[3];
 	TVector3 cgpos[3];
 	cgpos[0].SetXYZ(10000,10000,10000);
 	cgpos[1].SetXYZ(10000,10000,10000);
 	cgpos[2].SetXYZ(10000,10000,10000);
-	bool isclg1 = geom->LG(mid[1],block)->IsCrossed(p1, p2, clpos[1], lz);
-	cgpos[1] = geom->LG(mid[1],block)->GetGPos(clpos[1]);
+	TVector3 clpos[3];
+	bool isclg1 = geom->LG(mid[1],block)->IsCrossed(p1, p2, clpostemp[1], lz);
+	std::cout<<"LG CROSS LOCALT POS: "<<clpostemp[1].X()<<" "<<clpostemp[1].Y()<<" "<<clpostemp[1].Z()<<std::endl;
+	cgpos[1] = geom->LG(mid[1],block)->GetGPos(clpostemp[1]);
+	std::cout<<"LG CROSS GLOBAL POS: "<<cgpos[1].X()<<" "<<cgpos[1].Y()<<" "<<cgpos[1].Z()<<std::endl;
+	clpos[1] = geom->LGVD(mid[1])->GetLPos(cgpos[1]);
+	std::cout<<"LG CROSS LOCAL  POS: "<<clpos[1].X()<<" "<<clpos[1].Y()<<" "<<clpos[1].Z()<<std::endl;
 	int index = 1;
 	bool isclg0 = geom->LG(mid[0],block)->IsCrossed(p1, p2, clpos[0], lz);
 	cgpos[0] = geom->LG(mid[0],block)->GetGPos(clpos[0]);
@@ -383,20 +353,30 @@ int main(int argc, char* argv[]) {
 	  lgcly[i] = -10000;
 	}
 
+	//residual at LG plane
 	int modulelg = ModuleID_2013to2020_27(mid[index]);
 	std::cout<<"compare mod: "<<module[i]<<" "<<modulelg<<" "<<block<<std::endl;
 	auto& lg_hits1 = record->LG().HitPtrs(modulelg,0,0);
 	auto& lg_clusters1 = record->LG().ClusterPtrs(modulelg,0,0);
 	lg_nhs[i] = lg_hits1.size();
 	lg_ncs[i] = lg_clusters1.size();
-	std::cout<<lg_nhs[i]<<" "<<lg_ncs[i]<<std::endl;
+	//std::cout<<lg_nhs[i]<<" "<<lg_ncs[i]<<std::endl;
 	if (lg_hits1.size() != 0) {
+	  double nearresx = 10000;
+	  double nearresy = 10000;
 	  for(int nhs=0;nhs<lg_nhs[i];nhs++){//cluster loop
 	    auto& lghit = lg_hits1[nhs];
-	    std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgclx[i]<<std::endl;
-	    hlgrx->Fill(lghit->LocalPos(*geom).X() - lgclx[i]);
-	    hlgry->Fill(lghit->LocalPos(*geom).Y() - lgcly[i]);
+	    int lglocaly = lghit->ChannelId()/10;
+	    if(lglocaly*10==block){
+	      std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgclx[i]<<std::endl;
+	      double resx = lghit->LocalPos(*geom).X() - lgclx[i];
+	      double resy = lghit->LocalPos(*geom).Y() - lgcly[i];
+	      hlgrx->Fill(resx);
+	      hlgry->Fill(resy);
+	    }
 	  }//cluster loop
+	  hlgrxn->Fill(nearresx);
+	  hlgryn->Fill(nearresy);
 	}//lg cluster bool
 
 	std::cout<<"******************************"<<std::endl;
