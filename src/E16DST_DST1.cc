@@ -173,6 +173,11 @@ float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){
   return timing+100.-param;
 }
 
+float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing){
+  double param = lgbasic.GetT0(module_id, channel_id);// [ns]
+  return _timing+100.-param;
+}
+
 float E16DST_DST1LGHit::GetEnergyDeposit(E16ANA_LGBasic& lgbasic){
   double param = lgbasic.GetGain(module_id, channel_id);
   return param*peak_height;
