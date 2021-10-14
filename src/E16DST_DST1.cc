@@ -13,7 +13,8 @@ double E16DST_DST1SSDHit::LocalX() {
 }
 
 TVector3 E16DST_DST1SSDHit::LocalPos(E16ANA_GeometryV2& geometry) {
-  double local_x = (channel_id - 128 * 3) * 600. / (128 * 6); // tmp
+  //double local_x = (channel_id - 128 * 3) * 600. / (128 * 6); // tmp
+  double local_x = (channel_id - 384.5) * 0.08; // tmp
   return TVector3(local_x, 0., 0.);
 }
 
