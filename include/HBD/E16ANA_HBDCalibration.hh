@@ -8,6 +8,7 @@
 
 #include "E16ANA_HBDConstant.hh"
 #include "E16ANA_HBDChannelManager.hh"
+#include "E16ANA_HBDDeadChannel.hh"
 
 class E16ANA_HBDCalibration {
   
@@ -24,6 +25,7 @@ public:
   double GetNoise(const int module_id, const int pad_id);
   double GetGain(const int module_id, const int pad_id);
   bool GetGainCalibrationStatus(){return gain_calibration_status;};
+  E16ANA_HBDDeadChannel *GetDeadChannel(){return hbd_dead;};
 
 private:
   enum {
@@ -36,6 +38,7 @@ private:
   std::vector<double> noise[n_modules][n_pads];
   double adc_to_pe[n_modules][n_pads];
   bool gain_calibration_status;
+  E16ANA_HBDDeadChannel *hbd_dead;
 };
 
 #endif // E16ANA_HBDCalibration_h

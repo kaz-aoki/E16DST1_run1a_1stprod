@@ -138,7 +138,7 @@ void E16ANA_WaveformFitter::Fit(){
    double init_peak = 100.0;
    double step_peak = 10.0;
    double lower_peak = 0.0;
-   double upper_peak = 1000.0;
+   double upper_peak = 2000.0;
    double init_time = 0.0;
    double step_time = 25.0;
    double lower_time = (-0.5-5.0)*clock_period;
