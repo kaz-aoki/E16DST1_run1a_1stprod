@@ -91,57 +91,6 @@ int main(int argc, char* argv[]) {
   const int CMAX = 1000;
   const int TMAX = 1000;
 
-  /*
-  int ssd_nh;
-  int ssd_nc;
-  int ssd_m[CMAX];
-  int ssd_cs[CMAX];
-  float ssd_tdc[CMAX];
-  float ssd_adc[CMAX];
-  float ssd_lx[CMAX];
-  int gtr_nh, gtr_nc;
-  int g100_nh;
-  int g100_nc;
-  int g100_m[CMAX];
-  int g100_cs[CMAX];
-  float g100_tdc[CMAX];
-  float g100_adc[CMAX];
-  float g100_lx[CMAX];
-  float g100_ly[CMAX];
-  int g200_nh;
-  int g200_nc;
-  int g200_m[CMAX];
-  int g200_cs[CMAX];
-  float g200_tdc[CMAX];
-  float g200_adc[CMAX];
-  float g200_lx[CMAX];
-  float g200_ly[CMAX];
-  int g300_nh;
-  int g300_nc;
-  int g300_m[CMAX];
-  int g300_cs[CMAX];
-  float g300_tdc[CMAX];
-  float g300_adc[CMAX];
-  float g300_lx[CMAX];
-  float g300_ly[CMAX];
-  int hbd_nh;
-  int hbd_nc;
-  int hbd_m[CMAX];
-  int hbd_cs[CMAX];
-  float hbd_tdc[CMAX];
-  float hbd_adc[CMAX];
-  float hbd_lx[CMAX];
-  float hbd_ly[CMAX];
-  int lg_nh;
-  int lg_nc;
-  int lg_m[HMAX];
-  int lg_cs[HMAX];
-  float lg_tdc[HMAX];
-  float lg_adc[HMAX];
-  float lg_lx[HMAX];
-  float lg_ly[HMAX];
-  */
-
   int ntr;
   int module[TMAX];
   float chi2x[TMAX];
@@ -166,58 +115,6 @@ int main(int argc, char* argv[]) {
   double lgclx[TMAX];
   double lgcly[TMAX];
 
-  /*
-  tree->Branch("Event",&event,"Event/I");
-  tree->Branch("ssd_nh",&ssd_nh,"ssd_nh/I");
-  tree->Branch("ssd_nc",&ssd_nc,"ssd_nc/I");
-  tree->Branch("ssd_m",ssd_m,"ssd_m[ssd_nc]/I");
-  tree->Branch("ssd_cs",ssd_cs,"ssd_cs[ssd_nc]/I");
-  tree->Branch("ssd_tdc",ssd_tdc,"ssd_tdc[ssd_nc]/F");
-  tree->Branch("ssd_adc",ssd_adc,"ssd_adc[ssd_nc]/F");
-  tree->Branch("ssd_lx",ssd_lx,"ssd_lx[ssd_nc]/F");
-  tree->Branch("gtr_nh",&gtr_nh,"gtr_nh/I");
-  tree->Branch("gtr_nc",&gtr_nc,"gtr_nc/I");
-  tree->Branch("g100_nh",&g100_nh,"g100_nh/I");
-  tree->Branch("g100_nc",&g100_nc,"g100_nc/I");
-  tree->Branch("g100_m",g100_m,"g100_m[g100_nc]/I");
-  tree->Branch("g100_cs",g100_cs,"g100_cs[g100_nc]/I");
-  tree->Branch("g100_tdc",g100_tdc,"g100_tdc[g100_nc]/F");
-  tree->Branch("g100_adc",g100_adc,"g100_adc[g100_nc]/F");
-  tree->Branch("g100_lx",g100_lx,"g100_lx[g100_nc]/F");
-  tree->Branch("g100_ly",g100_ly,"g100_ly[g100_nc]/F");
-  tree->Branch("g200_nh",&g200_nh,"g200_nh/I");
-  tree->Branch("g200_nc",&g200_nc,"g200_nc/I");
-  tree->Branch("g200_m",g200_m,"g200_m[g200_nc]/I");
-  tree->Branch("g200_cs",g200_cs,"g200_cs[g200_nc]/I");
-  tree->Branch("g200_tdc",g200_tdc,"g200_tdc[g200_nc]/F");
-  tree->Branch("g200_adc",g200_adc,"g200_adc[g200_nc]/F");
-  tree->Branch("g200_lx",g200_lx,"g200_lx[g200_nc]/F");
-  tree->Branch("g200_ly",g200_ly,"g200_ly[g200_nc]/F");
-  tree->Branch("g300_nh",&g300_nh,"g300_nh/I");
-  tree->Branch("g300_nc",&g300_nc,"g300_nc/I");
-  tree->Branch("g300_m",g300_m,"g300_m[g300_nc]/I");
-  tree->Branch("g300_cs",g300_cs,"g300_cs[g300_nc]/I");
-  tree->Branch("g300_tdc",g300_tdc,"g300_tdc[g300_nc]/F");
-  tree->Branch("g300_adc",g300_adc,"g300_adc[g300_nc]/F");
-  tree->Branch("g300_lx",g300_lx,"g300_lx[g300_nc]/F");
-  tree->Branch("g300_ly",g300_ly,"g300_ly[g300_nc]/F");
-  tree->Branch("hbd_nh",&hbd_nh,"hbd_nh/I");
-  tree->Branch("hbd_nc",&hbd_nc,"hbd_nc/I");
-  tree->Branch("hbd_m",hbd_m,"hbd_m[hbd_nc]/I");
-  tree->Branch("hbd_cs",hbd_cs,"hbd_cs[hbd_nc]/I");
-  tree->Branch("hbd_tdc",hbd_tdc,"hbd_tdc[hbd_nc]/F");
-  tree->Branch("hbd_adc",hbd_adc,"hbd_adc[hbd_nc]/F");
-  tree->Branch("hbd_lx",hbd_lx,"hbd_lx[hbd_nc]/F");
-  tree->Branch("hbd_ly",hbd_ly,"hbd_ly[hbd_nc]/F");
-  tree->Branch("lg_nh",&lg_nh,"lg_nh/I");
-  tree->Branch("lg_nc",&lg_nc,"lg_nc/I");
-  tree->Branch("lg_m",lg_m,"lg_m[lg_nh]/I");
-  tree->Branch("lg_cs",lg_cs,"lg_cs[lg_nh]/I");
-  tree->Branch("lg_tdc",lg_tdc,"lg_tdc[lg_nh]/F");
-  tree->Branch("lg_adc",lg_adc,"lg_adc[lg_nh]/F");
-  tree->Branch("lg_lx",lg_lx,"lg_lx[lg_nh]/F");
-  tree->Branch("lg_ly",lg_ly,"lg_ly[lg_nh]/F");
-  */
   tree->Branch("ntr",&ntr,"ntr/I");
   tree->Branch("module",module,"module[ntr]/I");
   tree->Branch("chi2x",chi2x,"chi2x[ntr]/F");
@@ -245,6 +142,9 @@ int main(int argc, char* argv[]) {
   TH1F *hssdrx = new TH1F("hssdrx","SSDResidualLx",800,-400,400);
   TH1F *hlgrx = new TH1F("hlgrx","LGResidualLx",800,-400,400);
   TH1F *hlgry = new TH1F("hlgry","LGResidualLy",800,-400,400);
+  TH1F *hssdrxn = new TH1F("hssdrxn","SSDResidualLx1Hit",800,-400,400);
+  TH1F *hlgrxn = new TH1F("hlgrxn","LGResidualLx1Hit",800,-400,400);
+  TH1F *hlgryn = new TH1F("hlgryn","LGResidualLy1Hit",800,-400,400);
 
 
   /*
@@ -385,19 +285,25 @@ int main(int argc, char* argv[]) {
 	res3y[i] = st_track->FitResidual300Y();
 
 	//extrapolation
+	std::cout<<"TRACK MODULE "<<module[i]<<std::endl;
 	TVector3 g100 = st_track->FitPtOnGTR100();
+	TVector3 g200 = st_track->FitPtOnGTR200();
 	TVector3 g300 = st_track->FitPtOnGTR300();
-	std::cout<<"GTR100Global "<<g100.X()<<" "<<g100.Y()<<" "<<g100.Z()<<" "<<g100.Mag()<<std::endl;
-	std::cout<<"GTR300Global "<<g300.X()<<" "<<g300.Y()<<" "<<g300.Z()<<" "<<g300.Mag()<<std::endl;
+	std::cout<<"GTR100Output "<<g100.X()<<" "<<g100.Y()<<" "<<g100.Z()<<std::endl;
+	std::cout<<"GTR200Output "<<g200.X()<<" "<<g200.Y()<<" "<<g200.Z()<<std::endl;
+	std::cout<<"GTR300Output "<<g300.X()<<" "<<g300.Y()<<" "<<g300.Z()<<std::endl;
 	TVector3 p1 = 5*(g300-g100)+g100;//for LG
 	TVector3 p2 = (-1)*(g300-g100)+g100;// for SSD
 
 	//Cross point at SSD plane
 	int mid0 = ModuleID_2020to2013_33(module[i]);
+	std::cout<<"GTR100Local "<<geom->GTR1(mid0)->GetLPos(g100).X()<<" "<<geom->GTR1(mid0)->GetLPos(g100).Y()<<std::endl;
+	std::cout<<"GTR300Local "<<geom->GTR3(mid0)->GetLPos(g300).X()<<" "<<geom->GTR3(mid0)->GetLPos(g300).Y()<<std::endl;
 	TVector3 clpos0;
 	double lz;
 	bool iscrossedssd = geom->SSD(mid0)->IsCrossed(p1, p2, clpos0, lz);
 	if(iscrossedssd){
+	  std::cout<<clpos0.X()<<" "<<clpos0.Z()<<std::endl;
 	  ssdclx[i] = clpos0.X();
 	}
 	else{
@@ -413,8 +319,11 @@ int main(int argc, char* argv[]) {
 	if (ssd_clusters1.size() != 0) {
 	  for(int ncs=0;ncs<ssd_ncs[i];ncs++){
 	    auto& ssdcluster = ssd_clusters1[ncs];
-	    std::cout<<"SSD COGPOS: "<<ssdcluster->CogPos()<<" "<<(geom->SSD(mid0)->GetLPos(g100).X())<<"(ref)"<<std::endl;
+	    std::cout<<"SSD COGPOS: "<<ssdcluster->CogPos()<<", CROSS PT: "<<ssdclx[i]<<std::endl;
 	    hssdrx->Fill(ssdcluster->CogPos() - ssdclx[i]);
+	    if(abs(ssdcluster->CogPos()-ssdclx[i])){
+
+	    }
 	  }
 	}
 
@@ -466,7 +375,7 @@ int main(int argc, char* argv[]) {
 	if(isclg0||isclg1||isclg2){
 	  lgclx[i] = clpos[index].X();
 	  lgcly[i] = clpos[index].Y();
-	  std::cout<<"LGGlobal: "<<cgpos[index].X()<<" "<<cgpos[index].Y()<<" "<<cgpos[index].Z()<<" "<<cgpos[index].Mag()<<std::endl;
+	  //std::cout<<"LGGlobal: "<<cgpos[index].X()<<" "<<cgpos[index].Y()<<" "<<cgpos[index].Z()<<" "<<cgpos[index].Mag()<<std::endl;
 	}
 	else{
 	  std::cout<<"ERROR::: LG extrapolation is failed"<<std::endl;
@@ -475,7 +384,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	int modulelg = ModuleID_2013to2020_27(mid[index]);
-	std::cout<<"compare mod: "<<module[i]<<" "<<modulelg<<std::endl;
+	std::cout<<"compare mod: "<<module[i]<<" "<<modulelg<<" "<<block<<std::endl;
 	auto& lg_hits1 = record->LG().HitPtrs(modulelg,0,0);
 	auto& lg_clusters1 = record->LG().ClusterPtrs(modulelg,0,0);
 	lg_nhs[i] = lg_hits1.size();
@@ -484,7 +393,7 @@ int main(int argc, char* argv[]) {
 	if (lg_hits1.size() != 0) {
 	  for(int nhs=0;nhs<lg_nhs[i];nhs++){//cluster loop
 	    auto& lghit = lg_hits1[nhs];
-	    std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<std::endl;
+	    std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgclx[i]<<std::endl;
 	    hlgrx->Fill(lghit->LocalPos(*geom).X() - lgclx[i]);
 	    hlgry->Fill(lghit->LocalPos(*geom).Y() - lgcly[i]);
 	  }//cluster loop
