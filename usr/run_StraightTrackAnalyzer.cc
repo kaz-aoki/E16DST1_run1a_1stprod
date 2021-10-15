@@ -25,12 +25,91 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
+
+
+
 int main(int argc, char* argv[]) {
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
     cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
+  
+  TFile *f = new TFile("./outdir_root/output.root", "recreate");
+  TTree *t = new TTree("t", "t");
+  Int_t event_id;
+  Int_t mod_id;
+  Double_t g_x100;
+  Double_t g_y100;
+  Double_t g_z100;
+  Double_t g_x300;
+  Double_t g_y300;
+  Double_t g_z300;
+  Double_t l_cog_x300;
+  Double_t l_cog_y300;
+  Double_t clc_x100;
+  Double_t clc_x200;
+  Double_t clc_x300;
+  Double_t clc_y100;
+  Double_t clc_y200;
+  Double_t clc_y300;
+  Double_t timing_x100;
+  Double_t timing_x200;
+  Double_t timing_x300;
+  Double_t timing_y100;
+  Double_t timing_y200;
+  Double_t timing_y300;
+  Double_t residual_x100;
+  Double_t residual_x200;
+  Double_t residual_x300;
+  Double_t residual_ssd;
+  Double_t chi2_x;
+  Double_t tgt_z;
+  Int_t ncluster_ssd;
+  Int_t asd_hit;
+  Int_t lg_hit;
+  TVector3 lg_cross_pos;
+  Int_t lg_module_id;
+  Int_t lg_channel_id;
+  //	std::vector<TVector3> two_points_on_track;
+  t->Branch("event_id", &event_id, "event_id/I");
+  t->Branch("mod_id", &mod_id, "mod_id/I");
+  t->Branch("g_x100", &g_x100, "g_x100/D");
+  t->Branch("g_y100", &g_y100, "g_y100/D");
+  t->Branch("g_z100", &g_z100, "g_z100/D");
+  t->Branch("g_x300", &g_x300, "g_x300/D");
+  t->Branch("g_y300", &g_y300, "g_y300/D");
+  t->Branch("g_z300", &g_z300, "g_z300/D");
+  t->Branch("l_cog_x300", &l_cog_x300, "l_cog_x300/D");
+  t->Branch("l_cog_y300", &l_cog_y300, "l_cog_y300/D");
+  t->Branch("clc_x100", &clc_x100, "clc_x100/D");
+  t->Branch("clc_x200", &clc_x200, "clc_x200/D");
+  t->Branch("clc_x300", &clc_x300, "clc_x300/D");
+  t->Branch("clc_y100", &clc_y100, "clc_y100/D");
+  t->Branch("clc_y200", &clc_y200, "clc_y200/D");
+  t->Branch("clc_y300", &clc_y300, "clc_y300/D");
+  t->Branch("timing_x100", &timing_x100, "timing_x100/D");
+  t->Branch("timing_x200", &timing_x200, "timing_x200/D");
+  t->Branch("timing_x300", &timing_x300, "timing_x300/D");
+  t->Branch("timing_y100", &timing_y100, "timing_y100/D");
+  t->Branch("timing_y200", &timing_y200, "timing_y200/D");
+  t->Branch("timing_y300", &timing_y300, "timing_y300/D");
+  t->Branch("residual_x100", &residual_x100, "residual_x100/D");
+  t->Branch("residual_x200", &residual_x200, "residual_x200/D");
+  t->Branch("residual_x300", &residual_x300, "residual_x300/D");
+  t->Branch("residual_ssd", &residual_ssd, "residual_ssd/D");
+  t->Branch("chi2_x", &chi2_x, "chi2_x/D");
+  t->Branch("tgt_z", &tgt_z, "tgt_z/D");
+  t->Branch("ncluster_ssd", &ncluster_ssd, "ncluster_ssd/I");
+  t->Branch("asd_hit",&asd_hit, "asd_hit/I" );
+  t->Branch("lg_hit",&lg_hit, "lg_hit/I" );
+  t->Branch("lg_cross_pos", &lg_cross_pos);
+  t->Branch("lg_module_id", &lg_module_id, "lg_module_id/I");
+  t->Branch("lg_channel_id", &lg_channel_id,"lg_channel_id/I" );
+
+
+
+
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
   auto run_id        = stoi(argv[3]);
@@ -87,8 +166,41 @@ int main(int argc, char* argv[]) {
 //    &record->GTR();
 	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
 	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
-	if(st_tracks.size() != 0)std::cout << "st_tracks size =  " << st_tracks.size() << std::endl;
-	gtrhist->Fill(st_tracks);
+	
+	for(int i=0; i < st_tracks.size(); i++){
+		std::shared_ptr<E16ANA_XYZStraightTrack> t = st_tracks[i];
+		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
+		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
+		mod_id = t->ModuleID();
+		
+		tgt_z  = tk->TgtZ();
+		xid    = t->XTrackID();
+		yid    = t->YTrackID();
+		chi2_x = tx->Chi2();
+		chi2_y = ty->Chi2();
+		tgtpos_y = ty->TgtPos();
+	    fit_a_x = tx->GetFitA();
+	    fit_b_x = tx->GetFitB();
+	    fit_a_y = ty->GetFitA();
+	    fit_b_y = ty->GetFitB();
+		distance_x = tx->Distance();
+		distance_y = ty->Distance();
+		residual_ssdx = tx->ResidualSSD();
+		residual_100x = tx->Residual100();
+		residual_200x = tx->Residual200();
+		residual_300x = tx->Residual300();
+		residual_100y = ty->Residual100();
+		residual_200y =	ty->Residual200();
+		residual_300y = ty->Residual300();
+		nGTR100(t->FitPtOnGTR100());
+		nGTR200(t->FitPtOnGTR200());
+		nGTR300(t->FitPtOnGTR300());
+
+
+	}
+
+//	if(st_tracks.size() != 0)std::cout << "st_tracks size =  " << st_tracks.size() << std::endl;
+//	gtrhist->Fill(st_tracks);
 //	gtrhist->Fill();	
     ++n_event;
     ++n_physics_event;
@@ -105,8 +217,12 @@ int main(int argc, char* argv[]) {
   c1->Divide(3,2);
   for(int m=102; m < 109 ; m++){
     if(m == 105) continue;
-    c1->cd(m-101);
-    gtrhist->h_tgt_z[m-100]->Draw();
+	c1->cd(m-101);
+   	gtrhist->h_tgt_z[m-100]->Draw();
+	if(m>105 ){
+		c1->cd(m-102);
+	    gtrhist->h_tgt_z[m-100]->Draw();
+	}
   }
   c1->SaveAs(pdf_name, "pdf");
 

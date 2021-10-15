@@ -93,7 +93,6 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
 		
 		trk->SetModuleID(tx->ModuleID());
-		trk->SetModuleID(tx->ModuleID());
 		trk->SetXTrackID(t->XTrackID());
 		trk->SetYTrackID(t->YTrackID());
 		trk->SetChi2X(tx->Chi2());
