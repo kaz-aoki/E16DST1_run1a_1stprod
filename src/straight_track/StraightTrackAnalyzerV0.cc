@@ -753,16 +753,19 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST
 						trk->SetResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results2[2]+v_results2[1]));
 						trk->SetFitA(v_results2[1]);
 						trk->SetFitB(v_results2[2]);
-						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].x(), 0, rot_pos[0].z()*v_results2[2]+v_results2[1]);
+						//G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].x(), 0, rot_pos[0].z()*v_results2[2]+v_results2[1]);//comment out by nakasuga
+						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].z()*v_results2[2]+v_results2[1],0,rot_pos[0].z());//nakasuga
 						G4ThreeVector glb_origin0 = rot_pt0.rotateY(-rphi);
 						trk->SetFitPtOnGTR100(TVector2(glb_origin0.x(), glb_origin0.z()));
 					
-						G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].x(), 0, rot_pos[1].z()*v_results2[2]+v_results2[1]);
+						//G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].x(), 0, rot_pos[1].z()*v_results2[2]+v_results2[1]);//comment out by nakasuga
+						G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].z()*v_results2[2]+v_results2[1], 0, rot_pos[1].z());//nakasuga
 						G4ThreeVector glb_origin1 = rot_pt1.rotateY(-rphi);
 						trk->SetFitPtOnGTR200(TVector2(glb_origin1.x(), glb_origin1.z()));
 
 
-						G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].x(), 0, rot_pos[2].z()*v_results2[2]+v_results2[1]);
+						//G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].x(), 0, rot_pos[2].z()*v_results2[2]+v_results2[1]);//comment out by nakasuga
+						G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].z()*v_results2[2]+v_results2[1], 0, rot_pos[2].z());//nakasuga
 						G4ThreeVector glb_origin2 = rot_pt2.rotateY(-rphi);
 						trk->SetFitPtOnGTR300(TVector2(glb_origin2.x(), glb_origin2.z()));
 	
@@ -974,7 +977,7 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
 					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
 					trk->SetFitA(v_results[1]);
 					trk->SetFitB(v_results[2]);
-			
+
 					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
 					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
 					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
@@ -1058,9 +1061,13 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
 					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
 					trk->SetFitA(v_results[1]);
 					trk->SetFitB(v_results[2]);
-					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
-					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
-					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
+
+					//trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));//comment out by nakasuga
+					trk->SetFitRes100(TVector2(rot_pos[0].x()*v_results[2]+v_results[1], rot_pos[0].x()));//nakasuga
+					//trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));//comment out by nakasuga
+					trk->SetFitRes200(TVector2(rot_pos[1].x()*v_results[2]+v_results[1], rot_pos[1].x()));//nakasuga
+					//trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));//comment out by nakasuga
+					trk->SetFitRes300(TVector2(rot_pos[2].x()*v_results[2]+v_results[1], rot_pos[2].x()));//nakasuga
 					TVector2 w1(wire_x1, wire_z1);
 					TVector2 w2(wire_x2, wire_z2);
 					TVector2 rot_w1 = w1.Rotate(-rphi);

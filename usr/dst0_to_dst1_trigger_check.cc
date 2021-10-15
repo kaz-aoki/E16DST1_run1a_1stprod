@@ -21,14 +21,15 @@ using namespace std;
 //namespace  bpo = boost::program_options;
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [max physics event (all: -1)] " << endl;
+  if (argc != 6) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
   auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
+  auto event_start   = stoi(argv[4]);
+  auto event_end     = stoi(argv[5]);
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -63,6 +64,13 @@ int main(int argc, char* argv[]) {
 //    }
 //  };
 
+  FILE* fp = fopen(in_file_name, "r");
+  if (!fp) {
+    cerr << "could not open file : " << in_file_name << endl;
+    return -1;
+  }
+  fclose(fp);
+
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
   E16ANA_GTRcalibPedestal gtrped;
@@ -86,7 +94,7 @@ int main(int argc, char* argv[]) {
   E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
 
-  E16ANA_TrackCheckFile check_file(out_file_name);
+  E16ANA_TrackCheckFile check_file(out_file_name, run_id);
   
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
@@ -98,7 +106,7 @@ int main(int argc, char* argv[]) {
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
-    if (max_event != -1 && n_physics_event >= max_event) {
+    if (event_end != -1 && n_physics_event > event_end) {
       break;
     }
 //    if (n_event % 1000 == 0) {
@@ -106,6 +114,11 @@ int main(int argc, char* argv[]) {
 //    }
     auto event_type = dst0->EventType();
     if (event_type == E16DST_DST0EventType::Physics) {
+      if (n_physics_event < event_start) {
+        ++n_event;
+        ++n_physics_event;
+        continue;
+      }
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
       auto& ssd_hits0         = event0->SSD();
       auto& gtr_hits0         = event0->GTR();
@@ -124,6 +137,7 @@ int main(int argc, char* argv[]) {
       record.LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record, &check_file);
 
 //// Check begin

@@ -398,9 +398,6 @@ int main(int argc, char* argv[]) {
 //      dst1->WriteAnEvent();
 //      delete event0;
 //      delete record;
-//      delete hbd_calib;
-//      delete hbd_cut;
-//      delete wf1d_fitter;
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
