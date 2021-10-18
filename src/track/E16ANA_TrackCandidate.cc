@@ -697,7 +697,8 @@ void E16ANA_TrackCandidates::SortTracks() {
     }
     bool is_near_target = false;
     for (auto& pos : cand.PosAtTargets()) {
-      if (pos.Mag() < kNearTargetThreshold) {
+      double mag2 = pos.X() * pos.X() + pos.Y() * pos.Y();
+      if (mag2 < kNearTargetThreshold) {
         is_near_target = true;
         break;
       }
