@@ -189,6 +189,7 @@ int main(int argc, char* argv[]) {
   TH1F* hcs[6][9];
   TH1F* htd[6][9];
   TH1F* had[6][9];
+  TH1F* hadr4[9];
   TH1F* hlx[6][9];
   TH1F* hly[6][9];
   for(int i=0;i<6;i++){//det loop
@@ -207,13 +208,14 @@ int main(int argc, char* argv[]) {
     had[2][j] = new TH1F(Form("had%d%d",2,j),Form("%s%s%s",par[4],det[2],mod[j]),100,0,50000);//gtr200
     had[3][j] = new TH1F(Form("had%d%d",3,j),Form("%s%s%s",par[4],det[3],mod[j]),100,0,50000);//gtr300
     had[4][j] = new TH1F(Form("had%d%d",4,j),Form("%s%s%s",par[4],det[4],mod[j]),2000,0,20);//hbd
+    hadr4[j] = new TH1F(Form("hadr%d%d",4,j),Form("%sRaw%s%s",par[4],det[4],mod[j]),2000,0,2000);//hbd
     had[5][j] = new TH1F(Form("had%d%d",5,j),Form("%s%s%s",par[4],det[5],mod[j]),1000,0,1000);//lg
   }
 
-  TH1F* hic = new TH1F("hic","IC Count",200,0,200);//spill event
-  TH1F* him = new TH1F("him","IM SingleRate",200,0,200);//scaler event
-  TH1F* hlgl = new TH1F("hlgl","LG106-30 SingleRate",200,0,200);//scaler event
-  TH1F* hlgr = new TH1F("hlgr","LG104-36 SingleRate",200,0,200);//scaler event
+  //  TH1F* hic = new TH1F("hic","IC Count",200,0,200);//spill event
+  //  TH1F* him = new TH1F("him","IM SingleRate",200,0,200);//scaler event
+  //  TH1F* hlgl = new TH1F("hlgl","LG106-30 SingleRate",200,0,200);//scaler event
+  //  TH1F* hlgr = new TH1F("hlgr","LG104-36 SingleRate",200,0,200);//scaler event
 
 
 
@@ -378,11 +380,13 @@ int main(int argc, char* argv[]) {
 	    hcs[4][j]->Fill(hbdcluster->ClusterSize());
 	    htd[4][j]->Fill(hbdcluster->Timing());
 	    had[4][j]->Fill(hbdcluster->PeakSum());
+	    hadr4[j]->Fill(hbdcluster->SADC());
 	    hlx[4][j]->Fill(hbdcluster->LocalPos().X());
 	    hly[4][j]->Fill(hbdcluster->LocalPos().Y());
 	    hcs[4][8]->Fill(hbdcluster->ClusterSize());
 	    htd[4][8]->Fill(hbdcluster->Timing());
 	    had[4][8]->Fill(hbdcluster->PeakSum());
+	    hadr4[8]->Fill(hbdcluster->SADC());
 	    hlx[4][8]->Fill(hbdcluster->LocalPos().X());
 	    hly[4][8]->Fill(hbdcluster->LocalPos().Y());
 	  }//cluster loop

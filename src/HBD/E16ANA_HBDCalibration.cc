@@ -87,6 +87,7 @@ bool E16ANA_HBDCalibration::ReadGainFile(const char *filename){
       if(E16ANA_HBDChannelManager::IsValidID(module_id, pad_id)){
 	int index = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
 	adc_to_pe[index][pad_id] = -1./(buf_gain*(1.+buf_polya));//photoelectron per ADC
+	if(buf_gain==0){adc_to_pe[index][pad_id]=0;}//nakasuga
       }
     }
     return true;
@@ -111,8 +112,8 @@ bool E16ANA_HBDCalibration::ReadGainCalibrationStatusFile(const char *filename){
 
       std::stringstream ss(buf_line);
       ss>>status;
-      if(status == 0) gain_calibration_status = true;//normal operation (high)
-      if(status == 1) gain_calibration_status = false;//low gain operation (default)
+      if(status == 0) {gain_calibration_status = true;}//normal operation (high)
+      if(status == 1) {gain_calibration_status = false;}//low gain operation (default)
       return true;
     }    
   }

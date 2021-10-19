@@ -1647,6 +1647,57 @@ double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, do
     //}
 }
 
+
+//morino ver
+double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
+    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
+	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
+	double r100  = sqrt(r100_2);
+	double zpos_x200mm = b*(r100) + a;
+
+    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
+	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
+	double r300  = sqrt(r300_2);
+    double zpos_x600mm = b*r300 + a;
+	
+    /*
+    TVector2 ref_pt0(r100, zpos_x200mm);
+    TVector2 ref_pt1(r300, zpos_x600mm);
+	TVector2 ref_pt2(3000, b*3000 + a);
+    TVector2 pt0 = ref_pt0.Rotate(phi);
+    TVector2 pt1 = ref_pt1.Rotate(phi);
+	TVector2 pt2 = ref_pt2.Rotate(phi);
+    */
+    TVector2 ref_pt0(zpos_x200mm,r100);
+    TVector2 ref_pt1(zpos_x600mm,r300);
+    TVector2 ref_pt2(b*3000 + a,3000);
+    double rphi = phi - 1.570796;
+    TVector2 pt0 = ref_pt0.Rotate(rphi);
+    TVector2 pt1 = ref_pt1.Rotate(rphi);
+    TVector2 pt2 = ref_pt2.Rotate(rphi);
+
+
+ //   trk->SetPt0OnTrack(TVector2(1,1));
+//    trk->SetPt1OnTrack(pt1);
+//    trk->SetPt2OnTrack(pt2);
+
+    trk->SetPt0OnTrack(pt0);
+    trk->SetPt1OnTrack(pt1);
+    trk->SetPt2OnTrack(pt2);
+    
+//    double tgt_z1 = (pt1.Y()-pt0.Y())*(-20.0)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = -20
+    double tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
+	
+    ref_pt0.Clear();
+    ref_pt1.Clear();
+    pt0.Clear();
+    pt1.Clear();
+    //if(fabs(tgt_z-40) < 10 || fabs(tgt_z+40)< 10){//around wire 
+        return tgt_z;
+    //}
+}
+
+/*
 double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
     G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
 	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
@@ -1685,7 +1736,7 @@ double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, do
         return tgt_z;
     //}
 }
-
+*/
 
 std::vector<double> StraightTrackAnalyzerV0::CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate>trk2){
     double ksi = 0, eta = 0, delta = 0;

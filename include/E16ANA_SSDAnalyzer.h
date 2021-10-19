@@ -24,7 +24,8 @@ class E16ANA_SSDStripAnalyzer;
 class E16ANA_SSDAnalyzer {
 public:
 //   E16ANA_SSDAnalyzer(int _n_strip_x, int _n_strip_y, int _n_fadc_chs, int _n_fadc_counts);
-   E16ANA_SSDAnalyzer(int _n_strip_x=128, int _n_fadc_chs=768, int _n_fadc_counts=8);
+//   E16ANA_SSDAnalyzer(int _n_strip_x=128, int _n_fadc_chs=768, int _n_fadc_counts=8);
+   E16ANA_SSDAnalyzer(int _n_strip_x=768, int _n_fadc_chs=768, int _n_fadc_counts=8);
    virtual ~E16ANA_SSDAnalyzer();
    virtual void SetParameters(std::string filename);
    virtual void SetPinAssign(std::string filename);
