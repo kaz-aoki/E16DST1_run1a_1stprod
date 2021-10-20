@@ -215,7 +215,7 @@ class E16ANA_TrackCandidate {
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 //  static inline const TVector3 kVertexError = {1.5, 1.7, 20e-3};
-  static inline const TVector3 kInitPosError = {0., 0., 0.};
+  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
 //  static constexpr int kTrackingMaxSteps = 300;
   static constexpr int kTrackingMaxSteps = 400;
   static constexpr int kProjectionMaxSteps = 2000;
@@ -325,7 +325,7 @@ class E16ANA_TrackCandidates {
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter),
-        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
+        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -449,15 +449,15 @@ class E16ANA_TrackCandidates {
 //  static constexpr double kGTRPeakSumThresholdX = 180.;
   static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.};
   static constexpr double kGTRPeakSumThresholdY = 10.;
-//  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
-  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
+  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
+//  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
   static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
   static constexpr std::array<double, kNumRaughFitDegree[1]> kRaughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
-  static constexpr double kNearTargetThreshold = 10.;
+  static constexpr double kNearTargetThreshold = 100.; // square value
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
 
