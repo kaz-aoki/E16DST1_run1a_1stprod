@@ -777,9 +777,10 @@ public:
 //   void SetModuleID(float _mid){module_id = _mid;}
 //   void SetChi2(float _chi2){chi2 = _chi2;}
    float TgtPosZ(){return tgt_pos_z;}
-   float TgtPosY(){return tgt_pos_y;}
+//   float TgtPosY(){return tgt_pos_y;}
    void SetTgtPosZ(float _tgtz){tgt_pos_z = _tgtz;}
-   void SetTgtPosY(float _tgty){tgt_pos_y = _tgty;}
+//   void SetTgtPosY(float _tgty){tgt_pos_y = _tgty;}
+  
    void SetFitAX(float fit){fit_a_x = fit;}
    void SetFitBX(float fit){fit_b_x = fit;}
    void SetFitAY(float fit){fit_a_y = fit;}
@@ -789,9 +790,13 @@ public:
    float FitAY(){return fit_a_y;}
    float FitBY(){return fit_b_y;}
    void SetDistanceFromTgtXZ(float _distance){distance_fromtgt_xz = _distance;}
-   void SetDistanceFromTgtYR(float _distance){distance_fromtgt_yr = _distance;}
+//   void SetDistanceFromTgtYR(float _distance){distance_fromtgt_yr = _distance;}
+   void SetDistanceFromUpWireYR(float _distance){distance_fromupwire_yr = _distance;}
+   void SetDistanceFromDownWireYR(float _distance){distance_fromdownwire_yr = _distance;}
    float DistanceFromTgtXZ(){return distance_fromtgt_xz;}
-   float DistanceFromTgtYR(){return distance_fromtgt_yr;}
+//   float DistanceFromTgtYR(){return distance_fromtgt_yr;}
+   float DistanceFromUpWireYR(){return distance_fromupwire_yr;}
+   float DistanceFromDownWireYR(){return distance_fromdownwire_yr;}
    void SetResidualSSD(float _residualssd){residualssd =_residualssd; }
    void SetFitResidual100X(float _residual){fit_residual100_x =_residual; }
    void SetFitResidual200X(float _residual){fit_residual200_x =_residual; }
@@ -842,9 +847,11 @@ private:
    float chi2_x;
    float chi2_y;
    float tgt_pos_z;//intercept with track
-   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
+//   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
+   
    float distance_fromtgt_xz;
-   float distance_fromtgt_yr;//distance  from the nearest target on YR plane to the track, should be almost 0 if the track is true
+   float distance_fromupwire_yr;//distance  from the upstream wire on YR plane to the track
+   float distance_fromdownwire_yr;//distance  from the upstream wire on YR plane to the track
    float residualssd;//residual ssd, fit without itself
    float fit_residual100_x; //fit including itself
    float fit_residual200_x;
