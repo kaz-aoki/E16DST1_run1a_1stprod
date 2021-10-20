@@ -179,6 +179,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
 #if 1
   for (auto &a : ssd_analyzers->analyzer_map){
     a.second->AnalyzeV11();//run analyzer for all module(101~109)
+//    a.second->Analyze();//run analyzer for all module(101~109)
 //    cout << endl;
   }
 #else

@@ -2,6 +2,7 @@
 //
 //
 //
+#include <stdlib.h>
 #include <iostream>
 #include <TROOT.h>
 #include <TH1.h>
@@ -32,11 +33,32 @@ int main(int argc, char* argv[]) {
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
     cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
-    return -1;
+    return 1;
   }
-  
-  TFile *f = new TFile("./outdir_root/output.root", "recreate");
-  TTree *t = new TTree("t", "t");
+   auto dst0 = new E16DST_DST0();
+  if (!dst0->Open(argv[1], E16DST_DST0::ReadMode)) {
+    std::cout << "failed to open file : " << argv[1]  <<std::endl;
+	exit(1);
+//    return 1;
+  }
+  string in_file_name = argv[1];
+  int sink_id_pos = in_file_name.length() - 10;
+  string sink_id = in_file_name.substr(sink_id_pos, 1);
+  std::cout << "sink id = " << sink_id << std::endl;
+  int smallest_id_pos = in_file_name.length()-8;
+  string smallest_id = in_file_name.substr(smallest_id_pos, 3);
+  std::cout << "smallest  id = " << smallest_id << std::endl;
+  string runnum = argv[3];
+  string run = "g4run0" + runnum;
+  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root";
+
+  const char* c_out = outputfile.c_str();
+  //TFile *f = new TFile("./wire_root/output.run", "recreate");
+  TFile *f = new TFile( c_out, "recreate");
+ 
+ 
+//  TFile *f = new TFile("./dst1_test/output.root", "recreate");
+  TTree *tree = new TTree("tree", "tree");
   Int_t event_id;
   Int_t mod_id;
   Double_t g_x100;
@@ -45,8 +67,12 @@ int main(int argc, char* argv[]) {
   Double_t g_x300;
   Double_t g_y300;
   Double_t g_z300;
-  Double_t l_cog_x300;
-  Double_t l_cog_y300;
+  Double_t lx100;//local pos
+  Double_t ly100;
+  Double_t lx200;
+  Double_t ly200;
+  Double_t lx300;
+  Double_t ly300;
   Double_t clc_x100;
   Double_t clc_x200;
   Double_t clc_x300;
@@ -59,58 +85,145 @@ int main(int argc, char* argv[]) {
   Double_t timing_y100;
   Double_t timing_y200;
   Double_t timing_y300;
-  Double_t residual_x100;
-  Double_t residual_x200;
-  Double_t residual_x300;
-  Double_t residual_ssd;
+  Double_t residual_ssdx;
+  Double_t residual_100x;
+  Double_t residual_200x;
+  Double_t residual_300x;
+  Double_t residual_100y;
+  Double_t residual_200y;
+  Double_t residual_300y;
+  Double_t fitresidual_ssdx;
+  Double_t fitresidual_100x;
+  Double_t fitresidual_200x;
+  Double_t fitresidual_300x;
+  Double_t fitresidual_100y;
+  Double_t fitresidual_200y;
+  Double_t fitresidual_300y;
   Double_t chi2_x;
+  Double_t chi2_y;
   Double_t tgt_z;
+  Double_t tgtpos_y;
+  Double_t fit_a_x;
+  Double_t fit_b_x;
+  Double_t fit_a_y;
+  Double_t fit_b_y;
+  Double_t distance_x;
+  Double_t distance_y;	
+  Double_t fit_g100x;
+  Double_t fit_g100y;
+  Double_t fit_g100z;
+  Double_t fit_g200x;
+  Double_t fit_g200y;
+  Double_t fit_g200z;
+  Double_t fit_g300x;
+  Double_t fit_g300y;
+  Double_t fit_g300z;
+
+  Int_t trkid_x;
+  Int_t trkid_y;
+  Int_t hitid_ssdx;
+  Int_t hitid_100x;
+  Int_t hitid_200x;
+  Int_t hitid_300x;
+  Int_t hitid_100y;
+  Int_t hitid_200y;
+  Int_t hitid_300y;
   Int_t ncluster_ssd;
   Int_t asd_hit;
   Int_t lg_hit;
   TVector3 lg_cross_pos;
   Int_t lg_module_id;
   Int_t lg_channel_id;
+
+
+
   //	std::vector<TVector3> two_points_on_track;
-  t->Branch("event_id", &event_id, "event_id/I");
-  t->Branch("mod_id", &mod_id, "mod_id/I");
-  t->Branch("g_x100", &g_x100, "g_x100/D");
-  t->Branch("g_y100", &g_y100, "g_y100/D");
-  t->Branch("g_z100", &g_z100, "g_z100/D");
-  t->Branch("g_x300", &g_x300, "g_x300/D");
-  t->Branch("g_y300", &g_y300, "g_y300/D");
-  t->Branch("g_z300", &g_z300, "g_z300/D");
-  t->Branch("l_cog_x300", &l_cog_x300, "l_cog_x300/D");
-  t->Branch("l_cog_y300", &l_cog_y300, "l_cog_y300/D");
-  t->Branch("clc_x100", &clc_x100, "clc_x100/D");
-  t->Branch("clc_x200", &clc_x200, "clc_x200/D");
-  t->Branch("clc_x300", &clc_x300, "clc_x300/D");
-  t->Branch("clc_y100", &clc_y100, "clc_y100/D");
-  t->Branch("clc_y200", &clc_y200, "clc_y200/D");
-  t->Branch("clc_y300", &clc_y300, "clc_y300/D");
-  t->Branch("timing_x100", &timing_x100, "timing_x100/D");
-  t->Branch("timing_x200", &timing_x200, "timing_x200/D");
-  t->Branch("timing_x300", &timing_x300, "timing_x300/D");
-  t->Branch("timing_y100", &timing_y100, "timing_y100/D");
-  t->Branch("timing_y200", &timing_y200, "timing_y200/D");
-  t->Branch("timing_y300", &timing_y300, "timing_y300/D");
-  t->Branch("residual_x100", &residual_x100, "residual_x100/D");
-  t->Branch("residual_x200", &residual_x200, "residual_x200/D");
-  t->Branch("residual_x300", &residual_x300, "residual_x300/D");
-  t->Branch("residual_ssd", &residual_ssd, "residual_ssd/D");
-  t->Branch("chi2_x", &chi2_x, "chi2_x/D");
-  t->Branch("tgt_z", &tgt_z, "tgt_z/D");
-  t->Branch("ncluster_ssd", &ncluster_ssd, "ncluster_ssd/I");
-  t->Branch("asd_hit",&asd_hit, "asd_hit/I" );
-  t->Branch("lg_hit",&lg_hit, "lg_hit/I" );
-  t->Branch("lg_cross_pos", &lg_cross_pos);
-  t->Branch("lg_module_id", &lg_module_id, "lg_module_id/I");
-  t->Branch("lg_channel_id", &lg_channel_id,"lg_channel_id/I" );
+  tree->Branch("event_id", &event_id, "event_id/I");
+  tree->Branch("mod_id", &mod_id, "mod_id/I");
+  tree->Branch("g_x100", &g_x100, "g_x100/D");
+  tree->Branch("g_y100", &g_y100, "g_y100/D");
+  tree->Branch("g_z100", &g_z100, "g_z100/D");
+  tree->Branch("g_x300", &g_x300, "g_x300/D");
+  tree->Branch("g_y300", &g_y300, "g_y300/D");
+  tree->Branch("g_z300", &g_z300, "g_z300/D");
+  tree->Branch("lxssd", &lx100, "lxssd/D");
+  tree->Branch("lx100", &lx100, "lx100/D");
+  tree->Branch("ly100", &ly100, "ly100/D");
+  tree->Branch("lx200", &lx200, "lx200/D");
+  tree->Branch("ly200", &ly200, "ly200/D");
+  tree->Branch("lx300", &lx300, "lx300/D");
+  tree->Branch("ly300", &ly300, "ly300/D");
+  tree->Branch("clc_x100", &clc_x100, "clc_x100/D");
+  tree->Branch("clc_x200", &clc_x200, "clc_x200/D");
+  tree->Branch("clc_x300", &clc_x300, "clc_x300/D");
+  tree->Branch("clc_y100", &clc_y100, "clc_y100/D");
+  tree->Branch("clc_y200", &clc_y200, "clc_y200/D");
+  tree->Branch("clc_y300", &clc_y300, "clc_y300/D");
+  tree->Branch("timing_x100", &timing_x100, "timing_x100/D");
+  tree->Branch("timing_x200", &timing_x200, "timing_x200/D");
+  tree->Branch("timing_x300", &timing_x300, "timing_x300/D");
+  tree->Branch("timing_y100", &timing_y100, "timing_y100/D");
+  tree->Branch("timing_y200", &timing_y200, "timing_y200/D");
+  tree->Branch("timing_y300", &timing_y300, "timing_y300/D");
+  tree->Branch("residual_100x", &residual_100x, "residual_100x/D");
+  tree->Branch("residual_200x", &residual_200x, "residual_200x/D");
+  tree->Branch("residual_300x", &residual_300x, "residual_300x/D");
+  tree->Branch("residual_100y", &residual_100y, "residual_100y/D");
+  tree->Branch("residual_200y", &residual_200y, "residual_200y/D");
+  tree->Branch("residual_300y", &residual_300y, "residual_300y/D");
+  tree->Branch("residual_ssdx", &residual_ssdx, "residual_ssdx/D");
+  tree->Branch("fitresidual_100x", &fitresidual_100x, "fitresidual_100x/D");
+  tree->Branch("fitresidual_200x", &fitresidual_200x, "fitresidual_200x/D");
+  tree->Branch("fitresidual_300x", &fitresidual_300x, "fitresidual_300x/D");
+  tree->Branch("fitresidual_100y", &fitresidual_100y, "fitresidual_100y/D");
+  tree->Branch("fitresidual_200y", &fitresidual_200y, "fitresidual_200y/D");
+  tree->Branch("fitresidual_300y", &fitresidual_300y, "fitresidual_300y/D");
+  tree->Branch("fitresidual_ssdx", &fitresidual_ssdx, "fitresidual_ssdx/D");
+ 
+
+
+  tree->Branch("chi2_x", &chi2_x, "chi2_x/D");
+  tree->Branch("chi2_y", &chi2_y, "chi2_y/D");
+  tree->Branch("tgt_z", &tgt_z, "tgt_z/D");
+  tree->Branch("tgtpos_y", &tgtpos_y, "tgtpos_y/D");
+  tree->Branch("fit_a_x", &fit_a_x, "fit_a_x/D");
+  tree->Branch("fit_b_x", &fit_b_x, "fit_b_x/D");
+  tree->Branch("fit_a_y", &fit_a_y, "fit_a_y/D");
+  tree->Branch("fit_b_y", &fit_b_y, "fit_b_y/D");
+  tree->Branch("distance_x", &distance_x, "distance_x/D");
+  tree->Branch("distance_y", &distance_y, "distance_y/D");
+  tree->Branch("fit_g100x", &fit_g100x, "fit_g100x/D");
+  tree->Branch("fit_g100y", &fit_g100y, "fit_g100y/D");
+  tree->Branch("fit_g100z", &fit_g100z, "fit_g100z/D");
+  tree->Branch("fit_g200x", &fit_g200x, "fit_g200x/D");
+  tree->Branch("fit_g200y", &fit_g200y, "fit_g200y/D");
+  tree->Branch("fit_g200z", &fit_g200z, "fit_g200z/D");
+  tree->Branch("fit_g300x", &fit_g300x, "fit_g300x/D");
+  tree->Branch("fit_g300y", &fit_g300y, "fit_g300y/D");
+  tree->Branch("fit_g300z", &fit_g300z, "fit_g300z/D");
+
+
+
+  tree->Branch("trkid_x", &trkid_x, "trkid_x/I");
+  tree->Branch("trkid_y", &trkid_y, "trkid_y/I");
+  tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
+  tree->Branch("hitid_100x", &hitid_100x, "hitid_100x/I");
+  tree->Branch("hitid_200x", &hitid_200x, "hitid_200x/I");
+  tree->Branch("hitid_300x", &hitid_300x, "hitid_300x/I");
+  tree->Branch("hitid_100y", &hitid_100y, "hitid_100y/I");
+  tree->Branch("hitid_200y", &hitid_200y, "hitid_200y/I");
+  tree->Branch("hitid_300y", &hitid_300y, "hitid_300y/I");
+  tree->Branch("ncluster_ssd", &ncluster_ssd, "ncluster_ssd/I");
+  tree->Branch("asd_hit",&asd_hit, "asd_hit/I" );
+  tree->Branch("lg_hit",&lg_hit, "lg_hit/I" );
+  tree->Branch("lg_cross_pos", &lg_cross_pos);
+  tree->Branch("lg_module_id", &lg_module_id, "lg_module_id/I");
+  tree->Branch("lg_channel_id", &lg_channel_id,"lg_channel_id/I" );
 
 
 
 
-  auto in_file_name  = argv[1];
+  //auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
   auto run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
@@ -132,16 +245,10 @@ int main(int argc, char* argv[]) {
 //  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
   
-  auto dst0 = new E16DST_DST0();
-
-  if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
-    std::cerr << "### Cannot open file ###" << std::endl;
-    return -1;
-  }
   int n_event = 0;
   int n_physics_event = 0;
+  std::cout << "here " << std::endl;
   while (dst0->ReadAnEvent()) {
- //   if (max_event != -1 && n_physics_event >= max_event) {
     if (max_event != -1 && n_event >= max_event) {
       break;
     }
@@ -168,43 +275,64 @@ int main(int argc, char* argv[]) {
 	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
 	
 	for(int i=0; i < st_tracks.size(); i++){
-		std::shared_ptr<E16ANA_XYZStraightTrack> t = st_tracks[i];
-		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
-		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
+		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
 		mod_id = t->ModuleID();
 		
-		tgt_z  = tk->TgtZ();
-		xid    = t->XTrackID();
-		yid    = t->YTrackID();
-		chi2_x = tx->Chi2();
-		chi2_y = ty->Chi2();
-		tgtpos_y = ty->TgtPos();
-	    fit_a_x = tx->GetFitA();
-	    fit_b_x = tx->GetFitB();
-	    fit_a_y = ty->GetFitA();
-	    fit_b_y = ty->GetFitB();
-		distance_x = tx->Distance();
-		distance_y = ty->Distance();
-		residual_ssdx = tx->ResidualSSD();
-		residual_100x = tx->Residual100();
-		residual_200x = tx->Residual200();
-		residual_300x = tx->Residual300();
-		residual_100y = ty->Residual100();
-		residual_200y =	ty->Residual200();
-		residual_300y = ty->Residual300();
-		nGTR100(t->FitPtOnGTR100());
-		nGTR200(t->FitPtOnGTR200());
-		nGTR300(t->FitPtOnGTR300());
+		trkid_x    = t->XTrackID();
+		trkid_y    = t->YTrackID();
+//		hitid_ssdx = t->GetGetXClusterSSD()->IDSSDHit();
+//		hitid_100x = t->GetGetXCluster100()->ID100Hit();
+//		hitid_200x = t->GetGetXCluster200()->ID200Hit();
+//		hitid_300x = t->GetGetXCluster300()->ID300Hit();
+//		hitid_100y = t->GetGetYCluster100()->ID100Hit();
+//		hitid_200y = t->GetGetYCluster200()->ID200Hit();
+//		hitid_300y = t->GetGetYCluster300()->ID300Hit();
+		chi2_x = t->Chi2X();
+		chi2_y = t->Chi2Y();
+		tgt_z  = t->TgtPosZ();
+		tgtpos_y = t->TgtPosY();
+	    fit_a_x = t->FitAX();
+	    fit_b_x = t->FitBX();
+	    fit_a_y = t->FitAY();
+	    fit_b_y = t->FitBY();
+		distance_x = t->DistanceFromTgtXZ();
+		distance_y = t->DistanceFromTgtYR();
+		residual_ssdx = t->ResidualSSD();
+//		residual_100x = t->Residual100();
+//		residual_200x = t->Residual200();
+//		residual_300x = t->Residual300();
+//		residual_100y = t->Residual100();
+//		residual_200y =	t->Residual200();
+////		residual_300y = t->Residual300();
+//		fitresidual_ssdx = t->FitResidualSSD();
+		fitresidual_100x = t->FitResidual100X();
+		fitresidual_200x = t->FitResidual200X();
+		fitresidual_300x = t->FitResidual300X();
+		fitresidual_100y = t->FitResidual100Y();
+		fitresidual_200y = t->FitResidual200Y();
+		fitresidual_300y = t->FitResidual300Y();
 
 
+
+		fit_g100x = t->FitPtOnGTR100().X();
+		fit_g100y = t->FitPtOnGTR100().Y();
+		fit_g100z = t->FitPtOnGTR100().Z();
+		fit_g200x = t->FitPtOnGTR200().X();
+		fit_g200y = t->FitPtOnGTR200().Y();
+		fit_g200z = t->FitPtOnGTR200().Z();
+		fit_g300x = t->FitPtOnGTR300().X();
+		fit_g300y = t->FitPtOnGTR300().Y();
+		fit_g300z = t->FitPtOnGTR300().Z();
+		tree->Fill();
 	}
-
+	
 //	if(st_tracks.size() != 0)std::cout << "st_tracks size =  " << st_tracks.size() << std::endl;
 //	gtrhist->Fill(st_tracks);
 //	gtrhist->Fill();	
     ++n_event;
     ++n_physics_event;
   }
+  f->Write();
 
  
 
