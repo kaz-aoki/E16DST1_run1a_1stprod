@@ -380,13 +380,13 @@ public:
     TVector2 &Pt0OnTrack(){return pt0_on_track;}
     TVector2 &Pt1OnTrack(){        return pt1_on_track;    }
     TVector2 &Pt2OnTrack(){        return pt2_on_track;    }
-    static bool CompareTrackPredicate(E16ANA_YTrackCandidate lhs, E16ANA_YTrackCandidate rhs){return (lhs.chi2 < rhs.chi2);}
+    static bool CompareTrackPredicate(std::shared_ptr<E16ANA_YTrackCandidate> lhs, std::shared_ptr<E16ANA_YTrackCandidate> rhs){return (lhs->chi2 < rhs->chi2);}
     struct CompareTrackFunctor
-    :public std::binary_function<E16ANA_YTrackCandidate, E16ANA_YTrackCandidate, bool>
+    :public std::binary_function<std::shared_ptr<E16ANA_YTrackCandidate>, std::shared_ptr<E16ANA_YTrackCandidate>, bool>
     {
-        bool operator()( E16ANA_YTrackCandidate lhs, E16ANA_YTrackCandidate rhs)
+        bool operator()( std::shared_ptr<E16ANA_YTrackCandidate> lhs, std::shared_ptr<E16ANA_YTrackCandidate> rhs)
         {
-            return (lhs.chi2 < rhs.chi2);
+            return (lhs->chi2 < rhs->chi2);
         }
     };
 	E16DST_DST1GTRCluster *GetYCluster100(){
