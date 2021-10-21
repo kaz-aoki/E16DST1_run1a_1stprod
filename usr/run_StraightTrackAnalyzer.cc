@@ -102,13 +102,15 @@ int main(int argc, char* argv[]) {
   Double_t chi2_x;
   Double_t chi2_y;
   Double_t tgt_z;
-  Double_t tgtpos_y;
+//  Double_t tgtpos_y;
   Double_t fit_a_x;
   Double_t fit_b_x;
   Double_t fit_a_y;
   Double_t fit_b_y;
   Double_t distance_x;
-  Double_t distance_y;	
+//  Double_t distance_y;	
+  Double_t distance_fromupwire_y;	
+  Double_t distance_fromdownwire_y;	
   Double_t fit_g100x;
   Double_t fit_g100y;
   Double_t fit_g100z;
@@ -185,13 +187,15 @@ int main(int argc, char* argv[]) {
   tree->Branch("chi2_x", &chi2_x, "chi2_x/D");
   tree->Branch("chi2_y", &chi2_y, "chi2_y/D");
   tree->Branch("tgt_z", &tgt_z, "tgt_z/D");
-  tree->Branch("tgtpos_y", &tgtpos_y, "tgtpos_y/D");
+//  tree->Branch("tgtpos_y", &tgtpos_y, "tgtpos_y/D");
   tree->Branch("fit_a_x", &fit_a_x, "fit_a_x/D");
   tree->Branch("fit_b_x", &fit_b_x, "fit_b_x/D");
   tree->Branch("fit_a_y", &fit_a_y, "fit_a_y/D");
   tree->Branch("fit_b_y", &fit_b_y, "fit_b_y/D");
   tree->Branch("distance_x", &distance_x, "distance_x/D");
-  tree->Branch("distance_y", &distance_y, "distance_y/D");
+//  tree->Branch("distance_y", &distance_y, "distance_y/D");
+  tree->Branch("distance_fromupwire_y", &distance_fromupwire_y, "distance_fromupwire_y/D");
+  tree->Branch("distance_fromdownwire_y", &distance_fromdownwire_y, "distance_fromdownwire_y/D");
   tree->Branch("fit_g100x", &fit_g100x, "fit_g100x/D");
   tree->Branch("fit_g100y", &fit_g100y, "fit_g100y/D");
   tree->Branch("fit_g100z", &fit_g100z, "fit_g100z/D");
@@ -290,13 +294,15 @@ int main(int argc, char* argv[]) {
 		chi2_x = t->Chi2X();
 		chi2_y = t->Chi2Y();
 		tgt_z  = t->TgtPosZ();
-		tgtpos_y = t->TgtPosY();
+//		tgtpos_y = t->TgtPosY();
 	    fit_a_x = t->FitAX();
 	    fit_b_x = t->FitBX();
 	    fit_a_y = t->FitAY();
 	    fit_b_y = t->FitBY();
 		distance_x = t->DistanceFromTgtXZ();
-		distance_y = t->DistanceFromTgtYR();
+//		distance_y = t->DistanceFromTgtYR();
+		distance_fromupwire_y   = t->DistanceFromUpWireYR();
+		distance_fromdownwire_y = t->DistanceFromDownWireYR();
 		residual_ssdx = t->ResidualSSD();
 //		residual_100x = t->Residual100();
 //		residual_200x = t->Residual200();
@@ -311,9 +317,6 @@ int main(int argc, char* argv[]) {
 		fitresidual_100y = t->FitResidual100Y();
 		fitresidual_200y = t->FitResidual200Y();
 		fitresidual_300y = t->FitResidual300Y();
-
-
-
 		fit_g100x = t->FitPtOnGTR100().X();
 		fit_g100y = t->FitPtOnGTR100().Y();
 		fit_g100z = t->FitPtOnGTR100().Z();
