@@ -49,11 +49,79 @@ bool E16ANA_TrackCandidate::CalcRoughMomentum() {
   return true;
 }
 
+bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
+  int n=5;
+  double x[5],y[5];
+  double By = 1.3; 
+  x[0] = 0;
+  y[0] = init_pos.Z();
+  double the;
+  for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+    auto& c = cluster_pairs[l];
+    x[l+1] = c.GlobalPos().X();
+    y[l+1] = c.GlobalPos().Z();
+    if(l==E16ANA_TrackConstant::kNumTrackingLayers-1){
+      double fr = sqrt(x[l+1]*x[l+1]+(y[l+1]-y[0])*(y[l+1]-y[0]));
+      the      = c.GlobalPos().Y()/fr;
+    }
+  }
+  double  sx=0., sy=0., mxx=0., myy=0., mxy=0., mxz=0., myz=0., mzz=0.;
+  double  xa, ya, xi, yi, zi, mz, cov_xy, var_z, a3, a2, a1, a0, a22, a33;
+  double  xn, yn, dyn, xnnew, ynnew, det, xc, yc, serr=0., dum;
+  int itmax=99;
+  for (int i=0; i<n; i++){
+    sx += x[i];   sy += y[i];
+  }
+  xa = sx/n;   ya = sy/n;
+  for (int i=0; i<n; i++){
+    xi = x[i] - xa;   yi = y[i] - ya;
+    zi = xi*xi + yi*yi;
+    mxx += xi*xi;   myy += yi*yi;   mxy += xi*yi;
+    mxz += xi*zi;   myz += yi*zi;   mzz += zi*zi;
+  }
+  mxx /= n;  myy /= n;  mxy /= n;  mxz /= n;  myz /= n;  mzz /= n;
+  mz = mxx + myy;   cov_xy = mxx*myy - mxy*mxy;
+  var_z = mzz - mz*mz;
+  a3 = 4.*mz;   a2 = -3.*mz*mz - mzz;
+  a1 = var_z*mz + 4.*cov_xy*mz - mxz*mxz - myz*myz;
+  a0 = mxz*(mxz*myy - myz*mxy) + myz*(myz*mxx - mxz*mxy) - var_z*cov_xy;
+  a22 = a2 + a2;   
+  a33 = a3 + a3 + a3;
+  xn=0.;yn=a0;
+  for (int i=0; i<itmax; i++){
+    dyn = a1 + xn*(a22 + a33*xn);
+    xnnew = xn - yn/dyn;
+    if ((xnnew==xn) || (!isfinite(xnnew))) break;
+    ynnew = a0 + xnnew*(a1 + xnnew*(a2 + xnnew*a3));
+    if (fabs(ynnew) >= fabs(yn)) break;
+    xn = xnnew;   yn = ynnew;
+    if(i==itmax-1) std::cout<<"Iteration exceeded itmax!" <<std::endl;
+  }
+  det = xn*xn - xn*mz + cov_xy;
+  xc = (mxz*(myy - xn) - myz*mxy)/det/2.;
+  yc = (myz*(mxx - xn) - mxz*mxy)/det/2.;
+  double x0 = xc + xa;   
+  double y0 = yc + ya;
+  double r = sqrt(xc*xc + yc*yc + mz);
+
+  double p    = 0.3 * (r / 1000.) * By;
+  double sin0  = x0/r;
+  double cos0  = -(y0-y[0])/r;
+  if((cos0*x[1]+sin0*(y[1]-y[0]))<0){
+    sin0 = -sin0;
+    cos0 = -cos0;
+  }
+  double py = p * the;
+  init_mom.SetXYZ(p*cos0, py, p*sin0);
+  return true;
+}
+
 void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   for (auto& fit_result : fit_results) {
     fit_result.set_flag = 0;
   }
-  if (!CalcRoughMomentum()) {
+//  if (!CalcRoughMomentum()) {
+  if (!CalcRoughMomentumV2()) {
     std::cerr << "Cannot calculate rough momentum" << std::endl;
   }
   int tid = 0; // only 1 track is fitted by the fitter
@@ -697,7 +765,8 @@ void E16ANA_TrackCandidates::SortTracks() {
     }
     bool is_near_target = false;
     for (auto& pos : cand.PosAtTargets()) {
-      if (pos.Mag() < kNearTargetThreshold) {
+      double mag2 = pos.X() * pos.X() + pos.Y() * pos.Y();
+      if (mag2 < kNearTargetThreshold) {
         is_near_target = true;
         break;
       }
@@ -768,6 +837,32 @@ void E16ANA_TrackCandidates::ProjectionTarget() {
   return;
 }
 
+void E16ANA_TrackCandidates::ProjectionX0() {
+  Hep3Vector cross_pos;
+  Hep3Vector cross_mom;
+  for (auto& cand : track_candidates) {
+    TVector3 pos = E16DST_DST1Constant::kInvalidVector;
+    TVector3 mom = E16DST_DST1Constant::kInvalidVector;
+    if (cand.ChiSquare() > 1.0e9) {
+      cand.SetPosAtX0(pos);
+      cand.SetMomAtX0(mom);
+      continue;
+    }
+    auto t_init_pos = cand.FitInitPos();
+    auto t_init_mom = cand.FitInitMom();
+    Hep3Vector init_pos(t_init_pos(0) * 0.1, t_init_pos(1) * 0.1, t_init_pos(2) * 0.1);
+    Hep3Vector init_mom(t_init_mom(0),       t_init_mom(1),       t_init_mom(2));
+    E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, cand.Charge(), kStepTrackStepSizeCm, kStepTrackArraySize);
+    if (step_track.CrossXconstPlane(0., cross_pos, cross_mom) != -1) {
+      pos.SetXYZ(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
+      mom.SetXYZ(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
+    }
+    cand.SetPosAtX0(pos);
+    cand.SetMomAtX0(mom);
+  }
+  return;
+}
+
 double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
   auto& cand_minus = track_pair->cand_minus;
   auto& cand_plus  = track_pair->cand_plus;
@@ -787,7 +882,7 @@ double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
   Hep3Vector mom1;
   auto flag = step_track0.Cross(step_track1, &distance, &cross_point, &mom0, &mom1);
   track_pair->vtx = {cross_point.x() * 10., cross_point.y() * 10., cross_point.z() * 10.};
-  track_pair->distance = distance;
+  track_pair->distance = distance * 10.;
   track_pair->mom_minus = {mom0.x(), mom0.y(), mom0.z()};
   track_pair->mom_plus  = {mom1.x(), mom1.y(), mom1.z()};
   return distance * 10.;
@@ -895,6 +990,7 @@ void E16ANA_TrackCandidates::Analyze() {
 E16INFO("number of track candidate: %d", track_candidates.size());
   Fit();
   ProjectionTarget();
+  ProjectionX0();
   SearchHBDAndLGHits();
   SortTracks();
   MakeTrackPairs();
