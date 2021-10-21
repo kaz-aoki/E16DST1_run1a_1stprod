@@ -116,6 +116,9 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
   return true;
 }
 
+//bool E16ANA_TrackCandidate::CalcRoughMomentumV3() {
+//}
+
 void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   for (auto& fit_result : fit_results) {
     fit_result.set_flag = 0;
@@ -126,7 +129,8 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   }
   int tid = 0; // only 1 track is fitted by the fitter
   single_track->Clear();
-  single_track->SetInitialVertex(init_pos, kInitPosError);
+//  single_track->SetInitialVertex(init_pos, kInitPosError);
+  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
@@ -535,17 +539,18 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   }
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPos(*geometry);
-                  bool is_cand = false;
+//                  bool is_cand = false;
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id= tgt_index;
                     if (IsXTrackCandidate(cluster_set)) {
-                      is_cand = true;
-                      break;
+//                      is_cand = true;
+//                      break;
+                      cluster_sets[0].emplace_back(*cluster_set);
                     }
                   }
-                  if (is_cand) {
-                    cluster_sets[0].emplace_back(*cluster_set);
-                  }
+//                  if (is_cand) {
+//                    cluster_sets[0].emplace_back(*cluster_set);
+//                  }
                 }
               }
             }

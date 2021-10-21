@@ -218,8 +218,8 @@ class E16ANA_TrackCandidate {
   // parameter
   static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
-//  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
-  static inline const TVector3 kInitPosError = {5., 5., 0.};
+  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
+//  static inline const TVector3 kInitPosError = {5., 5., 0.};
 //  static constexpr int kTrackingMaxSteps = 300;
   static constexpr int kTrackingMaxSteps = 400;
 //  static constexpr int kTrackingMaxSteps = 600;
@@ -335,7 +335,7 @@ class E16ANA_TrackCandidates {
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter),
-        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false), record(_record) {
+        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -441,8 +441,8 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
 //  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
-//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
-  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
+  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
+//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
   static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
   static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
