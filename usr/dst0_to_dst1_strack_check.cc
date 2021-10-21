@@ -104,9 +104,9 @@ int main(int argc, char* argv[]) {
   float chi2x;
   float chi2y;
   float tgtz;
-  float tgty;
+  //  float tgty;
   float distzx;
-  float distyr;
+  //  float distyr;
   float res0;
   float res1;
   float res2;
@@ -193,9 +193,9 @@ int main(int argc, char* argv[]) {
   tree->Branch("chi2x",&chi2x,"chi2x/F");
   tree->Branch("chi2y",&chi2y,"chi2y/F");
   tree->Branch("tgtz",&tgtz,"tgtz/F");
-  tree->Branch("tgty",&tgty,"tgty/F");
+  //  tree->Branch("tgty",&tgty,"tgty/F");
   tree->Branch("distzx",&distzx,"distzx/F");
-  tree->Branch("distyr",&distyr,"distyr/F");
+  //  tree->Branch("distyr",&distyr,"distyr/F");
   tree->Branch("res0",&res0,"res0/F");
   tree->Branch("res1",&res1,"res1/F");
   tree->Branch("res2",&res2,"res2/F");
@@ -367,9 +367,9 @@ int main(int argc, char* argv[]) {
 	chi2x=-10000;
 	chi2y=-10000;
 	tgtz=-10000;
-	tgty=-10000;
+	//	tgty=-10000;
 	distzx=-10000;
-	distyr=-10000;
+	//	distyr=-10000;
 	res0=-10000;
 	res1=-10000;
 	res2=-10000;
@@ -452,9 +452,9 @@ int main(int argc, char* argv[]) {
 	chi2x = st_track->Chi2X();
 	chi2y = st_track->Chi2Y();
 	tgtz = st_track->TgtPosZ();
-	tgty = st_track->TgtPosY();
+	//	tgty = st_track->TgtPosY();
 	distzx = st_track->DistanceFromTgtXZ();
-	distyr = st_track->DistanceFromTgtYR();
+	//	distyr = st_track->DistanceFromTgtYR();
 	res0 = st_track->ResidualSSD();
 	res1 = st_track->FitResidual100X();
 	res2 = st_track->FitResidual200X();
@@ -667,7 +667,7 @@ int main(int argc, char* argv[]) {
 
 	//residual at LG plane
 	modulelg = ModuleID_2013to2020_27(mid[index]);
-	std::cout<<"compare mod: "<<module<<" "<<modulelg<<" "<<block<<std::endl;
+	//std::cout<<"compare mod: "<<module<<" "<<modulelg<<" "<<block<<std::endl;
 	auto& lg_hits1 = record->LG().HitPtrs(modulelg,0,0);
 	auto& lg_clusters1 = record->LG().ClusterPtrs(modulelg,0,0);
 	lg_nhs = lg_hits1.size();
@@ -724,7 +724,7 @@ int main(int argc, char* argv[]) {
 	}//lg cluster bool
 
 	//std::cout<<lgcptx<<" "<<lgcpty<<std::endl;
-	std::cout<<"******************************"<<std::endl;
+	//std::cout<<"******************************"<<std::endl;
 
 
       tree->Fill();
