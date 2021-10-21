@@ -1142,125 +1142,6 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
     double timing_y0, timing_y1, timing_y2, timing_x0, timing_x1, timing_x2;
     int index = 0;
     double time_diff;
-	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator  itery = y_trk_cands.begin();
-	//std::vector<E16ANA_YTrackCandidate>::const_iterator iter = y_trk_cand.begin();
-	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iterx = xz_trk_cands.begin();
-//	std::cout << "Before (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
-	//-- x delete 
-	int cnt = 0;
-	while(iterx != xz_trk_cands.end()){
-		bool hasTimingMatch = 0;
-        timing_x0 = (*iterx)->GetXCluster100()->Timing();
-        timing_x1 = (*iterx)->GetXCluster200()->Timing();
-        timing_x2 = (*iterx)->GetXCluster300()->Timing();
-		while(itery != y_trk_cands.end()){
-        	timing_y0 = (*itery)->GetYCluster100()->Timing();
-    	    timing_y1 = (*itery)->GetYCluster200()->Timing();
-	        timing_y2 = (*itery)->GetYCluster300()->Timing();
-//			std::cout << "cnt " << cnt << std::endl;
-//			std::cout << "x0 " << timing_x0 << ", x1 " << timing_x1 << ". x2 " << timing_x2 << std::endl;
-//			std::cout << "y0 " << timing_y0 << ", y1 " << timing_y1 << ", y2 " << timing_y2 << std::endl; 
-    		if(fabs(timing_x0 - timing_y0)<25 &&fabs(timing_x1 - timing_y1)<40 && fabs(timing_x2 - timing_y2)<40){
-//				std::cout << "timing matched !"  << std::endl;
-				hasTimingMatch = 1;
-			}
-			++itery;
-		}
-		itery = y_trk_cands.begin();
-		cnt++;
-		if(hasTimingMatch == true){
-			++iterx;
-		}
-		else {
-			iterx = xz_trk_cands.erase(iterx);	
-		}
-	}
-//	std::cout << "AFter x timing  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
-
-	//--y delete 
-	while(itery != y_trk_cands.end()){
-		bool hasTimingMatch = 0;
-       	timing_y0 = (*itery)->GetYCluster100()->Timing();
-   	    timing_y1 = (*itery)->GetYCluster200()->Timing();
-	    timing_y2 = (*itery)->GetYCluster300()->Timing();
-		while(iterx != xz_trk_cands.end()){
-        	timing_x0 = (*iterx)->GetXCluster100()->Timing();
-	        timing_x1 = (*iterx)->GetXCluster200()->Timing();
-    	    timing_x2 = (*iterx)->GetXCluster300()->Timing();
-			 if(fabs(timing_x0 - timing_y0)<25 &&  fabs(timing_x1 - timing_y1)<40 && fabs(timing_x2 - timing_y2)<40){
-//				std::cout << "timing matched !"  << std::endl;
-				hasTimingMatch = 1;
-			}
-			++iterx;
-		}
-		iterx = xz_trk_cands.begin();
-		if(hasTimingMatch == true){
-			++itery;
-		}
-		else {
-			itery = y_trk_cands.erase(itery);	
-		}
-	}
-//	std::cout << "After y timing  (x size, ysize) : " << xz_trk_cands.size() << ": " <<y_trk_cands.size() << std::endl;
-	//--cut duplicated hits
-    //sort by chi2, and if the hits are overlaped, the track are deleted 
-
-	int max = 1000;
-	#define lengthof(x)(sizeof(x) / sizeof(*(x)))
-	bool i_table[10][max] = {{}};
-	bool j_table[10][max] = {{}};
-	bool k_table[10][max] = {{}};
-	std::fill((bool*)i_table, (bool*)(i_table + lengthof(i_table)), 0);
-	std::fill((bool*)j_table, (bool*)(j_table + lengthof(j_table)), 0);
-	std::fill((bool*)k_table, (bool*)(k_table + lengthof(k_table)), 0);
-//	std::fill_n(i_table[10], i_table[10], 0);
-//	std::fill_n(j_table[10], j_table[10], 0);
-//	std::fill_n(k_table[10], k_table[10], 0);
-    std::sort(xz_trk_cands.begin(), xz_trk_cands.end(), E16ANA_XZTrackCandidate::CompareTrackFunctor());
-	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iter = xz_trk_cands.begin();
-    while(iter != xz_trk_cands.end()){
-		int m = (*iter)->ModuleID()-100;
-		if( i_table[m][(*iter)->ID100Hit()] == 0 && j_table[m][(*iter)->ID200Hit()] == 0 && k_table[m][(*iter)->ID300Hit()] == 0 ){
-            i_table[m][(*iter)->ID100Hit()] = 1;
-			j_table[m][(*iter)->ID200Hit()] = 1; 
-			k_table[m][(*iter)->ID300Hit()] = 1; 
-            ++iter;
-        }
-        else{
-            iter = xz_trk_cands.erase(iter);
-
-  //          std::cout << "a duplicated track X is erased !" << std::endl;
-        }
-    }
-
-//---- for Y
-//	int max = 10000;
-	bool iy_table[10][max] = {{}};
-	bool jy_table[10][max] = {{}};
-	bool ky_table[10][max] = {{}};
-	std::fill((bool*)iy_table, (bool*)(iy_table + lengthof(iy_table)), 0);
-	std::fill((bool*)jy_table, (bool*)(jy_table + lengthof(jy_table)), 0);
-	std::fill((bool*)ky_table, (bool*)(ky_table + lengthof(ky_table)), 0);
-//	std::fill_n(i_table[10], i_table[10], 0);
-//	std::fill_n(j_table[10], j_table[10], 0);
-//	std::fill_n(k_table[10], k_table[10], 0);
-    std::sort(y_trk_cands.begin(), y_trk_cands.end(), E16ANA_YTrackCandidate::CompareTrackFunctor());
-	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator iter2 = y_trk_cands.begin();
-    while(iter2 != y_trk_cands.end()){
-		int m = (*iter2)->ModuleID()-100;
-		if( iy_table[m][(*iter2)->ID100Hit()] == 0 && jy_table[m][(*iter2)->ID200Hit()] == 0 && ky_table[m][(*iter2)->ID300Hit()] == 0 ){
-            iy_table[m][(*iter2)->ID100Hit()] = 1;
-			jy_table[m][(*iter2)->ID200Hit()] = 1; 
-			ky_table[m][(*iter2)->ID300Hit()] = 1; 
-            ++iter2;
-        }
-        else{
-            iter2 = y_trk_cands.erase(iter2);
- //           std::cout << "a duplicated track Y is erased !" << std::endl;
-        }
-    }
-	//std::cout << "After After  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
-
     for(int i = 0; i<y_trk_cands.size(); i++){
         std::shared_ptr<E16ANA_YTrackCandidate> y_track = y_trk_cands[i];
         timing_y0 = y_track->GetYCluster100()->Timing();
@@ -1271,7 +1152,7 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
             timing_x0 = xz_track->GetXCluster100()->Timing();
             timing_x1 = xz_track->GetXCluster200()->Timing();
             timing_x2 = xz_track->GetXCluster300()->Timing();
-
+	    if(fabs(y_track->TgtPos() - xz_track->TgtZ()) > 10 ) continue; //matching which wire
             if(fabs(timing_x0 - timing_y0)<25 &&  fabs(timing_x1 - timing_y1)<40 && fabs(timing_x2 - timing_y2)<40){
                     std::shared_ptr<E16ANA_XYZStraightTrack> trk = std::make_shared<E16ANA_XYZStraightTrack>();
                     trk->SetXZTrack(xz_track);
@@ -1290,11 +1171,8 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
                     index++;
             }
         }
+
     }
-	
-
-
-
 ///	bool xz_table[xyz_st_trk.size()] = {};
 //	bool yr_table[xyz_st_trk.size()] = {};
 ///	std::fill_n(xz_table, xyz_st_trk.size(), 0);
@@ -1781,24 +1659,23 @@ double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, do
 	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
 	double r300  = sqrt(r300_2);
     double zpos_x600mm = b*r300 + a;
-
-    TVector2 ref_pt0(zpos_x200mm, r100);
-    TVector2 ref_pt1(zpos_x600mm, r300);
-	TVector2 ref_pt2(b*3000 + a, 3000);
-	double rphi = phi - 1.570796;
+	
+    /*
+    TVector2 ref_pt0(r100, zpos_x200mm);
+    TVector2 ref_pt1(r300, zpos_x600mm);
+	TVector2 ref_pt2(3000, b*3000 + a);
+    TVector2 pt0 = ref_pt0.Rotate(phi);
+    TVector2 pt1 = ref_pt1.Rotate(phi);
+	TVector2 pt2 = ref_pt2.Rotate(phi);
+    */
+    TVector2 ref_pt0(zpos_x200mm,r100);
+    TVector2 ref_pt1(zpos_x600mm,r300);
+    TVector2 ref_pt2(b*3000 + a,3000);
+    double rphi = phi - 1.570796;
     TVector2 pt0 = ref_pt0.Rotate(rphi);
     TVector2 pt1 = ref_pt1.Rotate(rphi);
-	TVector2 pt2 = ref_pt2.Rotate(rphi);
+    TVector2 pt2 = ref_pt2.Rotate(rphi);
 
-
-	
-	
-//    TVector2 ref_pt0(r100, zpos_x200mm);
-//  TVector2 ref_pt1(r300, zpos_x600mm);
-//	TVector2 ref_pt2(3000, b*3000 + a);
-//    TVector2 pt0 = ref_pt0.Rotate(phi);
-//    TVector2 pt1 = ref_pt1.Rotate(phi);
-//	TVector2 pt2 = ref_pt2.Rotate(phi);
 
  //   trk->SetPt0OnTrack(TVector2(1,1));
 //    trk->SetPt1OnTrack(pt1);

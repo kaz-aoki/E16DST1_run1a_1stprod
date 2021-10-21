@@ -93,6 +93,7 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
 		
 		trk->SetModuleID(tx->ModuleID());
+		trk->SetModuleID(tx->ModuleID());
 		trk->SetXTrackID(t->XTrackID());
 		trk->SetYTrackID(t->YTrackID());
 		trk->SetChi2X(tx->Chi2());
@@ -105,8 +106,8 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 	    trk->SetFitBY(ty->GetFitB());
 		trk->SetDistanceFromTgtXZ(tx->Distance());
 		trk->SetDistanceFromTgtYR(ty->Distance());
-		trk->SetResidualSSD(tx->ResidualSSD());    // NOT participate in fit 
-		trk->SetFitResidual100X(tx->Residual100());// participate in fit
+		trk->SetResidualSSD(tx->ResidualSSD());
+		trk->SetFitResidual100X(tx->Residual100());
 		trk->SetFitResidual200X(tx->Residual200());
 		trk->SetFitResidual300X(tx->Residual300());
 		trk->SetFitResidual100Y(ty->Residual100());
