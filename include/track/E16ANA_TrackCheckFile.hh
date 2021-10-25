@@ -269,12 +269,22 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx);
     tree->Branch("rk_pair_minus_mom_gy", &rk_pair_minus_mom_gy);
     tree->Branch("rk_pair_minus_mom_gz", &rk_pair_minus_mom_gz);
+    tree->Branch("rk_pair_minus_ssd_t", &rk_pair_minus_ssd_t);
+    tree->Branch("rk_pair_minus_lg0_t", &rk_pair_minus_lg0_t);
+    tree->Branch("rk_pair_minus_lg1_t", &rk_pair_minus_lg1_t);
+    tree->Branch("rk_pair_minus_lg2_t", &rk_pair_minus_lg2_t);
+    tree->Branch("rk_pair_minus_lg3_t", &rk_pair_minus_lg3_t);
     tree->Branch("rk_pair_plus_track_id", &rk_pair_plus_track_id);
     tree->Branch("rk_pair_plus_gtr300_mid", &rk_pair_plus_gtr300_mid);
     tree->Branch("rk_pair_plus_chi_square", &rk_pair_plus_chi_square);
     tree->Branch("rk_pair_plus_mom_gx", &rk_pair_plus_mom_gx);
     tree->Branch("rk_pair_plus_mom_gy", &rk_pair_plus_mom_gy);
     tree->Branch("rk_pair_plus_mom_gz", &rk_pair_plus_mom_gz);
+    tree->Branch("rk_pair_plus_ssd_t", &rk_pair_plus_ssd_t);
+    tree->Branch("rk_pair_plus_lg0_t", &rk_pair_plus_lg0_t);
+    tree->Branch("rk_pair_plus_lg1_t", &rk_pair_plus_lg1_t);
+    tree->Branch("rk_pair_plus_lg2_t", &rk_pair_plus_lg2_t);
+    tree->Branch("rk_pair_plus_lg3_t", &rk_pair_plus_lg3_t);
     tree->Branch("rk_pair_distance", &rk_pair_distance);
     tree->Branch("rk_vtx_gx", &rk_vtx_gx);
     tree->Branch("rk_vtx_gy", &rk_vtx_gy);
@@ -647,12 +657,22 @@ class E16ANA_TrackCheckFile {
     rk_pair_minus_mom_gx.resize(n_pairs);
     rk_pair_minus_mom_gy.resize(n_pairs);
     rk_pair_minus_mom_gz.resize(n_pairs);
+    rk_pair_minus_ssd_t.resize(n_pairs);
+    rk_pair_minus_lg0_t.resize(n_pairs);
+    rk_pair_minus_lg1_t.resize(n_pairs);
+    rk_pair_minus_lg2_t.resize(n_pairs);
+    rk_pair_minus_lg3_t.resize(n_pairs);
     rk_pair_plus_track_id.resize(n_pairs);
     rk_pair_plus_gtr300_mid.resize(n_pairs);
     rk_pair_plus_chi_square.resize(n_pairs);
     rk_pair_plus_mom_gx.resize(n_pairs);
     rk_pair_plus_mom_gy.resize(n_pairs);
     rk_pair_plus_mom_gz.resize(n_pairs);
+    rk_pair_plus_ssd_t.resize(n_pairs);
+    rk_pair_plus_lg0_t.resize(n_pairs);
+    rk_pair_plus_lg1_t.resize(n_pairs);
+    rk_pair_plus_lg2_t.resize(n_pairs);
+    rk_pair_plus_lg3_t.resize(n_pairs);
     rk_pair_distance.resize(n_pairs);
     rk_vtx_gx.resize(n_pairs);
     rk_vtx_gy.resize(n_pairs);
@@ -931,6 +951,26 @@ class E16ANA_TrackCheckFile {
       rk_pair_minus_mom_gx[i] = mgpos(0);
       rk_pair_minus_mom_gy[i] = mgpos(1);
       rk_pair_minus_mom_gz[i] = mgpos(2);
+      auto ssd_minus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
+      rk_pair_minus_ssd_t[i] = ssd_minus->Timing();
+      auto& lg_hits_minus = pair.cand_minus->ProjectedLGHits();
+      auto n_lg_hits_minus = lg_hits_minus.size();
+      rk_pair_minus_lg0_t[i] = -10000;
+      rk_pair_minus_lg1_t[i] = -10000;
+      rk_pair_minus_lg2_t[i] = -10000;
+      rk_pair_minus_lg3_t[i] = -10000;
+      if (n_lg_hits_minus > 0) {
+        rk_pair_minus_lg0_t[i] = lg_hits_minus[0]->Timing();
+      }
+      if (n_lg_hits_minus > 1) {
+        rk_pair_minus_lg1_t[i] = lg_hits_minus[1]->Timing();
+      }
+      if (n_lg_hits_minus > 2) {
+        rk_pair_minus_lg2_t[i] = lg_hits_minus[2]->Timing();
+      }
+      if (n_lg_hits_minus > 3) {
+        rk_pair_minus_lg3_t[i] = lg_hits_minus[3]->Timing();
+      }
       auto pgpos = pair.mom_plus;
       rk_pair_plus_mom_gx[i] = pgpos(0);
       rk_pair_plus_mom_gy[i] = pgpos(1);
@@ -939,6 +979,26 @@ class E16ANA_TrackCheckFile {
       rk_vtx_gx[i] = pair_vtx.X();
       rk_vtx_gy[i] = pair_vtx.Y();
       rk_vtx_gz[i] = pair_vtx.Z();
+      auto ssd_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+      rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
+      auto& lg_hits_plus = pair.cand_plus->ProjectedLGHits();
+      auto n_lg_hits_plus = lg_hits_plus.size();
+      rk_pair_plus_lg0_t[i] = -10000;
+      rk_pair_plus_lg1_t[i] = -10000;
+      rk_pair_plus_lg2_t[i] = -10000;
+      rk_pair_plus_lg3_t[i] = -10000;
+      if (n_lg_hits_plus > 0) {
+        rk_pair_plus_lg0_t[i] = lg_hits_plus[0]->Timing();
+      }
+      if (n_lg_hits_plus > 1) {
+        rk_pair_plus_lg1_t[i] = lg_hits_plus[1]->Timing();
+      }
+      if (n_lg_hits_plus > 2) {
+        rk_pair_plus_lg2_t[i] = lg_hits_plus[2]->Timing();
+      }
+      if (n_lg_hits_plus > 3) {
+        rk_pair_plus_lg3_t[i] = lg_hits_plus[3]->Timing();
+      }
     }
   }
   TFile file;
@@ -1195,12 +1255,22 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_pair_minus_mom_gx;
   std::vector<double> rk_pair_minus_mom_gy;
   std::vector<double> rk_pair_minus_mom_gz;
+  std::vector<double> rk_pair_minus_ssd_t;
+  std::vector<double> rk_pair_minus_lg0_t;
+  std::vector<double> rk_pair_minus_lg1_t;
+  std::vector<double> rk_pair_minus_lg2_t;
+  std::vector<double> rk_pair_minus_lg3_t;
   std::vector<int> rk_pair_plus_track_id;
   std::vector<int> rk_pair_plus_gtr300_mid;
   std::vector<double> rk_pair_plus_chi_square;
   std::vector<double> rk_pair_plus_mom_gx;
   std::vector<double> rk_pair_plus_mom_gy;
   std::vector<double> rk_pair_plus_mom_gz;
+  std::vector<double> rk_pair_plus_ssd_t;
+  std::vector<double> rk_pair_plus_lg0_t;
+  std::vector<double> rk_pair_plus_lg1_t;
+  std::vector<double> rk_pair_plus_lg2_t;
+  std::vector<double> rk_pair_plus_lg3_t;
   std::vector<double> rk_pair_distance;
   std::vector<double> rk_vtx_gx;
   std::vector<double> rk_vtx_gy;

@@ -12,6 +12,7 @@ const double E16ANA_MultiTrack::chisq_sigma_min = 1.0e-4; // 0.1 um
 E16ANA_MultiTrack::E16ANA_MultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_GeometryV2 *_goem, int _n_tracks) : 
    bfield_map(_bfield_map), geom(_goem), n_tracks(_n_tracks),
    rungekutta_step_size(1.0), // 1.0 mm
+//   rungekutta_step_size(5.0), // 1.0 mm
    print_level(-1),
    momentum_step_size(0.001),
    vertex_sigma(1.0, 1.0, 0.0)
