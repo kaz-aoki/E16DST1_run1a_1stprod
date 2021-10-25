@@ -277,8 +277,9 @@ double E16ANA_TrackCandidate::Fit(E16ANA_MultiTrack* fitter, bool vertex_xy_fix_
   fitter->Clear();
 //  fitter->SetPrintLevel(kRKPrintLevel);
   this->AddTrackHit(fitter);
+  fitter->SetRungeKuttaStepSize(kTrackingStepSize);
   fitter->SetMaxSteps(kTrackingMaxSteps);
-  chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag);
+  chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
   UpdateFitResult(fitter);
 //E16INFO("vtx (set): (%lf, %lf, %lf)", vtx.X(), vtx.Y(), vtx.Z());
 //E16INFO("vtx (fit): (%lf, %lf, %lf)", vtx_fit.X(), vtx_fit.Y(), vtx_fit.Z());
@@ -510,6 +511,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
           }
           auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
           for (const auto& ssd_cluster : ssd_cluster_ptrs) {
+            if (fabs(ssd_cluster->Timing() - kSSDTimeMean) > kSSDTimeWidth) {
+              continue;
+            }
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
@@ -893,33 +897,104 @@ double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
   return distance * 10.;
 }
 
-void E16ANA_TrackCandidates::SelectTrackPairs() {
-  selected_track_pairs.clear();
-  std::vector<E16ANA_TrackCandidate*> used_minus_cands;
-  std::vector<E16ANA_TrackCandidate*> used_plus_cands;
-  for (auto& pair : track_pairs) {
-    bool is_used = false;
-    for (auto& used_cand : used_minus_cands) {
-      if (used_cand == pair.cand_minus) {
-        is_used = true;
-        break;
+//void E16ANA_TrackCandidates::SelectTrackPairs() {
+//  selected_track_pairs.clear();
+//  std::vector<E16ANA_TrackCandidate*> used_minus_cands;
+//  std::vector<E16ANA_TrackCandidate*> used_plus_cands;
+//  for (auto& pair : track_pairs) {
+//    bool is_used = false;
+//    for (auto& used_cand : used_minus_cands) {
+//      if (used_cand == pair.cand_minus) {
+//        is_used = true;
+//        break;
+//      }
+//    }
+//    if (!is_used) {
+//      for (auto& used_cand : used_plus_cands) {
+//        if (used_cand == pair.cand_plus) {
+//          is_used = true;
+//          break;
+//        }
+//      }
+//    }
+//    if (is_used) {
+//      continue;
+//    }
+//    selected_track_pairs.emplace_back(&pair);
+//    used_minus_cands.emplace_back(pair.cand_minus);
+//    used_plus_cands.emplace_back(pair.cand_plus);
+//  }
+//  return;
+//}
+
+void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair) {
+  fitter->Clear();
+  std::array<E16ANA_TrackCandidate*, 2> cands = {track_pair->cand_minus, track_pair->cand_plus};
+  fitter->SetInitialVertex(track_pair->vtx, kVertexSigma);
+  fitter->SetInitialMomentum(0, track_pair->mom_minus);
+  fitter->SetCharge(0, -1.);
+  fitter->SetInitialMomentum(1, track_pair->mom_plus);
+  fitter->SetCharge(1, 1.);
+  for (int track_index = 0; track_index < cands.size(); ++track_index) {
+    for (int layer_index = 0; layer_index < E16ANA_TrackConstant::kNumTrackingLayers; ++layer_index) {
+      auto& fit_result = cands[track_index]->LocalFitResult(layer_index);
+      if (layer_index == E16ANA_TrackConstant::kSSD) {
+        fitter->AddHit(track_index, layer_index, geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id)), fit_result.local_pos, kSigmas[layer_index]);
+      } else {
+        fitter->AddHit(track_index, layer_index, geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id), layer_index - 1), fit_result.local_pos, kSigmas[layer_index]);
       }
     }
-    if (!is_used) {
-      for (auto& used_cand : used_plus_cands) {
-        if (used_cand == pair.cand_plus) {
-          is_used = true;
-          break;
+  }
+  return;
+}
+
+void E16ANA_TrackCandidates::UpdateFitResult(TrackPair* track_pair) {
+  track_pair->vtx_refit = fitter->GetFitVertex();
+  track_pair->mom_minus_refit = fitter->GetFitMomentum(0);
+  track_pair->mom_plus_refit = fitter->GetFitMomentum(1);
+  for (int track_index = 0; track_index < 2; ++track_index) {
+    for (int layer_index = 0; layer_index < E16ANA_TrackConstant::kNumTrackingLayers; ++layer_index) {
+      std::vector<int> mid;
+      std::vector<TVector3> lpos;
+      std::vector<TVector3> lmom;
+      std::vector<TVector3> lres;
+      fitter->GetFitLPos(track_index, layer_index, mid, lpos);
+      fitter->GetFitLMom(track_index, layer_index, mid, lmom);
+      fitter->GetFitResidual(track_index, layer_index, mid, lres);
+      int hid = 0; // hit ID
+      if (layer_index == E16ANA_TrackConstant::kSSD) {
+        if (track_index == 0) {
+          track_pair->track_minus_pos_refit[layer_index] = geometry->SSD(mid[hid])->GetGPos(lpos[hid]);
+          track_pair->track_minus_mom_refit[layer_index] = geometry->SSD(mid[hid])->GetGMom(lmom[hid]);
+          track_pair->track_minus_res_refit[layer_index] = lres[hid];
+        } else {
+          track_pair->track_plus_pos_refit[layer_index] = geometry->SSD(mid[hid])->GetGPos(lpos[hid]);
+          track_pair->track_plus_mom_refit[layer_index] = geometry->SSD(mid[hid])->GetGMom(lmom[hid]);
+          track_pair->track_plus_res_refit[layer_index] = lres[hid];
+        }
+      } else {
+        if (track_index == 0) {
+          track_pair->track_minus_pos_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGPos(lpos[hid]);
+          track_pair->track_minus_mom_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGMom(lmom[hid]);
+          track_pair->track_minus_res_refit[layer_index] = lres[hid];
+        } else {
+          track_pair->track_plus_pos_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGPos(lpos[hid]);
+          track_pair->track_plus_mom_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGMom(lmom[hid]);
+          track_pair->track_plus_res_refit[layer_index] = lmom[hid];
         }
       }
     }
-    if (is_used) {
-      continue;
-    }
-    selected_track_pairs.emplace_back(&pair);
-    used_minus_cands.emplace_back(pair.cand_minus);
-    used_plus_cands.emplace_back(pair.cand_plus);
   }
+  track_pair->is_refit = true;
+  return;
+}
+
+void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair) {
+  AddTracks(track_pair);
+  fitter->SetRungeKuttaStepSize(kTrackingStepSize);
+  fitter->SetMaxSteps(kTrackingMaxSteps);
+  double chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
+  UpdateFitResult(track_pair);
   return;
 }
 
@@ -930,9 +1005,11 @@ void E16ANA_TrackCandidates::MakeTrackPairs() {
   for (int cand_index0 = 0; cand_index0 < n_cands; ++cand_index0) {
     auto cand0 = selected_track_candidates[cand_index0];
     auto charge0 = cand0->Charge();
+    auto tgt_z0 = cand0->InitPos().Z();
     for (int cand_index1 = cand_index0; cand_index1 < n_cands; ++cand_index1) {
       auto cand1 = selected_track_candidates[cand_index1];
       auto charge1 = cand1->Charge();
+      auto tgt_z1 = cand1->InitPos().Z();
       if (charge0 == charge1) {
         continue;
       }
@@ -945,10 +1022,13 @@ void E16ANA_TrackCandidates::MakeTrackPairs() {
         track_pair.cand_plus  = cand0;
       }
       SearchVertex(&track_pair);
+      if (tgt_z0 == tgt_z1) {
+        PairTracking(&track_pair);
+      }
       track_pairs.emplace_back(track_pair);
     }
   }
-  SelectTrackPairs();
+//  SelectTrackPairs();
   return;
 }
 

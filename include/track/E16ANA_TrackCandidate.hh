@@ -221,8 +221,12 @@ class E16ANA_TrackCandidate {
   static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
 //  static inline const TVector3 kInitPosError = {0., 0., 0.};
 //  static inline const TVector3 kInitPosError = {5., 5., 0.};
+  static constexpr int kMinuitStrategy = 0;
+  static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
+  static constexpr double kTrackingStepSize = 5.;
 //  static constexpr int kTrackingMaxSteps = 300;
-  static constexpr int kTrackingMaxSteps = 400;
+//  static constexpr int kTrackingMaxSteps = 400;
+  static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
   static constexpr int kProjectionMaxSteps = 2000;
   void Copy(const E16ANA_TrackCandidate& rhs) {
@@ -328,10 +332,29 @@ class E16ANA_TrackCandidates {
     double distance;
     TVector3 mom_minus;
     TVector3 mom_plus;
+    bool is_refit;
+    TVector3 vtx_refit;
+//    double distance_refit;
+    TVector3 mom_minus_refit;
+    TVector3 mom_plus_refit;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_pos_refit;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_pos_refit;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_mom_refit;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_mom_refit;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_res_refit;
+    std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_res_refit;
     void Clear() {
       cand_minus = nullptr;
       cand_plus = nullptr;
       vtx = E16DST_DST1Constant::kInvalidVector;
+      distance = E16DST_DST1Constant::kInvalidValue;
+      mom_minus = E16DST_DST1Constant::kInvalidVector;
+      mom_plus = E16DST_DST1Constant::kInvalidVector;
+      is_refit = false;
+      vtx_refit = E16DST_DST1Constant::kInvalidVector;
+//      distance_refit = E16DST_DST1Constant::kInvalidValue;
+      mom_minus_refit = E16DST_DST1Constant::kInvalidVector;
+      mom_plus_refit = E16DST_DST1Constant::kInvalidVector;
     }
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
@@ -442,7 +465,9 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
 //  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
-  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 40., 40.};
+  static constexpr double kSSDTimeMean = 90.;
+  static constexpr double kSSDTimeWidth = 30.; // 60 - 120 ns
+  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 60.};
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
   static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
@@ -472,6 +497,12 @@ class E16ANA_TrackCandidates {
   static constexpr double kNearTargetThreshold = 100.; // square value
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
+  static constexpr double kTrackingStepSize = 1.;
+  static constexpr int kTrackingMaxSteps = 400;
+  static constexpr int kMinuitStrategy = 2;
+  static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
+  static inline const TVector3 kVertexSigma = {1., 1., 0.};
+  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
@@ -525,7 +556,10 @@ class E16ANA_TrackCandidates {
   void ProjectionTarget();
   void ProjectionX0();
   double SearchVertex(TrackPair* track_pair);
-  void SelectTrackPairs();
+  void AddTracks(TrackPair* track_pair);
+  void UpdateFitResult(TrackPair* track_pair);
+  void PairTracking(TrackPair* track_pair);
+//  void SelectTrackPairs();
   void MakeTrackPairs();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
