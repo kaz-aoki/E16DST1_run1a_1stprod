@@ -107,6 +107,10 @@ int main(int argc, char* argv[]) {
   //  float tgty;
   float distzx;
   //  float distyr;
+  float distyru;
+  float distyrd;
+  int trkidx;
+  int trkidy;
   float res0;
   float res1;
   float res2;
@@ -196,6 +200,8 @@ int main(int argc, char* argv[]) {
   //  tree->Branch("tgty",&tgty,"tgty/F");
   tree->Branch("distzx",&distzx,"distzx/F");
   //  tree->Branch("distyr",&distyr,"distyr/F");
+  tree->Branch("distyru",&distyru,"distyru/F");
+  tree->Branch("distyrd",&distyrd,"distyrd/F");
   tree->Branch("res0",&res0,"res0/F");
   tree->Branch("res1",&res1,"res1/F");
   tree->Branch("res2",&res2,"res2/F");
@@ -370,6 +376,8 @@ int main(int argc, char* argv[]) {
 	//	tgty=-10000;
 	distzx=-10000;
 	//	distyr=-10000;
+	distyru=-10000;
+	distyrd=-10000;
 	res0=-10000;
 	res1=-10000;
 	res2=-10000;
@@ -455,6 +463,8 @@ int main(int argc, char* argv[]) {
 	//	tgty = st_track->TgtPosY();
 	distzx = st_track->DistanceFromTgtXZ();
 	//	distyr = st_track->DistanceFromTgtYR();
+	distyru = st_track->DistanceFromUpWireYR();
+	distyrd = st_track->DistanceFromDownWireYR();
 	res0 = st_track->ResidualSSD();
 	res1 = st_track->FitResidual100X();
 	res2 = st_track->FitResidual200X();

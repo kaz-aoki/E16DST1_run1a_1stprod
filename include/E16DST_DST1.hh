@@ -754,7 +754,7 @@ public:
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
    int16_t XTrackID(){return xtrk_id;}
-   int16_t YTrackID(){return xtrk_id;}
+   int16_t YTrackID(){return ytrk_id;}
    void SetChi2X(float chi){chi2_x = chi;}
    float Chi2X(){return chi2_x;} 
    float Chi2Y(){return chi2_y;} 
