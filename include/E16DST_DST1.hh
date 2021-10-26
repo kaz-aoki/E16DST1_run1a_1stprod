@@ -749,12 +749,30 @@ public:
 //    lg_indexes.clear();
     }
 //
+   void SetEventID(int e){ event_id = e;}
+   int16_t EventID(){return event_id;}
    void SetModuleID(int m){ module_id = m;}
    int16_t ModuleID(){return module_id;}
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
    int16_t XTrackID(){return xtrk_id;}
    int16_t YTrackID(){return xtrk_id;}
+   void SetSSDXHitID(int16_t id){ssdxhit_id = id;}
+   int16_t SSDXHitID(){return ssdxhit_id;}
+   void SetGTR100XHitID(int16_t id){gtr100xhit_id = id;}
+   int16_t GTR100XHitID(){return gtr100xhit_id;}
+   void SetGTR200XHitID(int16_t id){gtr200xhit_id = id;}
+   int16_t GTR200XHitID(){return gtr200xhit_id;}
+   void SetGTR300XHitID(int16_t id){gtr300xhit_id = id;}
+   int16_t GTR300XHitID(){return gtr300xhit_id;}
+   void SetGTR100YHitID(int16_t id){gtr100yhit_id = id;}
+   int16_t GTR100YHitID(){return gtr100yhit_id;}
+   void SetGTR200YHitID(int16_t id){gtr200yhit_id = id;}
+   int16_t GTR200YHitID(){return gtr200yhit_id;}
+   void SetGTR300YHitID(int16_t id){gtr300yhit_id = id;}
+   int16_t GTR300YHitID(){return gtr300yhit_id;}
+
+
    void SetChi2X(float chi){chi2_x = chi;}
    float Chi2X(){return chi2_x;} 
    float Chi2Y(){return chi2_y;} 
@@ -830,16 +848,17 @@ public:
 //   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
 //   
 private:
+   int16_t event_id;
    int module_id;
    int16_t xtrk_id;
    int16_t ytrk_id;
-//   int16_t idssdxhit; 
-//   int16_t id100xhit; 
-//   int16_t id200xhit; 
-//   int16_t id300xhit; 
-//   int16_t id100yhit; 
-//   int16_t id200yhit; 
-//   int16_t id300yhit; 
+   int16_t ssdxhit_id; 
+   int16_t gtr100xhit_id; 
+   int16_t gtr200xhit_id; 
+   int16_t gtr300xhit_id; 
+   int16_t gtr100yhit_id; 
+   int16_t gtr200yhit_id; 
+   int16_t gtr300yhit_id; 
    float fit_a_x;
    float fit_b_x;
    float fit_a_y;

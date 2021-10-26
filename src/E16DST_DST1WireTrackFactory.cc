@@ -33,12 +33,10 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 	}
 //--- search linear tracks on XZ and YR planes 
     straight_analyzer->Clear();
-   int nxy = 0;
-   for(int mid = 100; mid< 110; mid++){
+  	for(int mid = 100; mid< 110; mid++){
  		straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
 	}
 	straight_analyzer->MatchingXYHitsAfterLinearFit(straight_analyzer->GetXZTrackCandidates(), straight_analyzer->GetYTrackCandidates());
-	
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
 	st_tracks.reserve(trks_size);
@@ -47,6 +45,7 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
 		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
 		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
+		trk->SetEventID(event0->EventID());
 		trk->SetModuleID(tx->ModuleID());
 		trk->SetXTrackID(t->XTrackID());
 		trk->SetYTrackID(t->YTrackID());
