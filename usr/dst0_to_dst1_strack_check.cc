@@ -457,7 +457,7 @@ int main(int argc, char* argv[]) {
 	trkindex = i;
 	auto& st_track = st_tracks[i];
 	module = st_track->ModuleID();
-	std::cout<<st_track->XTrackID()<<" "<<st_track->YTrackID()<<std::endl;
+	//std::cout<<st_track->XTrackID()<<" "<<st_track->YTrackID()<<std::endl;
 	chi2x = st_track->Chi2X();
 	chi2y = st_track->Chi2Y();
 	tgtz = st_track->TgtPosZ();
