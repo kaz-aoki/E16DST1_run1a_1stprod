@@ -368,7 +368,7 @@ int E16ANA_LGWaveform::PeakSearchFull(double* pxs, double* ps){
     //int th = mwf[j]*0.1;
     if( dwf[j-4]>=0&&dwf[j-3]>=0&&dwf[j-2]>=0&&dwf[j-1]>=0&&dwf[j]>0 &&
         dwf[j+1]<=0&&dwf[j+2]<=0&&dwf[j+3]<=0&&dwf[j+4]<=0 &&
-        mwf[j]>10 ){
+      mwf[j]>10 ){
       //peakxs.push_back((double)j);
       //peaks.push_back(mwf[j]);
       mypxs[mynps] = (double)j;

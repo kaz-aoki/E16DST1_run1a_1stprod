@@ -40,7 +40,7 @@ include_directories(
 #  include/SSD
 	include/GTR
 	include/trigger
-#	include/straight_track
+	include/straight_track
 	include/track
   E16DST
   E16ANA_Basic/include
@@ -115,7 +115,7 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDCalibration.cc
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
-#  src/straight_track/StraightTrackAnalyzerV0.cc
+  src/straight_track/StraightTrackAnalyzerV0.cc
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
@@ -123,7 +123,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
-#  src/E16DST_DST1WireTrackFactory.cc
+  src/E16DST_DST1WireTrackFactory.cc
 	src/E16DST_DST1TrackFactory.cc
 )
 
@@ -190,16 +190,16 @@ target_link_libraries(dst0_to_dst1_all_check_hist
 )
 
 ##_______________________________________________________________________________
-#add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
-#
-#target_link_libraries(dst0_to_dst1_strack_check
-#	E16DST_DST1
-##	E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
+add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
+
+target_link_libraries(dst0_to_dst1_strack_check
+	E16DST_DST1
+#	E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
@@ -207,7 +207,7 @@ target_link_libraries(dst0_to_dst1_trigger_check
 	E16DST_DST1
 )
 
-#_______________________________________________________________________________
+##_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer

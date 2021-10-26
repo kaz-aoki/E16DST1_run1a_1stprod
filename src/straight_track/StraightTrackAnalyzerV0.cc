@@ -806,7 +806,6 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
             timing_x0 = xz_track->GetXCluster100()->Timing();
             timing_x1 = xz_track->GetXCluster200()->Timing();
             timing_x2 = xz_track->GetXCluster300()->Timing();
-	    //if(fabs(y_track->TgtPos() - xz_track->TgtZ()) > 10 ) continue; //matching which wire
             if(fabs(timing_x0 - timing_y0)<25 &&  fabs(timing_x1 - timing_y1)<40 && fabs(timing_x2 - timing_y2)<40){
                     std::shared_ptr<E16ANA_XYZStraightTrack> trk = std::make_shared<E16ANA_XYZStraightTrack>();
                     trk->SetXZTrack(xz_track);
@@ -825,8 +824,11 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
                     index++;
             }
         }
-
     }
+	
+
+
+
 ///	bool xz_table[xyz_st_trk.size()] = {};
 //	bool yr_table[xyz_st_trk.size()] = {};
 ///	std::fill_n(xz_table, xyz_st_trk.size(), 0);
@@ -1280,23 +1282,24 @@ double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, do
 	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
 	double r300  = sqrt(r300_2);
     double zpos_x600mm = b*r300 + a;
-	
-    /*
-    TVector2 ref_pt0(r100, zpos_x200mm);
-    TVector2 ref_pt1(r300, zpos_x600mm);
-	TVector2 ref_pt2(3000, b*3000 + a);
-    TVector2 pt0 = ref_pt0.Rotate(phi);
-    TVector2 pt1 = ref_pt1.Rotate(phi);
-	TVector2 pt2 = ref_pt2.Rotate(phi);
-    */
-    TVector2 ref_pt0(zpos_x200mm,r100);
-    TVector2 ref_pt1(zpos_x600mm,r300);
-    TVector2 ref_pt2(b*3000 + a,3000);
-    double rphi = phi - 1.570796;
+
+    TVector2 ref_pt0(zpos_x200mm, r100);
+    TVector2 ref_pt1(zpos_x600mm, r300);
+	TVector2 ref_pt2(b*3000 + a, 3000);
+	double rphi = phi - 1.570796;
     TVector2 pt0 = ref_pt0.Rotate(rphi);
     TVector2 pt1 = ref_pt1.Rotate(rphi);
-    TVector2 pt2 = ref_pt2.Rotate(rphi);
+	TVector2 pt2 = ref_pt2.Rotate(rphi);
 
+
+	
+	
+//    TVector2 ref_pt0(r100, zpos_x200mm);
+//  TVector2 ref_pt1(r300, zpos_x600mm);
+//	TVector2 ref_pt2(3000, b*3000 + a);
+//    TVector2 pt0 = ref_pt0.Rotate(phi);
+//    TVector2 pt1 = ref_pt1.Rotate(phi);
+//	TVector2 pt2 = ref_pt2.Rotate(phi);
 
  //   trk->SetPt0OnTrack(TVector2(1,1));
 //    trk->SetPt1OnTrack(pt1);
