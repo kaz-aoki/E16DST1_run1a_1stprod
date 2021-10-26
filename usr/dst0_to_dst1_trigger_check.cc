@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
   
   E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
+  E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
 
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
   
@@ -138,7 +139,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record, &check_file);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, &record, &check_file);
 
 //// Check begin
 //      auto event_id = event0->EventID();
