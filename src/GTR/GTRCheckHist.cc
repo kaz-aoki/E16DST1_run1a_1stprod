@@ -97,6 +97,6 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 void GTRCheckHist::Fill(std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks){
 	for(int i=0; i<st_tracks.size();i++){	
 		auto trk = st_tracks[i];
-		h_tgt_z[trk->ModuleID()- 100]->Fill(trk->DistanceFromTgtXZ());
+		h_tgt_z[trk->ModuleID()- 100]->Fill(trk->TgtPosZ());
 	}	
 }

@@ -325,14 +325,11 @@ public:
 	void SetInvalid(){
 		module_id = -100;
 		chi2 = kInvalidValue;
-		tgt_pos = kInvalidValue;
+//		tgt_pos = kInvalidValue;
 	}
 	void SetYHit100(E16DST_DST1GTRCluster *yhit){yhit100 = yhit;}
 	void SetYHit200(E16DST_DST1GTRCluster *yhit){yhit200 = yhit;}
 	void SetYHit300(E16DST_DST1GTRCluster *yhit){yhit300 = yhit;}
-//	void SetYHit100(E16ANA_GTRAnalyzedStripHit *yhit){yhit100 = yhit;}
-//	void SetYHit200(E16ANA_GTRAnalyzedStripHit *yhit){yhit200 = yhit;}
-//	void SetYHit300(E16ANA_GTRAnalyzedStripHit *yhit){yhit300 = yhit;}
 	void SetFitSample100(TVector2 _fit_sample_100){		fit_sample100 = _fit_sample_100;	}
 	void SetFitSample200(TVector2 _fit_sample_200){		fit_sample200 = _fit_sample_200;	}
 	void SetFitSample300(TVector2 _fit_sample_300){		fit_sample300  = _fit_sample_300;	}
@@ -340,8 +337,9 @@ public:
 	TVector2 GetFitSample200(){		return fit_sample200;	}
 	TVector2 GetFitSample300(){		return fit_sample300;	}
 	void SetChi2(double _chi2){		chi2 = _chi2;			}	
-	void SetTgtPos(double y){		tgt_pos = y;	}
-	void SetDistance(double d){distance = d;}
+//	void SetTgtPos(double y){		tgt_pos = y;	}
+	void SetDistanceUpstreamWire(double d){distance_upwire = d;}
+	void SetDistanceDownstreamWire(double d){distance_downwire = d;}
 	void SetResidual100(double residual){		residual_100 = residual;	}
 	void SetResidual200(double residual){		residual_200 = residual;	}
 	void SetResidual300(double residual){		residual_300 = residual;	}
@@ -365,8 +363,9 @@ public:
     void SetPt2OnTrack(TVector2 tv){        pt2_on_track = tv;    }
 	int ModuleID(){		return module_id;	}
 	double Chi2() const{		return chi2;	}
-	double TgtPos(){		return tgt_pos;	}
-	double Distance(){return distance;}
+//	double TgtPos(){		return tgt_pos;	}
+	double DistanceFromUpstreamWire(){return distance_upwire;}
+	double DistanceFromDownstreamWire(){return distance_downwire;}
 	double Residual100(){		return residual_100;	}
 	double Residual200(){		return residual_200;	}
 	double Residual300(){		return residual_300;	}
@@ -380,13 +379,13 @@ public:
     TVector2 &Pt0OnTrack(){return pt0_on_track;}
     TVector2 &Pt1OnTrack(){        return pt1_on_track;    }
     TVector2 &Pt2OnTrack(){        return pt2_on_track;    }
-    static bool CompareTrackPredicate(E16ANA_YTrackCandidate lhs, E16ANA_YTrackCandidate rhs){return (lhs.chi2 < rhs.chi2);}
+    static bool CompareTrackPredicate(std::shared_ptr<E16ANA_YTrackCandidate> lhs, std::shared_ptr<E16ANA_YTrackCandidate> rhs){return (lhs->chi2 < rhs->chi2);}
     struct CompareTrackFunctor
-    :public std::binary_function<E16ANA_YTrackCandidate, E16ANA_YTrackCandidate, bool>
+    :public std::binary_function<std::shared_ptr<E16ANA_YTrackCandidate>, std::shared_ptr<E16ANA_YTrackCandidate>, bool>
     {
-        bool operator()( E16ANA_YTrackCandidate lhs, E16ANA_YTrackCandidate rhs)
+        bool operator()( std::shared_ptr<E16ANA_YTrackCandidate> lhs, std::shared_ptr<E16ANA_YTrackCandidate> rhs)
         {
-            return (lhs.chi2 < rhs.chi2);
+            return (lhs->chi2 < rhs->chi2);
         }
     };
 	E16DST_DST1GTRCluster *GetYCluster100(){
@@ -408,8 +407,10 @@ private:
 	int id200hit;
 	int id300hit;
 	double chi2;
-	double tgt_pos;
-	double distance;
+//	double tgt_pos;
+	double distance_downwire;
+	double distance_upwire;
+//	double distance;
 	double fit_a;
 	double fit_b;
 	std::vector<TVector2> v_fit_samples;
@@ -569,15 +570,6 @@ public:
     double GetGTRModulePhi(E16ANA_GeometryV2 *geom, int module_id);
     std::vector<long double> LeastSquareMethod(std::vector<TVector2> &tv_v_pos, std::vector<double> sigma_x);
     std::vector<double> CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate> trk2); 
-	void XZStraightAnalyzeOnlyGTR(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
-                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
-                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
-                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
-                        int mid,
-                        E16ANA_GeometryV2 *geom_v2
-                        );
-
-    void Analyze(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_tracks, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_tracks, E16ANA_GeometryV2 *geom_v2);
 
     void Clear();
 
@@ -606,7 +598,6 @@ public:
                       double phi,
                       int kawama_module,
                       int except);
-   void SearchSSDHit(std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &cps, std::vector<std::reference_wrapper<std::vector<E16ANA_SSDAnalyzedStripHit>>> &v_shits, E16ANA_GeometryV2 *gome_v2);
  
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZTrackCandidates(){return xz_trk_cands;};
     std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &GetYTrackCandidates(){return y_trk_cands;};
@@ -648,19 +639,10 @@ class StraightTrackAnalyzerOfWireV1 : public StraightTrackAnalyzerV0 { //track s
 public : 
     StraightTrackAnalyzerOfWireV1(double x1, double z1, double x2, double z2);
     ~StraightTrackAnalyzerOfWireV1();
-    void Analyze(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_tracks, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_tracks, E16ANA_GeometryV2 *geom_v2);
-    void Analyze(std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> &st_tracks, E16ANA_GeometryV2 *geom_v2);
     void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
-                        int mid,
-                        E16ANA_GeometryV2 *geom_v2
-                        );
-    void XZStraightAnalyzeOnlyGTR(std::vector<E16ANA_SSDAnalyzedStripHit> &ssd_hits,
-                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits0,
-                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits1,
-                        std::vector<E16ANA_GTRAnalyzedStripHit> &gtr_xhits2,
                         int mid,
                         E16ANA_GeometryV2 *geom_v2
                         );
@@ -681,7 +663,6 @@ public :
                             int mid,
                             E16ANA_GeometryV2 *geom_v2
                             );
-	void Make3DCrossPoint(std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> &st_trks, E16ANA_GeometryV2 *geom);
     void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
@@ -698,8 +679,6 @@ public :
     void Make2DCrossPoint(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands,  E16ANA_GeometryV2 *geom);
 
 
-   void SearchSSDHit(std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &cps, std::vector<std::reference_wrapper<std::vector<E16ANA_SSDAnalyzedStripHit>>> &v_shits, E16ANA_GeometryV2 *gome_v2);
-   void SearchSSDHit(std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &cps, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>  *v_ssdhits, E16ANA_GeometryV2 *gome_v2);
 private : 
 	double wire_x1;
 	double wire_z1;
