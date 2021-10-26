@@ -215,7 +215,14 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST_DST1
 )
 
-#_______________________________________________________________________________
+##_______________________________________________________________________________
+#add_executable(tmp_gtr usr/tmp_gtr.cc)
+#
+#target_link_libraries(tmp_gtr
+#	E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 #add_executable(write_test usr/write_test.cc)
 #
 #target_link_libraries(write_test
