@@ -108,6 +108,7 @@ public:
    /* Fit routine */
    // if flag==true, vertex is fixed to initial value
    double Fit(bool vertex_xy_fixflag = false, bool pyfixflag = false, bool vertex_z_fixflag = true);
+   double Fit(bool vertex_xy_fixflag = false, bool pyfixflag = false, bool vertex_z_fixflag = true, int _strategy = 2, int _max_function_calls = 1.0e4); // 2021-10-25 ichikawa
 
    void PreConditioning(); // local-Z sort
    double RungeKuttaTracking(int track_id, const TVector3 &vertex, const TVector3 &momentum, double charge);
