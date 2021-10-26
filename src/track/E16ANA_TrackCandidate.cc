@@ -511,9 +511,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
           }
           auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
           for (const auto& ssd_cluster : ssd_cluster_ptrs) {
-            if (fabs(ssd_cluster->Timing() - kSSDTimeMean) > kSSDTimeWidth) {
-              continue;
-            }
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {

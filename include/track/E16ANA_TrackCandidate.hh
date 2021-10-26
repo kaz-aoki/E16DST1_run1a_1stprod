@@ -465,8 +465,6 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
 //  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
-  static constexpr double kSSDTimeMean = 90.;
-  static constexpr double kSSDTimeWidth = 30.; // 60 - 120 ns
   static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 60.};
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
