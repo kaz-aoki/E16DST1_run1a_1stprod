@@ -22,8 +22,9 @@ using namespace std;
 
 E16ANA_SSDStripAnalyzer::E16ANA_SSDStripAnalyzer(int _n_strips, int _n_sampling)
    : n_strips(_n_strips), n_sampling(_n_sampling), strip_pitch(0.08), ssd_threshold(4.0), ssd_tot_threshold(-10000.0),
-//     drift_velocity(0.010), drift_gap_center(0.0), fadc_clock_period(25.0), fadc_t0_correction(0.0),
-     fadc_clock_period(8.0), fadc_t0_correction(0.0),
+//     drift_velocity(0.010), drift_gap_center(0.0), 
+     fadc_clock_period(25.0), fadc_t0_correction(0.0),
+     //fadc_clock_period(8.0), fadc_t0_correction(0.0),
      ssd_tdc_min(-10000.0), ssd_tdc_max(10000.0), ssd_tr(75.0), threshold_fraction(0.5), inverted(1.0) {
    fadc = new double *[n_strips];
    fadc_noPedestal = new double *[n_strips];
@@ -107,7 +108,7 @@ void E16ANA_SSDStripAnalyzer::SetPedestal(int strip_id, double *_fadc_ped) {
 
 void E16ANA_SSDStripAnalyzer::Analyze() {
 
-   // CalcWaveParamsPeak();
+    CalcWaveParamsPeak();
    int n_hits = HitClusteringV0();
    ssd_analyzed_hits.resize(n_hits);
    // ssd_analyzed_hits.resize(n_hits,E16ANA_SSDAnalyzedStripHit());
@@ -123,10 +124,11 @@ void E16ANA_SSDStripAnalyzer::Analyze11() {
 
   double fit_param[n_strips][3];//3=n_param
   
-  HitWaveFitV11();
-  HitWaveFit_noPedestal();
-  // CalcWaveParamsPeak();
-  int n_hits = HitClusteringV0();//number of cluster
+   CalcWaveParamsPeak();
+   HitWaveFitV11();  
+  //HitWaveFit_noPedestal();
+
+   int n_hits = HitClusteringV0();//number of cluster
   //std::cout << "n_hits=" << n_hits << std::endl;
   ssd_analyzed_hits.resize(n_hits);
   // ssd_analyzed_hits.resize(n_hits,E16ANA_SSDAnalyzedStripHit());
@@ -140,7 +142,7 @@ void E16ANA_SSDStripAnalyzer::Analyze11() {
 
 
 void E16ANA_SSDStripAnalyzer::Analyze2() {
-   // CalcWaveParamsPeak();
+    CalcWaveParamsPeak();
    int n_hits = HitClusteringV0();
    ssd_analyzed_hits.resize(n_hits);
    // ssd_analyzed_hits.resize(n_hits,E16ANA_SSDAnalyzedStripHit());
@@ -169,10 +171,12 @@ void E16ANA_SSDStripAnalyzer::AnalyzeV1() {
 //   }
 }
 
-int E16ANA_SSDStripAnalyzer::HitClusteringV0() { return HitClusteringV0(2, -10000.0); }
+//int E16ANA_SSDStripAnalyzer::HitClusteringV0() { return HitClusteringV0(2, -10000.0); }
+
+int E16ANA_SSDStripAnalyzer::HitClusteringV0() { return HitClusteringV0(1, -10000.0); }
 
 int E16ANA_SSDStripAnalyzer::HitClusteringV0(const int min_gap, const double cluster_threshold) {
-   CalcWaveParamsPeak();
+  //CalcWaveParamsPeak();
    // const int min_gap = 2;
    int signal_gap = 100;
 
@@ -183,7 +187,9 @@ int E16ANA_SSDStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
 
    // double pre_tdc = fadc_tdc[0];
    for (int i = 0; i < n_strips; i++) {
-      if (fadc_peak[i] > ssd_threshold) {
+      if (fadc_peak[i] > ssd_threshold &&
+	  fadc_peak_time[i] > 0 ) {
+	//std::cout << fadc_peak_time[i] << std::endl;
          // double delta_tdc = fadc_tdc[i]-pre_tdc;
          // pre_tdc = fadc_tdc[i];
          // if(signal_gap>=min_gap || fabs(delta_tdc)>100.0){ // V1
@@ -483,13 +489,14 @@ int Convex(double fadc[8]){
 }
 
 double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
-  CalcPeak();
+  //CalcPeak();
   ssd_single_hits.resize(0);
   int n_fit=0;
 
   int c=0;
   for(int strip=0; strip<n_strips; strip++){//n_strips=128
-    if(fadc_peak[strip]>ssd_threshold){
+    if(fadc_peak[strip]>ssd_threshold && 
+       fadc_peak_time[strip] > 0){
       if(c==0){
 	//	cout << "fadc["<<strip<<"][0]=" << fadc[strip][0] <<endl; 
 	c++;
@@ -505,7 +512,9 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
 	adc_strip[sample] = fadc[strip][sample];//-minAdcValue;
 	//histo_wave->Fill(sample_time[sample],adc_strip[sample]);
 	v_adc_strip.push_back(adc_strip[sample]);
-	//	cout << "adc_strip["<<sample<<"]=" << adc_strip[sample] << endl;
+	//cout << "adc_strip["<<sample<<"]=" << adc_strip[sample] << endl;
+	//cout << "sample_time["<<sample<<"]=" << sample_time[sample] << endl;
+
       }
       double minAdcValue = getMin(v_adc_strip);
       for(int sample=0; sample<n_sampling; sample++){
@@ -529,15 +538,22 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
       fit_func->SetParameter(0,p0);
       fit_func->SetParameter(1,p1);
       fit_func->SetParameter(2,p2);
+      //if(fadc[strip][0]<fadc[strip][7] && Convex(fadc[strip])==1){
       if(fadc[strip][0]<fadc[strip][7] && Convex(fadc[strip])==1){
-	// cout << "p0,p1,p2=" << p0 << "," << p1 << "," << p2 <<endl;
+	//cout << "p0,p1,p2=" << p0 << "," << p1 << "," << p2 <<endl;
 	// graph_wave->Fit(fit_func,""); cout << endl << endl;
 	graph_wave->Fit(fit_func,"qn");
+
       }
       double rise_time = fit_func->GetParameter(0);
       double scale = fit_func->GetParameter(1);
       double t0 = fit_func->GetParameter(2);
+
+
       if(rise_time!=40){
+
+	//cout << "With Pedestal: p0,p1,p2=" << rise_time << "," << scale << "," << t0 <<endl;
+
 	vector<double> plot;
 	plot.resize(19);
 	for(int i=0; i<8; i++){
@@ -555,11 +571,11 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
 	t0=-1000;
       }
       E16ANA_SSDSingleStripHit temp;
-      temp.SetFitValues(t0+rise_time, t0, -1, scale, rise_time);
+      temp.SetFitValues(strip, t0+rise_time, t0, -1, scale, rise_time);
       ssd_single_hits.push_back(temp);
 
-delete fit_func; // ichikawa
-delete graph_wave; // ichikawa
+      delete fit_func; // ichikawa
+      delete graph_wave; // ichikawa
 
     }
   }
@@ -567,13 +583,14 @@ delete graph_wave; // ichikawa
 }
 
 double E16ANA_SSDStripAnalyzer::HitWaveFit_noPedestal() {
-  CalcPeak();
+  //CalcPeak();
   ssd_single_hits.resize(0);
   int n_fit=0;
 
   int c=0;
   for(int strip=0; strip<n_strips; strip++){//n_strips=128
-    if(fadc_peak[strip]>ssd_threshold){
+    if(fadc_peak[strip]>ssd_threshold &&
+       fadc_peak_time[strip] > 0){
       if(c==0){
 	//	cout << "fadc["<<strip<<"][0]=" << fadc[strip][0] <<endl; 
 	c++;
@@ -622,6 +639,9 @@ double E16ANA_SSDStripAnalyzer::HitWaveFit_noPedestal() {
       double scale = fit_func->GetParameter(1);
       double t0 = fit_func->GetParameter(2);
       if(rise_time!=40){
+
+	//cout << "No Pedestal: p0,p1,p2=" << rise_time << "," << scale << "," << t0 <<endl;
+
 	vector<double> params;
 	params.resize(3);
 	for(int i=0; i<3; i++){
@@ -685,6 +705,7 @@ void E16ANA_SSDStripAnalyzer::CalcPeak(int ch, double t_cutoff) {
      fadc_peak_time[ch] = peak_count*CLOCKWIDTH + (TDC-V775_OFFSET)*V775_TIMEGAIN;
    }
 
+
    if (fadc_peak[ch] < ssd_threshold) {
      fadc_peak[ch] = -255.0;
      fadc_peak_time[ch] = -1001.0;
@@ -694,6 +715,7 @@ void E16ANA_SSDStripAnalyzer::CalcPeak(int ch, double t_cutoff) {
 
 
 void E16ANA_SSDStripAnalyzer::CalcWaveParamsPeak() {
+
   for (int i = 0; i < n_strips; i++) {
     fadc_peak[i] = -255.0;
     fadc_peak_time[i] = -2000.0;
@@ -701,11 +723,16 @@ void E16ANA_SSDStripAnalyzer::CalcWaveParamsPeak() {
   }
 
    for (int i = 0; i < n_strips; i++) {
+
       // for(int i=left_strip_x; i<right_strip_x; i++){
      //     cout << "fadc[" << i << "][0]=" << fadc[i][0] << endl;  
      if (fadc[i][0] < -255.0)
        continue;
+
      this->CalcWaveParamsPeak(i, 10000.0);
+
+     //std::cout << "strip ID:" << i << ", fadc_peak:" << fadc_peak[i] << endl;
+
      //     cout << "calculated!" << endl;
      // this->CalcWaveParamsPeak(i, ssd_tdc_max+ssd_tr+50.0);
      // if(fadc_tdc[i]>ssd_tdc_max){
@@ -718,11 +745,17 @@ void E16ANA_SSDStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff) {
    int peak_count;
    double tot_start = 1000.0;
    double tot_end = 0.0;
+
+   //std::cout << "ssd_threshold: " << ssd_threshold << std::endl;
+
    if (ch < n_strips) {
       fadc_peak[ch] = -255.0;
       fadc_tdc[ch] = -1000.0;
       fadc_tot[ch] = -1000.0;
       peak_count = -1;
+
+      //std::cout << fadc_clock_period << std::endl;
+
       for (int j = 0; j < n_sampling; j++) {
          // for(int l=0; l<(int)fadc_valid_count.size(); l++){
          // int j= fadc_valid_count[l];
@@ -740,11 +773,14 @@ void E16ANA_SSDStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff) {
          fadc_peak[ch] = -255.0;
          peak_count = -1;
       } else {
- //         std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<
-//          std::endl;
+	//std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<
+	//std::endl;
       }
 
       if (peak_count > -1) {
+	//fadc_peak_time[ch] = peak_count * fadc_clock_period + fadc_t0_correction;
+	fadc_peak_time[ch] = peak_count * fadc_clock_period + 
+	  (TDC - V775_OFFSET)*V775_TIMEGAIN;
          for (int j = peak_count; j > -1; j--) {
             if (fadc[ch][j] < fadc_peak[ch] * threshold_fraction) {
                // double tdc_j = j;
@@ -752,10 +788,12 @@ void E16ANA_SSDStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff) {
                double w_j1 = -fadc_peak[ch] * threshold_fraction + fadc[ch][j + 1];
                double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
                // std::cout << "tdc_j = " << tdc_j << std::endl;
-               fadc_tdc[ch] = tdc_j * fadc_clock_period + fadc_t0_correction;
+               //fadc_tdc[ch] = tdc_j * fadc_clock_period + fadc_t0_correction;
+	       fadc_tdc[ch] = tdc_j * fadc_clock_period + 
+		 (TDC - V775_OFFSET)*V775_TIMEGAIN;
                tot_start = fadc_tdc[ch];
-	       //               fadc_peak_time[ch] = peak_count * fadc_clock_period + fadc_t0_correction;
-               fadc_peak_time[ch] = peak_count * CLOCKWIDTH + fadc_t0_correction;
+
+               //fadc_peak_time[ch] = peak_count * CLOCKWIDTH + fadc_t0_correction;
                break;
             }
          }
@@ -780,11 +818,28 @@ void E16ANA_SSDStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff) {
          fadc_tdc[ch] = -1000.0;
          fadc_peak_time[ch] = -1002.0;
       }
-      if (fadc_tdc[ch] > ssd_tdc_max || fadc_tdc[ch] < ssd_tdc_min) {
+
+      if (fadc_peak_time[ch] > ssd_tdc_max 
+	  || fadc_peak_time[ch] < ssd_tdc_min) {
+      //if (fadc_tdc[ch] > ssd_tdc_max || fadc_tdc[ch] < ssd_tdc_min) {
          fadc_tdc[ch] = -1000.0;
          fadc_peak_time[ch] = -1003.0;
       }
    }
+
+
+   /*
+    std::cout << "fadc_tdc = " << fadc_tdc[ch] 
+	      << ", fadc_peak_time = " << fadc_peak_time[ch] 
+	      << std::endl;
+    if(fadc_tdc[ch] < 0){
+      for(int n_samp_tmp=0; n_samp_tmp < n_sampling; n_samp_tmp++ ){
+	std::cout << fadc[ch][n_samp_tmp] << " ";
+      }
+      std::cout << std::endl;
+    }
+   */
+
 }
 
 void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_ids, E16ANA_SSDAnalyzedStripHit &hit) {
@@ -811,7 +866,8 @@ void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
       temp_cog += fadc_peak[id] * GetPosition(id);
 //      cout << "id=" << id << endl;
 //      cout << "pos=" << GetPosition(id) << endl;
-      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id]);
+      //hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id]);
+      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_peak_time[id], fadc_tot[id]);
    }
    temp_cog /= temp_cc;
    // temp_cog *= strip_pitch;

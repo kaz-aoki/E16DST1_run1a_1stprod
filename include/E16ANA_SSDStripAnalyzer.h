@@ -21,14 +21,19 @@
 
 class E16ANA_SSDSingleStripHit{
  public:
-  void SetFitValues(double peak, double t0, double t05, double scale, double risetime){
+  void SetFitValues(int id, double peak, double t0, double t05, double scale, double risetime){
+    stripID = id;
     fitPeakT = peak; fitT0 = t0; fitT05 = t05; fitScale = scale; fitRisetime = risetime; }
+
+  int StripID(){return stripID;}
   double FitPeakT(){return fitPeakT;}
   double FitT0(){return fitT0;}
   double FitT05(){return fitT05;}
   double FitScale(){return fitScale;}
   double FitRisetime(){return fitRisetime;}
  private:
+
+  int stripID;
   double fitPeakT;
   double fitT0;
   double fitT05; // 1/2 rise time
