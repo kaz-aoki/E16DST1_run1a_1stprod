@@ -554,9 +554,9 @@ class E16ANA_TrackCandidates {
   void ProjectionTarget();
   void ProjectionX0();
   double SearchVertex(TrackPair* track_pair);
-  void AddTracks(TrackPair* track_pair);
+  void AddTracks(TrackPair* track_pair, double tgt_z);
   void UpdateFitResult(TrackPair* track_pair);
-  void PairTracking(TrackPair* track_pair);
+  void PairTracking(TrackPair* track_pair, double tgt_z);
 //  void SelectTrackPairs();
   void MakeTrackPairs();
   void AddTracksToRecord();

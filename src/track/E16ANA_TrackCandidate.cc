@@ -924,10 +924,11 @@ double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
 //  return;
 //}
 
-void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair) {
+void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair, double tgt_z) {
   pair_fitter->Clear();
   std::array<E16ANA_TrackCandidate*, 2> cands = {track_pair->cand_minus, track_pair->cand_plus};
-  pair_fitter->SetInitialVertex(track_pair->vtx, kVertexSigma);
+//  pair_fitter->SetInitialVertex(track_pair->vtx, kVertexSigma);
+  pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_z), kVertexSigma);
   pair_fitter->SetInitialMomentum(0, track_pair->mom_minus);
   pair_fitter->SetCharge(0, -1.);
   pair_fitter->SetInitialMomentum(1, track_pair->mom_plus);
@@ -986,8 +987,8 @@ void E16ANA_TrackCandidates::UpdateFitResult(TrackPair* track_pair) {
   return;
 }
 
-void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair) {
-  AddTracks(track_pair);
+void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair, double tgt_z) {
+  AddTracks(track_pair, tgt_z);
   pair_fitter->SetRungeKuttaStepSize(kTrackingStepSize);
   pair_fitter->SetMaxSteps(kTrackingMaxSteps);
   double chisq = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
@@ -1020,7 +1021,7 @@ void E16ANA_TrackCandidates::MakeTrackPairs() {
       }
       SearchVertex(&track_pair);
       if (tgt_z0 == tgt_z1) {
-        PairTracking(&track_pair);
+        PairTracking(&track_pair, tgt_z0);
       }
       track_pairs.emplace_back(track_pair);
     }
