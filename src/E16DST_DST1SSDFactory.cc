@@ -184,7 +184,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
   }
 #else
   cout << "module=102" << endl;
-  ssd_analyzers->analyzer_map[OnlineGTR::IDs(102,0).value64]->AnalyzeV11();
+  // ssd_analyzers->analyzer_map[OnlineGTR::IDs(102,0).value64]->AnalyzeV11();
   // cout << "module=103" << endl;
   // ssd_analyzers->analyzer_map[OnlineGTR::IDs(103,0).value64]->AnalyzeV11();
   // cout << "module=104" << endl;

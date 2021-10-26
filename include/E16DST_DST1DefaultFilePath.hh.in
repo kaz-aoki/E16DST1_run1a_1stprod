@@ -5,8 +5,8 @@
 #include <string_view>
 
 //static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/calib_database"};
-static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/database/calib_database"};
-//static constexpr std::string_view CalibFilePath {"/ccj/u/E16/database/calib"};
+//static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/database/calib_database"};
+static constexpr std::string_view CalibFilePath {"/ccj/u/E16/database/calib"};
 
 //static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
 //static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/database/geometry_database/v2/geometry_Run0b_210226_design.dat"};

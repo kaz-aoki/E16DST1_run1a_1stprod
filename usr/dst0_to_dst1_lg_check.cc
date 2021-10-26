@@ -103,8 +103,8 @@ int main(int argc, char* argv[]) {
   tree->Branch("FitTiming",&fittiming,"FitTiming/F");
   tree->Branch("FitWidth",&fitwidth,"FitWidth/F");
   tree->Branch("FitChi2",&fitchi2,"FitChi2/F");
-  //tree->Branch("Gpos",gpos,"Gpos[3]/D");
-  //tree->Branch("Lpos",lpos,"Lpos[3]/D");
+  tree->Branch("Gpos",gpos,"Gpos[3]/D");
+  tree->Branch("Lpos",lpos,"Lpos[3]/D");
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -258,12 +258,12 @@ int main(int argc, char* argv[]) {
 	  fitchi2 = lghit.FitChi2();
 	  calibtiming = lghit.GetCalibTiming(lgbasic);
 	  energydeposit = lghit.GetEnergyDeposit(lgbasic);
-	  //gpos[0] = lghit.GlobalPos(*geometry).X();
-	  //gpos[1] = lghit.GlobalPos(*geometry).Y();
-	  //gpos[2] = lghit.GlobalPos(*geometry).Z();
-	  //lpos[0] = lghit.LocalPos(*geometry).X();
-	  //lpos[1] = lghit.LocalPos(*geometry).Y();
-	  //lpos[2] = lghit.LocalPos(*geometry).Z();
+	  gpos[0] = lghit.GlobalPos(*geometry).X();
+	  gpos[1] = lghit.GlobalPos(*geometry).Y();
+	  gpos[2] = lghit.GlobalPos(*geometry).Z();
+	  lpos[0] = lghit.LocalPos(*geometry).X();
+	  lpos[1] = lghit.LocalPos(*geometry).Y();
+	  lpos[2] = lghit.LocalPos(*geometry).Z();
 	  tree->Fill();
 	  if(npeak==0){
 	  hph[module-102][block]->Fill(lghit.PeakHeight());
