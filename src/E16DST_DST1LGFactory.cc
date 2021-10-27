@@ -58,18 +58,17 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
     int hitflag = lgwf->GetHitFlag();
 
-    /*
-    if( hitflag==0 ){ // applied in MethodForTrack
-      //std::cout<<"no hit for track"<<std::endl;
-      delete lgwf;
-      continue;
-    }
-    */
+    //if( hitflag==0 ){ // applied in MethodForTrack
+    ////std::cout<<"no hit for track"<<std::endl;
+    //delete lgwf;
+    //continue;
+    //}
 
     int fitflag = lgwf->GetFitOK();
     int npsfit = lgwf->GetNpsFit();
     bool spikeflag = lgwf->GetSpikeFlag();
 
+    //std::cout<<fitflag<<" "<<npsfit<<" "<<spikeflag<<std::endl;
     if( fitflag==0&&npsfit==0 ){ // applied in FitMethod
       //std::cout<<"no hit"<<std::endl;
       delete lgwf;
@@ -102,6 +101,13 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       //peakheight>E16ANA_LGConstant::kHitThreshold && 
       if( peaktime>E16ANA_LGConstant::kHitTimeStart && 
 	peaktime<E16ANA_LGConstant::kHitTimeEnd && timing>-100 ){//dst1hit condition
+
+	if(fitoption==0&&peakheight<E16ANA_LGConstant::kHitThreshold){
+	  continue;
+	}
+	if(fitoption==0&&spikeflag==true){
+	  continue;
+	}
 
       hits1[n_dst1hit].SetInvalid();
       hits1[n_dst1hit].SetIds(hit0.ModuleID(), hit0.BlockID());

@@ -286,7 +286,8 @@ int main(int argc, char* argv[]) {
   //  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
   string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
-  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
+  //  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
+  auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geom);
 
   auto trigger_param = new E16ANA_TriggerCalibParam();
