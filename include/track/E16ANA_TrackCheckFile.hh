@@ -301,6 +301,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_pair_vtx_gy", &rk_pair_vtx_gy);
     tree->Branch("rk_pair_vtx_gz", &rk_pair_vtx_gz);
     tree->Branch("rk_pair_is_refit", &rk_pair_is_refit);
+    tree->Branch("rk_pair_chi_square_refit", &rk_pair_chi_square_refit);
     tree->Branch("rk_pair_vtx_refit_gx", &rk_pair_vtx_refit_gx);
     tree->Branch("rk_pair_vtx_refit_gy", &rk_pair_vtx_refit_gy);
     tree->Branch("rk_pair_vtx_refit_gz", &rk_pair_vtx_refit_gz);
@@ -792,6 +793,7 @@ class E16ANA_TrackCheckFile {
     rk_pair_vtx_gy.resize(n_pairs);
     rk_pair_vtx_gz.resize(n_pairs);
     rk_pair_is_refit.resize(n_pairs);
+    rk_pair_chi_square_refit.resize(n_pairs);
     rk_pair_vtx_refit_gx.resize(n_pairs);
     rk_pair_vtx_refit_gy.resize(n_pairs);
     rk_pair_vtx_refit_gz.resize(n_pairs);
@@ -1196,6 +1198,7 @@ class E16ANA_TrackCheckFile {
         rk_pair_plus_lg3_t[i] = lg_hits_plus[3]->Timing();
       }
       rk_pair_is_refit[i] = pair.is_refit;
+      rk_pair_chi_square_refit[i] = pair.chi_square_refit;
       auto& pair_vtx_refit = pair.vtx_refit;
       rk_pair_vtx_refit_gx[i] = pair_vtx_refit.X();
       rk_pair_vtx_refit_gy[i] = pair_vtx_refit.Y();
@@ -1574,6 +1577,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_pair_vtx_gy;
   std::vector<double> rk_pair_vtx_gz;
   std::vector<int> rk_pair_is_refit;
+  std::vector<double> rk_pair_chi_square_refit;
   std::vector<double> rk_pair_vtx_refit_gx;
   std::vector<double> rk_pair_vtx_refit_gy;
   std::vector<double> rk_pair_vtx_refit_gz;

@@ -333,6 +333,7 @@ class E16ANA_TrackCandidates {
     TVector3 mom_minus;
     TVector3 mom_plus;
     bool is_refit;
+    double chi_square_refit;
     TVector3 vtx_refit;
 //    double distance_refit;
     TVector3 mom_minus_refit;

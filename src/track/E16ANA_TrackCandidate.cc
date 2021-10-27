@@ -991,7 +991,7 @@ void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair, double tgt_z) {
   AddTracks(track_pair, tgt_z);
   pair_fitter->SetRungeKuttaStepSize(kTrackingStepSize);
   pair_fitter->SetMaxSteps(kTrackingMaxSteps);
-  double chisq = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
+  track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
   UpdateFitResult(track_pair);
   return;
 }
