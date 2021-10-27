@@ -333,6 +333,7 @@ class E16ANA_TrackCandidates {
     TVector3 mom_minus;
     TVector3 mom_plus;
     bool is_refit;
+    double chi_square_refit;
     TVector3 vtx_refit;
 //    double distance_refit;
     TVector3 mom_minus_refit;
@@ -554,9 +555,9 @@ class E16ANA_TrackCandidates {
   void ProjectionTarget();
   void ProjectionX0();
   double SearchVertex(TrackPair* track_pair);
-  void AddTracks(TrackPair* track_pair);
+  void AddTracks(TrackPair* track_pair, double tgt_z);
   void UpdateFitResult(TrackPair* track_pair);
-  void PairTracking(TrackPair* track_pair);
+  void PairTracking(TrackPair* track_pair, double tgt_z);
 //  void SelectTrackPairs();
   void MakeTrackPairs();
   void AddTracksToRecord();
