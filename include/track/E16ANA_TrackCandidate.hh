@@ -383,9 +383,9 @@ class E16ANA_TrackCandidates {
   double GTRYDiffThreshold() { return kGTRYDiffThreshold; }
   double GTRPeakSumThresholdX(int n) { return kGTRPeakSumThresholdX[n]; }
   double GTRPeakSumThresholdY() { return kGTRPeakSumThresholdY; }
-  double RaughFitChiSquareThreshold(int n) { return kRaughFitChiSquareThreshold[n]; }
-  double RaughXFitCoefficientThreshold(int n) { return kRaughXFitCoefficientThreshold[n]; }
-  double RaughYFitCoefficientThreshold(int n) { return kRaughYFitCoefficientThreshold[n]; }
+  double RoughFitChiSquareThreshold(int n) { return kRoughFitChiSquareThreshold[n]; }
+  double RoughXFitCoefficientThreshold(int n) { return kRoughXFitCoefficientThreshold[n]; }
+  double RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
   double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
   double LGProjectionThreshold() { return kLGProjectionThreshold; }
   double NearTargetThreshold() { return kNearTargetThreshold; }
@@ -435,11 +435,11 @@ class E16ANA_TrackCandidates {
     std::cout << "GTR X ADC Peak Sum Threshold :" << std::endl;
     std::cout << "  GTR100 : " << kGTRPeakSumThresholdX[0] << ", GTR200 : " << kGTRPeakSumThresholdX[1] << ", GTR300 : " << kGTRPeakSumThresholdX[2] << std::endl;
     std::cout << "GTR Y ADC Peak Sum Threshold : " << kGTRPeakSumThresholdY << std::endl;
-    std::cout << "Raugh Fit Chi Square Threshold :" << std::endl;
-    std::cout << "  X : " << kRaughFitChiSquareThreshold[0] << ", Y : " << kRaughFitChiSquareThreshold[1] << std::endl;
-    std::cout << "X Raugh Fit Coefficient Threshold : " 
-              << kRaughXFitCoefficientThreshold[0] << ", " << kRaughXFitCoefficientThreshold[1] << kRaughXFitCoefficientThreshold[2] << std::endl;
-    std::cout << "Y Raugh Fit Coefficient Threshold : " << kRaughYFitCoefficientThreshold[0] << ", " << kRaughYFitCoefficientThreshold[1] << std::endl;
+    std::cout << "Rough Fit Chi Square Threshold :" << std::endl;
+    std::cout << "  X : " << kRoughFitChiSquareThreshold[0] << ", Y : " << kRoughFitChiSquareThreshold[1] << std::endl;
+    std::cout << "X Rough Fit Coefficient Threshold : " 
+              << kRoughXFitCoefficientThreshold[0] << ", " << kRoughXFitCoefficientThreshold[1] << kRoughXFitCoefficientThreshold[2] << std::endl;
+    std::cout << "Y Rough Fit Coefficient Threshold : " << kRoughYFitCoefficientThreshold[0] << ", " << kRoughYFitCoefficientThreshold[1] << std::endl;
     std::cout << "HBD Projection Threshold : " << kHBDProjectionThreshold << std::endl;
     std::cout << "LG  Projection Threshold : " << kLGProjectionThreshold << std::endl;
     std::cout << "Near Target Threshold : " << kNearTargetThreshold << std::endl;
@@ -461,7 +461,7 @@ class E16ANA_TrackCandidates {
   };
   static constexpr int kNumTrackingLayersWTarget = 1 + E16ANA_TrackConstant::kNumTrackingLayers;
   static constexpr int kNumGTRLayers = E16ANA_TrackConstant::kNumTrackingLayers - 1;
-  static constexpr std::array<int, 2> kNumRaughFitDegree = {3, 2}; // x, y
+  static constexpr std::array<int, 2> kNumRoughFitDegree = {3, 2}; // x, y
   static constexpr std::array<double, kNumGTRLayers> kGTRSizeCoef = {2.7, 1.4, 1.};
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
 //  static constexpr int kMaxOneAxisCandidates = 100;
@@ -484,12 +484,12 @@ class E16ANA_TrackCandidates {
 //  static constexpr double kGTRPeakSumThresholdX = 180.;
   static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.};
   static constexpr double kGTRPeakSumThresholdY = 10.;
-  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {50., 10.}; // x, y
-//  static constexpr std::array<double, 2> kRaughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
-//  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
-  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
-//  static constexpr std::array<double, kNumRaughFitDegree[0]> kRaughXFitCoefficientThreshold = {25., 0., 0.01}; // coef[1] not used. ozawa v8
-  static constexpr std::array<double, kNumRaughFitDegree[1]> kRaughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
+  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 10.}; // x, y
+//  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
+//  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
+  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
+//  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.01}; // coef[1] not used. ozawa v8
+  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
@@ -511,7 +511,7 @@ class E16ANA_TrackCandidates {
     return TVector3(x, 0, z);
   }
   static void CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos);
-  static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, kNumTrackingLayersWTarget>* zz, std::array<double, kNumRaughFitDegree[0]>* zx) {
+  static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, kNumTrackingLayersWTarget>* zz, std::array<double, kNumRoughFitDegree[0]>* zx) {
     auto x = lotated_pos.X();
     auto z = lotated_pos.Z();
     (*zz)[4] += w * z * z * z * z; // delete at
@@ -526,12 +526,12 @@ class E16ANA_TrackCandidates {
   }
   static void CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
                             std::array<double, kNumTrackingLayersWTarget>* zz,
-                            std::array<double, kNumRaughFitDegree[0]>* zx,
-                            std::array<double, kNumRaughFitDegree[0]>* coef);
-  static void CalcInverseMatrix(const std::array<double, 1 + E16ANA_TrackConstant::kNumTrackingLayers>& zz, std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>* line);
-  static void CalcCoefficients(const std::array<double, kNumRaughFitDegree[0]>& zx,
-                               const std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>& line,
-                               std::array<double, kNumRaughFitDegree[0]>* coef) {
+                            std::array<double, kNumRoughFitDegree[0]>* zx,
+                            std::array<double, kNumRoughFitDegree[0]>* coef);
+  static void CalcInverseMatrix(const std::array<double, 1 + E16ANA_TrackConstant::kNumTrackingLayers>& zz, std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>* line);
+  static void CalcCoefficients(const std::array<double, kNumRoughFitDegree[0]>& zx,
+                               const std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>& line,
+                               std::array<double, kNumRoughFitDegree[0]>* coef) {
     (*coef)[0] = line[2][0] * zx[2] + line[2][1] * zx[1] + line[2][2] * zx[0];
     (*coef)[1] = line[1][0] * zx[2] + line[1][1] * zx[1] + line[1][2] * zx[0];
     (*coef)[2] = line[0][0] * zx[2] + line[0][1] * zx[1] + line[0][2] * zx[0];

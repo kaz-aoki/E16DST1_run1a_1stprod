@@ -323,7 +323,7 @@ void E16ANA_TrackCandidates::CalcLotatedPos(std::array<TVector3, E16ANA_TrackCon
   (*lotated_pos)[4] = Lotate(rot_cos, rot_sin, tgt_z, pos[3]);
 }
 
-void E16ANA_TrackCandidates::CalcInverseMatrix(const std::array<double, kNumTrackingLayersWTarget>& zz, std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]>* line) {
+void E16ANA_TrackCandidates::CalcInverseMatrix(const std::array<double, kNumTrackingLayersWTarget>& zz, std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>* line) {
   double m11 = zz[4];
   double m12 = zz[3];
   double m21 = zz[3];
@@ -349,14 +349,14 @@ void E16ANA_TrackCandidates::CalcInverseMatrix(const std::array<double, kNumTrac
 
 void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
                    std::array<double, kNumTrackingLayersWTarget>* zz,
-                   std::array<double, kNumRaughFitDegree[0]>* zx,
-                   std::array<double, kNumRaughFitDegree[0]>* coef) {
+                   std::array<double, kNumRoughFitDegree[0]>* zx,
+                   std::array<double, kNumRoughFitDegree[0]>* coef) {
   zz->fill(0.);
   zx->fill(0.);
   for (int i = 0; i < kNumTrackingLayersWTarget; ++i) {
     AddMatrixElement(kXWeight[i], lotated_pos[i], zz, zx);
   }
-  std::array<std::array<double, kNumRaughFitDegree[0]>, kNumRaughFitDegree[0]> line;
+  std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]> line;
   CalcInverseMatrix(*zz, &line);
 //  std::array<double, kNumTrackingLayersWTarget> fit_z_diff;
   CalcCoefficients(*zx, line, coef);
@@ -379,8 +379,8 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   CalcLotatedPos(pos_set, tgt_z, rot_cos, rot_sin, &lotated_pos);
 
   std::array<double, kNumTrackingLayersWTarget> zz;
-  std::array<double, kNumRaughFitDegree[0]> zx;
-  std::array<double, kNumRaughFitDegree[0]> coef;
+  std::array<double, kNumRoughFitDegree[0]> zx;
+  std::array<double, kNumRoughFitDegree[0]> coef;
   CalcQuadCurve(lotated_pos, &zz, &zx, &coef);
   cluster_set->charge = coef[2] > 0 ? 1 : -1;
 
@@ -420,10 +420,10 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
     chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
   }
 
-  if (chi2_cand < kRaughFitChiSquareThreshold[0] && fabs(coef[0]) < kRaughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRaughXFitCoefficientThreshold[2]) {
+  if (chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
     cluster_set->xy = tgt_x_cand;
     cluster_set->chi_square = chi2_cand;
-    for (int i = 0; i < kNumRaughFitDegree[0]; ++i) {
+    for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
       cluster_set->coefs[i] = coef[i];
     }
     return true;
@@ -455,7 +455,7 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
     ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
     y  += kYWeight[i] * gtr_y[i];
   }
-  std::array<double, kNumRaughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
+  std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
                                                   (c  * ry - r * y)  / (c * r2 - r * r)});
   double chi2_cand = 0.;
   std::array<double, kNumGTRLayers> fit_y;
@@ -463,10 +463,10 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
     fit_y[i] = coef[0] + coef[1] * gtr_r[i];
     chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
   }
-  if (chi2_cand < kRaughFitChiSquareThreshold[1] && fabs(coef[0]) < kRaughYFitCoefficientThreshold[0]) {
+  if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
     cluster_set->xy = coef[0];
     cluster_set->chi_square = chi2_cand;
-    for (int i = 0; i < kNumRaughFitDegree[1]; ++i) {
+    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
       cluster_set->coefs[i] = coef[i];
     }
     return true;
@@ -656,10 +656,10 @@ E16INFO("number of y candidates: %d", n_y_cands);
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
       tmp_cand.SetYChiSquare(y_cand.chi_square);
-      for (int i = 0; i < kNumRaughFitDegree[0]; ++i) {
+      for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
         tmp_cand.SetXCoef(i, x_cand.coefs[i]);
       }
-      for (int i = 0; i < kNumRaughFitDegree[1]; ++i) {
+      for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
         tmp_cand.SetYCoef(i, y_cand.coefs[i]);
       }
       auto& cluster_pairs = tmp_cand.ClusterPairs();

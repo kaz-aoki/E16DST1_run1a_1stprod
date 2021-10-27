@@ -411,13 +411,13 @@ class E16ANA_TrackCheckFile {
     }
     gtr_peak_sum_threshold_y= cands.GTRPeakSumThresholdY();
     for (int i = 0; i < 2; ++i) {
-      raugh_fit_chi_square_threshold[i] = cands.RaughFitChiSquareThreshold(i);
+      raugh_fit_chi_square_threshold[i] = cands.RoughFitChiSquareThreshold(i);
     }
     for (int i = 0; i < 3; ++i) {
-      raugh_x_fit_coefficient_threhold[i] = cands.RaughXFitCoefficientThreshold(i);
+      raugh_x_fit_coefficient_threhold[i] = cands.RoughXFitCoefficientThreshold(i);
     }
     for (int i = 0; i < 2; ++i) {
-      raugh_y_fit_coefficient_threhold[i] = cands.RaughYFitCoefficientThreshold(i);
+      raugh_y_fit_coefficient_threhold[i] = cands.RoughYFitCoefficientThreshold(i);
     }
     hbd_projection_threshold = cands.HBDProjectionThreshold();
     lg_projection_threshold = cands.LGProjectionThreshold();
