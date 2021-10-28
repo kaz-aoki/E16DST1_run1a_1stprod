@@ -144,7 +144,8 @@ void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
   SimpleMethod(_wf);
   SetT0(t0);
 
-  if(peak>8&&spikeflag==false){
+  if(peak>8){//modified in 211027
+  //  if(peak>8&&spikeflag==false){
   //  if(spikeflag==false){
     CalcWaveforms();
     PeakSearch();
@@ -157,8 +158,6 @@ void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
     peakxs[0] = peakx;
     peaks[0] = peak;
     timings[0] = timing+100.-t0;
-    //std::cout<<n_fit0<<std::endl;
-    //n_fit0++;
   }
 
 }
@@ -301,7 +300,7 @@ void E16ANA_LGWaveform::PeakSearch(){
 void E16ANA_LGWaveform::Fit(){
 
   if(nps_short==1){
-    if(BaselineCorrect()){
+    if(BaselineCorrect()&&nps_full<2&&spikeflag==false){
       fitOK = 0;
     }
     else{//incorrect baseline
@@ -322,11 +321,9 @@ void E16ANA_LGWaveform::Fit(){
   }
   else if(nps_short==0){
     fitOK = 0;
-    //n_fit0++;
   }
   else{
     fitOK = 0;
-    //n_fit4++;
   }
 
 
@@ -368,7 +365,7 @@ int E16ANA_LGWaveform::PeakSearchFull(double* pxs, double* ps){
     //int th = mwf[j]*0.1;
     if( dwf[j-4]>=0&&dwf[j-3]>=0&&dwf[j-2]>=0&&dwf[j-1]>=0&&dwf[j]>0 &&
         dwf[j+1]<=0&&dwf[j+2]<=0&&dwf[j+3]<=0&&dwf[j+4]<=0 &&
-        mwf[j]>10 ){
+      mwf[j]>10 ){
       //peakxs.push_back((double)j);
       //peaks.push_back(mwf[j]);
       mypxs[mynps] = (double)j;
@@ -389,7 +386,20 @@ int E16ANA_LGWaveform::PeakSearchFull(double* pxs, double* ps){
 
   delete hwf;
   delete s;
-
+  /*
+  static int ctemp0 = 0;
+  static int ctemp1 = 0;
+  static int ctemp2 = 0;
+  static int ctemp3 = 0;
+  static int ctemp4 = 0;
+  static int ctemp5 = 0;
+  if(nps==0){ ctemp0++; std::cout<<"**0** "<<ctemp0<<std::endl;}
+  if(nps==1){ ctemp1++; std::cout<<"**1** "<<ctemp1<<std::endl;}
+  if(nps==2){ ctemp2++; std::cout<<"**2** "<<ctemp2<<std::endl;}
+  if(nps==3){ ctemp3++; std::cout<<"**3** "<<ctemp3<<std::endl;}
+  if(nps==4){ ctemp4++; std::cout<<"**4** "<<ctemp4<<std::endl;}
+  if(nps==5){ ctemp5++; std::cout<<"**5** "<<ctemp5<<std::endl;}
+  */
   return nps;
 
 }

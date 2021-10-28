@@ -333,6 +333,7 @@ class E16ANA_TrackCandidates {
     TVector3 mom_minus;
     TVector3 mom_plus;
     bool is_refit;
+    double chi_square_refit;
     TVector3 vtx_refit;
 //    double distance_refit;
     TVector3 mom_minus_refit;
@@ -357,8 +358,8 @@ class E16ANA_TrackCandidates {
       mom_plus_refit = E16DST_DST1Constant::kInvalidVector;
     }
   };
-  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
-      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter),
+  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter, E16DST_DST1PhysicsRecord* _record)
+      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
         is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
   track_candidates.clear();
   }
@@ -554,15 +555,16 @@ class E16ANA_TrackCandidates {
   void ProjectionTarget();
   void ProjectionX0();
   double SearchVertex(TrackPair* track_pair);
-  void AddTracks(TrackPair* track_pair);
+  void AddTracks(TrackPair* track_pair, double tgt_z);
   void UpdateFitResult(TrackPair* track_pair);
-  void PairTracking(TrackPair* track_pair);
+  void PairTracking(TrackPair* track_pair, double tgt_z);
 //  void SelectTrackPairs();
   void MakeTrackPairs();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* fitter;
+  E16ANA_MultiTrack* pair_fitter;
   std::array<bool, E16ANA_TrackConstant::kNumTrackingLayers> is_used_layer;
   bool vertex_xy_fix_flag;
   bool py_fix_flag;

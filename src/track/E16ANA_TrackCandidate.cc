@@ -924,21 +924,22 @@ double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
 //  return;
 //}
 
-void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair) {
-  fitter->Clear();
+void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair, double tgt_z) {
+  pair_fitter->Clear();
   std::array<E16ANA_TrackCandidate*, 2> cands = {track_pair->cand_minus, track_pair->cand_plus};
-  fitter->SetInitialVertex(track_pair->vtx, kVertexSigma);
-  fitter->SetInitialMomentum(0, track_pair->mom_minus);
-  fitter->SetCharge(0, -1.);
-  fitter->SetInitialMomentum(1, track_pair->mom_plus);
-  fitter->SetCharge(1, 1.);
+//  pair_fitter->SetInitialVertex(track_pair->vtx, kVertexSigma);
+  pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_z), kVertexSigma);
+  pair_fitter->SetInitialMomentum(0, track_pair->mom_minus);
+  pair_fitter->SetCharge(0, -1.);
+  pair_fitter->SetInitialMomentum(1, track_pair->mom_plus);
+  pair_fitter->SetCharge(1, 1.);
   for (int track_index = 0; track_index < cands.size(); ++track_index) {
     for (int layer_index = 0; layer_index < E16ANA_TrackConstant::kNumTrackingLayers; ++layer_index) {
       auto& fit_result = cands[track_index]->LocalFitResult(layer_index);
       if (layer_index == E16ANA_TrackConstant::kSSD) {
-        fitter->AddHit(track_index, layer_index, geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id)), fit_result.local_pos, kSigmas[layer_index]);
+        pair_fitter->AddHit(track_index, layer_index, geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id)), fit_result.local_pos, kSigmas[layer_index]);
       } else {
-        fitter->AddHit(track_index, layer_index, geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id), layer_index - 1), fit_result.local_pos, kSigmas[layer_index]);
+        pair_fitter->AddHit(track_index, layer_index, geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id), layer_index - 1), fit_result.local_pos, kSigmas[layer_index]);
       }
     }
   }
@@ -946,18 +947,18 @@ void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair) {
 }
 
 void E16ANA_TrackCandidates::UpdateFitResult(TrackPair* track_pair) {
-  track_pair->vtx_refit = fitter->GetFitVertex();
-  track_pair->mom_minus_refit = fitter->GetFitMomentum(0);
-  track_pair->mom_plus_refit = fitter->GetFitMomentum(1);
+  track_pair->vtx_refit = pair_fitter->GetFitVertex();
+  track_pair->mom_minus_refit = pair_fitter->GetFitMomentum(0);
+  track_pair->mom_plus_refit = pair_fitter->GetFitMomentum(1);
   for (int track_index = 0; track_index < 2; ++track_index) {
     for (int layer_index = 0; layer_index < E16ANA_TrackConstant::kNumTrackingLayers; ++layer_index) {
       std::vector<int> mid;
       std::vector<TVector3> lpos;
       std::vector<TVector3> lmom;
       std::vector<TVector3> lres;
-      fitter->GetFitLPos(track_index, layer_index, mid, lpos);
-      fitter->GetFitLMom(track_index, layer_index, mid, lmom);
-      fitter->GetFitResidual(track_index, layer_index, mid, lres);
+      pair_fitter->GetFitLPos(track_index, layer_index, mid, lpos);
+      pair_fitter->GetFitLMom(track_index, layer_index, mid, lmom);
+      pair_fitter->GetFitResidual(track_index, layer_index, mid, lres);
       int hid = 0; // hit ID
       if (layer_index == E16ANA_TrackConstant::kSSD) {
         if (track_index == 0) {
@@ -986,11 +987,11 @@ void E16ANA_TrackCandidates::UpdateFitResult(TrackPair* track_pair) {
   return;
 }
 
-void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair) {
-  AddTracks(track_pair);
-  fitter->SetRungeKuttaStepSize(kTrackingStepSize);
-  fitter->SetMaxSteps(kTrackingMaxSteps);
-  double chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
+void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair, double tgt_z) {
+  AddTracks(track_pair, tgt_z);
+  pair_fitter->SetRungeKuttaStepSize(kTrackingStepSize);
+  pair_fitter->SetMaxSteps(kTrackingMaxSteps);
+  track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
   UpdateFitResult(track_pair);
   return;
 }
@@ -1020,7 +1021,7 @@ void E16ANA_TrackCandidates::MakeTrackPairs() {
       }
       SearchVertex(&track_pair);
       if (tgt_z0 == tgt_z1) {
-        PairTracking(&track_pair);
+        PairTracking(&track_pair, tgt_z0);
       }
       track_pairs.emplace_back(track_pair);
     }

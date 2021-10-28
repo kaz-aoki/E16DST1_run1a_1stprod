@@ -115,8 +115,8 @@ bool E16ANA_HBDCalibration::ReadGainCalibrationStatusFile(const char *filename){
 
       std::stringstream ss(buf_line);
       ss>>status;
-      if(status == 0) gain_calibration_status = true;//normal operation (high)
-      if(status == 1) gain_calibration_status = false;//low gain operation (default)
+      if(status == 0) {gain_calibration_status = true;}//normal operation (high)
+      if(status == 1) {gain_calibration_status = false;}//low gain operation (default)
       return true;
     }    
   }

@@ -16,8 +16,8 @@
 //int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record) {
 //int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record, CheckFile* check_file) {
 //int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record, CheckFile* check_file0, CheckFile* check_file1) {
-int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record, E16ANA_TrackCheckFile* check_file) {
-  E16ANA_TrackCandidates track_candidates(&geometry, &bfield_map, fitter, record);
+int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16ANA_MultiTrack* pair_fitter, E16DST_DST1PhysicsRecord* record, E16ANA_TrackCheckFile* check_file) {
+  E16ANA_TrackCandidates track_candidates(&geometry, &bfield_map, fitter, pair_fitter, record);
   static int n_calls;
   static int n_cands;
   static bool is_fill_param;
