@@ -11,19 +11,12 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     auto& dst1_hits = gtr1->Hits();
     auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;
-    static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
+	static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
-        gtr_analyzers = new E16ANA_GTRAnalyzerMaker();
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdX, 150.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdY, 300.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTOTThresholdX, 75.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTOTThresholdY, 75.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetBadPedestalThresholdX, 150.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetBadPedestalThresholdY, 150.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetBadPedestalSigmaThresholdX, 80.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetBadPedestalSigmaThresholdY, 150.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTimeWindowMin, 0.0);
-        gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetTimeWindowMax, 1000.0);
+		E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+		E16ANA_GTRcalibParams gtr_params;
+		gtr_params.ReadCalibData(calib.CurrentRunID());
+    	gtr_analyzers = new E16ANA_GTRAnalyzerMaker(gtr_params);	
         for(int mid=100; mid<= 110; mid++){
             for(int lid = 0; lid < 3 ; lid ++){
                 E16ANA_GTRAnalyzer2 *analyzer = gtr_analyzers->Chamber(mid, lid);
@@ -131,7 +124,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
                     cl.SetCogPos(anahit.CogHit());
                     if(isnan(anahit.TdcHit())){
-		      //std::cout << "TDC hit pos is nan" << std::endl;
+				    	//std::cout << "TDC hit pos is nan" << std::endl;
                     }
                     else{
                         cl.SetTdcPos(anahit.TdcHit());

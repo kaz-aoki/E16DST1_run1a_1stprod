@@ -11,20 +11,16 @@
 class E16ANA_GTRAnalyzerMaker {
 public:
     enum { n_layers = 3 };
-    E16ANA_GTRAnalyzerMaker();
+    E16ANA_GTRAnalyzerMaker(E16ANA_GTRcalibParams &p);
     ~E16ANA_GTRAnalyzerMaker();
-   bool Exists(uint16_t module_id, uint16_t layer_id);
-   void Clear();
-   void SetThresholdX(double th);
-   void SetThresholdY(double th);
-   void SetTOTThresholdX(double th);
-   void SetTOTThresholdY(double th);
-   void Set(void (E16ANA_GTRAnalyzer2::*f)(double), double th);
-   OnlineGTR::HashMap<E16ANA_GTRAnalyzer2 *> analyzer_map;
-   E16ANA_GTRAnalyzer2 *Chamber(uint16_t module_id, uint16_t layer_id){
-      return analyzer_map[OnlineGTR::IDs(module_id, layer_id).value64];
-   }
+   	bool Exists(uint16_t module_id, uint16_t layer_id);
+	void Clear();
+    OnlineGTR::HashMap<E16ANA_GTRAnalyzer2 *> analyzer_map;
+    E16ANA_GTRAnalyzer2 *Chamber(uint16_t module_id, uint16_t layer_id){
+    	return analyzer_map[OnlineGTR::IDs(module_id, layer_id).value64];
+    }
 private:
+	E16ANA_ParamManager* paramMgr;
 };
 
 

@@ -105,7 +105,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1SSDAnalyzerMaker.cxx
   src/GTR/E16ANA_GTRAnalyzer2.cc
   src/GTR/E16ANA_GTRStripAnalyzer.cc
-  src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
+  src/GTR/E16ANA_GTRAnalyzerMaker.cc
   src/GTR/E16ANA_GTRPedestal.cc
   src/GTR/GTRCheckHist.cc
   src/HBD/E16ANA_HBDChannelManager.cc
@@ -190,15 +190,15 @@ target_link_libraries(dst0_to_dst1_all_check_hist
 )
 
 #_______________________________________________________________________________
-#add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
+add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
 
-#target_link_libraries(dst0_to_dst1_strack_check
-#	E16DST_DST1
-##	E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
+target_link_libraries(dst0_to_dst1_strack_check
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)

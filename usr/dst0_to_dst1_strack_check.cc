@@ -218,7 +218,7 @@ int main(int argc, char* argv[]) {
       //E16DST_DST1WireTrackFactory2D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
 
       std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-      E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+      E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
       record->SSD().UpdatePtrs();
 
       int ntracks = st_tracks.size();
@@ -229,9 +229,9 @@ int main(int argc, char* argv[]) {
 	chi2x[i] = st_track->Chi2X();
 	chi2y[i] = st_track->Chi2Y();
 	tgtz[i] = st_track->TgtPosZ();
-	tgty[i] = st_track->TgtPosY();
+//	tgty[i] = st_track->TgtPosY();
 	distzx[i] = st_track->DistanceFromTgtXZ();
-	distyr[i] = st_track->DistanceFromTgtYR();
+//	distyr[i] = st_track->DistanceFromTgtYR();
 	res0[i] = st_track->ResidualSSD();
 	res1[i] = st_track->FitResidual100X();
 	res2[i] = st_track->FitResidual200X();

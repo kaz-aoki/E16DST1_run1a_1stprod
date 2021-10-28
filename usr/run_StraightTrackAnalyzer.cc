@@ -267,10 +267,17 @@ int main(int argc, char* argv[]) {
   auto max_event     = stoi(argv[4]);
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
-  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
-  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
-  E16ANA_GeometryV2::SetGlobalPointer(geom);
+//  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
+//  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
+//  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
+//  E16ANA_GeometryV2::SetGlobalPointer(geom);
+
+//  E16ANA_ParamManager *paramMgr;
+//  E16ANA_GTRAnalyzerManager *gtr_manager;
+//  const char *file = "/ccj/u/mtomoki/E16CalibFiles-local.cfg";
+//  paramMgr = new E16ANA_ParamManager(file);
+//  gtr_manager = new E16ANA_GTRAnalyzerManager(paramMgr);
+
 
   auto trigger_param = new E16ANA_TriggerCalibParam();
   trigger_param->ReadConstantData(calib.CurrentRunID());
@@ -280,7 +287,7 @@ int main(int argc, char* argv[]) {
   targets.ReadInfoWithRunID( calib.CurrentRunID());
   targets.Print();
   auto record = new E16DST_DST1PhysicsRecord();
-//  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
   
   int n_event = 0;
@@ -310,7 +317,7 @@ int main(int argc, char* argv[]) {
 
 //    &record->GTR();
 	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+//	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
 	
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];

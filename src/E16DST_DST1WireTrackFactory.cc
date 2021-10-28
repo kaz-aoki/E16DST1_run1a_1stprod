@@ -9,14 +9,20 @@
 #include "E16ANA_RundependentName.hh"
 using namespace std;
 
-int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> &st_tracks, E16ANA_GTRcalibPedestal &gtrped,  E16ANA_GeometryV2 *geom){
+int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> &st_tracks, E16ANA_GTRcalibPedestal &gtrped){
 	static bool isFirst = true;
 	static StraightTrackAnalyzerOfWireV1 *straight_analyzer;
+	static E16ANA_GeometryV2 *geom;
 	if(isFirst){
         auto& calib = E16ANA_CalibDBManager::Instance();
         E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
 		targets.ReadInfoWithRunID(calib.CurrentRunID());
         targets.Print();
+//		E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
+//		string geomName = name.ReadNameWithRunID(calib.CurrentRunID(), "geometry", "/ccj/u/E16/database/");
+//		std::cout << "geom name = " << geomName << std::endl;
+//		geom = new E16ANA_GeometryV2(geomName);
+		geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
 		if(targets.IsWire()){
 	        double x1 = targets.Info(0).Position().x();
     	    double z1 = targets.Info(0).Position().z();
