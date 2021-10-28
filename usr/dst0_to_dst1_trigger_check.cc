@@ -134,7 +134,8 @@ int main(int argc, char* argv[]) {
       record.GTR().UpdatePtrs();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().UpdatePtrs();
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
+//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1);
       record.LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);

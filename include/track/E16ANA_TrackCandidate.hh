@@ -333,9 +333,9 @@ class E16ANA_TrackCandidates {
     TVector3 mom_minus;
     TVector3 mom_plus;
     bool is_refit;
+    bool is_selected;
     double chi_square_refit;
     TVector3 vtx_refit;
-//    double distance_refit;
     TVector3 mom_minus_refit;
     TVector3 mom_plus_refit;
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_pos_refit;
@@ -344,6 +344,31 @@ class E16ANA_TrackCandidates {
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_mom_refit;
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_res_refit;
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_res_refit;
+    TrackPair& operator = (const TrackPair& rhs) {
+      Copy(rhs);
+      return (*this);
+    }
+    void Copy(const TrackPair& rhs) {
+      this->cand_minus = rhs.cand_minus;
+      this->cand_plus = rhs.cand_plus;
+      this->vtx = rhs.vtx;
+      this->distance = rhs.distance;
+      this->mom_minus = rhs.mom_minus;
+      this->mom_plus = rhs.mom_plus;
+      this->is_refit = rhs.is_refit;
+      this->is_selected = rhs.is_selected;
+      this->chi_square_refit = rhs.chi_square_refit;
+      this->vtx_refit = rhs.vtx_refit;
+      this->mom_minus_refit = rhs.mom_minus_refit;
+      this->mom_plus_refit = rhs.mom_plus_refit;
+      this->track_minus_pos_refit = rhs.track_minus_pos_refit;
+      this->track_plus_pos_refit = rhs.track_plus_pos_refit;
+      this->track_minus_mom_refit = rhs.track_minus_mom_refit;
+      this->track_plus_mom_refit = rhs.track_plus_mom_refit;
+      this->track_minus_res_refit = rhs.track_minus_res_refit;
+      this->track_plus_res_refit = rhs.track_plus_res_refit;
+      return;
+    }
     void Clear() {
       cand_minus = nullptr;
       cand_plus = nullptr;
@@ -352,10 +377,17 @@ class E16ANA_TrackCandidates {
       mom_minus = E16DST_DST1Constant::kInvalidVector;
       mom_plus = E16DST_DST1Constant::kInvalidVector;
       is_refit = false;
+      is_selected = false;
       vtx_refit = E16DST_DST1Constant::kInvalidVector;
 //      distance_refit = E16DST_DST1Constant::kInvalidValue;
       mom_minus_refit = E16DST_DST1Constant::kInvalidVector;
       mom_plus_refit = E16DST_DST1Constant::kInvalidVector;
+      track_minus_pos_refit.fill(E16DST_DST1Constant::kInvalidVector);
+      track_plus_pos_refit.fill(E16DST_DST1Constant::kInvalidVector);
+      track_minus_mom_refit.fill(E16DST_DST1Constant::kInvalidVector);
+      track_plus_mom_refit.fill(E16DST_DST1Constant::kInvalidVector);
+      track_minus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
+      track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter, E16DST_DST1PhysicsRecord* _record)
@@ -484,7 +516,8 @@ class E16ANA_TrackCandidates {
 //  static constexpr double kGTRPeakSumThresholdX = 180.;
   static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.};
   static constexpr double kGTRPeakSumThresholdY = 10.;
-  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 10.}; // x, y
+//  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 10.}; // x, y
+  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 10.}; // x, y
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
   static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
@@ -494,13 +527,15 @@ class E16ANA_TrackCandidates {
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kNearTargetThreshold = 100.; // square value
+  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
+  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
   static constexpr double kTrackingStepSize = 1.;
   static constexpr int kTrackingMaxSteps = 400;
   static constexpr int kMinuitStrategy = 2;
   static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
-  static inline const TVector3 kVertexSigma = {1., 1., 0.};
+  static inline const TVector3 kVertexSigma = {3., 3., 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
@@ -558,7 +593,7 @@ class E16ANA_TrackCandidates {
   void AddTracks(TrackPair* track_pair, double tgt_z);
   void UpdateFitResult(TrackPair* track_pair);
   void PairTracking(TrackPair* track_pair, double tgt_z);
-//  void SelectTrackPairs();
+  void SelectTrackPairs();
   void MakeTrackPairs();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;

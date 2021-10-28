@@ -769,6 +769,21 @@ void E16ANA_TrackCandidates::SortTracks() {
     if (cand.ProjectedLGHits().size() == 0) {
       continue;
     }
+    bool is_large_residual = false;
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
+      auto& res = cand.LocalFitResult(i).residual_pos;
+      if (fabs(res.X()) > kResidualThresholdX[i]) {
+        is_large_residual = true;
+        break;
+      }
+      if (i != E16DST_DST1Constant::kSSD && fabs(res.Y()) > kResidualThresholdY[i]) {
+        is_large_residual = true;
+        break;
+      }
+    }
+    if (is_large_residual) {
+      continue;
+    }
     bool is_near_target = false;
     for (auto& pos : cand.PosAtTargets()) {
       double mag2 = pos.X() * pos.X() + pos.Y() * pos.Y();
@@ -894,35 +909,39 @@ double E16ANA_TrackCandidates::SearchVertex(TrackPair* track_pair) {
   return distance * 10.;
 }
 
-//void E16ANA_TrackCandidates::SelectTrackPairs() {
-//  selected_track_pairs.clear();
-//  std::vector<E16ANA_TrackCandidate*> used_minus_cands;
-//  std::vector<E16ANA_TrackCandidate*> used_plus_cands;
-//  for (auto& pair : track_pairs) {
-//    bool is_used = false;
-//    for (auto& used_cand : used_minus_cands) {
-//      if (used_cand == pair.cand_minus) {
-//        is_used = true;
-//        break;
-//      }
-//    }
-//    if (!is_used) {
-//      for (auto& used_cand : used_plus_cands) {
-//        if (used_cand == pair.cand_plus) {
-//          is_used = true;
-//          break;
-//        }
-//      }
-//    }
-//    if (is_used) {
-//      continue;
-//    }
-//    selected_track_pairs.emplace_back(&pair);
-//    used_minus_cands.emplace_back(pair.cand_minus);
-//    used_plus_cands.emplace_back(pair.cand_plus);
-//  }
-//  return;
-//}
+void E16ANA_TrackCandidates::SelectTrackPairs() {
+  selected_track_pairs.clear();
+  std::vector<E16ANA_TrackCandidate*> used_minus_cands;
+  std::vector<E16ANA_TrackCandidate*> used_plus_cands;
+  std::sort(track_pairs.begin(), track_pairs.end(), [](auto& lhs, auto& rhs) {
+    return lhs.chi_square_refit < rhs.chi_square_refit;
+  });
+  for (auto& pair : track_pairs) {
+    bool is_used = false;
+    for (auto& used_cand : used_minus_cands) {
+      if (used_cand == pair.cand_minus) {
+        is_used = true;
+        break;
+      }
+    }
+    if (!is_used) {
+      for (auto& used_cand : used_plus_cands) {
+        if (used_cand == pair.cand_plus) {
+          is_used = true;
+          break;
+        }
+      }
+    }
+    if (is_used) {
+      continue;
+    }
+    pair.is_selected = true;
+    selected_track_pairs.emplace_back(&pair);
+    used_minus_cands.emplace_back(pair.cand_minus);
+    used_plus_cands.emplace_back(pair.cand_plus);
+  }
+  return;
+}
 
 void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair, double tgt_z) {
   pair_fitter->Clear();
@@ -964,22 +983,20 @@ void E16ANA_TrackCandidates::UpdateFitResult(TrackPair* track_pair) {
         if (track_index == 0) {
           track_pair->track_minus_pos_refit[layer_index] = geometry->SSD(mid[hid])->GetGPos(lpos[hid]);
           track_pair->track_minus_mom_refit[layer_index] = geometry->SSD(mid[hid])->GetGMom(lmom[hid]);
-          track_pair->track_minus_res_refit[layer_index] = lres[hid];
         } else {
           track_pair->track_plus_pos_refit[layer_index] = geometry->SSD(mid[hid])->GetGPos(lpos[hid]);
           track_pair->track_plus_mom_refit[layer_index] = geometry->SSD(mid[hid])->GetGMom(lmom[hid]);
-          track_pair->track_plus_res_refit[layer_index] = lres[hid];
         }
+        track_pair->track_plus_res_refit[layer_index] = lres[hid];
       } else {
         if (track_index == 0) {
           track_pair->track_minus_pos_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGPos(lpos[hid]);
           track_pair->track_minus_mom_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGMom(lmom[hid]);
-          track_pair->track_minus_res_refit[layer_index] = lres[hid];
         } else {
           track_pair->track_plus_pos_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGPos(lpos[hid]);
           track_pair->track_plus_mom_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGMom(lmom[hid]);
-          track_pair->track_plus_res_refit[layer_index] = lmom[hid];
         }
+        track_pair->track_plus_res_refit[layer_index] = lres[hid];
       }
     }
   }
@@ -1026,7 +1043,7 @@ void E16ANA_TrackCandidates::MakeTrackPairs() {
       track_pairs.emplace_back(track_pair);
     }
   }
-//  SelectTrackPairs();
+  SelectTrackPairs();
   return;
 }
 
