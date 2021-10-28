@@ -353,7 +353,7 @@ int main(int argc, char* argv[]) {
       record->LG().UpdatePtrs();
 
       std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-      E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+      E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
       record->SSD().UpdatePtrs();
 
 
@@ -457,6 +457,7 @@ int main(int argc, char* argv[]) {
 
 	trkindex = i;
 	auto& st_track = st_tracks[i];
+
 	module = st_track->ModuleID();
 	//std::cout<<st_track->XTrackID()<<" "<<st_track->YTrackID()<<std::endl;
 	chi2x = st_track->Chi2X();

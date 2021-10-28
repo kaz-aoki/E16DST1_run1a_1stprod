@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
 //      event1->Trigger().SetValidFlag(1);
 
 //   gtrhist->Fill(&gtr_hits, &gtr_clusters);
-   gtrhist->Fill(&record->GTR());
+//   gtrhist->Fill(&record->GTR());
 
 
 // GTR
