@@ -146,6 +146,9 @@ int main(int argc, char* argv[]) {
   int hbdcs;
   double hbdadc;
   double hbdtdc;
+  double hbdgx;
+  double hbdgy;
+  double hbdgz;
   double hbdhitresx[SMAX];
   double hbdhitresy[SMAX];
   int hbdhitcs[SMAX];
@@ -243,6 +246,9 @@ int main(int argc, char* argv[]) {
   tree->Branch("hbdcs",&hbdcs,"hbdcs/I");
   tree->Branch("hbdadc",&hbdadc,"hbdadc/D");
   tree->Branch("hbdtdc",&hbdtdc,"hbdtdc/D");
+  tree->Branch("hbdgx",&hbdgx,"hbdgx/D");
+  tree->Branch("hbdgy",&hbdgy,"hbdgy/D");
+  tree->Branch("hbdgz",&hbdgz,"hbdgz/D");
   tree->Branch("hbdhitresx",hbdhitresx,"hbdhitresx[hbd_ncs]/D");
   tree->Branch("hbdhitresy",hbdhitresy,"hbdhitresy[hbd_ncs]/D");
   tree->Branch("hbdhitcs",hbdhitcs,"hbdhitcs[hbd_ncs]/I");
@@ -344,7 +350,8 @@ int main(int argc, char* argv[]) {
       E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 
       record->SSD().UpdatePtrs();
@@ -458,7 +465,6 @@ int main(int argc, char* argv[]) {
 	trkindex = i;
 	auto& st_track = st_tracks[i];
 	module = st_track->ModuleID();
-	//std::cout<<st_track->XTrackID()<<" "<<st_track->YTrackID()<<std::endl;
 	chi2x = st_track->Chi2X();
 	chi2y = st_track->Chi2Y();
 	tgtz = st_track->TgtPosZ();
@@ -607,11 +613,15 @@ int main(int argc, char* argv[]) {
 	    hbdcs = hbdhitcs[nearindex];
 	    hbdadc = hbdhitadc[nearindex];
 	    hbdtdc = hbdhittdc[nearindex];
-	    if(sqrt(nearresx*nearresx+nearresy*nearresy)<10){
+	    hbdgx = hbdhitgx[nearindex];
+	    hbdgy = hbdhitgy[nearindex];
+	    hbdgz = hbdhitgz[nearindex];
+	    if(sqrt(nearresx*nearresx+nearresy*nearresy)<15){
 	      hbdeff = true;
 	    }
 	  }
 	}
+	//std::cout<<n_event<<" "<<ntr<<" "<<st_track->XTrackID()<<" "<<st_track->YTrackID()<<" "<<hbdeff<<std::endl;
 
 	//Cross point at LG plane
 	double ea = atan2(g300.Y(), g300.Mag());
@@ -699,14 +709,17 @@ int main(int argc, char* argv[]) {
 	    //std::cout<<"LGCheck:"<<lghit->ModuleId()<<" "<<lghit->ChannelId()<<" "<<lghit->LocalPos(*geom).X()<<" "<<lghit->LocalPos(*geom).Y()<<std::endl;
 	    lghitresx[nhs] = resx;
 	    lghitresy[nhs] = resy;
-	    lghitadc[nhs] = lghit->FitPeak();
-	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    //lghitadc[nhs] = lghit->FitPeak();
+	    lghitadc[nhs] = lghit->PeakHeight();
+	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
 	    lghitgx[nhs] = lghit->GlobalPos(*geom).X();
 	    lghitgy[nhs] = lghit->GlobalPos(*geom).Y();
 	    lghitgz[nhs] = lghit->GlobalPos(*geom).Z();
 
 	    int lglocaly = lghit->ChannelId()/10;
-	    if(lglocaly*10==block){
+	    //if(lglocaly*10==block){//comment out 211028
+	    if(lglocaly*10==block||lglocaly*10==block+10||lglocaly*10==block-10){//211028
 	      //std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgcptx<<std::endl;
 	      if(fabs(resx)<fabs(nearresx)){
 		nearindex = nhs;
@@ -716,11 +729,9 @@ int main(int argc, char* argv[]) {
 	      if(fabs(resxdam)<fabs(nearresxdam)){
 		nearresxdam = resxdam;
 	      }
-	      if(fabs(nearresx)<65){
-		lgeff = true;
-	      }
 	    }
 	  }//cluster loop
+
 	  if(nearindex>=0){
 	    lgresx = nearresx;
 	    lgresy = nearresy;
@@ -732,7 +743,11 @@ int main(int argc, char* argv[]) {
 	    lggz = lghitgz[nearindex];
 	    lgmod = lg_hits1[nearindex]->ModuleId();
 	    lgblk = lg_hits1[nearindex]->ChannelId();
+	    if(fabs(nearresx)<65){
+	      lgeff = true;
+	    }
 	  }
+
 	}//lg cluster bool
 
 	//std::cout<<lgcptx<<" "<<lgcpty<<std::endl;
