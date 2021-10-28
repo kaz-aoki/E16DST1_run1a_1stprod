@@ -155,9 +155,10 @@ bool E16ANA_GTRcalibParams::ReadCalibDataCore(std::ifstream *ifs){
       }
       std::istringstream iss(buf);
       IDs id(0);
-      double tx, ty, totx, toty, pedx, pedy, sigx, sigy, wmin, wmax;
-      iss >> id.module_id >> id.layer_id  >> tx >> ty >> totx >> toty >>  pedx >>  pedy >>  sigx>>  sigy >> wmin >> wmax ;
-      chamber_params_map[id.value32].SetValues(tx, ty, totx, toty, pedx, pedy, sigx, sigy, wmin, wmax);
+	  int cluster_min_gap;
+      double tx, ty, totx, toty, pedx, pedy, sigx, sigy, wmin, wmax,cluster_delta_tdc,risetime_min,risetime_max,peaktime_min,	peaktime_max;
+      iss >> id.module_id >> id.layer_id  >> tx >> ty >> totx >> toty >>  pedx >>  pedy >>  sigx>>  sigy >> wmin >> wmax >> cluster_min_gap >> cluster_delta_tdc >> risetime_min >> risetime_max >> peaktime_min >> peaktime_max;
+      chamber_params_map[id.value32].SetValues(tx, ty, totx, toty, pedx, pedy, sigx, sigy, wmin, wmax,cluster_min_gap,cluster_delta_tdc,risetime_min,risetime_max,peaktime_min,	peaktime_max);
    }
    ifs->close();
    return flag;

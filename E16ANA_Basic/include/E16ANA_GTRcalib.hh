@@ -127,7 +127,7 @@ public:
 //         }
 //         return sigma;
 //      };
-      void SetValues(double tx, double ty, double totx, double toty, double pedx, double pedy, double sigx, double sigy, double wmin, double wmax)
+      void SetValues(double tx, double ty, double totx, double toty, double pedx, double pedy, double sigx, double sigy, double wmin, double wmax, int gap, double tdc, double rmin, double rmax, double pmin, double pmax)
       { // file read mode
     	 th_x = tx;
 	     th_y = ty;
@@ -139,6 +139,12 @@ public:
 		 th_badped_sigma_y = sigy;
 		 twindow_min = wmin;
 	 	 twindow_max= wmax;
+      cluster_min_gap = gap;
+	  cluster_delta_tdc = tdc;
+	  risetime_min = rmin;
+	  risetime_max = rmax;
+	  peaktime_min = pmin;	
+      peaktime_max = pmax;
          is_set = true;
       };
 	  double ThresholdX(){return th_x;}
@@ -151,7 +157,12 @@ public:
 	  double BadPedestalSigmaThresholdY(){return th_badped_sigma_y;}
 	  double TimeWindowMin(){return twindow_min;}
 	  double TimeWindowMax(){return twindow_max;}
-
+      int    ClusterMinGap(){return cluster_min_gap;}
+	  double ClusterDeltaTDC(){return cluster_delta_tdc;}
+	  double RiseTimeMin(){return risetime_min;}
+	  double RiseTimeMax(){return risetime_max;}
+	  double PeakTimeMin(){return peaktime_min;}
+	  double PeakTimeMax(){return peaktime_max;}
    private:
       double th_x;
       double th_y;
@@ -163,6 +174,12 @@ public:
 	  double th_badped_sigma_y;
 	  double twindow_min;
 	  double twindow_max;
+      int    cluster_min_gap;
+	  double cluster_delta_tdc;
+	  double risetime_min;
+	  double risetime_max;
+	  double peaktime_min;	
+      double peaktime_max;
       bool is_set;
    };
 

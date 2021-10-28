@@ -214,6 +214,13 @@ protected:
    double gem_tot_threshold;
    double threshold_fraction;
    double position_start;
+   int cluster_minimum_gap;
+   double cluster_delta_tdc;
+   double rise_time_min;
+   double rise_time_max;
+   double peak_time_min;
+   double peak_time_max;
+
 
    double inverted; // If strip order is the opposite direction to the local coordinate, ...
 
@@ -276,7 +283,9 @@ protected:
    void CalcClusterParams(std::vector<cluster_param_t> &v1);
    virtual int HitClusteringV0();
    virtual int HitClusteringV0(const int min_gap, const double cluster_threshold);
-   virtual int HitClusteringV1(const int min_gap = 2, const double delta_tdc_threshold = 150.0);
+   virtual int HitClusteringV1();
+   virtual int HitClusteringV1(const int min_gap , const double delta_tdc_threshold);
+   //virtual int HitClusteringV1(const int min_gap = 2, const double delta_tdc_threshold = 150.0);
    /*
       virtual int HitClusteringV2(const int min_gap = 2, const double delta_tdc_threshold = 150.0);
       virtual int HitClusteringV3(

@@ -79,6 +79,13 @@ public:
    virtual void SetBadPedestalSigmaThresholdY(double th);
    virtual void SetTimeWindowMin(double th);
    virtual void SetTimeWindowMax(double th);
+   virtual void SetClusterMinimumGap(int th);
+   virtual void SetClusterDeltaTdc(double th);
+   virtual void SetRiseTimeMin(double th);
+   virtual void SetRiseTimeMax(double th);
+   virtual void SetPeakTimeMin(double th);
+   virtual void SetPeakTimeMax(double th);
+
 
 protected:
    int n_strip_x;
@@ -103,6 +110,14 @@ protected:
    double gem_t0_max;
    double gem_tr;
    double threshold_fraction;
+   int cluster_minimum_gap;
+   double cluster_delta_tdc;
+   double rise_time_min;
+   double rise_time_max;
+   double peak_time_min;
+   double peak_time_max;
+
+
 
    // int n_valid_counts;
    std::vector<int> fadc_valid_count;
