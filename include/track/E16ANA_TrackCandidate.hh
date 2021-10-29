@@ -132,7 +132,7 @@ class E16ANA_TrackCandidate {
   }
   void SetPosAtX0(TVector3 _pos) { pos_at_x0 = _pos; }
   void SetMomAtX0(TVector3 _mom) { mom_at_x0 = _mom; }
-  TVector3 Sigma() { return kSigma; }
+//  TVector3 Sigma() { return kSigma; }
   TVector3 EachSigma(int n) { return kSigmas[n]; }
   TVector3 InitPosError() { return kInitPosError; }
   int TrackingMaxSteps() { return kTrackingMaxSteps; }
@@ -205,7 +205,7 @@ class E16ANA_TrackCandidate {
     }
   }
   void PrintParam() {
-    std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
+//    std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
     for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
       std::cout << "  " << E16ANA_TrackConstant::kDetectorName[i] << " : ("  << kSigmas[i](0) << ", " << kSigmas[i](1) << ", " << kSigmas[i](2) << ")" << std::endl;
     }
@@ -225,12 +225,6 @@ class E16ANA_TrackCandidate {
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
-  // parameter
-  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
-  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
-  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
-//  static inline const TVector3 kInitPosError = {0., 0., 0.};
-//  static inline const TVector3 kInitPosError = {5., 5., 0.};
   static constexpr int kMinuitStrategy = 0;
   static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
   static constexpr double kTrackingStepSize = 5.;
@@ -239,6 +233,12 @@ class E16ANA_TrackCandidate {
   static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
   static constexpr int kProjectionMaxSteps = 2000;
+  // parameter
+//  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
+  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
+  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
+//  static inline const TVector3 kInitPosError = {0., 0., 0.};
+//  static inline const TVector3 kInitPosError = {5., 5., 0.};
   void Copy(const E16ANA_TrackCandidate& rhs) {
     this->geometry = rhs.geometry;
     this->bfield_map = rhs.bfield_map;
@@ -442,9 +442,14 @@ class E16ANA_TrackCandidates {
   double RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
   double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
   double LGProjectionThreshold() { return kLGProjectionThreshold; }
+  double LGElectronThreshold() { return kLGElectronThreshold; }
+  double ResidualThresholdX(int n) { return kResidualThresholdX[n]; }
+  double ResidualThresholdY(int n) { return kResidualThresholdY[n]; }
   double NearTargetThreshold() { return kNearTargetThreshold; }
   double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
   int StepTrackArraySize() { return kStepTrackArraySize; }
+  TVector3 VertexSigma() { return kVertexSigma; }
+  TVector3 PairFitSigma(int n) { return kSigmas[n]; }
   int NumXCandidates() { return n_x_cands; }
   int NumYCandidates() { return n_y_cands; }
   int NumTrackCandidates() { return track_candidates.size(); }

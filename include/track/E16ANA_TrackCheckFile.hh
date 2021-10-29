@@ -20,7 +20,7 @@ class E16ANA_TrackCheckFile {
     t_param = new TTree("param", "param");
     tree = new TTree("tree", "tree");
     // Hit, Cluster
-    t_param->Branch("sigma", &sigma);
+//    t_param->Branch("sigma", &sigma);
     t_param->Branch("each_sigmas0", &each_sigmas0);
     t_param->Branch("each_sigmas1", &each_sigmas1);
     t_param->Branch("each_sigmas2", &each_sigmas2);
@@ -40,9 +40,17 @@ class E16ANA_TrackCheckFile {
     t_param->Branch("rough_y_fit_coefficient_threhold", rough_y_fit_coefficient_threhold, "rough_y_fit_coefficient_threhold[2]/D");
     t_param->Branch("hbd_projection_threshold", &hbd_projection_threshold, "hbd_projection_threshold/D");
     t_param->Branch("lg_projection_threshold", &lg_projection_threshold, "lg_projection_threshold/D");
+    t_param->Branch("lg_electron_threshold", &lg_electron_threshold, "lg_electron_threshold/D");
     t_param->Branch("near_target_threshold", &near_target_threshold, "near_target_threshold/D");
+    t_param->Branch("residual_threshold_x", residual_threshold_x, "residual_threshold_x[4]/D");
+    t_param->Branch("residual_threshold_y", residual_threshold_y, "residual_threshold_y[4]/D");
     t_param->Branch("step_track_step_size_cm", &step_track_step_size_cm, "step_track_step_size_cm/D");
     t_param->Branch("step_track_array_size", &step_track_array_size, "step_track_array_size/I");
+    t_param->Branch("vertex_sigma", &vertex_sigma);
+    t_param->Branch("pair_fit_sigma0", &pair_fit_sigma0);
+    t_param->Branch("pair_fit_sigma1", &pair_fit_sigma1);
+    t_param->Branch("pair_fit_sigma2", &pair_fit_sigma2);
+    t_param->Branch("pair_fit_sigma3", &pair_fit_sigma3);
     
     tree->Branch("run_id", &run_id, "run_id/I");
     tree->Branch("event_id", &event_id, "event_id/I");
@@ -441,7 +449,7 @@ class E16ANA_TrackCheckFile {
   ~E16ANA_TrackCheckFile() { file.Write(); }
   void AddParam(E16ANA_TrackCandidates& cands) {
     auto& cand = cands.TrackCandidate(0);
-    sigma = cand.Sigma();
+//    sigma = cand.Sigma();
     each_sigmas0 = cand.EachSigma(0);
     each_sigmas1 = cand.EachSigma(1);
     each_sigmas2 = cand.EachSigma(2);
@@ -475,9 +483,19 @@ class E16ANA_TrackCheckFile {
     }
     hbd_projection_threshold = cands.HBDProjectionThreshold();
     lg_projection_threshold = cands.LGProjectionThreshold();
+    lg_electron_threshold = cands.LGElectronThreshold();
+    for (int i = 0; i < 4; ++i) {
+      residual_threshold_x[i] = cands.ResidualThresholdX(i);
+      residual_threshold_y[i] = cands.ResidualThresholdY(i);
+    }
     near_target_threshold = cands.NearTargetThreshold();
     step_track_step_size_cm = cands.StepTrackStepSizeCm();
     step_track_array_size= cands.StepTrackArraySize();
+    vertex_sigma = cands.VertexSigma();
+    pair_fit_sigma0 = cands.PairFitSigma(0);
+    pair_fit_sigma1 = cands.PairFitSigma(1);
+    pair_fit_sigma2 = cands.PairFitSigma(2);
+    pair_fit_sigma3 = cands.PairFitSigma(3);
     t_param->Fill();
   }
   void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, E16DST_DST1PhysicsRecord& record) {
@@ -1480,7 +1498,7 @@ class E16ANA_TrackCheckFile {
   TTree* t_param;
   TTree* tree;
   // Parameter
-  TVector3 sigma;
+//  TVector3 sigma;
   TVector3 each_sigmas0;
   TVector3 each_sigmas1;
   TVector3 each_sigmas2;
@@ -1500,9 +1518,17 @@ class E16ANA_TrackCheckFile {
   double rough_y_fit_coefficient_threhold[2];
   double hbd_projection_threshold;
   double lg_projection_threshold;
+  double lg_electron_threshold;
   double near_target_threshold;
+  double residual_threshold_x[4];
+  double residual_threshold_y[4];
   double step_track_step_size_cm;
   int step_track_array_size;
+  TVector3 vertex_sigma;
+  TVector3 pair_fit_sigma0;
+  TVector3 pair_fit_sigma1;
+  TVector3 pair_fit_sigma2;
+  TVector3 pair_fit_sigma3;
   // Common
   int run_id;
   int event_id;
