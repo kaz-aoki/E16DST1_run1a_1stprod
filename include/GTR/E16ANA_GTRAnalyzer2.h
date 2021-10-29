@@ -85,6 +85,11 @@ public:
    virtual void SetRiseTimeMax(double th);
    virtual void SetPeakTimeMin(double th);
    virtual void SetPeakTimeMax(double th);
+   virtual void SetTdcMin(double t);
+   virtual void SetTdcMax(double t);
+   virtual void SetDriftVelocity(double v);
+   virtual void SetCenterOfDriftGap(double c);
+//   virtual void SetCenterOfDriftGap2(double c);
 
 
 protected:

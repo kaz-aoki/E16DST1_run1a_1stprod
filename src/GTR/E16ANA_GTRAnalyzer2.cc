@@ -83,7 +83,6 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    strip_ana_x->peak_time_min =   peak_time_min;
    strip_ana_x->peak_time_max =   peak_time_max;
 
-
    strip_ana_y->strip_pitch = strip_pitch_y;
    strip_ana_y->gem_threshold = gem_th_y;
    strip_ana_y->gem_tdc_min = gem_t0_min;
@@ -100,9 +99,6 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    strip_ana_y->rise_time_max =   rise_time_max;
    strip_ana_y->peak_time_min =   peak_time_min;
    strip_ana_y->peak_time_max =   peak_time_max;
-
-
-
 }
 
 E16ANA_GTRAnalyzer2::~E16ANA_GTRAnalyzer2()
@@ -294,6 +290,34 @@ void E16ANA_GTRAnalyzer2::SetPeakTimeMax(double th)
       strip_list[i]->peak_time_max = th;
    }
 }
+
+void E16ANA_GTRAnalyzer2::SetTdcMin(double t){
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->gem_tdc_min = t;
+   }	
+}
+void E16ANA_GTRAnalyzer2::SetTdcMax(double t){
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->gem_tdc_max = t;
+   }	
+}
+void E16ANA_GTRAnalyzer2::SetDriftVelocity(double v){
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->drift_velocity = v;
+   }	
+}
+void E16ANA_GTRAnalyzer2::SetCenterOfDriftGap(double c){
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->drift_gap_center = c;
+   }	
+}
+
+//void E16ANA_GTRAnalyzer2::SetCenterOfDriftGap2(double c){
+//   for (int i = 0; i < (int)strip_list.size(); i++) {
+//      strip_list[i]->drift_gap_center2 = c;
+//   }	
+//}
+
 
 
 
