@@ -139,3 +139,41 @@ void E16ANA_GTRcalibPedestal::Pedestal::CalcPedestal()
    delete f;
    return;
 }
+
+bool E16ANA_GTRcalibParams::ReadCalibDataCore(std::ifstream *ifs){
+   bool flag = true;
+   if (ifs->fail()) {
+      std::cerr << "E16ANA_GTRcalibParams::Read : failed to read file: " << ifs << std::endl;
+      flag = false ;
+      std::exit(1);
+   }
+   while (!ifs->eof()) {
+      std::string buf;
+      std::getline(*ifs, buf);
+      if (buf[0] == '#' || buf.empty()) {
+         continue;
+      }
+      std::istringstream iss(buf);
+      IDs id(0);
+	  int cluster_min_gap;
+      double tx, ty, totx, toty, pedx, pedy, sigx, sigy, wmin, wmax,cluster_delta_tdc,risetime_min,risetime_max,peaktime_min,	peaktime_max, tdcmin, tdcmax, dv, cd, cd2;
+      iss >> id.module_id >> id.layer_id  >> tx >> ty >> totx >> toty >>  pedx >>  pedy >>  sigx>>  sigy >> wmin >> wmax >> cluster_min_gap >> cluster_delta_tdc >> risetime_min >> risetime_max >> peaktime_min >> peaktime_max >> tdcmin >> tdcmax >> dv >> cd >> cd2;
+      chamber_params_map[id.value32].SetValues(tx, ty, totx, toty, pedx, pedy, sigx, sigy, wmin, wmax,cluster_min_gap,cluster_delta_tdc,risetime_min,risetime_max,peaktime_min,	peaktime_max, tdcmin, tdcmax, dv, cd, cd2);
+   }
+   ifs->close();
+   return flag;
+
+
+}
+
+bool E16ANA_GTRcalibParams::ReadCalibData(int runID){
+	E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
+	std::ifstream *ifs = calib.CalibStreamOpenBinary("GTR-params", runID);	
+	if (ifs != NULL){
+		return ReadCalibDataCore(ifs);
+	}
+	else{
+		E16FATAL("file open error");
+		return false;
+	}
+}

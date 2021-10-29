@@ -61,24 +61,39 @@ int main(int argc, char* argv[]) {
   TTree *tree = new TTree("tree", "tree");
   Int_t event_id;
   Int_t mod_id;
+  Int_t hitid_ssdx;
+  Int_t hitid_100x;
+  Int_t hitid_200x;
+  Int_t hitid_300x;
+  Int_t hitid_100y;
+  Int_t hitid_200y;
+  Int_t hitid_300y;
+  Double_t g_xssd;
+  Double_t g_zssd;
   Double_t g_x100;
   Double_t g_y100;
   Double_t g_z100;
+  Double_t g_x200;
+  Double_t g_y200;
+  Double_t g_z200;
   Double_t g_x300;
   Double_t g_y300;
   Double_t g_z300;
-  Double_t lx100;//local pos
+  Double_t lxssd;//local pos1
+  Double_t lx100;//local pos1
   Double_t ly100;
   Double_t lx200;
   Double_t ly200;
   Double_t lx300;
   Double_t ly300;
+  Double_t clc_xssd;
   Double_t clc_x100;
   Double_t clc_x200;
   Double_t clc_x300;
   Double_t clc_y100;
   Double_t clc_y200;
   Double_t clc_y300;
+  Double_t timing_xssd;
   Double_t timing_x100;
   Double_t timing_x200;
   Double_t timing_x300;
@@ -123,14 +138,13 @@ int main(int argc, char* argv[]) {
 
   Int_t trkid_x;
   Int_t trkid_y;
-  Int_t hitid_ssdx;
-  Int_t hitid_100x;
-  Int_t hitid_200x;
-  Int_t hitid_300x;
-  Int_t hitid_100y;
-  Int_t hitid_200y;
-  Int_t hitid_300y;
   Int_t ncluster_ssd;
+  Int_t ncluster_g100x;
+  Int_t ncluster_g200x;
+  Int_t ncluster_g300x;
+  Int_t ncluster_g100y;
+  Int_t ncluster_g200y;
+  Int_t ncluster_g300y;
   Int_t asd_hit;
   Int_t lg_hit;
   TVector3 lg_cross_pos;
@@ -142,25 +156,39 @@ int main(int argc, char* argv[]) {
   //	std::vector<TVector3> two_points_on_track;
   tree->Branch("event_id", &event_id, "event_id/I");
   tree->Branch("mod_id", &mod_id, "mod_id/I");
+  tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
+  tree->Branch("hitid_100x", &hitid_100x, "hitid_100x/I");
+  tree->Branch("hitid_200x", &hitid_200x, "hitid_200x/I");
+  tree->Branch("hitid_300x", &hitid_300x, "hitid_300x/I");
+  tree->Branch("hitid_100y", &hitid_100y, "hitid_100y/I");
+  tree->Branch("hitid_200y", &hitid_200y, "hitid_200y/I");
+  tree->Branch("hitid_300y", &hitid_300y, "hitid_300y/I");
+  tree->Branch("g_xssd", &g_xssd, "g_xssd/D");
+  tree->Branch("g_zssd", &g_zssd, "g_zssd/D");
   tree->Branch("g_x100", &g_x100, "g_x100/D");
   tree->Branch("g_y100", &g_y100, "g_y100/D");
   tree->Branch("g_z100", &g_z100, "g_z100/D");
+  tree->Branch("g_x200", &g_x200, "g_x200/D");
+  tree->Branch("g_y200", &g_y200, "g_y200/D");
+  tree->Branch("g_z200", &g_z200, "g_z200/D");
   tree->Branch("g_x300", &g_x300, "g_x300/D");
   tree->Branch("g_y300", &g_y300, "g_y300/D");
   tree->Branch("g_z300", &g_z300, "g_z300/D");
-  tree->Branch("lxssd", &lx100, "lxssd/D");
+  tree->Branch("lxssd", &lxssd, "lxssd/D");
   tree->Branch("lx100", &lx100, "lx100/D");
   tree->Branch("ly100", &ly100, "ly100/D");
   tree->Branch("lx200", &lx200, "lx200/D");
   tree->Branch("ly200", &ly200, "ly200/D");
   tree->Branch("lx300", &lx300, "lx300/D");
   tree->Branch("ly300", &ly300, "ly300/D");
+  tree->Branch("clc_xssd", &clc_xssd, "clc_xssd/D");
   tree->Branch("clc_x100", &clc_x100, "clc_x100/D");
   tree->Branch("clc_x200", &clc_x200, "clc_x200/D");
   tree->Branch("clc_x300", &clc_x300, "clc_x300/D");
   tree->Branch("clc_y100", &clc_y100, "clc_y100/D");
   tree->Branch("clc_y200", &clc_y200, "clc_y200/D");
   tree->Branch("clc_y300", &clc_y300, "clc_y300/D");
+  tree->Branch("timing_xssd", &timing_xssd, "timing_xssd/D");
   tree->Branch("timing_x100", &timing_x100, "timing_x100/D");
   tree->Branch("timing_x200", &timing_x200, "timing_x200/D");
   tree->Branch("timing_x300", &timing_x300, "timing_x300/D");
@@ -218,6 +246,12 @@ int main(int argc, char* argv[]) {
   tree->Branch("hitid_200y", &hitid_200y, "hitid_200y/I");
   tree->Branch("hitid_300y", &hitid_300y, "hitid_300y/I");
   tree->Branch("ncluster_ssd", &ncluster_ssd, "ncluster_ssd/I");
+  tree->Branch("ncluster_g100x", &ncluster_g100x, "ncluster_g100x/I");
+  tree->Branch("ncluster_g200x", &ncluster_g200x, "ncluster_g200x/I");
+  tree->Branch("ncluster_g300x", &ncluster_g300x, "ncluster_g300x/I");
+  tree->Branch("ncluster_g100y", &ncluster_g100y, "ncluster_g100y/I");
+  tree->Branch("ncluster_g200y", &ncluster_g200y, "ncluster_g200y/I");
+  tree->Branch("ncluster_g300y", &ncluster_g300y, "ncluster_g300y/I");
   tree->Branch("asd_hit",&asd_hit, "asd_hit/I" );
   tree->Branch("lg_hit",&lg_hit, "lg_hit/I" );
   tree->Branch("lg_cross_pos", &lg_cross_pos);
@@ -233,10 +267,17 @@ int main(int argc, char* argv[]) {
   auto max_event     = stoi(argv[4]);
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
-  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
-  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
-  E16ANA_GeometryV2::SetGlobalPointer(geom);
+//  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
+//  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
+//  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
+//  E16ANA_GeometryV2::SetGlobalPointer(geom);
+
+//  E16ANA_ParamManager *paramMgr;
+//  E16ANA_GTRAnalyzerManager *gtr_manager;
+//  const char *file = "/ccj/u/mtomoki/E16CalibFiles-local.cfg";
+//  paramMgr = new E16ANA_ParamManager(file);
+//  gtr_manager = new E16ANA_GTRAnalyzerManager(paramMgr);
+
 
   auto trigger_param = new E16ANA_TriggerCalibParam();
   trigger_param->ReadConstantData(calib.CurrentRunID());
@@ -246,7 +287,7 @@ int main(int argc, char* argv[]) {
   targets.ReadInfoWithRunID( calib.CurrentRunID());
   targets.Print();
   auto record = new E16DST_DST1PhysicsRecord();
-//  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
   
   int n_event = 0;
@@ -276,21 +317,60 @@ int main(int argc, char* argv[]) {
 
 //    &record->GTR();
 	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, geom);
+//	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
 	
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
-		mod_id = t->ModuleID();
-		
+		event_id = t->EventID();
+		mod_id = t->ModuleID();	
 		trkid_x    = t->XTrackID();
 		trkid_y    = t->YTrackID();
-//		hitid_ssdx = t->GetGetXClusterSSD()->IDSSDHit();
-//		hitid_100x = t->GetGetXCluster100()->ID100Hit();
-//		hitid_200x = t->GetGetXCluster200()->ID200Hit();
-//		hitid_300x = t->GetGetXCluster300()->ID300Hit();
-//		hitid_100y = t->GetGetYCluster100()->ID100Hit();
-//		hitid_200y = t->GetGetYCluster200()->ID200Hit();
-//		hitid_300y = t->GetGetYCluster300()->ID300Hit();
+		hitid_ssdx = t->SSDXHitID();
+		hitid_100x = t->GTR100XHitID();
+		hitid_200x = t->GTR200XHitID();
+		hitid_300x = t->GTR300XHitID();
+		hitid_100y = t->GTR100XHitID();
+		hitid_200y = t->GTR200XHitID();
+		hitid_300y = t->GTR300XHitID();
+//		ncluster_ssd = t->SSDCluster()->GetSize();//multiplicity ?
+//		ncluster_g100x = t->GTR100XCluster()->GetSize();//multiplicity ?
+//		ncluster_g200x = t->GTR200XCluster()->GetSize();//multiplicity ?
+//		ncluster_g300x = t->GTR300XCluster()->GetSize();//multiplicity ?
+//		ncluster_g100x = t->GTR100YCluster()->GetSize();//multiplicity ?
+//		ncluster_g200x = t->GTR200YCluster()->GetSize();//multiplicity ?
+//		ncluster_g300x = t->GTR300YCluster()->GetSize();//multiplicity ?
+		lxssd = t->SSDCluster()->CogPos();
+		lx100 = t->GTR100XCluster()->CogPos();
+		lx200 = t->GTR200XCluster()->CogPos();
+		lx300 = t->GTR300XCluster()->CogPos();
+		ly100 = t->GTR100YCluster()->CogPos();//local y
+		ly200 = t->GTR200YCluster()->CogPos();//local y
+		ly300 = t->GTR300YCluster()->CogPos();//local y
+		g_xssd   = t->SSDCluster()->GlobalPos(*geom).X();
+		g_x100   = t->GTR100XCluster()->GlobalPos(*geom).X();
+		g_x200   = t->GTR200XCluster()->GlobalPos(*geom).X();
+		g_x300   = t->GTR300XCluster()->GlobalPos(*geom).X();
+		g_y100   = t->GTR100YCluster()->GlobalPos(*geom).Y();
+		g_y200   = t->GTR200YCluster()->GlobalPos(*geom).Y();
+		g_y300   = t->GTR300YCluster()->GlobalPos(*geom).Y();
+		g_zssd   = t->SSDCluster()->GlobalPos(*geom).Z();
+		g_z100   = t->GTR100XCluster()->GlobalPos(*geom).Z();
+		g_z200   = t->GTR200XCluster()->GlobalPos(*geom).Z();
+		g_z300   = t->GTR300XCluster()->GlobalPos(*geom).Z();
+		clc_xssd = t->SSDCluster()->PeakSum();
+		clc_x100 = t->GTR100XCluster()->PeakSum();
+		clc_x200 = t->GTR200XCluster()->PeakSum();
+		clc_x300 = t->GTR300XCluster()->PeakSum();
+		clc_y100 = t->GTR100YCluster()->PeakSum();
+		clc_y200 = t->GTR200YCluster()->PeakSum();
+		clc_y300 = t->GTR300YCluster()->PeakSum();
+		timing_xssd = t->SSDCluster()->Timing();
+		timing_x100 = t->GTR100XCluster()->Timing();
+		timing_x200 = t->GTR200XCluster()->Timing();
+		timing_x300 = t->GTR300XCluster()->Timing();
+		timing_y100 = t->GTR100YCluster()->Timing();
+		timing_y200 = t->GTR200YCluster()->Timing();
+		timing_y300 = t->GTR300YCluster()->Timing();
 		chi2_x = t->Chi2X();
 		chi2_y = t->Chi2Y();
 		tgt_z  = t->TgtPosZ();
