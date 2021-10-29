@@ -20,6 +20,8 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
+const bool kIsElectronRun = true;
+
 int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
@@ -144,7 +146,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, &record, &check_file);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
 //// Check begin
 //      auto event_id = event0->EventID();

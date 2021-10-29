@@ -802,7 +802,7 @@ void E16ANA_TrackCandidates::SortTracks() {
         break;
       }
     }
-    cand.SetIslargeResidual(is_large_residual);
+    cand.SetIsLargeResidual(is_large_residual);
     if (is_large_residual) {
       continue;
     }
@@ -1109,7 +1109,7 @@ void E16ANA_TrackCandidates::AddTracksToRecord() {
   return;
 }
 
-void E16ANA_TrackCandidates::Analyze(bool _is_electron_run) {
+void E16ANA_TrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
   SearchTrackCandidates();
