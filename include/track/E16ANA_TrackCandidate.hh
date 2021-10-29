@@ -107,6 +107,11 @@ class E16ANA_TrackCandidate {
   }
   ~E16ANA_TrackCandidate() {}
   void SetTrackID(int _track_id) { track_id = _track_id; }
+  void SetHasElectronHBDCluster(bool _has_e_hbd_cluster) { has_e_hbd_cluster = _has_e_hbd_cluster; }
+  void SetHasElectronLGHit(bool _has_e_lg_hit) { has_e_lg_hit = _has_e_lg_hit; }
+  void SetIsLargeResidual(bool _is_large_residual) { is_large_residual = _is_large_residual; }
+  void SetIsNearTarget(bool _is_near_target) { is_near_target = _is_near_target; }
+  void SetIsClusterUsed(bool _is_cluster_used) { is_cluster_used = _is_cluster_used; }
   void SetIsSelected(bool _is_selected) { is_selected = _is_selected; }
   void SetCharge(int _charge) { charge = _charge; }
   void SetInitX(double _x) { init_pos.SetX(_x); }
@@ -134,6 +139,11 @@ class E16ANA_TrackCandidate {
   int ProjectionMaxSteps() { return kProjectionMaxSteps; }
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
+  bool HasElectronHBDCluster() { return has_e_hbd_cluster; }
+  bool HasElectronLGHit() { return has_e_lg_hit; }
+  bool IsLargeResidual() { return is_large_residual; }
+  bool IsNearTarget() { return is_near_target; }
+  bool IsClusterUsed() { return is_cluster_used; }
   bool IsSelected() { return is_selected; }
   int Charge() { return charge; }
   TVector3 InitPos() { return init_pos; }
@@ -234,6 +244,11 @@ class E16ANA_TrackCandidate {
     this->bfield_map = rhs.bfield_map;
     this->track_id = rhs.track_id;
     this->target_id = rhs.target_id;
+    this->has_e_hbd_cluster = rhs.has_e_hbd_cluster;
+    this->has_e_lg_hit = rhs.has_e_lg_hit;
+    this->is_large_residual = rhs.is_large_residual;
+    this->is_near_target = rhs.is_near_target;
+    this->is_cluster_used = rhs.is_cluster_used;
     this->is_selected = rhs.is_selected;
     this->cluster_pairs = rhs.cluster_pairs;
     this->charge = rhs.charge;
@@ -289,6 +304,11 @@ class E16ANA_TrackCandidate {
   E16ANA_MagneticFieldMap* bfield_map;
   int track_id;
   int target_id;
+  bool has_e_hbd_cluster;
+  bool has_e_lg_hit;
+  bool is_large_residual;
+  bool is_near_target;
+  bool is_cluster_used;
   bool is_selected;
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers> cluster_pairs;
   // Preset Value
@@ -390,9 +410,10 @@ class E16ANA_TrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter, E16DST_DST1PhysicsRecord* _record)
+  E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter, bool _is_electron_run, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
-        is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true), record(_record) {
+        is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true),
+        record(_record) {
   track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -402,6 +423,7 @@ class E16ANA_TrackCandidates {
     py_fix_flag = _py_fix_flag;
     vertex_z_fix_flag = _vertex_z_fix_flag;
   }
+  bool IsElectronRun() { return is_electron_run; }
   bool IsUsedLayer(int n) { return is_used_layer[n]; }
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
@@ -515,17 +537,21 @@ class E16ANA_TrackCandidates {
   static constexpr double kGTRYDiffThreshold = 20.; // mm
 //  static constexpr double kGTRPeakSumThresholdX = 180.;
   static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.};
-  static constexpr double kGTRPeakSumThresholdY = 10.;
+//  static constexpr double kGTRPeakSumThresholdY = 10.;
+  static constexpr double kGTRPeakSumThresholdY = 50.;
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 10.}; // x, y
-  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 10.}; // x, y
+//  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 10.}; // x, y
+  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
   static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.01}; // coef[1] not used. ozawa v8
-  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
+//  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
+  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
+  static constexpr double kLGElectronThreshold = 50.;
   static constexpr double kNearTargetThreshold = 100.; // square value
   static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
   static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
@@ -600,6 +626,7 @@ class E16ANA_TrackCandidates {
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* fitter;
   E16ANA_MultiTrack* pair_fitter;
+  bool is_electron_run;
   std::array<bool, E16ANA_TrackConstant::kNumTrackingLayers> is_used_layer;
   bool vertex_xy_fix_flag;
   bool py_fix_flag;
@@ -611,7 +638,6 @@ class E16ANA_TrackCandidates {
   std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
-//  int most_likely_target_id;
 };
 
 #endif // E16ANA_TRACKCANDIDATE_HH

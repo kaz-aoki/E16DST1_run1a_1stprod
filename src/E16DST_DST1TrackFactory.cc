@@ -23,7 +23,7 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
   static bool is_fill_param;
   track_candidates.Analyze();
 
-  track_candidates.Print(3);
+//  track_candidates.Print(3);
   
 //  for (auto& cand : track_candidates.TrackCandidates()) {
 //    check_file0->AddEntry(n_calls, cand);

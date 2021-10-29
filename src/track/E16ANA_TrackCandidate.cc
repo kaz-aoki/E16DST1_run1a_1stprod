@@ -769,6 +769,27 @@ void E16ANA_TrackCandidates::SortTracks() {
     if (cand.ProjectedLGHits().size() == 0) {
       continue;
     }
+    if (is_electron_run) {
+      bool has_e_hbd_cluster = false;
+      bool has_e_lg_hit      = false;
+      for (auto& cluster : cand.ProjectedHBDClusters()) {
+        if (cluster->IsE() == 1.) {
+          has_e_hbd_cluster = true;
+          cand.SetHasElectronHBDCluster(true);
+          break;
+        }
+      }
+      for (auto& hit : cand.ProjectedLGHits()) {
+        if (hit->FitPeak() > kLGElectronThreshold) {
+          has_e_lg_hit = true;
+          cand.SetHasElectronLGHit(true);
+          break;
+        }
+      }
+      if (!has_e_hbd_cluster || !has_e_lg_hit) {
+        continue;
+      }
+    }
     bool is_large_residual = false;
     for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
       auto& res = cand.LocalFitResult(i).residual_pos;
@@ -781,6 +802,7 @@ void E16ANA_TrackCandidates::SortTracks() {
         break;
       }
     }
+    cand.SetIslargeResidual(is_large_residual);
     if (is_large_residual) {
       continue;
     }
@@ -792,6 +814,7 @@ void E16ANA_TrackCandidates::SortTracks() {
         break;
       }
     }
+    cand.SetIsNearTarget(is_near_target);
     if (!is_near_target) {
       continue;
     }
@@ -818,6 +841,7 @@ void E16ANA_TrackCandidates::SortTracks() {
         break;
       }
     }
+    cand.SetIsClusterUsed(is_used);
     if (is_used) {
       continue;
     }
@@ -1085,7 +1109,7 @@ void E16ANA_TrackCandidates::AddTracksToRecord() {
   return;
 }
 
-void E16ANA_TrackCandidates::Analyze() {
+void E16ANA_TrackCandidates::Analyze(bool _is_electron_run) {
   track_candidates.clear();
   selected_track_candidates.clear();
   SearchTrackCandidates();

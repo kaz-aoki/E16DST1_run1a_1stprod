@@ -35,8 +35,8 @@ include_directories(
   /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
-#	include/GTR
-	include/GTR_ozawa
+	include/GTR
+#	include/GTR_ozawa
 	include/HBD
 	include/LG
 	include/trigger
