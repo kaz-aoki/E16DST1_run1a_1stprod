@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 
+#include "TTree.h"
 #include "TVector3.h"
 #include "E16ANA_TrackConstant.hh"
 #include "E16ANA_GeometryV2.hh"
@@ -465,6 +466,7 @@ class E16ANA_TrackCandidates {
   TrackPair* SelectedTrackCandidatePair(int n) {return selected_track_pairs[n]; }
   std::vector<TrackPair*>& SelectedTrackCandidatePairs() { return selected_track_pairs; }
   void Analyze();
+  void AnalyzeFromTree(TTree& tree, int entry_index);
   void Print(int i) {
     if (i % 2 == 1) {
       std::cout << "Track Candidates :" << std::endl;
@@ -617,7 +619,7 @@ class E16ANA_TrackCandidates {
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
-  void SortTracks();
+  void SelectTracks();
   void ProjectionTarget();
   void ProjectionX0();
   double SearchVertex(TrackPair* track_pair);
@@ -625,8 +627,9 @@ class E16ANA_TrackCandidates {
   void UpdateFitResult(TrackPair* track_pair);
   void PairTracking(TrackPair* track_pair, double tgt_z);
   void SelectTrackPairs();
-  void MakeTrackPairs();
+  void AnalyzeTrackPairs();
   void AddTracksToRecord();
+  void InputDataFromTree(TTree& tree, int entry_index);
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* fitter;

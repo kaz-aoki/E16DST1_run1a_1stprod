@@ -514,7 +514,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
-              if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100]) {
+              if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100 - 1]) {
                 continue;
               }
               if (gtr100x_cluster->NumHits() < kMinHitsInXCluster) {
@@ -523,7 +523,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               cluster_set->gtr_clusters[0] = gtr100x_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPos(*geometry);
               for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
-                if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200]) {
+                if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200 - 1]) {
                   continue;
                 }
                 if (gtr200x_cluster->NumHits() < kMinHitsInXCluster) {
@@ -532,7 +532,7 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
                 cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPos(*geometry);
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
-                  if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300]) {
+                  if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300 - 1]) {
                     continue;
                   }
                   if (gtr300x_cluster->NumHits() < kMinHitsInXCluster) {
@@ -747,7 +747,7 @@ void E16ANA_TrackCandidates::SearchHBDAndLGHits() {
   return;
 }
 
-void E16ANA_TrackCandidates::SortTracks() {
+void E16ANA_TrackCandidates::SelectTracks() {
   std::array<std::vector<E16DST_DST1Cluster*>, E16ANA_TrackConstant::kNumTrackingLayers> used_clusters;
   for (auto& clsts : used_clusters) {
     clsts.clear();
@@ -1041,7 +1041,7 @@ void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair, double tgt_z) {
   return;
 }
 
-void E16ANA_TrackCandidates::MakeTrackPairs() {
+void E16ANA_TrackCandidates::AnalyzeTrackPairs() {
   track_pairs.clear();
   TrackPair track_pair;
   int n_cands = selected_track_candidates.size();
@@ -1118,8 +1118,24 @@ E16INFO("number of track candidate: %d", track_candidates.size());
   ProjectionTarget();
   ProjectionX0();
   SearchHBDAndLGHits();
-  SortTracks();
-  MakeTrackPairs();
+  SelectTracks();
+  AnalyzeTrackPairs();
+  AddTracksToRecord();
+  return;
+}
+
+void E16ANA_TrackCandidates::InputDataFromTree(TTree& tree, int entry_index) {
+  tree.GetEntry(entry_index);
+//  tree.SetBranchAddress();
+  return;
+}
+
+void E16ANA_TrackCandidates::AnalyzeFromTree(TTree& tree, int entry_index) {
+  track_candidates.clear();
+  selected_track_candidates.clear();
+  InputDataFromTree(tree, entry_index);
+  SelectTracks();
+  AnalyzeTrackPairs();
   AddTracksToRecord();
   return;
 }
