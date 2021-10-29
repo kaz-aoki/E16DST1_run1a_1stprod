@@ -1123,19 +1123,3 @@ E16INFO("number of track candidate: %d", track_candidates.size());
   AddTracksToRecord();
   return;
 }
-
-void E16ANA_TrackCandidates::InputDataFromTree(TTree& tree, int entry_index) {
-  tree.GetEntry(entry_index);
-//  tree.SetBranchAddress();
-  return;
-}
-
-void E16ANA_TrackCandidates::AnalyzeFromTree(TTree& tree, int entry_index) {
-  track_candidates.clear();
-  selected_track_candidates.clear();
-  InputDataFromTree(tree, entry_index);
-  SelectTracks();
-  AnalyzeTrackPairs();
-  AddTracksToRecord();
-  return;
-}

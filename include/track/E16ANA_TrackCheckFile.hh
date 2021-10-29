@@ -953,7 +953,7 @@ class E16ANA_TrackCheckFile {
     rk_proj_lg1_adc.resize(n_cands);
     rk_proj_lg1_t.resize(n_cands);
     rk_proj_lg1_npeaks.resize(n_cands);
-    rk_proj_lg0_fflag.resize(n_cands);
+    rk_proj_lg1_fflag.resize(n_cands);
     rk_proj_lg2_id.resize(n_cands);
     rk_proj_lg2_mid.resize(n_cands);
     rk_proj_lg2_x.resize(n_cands);
