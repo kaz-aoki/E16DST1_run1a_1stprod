@@ -299,8 +299,19 @@ void E16ANA_LGWaveform::PeakSearch(){
 
 void E16ANA_LGWaveform::Fit(){
 
+
+  //if(nps_short==1){
+  //if(BaselineCorrect()&&nps_full<2&&spikeflag==false){
+  //fitOK = 0;
+  //}
+  //else{//incorrect baseline
+  //CalcOffset();
+  //nps_fit = FitTmpl1(pxs_fit, ps_fit);
+  //npeaks = nps_fit;
+  //}
+  //}
   if(nps_short==1){
-    if(BaselineCorrect()&&nps_full<2&&spikeflag==false){
+    if(BaselineCorrect()&&fabs(peakx-pxs_short[0])<5&&spikeflag==false){
       fitOK = 0;
     }
     else{//incorrect baseline

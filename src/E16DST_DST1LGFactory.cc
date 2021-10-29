@@ -80,6 +80,12 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       continue;
     }
 
+    //    if( fitflag==2 ){ // applied in FitMethod 211028
+    //      //std::cout<<"fit failed"<<std::endl;
+    //      delete lgwf;
+    //      continue;
+    //    }
+
     double timing = lgwf->GetTiming();
     double peakheight = lgwf->GetPeak();
     double peaktime = lgwf->GetPeakx();
@@ -111,6 +117,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
       hits1[n_dst1hit].SetInvalid();
       hits1[n_dst1hit].SetIds(hit0.ModuleID(), hit0.BlockID());
+      hits1[n_dst1hit].SetHitId(n_hit);
 
       hits1[n_dst1hit].SetTiming((float)timing);
       hits1[n_dst1hit].SetPeakHeight((float)peakheight);
