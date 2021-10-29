@@ -84,6 +84,7 @@ int main(int argc, char* argv[]) {
   int event, peaktime, npeak, npeaks, fitflag;
   double gpos[3];
   double lpos[3];
+  double waveform[200];
   tree->Branch("Event",&event,"Event/I");
   tree->Branch("Module",&module,"Module/s");
   tree->Branch("Block",&block,"Block/s");
@@ -105,6 +106,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("FitChi2",&fitchi2,"FitChi2/F");
   tree->Branch("Gpos",gpos,"Gpos[3]/D");
   tree->Branch("Lpos",lpos,"Lpos[3]/D");
+  tree->Branch("Waveform",waveform,"Waveform[200]/D");
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -142,6 +144,7 @@ int main(int argc, char* argv[]) {
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
   lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
@@ -264,6 +267,15 @@ int main(int argc, char* argv[]) {
 	  lpos[0] = lghit.LocalPos(*geometry).X();
 	  lpos[1] = lghit.LocalPos(*geometry).Y();
 	  lpos[2] = lghit.LocalPos(*geometry).Z();
+
+	  int hitid = lghit.HitId();
+	  auto spec = lgbasic.GetSpec(module,block);
+	  double wftype = spec->WF_TYPE;
+	  for(int cell=0;cell<200;cell++){
+	    int ph = lg_hits0.Hit(hitid).Waveform()[cell];
+	    waveform[cell] = ph*wftype;
+	  }
+
 	  tree->Fill();
 	  if(npeak==0){
 	  hph[module-102][block]->Fill(lghit.PeakHeight());
