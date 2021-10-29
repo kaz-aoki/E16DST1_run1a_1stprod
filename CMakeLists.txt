@@ -103,16 +103,16 @@ add_library(E16DST_DST1
   src/SSD/E16ANA_SSDAnalyzer.cc
   src/SSD/E16ANA_SSDStripAnalyzer.cc
   src/SSD/E16DST_DST1SSDAnalyzerMaker.cxx
-#  src/GTR/E16ANA_GTRAnalyzer2.cc
-#  src/GTR/E16ANA_GTRPedestal.cc
-#  src/GTR/E16ANA_GTRStripAnalyzer.cc
-#  src/GTR/E16DST_DST1GTRAnalyzerMaker.cxx
-#  src/GTR/GTRCheckHist.cc
-  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
-  src/GTR_ozawa/E16ANA_GTRPedestal.cc
-  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
-  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
-  src/GTR_ozawa/GTRCheckHist.cc
+  src/GTR/E16ANA_GTRAnalyzer2.cc
+  src/GTR/E16ANA_GTRPedestal.cc
+  src/GTR/E16ANA_GTRStripAnalyzer.cc
+  src/GTR/E16ANA_GTRAnalyzerMaker.cc
+  src/GTR/GTRCheckHist.cc
+#  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
+#  src/GTR_ozawa/E16ANA_GTRPedestal.cc
+#  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
+#  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
+#  src/GTR_ozawa/GTRCheckHist.cc
   src/HBD/E16ANA_HBDChannelManager.cc
   src/HBD/E16ANA_HBDDeadChannel.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
@@ -124,8 +124,8 @@ add_library(E16DST_DST1
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
-#  src/E16DST_DST1GTRFactory.cc
-  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
+  src/E16DST_DST1GTRFactory.cc
+#  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
@@ -200,7 +200,7 @@ add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
 
 target_link_libraries(dst0_to_dst1_strack_check
 	E16DST_DST1
-#	E16ANA_CalibDB
+#E16ANA_CalibDB
 	E16ANA_Basic
 	E16DST
 	E16ANA

@@ -15,7 +15,10 @@
 E16ANA_GTRStripAnalyzer::E16ANA_GTRStripAnalyzer(int _n_strips, int _n_sampling)
    : n_strips(_n_strips), n_sampling(_n_sampling), strip_pitch(0.35), gem_threshold(4.0), gem_tot_threshold(-10000.0),
      drift_velocity(0.010), drift_gap_center(0.0), fadc_clock_period(25.0), fadc_t0_correction(0.0),
-     gem_tdc_min(-10000.0), gem_tdc_max(10000.0), gem_tr(75.0), threshold_fraction(0.5), inverted(1.0)
+     gem_tdc_min(-10000.0), gem_tdc_max(10000.0), gem_tr(75.0), threshold_fraction(0.5), inverted(1.0),cluster_minimum_gap(2), cluster_delta_tdc(10000.0),  
+     rise_time_min(-10000.0),   rise_time_max(10000.0),
+     peak_time_min(-10000.0),   peak_time_max(10000.0)
+
 {
    fadc = new double *[n_strips];
    for (int i = 0; i < n_strips; i++) {
@@ -134,7 +137,8 @@ void E16ANA_GTRStripAnalyzer::AnalyzeV1()
 
 int E16ANA_GTRStripAnalyzer::HitClusteringV0()
 {
-   return HitClusteringV0(2, -10000.0);
+   return HitClusteringV0(cluster_minimum_gap, -10000.0);
+   //return HitClusteringV0(2, -10000.0);
 }
 
 int E16ANA_GTRStripAnalyzer::HitClusteringV0(const int min_gap, const double cluster_threshold)
@@ -152,7 +156,7 @@ int E16ANA_GTRStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
 
    for (int i = 0; i < n_strips; i++) {
       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
-      if (fadc_peak[i] > 0.0) {
+      if (fadc_peak[i] > 0.0 && fadc_peak_time[i] > 0.0) {
          // double delta_tdc = fadc_tdc[i]-pre_tdc;
          // pre_tdc = fadc_tdc[i];
          // if(signal_gap>=min_gap || fabs(delta_tdc)>100.0){ // V1
@@ -168,6 +172,11 @@ int E16ANA_GTRStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
       }
    }
    return clustered_strip_id.size();
+}
+
+int E16ANA_GTRStripAnalyzer::HitClusteringV1(){
+  return HitClusteringV1(cluster_minimum_gap, cluster_delta_tdc);
+  //return HitClusteringV1(2, 150);
 }
 
 int E16ANA_GTRStripAnalyzer::HitClusteringV1(const int min_gap, const double delta_tdc_threshold)
@@ -186,7 +195,7 @@ int E16ANA_GTRStripAnalyzer::HitClusteringV1(const int min_gap, const double del
 
    for (int i = 0; i < n_strips; i++) {
       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
-      if (fadc_peak[i] > 0.0) {
+      if (fadc_peak[i] > 0.0 && fadc_peak_time[i] > 0.0) {
          double delta_tdc = fadc_tdc[i] - pre_tdc;
          pre_tdc = fadc_tdc[i];
          if (signal_gap >= min_gap || fabs(delta_tdc) > delta_tdc_threshold) { // V1
@@ -236,6 +245,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
       fadc_peak[ch] = -255.0;
       fadc_tdc[ch] = -1000.0;
       fadc_tot[ch] = -1000.0;
+	  fadc_peak_time[ch] = -1000.0;
       peak_count = -1;
       for (int j = 0; j < n_sampling; j++) {
          // for(int l=0; l<(int)fadc_valid_count.size(); l++){
@@ -247,6 +257,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 
          if (fadc_peak[ch] < fadc[ch][j]) {
             fadc_peak[ch] = fadc[ch][j];
+			fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
             peak_count = j;
          }
       }
@@ -268,7 +279,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
                // std::cout << "tdc_j = " << tdc_j << std::endl;
                fadc_tdc[ch] = tdc_j * fadc_clock_period + fadc_t0_correction;
                tot_start = fadc_tdc[ch];
-               fadc_peak_time[ch] = peak_count * fadc_clock_period + fadc_t0_correction;
+       //        fadc_peak_time[ch] = peak_count * fadc_clock_period + fadc_t0_correction;
                break;
             }
          }
@@ -293,10 +304,20 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
          fadc_tdc[ch] = -1000.0;
          fadc_peak_time[ch] = -1000.0;
       }
-      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
+      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
+	  fadc_peak_time[ch] > peak_time_max || 
+	  fadc_peak_time[ch] < peak_time_min ||
+	  (fadc_peak_time[ch] - fadc_tdc[ch]) > rise_time_max ||
+	  (fadc_peak_time[ch] - fadc_tdc[ch]) < rise_time_min 
+	  ) {
          fadc_tdc[ch] = -1000.0;
          fadc_peak_time[ch] = -1000.0;
       }
+
+//      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
+//         fadc_tdc[ch] = -1000.0;
+//         fadc_peak_time[ch] = -1000.0;
+//      }
    }
 }
 

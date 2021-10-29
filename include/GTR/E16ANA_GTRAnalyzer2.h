@@ -79,6 +79,18 @@ public:
    virtual void SetBadPedestalSigmaThresholdY(double th);
    virtual void SetTimeWindowMin(double th);
    virtual void SetTimeWindowMax(double th);
+   virtual void SetClusterMinimumGap(int th);
+   virtual void SetClusterDeltaTdc(double th);
+   virtual void SetRiseTimeMin(double th);
+   virtual void SetRiseTimeMax(double th);
+   virtual void SetPeakTimeMin(double th);
+   virtual void SetPeakTimeMax(double th);
+   virtual void SetTdcMin(double t);
+   virtual void SetTdcMax(double t);
+   virtual void SetDriftVelocity(double v);
+   virtual void SetCenterOfDriftGap(double c);
+//   virtual void SetCenterOfDriftGap2(double c);
+
 
 protected:
    int n_strip_x;
@@ -103,6 +115,14 @@ protected:
    double gem_t0_max;
    double gem_tr;
    double threshold_fraction;
+   int cluster_minimum_gap;
+   double cluster_delta_tdc;
+   double rise_time_min;
+   double rise_time_max;
+   double peak_time_min;
+   double peak_time_max;
+
+
 
    // int n_valid_counts;
    std::vector<int> fadc_valid_count;
@@ -215,5 +235,209 @@ public:
    E16ANA_GTRAnalyzedStripHit *XstripHit() { return xstriphit; }
    E16ANA_GTRAnalyzedStripHit *YstripHit() { return ystriphit; }
 };
+
+
+
+//class E16ANA_GTRAnalyzerManager{
+//
+//public:
+//  enum{Nmodule = 10};
+//  E16ANA_GTRAnalyzerManager(E16ANA_ParamManager* iparam);
+//  E16ANA_GTRAnalyzer2*  ChamberAnalyzer(int layer, int moduleID){
+//    return anaS[layer][moduleID];
+//  }
+//
+////  void G4Analyze(
+////    int version, 
+////    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom
+////  );
+////
+////  void G4Analyze(
+////    int version, 
+////    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom,
+////    std::vector<E16ANA_G4Hit> &gtr1_hits,
+////    std::vector<E16ANA_G4Hit> &gtr2_hits,
+////    std::vector<E16ANA_G4Hit> &gtr3_hits
+////  );
+////
+////  void G4Analyze(
+////    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom
+////  ){
+////    G4AnalyzeV0( g4moduleHits, gtrRes, geom);
+////  }
+////
+////  void G4AnalyzeV0(    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom
+////  ){
+////  int version = 0;
+////  G4Analyze( version, g4moduleHits, gtrRes, geom);
+////  }
+////
+////  void G4AnalyzeV1(    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom
+////  ){
+////  int version = 1;
+////  G4Analyze( version, g4moduleHits, gtrRes, geom);
+////  }
+////
+////  void G4AnalyzeV2(    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom
+////  ){
+////  int version = 2;
+////  G4Analyze( version, g4moduleHits, gtrRes, geom);
+////  }
+////
+////  void G4AnalyzeV3(    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom
+////  ){
+////    int version = 3;
+////    G4Analyze( version, g4moduleHits, gtrRes, geom);
+////  }
+////
+////  void G4AnalyzeV3(    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom,
+////    std::vector<E16ANA_G4Hit> &gtr1_hits,
+////    std::vector<E16ANA_G4Hit> &gtr2_hits,
+////    std::vector<E16ANA_G4Hit> &gtr3_hits
+////  ){
+////    int version = 3;
+////    G4Analyze( version, g4moduleHits, gtrRes, geom, gtr1_hits, gtr2_hits, gtr3_hits);
+////  }
+////
+////  void G4AnalyzeV4(    E16ANA_G4ModuleHitList& g4moduleHits,
+////    E16ANA_GTRResponseManager* gtrRes, 
+////    E16ANA_Geometry* geom,
+////    std::vector<E16ANA_G4Hit> &gtr1_hits,
+////    std::vector<E16ANA_G4Hit> &gtr2_hits,
+////    std::vector<E16ANA_G4Hit> &gtr3_hits
+////  ){
+////    int version = 4;
+////    G4Analyze( version, g4moduleHits, gtrRes, geom, gtr1_hits, gtr2_hits, gtr3_hits);
+////  }
+////
+////  std::vector<E16ANA_GTRAnalyzedStripHit> ReAnalyzeV4X(int layer, E16ANA_G4Hit &hit);
+////  std::vector<E16ANA_GTRAnalyzedStripHit> ReAnalyzeV4Y(int layer, E16ANA_G4Hit &hit, double near_cut);
+////
+////  // WaveformAnalyze
+////  void WaveformAnalyze(
+////    int version, 
+////    E16ANA_WaveformEvent *event,
+////    E16ANA_Geometry* geom
+////  );
+////  void WaveformAnalyzeV0(E16ANA_WaveformEvent *event, E16ANA_Geometry* geom){
+////     WaveformAnalyze(0,event,geom);
+////  };
+////  void WaveformAnalyzeV1(E16ANA_WaveformEvent *event, E16ANA_Geometry* geom){
+////     WaveformAnalyze(1,event,geom);
+////  };
+////  void WaveformAnalyzeV2(E16ANA_WaveformEvent *event, E16ANA_Geometry* geom){
+////     WaveformAnalyze(2,event,geom);
+////  };
+////  void WaveformAnalyzeV3(E16ANA_WaveformEvent *event, E16ANA_Geometry* geom){
+////     WaveformAnalyze(3,event,geom);
+////  };
+//    //  should be called event-by-event
+//    //make lists of AnalyzedStripHit(SH) &  AnalyzedHit(AH) from the G4 data
+//    // Here, x-y correalation is not solved in the AH.
+//    //  -> only transform to global coordinate from the SH.
+//
+//  //hit list handler
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>&  AnalyzedStripGTRX(int i){
+////    return *(gtrSHitsX[i]); }
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>&  AnalyzedStripGTRY(int i){
+////    return *(gtrSHitsY[i]); }// 1Y,2Y,3Y,1Yb
+////  
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR1X(){return gtrSHits1X;}
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR2X(){return gtrSHits2X;}
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR3X(){return gtrSHits3X;}
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR1Y(){return gtrSHits1Y;}
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR1Yb(){return gtrSHits1Yb;}
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR2Y(){return gtrSHits2Y;}
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>& AnalyzedStripGTR3Y(){return gtrSHits3Y;}
+////
+////
+////  //hit list handler
+////  std::vector<E16ANA_GTRAnalyzedHit*>&  AnalyzedGTRX(int i){
+////    return *(gtrAHitsX[i]); }
+////  std::vector<E16ANA_GTRAnalyzedHit*>&  AnalyzedGTRY(int i){
+////    return *(gtrAHitsY[i]); }// 1Y,2Y,3Y,1Yb
+////  
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR1X(){return gtrAHits1X;}
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR2X(){return gtrAHits2X;}
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR3X(){return gtrAHits3X;}
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR1Y(){return gtrAHits1Y;}
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR1Yb(){return gtrAHits1Yb;}
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR2Y(){return gtrAHits2Y;}
+////  std::vector<E16ANA_GTRAnalyzedHit*>& AnalyzedGTR3Y(){return gtrAHits3Y;}
+////
+////  std::vector<E16ANA_GTRAnalyzedHit>&  AnalyzedHitXChamber(int layer, int k){
+////    return gtrAHitsXChamber[layer][k];
+////  }
+////  std::vector<E16ANA_GTRAnalyzedHit>&  AnalyzedHitYChamber(int layer, int k){
+////    return gtrAHitsYChamber[layer][k];
+////  }
+////
+//
+//private:
+//
+//  E16ANA_ParamManager* paramMgr;
+//  E16ANA_GTRAnalyzer2*  ana100[ Nmodule ];
+//  E16ANA_GTRAnalyzer2*  ana200[ Nmodule ];
+//  E16ANA_GTRAnalyzer2*  ana300[ Nmodule ];
+//  E16ANA_GTRAnalyzer2** anaS[3];
+//
+//  //module-by-module; substance (not pointer ) of AnalyzedHit
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits1XChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits2XChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits3XChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit>* gtrAHitsXChamber[3];
+////
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits1YChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits1YbChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits2YChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit> gtrAHits3YChamber[Nmodule];
+////  std::vector<E16ANA_GTRAnalyzedHit>* gtrAHitsYChamber[4];
+////
+////
+////  //layer-wide: only pointer to the Analyzed(Strip)Hit
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits1X;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits2X;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits3X;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>* gtrSHitsX[3];
+////
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits1Y;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits1Yb;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits2Y;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*> gtrSHits3Y;
+////  std::vector<E16ANA_GTRAnalyzedStripHit*>* gtrSHitsY[4];
+////
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits1X;
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits2X;
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits3X;
+////  std::vector<E16ANA_GTRAnalyzedHit*>* gtrAHitsX[3];
+////
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits1Y;
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits1Yb;
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits2Y;
+////  std::vector<E16ANA_GTRAnalyzedHit*> gtrAHits3Y;
+////  std::vector<E16ANA_GTRAnalyzedHit*>* gtrAHitsY[4];
+//
+//  void Clear();//event-by-event
+//
+//
+//
+//};
+
 
 #endif // E16ANA_GTRAnalyzer2_hh
