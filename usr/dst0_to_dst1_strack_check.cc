@@ -350,8 +350,8 @@ int main(int argc, char* argv[]) {
       E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
-      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 
       record->SSD().UpdatePtrs();
@@ -709,17 +709,17 @@ int main(int argc, char* argv[]) {
 	    //std::cout<<"LGCheck:"<<lghit->ModuleId()<<" "<<lghit->ChannelId()<<" "<<lghit->LocalPos(*geom).X()<<" "<<lghit->LocalPos(*geom).Y()<<std::endl;
 	    lghitresx[nhs] = resx;
 	    lghitresy[nhs] = resy;
-	    //lghitadc[nhs] = lghit->FitPeak();
-	    lghitadc[nhs] = lghit->PeakHeight();
-	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
-	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
+	    lghitadc[nhs] = lghit->FitPeak();
+	    //lghitadc[nhs] = lghit->PeakHeight();
+	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
 	    lghitgx[nhs] = lghit->GlobalPos(*geom).X();
 	    lghitgy[nhs] = lghit->GlobalPos(*geom).Y();
 	    lghitgz[nhs] = lghit->GlobalPos(*geom).Z();
 
 	    int lglocaly = lghit->ChannelId()/10;
-	    //if(lglocaly*10==block){//comment out 211028
-	    if(lglocaly*10==block||lglocaly*10==block+10||lglocaly*10==block-10){//211028
+	    if(lglocaly*10==block){//comment out 211028
+	    //if(lglocaly*10==block||lglocaly*10==block+10||lglocaly*10==block-10){//211028
 	      //std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgcptx<<std::endl;
 	      if(fabs(resx)<fabs(nearresx)){
 		nearindex = nhs;

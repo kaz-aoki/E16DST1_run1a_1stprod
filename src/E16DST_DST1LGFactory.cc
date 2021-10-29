@@ -79,11 +79,12 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       delete lgwf;
       continue;
     }
-    if( fitflag==2 ){ // applied in FitMethod
-      //std::cout<<"fit failed"<<std::endl;
-      delete lgwf;
-      continue;
-    }
+
+    //    if( fitflag==2 ){ // applied in FitMethod 211028
+    //      //std::cout<<"fit failed"<<std::endl;
+    //      delete lgwf;
+    //      continue;
+    //    }
 
     double timing = lgwf->GetTiming();
     double peakheight = lgwf->GetPeak();
