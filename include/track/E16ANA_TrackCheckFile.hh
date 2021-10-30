@@ -164,6 +164,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("chi_square", &chi_square);
     tree->Branch("n_steps", &n_steps);
     tree->Branch("n_calls", &n_calls);
+    tree->Branch("rk_charge", &rk_charge);
     tree->Branch("rk_hit_init_mom_gx", &rk_hit_init_mom_gx);
     tree->Branch("rk_hit_init_mom_gy", &rk_hit_init_mom_gy);
     tree->Branch("rk_hit_init_mom_gz", &rk_hit_init_mom_gz);
@@ -286,6 +287,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_x0_mom_gx", &rk_proj_x0_mom_gx);
     tree->Branch("rk_proj_x0_mom_gy", &rk_proj_x0_mom_gy);
     tree->Branch("rk_proj_x0_mom_gz", &rk_proj_x0_mom_gz);
+    tree->Branch("rk_proj_n_hbd", &rk_proj_n_hbd);
     tree->Branch("rk_proj_hbd0_id", &rk_proj_hbd0_id);
     tree->Branch("rk_proj_hbd0_mid", &rk_proj_hbd0_mid);
     tree->Branch("rk_proj_hbd0_x",   &rk_proj_hbd0_x);
@@ -330,6 +332,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_hbd3_size", &rk_proj_hbd3_size);
     tree->Branch("rk_proj_hbd3_eprob", &rk_proj_hbd3_eprob);
     tree->Branch("rk_proj_hbd3_cprob", &rk_proj_hbd3_cprob);
+    tree->Branch("rk_proj_n_lg", &rk_proj_n_lg);
     tree->Branch("rk_proj_lg0_id", &rk_proj_lg0_id);
     tree->Branch("rk_proj_lg0_mid", &rk_proj_lg0_mid);
     tree->Branch("rk_proj_lg0_x",   &rk_proj_lg0_x);
@@ -772,6 +775,7 @@ class E16ANA_TrackCheckFile {
     chi_square.resize(n_cands);
     n_steps.resize(n_cands);
     n_calls.resize(n_cands);
+    rk_charge.resize(n_cands);
     rk_hit_init_mom_gx.resize(n_cands);
     rk_hit_init_mom_gy.resize(n_cands);
     rk_hit_init_mom_gz.resize(n_cands);
@@ -894,6 +898,7 @@ class E16ANA_TrackCheckFile {
     rk_proj_x0_mom_gx.resize(n_cands);
     rk_proj_x0_mom_gy.resize(n_cands);
     rk_proj_x0_mom_gz.resize(n_cands);
+    rk_proj_n_hbd.resize(n_cands);
     rk_proj_hbd0_id.resize(n_cands);
     rk_proj_hbd0_mid.resize(n_cands);
     rk_proj_hbd0_x.resize(n_cands);
@@ -938,6 +943,7 @@ class E16ANA_TrackCheckFile {
     rk_proj_hbd3_size.resize(n_cands);
     rk_proj_hbd3_eprob.resize(n_cands);
     rk_proj_hbd3_cprob.resize(n_cands);
+    rk_proj_n_lg.resize(n_cands);
     rk_proj_lg0_id.resize(n_cands);
     rk_proj_lg0_mid.resize(n_cands);
     rk_proj_lg0_x.resize(n_cands);
@@ -1100,6 +1106,7 @@ class E16ANA_TrackCheckFile {
       y_rough_fit_chi_square[i] = cand.YChiSquare();
       y_rough_fit_coef0[i] = cand.YCoef(0);
       y_rough_fit_coef1[i] = cand.YCoef(1);
+      rk_charge[i] = cand.Charge();
       auto hit_init_mom = cand.InitMom();
       auto hit_init_pos = cand.InitPos();
       rk_hit_init_mom_gx[i] = hit_init_mom.X();
@@ -1260,6 +1267,7 @@ class E16ANA_TrackCheckFile {
       rk_proj_x0_mom_gy[i] = proj_x0_mom.Y();
       rk_proj_x0_mom_gz[i] = proj_x0_mom.Z();
       auto& proj_hbd_clusters = cand.ProjectedHBDClusters();
+      rk_proj_n_hbd[i] = proj_hbd_clusters.size();
       rk_proj_hbd0_id[i] = -10000;
       rk_proj_hbd0_mid[i] = -10000;
       rk_proj_hbd0_x[i] = -10000.;
@@ -1366,6 +1374,7 @@ class E16ANA_TrackCheckFile {
         rk_proj_hbd3_cprob[i] = hbdclst->IsChargedParticle();
       }
       auto& proj_lg_hits = cand.ProjectedLGHits();
+      rk_proj_n_lg[i] = proj_lg_hits.size();
       rk_proj_lg0_id[i] = -10000;
       rk_proj_lg0_mid[i] = -10000;
       rk_proj_lg0_x[i] = -10000.;
@@ -1755,6 +1764,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> chi_square;
   std::vector<int> n_steps;
   std::vector<int> n_calls;
+  std::vector<int> rk_charge;
   std::vector<double> rk_hit_init_mom_gx;
   std::vector<double> rk_hit_init_mom_gy;
   std::vector<double> rk_hit_init_mom_gz;
@@ -1877,6 +1887,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_proj_x0_mom_gx;
   std::vector<double> rk_proj_x0_mom_gy;
   std::vector<double> rk_proj_x0_mom_gz;
+  std::vector<int> rk_proj_n_hbd;
   std::vector<int> rk_proj_hbd0_id;
   std::vector<int> rk_proj_hbd0_mid;
   std::vector<double> rk_proj_hbd0_x;
@@ -1921,6 +1932,7 @@ class E16ANA_TrackCheckFile {
   std::vector<int> rk_proj_hbd3_size;
   std::vector<float> rk_proj_hbd3_eprob;
   std::vector<float> rk_proj_hbd3_cprob;
+  std::vector<int> rk_proj_n_lg;
   std::vector<int> rk_proj_lg0_id;
   std::vector<int> rk_proj_lg0_mid;
   std::vector<double> rk_proj_lg0_x;
