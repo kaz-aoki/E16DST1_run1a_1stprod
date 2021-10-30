@@ -259,7 +259,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
-  double LocalX() { return center_of_gravity; };
+//  double LocalX() { return center_of_gravity; };
+  double LocalX() { return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}

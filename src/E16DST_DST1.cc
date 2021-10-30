@@ -127,7 +127,8 @@ TVector3 E16DST_DST1GTRCluster::LocalPos() {
     TVector3 lpos;
     if(IsX()){
 //        lpos = TVector3(center_of_gravity, 0.0, 0.0);
-        lpos = TVector3(center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id], 0.0, 0.0); // tmp
+//        lpos = TVector3(center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id], 0.0, 0.0); // tmp
+        lpos = TVector3(LocalX(), 0.0, 0.0); // tmp
     }
     else{
         lpos = TVector3(0.0, center_of_gravity, 0.0);

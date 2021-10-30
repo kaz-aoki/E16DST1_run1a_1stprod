@@ -978,13 +978,15 @@ void E16ANA_TrackCandidates::AddTracks(TrackPair* track_pair, double tgt_z) {
   pair_fitter->SetCharge(1, 1.);
   for (int track_index = 0; track_index < cands.size(); ++track_index) {
     for (int layer_index = 0; layer_index < E16ANA_TrackConstant::kNumTrackingLayers; ++layer_index) {
-      auto& fit_result = cands[track_index]->LocalFitResult(layer_index);
+      auto& cluster_pair = cands[track_index]->ClusterPair(layer_index);
+      auto module_id = cluster_pair.ModuleID();
+      auto local_pos = cluster_pair.LocalPos();
       if (layer_index == E16ANA_TrackConstant::kSSD) {
-        pair_fitter->AddHit(track_index, layer_index, geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id)),
-                            fit_result.local_pos, kSigmas[layer_index]);
+        pair_fitter->AddHit(track_index, layer_index, geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id)),
+                            local_pos, kSigmas[layer_index]);
       } else {
-        pair_fitter->AddHit(track_index, layer_index, geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(fit_result.module_id), layer_index - 1),
-                            fit_result.local_pos, kSigmas[layer_index]);
+        pair_fitter->AddHit(track_index, layer_index, geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_index - 1),
+                            local_pos, kSigmas[layer_index]);
       }
     }
   }
