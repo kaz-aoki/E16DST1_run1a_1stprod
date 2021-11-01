@@ -20,6 +20,8 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
+const bool kIsElectronRun = true;
+
 int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
@@ -129,17 +131,22 @@ int main(int argc, char* argv[]) {
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+      record.SSD().AddHitAndClusterIds();
       record.SSD().UpdatePtrs();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped);
+      record.GTR().AddHitAndClusterIds();
       record.GTR().UpdatePtrs();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
+      record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
+//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1);
+      record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
 //      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, &record, &check_file);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
 //// Check begin
 //      auto event_id = event0->EventID();
