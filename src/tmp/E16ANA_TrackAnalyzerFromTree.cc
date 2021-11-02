@@ -385,7 +385,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
         gmom[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGMom(tmp_lmom[hid]);
       } else {
         gpos[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGPos(tmp_lpos[hid]);
-        gmom[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGMom(tmp_lpos[hid]);
+        gmom[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGMom(tmp_lmom[hid]);
       }
       lres[track_index_in_pair][layer_index] = tmp_lres[hid];
     }
