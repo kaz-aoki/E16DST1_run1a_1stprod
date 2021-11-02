@@ -20,6 +20,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_n_tracks = n_cands;
   out_n_pairs = 0;
   out_n_selected_pairs = 0;
+  out_is_selected.clear();
   out_minus_track_id.clear();
   out_plus_track_id.clear();
   out_chi_square.clear();
@@ -100,18 +101,18 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_gtr300_fit_mom_gx.clear();
   out_minus_gtr300_fit_mom_gy.clear();
   out_minus_gtr300_fit_mom_gz.clear();
-  out_plus_ssd_fit_res_x.clear();
-  out_plus_ssd_fit_res_y.clear();
-  out_plus_ssd_fit_res_z.clear();
-  out_plus_gtr100_fit_res_x.clear();
-  out_plus_gtr100_fit_res_y.clear();
-  out_plus_gtr100_fit_res_z.clear();
-  out_plus_gtr200_fit_res_x.clear();
-  out_plus_gtr200_fit_res_y.clear();
-  out_plus_gtr200_fit_res_z.clear();
-  out_plus_gtr300_fit_res_x.clear();
-  out_plus_gtr300_fit_res_y.clear();
-  out_plus_gtr300_fit_res_z.clear();
+  out_plus_ssd_fit_mom_gx.clear();
+  out_plus_ssd_fit_mom_gy.clear();
+  out_plus_ssd_fit_mom_gz.clear();
+  out_plus_gtr100_fit_mom_gx.clear();
+  out_plus_gtr100_fit_mom_gy.clear();
+  out_plus_gtr100_fit_mom_gz.clear();
+  out_plus_gtr200_fit_mom_gx.clear();
+  out_plus_gtr200_fit_mom_gy.clear();
+  out_plus_gtr200_fit_mom_gz.clear();
+  out_plus_gtr300_fit_mom_gx.clear();
+  out_plus_gtr300_fit_mom_gy.clear();
+  out_plus_gtr300_fit_mom_gz.clear();
   out_minus_ssd_fit_res_x.clear();
   out_minus_ssd_fit_res_y.clear();
   out_minus_ssd_fit_res_z.clear();
@@ -136,6 +137,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_res_x.clear();
   out_plus_gtr300_fit_res_y.clear();
   out_plus_gtr300_fit_res_z.clear();
+  out_mass.clear();
   return;
 }
 
