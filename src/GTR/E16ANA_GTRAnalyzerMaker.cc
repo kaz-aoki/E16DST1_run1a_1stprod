@@ -27,8 +27,8 @@ E16ANA_GTRAnalyzerMaker::E16ANA_GTRAnalyzerMaker(E16ANA_GTRcalibParams &gtr_para
 //			Chamber(module_id, layer_id)->SetTdcMax(gtr_params.GetParams(module_id, layer_id).TdcMax());
 			Chamber(module_id, layer_id)->SetDriftVelocity(gtr_params.GetParams(module_id, layer_id).DriftVelocity());
 			Chamber(module_id, layer_id)->SetCenterOfDriftGap(gtr_params.GetParams(module_id, layer_id).CenterOfDriftGap());
+			Chamber(module_id,layer_id)->SetPeakTimeMin(gtr_params.GetParams(module_id,layer_id).PeakTimeMin());
 			Chamber(module_id,layer_id)->SetPeakTimeMax(gtr_params.GetParams(module_id,layer_id).PeakTimeMax());
-			Chamber(module_id,layer_id)->SetPeakTimeMax(gtr_params.GetParams(module_id,layer_id).PeakTimeMin());
 		}
 	}
 }
