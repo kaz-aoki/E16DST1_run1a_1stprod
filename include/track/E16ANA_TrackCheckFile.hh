@@ -742,8 +742,8 @@ class E16ANA_TrackCheckFile {
   double CalcMass(TVector3 mom0, TVector3 mom1) {
     double p0 = mom0.X() * mom0.X() + mom0.Y() * mom0.Y() + mom0.Z() * mom0.Z();
     double p1 = mom1.X() * mom1.X() + mom1.Y() * mom1.Y() + mom1.Z() * mom1.Z();
-    double e0 = sqrt(p0 * p0 + kElectronMass2);
-    double e1 = sqrt(p1 * p1 + kElectronMass2);
+    double e0 = sqrt(p0 + kElectronMass2);
+    double e1 = sqrt(p1 + kElectronMass2);
     double p0p1 = mom0.X() * mom1.X() + mom0.Y() * mom1.Y() + mom0.Z() * mom1.Z();
     return sqrt(2. * (kElectronMass2 + e0 * e1 - p0p1));
   }
