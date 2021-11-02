@@ -127,7 +127,7 @@ public:
 //         }
 //         return sigma;
 //      };
-      void SetValues(double tx, double ty, double totx, double toty, double pedx, double pedy, double sigx, double sigy, double wmin, double wmax, int gap, double tdc, double rmin, double rmax, double pmin, double pmax, double tdmin, double tdmax, double dv, double cd, double cd2)
+      void SetValues(double tx, double ty, double totx, double toty, double pedx, double pedy, double sigx, double sigy, double wmin, double wmax, int gap, double tdc, double rmin, double rmax, double pmin, double pmax, double dv, double cd, double cd2)
       { // file read mode
     	 th_x = tx;
 	     th_y = ty;
@@ -145,8 +145,8 @@ public:
 	  	 risetime_max = rmax;
 	 	 peaktime_min = pmin;	
     	 peaktime_max = pmax;
-	     tdc_min  = tdmin;
-	 	 tdc_max  = tdmax;
+//	     tdc_min  = tdmin;
+//	 	 tdc_max  = tdmax;
 	  	 drift_velocity = dv;
 	  	 center_of_drift_gap = cd;
 	  	 center_of_drift_gap2 = cd2;
@@ -168,8 +168,8 @@ public:
 	  double RiseTimeMax(){return risetime_max;}
 	  double PeakTimeMin(){return peaktime_min;}
 	  double PeakTimeMax(){return peaktime_max;}
-	  double TdcMin(){return tdc_min;}
-	  double TdcMax(){return tdc_max;}
+//	  double TdcMin(){return tdc_min;}
+//	  double TdcMax(){return tdc_max;}
 	  double DriftVelocity(){return drift_velocity;}
 	  double CenterOfDriftGap(){return center_of_drift_gap;}
 	  double CenterOfDriftGap2(){return center_of_drift_gap2;}
@@ -190,8 +190,8 @@ public:
 	  double risetime_max;
 	  double peaktime_min;	
       double peaktime_max;
-	  double tdc_min;
-	  double tdc_max;
+//	  double tdc_min;
+//	  double tdc_max;
 	  double drift_velocity;
 	  double center_of_drift_gap;
 	  double center_of_drift_gap2;
