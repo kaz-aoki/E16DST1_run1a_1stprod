@@ -891,22 +891,22 @@ class E16ANA_TrackAnalyzerFromTree {
  private:
   void InitOutTree();
   void ClearOutBranch();
-  bool IsGoodTrack(int n);
-  void CheckUsedClusters(int cand_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_clusters,
+  bool IsGoodTrack(int track_index);
+  void CheckUsedClusters(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids,
                          std::vector<int>* selected_track_index);
-  void SelectTrack(int cand_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_clusters,
+  void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids,
                          std::vector<int>* selected_track_index);
   void SelectTracks(std::vector<int>* selected_track_index);
-  int SearchClusterIndex(int cluster_id, std::vector<int>& cluster_ids);
-  void AddTracks(const int pair_index[], double tgt_z);
+//  int SearchClusterIndex(int cluster_id, std::vector<int>& cluster_ids);
+  void AddTracks(const int track_index_pair[], double tgt_z);
   void FillTVector3ToDouble(TVector3 t_vector, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
   double CalcMass(TVector3 mom0, TVector3 mom1);
-  void UpdateFitResult(const int pair_index[]);
-  void PairTracking(const int pair_index[], double tgt_z);
-  void SortTrackPairs(std::vector<int>* sorted_pair_index);
-  bool IsGoodPair(int pair_index);
-  void CheckUsedTracks(int pair_index, std::vector<int>* used_minus_tracks, std::vector<int>* used_plus_tracks);
-  void SelectTrackPair(int pair_index, std::vector<int>* used_minus_tracks, std::vector<int>* used_plus_tracks);
+  void UpdateFitResult(const int track_index_pair[]);
+  void PairTracking(const int track_index_pair[], double tgt_z);
+  std::vector<int> SortedTrackPairIndex();
+  bool IsGoodPair(const int track_index_pair);
+  void CheckUsedTracks(const int track_index_pair, std::vector<int>* used_minus_tracks, std::vector<int>* used_plus_tracks);
+  void SelectTrackPair(const int track_index_pair, std::vector<int>* used_minus_tracks, std::vector<int>* used_plus_tracks);
   void SelectTrackPairs();
   void AnalyzeTrackPairs(std::vector<int>* selected_track_index);
   E16ANA_GeometryV2* geometry;
