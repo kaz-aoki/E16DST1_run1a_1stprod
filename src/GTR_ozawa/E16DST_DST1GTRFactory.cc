@@ -17,6 +17,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     if(isFirst){
         gtr_analyzers = new E16ANA_GTRAnalyzerMaker();
 
+//#define FIELD_OFF_ANA
 #undef FIELD_OFF_ANA
 #ifdef  FIELD_OFF_ANA
         gtr_analyzers->Set(&E16ANA_GTRAnalyzer2::SetThresholdX, 150.0);

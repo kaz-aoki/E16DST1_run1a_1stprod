@@ -36,12 +36,14 @@ class E16DST_DST1Hit {
     channel_id = E16DST_DST1Constant::kInvalidValue;
     timing     = E16DST_DST1Constant::kInvalidValue;
   }
+  void             SetHitId(int _hit_id) { hit_id = _hit_id; }
   void             SetIds(int16_t _module_id, int16_t _channel_id) {
     module_id  = _module_id;
     channel_id = _channel_id;
   }
   void             SetTiming(float _timing) { timing = _timing; }
   virtual void     SetPeakHeight(float _peak_height) = 0;
+  int              HitId() { return hit_id; }
   int16_t          ModuleId() { return module_id; }
   virtual int16_t  LayerId() { return 0; }
   virtual int16_t  Type() { return 0; }
@@ -57,6 +59,7 @@ std::cout << "print end" << std::endl;
   }
  protected:
   virtual int ModuleId2020To2013(int module_id) = 0;
+  int         hit_id;
   int16_t     module_id;
   int16_t     channel_id;
   float       timing; // 50% of peak
@@ -82,12 +85,14 @@ class E16DST_DST1Cluster {
     peak_sum        = E16DST_DST1Constant::kInvalidValue;
     hit_orders.clear();
   }
+  void                          SetClusterId(int _cluster_id) { cluster_id = _cluster_id; }
   void                          SetModuleId(int _module_id) { module_id = _module_id; }
   void                          SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
   void                          SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
   void                          SetTiming(float _timing) { timing = _timing; }
   void                          SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
   void                          SetHitOrders(std::vector<int16_t>& _hit_orders);
+  int                           ClusterId() { return cluster_id; }
   int                           ModuleId() { return module_id; }
   virtual int16_t               LayerId() { return 0; }
   virtual int16_t               Type() { return 0; }
@@ -110,6 +115,7 @@ class E16DST_DST1Cluster {
   }
  protected:
   virtual int                  ModuleId2020To2013(int module_id) = 0;
+  int                          cluster_id;
   int                          module_id;
   int                          max_peak_ch;
   float                        max_peak_height;
@@ -253,7 +259,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
-  double LocalX() { return center_of_gravity; };
+//  double LocalX() { return center_of_gravity; };
+  double LocalX() { return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -389,6 +396,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetFitTiming(float _fittiming) { fittiming = _fittiming; }
   void SetFitWidth(float _fitwidth) { fitwidth = _fitwidth; }
   void SetFitChi2(float _fitchi2) { fitchi2 = _fitchi2; }
+  void SetHitId(int _hitid) { hitid = _hitid; }
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
@@ -402,6 +410,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitTiming() { return fittiming; }
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
+  int HitId() { return hitid; }
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing);
   float GetEnergyDeposit(E16ANA_LGBasic& lgbasic);
@@ -419,9 +428,10 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   int fitflag; // 0: not fitted (no pulse), 1: fit OK, 2: fit failed
   float fitpeak;
   float fitpeaktime;
-  float fittiming;// calibrated channel by channel
+  float fittiming; // calibrated channel by channel
   float fitwidth;
   float fitchi2;
+  int hitid; // DST0 HitID
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
@@ -1245,6 +1255,17 @@ class E16DST_DST1Detector : public E16DST_DST1DetectorHeader {
   U&               Cluster(int i)                     { return clusters[i]; }
   std::vector<U>&  Clusters()                         { return clusters; }
   int              NumClusters()                      { return clusters.size(); }
+  void             AddHitAndClusterIds() {
+    int n_hits = hits.size();
+    for (int i = 0; i < n_hits; ++i) {
+      hits[i].SetHitId(i);
+    }
+    int n_clusters = clusters.size();
+    for (int i = 0; i < n_clusters; ++i) {
+      clusters[i].SetClusterId(i);
+    }
+    return;
+  }
   void             UpdateHitPtrs();
   void             UpdateClusterPtrs();
   void             UpdatePtrs() {
