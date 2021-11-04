@@ -411,6 +411,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
   int HitId() { return hitid; } // temporary
+  static float IsE(double _momentum, float _fitpeak);
   float IsE(double _momentum);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing);

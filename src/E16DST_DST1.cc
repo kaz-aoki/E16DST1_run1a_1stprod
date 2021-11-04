@@ -173,8 +173,7 @@ TVector3 E16DST_DST1HBDCluster::GlobalPosWADC(E16ANA_GeometryV2& geometry) {
   return gpos;
 }
 
-float E16DST_DST1LGHit::IsE(double p){
-
+float E16DST_DST1LGHit::IsE(double p, float _fitpeak){
   const double sr_pi = 26.3;//[mV]
   const double ratio_e_pi = 6784.4/2434.9;// 0.4GeVe/1.4GeVpi. from masters thesis by ashikaga
   double ref_mean = sr_pi*ratio_e_pi;//0.4GeV e
@@ -187,9 +186,13 @@ float E16DST_DST1LGHit::IsE(double p){
   double sigma = alpha*sqrt(e);
   double threshold = mean - 1.282*sigma; // 90% efficiency
 
-  if(fitpeak<threshold){ return 0; }
+  if(_fitpeak<threshold){ return 0; }
   else{ return 1; }
 
+}
+
+float E16DST_DST1LGHit::IsE(double p){
+  return IsE(p, fitpeak);
 }
 
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){

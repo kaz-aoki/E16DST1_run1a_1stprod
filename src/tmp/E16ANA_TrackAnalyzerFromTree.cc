@@ -9,6 +9,7 @@
 #include <TCanvas.h>
 #include "E16ANA_TrackAnalyzerFromTreeParameter.hh"
 #include "E16ANA_StepTrack.hh"
+#include "E16DST_DST1.hh"
 
 namespace track_const = E16ANA_TrackConstant;
 namespace cmn_param   = E16ANA_TrackAnalyzerFromTreeParameter;
@@ -178,13 +179,18 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
     return false;
   }
   bool is_lg_high = false;
-  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) > st_param::kLGADCThreshold) {
+  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
+//  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) > st_param::kLGADCThreshold) {
+  if (rk_proj_n_lg->at(track_index) >= 1 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg0_adc->at(track_index))) {
     is_lg_high = true;
-  } else if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  } else if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) > st_param::kLGADCThreshold) {
+  } else if (rk_proj_n_lg->at(track_index) >= 2 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg1_adc->at(track_index))) {
     is_lg_high = true;
-  } else if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  } else if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) > st_param::kLGADCThreshold) {
+  } else if (rk_proj_n_lg->at(track_index) >= 3 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg2_adc->at(track_index))) {
     is_lg_high = true;
-  } else if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  } else if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) > st_param::kLGADCThreshold) {
+  } else if (rk_proj_n_lg->at(track_index) >= 4 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg3_adc->at(track_index))) {
     is_lg_high = true;
   }
   if (!is_lg_high) {
