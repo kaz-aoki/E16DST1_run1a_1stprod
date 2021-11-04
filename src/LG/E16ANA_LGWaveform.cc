@@ -299,7 +299,6 @@ void E16ANA_LGWaveform::PeakSearch(){
 
 void E16ANA_LGWaveform::Fit(){
 
-
   //if(nps_short==1){
   //if(BaselineCorrect()&&nps_full<2&&spikeflag==false){
   //fitOK = 0;
@@ -436,11 +435,18 @@ bool E16ANA_LGWaveform::BaselineCorrect(){
 
   bool flag = true;
   double t0cell = nstocell(t0);
-  for(int i=0; i<nps_full; i++){
-    if( t0cell+E16ANA_LGConstant::kBaselineStart<pxs_full[i] && pxs_full[i]<t0cell+E16ANA_LGConstant::kBaselineEnd ){
-      flag = false;
-    }
+  for(int j=0;j<nps_short;j++){
+    for(int i=0; i<nps_full; i++){
+      if( pxs_short[j]+E16ANA_LGConstant::kBaselineStart<pxs_full[i] && pxs_full[i]<pxs_short[j]+E16ANA_LGConstant::kBaselineEnd ){
+	flag = false;
+      }
   }
+  }
+  //for(int i=0; i<nps_full; i++){
+  //if( t0cell+E16ANA_LGConstant::kBaselineStart<pxs_full[i] && pxs_full[i]<t0cell+E16ANA_LGConstant::kBaselineEnd ){
+  //flag = false;
+  //}
+  //}
 
   return flag;
 

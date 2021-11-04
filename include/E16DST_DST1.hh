@@ -389,7 +389,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetFitTiming(float _fittiming) { fittiming = _fittiming; }
   void SetFitWidth(float _fitwidth) { fitwidth = _fitwidth; }
   void SetFitChi2(float _fitchi2) { fitchi2 = _fitchi2; }
-  void SetHitId(int _hitid) { hitid = _hitid; }
+  void SetHitId(int _hitid) { hitid = _hitid; } // temporary
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
@@ -403,7 +403,8 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitTiming() { return fittiming; }
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
-  int HitId() { return hitid; }
+  int HitId() { return hitid; } // temporary
+  float IsE(double _momentum);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing);
   float GetEnergyDeposit(E16ANA_LGBasic& lgbasic);
@@ -424,7 +425,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float fittiming; // calibrated channel by channel
   float fitwidth;
   float fitchi2;
-  int hitid; // DST0 HitID
+  int hitid; // temporary
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
