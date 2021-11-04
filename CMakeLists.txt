@@ -218,6 +218,16 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
+#add_executable(lg_check_standalone usr/lg_check_standalone.cc)
+#
+#target_link_libraries(lg_check_standalone
+#       E16DST_DST1
+##E16ANA_CalibDB
+#       E16ANA_Basic
+#       E16DST
+#       E16ANA
+#)
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
 target_link_libraries(dst0_to_dst1_trigger_check

@@ -33,6 +33,9 @@
 #include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16ANA_GeometryV2.hh"
 
+//#define MKWF 1
+//#undef MKWF
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -284,6 +287,11 @@ int main(int argc, char* argv[]) {
   tree->Branch("lghitgx",lghitgx,"lghitgx[lg_nhs]/D");
   tree->Branch("lghitgy",lghitgy,"lghitgy[lg_nhs]/D");
   tree->Branch("lghitgz",lghitgz,"lghitgz[lg_nhs]/D");
+  //#ifdef MKWF
+  double waveform[200];
+  tree->Branch("Waveform",waveform,"Waveform[200]/D");
+  //#endif
+
 
   //TH2F* ssdxz = new TH2F("ssdxz","ssdxz",2000,-1000,1000,2000,-1000,1000);
   //TH2F* ssdzy = new TH2F("ssdzy","ssdzy",2000,-1000,1000,2000,-1000,1000);
@@ -751,13 +759,21 @@ int main(int argc, char* argv[]) {
 	    if(fabs(nearresx)<65){
 	      lgeff = true;
 	    }
+	    //#ifdef MKWF
+	    int hitid = lg_hits1[nearindex]->HitId();
+	    auto spec = lgbasic.GetSpec(lgmod,lgblk);
+	    double wftype = spec->WF_TYPE;
+	    for(int cell=0;cell<200;cell++){
+	      int ph = lg_hits0.Hit(hitid).Waveform()[cell];
+	      waveform[cell] = ph*wftype;
+	    }
+	    //#endif
 	  }
 
 	}//lg cluster bool
 
 	//std::cout<<lgcptx<<" "<<lgcpty<<std::endl;
 	//std::cout<<"******************************"<<std::endl;
-
 
       tree->Fill();
 
