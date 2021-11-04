@@ -11,7 +11,9 @@
 #include "E16ANA_StepTrack.hh"
 
 namespace track_const = E16ANA_TrackConstant;
+namespace cmn_param   = E16ANA_TrackAnalyzerFromTreeParameter;
 namespace st_param    = E16ANA_TrackAnalyzerFromTreeSingleTrackParameter;
+namespace pit_param   = E16ANA_TrackAnalyzerFromTreePionSingleTrackParameter;
 namespace pt_param    = E16ANA_TrackAnalyzerFromTreePairTrackParameter;
 
 void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
@@ -27,9 +29,11 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_vtx_gx.clear();
   out_vtx_gy.clear();
   out_vtx_gz.clear();
+  out_minus_mom.clear();
   out_minus_mom_gx.clear();
   out_minus_mom_gy.clear();
   out_minus_mom_gz.clear();
+  out_plus_mom.clear();
   out_plus_mom_gx.clear();
   out_plus_mom_gy.clear();
   out_plus_mom_gz.clear();
@@ -137,7 +141,15 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_res_x.clear();
   out_plus_gtr300_fit_res_y.clear();
   out_plus_gtr300_fit_res_z.clear();
-  out_mass.clear();
+  out_ee_mass.clear();
+  out_pipi_mass.clear();
+  out_ks_pos_at_x0_gx.clear();
+  out_ks_pos_at_x0_gy.clear();
+  out_ks_pos_at_x0_gz.clear();
+  out_ks_mom_at_x0_gx.clear();
+  out_ks_mom_at_x0_gy.clear();
+  out_ks_mom_at_x0_gz.clear();
+  out_ks_mom_at_x0_t.clear();
   return;
 }
 
@@ -146,12 +158,36 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
   if (chi_square->at(track_index) > st_param::kChiSquareThreshold) {
     return false;
   }
-//  if (rk_proj_hbd0_id->at(n) < 0) {
   if (rk_proj_n_hbd->at(track_index) == 0) {
     return false;
   }
-//  if (rk_proj_lg0_id->at(n) < 0) {
   if (rk_proj_n_lg->at(track_index) == 0) {
+    return false;
+  }
+  bool is_hbd_electron = false;
+  if (rk_proj_n_hbd->at(track_index) >= 1 && rk_proj_hbd0_eprob->at(track_index) > 0.5) {
+    is_hbd_electron = true;
+  } else if (rk_proj_n_hbd->at(track_index) >= 2 && rk_proj_hbd1_eprob->at(track_index) > 0.5) {
+    is_hbd_electron = true;
+  } else if (rk_proj_n_hbd->at(track_index) >= 3 && rk_proj_hbd2_eprob->at(track_index) > 0.5) {
+    is_hbd_electron = true;
+  } else if (rk_proj_n_hbd->at(track_index) >= 4 && rk_proj_hbd3_eprob->at(track_index) > 0.5) {
+    is_hbd_electron = true;
+  }
+  if (!is_hbd_electron) {
+    return false;
+  }
+  bool is_lg_high = false;
+  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) > st_param::kLGADCThreshold) {
+    is_lg_high = true;
+  } else if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) > st_param::kLGADCThreshold) {
+    is_lg_high = true;
+  } else if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) > st_param::kLGADCThreshold) {
+    is_lg_high = true;
+  } else if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) > st_param::kLGADCThreshold) {
+    is_lg_high = true;
+  }
+  if (!is_lg_high) {
     return false;
   }
   if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
@@ -184,6 +220,84 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
     }
   }
   if (!is_near_target) {
+    return false;
+  }
+  // write your selection criteria end
+  return true;
+}
+
+double E16ANA_TrackAnalyzerFromTree::CalcSingleTrackChiSquareWoTarget(int track_index) {
+  double chi_square_from_tgt = 0.;
+  auto init_pos = TVector3(rk_fit_init_pos_gx->at(track_index), rk_fit_init_pos_gy->at(track_index), rk_fit_init_pos_gz->at(track_index));
+  for (int i = 0; i < 3; ++i) {
+    if (pit_param::kInitPosError(i) == 0.) {
+      continue;
+    }
+    chi_square_from_tgt += pow(init_pos(i) / pit_param::kInitPosError(i), 2.);
+  }
+  return chi_square->at(track_index) - chi_square_from_tgt;
+}
+
+bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index) {
+  // write your selection criteria begin
+  if (chi_square->at(track_index) > pit_param::kChiSquareThreshold) {
+//  if (CalcSingleTrackChiSquareWoTarget(track_index) > pit_param::kChiSquareThreshold) {
+    return false;
+  }
+  if (rk_proj_n_hbd->at(track_index) == 0) {
+    return false;
+  }
+  if (rk_proj_n_lg->at(track_index) == 0) {
+    return false;
+  }
+  bool is_hbd_pion = false;
+  if (rk_proj_n_hbd->at(track_index) >= 1 && rk_proj_hbd0_eprob->at(track_index) < 0.5 && rk_proj_hbd0_cprob->at(track_index) > 0.5) {
+    is_hbd_pion = true;
+  } else if (rk_proj_n_hbd->at(track_index) >= 2 && rk_proj_hbd1_eprob->at(track_index) > 0.5 && rk_proj_hbd1_cprob->at(track_index) > 0.5) {
+    is_hbd_pion = true;
+  } else if (rk_proj_n_hbd->at(track_index) >= 3 && rk_proj_hbd2_eprob->at(track_index) > 0.5 && rk_proj_hbd2_cprob->at(track_index) > 0.5) {
+    is_hbd_pion = true;
+  } else if (rk_proj_n_hbd->at(track_index) >= 4 && rk_proj_hbd3_eprob->at(track_index) > 0.5 && rk_proj_hbd3_cprob->at(track_index) > 0.5) {
+    is_hbd_pion = true;
+  }
+  if (!is_hbd_pion) {
+    return false;
+  }
+  bool is_lg_low = false;
+  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) < pit_param::kLGADCThreshold) {
+    is_lg_low = true;
+  }
+  if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) < pit_param::kLGADCThreshold) {
+    is_lg_low = true;
+  }
+  if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) < pit_param::kLGADCThreshold) {
+    is_lg_low = true;
+  }
+  if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) < pit_param::kLGADCThreshold) {
+    is_lg_low = true;
+  }
+  if (!is_lg_low) {
+    return false;
+  }
+  if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
+    return false;
+  }
+  if (rk_res_gtr100_x->at(track_index) > st_param::kGTR100xResidualThreshold) {
+    return false;
+  }
+  if (rk_res_gtr100_y->at(track_index) > st_param::kGTR100yResidualThreshold) {
+    return false;
+  }
+  if (rk_res_gtr200_x->at(track_index) > st_param::kGTR200xResidualThreshold) {
+    return false;
+  }
+  if (rk_res_gtr200_y->at(track_index) > st_param::kGTR200yResidualThreshold) {
+    return false;
+  }
+  if (rk_res_gtr300_x->at(track_index) > st_param::kGTR300xResidualThreshold) {
+    return false;
+  }
+  if (rk_res_gtr300_y->at(track_index) > st_param::kGTR300yResidualThreshold) {
     return false;
   }
   // write your selection criteria end
@@ -229,7 +343,7 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, std::array
 
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids,
                                                std::vector<int>* selected_track_index) {
-  if (IsGoodTrack(track_index)) {
+  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index))) {
     CheckUsedClusters(track_index, used_cluster_ids, selected_track_index);
   }
   return;
@@ -347,13 +461,63 @@ void E16ANA_TrackAnalyzerFromTree::FillTVector3ToDouble(TVector3 t_vector, std::
   return;
 }
 
-double E16ANA_TrackAnalyzerFromTree::CalcMass(TVector3 mom0, TVector3 mom1) {
+double E16ANA_TrackAnalyzerFromTree::CalcMass(int flag, TVector3 mom0, TVector3 mom1) {
+  double mass2;
+  if (flag == pt_param::kCalcEEMassFlag) {
+    mass2 = pt_param::kElectronMass2;
+  } else if (flag == pt_param::kCalcPiPiMassFlag) {
+    mass2 = pt_param::kPionMass2;
+  } else {
+    std::cerr << "Invalid calculation flag : " << flag << std::endl;
+    return -1.;
+  }
   double p0 = mom0.X() * mom0.X() + mom0.Y() * mom0.Y() + mom0.Z() * mom0.Z();
   double p1 = mom1.X() * mom1.X() + mom1.Y() * mom1.Y() + mom1.Z() * mom1.Z();
-  double e0 = sqrt(p0 + pt_param::kElectronMass2);
-  double e1 = sqrt(p1 + pt_param::kElectronMass2);
+  double e0 = sqrt(p0 + mass2);
+  double e1 = sqrt(p1 + mass2);
   double p0p1 = mom0.X() * mom1.X() + mom0.Y() * mom1.Y() + mom0.Z() * mom1.Z();
-  return sqrt(2. * (pt_param::kElectronMass2 + e0 * e1 - p0p1));
+  return sqrt(2. * (mass2 + e0 * e1 - p0p1));
+}
+
+void E16ANA_TrackAnalyzerFromTree::ProjectionX0(int pair_index, TVector3 pos, TVector3 mom) {
+  out_ks_pos_at_x0_gx[pair_index] = 0.;
+  out_ks_pos_at_x0_gy[pair_index] = pos(1) - mom(1) / mom(0) * pos(0);
+  out_ks_pos_at_x0_gz[pair_index] = pos(2) - mom(2) / mom(0) * pos(0);
+  out_ks_mom_at_x0_gx[pair_index] = mom(0);
+  out_ks_mom_at_x0_gy[pair_index] = mom(1);
+  out_ks_mom_at_x0_gz[pair_index] = mom(2);
+  double l_x0 = sqrt(mom(1) * mom(1) + mom(2) * mom(2)) / mom(0) * pos(0);
+  double v = 1. / sqrt(pow(mom.Mag() / cmn_param::kKsMass / cmn_param::kLightSpeed, 2) + 1) * cmn_param::kLightSpeed;
+  out_ks_mom_at_x0_t[pair_index] = -l_x0 / 1000. / v;
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
+  if (particle_flag == cmn_param::kElectronFlag) {
+    out_ks_pos_at_x0_gx.assign(n_pairs, -10000.);
+    out_ks_pos_at_x0_gy.assign(n_pairs, -10000.);
+    out_ks_pos_at_x0_gz.assign(n_pairs, -10000.);
+    out_ks_mom_at_x0_gx.assign(n_pairs, -10000.);
+    out_ks_mom_at_x0_gy.assign(n_pairs, -10000.);
+    out_ks_mom_at_x0_gz.assign(n_pairs, -10000.);
+    out_ks_mom_at_x0_t.assign(n_pairs, -10000.);
+  } else if (particle_flag == cmn_param::kPionFlag) {
+    out_ks_pos_at_x0_gx.resize(n_pairs);
+    out_ks_pos_at_x0_gy.resize(n_pairs);
+    out_ks_pos_at_x0_gz.resize(n_pairs);
+    out_ks_mom_at_x0_gx.resize(n_pairs);
+    out_ks_mom_at_x0_gy.resize(n_pairs);
+    out_ks_mom_at_x0_gz.resize(n_pairs);
+    out_ks_mom_at_x0_t.resize(n_pairs);
+    for (int i = 0; i < n_pairs; ++i) {
+      auto ks_pos = TVector3(out_vtx_gx[i], out_vtx_gy[i], out_vtx_gz[i]);
+      auto ks_mom = TVector3(out_minus_mom_gx[i] + out_plus_mom_gx[i],
+                             out_minus_mom_gy[i] + out_plus_mom_gy[i],
+                             out_minus_mom_gz[i] + out_plus_mom_gz[i]);
+      ProjectionX0(i, ks_pos, ks_mom);
+    }
+  }
+  return;
 }
 
 void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[]) {
@@ -365,6 +529,8 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   FillTVector3ToDouble(tmp_vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
   FillTVector3ToDouble(tmp_minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
   FillTVector3ToDouble(tmp_plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
+  out_minus_mom.emplace_back(tmp_minus_mom.Mag());
+  out_plus_mom.emplace_back(tmp_plus_mom.Mag());
   int      mid[2][track_const::kNumTrackingLayers];
   TVector3 gpos[2][track_const::kNumTrackingLayers];
   TVector3 gmom[2][track_const::kNumTrackingLayers];
@@ -446,7 +612,9 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_fit_res_x,   &out_plus_gtr100_fit_res_y,   &out_plus_gtr100_fit_res_z);
   FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_fit_res_x,   &out_plus_gtr200_fit_res_y,   &out_plus_gtr200_fit_res_z);
   FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_fit_res_x,   &out_plus_gtr300_fit_res_y,   &out_plus_gtr300_fit_res_z);
-  out_mass.emplace_back(CalcMass(tmp_minus_mom, tmp_plus_mom));
+  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag, tmp_minus_mom, tmp_plus_mom));
+  out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
+  FillKsTrackInfo();
   return;
 }
 
@@ -557,6 +725,83 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs(std::vector<int>* selected_
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::AddPionTracks(const int track_index_pair[]) {
+  pair_fitter->Clear();
+  pair_fitter->SetInitialVertex(TVector3(0., 0., 0.), TVector3(0., 0., 0.));
+  pair_fitter->SetCharge(0, -1.);
+  pair_fitter->SetCharge(1, 1.);
+  TVector3 pair_mom;
+  for (int i =0; i < 2; ++i) {
+    auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
+    pair_fitter->SetInitialMomentum(i, tmp_mom);
+  }
+  for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
+    auto tindex = track_index_pair[track_index_in_pair];
+//    auto ssd_cid     = rk_hit_ssd_id->at(tindex);
+//    auto gtr100x_cid = rk_hit_gtr100_xid->at(tindex);
+//    auto gtr200x_cid = rk_hit_gtr200_xid->at(tindex);
+//    auto gtr300x_cid = rk_hit_gtr300_xid->at(tindex);
+//    int ssd_mid    = ssd_cluster_mid->at(SearchClusterIndex(ssd_cid, *ssd_cluster_id));
+//    int gtr100_mid = gtr100x_cluster_mid->at(SearchClusterIndex(gtr100x_cid, *gtr100x_cluster_id));
+//    int gtr200_mid = gtr200x_cluster_mid->at(SearchClusterIndex(gtr200x_cid, *gtr200x_cluster_id));
+//    int gtr300_mid = gtr300x_cluster_mid->at(SearchClusterIndex(gtr300x_cid, *gtr300x_cluster_id));
+    auto ssd_mid = rk_fit_ssd_mid->at(tindex);
+    auto gtr100_mid = rk_fit_gtr100_mid->at(tindex);
+    auto gtr200_mid = rk_fit_gtr200_mid->at(tindex);
+    auto gtr300_mid = rk_fit_gtr300_mid->at(tindex);
+    auto ssd_gpos    = TVector3(rk_hit_ssd_gx->at(tindex),    rk_hit_ssd_gy->at(tindex),    rk_hit_ssd_gz->at(tindex));
+    auto gtr100_gpos = TVector3(rk_hit_gtr100_gx->at(tindex), rk_hit_gtr100_gy->at(tindex), rk_hit_gtr100_gz->at(tindex));
+    auto gtr200_gpos = TVector3(rk_hit_gtr200_gx->at(tindex), rk_hit_gtr200_gy->at(tindex), rk_hit_gtr200_gz->at(tindex));
+    auto gtr300_gpos = TVector3(rk_hit_gtr300_gx->at(tindex), rk_hit_gtr300_gy->at(tindex), rk_hit_gtr300_gz->at(tindex));
+    pair_fitter->AddHit(track_index_in_pair, 0, geometry->SSD(track_const::ModuleID2020To2013(ssd_mid)),
+                        geometry->SSD(track_const::ModuleID2020To2013(ssd_mid))->GetLPos(ssd_gpos),          pt_param::kSSDSigma);
+    pair_fitter->AddHit(track_index_in_pair, 1, geometry->GTR(track_const::ModuleID2020To2013(gtr100_mid), 0),
+                        geometry->GTR(track_const::ModuleID2020To2013(gtr100_mid), 0)->GetLPos(gtr100_gpos), pt_param::kGTR100Sigma);
+    pair_fitter->AddHit(track_index_in_pair, 2, geometry->GTR(track_const::ModuleID2020To2013(gtr200_mid), 1),
+                        geometry->GTR(track_const::ModuleID2020To2013(gtr200_mid), 1)->GetLPos(gtr200_gpos), pt_param::kGTR200Sigma);
+    pair_fitter->AddHit(track_index_in_pair, 3, geometry->GTR(track_const::ModuleID2020To2013(gtr300_mid), 2),
+                        geometry->GTR(track_const::ModuleID2020To2013(gtr300_mid), 2)->GetLPos(gtr300_gpos), pt_param::kGTR300Sigma);
+  }
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::PionPairTracking(const int track_index_pair[]) {
+  AddPionTracks(track_index_pair);
+  pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
+  pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
+  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
+                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
+  UpdateFitResult(track_index_pair);
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs(std::vector<int>* selected_track_index) {
+  int n_selected_tracks = selected_track_index->size();
+  for (int index0 = 0; index0 < n_selected_tracks - 1; ++index0) {
+    auto selected_track_index0 = selected_track_index->at(index0);
+    auto charge0 = rk_charge->at(selected_track_index0);
+    for (int index1 = index0 + 1; index1 < n_selected_tracks; ++index1) {
+      auto selected_track_index1 = selected_track_index->at(index1);
+      auto charge1 = rk_charge->at(selected_track_index1);
+      if (charge0 == charge1) {
+        continue;
+      }
+      int track_index_pair[2]; // 0 : minus, 1 : plus
+      if (charge0 == -1) {
+        track_index_pair[0] = selected_track_index0;
+        track_index_pair[1] = selected_track_index1;
+      } else {
+        track_index_pair[0] = selected_track_index1;
+        track_index_pair[1] = selected_track_index0;
+      }
+      PionPairTracking(track_index_pair);
+    }
+  }
+  SelectTrackPairs();
+  out_tree->Fill();
+  return;
+}
+
 void E16ANA_TrackAnalyzerFromTree::Loop() {
 //   In a ROOT session, you can do:
 //      root> .L E16ANA_TrackAnalyzerFromTree.C
@@ -597,7 +842,11 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
     ClearOutBranch();
     std::vector<int> selected_track_index;
     SelectTracks(&selected_track_index);
-    AnalyzeTrackPairs(&selected_track_index);
+    if (particle_flag == cmn_param::kElectronFlag) {
+      AnalyzeTrackPairs(&selected_track_index);
+    } else if (particle_flag == cmn_param::kPionFlag) {
+      AnalyzePionTrackPairs(&selected_track_index);
+    }
   }
   out_file->Write();
   return;

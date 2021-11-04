@@ -14,10 +14,11 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 
 #include "E16ANA_TrackAnalyzerFromTree.hh"
+#include "E16ANA_TrackAnalyzerFromTreeParameter.hh"
 
 using namespace std;
 
-const bool kIsElectronRun = true;
+const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
@@ -44,7 +45,7 @@ int main(int argc, char* argv[]) {
   auto in_file = new TFile(in_file_name);
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
-  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, geometry, bfield_map, &pair_fitter, out_file);
+  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kParticleFlag, geometry, bfield_map, &pair_fitter, out_file);
   analyzer.Loop();
   
   delete geometry;
