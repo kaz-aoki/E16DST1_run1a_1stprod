@@ -23,10 +23,12 @@ E16ANA_GTRAnalyzerMaker::E16ANA_GTRAnalyzerMaker(E16ANA_GTRcalibParams &gtr_para
 			Chamber(module_id, layer_id)->SetClusterDeltaTdc(gtr_params.GetParams(module_id, layer_id).ClusterDeltaTDC());
 			Chamber(module_id, layer_id)->SetRiseTimeMin(gtr_params.GetParams(module_id, layer_id).RiseTimeMin());
 			Chamber(module_id, layer_id)->SetRiseTimeMax(gtr_params.GetParams(module_id, layer_id).RiseTimeMax());
-			Chamber(module_id, layer_id)->SetTdcMin(gtr_params.GetParams(module_id, layer_id).TdcMin());
-			Chamber(module_id, layer_id)->SetTdcMax(gtr_params.GetParams(module_id, layer_id).TdcMax());
+//			Chamber(module_id, layer_id)->SetTdcMin(gtr_params.GetParams(module_id, layer_id).TdcMin());
+//			Chamber(module_id, layer_id)->SetTdcMax(gtr_params.GetParams(module_id, layer_id).TdcMax());
 			Chamber(module_id, layer_id)->SetDriftVelocity(gtr_params.GetParams(module_id, layer_id).DriftVelocity());
 			Chamber(module_id, layer_id)->SetCenterOfDriftGap(gtr_params.GetParams(module_id, layer_id).CenterOfDriftGap());
+			Chamber(module_id,layer_id)->SetPeakTimeMin(gtr_params.GetParams(module_id,layer_id).PeakTimeMin());
+			Chamber(module_id,layer_id)->SetPeakTimeMax(gtr_params.GetParams(module_id,layer_id).PeakTimeMax());
 		}
 	}
 }

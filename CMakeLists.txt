@@ -35,8 +35,8 @@ include_directories(
   /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
-#	include/GTR
-	include/GTR_ozawa
+	include/GTR
+#	include/GTR_ozawa
 	include/HBD
 	include/LG
 	include/trigger
@@ -44,6 +44,8 @@ include_directories(
 	include/track
   E16DST
   E16ANA_Basic/include
+
+  include/tmp
 )
 
 link_directories(
@@ -139,6 +141,15 @@ target_link_libraries(E16DST_DST1
 )
 
 #_______________________________________________________________________________
+add_library(E16ANA_Track
+  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+)
+
+target_link_libraries(E16ANA_Track
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
@@ -195,7 +206,7 @@ target_link_libraries(dst0_to_dst1_all_check_hist
 	E16ANA
 )
 
-##_______________________________________________________________________________
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
 
 target_link_libraries(dst0_to_dst1_strack_check
@@ -207,24 +218,13 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-#add_executable(lg_check_standalone usr/lg_check_standalone.cc)
-#
-#target_link_libraries(lg_check_standalone
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
-##_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
 target_link_libraries(dst0_to_dst1_trigger_check
 	E16DST_DST1
 )
 
-##_______________________________________________________________________________
+#_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
@@ -232,7 +232,21 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST_DST1
 )
 
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
+
+target_link_libraries(tmp_track_analyzer_one_file
+	E16ANA_Track
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
+
+target_link_libraries(tmp_track_analyzer
+	E16ANA_Track
+)
+
+#_______________________________________________________________________________
 #add_executable(tmp_gtr usr/tmp_gtr.cc)
 #
 #target_link_libraries(tmp_gtr
