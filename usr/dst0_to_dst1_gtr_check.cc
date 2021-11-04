@@ -28,6 +28,9 @@ int main(int argc, char* argv[]) {
   auto out_file_name = argv[2];
   auto run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
+
+  TFile *fout = new TFile(out_file_name,"recreate");
+
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -129,7 +132,7 @@ int main(int argc, char* argv[]) {
 //      event1->Trigger().SetValidFlag(1);
 
 //   gtrhist->Fill(&gtr_hits, &gtr_clusters);
-//   gtrhist->Fill(&record->GTR());
+   gtrhist->Fill(&record->GTR());
 
 
 // GTR
@@ -162,9 +165,49 @@ int main(int argc, char* argv[]) {
   }
   TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
   TString pdf_name;
-  pdf_name.Form("gtrtest.pdf");
+  pdf_name.Form("/ccj/w/data06a/E16/user/nakasuga/output/gtr/dst1check/pdf/gtrtest%06d.pdf",run_id);
+  //  pdf_name.Form("gtrtest.pdf");
   c1->SaveAs(pdf_name + "[", "pdf");
 
+  TCanvas *c_cl_ncluster_x[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_ncluster_x[m-102] = new TCanvas(Form("ccn%d", m-102) , Form("ccn%d", m-102), 1024, 768);
+    c_cl_ncluster_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_ncluster_x[m-102]->cd(l+1);
+        gtrhist->h_cl_ncluster_x[m-100][l]->Draw();
+    }
+    c_cl_ncluster_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+
+   TCanvas *c_cl_ncluster_y[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_ncluster_y[m-102] = new TCanvas(Form("ccny%d", m-102) , Form("ccny%d", m-102), 1024, 768);
+    c_cl_ncluster_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_ncluster_y[m-102]->cd(l+1);
+        gtrhist->h_cl_ncluster_y[m-100][l]->Draw();
+    }
+    c_cl_ncluster_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+   TCanvas *c_cl_ncluster_yb[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_ncluster_yb[m-102] = new TCanvas(Form("ccnyb%d", m-102) , Form("ccnyb%d", m-102), 1024, 768);
+    c_cl_ncluster_yb[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_ncluster_yb[m-102]->cd(l+1);
+        gtrhist->h_cl_ncluster_yb[m-100][l]->Draw();
+    }
+    c_cl_ncluster_yb[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
   TCanvas *c_cl_numhits_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
   for(int m=102; m < 109 ; m++){
@@ -241,6 +284,43 @@ int main(int argc, char* argv[]) {
         gtrhist->h_cl_charge_yb[m-100][l]->Draw();
     }
     c_cl_charge_yb[m-102]->SaveAs(pdf_name, "pdf");
+  }
+  
+  TCanvas *c_cl_timing_x[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_timing_x[m-102] = new TCanvas(Form("ctx%d", m-102) , Form("ctx%d", m-102), 1024, 768);
+    c_cl_timing_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_timing_x[m-102]->cd(l+1);
+        gtrhist->h_cl_timing_x[m-100][l]->Draw();
+    }
+    c_cl_timing_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+  TCanvas *c_cl_timing_y[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_timing_y[m-102] = new TCanvas(Form("cty%d", m-102), Form("cty%d", m-102), 1024, 768);
+    c_cl_timing_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_timing_y[m-102]->cd(l+1);
+        gtrhist->h_cl_timing_y[m-100][l]->Draw();
+    }
+    c_cl_timing_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
+  
+  TCanvas *c_cl_timing_yb[10]; 
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_cl_timing_yb[m-102] = new TCanvas(Form("ctyb%d", m-102), Form("ctyb%d", m-102), 1024, 768);
+    c_cl_timing_yb[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_cl_timing_yb[m-102]->cd(l+1);
+        gtrhist->h_cl_timing_yb[m-100][l]->Draw();
+    }
+    c_cl_timing_yb[m-102]->SaveAs(pdf_name, "pdf");
   }
   
   TCanvas *c_cl_local_x[10]; 
@@ -397,6 +477,9 @@ int main(int argc, char* argv[]) {
  
 
   c1->SaveAs( pdf_name + "]", "pdf");
+
+  fout->Write();
+  fout->Close();
 
 
 //  delete geometry;
