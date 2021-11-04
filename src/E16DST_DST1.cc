@@ -173,6 +173,25 @@ TVector3 E16DST_DST1HBDCluster::GlobalPosWADC(E16ANA_GeometryV2& geometry) {
   return gpos;
 }
 
+float E16DST_DST1LGHit::IsE(double p){
+
+  const double sr_pi = 26.3;//[mV]
+  const double ratio_e_pi = 6784.4/2434.9;// 0.4GeVe/1.4GeVpi. from masters thesis by ashikaga
+  double ref_mean = sr_pi*ratio_e_pi;//0.4GeV e
+  double ref_sigma = ref_mean*35./148.;//0.4GeV e
+  double slope = ref_mean/0.4;//mean = slope * ene
+  double alpha = ref_sigma/sqrt(0.4);//sigma = alpha * sqrt(ene)
+
+  double e = sqrt(p*p+0.000511*0.000511);
+  double mean = slope*e;
+  double sigma = alpha*sqrt(e);
+  double threshold = mean - 1.282*sigma; // 90% efficiency
+
+  if(fitpeak<threshold){ return 0; }
+  else{ return 1; }
+
+}
+
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){
   double param = lgbasic.GetT0(module_id, channel_id);// [ns]
   return timing+100.-param;

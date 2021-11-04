@@ -15,6 +15,8 @@
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGWaveform.hh"
 
+#define MKWF 0
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -45,6 +47,7 @@ int main(int argc, char* argv[]) {
   //TH1F *hit = new TH1F("hit","Integral",1100,-100,1000);
   //TH1F *ht0 = new TH1F("ht0","CalibTiming",1000,0,200);
   //TH1F *hed = new TH1F("hed","EnergyDeposit",1100,-1,10);
+  TH1F *hnh[7];
   TH1F *hph[7][56];
   TH1F *hpt[7][56];
   TH1F *htm[7][56];
@@ -61,6 +64,7 @@ int main(int argc, char* argv[]) {
   TH1F *hfw[7][56];
   TH1F *hfc[7][56];
   for(int i=0;i<7;i++){
+    hnh[i] = new TH1F(Form("hnh%d",i),Form("NHit%d",i),300,0,300);
     for(int j=0;j<56;j++){
       hph[i][j] = new TH1F(Form("hph%d%d",i,j),Form("PeakHeight%d%d",i,j),1100,-100,1000);
       hpt[i][j] = new TH1F(Form("hpt%d%d",i,j),Form("PeakTime%d%d",i,j),200,0,200);
@@ -106,7 +110,9 @@ int main(int argc, char* argv[]) {
   tree->Branch("FitChi2",&fitchi2,"FitChi2/F");
   tree->Branch("Gpos",gpos,"Gpos[3]/D");
   tree->Branch("Lpos",lpos,"Lpos[3]/D");
+#ifdef MKWF
   tree->Branch("Waveform",waveform,"Waveform[200]/D");
+#endif
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -205,33 +211,14 @@ int main(int argc, char* argv[]) {
 
 
 //// Check begin
-//      auto event_id = event0->EventID();
-//      cout << "Event ID: " << event_id << endl;
-//// SSD
-//
-//// GTR
-//      cout << "Number of event: " << n_event << endl << endl;
-//      auto n_gtr_hits = event1->GTRHits().NumberOfHits();
-//      cout << "Number of GTR hits: " << n_gtr_hits << endl;
-//      for (int n_hit = 0; n_hit < n_gtr_hits; ++n_hit) {
-//        auto hit = event1->GTRHits().Hit(n_hit);
-//        hit.Print();
-//      }
-//      auto n_gtr_clusters = event1->GTRClusters().NumberOfHits();
-//      cout << endl << endl;
-//      cout << "Number of GTR clusters: " << n_gtr_clusters << endl;
-//      for (int n_cluster = 0; n_cluster < n_gtr_clusters; ++n_cluster) {
-//        auto cluster = event1->GTRClusters().Hit(n_cluster);
-//        cluster.Print();
-//      }
-//      
-//// HBD
-//
 //// LG
       auto& lg_hits1 = record->LG().Hits();
       event = event0->EventID();
       int n_lghits = lg_hits1.size();
       //std::cout<<"Event: "<<event<<"  Nhits: "<<n_lghits<<std::endl;
+
+      int nhit[7]={0};
+
       if (lg_hits1.size() != 0) {
 	for(int i=0;i<n_lghits;i++){//hit loop
 	  auto& lghit = lg_hits1[i];
@@ -268,6 +255,7 @@ int main(int argc, char* argv[]) {
 	  lpos[1] = lghit.LocalPos(*geometry).Y();
 	  lpos[2] = lghit.LocalPos(*geometry).Z();
 
+#ifdef MKWF
 	  int hitid = lghit.HitId();
 	  auto spec = lgbasic.GetSpec(module,block);
 	  double wftype = spec->WF_TYPE;
@@ -275,8 +263,11 @@ int main(int argc, char* argv[]) {
 	    int ph = lg_hits0.Hit(hitid).Waveform()[cell];
 	    waveform[cell] = ph*wftype;
 	  }
+#endif
 
 	  tree->Fill();
+
+	  if(fitflag<2){
 	  if(npeak==0){
 	  hph[module-102][block]->Fill(lghit.PeakHeight());
 	  hpt[module-102][block]->Fill(lghit.PeakTime());
@@ -291,10 +282,21 @@ int main(int argc, char* argv[]) {
 	  }
 	  hfp[module-102][block]->Fill(lghit.FitPeak());
 	  hfx[module-102][block]->Fill(lghit.FitPeakTime());
-	  hft[module-102][block]->Fill(lghit.FitTiming());
+	  //hft[module-102][block]->Fill(lghit.FitTiming());
+	  hft[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic, lghit.FitTiming()));
 	  hfw[module-102][block]->Fill(lghit.FitWidth());
 	  hfc[module-102][block]->Fill(lghit.FitChi2());
+	  }
+
+	  nhit[module-102]++;
+	  nhit[105-102]++;
+
 	}//hit loop
+
+	for(int nmod=0;nmod<7;nmod++){
+	  hnh[nmod]->Fill(nhit[nmod]);
+	}
+
       }
 
 //// trigger

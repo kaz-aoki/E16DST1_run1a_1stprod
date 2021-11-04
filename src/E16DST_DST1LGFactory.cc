@@ -49,15 +49,16 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     else if(fitoption==1){
       lgwf->FitMethod(waveform,t0); // 14 event/sec @1e10
     }
+    else if(fitoption==2){
+      lgwf->FitMethod(waveform,t0); // for DEBUG
+    }
     else{
       std::cout<<fitoption<<" is Invalid FitOption"<<std::endl;
       delete lgwf;
       exit(1);
     }
 
-
-    int hitflag = lgwf->GetHitFlag();
-
+    //int hitflag = lgwf->GetHitFlag();
     //if( hitflag==0 ){ // applied in MethodForTrack
     ////std::cout<<"no hit for track"<<std::endl;
     //delete lgwf;
@@ -69,22 +70,24 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     bool spikeflag = lgwf->GetSpikeFlag();
 
     //std::cout<<fitflag<<" "<<npsfit<<" "<<spikeflag<<std::endl;
-    if( fitflag==0&&npsfit==0 ){ // applied in FitMethod
+    if( fitoption==1&&fitflag==0&&npsfit==0 ){ // applied in FitMethod
       //std::cout<<"no hit"<<std::endl;
       delete lgwf;
       continue;
     }
-    if( fitflag==0&&npsfit==1&&spikeflag==true ){ // applied in FitMethod
+    if( fitoption==1&&fitflag==0&&npsfit==1&&spikeflag==true ){ // applied in FitMethod
       //std::cout<<"it is spike noise"<<std::endl;
       delete lgwf;
       continue;
     }
 
-    //    if( fitflag==2 ){ // applied in FitMethod 211028
-    //      //std::cout<<"fit failed"<<std::endl;
-    //      delete lgwf;
-    //      continue;
-    //    }
+#if 0
+    if( fitoption==1&&fitflag==2 ){ // applied in FitMethod 211028
+      //std::cout<<"fit failed"<<std::endl;
+      delete lgwf;
+      continue;
+    }
+#endif
 
     double timing = lgwf->GetTiming();
     double peakheight = lgwf->GetPeak();
@@ -112,6 +115,9 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 	  continue;
 	}
 	if(fitoption==0&&spikeflag==true){
+	  continue;
+	}
+	if(fitoption==2&&peakheight<E16ANA_LGConstant::kHitThreshold){
 	  continue;
 	}
 
