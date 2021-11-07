@@ -878,8 +878,10 @@ class E16ANA_TrackAnalyzerFromTree {
   TBranch        *b_rk_pair_plus_gtr300_res_refit_z;   //!
   TBranch        *b_rk_pair_mass_refit;   //!
 
-  E16ANA_TrackAnalyzerFromTree(TTree *tree, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
-  E16ANA_TrackAnalyzerFromTree(TChain *chain, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
+  E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _particle_flag,
+                               E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
+  E16ANA_TrackAnalyzerFromTree(TChain *chain, int _particle_flag,
+                               E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
   virtual ~E16ANA_TrackAnalyzerFromTree();
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
@@ -892,6 +894,8 @@ class E16ANA_TrackAnalyzerFromTree {
   void InitOutTree();
   void ClearOutBranch();
   bool IsGoodTrack(int track_index);
+  double CalcSingleTrackChiSquareWoTarget(int track_index);
+  bool IsGoodPionTrack(int track_index);
   void CheckUsedClusters(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids,
                          std::vector<int>* selected_track_index);
   void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids,
@@ -900,7 +904,9 @@ class E16ANA_TrackAnalyzerFromTree {
 //  int SearchClusterIndex(int cluster_id, std::vector<int>& cluster_ids);
   void AddTracks(const int track_index_pair[], double tgt_z);
   void FillTVector3ToDouble(TVector3 t_vector, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
-  double CalcMass(TVector3 mom0, TVector3 mom1);
+  double CalcMass(int flag, TVector3 mom0, TVector3 mom1);
+  void ProjectionX0(int pair_index, TVector3 pos, TVector3 mom);
+  void FillKsTrackInfo();
   void UpdateFitResult(const int track_index_pair[]);
   void PairTracking(const int track_index_pair[], double tgt_z);
   std::vector<int> SortedTrackPairIndex();
@@ -909,6 +915,11 @@ class E16ANA_TrackAnalyzerFromTree {
   void SelectTrackPair(const int track_index_pair, std::vector<int>* used_minus_tracks, std::vector<int>* used_plus_tracks);
   void SelectTrackPairs();
   void AnalyzeTrackPairs(std::vector<int>* selected_track_index);
+  double SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom);
+  void AddPionTracks(const int track_index_pair[]);
+  void PionPairTracking(const int track_index_pair[]);
+  void AnalyzePionTrackPairs(std::vector<int>* selected_track_index);
+  int particle_flag; // 0 : electron, 1 : pion
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* pair_fitter;
@@ -926,9 +937,11 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_vtx_gx;
   std::vector<double> out_vtx_gy;
   std::vector<double> out_vtx_gz;
+  std::vector<double> out_minus_mom;
   std::vector<double> out_minus_mom_gx;
   std::vector<double> out_minus_mom_gy;
   std::vector<double> out_minus_mom_gz;
+  std::vector<double> out_plus_mom;
   std::vector<double> out_plus_mom_gx;
   std::vector<double> out_plus_mom_gy;
   std::vector<double> out_plus_mom_gz;
@@ -1036,14 +1049,22 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_plus_gtr300_fit_res_x;
   std::vector<double> out_plus_gtr300_fit_res_y;
   std::vector<double> out_plus_gtr300_fit_res_z;
-  std::vector<double> out_mass;
+  std::vector<double> out_ee_mass;
+  std::vector<double> out_pipi_mass;
+  std::vector<double> out_ks_pos_at_x0_gx;
+  std::vector<double> out_ks_pos_at_x0_gy;
+  std::vector<double> out_ks_pos_at_x0_gz;
+  std::vector<double> out_ks_mom_at_x0_gx;
+  std::vector<double> out_ks_mom_at_x0_gy;
+  std::vector<double> out_ks_mom_at_x0_gz;
+  std::vector<double> out_ks_mom_at_x0_t;
 };
 
 #endif
 
 #ifdef E16ANA_TrackAnalyzerFromTree_cxx
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(0), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _particle_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
+    : fChain(0), particle_flag(_particle_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
 //  if (tree == 0) {
@@ -1061,8 +1082,8 @@ E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, E16ANA_G
   InitOutTree();
 }
 
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TChain *chain, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(0), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TChain *chain, int _particle_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
+    : fChain(0), particle_flag(_particle_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
 std::cout << chain->GetEntries() << std::endl;
   Init(dynamic_cast<TTree*>(chain));
   out_tree = new TTree("tree", "tree");
@@ -1949,9 +1970,11 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("vtx_gx", &out_vtx_gx);
   out_tree->Branch("vtx_gy", &out_vtx_gy);
   out_tree->Branch("vtx_gz", &out_vtx_gz);
+  out_tree->Branch("minus_mom", &out_minus_mom);
   out_tree->Branch("minus_mom_gx", &out_minus_mom_gx);
   out_tree->Branch("minus_mom_gy", &out_minus_mom_gy);
   out_tree->Branch("minus_mom_gz", &out_minus_mom_gz);
+  out_tree->Branch("plus_mom", &out_plus_mom);
   out_tree->Branch("plus_mom_gx", &out_plus_mom_gx);
   out_tree->Branch("plus_mom_gy", &out_plus_mom_gy);
   out_tree->Branch("plus_mom_gz", &out_plus_mom_gz);
@@ -2059,7 +2082,15 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("plus_gtr300_fit_res_x", &out_plus_gtr300_fit_res_x);
   out_tree->Branch("plus_gtr300_fit_res_y", &out_plus_gtr300_fit_res_y);
   out_tree->Branch("plus_gtr300_fit_res_z", &out_plus_gtr300_fit_res_z);
-  out_tree->Branch("mass", &out_mass);
+  out_tree->Branch("ee_mass", &out_ee_mass);
+  out_tree->Branch("pipi_mass", &out_pipi_mass);
+  out_tree->Branch("ks_pos_at_x0_gx", &out_ks_pos_at_x0_gx);
+  out_tree->Branch("ks_pos_at_x0_gy", &out_ks_pos_at_x0_gy);
+  out_tree->Branch("ks_pos_at_x0_gz", &out_ks_pos_at_x0_gz);
+  out_tree->Branch("ks_mom_at_x0_gx", &out_ks_mom_at_x0_gx);
+  out_tree->Branch("ks_mom_at_x0_gy", &out_ks_mom_at_x0_gy);
+  out_tree->Branch("ks_mom_at_x0_gz", &out_ks_mom_at_x0_gz);
+  out_tree->Branch("ks_mom_at_x0_t",  &out_ks_mom_at_x0_t);
 }
 
 Bool_t E16ANA_TrackAnalyzerFromTree::Notify() {
