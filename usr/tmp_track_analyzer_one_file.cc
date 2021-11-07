@@ -18,7 +18,8 @@
 
 using namespace std;
 
-const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
+//const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {

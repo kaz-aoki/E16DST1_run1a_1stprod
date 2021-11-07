@@ -181,16 +181,16 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
   bool is_lg_high = false;
   auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
 //  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) > st_param::kLGADCThreshold) {
-  if (rk_proj_n_lg->at(track_index) >= 1 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg0_adc->at(track_index))) {
+  if (rk_proj_n_lg->at(track_index) >= 1 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg0_adc->at(track_index)) > 0.5) {
     is_lg_high = true;
 //  } else if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) > st_param::kLGADCThreshold) {
-  } else if (rk_proj_n_lg->at(track_index) >= 2 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg1_adc->at(track_index))) {
+  } else if (rk_proj_n_lg->at(track_index) >= 2 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg1_adc->at(track_index)) > 0.5) {
     is_lg_high = true;
 //  } else if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) > st_param::kLGADCThreshold) {
-  } else if (rk_proj_n_lg->at(track_index) >= 3 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg2_adc->at(track_index))) {
+  } else if (rk_proj_n_lg->at(track_index) >= 3 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg2_adc->at(track_index)) > 0.5) {
     is_lg_high = true;
 //  } else if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) > st_param::kLGADCThreshold) {
-  } else if (rk_proj_n_lg->at(track_index) >= 4 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg3_adc->at(track_index))) {
+  } else if (rk_proj_n_lg->at(track_index) >= 4 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg3_adc->at(track_index)) > 0.5) {
     is_lg_high = true;
   }
   if (!is_lg_high) {
@@ -383,43 +383,6 @@ void E16ANA_TrackAnalyzerFromTree::SelectTracks(std::vector<int>* selected_track
 //  return 0;
 //}
 
-//double E16ANA_TrackAnalyzerFromTree::SearchVertex(int minus_index, int plus_index, TVector3* minus_mom, TVector3* plus_mom) {
-////  auto t_init_pos0 = TVector3(rk_fit_init_pos_gx->at(minus_index), rk_fit_init_pos_gy->at(minus_index). rk_fit_init_pos_gz->at(minus_index));
-////  auto t_init_pos1 = TVector3(rk_fit_init_pos_gx->at(plus_index),  rk_fit_init_pos_gy->at(plus_index).  rk_fit_init_pos_gz->at(plus_index));
-////  auto t_init_mom0 = TVector3(rk_fit_init_mom_gx->at(minus_index), rk_fit_init_mom_gy->at(minus_index). rk_fit_init_mom_gz->at(minus_index));
-////  auto t_init_mom1 = TVector3(rk_fit_init_mom_gx->at(plus_index),  rk_fit_init_mom_gy->at(plus_index).  rk_fit_init_mom_gz->at(plus_index));
-////  Hep3Vector init_pos0(t_init_pos0(0) * 0.1, t_init_pos0(1) * 0.1, t_init_pos0(2) * 0.1);
-////  Hep3Vector init_mom0(t_init_mom0(0),       t_init_mom0(1),       t_init_mom0(2));
-////  Hep3Vector init_pos1(t_init_pos1(0) * 0.1, t_init_pos1(1) * 0.1, t_init_pos1(2) * 0.1);
-////  Hep3Vector init_mom1(t_init_mom1(0),       t_init_mom1(1),       t_init_mom1(2));
-//  auto init_pos0 = Hep3Vector3(rk_fit_init_pos_gx->at(minus_index) * 0.1, rk_fit_init_pos_gy->at(minus_index) * 0.1, rk_fit_init_pos_gz->at(minus_index) * 0.1);
-//  auto init_pos1 = Hep3Vector3(rk_fit_init_pos_gx->at(plus_index)  * 0.1, rk_fit_init_pos_gy->at(plus_index)  * 0.1, rk_fit_init_pos_gz->at(plus_index)  * 0.1);
-//  auto init_mom0 = Hep3Vector3(rk_fit_init_mom_gx->at(minus_index),       rk_fit_init_mom_gy->at(minus_index),       rk_fit_init_mom_gz->at(minus_index));
-//  auto init_mom1 = Hep3Vector3(rk_fit_init_mom_gx->at(plus_index),        rk_fit_init_mom_gy->at(plus_index),        rk_fit_init_mom_gz->at(plus_index));
-//  E16ANA_StepTrack step_track0(bfield_map, init_pos0, init_mom0, -1, pt_param::kStepTrackStepSizeCm, pt_param::kStepTrackArraySize);
-//  E16ANA_StepTrack step_track1(bfield_map, init_pos1, init_mom1,  1, pt_param::kStepTrackStepSizeCm, pt_param::kStepTrackArraySize);
-//  double distance;
-//  Hep3Vector cross_point;
-//  Hep3Vector mom0;
-//  Hep3Vector mom1;
-//  auto flag = step_track0.Cross(step_track1, &distance, &cross_point, &mom0, &mom1);
-////  track_pair->vtx = {cross_point.x() * 10., cross_point.y() * 10., cross_point.z() * 10.};
-////  track_pair->distance = distance * 10.;
-//  minus_mom = {mom0.x(), mom0.y(), mom0.z()};
-//  plus_mom  = {mom1.x(), mom1.y(), mom1.z()};
-//  return distance * 10.;
-//}
-
-//int E16ANA_TrackAnalyzerFromTree::SearchClusterIndex(int cluster_id, std::vector<int>& cluster_ids) {
-//  for (int i = 0; i < cluster_ids.size(); ++i) {
-//    if (cluster_ids[i] == cluster_id) {
-//      return i;
-//    }
-//  }
-//  E16FATAL("cannot find cluster ID : %d", cluster_id);
-//  std::exit(-1);
-//}
-
 void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], double tgt_z) {
   pair_fitter->Clear();
   pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_z), pt_param::kVertexSigma);
@@ -432,14 +395,6 @@ void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], doubl
   }
   for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
     auto tindex = track_index_pair[track_index_in_pair];
-//    auto ssd_cid     = rk_hit_ssd_id->at(tindex);
-//    auto gtr100x_cid = rk_hit_gtr100_xid->at(tindex);
-//    auto gtr200x_cid = rk_hit_gtr200_xid->at(tindex);
-//    auto gtr300x_cid = rk_hit_gtr300_xid->at(tindex);
-//    int ssd_mid    = ssd_cluster_mid->at(SearchClusterIndex(ssd_cid, *ssd_cluster_id));
-//    int gtr100_mid = gtr100x_cluster_mid->at(SearchClusterIndex(gtr100x_cid, *gtr100x_cluster_id));
-//    int gtr200_mid = gtr200x_cluster_mid->at(SearchClusterIndex(gtr200x_cid, *gtr200x_cluster_id));
-//    int gtr300_mid = gtr300x_cluster_mid->at(SearchClusterIndex(gtr300x_cid, *gtr300x_cluster_id));
     auto ssd_mid = rk_fit_ssd_mid->at(tindex);
     auto gtr100_mid = rk_fit_gtr100_mid->at(tindex);
     auto gtr200_mid = rk_fit_gtr200_mid->at(tindex);
@@ -731,26 +686,60 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs(std::vector<int>* selected_
   return;
 }
 
+double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom) {
+//  auto t_init_pos0 = TVector3(rk_fit_init_pos_gx->at(track_index_pair[0]), rk_fit_init_pos_gy->at(track_index_pair[0]). rk_fit_init_pos_gz->at(track_index_pair[0]));
+//  auto t_init_pos1 = TVector3(rk_fit_init_pos_gx->at(track_index_pair[1]),  rk_fit_init_pos_gy->at(track_index_pair[1]).  rk_fit_init_pos_gz->at(track_index_pair[1]));
+//  auto t_init_mom0 = TVector3(rk_fit_init_mom_gx->at(track_index_pair[0]), rk_fit_init_mom_gy->at(track_index_pair[0]). rk_fit_init_mom_gz->at(track_index_pair[0]));
+//  auto t_init_mom1 = TVector3(rk_fit_init_mom_gx->at(track_index_pair[1]),  rk_fit_init_mom_gy->at(track_index_pair[1]).  rk_fit_init_mom_gz->at(track_index_pair[1]));
+//  Hep3Vector init_pos0(t_init_pos0(0) * 0.1, t_init_pos0(1) * 0.1, t_init_pos0(2) * 0.1);
+//  Hep3Vector init_mom0(t_init_mom0(0),       t_init_mom0(1),       t_init_mom0(2));
+//  Hep3Vector init_pos1(t_init_pos1(0) * 0.1, t_init_pos1(1) * 0.1, t_init_pos1(2) * 0.1);
+//  Hep3Vector init_mom1(t_init_mom1(0),       t_init_mom1(1),       t_init_mom1(2));
+  auto init_pos0 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[0]) * 0.1);
+  auto init_pos1 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[1]) * 0.1);
+  auto init_mom0 = Hep3Vector(rk_fit_init_mom_gx->at(track_index_pair[0]),       rk_fit_init_mom_gy->at(track_index_pair[0]),       rk_fit_init_mom_gz->at(track_index_pair[0]));
+  auto init_mom1 = Hep3Vector(rk_fit_init_mom_gx->at(track_index_pair[1]),       rk_fit_init_mom_gy->at(track_index_pair[1]),       rk_fit_init_mom_gz->at(track_index_pair[1]));
+  E16ANA_StepTrack step_track0(bfield_map, init_pos0, init_mom0, -1, cmn_param::kStepTrackStepSizeCm, cmn_param::kStepTrackArraySize);
+  E16ANA_StepTrack step_track1(bfield_map, init_pos1, init_mom1,  1, cmn_param::kStepTrackStepSizeCm, cmn_param::kStepTrackArraySize);
+  double distance;
+  Hep3Vector cross_point;
+  Hep3Vector mom0;
+  Hep3Vector mom1;
+  auto flag = step_track0.Cross(step_track1, &distance, &cross_point, &mom0, &mom1);
+  *vtx_pos = {cross_point.x() * 10., cross_point.y() * 10., cross_point.z() * 10.};
+  *minus_mom = {mom0.x(), mom0.y(), mom0.z()};
+  *plus_mom  = {mom1.x(), mom1.y(), mom1.z()};
+  return distance * 10.;
+}
+
+//int E16ANA_TrackAnalyzerFromTree::SearchClusterIndex(int cluster_id, std::vector<int>& cluster_ids) {
+//  for (int i = 0; i < cluster_ids.size(); ++i) {
+//    if (cluster_ids[i] == cluster_id) {
+//      return i;
+//    }
+//  }
+//  E16FATAL("cannot find cluster ID : %d", cluster_id);
+//  std::exit(-1);
+//}
+
 void E16ANA_TrackAnalyzerFromTree::AddPionTracks(const int track_index_pair[]) {
   pair_fitter->Clear();
-  pair_fitter->SetInitialVertex(TVector3(0., 0., 0.), TVector3(0., 0., 0.));
+  TVector3 tmp_vtx_pos;
+  TVector3 tmp_minus_mom;
+  TVector3 tmp_plus_mom;
+  SearchVertex(track_index_pair, &tmp_vtx_pos, &tmp_minus_mom, &tmp_plus_mom);
+  pair_fitter->SetInitialVertex(tmp_vtx_pos, TVector3(0., 0., 0.));
+  pair_fitter->SetInitialMomentum(0, tmp_minus_mom);
+  pair_fitter->SetInitialMomentum(1, tmp_plus_mom);
   pair_fitter->SetCharge(0, -1.);
   pair_fitter->SetCharge(1, 1.);
   TVector3 pair_mom;
-  for (int i =0; i < 2; ++i) {
-    auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
-    pair_fitter->SetInitialMomentum(i, tmp_mom);
-  }
+//  for (int i =0; i < 2; ++i) {
+//    auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
+//    pair_fitter->SetInitialMomentum(i, tmp_mom);
+//  }
   for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
     auto tindex = track_index_pair[track_index_in_pair];
-//    auto ssd_cid     = rk_hit_ssd_id->at(tindex);
-//    auto gtr100x_cid = rk_hit_gtr100_xid->at(tindex);
-//    auto gtr200x_cid = rk_hit_gtr200_xid->at(tindex);
-//    auto gtr300x_cid = rk_hit_gtr300_xid->at(tindex);
-//    int ssd_mid    = ssd_cluster_mid->at(SearchClusterIndex(ssd_cid, *ssd_cluster_id));
-//    int gtr100_mid = gtr100x_cluster_mid->at(SearchClusterIndex(gtr100x_cid, *gtr100x_cluster_id));
-//    int gtr200_mid = gtr200x_cluster_mid->at(SearchClusterIndex(gtr200x_cid, *gtr200x_cluster_id));
-//    int gtr300_mid = gtr300x_cluster_mid->at(SearchClusterIndex(gtr300x_cid, *gtr300x_cluster_id));
     auto ssd_mid = rk_fit_ssd_mid->at(tindex);
     auto gtr100_mid = rk_fit_gtr100_mid->at(tindex);
     auto gtr200_mid = rk_fit_gtr200_mid->at(tindex);

@@ -1,2 +1,0 @@
-#run_num	filename_gainbych	comment
-39999	LG/gainbych/210831/LG-gainbych-run39999-210831.txt	temporary

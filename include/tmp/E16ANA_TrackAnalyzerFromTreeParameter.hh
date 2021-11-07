@@ -8,6 +8,8 @@ enum {
   kPionFlag
 };
 
+const double kStepTrackStepSizeCm = 0.1;
+const int kStepTrackArraySize = 1000;
 const double kKsMass = 493.677e-3;
 const double kLightSpeed = 299792458.;
 

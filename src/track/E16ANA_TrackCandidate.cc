@@ -131,6 +131,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   single_track->Clear();
 //  single_track->SetInitialVertex(init_pos, kInitPosError);
   single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), kInitPosError);
+//  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), TVector3(0., 0., 0.)); // for Ks
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
