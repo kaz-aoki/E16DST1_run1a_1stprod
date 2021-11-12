@@ -1,4 +1,0 @@
-#run_num	filename_specmap	comment
-9999	LG/specmap/210818/LG-specmap-run9999-210818.dat	run0a
-20178	LG/specmap/210818/LG-specmap-run20178-210818.dat	run0b: exchange DRS4_ip30 for ip31
-39999	LG/specmap/210818/LG-specmap-run39999-210818.dat	run0b,c

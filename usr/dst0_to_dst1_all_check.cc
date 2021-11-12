@@ -118,6 +118,7 @@ int main(int argc, char* argv[]) {
   float hbd_adc[CMAX];
   float hbd_lx[CMAX];
   float hbd_ly[CMAX];
+  float hbd_ise[CMAX];
   int lg_nh;
   int lg_nc;
   int lg_m[HMAX];
@@ -169,6 +170,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("hbd_adc",hbd_adc,"hbd_adc[hbd_nc]/F");
   tree->Branch("hbd_lx",hbd_lx,"hbd_lx[hbd_nc]/F");
   tree->Branch("hbd_ly",hbd_ly,"hbd_ly[hbd_nc]/F");
+  tree->Branch("hbd_ise",hbd_ise,"hbd_ise[hbd_nc]/F");
   tree->Branch("lg_nh",&lg_nh,"lg_nh/I");
   tree->Branch("lg_nc",&lg_nc,"lg_nc/I");
   tree->Branch("lg_m",lg_m,"lg_m[lg_nh]/I");
@@ -362,6 +364,7 @@ int main(int argc, char* argv[]) {
 	  hbd_adc[i] = hbdcluster.PeakSum();
 	  hbd_lx[i] = hbdcluster.LocalPos().X();
 	  hbd_ly[i] = hbdcluster.LocalPos().Y();
+	  hbd_ise[i] = hbdcluster.IsE();
 	}//cluster loop
       }//hbd cluster bool
 
