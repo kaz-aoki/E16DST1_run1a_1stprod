@@ -124,6 +124,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetTiming(anahit.Timing());
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
                     cl.SetCogPos(anahit.CogHit());
+//					std::cout << "cl cog = " << anahit.CogHit() << std::endl;
                     if(isnan(anahit.TdcHit())){
 				    	//std::cout << "TDC hit pos is nan" << std::endl;
                     }
