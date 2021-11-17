@@ -328,12 +328,14 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
 //        minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, -20.0, 20.0); // mm
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20.0, vertex_init.X()+20.0); // mm // update 2021-02-24
       minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-10., vertex_init.X()+10.); // mm // update 2021-09-20
+//      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-50., vertex_init.X()+50.); // mm // update 2021-11-06 for Ks?
       if(pyfixflag){
          minuit->SetFixedVariable(1, "Vertex_Y", vertex_init.Y());
       }else{
          //minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20.0, 20.0); // mm
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20.0, vertex_init.Y()+20.0); // mm // update 2021-02-24
          minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-10., vertex_init.Y()+10.); // mm // update 2021-09-20
+//         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-50., vertex_init.Y()+50.); // mm // update 2021-11-06 for Ks?
       }
    }
    /*

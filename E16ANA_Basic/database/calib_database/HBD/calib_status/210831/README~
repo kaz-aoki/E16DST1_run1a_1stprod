@@ -1,8 +1,0 @@
-calibration status
-In the forward bias, gain of the HBD GEMs are often (or always?) set to low 
-to prevent freaquent discharge leading to the dead short of GEMs.
-The gain calibration using scintillation photons can not be performed in this low gain operation,
-because It is hard to distinguish the signal induced by a scintillation photon from noise.
-So, this file describes if the operation gain is low or not.
-0 -> normal operation
-1 -> low gain operation

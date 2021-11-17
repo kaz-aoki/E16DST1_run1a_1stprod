@@ -1,8 +1,0 @@
-# valid only two columns:  comment for 3rd or more
-# runID filename comment
-#
-  0    HBD/wf_template/210831/HBD-waveform-template-default-210831.dat    for error
-  9999 HBD/wf_template/210831/HBD-waveform-template-default-210831.dat    run0a upto 9999
- 29999 HBD/wf_template/210831/HBD-waveform-template-default-210831.dat   run0b upto 29999
- 39999 HBD/wf_template/210831/HBD-waveform-template-default-210831.dat   run0c upto 39999
-999999 HBD/wf_template/210831/HBD-waveform-template-default-210831.dat   for error

@@ -260,7 +260,13 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
 //  double LocalX() { return center_of_gravity; };
-  double LocalX() { return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; };
+  double LocalX() {
+    if (IsX()) {
+      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+    } else {
+      return center_of_gravity;
+    }
+  }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -411,6 +417,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
   int HitId() { return hitid; } // temporary
+  static float IsE(double _momentum, float _fitpeak);
   float IsE(double _momentum);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing);
