@@ -547,6 +547,7 @@ class E16ANA_TrackCandidates {
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 10.}; // x, y
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 10.}; // x, y
   static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
+//  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 150.}; // x, y
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
   static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8

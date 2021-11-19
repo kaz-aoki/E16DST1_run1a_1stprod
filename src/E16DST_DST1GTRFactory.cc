@@ -44,8 +44,8 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
     }
     for(auto &a : gtr_analyzers->analyzer_map){
-        a.second->AnalyzeV0();
-        //a.second->AnalyzeV1();
+        //a.second->AnalyzeV0();
+        a.second->AnalyzeV1();
     }
 
     int dst1_clusters_size = 0;

@@ -140,6 +140,89 @@ class E16ANA_TrackCheckFile {
     tree->Branch("lg_hit_t",    &lg_hit_t);
     tree->Branch("lg_hit_npeaks", &lg_hit_npeaks);
     tree->Branch("lg_hit_fflag", &lg_hit_fflag);
+    tree->Branch("n_trg_gtr_hits",  &n_trg_gtr_hits, "n_trg_gtr_hits/I");
+    tree->Branch("trg_gtr_hit_id",  &trg_gtr_hit_id);
+    tree->Branch("trg_gtr_hit_mid", &trg_gtr_hit_mid);
+    tree->Branch("trg_gtr_hit_x",   &trg_gtr_hit_x);
+    tree->Branch("trg_gtr_hit_y",   &trg_gtr_hit_y);
+    tree->Branch("trg_gtr_hit_gx",  &trg_gtr_hit_gx);
+    tree->Branch("trg_gtr_hit_gy",  &trg_gtr_hit_gy);
+    tree->Branch("trg_gtr_hit_gz",  &trg_gtr_hit_gz);
+    tree->Branch("trg_gtr_hit_t",   &trg_gtr_hit_t);
+    tree->Branch("n_trg_hbd_hits",  &n_trg_hbd_hits, "n_trg_hbd_hits/I");
+    tree->Branch("trg_hbd_hit_id",  &trg_hbd_hit_id);
+    tree->Branch("trg_hbd_hit_mid", &trg_hbd_hit_mid);
+    tree->Branch("trg_hbd_hit_x",   &trg_hbd_hit_x);
+    tree->Branch("trg_hbd_hit_y",   &trg_hbd_hit_y);
+    tree->Branch("trg_hbd_hit_gx",  &trg_hbd_hit_gx);
+    tree->Branch("trg_hbd_hit_gy",  &trg_hbd_hit_gy);
+    tree->Branch("trg_hbd_hit_gz",  &trg_hbd_hit_gz);
+    tree->Branch("trg_hbd_hit_t",   &trg_hbd_hit_t);
+    tree->Branch("n_trg_lg_hits",  &n_trg_lg_hits, "n_trg_lg_hits/I");
+    tree->Branch("trg_lg_hit_id",  &trg_lg_hit_id);
+    tree->Branch("trg_lg_hit_mid", &trg_lg_hit_mid);
+    tree->Branch("trg_lg_hit_x",   &trg_lg_hit_x);
+    tree->Branch("trg_lg_hit_y",   &trg_lg_hit_y);
+    tree->Branch("trg_lg_hit_gx",  &trg_lg_hit_gx);
+    tree->Branch("trg_lg_hit_gy",  &trg_lg_hit_gy);
+    tree->Branch("trg_lg_hit_gz",  &trg_lg_hit_gz);
+    tree->Branch("trg_lg_hit_t",   &trg_lg_hit_t);
+    tree->Branch("n_trg_tracks", &n_trg_tracks, "n_trg_tracks/I");
+    tree->Branch("trg_track_n_gtr_hits", &trg_track_n_gtr_hits);
+    tree->Branch("trg_track_gtr0_id",         &trg_track_gtr0_id);
+    tree->Branch("trg_track_gtr0_mid",        &trg_track_gtr0_mid);
+    tree->Branch("trg_track_gtr0_x",          &trg_track_gtr0_x);
+    tree->Branch("trg_track_gtr0_y",          &trg_track_gtr0_y);
+    tree->Branch("trg_track_gtr0_t",          &trg_track_gtr0_t);
+    tree->Branch("trg_track_gtr0_is_t_match", &trg_track_gtr0_is_t_match);
+    tree->Branch("trg_track_gtr1_id",         &trg_track_gtr1_id);
+    tree->Branch("trg_track_gtr1_mid",        &trg_track_gtr1_mid);
+    tree->Branch("trg_track_gtr1_x",          &trg_track_gtr1_x);
+    tree->Branch("trg_track_gtr1_y",          &trg_track_gtr1_y);
+    tree->Branch("trg_track_gtr1_t",          &trg_track_gtr1_t);
+    tree->Branch("trg_track_gtr1_is_t_match", &trg_track_gtr1_is_t_match);
+    tree->Branch("trg_track_gtr2_id",         &trg_track_gtr2_id);
+    tree->Branch("trg_track_gtr2_mid",        &trg_track_gtr2_mid);
+    tree->Branch("trg_track_gtr2_x",          &trg_track_gtr2_x);
+    tree->Branch("trg_track_gtr2_y",          &trg_track_gtr2_y);
+    tree->Branch("trg_track_gtr2_t",          &trg_track_gtr2_t);
+    tree->Branch("trg_track_gtr2_is_t_match", &trg_track_gtr2_is_t_match);
+    tree->Branch("trg_track_gtr3_id",         &trg_track_gtr3_id);
+    tree->Branch("trg_track_gtr3_mid",        &trg_track_gtr3_mid);
+    tree->Branch("trg_track_gtr3_x",          &trg_track_gtr3_x);
+    tree->Branch("trg_track_gtr3_y",          &trg_track_gtr3_y);
+    tree->Branch("trg_track_gtr3_t",          &trg_track_gtr3_t);
+    tree->Branch("trg_track_gtr3_is_t_match", &trg_track_gtr3_is_t_match);
+    tree->Branch("trg_track_n_hbd_hits", &trg_track_n_hbd_hits);
+    tree->Branch("trg_track_hbd0_id",         &trg_track_hbd0_id);
+    tree->Branch("trg_track_hbd0_mid",        &trg_track_hbd0_mid);
+    tree->Branch("trg_track_hbd0_x",          &trg_track_hbd0_x);
+    tree->Branch("trg_track_hbd0_y",          &trg_track_hbd0_y);
+    tree->Branch("trg_track_hbd0_t",          &trg_track_hbd0_t);
+    tree->Branch("trg_track_hbd0_is_t_match", &trg_track_hbd0_is_t_match);
+    tree->Branch("trg_track_hbd1_id",         &trg_track_hbd1_id);
+    tree->Branch("trg_track_hbd1_mid",        &trg_track_hbd1_mid);
+    tree->Branch("trg_track_hbd1_x",          &trg_track_hbd1_x);
+    tree->Branch("trg_track_hbd1_y",          &trg_track_hbd1_y);
+    tree->Branch("trg_track_hbd1_t",          &trg_track_hbd1_t);
+    tree->Branch("trg_track_hbd1_is_t_match", &trg_track_hbd1_is_t_match);
+    tree->Branch("trg_track_hbd2_id",         &trg_track_hbd2_id);
+    tree->Branch("trg_track_hbd2_mid",        &trg_track_hbd2_mid);
+    tree->Branch("trg_track_hbd2_x",          &trg_track_hbd2_x);
+    tree->Branch("trg_track_hbd2_y",          &trg_track_hbd2_y);
+    tree->Branch("trg_track_hbd2_t",          &trg_track_hbd2_t);
+    tree->Branch("trg_track_hbd2_is_t_match", &trg_track_hbd2_is_t_match);
+    tree->Branch("trg_track_hbd3_id",         &trg_track_hbd3_id);
+    tree->Branch("trg_track_hbd3_mid",        &trg_track_hbd3_mid);
+    tree->Branch("trg_track_hbd3_x",          &trg_track_hbd3_x);
+    tree->Branch("trg_track_hbd3_y",          &trg_track_hbd3_y);
+    tree->Branch("trg_track_hbd3_t",          &trg_track_hbd3_t);
+    tree->Branch("trg_track_hbd3_is_t_match", &trg_track_hbd3_is_t_match);
+    tree->Branch("trg_track_lg_id",         &trg_track_lg_id);
+    tree->Branch("trg_track_lg_mid",        &trg_track_lg_mid);
+    tree->Branch("trg_track_lg_x",          &trg_track_lg_x);
+    tree->Branch("trg_track_lg_y",          &trg_track_lg_y);
+    tree->Branch("trg_track_lg_t",          &trg_track_lg_t);
     // Track
     tree->Branch("n_x_cands", &n_x_cands, "n_x_cands/I");
     tree->Branch("n_y_cands", &n_y_cands, "n_y_cands/I");
@@ -733,6 +816,286 @@ class E16ANA_TrackCheckFile {
       lg_hit_npeaks[i] = hit.Npeaks();
       lg_hit_fflag[i] = hit.FitFlag();
     }
+    n_trg_gtr_hits = record.Trigger().NumGTRHits();
+    trg_gtr_hit_id.resize(n_trg_gtr_hits);
+    trg_gtr_hit_mid.resize(n_trg_gtr_hits);
+    trg_gtr_hit_x.resize(n_trg_gtr_hits);
+    trg_gtr_hit_y.resize(n_trg_gtr_hits);
+    trg_gtr_hit_gx.resize(n_trg_gtr_hits);
+    trg_gtr_hit_gy.resize(n_trg_gtr_hits);
+    trg_gtr_hit_gz.resize(n_trg_gtr_hits);
+    trg_gtr_hit_t.resize(n_trg_gtr_hits);
+    for (int i = 0; i < n_trg_gtr_hits; ++i) {
+      auto& hit = record.Trigger().GTRHit(i);
+      trg_gtr_hit_id[i] = i;
+      trg_gtr_hit_mid[i] = hit.ModuleId();
+      auto lpos = hit.LocalPos(geometry);
+      trg_gtr_hit_x[i] = lpos.X();
+      trg_gtr_hit_y[i] = lpos.Y();
+      auto gpos = hit.GlobalPos(geometry);
+      trg_gtr_hit_gx[i] = gpos.X();
+      trg_gtr_hit_gy[i] = gpos.Y();
+      trg_gtr_hit_gz[i] = gpos.Z();
+      trg_gtr_hit_t[i] = hit.Timing();
+    }
+    n_trg_hbd_hits = record.Trigger().NumHBDHits();
+    trg_hbd_hit_id.resize(n_trg_hbd_hits);
+    trg_hbd_hit_mid.resize(n_trg_hbd_hits);
+    trg_hbd_hit_x.resize(n_trg_hbd_hits);
+    trg_hbd_hit_y.resize(n_trg_hbd_hits);
+    trg_hbd_hit_gx.resize(n_trg_hbd_hits);
+    trg_hbd_hit_gy.resize(n_trg_hbd_hits);
+    trg_hbd_hit_gz.resize(n_trg_hbd_hits);
+    trg_hbd_hit_t.resize(n_trg_hbd_hits);
+    for (int i = 0; i < n_trg_hbd_hits; ++i) {
+      auto& hit = record.Trigger().HBDHit(i);
+      trg_hbd_hit_id[i] = i;
+      trg_hbd_hit_mid[i] = hit.ModuleId();
+      auto lpos = hit.LocalPos(geometry);
+      trg_hbd_hit_x[i] = lpos.X();
+      trg_hbd_hit_y[i] = lpos.Y();
+      auto gpos = hit.GlobalPos(geometry);
+      trg_hbd_hit_gx[i] = gpos.X();
+      trg_hbd_hit_gy[i] = gpos.Y();
+      trg_hbd_hit_gz[i] = gpos.Z();
+      trg_hbd_hit_t[i] = hit.Timing();
+    }
+    n_trg_lg_hits = record.Trigger().NumLGHits();
+    trg_lg_hit_id.resize(n_trg_lg_hits);
+    trg_lg_hit_mid.resize(n_trg_lg_hits);
+    trg_lg_hit_x.resize(n_trg_lg_hits);
+    trg_lg_hit_y.resize(n_trg_lg_hits);
+    trg_lg_hit_gx.resize(n_trg_lg_hits);
+    trg_lg_hit_gy.resize(n_trg_lg_hits);
+    trg_lg_hit_gz.resize(n_trg_lg_hits);
+    trg_lg_hit_t.resize(n_trg_lg_hits);
+    for (int i = 0; i < n_trg_lg_hits; ++i) {
+      auto& hit = record.Trigger().LGHit(i);
+      trg_lg_hit_id[i] = i;
+      trg_lg_hit_mid[i] = hit.ModuleId();
+      auto lpos = hit.LocalPos(geometry);
+//std::cout << hit.Detector() << " " << lpos.X() << " " << lpos.Y() << std::endl;
+      trg_lg_hit_x[i] = lpos.X();
+      trg_lg_hit_y[i] = lpos.Y();
+      auto gpos = hit.GlobalPos(geometry);
+      trg_lg_hit_gx[i] = gpos.X();
+      trg_lg_hit_gy[i] = gpos.Y();
+      trg_lg_hit_gz[i] = gpos.Z();
+      trg_lg_hit_t[i] = hit.Timing();
+    }
+    n_trg_tracks = record.Trigger().NumTrackSets();
+    trg_track_n_gtr_hits.resize(n_trg_tracks);
+    trg_track_gtr0_id.resize(n_trg_tracks);
+    trg_track_gtr0_mid.resize(n_trg_tracks);
+    trg_track_gtr0_x.resize(n_trg_tracks);
+    trg_track_gtr0_y.resize(n_trg_tracks);
+    trg_track_gtr0_t.resize(n_trg_tracks);
+    trg_track_gtr0_is_t_match.resize(n_trg_tracks);
+    trg_track_gtr1_id.resize(n_trg_tracks);
+    trg_track_gtr1_mid.resize(n_trg_tracks);
+    trg_track_gtr1_x.resize(n_trg_tracks);
+    trg_track_gtr1_y.resize(n_trg_tracks);
+    trg_track_gtr1_t.resize(n_trg_tracks);
+    trg_track_gtr1_is_t_match.resize(n_trg_tracks);
+    trg_track_gtr2_id.resize(n_trg_tracks);
+    trg_track_gtr2_mid.resize(n_trg_tracks);
+    trg_track_gtr2_x.resize(n_trg_tracks);
+    trg_track_gtr2_y.resize(n_trg_tracks);
+    trg_track_gtr2_t.resize(n_trg_tracks);
+    trg_track_gtr2_is_t_match.resize(n_trg_tracks);
+    trg_track_gtr3_id.resize(n_trg_tracks);
+    trg_track_gtr3_mid.resize(n_trg_tracks);
+    trg_track_gtr3_x.resize(n_trg_tracks);
+    trg_track_gtr3_y.resize(n_trg_tracks);
+    trg_track_gtr3_t.resize(n_trg_tracks);
+    trg_track_gtr3_is_t_match.resize(n_trg_tracks);
+    trg_track_n_hbd_hits.resize(n_trg_tracks);
+    trg_track_hbd0_id.resize(n_trg_tracks);
+    trg_track_hbd0_mid.resize(n_trg_tracks);
+    trg_track_hbd0_x.resize(n_trg_tracks);
+    trg_track_hbd0_y.resize(n_trg_tracks);
+    trg_track_hbd0_t.resize(n_trg_tracks);
+    trg_track_hbd0_is_t_match.resize(n_trg_tracks);
+    trg_track_hbd1_id.resize(n_trg_tracks);
+    trg_track_hbd1_mid.resize(n_trg_tracks);
+    trg_track_hbd1_x.resize(n_trg_tracks);
+    trg_track_hbd1_y.resize(n_trg_tracks);
+    trg_track_hbd1_t.resize(n_trg_tracks);
+    trg_track_hbd1_is_t_match.resize(n_trg_tracks);
+    trg_track_hbd2_id.resize(n_trg_tracks);
+    trg_track_hbd2_mid.resize(n_trg_tracks);
+    trg_track_hbd2_x.resize(n_trg_tracks);
+    trg_track_hbd2_y.resize(n_trg_tracks);
+    trg_track_hbd2_t.resize(n_trg_tracks);
+    trg_track_hbd2_is_t_match.resize(n_trg_tracks);
+    trg_track_hbd3_id.resize(n_trg_tracks);
+    trg_track_hbd3_mid.resize(n_trg_tracks);
+    trg_track_hbd3_x.resize(n_trg_tracks);
+    trg_track_hbd3_y.resize(n_trg_tracks);
+    trg_track_hbd3_t.resize(n_trg_tracks);
+    trg_track_hbd3_is_t_match.resize(n_trg_tracks);
+    trg_track_lg_id.resize(n_trg_tracks);
+    trg_track_lg_mid.resize(n_trg_tracks);
+    trg_track_lg_x.resize(n_trg_tracks);
+    trg_track_lg_y.resize(n_trg_tracks);
+    trg_track_lg_t.resize(n_trg_tracks);
+    for (int i = 0; i < n_trg_tracks; ++i) {
+      auto& track_set = record.Trigger().TrackSet(i);
+      trg_track_n_gtr_hits[i] = track_set.NumGTRHits();
+      trg_track_n_hbd_hits[i] = track_set.NumHBDHits();
+      trg_track_gtr0_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr0_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr0_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr0_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr0_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr0_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr1_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr1_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr1_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr1_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr1_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr1_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr2_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr2_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr2_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr2_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr2_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr2_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr3_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr3_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr3_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr3_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr3_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_gtr3_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd0_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd0_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd0_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd0_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd0_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd0_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd1_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd1_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd1_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd1_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd1_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd1_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd2_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd2_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd2_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd2_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd2_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd2_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd3_id[i]         = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd3_mid[i]        = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd3_x[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd3_y[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd3_t[i]          = E16DST_DST1Constant::kInvalidValue;
+      trg_track_hbd3_is_t_match[i] = E16DST_DST1Constant::kInvalidValue;
+      if (trg_track_n_gtr_hits[i] > 0) {
+        trg_track_gtr0_id[i] = track_set.GTRHitOrder(0);
+        if (trg_track_gtr0_id[i] >= 0) {
+          auto& hit = record.Trigger().GTRHit(trg_track_gtr0_id[i]);
+          trg_track_gtr0_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_gtr0_x[i] = lpos.X();
+          trg_track_gtr0_y[i] = lpos.Y();
+          trg_track_gtr0_t[i] = hit.Timing();
+          trg_track_gtr0_is_t_match[i] = track_set.GTRHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_gtr_hits[i] > 1) {
+        trg_track_gtr1_id[i] = track_set.GTRHitOrder(1);
+        if (trg_track_gtr1_id[i] >= 0) {
+          auto& hit = record.Trigger().GTRHit(trg_track_gtr1_id[i]);
+          trg_track_gtr1_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_gtr1_x[i] = lpos.X();
+          trg_track_gtr1_y[i] = lpos.Y();
+          trg_track_gtr1_t[i] = hit.Timing();
+          trg_track_gtr1_is_t_match[i] = track_set.GTRHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_gtr_hits[i] > 2) {
+        trg_track_gtr2_id[i] = track_set.GTRHitOrder(2);
+        if (trg_track_gtr2_id[i] >= 0) {
+          auto& hit = record.Trigger().GTRHit(trg_track_gtr2_id[i]);
+          trg_track_gtr2_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_gtr2_x[i] = lpos.X();
+          trg_track_gtr2_y[i] = lpos.Y();
+          trg_track_gtr2_t[i] = hit.Timing();
+          trg_track_gtr2_is_t_match[i] = track_set.GTRHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_gtr_hits[i] > 3) {
+        trg_track_gtr3_id[i] = track_set.GTRHitOrder(3);
+        if (trg_track_gtr3_id[i] >= 0) {
+          auto& hit = record.Trigger().GTRHit(trg_track_gtr3_id[i]);
+          trg_track_gtr3_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_gtr3_x[i] = lpos.X();
+          trg_track_gtr3_y[i] = lpos.Y();
+          trg_track_gtr3_t[i] = hit.Timing();
+          trg_track_gtr3_is_t_match[i] = track_set.GTRHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_hbd_hits[i] > 0) {
+        trg_track_hbd0_id[i] = track_set.HBDHitOrder(0);
+        if (trg_track_hbd0_id[i] >= 0) {
+          auto& hit = record.Trigger().HBDHit(trg_track_hbd0_id[i]);
+          trg_track_hbd0_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_hbd0_x[i] = lpos.X();
+          trg_track_hbd0_y[i] = lpos.Y();
+          trg_track_hbd0_t[i] = hit.Timing();
+          trg_track_hbd0_is_t_match[i] = track_set.HBDHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_hbd_hits[i] > 1) {
+        trg_track_hbd1_id[i] = track_set.HBDHitOrder(1);
+        if (trg_track_hbd1_id[i] >= 0) {
+          auto& hit = record.Trigger().HBDHit(trg_track_hbd1_id[i]);
+          trg_track_hbd1_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_hbd1_x[i] = lpos.X();
+          trg_track_hbd1_y[i] = lpos.Y();
+          trg_track_hbd1_t[i] = hit.Timing();
+          trg_track_hbd1_is_t_match[i] = track_set.HBDHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_hbd_hits[i] > 2) {
+        trg_track_hbd2_id[i] = track_set.HBDHitOrder(2);
+        if (trg_track_hbd2_id[i] >= 0) {
+          auto& hit = record.Trigger().HBDHit(trg_track_hbd2_id[i]);
+          trg_track_hbd2_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_hbd2_x[i] = lpos.X();
+          trg_track_hbd2_y[i] = lpos.Y();
+          trg_track_hbd2_t[i] = hit.Timing();
+          trg_track_hbd2_is_t_match[i] = track_set.HBDHitIsUsed(i);
+        }
+      }
+      if (trg_track_n_hbd_hits[i] > 3) {
+        trg_track_hbd3_id[i] = track_set.HBDHitOrder(3);
+        if (trg_track_hbd3_id[i] >= 0) {
+          auto& hit = record.Trigger().HBDHit(trg_track_hbd3_id[i]);
+          trg_track_hbd3_mid[i] = hit.ModuleId();
+          auto lpos = hit.LocalPos(geometry);
+          trg_track_hbd3_x[i] = lpos.X();
+          trg_track_hbd3_y[i] = lpos.Y();
+          trg_track_hbd3_t[i] = hit.Timing();
+          trg_track_hbd3_is_t_match[i] = track_set.HBDHitIsUsed(i);
+        }
+      }
+      trg_track_lg_id[i] = track_set.LGHitOrder(0);
+      auto& hit = record.Trigger().LGHit(trg_track_lg_id[i]);
+      trg_track_lg_mid[i] = hit.ModuleId();
+      auto lpos = hit.LocalPos(geometry);
+      trg_track_lg_x[i] = lpos.X();
+      trg_track_lg_y[i] = lpos.Y();
+      trg_track_lg_t[i] = hit.Timing();
+    }
+    return;
   }
   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
     n_fill = _n_fill;
@@ -1140,8 +1503,8 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr200_gx[i] = gtr200hit_gpos.X();
       rk_hit_gtr200_gy[i] = gtr200hit_gpos.Y();
       rk_hit_gtr200_gz[i] = gtr200hit_gpos.Z();
-      auto gtr200_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
-      auto gtr200_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(1));
+      auto gtr200_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[2].Cluster(0));
+      auto gtr200_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[2].Cluster(1));
       rk_hit_gtr200_xid[i] = gtr200_xclst->ClusterId();
       rk_hit_gtr200_yid[i] = gtr200_yclst->ClusterId();
       rk_hit_gtr200_xadc[i] = gtr200_xclst->PeakSum();
@@ -1152,8 +1515,8 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr300_gx[i] = gtr300hit_gpos.X();
       rk_hit_gtr300_gy[i] = gtr300hit_gpos.Y();
       rk_hit_gtr300_gz[i] = gtr300hit_gpos.Z();
-      auto gtr300_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
-      auto gtr300_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(1));
+      auto gtr300_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[3].Cluster(0));
+      auto gtr300_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[3].Cluster(1));
       rk_hit_gtr300_xid[i] = gtr300_xclst->ClusterId();
       rk_hit_gtr300_yid[i] = gtr300_yclst->ClusterId();
       rk_hit_gtr300_xadc[i] = gtr300_xclst->PeakSum();
@@ -1740,6 +2103,89 @@ class E16ANA_TrackCheckFile {
   std::vector<float> lg_hit_t;
   std::vector<int> lg_hit_npeaks;
   std::vector<int> lg_hit_fflag;
+  int n_trg_gtr_hits;
+  std::vector<int> trg_gtr_hit_id;
+  std::vector<int> trg_gtr_hit_mid;
+  std::vector<double> trg_gtr_hit_x;
+  std::vector<double> trg_gtr_hit_y;
+  std::vector<double> trg_gtr_hit_gx;
+  std::vector<double> trg_gtr_hit_gy;
+  std::vector<double> trg_gtr_hit_gz;
+  std::vector<float> trg_gtr_hit_t;
+  int n_trg_hbd_hits;
+  std::vector<int> trg_hbd_hit_id;
+  std::vector<int> trg_hbd_hit_mid;
+  std::vector<double> trg_hbd_hit_x;
+  std::vector<double> trg_hbd_hit_y;
+  std::vector<double> trg_hbd_hit_gx;
+  std::vector<double> trg_hbd_hit_gy;
+  std::vector<double> trg_hbd_hit_gz;
+  std::vector<float> trg_hbd_hit_t;
+  int n_trg_lg_hits;
+  std::vector<int> trg_lg_hit_id;
+  std::vector<int> trg_lg_hit_mid;
+  std::vector<double> trg_lg_hit_x;
+  std::vector<double> trg_lg_hit_y;
+  std::vector<double> trg_lg_hit_gx;
+  std::vector<double> trg_lg_hit_gy;
+  std::vector<double> trg_lg_hit_gz;
+  std::vector<float> trg_lg_hit_t;
+  int n_trg_tracks;
+  std::vector<int> trg_track_n_gtr_hits;
+  std::vector<int> trg_track_gtr0_id;
+  std::vector<int> trg_track_gtr0_mid;
+  std::vector<double> trg_track_gtr0_x;
+  std::vector<double> trg_track_gtr0_y;
+  std::vector<float> trg_track_gtr0_t;
+  std::vector<bool> trg_track_gtr0_is_t_match;
+  std::vector<int> trg_track_gtr1_id;
+  std::vector<int> trg_track_gtr1_mid;
+  std::vector<double> trg_track_gtr1_x;
+  std::vector<double> trg_track_gtr1_y;
+  std::vector<float> trg_track_gtr1_t;
+  std::vector<bool> trg_track_gtr1_is_t_match;
+  std::vector<int> trg_track_gtr2_id;
+  std::vector<int> trg_track_gtr2_mid;
+  std::vector<double> trg_track_gtr2_x;
+  std::vector<double> trg_track_gtr2_y;
+  std::vector<float> trg_track_gtr2_t;
+  std::vector<bool> trg_track_gtr2_is_t_match;
+  std::vector<int> trg_track_gtr3_id;
+  std::vector<int> trg_track_gtr3_mid;
+  std::vector<double> trg_track_gtr3_x;
+  std::vector<double> trg_track_gtr3_y;
+  std::vector<float> trg_track_gtr3_t;
+  std::vector<bool> trg_track_gtr3_is_t_match;
+  std::vector<int> trg_track_n_hbd_hits;
+  std::vector<int> trg_track_hbd0_id;
+  std::vector<int> trg_track_hbd0_mid;
+  std::vector<double> trg_track_hbd0_x;
+  std::vector<double> trg_track_hbd0_y;
+  std::vector<float> trg_track_hbd0_t;
+  std::vector<bool> trg_track_hbd0_is_t_match;
+  std::vector<int> trg_track_hbd1_id;
+  std::vector<int> trg_track_hbd1_mid;
+  std::vector<double> trg_track_hbd1_x;
+  std::vector<double> trg_track_hbd1_y;
+  std::vector<float> trg_track_hbd1_t;
+  std::vector<bool> trg_track_hbd1_is_t_match;
+  std::vector<int> trg_track_hbd2_id;
+  std::vector<int> trg_track_hbd2_mid;
+  std::vector<double> trg_track_hbd2_x;
+  std::vector<double> trg_track_hbd2_y;
+  std::vector<float> trg_track_hbd2_t;
+  std::vector<bool> trg_track_hbd2_is_t_match;
+  std::vector<int> trg_track_hbd3_id;
+  std::vector<int> trg_track_hbd3_mid;
+  std::vector<double> trg_track_hbd3_x;
+  std::vector<double> trg_track_hbd3_y;
+  std::vector<float> trg_track_hbd3_t;
+  std::vector<bool> trg_track_hbd3_is_t_match;
+  std::vector<int> trg_track_lg_id;
+  std::vector<int> trg_track_lg_mid;
+  std::vector<double> trg_track_lg_x;
+  std::vector<double> trg_track_lg_y;
+  std::vector<float> trg_track_lg_t;
   // Track
   int n_x_cands;
   int n_y_cands;
