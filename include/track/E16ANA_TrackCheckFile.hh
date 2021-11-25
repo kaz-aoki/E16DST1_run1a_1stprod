@@ -1100,7 +1100,12 @@ class E16ANA_TrackCheckFile {
   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
     n_fill = _n_fill;
     AddCandidate(geometry, cands);
+    FillTree();
+    return;
+  }
+  void FillTree() {
     tree->Fill();
+    return;
   }
   double CalcMass(TVector3 mom0, TVector3 mom1) {
     double p0 = mom0.X() * mom0.X() + mom0.Y() * mom0.Y() + mom0.Z() * mom0.Z();

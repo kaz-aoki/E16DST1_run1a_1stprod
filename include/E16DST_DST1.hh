@@ -8,9 +8,11 @@
 
 #include "TVector3.h"
 #include "E16ANA_GeometryV2.hh"
+#include "E16ANA_FieldMapCalib.hh"
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_MultiTrack.hh"
 #include "E16ANA_GTRcalib.hh"
+#include "E16ANA_GTRLorentzAngleCalib.hh"
 #include "E16ANA_TrackConstant.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16ANA_LGBasic.hh"
@@ -266,7 +268,18 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double LocalX() {
     if (IsX()) {
       return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
-//      return center_of_gravity + lorentz_angle_calib_params[layer_id];
+//auto& calib = E16ANA_CalibDBManager::Instance();
+//E16ANA_FieldMapCalibParam field_map_param;
+//field_map_param.ReadConstantData(calib.CurrentRunID());
+//E16ANA_GTRLorentzAngleCalibParam lorentz_angle_param;
+//lorentz_angle_param.ReadConstantData(calib.CurrentRunID());
+//auto fm_current = field_map_param.FMCurrent();
+//auto lorentz_angle_params = lorentz_angle_param.GTRLorentzAngleCalibParams();
+//if (fm_current == 2450.) {
+//  return center_of_gravity + lorentz_angle_params[layer_id];
+//} else {
+//  return center_of_gravity;
+//}
     } else {
       return center_of_gravity;
     }

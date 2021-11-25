@@ -237,11 +237,13 @@ TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int geometry_module_id = ModuleId2020To2013(module_id);
   if (detector == E16DST_DST1Constant::kGTR) {
-    TVector3 local_pos = {0., - E16ANA_TriggerConstant::kGTR300ModuleSize / 2 + (double{E16ANA_TriggerConstant::kGTR300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
+    TVector3 local_pos = {0., - E16ANA_TriggerConstant::kGTR300ModuleSize / 2. + (double{E16ANA_TriggerConstant::kGTR300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kHBD) {
-    int x = - E16ANA_TriggerConstant::kHBDModuleSize[0] / 2 + (double{E16ANA_TriggerConstant::kHBDModuleSize[0]} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (channel_id % 10 + 0.5);
-    int y = - E16ANA_TriggerConstant::kHBDModuleSize[1] / 2 + (double{E16ANA_TriggerConstant::kHBDModuleSize[1]} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (channel_id / 10 + 0.5);
+    int x_id = channel_id % 10;
+    int y_id = channel_id / 10;
+    double x = - E16ANA_TriggerConstant::kHBDModuleSize[0] / 2. + (double{E16ANA_TriggerConstant::kHBDModuleSize[0]} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (x_id + 0.5);
+    double y = - E16ANA_TriggerConstant::kHBDModuleSize[1] / 2. + (double{E16ANA_TriggerConstant::kHBDModuleSize[1]} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (y_id + 0.5);
     TVector3 local_pos = {x, y, 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kLG) {
