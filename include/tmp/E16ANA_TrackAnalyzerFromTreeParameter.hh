@@ -42,13 +42,16 @@ namespace E16ANA_TrackAnalyzerFromTreePairTrackParameter {
 
 enum {
   kCalcEEMassFlag,
-  kCalcPiPiMassFlag
+  kCalcPiPiMassFlag,
+  kCalcPiPMassFlag
 };
 
 const double kElectronMass = 511.99894641e-6;
 const double kElectronMass2 = kElectronMass * kElectronMass;
 const double kPionMass = 139.57039e-3;
 const double kPionMass2 = kPionMass * kPionMass;
+const double kProtonMass = 938.272081e-3;
+const double kProtonMass2 = kProtonMass * kProtonMass;
 
 //const double   kStepTrackSizeCm = ;
 //const int      kStepTrackArraySize = ;

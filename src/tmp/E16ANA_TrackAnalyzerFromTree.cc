@@ -46,6 +46,10 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr100_mid.clear();
   out_plus_gtr200_mid.clear();
   out_plus_gtr300_mid.clear();
+  out_minus_proj_lg_max_adc.clear();
+  out_minus_proj_hbd_max_adc.clear();
+  out_plus_proj_lg_max_adc.clear();
+  out_plus_proj_hbd_max_adc.clear();
   out_minus_ssd_hit_pos_gx.clear();
   out_minus_ssd_hit_pos_gy.clear();
   out_minus_ssd_hit_pos_gz.clear();
@@ -70,6 +74,30 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_hit_pos_gx.clear();
   out_plus_gtr300_hit_pos_gy.clear();
   out_plus_gtr300_hit_pos_gz.clear();
+  out_minus_ssd_fit_pos_x.clear();
+  out_minus_ssd_fit_pos_y.clear();
+  out_minus_ssd_fit_pos_z.clear();
+  out_minus_gtr100_fit_pos_x.clear();
+  out_minus_gtr100_fit_pos_y.clear();
+  out_minus_gtr100_fit_pos_z.clear();
+  out_minus_gtr200_fit_pos_x.clear();
+  out_minus_gtr200_fit_pos_y.clear();
+  out_minus_gtr200_fit_pos_z.clear();
+  out_minus_gtr300_fit_pos_x.clear();
+  out_minus_gtr300_fit_pos_y.clear();
+  out_minus_gtr300_fit_pos_z.clear();
+  out_plus_ssd_fit_pos_x.clear();
+  out_plus_ssd_fit_pos_y.clear();
+  out_plus_ssd_fit_pos_z.clear();
+  out_plus_gtr100_fit_pos_x.clear();
+  out_plus_gtr100_fit_pos_y.clear();
+  out_plus_gtr100_fit_pos_z.clear();
+  out_plus_gtr200_fit_pos_x.clear();
+  out_plus_gtr200_fit_pos_y.clear();
+  out_plus_gtr200_fit_pos_z.clear();
+  out_plus_gtr300_fit_pos_x.clear();
+  out_plus_gtr300_fit_pos_y.clear();
+  out_plus_gtr300_fit_pos_z.clear();
   out_minus_ssd_fit_pos_gx.clear();
   out_minus_ssd_fit_pos_gy.clear();
   out_minus_ssd_fit_pos_gz.clear();
@@ -94,27 +122,67 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_pos_gx.clear();
   out_plus_gtr300_fit_pos_gy.clear();
   out_plus_gtr300_fit_pos_gz.clear();
+  out_minus_ssd_fit_mom.clear();
+  out_minus_ssd_fit_mom_x.clear();
+  out_minus_ssd_fit_mom_y.clear();
+  out_minus_ssd_fit_mom_z.clear();
+  out_minus_ssd_fit_mom_tan.clear();
   out_minus_ssd_fit_mom_gx.clear();
   out_minus_ssd_fit_mom_gy.clear();
   out_minus_ssd_fit_mom_gz.clear();
+  out_minus_gtr100_fit_mom.clear();
+  out_minus_gtr100_fit_mom_x.clear();
+  out_minus_gtr100_fit_mom_y.clear();
+  out_minus_gtr100_fit_mom_z.clear();
+  out_minus_gtr100_fit_mom_tan.clear();
   out_minus_gtr100_fit_mom_gx.clear();
   out_minus_gtr100_fit_mom_gy.clear();
   out_minus_gtr100_fit_mom_gz.clear();
+  out_minus_gtr200_fit_mom.clear();
+  out_minus_gtr200_fit_mom_x.clear();
+  out_minus_gtr200_fit_mom_y.clear();
+  out_minus_gtr200_fit_mom_z.clear();
+  out_minus_gtr200_fit_mom_tan.clear();
   out_minus_gtr200_fit_mom_gx.clear();
   out_minus_gtr200_fit_mom_gy.clear();
   out_minus_gtr200_fit_mom_gz.clear();
+  out_minus_gtr300_fit_mom.clear();
+  out_minus_gtr300_fit_mom_x.clear();
+  out_minus_gtr300_fit_mom_y.clear();
+  out_minus_gtr300_fit_mom_z.clear();
+  out_minus_gtr300_fit_mom_tan.clear();
   out_minus_gtr300_fit_mom_gx.clear();
   out_minus_gtr300_fit_mom_gy.clear();
   out_minus_gtr300_fit_mom_gz.clear();
+  out_plus_ssd_fit_mom.clear();
+  out_plus_ssd_fit_mom_x.clear();
+  out_plus_ssd_fit_mom_y.clear();
+  out_plus_ssd_fit_mom_z.clear();
+  out_plus_ssd_fit_mom_tan.clear();
   out_plus_ssd_fit_mom_gx.clear();
   out_plus_ssd_fit_mom_gy.clear();
   out_plus_ssd_fit_mom_gz.clear();
+  out_plus_gtr100_fit_mom.clear();
+  out_plus_gtr100_fit_mom_x.clear();
+  out_plus_gtr100_fit_mom_y.clear();
+  out_plus_gtr100_fit_mom_z.clear();
+  out_plus_gtr100_fit_mom_tan.clear();
   out_plus_gtr100_fit_mom_gx.clear();
   out_plus_gtr100_fit_mom_gy.clear();
   out_plus_gtr100_fit_mom_gz.clear();
+  out_plus_gtr200_fit_mom.clear();
+  out_plus_gtr200_fit_mom_x.clear();
+  out_plus_gtr200_fit_mom_y.clear();
+  out_plus_gtr200_fit_mom_z.clear();
+  out_plus_gtr200_fit_mom_tan.clear();
   out_plus_gtr200_fit_mom_gx.clear();
   out_plus_gtr200_fit_mom_gy.clear();
   out_plus_gtr200_fit_mom_gz.clear();
+  out_plus_gtr300_fit_mom.clear();
+  out_plus_gtr300_fit_mom_x.clear();
+  out_plus_gtr300_fit_mom_y.clear();
+  out_plus_gtr300_fit_mom_z.clear();
+  out_plus_gtr300_fit_mom_tan.clear();
   out_plus_gtr300_fit_mom_gx.clear();
   out_plus_gtr300_fit_mom_gy.clear();
   out_plus_gtr300_fit_mom_gz.clear();
@@ -144,13 +212,14 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_res_z.clear();
   out_ee_mass.clear();
   out_pipi_mass.clear();
+  out_pip_mass.clear();
   out_ks_pos_at_x0_gx.clear();
   out_ks_pos_at_x0_gy.clear();
   out_ks_pos_at_x0_gz.clear();
   out_ks_mom_at_x0_gx.clear();
   out_ks_mom_at_x0_gy.clear();
   out_ks_mom_at_x0_gz.clear();
-  out_ks_mom_at_x0_t.clear();
+  out_ks_t_at_x0.clear();
   return;
 }
 
@@ -165,37 +234,37 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
   if (rk_proj_n_lg->at(track_index) == 0) {
     return false;
   }
-  bool is_hbd_electron = false;
-  if (rk_proj_n_hbd->at(track_index) >= 1 && rk_proj_hbd0_eprob->at(track_index) > 0.5) {
-    is_hbd_electron = true;
-  } else if (rk_proj_n_hbd->at(track_index) >= 2 && rk_proj_hbd1_eprob->at(track_index) > 0.5) {
-    is_hbd_electron = true;
-  } else if (rk_proj_n_hbd->at(track_index) >= 3 && rk_proj_hbd2_eprob->at(track_index) > 0.5) {
-    is_hbd_electron = true;
-  } else if (rk_proj_n_hbd->at(track_index) >= 4 && rk_proj_hbd3_eprob->at(track_index) > 0.5) {
-    is_hbd_electron = true;
-  }
-  if (!is_hbd_electron) {
-    return false;
-  }
-  bool is_lg_high = false;
-  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
-//  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) > st_param::kLGADCThreshold) {
-  if (rk_proj_n_lg->at(track_index) >= 1 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg0_adc->at(track_index)) > 0.5) {
-    is_lg_high = true;
-//  } else if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) > st_param::kLGADCThreshold) {
-  } else if (rk_proj_n_lg->at(track_index) >= 2 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg1_adc->at(track_index)) > 0.5) {
-    is_lg_high = true;
-//  } else if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) > st_param::kLGADCThreshold) {
-  } else if (rk_proj_n_lg->at(track_index) >= 3 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg2_adc->at(track_index)) > 0.5) {
-    is_lg_high = true;
-//  } else if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) > st_param::kLGADCThreshold) {
-  } else if (rk_proj_n_lg->at(track_index) >= 4 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg3_adc->at(track_index)) > 0.5) {
-    is_lg_high = true;
-  }
-  if (!is_lg_high) {
-    return false;
-  }
+//  bool is_hbd_electron = false;
+//  if (rk_proj_n_hbd->at(track_index) >= 1 && rk_proj_hbd0_eprob->at(track_index) > 0.5) {
+//    is_hbd_electron = true;
+//  } else if (rk_proj_n_hbd->at(track_index) >= 2 && rk_proj_hbd1_eprob->at(track_index) > 0.5) {
+//    is_hbd_electron = true;
+//  } else if (rk_proj_n_hbd->at(track_index) >= 3 && rk_proj_hbd2_eprob->at(track_index) > 0.5) {
+//    is_hbd_electron = true;
+//  } else if (rk_proj_n_hbd->at(track_index) >= 4 && rk_proj_hbd3_eprob->at(track_index) > 0.5) {
+//    is_hbd_electron = true;
+//  }
+//  if (!is_hbd_electron) {
+//    return false;
+//  }
+//  bool is_lg_high = false;
+//  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
+////  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  if (rk_proj_n_lg->at(track_index) >= 1 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg0_adc->at(track_index)) > 0.5) {
+//    is_lg_high = true;
+////  } else if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  } else if (rk_proj_n_lg->at(track_index) >= 2 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg1_adc->at(track_index)) > 0.5) {
+//    is_lg_high = true;
+////  } else if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  } else if (rk_proj_n_lg->at(track_index) >= 3 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg2_adc->at(track_index)) > 0.5) {
+//    is_lg_high = true;
+////  } else if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) > st_param::kLGADCThreshold) {
+//  } else if (rk_proj_n_lg->at(track_index) >= 4 && E16DST_DST1LGHit::IsE(mom.Mag(), rk_proj_lg3_adc->at(track_index)) > 0.5) {
+//    is_lg_high = true;
+//  }
+//  if (!is_lg_high) {
+//    return false;
+//  }
   if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
     return false;
   }
@@ -363,26 +432,6 @@ void E16ANA_TrackAnalyzerFromTree::SelectTracks(std::vector<int>* selected_track
   return;
 }
 
-//int E16ANA_TrackAnalyzerFromTree::CalcCharge(int cand_index) {
-//  double x[3] = {rk_fit_init_pos_gx->at(cand_index), rk_fit_ssd_gx->at(cand_index), rk_fit_gtr100_gx->at(cand_index)};
-//  double z[3] = {rk_fit_init_pos_gz->at(cand_index), rk_fit_ssd_gz->at(cand_index), rk_fit_gtr100_gz->at(cand_index)};
-//  double coef1 = (z[2] - z[0]) / (x[2] - x[0]);
-//  double coef0 = -coef1 * x[0] + z[0];
-//  double z_at_ssd = coef1 * x[1] + coef0;
-//  int is_left;
-//  if (x[1] > 0) {
-//    is_left = 1;
-//  } else {
-//    is_left = -1;
-//  }
-//  if (z[1] > z_at_ssd) {
-//    return is_left;
-//  } else {
-//    return -is_left;
-//  }
-//  return 0;
-//}
-
 void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], double tgt_z) {
   pair_fitter->Clear();
   pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_z), pt_param::kVertexSigma);
@@ -423,21 +472,26 @@ void E16ANA_TrackAnalyzerFromTree::FillTVector3ToDouble(TVector3 t_vector, std::
 }
 
 double E16ANA_TrackAnalyzerFromTree::CalcMass(int flag, TVector3 mom0, TVector3 mom1) {
-  double mass2;
+  double mass2[2];
   if (flag == pt_param::kCalcEEMassFlag) {
-    mass2 = pt_param::kElectronMass2;
+    mass2[0] = pt_param::kElectronMass2;
+    mass2[1] = pt_param::kElectronMass2;
   } else if (flag == pt_param::kCalcPiPiMassFlag) {
-    mass2 = pt_param::kPionMass2;
+    mass2[0] = pt_param::kPionMass2;
+    mass2[1] = pt_param::kPionMass2;
+  } else if (flag == pt_param::kCalcPiPMassFlag) {
+    mass2[0] = pt_param::kPionMass2;
+    mass2[1] = pt_param::kProtonMass2;
   } else {
     std::cerr << "Invalid calculation flag : " << flag << std::endl;
     return -1.;
   }
   double p0 = mom0.X() * mom0.X() + mom0.Y() * mom0.Y() + mom0.Z() * mom0.Z();
   double p1 = mom1.X() * mom1.X() + mom1.Y() * mom1.Y() + mom1.Z() * mom1.Z();
-  double e0 = sqrt(p0 + mass2);
-  double e1 = sqrt(p1 + mass2);
+  double e0 = sqrt(p0 + mass2[0]);
+  double e1 = sqrt(p1 + mass2[1]);
   double p0p1 = mom0.X() * mom1.X() + mom0.Y() * mom1.Y() + mom0.Z() * mom1.Z();
-  return sqrt(2. * (mass2 + e0 * e1 - p0p1));
+  return sqrt(mass2[0] + mass2[1] + 2. * (e0 * e1 - p0p1));
 }
 
 void E16ANA_TrackAnalyzerFromTree::ProjectionX0(int pair_index, TVector3 pos, TVector3 mom) {
@@ -449,7 +503,7 @@ void E16ANA_TrackAnalyzerFromTree::ProjectionX0(int pair_index, TVector3 pos, TV
   out_ks_mom_at_x0_gz[pair_index] = mom(2);
   double l_x0 = sqrt(mom(1) * mom(1) + mom(2) * mom(2)) / mom(0) * pos(0);
   double v = 1. / sqrt(pow(mom.Mag() / cmn_param::kKsMass / cmn_param::kLightSpeed, 2) + 1) * cmn_param::kLightSpeed;
-  out_ks_mom_at_x0_t[pair_index] = -l_x0 / 1000. / v;
+  out_ks_t_at_x0[pair_index] = -l_x0 / 1000. / v;
   return;
 }
 
@@ -461,7 +515,7 @@ void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
     out_ks_mom_at_x0_gx.assign(n_pairs, -10000.);
     out_ks_mom_at_x0_gy.assign(n_pairs, -10000.);
     out_ks_mom_at_x0_gz.assign(n_pairs, -10000.);
-    out_ks_mom_at_x0_t.assign(n_pairs, -10000.);
+    out_ks_t_at_x0.assign(n_pairs, -10000.);
   } else if (particle_flag == cmn_param::kPionFlag) {
     out_ks_pos_at_x0_gx.resize(n_pairs);
     out_ks_pos_at_x0_gy.resize(n_pairs);
@@ -469,7 +523,7 @@ void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
     out_ks_mom_at_x0_gx.resize(n_pairs);
     out_ks_mom_at_x0_gy.resize(n_pairs);
     out_ks_mom_at_x0_gz.resize(n_pairs);
-    out_ks_mom_at_x0_t.resize(n_pairs);
+    out_ks_t_at_x0.resize(n_pairs);
     for (int i = 0; i < n_pairs; ++i) {
       auto ks_pos = TVector3(out_vtx_gx[i], out_vtx_gy[i], out_vtx_gz[i]);
       auto ks_mom = TVector3(out_minus_mom_gx[i] + out_plus_mom_gx[i],
@@ -484,6 +538,54 @@ void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
 void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[]) {
   out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
   out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
+  double hbd_adc[2] = {-10000., -10000.};
+  double lg_adc[2]  = {-10000., -10000.};
+  for (int i = 0; i < 2; ++i) {
+    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 1) {
+      if (rk_proj_hbd0_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+        hbd_adc[i] = rk_proj_hbd0_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 2) {
+      if (rk_proj_hbd1_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+        hbd_adc[i] = rk_proj_hbd1_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 3) {
+      if (rk_proj_hbd2_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+        hbd_adc[i] = rk_proj_hbd2_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 4) {
+      if (rk_proj_hbd3_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+        hbd_adc[i] = rk_proj_hbd3_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_lg->at(track_index_pair[i]) >= 1) {
+      if (rk_proj_lg0_adc->at(track_index_pair[i]) > lg_adc[i]) {
+        lg_adc[i] = rk_proj_lg0_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_lg->at(track_index_pair[i]) >= 2) {
+      if (rk_proj_lg1_adc->at(track_index_pair[i]) > lg_adc[i]) {
+        lg_adc[i] = rk_proj_lg1_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_lg->at(track_index_pair[i]) >= 3) {
+      if (rk_proj_lg2_adc->at(track_index_pair[i]) > lg_adc[i]) {
+        lg_adc[i] = rk_proj_lg2_adc->at(track_index_pair[i]);
+      }
+    }
+    if (rk_proj_n_lg->at(track_index_pair[i]) >= 4) {
+      if (rk_proj_lg3_adc->at(track_index_pair[i]) > lg_adc[i]) {
+        lg_adc[i] = rk_proj_lg3_adc->at(track_index_pair[i]);
+      }
+    }
+  }
+  out_minus_proj_hbd_max_adc.emplace_back(hbd_adc[0]);
+  out_minus_proj_lg_max_adc.emplace_back(lg_adc[0]);
+  out_plus_proj_hbd_max_adc.emplace_back(hbd_adc[1]);
+  out_plus_proj_lg_max_adc.emplace_back(lg_adc[1]);
   auto tmp_vtx       = pair_fitter->GetFitVertex();
   auto tmp_minus_mom = pair_fitter->GetFitMomentum(0);
   auto tmp_plus_mom  = pair_fitter->GetFitMomentum(1);
@@ -493,6 +595,8 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   out_minus_mom.emplace_back(tmp_minus_mom.Mag());
   out_plus_mom.emplace_back(tmp_plus_mom.Mag());
   int      mid[2][track_const::kNumTrackingLayers];
+  TVector3 lpos[2][track_const::kNumTrackingLayers];
+  TVector3 lmom[2][track_const::kNumTrackingLayers];
   TVector3 gpos[2][track_const::kNumTrackingLayers];
   TVector3 gmom[2][track_const::kNumTrackingLayers];
   TVector3 lres[2][track_const::kNumTrackingLayers];
@@ -507,6 +611,8 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
       pair_fitter->GetFitLMom(track_index_in_pair,     layer_index, tmp_mid, tmp_lmom);
       pair_fitter->GetFitResidual(track_index_in_pair, layer_index, tmp_mid, tmp_lres);
       mid[track_index_in_pair][layer_index]  = track_const::ModuleID2013To2020(tmp_mid[hid]);
+      lpos[track_index_in_pair][layer_index] = tmp_lpos[hid];
+      lmom[track_index_in_pair][layer_index] = tmp_lmom[hid];
       if (layer_index == 0) {
         gpos[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGPos(tmp_lpos[hid]);
         gmom[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGMom(tmp_lmom[hid]);
@@ -549,6 +655,14 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   out_plus_gtr300_hit_pos_gx.emplace_back(rk_hit_gtr300_gx->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gy.emplace_back(rk_hit_gtr300_gy->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gz.emplace_back(rk_hit_gtr300_gz->at(track_index_pair[1]));
+  FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_pos_x,    &out_minus_ssd_fit_pos_y,    &out_minus_ssd_fit_pos_z);
+  FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_pos_x, &out_minus_gtr100_fit_pos_y, &out_minus_gtr100_fit_pos_z);
+  FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_pos_x, &out_minus_gtr200_fit_pos_y, &out_minus_gtr200_fit_pos_z);
+  FillTVector3ToDouble(lpos[0][3], &out_minus_gtr300_fit_pos_x, &out_minus_gtr300_fit_pos_y, &out_minus_gtr300_fit_pos_z);
+  FillTVector3ToDouble(lpos[1][0], &out_plus_ssd_fit_pos_x,     &out_plus_ssd_fit_pos_y,     &out_plus_ssd_fit_pos_z);
+  FillTVector3ToDouble(lpos[1][1], &out_plus_gtr100_fit_pos_x,  &out_plus_gtr100_fit_pos_y,  &out_plus_gtr100_fit_pos_z);
+  FillTVector3ToDouble(lpos[1][2], &out_plus_gtr200_fit_pos_x,  &out_plus_gtr200_fit_pos_y,  &out_plus_gtr200_fit_pos_z);
+  FillTVector3ToDouble(lpos[1][3], &out_plus_gtr300_fit_pos_x,  &out_plus_gtr300_fit_pos_y,  &out_plus_gtr300_fit_pos_z);
   FillTVector3ToDouble(gpos[0][0], &out_minus_ssd_fit_pos_gx,    &out_minus_ssd_fit_pos_gy,    &out_minus_ssd_fit_pos_gz);
   FillTVector3ToDouble(gpos[0][1], &out_minus_gtr100_fit_pos_gx, &out_minus_gtr100_fit_pos_gy, &out_minus_gtr100_fit_pos_gz);
   FillTVector3ToDouble(gpos[0][2], &out_minus_gtr200_fit_pos_gx, &out_minus_gtr200_fit_pos_gy, &out_minus_gtr200_fit_pos_gz);
@@ -557,6 +671,22 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   FillTVector3ToDouble(gpos[1][1], &out_plus_gtr100_fit_pos_gx,  &out_plus_gtr100_fit_pos_gy,  &out_plus_gtr100_fit_pos_gz);
   FillTVector3ToDouble(gpos[1][2], &out_plus_gtr200_fit_pos_gx,  &out_plus_gtr200_fit_pos_gy,  &out_plus_gtr200_fit_pos_gz);
   FillTVector3ToDouble(gpos[1][3], &out_plus_gtr300_fit_pos_gx,  &out_plus_gtr300_fit_pos_gy,  &out_plus_gtr300_fit_pos_gz);
+  out_minus_ssd_fit_mom.emplace_back(lmom[0][0].Mag());
+  out_minus_gtr100_fit_mom.emplace_back(lmom[0][1].Mag());
+  out_minus_gtr200_fit_mom.emplace_back(lmom[0][2].Mag());
+  out_minus_gtr300_fit_mom.emplace_back(lmom[0][3].Mag());
+  out_plus_ssd_fit_mom.emplace_back(lmom[1][0].Mag());
+  out_plus_gtr100_fit_mom.emplace_back(lmom[1][1].Mag());
+  out_plus_gtr200_fit_mom.emplace_back(lmom[1][2].Mag());
+  out_plus_gtr300_fit_mom.emplace_back(lmom[1][3].Mag());
+  FillTVector3ToDouble(lmom[0][0], &out_minus_ssd_fit_mom_x,    &out_minus_ssd_fit_mom_y,    &out_minus_ssd_fit_mom_z);
+  FillTVector3ToDouble(lmom[0][1], &out_minus_gtr100_fit_mom_x, &out_minus_gtr100_fit_mom_y, &out_minus_gtr100_fit_mom_z);
+  FillTVector3ToDouble(lmom[0][2], &out_minus_gtr200_fit_mom_x, &out_minus_gtr200_fit_mom_y, &out_minus_gtr200_fit_mom_z);
+  FillTVector3ToDouble(lmom[0][3], &out_minus_gtr300_fit_mom_x, &out_minus_gtr300_fit_mom_y, &out_minus_gtr300_fit_mom_z);
+  FillTVector3ToDouble(lmom[1][0], &out_plus_ssd_fit_mom_x,     &out_plus_ssd_fit_mom_y,     &out_plus_ssd_fit_mom_z);
+  FillTVector3ToDouble(lmom[1][1], &out_plus_gtr100_fit_mom_x,  &out_plus_gtr100_fit_mom_y,  &out_plus_gtr100_fit_mom_z);
+  FillTVector3ToDouble(lmom[1][2], &out_plus_gtr200_fit_mom_x,  &out_plus_gtr200_fit_mom_y,  &out_plus_gtr200_fit_mom_z);
+  FillTVector3ToDouble(lmom[1][3], &out_plus_gtr300_fit_mom_x,  &out_plus_gtr300_fit_mom_y,  &out_plus_gtr300_fit_mom_z);
   FillTVector3ToDouble(gmom[0][0], &out_minus_ssd_fit_mom_gx,    &out_minus_ssd_fit_mom_gy,    &out_minus_ssd_fit_mom_gz);
   FillTVector3ToDouble(gmom[0][1], &out_minus_gtr100_fit_mom_gx, &out_minus_gtr100_fit_mom_gy, &out_minus_gtr100_fit_mom_gz);
   FillTVector3ToDouble(gmom[0][2], &out_minus_gtr200_fit_mom_gx, &out_minus_gtr200_fit_mom_gy, &out_minus_gtr200_fit_mom_gz);
@@ -565,6 +695,14 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   FillTVector3ToDouble(gmom[1][1], &out_plus_gtr100_fit_mom_gx,  &out_plus_gtr100_fit_mom_gy,  &out_plus_gtr100_fit_mom_gz);
   FillTVector3ToDouble(gmom[1][2], &out_plus_gtr200_fit_mom_gx,  &out_plus_gtr200_fit_mom_gy,  &out_plus_gtr200_fit_mom_gz);
   FillTVector3ToDouble(gmom[1][3], &out_plus_gtr300_fit_mom_gx,  &out_plus_gtr300_fit_mom_gy,  &out_plus_gtr300_fit_mom_gz);
+  out_minus_ssd_fit_mom_tan.emplace_back(lmom[0][0](0) / lmom[0][0](2));
+  out_minus_gtr100_fit_mom_tan.emplace_back(lmom[0][1](0) / lmom[0][1](2));
+  out_minus_gtr200_fit_mom_tan.emplace_back(lmom[0][2](0) / lmom[0][2](2));
+  out_minus_gtr300_fit_mom_tan.emplace_back(lmom[0][3](0) / lmom[0][3](2));
+  out_plus_ssd_fit_mom_tan.emplace_back(lmom[1][0](0) / lmom[1][0](2));
+  out_plus_gtr100_fit_mom_tan.emplace_back(lmom[1][1](0) / lmom[1][1](2));
+  out_plus_gtr200_fit_mom_tan.emplace_back(lmom[1][2](0) / lmom[1][2](2));
+  out_plus_gtr300_fit_mom_tan.emplace_back(lmom[1][3](0) / lmom[1][3](2));
   FillTVector3ToDouble(lres[0][0], &out_minus_ssd_fit_res_x,     &out_minus_ssd_fit_res_y,     &out_minus_ssd_fit_res_z);
   FillTVector3ToDouble(lres[0][1], &out_minus_gtr100_fit_res_x,  &out_minus_gtr100_fit_res_y,  &out_minus_gtr100_fit_res_z);
   FillTVector3ToDouble(lres[0][2], &out_minus_gtr200_fit_res_x,  &out_minus_gtr200_fit_res_y,  &out_minus_gtr200_fit_res_z);
@@ -573,8 +711,9 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_fit_res_x,   &out_plus_gtr100_fit_res_y,   &out_plus_gtr100_fit_res_z);
   FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_fit_res_x,   &out_plus_gtr200_fit_res_y,   &out_plus_gtr200_fit_res_z);
   FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_fit_res_x,   &out_plus_gtr300_fit_res_y,   &out_plus_gtr300_fit_res_z);
-  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag, tmp_minus_mom, tmp_plus_mom));
+  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
   out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
+  out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   tmp_minus_mom, tmp_plus_mom));
   FillKsTrackInfo();
   return;
 }
@@ -687,14 +826,6 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs(std::vector<int>* selected_
 }
 
 double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom) {
-//  auto t_init_pos0 = TVector3(rk_fit_init_pos_gx->at(track_index_pair[0]), rk_fit_init_pos_gy->at(track_index_pair[0]). rk_fit_init_pos_gz->at(track_index_pair[0]));
-//  auto t_init_pos1 = TVector3(rk_fit_init_pos_gx->at(track_index_pair[1]),  rk_fit_init_pos_gy->at(track_index_pair[1]).  rk_fit_init_pos_gz->at(track_index_pair[1]));
-//  auto t_init_mom0 = TVector3(rk_fit_init_mom_gx->at(track_index_pair[0]), rk_fit_init_mom_gy->at(track_index_pair[0]). rk_fit_init_mom_gz->at(track_index_pair[0]));
-//  auto t_init_mom1 = TVector3(rk_fit_init_mom_gx->at(track_index_pair[1]),  rk_fit_init_mom_gy->at(track_index_pair[1]).  rk_fit_init_mom_gz->at(track_index_pair[1]));
-//  Hep3Vector init_pos0(t_init_pos0(0) * 0.1, t_init_pos0(1) * 0.1, t_init_pos0(2) * 0.1);
-//  Hep3Vector init_mom0(t_init_mom0(0),       t_init_mom0(1),       t_init_mom0(2));
-//  Hep3Vector init_pos1(t_init_pos1(0) * 0.1, t_init_pos1(1) * 0.1, t_init_pos1(2) * 0.1);
-//  Hep3Vector init_mom1(t_init_mom1(0),       t_init_mom1(1),       t_init_mom1(2));
   auto init_pos0 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[0]) * 0.1);
   auto init_pos1 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[1]) * 0.1);
   auto init_mom0 = Hep3Vector(rk_fit_init_mom_gx->at(track_index_pair[0]),       rk_fit_init_mom_gy->at(track_index_pair[0]),       rk_fit_init_mom_gz->at(track_index_pair[0]));
@@ -711,16 +842,6 @@ double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], 
   *plus_mom  = {mom1.x(), mom1.y(), mom1.z()};
   return distance * 10.;
 }
-
-//int E16ANA_TrackAnalyzerFromTree::SearchClusterIndex(int cluster_id, std::vector<int>& cluster_ids) {
-//  for (int i = 0; i < cluster_ids.size(); ++i) {
-//    if (cluster_ids[i] == cluster_id) {
-//      return i;
-//    }
-//  }
-//  E16FATAL("cannot find cluster ID : %d", cluster_id);
-//  std::exit(-1);
-//}
 
 void E16ANA_TrackAnalyzerFromTree::AddPionTracks(const int track_index_pair[]) {
   pair_fitter->Clear();
