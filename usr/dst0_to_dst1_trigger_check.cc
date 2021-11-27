@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
-cout << event0->EventID() << endl;
+//cout << event0->EventID() << endl;
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
