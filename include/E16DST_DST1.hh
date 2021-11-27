@@ -259,14 +259,14 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
-//  double LocalX() { return center_of_gravity; };
-  double LocalX() {
-    if (IsX()) {
-      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
-    } else {
-      return center_of_gravity;
-    }
-  }
+  double LocalX() { return center_of_gravity; };
+  //  double LocalX() { // 211122 nakasuga
+  //    if (IsX()) { // 211122 nakasuga
+  //      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // 211122 nakasuga
+  //    } else { // 211122 nakasuga
+  //      return center_of_gravity; // 211122 nakasuga
+  //    } // 211122 nakasuga
+  //  } // 211122 nakasuga
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}

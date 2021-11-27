@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("lghitgz",lghitgz,"lghitgz[lg_nhs]/D");
   //#ifdef MKWF
   double waveform[200];
-  tree->Branch("Waveform",waveform,"Waveform[200]/D");
+  //  tree->Branch("Waveform",waveform,"Waveform[200]/D");
   //#endif
 
 
@@ -311,6 +311,7 @@ int main(int argc, char* argv[]) {
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
   lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
@@ -360,9 +361,9 @@ int main(int argc, char* argv[]) {
       E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
-      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
-//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
+      //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 
       record->SSD().UpdatePtrs();
       record->GTR().UpdatePtrs();
@@ -721,10 +722,10 @@ int main(int argc, char* argv[]) {
 	    //std::cout<<"LGCheck:"<<lghit->ModuleId()<<" "<<lghit->ChannelId()<<" "<<lghit->LocalPos(*geom).X()<<" "<<lghit->LocalPos(*geom).Y()<<std::endl;
 	    lghitresx[nhs] = resx;
 	    lghitresy[nhs] = resy;
-	    //lghitadc[nhs] = lghit->FitPeak();
-	    lghitadc[nhs] = lghit->PeakHeight();
-	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
-	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
+	    lghitadc[nhs] = lghit->FitPeak();
+	    //lghitadc[nhs] = lghit->PeakHeight();
+	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
 	    lghitgx[nhs] = lghit->GlobalPos(*geom).X();
 	    lghitgy[nhs] = lghit->GlobalPos(*geom).Y();
 	    lghitgz[nhs] = lghit->GlobalPos(*geom).Z();
