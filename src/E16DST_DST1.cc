@@ -38,8 +38,14 @@ double E16DST_DST1GTRHit::LocalX() {
     double inverted;
     if(IsX()){
         strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
+<<<<<<< HEAD
         position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
 //        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // tmp
+=======
+//        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
+        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // tmp
+//        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + lorentz_angle_calib_params[layer_id]; // tmp
+>>>>>>> upstream/main
         inverted = +1.0;
     }
     else if (IsY()){
@@ -126,11 +132,17 @@ TVector3 E16DST_DST1GTRHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1GTRCluster::LocalPos() {
     TVector3 lpos;
     if(IsX()){
+<<<<<<< HEAD
         lpos = TVector3(center_of_gravity, 0.0, 0.0);
 //    lpos = TVector3(LocalX(), 0.0, 0.0); // tmp
+=======
+//        lpos = TVector3(center_of_gravity, 0.0, 0.0);
+        lpos = TVector3(LocalX(), 0.0, 0.0); // tmp
+>>>>>>> upstream/main
     }
     else{
-        lpos = TVector3(0.0, center_of_gravity, 0.0);
+//        lpos = TVector3(0.0, center_of_gravity, 0.0);
+        lpos = TVector3(0.0, LocalX(), 0.0); // tmp
     }
     return lpos;
 }
@@ -159,7 +171,6 @@ TVector3 E16DST_DST1HBDHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1HBDCluster::LocalPos() {
-  
   return lpos;
 }
 
@@ -236,11 +247,13 @@ TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int geometry_module_id = ModuleId2020To2013(module_id);
   if (detector == E16DST_DST1Constant::kGTR) {
-    TVector3 local_pos = {0., - E16ANA_TriggerConstant::kGTR300ModuleSize / 2 + (double{E16ANA_TriggerConstant::kGTR300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
+    TVector3 local_pos = {0., - E16ANA_TriggerConstant::kGTR300ModuleSize / 2. + (double{E16ANA_TriggerConstant::kGTR300ModuleSize} / E16DST_Constant::NTriggerChannelsGTR) * (channel_id + 0.5), 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kHBD) {
-    int x = - E16ANA_TriggerConstant::kHBDModuleSize / 2 + (double{E16ANA_TriggerConstant::kHBDModuleSize} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (channel_id % 10 + 0.5);
-    int y = - E16ANA_TriggerConstant::kHBDModuleSize / 2 + (double{E16ANA_TriggerConstant::kHBDModuleSize} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (channel_id / 10 + 0.5);
+    int x_id = channel_id % 10;
+    int y_id = channel_id / 10;
+    double x = - E16ANA_TriggerConstant::kHBDModuleSize[0] / 2. + (double{E16ANA_TriggerConstant::kHBDModuleSize[0]} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (x_id + 0.5);
+    double y = - E16ANA_TriggerConstant::kHBDModuleSize[1] / 2. + (double{E16ANA_TriggerConstant::kHBDModuleSize[1]} / E16ANA_TriggerConstant::kNumHBDTriggerChannelOneAxis) * (y_id + 0.5);
     TVector3 local_pos = {x, y, 0.};
     return local_pos;
   } else if (detector == E16DST_DST1Constant::kLG) {
@@ -310,6 +323,34 @@ bool E16DST_DST1Trigger::IsTriggerHit(E16DST_DST1LGHit& hit) {
 //std::vector<E16DS_DST1TriggerHit*> E16DST_DST1Trigger::HitsIncludedTrackSet(bool is_track, int n) {
 //  std::vector<E16DST_DST1TriggerHit*> hits;
 //}
+
+void E16DST_DST1Trigger::UpdateHitPtrs(std::vector<E16DST_DST1TriggerHit>& hits, std::unordered_map<int, std::vector<E16DST_DST1TriggerHit*>>* hit_ptrs) {
+  hit_ptrs->clear();
+  for (auto& hit : hits) {
+    auto module_id = hit.ModuleId();
+    if (hit_ptrs->count(module_id) == 0) {
+      std::vector hit_vector = {&hit};
+      hit_ptrs->emplace(module_id, hit_vector);
+    } else {
+      hit_ptrs->at(module_id).emplace_back(&hit);
+    }
+  }
+  return;
+}
+
+void E16DST_DST1Trigger::UpdateClusterPtrs(std::vector<E16DST_DST1TriggerCluster>& clusters, std::unordered_map<int, std::vector<E16DST_DST1TriggerCluster*>>* cluster_ptrs) {
+  cluster_ptrs->clear();
+  for (auto& cluster : clusters) {
+    auto module_id = cluster.ModuleId();
+    if (cluster_ptrs->count(module_id) == 0) {
+      std::vector cluster_vector = {&cluster};
+      cluster_ptrs->emplace(module_id, cluster_vector);
+    } else {
+      cluster_ptrs->at(module_id).emplace_back(&cluster);
+    }
+  }
+  return;
+}
 
 void E16DST_DST1Trigger::Print() {
   auto max_track = track_sets.size();

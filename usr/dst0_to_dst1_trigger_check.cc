@@ -6,7 +6,9 @@
 
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_WaveformFitter.hh"
+#include "E16ANA_FieldMapCalib.hh"
 #include "E16ANA_GTRcalib.hh"
+#include "E16ANA_GTRLorentzAngleCalib.hh"
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDCut.hh"
 #include "E16ANA_TriggerCalib.hh"
@@ -75,8 +77,19 @@ int main(int argc, char* argv[]) {
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
+  E16ANA_FieldMapCalibParam field_map_param;
+  field_map_param.ReadConstantData(calib.CurrentRunID());
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
+  E16ANA_GTRLorentzAngleCalibParam gtr_lorentz_angle_calib_param;
+  gtr_lorentz_angle_calib_param.ReadConstantData(calib.CurrentRunID());
+//  if (field_map_param.FMCurrent() == 2450.) {
+//    E16DST_DST1GTRHit::lorentz_angle_calib_params     = gtr_lorentz_angle_calib_param.GTRLorentzAngleCalibParams();
+//    E16DST_DST1GTRCluster::lorentz_angle_calib_params = gtr_lorentz_angle_calib_param.GTRLorentzAngleCalibParams();
+//  } else { // FMCurrent() == 0.
+//    E16DST_DST1GTRHit::lorentz_angle_calib_params     = {0., 0., 0.};
+//    E16DST_DST1GTRCluster::lorentz_angle_calib_params = {0., 0., 0.};
+//  }
   E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
   hbd_calib->ReadCalibrationData(calib.CurrentRunID());
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
@@ -143,9 +156,12 @@ int main(int argc, char* argv[]) {
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1);
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
-//      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-//      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &record);
+      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+      record.Trigger().AddHitAndClusterIDs();
+      record.Trigger().UpdatePtrs();
+//cout << event0->EventID() << endl;
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
+//      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
 //// Check begin

@@ -222,7 +222,8 @@ target_link_libraries(dst0_to_dst1_strack_check
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
 target_link_libraries(dst0_to_dst1_trigger_check
-	E16DST_DST1
+	E16ANA_Basic
+  E16DST_DST1
 )
 
 #_______________________________________________________________________________
