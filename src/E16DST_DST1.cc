@@ -38,14 +38,9 @@ double E16DST_DST1GTRHit::LocalX() {
     double inverted;
     if(IsX()){
         strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
-<<<<<<< HEAD
-        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
-//        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // tmp
-=======
 //        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
         position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // tmp
 //        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + lorentz_angle_calib_params[layer_id]; // tmp
->>>>>>> upstream/main
         inverted = +1.0;
     }
     else if (IsY()){
@@ -132,13 +127,8 @@ TVector3 E16DST_DST1GTRHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1GTRCluster::LocalPos() {
     TVector3 lpos;
     if(IsX()){
-<<<<<<< HEAD
-        lpos = TVector3(center_of_gravity, 0.0, 0.0);
-//    lpos = TVector3(LocalX(), 0.0, 0.0); // tmp
-=======
 //        lpos = TVector3(center_of_gravity, 0.0, 0.0);
         lpos = TVector3(LocalX(), 0.0, 0.0); // tmp
->>>>>>> upstream/main
     }
     else{
 //        lpos = TVector3(0.0, center_of_gravity, 0.0);
