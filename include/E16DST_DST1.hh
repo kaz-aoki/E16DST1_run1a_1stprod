@@ -259,14 +259,14 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
-//  double LocalX() { return center_of_gravity; };
-  double LocalX() {
-    if (IsX()) {
-      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
-    } else {
-      return center_of_gravity;
-    }
-  }
+  double LocalX() { return center_of_gravity; };
+//  double LocalX() {
+//    if (IsX()) {
+//      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+//    } else {
+//      return center_of_gravity;
+//    }
+//  }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -806,7 +806,12 @@ public:
    E16DST_DST1GTRCluster* GTR100YCluster(){return ycluster100 ;} 
    E16DST_DST1GTRCluster* GTR200YCluster(){return ycluster200 ;} 
    E16DST_DST1GTRCluster* GTR300YCluster(){return ycluster300 ;}
-    
+   E16DST_DST1GTRCluster* GTRXCluster(int lid){
+   	if(lid == 1) return xcluster100;
+   	if(lid == 2) return xcluster200;
+   	if(lid == 3) return xcluster300;
+   } 
+ 
 //   TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
 //   TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
 //   TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
@@ -950,6 +955,12 @@ public:
    E16DST_DST1GTRCluster* GTR100XCluster(){return xcluster100 ;} 
    E16DST_DST1GTRCluster* GTR200XCluster(){return xcluster200 ;} 
    E16DST_DST1GTRCluster* GTR300XCluster(){return xcluster300 ;} 
+   E16DST_DST1GTRCluster*  GTRXCluster(int lid){
+   	if(lid == 1) return xcluster100;
+   	if(lid == 2) return xcluster200;
+   	if(lid == 3) return xcluster300;
+   } 
+    
    TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
    TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
    TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
