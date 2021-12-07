@@ -37,6 +37,7 @@ include_directories(
   include/SSD
 	include/GTR
 #	include/GTR_ozawa
+#	include/GTR_old
 	include/HBD
 	include/LG
 	include/trigger
@@ -115,6 +116,11 @@ add_library(E16DST_DST1
 #  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
 #  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
 #  src/GTR_ozawa/GTRCheckHist.cc
+#  src/GTR_old/E16ANA_GTRAnalyzer2.cc
+#  src/GTR_old/E16ANA_GTRPedestal.cc
+#  src/GTR_old/E16ANA_GTRStripAnalyzer.cc
+#  src/GTR_old/E16ANA_GTRAnalyzerMaker.cc
+#  src/GTR_old/GTRCheckHist.cc
   src/HBD/E16ANA_HBDChannelManager.cc
   src/HBD/E16ANA_HBDDeadChannel.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
@@ -128,6 +134,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1SSDFactory.cc
   src/E16DST_DST1GTRFactory.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
+#  src/GTR_old/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
