@@ -19,21 +19,13 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     is_first=false;
   }
 
-  //  auto hit1 = new E16DST_DST1LGHit();
-  //  auto cluster1 = new E16DST_DST1LGClusters();
   auto& hits1 = lg1->Hits();
   auto max_hit = hits0.NumberOfHits();
-  //  hits1.Reserve(max_hit);
   hits1.resize(max_hit*2);
-  //  clusters1->Reserve(max_hit);
 
   int n_dst1hit = 0;
   for (int n_hit = 0; n_hit < hits0.NumberOfHits(); ++n_hit) {//dst0hit loop
-    //    hit1->SetInvalid();
-    //    cluster1->SetInvalid();
     auto hit0 = hits0.Hit(n_hit);
-    //    hit1->SetIds(hit0.ModuleID(), hit0.BlockID());
-    //    cluster1->SetModuleId(hit0.ModuleID());
 
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
@@ -57,37 +49,45 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     else if(fitoption==1){
       lgwf->FitMethod(waveform,t0); // 14 event/sec @1e10
     }
+    else if(fitoption==2){
+      lgwf->FitMethod(waveform,t0); // for DEBUG
+    }
     else{
       std::cout<<fitoption<<" is Invalid FitOption"<<std::endl;
       delete lgwf;
       exit(1);
     }
 
-
-    int hitflag = lgwf->GetHitFlag();
-
-    /*
-    if( hitflag==0 ){ // applied in MethodForTrack
-      //std::cout<<"no hit for track"<<std::endl;
-      delete lgwf;
-      continue;
-    }
-    */
+    //int hitflag = lgwf->GetHitFlag();
+    //if( hitflag==0 ){ // applied in MethodForTrack
+    ////std::cout<<"no hit for track"<<std::endl;
+    //delete lgwf;
+    //continue;
+    //}
 
     int fitflag = lgwf->GetFitOK();
     int npsfit = lgwf->GetNpsFit();
     bool spikeflag = lgwf->GetSpikeFlag();
 
-    if( fitflag==0&&npsfit==0 ){ // applied in FitMethod
+    //std::cout<<fitflag<<" "<<npsfit<<" "<<spikeflag<<std::endl;
+    if( fitoption==1&&fitflag==0&&npsfit==0 ){ // applied in FitMethod
       //std::cout<<"no hit"<<std::endl;
       delete lgwf;
       continue;
     }
-    if( fitflag==0&&npsfit==1&&spikeflag==true ){ // applied in FitMethod
+    if( fitoption==1&&fitflag==0&&npsfit==1&&spikeflag==true ){ // applied in FitMethod
       //std::cout<<"it is spike noise"<<std::endl;
       delete lgwf;
       continue;
     }
+
+#if 0
+    if( fitoption==1&&fitflag==2 ){ // applied in FitMethod 211028
+      //std::cout<<"fit failed"<<std::endl;
+      delete lgwf;
+      continue;
+    }
+#endif
 
     double timing = lgwf->GetTiming();
     double peakheight = lgwf->GetPeak();
@@ -111,8 +111,19 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       if( peaktime>E16ANA_LGConstant::kHitTimeStart && 
 	peaktime<E16ANA_LGConstant::kHitTimeEnd && timing>-100 ){//dst1hit condition
 
+	if(fitoption==0&&peakheight<E16ANA_LGConstant::kHitThreshold){
+	  continue;
+	}
+	if(fitoption==0&&spikeflag==true){
+	  continue;
+	}
+	if(fitoption==2&&peakheight<E16ANA_LGConstant::kHitThreshold){
+	  continue;
+	}
+
       hits1[n_dst1hit].SetInvalid();
       hits1[n_dst1hit].SetIds(hit0.ModuleID(), hit0.BlockID());
+      hits1[n_dst1hit].SetHitId(n_hit);
 
       hits1[n_dst1hit].SetTiming((float)timing);
       hits1[n_dst1hit].SetPeakHeight((float)peakheight);
@@ -129,10 +140,6 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       hits1[n_dst1hit].SetFitTiming((float)fittiming);
       hits1[n_dst1hit].SetFitWidth((float)fitwidth);
       hits1[n_dst1hit].SetFitChi2((float)fitchi2);
-      //      cluster1->SetMaxPeakCh(hit0.BlockID());
-      //      cluster1->SetMaxPeakHeight(peakheight);
-      //      cluster1->SetTiming(timing);
-      //      cluster1->SetMaxPeakSum(peakheight);
       npeak++;
       n_dst1hit++;
 

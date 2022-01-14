@@ -1,2 +1,0 @@
-#run_num	filename_channelmap	comment
-39999	LG/channelmap/210818/LG-channelmap-run39999-210818.txt	run0a,b,c

@@ -13,8 +13,36 @@
 #include "E16ANA_SSDAnalyzer.h"
 //#include "E16ANA_WaveformFitter.h"
 //#include "E16ANA_Waveform2dFitter.h"
+//#include "/ccj/u/E16/include/root-v5.34.02/TGraph.h"
+#include <TF1.h>
+#include <TGraph.h>
+#include <vector>
+
+
+class E16ANA_SSDSingleStripHit{
+ public:
+  void SetFitValues(int id, double peak, double t0, double t05, double scale, double risetime){
+    stripID = id;
+    fitPeakT = peak; fitT0 = t0; fitT05 = t05; fitScale = scale; fitRisetime = risetime; }
+
+  int StripID(){return stripID;}
+  double FitPeakT(){return fitPeakT;}
+  double FitT0(){return fitT0;}
+  double FitT05(){return fitT05;}
+  double FitScale(){return fitScale;}
+  double FitRisetime(){return fitRisetime;}
+ private:
+
+  int stripID;
+  double fitPeakT;
+  double fitT0;
+  double fitT05; // 1/2 rise time
+  double fitScale;
+  double fitRisetime;
+};
 
 class E16ANA_SSDAnalyzedStripHit {
+  //cluster
 public:
    enum {
       n_sampling = 8,
@@ -80,10 +108,10 @@ public:
    void SetTanTheta(double _tan_incident_angle) {
       tan_incident_angle = _tan_incident_angle;
    };
-	void SetModuleID(int _module_id){
-		moduleID = _module_id;
-	};
-
+   void SetModuleID(int _module_id){
+     moduleID = _module_id;
+   };
+   
    void SetInvalid() {
       ssd_max_strip = kInvalidValue;
       ssd_max_value = kInvalidValue;
@@ -188,6 +216,184 @@ public:
    };
 };
 
+
+
+/* class E16ANA_SSDGoodHit { */
+/* public: */
+/*    enum { */
+/*       n_sampling = 8, */
+/*       is_x = 0, */
+/*       is_y = 1, */
+/*       is_yb = 2, */
+/*    }; */
+
+/* private: */
+/*    int ssd_max_strip;    // strip id */
+/*    double ssd_max_value; // peak ADC value */
+/*    int ssd_num_hit; */
+/*    double ssd_cluster_charge;    // sum of ADC values in a cluster */
+/*    double ssd_center_of_gravity; // mm */
+/*    double ssd_tdc_hit;           // mm */
+/*    double ssd_hit_pos;           // mm */
+/*    double tan_incident_angle;    // radian */
+/*    double timing;                // ns */
+/*    int layerID;                  // 0-2 */
+/*    int moduleID;                 // 0-32 */
+
+/*    int id;   // array intex in Analyzer */
+/*    int type; // x,y,yb=0,1,2 */
+
+/*    double summed_waveform[n_sampling]; */
+/*    std::vector<double> strip_charge; */
+/*    std::vector<double> strip_timing; */
+/*    std::vector<int> strip_id; */
+/*    std::vector<double> strip_pos; */
+/*    std::vector<double> strip_tot; */
+
+/* public: */
+/*    E16ANA_SSDAnalyzedStripHit() { */
+/*       SetInvalid(); */
+/*    }; */
+/*    ~E16ANA_SSDAnalyzedStripHit() {}; */
+
+/*    int ID() { */
+/*       return id; */
+/*    }; */
+/*    void SetID(int i) { */
+/*       id = i; */
+/*    }; */
+
+/*    void SetMaxStrip(int _ssd_max_strip) { */
+/*       ssd_max_strip = _ssd_max_strip; */
+/*    }; */
+/*    void SetMaxValue(double _ssd_max_value) { */
+/*       ssd_max_value = _ssd_max_value; */
+/*    }; */
+/*    void SetNumHit(int _ssd_num_hit) { */
+/*       ssd_num_hit = _ssd_num_hit; */
+/*    }; */
+/*    void SetClusterCharge(double _ssd_cluster_charge) { */
+/*       ssd_cluster_charge = _ssd_cluster_charge; */
+/*    }; */
+/*    void SetCogHit(double _ssd_center_of_gravity) { */
+/*       ssd_center_of_gravity = _ssd_center_of_gravity; */
+/*    }; */
+/*    void SetTdcHit(double _ssd_tdc_hit) { */
+/*       ssd_tdc_hit = _ssd_tdc_hit; */
+/*    }; */
+/*    void SetTanTheta(double _tan_incident_angle) { */
+/*       tan_incident_angle = _tan_incident_angle; */
+/*    }; */
+/* 	void SetModuleID(int _module_id){ */
+/* 		moduleID = _module_id; */
+/* 	}; */
+
+/*    void SetInvalid() { */
+/*       ssd_max_strip = kInvalidValue; */
+/*       ssd_max_value = kInvalidValue; */
+/*       ssd_num_hit = kInvalidValue; */
+/*       ssd_cluster_charge = kInvalidValue; */
+/*       ssd_center_of_gravity = kInvalidValue; */
+/*       ssd_tdc_hit = kInvalidValue; */
+/*       ssd_hit_pos = kInvalidValue; */
+/*       tan_incident_angle = kInvalidValue; */
+/*       // x_or_y = kInvalidValue; */
+/*       timing = kInvalidValue; */
+/*       layerID = kInvalidValue; */
+/*       moduleID = kInvalidValue; */
+/*       id = kInvalidValue; */
+/*       type = kInvalidValue; */
+
+/*       strip_id.clear(); */
+/*       strip_pos.clear(); */
+/*       strip_tot.clear(); */
+/*       strip_charge.clear(); */
+/*       strip_timing.clear(); */
+/*    }; */
+/*    void AddWaveForm(double *wf) { */
+/*       for (int i = 0; i < n_sampling; i++) { */
+/*          summed_waveform[i] += wf[i]; */
+/*       } */
+/*    }; */
+/*    void ClearWaveForm() { */
+/*       for (int i = 0; i < n_sampling; i++) { */
+/*          summed_waveform[i] = 0.0; */
+/*       } */
+/*    } */
+/*    void SetTiming(double t) { timing = t; } */
+/*    void SetLayerAndModuleIDandType(int id1, int id2, int itype) { */
+/*       layerID = id1; */
+/*       moduleID = id2; */
+/*       type = itype; */
+/*    } */
+
+/*    bool IsX() { return type == is_x; } */
+/*    bool IsY() { return type == is_y; } */
+/*    bool IsYb() { return type == is_yb; } */
+/*    int Type() { return type; } */
+
+/*    void PushBackStrip(int id, double pos, double charge, double t, double tot = 0.0) { */
+/*       strip_id.push_back(id); */
+/*       strip_pos.push_back(pos); */
+/*       strip_charge.push_back(charge); */
+/*       strip_timing.push_back(t); */
+/*       strip_tot.push_back(tot); */
+/*    }; */
+
+/*    int MaxStripId() { */
+/*       return ssd_max_strip; */
+/*    }; */
+/*    double MaxValue() { */
+/*       return ssd_max_value; */
+/*    }; */
+/*    int NumHit() { */
+/*       return ssd_num_hit; */
+/*    }; */
+/*    double ClusterCharge() { */
+/*       return ssd_cluster_charge; */
+/*    }; */
+/*    double CogHit() { */
+/*       return ssd_center_of_gravity; */
+/*    }; */
+/*    double TdcHit() { */
+/*       return ssd_tdc_hit; */
+/*    }; */
+/*    double TanTheta() { */
+/*       return tan_incident_angle; */
+/*    }; */
+/*    double Timing() { return timing; } */
+/*    int ModuleID() { return moduleID; } */
+/*    int LayerID() { return layerID; } */
+/*    int StripID(int i) { */
+/*       return strip_id[i]; */
+/*    }; */
+/*    double StripPos(int i) { */
+/*       return strip_pos[i]; */
+/*    }; */
+/*    double StripCharge(int i) { */
+/*       return strip_charge[i]; */
+/*    }; */
+/*    double StripTiming(int i) { */
+/*       return strip_timing[i]; */
+/*    }; */
+/*    double StripTimeOverThreshold(int i) { */
+/*       return strip_tot[i]; */
+/*    }; */
+
+/*    enum { */
+/*       kInvalidValue = -1000000, */
+/*    }; */
+
+/*    void Print() { */
+/*       std::cout << "E16ANA_SSDStripAnalyzer : " */
+/*                 << "Num hit strips = " << ssd_num_hit << ", Cluster charge = " << ssd_cluster_charge */
+/*                 << ", Cog hit pos = " << ssd_center_of_gravity << " [mm], Tdc hit pos = " << ssd_tdc_hit << " [mm]" */
+/*                 << std::endl; */
+/*    }; */
+/* }; */
+
+
+
 class E16ANA_SSDStripAnalyzer {
    // friend void E16ANA_SSDAnalyzer::SetParameters(std::string filename);
    // friend void E16ANA_SSD100Analyzer::SetParameters(std::string filename);
@@ -195,15 +401,18 @@ class E16ANA_SSDStripAnalyzer {
    friend class E16ANA_SSD100Analyzer;
 
 public:
-   E16ANA_SSDStripAnalyzer(int _n_strips, int _n_sampling);
+   E16ANA_SSDStripAnalyzer(int _n_fadc_chs, int _n_sampling);
    virtual ~E16ANA_SSDStripAnalyzer();
    virtual void Clear();
    virtual void SetFadc(int strip_id, int16_t *waveform);
-   virtual void GetFadc(double (&fadc)[768][8], int strip_id, int16_t *waveform);
-
    virtual void SetPedestal(double _fadc_ped[]){memcpy(fadc_ped, _fadc_ped, sizeof(double)*n_strips);};
-   virtual void SetPedestal(int strip_id, double _fadc_ped){fadc_ped[strip_id] = _fadc_ped;};
+   virtual void SetPedestal(int strip_id, double *_fadc_ped);//{fadc_ped[strip_id] = _fadc_ped[];};
+   virtual void SetTDC(int _tdc){TDC=_tdc;};
+   virtual int GetTDC(){return TDC;};
+   virtual void SetOffset(double _offset){V775_OFFSET=_offset;};
+   virtual void SetTimegain(double _timegain){V775_TIMEGAIN=_timegain;};
    virtual void Analyze();
+   virtual void Analyze11();
 
    virtual void Analyze2();
    virtual void Analyze2(int hitid); // only one hit
@@ -231,7 +440,31 @@ public:
       return ssd_analyzed_hits;
    };
 
+   std::vector<E16ANA_SSDSingleStripHit> &GetSingleStripHits() {
+      return ssd_single_hits;
+   };
+
+   std::vector<std::vector<double>> &GetParams(){
+     return ssd_params;
+   }
+
+   std::vector<std::vector<double>> &GetPlots(){
+     return ssd_plots;
+   }
+
+   std::vector<std::vector<double>> &GetPlots0(){
+     return ssd_plots0;
+   }
+
 protected:
+   const double CLOCKWIDTH = 25.0; //ns 
+   //APVDAQ worked with 40MHz-CLK, namely, not 41.66MHz
+   //210707 Arimizu
+
+   const double V775_CLOCKWIDTH = 0.035; //ns
+   //caen V775 worked with 35ps-CLK
+   //210707 Arimizu
+
    // Analysis parameters
 //   double drift_velocity;
 //   double drift_gap_center;
@@ -246,19 +479,23 @@ protected:
    double threshold_fraction;
    double position_start;
 
-   double std_threshold;
-   double lower_limit;
-   double upper_limit;
-
-
    double inverted; // If strip order is the opposite direction to the local coordinate, ...
 
+   int TDC;
+   double V775_OFFSET;
+   double V775_TIMEGAIN;
    double **fadc;
-   double *fadc_ped;
+   double **fadc_noPedestal;
+   double **fadc_ped;
    double *fadc_peak;
    double *fadc_peak_time;
    double *fadc_tdc;
    double *fadc_tot;
+   double *sample_time;
+   double *adc_strip;
+   double **param;
+
+   TGraph *graph_fit;
 
    int n_strips;
    int n_sampling;
@@ -266,6 +503,10 @@ protected:
    std::vector<int> fadc_valid_count;
    std::vector<std::vector<int>> clustered_strip_id;
    std::vector<E16ANA_SSDAnalyzedStripHit> ssd_analyzed_hits;
+   std::vector<E16ANA_SSDSingleStripHit> ssd_single_hits;
+   std::vector<std::vector<double>> ssd_params;
+   std::vector<std::vector<double>> ssd_plots;
+   std::vector<std::vector<double>> ssd_plots0;
 
    // E16ANA_WaveformFitter *wf1d_fitter;
    // E16ANA_Waveform2dFitter *wf2d_fitter;
@@ -298,6 +539,8 @@ protected:
 
    void CalcWaveParamsPeak();
    void CalcWaveParamsPeak(int ch, double t_cutoff);
+   void CalcPeak();
+   void CalcPeak(int ch, double t_cutoff);
    void CalcWaveParamsFit(std::vector<fit_params_t> &fit_pars_array);
    void CalcWaveParamsFit(int ch, fit_params_t &fit_pars);
    // void CalcClusterParams(
@@ -306,6 +549,13 @@ protected:
    //      std::vector<double> &v1_peak
    //      );
    void CalcClusterParams(std::vector<cluster_param_t> &v1);
+   double HitWaveFitV11();
+   double HitWaveFit_noPedestal();
+   int classifyWaveType(std::vector<double>,int,int,double);
+   int getMinSampleNum(std::vector<double>&);
+   int getMaxSampleNum(std::vector<double>&);
+   double getMin(std::vector<double>);
+   double getMax(std::vector<double>);
    virtual int HitClusteringV0();
    virtual int HitClusteringV0(const int min_gap, const double cluster_threshold);
    virtual int HitClusteringV1(const int min_gap = 2, const double delta_tdc_threshold = 150.0);

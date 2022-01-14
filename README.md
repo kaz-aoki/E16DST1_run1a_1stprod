@@ -10,19 +10,14 @@
 　E16DST_DST1xxxHit (とCluster) ::LocalPos(), GlobalPos()
 
 　を実装してください。
- 
 
-・run0b (DST version4) のデータを見る場合はE16DSTに古いE16DSTを持ってきて使ってください。
-
-・もう少し詳しいことはindicoの"analysis_meeting/2021.08.04/trigger"のスライドを見てください。
-
-　-> geometryはE16ANA_GeometryV2の定義に従ってください。
+・geometryはE16ANA_GeometryV2の定義に従ってください。
 
 ・まだ途中なので.dst1は生成できません。適宜更新していきます。
 
 ・dst0のsampleは例えば
 
-　evb02:/e16/w/data102z/trg/junkdata/dst0merge/run030778_sink0_000_srs_trg_lg_ssd.dst0
+　evb02:/e16/w/data102z/trg/junkdata/dst0_ccj
 
 　にあります。
  
@@ -38,8 +33,8 @@
 
 ・run0b (DST0 Version4) について解析する場合は、
 
-　cd E16DST
+　$ cd E16DST
  
-　git checkout 094ffb8
+　$ git checkout 094ffb8
  
 　としてversion4のE16DSTをとってきてください。

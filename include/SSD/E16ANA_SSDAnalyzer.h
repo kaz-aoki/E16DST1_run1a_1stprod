@@ -24,7 +24,8 @@ class E16ANA_SSDStripAnalyzer;
 class E16ANA_SSDAnalyzer {
 public:
 //   E16ANA_SSDAnalyzer(int _n_strip_x, int _n_strip_y, int _n_fadc_chs, int _n_fadc_counts);
-   E16ANA_SSDAnalyzer(int _n_strip_x, int _n_fadc_chs, int _n_fadc_counts);
+//   E16ANA_SSDAnalyzer(int _n_strip_x=128, int _n_fadc_chs=768, int _n_fadc_counts=8);
+   E16ANA_SSDAnalyzer(int _n_strip_x=768, int _n_fadc_chs=768, int _n_fadc_counts=8);
    virtual ~E16ANA_SSDAnalyzer();
    virtual void SetParameters(std::string filename);
    virtual void SetPinAssign(std::string filename);
@@ -32,6 +33,7 @@ public:
    void SetFadcValidCount(std::string filename);
 
    void Analyze();
+   void Analyze11();
 
    void Analyze2X(int hitid); // use CalcTdc2 for a hit
    void Analyze2Y(int hitid); // use CalcTdc2 for a hit
@@ -39,6 +41,9 @@ public:
 
    void AnalyzeV0() {
       Analyze();
+   };
+   void AnalyzeV11() {
+      Analyze11();
    };
    void AnalyzeV0X(int hitid) {
       Analyze2X(hitid);
@@ -65,8 +70,11 @@ public:
    */
    void Clear();
    virtual void SetFadc(int ch, int16_t *_fadc); // use this
-   virtual void GetFadc(double (&fadc)[768][8], int ch, int16_t *_fadc); // use this
-   virtual void SetPedestal(int ch, double _fadc_ped); // use this
+   virtual void SetPedestal(int ch, double *_fadc_ped); // use this
+   virtual void SetTDC(int _tdc);
+   virtual int GetTDC(){return TDC;};
+   virtual void SetOffset(double _offset);
+   virtual void SetTimegain(double _timegain);
    void SetFadcX(int strip_id, int16_t *_fadc);  // use this
    void SetFadcY(int strip_id, int16_t *_fadc);  // use this
 
@@ -110,6 +118,9 @@ protected:
    double ssd_t0_max;
    double ssd_tr;//rise time
    double threshold_fraction;
+   int TDC;
+   double V775_OFFSET;
+   double V775_TIMEGAIN;
 
    // int n_valid_counts;
    std::vector<int> fadc_valid_count;
@@ -180,6 +191,7 @@ public:
 //     E16ANA_SSDAnalyzer::Analyze2Y(hitid);
 //   }
 };
+
 
 
 #endif // E16ANA_SSDAnalyzer_hh

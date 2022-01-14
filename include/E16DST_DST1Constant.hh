@@ -55,6 +55,9 @@ const int kReserve = 1024;
 //const int kHeaderSize            = 1024;
 //const int kNumDetectorComponents = 16; // must be even number
 
+// tmp
+const double kGTRLorentzAngle[3] = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35}; // tmp
+
 }; // namespace E16DST_DST1Constant
 
 #endif // E16DST_DST1CONSTANT_HH

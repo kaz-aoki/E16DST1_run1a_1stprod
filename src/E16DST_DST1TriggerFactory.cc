@@ -12,12 +12,12 @@ int E16ANA_TriggerTime(E16ANA_TriggerCalibParam& trigger_param, int detector, ui
   auto delay         = trigger_param.MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
   auto trigger_delay = trigger_param.MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
   int offset = 0;
-  if (int{trigger_tdc} - int{tdc} > 10000) {
+  if (int{tdc} - int{trigger_tdc} > 10000) {
     offset = -0x40000;
-  } else if (int{trigger_tdc} - int{tdc} < -10000) {
+  } else if (int{tdc} - int{trigger_tdc} < -10000) {
     offset = 0x40000;
   }
-  return int{trigger_tdc} - int{tdc} + E16ANA_TriggerConstant::kMRGDelayOrderNs * (trigger_delay - delay) + offset;
+  return int{tdc} - int{trigger_tdc} - E16ANA_TriggerConstant::kMRGDelayOrderNs * (delay - trigger_delay) + offset;
 }
 
 bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector, E16DST_DST1TriggerHit* hit1) {

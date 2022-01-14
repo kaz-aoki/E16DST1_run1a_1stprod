@@ -25,7 +25,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
 {
   auto& dst1_hits = hbd1->Hits();
   auto& dst1_clusters = hbd1->Clusters();
-  
+
   dst1_hits.resize(dst0_hits.NumberOfHits()*2.);
   dst1_clusters.resize(dst0_hits.NumberOfHits());
   
@@ -49,7 +49,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   
   //----------- get gain calibration status
   bool gain_calibration_status = hbd_calib->GetGainCalibrationStatus();//true: normal operation, false: low gain
-  
+
   //----------- get cut criteria
   double n_sigma = hbd_cut->GetNSigmaWfDST1();//dst0 hit discard criterion, adc noise*n_sigma
   int n_waves = hbd_cut->GetNWavesDST1(); //number of acceptable waves in each waveform
@@ -76,6 +76,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
     hbd_calib->GetCalibratedSignal(mid, pid, in_waveform, out_waveform);
     is_dst0hit = hbd_calib->HitDecision(mid, pid, out_waveform, n_sigma);
     
+    //std::cout<<"IN FACTORY OF HBD: "<<mid<<" "<<pid<<" "<<is_dst0hit<<" "<<hbd_calib->GetGain(mid, pid)<<" "<<gain_calibration_status<<" "<<hbd_calib->GetDeadChannel()->IsOK(mid, pid)<<std::endl;//nakasuga
     if(is_dst0hit
        && ((hbd_calib->GetGain(mid, pid) == 0. && !gain_calibration_status) ||
 	   (hbd_calib->GetGain(mid, pid) >  0. &&  gain_calibration_status))
@@ -115,6 +116,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       dst1_hid++;
 
     }
+
   }
   
   for(auto p : cs){

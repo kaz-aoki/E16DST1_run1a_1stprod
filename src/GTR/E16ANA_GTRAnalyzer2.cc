@@ -45,7 +45,13 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    // gem_t0_min = 100.0;
    // gem_t0_max = 450.0;
    gem_tr = 75.0;
-   threshold_fraction = 0.5;
+   threshold_fraction = 0.5;\
+   cluster_minimum_gap = 2;
+   cluster_delta_tdc = 10000.0;
+   rise_time_min = -10000.0;
+   rise_time_max = 10000.0;
+   peak_time_min = -10000.0;
+   peak_time_max = 10000.0;
    fadc_valid_count.reserve(n_fadc_counts);
    for (int i = 0; i < n_fadc_counts; i++) {
       fadc_valid_count.push_back(i);
@@ -70,6 +76,12 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    strip_ana_x->position_start = x_start;
    strip_ana_x->gem_tr = gem_tr;
    strip_ana_x->threshold_fraction = threshold_fraction;
+   strip_ana_x->cluster_minimum_gap = cluster_minimum_gap;
+   strip_ana_x->cluster_delta_tdc = cluster_delta_tdc;
+   strip_ana_x->rise_time_min = rise_time_min;
+   strip_ana_x->rise_time_max =   rise_time_max;
+   strip_ana_x->peak_time_min =   peak_time_min;
+   strip_ana_x->peak_time_max =   peak_time_max;
 
    strip_ana_y->strip_pitch = strip_pitch_y;
    strip_ana_y->gem_threshold = gem_th_y;
@@ -81,6 +93,12 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    strip_ana_y->position_start = y_start;
    strip_ana_y->gem_tr = gem_tr;
    strip_ana_y->threshold_fraction = threshold_fraction;
+   strip_ana_y->cluster_minimum_gap = cluster_minimum_gap;
+   strip_ana_y->cluster_delta_tdc = cluster_delta_tdc;
+   strip_ana_y->rise_time_min = rise_time_min;
+   strip_ana_y->rise_time_max =   rise_time_max;
+   strip_ana_y->peak_time_min =   peak_time_min;
+   strip_ana_y->peak_time_max =   peak_time_max;
 }
 
 E16ANA_GTRAnalyzer2::~E16ANA_GTRAnalyzer2()
@@ -230,6 +248,79 @@ void E16ANA_GTRAnalyzer2::SetTimeWindowMax(double th)
       strip_list[i]->gem_tdc_max = th;
    }
 }
+
+void E16ANA_GTRAnalyzer2::SetClusterMinimumGap(int th)
+{
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->cluster_minimum_gap = th;
+   }
+}
+
+void E16ANA_GTRAnalyzer2::SetClusterDeltaTdc(double th)
+{
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->cluster_delta_tdc = th;
+   }
+}
+
+void E16ANA_GTRAnalyzer2::SetRiseTimeMin(double th)
+{
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->rise_time_min = th;
+   }
+}
+
+void E16ANA_GTRAnalyzer2::SetRiseTimeMax(double th)
+{
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->rise_time_max = th;
+   }
+}
+
+void E16ANA_GTRAnalyzer2::SetPeakTimeMin(double th)
+{
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->peak_time_min = th;
+   }
+}
+
+void E16ANA_GTRAnalyzer2::SetPeakTimeMax(double th)
+{
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->peak_time_max = th;
+   }
+}
+
+//void E16ANA_GTRAnalyzer2::SetTdcMin(double t){
+//   for (int i = 0; i < (int)strip_list.size(); i++) {
+//      strip_list[i]->gem_tdc_min = t;
+//   }	
+//}
+//void E16ANA_GTRAnalyzer2::SetTdcMax(double t){
+//   for (int i = 0; i < (int)strip_list.size(); i++) {
+//      strip_list[i]->gem_tdc_max = t;
+//   }	
+//}
+void E16ANA_GTRAnalyzer2::SetDriftVelocity(double v){
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->drift_velocity = v;
+   }	
+}
+void E16ANA_GTRAnalyzer2::SetCenterOfDriftGap(double c){
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->drift_gap_center = c;
+   }	
+}
+
+//void E16ANA_GTRAnalyzer2::SetCenterOfDriftGap2(double c){
+//   for (int i = 0; i < (int)strip_list.size(); i++) {
+//      strip_list[i]->drift_gap_center2 = c;
+//   }	
+//}
+
+
+
+
 
 void E16ANA_GTRAnalyzer2::SetPinAssign(std::string filename)
 {
@@ -607,3 +698,52 @@ void E16ANA_GTRAnalyzedHit::SetYstripHit(E16ANA_GTRAnalyzedStripHit *yhit, TVect
    layerID = yhit->LayerID();
    moduleID = yhit->ModuleID();
 }
+//-----------------------------------------------------
+//E16ANA_GTRAnalyzerManager::E16ANA_GTRAnalyzerManager(
+//  E16ANA_ParamManager* iparam): paramMgr(iparam) {
+//
+//  anaS[0] = ana100;
+//  anaS[1] = ana200;
+//  anaS[2] = ana300;
+//
+////  gtrAHitsXChamber[0] =  gtrAHits1XChamber; //array of vector
+////  gtrAHitsXChamber[1] =  gtrAHits2XChamber; 
+////  gtrAHitsXChamber[2] =  gtrAHits3XChamber; 
+////  gtrAHitsYChamber[0] =  gtrAHits1YChamber; 
+////  gtrAHitsYChamber[1] =  gtrAHits2YChamber; 
+////  gtrAHitsYChamber[2] =  gtrAHits3YChamber;
+////  gtrAHitsYChamber[3] =  gtrAHits1YbChamber;
+////
+////  gtrSHitsX[0]= &gtrSHits1X;
+////  gtrSHitsX[1]= &gtrSHits2X;
+////  gtrSHitsX[2]= &gtrSHits3X;
+////  gtrSHitsY[0]= &gtrSHits1Y;
+////  gtrSHitsY[1]= &gtrSHits2Y;
+////  gtrSHitsY[2]= &gtrSHits3Y;
+////  gtrSHitsY[3]= &gtrSHits1Yb;
+////
+////  gtrAHitsX[0]= &gtrAHits1X;
+////  gtrAHitsX[1]= &gtrAHits2X;
+////  gtrAHitsX[2]= &gtrAHits3X;
+////  gtrAHitsY[0]= &gtrAHits1Y;
+////  gtrAHitsY[1]= &gtrAHits2Y;
+////  gtrAHitsY[2]= &gtrAHits3Y;
+////  gtrAHitsY[3]= &gtrAHits1Yb;
+//
+//  for(int i = 0; i< Nmodule ; i++ ){
+//
+//    ana100[i] = new E16ANA_GTR100Analyzer();
+//    ana100[i]->SetParameters( paramMgr->GetGTR100AnalysisParamFileName(i)  );
+//    ana200[i] = new E16ANA_GTR200Analyzer();
+//    ana200[i]->SetParameters(  paramMgr->GetGTR200AnalysisParamFileName(i)  );
+//    ana300[i] = new E16ANA_GTR300Analyzer();
+//    ana300[i]->SetParameters(  paramMgr->GetGTR300AnalysisParamFileName(i)  );
+//
+//  }//for i
+//
+//  //  E16MESSAGE("end");
+//}
+
+
+
+

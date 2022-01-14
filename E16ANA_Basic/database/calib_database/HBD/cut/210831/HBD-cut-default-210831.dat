@@ -1,6 +1,0 @@
-#cut condition, dst0->dst1 adc sigma cut n_sigma, number of waves, cluster size, cluster charge [p.e.]
-n_sigma_wf_dst1 3.0
-n_waves_dst1 1
-th_csize_dst1 2
-th_ccharge_dst1 7.0
-n_sigma_cadc 5.0

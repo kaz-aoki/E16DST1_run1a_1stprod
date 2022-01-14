@@ -1,3 +1,5 @@
+//2021-10-19, uploaded by ichikawa
+//2021-10-15, uploaded by ichikawa
 //2021-09-21, uploaded by ichikawa
 //2021-02-27, uploaded by nakai
 //2016-11-22, uploaded by nakai
@@ -298,7 +300,8 @@ void E16ANA_MultiTrack::PreConditioning(){
    }
 }
 
-double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool vertex_z_fixflag){
+//double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool vertex_z_fixflag){
+double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool vertex_z_fixflag, int _strategy, int _max_function_calls){
    PreConditioning();
 
    //TMinuitMinimizer *minuit = new TMinuitMinimizer(ROOT::Minuit::kMigrad);
@@ -306,8 +309,10 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    E16ANA_MultiTrackFunction func(this);
    minuit->SetFunction(func);
    minuit->SetPrintLevel(-1);
-   minuit->SetStrategy(2);
-   minuit->SetMaxFunctionCalls(1.0e+4);
+//   minuit->SetStrategy(2);
+//   minuit->SetMaxFunctionCalls(1.0e+4);
+   minuit->SetStrategy(_strategy);
+   minuit->SetMaxFunctionCalls(_max_function_calls);
    minuit->SetTolerance(1.0e-5);
 
    double vtxz = vertex_init.Z();
@@ -322,13 +327,15 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    }else{
 //        minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, -20.0, 20.0); // mm
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20.0, vertex_init.X()+20.0); // mm // update 2021-02-24
-      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-10., vertex_init.X()+10.); // mm // update 2021-09-20
+//      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-10., vertex_init.X()+10.); // mm // update 2021-09-20
+      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-50., vertex_init.X()+50.); // mm // update 2021-11-06 for Ks?
       if(pyfixflag){
          minuit->SetFixedVariable(1, "Vertex_Y", vertex_init.Y());
       }else{
          //minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20.0, 20.0); // mm
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20.0, vertex_init.Y()+20.0); // mm // update 2021-02-24
-         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-10., vertex_init.Y()+10.); // mm // update 2021-09-20
+//         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-10., vertex_init.Y()+10.); // mm // update 2021-09-20
+         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-50., vertex_init.Y()+50.); // mm // update 2021-11-06 for Ks?
       }
    }
    /*
@@ -351,23 +358,28 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
       minuit->SetFixedVariable(2, "Vertex_Z", vertex_init.Z());
    }else{
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, vertex_init.Z()-20.0, vertex_init.Z()+20.0);
-      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -20.0, 20.0); // update 2021-09-27
+//      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -25.0, 25.0); // update 2021-10-15
+      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -50.0, 50.0); // update 2021-10-19
+//      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 20., -20.0, 20.0); // update 2021-10-19
    }
    for(int i=0; i<n_tracks; i++){
       minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
             //momentum_init[i].X(), momentum_step_size, -1.5, 1.5); // GeV
-            momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.1, momentum_init[i].X()+0.1); // GeV // 2021-02-24
+//            momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.1, momentum_init[i].X()+0.1); // GeV // 2021-02-24
+            momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.5, momentum_init[i].X()+0.5); // GeV // 2021-10-19
             //-track_charge[i]*momentum_init[i].X(), momentum_step_size, -1.5, 1.5); // 160928
       if(pyfixflag){
          minuit->SetFixedVariable(i*3+4, Form("Momentum%02d_Y", i), momentum_init[i].Y());
       }else{
          minuit->SetLimitedVariable(i*3+4, Form("Momentum%02d_Y", i),
                //momentum_init[i].Y(), momentum_step_size, -1.5, 1.5); // GeV
-               momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.1, momentum_init[i].Y()+0.1); // GeV // 2021-02-24
+//               momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.1, momentum_init[i].Y()+0.1); // GeV // 2021-02-24
+               momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.5, momentum_init[i].Y()+0.5); // GeV // 2021-10-19
       }
       minuit->SetLimitedVariable(i*3+5, Form("Momentum%02d_Z", i),
             //momentum_init[i].Z(), momentum_step_size, -0.3, 6.0); // GeV
-            momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.1, momentum_init[i].Z()+0.1); // GeV // 2021-02-24
+//            momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.1, momentum_init[i].Z()+0.1); // GeV // 2021-02-24
+            momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.5, momentum_init[i].Z()+0.5); // GeV // 2021-02-24
    }
    minimize_status = minuit->Minimize();
    matrix_status = minuit->CovMatrixStatus();

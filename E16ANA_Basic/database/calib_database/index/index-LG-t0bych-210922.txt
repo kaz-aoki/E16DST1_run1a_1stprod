@@ -1,2 +1,0 @@
-#run_num	filename_t0bych	comment
-39999	LG/t0bych/210922/LG-t0bych-run39999-210922.txt	modified bug
