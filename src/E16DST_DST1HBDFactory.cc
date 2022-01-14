@@ -13,6 +13,10 @@
 
 #include "TVector3.h"
 
+//------------------------------------------------------------
+#include <fstream>
+//------------------------------------------------------------
+
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   E16ANA_HBDCalibration *hbd_calib,
   E16ANA_HBDCut *hbd_cut,
@@ -106,6 +110,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       }
       dst1_hit.SetTiming(timing);//50% of maximum peak height
       dst1_hit.SetLocalPos(E16ANA_HBDGeometry::GetPadLocalCOG(mid, pid));
+      
       cs.at(E16ANA_HBDChannelManager::ConvMIDE16ToK(mid)).SetData(mid, pid, peak, pe, timing, dst1_hid);
       dst1_hid++;
 
