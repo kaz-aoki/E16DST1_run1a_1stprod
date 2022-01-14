@@ -41,6 +41,9 @@ bool E16ANA_HBDCut::ReadFile(const char *filename){
       ss>>keyword>>value;
       if(keyword.compare("n_sigma_wf_dst1") == 0 ) n_sigma_wf_dst1 = value;
       if(keyword.compare("n_waves_dst1") == 0 ) n_waves_dst1 = (int) value;
+      if(keyword.compare("tdc_range_upper") == 0) tdc_range_upper = value;
+      if(keyword.compare("tdc_range_lower") == 0) tdc_range_lower = value;
+      if(keyword.compare("th_wf_chi2") == 0) th_wf_chi2 = value;
       if(keyword.compare("th_csize_dst1") == 0 ) th_csize_dst1 = (int) value;
       if(keyword.compare("th_ccharge_dst1") == 0 ) th_ccharge_dst1 = value;
       if(keyword.compare("n_sigma_cadc") == 0 ) n_sigma_cadc = value;
