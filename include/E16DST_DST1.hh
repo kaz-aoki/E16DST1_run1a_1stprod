@@ -90,7 +90,7 @@ class E16DST_DST1Cluster {
   void                          SetClusterId(int _cluster_id) { cluster_id = _cluster_id; }
   void                          SetModuleId(int _module_id) { module_id = _module_id; }
   void                          SetMaxPeakCh(int _max_peak_ch) { max_peak_ch = _max_peak_ch; }
-  void                          SetMaxPeakHeight(int _max_peak_height) { max_peak_height = _max_peak_height; }
+  void                          SetMaxPeakHeight(float _max_peak_height) { max_peak_height = _max_peak_height; }
   void                          SetTiming(float _timing) { timing = _timing; }
   void                          SetPeakSum(float _peak_sum) { peak_sum = _peak_sum; }
   void                          SetHitOrders(std::vector<int16_t>& _hit_orders);

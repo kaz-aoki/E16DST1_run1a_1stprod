@@ -178,6 +178,20 @@ target_link_libraries(dst0_to_dst1_hbd_check
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_wf_check usr/dst0_to_dst1_hbd_wf_check.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_wf_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(hbd_dead_ch_check usr/hbd_dead_ch_check.cc)
+
+target_link_libraries(hbd_dead_ch_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
 
 target_link_libraries(dst0_to_dst1_lg_check

@@ -17,6 +17,7 @@ E16ANA_HBDCalibration::E16ANA_HBDCalibration()
 
 E16ANA_HBDCalibration::~E16ANA_HBDCalibration()
 {
+  delete hbd_dead;
 }
 
 bool E16ANA_HBDCalibration::ReadCalibrationData(const int runID){

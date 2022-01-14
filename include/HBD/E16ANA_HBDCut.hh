@@ -19,6 +19,9 @@ public:
 private:
   double n_sigma_wf_dst1;
   int n_waves_dst1;
+  double tdc_range_upper;
+  double tdc_range_lower;
+  double th_wf_chi2;
   int th_csize_dst1;
   double th_ccharge_dst1;
   double n_sigma_cadc;
