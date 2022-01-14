@@ -168,6 +168,9 @@ int main(int argc, char* argv[]) {
   int lgmod;
   int lgblk;
   int fitflag;
+  int nlgtrg;
+  int lgtrgtime[10];
+  bool lgtrgflag;
   double lgcptx;
   double lgcpty;
   double lgresx;
@@ -190,6 +193,7 @@ int main(int argc, char* argv[]) {
   double lghitgz[LMAX];
 
 
+  tree->Branch("event",&event,"event/I");
   tree->Branch("ntr",&ntr,"ntr/I");
   tree->Branch("ssd_nhs",&ssd_nhs,"ssd_nhs/I");
   tree->Branch("ssd_ncs",&ssd_ncs,"ssd_ncs/I");
@@ -277,6 +281,9 @@ int main(int argc, char* argv[]) {
   tree->Branch("lgmod",&lgmod,"lgmod/I");
   tree->Branch("lgblk",&lgblk,"lgblk/I");
   tree->Branch("fitflag",&fitflag,"fitflag/I");
+  tree->Branch("nlgtrg",&nlgtrg,"nlgtrg/I");
+  tree->Branch("lgtrgtime",&lgtrgtime,"lgtrgtime[10]/I");
+  tree->Branch("lgtrgflag",&lgtrgflag,"lgtrgflag/O");
   tree->Branch("lggx",&lggx,"lggx/D");
   tree->Branch("lggy",&lggy,"lggy/D");
   tree->Branch("lggz",&lggz,"lggz/D");
@@ -363,19 +370,27 @@ int main(int argc, char* argv[]) {
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
       //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
-      //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record->Trigger());
 
       record->SSD().UpdatePtrs();
       record->GTR().UpdatePtrs();
       record->HBD().UpdatePtrs();
       record->LG().UpdatePtrs();
+      record->Trigger().AddHitAndClusterIDs();
+      record->Trigger().UpdatePtrs();
 
       std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
       E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
       record->SSD().UpdatePtrs();
 
+      //std::cout<<"**"<<event0->EventID()<<"****"<<std::endl;
+      //int n_tr_lg = record->Trigger().NumLGHits();
+      //for(int itr=0;itr<n_tr_lg;itr++){
+      //auto& hit = record->Trigger().LGHit(itr);
+      //std::cout<<itr<<" "<<hit.ModuleId()<<" "<<hit.ChannelId()<<" "<<hit.Timing()<<std::endl;
+      //}
 
-      //analysis
+      //straight track analysis
       int ntracks = st_tracks.size();
       ntr = ntracks;
       for(int i=0;i<ntracks;i++){
@@ -446,7 +461,10 @@ int main(int argc, char* argv[]) {
 	lgmod = -10000;
 	lgblk = -10000;
 	fitflag = -10000;
-
+	for(int k=0;k<10;k++){
+	  lgtrgtime[k] = -10000;
+	}
+	lgtrgflag = false;
 	for(int k=0;k<SMAX;k++){
 	  ssdhitres[k]=-10000;
 	  ssdhitcs[k]=-10000;
@@ -699,10 +717,27 @@ int main(int argc, char* argv[]) {
 	  lgcptx = -20000;
 	  lgcpty = -20000;
 	}
-
-	//residual at LG plane
 	modulelg = ModuleID_2013to2020_27(mid[index]);
 	//std::cout<<"compare mod: "<<module<<" "<<modulelg<<" "<<block<<std::endl;
+
+
+	//search LG trig hit
+	int n_tr_lg = record->Trigger().NumLGHits();
+	nlgtrg = 0;
+	for(int itr=0;itr<n_tr_lg;itr++){
+	  auto& hit = record->Trigger().LGHit(itr);
+	  if( hit.ModuleId() != modulelg ){ continue; }
+	  if( (hit.ChannelId()/10)*10 != block ){ continue; }
+	  auto lpos = hit.LocalPos(*geom);
+	  if( fabs(lgcptx-lpos.X()) < 65 ){
+	    lgtrgtime[nlgtrg] = hit.Timing();
+	    lgtrgflag = true;
+	    nlgtrg++;
+	  }
+	}
+
+
+	//residual at LG plane
 	auto& lg_hits1 = record->LG().HitPtrs(modulelg,0,0);
 	auto& lg_clusters1 = record->LG().ClusterPtrs(modulelg,0,0);
 	lg_nhs = lg_hits1.size();

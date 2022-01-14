@@ -29,6 +29,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
     auto spec = lgbasic.GetSpec(hit0.ModuleID(),hit0.BlockID());
     double wftype = spec->WF_TYPE;//relative gain of DRS4module
+    std::cout<<"WFTYPE:"<<wftype<<std::endl;
     double t0 = lgbasic.GetT0(hit0.ModuleID(),hit0.BlockID());
     int status = lgdead.Status(hit0.ModuleID(),hit0.BlockID());
     if( status!=0 ){
