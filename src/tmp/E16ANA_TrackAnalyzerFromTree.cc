@@ -20,6 +20,8 @@ namespace pt_param    = E16ANA_TrackAnalyzerFromTreePairTrackParameter;
 void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_run_id = run_id;
   out_event_id = event_id;
+  out_spill_id = spill_id;
+  out_timestamp_in_spill = timestamp_in_spill;
   out_n_tracks = n_cands;
   out_n_pairs = 0;
   out_n_selected_pairs = 0;
@@ -438,7 +440,7 @@ void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], doubl
   pair_fitter->SetCharge(0, -1.);
   pair_fitter->SetCharge(1, 1.);
   TVector3 pair_mom;
-  for (int i =0; i < 2; ++i) {
+  for (int i = 0; i < 2; ++i) {
     auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
     pair_fitter->SetInitialMomentum(i, tmp_mom);
   }

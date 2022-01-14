@@ -157,6 +157,15 @@ target_link_libraries(E16ANA_Track
 )
 
 #_______________________________________________________________________________
+#add_library(E16ANA_EventMixing
+#  src/tmp/E16ANA_EventMixing.cc
+#)
+#
+#target_link_libraries(E16ANA_EventMixing
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
@@ -254,7 +263,14 @@ target_link_libraries(tmp_track_analyzer
 	E16ANA_Track
 )
 
-#_______________________________________________________________________________
+##_______________________________________________________________________________
+#add_executable(tmp_event_mixing usr/tmp_event_mixing.cc)
+#
+#target_link_libraries(tmp_event_mixing
+#	E16ANA_EventMixing
+#)
+#
+##_______________________________________________________________________________
 #add_executable(tmp_gtr usr/tmp_gtr.cc)
 #
 #target_link_libraries(tmp_gtr
