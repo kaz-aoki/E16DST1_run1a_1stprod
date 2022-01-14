@@ -714,6 +714,9 @@ void E16ANA_TrackCandidates::SearchHBDAndLGHits() {
           auto& hits = lg.HitPtrs(fit_module_id, 0, 0);
           auto& clusters = lg.ClusterPtrs(fit_module_id, 0, 0);
           for (auto& hit : hits) {
+            if (hit->FitFlag() == E16ANA_LGConstant::kFitFailure) {
+              continue;
+            }
             int lgh = hit->ChannelId() / 10;
             if (l == E16ANA_TrackConstant::kLG0) {
               if (lgh != 0 && lgh != 5) {

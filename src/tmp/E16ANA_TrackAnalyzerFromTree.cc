@@ -55,27 +55,55 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_ssd_hit_pos_gx.clear();
   out_minus_ssd_hit_pos_gy.clear();
   out_minus_ssd_hit_pos_gz.clear();
+  out_minus_ssd_hit_t.clear();
+  out_minus_ssd_hit_adc.clear();
   out_minus_gtr100_hit_pos_gx.clear();
   out_minus_gtr100_hit_pos_gy.clear();
   out_minus_gtr100_hit_pos_gz.clear();
+  out_minus_gtr100_hit_xt.clear();
+  out_minus_gtr100_hit_yt.clear();
+  out_minus_gtr100_hit_xadc.clear();
+  out_minus_gtr100_hit_yadc.clear();
   out_minus_gtr200_hit_pos_gx.clear();
   out_minus_gtr200_hit_pos_gy.clear();
   out_minus_gtr200_hit_pos_gz.clear();
+  out_minus_gtr200_hit_xt.clear();
+  out_minus_gtr200_hit_yt.clear();
+  out_minus_gtr200_hit_xadc.clear();
+  out_minus_gtr200_hit_yadc.clear();
   out_minus_gtr300_hit_pos_gx.clear();
   out_minus_gtr300_hit_pos_gy.clear();
   out_minus_gtr300_hit_pos_gz.clear();
+  out_minus_gtr300_hit_xt.clear();
+  out_minus_gtr300_hit_yt.clear();
+  out_minus_gtr300_hit_xadc.clear();
+  out_minus_gtr300_hit_yadc.clear();
   out_plus_ssd_hit_pos_gx.clear();
   out_plus_ssd_hit_pos_gy.clear();
   out_plus_ssd_hit_pos_gz.clear();
+  out_plus_ssd_hit_t.clear();
+  out_plus_ssd_hit_adc.clear();
   out_plus_gtr100_hit_pos_gx.clear();
   out_plus_gtr100_hit_pos_gy.clear();
   out_plus_gtr100_hit_pos_gz.clear();
+  out_plus_gtr100_hit_xt.clear();
+  out_plus_gtr100_hit_yt.clear();
+  out_plus_gtr100_hit_xadc.clear();
+  out_plus_gtr100_hit_yadc.clear();
   out_plus_gtr200_hit_pos_gx.clear();
   out_plus_gtr200_hit_pos_gy.clear();
   out_plus_gtr200_hit_pos_gz.clear();
+  out_plus_gtr200_hit_xt.clear();
+  out_plus_gtr200_hit_yt.clear();
+  out_plus_gtr200_hit_xadc.clear();
+  out_plus_gtr200_hit_yadc.clear();
   out_plus_gtr300_hit_pos_gx.clear();
   out_plus_gtr300_hit_pos_gy.clear();
   out_plus_gtr300_hit_pos_gz.clear();
+  out_plus_gtr300_hit_xt.clear();
+  out_plus_gtr300_hit_yt.clear();
+  out_plus_gtr300_hit_xadc.clear();
+  out_plus_gtr300_hit_yadc.clear();
   out_minus_ssd_fit_pos_x.clear();
   out_minus_ssd_fit_pos_y.clear();
   out_minus_ssd_fit_pos_z.clear();
@@ -564,21 +592,21 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
       }
     }
     if (rk_proj_n_lg->at(track_index_pair[i]) >= 1) {
-      if (rk_proj_lg0_adc->at(track_index_pair[i]) > lg_adc[i]) {
+      if (rk_proj_lg0_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_lg0_adc->at(track_index_pair[i]) > lg_adc[i]) {
         lg_adc[i] = rk_proj_lg0_adc->at(track_index_pair[i]);
       }
     }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 2) {
+    if (rk_proj_lg1_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_n_lg->at(track_index_pair[i]) >= 2) {
       if (rk_proj_lg1_adc->at(track_index_pair[i]) > lg_adc[i]) {
         lg_adc[i] = rk_proj_lg1_adc->at(track_index_pair[i]);
       }
     }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 3) {
+    if (rk_proj_lg2_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_n_lg->at(track_index_pair[i]) >= 3) {
       if (rk_proj_lg2_adc->at(track_index_pair[i]) > lg_adc[i]) {
         lg_adc[i] = rk_proj_lg2_adc->at(track_index_pair[i]);
       }
     }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 4) {
+    if (rk_proj_lg3_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_n_lg->at(track_index_pair[i]) >= 4) {
       if (rk_proj_lg3_adc->at(track_index_pair[i]) > lg_adc[i]) {
         lg_adc[i] = rk_proj_lg3_adc->at(track_index_pair[i]);
       }
@@ -636,27 +664,55 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   out_minus_ssd_hit_pos_gx.emplace_back(rk_hit_ssd_gx->at(track_index_pair[0]));
   out_minus_ssd_hit_pos_gy.emplace_back(rk_hit_ssd_gy->at(track_index_pair[0]));
   out_minus_ssd_hit_pos_gz.emplace_back(rk_hit_ssd_gz->at(track_index_pair[0]));
+  out_minus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[0]));
+  out_minus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[0]));
   out_minus_gtr100_hit_pos_gx.emplace_back(rk_hit_gtr100_gx->at(track_index_pair[0]));
   out_minus_gtr100_hit_pos_gy.emplace_back(rk_hit_gtr100_gy->at(track_index_pair[0]));
   out_minus_gtr100_hit_pos_gz.emplace_back(rk_hit_gtr100_gz->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[0]));
+  out_minus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[0]));
+  out_minus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[0]));
   out_minus_gtr200_hit_pos_gx.emplace_back(rk_hit_gtr200_gx->at(track_index_pair[0]));
   out_minus_gtr200_hit_pos_gy.emplace_back(rk_hit_gtr200_gy->at(track_index_pair[0]));
   out_minus_gtr200_hit_pos_gz.emplace_back(rk_hit_gtr200_gz->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[0]));
+  out_minus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[0]));
+  out_minus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[0]));
   out_minus_gtr300_hit_pos_gx.emplace_back(rk_hit_gtr300_gx->at(track_index_pair[0]));
   out_minus_gtr300_hit_pos_gy.emplace_back(rk_hit_gtr300_gy->at(track_index_pair[0]));
   out_minus_gtr300_hit_pos_gz.emplace_back(rk_hit_gtr300_gz->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[0]));
+  out_minus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[0]));
+  out_minus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[0]));
   out_plus_ssd_hit_pos_gx.emplace_back(rk_hit_ssd_gx->at(track_index_pair[1]));
   out_plus_ssd_hit_pos_gy.emplace_back(rk_hit_ssd_gy->at(track_index_pair[1]));
   out_plus_ssd_hit_pos_gz.emplace_back(rk_hit_ssd_gz->at(track_index_pair[1]));
+  out_plus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[1]));
+  out_plus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[1]));
   out_plus_gtr100_hit_pos_gx.emplace_back(rk_hit_gtr100_gx->at(track_index_pair[1]));
   out_plus_gtr100_hit_pos_gy.emplace_back(rk_hit_gtr100_gy->at(track_index_pair[1]));
   out_plus_gtr100_hit_pos_gz.emplace_back(rk_hit_gtr100_gz->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[1]));
+  out_plus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[1]));
+  out_plus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[1]));
   out_plus_gtr200_hit_pos_gx.emplace_back(rk_hit_gtr200_gx->at(track_index_pair[1]));
   out_plus_gtr200_hit_pos_gy.emplace_back(rk_hit_gtr200_gy->at(track_index_pair[1]));
   out_plus_gtr200_hit_pos_gz.emplace_back(rk_hit_gtr200_gz->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[1]));
+  out_plus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[1]));
+  out_plus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gx.emplace_back(rk_hit_gtr300_gx->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gy.emplace_back(rk_hit_gtr300_gy->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gz.emplace_back(rk_hit_gtr300_gz->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[1]));
+  out_plus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[1]));
+  out_plus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[1]));
   FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_pos_x,    &out_minus_ssd_fit_pos_y,    &out_minus_ssd_fit_pos_z);
   FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_pos_x, &out_minus_gtr100_fit_pos_y, &out_minus_gtr100_fit_pos_z);
   FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_pos_x, &out_minus_gtr200_fit_pos_y, &out_minus_gtr200_fit_pos_z);
