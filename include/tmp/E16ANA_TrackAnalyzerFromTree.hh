@@ -2146,12 +2146,10 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("plus_gtr100_mid", &out_plus_gtr100_mid);
   out_tree->Branch("plus_gtr200_mid", &out_plus_gtr200_mid);
   out_tree->Branch("plus_gtr300_mid", &out_plus_gtr300_mid);
-  
 //  out_tree->Branch("minus_proj_hbd_max_adc", &out_minus_proj_hbd_max_adc);
 //  out_tree->Branch("minus_proj_lg_max_adc",  &out_minus_proj_lg_max_adc);
 //  out_tree->Branch("plus_proj_hbd_max_adc", &out_plus_proj_hbd_max_adc);
 //  out_tree->Branch("plus_proj_lg_max_adc",  &out_plus_proj_lg_max_adc);
-  
   out_tree->Branch("minus_proj_n_hbd",     &out_minus_proj_n_hbd);
   out_tree->Branch("minus_proj_hbd0_res",  &out_minus_proj_hbd0_res);
   out_tree->Branch("minus_proj_hbd0_adc",  &out_minus_proj_hbd0_adc);
@@ -2212,7 +2210,6 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("plus_proj_lg3_res",    &out_plus_proj_lg3_res);
   out_tree->Branch("plus_proj_lg3_adc",    &out_plus_proj_lg3_adc);
   out_tree->Branch("plus_proj_lg3_t",      &out_plus_proj_lg3_t);
-  
   out_tree->Branch("minus_ssd_hit_pos_gx",    &out_minus_ssd_hit_pos_gx);
   out_tree->Branch("minus_ssd_hit_pos_gy",    &out_minus_ssd_hit_pos_gy);
   out_tree->Branch("minus_ssd_hit_pos_gz",    &out_minus_ssd_hit_pos_gz);
