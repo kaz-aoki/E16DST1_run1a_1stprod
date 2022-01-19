@@ -64,7 +64,15 @@ int main(int argc, char* argv[]) {
   TH1F *hft[7][56];
   TH1F *hfw[7][56];
   TH1F *hfc[7][56];
-  TH1F *hctd = new TH1F("hctd","hclustertimediff",400,0,40);
+  TH1F *hctd = new TH1F("hctd","hclusterTimeDiff",400,0,40);
+  TH1F *hcmp = new TH1F("hcmp","hclusterMaxPeak",1100,-100,1000);
+  TH1F *hctm = new TH1F("hctm","hclusterTiming",200,0,200);
+  TH1F *hcps = new TH1F("hcps","hclusterPeakSum",1100,-100,1000);
+  TH1F *hcgx = new TH1F("hcgx","hclusterGlobalX",4000,-2000,2000);
+  TH1F *hcgy = new TH1F("hcgy","hclusterGlobalY",4000,-2000,2000);
+  TH1F *hcgz = new TH1F("hcgz","hclusterGlobalZ",4000,-2000,2000);
+  TH2F *hcgyx = new TH2F("hcgyx","hclusterGlobalYX",4000,-2000,2000,4000,-2000,2000);
+  TH2F *hcgzx = new TH2F("hcgzx","hclusterGlobalZX",4000,-2000,2000,4000,-2000,2000);
   for(int i=0;i<7;i++){
     hnh[i] = new TH1F(Form("hnh%d",i),Form("NHit%d",i),300,0,300);
     for(int j=0;j<56;j++){
@@ -308,6 +316,14 @@ int main(int argc, char* argv[]) {
 	  auto& lgcluster = lg_clusters1[icl];
 	  if(lgcluster.HitOrders().size()>1){
 	    hctd->Fill(lgcluster.TimeDifference());
+	    hcmp->Fill(lgcluster.MaxPeakHeight());
+	    hctm->Fill(lgcluster.Timing());
+	    hcps->Fill(lgcluster.PeakSum());
+	    hcgx->Fill(lgcluster.GlobalPos(*geometry).X());
+	    hcgy->Fill(lgcluster.GlobalPos(*geometry).Y());
+	    hcgz->Fill(lgcluster.GlobalPos(*geometry).Z());
+	    hcgyx->Fill(lgcluster.GlobalPos(*geometry).X(),lgcluster.GlobalPos(*geometry).Y());
+	    hcgzx->Fill(lgcluster.GlobalPos(*geometry).X(),lgcluster.GlobalPos(*geometry).Z());
 	  }
 	}//cluster loop
       }

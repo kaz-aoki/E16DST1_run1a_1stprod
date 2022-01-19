@@ -228,9 +228,16 @@ TVector3 E16DST_DST1LGHit::GlobalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1LGCluster::LocalPos() {
+  TVector3 lpos(localx,localy,localz);
+  return lpos;
 }
 
 TVector3 E16DST_DST1LGCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
+  TVector3 lpos(localx,localy,localz);
+  TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
+  int mod = ModuleId2020To2013(module_id);
+  pos = geometry.LGVD( mod )->GetGPos(lpos);
+  return pos;
 }
 
 TVector3 E16DST_DST1TriggerHit::LocalPos(E16ANA_GeometryV2& geometry) {

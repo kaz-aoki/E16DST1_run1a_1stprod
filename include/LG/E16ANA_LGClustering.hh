@@ -28,6 +28,7 @@ public:
     float integral;
     double lx;
     double ly;
+    double lz;
 
     bool operator<(const lghit& another){
       if( mid != another.mid ){ return mid<another.mid; }
@@ -48,12 +49,13 @@ public:
     float maxpeak;
     double lx;
     double ly;
+    double lz;
   };
 
   E16ANA_LGClustering();
     ~E16ANA_LGClustering(){}
 
-  void SetHitData(int hid, int mid, int cid, float peak, float timing, float integral, double lx, double ly);
+  void SetHitData(int hid, int mid, int cid, float peak, float timing, float integral, double lx, double ly, double lz);
   void Clustering();
   void CalcTimeRegion(std::vector<lghit>& hits, double& tim_max, double& tim_min);
   int CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& cluster);
