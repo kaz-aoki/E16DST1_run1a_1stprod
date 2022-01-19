@@ -31,7 +31,7 @@ E16ANA_LGClustering::E16ANA_LGClustering()
 }
 
 
-void E16ANA_LGClustering::SetHitData(int hid, int mid, int cid, float peak, float timing, float integral, double lx, double ly){
+void E16ANA_LGClustering::SetHitData(int hid, int mid, int cid, float peak, float timing, float integral, double lx, double ly, double lz){
 
   lghit hit;
   hit.hid = hid;
@@ -42,6 +42,7 @@ void E16ANA_LGClustering::SetHitData(int hid, int mid, int cid, float peak, floa
   hit.integral = integral;
   hit.lx = lx;
   hit.ly = ly;
+  hit.lz = lz;
   lghits.push_back(hit);
 
 }
@@ -129,12 +130,14 @@ int E16ANA_LGClustering::CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& 
     cluster.maxpeak = hits.at(0).peak;
     cluster.lx = hits.at(0).lx;
     cluster.ly = hits.at(0).ly;
+    cluster.lz = hits.at(0).lz;
     //std::cout<<cluster.hids.size()<<" "<<cluster.mid<<" "<<cluster.peaksum<<" "<<cluster.fasttiming<<" "<<cluster.timediff<<" "<<cluster.intsum<<" "<<cluster.maxcid<<" "<<cluster.maxpeak<<" "<<cluster.lx<<" "<<cluster.ly<<"CLUSTER"<<std::endl;
   }
   else{
     cluster.hids.clear();
     cluster.mid = hits.at(0).mid;
     cluster.ly = hits.at(0).ly;
+    cluster.lz = hits.at(0).lz;
     float peaksum=0;
     float fasttiming=10000.;
     float latetiming=-10000;
@@ -142,7 +145,7 @@ int E16ANA_LGClustering::CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& 
     float intsum=0;
     float maxpeak=-10000.;
     int maxcid=-10000;
-    double lx;
+    double lx = 0;
     for(int i=0;i<hits.size();i++){
       lghit hit = hits.at(i);
       cluster.hids.push_back(hit.hid);

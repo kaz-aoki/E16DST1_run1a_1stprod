@@ -465,14 +465,26 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
  public:
   E16DST_DST1LGCluster() 
-    : time_difference(E16DST_DST1Constant::kInvalidValue) {}
+    : time_difference(E16DST_DST1Constant::kInvalidValue),
+      localx(E16DST_DST1Constant::kInvalidValue), 
+      localy(E16DST_DST1Constant::kInvalidValue), 
+      localz(E16DST_DST1Constant::kInvalidValue) {}
   ~E16DST_DST1LGCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
     time_difference= E16DST_DST1Constant::kInvalidValue;
+    localx= E16DST_DST1Constant::kInvalidValue;
+    localy= E16DST_DST1Constant::kInvalidValue;
+    localz= E16DST_DST1Constant::kInvalidValue;
   }
   void SetTimeDifference(float _time_difference) { time_difference = _time_difference; }
+  void SetLocalx(double _localx) { localx = _localx; }
+  void SetLocaly(double _localy) { localy = _localy; }
+  void SetLocalz(double _localz) { localz = _localz; }
   float TimeDifference() { return time_difference; }
+  double Localx() { return localx; }
+  double Localy() { return localy; }
+  double Localz() { return localz; }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -480,6 +492,9 @@ class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
  private:
   int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
   float time_difference;
+  double localx;
+  double localy;
+  double localz;
 };
 
 class E16DST_DST1TriggerHit : public E16DST_DST1Hit {
