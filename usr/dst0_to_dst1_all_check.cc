@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
       E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geometry);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 
 

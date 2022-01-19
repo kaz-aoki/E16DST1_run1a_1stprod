@@ -264,7 +264,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double CogPos() { return center_of_gravity; }
   double TdcPos() { return tdc_pos; }
   float TanTheta() { return tan_incident_angle; }
-//  double LocalX() { return center_of_gravity; };
+  double LocalX() { return center_of_gravity; }; // 211127 nakasuga
+/* 211127 nakasuga
   double LocalX() {
     if (IsX()) {
       return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
@@ -284,6 +285,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
       return center_of_gravity;
     }
   }
+*/
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
@@ -462,17 +464,22 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
  public:
-  E16DST_DST1LGCluster() {}
+  E16DST_DST1LGCluster() 
+    : time_difference(E16DST_DST1Constant::kInvalidValue) {}
   ~E16DST_DST1LGCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
+    time_difference= E16DST_DST1Constant::kInvalidValue;
   }
+  void SetTimeDifference(float _time_difference) { time_difference = _time_difference; }
+  float TimeDifference() { return time_difference; }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int GetSize() override {}
   void Print() override {}
  private:
   int ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100 + 1]; }
+  float time_difference;
 };
 
 class E16DST_DST1TriggerHit : public E16DST_DST1Hit {

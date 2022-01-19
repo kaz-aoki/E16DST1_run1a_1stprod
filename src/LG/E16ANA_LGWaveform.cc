@@ -70,7 +70,7 @@ E16ANA_LGWaveform::E16ANA_LGWaveform()
       chi2s[i] = E16DST_DST1Constant::kInvalidValue;
     }
     n_call++;
-  }
+}
 
 /*
 int PrintTime(char* mes, int prevtime){

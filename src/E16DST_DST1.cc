@@ -38,8 +38,8 @@ double E16DST_DST1GTRHit::LocalX() {
     double inverted;
     if(IsX()){
         strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
-//        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
-        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // tmp
+        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5; // 211127 nakasuga
+//        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + E16DST_DST1Constant::kGTRLorentzAngle[layer_id]; // tmp // 211127 nakasuga
 //        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + lorentz_angle_calib_params[layer_id]; // tmp
         inverted = +1.0;
     }
