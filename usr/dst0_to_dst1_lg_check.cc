@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
   TH1F *hft[7][56];
   TH1F *hfw[7][56];
   TH1F *hfc[7][56];
+  TH1F *hctd = new TH1F("hctd","hclustertimediff",400,0,40);
   for(int i=0;i<7;i++){
     hnh[i] = new TH1F(Form("hnh%d",i),Form("NHit%d",i),300,0,300);
     for(int j=0;j<56;j++){
@@ -203,7 +204,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   lg_hits1,  lg_clusters1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geometry);
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      event1->GTR().SetValidFlag(1);
@@ -299,6 +300,18 @@ int main(int argc, char* argv[]) {
 	}
 
       }
+
+      auto& lg_clusters1 = record->LG().Clusters();
+      int n_lgclusters = lg_clusters1.size();
+      if (lg_clusters1.size() != 0) {
+	for(int icl=0;icl<n_lgclusters;icl++){//cluster loop
+	  auto& lgcluster = lg_clusters1[icl];
+	  if(lgcluster.HitOrders().size()>1){
+	    hctd->Fill(lgcluster.TimeDifference());
+	  }
+	}//cluster loop
+      }
+
 
 //// trigger
 //      event1->Trigger().Print(*geometry);

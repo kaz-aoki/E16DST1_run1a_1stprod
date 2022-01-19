@@ -91,6 +91,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGGeometry.cc
   src/LG/E16ANA_LGWaveform.cc
   src/LG/E16ANA_LGDeadChannel.cc
+  src/LG/E16ANA_LGClustering.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
