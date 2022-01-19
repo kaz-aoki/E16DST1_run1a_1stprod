@@ -19,6 +19,9 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT)
 if(ROOT_FOUND)
 	include(${ROOT_USE_FILE})
+#  ROOT_GENERATE_DICTIONARY(G__stl_vector_vector
+#    LINKDEF LinkDef/LinkDef.h
+#  )
 endif()
 
 #find_package(Boost COMPONENTS program_options REQUIRED)
@@ -83,6 +86,13 @@ install(DIRECTORY
 configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePath.hh @ONLY)
 
 #_______________________________________________________________________________
+
+add_library(stl_vector_vector
+  LinkDef/stl_vector_vector.cc
+#  SHARED G__stl_vector_vector.cc
+)
+
+#_______________________________________________________________________________
 #set_source_files_properties(src/LG/E16ANA_LGBasic.cc PROPERTIES COMPILE_OPTIONS "-lSpectrum")
 
 add_library(E16ANA
@@ -143,6 +153,7 @@ add_library(E16DST_DST1
 )
 
 target_link_libraries(E16DST_DST1
+#  stl_vector_vector
   E16ANA
 	E16DST
 )
