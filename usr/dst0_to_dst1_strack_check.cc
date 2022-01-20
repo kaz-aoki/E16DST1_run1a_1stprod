@@ -33,6 +33,9 @@
 #include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16ANA_GeometryV2.hh"
 
+//#define MKWF 1
+//#undef MKWF
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -165,6 +168,9 @@ int main(int argc, char* argv[]) {
   int lgmod;
   int lgblk;
   int fitflag;
+  int nlgtrg;
+  int lgtrgtime[10];
+  bool lgtrgflag;
   double lgcptx;
   double lgcpty;
   double lgresx;
@@ -187,6 +193,7 @@ int main(int argc, char* argv[]) {
   double lghitgz[LMAX];
 
 
+  tree->Branch("event",&event,"event/I");
   tree->Branch("ntr",&ntr,"ntr/I");
   tree->Branch("ssd_nhs",&ssd_nhs,"ssd_nhs/I");
   tree->Branch("ssd_ncs",&ssd_ncs,"ssd_ncs/I");
@@ -274,6 +281,9 @@ int main(int argc, char* argv[]) {
   tree->Branch("lgmod",&lgmod,"lgmod/I");
   tree->Branch("lgblk",&lgblk,"lgblk/I");
   tree->Branch("fitflag",&fitflag,"fitflag/I");
+  tree->Branch("nlgtrg",&nlgtrg,"nlgtrg/I");
+  tree->Branch("lgtrgtime",&lgtrgtime,"lgtrgtime[10]/I");
+  tree->Branch("lgtrgflag",&lgtrgflag,"lgtrgflag/O");
   tree->Branch("lggx",&lggx,"lggx/D");
   tree->Branch("lggy",&lggy,"lggy/D");
   tree->Branch("lggz",&lggz,"lggz/D");
@@ -284,6 +294,11 @@ int main(int argc, char* argv[]) {
   tree->Branch("lghitgx",lghitgx,"lghitgx[lg_nhs]/D");
   tree->Branch("lghitgy",lghitgy,"lghitgy[lg_nhs]/D");
   tree->Branch("lghitgz",lghitgz,"lghitgz[lg_nhs]/D");
+  //#ifdef MKWF
+  double waveform[200];
+  //  tree->Branch("Waveform",waveform,"Waveform[200]/D");
+  //#endif
+
 
   //TH2F* ssdxz = new TH2F("ssdxz","ssdxz",2000,-1000,1000,2000,-1000,1000);
   //TH2F* ssdzy = new TH2F("ssdzy","ssdzy",2000,-1000,1000,2000,-1000,1000);
@@ -303,6 +318,7 @@ int main(int argc, char* argv[]) {
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
   lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
@@ -352,21 +368,29 @@ int main(int argc, char* argv[]) {
       E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
       E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
-      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
-//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geom);
+      //E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0);
+      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record->Trigger());
 
       record->SSD().UpdatePtrs();
       record->GTR().UpdatePtrs();
       record->HBD().UpdatePtrs();
       record->LG().UpdatePtrs();
+      record->Trigger().AddHitAndClusterIDs();
+      record->Trigger().UpdatePtrs();
 
       std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
       E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
       record->SSD().UpdatePtrs();
 
+      //std::cout<<"**"<<event0->EventID()<<"****"<<std::endl;
+      //int n_tr_lg = record->Trigger().NumLGHits();
+      //for(int itr=0;itr<n_tr_lg;itr++){
+      //auto& hit = record->Trigger().LGHit(itr);
+      //std::cout<<itr<<" "<<hit.ModuleId()<<" "<<hit.ChannelId()<<" "<<hit.Timing()<<std::endl;
+      //}
 
-      //analysis
+      //straight track analysis
       int ntracks = st_tracks.size();
       ntr = ntracks;
       for(int i=0;i<ntracks;i++){
@@ -437,7 +461,10 @@ int main(int argc, char* argv[]) {
 	lgmod = -10000;
 	lgblk = -10000;
 	fitflag = -10000;
-
+	for(int k=0;k<10;k++){
+	  lgtrgtime[k] = -10000;
+	}
+	lgtrgflag = false;
 	for(int k=0;k<SMAX;k++){
 	  ssdhitres[k]=-10000;
 	  ssdhitcs[k]=-10000;
@@ -690,10 +717,27 @@ int main(int argc, char* argv[]) {
 	  lgcptx = -20000;
 	  lgcpty = -20000;
 	}
-
-	//residual at LG plane
 	modulelg = ModuleID_2013to2020_27(mid[index]);
 	//std::cout<<"compare mod: "<<module<<" "<<modulelg<<" "<<block<<std::endl;
+
+
+	//search LG trig hit
+	int n_tr_lg = record->Trigger().NumLGHits();
+	nlgtrg = 0;
+	for(int itr=0;itr<n_tr_lg;itr++){
+	  auto& hit = record->Trigger().LGHit(itr);
+	  if( hit.ModuleId() != modulelg ){ continue; }
+	  if( (hit.ChannelId()/10)*10 != block ){ continue; }
+	  auto lpos = hit.LocalPos(*geom);
+	  if( fabs(lgcptx-lpos.X()) < 65 ){
+	    lgtrgtime[nlgtrg] = hit.Timing();
+	    lgtrgflag = true;
+	    nlgtrg++;
+	  }
+	}
+
+
+	//residual at LG plane
 	auto& lg_hits1 = record->LG().HitPtrs(modulelg,0,0);
 	auto& lg_clusters1 = record->LG().ClusterPtrs(modulelg,0,0);
 	lg_nhs = lg_hits1.size();
@@ -713,10 +757,10 @@ int main(int argc, char* argv[]) {
 	    //std::cout<<"LGCheck:"<<lghit->ModuleId()<<" "<<lghit->ChannelId()<<" "<<lghit->LocalPos(*geom).X()<<" "<<lghit->LocalPos(*geom).Y()<<std::endl;
 	    lghitresx[nhs] = resx;
 	    lghitresy[nhs] = resy;
-	    //lghitadc[nhs] = lghit->FitPeak();
-	    lghitadc[nhs] = lghit->PeakHeight();
-	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
-	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
+	    lghitadc[nhs] = lghit->FitPeak();
+	    //lghitadc[nhs] = lghit->PeakHeight();
+	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
 	    lghitgx[nhs] = lghit->GlobalPos(*geom).X();
 	    lghitgy[nhs] = lghit->GlobalPos(*geom).Y();
 	    lghitgz[nhs] = lghit->GlobalPos(*geom).Z();
@@ -751,13 +795,21 @@ int main(int argc, char* argv[]) {
 	    if(fabs(nearresx)<65){
 	      lgeff = true;
 	    }
+	    //#ifdef MKWF
+	    int hitid = lg_hits1[nearindex]->HitId();
+	    auto spec = lgbasic.GetSpec(lgmod,lgblk);
+	    double wftype = spec->WF_TYPE;
+	    for(int cell=0;cell<200;cell++){
+	      int ph = lg_hits0.Hit(hitid).Waveform()[cell];
+	      waveform[cell] = ph*wftype;
+	    }
+	    //#endif
 	  }
 
 	}//lg cluster bool
 
 	//std::cout<<lgcptx<<" "<<lgcpty<<std::endl;
 	//std::cout<<"******************************"<<std::endl;
-
 
       tree->Fill();
 

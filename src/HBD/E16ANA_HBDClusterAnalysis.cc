@@ -196,14 +196,14 @@ E16ANA_HBDClusterAnalysis::hbd_cluster E16ANA_HBDClusterAnalysis::GetMaxSizeClus
 
 void E16ANA_HBDClusterAnalysis::CalcTimeDiff(hbd_cluster &cluster)
 {
-  int diff = 0;
-  int fastest = 10000;
-  int latest = -1;
+  double diff = 0.;
+  double fastest = 10000.;
+  double latest = -1.;
   
   if( cluster.size == 1){
     fastest = cluster.tdc[0];
     latest = cluster.tdc[0];
-    diff = 0;
+    diff = 0.;
   }
   if( cluster.size >= 2){
     for(auto t : cluster.tdc){
