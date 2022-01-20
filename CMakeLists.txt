@@ -87,10 +87,10 @@ configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePa
 
 #_______________________________________________________________________________
 
-add_library(stl_vector_vector
-  LinkDef/stl_vector_vector.cc
-#  SHARED G__stl_vector_vector.cc
-)
+#add_library(stl_vector_vector
+#  LinkDef/stl_vector_vector.cc
+##  SHARED G__stl_vector_vector.cc
+#)
 
 #_______________________________________________________________________________
 #set_source_files_properties(src/LG/E16ANA_LGBasic.cc PROPERTIES COMPILE_OPTIONS "-lSpectrum")

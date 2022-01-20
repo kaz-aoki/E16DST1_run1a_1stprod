@@ -7,6 +7,7 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_WaveformFitter.hh"
 #include "E16ANA_FieldMapCalib.hh"
+#include "E16ANA_EventSelect.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_GTRLorentzAngleCalib.hh"
 #include "E16ANA_HBDCalibration.hh"
@@ -22,7 +23,8 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-const bool kIsElectronRun = true;
+constexpr bool kIsElectronRun = true;
+constexpr bool kSelectEvent   = true;
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -79,6 +81,11 @@ int main(int argc, char* argv[]) {
   calib.SetRunID(run_id);
   E16ANA_FieldMapCalibParam field_map_param;
   field_map_param.ReadConstantData(calib.CurrentRunID());
+  E16ANA_EventSelect event_select;
+  event_select.ReadConstantData(calib.CurrentRunID());
+  auto& selected_event_ids = event_select.SelectedEventIDs();
+  int current_ids_index = 0;
+  auto n_selected_events = event_select.NumSelectedEventIDs();
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_GTRLorentzAngleCalibParam gtr_lorentz_angle_calib_param;
@@ -143,6 +150,32 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
+      auto event_id = event0->EventID();
+      if (kSelectEvent) {
+        bool is_selected_event = false;
+        while (true) {
+          auto current_id = selected_event_ids[current_ids_index];
+          if (event_id < current_id) {
+            break;
+          } else if (event_id == current_id) {
+            is_selected_event = true;
+            ++current_ids_index;
+            break;
+          } else if (event_id > current_id) {
+            if (current_ids_index == n_selected_events - 1) {
+              break;
+            } else {
+              ++current_ids_index;
+              continue;
+            }
+          }
+        }
+        if (!is_selected_event) {
+          ++n_event;
+          ++n_physics_event;
+          continue;
+        }
+      }
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       record.SSD().UpdatePtrs();
