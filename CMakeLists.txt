@@ -91,6 +91,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGGeometry.cc
   src/LG/E16ANA_LGWaveform.cc
   src/LG/E16ANA_LGDeadChannel.cc
+  src/LG/E16ANA_LGClustering.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -179,6 +180,20 @@ target_link_libraries(dst0_to_dst1_hbd_check
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_wf_check usr/dst0_to_dst1_hbd_wf_check.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_wf_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(hbd_dead_ch_check usr/hbd_dead_ch_check.cc)
+
+target_link_libraries(hbd_dead_ch_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
 
 target_link_libraries(dst0_to_dst1_lg_check
@@ -218,6 +233,16 @@ target_link_libraries(dst0_to_dst1_strack_check
 	E16ANA
 )
 
+#_______________________________________________________________________________
+#add_executable(lg_check_standalone usr/lg_check_standalone.cc)
+#
+#target_link_libraries(lg_check_standalone
+#       E16DST_DST1
+##E16ANA_CalibDB
+#       E16ANA_Basic
+#       E16DST
+#       E16ANA
+#)
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 

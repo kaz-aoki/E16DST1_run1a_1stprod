@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
       record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
 //      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1);
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry);
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
