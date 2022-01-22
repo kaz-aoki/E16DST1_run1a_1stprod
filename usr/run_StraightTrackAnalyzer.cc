@@ -317,7 +317,7 @@ int main(int argc, char* argv[]) {
     if (max_event != -1 && n_event >= max_event) {
       break;
     }
-    if (n_event % 1000 == 0) {
+    if (n_event % 100 == 0) {
       cout << "Number of event: " << n_event << endl;
     }
     if (dst0->EventType() != E16DST_DST0EventType::Physics){
@@ -350,7 +350,12 @@ int main(int argc, char* argv[]) {
 	int hit_tile = -1000;
 	
 	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+	if(targets.IsWire()){
+		E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+	}
+	else if(targets.NoT() == 3){
+		E16DST_DST1StraightTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+	}
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
 		event_id = t->EventID();
@@ -411,10 +416,12 @@ int main(int argc, char* argv[]) {
 	    fit_b_x = t->FitBX();
 	    fit_a_y = t->FitAY();
 	    fit_b_y = t->FitBY();
-		distance_x = t->DistanceFromTgtXZ();
-//		distance_y = t->DistanceFromTgtYR();
-		distance_fromupwire_y   = t->DistanceFromUpWireYR();
-		distance_fromdownwire_y = t->DistanceFromDownWireYR();
+		if(targets.IsWire()){
+			distance_x = t->DistanceFromTgtXZ();
+//			distance_y = t->DistanceFromTgtYR();
+			distance_fromupwire_y   = t->DistanceFromUpWireYR();
+			distance_fromdownwire_y = t->DistanceFromDownWireYR();
+		}
 		residual_ssdx = t->ResidualSSD();
 //		residual_100x = t->Residual100();
 //		residual_200x = t->Residual200();

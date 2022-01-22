@@ -134,6 +134,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1LGFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
+  src/E16DST_DST1StraightTrackFactory.cc
 	src/E16DST_DST1TrackFactory.cc
 )
 
