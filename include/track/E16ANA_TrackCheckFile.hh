@@ -15,7 +15,7 @@ class E16ANA_TrackCheckFile {
  public:
   E16ANA_TrackCheckFile(char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
       : file(TFile(file_name, "recreate")), run_id(_run_id) {
-    gInterpreter->GenerateDictionary("std::vector<std::vector<bool>>; std::vector<std::vector<int>>; std::vector<std::vector<float>>; std::vector<std::vectror<double>>", "vector");
+//    gInterpreter->GenerateDictionary("std::vector<std::vector<bool>>; std::vector<std::vector<int>>; std::vector<std::vector<float>>; std::vector<std::vectror<double>>", "vector");
     t_param = new TTree("param", "param");
     tree = new TTree("tree", "tree");
     // Hit, Cluster
@@ -55,6 +55,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("event_id", &event_id, "event_id/I");
     tree->Branch("spill_id", &spill_id, "spill_id/I");
     tree->Branch("timestamp_in_spill", &timestamp_in_spill, "timestamp_in_spill/l");
+    tree->Branch("trigger_fine_time", &trigger_fine_time, "trigger_fine_time/I");
     tree->Branch("n_fill", &n_fill, "n_fill/I");
     tree->Branch("n_ssd_clusters",  &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_id", &ssd_cluster_id);
@@ -683,10 +684,11 @@ class E16ANA_TrackCheckFile {
     pair_fit_sigma3 = cands.PairFitSigma(3);
     t_param->Fill();
   }
-  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, E16DST_DST1PhysicsRecord& record) {
+  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record) {
     event_id = _event_id;
     spill_id = _spill_id;
     timestamp_in_spill = _timestamp_in_spill;
+    trigger_fine_time = _trigger_fine_time;
     n_ssd_clusters = record.SSD().NumClusters();
     ssd_cluster_id.resize(n_ssd_clusters);
     ssd_cluster_mid.resize(n_ssd_clusters);
@@ -2308,6 +2310,7 @@ class E16ANA_TrackCheckFile {
   int event_id;
   int spill_id;
   uint64_t timestamp_in_spill;
+  int trigger_fine_time;
   int n_fill;
   // Hit, Cluster
   int n_ssd_clusters;

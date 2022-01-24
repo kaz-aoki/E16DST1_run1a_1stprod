@@ -18,7 +18,7 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 find_package(ROOT)
 if(ROOT_FOUND)
-	include(${ROOT_USE_FILE})
+  include(${ROOT_USE_FILE})
 #  ROOT_GENERATE_DICTIONARY(G__stl_vector_vector
 #    LINKDEF LinkDef/LinkDef.h
 #  )
@@ -86,10 +86,9 @@ install(DIRECTORY
 configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePath.hh @ONLY)
 
 #_______________________________________________________________________________
-
 #add_library(stl_vector_vector
-#  LinkDef/stl_vector_vector.cc
-##  SHARED G__stl_vector_vector.cc
+##  LinkDef/stl_vector_vector.cc
+# G__stl_vector_vector.cxx
 #)
 
 #_______________________________________________________________________________
@@ -338,6 +337,13 @@ target_link_libraries(tmp_track_analyzer
 #add_executable(read_test_gtr usr/read_test_gtr.cc)
 #
 #target_link_libraries(read_test_gtr
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
+#add_executable(tmp_check_coin_map usr/tmp_check_coin_map.cc)
+#
+#target_link_libraries(tmp_check_coin_map
 #  E16DST_DST1
 #)
 #

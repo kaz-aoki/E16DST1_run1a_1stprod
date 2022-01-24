@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
 //cout << event0->EventID() << endl;
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record);
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
