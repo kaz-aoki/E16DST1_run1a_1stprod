@@ -26,6 +26,7 @@ E16ANA_GTRStripAnalyzer::E16ANA_GTRStripAnalyzer(int _n_strips, int _n_sampling)
    }
    fadc_peak = new double[n_strips];
    fadc_peak_time = new double[n_strips];
+   fadc_peak_tdc  = new double[n_strips];
    fadc_tdc = new double[n_strips];
    fadc_tot = new double[n_strips];
    fadc_ped = new double[n_strips];
@@ -37,6 +38,8 @@ E16ANA_GTRStripAnalyzer::E16ANA_GTRStripAnalyzer(int _n_strips, int _n_sampling)
    }
    // wf1d_fitter = new E16ANA_WaveformFitter();
    // wf2d_fitter = new E16ANA_Waveform2dFitter();
+   drift_velocity = 0.008;
+   ztiming        = 328;
    Clear();
 }
 
@@ -48,6 +51,7 @@ E16ANA_GTRStripAnalyzer::~E16ANA_GTRStripAnalyzer()
    delete[] fadc;
    delete[] fadc_peak;
    delete[] fadc_peak_time;
+   delete[] fadc_peak_tdc;
    delete[] fadc_tdc;
    delete[] fadc_tot;
    delete[] fadc_ped;
@@ -99,7 +103,8 @@ void E16ANA_GTRStripAnalyzer::Analyze()
    for (int i = 0; i < n_hits; i++) {
       gem_analyzed_hits[i].SetInvalid();
       CalcCenterOfGravity(clustered_strip_id[i], gem_analyzed_hits[i]);
-      CalcTdcHit1(clustered_strip_id[i], gem_analyzed_hits[i], i);
+      //CalcTdcHit1(clustered_strip_id[i], gem_analyzed_hits[i], i);
+      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);
       // CalcTdcHit2(clustered_strip_id[i], gem_analyzed_hits[i].TanTheta(), gem_analyzed_hits[i]);
    }
 }
@@ -130,7 +135,8 @@ void E16ANA_GTRStripAnalyzer::AnalyzeV1()
    for (int i = 0; i < n_hits; i++) {
       gem_analyzed_hits[i].SetInvalid();
       CalcCenterOfGravity(clustered_strip_id[i], gem_analyzed_hits[i]);
-      CalcTdcHit1(clustered_strip_id[i], gem_analyzed_hits[i], i);
+      //CalcTdcHit1(clustered_strip_id[i], gem_analyzed_hits[i], i);
+      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);
       // CalcTdcHit2(clustered_strip_id[i], gem_analyzed_hits[i].TanTheta(), gem_analyzed_hits[i]);
    }
 }
@@ -245,7 +251,8 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
       fadc_peak[ch] = -255.0;
       fadc_tdc[ch] = -1000.0;
       fadc_tot[ch] = -1000.0;
-	  fadc_peak_time[ch] = -1000.0;
+      fadc_peak_time[ch] = -1000.0;
+      fadc_peak_tdc[ch]  = -1000.0;
       peak_count = -1;
       for (int j = 0; j < n_sampling; j++) {
          // for(int l=0; l<(int)fadc_valid_count.size(); l++){
@@ -257,7 +264,8 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 
          if (fadc_peak[ch] < fadc[ch][j]) {
             fadc_peak[ch] = fadc[ch][j];
-			fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
+	    fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
+	    fadc_peak_tdc[ch] = j ;
             peak_count = j;
          }
       }
@@ -298,6 +306,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
             fadc_peak[ch] = -255.0;
             fadc_tdc[ch] = -1000.0;
             fadc_peak_time[ch] = -1000.0;
+	    fadc_peak_tdc[ch]  = -1000.0;
             peak_count = -1;
          }
       } else {
@@ -312,6 +321,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 	  ) {
          fadc_tdc[ch] = -1000.0;
          fadc_peak_time[ch] = -1000.0;
+	 fadc_peak_tdc[ch]  = -1000.0;
       }
 
 //      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
@@ -377,6 +387,34 @@ void E16ANA_GTRStripAnalyzer::SetArraysForTdcMethods(const std::vector<int> &str
    }
 }
 
+void E16ANA_GTRStripAnalyzer::SetArraysForTdcMethods2(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+						      std::vector<double> &time_array, std::vector<double> &peak_array)
+{
+
+  for (int i = 0; i < (int)strip_ids.size(); i++) {
+    int id = strip_ids[i];
+    int it = fadc_peak_tdc[id];
+    double sumq = 0;
+    double sumx = 0;
+    for (int j = 0; j < (int)strip_ids.size(); j++) {
+      int id2 = strip_ids[j];
+      double tq = fadc[id2][it];
+      if(tq<0) tq = 0;
+      sumq += tq;
+      sumx += tq * GetPosition(id2);
+    }
+    if(sumq>0){
+      double lx = sumx/sumq;
+      x_array.push_back(lx);
+      time_array.push_back(fadc_tdc[id]);
+      peak_array.push_back(fadc_peak[id]);
+    }
+  }
+
+
+}
+
+
 void E16ANA_GTRStripAnalyzer::CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID)
 {
    std::vector<double> x_array;
@@ -434,6 +472,70 @@ void E16ANA_GTRStripAnalyzer::CalcTdcHit1(const std::vector<int> &strip_ids, E16
    //   std::cerr<<"t0/mean "<<t0<<" "<<meantime<<std::endl;
    //   t0 is bad
 }
+
+void E16ANA_GTRStripAnalyzer::CalcTdcHit12(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID)
+{
+  std::vector<double> x_array;
+  std::vector<double> time_array;
+  std::vector<double> peak_array;
+
+  int temp_num_hit = 0;
+  double temp_cc = 0.0;
+  double temp_tdc_hit = 0.0;
+  double temp_tan_theta = 0.0;
+
+  if ((int)strip_ids.size() == 0) {
+    hit.SetInvalid();
+    return;
+  }
+  SetArraysForTdcMethods2(strip_ids, x_array, time_array, peak_array);
+  temp_num_hit = x_array.size();
+  temp_cc = 0.0;
+  double wt=0, t=0, sx=0, sy=0, st2=0, ss = 0, sxoss = 0;
+  double sx2=0, sxy=0;
+  double ftdc = 9999;
+  int nn =0;
+  for(int i = 0; i < x_array.size(); i++){
+    ss  ++;
+    sx  += time_array[i] ;
+    sy  += x_array[i] ;
+    sx2 += time_array[i] *time_array[i] ;
+    sxy += x_array[i] * time_array[i] ;
+    if(time_array[i]<ftdc){
+      ftdc = time_array[i];
+    }
+    int flag = 1;
+    for(int j = 0; j < i; j++){
+      if(fabs(x_array[i]-x_array[j])<0.005) flag=-1;
+    }
+    if(flag>0) nn++;
+  }
+  double a = sy/x_array.size();
+  double b = 0;
+  if(nn>1&&sx*sx!=ss*sx2){
+    a = (sx*sxy-sx2*sy)/(sx*sx-ss*sx2);       //seppen
+    b = (sx*sy-ss*sxy)/(sx*sx-ss*sx2); //katamuki
+  }
+  double temp_mhit = a+b*ztiming;
+  //double temp_mhit = a+b*200;
+
+  hit.SetTdcHit(temp_mhit);
+  hit.SetTanTheta(b/drift_velocity);
+  hit.SetTiming2(ftdc);
+  hit.SetTiming(sx/x_array.size());
+
+
+  for(int i = 0; i < x_array.size(); i++){
+    hit.SetCTiming(time_array[i]);
+    hit.SetCPos(x_array[i]);
+  }
+
+
+}
+
+
+
+
 
 void E16ANA_GTRStripAnalyzer::CalcTdcHit2(const std::vector<int> &strip_ids, double tan_theta,
                                           E16ANA_GTRAnalyzedStripHit &hit)

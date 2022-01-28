@@ -18,10 +18,7 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 find_package(ROOT)
 if(ROOT_FOUND)
-  include(${ROOT_USE_FILE})
-#  ROOT_GENERATE_DICTIONARY(G__stl_vector_vector
-#    LINKDEF LinkDef/LinkDef.h
-#  )
+	include(${ROOT_USE_FILE})
 endif()
 
 #find_package(Boost COMPONENTS program_options REQUIRED)
@@ -40,7 +37,6 @@ include_directories(
   include/SSD
 	include/GTR
 #	include/GTR_ozawa
-#	include/GTR_old
 	include/HBD
 	include/LG
 	include/trigger
@@ -86,12 +82,6 @@ install(DIRECTORY
 configure_file(include/E16DST_DST1DefaultFilePath.hh.in E16DST_DST1DefaultFilePath.hh @ONLY)
 
 #_______________________________________________________________________________
-#add_library(stl_vector_vector
-##  LinkDef/stl_vector_vector.cc
-# G__stl_vector_vector.cxx
-#)
-
-#_______________________________________________________________________________
 #set_source_files_properties(src/LG/E16ANA_LGBasic.cc PROPERTIES COMPILE_OPTIONS "-lSpectrum")
 
 add_library(E16ANA
@@ -127,11 +117,6 @@ add_library(E16DST_DST1
 #  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
 #  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
 #  src/GTR_ozawa/GTRCheckHist.cc
-#  src/GTR_old/E16ANA_GTRAnalyzer2.cc
-#  src/GTR_old/E16ANA_GTRPedestal.cc
-#  src/GTR_old/E16ANA_GTRStripAnalyzer.cc
-#  src/GTR_old/E16ANA_GTRAnalyzerMaker.cc
-#  src/GTR_old/GTRCheckHist.cc
   src/HBD/E16ANA_HBDChannelManager.cc
   src/HBD/E16ANA_HBDDeadChannel.cc
   src/HBD/E16ANA_HBDClusterAnalysis.cc
@@ -145,7 +130,6 @@ add_library(E16DST_DST1
   src/E16DST_DST1SSDFactory.cc
   src/E16DST_DST1GTRFactory.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
-#  src/GTR_old/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
@@ -155,7 +139,6 @@ add_library(E16DST_DST1
 )
 
 target_link_libraries(E16DST_DST1
-#  stl_vector_vector
   E16ANA
 	E16DST
 )
@@ -170,15 +153,6 @@ target_link_libraries(E16ANA_Track
 )
 
 #_______________________________________________________________________________
-#add_library(E16ANA_EventMixing
-#  src/tmp/E16ANA_EventMixing.cc
-#)
-#
-#target_link_libraries(E16ANA_EventMixing
-#  E16DST_DST1
-#)
-#
-##_______________________________________________________________________________
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
 target_link_libraries(dst0_to_dst1
@@ -300,14 +274,7 @@ target_link_libraries(tmp_track_analyzer
 	E16ANA_Track
 )
 
-##_______________________________________________________________________________
-#add_executable(tmp_event_mixing usr/tmp_event_mixing.cc)
-#
-#target_link_libraries(tmp_event_mixing
-#	E16ANA_EventMixing
-#)
-#
-##_______________________________________________________________________________
+#_______________________________________________________________________________
 #add_executable(tmp_gtr usr/tmp_gtr.cc)
 #
 #target_link_libraries(tmp_gtr

@@ -207,6 +207,8 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
     type        = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot         = E16DST_DST1Constant::kInvalidValue;
+    ctiming.clear();
+    cpos.clear();
   }
 
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
@@ -224,9 +226,21 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   double LocalX() { return local_x; }
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-//  TVector3 LocalPos(E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) override;
-//  TVector3 GlobalPos(E16ANA_GeometryV2& geometry, E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) override;
-//  static std::array<double, 3> lorentz_angle_calib_params;
+  void             SetTiming2(float _timing) { timing2 = _timing; }
+  void             SetTdcPos(float _tdchit) { tdchit = _tdchit; }
+  void             SetTanTheta(float _tanthe) { tanthe = _tanthe; }
+  void             SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
+  void             SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
+  void             SetCTiming(float t) { ctiming.push_back(t); }
+  void             SetCPos(float t)    { cpos.push_back(t); }
+  float            Timing2() { return timing2; }
+  float            TdcPos() { return tdchit; }
+  float            TdcPos2() { return tdchit2; }
+  float            TanTheta() { return tanthe; }
+  float            TanTheta2() { return tanthe2; }
+  int              NumCls() { return ctiming.size(); }
+  float            CTiming(int i) { return ctiming[i]; }
+  float            CPos(int i)    { return cpos[i]; }
  private:
   int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
@@ -234,6 +248,13 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   float   peak_height;
   float   tot;
   double  local_x;
+  float   timing2; // fastest timing
+  float   tdchit; // timing method1
+  float   tdchit2; // timing method2
+  float   tanthe;//angle method1
+  float   tanthe2;//angle method2
+  std::vector<float>           ctiming; //cluster timing
+  std::vector<float>           cpos; 
  };
 
 class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
@@ -252,25 +273,61 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+    timing2         = E16DST_DST1Constant::kInvalidValue;
+    tdchit          = E16DST_DST1Constant::kInvalidValue;
+    tdchit2         = E16DST_DST1Constant::kInvalidValue;
+    tanthe          = E16DST_DST1Constant::kInvalidValue;
+    tanthe2         = E16DST_DST1Constant::kInvalidValue;
+    ctiming.clear();
+    cpos.clear();
   }
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
   void SetCogPos(double _center_of_gravity) { center_of_gravity = _center_of_gravity; }
-  void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
-  void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  //void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
+  //void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
   int16_t LayerId() override { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
   bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
   int16_t Type() override { return type; }
   double CogPos() { return center_of_gravity; }
-  double TdcPos() { return tdc_pos; }
-  float TanTheta() { return tan_incident_angle; }
-  double LocalX() { return center_of_gravity; }; // 211127 nakasuga
-/* 211127 nakasuga
+  //double TdcPos() { return tdc_pos; }
+  //float TanTheta() { return tan_incident_angle; }
+  //double LocalX() { return center_of_gravity; }; // 211127 nakasuga
+  void                          SetTiming2(float _timing) { timing2 = _timing; }
+  void                          SetTdcPos(float _tdchit) { tdchit = _tdchit; }
+  void                          SetTanTheta(float _tanthe) { tanthe = _tanthe; }
+  void                          SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
+  void                          SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
+  float                         Timing2() { return timing2; }
+  float                         TdcPos() { return tdchit; }
+  float                         TdcPos2() { return tdchit2; }
+  float                         TanTheta() { return tanthe; }
+  float                         TanTheta2() { return tanthe2; }
+  void                          SetCTiming(float t) { ctiming.push_back(t); }
+  void                          SetCPos(float t)    { cpos.push_back(t); }
+  int                           NumCls() { return ctiming.size(); }
+  float                         CTiming(int i) { return ctiming[i]; }
+  float                         CPos(int i)    { return cpos[i]; }
+  
+
+
   double LocalX() {
     if (IsX()) {
       return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+    } else {
+      return center_of_gravity;
+    }
+  }
+  double LocalXT() {
+    if (IsX()) {
+      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+    } else {
+      return tdchit;
+    }
+  }
+/* 211127 nakasuga
 //auto& calib = E16ANA_CalibDBManager::Instance();
 //E16ANA_FieldMapCalibParam field_map_param;
 //field_map_param.ReadConstantData(calib.CurrentRunID());
@@ -290,6 +347,11 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 */
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+
+  TVector3 LocalPosT() ;
+  TVector3 GlobalPosT(E16ANA_GeometryV2& geometry);
+
+
   int GetSize() override {}
 //  int GetSize() override { return GetBaseSize() + sizeof(layer_id) + sizeof(type) + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void Print() override {
@@ -307,6 +369,14 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double center_of_gravity; // mm
   double tdc_pos;           // mm
   float tan_incident_angle;    // radian
+  float                        timing2;
+  float                        tdchit; // 50% of peak
+  float                        tdchit2; // 50% of peak
+  float                        tanthe;
+  float                        tanthe2;
+  float                        peak_sum;
+  std::vector<float>           ctiming;
+  std::vector<float>           cpos; 
 };
 
 class E16DST_DST1HBDHit : public E16DST_DST1Hit {
