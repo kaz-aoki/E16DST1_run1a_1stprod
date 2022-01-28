@@ -37,7 +37,7 @@ class E16ANA_TrackClusterPair {
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = y_cluster;
-    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(x_cluster)->LocalPos().X(), dynamic_cast<E16DST_DST1GTRCluster*>(y_cluster)->LocalPos().Y(), 0.}; // z = 0?
+    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(x_cluster)->LocalPosT().X(), dynamic_cast<E16DST_DST1GTRCluster*>(y_cluster)->LocalPosT().Y(), 0.}; // z = 0?
 //    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
     global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
@@ -47,6 +47,9 @@ class E16ANA_TrackClusterPair {
     module_id = E16DST_DST1Constant::kInvalidValue;
     clusters.fill(nullptr);
     local_pos = E16DST_DST1Constant::kInvalidVector;
+    local_t2pos = E16DST_DST1Constant::kInvalidVector;
+    ctiming.clear();
+    cpos.clear();
   }
   int SetFlag() { return set_flag; }
   int LayerOrder() { return layer_order; }
@@ -54,6 +57,24 @@ class E16ANA_TrackClusterPair {
   E16DST_DST1Cluster* Cluster(int type) { return clusters[type]; }
   TVector3& LocalPos() { return local_pos; }
   TVector3& GlobalPos() { return global_pos; }
+  TVector3& LocalPosT() { return local_t2pos; }
+  TVector3& GlobalPosT() { return global_t2pos; }
+  
+  void SetT(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _x_local_pos) { // GTR
+    local_t2pos  = {_x_local_pos.X(),_x_local_pos.Y(),_x_local_pos.Z()}; // z = 0?
+    global_t2pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(_module_id), _layer_order - 1)->GetGPos(local_t2pos);
+    //global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
+  }
+
+  int                           NumCls() { return ctiming.size(); }
+  double                        CTiming(int i) { return ctiming[i]; }
+  double                        CPos(int i)    { return cpos[i]; }
+  void                          SetCTiming(double t) { ctiming.push_back(t); }
+  void                          SetCPos(double t)    { cpos.push_back(t); }
+
+
+  void SetTheta(double _ctheta){ ctheta = _ctheta;}
+  double Theta(){return ctheta;}
  private:
   int set_flag;
   int layer_order; // order in all detectors (E16ANA_MutiTrack::layer_id: only in GTR)
@@ -62,6 +83,11 @@ class E16ANA_TrackClusterPair {
 //  std::array<std::shared_ptr<E16DST_DST1Cluster>, 2> clusters; // x, y
   TVector3 local_pos;
   TVector3 global_pos;
+  TVector3 local_t2pos;
+  TVector3 global_t2pos;
+  double ctheta;
+  std::vector<double>           ctiming;
+  std::vector<double>           cpos;
 };
 
 class E16ANA_TrackCandidate {
@@ -76,6 +102,8 @@ class E16ANA_TrackCandidate {
     TVector3 global_mom;
 //    TVector3 local_sigma;
     TVector3 residual_pos;
+    TVector3 residual_post;
+    TVector3 residual_post2;
     void Clear() {
       set_flag = 0;
       layer_order = E16DST_DST1Constant::kInvalidValue;
@@ -85,6 +113,8 @@ class E16ANA_TrackCandidate {
       global_pos = E16DST_DST1Constant::kInvalidVector;
       global_mom = E16DST_DST1Constant::kInvalidVector;
       residual_pos = E16DST_DST1Constant::kInvalidVector;
+      residual_post = E16DST_DST1Constant::kInvalidVector;
+      residual_post2 = E16DST_DST1Constant::kInvalidVector;
     }
     void Set(int _layer_order, int _module_id, TVector3 _local_pos, TVector3 _local_mom, TVector3 _global_pos, TVector3 _global_mom, TVector3 _residual_pos) {
       set_flag = 1;
@@ -96,6 +126,9 @@ class E16ANA_TrackCandidate {
       global_mom = _global_mom;
       residual_pos = _residual_pos;
     }
+    void SetT(TVector3 _residual_pos) { residual_post  = _residual_pos;}
+    void SetT2(TVector3 _residual_pos){ residual_post2 = _residual_pos;}
+    void SetC(TVector3 _residual_pos) { residual_pos   = _residual_pos;}
   };
   E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
       : geometry(_geometry), bfield_map(_bfield_map), is_selected(false),
@@ -233,6 +266,10 @@ class E16ANA_TrackCandidate {
   static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
   static constexpr int kProjectionMaxSteps = 2000;
+  static constexpr double drift_v  = 8e-3;
+  static constexpr double centtdc = 328;
+  static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
+  static constexpr double kGTRLorentzAngleA[3]  = {0.313, -0.233, -0.129};
   // parameter
 //  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
@@ -315,6 +352,7 @@ class E16ANA_TrackCandidate {
   int charge;
   TVector3 init_pos;
   TVector3 init_mom;
+  TVector3 init_circ;
   std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> sigma;
   // raugh fit chi square (tmp?)
   std::array<double, 3> x_coef;
