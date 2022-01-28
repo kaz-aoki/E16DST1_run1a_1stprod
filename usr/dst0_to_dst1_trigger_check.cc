@@ -24,7 +24,7 @@ using namespace std;
 //namespace  bpo = boost::program_options;
 
 constexpr bool kIsElectronRun = true;
-constexpr bool kSelectEvent   = true;
+constexpr bool kSelectEvent   = false;
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -88,15 +88,9 @@ int main(int argc, char* argv[]) {
   auto n_selected_events = event_select.NumSelectedEventIDs();
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
-  E16ANA_GTRLorentzAngleCalibParam gtr_lorentz_angle_calib_param;
-  gtr_lorentz_angle_calib_param.ReadConstantData(calib.CurrentRunID());
-//  if (field_map_param.FMCurrent() == 2450.) {
-//    E16DST_DST1GTRHit::lorentz_angle_calib_params     = gtr_lorentz_angle_calib_param.GTRLorentzAngleCalibParams();
-//    E16DST_DST1GTRCluster::lorentz_angle_calib_params = gtr_lorentz_angle_calib_param.GTRLorentzAngleCalibParams();
-//  } else { // FMCurrent() == 0.
-//    E16DST_DST1GTRHit::lorentz_angle_calib_params     = {0., 0., 0.};
-//    E16DST_DST1GTRCluster::lorentz_angle_calib_params = {0., 0., 0.};
-//  }
+  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
   E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
   hbd_calib->ReadCalibrationData(calib.CurrentRunID());
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
@@ -179,7 +173,7 @@ int main(int argc, char* argv[]) {
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       record.SSD().UpdatePtrs();
-      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped);
+      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
       record.GTR().UpdatePtrs();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());

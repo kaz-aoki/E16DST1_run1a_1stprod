@@ -6,8 +6,32 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
 
+double E16ANA_GTRChToPos(double lorentz_angle_calib_param, int layer_id, int type, int channel_id) {
+    double strip_pitch;
+    double position_start;
+    int n_strip_x = E16DST_DST1Constant::nstrips_x[layer_id]; 
+    int n_strip_y = E16DST_DST1Constant::nstrips_y[layer_id]; 
+    double inverted;
+    if(type == 0){
+        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
+        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + lorentz_angle_calib_param;
+        inverted = +1.0;
+    }
+    else if (type == 1){
+        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
+        position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
+        inverted = -1.0;
+    }
+    else if (type == 2){
+        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
+        position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
+        inverted = +1.0;
+    }
+    return (channel_id * strip_pitch + position_start) * inverted;
+}
 
-int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal &gtrped) {
+int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal &gtrped,
+                          const std::array<double, 3>& lorentz_angle_calib_params) {
     auto& dst1_hits = gtr1->Hits();
     auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;
@@ -105,6 +129,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
+                        h.SetLocalX(E16ANA_GTRChToPos(lorentz_angle_calib_params[lid], lid, t, anahit.StripID(j)));
                         h.SetType(t);
                         t_hit_indexs[t].push_back(indexs[t]);
                         h_id++;

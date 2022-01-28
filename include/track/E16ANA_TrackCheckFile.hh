@@ -61,68 +61,76 @@ class E16ANA_TrackCheckFile {
     tree->Branch("ssd_cluster_id", &ssd_cluster_id);
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
 //    tree->Branch("ssd_cluster_cid", &ssd_cluster_cid);
-    tree->Branch("ssd_cluster_x",   &ssd_cluster_x);
-    tree->Branch("ssd_cluster_gx",  &ssd_cluster_gx);
-    tree->Branch("ssd_cluster_gz",  &ssd_cluster_gz);
-    tree->Branch("ssd_cluster_adc", &ssd_cluster_adc);
-    tree->Branch("ssd_cluster_t",   &ssd_cluster_t);
-    tree->Branch("n_gtr100x_clusters",  &n_gtr100x_clusters, "n_gtr100x_clusters/I");
-    tree->Branch("gtr100x_cluster_id", &gtr100x_cluster_id);
-    tree->Branch("gtr100x_cluster_mid", &gtr100x_cluster_mid);
+    tree->Branch("ssd_cluster_x",    &ssd_cluster_x);
+    tree->Branch("ssd_cluster_gx",   &ssd_cluster_gx);
+    tree->Branch("ssd_cluster_gz",   &ssd_cluster_gz);
+    tree->Branch("ssd_cluster_adc",  &ssd_cluster_adc);
+    tree->Branch("ssd_cluster_t",    &ssd_cluster_t);
+    tree->Branch("ssd_cluster_size", &ssd_cluster_t);
+    tree->Branch("n_gtr100x_clusters",    &n_gtr100x_clusters, "n_gtr100x_clusters/I");
+    tree->Branch("gtr100x_cluster_id",    &gtr100x_cluster_id);
+    tree->Branch("gtr100x_cluster_mid",   &gtr100x_cluster_mid);
 //    tree->Branch("gtr100x_cluster_cid", &gtr100x_cluster_cid);
-    tree->Branch("gtr100x_cluster_x",   &gtr100x_cluster_x);
-    tree->Branch("gtr100x_cluster_gx",  &gtr100x_cluster_gx);
-    tree->Branch("gtr100x_cluster_gz",  &gtr100x_cluster_gz);
-    tree->Branch("gtr100x_cluster_adc", &gtr100x_cluster_adc);
-    tree->Branch("gtr100x_cluster_t",   &gtr100x_cluster_t);
-    tree->Branch("n_gtr200x_clusters",  &n_gtr200x_clusters, "n_gtr200x_clusters/I");
-    tree->Branch("gtr200x_cluster_id", &gtr200x_cluster_id);
-    tree->Branch("gtr200x_cluster_mid", &gtr200x_cluster_mid);
+    tree->Branch("gtr100x_cluster_x",     &gtr100x_cluster_x);
+    tree->Branch("gtr100x_cluster_gx",    &gtr100x_cluster_gx);
+    tree->Branch("gtr100x_cluster_gz",    &gtr100x_cluster_gz);
+    tree->Branch("gtr100x_cluster_adc",   &gtr100x_cluster_adc);
+    tree->Branch("gtr100x_cluster_t",     &gtr100x_cluster_t);
+    tree->Branch("gtr100x_cluster_size",  &gtr100x_cluster_size);
+    tree->Branch("n_gtr200x_clusters",    &n_gtr200x_clusters, "n_gtr200x_clusters/I");
+    tree->Branch("gtr200x_cluster_id",    &gtr200x_cluster_id);
+    tree->Branch("gtr200x_cluster_mid",   &gtr200x_cluster_mid);
  //   tree->Branch("gtr200x_cluster_cid", &gtr200x_cluster_cid);
-    tree->Branch("gtr200x_cluster_x",   &gtr200x_cluster_x);
-    tree->Branch("gtr200x_cluster_gx",  &gtr200x_cluster_gx);
-    tree->Branch("gtr200x_cluster_gz",  &gtr200x_cluster_gz);
-    tree->Branch("gtr200x_cluster_adc", &gtr200x_cluster_adc);
-    tree->Branch("gtr200x_cluster_t",   &gtr200x_cluster_t);
-    tree->Branch("n_gtr300x_clusters",  &n_gtr300x_clusters, "n_gtr300x_clusters/I");
-    tree->Branch("gtr300x_cluster_id", &gtr300x_cluster_id);
-    tree->Branch("gtr300x_cluster_mid", &gtr300x_cluster_mid);
+    tree->Branch("gtr200x_cluster_x",     &gtr200x_cluster_x);
+    tree->Branch("gtr200x_cluster_gx",    &gtr200x_cluster_gx);
+    tree->Branch("gtr200x_cluster_gz",    &gtr200x_cluster_gz);
+    tree->Branch("gtr200x_cluster_adc",   &gtr200x_cluster_adc);
+    tree->Branch("gtr200x_cluster_t",     &gtr200x_cluster_t);
+    tree->Branch("gtr200x_cluster_size",  &gtr200x_cluster_size);
+    tree->Branch("n_gtr300x_clusters",    &n_gtr300x_clusters, "n_gtr300x_clusters/I");
+    tree->Branch("gtr300x_cluster_id",    &gtr300x_cluster_id);
+    tree->Branch("gtr300x_cluster_mid",   &gtr300x_cluster_mid);
 //    tree->Branch("gtr300x_cluster_cid", &gtr300x_cluster_cid);
-    tree->Branch("gtr300x_cluster_x",   &gtr300x_cluster_x);
-    tree->Branch("gtr300x_cluster_gx",  &gtr300x_cluster_gx);
-    tree->Branch("gtr300x_cluster_gz",  &gtr300x_cluster_gz);
-    tree->Branch("gtr300x_cluster_adc", &gtr300x_cluster_adc);
-    tree->Branch("gtr300x_cluster_t",   &gtr300x_cluster_t);
-    tree->Branch("n_gtr100y_clusters",  &n_gtr100y_clusters, "n_gtr100y_clusters/I");
-    tree->Branch("gtr100y_cluster_id", &gtr100y_cluster_id);
-    tree->Branch("gtr100y_cluster_mid", &gtr100y_cluster_mid);
+    tree->Branch("gtr300x_cluster_x",     &gtr300x_cluster_x);
+    tree->Branch("gtr300x_cluster_gx",    &gtr300x_cluster_gx);
+    tree->Branch("gtr300x_cluster_gz",    &gtr300x_cluster_gz);
+    tree->Branch("gtr300x_cluster_adc",   &gtr300x_cluster_adc);
+    tree->Branch("gtr300x_cluster_t",     &gtr300x_cluster_t);
+    tree->Branch("gtr300x_cluster_size",  &gtr300x_cluster_size);
+    tree->Branch("n_gtr100y_clusters",    &n_gtr100y_clusters, "n_gtr100y_clusters/I");
+    tree->Branch("gtr100y_cluster_id",    &gtr100y_cluster_id);
+    tree->Branch("gtr100y_cluster_mid",   &gtr100y_cluster_mid);
 //    tree->Branch("gtr100y_cluster_cid", &gtr100y_cluster_cid);
-    tree->Branch("gtr100y_cluster_y",   &gtr100y_cluster_y);
-    tree->Branch("gtr100y_cluster_adc", &gtr100y_cluster_adc);
-    tree->Branch("gtr100y_cluster_t",   &gtr100y_cluster_t);
-    tree->Branch("n_gtr100yb_clusters",  &n_gtr100yb_clusters, "n_gtr100yb_clusters/I");
-    tree->Branch("gtr100yb_cluster_id", &gtr100yb_cluster_id);
-    tree->Branch("gtr100yb_cluster_mid", &gtr100yb_cluster_mid);
+    tree->Branch("gtr100y_cluster_y",     &gtr100y_cluster_y);
+    tree->Branch("gtr100y_cluster_adc",   &gtr100y_cluster_adc);
+    tree->Branch("gtr100y_cluster_t",     &gtr100y_cluster_t);
+    tree->Branch("gtr100y_cluster_size",  &gtr100y_cluster_size);
+    tree->Branch("n_gtr100yb_clusters",   &n_gtr100yb_clusters, "n_gtr100yb_clusters/I");
+    tree->Branch("gtr100yb_cluster_id",   &gtr100yb_cluster_id);
+    tree->Branch("gtr100yb_cluster_mid",  &gtr100yb_cluster_mid);
 //    tree->Branch("gtr100yb_cluster_cid", &gtr100yb_cluster_cid);
-    tree->Branch("gtr100yb_cluster_y",   &gtr100yb_cluster_y);
-    tree->Branch("gtr100yb_cluster_adc", &gtr100yb_cluster_adc);
-    tree->Branch("gtr100yb_cluster_t",   &gtr100yb_cluster_t);
-    tree->Branch("n_gtr200y_clusters",  &n_gtr200y_clusters, "n_gtr200y_clusters/I");
-    tree->Branch("gtr200y_cluster_id", &gtr200y_cluster_id);
-    tree->Branch("gtr200y_cluster_mid", &gtr200y_cluster_mid);
+    tree->Branch("gtr100yb_cluster_y",    &gtr100yb_cluster_y);
+    tree->Branch("gtr100yb_cluster_adc",  &gtr100yb_cluster_adc);
+    tree->Branch("gtr100yb_cluster_t",    &gtr100yb_cluster_t);
+    tree->Branch("gtr100yb_cluster_size", &gtr100yb_cluster_size);
+    tree->Branch("n_gtr200y_clusters",    &n_gtr200y_clusters, "n_gtr200y_clusters/I");
+    tree->Branch("gtr200y_cluster_id",    &gtr200y_cluster_id);
+    tree->Branch("gtr200y_cluster_mid",   &gtr200y_cluster_mid);
 //    tree->Branch("gtr200y_cluster_cid", &gtr200y_cluster_cid);
-    tree->Branch("gtr200y_cluster_y",   &gtr200y_cluster_y);
-    tree->Branch("gtr200y_cluster_adc", &gtr200y_cluster_adc);
-    tree->Branch("gtr200y_cluster_t",   &gtr200y_cluster_t);
-    tree->Branch("n_gtr300y_clusters",  &n_gtr300y_clusters, "n_gtr300y_clusters/I");
-    tree->Branch("gtr300y_cluster_id", &gtr300y_cluster_id);
-    tree->Branch("gtr300y_cluster_mid", &gtr300y_cluster_mid);
+    tree->Branch("gtr200y_cluster_y",     &gtr200y_cluster_y);
+    tree->Branch("gtr200y_cluster_adc",   &gtr200y_cluster_adc);
+    tree->Branch("gtr200y_cluster_t",     &gtr200y_cluster_t);
+    tree->Branch("gtr200y_cluster_size",  &gtr200y_cluster_size);
+    tree->Branch("n_gtr300y_clusters",    &n_gtr300y_clusters, "n_gtr300y_clusters/I");
+    tree->Branch("gtr300y_cluster_id",    &gtr300y_cluster_id);
+    tree->Branch("gtr300y_cluster_mid",   &gtr300y_cluster_mid);
 //    tree->Branch("gtr300y_cluster_cid", &gtr300y_cluster_cid);
-    tree->Branch("gtr300y_cluster_y",   &gtr300y_cluster_y);
-    tree->Branch("gtr300y_cluster_adc", &gtr300y_cluster_adc);
-    tree->Branch("gtr300y_cluster_t",   &gtr300y_cluster_t);
+    tree->Branch("gtr300y_cluster_y",     &gtr300y_cluster_y);
+    tree->Branch("gtr300y_cluster_adc",   &gtr300y_cluster_adc);
+    tree->Branch("gtr300y_cluster_t",     &gtr300y_cluster_t);
+    tree->Branch("gtr300y_cluster_size",  &gtr300y_cluster_size);
     tree->Branch("n_hbd_clusters",  &n_hbd_clusters, "n_hbd_clusters/I");
-    tree->Branch("hbd_cluster_id", &hbd_cluster_id);
+    tree->Branch("hbd_cluster_id",  &hbd_cluster_id);
     tree->Branch("hbd_cluster_mid", &hbd_cluster_mid);
 //    tree->Branch("hbd_cluster_cid", &hbd_cluster_cid);
     tree->Branch("hbd_cluster_x",   &hbd_cluster_x);
@@ -697,6 +705,7 @@ class E16ANA_TrackCheckFile {
     ssd_cluster_gz.resize(n_ssd_clusters);
     ssd_cluster_adc.resize(n_ssd_clusters);
     ssd_cluster_t.resize(n_ssd_clusters);
+    ssd_cluster_size.resize(n_ssd_clusters);
     for (int i = 0; i < n_ssd_clusters; ++i) {
       auto& clst = record.SSD().Cluster(i);
       ssd_cluster_id[i] = i;
@@ -707,6 +716,7 @@ class E16ANA_TrackCheckFile {
       ssd_cluster_gz[i] = gpos.Z();
       ssd_cluster_adc[i] = clst.PeakSum();
       ssd_cluster_t[i] = clst.Timing();
+      ssd_cluster_size[i] = clst.NumHits();
     }
     n_gtr100x_clusters = 0;
     n_gtr200x_clusters = 0;
@@ -722,6 +732,7 @@ class E16ANA_TrackCheckFile {
     gtr100x_cluster_gz.clear();
     gtr100x_cluster_adc.clear();
     gtr100x_cluster_t.clear();
+    gtr100x_cluster_size.clear();
     gtr200x_cluster_id.clear();
     gtr200x_cluster_mid.clear();
     gtr200x_cluster_x.clear();
@@ -729,6 +740,7 @@ class E16ANA_TrackCheckFile {
     gtr200x_cluster_gz.clear();
     gtr200x_cluster_adc.clear();
     gtr200x_cluster_t.clear();
+    gtr200x_cluster_size.clear();
     gtr300x_cluster_id.clear();
     gtr300x_cluster_mid.clear();
     gtr300x_cluster_x.clear();
@@ -736,26 +748,31 @@ class E16ANA_TrackCheckFile {
     gtr300x_cluster_gz.clear();
     gtr300x_cluster_adc.clear();
     gtr300x_cluster_t.clear();
+    gtr300x_cluster_size.clear();
     gtr100y_cluster_id.clear();
     gtr100y_cluster_mid.clear();
     gtr100y_cluster_y.clear();
     gtr100y_cluster_adc.clear();
     gtr100y_cluster_t.clear();
+    gtr100y_cluster_size.clear();
     gtr100yb_cluster_id.clear();
     gtr100yb_cluster_mid.clear();
     gtr100yb_cluster_y.clear();
     gtr100yb_cluster_adc.clear();
     gtr100yb_cluster_t.clear();
+    gtr100yb_cluster_size.clear();
     gtr200y_cluster_id.clear();
     gtr200y_cluster_mid.clear();
     gtr200y_cluster_y.clear();
     gtr200y_cluster_adc.clear();
     gtr200y_cluster_t.clear();
+    gtr200y_cluster_size.clear();
     gtr300y_cluster_id.clear();
     gtr300y_cluster_mid.clear();
     gtr300y_cluster_y.clear();
     gtr300y_cluster_adc.clear();
     gtr300y_cluster_t.clear();
+    gtr300y_cluster_size.clear();
     auto n_gtr_clusters = record.GTR().NumClusters();
     for (int i = 0; i < n_gtr_clusters; ++i) {
       auto& clst = record.GTR().Cluster(i);
@@ -772,6 +789,7 @@ class E16ANA_TrackCheckFile {
           gtr100x_cluster_gz.emplace_back(gpos.Z());
           gtr100x_cluster_adc.emplace_back(clst.PeakSum());
           gtr100x_cluster_t.emplace_back(clst.Timing());
+          gtr100x_cluster_size.emplace_back(clst.NumHits());
         } else if (type == 1) {
           ++n_gtr100y_clusters;
           gtr100y_cluster_id.emplace_back(clst.ClusterId());
@@ -779,6 +797,7 @@ class E16ANA_TrackCheckFile {
           gtr100y_cluster_y.emplace_back(clst.LocalX());
           gtr100y_cluster_adc.emplace_back(clst.PeakSum());
           gtr100y_cluster_t.emplace_back(clst.Timing());
+          gtr100y_cluster_size.emplace_back(clst.NumHits());
         } else {
           ++n_gtr100yb_clusters;
           gtr100yb_cluster_id.emplace_back(clst.ClusterId());
@@ -786,6 +805,7 @@ class E16ANA_TrackCheckFile {
           gtr100yb_cluster_y.emplace_back(clst.LocalX());
           gtr100yb_cluster_adc.emplace_back(clst.PeakSum());
           gtr100yb_cluster_t.emplace_back(clst.Timing());
+          gtr100yb_cluster_size.emplace_back(clst.NumHits());
         }
       } else if (lid == 1) {
         if (type == 0) {
@@ -798,6 +818,7 @@ class E16ANA_TrackCheckFile {
           gtr200x_cluster_gz.emplace_back(gpos.Z());
           gtr200x_cluster_adc.emplace_back(clst.PeakSum());
           gtr200x_cluster_t.emplace_back(clst.Timing());
+          gtr200x_cluster_size.emplace_back(clst.NumHits());
         } else if (type == 1) {
           ++n_gtr200y_clusters;
           gtr200y_cluster_id.emplace_back(clst.ClusterId());
@@ -805,6 +826,7 @@ class E16ANA_TrackCheckFile {
           gtr200y_cluster_y.emplace_back(clst.LocalX());
           gtr200y_cluster_adc.emplace_back(clst.PeakSum());
           gtr200y_cluster_t.emplace_back(clst.Timing());
+          gtr200y_cluster_size.emplace_back(clst.NumHits());
         }
       } else {
         if (type == 0) {
@@ -817,6 +839,7 @@ class E16ANA_TrackCheckFile {
           gtr300x_cluster_gz.emplace_back(gpos.Z());
           gtr300x_cluster_adc.emplace_back(clst.PeakSum());
           gtr300x_cluster_t.emplace_back(clst.Timing());
+          gtr300x_cluster_size.emplace_back(clst.NumHits());
         } else if (type == 1) {
           ++n_gtr300y_clusters;
           gtr300y_cluster_id.emplace_back(clst.ClusterId());
@@ -824,6 +847,7 @@ class E16ANA_TrackCheckFile {
           gtr300y_cluster_y.emplace_back(clst.LocalX());
           gtr300y_cluster_adc.emplace_back(clst.PeakSum());
           gtr300y_cluster_t.emplace_back(clst.Timing());
+          gtr300y_cluster_size.emplace_back(clst.NumHits());
         }
       }
     }
@@ -2321,6 +2345,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> ssd_cluster_gz;
   std::vector<float> ssd_cluster_adc;
   std::vector<double> ssd_cluster_t;
+  std::vector<int> ssd_cluster_size;
   int n_gtr100x_clusters;
   std::vector<int> gtr100x_cluster_id;
   std::vector<int> gtr100x_cluster_mid;
@@ -2329,6 +2354,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> gtr100x_cluster_gz;
   std::vector<float> gtr100x_cluster_adc;
   std::vector<double> gtr100x_cluster_t;
+  std::vector<int> gtr100x_cluster_size;
   int n_gtr200x_clusters;
   std::vector<int> gtr200x_cluster_id;
   std::vector<int> gtr200x_cluster_mid;
@@ -2337,6 +2363,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> gtr200x_cluster_gz;
   std::vector<float> gtr200x_cluster_adc;
   std::vector<double> gtr200x_cluster_t;
+  std::vector<int> gtr200x_cluster_size;
   int n_gtr300x_clusters;
   std::vector<int> gtr300x_cluster_id;
   std::vector<int> gtr300x_cluster_mid;
@@ -2345,30 +2372,35 @@ class E16ANA_TrackCheckFile {
   std::vector<double> gtr300x_cluster_gz;
   std::vector<float> gtr300x_cluster_adc;
   std::vector<double> gtr300x_cluster_t;
+  std::vector<int> gtr300x_cluster_size;
   int n_gtr100y_clusters;
   std::vector<int> gtr100y_cluster_id;
   std::vector<int> gtr100y_cluster_mid;
   std::vector<double> gtr100y_cluster_y;
   std::vector<float> gtr100y_cluster_adc;
   std::vector<double> gtr100y_cluster_t;
+  std::vector<int> gtr100y_cluster_size;
   int n_gtr100yb_clusters;
   std::vector<int> gtr100yb_cluster_id;
   std::vector<int> gtr100yb_cluster_mid;
   std::vector<double> gtr100yb_cluster_y;
   std::vector<float> gtr100yb_cluster_adc;
   std::vector<double> gtr100yb_cluster_t;
+  std::vector<int> gtr100yb_cluster_size;
   int n_gtr200y_clusters;
   std::vector<int> gtr200y_cluster_id;
   std::vector<int> gtr200y_cluster_mid;
   std::vector<double> gtr200y_cluster_y;
   std::vector<float> gtr200y_cluster_adc;
   std::vector<double> gtr200y_cluster_t;
+  std::vector<int> gtr200y_cluster_size;
   int n_gtr300y_clusters;
   std::vector<int> gtr300y_cluster_id;
   std::vector<int> gtr300y_cluster_mid;
   std::vector<double> gtr300y_cluster_y;
   std::vector<float> gtr300y_cluster_adc;
   std::vector<double> gtr300y_cluster_t;
+  std::vector<int> gtr300y_cluster_size;
   int n_hbd_clusters;
   std::vector<int> hbd_cluster_id;
   std::vector<int> hbd_cluster_mid;

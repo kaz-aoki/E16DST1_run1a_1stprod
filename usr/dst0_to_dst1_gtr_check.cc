@@ -71,6 +71,9 @@ int main(int argc, char* argv[]) {
   trigger_param->ReadConstantData(calib.CurrentRunID());
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
+  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
 
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
@@ -117,7 +120,7 @@ int main(int argc, char* argv[]) {
 //      auto& gtr_hits = record->GTR().Hits();
 //      auto& gtr_clusters = record->GTR().Clusters();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
+	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
 	record->GTR().UpdatePtrs();
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
 //      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.NumberOfHits() << std::endl;

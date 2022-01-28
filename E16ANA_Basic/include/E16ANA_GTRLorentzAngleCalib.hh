@@ -5,10 +5,10 @@
 #include <iostream>
 #include <string>
 
-class E16ANA_GTRLorentzAngleCalibParam {
+class E16ANA_GTRLorentzAngleCalibParamManager {
  public:
-  E16ANA_GTRLorentzAngleCalibParam() {}
-  ~E16ANA_GTRLorentzAngleCalibParam() {}
+  E16ANA_GTRLorentzAngleCalibParamManager() {}
+  ~E16ANA_GTRLorentzAngleCalibParamManager() {}
   bool ReadConstantData(int run_id);
   bool ReadConstantDataByLocal(int run_id, std::string index_file_name);
   int RunId() { return run_id; }

@@ -7,7 +7,7 @@
 
 #include "E16ANA_CalibDBManager.hh"
 
-bool E16ANA_GTRLorentzAngleCalibParam::ReadConstantDataCore(int _run_id, std::string _index_file_name) {
+bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantDataCore(int _run_id, std::string _index_file_name) {
   run_id = _run_id;
   auto& calib = E16ANA_CalibDBManager::Instance();
   bool flag = true;
@@ -28,12 +28,12 @@ bool E16ANA_GTRLorentzAngleCalibParam::ReadConstantDataCore(int _run_id, std::st
   return flag;
 }
 
-bool E16ANA_GTRLorentzAngleCalibParam::ReadConstantData(int run_id) {
+bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantData(int run_id) {
   auto& calib = E16ANA_CalibDBManager::Instance();
   auto index_file_name = calib.SearchForIndexFileName("GTR-lorentz-angle");
   return ReadConstantDataCore(run_id, index_file_name);
 }
 
-bool E16ANA_GTRLorentzAngleCalibParam::ReadConstantDataByLocal(int run_id, std::string index_file_name) {
+bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantDataByLocal(int run_id, std::string index_file_name) {
   return ReadConstantDataCore(run_id, index_file_name);
 }

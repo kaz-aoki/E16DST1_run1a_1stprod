@@ -213,6 +213,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   void SetType(int16_t _type) { type = _type; }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void SetTot(float _tot) { tot = _tot; }
+  void SetLocalX(double _local_x) { local_x = _local_x; }
   int16_t LayerId() override { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
@@ -220,7 +221,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   int16_t Type() override { return type; }
   float PeakHeight() override { return peak_height; }
   float Tot() { return tot; }
-  double LocalX();
+  double LocalX() { return local_x; }
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
 //  TVector3 LocalPos(E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) override;
@@ -232,6 +233,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   int16_t type;
   float   peak_height;
   float   tot;
+  double  local_x;
  };
 
 class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
