@@ -90,37 +90,37 @@ TVector3 E16DST_DST1GTRHit::LocalPos(E16ANA_GeometryV2& geometry) {
 }
 
 TVector3 E16DST_DST1GTRHit::GlobalPos(E16ANA_GeometryV2& geometry) {
-//    double strip_pitch;
-//    double position_start;
-//    int n_strip_x = E16DST_DST1Constant::nstrips_x[layer_id]; 
-//    int n_strip_y = E16DST_DST1Constant::nstrips_y[layer_id]; 
-//    double inverted;
-//    if(IsX()){
-//        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
-//        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
-//        inverted = +1.0;
-//    }
-//    else if (IsY()){
-//        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
-//        position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
-//        inverted = -1.0;
-//    }
-//    else if (IsYb()){
-//        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
-//        position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
-//        inverted = +1.0;
-//    }
-//    double local1d = (channel_id * strip_pitch + position_start) * inverted;
-//    TVector3 lpos;
-//    if(IsX()){
-//         lpos =  TVector3(local1d, 0.0, 0.0);
-//    }
-//    else {
-//        lpos =  TVector3(0.0, local1d, 0.0);
-//    }
-//    TVector3 gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
-//    return gpos;
-    return TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(LocalPos(geometry)));
+    double strip_pitch;
+    double position_start;
+    int n_strip_x = E16DST_DST1Constant::nstrips_x[layer_id]; 
+    int n_strip_y = E16DST_DST1Constant::nstrips_y[layer_id]; 
+    double inverted;
+    if(IsX()){
+        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
+        position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5;
+        inverted = +1.0;
+    }
+    else if (IsY()){
+        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
+        position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
+        inverted = -1.0;
+    }
+    else if (IsYb()){
+        strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
+        position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
+        inverted = +1.0;
+    }
+    double local1d = (channel_id * strip_pitch + position_start) * inverted;
+    TVector3 lpos;
+    if(IsX()){
+         lpos =  TVector3(local1d, 0.0, 0.0);
+    }
+    else {
+        lpos =  TVector3(0.0, local1d, 0.0);
+    }
+    TVector3 gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
+    return gpos;
+//    return TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(LocalPos(geometry)));
 
 }
 
@@ -138,17 +138,17 @@ TVector3 E16DST_DST1GTRCluster::LocalPos() {
 }
 
 TVector3 E16DST_DST1GTRCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
-//    TVector3 gpos;
-//    if(IsX()){
-//        TVector3 lpos = TVector3(double(center_of_gravity), 0.0, 0.0);
-//        gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
-//    }
-//    else{
-//        TVector3 lpos = TVector3(0.0, double(center_of_gravity), 0.0);
-//        gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
-//    }
-//    return gpos;
-    return TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(LocalPos()));
+    TVector3 gpos;
+    if(IsX()){
+        TVector3 lpos = TVector3(double(center_of_gravity), 0.0, 0.0);
+        gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
+    }
+    else{
+        TVector3 lpos = TVector3(0.0, double(center_of_gravity), 0.0);
+        gpos = TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(lpos));
+    }
+    return gpos;
+ //   return TVector3(geometry.GTR(ModuleId2020To2013(module_id), layer_id)->GetGPos(LocalPos()));
 }
 
 TVector3 E16DST_DST1HBDHit::LocalPos(E16ANA_GeometryV2& geometry) {

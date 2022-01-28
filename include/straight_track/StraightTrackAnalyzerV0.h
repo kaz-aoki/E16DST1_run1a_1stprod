@@ -22,11 +22,11 @@
 #include <functional>
 #include <algorithm>
 const int gtrmaxhit = 20;
-const double th_chi2 = 20;//chisquare threshold 
-const double th_chi2_first = 20;//chisquare threshold 
-const double th_chi2_second = 20;//chisquare threshold 
-const double th_chi2_third = 20;//chisquare threshold 
-const double th_chi2_y = 20;//chisquare threshold 
+const double th_chi2 = 100;//chisquare threshold 
+const double th_chi2_first = 100;//chisquare threshold 
+const double th_chi2_second = 100;//chisquare threshold 
+const double th_chi2_third = 100;//chisquare threshold 
+const double th_chi2_y = 100;//chisquare threshold 
 const int min_ip_gap = 100;// this should be caluculated precisely
 const double Agtr[] = {1.295, 0.882, 0.469, 0, -0.469, -0.882, -1.295};
 
@@ -634,6 +634,45 @@ public :
     
 private :
 };
+
+class StraightTrackAnalyzerOfTargets : public StraightTrackAnalyzerV0 {
+public :
+	StraightTrackAnalyzerOfTargets(double x1, double z1, double x2, double z2, double x3, double z3);
+	~StraightTrackAnalyzerOfTargets();
+    void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+                        );
+
+	void OneModuleAnalyze2(
+							E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+							E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+    void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+                            );
+    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+ 
+private :
+	double tgt_x1;
+	double tgt_z1;
+	double tgt_x2;
+	double tgt_z2;
+	double tgt_x3;
+	double tgt_z3;
+
+};
+
+
 
 class StraightTrackAnalyzerOfWireV1 : public StraightTrackAnalyzerV0 { //track selection only by GTR
 public : 

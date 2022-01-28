@@ -121,6 +121,7 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRStripAnalyzer.cc
   src/GTR/E16ANA_GTRAnalyzerMaker.cc
   src/GTR/GTRCheckHist.cc
+  src/GTR/E16ANA_GTRChannelStatus.cc
 #  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
 #  src/GTR_ozawa/E16ANA_GTRPedestal.cc
 #  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
@@ -149,6 +150,7 @@ add_library(E16DST_DST1
   src/E16DST_DST1LGFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
+  src/E16DST_DST1StraightTrackFactory.cc
 	src/E16DST_DST1TrackFactory.cc
 )
 

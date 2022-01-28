@@ -1,7 +1,7 @@
 //#include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1.hh"
-#include "GTR/E16ANA_GTRAnalyzerMaker.hh"
-#include "GTR/OnlineGTRUtility.h"
+#include "E16ANA_GTRAnalyzerMaker.hh"
+#include "OnlineGTRUtility.h"
 //#include "E16ANA_GTRPedestal.h"
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
@@ -111,6 +111,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                 v_anahits.push_back(hitsyb);
             }
             std::array<std::vector<int16_t>, 3>  t_hit_indexs;
+			std::vector<int16_t> hit_orders;
             std::array<int16_t, 3> indexs = {0,0,0};
 //            t_hit_indexs[0].clear();
 //            t_hit_indexs[1].clear();
@@ -120,6 +121,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     t_hit_indexs[0].clear();
                     t_hit_indexs[1].clear();
                     t_hit_indexs[2].clear();
+					hit_orders.clear();
                     E16ANA_GTRAnalyzedStripHit &anahit = v_anahits[t].get()[i];
                     for(int j=0; j<anahit.NumHit(); j++){
                         E16DST_DST1GTRHit &h = dst1_hits[h_id];
@@ -131,7 +133,8 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTot(anahit.StripTimeOverThreshold(j));
                         h.SetLocalX(E16ANA_GTRChToPos(lorentz_angle_calib_params[lid], lid, t, anahit.StripID(j)));
                         h.SetType(t);
-                        t_hit_indexs[t].push_back(indexs[t]);
+                        //t_hit_indexs[t].push_back(indexs[t]);
+                        hit_orders.push_back(h_id);
                         h_id++;
                         indexs[t]++;
                     }
@@ -141,14 +144,17 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetLayerId(lid);
                     //std::cout << "t, t_hit_indexs[t] = " << t_hit_indexs[t].size() << std::endl;
                     //std::cout << "hit size = " << cl.NumHits() << std::endl;
-                    cl.SetHitOrders(t_hit_indexs[t]);
-                    //std::cout << "hit size after = " << cl.NumHits() << std::endl;
+                    //cl.SetHitOrders(t_hit_indexs[t]);
+                    cl.SetHitOrders(hit_orders);
+					//std::cout << "hit size after = " << cl.NumHits() << std::endl;
                     cl.SetType(t);
                     cl.SetMaxPeakCh(anahit.MaxStripId());
                     cl.SetMaxPeakHeight(anahit.MaxValue());
                     cl.SetTiming(anahit.Timing());
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
+                    //std::cout << "cluster charge = " << anahit.ClusterCharge() << std::endl;//cluster charge
                     cl.SetCogPos(anahit.CogHit());
+//					std::cout << "cl cog = " << anahit.CogHit() << std::endl;
                     if(isnan(anahit.TdcHit())){
 				    	//std::cout << "TDC hit pos is nan" << std::endl;
                     }
