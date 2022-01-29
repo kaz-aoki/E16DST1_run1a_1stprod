@@ -7,7 +7,8 @@
 #include "E16ANA_GTRcalib.hh"
 
 
-int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal &gtrped) {
+int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal &gtrped,
+                          const std::array<double, 3>& lonrentz_angle_calib_params) {
     auto& dst1_hits = gtr1->Hits();
     auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;

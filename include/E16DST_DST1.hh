@@ -207,6 +207,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
     type        = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot         = E16DST_DST1Constant::kInvalidValue;
+    local_x     = E16DST_DST1Constant::kInvalidValue;
     ctiming.clear();
     cpos.clear();
   }

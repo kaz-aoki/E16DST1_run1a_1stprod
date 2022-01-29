@@ -170,6 +170,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("hbd_cluster_gy",  &hbd_cluster_gy);
     tree->Branch("hbd_cluster_gz",  &hbd_cluster_gz);
     tree->Branch("hbd_cluster_adc", &hbd_cluster_adc);
+//    tree->Branch("hbd_cluster_max_ch", &hbd_cluster_max_ch);
     tree->Branch("hbd_cluster_t",   &hbd_cluster_t);
     tree->Branch("hbd_cluster_ftime", &hbd_cluster_ftime);
     tree->Branch("hbd_cluster_tdiff", &hbd_cluster_tdiff);

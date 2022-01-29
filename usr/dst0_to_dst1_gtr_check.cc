@@ -120,13 +120,8 @@ int main(int argc, char* argv[]) {
 //      auto& gtr_hits = record->GTR().Hits();
       auto& gtr_clusters = record->GTR().Clusters();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-<<<<<<< HEAD
 	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
 	record->GTR().UpdatePtrs();
-=======
-	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
-	  record->GTR().UpdatePtrs();
->>>>>>> upstream/main
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
       std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.size() << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
