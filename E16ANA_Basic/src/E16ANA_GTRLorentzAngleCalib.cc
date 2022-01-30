@@ -24,6 +24,8 @@ bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantDataCore(int _run_id, 
     ss >> param;
   }
   in_file.close();
+//  for (int i = 0; i < gtr_lorentz_angle_calib_params.size(); ++i) {
+//    gtr_lorentz_angles[i] = 
   delete in_file_ptr;
   return flag;
 }

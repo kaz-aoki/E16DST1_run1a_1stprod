@@ -6,6 +6,27 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
 
+double E16ANA_GTRLocalX(double lorentz_angle_calib_param, int layer_id, int type, int channel_id) {
+  double strip_pitch;
+  double position_start;
+  int n_strip_x = E16DST_DST1Constant::nstrips_x[layer_id]; 
+  int n_strip_y = E16DST_DST1Constant::nstrips_y[layer_id]; 
+  double inverted;
+  if (type == E16DST_DST1Constant::kIsX) {
+    strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_x;
+	  position_start = -(double)n_strip_x / 2.0 * strip_pitch + strip_pitch * 0.5 + lorentz_angle_calib_param;
+    inverted = +1.0;
+  } else if (type == E16DST_DST1Constant::kIsY) {
+    strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
+    position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
+    inverted = -1.0;
+  } else if (type == E16DST_DST1Constant::kIsYb) {
+    strip_pitch = E16DST_DST1Constant::gtr_strip_pitch_y;
+    position_start = -(double)n_strip_y / 2.0 * strip_pitch + strip_pitch * 0.5;
+    inverted = +1.0;
+  }
+  return (channel_id * strip_pitch + position_start) * inverted;
+}
 
 int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal &gtrped,
                           const std::array<double, 3>& lonrentz_angle_calib_params) {
@@ -77,6 +98,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     int h_id = 0;// hit id
     for(int mid=100; mid < 110 ; mid++){
         for(int lid=0; lid< 3 ; lid++){
+            auto lorentz_angle_calib_param = lonrentz_angle_calib_params[lid];
             std::vector<E16ANA_GTRAnalyzedStripHit> &hitsx = gtr_analyzers->Chamber(mid,lid)->GetStripX()->GetAnalyzedHits();
             std::vector<E16ANA_GTRAnalyzedStripHit> &hitsy = gtr_analyzers->Chamber(mid,lid)->GetStripY()->GetAnalyzedHits();
             std::vector<std::reference_wrapper<std::vector<E16ANA_GTRAnalyzedStripHit>>> v_anahits;
@@ -109,6 +131,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
                         h.SetType(t);
+                        h.SetLocalX(E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
                         //t_hit_indexs[t].push_back(indexs[t]);
                         hit_orders.push_back(h_id);
                         h_id++;

@@ -53,9 +53,7 @@ class E16DST_DST1Hit {
   float            Timing() { return timing; }
   virtual float    PeakHeight() = 0;
   virtual TVector3 LocalPos(E16ANA_GeometryV2& geometry) = 0;
-//  virtual TVector3 LocalPos(E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) = 0;
   virtual TVector3 GlobalPos(E16ANA_GeometryV2& geometry) = 0;
-//  virtual TVector3 GlobalPos(E16ANA_GeometryV2& geometry, E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) = 0;
   virtual void     Print() {
     std::cout << "Module ID: " << module_id << ", Channel ID: " << channel_id << ", Timing: " << timing << std::endl;
   }
@@ -172,9 +170,13 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
+  void     SetPeakSumFit(double _charge_sum_fit)  { charge_sum_fit = _charge_sum_fit; }
   double   CogPos() { return center_of_gravity; }
   double   TdcPos() { return tdc_pos; }
   float    TanTheta() { return tan_incident_angle; }
+  double   TimingFit() { return  timing_fit;}
+  double   PeakSumFit() { return  charge_sum_fit;}
   double   LocalX() { return center_of_gravity; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
@@ -191,6 +193,8 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double center_of_gravity; // mm
   double tdc_pos;           // mm
   float  tan_incident_angle;    // radian
+  double charge_sum_fit;
+  double timing_fit;
 };
 
 class E16DST_DST1GTRHit : public E16DST_DST1Hit {
@@ -328,24 +332,6 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
       return tdchit;
     }
   }
-/* 211127 nakasuga
-//auto& calib = E16ANA_CalibDBManager::Instance();
-//E16ANA_FieldMapCalibParam field_map_param;
-//field_map_param.ReadConstantData(calib.CurrentRunID());
-//E16ANA_GTRLorentzAngleCalibParam lorentz_angle_param;
-//lorentz_angle_param.ReadConstantData(calib.CurrentRunID());
-//auto fm_current = field_map_param.FMCurrent();
-//auto lorentz_angle_params = lorentz_angle_param.GTRLorentzAngleCalibParams();
-//if (fm_current == 2450.) {
-//  return center_of_gravity + lorentz_angle_params[layer_id];
-//} else {
-//  return center_of_gravity;
-//}
-    } else {
-      return center_of_gravity;
-    }
-  }
-*/
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
 
@@ -362,7 +348,6 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
               << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
               << " [mm]" << std::endl;
   }
-//  static std::array<double, 3> lorentz_angle_calib_params;
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
