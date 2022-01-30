@@ -1976,7 +1976,8 @@ class E16ANA_TrackCheckFile {
       auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
       rk_hit_ssd_id[i] = ssd_clst->ClusterId();
       rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-      rk_hit_ssd_t[i]  = ssd_clst->Timing();
+//      rk_hit_ssd_t[i]  = ssd_clst->Timing();
+      rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
       auto& gtr100hit_gpos = pairs[1].GlobalPos();
       rk_hit_gtr100_gtx[i]  = gtr100hit_gpos.X();
       rk_hit_gtr100_gty[i]  = gtr100hit_gpos.Y();
