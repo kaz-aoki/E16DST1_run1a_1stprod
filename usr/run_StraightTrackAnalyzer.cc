@@ -306,6 +306,9 @@ int main(int argc, char* argv[]) {
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
   targets.Print();
+  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
   auto record = new E16DST_DST1PhysicsRecord();
   auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
@@ -331,7 +334,7 @@ int main(int argc, char* argv[]) {
     auto& gtr_hits0 = event0->GTR();
     auto& ssd_hits0 = event0->SSD();
     E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
-    E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
+    E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
     record->GTR().UpdatePtrs();
     record->SSD().UpdatePtrs();
 

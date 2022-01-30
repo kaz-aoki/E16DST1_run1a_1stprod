@@ -309,6 +309,13 @@ target_link_libraries(tmp_track_analyzer
 #  E16DST_DST1
 #)
 #
+##_______________________________________________________________________________
+#add_executable(tmp_check_coin_map usr/tmp_check_coin_map.cc)
+#
+#target_link_libraries(tmp_check_coin_map
+#  E16DST_DST1
+#)
+#
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

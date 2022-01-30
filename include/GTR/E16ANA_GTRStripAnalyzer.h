@@ -33,6 +33,14 @@ private:
    double gem_hit_pos;           // mm
    double tan_incident_angle;    // radian
    double timing;                // ns
+   double timing2;                // ns
+   double tdchit; // 50% of peak
+   double tdchit2; // 50% of peak
+   double tanthe;
+   double tanthe2;
+   std::vector<float>           ctiming;
+   std::vector<float>           cpos;
+
    int layerID;                  // 0-2
    int moduleID;                 // 0-32
 
@@ -76,7 +84,13 @@ public:
       moduleID = kInvalidValue;
       id = kInvalidValue;
       type = kInvalidValue;
-
+      timing2 = kInvalidValue;
+      tdchit  = kInvalidValue;
+      tdchit2 = kInvalidValue;
+      tanthe  = kInvalidValue;
+      tanthe2 = kInvalidValue;
+      cpos.clear();
+      ctiming.clear();
       strip_id.clear();
       strip_pos.clear();
       strip_tot.clear();
@@ -96,6 +110,13 @@ public:
       }
    }
    void SetTiming(double t) { timing = t; }
+   void SetTiming2(double t) { timing2 = t; }
+   void SetTdcHit2(double _tdchit2) { tdchit2 = _tdchit2; }
+   void SetTanTheta2(double _tanthe2) { tanthe2 = _tanthe2; }
+   void SetCTiming(double t) { ctiming.push_back(t); }
+   void SetCPos(double t)    { cpos.push_back(t); }
+   
+
    void SetLayerAndModuleIDandType(int id1, int id2, int itype)
    {
       layerID = id1;
@@ -132,6 +153,13 @@ public:
    double StripCharge(int i) { return strip_charge[i]; };
    double StripTiming(int i) { return strip_timing[i]; };
    double StripTimeOverThreshold(int i) { return strip_tot[i]; };
+   double Timing2() { return timing2; }
+   double TdcHit2() { return tdchit2; }
+   double TanTheta2() { return tanthe2; }
+   double            CTiming(int i) { return ctiming[i]; }
+   double            CPos(int i)    { return cpos[i]; }
+   int               NumCls() { return ctiming.size(); }
+
 
    enum {
       kInvalidValue = -1000000,
@@ -220,7 +248,7 @@ protected:
    double rise_time_max;
    double peak_time_min;
    double peak_time_max;
-
+   double ztiming;
 
    double inverted; // If strip order is the opposite direction to the local coordinate, ...
 
@@ -229,6 +257,7 @@ protected:
    double *fadc_ped_sigma;
    double *fadc_peak;
    double *fadc_peak_time;
+   double *fadc_peak_tdc;
    double *fadc_tdc;
    double *fadc_tot;
 
@@ -301,10 +330,15 @@ protected:
 
    void CalcCenterOfGravity(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit);
    void CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
+   void CalcTdcHit12(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
+
    void
    CalcTdcHit2(const std::vector<int> &strip_ids, double tan_theta, E16ANA_GTRAnalyzedStripHit &hit); // fixed method
    void SetArraysForTdcMethods(const std::vector<int> &strip_ids, std::vector<double> &x_array,
                                std::vector<double> &time_array, std::vector<double> &peak_array);
+   void SetArraysForTdcMethods2(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+				std::vector<double> &time_array, std::vector<double> &peak_array);
+
    // void CalcTdcHit3(bool fix_flag, const std::vector<double> &x, const std::vector<double> &z, const
    // std::vector<double> &peak, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
 };

@@ -76,6 +76,17 @@ int E16ANA_TriggerNumTriggers(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   return -1;
 }
 
+int E16ANA_TriggerSearchTrackedLGHit(uint16_t _track_module_id, uint16_t _track_channel_id, uint32_t _track_time, E16DST_DST0Detector<E16DST_DST0TriggerHit>& _lg_hits) {
+  auto n_hits = _lg_hits.NumberOfHits();
+  for (int i = 0; i < n_hits; ++i) {
+    auto& hit = _lg_hits.Hit(i);
+    if (hit.ModuleID() == _track_module_id && hit.ChannelID() == _track_channel_id && hit.Time() == _track_time) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_time, int module_id, int channel_id, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits, std::vector<int16_t>* coincidence_hit_orders, std::vector<bool>* coincidence_hit_is_used, std::vector<E16DST_DST0Hit>* unrecorded_hits) {
   auto n_hits = hits.NumberOfHits();
   int n_coincidence_hits = 0;
@@ -185,7 +196,7 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
 //        is_new = 1;
 //      }
 //    }
-    track_set.LGHitOrders().emplace_back(track_num);
+    track_set.LGHitOrders().emplace_back(E16ANA_TriggerSearchTrackedLGHit(track.ModuleID(), track.ChannelID(), track.Time(), lg_hits));
     auto& coincidence_map = coincidence_maps->CoincidenceMap(track.ModuleID(), track.ChannelID(), is_mag_field);
     for (int channel = 0; channel < coincidence_map.gtr_map.size(); ++channel) {
       if (coincidence_map.gtr_map[channel] && gtr_maps[is_new][E16DST_Constant::NTriggerChannelsGTR * coincidence_map.gtr_start_module + channel]) {

@@ -1,13 +1,12 @@
-#include "E16ANA_GTRLorentzAngleCalib.hh"
+#include "E16ANA_EventSelect.hh"
 
-#include <array>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
 #include "E16ANA_CalibDBManager.hh"
 
-bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantDataCore(int _run_id, std::string _index_file_name) {
+bool E16ANA_EventSelect::ReadConstantDataCore(int _run_id, std::string _index_file_name) {
   run_id = _run_id;
   auto& calib = E16ANA_CalibDBManager::Instance();
   bool flag = true;
@@ -20,22 +19,22 @@ bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantDataCore(int _run_id, 
   auto item = map.lower_bound(run_id);
   std::stringstream ss;
   ss << static_cast<std::string>(item->second);
-  for (auto& param : gtr_lorentz_angle_calib_params) {
-    ss >> param;
+  selected_event_ids.clear();
+  int tmp_int;
+  while (ss >> tmp_int) {
+    selected_event_ids.emplace_back(tmp_int);
   }
   in_file.close();
-//  for (int i = 0; i < gtr_lorentz_angle_calib_params.size(); ++i) {
-//    gtr_lorentz_angles[i] = 
   delete in_file_ptr;
   return flag;
 }
 
-bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantData(int run_id) {
+bool E16ANA_EventSelect::ReadConstantData(int run_id) {
   auto& calib = E16ANA_CalibDBManager::Instance();
-  auto index_file_name = calib.SearchForIndexFileName("GTR-lorentz-angle");
+  auto index_file_name = calib.SearchForIndexFileName("event-select");
   return ReadConstantDataCore(run_id, index_file_name);
 }
 
-bool E16ANA_GTRLorentzAngleCalibParamManager::ReadConstantDataByLocal(int run_id, std::string index_file_name) {
+bool E16ANA_EventSelect::ReadConstantDataByLocal(int run_id, std::string index_file_name) {
   return ReadConstantDataCore(run_id, index_file_name);
 }
