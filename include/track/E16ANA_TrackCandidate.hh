@@ -273,7 +273,8 @@ class E16ANA_TrackCandidate {
   // parameter
 //  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
-  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
+//  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
+  static inline const TVector3 kInitPosError = {3., 3.4, 0.};
 //  static inline const TVector3 kInitPosError = {0., 0., 0.};
 //  static inline const TVector3 kInitPosError = {5., 5., 0.};
   void Copy(const E16ANA_TrackCandidate& rhs) {

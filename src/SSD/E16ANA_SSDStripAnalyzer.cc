@@ -170,7 +170,13 @@ int E16ANA_SSDStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
    double pre_tdc = fadc_fit_t0[0];
    for (int i = 0; i < n_strips; i++) {
       if (fadc_peak[i] > ssd_threshold &&
-	  fadc_peak_time[i] > 0 ) {
+	  fadc_peak_time[i] > 0 
+	  /*
+	  &&
+	  fadc_fit_t0[i] > 30.0 &&
+	  fadc_fit_t0[i] < 70.0 
+	  */
+	  ) {
 	//std::cout << fadc_peak_time[i] << std::endl;
 	//std::cout << fadc_fit_t0[i] << std::endl;
          // double delta_tdc = fadc_tdc[i]-pre_tdc;
@@ -338,6 +344,18 @@ int E16ANA_SSDStripAnalyzer::classifyWaveType(std::vector<double> v_waveform, in
     else{
       TYPE = 51;
     }
+  }
+  else if(maxSampleNum == 6){
+    TYPE = 61;
+  }
+  else if(maxSampleNum == 7){
+    TYPE = 71;
+  }
+  else if(maxSampleNum == 1){
+    TYPE = 11;
+  }
+  else if(maxSampleNum == 2){
+    TYPE = 21;
   }
   else{
     TYPE = 41;
