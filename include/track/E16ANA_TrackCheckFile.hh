@@ -994,24 +994,24 @@ class E16ANA_TrackCheckFile {
         }
       } else {
         if (type == 0) {
-          ++n_gtr200x_hits;
-          gtr200x_hit_id.emplace_back(hit.HitId());
-          gtr200x_hit_mid.emplace_back(hit.ModuleId());
-          gtr200x_hit_x.emplace_back(hit.LocalX());
-	        gtr200x_hit_tx.emplace_back(hit.TdcPos());
+          ++n_gtr300x_hits;
+          gtr300x_hit_id.emplace_back(hit.HitId());
+          gtr300x_hit_mid.emplace_back(hit.ModuleId());
+          gtr300x_hit_x.emplace_back(hit.LocalX());
+	        gtr300x_hit_tx.emplace_back(hit.TdcPos());
           auto gpos = hit.GlobalPos(geometry);
-          gtr200x_hit_gx.emplace_back(gpos.X());
-          gtr200x_hit_gz.emplace_back(gpos.Z());
-          gtr200x_hit_t.emplace_back(hit.Timing());
-          gtr200x_hit_adc.emplace_back(hit.PeakHeight());
+          gtr300x_hit_gx.emplace_back(gpos.X());
+          gtr300x_hit_gz.emplace_back(gpos.Z());
+          gtr300x_hit_t.emplace_back(hit.Timing());
+          gtr300x_hit_adc.emplace_back(hit.PeakHeight());
         } else if (type == 1) {
-          ++n_gtr200y_hits;
-          gtr200y_hit_id.emplace_back(hit.HitId());
-          gtr200y_hit_mid.emplace_back(hit.ModuleId());
-          gtr200y_hit_y.emplace_back(hit.LocalX());
-	        gtr200y_hit_ty.emplace_back(hit.TdcPos());
-          gtr200y_hit_t.emplace_back(hit.Timing());
-          gtr200y_hit_adc.emplace_back(hit.PeakHeight());
+          ++n_gtr300y_hits;
+          gtr300y_hit_id.emplace_back(hit.HitId());
+          gtr300y_hit_mid.emplace_back(hit.ModuleId());
+          gtr300y_hit_y.emplace_back(hit.LocalX());
+	        gtr300y_hit_ty.emplace_back(hit.TdcPos());
+          gtr300y_hit_t.emplace_back(hit.Timing());
+          gtr300y_hit_adc.emplace_back(hit.PeakHeight());
         }
       }
     }
