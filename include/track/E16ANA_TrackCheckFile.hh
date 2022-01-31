@@ -60,6 +60,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_ssd_hits",  &n_ssd_hits, "n_ssd_hits/I");
     tree->Branch("ssd_hit_id",  &ssd_hit_id);
     tree->Branch("ssd_hit_mid", &ssd_hit_mid);
+    tree->Branch("ssd_hit_cid", &ssd_hit_cid);
     tree->Branch("ssd_hit_x",   &ssd_hit_x);
     tree->Branch("ssd_hit_gx",  &ssd_hit_gx);
     tree->Branch("ssd_hit_gz",  &ssd_hit_gz);
@@ -68,6 +69,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr100x_hits",  &n_gtr100x_hits, "n_gtr100x_hits/I");
     tree->Branch("gtr100x_hit_id",  &gtr100x_hit_id);
     tree->Branch("gtr100x_hit_mid", &gtr100x_hit_mid);
+    tree->Branch("gtr100x_hit_cid", &gtr100x_hit_cid);
     tree->Branch("gtr100x_hit_x",   &gtr100x_hit_x);
     tree->Branch("gtr100x_hit_tx",  &gtr100x_hit_tx);
     tree->Branch("gtr100x_hit_gx",  &gtr100x_hit_gx);
@@ -77,6 +79,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr200x_hits",  &n_gtr200x_hits, "n_gtr200x_hits/I");
     tree->Branch("gtr200x_hit_id",  &gtr200x_hit_id);
     tree->Branch("gtr200x_hit_mid", &gtr200x_hit_mid);
+    tree->Branch("gtr200x_hit_cid", &gtr200x_hit_cid);
     tree->Branch("gtr200x_hit_x",   &gtr200x_hit_x);
     tree->Branch("gtr200x_hit_tx",  &gtr200x_hit_tx);
     tree->Branch("gtr200x_hit_gx",  &gtr200x_hit_gx);
@@ -86,6 +89,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr300x_hits",  &n_gtr300x_hits, "n_gtr300x_hits/I");
     tree->Branch("gtr300x_hit_id",  &gtr300x_hit_id);
     tree->Branch("gtr300x_hit_mid", &gtr300x_hit_mid);
+    tree->Branch("gtr300x_hit_cid", &gtr300x_hit_cid);
     tree->Branch("gtr300x_hit_x",   &gtr300x_hit_x);
     tree->Branch("gtr300x_hit_tx",  &gtr300x_hit_tx);
     tree->Branch("gtr300x_hit_gx",  &gtr300x_hit_gx);
@@ -95,6 +99,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr100y_hits",  &n_gtr100y_hits, "n_gtr100y_hits/I");
     tree->Branch("gtr100y_hit_id",  &gtr100y_hit_id);
     tree->Branch("gtr100y_hit_mid", &gtr100y_hit_mid);
+    tree->Branch("gtr100y_hit_cid", &gtr100y_hit_cid);
     tree->Branch("gtr100y_hit_y",   &gtr100y_hit_y);
     tree->Branch("gtr100y_hit_ty",  &gtr100y_hit_ty);
     tree->Branch("gtr100y_hit_t",   &gtr100y_hit_t);
@@ -102,6 +107,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr100yb_hits",  &n_gtr100yb_hits, "n_gtr100yb_hits/I");
     tree->Branch("gtr100yb_hit_id",  &gtr100yb_hit_id);
     tree->Branch("gtr100yb_hit_mid", &gtr100yb_hit_mid);
+    tree->Branch("gtr100yb_hit_cid", &gtr100yb_hit_cid);
     tree->Branch("gtr100yb_hit_y",   &gtr100yb_hit_y);
     tree->Branch("gtr100yb_hit_ty",  &gtr100yb_hit_ty);
     tree->Branch("gtr100yb_hit_t",   &gtr100yb_hit_t);
@@ -109,6 +115,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr200y_hits",  &n_gtr200y_hits, "n_gtr200y_hits/I");
     tree->Branch("gtr200y_hit_id",  &gtr200y_hit_id);
     tree->Branch("gtr200y_hit_mid", &gtr200y_hit_mid);
+    tree->Branch("gtr200y_hit_cid", &gtr200y_hit_cid);
     tree->Branch("gtr200y_hit_y",   &gtr200y_hit_y);
     tree->Branch("gtr200y_hit_ty",  &gtr200y_hit_ty);
     tree->Branch("gtr200y_hit_t",   &gtr200y_hit_t);
@@ -116,6 +123,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_gtr300y_hits",  &n_gtr300y_hits, "n_gtr300y_hits/I");
     tree->Branch("gtr300y_hit_id",  &gtr300y_hit_id);
     tree->Branch("gtr300y_hit_mid", &gtr300y_hit_mid);
+    tree->Branch("gtr300y_hit_cid", &gtr300y_hit_cid);
     tree->Branch("gtr300y_hit_y",   &gtr300y_hit_y);
     tree->Branch("gtr300y_hit_ty",  &gtr300y_hit_ty);
     tree->Branch("gtr300y_hit_t",   &gtr300y_hit_t);
@@ -123,6 +131,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_hbd_hits",  &n_hbd_hits, "n_hbd_hits/I");
     tree->Branch("hbd_hit_id",  &hbd_hit_id);
     tree->Branch("hbd_hit_mid", &hbd_hit_mid);
+    tree->Branch("hbd_hit_cid", &hbd_hit_cid);
     tree->Branch("hbd_hit_x",   &hbd_hit_x);
     tree->Branch("hbd_hit_y",   &hbd_hit_y);
     tree->Branch("hbd_hit_gx",  &hbd_hit_gx);
@@ -866,6 +875,7 @@ class E16ANA_TrackCheckFile {
     n_ssd_hits = record.SSD().NumHits();
     ssd_hit_id.resize(n_ssd_hits);
     ssd_hit_mid.resize(n_ssd_hits);
+    ssd_hit_cid.resize(n_ssd_hits);
     ssd_hit_x.resize(n_ssd_hits);
     ssd_hit_gx.resize(n_ssd_hits);
     ssd_hit_gz.resize(n_ssd_hits);
@@ -875,6 +885,7 @@ class E16ANA_TrackCheckFile {
       auto& hit = record.SSD().Hit(i);
       ssd_hit_id[i] = i;
       ssd_hit_mid[i] = hit.ModuleId();
+      ssd_hit_cid[i] = hit.ChannelId();
       ssd_hit_x[i] = hit.LocalX();
       auto gpos = hit.GlobalPos(geometry);
       ssd_hit_gx[i] = gpos.X();
@@ -885,6 +896,7 @@ class E16ANA_TrackCheckFile {
     n_gtr100x_hits = 0;
     gtr100x_hit_id.clear();
     gtr100x_hit_mid.clear();
+    gtr100x_hit_cid.clear();
     gtr100x_hit_x.clear();
     gtr100x_hit_tx.clear();
     gtr100x_hit_gx.clear();
@@ -894,6 +906,7 @@ class E16ANA_TrackCheckFile {
     n_gtr200x_hits = 0;
     gtr200x_hit_id.clear();
     gtr200x_hit_mid.clear();
+    gtr200x_hit_cid.clear();
     gtr200x_hit_x.clear();
     gtr200x_hit_tx.clear();
     gtr200x_hit_gx.clear();
@@ -903,6 +916,7 @@ class E16ANA_TrackCheckFile {
     n_gtr300x_hits = 0;
     gtr300x_hit_id.clear();
     gtr300x_hit_mid.clear();
+    gtr300x_hit_cid.clear();
     gtr300x_hit_x.clear();
     gtr300x_hit_tx.clear();
     gtr300x_hit_gx.clear();
@@ -912,6 +926,7 @@ class E16ANA_TrackCheckFile {
     n_gtr100y_hits = 0;
     gtr100y_hit_id.clear();
     gtr100y_hit_mid.clear();
+    gtr100y_hit_cid.clear();
     gtr100y_hit_y.clear();
     gtr100y_hit_ty.clear();
     gtr100y_hit_t.clear();
@@ -919,6 +934,7 @@ class E16ANA_TrackCheckFile {
     n_gtr100yb_hits = 0;
     gtr100yb_hit_id.clear();
     gtr100yb_hit_mid.clear();
+    gtr100yb_hit_cid.clear();
     gtr100yb_hit_y.clear();
     gtr100yb_hit_ty.clear();
     gtr100yb_hit_t.clear();
@@ -926,6 +942,7 @@ class E16ANA_TrackCheckFile {
     n_gtr200y_hits = 0;
     gtr200y_hit_id.clear();
     gtr200y_hit_mid.clear();
+    gtr200y_hit_cid.clear();
     gtr200y_hit_y.clear();
     gtr200y_hit_ty.clear();
     gtr200y_hit_t.clear();
@@ -933,6 +950,7 @@ class E16ANA_TrackCheckFile {
     n_gtr300y_hits = 0;
     gtr300y_hit_id.clear();
     gtr300y_hit_mid.clear();
+    gtr300y_hit_cid.clear();
     gtr300y_hit_y.clear();
     gtr300y_hit_ty.clear();
     gtr300y_hit_t.clear();
@@ -947,6 +965,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr100x_hits;
           gtr100x_hit_id.emplace_back(hit.HitId());
           gtr100x_hit_mid.emplace_back(hit.ModuleId());
+          gtr100x_hit_cid.emplace_back(hit.ChannelId());
           gtr100x_hit_x.emplace_back(hit.LocalX());
 	        gtr100x_hit_tx.emplace_back(hit.TdcPos());
           auto gpos = hit.GlobalPos(geometry);
@@ -958,6 +977,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr100y_hits;
           gtr100y_hit_id.emplace_back(hit.HitId());
           gtr100y_hit_mid.emplace_back(hit.ModuleId());
+          gtr100y_hit_cid.emplace_back(hit.ChannelId());
           gtr100y_hit_y.emplace_back(hit.LocalX());
 	        gtr100y_hit_ty.emplace_back(hit.TdcPos());
           gtr100y_hit_t.emplace_back(hit.Timing());
@@ -966,6 +986,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr100yb_hits;
           gtr100yb_hit_id.emplace_back(hit.HitId());
           gtr100yb_hit_mid.emplace_back(hit.ModuleId());
+          gtr100yb_hit_cid.emplace_back(hit.ChannelId());
           gtr100yb_hit_y.emplace_back(hit.LocalX());
 	        gtr100yb_hit_ty.emplace_back(hit.TdcPos());
           gtr100yb_hit_t.emplace_back(hit.Timing());
@@ -976,6 +997,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr200x_hits;
           gtr200x_hit_id.emplace_back(hit.HitId());
           gtr200x_hit_mid.emplace_back(hit.ModuleId());
+          gtr200x_hit_cid.emplace_back(hit.ChannelId());
           gtr200x_hit_x.emplace_back(hit.LocalX());
 	        gtr200x_hit_tx.emplace_back(hit.TdcPos());
           auto gpos = hit.GlobalPos(geometry);
@@ -987,6 +1009,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr200y_hits;
           gtr200y_hit_id.emplace_back(hit.HitId());
           gtr200y_hit_mid.emplace_back(hit.ModuleId());
+          gtr200y_hit_cid.emplace_back(hit.ChannelId());
           gtr200y_hit_y.emplace_back(hit.LocalX());
 	        gtr200y_hit_ty.emplace_back(hit.TdcPos());
           gtr200y_hit_t.emplace_back(hit.Timing());
@@ -997,6 +1020,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr300x_hits;
           gtr300x_hit_id.emplace_back(hit.HitId());
           gtr300x_hit_mid.emplace_back(hit.ModuleId());
+          gtr300x_hit_cid.emplace_back(hit.ChannelId());
           gtr300x_hit_x.emplace_back(hit.LocalX());
 	        gtr300x_hit_tx.emplace_back(hit.TdcPos());
           auto gpos = hit.GlobalPos(geometry);
@@ -1008,6 +1032,7 @@ class E16ANA_TrackCheckFile {
           ++n_gtr300y_hits;
           gtr300y_hit_id.emplace_back(hit.HitId());
           gtr300y_hit_mid.emplace_back(hit.ModuleId());
+          gtr300y_hit_cid.emplace_back(hit.ChannelId());
           gtr300y_hit_y.emplace_back(hit.LocalX());
 	        gtr300y_hit_ty.emplace_back(hit.TdcPos());
           gtr300y_hit_t.emplace_back(hit.Timing());
@@ -1018,6 +1043,7 @@ class E16ANA_TrackCheckFile {
     n_hbd_hits = record.HBD().NumHits();
     hbd_hit_id.resize(n_hbd_hits);
     hbd_hit_mid.resize(n_hbd_hits);
+    hbd_hit_cid.resize(n_hbd_hits);
     hbd_hit_x.resize(n_hbd_hits);
     hbd_hit_y.resize(n_hbd_hits);
     hbd_hit_gx.resize(n_hbd_hits);
@@ -1029,6 +1055,7 @@ class E16ANA_TrackCheckFile {
       auto& hit = record.HBD().Hit(i);
       hbd_hit_id[i] = hit.HitId();
       hbd_hit_mid[i] = hit.ModuleId();
+      hbd_hit_cid[i] = hit.ModuleId();
       auto lpos = hit.LocalPos(geometry);
       hbd_hit_x[i] = lpos.X();
       hbd_hit_y[i] = lpos.Y();
@@ -2883,6 +2910,7 @@ class E16ANA_TrackCheckFile {
   int n_ssd_hits;
   std::vector<int>    ssd_hit_id;
   std::vector<int>    ssd_hit_mid;
+  std::vector<int>    ssd_hit_cid;
   std::vector<double> ssd_hit_x;
   std::vector<double> ssd_hit_gx;
   std::vector<double> ssd_hit_gz;
@@ -2891,6 +2919,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr100x_hits;
   std::vector<int>    gtr100x_hit_id;
   std::vector<int>    gtr100x_hit_mid;
+  std::vector<int>    gtr100x_hit_cid;
   std::vector<double> gtr100x_hit_x;
   std::vector<double> gtr100x_hit_tx;
   std::vector<double> gtr100x_hit_gx;
@@ -2900,6 +2929,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr200x_hits;
   std::vector<int>    gtr200x_hit_id;
   std::vector<int>    gtr200x_hit_mid;
+  std::vector<int>    gtr200x_hit_cid;
   std::vector<double> gtr200x_hit_x;
   std::vector<double> gtr200x_hit_tx;
   std::vector<double> gtr200x_hit_gx;
@@ -2909,6 +2939,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr300x_hits;
   std::vector<int>    gtr300x_hit_id;
   std::vector<int>    gtr300x_hit_mid;
+  std::vector<int>    gtr300x_hit_cid;
   std::vector<double> gtr300x_hit_x;
   std::vector<double> gtr300x_hit_tx;
   std::vector<double> gtr300x_hit_gx;
@@ -2918,6 +2949,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr100y_hits;
   std::vector<int>    gtr100y_hit_id;
   std::vector<int>    gtr100y_hit_mid;
+  std::vector<int>    gtr100y_hit_cid;
   std::vector<double> gtr100y_hit_y;
   std::vector<double> gtr100y_hit_ty;
   std::vector<double> gtr100y_hit_t;
@@ -2925,6 +2957,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr100yb_hits;
   std::vector<int>    gtr100yb_hit_id;
   std::vector<int>    gtr100yb_hit_mid;
+  std::vector<int>    gtr100yb_hit_cid;
   std::vector<double> gtr100yb_hit_y;
   std::vector<double> gtr100yb_hit_ty;
   std::vector<double> gtr100yb_hit_t;
@@ -2932,6 +2965,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr200y_hits;
   std::vector<int>    gtr200y_hit_id;
   std::vector<int>    gtr200y_hit_mid;
+  std::vector<int>    gtr200y_hit_cid;
   std::vector<double> gtr200y_hit_y;
   std::vector<double> gtr200y_hit_ty;
   std::vector<double> gtr200y_hit_t;
@@ -2939,6 +2973,7 @@ class E16ANA_TrackCheckFile {
   int n_gtr300y_hits;
   std::vector<int>    gtr300y_hit_id;
   std::vector<int>    gtr300y_hit_mid;
+  std::vector<int>    gtr300y_hit_cid;
   std::vector<double> gtr300y_hit_y;
   std::vector<double> gtr300y_hit_ty;
   std::vector<double> gtr300y_hit_t;
@@ -2946,6 +2981,7 @@ class E16ANA_TrackCheckFile {
   int n_hbd_hits;
   std::vector<int>    hbd_hit_id;
   std::vector<int>    hbd_hit_mid;
+  std::vector<int>    hbd_hit_cid;
   std::vector<double> hbd_hit_x;
   std::vector<double> hbd_hit_y;
   std::vector<double> hbd_hit_gx;
