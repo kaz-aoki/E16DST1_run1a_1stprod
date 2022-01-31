@@ -360,6 +360,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_ssd_gz", &rk_hit_ssd_gz);
     tree->Branch("rk_hit_ssd_adc", &rk_hit_ssd_adc);
     tree->Branch("rk_hit_ssd_t",  &rk_hit_ssd_t);
+    tree->Branch("rk_hit_ssd_chi2", &rk_hit_ssd_chi2);
     tree->Branch("rk_hit_gtr100_xid", &rk_hit_gtr100_xid);
     tree->Branch("rk_hit_gtr100_yid", &rk_hit_gtr100_yid);
     tree->Branch("rk_hit_gtr100_gx", &rk_hit_gtr100_gx);
@@ -1581,6 +1582,7 @@ class E16ANA_TrackCheckFile {
     rk_hit_ssd_gz.resize(n_cands);
     rk_hit_ssd_adc.resize(n_cands);
     rk_hit_ssd_t.resize(n_cands);
+    rk_hit_ssd_chi2.resize(n_cands);
     rk_hit_gtr100_xid.resize(n_cands);
     rk_hit_gtr100_yid.resize(n_cands);
     rk_hit_gtr100_gx.resize(n_cands);
@@ -1984,6 +1986,7 @@ class E16ANA_TrackCheckFile {
       rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
 //      rk_hit_ssd_t[i]  = ssd_clst->Timing();
       rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+      rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
       auto& gtr100hit_gpos = pairs[1].GlobalPos();
       rk_hit_gtr100_gtx[i]  = gtr100hit_gpos.X();
       rk_hit_gtr100_gty[i]  = gtr100hit_gpos.Y();
@@ -2942,6 +2945,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_ssd_gz;
   std::vector<float> rk_hit_ssd_adc;
   std::vector<float> rk_hit_ssd_t;
+  std::vector<double> rk_hit_ssd_chi2;
   std::vector<int> rk_hit_gtr100_xid;
   std::vector<int> rk_hit_gtr100_yid;
   std::vector<double> rk_hit_gtr100_gx;
