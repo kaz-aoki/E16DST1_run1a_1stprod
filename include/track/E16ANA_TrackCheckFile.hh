@@ -67,8 +67,10 @@ class E16ANA_TrackCheckFile {
     tree->Branch("ssd_cluster_adc",  &ssd_cluster_adc);
     tree->Branch("ssd_cluster_t",    &ssd_cluster_t);
     tree->Branch("ssd_cluster_size", &ssd_cluster_size);
+    tree->Branch("ssd_cluster_fit_x",   &ssd_cluster_fit_x);
     tree->Branch("ssd_cluster_fit_t",   &ssd_cluster_fit_t);
     tree->Branch("ssd_cluster_fit_adc",   &ssd_cluster_fit_adc);
+    tree->Branch("ssd_cluster_fit_chi2",  &ssd_cluster_fit_chi2);
     tree->Branch("n_gtr100x_clusters",    &n_gtr100x_clusters, "n_gtr100x_clusters/I");
     tree->Branch("gtr100x_cluster_id",    &gtr100x_cluster_id);
     tree->Branch("gtr100x_cluster_mid",   &gtr100x_cluster_mid);
@@ -795,8 +797,10 @@ class E16ANA_TrackCheckFile {
     ssd_cluster_gz.resize(n_ssd_clusters);
     ssd_cluster_adc.resize(n_ssd_clusters);
     ssd_cluster_t.resize(n_ssd_clusters);
+    ssd_cluster_fit_x.resize(n_ssd_clusters);
     ssd_cluster_fit_t.resize(n_ssd_clusters);
     ssd_cluster_fit_adc.resize(n_ssd_clusters);
+    ssd_cluster_fit_chi2.resize(n_ssd_clusters);
     ssd_cluster_size.resize(n_ssd_clusters);
     for (int i = 0; i < n_ssd_clusters; ++i) {
       auto& clst = record.SSD().Cluster(i);
@@ -809,8 +813,10 @@ class E16ANA_TrackCheckFile {
       ssd_cluster_adc[i] = clst.PeakSum();
       ssd_cluster_t[i] = clst.Timing();
       ssd_cluster_size[i] = clst.NumHits();
+      ssd_cluster_fit_x[i] = clst.LocalXFit();
       ssd_cluster_fit_t[i] = clst.TimingFit();
       ssd_cluster_fit_adc[i] = clst.PeakSumFit();
+      ssd_cluster_fit_chi2[i] = clst.Chi2NdfFit();
     }
     n_gtr100x_clusters = 0;
     n_gtr200x_clusters = 0;
@@ -2631,8 +2637,10 @@ class E16ANA_TrackCheckFile {
   std::vector<float> ssd_cluster_adc;
   std::vector<double> ssd_cluster_t;
   std::vector<int> ssd_cluster_size;
+  std::vector<double> ssd_cluster_fit_x;
   std::vector<double> ssd_cluster_fit_t;
   std::vector<double> ssd_cluster_fit_adc;
+  std::vector<double> ssd_cluster_fit_chi2;
   int n_gtr100x_clusters;
   std::vector<int> gtr100x_cluster_id;
   std::vector<int> gtr100x_cluster_mid;
