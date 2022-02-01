@@ -145,7 +145,8 @@ target_link_libraries(E16DST_DST1
 
 #_______________________________________________________________________________
 add_library(E16ANA_Track
-  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+#  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
 )
 
 target_link_libraries(E16ANA_Track
