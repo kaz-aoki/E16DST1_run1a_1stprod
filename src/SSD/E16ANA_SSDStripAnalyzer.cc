@@ -46,6 +46,7 @@ E16ANA_SSDStripAnalyzer::E16ANA_SSDStripAnalyzer(int _n_strips, int _n_sampling)
    fadc_fit_scale = new double[n_strips];
    fadc_fit_t0 = new double[n_strips];
    fadc_fit_rise_time = new double[n_strips];
+   fadc_fit_chi2_ndf = new double[n_strips];
 
    for (int i = 0; i < n_strips; i++) {
       fadc_ped[i] = new double[n_sampling];
@@ -86,6 +87,7 @@ E16ANA_SSDStripAnalyzer::~E16ANA_SSDStripAnalyzer() {
    delete[] fadc_fit_scale;
    delete[] fadc_fit_t0;
    delete[] fadc_fit_rise_time;
+   delete[] fadc_fit_chi2_ndf;
 
    //   delete graph_fit;
    // delete wf1d_fitter;
@@ -168,7 +170,13 @@ int E16ANA_SSDStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
    double pre_tdc = fadc_fit_t0[0];
    for (int i = 0; i < n_strips; i++) {
       if (fadc_peak[i] > ssd_threshold &&
-	  fadc_peak_time[i] > 0 ) {
+	  fadc_peak_time[i] > 0 
+	  /*
+	  &&
+	  fadc_fit_t0[i] > 30.0 &&
+	  fadc_fit_t0[i] < 70.0 
+	  */
+	  ) {
 	//std::cout << fadc_peak_time[i] << std::endl;
 	//std::cout << fadc_fit_t0[i] << std::endl;
          // double delta_tdc = fadc_tdc[i]-pre_tdc;
@@ -337,6 +345,18 @@ int E16ANA_SSDStripAnalyzer::classifyWaveType(std::vector<double> v_waveform, in
       TYPE = 51;
     }
   }
+  else if(maxSampleNum == 6){
+    TYPE = 61;
+  }
+  else if(maxSampleNum == 7){
+    TYPE = 71;
+  }
+  else if(maxSampleNum == 1){
+    TYPE = 11;
+  }
+  else if(maxSampleNum == 2){
+    TYPE = 21;
+  }
   else{
     TYPE = 41;
   }
@@ -492,7 +512,7 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
 	//	cout << "fadc["<<strip<<"][0]=" << fadc[strip][0] <<endl; 
 	c++;
       }
-      //      cout << "Convex=" << Convex(fadc[strip]) << endl;
+      //       cout << "Convex=" << Convex(fadc[strip]) << endl;
       n_fit++;
       //      cout << "n_fit=" << n_fit << endl;
       //TH1D *histo_wave = new TH1D("histo_wave","histo_wave",200,0,200);
@@ -539,7 +559,8 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
       // fit_func->SetParameter(1,fadc_peak[strip]*2.718);
       // fit_func->SetParameter(2,fadc_peak_time[strip]-140);
       //double p0 = 40;
-      double p0 = 45;
+      const double init_rise_time = 45.0;
+      double p0 = init_rise_time;
       //double p1 = getMax(v_adc_strip)*2.718;
       double p1 = (getMax(v_adc_strip)-minAdcValue)*2.718;
       //double p2 = fadc_peak_time[strip]-40.;
@@ -570,6 +591,14 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
       fit_func->SetParameter(1,p1);
       fit_func->SetParameter(2,p2);
       //if(fadc[strip][0]<fadc[strip][7] && Convex(fadc[strip])==1){
+
+#if 1
+      graph_wave->Fit(fit_func,"OQMEX0","",
+		      fit_range_min-0.001, fit_range_max+0.001);
+
+      //cout << "Chi Square" << chiSquare << endl;
+
+#else
       if(fadc[strip][0]<fadc[strip][7] && Convex(fadc[strip])==1){
 	//cout << "p0,p1,p2=" << p0 << "," << p1 << "," << p2 <<endl;
 	// graph_wave->Fit(fit_func,""); cout << endl << endl;
@@ -578,12 +607,16 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
 			fit_range_min-0.001, fit_range_max+0.001);
 
       }
+#endif
       double rise_time = fit_func->GetParameter(0);
       double scale = fit_func->GetParameter(1);
       double t0 = fit_func->GetParameter(2);
 
+      double chiSquare = fit_func->GetChisquare();
+      int ndf = fit_func->GetNDF();
 
-      if(rise_time!=40){
+#if 0
+      if(rise_time != init_rise_time ){
 
 	//cout << "With Pedestal: p0,p1,p2=" << rise_time << "," << scale << "," << t0 <<endl;
 
@@ -598,12 +631,15 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
 	}
 	ssd_plots.push_back(plot);
       }
-      if(rise_time==40){
+#endif 
+
+      if(rise_time == init_rise_time){ // Fit Error handling To be updated 
 	rise_time=-1000;
 	scale=-1000;
 	t0=-1000;
       }
-      E16ANA_SSDSingleStripHit temp;
+
+      E16ANA_SSDSingleStripHit temp; // Obsolete by K. Ozawa, 
       temp.SetFitValues(strip, t0+rise_time, t0, -1, scale, rise_time);
       ssd_single_hits.push_back(temp);
 
@@ -612,6 +648,7 @@ double E16ANA_SSDStripAnalyzer::HitWaveFitV11() {
       fadc_fit_scale[strip] = scale;
       fadc_fit_t0[strip] = t0;
       fadc_fit_rise_time[strip] = rise_time;
+      fadc_fit_chi2_ndf[strip] = chiSquare / (double)ndf;
 
       delete fit_func; // ichikawa
       delete graph_wave; // ichikawa
@@ -894,6 +931,8 @@ void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
    int temp_fit_hit = 0;
    double temp_fit_charge = 0.0;
    double temp_fit_t = 0.0;
+   double temp_fit_cog = 0.0;
+   double temp_fit_chi2_ndf = 0.0;
 
    if ((int)strip_ids.size() == 0) {
       hit.SetInvalid();
@@ -920,6 +959,8 @@ void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
 	temp_fit_hit++;
 	temp_fit_charge += fadc_fit_scale[id];
 	temp_fit_t += fadc_fit_t0[id];
+	temp_fit_cog += fadc_fit_scale[id] * GetPosition(id);
+	temp_fit_chi2_ndf += fadc_fit_chi2_ndf[id];
       }
 
 
@@ -940,15 +981,21 @@ void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
      temp_timing = -1000;
    }
 
-   if(temp_fit_hit > 0){
+   if(temp_fit_hit > 0 && temp_num_hit == temp_fit_hit){
      temp_fit_t /= temp_fit_hit;
+     temp_fit_cog /= temp_fit_charge;
+     temp_fit_chi2_ndf /= temp_fit_hit;
    }else{
      temp_fit_t = -1000;
+     temp_fit_cog = -1000;
+     temp_fit_chi2_ndf = -1000;
    }
 
    // temp_cog *= strip_pitch;
    // temp_cog += position_start;
    // temp_cog *= inverted;
+
+   //   cout << temp_fit_cog << endl;
 
    hit.SetMaxStrip(temp_max_strip);
    hit.SetMaxValue(temp_max_value);
@@ -957,8 +1004,10 @@ void E16ANA_SSDStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
    hit.SetCogHit(temp_cog);
    hit.SetTiming(temp_timing);
    
+   hit.SetCogHitFit(temp_fit_cog);
    hit.SetTimingFit(temp_fit_t);
    hit.SetClusterChargeFit(temp_fit_charge);
+   hit.SetChi2NdfFit(temp_fit_chi2_ndf);
 
 }
 

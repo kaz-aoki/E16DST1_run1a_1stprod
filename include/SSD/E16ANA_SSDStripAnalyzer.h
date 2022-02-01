@@ -62,8 +62,10 @@ private:
    double tan_incident_angle;    // radian
    double timing;                // ns
 
+   double ssd_center_of_gravity_fit; // mm
    double timing_fit;             // ns
    double ssd_cluster_charge_fit;  // sum of Fit Scale in a cluster    
+   double ssd_chi2_ndf_fit;  // chi square for pulse shape fittig 
 
 
    int layerID;                  // 0-2
@@ -121,11 +123,19 @@ public:
      moduleID = _module_id;
    };
 
+   void SetCogHitFit(double _ssd_center_of_gravity_fit) {
+      ssd_center_of_gravity_fit = _ssd_center_of_gravity_fit;
+   };
+
    void SetTimingFit(double _timing_fit){
      timing_fit = _timing_fit;
    };
    void SetClusterChargeFit(double _ssd_cluster_charge_fit) {
       ssd_cluster_charge_fit = _ssd_cluster_charge_fit;
+   };
+
+   void SetChi2NdfFit(double _ssd_chi2_ndf_fit) {
+      ssd_chi2_ndf_fit = _ssd_chi2_ndf_fit;
    };
 
    
@@ -145,8 +155,10 @@ public:
       id = kInvalidValue;
       type = kInvalidValue;
 
+      ssd_center_of_gravity_fit = kInvalidValue;
       timing_fit = kInvalidValue;
       ssd_cluster_charge_fit =  kInvalidValue;
+      ssd_chi2_ndf_fit =  kInvalidValue;
 
       strip_id.clear();
       strip_pos.clear();
@@ -221,8 +233,13 @@ public:
    };
    double Timing() { return timing; }
 
+
+   double CogHitFit() {
+      return ssd_center_of_gravity_fit;
+   };
    double TimingFit(){ return timing_fit;  };
    double ClusterChargeFit() { return ssd_cluster_charge_fit ;  };
+   double Chi2NdfFit() { return ssd_chi2_ndf_fit ;  };
 
 
 
@@ -356,6 +373,7 @@ protected:
    double *fadc_fit_scale;
    double *fadc_fit_t0;
    double *fadc_fit_rise_time;
+   double *fadc_fit_chi2_ndf;
 
 
    double *sample_time;

@@ -172,12 +172,17 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
   void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
   void     SetPeakSumFit(double _charge_sum_fit)  { charge_sum_fit = _charge_sum_fit; }
+  void     SetCogPosFit(double _center_of_gravity_fit)    { center_of_gravity_fit = _center_of_gravity_fit; }
+  void     SetChi2NdfFit(double _chi2_ndf_fit)    { chi2_ndf_fit = _chi2_ndf_fit; }
   double   CogPos() { return center_of_gravity; }
   double   TdcPos() { return tdc_pos; }
   float    TanTheta() { return tan_incident_angle; }
+  double   CogPosFit() { return center_of_gravity_fit; }
   double   TimingFit() { return  timing_fit;}
   double   PeakSumFit() { return  charge_sum_fit;}
+  double   Chi2NdfFit() { return  chi2_ndf_fit;}
   double   LocalX() { return center_of_gravity; };
+  double   LocalXFit() { return center_of_gravity_fit; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int      GetSize() override {}
@@ -193,8 +198,10 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double center_of_gravity; // mm
   double tdc_pos;           // mm
   float  tan_incident_angle;    // radian
+  double center_of_gravity_fit; // mm
   double charge_sum_fit;
   double timing_fit;
+  double chi2_ndf_fit;
 };
 
 class E16DST_DST1GTRHit : public E16DST_DST1Hit {

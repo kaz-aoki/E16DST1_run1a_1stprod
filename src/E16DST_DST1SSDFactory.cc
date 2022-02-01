@@ -263,8 +263,11 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
       cluster1.SetTanTheta(ha.TanTheta());
       cluster1.SetHitOrders(hit_indexs);
 
+
+      cluster1.SetCogPosFit(ha.CogHitFit());
       cluster1.SetTimingFit(ha.TimingFit());
       cluster1.SetPeakSumFit(ha.ClusterChargeFit());
+      cluster1.SetChi2NdfFit(ha.Chi2NdfFit());
 
       cl_id_in_event++;
     }

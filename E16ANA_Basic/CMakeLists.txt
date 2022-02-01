@@ -1,9 +1,3 @@
-install(DIRECTORY
-  database
-  DESTINATION ${CMAKE_INSTALL_DATADIR}
-)
-
-#________________________________________________
 file(GLOB E16ANA_Basic_SRCS src/*)
 
 add_library(E16ANA_Basic
