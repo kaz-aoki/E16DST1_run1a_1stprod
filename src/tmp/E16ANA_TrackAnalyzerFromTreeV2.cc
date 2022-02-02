@@ -311,6 +311,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_res_x.clear();
   out_plus_gtr300_res_y.clear();
   out_plus_gtr300_res_z.clear();
+  
   out_ee_mass.clear();
   out_pipi_mass.clear();
   out_pip_mass.clear();
@@ -328,12 +329,12 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDClusters(int track_mid, const TVector3&
   for (int clst_i = 0; clst_i < n_hbd_clusters; ++clst_i) {
     auto c_prob = hbd_cluster_cprob->at(clst_i);
     auto e_prob = hbd_cluster_eprob->at(clst_i);
-    if (particle_flag == cmn_param::kPionFlag && c_prob < 0.5) {
-      continue;
-    }
-    if (particle_flag == cmn_param::kElectronFlag && e_prob < 0.5) {
-      continue;
-    }
+//    if (particle_flag == cmn_param::kPionFlag && c_prob < 0.5) {
+//      continue;
+//    }
+//    if (particle_flag == cmn_param::kElectronFlag && e_prob < 0.5) {
+//      continue;
+//    }
     auto mid = hbd_cluster_mid->at(clst_i);
     if (mid != track_mid) {
       continue;
@@ -365,9 +366,9 @@ bool E16ANA_TrackAnalyzerFromTree::IsTrackLGValidY(const double track_ys[], bool
 bool E16ANA_TrackAnalyzerFromTree::HasLGHits(double track_mom, const int track_mids[], const double track_xs[], const bool track_valids[], std::vector<int>* hit_indexs) {
   for (int hit_i = 0; hit_i < n_lg_hits; ++hit_i) {
     auto adc = lg_hit_adc->at(hit_i);
-    if (particle_flag == cmn_param::kElectronFlag && E16DST_DST1LGHit::IsE(track_mom, adc) < 0.5) {
-      continue;
-    }
+//    if (particle_flag == cmn_param::kElectronFlag && E16DST_DST1LGHit::IsE(track_mom, adc) < 0.5) {
+//      continue;
+//    }
     // type decision
     auto ch_y = int{lg_hit_cid->at(hit_i)} / 10;
     int type = -1;
@@ -404,9 +405,9 @@ bool E16ANA_TrackAnalyzerFromTree::HasLGHits(double track_mom, const int track_m
 bool E16ANA_TrackAnalyzerFromTree::HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const bool track_valids[], std::vector<int>* cluster_indexs) {
   for (int clst_i = 0; clst_i < n_lg_clusters; ++clst_i) {
     auto adc = lg_cluster_adc->at(clst_i);
-    if (particle_flag == cmn_param::kElectronFlag && E16DST_DST1LGHit::IsE(track_mom, adc) < 0.5) {
-      continue;
-    }
+//    if (particle_flag == cmn_param::kElectronFlag && E16DST_DST1LGHit::IsE(track_mom, adc) < 0.5) {
+//      continue;
+//    }
     // type decision
     auto z = lg_cluster_z->at(clst_i);
     int type;
@@ -1537,7 +1538,8 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
     }
   }
   SelectTrackPairs();
-  out_tree->Fill();
+//  out_tree->Fill();
+  out_tree1->Fill();
   return;
 }
 
@@ -1578,15 +1580,35 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if (Cut(ientry) < 0) continue;
-    ClearOutBranch();
-    selected_track_indexs.clear();
-    selected_track_proj_hbd_cluster_indexs.clear();
-    selected_track_proj_lg_hit_indexs.clear();
-    selected_track_proj_lg_cluster_indexs.clear();
-    SelectTracks();
-    if (particle_flag == cmn_param::kElectronFlag) {
+//    ClearOutBranch();
+//    selected_track_indexs.clear();
+//    selected_track_proj_hbd_cluster_indexs.clear();
+//    selected_track_proj_lg_hit_indexs.clear();
+//    selected_track_proj_lg_cluster_indexs.clear();
+//    SelectTracks();
+//    if (particle_flag == cmn_param::kElectronFlag) {
+//      AnalyzeTrackPairs();
+//    } else if (particle_flag == cmn_param::kPionFlag) {
+//      AnalyzePionTrackPairs();
+//    }
+    if (analyze_flag == cmn_param::kElectronFlag || analyze_flag == cmn_param::kBothFlag) {
+      particle_flag = cmn_param::kElectronFlag;
+      ClearOutBranch();
+      selected_track_indexs.clear();
+      selected_track_proj_hbd_cluster_indexs.clear();
+      selected_track_proj_lg_hit_indexs.clear();
+      selected_track_proj_lg_cluster_indexs.clear();
+      SelectTracks();
       AnalyzeTrackPairs();
-    } else if (particle_flag == cmn_param::kPionFlag) {
+    }
+    if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag) {
+      particle_flag = cmn_param::kElectronFlag;
+      ClearOutBranch();
+      selected_track_indexs.clear();
+      selected_track_proj_hbd_cluster_indexs.clear();
+      selected_track_proj_lg_hit_indexs.clear();
+      selected_track_proj_lg_cluster_indexs.clear();
+      SelectTracks();
       AnalyzePionTrackPairs();
     }
   }

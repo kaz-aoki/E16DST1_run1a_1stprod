@@ -14,12 +14,13 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 
 #include "E16ANA_TrackAnalyzerFromTree.hh"
-#include "E16ANA_TrackAnalyzerFromTreeParameter.hh"
+#include "E16ANA_TrackAnalyzerFromTreeParameterV2.hh"
 
 using namespace std;
 
-const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
-//const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
+//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kBothFlag; // 0 : electron, 1 : pion (Ks)
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
@@ -29,13 +30,13 @@ int main(int argc, char* argv[]) {
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
   
-//  FILE* fp = fopen(in_file_name, "r");
-//  if (!fp) {
-//    cerr << "could not open file : " << in_file_name << endl;
-//    return -1;
-//  }
-//  fclose(fp);
-//
+  FILE* fp = fopen(in_file_name, "r");
+  if (!fp) {
+    cerr << "could not open file : " << in_file_name << endl;
+    return -1;
+  }
+  fclose(fp);
+
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
@@ -46,7 +47,7 @@ int main(int argc, char* argv[]) {
   auto in_file = new TFile(in_file_name);
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
-  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kParticleFlag, geometry, bfield_map, &pair_fitter, out_file);
+  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter, out_file);
   analyzer.Loop();
 
   delete geometry;

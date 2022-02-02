@@ -1500,9 +1500,9 @@ class E16ANA_TrackAnalyzerFromTree {
   TBranch        *b_rk_pair_plus_gtr300_res_refit_z;   //!
   TBranch        *b_rk_pair_mass_refit;   //!
 
-  E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _particle_flag,
+  E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _analyze_flag,
                                  E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
-  E16ANA_TrackAnalyzerFromTree(TChain *chain, int _particle_flag,
+  E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag,
                                  E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
   virtual ~E16ANA_TrackAnalyzerFromTree();
   virtual Int_t    Cut(Long64_t entry);
@@ -1546,6 +1546,7 @@ class E16ANA_TrackAnalyzerFromTree {
   void AddPionTracks(const int track_index_pair[]);
   void PionPairTracking(const int track_indexs_index_pair[]);
   void AnalyzePionTrackPairs();
+  int analyze_flag; // 0 : electron, 1 : pion, 2 : both
   int particle_flag; // 0 : electron, 1 : pion
   std::vector<int>              selected_track_indexs;
   std::vector<std::vector<int>> selected_track_proj_hbd_cluster_indexs;
@@ -1556,6 +1557,7 @@ class E16ANA_TrackAnalyzerFromTree {
   E16ANA_MultiTrack* pair_fitter;
   TFile* out_file;
   TTree* out_tree;
+  TTree* out_tree1;
   int out_run_id;
   int out_event_id;
   int out_spill_id;
@@ -1568,7 +1570,6 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<int> out_minus_track_id;
   std::vector<int> out_plus_track_id;
   std::vector<double> out_chi_square;
-  
   std::vector<double> out_vtx_gx;
   std::vector<double> out_vtx_gy;
   std::vector<double> out_vtx_gz;
@@ -1580,7 +1581,6 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_plus_mom_gx;
   std::vector<double> out_plus_mom_gy;
   std::vector<double> out_plus_mom_gz;
-  
   std::vector<int> out_minus_ssd_mid;
   std::vector<int> out_minus_gtr100_mid;
   std::vector<int> out_minus_gtr200_mid;
@@ -1764,6 +1764,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_plus_gtr300_fit_gx;
   std::vector<double> out_plus_gtr300_fit_gy;
   std::vector<double> out_plus_gtr300_fit_gz;
+  
   std::vector<double> out_minus_ssd_fit_mom;
   std::vector<double> out_minus_ssd_fit_mom_x;
   std::vector<double> out_minus_ssd_fit_mom_y;
@@ -1869,8 +1870,8 @@ class E16ANA_TrackAnalyzerFromTree {
 #endif
 
 #ifdef E16ANA_TrackAnalyzerFromTree_cxx
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _particle_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(0), particle_flag(_particle_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
+    : fChain(0), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
 //  if (tree == 0) {
@@ -1882,15 +1883,17 @@ E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _par
 
 //  }
   Init(tree);
-  out_tree = new TTree("tree", "tree");
+  out_tree  = new TTree("tree",  "tree");
+  out_tree1 = new TTree("tree1", "tree1");
   InitOutTree();
 }
 
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TChain *chain, int _particle_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(0), particle_flag(_particle_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
+    : fChain(0), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
 std::cout << chain->GetEntries() << std::endl;
   Init(dynamic_cast<TTree*>(chain));
-  out_tree = new TTree("tree", "tree");
+  out_tree  = new TTree("tree",  "tree");
+  out_tree1 = new TTree("tree1", "tree1");
   InitOutTree();
 }
 
@@ -1925,7 +1928,7 @@ void E16ANA_TrackAnalyzerFromTree::Init(TTree *tree) {
   // code, but the routine can be extended by the user if needed.
   // Init() will be called many times when running on PROOF
   // (once per file to be processed).
-
+  particle_flag = -1;
   // Set object pointer
   ssd_hit_id = 0;
   ssd_hit_mid = 0;
@@ -3676,6 +3679,315 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("ks_mom_at_x0_gy", &out_ks_mom_at_x0_gy);
   out_tree->Branch("ks_mom_at_x0_gz", &out_ks_mom_at_x0_gz);
   out_tree->Branch("ks_t_at_x0",      &out_ks_t_at_x0);
+  
+  // out tree1
+  out_tree1->Branch("run_id", &out_run_id, "run_id/I");
+  out_tree1->Branch("event_id", &out_event_id, "event_id/I");
+  out_tree1->Branch("spill_id", &out_spill_id, "spill_id/I");
+  out_tree1->Branch("timestamp_in_spill", &out_timestamp_in_spill, "timestamp_in_spill/L");
+  out_tree1->Branch("n_tracks", &out_n_tracks, "n_tracks/I");
+  out_tree1->Branch("n_pairs", &out_n_pairs, "n_pairs/I");
+  out_tree1->Branch("n_selected_pairs", &out_n_selected_pairs, "n_selected_pairs/I");
+  
+  out_tree1->Branch("is_selected", &out_is_selected);
+  out_tree1->Branch("minus_track_id", &out_minus_track_id);
+  out_tree1->Branch("plus_track_id", &out_plus_track_id);
+  out_tree1->Branch("chi_square", &out_chi_square);
+  out_tree1->Branch("vtx_gx", &out_vtx_gx);
+  out_tree1->Branch("vtx_gy", &out_vtx_gy);
+  out_tree1->Branch("vtx_gz", &out_vtx_gz);
+  out_tree1->Branch("minus_mom", &out_minus_mom);
+  out_tree1->Branch("minus_mom_gx", &out_minus_mom_gx);
+  out_tree1->Branch("minus_mom_gy", &out_minus_mom_gy);
+  out_tree1->Branch("minus_mom_gz", &out_minus_mom_gz);
+  out_tree1->Branch("plus_mom", &out_plus_mom);
+  out_tree1->Branch("plus_mom_gx", &out_plus_mom_gx);
+  out_tree1->Branch("plus_mom_gy", &out_plus_mom_gy);
+  out_tree1->Branch("plus_mom_gz", &out_plus_mom_gz);
+  out_tree1->Branch("minus_ssd_mid",    &out_minus_ssd_mid);
+  out_tree1->Branch("minus_gtr100_mid", &out_minus_gtr100_mid);
+  out_tree1->Branch("minus_gtr200_mid", &out_minus_gtr200_mid);
+  out_tree1->Branch("minus_gtr300_mid", &out_minus_gtr300_mid);
+  out_tree1->Branch("minus_hbd_mid",    &out_minus_hbd_mid);
+  out_tree1->Branch("minus_lg_c_mid",   &out_minus_lg_c_mid);
+  out_tree1->Branch("minus_lg_b_mid",   &out_minus_lg_b_mid);
+  out_tree1->Branch("minus_lg_a_mid",   &out_minus_lg_a_mid);
+  out_tree1->Branch("plus_ssd_mid",     &out_plus_ssd_mid);
+  out_tree1->Branch("plus_gtr100_mid",  &out_plus_gtr100_mid);
+  out_tree1->Branch("plus_gtr200_mid",  &out_plus_gtr200_mid);
+  out_tree1->Branch("plus_gtr300_mid",  &out_plus_gtr300_mid);
+  out_tree1->Branch("plus_hbd_mid",     &out_plus_hbd_mid);
+  out_tree1->Branch("plus_lg_c_mid",    &out_plus_lg_c_mid);
+  out_tree1->Branch("plus_lg_b_mid",    &out_plus_lg_b_mid);
+  out_tree1->Branch("plus_lg_a_mid",    &out_plus_lg_a_mid);
+
+  out_tree1->Branch("minus_proj_n_hbd_clusters",    &out_minus_proj_n_hbd_clusters);
+  out_tree1->Branch("minus_proj_hbd_cluster_res",   &out_minus_proj_hbd_cluster_res);
+  out_tree1->Branch("minus_proj_hbd_cluster_res_x", &out_minus_proj_hbd_cluster_res_x);
+  out_tree1->Branch("minus_proj_hbd_cluster_res_y", &out_minus_proj_hbd_cluster_res_y);
+  out_tree1->Branch("minus_proj_hbd_cluster_adc",   &out_minus_proj_hbd_cluster_adc);
+  out_tree1->Branch("minus_proj_hbd_cluster_t",     &out_minus_proj_hbd_cluster_t);
+  out_tree1->Branch("plus_proj_n_hbd_clusters",     &out_plus_proj_n_hbd_clusters);
+  out_tree1->Branch("plus_proj_hbd_cluster_res",    &out_plus_proj_hbd_cluster_res);
+  out_tree1->Branch("plus_proj_hbd_cluster_res_x",  &out_plus_proj_hbd_cluster_res_x);
+  out_tree1->Branch("plus_proj_hbd_cluster_res_y",  &out_plus_proj_hbd_cluster_res_y);
+  out_tree1->Branch("plus_proj_hbd_cluster_adc",    &out_plus_proj_hbd_cluster_adc);
+  out_tree1->Branch("plus_proj_hbd_cluster_t",      &out_plus_proj_hbd_cluster_t);
+  out_tree1->Branch("minus_proj_n_lg_hits",         &out_minus_proj_n_lg_hits);
+  out_tree1->Branch("minus_proj_lg_hit_type",       &out_minus_proj_lg_hit_type);
+  out_tree1->Branch("minus_proj_lg_hit_res",        &out_minus_proj_lg_hit_res);
+  out_tree1->Branch("minus_proj_lg_hit_res_x",      &out_minus_proj_lg_hit_res_x);
+  out_tree1->Branch("minus_proj_lg_hit_res_y",      &out_minus_proj_lg_hit_res_y);
+  out_tree1->Branch("minus_proj_lg_hit_adc",        &out_minus_proj_lg_hit_adc);
+  out_tree1->Branch("minus_proj_lg_hit_t",          &out_minus_proj_lg_hit_t);
+  out_tree1->Branch("plus_proj_n_lg_hits",          &out_plus_proj_n_lg_hits);
+  out_tree1->Branch("plus_proj_lg_hit_type",        &out_plus_proj_lg_hit_type);
+  out_tree1->Branch("plus_proj_lg_hit_res",         &out_plus_proj_lg_hit_res);
+  out_tree1->Branch("plus_proj_lg_hit_res_x",       &out_plus_proj_lg_hit_res_x);
+  out_tree1->Branch("plus_proj_lg_hit_res_y",       &out_plus_proj_lg_hit_res_y);
+  out_tree1->Branch("plus_proj_lg_hit_adc",         &out_plus_proj_lg_hit_adc);
+  out_tree1->Branch("plus_proj_lg_hit_t",           &out_plus_proj_lg_hit_t);
+  out_tree1->Branch("minus_proj_n_lg_clusters",     &out_minus_proj_n_lg_clusters);
+  out_tree1->Branch("minus_proj_lg_cluster_type",   &out_minus_proj_lg_cluster_type);
+  out_tree1->Branch("minus_proj_lg_cluster_res",    &out_minus_proj_lg_cluster_res);
+  out_tree1->Branch("minus_proj_lg_cluster_res_x",  &out_minus_proj_lg_cluster_res_x);
+  out_tree1->Branch("minus_proj_lg_cluster_res_y",  &out_minus_proj_lg_cluster_res_y);
+  out_tree1->Branch("minus_proj_lg_cluster_adc",    &out_minus_proj_lg_cluster_adc);
+  out_tree1->Branch("minus_proj_lg_cluster_t",      &out_minus_proj_lg_cluster_t);
+  out_tree1->Branch("plus_proj_n_lg_clusters",      &out_plus_proj_n_lg_clusters);
+  out_tree1->Branch("plus_proj_lg_cluster_type",    &out_plus_proj_lg_cluster_type);
+  out_tree1->Branch("plus_proj_lg_cluster_res",     &out_plus_proj_lg_cluster_res);
+  out_tree1->Branch("plus_proj_lg_cluster_res_x",   &out_plus_proj_lg_cluster_res_x);
+  out_tree1->Branch("plus_proj_lg_cluster_res_y",   &out_plus_proj_lg_cluster_res_y);
+  out_tree1->Branch("plus_proj_lg_cluster_adc",     &out_plus_proj_lg_cluster_adc);
+  out_tree1->Branch("plus_proj_lg_cluster_t",       &out_plus_proj_lg_cluster_t);
+  
+  out_tree1->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
+  out_tree1->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);
+  out_tree1->Branch("minus_ssd_hit_z",         &out_minus_ssd_hit_z);
+  out_tree1->Branch("minus_ssd_hit_gx",        &out_minus_ssd_hit_gx);
+  out_tree1->Branch("minus_ssd_hit_gy",        &out_minus_ssd_hit_gy);
+  out_tree1->Branch("minus_ssd_hit_gz",        &out_minus_ssd_hit_gz);
+  out_tree1->Branch("minus_ssd_hit_t",         &out_minus_ssd_hit_t);
+  out_tree1->Branch("minus_ssd_hit_adc",       &out_minus_ssd_hit_adc);
+  out_tree1->Branch("minus_gtr100_hit_x",      &out_minus_gtr100_hit_x);
+  out_tree1->Branch("minus_gtr100_hit_y",      &out_minus_gtr100_hit_y);
+  out_tree1->Branch("minus_gtr100_hit_z",      &out_minus_gtr100_hit_z);
+  out_tree1->Branch("minus_gtr100_hit_gx",     &out_minus_gtr100_hit_gx);
+  out_tree1->Branch("minus_gtr100_hit_gy",     &out_minus_gtr100_hit_gy);
+  out_tree1->Branch("minus_gtr100_hit_gz",     &out_minus_gtr100_hit_gz);
+  out_tree1->Branch("minus_gtr100_hit_xt",     &out_minus_gtr100_hit_xt);
+  out_tree1->Branch("minus_gtr100_hit_yt",     &out_minus_gtr100_hit_yt);
+  out_tree1->Branch("minus_gtr100_hit_xadc",   &out_minus_gtr100_hit_xadc);
+  out_tree1->Branch("minus_gtr100_hit_yadc",   &out_minus_gtr100_hit_yadc);
+  out_tree1->Branch("minus_gtr200_hit_x",      &out_minus_gtr200_hit_x);
+  out_tree1->Branch("minus_gtr200_hit_y",      &out_minus_gtr200_hit_y);
+  out_tree1->Branch("minus_gtr200_hit_z",      &out_minus_gtr200_hit_z);
+  out_tree1->Branch("minus_gtr200_hit_gx",     &out_minus_gtr200_hit_gx);
+  out_tree1->Branch("minus_gtr200_hit_gy",     &out_minus_gtr200_hit_gy);
+  out_tree1->Branch("minus_gtr200_hit_gz",     &out_minus_gtr200_hit_gz);
+  out_tree1->Branch("minus_gtr200_hit_xt",     &out_minus_gtr200_hit_xt);
+  out_tree1->Branch("minus_gtr200_hit_yt",     &out_minus_gtr200_hit_yt);
+  out_tree1->Branch("minus_gtr200_hit_xadc",   &out_minus_gtr200_hit_xadc);
+  out_tree1->Branch("minus_gtr200_hit_yadc",   &out_minus_gtr200_hit_yadc);
+  out_tree1->Branch("minus_gtr300_hit_x",      &out_minus_gtr300_hit_x);
+  out_tree1->Branch("minus_gtr300_hit_y",      &out_minus_gtr300_hit_y);
+  out_tree1->Branch("minus_gtr300_hit_z",      &out_minus_gtr300_hit_z);
+  out_tree1->Branch("minus_gtr300_hit_gx",     &out_minus_gtr300_hit_gx);
+  out_tree1->Branch("minus_gtr300_hit_gy",     &out_minus_gtr300_hit_gy);
+  out_tree1->Branch("minus_gtr300_hit_gz",     &out_minus_gtr300_hit_gz);
+  out_tree1->Branch("minus_gtr300_hit_xt",     &out_minus_gtr300_hit_xt);
+  out_tree1->Branch("minus_gtr300_hit_yt",     &out_minus_gtr300_hit_yt);
+  out_tree1->Branch("minus_gtr300_hit_xadc",   &out_minus_gtr300_hit_xadc);
+  out_tree1->Branch("minus_gtr300_hit_yadc",   &out_minus_gtr300_hit_yadc);
+  out_tree1->Branch("plus_ssd_hit_x",          &out_plus_ssd_hit_x);
+  out_tree1->Branch("plus_ssd_hit_y",          &out_plus_ssd_hit_y);
+  out_tree1->Branch("plus_ssd_hit_z",          &out_plus_ssd_hit_z);
+  out_tree1->Branch("plus_ssd_hit_gx",         &out_plus_ssd_hit_gx);
+  out_tree1->Branch("plus_ssd_hit_gy",         &out_plus_ssd_hit_gy);
+  out_tree1->Branch("plus_ssd_hit_gz",         &out_plus_ssd_hit_gz);
+  out_tree1->Branch("plus_ssd_hit_t",          &out_plus_ssd_hit_t);
+  out_tree1->Branch("plus_ssd_hit_adc",        &out_plus_ssd_hit_adc);
+  out_tree1->Branch("plus_gtr100_hit_x",       &out_plus_gtr100_hit_x);
+  out_tree1->Branch("plus_gtr100_hit_y",       &out_plus_gtr100_hit_y);
+  out_tree1->Branch("plus_gtr100_hit_z",       &out_plus_gtr100_hit_z);
+  out_tree1->Branch("plus_gtr100_hit_gx",      &out_plus_gtr100_hit_gx);
+  out_tree1->Branch("plus_gtr100_hit_gy",      &out_plus_gtr100_hit_gy);
+  out_tree1->Branch("plus_gtr100_hit_gz",      &out_plus_gtr100_hit_gz);
+  out_tree1->Branch("plus_gtr100_hit_xt",      &out_plus_gtr100_hit_xt);
+  out_tree1->Branch("plus_gtr100_hit_yt",      &out_plus_gtr100_hit_yt);
+  out_tree1->Branch("plus_gtr100_hit_xadc",    &out_plus_gtr100_hit_xadc);
+  out_tree1->Branch("plus_gtr100_hit_yadc",    &out_plus_gtr100_hit_yadc);
+  out_tree1->Branch("plus_gtr200_hit_x",       &out_plus_gtr200_hit_x);
+  out_tree1->Branch("plus_gtr200_hit_y",       &out_plus_gtr200_hit_y);
+  out_tree1->Branch("plus_gtr200_hit_z",       &out_plus_gtr200_hit_z);
+  out_tree1->Branch("plus_gtr200_hit_gx",      &out_plus_gtr200_hit_gx);
+  out_tree1->Branch("plus_gtr200_hit_gy",      &out_plus_gtr200_hit_gy);
+  out_tree1->Branch("plus_gtr200_hit_gz",      &out_plus_gtr200_hit_gz);
+  out_tree1->Branch("plus_gtr200_hit_xt",      &out_plus_gtr200_hit_xt);
+  out_tree1->Branch("plus_gtr200_hit_yt",      &out_plus_gtr200_hit_yt);
+  out_tree1->Branch("plus_gtr200_hit_xadc",    &out_plus_gtr200_hit_xadc);
+  out_tree1->Branch("plus_gtr200_hit_yadc",    &out_plus_gtr200_hit_yadc);
+  out_tree1->Branch("plus_gtr300_hit_x",       &out_plus_gtr300_hit_x);
+  out_tree1->Branch("plus_gtr300_hit_y",       &out_plus_gtr300_hit_y);
+  out_tree1->Branch("plus_gtr300_hit_z",       &out_plus_gtr300_hit_z);
+  out_tree1->Branch("plus_gtr300_hit_gx",      &out_plus_gtr300_hit_gx);
+  out_tree1->Branch("plus_gtr300_hit_gy",      &out_plus_gtr300_hit_gy);
+  out_tree1->Branch("plus_gtr300_hit_gz",      &out_plus_gtr300_hit_gz);
+  out_tree1->Branch("plus_gtr300_hit_xt",      &out_plus_gtr300_hit_xt);
+  out_tree1->Branch("plus_gtr300_hit_yt",      &out_plus_gtr300_hit_yt);
+  out_tree1->Branch("plus_gtr300_hit_xadc",    &out_plus_gtr300_hit_xadc);
+  out_tree1->Branch("plus_gtr300_hit_yadc",    &out_plus_gtr300_hit_yadc);
+  
+  out_tree1->Branch("minus_ssd_fit_x",     &out_minus_ssd_fit_x);
+  out_tree1->Branch("minus_ssd_fit_y",     &out_minus_ssd_fit_y);
+  out_tree1->Branch("minus_ssd_fit_z",     &out_minus_ssd_fit_z);
+  out_tree1->Branch("minus_gtr100_fit_x",  &out_minus_gtr100_fit_x);
+  out_tree1->Branch("minus_gtr100_fit_y",  &out_minus_gtr100_fit_y);
+  out_tree1->Branch("minus_gtr100_fit_z",  &out_minus_gtr100_fit_z);
+  out_tree1->Branch("minus_gtr200_fit_x",  &out_minus_gtr200_fit_x);
+  out_tree1->Branch("minus_gtr200_fit_y",  &out_minus_gtr200_fit_y);
+  out_tree1->Branch("minus_gtr200_fit_z",  &out_minus_gtr200_fit_z);
+  out_tree1->Branch("minus_gtr300_fit_x",  &out_minus_gtr300_fit_x);
+  out_tree1->Branch("minus_gtr300_fit_y",  &out_minus_gtr300_fit_y);
+  out_tree1->Branch("minus_gtr300_fit_z",  &out_minus_gtr300_fit_z);
+  out_tree1->Branch("plus_ssd_fit_x",      &out_plus_ssd_fit_x);
+  out_tree1->Branch("plus_ssd_fit_y",      &out_plus_ssd_fit_y);
+  out_tree1->Branch("plus_ssd_fit_z",      &out_plus_ssd_fit_z);
+  out_tree1->Branch("plus_gtr100_fit_x",   &out_plus_gtr100_fit_x);
+  out_tree1->Branch("plus_gtr100_fit_y",   &out_plus_gtr100_fit_y);
+  out_tree1->Branch("plus_gtr100_fit_z",   &out_plus_gtr100_fit_z);
+  out_tree1->Branch("plus_gtr200_fit_x",   &out_plus_gtr200_fit_x);
+  out_tree1->Branch("plus_gtr200_fit_y",   &out_plus_gtr200_fit_y);
+  out_tree1->Branch("plus_gtr200_fit_z",   &out_plus_gtr200_fit_z);
+  out_tree1->Branch("plus_gtr300_fit_x",   &out_plus_gtr300_fit_x);
+  out_tree1->Branch("plus_gtr300_fit_y",   &out_plus_gtr300_fit_y);
+  out_tree1->Branch("plus_gtr300_fit_z",   &out_plus_gtr300_fit_z);
+  out_tree1->Branch("minus_ssd_fit_gx",    &out_minus_ssd_fit_gx);
+  out_tree1->Branch("minus_ssd_fit_gy",    &out_minus_ssd_fit_gy);
+  out_tree1->Branch("minus_ssd_fit_gz",    &out_minus_ssd_fit_gz);
+  out_tree1->Branch("minus_gtr100_fit_gx", &out_minus_gtr100_fit_gx);
+  out_tree1->Branch("minus_gtr100_fit_gy", &out_minus_gtr100_fit_gy);
+  out_tree1->Branch("minus_gtr100_fit_gz", &out_minus_gtr100_fit_gz);
+  out_tree1->Branch("minus_gtr200_fit_gx", &out_minus_gtr200_fit_gx);
+  out_tree1->Branch("minus_gtr200_fit_gy", &out_minus_gtr200_fit_gy);
+  out_tree1->Branch("minus_gtr200_fit_gz", &out_minus_gtr200_fit_gz);
+  out_tree1->Branch("minus_gtr300_fit_gx", &out_minus_gtr300_fit_gx);
+  out_tree1->Branch("minus_gtr300_fit_gy", &out_minus_gtr300_fit_gy);
+  out_tree1->Branch("minus_gtr300_fit_gz", &out_minus_gtr300_fit_gz);
+  out_tree1->Branch("plus_ssd_fit_gx",     &out_plus_ssd_fit_gx);
+  out_tree1->Branch("plus_ssd_fit_gy",     &out_plus_ssd_fit_gy);
+  out_tree1->Branch("plus_ssd_fit_gz",     &out_plus_ssd_fit_gz);
+  out_tree1->Branch("plus_gtr100_fit_gx",  &out_plus_gtr100_fit_gx);
+  out_tree1->Branch("plus_gtr100_fit_gy",  &out_plus_gtr100_fit_gy);
+  out_tree1->Branch("plus_gtr100_fit_gz",  &out_plus_gtr100_fit_gz);
+  out_tree1->Branch("plus_gtr200_fit_gx",  &out_plus_gtr200_fit_gx);
+  out_tree1->Branch("plus_gtr200_fit_gy",  &out_plus_gtr200_fit_gy);
+  out_tree1->Branch("plus_gtr200_fit_gz",  &out_plus_gtr200_fit_gz);
+  out_tree1->Branch("plus_gtr300_fit_gx",  &out_plus_gtr300_fit_gx);
+  out_tree1->Branch("plus_gtr300_fit_gy",  &out_plus_gtr300_fit_gy);
+  out_tree1->Branch("plus_gtr300_fit_gz",  &out_plus_gtr300_fit_gz);
+  
+  out_tree1->Branch("minus_ssd_fit_mom",        &out_minus_ssd_fit_mom);
+  out_tree1->Branch("minus_ssd_fit_mom_x",      &out_minus_ssd_fit_mom_x);
+  out_tree1->Branch("minus_ssd_fit_mom_y",      &out_minus_ssd_fit_mom_y);
+  out_tree1->Branch("minus_ssd_fit_mom_z",      &out_minus_ssd_fit_mom_z);
+  out_tree1->Branch("minus_ssd_fit_mom_tan",    &out_minus_ssd_fit_mom_tan);
+  out_tree1->Branch("minus_ssd_fit_mom_gx",     &out_minus_ssd_fit_mom_gx);
+  out_tree1->Branch("minus_ssd_fit_mom_gy",     &out_minus_ssd_fit_mom_gy);
+  out_tree1->Branch("minus_ssd_fit_mom_gz",     &out_minus_ssd_fit_mom_gz);
+  out_tree1->Branch("minus_gtr100_fit_mom",     &out_minus_gtr100_fit_mom);
+  out_tree1->Branch("minus_gtr100_fit_mom_x",   &out_minus_gtr100_fit_mom_x);
+  out_tree1->Branch("minus_gtr100_fit_mom_y",   &out_minus_gtr100_fit_mom_y);
+  out_tree1->Branch("minus_gtr100_fit_mom_z",   &out_minus_gtr100_fit_mom_z);
+  out_tree1->Branch("minus_gtr100_fit_mom_tan", &out_minus_gtr100_fit_mom_tan);
+  out_tree1->Branch("minus_gtr100_fit_mom_gx",  &out_minus_gtr100_fit_mom_gx);
+  out_tree1->Branch("minus_gtr100_fit_mom_gy",  &out_minus_gtr100_fit_mom_gy);
+  out_tree1->Branch("minus_gtr100_fit_mom_gz",  &out_minus_gtr100_fit_mom_gz);
+  out_tree1->Branch("minus_gtr200_fit_mom",     &out_minus_gtr200_fit_mom);
+  out_tree1->Branch("minus_gtr200_fit_mom_x",   &out_minus_gtr200_fit_mom_x);
+  out_tree1->Branch("minus_gtr200_fit_mom_y",   &out_minus_gtr200_fit_mom_y);
+  out_tree1->Branch("minus_gtr200_fit_mom_z",   &out_minus_gtr200_fit_mom_z);
+  out_tree1->Branch("minus_gtr200_fit_mom_tan", &out_minus_gtr200_fit_mom_tan);
+  out_tree1->Branch("minus_gtr200_fit_mom_gx",  &out_minus_gtr200_fit_mom_gx);
+  out_tree1->Branch("minus_gtr200_fit_mom_gy",  &out_minus_gtr200_fit_mom_gy);
+  out_tree1->Branch("minus_gtr200_fit_mom_gz",  &out_minus_gtr200_fit_mom_gz);
+  out_tree1->Branch("minus_gtr300_fit_mom",     &out_minus_gtr300_fit_mom);
+  out_tree1->Branch("minus_gtr300_fit_mom_x",   &out_minus_gtr300_fit_mom_x);
+  out_tree1->Branch("minus_gtr300_fit_mom_y",   &out_minus_gtr300_fit_mom_y);
+  out_tree1->Branch("minus_gtr300_fit_mom_z",   &out_minus_gtr300_fit_mom_z);
+  out_tree1->Branch("minus_gtr300_fit_mom_tan", &out_minus_gtr300_fit_mom_tan);
+  out_tree1->Branch("minus_gtr300_fit_mom_gx",  &out_minus_gtr300_fit_mom_gx);
+  out_tree1->Branch("minus_gtr300_fit_mom_gy",  &out_minus_gtr300_fit_mom_gy);
+  out_tree1->Branch("minus_gtr300_fit_mom_gz",  &out_minus_gtr300_fit_mom_gz);
+  out_tree1->Branch("plus_ssd_fit_mom",         &out_plus_ssd_fit_mom);
+  out_tree1->Branch("plus_ssd_fit_mom_x",       &out_plus_ssd_fit_mom_x);
+  out_tree1->Branch("plus_ssd_fit_mom_y",       &out_plus_ssd_fit_mom_y);
+  out_tree1->Branch("plus_ssd_fit_mom_z",       &out_plus_ssd_fit_mom_z);
+  out_tree1->Branch("plus_ssd_fit_mom_tan",     &out_plus_ssd_fit_mom_tan);
+  out_tree1->Branch("plus_ssd_fit_mom_gx",      &out_plus_ssd_fit_mom_gx);
+  out_tree1->Branch("plus_ssd_fit_mom_gy",      &out_plus_ssd_fit_mom_gy);
+  out_tree1->Branch("plus_ssd_fit_mom_gz",      &out_plus_ssd_fit_mom_gz);
+  out_tree1->Branch("plus_gtr100_fit_mom",      &out_plus_gtr100_fit_mom);
+  out_tree1->Branch("plus_gtr100_fit_mom_x",    &out_plus_gtr100_fit_mom_x);
+  out_tree1->Branch("plus_gtr100_fit_mom_y",    &out_plus_gtr100_fit_mom_y);
+  out_tree1->Branch("plus_gtr100_fit_mom_z",    &out_plus_gtr100_fit_mom_z);
+  out_tree1->Branch("plus_gtr100_fit_mom_tan",  &out_plus_gtr100_fit_mom_tan);
+  out_tree1->Branch("plus_gtr100_fit_mom_gx",   &out_plus_gtr100_fit_mom_gx);
+  out_tree1->Branch("plus_gtr100_fit_mom_gy",   &out_plus_gtr100_fit_mom_gy);
+  out_tree1->Branch("plus_gtr100_fit_mom_gz",   &out_plus_gtr100_fit_mom_gz);
+  out_tree1->Branch("plus_gtr200_fit_mom",      &out_plus_gtr200_fit_mom);
+  out_tree1->Branch("plus_gtr200_fit_mom_x",    &out_plus_gtr200_fit_mom_x);
+  out_tree1->Branch("plus_gtr200_fit_mom_y",    &out_plus_gtr200_fit_mom_y);
+  out_tree1->Branch("plus_gtr200_fit_mom_z",    &out_plus_gtr200_fit_mom_z);
+  out_tree1->Branch("plus_gtr200_fit_mom_tan",  &out_plus_gtr200_fit_mom_tan);
+  out_tree1->Branch("plus_gtr200_fit_mom_gx",   &out_plus_gtr200_fit_mom_gx);
+  out_tree1->Branch("plus_gtr200_fit_mom_gy",   &out_plus_gtr200_fit_mom_gy);
+  out_tree1->Branch("plus_gtr200_fit_mom_gz",   &out_plus_gtr200_fit_mom_gz);
+  out_tree1->Branch("plus_gtr300_fit_mom",      &out_plus_gtr300_fit_mom);
+  out_tree1->Branch("plus_gtr300_fit_mom_x",    &out_plus_gtr300_fit_mom_x);
+  out_tree1->Branch("plus_gtr300_fit_mom_y",    &out_plus_gtr300_fit_mom_y);
+  out_tree1->Branch("plus_gtr300_fit_mom_z",    &out_plus_gtr300_fit_mom_z);
+  out_tree1->Branch("plus_gtr300_fit_mom_tan",  &out_plus_gtr300_fit_mom_tan);
+  out_tree1->Branch("plus_gtr300_fit_mom_gx",   &out_plus_gtr300_fit_mom_gx);
+  out_tree1->Branch("plus_gtr300_fit_mom_gy",   &out_plus_gtr300_fit_mom_gy);
+  out_tree1->Branch("plus_gtr300_fit_mom_gz",   &out_plus_gtr300_fit_mom_gz);
+  
+  out_tree1->Branch("minus_ssd_res_x",    &out_minus_ssd_res_x);
+  out_tree1->Branch("minus_ssd_res_y",    &out_minus_ssd_res_y);
+  out_tree1->Branch("minus_ssd_res_z",    &out_minus_ssd_res_z);
+  out_tree1->Branch("minus_gtr100_res_x", &out_minus_gtr100_res_x);
+  out_tree1->Branch("minus_gtr100_res_y", &out_minus_gtr100_res_y);
+  out_tree1->Branch("minus_gtr100_res_z", &out_minus_gtr100_res_z);
+  out_tree1->Branch("minus_gtr200_res_x", &out_minus_gtr200_res_x);
+  out_tree1->Branch("minus_gtr200_res_y", &out_minus_gtr200_res_y);
+  out_tree1->Branch("minus_gtr200_res_z", &out_minus_gtr200_res_z);
+  out_tree1->Branch("minus_gtr300_res_x", &out_minus_gtr300_res_x);
+  out_tree1->Branch("minus_gtr300_res_y", &out_minus_gtr300_res_y);
+  out_tree1->Branch("minus_gtr300_res_z", &out_minus_gtr300_res_z);
+  out_tree1->Branch("plus_ssd_res_x",     &out_plus_ssd_res_x);
+  out_tree1->Branch("plus_ssd_res_y",     &out_plus_ssd_res_y);
+  out_tree1->Branch("plus_ssd_res_z",     &out_plus_ssd_res_z);
+  out_tree1->Branch("plus_gtr100_res_x",  &out_plus_gtr100_res_x);
+  out_tree1->Branch("plus_gtr100_res_y",  &out_plus_gtr100_res_y);
+  out_tree1->Branch("plus_gtr100_res_z",  &out_plus_gtr100_res_z);
+  out_tree1->Branch("plus_gtr200_res_x",  &out_plus_gtr200_res_x);
+  out_tree1->Branch("plus_gtr200_res_y",  &out_plus_gtr200_res_y);
+  out_tree1->Branch("plus_gtr200_res_z",  &out_plus_gtr200_res_z);
+  out_tree1->Branch("plus_gtr300_res_x",  &out_plus_gtr300_res_x);
+  out_tree1->Branch("plus_gtr300_res_y",  &out_plus_gtr300_res_y);
+  out_tree1->Branch("plus_gtr300_res_z",  &out_plus_gtr300_res_z);
+
+  out_tree1->Branch("ee_mass", &out_ee_mass);
+  out_tree1->Branch("pipi_mass", &out_pipi_mass);
+  out_tree1->Branch("pip_mass", &out_pip_mass);
+  out_tree1->Branch("ks_pos_at_x0_gx", &out_ks_pos_at_x0_gx);
+  out_tree1->Branch("ks_pos_at_x0_gy", &out_ks_pos_at_x0_gy);
+  out_tree1->Branch("ks_pos_at_x0_gz", &out_ks_pos_at_x0_gz);
+  out_tree1->Branch("ks_mom_at_x0_gx", &out_ks_mom_at_x0_gx);
+  out_tree1->Branch("ks_mom_at_x0_gy", &out_ks_mom_at_x0_gy);
+  out_tree1->Branch("ks_mom_at_x0_gz", &out_ks_mom_at_x0_gz);
+  out_tree1->Branch("ks_t_at_x0",      &out_ks_t_at_x0);
 }
 
 Bool_t E16ANA_TrackAnalyzerFromTree::Notify() {

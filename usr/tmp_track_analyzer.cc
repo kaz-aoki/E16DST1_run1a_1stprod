@@ -14,14 +14,16 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 
 #include "E16ANA_TrackAnalyzerFromTree.hh"
-#include "E16ANA_TrackAnalyzerFromTreeParameter.hh"
+#include "E16ANA_TrackAnalyzerFromTreeParameterV2.hh"
 
 using namespace std;
 
 //const TString kFileNameHeader = "/ccj/w/data03a/E16/user/ichikawa/lsf_file/21102900-v2/root/";
 const TString kFileNameHeader = "/ccj/w/data03z/E16/ichikawa/lsf_file/22013102-v1/root/";
 
-const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
+//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kBothFlag; // 0 : electron, 1 : pion (Ks)
 
 int main(int argc, char* argv[]) {
   if (argc != 4) {
@@ -45,7 +47,7 @@ int main(int argc, char* argv[]) {
   }
 
   auto out_file = new TFile(out_file_name, "recreate");
-  E16ANA_TrackAnalyzerFromTree analyzer(in_chain, kParticleFlag, geometry, bfield_map, &pair_fitter, out_file);
+  E16ANA_TrackAnalyzerFromTree analyzer(in_chain, kAnalyzeFlag, geometry, bfield_map, &pair_fitter, out_file);
   analyzer.Loop();
   
   delete out_file;
