@@ -55,18 +55,28 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_lg_b_mid.clear();
   out_plus_lg_a_mid.clear();
   
+  out_minus_proj_has_hbd_cluster_e.clear();
+  out_plus_proj_has_hbd_cluster_e.clear();
+  out_minus_proj_has_lg_hit_e.clear();
+  out_plus_proj_has_lg_hit_e.clear();
+  out_minus_proj_has_lg_cluster_e.clear();
+  out_plus_proj_has_lg_cluster_e.clear();
   out_minus_proj_n_hbd_clusters.clear();
   out_minus_proj_hbd_cluster_res.clear();
   out_minus_proj_hbd_cluster_res_x.clear();
   out_minus_proj_hbd_cluster_res_y.clear();
   out_minus_proj_hbd_cluster_adc.clear();
   out_minus_proj_hbd_cluster_t.clear();
+  out_minus_proj_hbd_cluster_eprob.clear();
+  out_minus_proj_hbd_cluster_cprob.clear();
   out_plus_proj_n_hbd_clusters.clear();
   out_plus_proj_hbd_cluster_res.clear();
   out_plus_proj_hbd_cluster_res_x.clear();
   out_plus_proj_hbd_cluster_res_y.clear();
   out_plus_proj_hbd_cluster_adc.clear();
   out_plus_proj_hbd_cluster_t.clear();
+  out_plus_proj_hbd_cluster_eprob.clear();
+  out_plus_proj_hbd_cluster_cprob.clear();
   out_minus_proj_n_lg_hits.clear();
   out_minus_proj_lg_hit_type.clear();
   out_minus_proj_lg_hit_res.clear();
@@ -74,6 +84,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_proj_lg_hit_res_y.clear();
   out_minus_proj_lg_hit_adc.clear();
   out_minus_proj_lg_hit_t.clear();
+  out_minus_proj_lg_hit_ise.clear();
   out_plus_proj_n_lg_hits.clear();
   out_plus_proj_lg_hit_type.clear();
   out_plus_proj_lg_hit_res.clear();
@@ -81,6 +92,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_proj_lg_hit_res_y.clear();
   out_plus_proj_lg_hit_adc.clear();
   out_plus_proj_lg_hit_t.clear();
+  out_plus_proj_lg_hit_ise.clear();
   out_minus_proj_n_lg_clusters.clear();
   out_minus_proj_lg_cluster_type.clear();
   out_minus_proj_lg_cluster_res.clear();
@@ -88,6 +100,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_proj_lg_cluster_res_y.clear();
   out_minus_proj_lg_cluster_adc.clear();
   out_minus_proj_lg_cluster_t.clear();
+  out_minus_proj_lg_cluster_ise.clear();
   out_plus_proj_n_lg_clusters.clear();
   out_plus_proj_lg_cluster_type.clear();
   out_plus_proj_lg_cluster_res.clear();
@@ -95,6 +108,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_proj_lg_cluster_res_y.clear();
   out_plus_proj_lg_cluster_adc.clear();
   out_plus_proj_lg_cluster_t.clear();
+  out_plus_proj_lg_cluster_ise.clear();
 
   out_minus_ssd_hit_x.clear();
   out_minus_ssd_hit_y.clear();
@@ -287,6 +301,14 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_mom_gy.clear();
   out_plus_gtr300_fit_mom_gz.clear();
   
+  out_minus_ssd_res.clear();
+  out_minus_gtr100_res.clear();
+  out_minus_gtr200_res.clear();
+  out_minus_gtr300_res.clear();
+  out_plus_ssd_res.clear();
+  out_plus_gtr100_res.clear();
+  out_plus_gtr200_res.clear();
+  out_plus_gtr300_res.clear();
   out_minus_ssd_res_x.clear();
   out_minus_ssd_res_y.clear();
   out_minus_ssd_res_z.clear();
@@ -764,369 +786,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   }
   out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
   out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd0_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd0_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd1_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd1_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd2_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd2_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd3_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd3_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
-//  out_minus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
-//  out_minus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg0_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg0_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
-//  out_minus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg1_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg1_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
-//  out_minus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg2_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg2_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
-//  out_minus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg3_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg3_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
-//  out_plus_proj_n_hbd.emplace_back(rk_proj_n_hbd->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd0_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd0_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd1_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd1_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd2_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd2_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd3_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd3_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
-//  out_plus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
-//  out_plus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg0_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg0_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
-//  out_plus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg1_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg1_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
-//  out_plus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg2_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg2_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
-//  out_plus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg3_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg3_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
-  out_minus_proj_n_hbd_clusters.emplace_back(hbd_cluster_indexs_pair[0].size());
-  out_minus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
-  out_minus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
-  out_minus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
-  out_minus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
-  out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
-  auto& tmp_minus_hbd_clst_res   = out_minus_proj_hbd_cluster_res.back();
-  auto& tmp_minus_hbd_clst_res_x = out_minus_proj_hbd_cluster_res_x.back();
-  auto& tmp_minus_hbd_clst_res_y = out_minus_proj_hbd_cluster_res_y.back();
-  auto& tmp_minus_hbd_clst_adc   = out_minus_proj_hbd_cluster_adc.back();
-  auto& tmp_minus_hbd_clst_t     = out_minus_proj_hbd_cluster_t.back();
-  auto tmp_minus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[0]);
-  auto tmp_minus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[0]);
-  for (const auto& index : hbd_cluster_indexs_pair[0]) {
-    auto res_x = hbd_cluster_x->at(index) - tmp_minus_track_hbd_x;
-    auto res_y = hbd_cluster_y->at(index) - tmp_minus_track_hbd_y;
-    tmp_minus_hbd_clst_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
-    tmp_minus_hbd_clst_res_x.emplace_back(res_x);
-    tmp_minus_hbd_clst_res_y.emplace_back(res_y);
-    tmp_minus_hbd_clst_adc.emplace_back(hbd_cluster_adc->at(index));
-    tmp_minus_hbd_clst_t.emplace_back(hbd_cluster_t->at(index));
-  }
-  out_plus_proj_n_hbd_clusters.emplace_back(hbd_cluster_indexs_pair[1].size());
-  out_plus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
-  out_plus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
-  out_plus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
-  out_plus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
-  out_plus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
-  auto& tmp_plus_hbd_clst_res   = out_plus_proj_hbd_cluster_res.back();
-  auto& tmp_plus_hbd_clst_res_x = out_plus_proj_hbd_cluster_res_x.back();
-  auto& tmp_plus_hbd_clst_res_y = out_plus_proj_hbd_cluster_res_y.back();
-  auto& tmp_plus_hbd_clst_adc   = out_plus_proj_hbd_cluster_adc.back();
-  auto& tmp_plus_hbd_clst_t     = out_plus_proj_hbd_cluster_t.back();
-  auto tmp_plus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[1]);
-  auto tmp_plus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[1]);
-  for (const auto& index : hbd_cluster_indexs_pair[1]) {
-    auto res_x = hbd_cluster_x->at(index) - tmp_plus_track_hbd_x;
-    auto res_y = hbd_cluster_y->at(index) - tmp_plus_track_hbd_y;
-    tmp_plus_hbd_clst_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
-    tmp_plus_hbd_clst_res_x.emplace_back(res_x);
-    tmp_plus_hbd_clst_res_y.emplace_back(res_y);
-    tmp_plus_hbd_clst_adc.emplace_back(hbd_cluster_adc->at(index));
-    tmp_plus_hbd_clst_t.emplace_back(hbd_cluster_t->at(index));
-  }
-  out_minus_proj_n_lg_hits.emplace_back(lg_hit_indexs_pair[0].size());
-  out_minus_proj_lg_hit_type.emplace_back(std::vector<double>());
-  out_minus_proj_lg_hit_res.emplace_back(std::vector<double>());
-  out_minus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
-  out_minus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
-  out_minus_proj_lg_hit_adc.emplace_back(std::vector<double>());
-  out_minus_proj_lg_hit_t.emplace_back(std::vector<double>());
-  auto& tmp_minus_lg_hit_type  = out_minus_proj_lg_hit_type.back();
-  auto& tmp_minus_lg_hit_res   = out_minus_proj_lg_hit_res.back();
-  auto& tmp_minus_lg_hit_res_x = out_minus_proj_lg_hit_res_x.back();
-  auto& tmp_minus_lg_hit_res_y = out_minus_proj_lg_hit_res_y.back();
-  auto& tmp_minus_lg_hit_adc   = out_minus_proj_lg_hit_adc.back();
-  auto& tmp_minus_lg_hit_t     = out_minus_proj_lg_hit_t.back();
-  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[0]),
-                                                                     rk_fit_lg_b_x->at(track_index_pair[0]),
-                                                                     rk_fit_lg_a_x->at(track_index_pair[0])}; 
-  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[0]),
-                                                                     rk_fit_lg_b_y->at(track_index_pair[0]),
-                                                                     rk_fit_lg_a_y->at(track_index_pair[0])}; 
-  for (const auto& index : lg_hit_indexs_pair[0]) {
-    int type;
-    auto z = lg_hit_z->at(index);
-    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
-      if (z == cmn_param::kLGLocalZ[type]) {
-        break;
-      }
-    }
-    if (type == cmn_param::kNumLGTypes) {
-      std::cerr << "Invalid LG hit z" << std::endl;
-      continue;
-    }
-    tmp_minus_lg_hit_type.emplace_back(type);
-    auto res_x = lg_hit_x->at(index) - tmp_minus_track_lg_x[type];
-    auto res_y = lg_hit_y->at(index) - tmp_minus_track_lg_y[type];
-    tmp_minus_lg_hit_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
-    tmp_minus_lg_hit_res_x.emplace_back(res_x);
-    tmp_minus_lg_hit_res_y.emplace_back(res_y);
-    tmp_minus_lg_hit_adc.emplace_back(lg_hit_adc->at(index));
-    tmp_minus_lg_hit_t.emplace_back(lg_hit_t->at(index));
-  }
-  out_plus_proj_n_lg_hits.emplace_back(lg_hit_indexs_pair[1].size());
-  out_plus_proj_lg_hit_type.emplace_back(std::vector<double>());
-  out_plus_proj_lg_hit_res.emplace_back(std::vector<double>());
-  out_plus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
-  out_plus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
-  out_plus_proj_lg_hit_adc.emplace_back(std::vector<double>());
-  out_plus_proj_lg_hit_t.emplace_back(std::vector<double>());
-  auto& tmp_plus_lg_hit_type  = out_plus_proj_lg_hit_type.back();
-  auto& tmp_plus_lg_hit_res   = out_plus_proj_lg_hit_res.back();
-  auto& tmp_plus_lg_hit_res_x = out_plus_proj_lg_hit_res_x.back();
-  auto& tmp_plus_lg_hit_res_y = out_plus_proj_lg_hit_res_y.back();
-  auto& tmp_plus_lg_hit_adc   = out_plus_proj_lg_hit_adc.back();
-  auto& tmp_plus_lg_hit_t     = out_plus_proj_lg_hit_t.back();
-  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[1]),
-                                                                    rk_fit_lg_b_x->at(track_index_pair[1]),
-                                                                    rk_fit_lg_a_x->at(track_index_pair[1])}; 
-  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[1]),
-                                                                    rk_fit_lg_b_y->at(track_index_pair[1]),
-                                                                    rk_fit_lg_a_y->at(track_index_pair[1])}; 
-  for (const auto& index : lg_hit_indexs_pair[1]) {
-    int type;
-    auto z = lg_hit_z->at(index);
-    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
-      if (z == cmn_param::kLGLocalZ[type]) {
-        break;
-      }
-    }
-    if (type == cmn_param::kNumLGTypes) {
-      std::cerr << "Invalid LG hit z" << std::endl;
-      continue;
-    }
-    tmp_plus_lg_hit_type.emplace_back(type);
-    auto res_x = lg_hit_x->at(index) - tmp_plus_track_lg_x[type];
-    auto res_y = lg_hit_y->at(index) - tmp_plus_track_lg_y[type];
-    tmp_plus_lg_hit_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
-    tmp_plus_lg_hit_res_x.emplace_back(res_x);
-    tmp_plus_lg_hit_res_y.emplace_back(res_y);
-    tmp_plus_lg_hit_adc.emplace_back(lg_hit_adc->at(index));
-    tmp_plus_lg_hit_t.emplace_back(lg_hit_t->at(index));
-  }
-  out_minus_proj_n_lg_clusters.emplace_back(lg_cluster_indexs_pair[0].size());
-  out_minus_proj_lg_cluster_type.emplace_back(std::vector<double>());
-  out_minus_proj_lg_cluster_res.emplace_back(std::vector<double>());
-  out_minus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
-  out_minus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
-  out_minus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
-  out_minus_proj_lg_cluster_t.emplace_back(std::vector<double>());
-  auto& tmp_minus_lg_cluster_type  = out_minus_proj_lg_cluster_type.back();
-  auto& tmp_minus_lg_cluster_res   = out_minus_proj_lg_cluster_res.back();
-  auto& tmp_minus_lg_cluster_res_x = out_minus_proj_lg_cluster_res_x.back();
-  auto& tmp_minus_lg_cluster_res_y = out_minus_proj_lg_cluster_res_y.back();
-  auto& tmp_minus_lg_cluster_adc   = out_minus_proj_lg_cluster_adc.back();
-  auto& tmp_minus_lg_cluster_t     = out_minus_proj_lg_cluster_t.back();
-  for (const auto& index : lg_cluster_indexs_pair[0]) {
-    int type;
-    auto z = lg_hit_z->at(index);
-    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
-      if (z == cmn_param::kLGLocalZ[type]) {
-        break;
-      }
-    }
-    if (type == cmn_param::kNumLGTypes) {
-      std::cerr << "Invalid LG hit z" << std::endl;
-      continue;
-    }
-    tmp_minus_lg_cluster_type.emplace_back(type);
-    auto res_x = lg_cluster_x->at(index) - tmp_minus_track_lg_x[type];
-    auto res_y = lg_cluster_y->at(index) - tmp_minus_track_lg_y[type];
-    tmp_minus_lg_cluster_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
-    tmp_minus_lg_cluster_res_x.emplace_back(res_x);
-    tmp_minus_lg_cluster_res_y.emplace_back(res_y);
-    tmp_minus_lg_cluster_adc.emplace_back(lg_cluster_adc->at(index));
-    tmp_minus_lg_cluster_t.emplace_back(lg_cluster_t->at(index));
-  }
-  out_plus_proj_n_lg_clusters.emplace_back(lg_cluster_indexs_pair[1].size());
-  out_plus_proj_lg_cluster_type.emplace_back(std::vector<double>());
-  out_plus_proj_lg_cluster_res.emplace_back(std::vector<double>());
-  out_plus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
-  out_plus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
-  out_plus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
-  out_plus_proj_lg_cluster_t.emplace_back(std::vector<double>());
-  auto& tmp_plus_lg_cluster_type  = out_plus_proj_lg_cluster_type.back();
-  auto& tmp_plus_lg_cluster_res   = out_plus_proj_lg_cluster_res.back();
-  auto& tmp_plus_lg_cluster_res_x = out_plus_proj_lg_cluster_res_x.back();
-  auto& tmp_plus_lg_cluster_res_y = out_plus_proj_lg_cluster_res_y.back();
-  auto& tmp_plus_lg_cluster_adc   = out_plus_proj_lg_cluster_adc.back();
-  auto& tmp_plus_lg_cluster_t     = out_plus_proj_lg_cluster_t.back();
-  for (const auto& index : lg_cluster_indexs_pair[1]) {
-    int type;
-    auto z = lg_hit_z->at(index);
-    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
-      if (z == cmn_param::kLGLocalZ[type]) {
-        break;
-      }
-    }
-    if (type == cmn_param::kNumLGTypes) {
-      std::cerr << "Invalid LG hit z" << std::endl;
-      continue;
-    }
-    tmp_plus_lg_cluster_type.emplace_back(type);
-    auto res_x = lg_cluster_x->at(index) - tmp_plus_track_lg_x[type];
-    auto res_y = lg_cluster_y->at(index) - tmp_plus_track_lg_y[type];
-    tmp_plus_lg_cluster_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
-    tmp_plus_lg_cluster_res_x.emplace_back(res_x);
-    tmp_plus_lg_cluster_res_y.emplace_back(res_y);
-    tmp_plus_lg_cluster_adc.emplace_back(lg_cluster_adc->at(index));
-    tmp_plus_lg_cluster_t.emplace_back(lg_cluster_t->at(index));
-  }
+
   auto tmp_vtx       = pair_fitter->GetFitVertex();
   auto tmp_minus_mom = pair_fitter->GetFitMomentum(0);
   auto tmp_plus_mom  = pair_fitter->GetFitMomentum(1);
@@ -1318,6 +978,14 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_gtr100_fit_mom_tan.emplace_back(lmom[1][1](0) / lmom[1][1](2));
   out_plus_gtr200_fit_mom_tan.emplace_back(lmom[1][2](0) / lmom[1][2](2));
   out_plus_gtr300_fit_mom_tan.emplace_back(lmom[1][3](0) / lmom[1][3](2));
+  out_minus_ssd_res.emplace_back(lres[0][0].Mag());
+  out_minus_gtr100_res.emplace_back(lres[0][1].Mag());
+  out_minus_gtr200_res.emplace_back(lres[0][2].Mag());
+  out_minus_gtr300_res.emplace_back(lres[0][3].Mag());
+  out_plus_ssd_res.emplace_back(lres[1][0].Mag());
+  out_plus_gtr100_res.emplace_back(lres[1][1].Mag());
+  out_plus_gtr200_res.emplace_back(lres[1][2].Mag());
+  out_plus_gtr300_res.emplace_back(lres[1][3].Mag());
   FillTVector3ToDouble(lres[0][0], &out_minus_ssd_res_x,     &out_minus_ssd_res_y,     &out_minus_ssd_res_z);
   FillTVector3ToDouble(lres[0][1], &out_minus_gtr100_res_x,  &out_minus_gtr100_res_y,  &out_minus_gtr100_res_z);
   FillTVector3ToDouble(lres[0][2], &out_minus_gtr200_res_x,  &out_minus_gtr200_res_y,  &out_minus_gtr200_res_z);
@@ -1326,6 +994,430 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_res_x,   &out_plus_gtr100_res_y,   &out_plus_gtr100_res_z);
   FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_res_x,   &out_plus_gtr200_res_y,   &out_plus_gtr200_res_z);
   FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
+  
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
+//    out_minus_proj_hbd0_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_hbd0_res.emplace_back(res);
+//  }
+//  out_minus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
+//  out_minus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
+//    out_minus_proj_hbd1_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_hbd1_res.emplace_back(res);
+//  }
+//  out_minus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
+//  out_minus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
+//    out_minus_proj_hbd2_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_hbd2_res.emplace_back(res);
+//  }
+//  out_minus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
+//  out_minus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
+//    out_minus_proj_hbd3_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_hbd3_res.emplace_back(res);
+//  }
+//  out_minus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
+//  out_minus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
+//  out_minus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
+//  out_minus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
+////    out_minus_proj_lg0_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_minus_proj_lg0_res.emplace_back(res);
+////  }
+//  out_minus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
+//  out_minus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
+//  out_minus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
+////    out_minus_proj_lg1_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_minus_proj_lg1_res.emplace_back(res);
+////  }
+//  out_minus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
+//  out_minus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
+//  out_minus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
+////    out_minus_proj_lg2_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_minus_proj_lg2_res.emplace_back(res);
+////  }
+//  out_minus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
+//  out_minus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
+//  out_minus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
+////    out_minus_proj_lg3_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_minus_proj_lg3_res.emplace_back(res);
+////  }
+//  out_minus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
+//  out_minus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
+//  out_plus_proj_n_hbd.emplace_back(rk_proj_n_hbd->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
+//    out_plus_proj_hbd0_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_hbd0_res.emplace_back(res);
+//  }
+//  out_plus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
+//  out_plus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
+//    out_plus_proj_hbd1_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_hbd1_res.emplace_back(res);
+//  }
+//  out_plus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
+//  out_plus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
+//    out_plus_proj_hbd2_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_hbd2_res.emplace_back(res);
+//  }
+//  out_plus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
+//  out_plus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
+//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
+//    out_plus_proj_hbd3_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_hbd3_res.emplace_back(res);
+//  }
+//  out_plus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
+//  out_plus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
+//  out_plus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
+//  out_plus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
+////    out_plus_proj_lg0_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_plus_proj_lg0_res.emplace_back(res);
+////  }
+//  out_plus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
+//  out_plus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
+//  out_plus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
+////    out_plus_proj_lg1_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_plus_proj_lg1_res.emplace_back(res);
+////  }
+//  out_plus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
+//  out_plus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
+//  out_plus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
+////    out_plus_proj_lg2_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_plus_proj_lg2_res.emplace_back(res);
+////  }
+//  out_plus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
+//  out_plus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
+//  out_plus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
+////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
+////    out_plus_proj_lg3_res.emplace_back(-10000.);
+////  } else {
+////    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+////    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+////    double res = sqrt(res_x * res_x + res_y * res_y);
+////    out_plus_proj_lg3_res.emplace_back(res);
+////  }
+//  out_plus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
+//  out_plus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
+  out_minus_proj_n_hbd_clusters.emplace_back(hbd_cluster_indexs_pair[0].size());
+  out_minus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
+  auto& tmp_minus_hbd_clst_res   = out_minus_proj_hbd_cluster_res.back();
+  auto& tmp_minus_hbd_clst_res_x = out_minus_proj_hbd_cluster_res_x.back();
+  auto& tmp_minus_hbd_clst_res_y = out_minus_proj_hbd_cluster_res_y.back();
+  auto& tmp_minus_hbd_clst_adc   = out_minus_proj_hbd_cluster_adc.back();
+  auto& tmp_minus_hbd_clst_t     = out_minus_proj_hbd_cluster_t.back();
+  auto& tmp_minus_hbd_clst_eprob = out_minus_proj_hbd_cluster_eprob.back();
+  auto& tmp_minus_hbd_clst_cprob = out_minus_proj_hbd_cluster_cprob.back();
+  auto tmp_minus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[0]);
+  auto tmp_minus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[0]);
+  bool tmp_has_e = false;
+  for (const auto& index : hbd_cluster_indexs_pair[0]) {
+    auto res_x = hbd_cluster_x->at(index) - tmp_minus_track_hbd_x;
+    auto res_y = hbd_cluster_y->at(index) - tmp_minus_track_hbd_y;
+    tmp_minus_hbd_clst_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
+    tmp_minus_hbd_clst_res_x.emplace_back(res_x);
+    tmp_minus_hbd_clst_res_y.emplace_back(res_y);
+    tmp_minus_hbd_clst_adc.emplace_back(hbd_cluster_adc->at(index));
+    tmp_minus_hbd_clst_t.emplace_back(hbd_cluster_t->at(index));
+    tmp_minus_hbd_clst_eprob.emplace_back(hbd_cluster_eprob->at(index));
+    tmp_minus_hbd_clst_cprob.emplace_back(hbd_cluster_cprob->at(index));
+    if (tmp_minus_hbd_clst_eprob.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_minus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
+
+  out_plus_proj_n_hbd_clusters.emplace_back(hbd_cluster_indexs_pair[1].size());
+  out_plus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
+  auto& tmp_plus_hbd_clst_res   = out_plus_proj_hbd_cluster_res.back();
+  auto& tmp_plus_hbd_clst_res_x = out_plus_proj_hbd_cluster_res_x.back();
+  auto& tmp_plus_hbd_clst_res_y = out_plus_proj_hbd_cluster_res_y.back();
+  auto& tmp_plus_hbd_clst_adc   = out_plus_proj_hbd_cluster_adc.back();
+  auto& tmp_plus_hbd_clst_t     = out_plus_proj_hbd_cluster_t.back();
+  auto& tmp_plus_hbd_clst_eprob = out_plus_proj_hbd_cluster_eprob.back();
+  auto& tmp_plus_hbd_clst_cprob = out_plus_proj_hbd_cluster_cprob.back();
+  auto tmp_plus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[1]);
+  auto tmp_plus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[1]);
+  tmp_has_e = false;
+  for (const auto& index : hbd_cluster_indexs_pair[1]) {
+    auto res_x = hbd_cluster_x->at(index) - tmp_plus_track_hbd_x;
+    auto res_y = hbd_cluster_y->at(index) - tmp_plus_track_hbd_y;
+    tmp_plus_hbd_clst_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
+    tmp_plus_hbd_clst_res_x.emplace_back(res_x);
+    tmp_plus_hbd_clst_res_y.emplace_back(res_y);
+    tmp_plus_hbd_clst_adc.emplace_back(hbd_cluster_adc->at(index));
+    tmp_plus_hbd_clst_t.emplace_back(hbd_cluster_t->at(index));
+    tmp_plus_hbd_clst_eprob.emplace_back(hbd_cluster_eprob->at(index));
+    tmp_plus_hbd_clst_cprob.emplace_back(hbd_cluster_cprob->at(index));
+    if (tmp_plus_hbd_clst_eprob.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_plus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
+
+  out_minus_proj_n_lg_hits.emplace_back(lg_hit_indexs_pair[0].size());
+  out_minus_proj_lg_hit_type.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_res.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_adc.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_t.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_ise.emplace_back(std::vector<double>());
+  auto& tmp_minus_lg_hit_type  = out_minus_proj_lg_hit_type.back();
+  auto& tmp_minus_lg_hit_res   = out_minus_proj_lg_hit_res.back();
+  auto& tmp_minus_lg_hit_res_x = out_minus_proj_lg_hit_res_x.back();
+  auto& tmp_minus_lg_hit_res_y = out_minus_proj_lg_hit_res_y.back();
+  auto& tmp_minus_lg_hit_adc   = out_minus_proj_lg_hit_adc.back();
+  auto& tmp_minus_lg_hit_t     = out_minus_proj_lg_hit_t.back();
+  auto& tmp_minus_lg_hit_ise   = out_minus_proj_lg_hit_ise.back();
+  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[0]),
+                                                                     rk_fit_lg_b_x->at(track_index_pair[0]),
+                                                                     rk_fit_lg_a_x->at(track_index_pair[0])}; 
+  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[0]),
+                                                                     rk_fit_lg_b_y->at(track_index_pair[0]),
+                                                                     rk_fit_lg_a_y->at(track_index_pair[0])}; 
+  tmp_has_e = false;
+  for (const auto& index : lg_hit_indexs_pair[0]) {
+    int type;
+    auto z = lg_hit_z->at(index);
+    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
+      if (z == cmn_param::kLGLocalZ[type]) {
+        break;
+      }
+    }
+    if (type == cmn_param::kNumLGTypes) {
+      std::cerr << "Invalid LG hit z" << std::endl;
+      continue;
+    }
+    tmp_minus_lg_hit_type.emplace_back(type);
+    auto res_x = lg_hit_x->at(index) - tmp_minus_track_lg_x[type];
+    auto res_y = lg_hit_y->at(index) - tmp_minus_track_lg_y[type];
+    tmp_minus_lg_hit_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
+    tmp_minus_lg_hit_res_x.emplace_back(res_x);
+    tmp_minus_lg_hit_res_y.emplace_back(res_y);
+    tmp_minus_lg_hit_adc.emplace_back(lg_hit_adc->at(index));
+    tmp_minus_lg_hit_t.emplace_back(lg_hit_t->at(index));
+    tmp_minus_lg_hit_ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_hit_adc->at(index)));
+    if (tmp_minus_lg_hit_ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_minus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
+
+  out_plus_proj_n_lg_hits.emplace_back(lg_hit_indexs_pair[1].size());
+  out_plus_proj_lg_hit_type.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_res.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_adc.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_t.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_ise.emplace_back(std::vector<double>());
+  auto& tmp_plus_lg_hit_type  = out_plus_proj_lg_hit_type.back();
+  auto& tmp_plus_lg_hit_res   = out_plus_proj_lg_hit_res.back();
+  auto& tmp_plus_lg_hit_res_x = out_plus_proj_lg_hit_res_x.back();
+  auto& tmp_plus_lg_hit_res_y = out_plus_proj_lg_hit_res_y.back();
+  auto& tmp_plus_lg_hit_adc   = out_plus_proj_lg_hit_adc.back();
+  auto& tmp_plus_lg_hit_t     = out_plus_proj_lg_hit_t.back();
+  auto& tmp_plus_lg_hit_ise   = out_plus_proj_lg_hit_ise.back();
+  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[1]),
+                                                                    rk_fit_lg_b_x->at(track_index_pair[1]),
+                                                                    rk_fit_lg_a_x->at(track_index_pair[1])}; 
+  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[1]),
+                                                                    rk_fit_lg_b_y->at(track_index_pair[1]),
+                                                                    rk_fit_lg_a_y->at(track_index_pair[1])}; 
+  tmp_has_e = false;
+  for (const auto& index : lg_hit_indexs_pair[1]) {
+    int type;
+    auto z = lg_hit_z->at(index);
+    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
+      if (z == cmn_param::kLGLocalZ[type]) {
+        break;
+      }
+    }
+    if (type == cmn_param::kNumLGTypes) {
+      std::cerr << "Invalid LG hit z" << std::endl;
+      continue;
+    }
+    tmp_plus_lg_hit_type.emplace_back(type);
+    auto res_x = lg_hit_x->at(index) - tmp_plus_track_lg_x[type];
+    auto res_y = lg_hit_y->at(index) - tmp_plus_track_lg_y[type];
+    tmp_plus_lg_hit_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
+    tmp_plus_lg_hit_res_x.emplace_back(res_x);
+    tmp_plus_lg_hit_res_y.emplace_back(res_y);
+    tmp_plus_lg_hit_adc.emplace_back(lg_hit_adc->at(index));
+    tmp_plus_lg_hit_t.emplace_back(lg_hit_t->at(index));
+    tmp_plus_lg_hit_ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_plus_mom.Mag(), lg_hit_adc->at(index)));
+    if (tmp_plus_lg_hit_ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_plus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
+
+  out_minus_proj_n_lg_clusters.emplace_back(lg_cluster_indexs_pair[0].size());
+  out_minus_proj_lg_cluster_type.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_res.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_t.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
+  auto& tmp_minus_lg_cluster_type  = out_minus_proj_lg_cluster_type.back();
+  auto& tmp_minus_lg_cluster_res   = out_minus_proj_lg_cluster_res.back();
+  auto& tmp_minus_lg_cluster_res_x = out_minus_proj_lg_cluster_res_x.back();
+  auto& tmp_minus_lg_cluster_res_y = out_minus_proj_lg_cluster_res_y.back();
+  auto& tmp_minus_lg_cluster_adc   = out_minus_proj_lg_cluster_adc.back();
+  auto& tmp_minus_lg_cluster_t     = out_minus_proj_lg_cluster_t.back();
+  auto& tmp_minus_lg_cluster_ise   = out_minus_proj_lg_cluster_ise.back();
+  tmp_has_e = false;
+  for (const auto& index : lg_cluster_indexs_pair[0]) {
+    int type;
+    auto z = lg_hit_z->at(index);
+    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
+      if (z == cmn_param::kLGLocalZ[type]) {
+        break;
+      }
+    }
+    if (type == cmn_param::kNumLGTypes) {
+      std::cerr << "Invalid LG hit z" << std::endl;
+      continue;
+    }
+    tmp_minus_lg_cluster_type.emplace_back(type);
+    auto res_x = lg_cluster_x->at(index) - tmp_minus_track_lg_x[type];
+    auto res_y = lg_cluster_y->at(index) - tmp_minus_track_lg_y[type];
+    tmp_minus_lg_cluster_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
+    tmp_minus_lg_cluster_res_x.emplace_back(res_x);
+    tmp_minus_lg_cluster_res_y.emplace_back(res_y);
+    tmp_minus_lg_cluster_adc.emplace_back(lg_cluster_adc->at(index));
+    tmp_minus_lg_cluster_t.emplace_back(lg_cluster_t->at(index));
+    tmp_minus_lg_cluster_ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_cluster_adc->at(index)));
+    if (tmp_minus_lg_cluster_ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_minus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
+
+  out_plus_proj_n_lg_clusters.emplace_back(lg_cluster_indexs_pair[1].size());
+  out_plus_proj_lg_cluster_type.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_res.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_t.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
+  auto& tmp_plus_lg_cluster_type  = out_plus_proj_lg_cluster_type.back();
+  auto& tmp_plus_lg_cluster_res   = out_plus_proj_lg_cluster_res.back();
+  auto& tmp_plus_lg_cluster_res_x = out_plus_proj_lg_cluster_res_x.back();
+  auto& tmp_plus_lg_cluster_res_y = out_plus_proj_lg_cluster_res_y.back();
+  auto& tmp_plus_lg_cluster_adc   = out_plus_proj_lg_cluster_adc.back();
+  auto& tmp_plus_lg_cluster_t     = out_plus_proj_lg_cluster_t.back();
+  auto& tmp_plus_lg_cluster_ise   = out_plus_proj_lg_cluster_ise.back();
+  tmp_has_e = false;
+  for (const auto& index : lg_cluster_indexs_pair[1]) {
+    int type;
+    auto z = lg_hit_z->at(index);
+    for (type = 0; type < cmn_param::kNumLGTypes + 1; ++type) {
+      if (z == cmn_param::kLGLocalZ[type]) {
+        break;
+      }
+    }
+    if (type == cmn_param::kNumLGTypes) {
+      std::cerr << "Invalid LG hit z" << std::endl;
+      continue;
+    }
+    tmp_plus_lg_cluster_type.emplace_back(type);
+    auto res_x = lg_cluster_x->at(index) - tmp_plus_track_lg_x[type];
+    auto res_y = lg_cluster_y->at(index) - tmp_plus_track_lg_y[type];
+    tmp_plus_lg_cluster_res.emplace_back(sqrt(res_x * res_x + res_y * res_y));
+    tmp_plus_lg_cluster_res_x.emplace_back(res_x);
+    tmp_plus_lg_cluster_res_y.emplace_back(res_y);
+    tmp_plus_lg_cluster_adc.emplace_back(lg_cluster_adc->at(index));
+    tmp_plus_lg_cluster_t.emplace_back(lg_cluster_t->at(index));
+    tmp_plus_lg_cluster_ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_plus_mom.Mag(), lg_cluster_adc->at(index)));
+    if (tmp_plus_lg_cluster_ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_plus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
+  
   out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
   out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
   out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   tmp_minus_mom, tmp_plus_mom));
