@@ -352,7 +352,7 @@ bool E16ANA_TrackAnalyzerFromTree::IsTrackLGValidY(const double track_ys[], bool
   bool tmp_is_valid = false;
   for (int i = 0; i < cmn_param::kNumLGTypes; ++i) {
     auto y  = track_ys[i];
-    if (y > cmn_param::kLGMaxY[i] && y < cmn_param::kLGMinY[i]) {
+    if (y > cmn_param::kLGMinY[i] && y < cmn_param::kLGMaxY[i]) {
       track_valids[i] = true;
       tmp_is_valid = true;
     } else {

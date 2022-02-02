@@ -18,7 +18,8 @@
 
 using namespace std;
 
-const TString kFileNameHeader = "/ccj/w/data03a/E16/user/ichikawa/lsf_file/21102900-v2/root/";
+//const TString kFileNameHeader = "/ccj/w/data03a/E16/user/ichikawa/lsf_file/21102900-v2/root/";
+const TString kFileNameHeader = "/ccj/w/data03z/E16/ichikawa/lsf_file/22013102-v1/root/";
 
 const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
 
