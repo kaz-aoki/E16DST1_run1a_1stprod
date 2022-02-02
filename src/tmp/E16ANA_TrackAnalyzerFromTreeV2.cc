@@ -235,8 +235,55 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_gx.clear();
   out_plus_gtr300_fit_gy.clear();
   out_plus_gtr300_fit_gz.clear();
+  out_minus_hbd_fit_x.clear();
+  out_minus_hbd_fit_y.clear();
+  out_minus_hbd_fit_z.clear();
+  out_minus_hbd_fit_gx.clear();
+  out_minus_hbd_fit_gy.clear();
+  out_minus_hbd_fit_gz.clear();
+  out_minus_lg_c_fit_x.clear();
+  out_minus_lg_c_fit_y.clear();
+  out_minus_lg_c_fit_z.clear();
+  out_minus_lg_c_fit_gx.clear();
+  out_minus_lg_c_fit_gy.clear();
+  out_minus_lg_c_fit_gz.clear();
+  out_minus_lg_b_fit_x.clear();
+  out_minus_lg_b_fit_y.clear();
+  out_minus_lg_b_fit_z.clear();
+  out_minus_lg_b_fit_gx.clear();
+  out_minus_lg_b_fit_gy.clear();
+  out_minus_lg_b_fit_gz.clear();
+  out_minus_lg_a_fit_x.clear();
+  out_minus_lg_a_fit_y.clear();
+  out_minus_lg_a_fit_z.clear();
+  out_minus_lg_a_fit_gx.clear();
+  out_minus_lg_a_fit_gy.clear();
+  out_minus_lg_a_fit_gz.clear();
+  out_plus_hbd_fit_x.clear();
+  out_plus_hbd_fit_y.clear();
+  out_plus_hbd_fit_z.clear();
+  out_plus_hbd_fit_gx.clear();
+  out_plus_hbd_fit_gy.clear();
+  out_plus_hbd_fit_gz.clear();
+  out_plus_lg_c_fit_x.clear();
+  out_plus_lg_c_fit_y.clear();
+  out_plus_lg_c_fit_z.clear();
+  out_plus_lg_c_fit_gx.clear();
+  out_plus_lg_c_fit_gy.clear();
+  out_plus_lg_c_fit_gz.clear();
+  out_plus_lg_b_fit_x.clear();
+  out_plus_lg_b_fit_y.clear();
+  out_plus_lg_b_fit_z.clear();
+  out_plus_lg_b_fit_gx.clear();
+  out_plus_lg_b_fit_gy.clear();
+  out_plus_lg_b_fit_gz.clear();
+  out_plus_lg_a_fit_x.clear();
+  out_plus_lg_a_fit_y.clear();
+  out_plus_lg_a_fit_z.clear();
+  out_plus_lg_a_fit_gx.clear();
+  out_plus_lg_a_fit_gy.clear();
+  out_plus_lg_a_fit_gz.clear();
   
-  out_minus_ssd_fit_mom.clear();
   out_minus_ssd_fit_mom_x.clear();
   out_minus_ssd_fit_mom_y.clear();
   out_minus_ssd_fit_mom_z.clear();
@@ -244,7 +291,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_ssd_fit_mom_gx.clear();
   out_minus_ssd_fit_mom_gy.clear();
   out_minus_ssd_fit_mom_gz.clear();
-  out_minus_gtr100_fit_mom.clear();
   out_minus_gtr100_fit_mom_x.clear();
   out_minus_gtr100_fit_mom_y.clear();
   out_minus_gtr100_fit_mom_z.clear();
@@ -252,7 +298,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_gtr100_fit_mom_gx.clear();
   out_minus_gtr100_fit_mom_gy.clear();
   out_minus_gtr100_fit_mom_gz.clear();
-  out_minus_gtr200_fit_mom.clear();
   out_minus_gtr200_fit_mom_x.clear();
   out_minus_gtr200_fit_mom_y.clear();
   out_minus_gtr200_fit_mom_z.clear();
@@ -260,7 +305,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_gtr200_fit_mom_gx.clear();
   out_minus_gtr200_fit_mom_gy.clear();
   out_minus_gtr200_fit_mom_gz.clear();
-  out_minus_gtr300_fit_mom.clear();
   out_minus_gtr300_fit_mom_x.clear();
   out_minus_gtr300_fit_mom_y.clear();
   out_minus_gtr300_fit_mom_z.clear();
@@ -268,7 +312,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_gtr300_fit_mom_gx.clear();
   out_minus_gtr300_fit_mom_gy.clear();
   out_minus_gtr300_fit_mom_gz.clear();
-  out_plus_ssd_fit_mom.clear();
   out_plus_ssd_fit_mom_x.clear();
   out_plus_ssd_fit_mom_y.clear();
   out_plus_ssd_fit_mom_z.clear();
@@ -276,7 +319,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_ssd_fit_mom_gx.clear();
   out_plus_ssd_fit_mom_gy.clear();
   out_plus_ssd_fit_mom_gz.clear();
-  out_plus_gtr100_fit_mom.clear();
   out_plus_gtr100_fit_mom_x.clear();
   out_plus_gtr100_fit_mom_y.clear();
   out_plus_gtr100_fit_mom_z.clear();
@@ -284,7 +326,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr100_fit_mom_gx.clear();
   out_plus_gtr100_fit_mom_gy.clear();
   out_plus_gtr100_fit_mom_gz.clear();
-  out_plus_gtr200_fit_mom.clear();
   out_plus_gtr200_fit_mom_x.clear();
   out_plus_gtr200_fit_mom_y.clear();
   out_plus_gtr200_fit_mom_z.clear();
@@ -292,7 +333,6 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr200_fit_mom_gx.clear();
   out_plus_gtr200_fit_mom_gy.clear();
   out_plus_gtr200_fit_mom_gz.clear();
-  out_plus_gtr300_fit_mom.clear();
   out_plus_gtr300_fit_mom_x.clear();
   out_plus_gtr300_fit_mom_y.clear();
   out_plus_gtr300_fit_mom_z.clear();
@@ -300,6 +340,62 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr300_fit_mom_gx.clear();
   out_plus_gtr300_fit_mom_gy.clear();
   out_plus_gtr300_fit_mom_gz.clear();
+  out_minus_hbd_fit_mom_x.clear();
+  out_minus_hbd_fit_mom_y.clear();
+  out_minus_hbd_fit_mom_z.clear();
+  out_minus_hbd_fit_mom_tan.clear();
+  out_minus_hbd_fit_mom_gx.clear();
+  out_minus_hbd_fit_mom_gy.clear();
+  out_minus_hbd_fit_mom_gz.clear();
+  out_minus_lg_c_fit_mom_x.clear();
+  out_minus_lg_c_fit_mom_y.clear();
+  out_minus_lg_c_fit_mom_z.clear();
+  out_minus_lg_c_fit_mom_tan.clear();
+  out_minus_lg_c_fit_mom_gx.clear();
+  out_minus_lg_c_fit_mom_gy.clear();
+  out_minus_lg_c_fit_mom_gz.clear();
+  out_minus_lg_b_fit_mom_x.clear();
+  out_minus_lg_b_fit_mom_y.clear();
+  out_minus_lg_b_fit_mom_z.clear();
+  out_minus_lg_b_fit_mom_tan.clear();
+  out_minus_lg_b_fit_mom_gx.clear();
+  out_minus_lg_b_fit_mom_gy.clear();
+  out_minus_lg_b_fit_mom_gz.clear();
+  out_minus_lg_a_fit_mom_x.clear();
+  out_minus_lg_a_fit_mom_y.clear();
+  out_minus_lg_a_fit_mom_z.clear();
+  out_minus_lg_a_fit_mom_tan.clear();
+  out_minus_lg_a_fit_mom_gx.clear();
+  out_minus_lg_a_fit_mom_gy.clear();
+  out_minus_lg_a_fit_mom_gz.clear();
+  out_plus_hbd_fit_mom_x.clear();
+  out_plus_hbd_fit_mom_y.clear();
+  out_plus_hbd_fit_mom_z.clear();
+  out_plus_hbd_fit_mom_tan.clear();
+  out_plus_hbd_fit_mom_gx.clear();
+  out_plus_hbd_fit_mom_gy.clear();
+  out_plus_hbd_fit_mom_gz.clear();
+  out_plus_lg_c_fit_mom_x.clear();
+  out_plus_lg_c_fit_mom_y.clear();
+  out_plus_lg_c_fit_mom_z.clear();
+  out_plus_lg_c_fit_mom_tan.clear();
+  out_plus_lg_c_fit_mom_gx.clear();
+  out_plus_lg_c_fit_mom_gy.clear();
+  out_plus_lg_c_fit_mom_gz.clear();
+  out_plus_lg_b_fit_mom_x.clear();
+  out_plus_lg_b_fit_mom_y.clear();
+  out_plus_lg_b_fit_mom_z.clear();
+  out_plus_lg_b_fit_mom_tan.clear();
+  out_plus_lg_b_fit_mom_gx.clear();
+  out_plus_lg_b_fit_mom_gy.clear();
+  out_plus_lg_b_fit_mom_gz.clear();
+  out_plus_lg_a_fit_mom_x.clear();
+  out_plus_lg_a_fit_mom_y.clear();
+  out_plus_lg_a_fit_mom_z.clear();
+  out_plus_lg_a_fit_mom_tan.clear();
+  out_plus_lg_a_fit_mom_gx.clear();
+  out_plus_lg_a_fit_mom_gy.clear();
+  out_plus_lg_a_fit_mom_gz.clear();
   
   out_minus_ssd_res.clear();
   out_minus_gtr100_res.clear();
@@ -708,6 +804,49 @@ void E16ANA_TrackAnalyzerFromTree::FillTVector3ToDouble(TVector3 t_vector, std::
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::ProjectionHBDAndLG(const TVector3& vertex, const TVector3& mom, double charge, int track_index,
+                                                      TVector3 out_lposs[], TVector3 out_gposs[], TVector3 out_lmoms[], TVector3 out_gmoms[]) {
+  const int n_layers = E16ANA_TrackConstant::kNumDetectorLayers - E16ANA_TrackConstant::kHBD;
+  const int tid = 0;
+  const TVector3 lpos(0., 0., 0.);
+  const TVector3 lsigma(0., 0., 0.);
+  const int lid = 0; // only 1 layer in 1 RK
+  const int hid = 0; // only 1 hit in 1 RK
+  const int max_steps = 2000;
+  const int tmp_lg_block_id[3] = {0, 10, 20};
+  
+  std::vector<int> mids;
+  std::vector<TVector3> lposs;
+  std::vector<TVector3> lmoms;
+  pair_fitter->Clear();
+  int mid[n_layers] = {rk_fit_hbd_mid->at(track_index), rk_fit_lg_c_mid->at(track_index), rk_fit_lg_b_mid->at(track_index), rk_fit_lg_a_mid->at(track_index)};
+  for (int l = 0; l < n_layers; ++l) {
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(mid[l]);
+    if (l == 0) { // HBD
+      auto tmp_geom = geometry->HBD(mid2013);
+      pair_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+    } else {
+      auto tmp_geom = geometry->LG(mid2013, tmp_lg_block_id[l - 1]);
+      pair_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+    }
+    pair_fitter->SetMaxSteps(max_steps);
+    pair_fitter->RungeKuttaTracking(tid, vertex, mom, charge);
+    pair_fitter->GetFitLPos(tid, lid, mids, lposs);
+    pair_fitter->GetFitLMom(tid, lid, mids, lmoms);
+    out_lmoms[l] = lmoms[hid];
+    if (l == 0) {
+      out_lposs[l] = lposs[hid];
+      out_gposs[l] = geometry->HBD(mid2013)->GetGPos(lposs[hid]);
+      out_gmoms[l] = geometry->HBD(mid2013)->GetGPos(lmoms[hid]);
+    } else {
+      out_lposs[l] = geometry->LGVD(mid2013)->GetLPos(lposs[hid]);
+      out_gposs[l] = geometry->LG(mid2013, tmp_lg_block_id[l - 1])->GetGPos(lposs[hid]);
+      out_gmoms[l] = geometry->LG(mid2013, tmp_lg_block_id[l - 1])->GetGMom(lmoms[hid]);
+    }
+  }
+  return;
+}
+
 double E16ANA_TrackAnalyzerFromTree::CalcMass(int flag, TVector3 mom0, TVector3 mom1) {
   double mass2[2];
   if (flag == pt_param::kCalcEEMassFlag) {
@@ -824,6 +963,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
       lres[track_index_in_pair][layer_index] = tmp_lres[hid];
     }
   }
+  
   out_minus_ssd_mid.emplace_back(mid[0][0]);
   out_minus_gtr100_mid.emplace_back(mid[0][1]);
   out_minus_gtr200_mid.emplace_back(mid[0][2]);
@@ -946,14 +1086,6 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   FillTVector3ToDouble(gpos[1][1], &out_plus_gtr100_fit_gx,  &out_plus_gtr100_fit_gy,  &out_plus_gtr100_fit_gz);
   FillTVector3ToDouble(gpos[1][2], &out_plus_gtr200_fit_gx,  &out_plus_gtr200_fit_gy,  &out_plus_gtr200_fit_gz);
   FillTVector3ToDouble(gpos[1][3], &out_plus_gtr300_fit_gx,  &out_plus_gtr300_fit_gy,  &out_plus_gtr300_fit_gz);
-  out_minus_ssd_fit_mom.emplace_back(lmom[0][0].Mag());
-  out_minus_gtr100_fit_mom.emplace_back(lmom[0][1].Mag());
-  out_minus_gtr200_fit_mom.emplace_back(lmom[0][2].Mag());
-  out_minus_gtr300_fit_mom.emplace_back(lmom[0][3].Mag());
-  out_plus_ssd_fit_mom.emplace_back(lmom[1][0].Mag());
-  out_plus_gtr100_fit_mom.emplace_back(lmom[1][1].Mag());
-  out_plus_gtr200_fit_mom.emplace_back(lmom[1][2].Mag());
-  out_plus_gtr300_fit_mom.emplace_back(lmom[1][3].Mag());
   FillTVector3ToDouble(lmom[0][0], &out_minus_ssd_fit_mom_x,    &out_minus_ssd_fit_mom_y,    &out_minus_ssd_fit_mom_z);
   FillTVector3ToDouble(lmom[0][1], &out_minus_gtr100_fit_mom_x, &out_minus_gtr100_fit_mom_y, &out_minus_gtr100_fit_mom_z);
   FillTVector3ToDouble(lmom[0][2], &out_minus_gtr200_fit_mom_x, &out_minus_gtr200_fit_mom_y, &out_minus_gtr200_fit_mom_z);
@@ -994,178 +1126,54 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_res_x,   &out_plus_gtr100_res_y,   &out_plus_gtr100_res_z);
   FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_res_x,   &out_plus_gtr200_res_y,   &out_plus_gtr200_res_z);
   FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
+
+  TVector3 tmp_lposs[4];
+  TVector3 tmp_gposs[4];
+  TVector3 tmp_lmoms[4];
+  TVector3 tmp_gmoms[4];
+  ProjectionHBDAndLG(tmp_vtx, tmp_minus_mom, -1, track_index_pair[0], tmp_lposs, tmp_gposs, tmp_lmoms, tmp_gmoms);
+  FillTVector3ToDouble(tmp_lposs[0], &out_minus_hbd_fit_x,       &out_minus_hbd_fit_y,       &out_minus_hbd_fit_z);
+  FillTVector3ToDouble(tmp_gposs[0], &out_minus_hbd_fit_gx,      &out_minus_hbd_fit_gy,      &out_minus_hbd_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[0], &out_minus_hbd_fit_mom_x,   &out_minus_hbd_fit_mom_y,   &out_minus_hbd_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[0], &out_minus_hbd_fit_mom_gx,  &out_minus_hbd_fit_mom_gy,  &out_minus_hbd_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[1], &out_minus_lg_c_fit_x,      &out_minus_lg_c_fit_y,      &out_minus_lg_c_fit_z);
+  FillTVector3ToDouble(tmp_gposs[1], &out_minus_lg_c_fit_gx,     &out_minus_lg_c_fit_gy,     &out_minus_lg_c_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[1], &out_minus_lg_c_fit_mom_x,  &out_minus_lg_c_fit_mom_y,  &out_minus_lg_c_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[1], &out_minus_lg_c_fit_mom_gx, &out_minus_lg_c_fit_mom_gy, &out_minus_lg_c_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[2], &out_minus_lg_b_fit_x,      &out_minus_lg_b_fit_y,      &out_minus_lg_b_fit_z);
+  FillTVector3ToDouble(tmp_gposs[2], &out_minus_lg_b_fit_gx,     &out_minus_lg_b_fit_gy,     &out_minus_lg_b_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[2], &out_minus_lg_b_fit_mom_x,  &out_minus_lg_b_fit_mom_y,  &out_minus_lg_b_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[2], &out_minus_lg_b_fit_mom_gx, &out_minus_lg_b_fit_mom_gy, &out_minus_lg_b_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[3], &out_minus_lg_a_fit_x,      &out_minus_lg_a_fit_y,      &out_minus_lg_a_fit_z);
+  FillTVector3ToDouble(tmp_gposs[3], &out_minus_lg_a_fit_gx,     &out_minus_lg_a_fit_gy,     &out_minus_lg_a_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[3], &out_minus_lg_a_fit_mom_x,  &out_minus_lg_a_fit_mom_y,  &out_minus_lg_a_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[3], &out_minus_lg_a_fit_mom_gx, &out_minus_lg_a_fit_mom_gy, &out_minus_lg_a_fit_mom_gz);
+  out_minus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[0](0) / tmp_lmoms[0](2));
+  out_minus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[1](0) / tmp_lmoms[1](2));
+  out_minus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[2](0) / tmp_lmoms[2](2));
+  out_minus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[3](0) / tmp_lmoms[3](2));
+  ProjectionHBDAndLG(tmp_vtx, tmp_plus_mom, 1, track_index_pair[1], tmp_lposs, tmp_gposs, tmp_lmoms, tmp_gmoms);
+  FillTVector3ToDouble(tmp_lposs[0], &out_plus_hbd_fit_x,       &out_plus_hbd_fit_y,       &out_plus_hbd_fit_z);
+  FillTVector3ToDouble(tmp_gposs[0], &out_plus_hbd_fit_gx,      &out_plus_hbd_fit_gy,      &out_plus_hbd_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[0], &out_plus_hbd_fit_mom_x,   &out_plus_hbd_fit_mom_y,   &out_plus_hbd_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[0], &out_plus_hbd_fit_mom_gx,  &out_plus_hbd_fit_mom_gy,  &out_plus_hbd_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[1], &out_plus_lg_c_fit_x,      &out_plus_lg_c_fit_y,      &out_plus_lg_c_fit_z);
+  FillTVector3ToDouble(tmp_gposs[1], &out_plus_lg_c_fit_gx,     &out_plus_lg_c_fit_gy,     &out_plus_lg_c_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[1], &out_plus_lg_c_fit_mom_x,  &out_plus_lg_c_fit_mom_y,  &out_plus_lg_c_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[1], &out_plus_lg_c_fit_mom_gx, &out_plus_lg_c_fit_mom_gy, &out_plus_lg_c_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[2], &out_plus_lg_b_fit_x,      &out_plus_lg_b_fit_y,      &out_plus_lg_b_fit_z);
+  FillTVector3ToDouble(tmp_gposs[2], &out_plus_lg_b_fit_gx,     &out_plus_lg_b_fit_gy,     &out_plus_lg_b_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[2], &out_plus_lg_b_fit_mom_x,  &out_plus_lg_b_fit_mom_y,  &out_plus_lg_b_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[2], &out_plus_lg_b_fit_mom_gx, &out_plus_lg_b_fit_mom_gy, &out_plus_lg_b_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[3], &out_plus_lg_a_fit_x,      &out_plus_lg_a_fit_y,      &out_plus_lg_a_fit_z);
+  FillTVector3ToDouble(tmp_gposs[3], &out_plus_lg_a_fit_gx,     &out_plus_lg_a_fit_gy,     &out_plus_lg_a_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[3], &out_plus_lg_a_fit_mom_x,  &out_plus_lg_a_fit_mom_y,  &out_plus_lg_a_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[3], &out_plus_lg_a_fit_mom_gx, &out_plus_lg_a_fit_mom_gy, &out_plus_lg_a_fit_mom_gz);
+  out_plus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[0](0) / tmp_lmoms[0](2));
+  out_plus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[1](0) / tmp_lmoms[1](2));
+  out_plus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[2](0) / tmp_lmoms[2](2));
+  out_plus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[3](0) / tmp_lmoms[3](2));
   
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd0_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd0_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd1_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd1_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd2_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd2_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
-//    out_minus_proj_hbd3_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_minus_proj_hbd3_res.emplace_back(res);
-//  }
-//  out_minus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
-//  out_minus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
-//  out_minus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
-//  out_minus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg0_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg0_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
-//  out_minus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg1_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg1_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
-//  out_minus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg2_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg2_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
-//  out_minus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
-////    out_minus_proj_lg3_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_minus_proj_lg3_res.emplace_back(res);
-////  }
-//  out_minus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
-//  out_minus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
-//  out_plus_proj_n_hbd.emplace_back(rk_proj_n_hbd->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd0_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd0_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd1_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd1_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd2_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd2_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
-//  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
-//    out_plus_proj_hbd3_res.emplace_back(-10000.);
-//  } else {
-//    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
-//    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
-//    double res = sqrt(res_x * res_x + res_y * res_y);
-//    out_plus_proj_hbd3_res.emplace_back(res);
-//  }
-//  out_plus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
-//  out_plus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
-//  out_plus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
-//  out_plus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg0_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg0_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
-//  out_plus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg1_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg1_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
-//  out_plus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg2_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg2_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
-//  out_plus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
-////  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
-////    out_plus_proj_lg3_res.emplace_back(-10000.);
-////  } else {
-////    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
-////    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
-////    double res = sqrt(res_x * res_x + res_y * res_y);
-////    out_plus_proj_lg3_res.emplace_back(res);
-////  }
-//  out_plus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
-//  out_plus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
   out_minus_proj_n_hbd_clusters.emplace_back(hbd_cluster_indexs_pair[0].size());
   out_minus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
@@ -1181,8 +1189,10 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   auto& tmp_minus_hbd_clst_t     = out_minus_proj_hbd_cluster_t.back();
   auto& tmp_minus_hbd_clst_eprob = out_minus_proj_hbd_cluster_eprob.back();
   auto& tmp_minus_hbd_clst_cprob = out_minus_proj_hbd_cluster_cprob.back();
-  auto tmp_minus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[0]);
-  auto tmp_minus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[0]);
+//  auto tmp_minus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[0]);
+//  auto tmp_minus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[0]);
+  auto tmp_minus_track_hbd_x = out_minus_hbd_fit_x.back();
+  auto tmp_minus_track_hbd_y = out_minus_hbd_fit_y.back();
   bool tmp_has_e = false;
   for (const auto& index : hbd_cluster_indexs_pair[0]) {
     auto res_x = hbd_cluster_x->at(index) - tmp_minus_track_hbd_x;
@@ -1215,8 +1225,10 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   auto& tmp_plus_hbd_clst_t     = out_plus_proj_hbd_cluster_t.back();
   auto& tmp_plus_hbd_clst_eprob = out_plus_proj_hbd_cluster_eprob.back();
   auto& tmp_plus_hbd_clst_cprob = out_plus_proj_hbd_cluster_cprob.back();
-  auto tmp_plus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[1]);
-  auto tmp_plus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[1]);
+//  auto tmp_plus_track_hbd_x = rk_fit_hbd_x->at(track_index_pair[1]);
+//  auto tmp_plus_track_hbd_y = rk_fit_hbd_y->at(track_index_pair[1]);
+  auto tmp_plus_track_hbd_x = out_plus_hbd_fit_x.back();
+  auto tmp_plus_track_hbd_y = out_plus_hbd_fit_y.back();
   tmp_has_e = false;
   for (const auto& index : hbd_cluster_indexs_pair[1]) {
     auto res_x = hbd_cluster_x->at(index) - tmp_plus_track_hbd_x;
@@ -1249,12 +1261,18 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   auto& tmp_minus_lg_hit_adc   = out_minus_proj_lg_hit_adc.back();
   auto& tmp_minus_lg_hit_t     = out_minus_proj_lg_hit_t.back();
   auto& tmp_minus_lg_hit_ise   = out_minus_proj_lg_hit_ise.back();
-  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[0]),
-                                                                     rk_fit_lg_b_x->at(track_index_pair[0]),
-                                                                     rk_fit_lg_a_x->at(track_index_pair[0])}; 
-  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[0]),
-                                                                     rk_fit_lg_b_y->at(track_index_pair[0]),
-                                                                     rk_fit_lg_a_y->at(track_index_pair[0])}; 
+//  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[0]),
+//                                                                     rk_fit_lg_b_x->at(track_index_pair[0]),
+//                                                                     rk_fit_lg_a_x->at(track_index_pair[0])}; 
+//  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[0]),
+//                                                                     rk_fit_lg_b_y->at(track_index_pair[0]),
+//                                                                     rk_fit_lg_a_y->at(track_index_pair[0])}; 
+  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_x = {out_minus_lg_c_fit_x.back(),
+                                                                     out_minus_lg_b_fit_x.back(),
+                                                                     out_minus_lg_a_fit_x.back()};
+  std::array<double, cmn_param::kNumLGTypes> tmp_minus_track_lg_y = {out_minus_lg_c_fit_y.back(),
+                                                                     out_minus_lg_b_fit_y.back(),
+                                                                     out_minus_lg_a_fit_y.back()};
   tmp_has_e = false;
   for (const auto& index : lg_hit_indexs_pair[0]) {
     int type;
@@ -1298,12 +1316,18 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   auto& tmp_plus_lg_hit_adc   = out_plus_proj_lg_hit_adc.back();
   auto& tmp_plus_lg_hit_t     = out_plus_proj_lg_hit_t.back();
   auto& tmp_plus_lg_hit_ise   = out_plus_proj_lg_hit_ise.back();
-  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[1]),
-                                                                    rk_fit_lg_b_x->at(track_index_pair[1]),
-                                                                    rk_fit_lg_a_x->at(track_index_pair[1])}; 
-  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[1]),
-                                                                    rk_fit_lg_b_y->at(track_index_pair[1]),
-                                                                    rk_fit_lg_a_y->at(track_index_pair[1])}; 
+//  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_x = {rk_fit_lg_c_x->at(track_index_pair[1]),
+//                                                                    rk_fit_lg_b_x->at(track_index_pair[1]),
+//                                                                    rk_fit_lg_a_x->at(track_index_pair[1])}; 
+//  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_y = {rk_fit_lg_c_y->at(track_index_pair[1]),
+//                                                                    rk_fit_lg_b_y->at(track_index_pair[1]),
+//                                                                    rk_fit_lg_a_y->at(track_index_pair[1])}; 
+  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_x = {out_plus_lg_c_fit_x.back(),
+                                                                    out_plus_lg_b_fit_x.back(),
+                                                                    out_plus_lg_a_fit_x.back()};
+  std::array<double, cmn_param::kNumLGTypes> tmp_plus_track_lg_y = {out_plus_lg_c_fit_y.back(),
+                                                                    out_plus_lg_b_fit_y.back(),
+                                                                    out_plus_lg_a_fit_y.back()};
   tmp_has_e = false;
   for (const auto& index : lg_hit_indexs_pair[1]) {
     int type;
