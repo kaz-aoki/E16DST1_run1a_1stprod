@@ -1564,6 +1564,7 @@ class E16ANA_TrackAnalyzerFromTree {
   int out_event_id;
   int out_spill_id;
   uint64_t out_timestamp_in_spill;
+  int out_trigger_fine_time;
   int out_n_tracks;
   int out_n_pairs;
   int out_n_selected_pairs;
@@ -3512,6 +3513,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("event_id", &out_event_id, "event_id/I");
   out_tree->Branch("spill_id", &out_spill_id, "spill_id/I");
   out_tree->Branch("timestamp_in_spill", &out_timestamp_in_spill, "timestamp_in_spill/L");
+  out_tree->Branch("trigger_fine_time", &out_trigger_fine_time, "trigger_fine_time/I");
   out_tree->Branch("n_tracks", &out_n_tracks, "n_tracks/I");
   out_tree->Branch("n_pairs", &out_n_pairs, "n_pairs/I");
   out_tree->Branch("n_selected_pairs", &out_n_selected_pairs, "n_selected_pairs/I");
@@ -3955,6 +3957,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("event_id", &out_event_id, "event_id/I");
   out_tree1->Branch("spill_id", &out_spill_id, "spill_id/I");
   out_tree1->Branch("timestamp_in_spill", &out_timestamp_in_spill, "timestamp_in_spill/L");
+  out_tree1->Branch("trigger_fine_time", &out_trigger_fine_time, "trigger_fine_time/I");
   out_tree1->Branch("n_tracks", &out_n_tracks, "n_tracks/I");
   out_tree1->Branch("n_pairs", &out_n_pairs, "n_pairs/I");
   out_tree1->Branch("n_selected_pairs", &out_n_selected_pairs, "n_selected_pairs/I");
