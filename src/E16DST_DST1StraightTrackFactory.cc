@@ -88,6 +88,8 @@ int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 		trk->SetFitPtOnGTR100(t->FitPtOnGTR100());
 		trk->SetFitPtOnGTR200(t->FitPtOnGTR200());
 		trk->SetFitPtOnGTR300(t->FitPtOnGTR300());
+		trk->SetXZTrackUsedTimes(t->XZTrackUsedTimes());
+		trk->SetDistanceYTrackAndTgt(t->DistanceYTrackAndTgt());
 //		st_tracks[i].SetPtOnTrackGTR100(t->Pt0OnTrack());
 //		st_tracks[i].SetPtOnTrackGTR300(t->Pt1OnTrack());
 //		st_tracks[i].SetPtOnTrack3000mm(t->Pt2OnTrack());
