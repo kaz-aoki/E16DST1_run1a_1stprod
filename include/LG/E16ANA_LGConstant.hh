@@ -26,6 +26,10 @@ const int kIntegralEnd = 50;//[cell] +peaktime
   //const int kTPeakSearchStart = 5;
   //const int kTPeakSearchEnd = 195;
 
+const int kFitNone    = 0;
+const int kFitSuccess = 1;
+const int kFitFailure = 2;
+
 }; // namespace E16ANA_LGConstant
 
 #endif

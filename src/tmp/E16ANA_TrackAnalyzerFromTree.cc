@@ -20,6 +20,8 @@ namespace pt_param    = E16ANA_TrackAnalyzerFromTreePairTrackParameter;
 void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_run_id = run_id;
   out_event_id = event_id;
+  out_spill_id = spill_id;
+  out_timestamp_in_spill = timestamp_in_spill;
   out_n_tracks = n_cands;
   out_n_pairs = 0;
   out_n_selected_pairs = 0;
@@ -46,34 +48,122 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_gtr100_mid.clear();
   out_plus_gtr200_mid.clear();
   out_plus_gtr300_mid.clear();
-  out_minus_proj_lg_max_adc.clear();
-  out_minus_proj_hbd_max_adc.clear();
-  out_plus_proj_lg_max_adc.clear();
-  out_plus_proj_hbd_max_adc.clear();
+//  out_minus_proj_lg_max_adc.clear();
+//  out_minus_proj_hbd_max_adc.clear();
+//  out_plus_proj_lg_max_adc.clear();
+//  out_plus_proj_hbd_max_adc.clear();
+  out_minus_proj_n_hbd.clear();
+  out_minus_proj_hbd0_res.clear();
+  out_minus_proj_hbd0_adc.clear();
+  out_minus_proj_hbd0_t.clear();
+  out_minus_proj_hbd1_res.clear();
+  out_minus_proj_hbd1_adc.clear();
+  out_minus_proj_hbd1_t.clear();
+  out_minus_proj_hbd2_res.clear();
+  out_minus_proj_hbd2_adc.clear();
+  out_minus_proj_hbd2_t.clear();
+  out_minus_proj_hbd3_res.clear();
+  out_minus_proj_hbd3_adc.clear();
+  out_minus_proj_hbd3_t.clear();
+  out_minus_proj_n_lg.clear();
+  out_minus_proj_lg0_fflag.clear();
+  out_minus_proj_lg0_res.clear();
+  out_minus_proj_lg0_adc.clear();
+  out_minus_proj_lg0_t.clear();
+  out_minus_proj_lg1_fflag.clear();
+  out_minus_proj_lg1_res.clear();
+  out_minus_proj_lg1_adc.clear();
+  out_minus_proj_lg1_t.clear();
+  out_minus_proj_lg2_fflag.clear();
+  out_minus_proj_lg2_res.clear();
+  out_minus_proj_lg2_adc.clear();
+  out_minus_proj_lg2_t.clear();
+  out_minus_proj_lg3_fflag.clear();
+  out_minus_proj_lg3_res.clear();
+  out_minus_proj_lg3_adc.clear();
+  out_minus_proj_lg3_t.clear();
+  out_plus_proj_n_hbd.clear();
+  out_plus_proj_hbd0_res.clear();
+  out_plus_proj_hbd0_adc.clear();
+  out_plus_proj_hbd0_t.clear();
+  out_plus_proj_hbd1_res.clear();
+  out_plus_proj_hbd1_adc.clear();
+  out_plus_proj_hbd1_t.clear();
+  out_plus_proj_hbd2_res.clear();
+  out_plus_proj_hbd2_adc.clear();
+  out_plus_proj_hbd2_t.clear();
+  out_plus_proj_hbd3_res.clear();
+  out_plus_proj_hbd3_adc.clear();
+  out_plus_proj_hbd3_t.clear();
+  out_plus_proj_n_lg.clear();
+  out_plus_proj_lg0_fflag.clear();
+  out_plus_proj_lg0_res.clear();
+  out_plus_proj_lg0_adc.clear();
+  out_plus_proj_lg0_t.clear();
+  out_plus_proj_lg1_fflag.clear();
+  out_plus_proj_lg1_res.clear();
+  out_plus_proj_lg1_adc.clear();
+  out_plus_proj_lg1_t.clear();
+  out_plus_proj_lg2_fflag.clear();
+  out_plus_proj_lg2_res.clear();
+  out_plus_proj_lg2_adc.clear();
+  out_plus_proj_lg2_t.clear();
+  out_plus_proj_lg3_fflag.clear();
+  out_plus_proj_lg3_res.clear();
+  out_plus_proj_lg3_adc.clear();
+  out_plus_proj_lg3_t.clear();
   out_minus_ssd_hit_pos_gx.clear();
   out_minus_ssd_hit_pos_gy.clear();
   out_minus_ssd_hit_pos_gz.clear();
+  out_minus_ssd_hit_t.clear();
+  out_minus_ssd_hit_adc.clear();
   out_minus_gtr100_hit_pos_gx.clear();
   out_minus_gtr100_hit_pos_gy.clear();
   out_minus_gtr100_hit_pos_gz.clear();
+  out_minus_gtr100_hit_xt.clear();
+  out_minus_gtr100_hit_yt.clear();
+  out_minus_gtr100_hit_xadc.clear();
+  out_minus_gtr100_hit_yadc.clear();
   out_minus_gtr200_hit_pos_gx.clear();
   out_minus_gtr200_hit_pos_gy.clear();
   out_minus_gtr200_hit_pos_gz.clear();
+  out_minus_gtr200_hit_xt.clear();
+  out_minus_gtr200_hit_yt.clear();
+  out_minus_gtr200_hit_xadc.clear();
+  out_minus_gtr200_hit_yadc.clear();
   out_minus_gtr300_hit_pos_gx.clear();
   out_minus_gtr300_hit_pos_gy.clear();
   out_minus_gtr300_hit_pos_gz.clear();
+  out_minus_gtr300_hit_xt.clear();
+  out_minus_gtr300_hit_yt.clear();
+  out_minus_gtr300_hit_xadc.clear();
+  out_minus_gtr300_hit_yadc.clear();
   out_plus_ssd_hit_pos_gx.clear();
   out_plus_ssd_hit_pos_gy.clear();
   out_plus_ssd_hit_pos_gz.clear();
+  out_plus_ssd_hit_t.clear();
+  out_plus_ssd_hit_adc.clear();
   out_plus_gtr100_hit_pos_gx.clear();
   out_plus_gtr100_hit_pos_gy.clear();
   out_plus_gtr100_hit_pos_gz.clear();
+  out_plus_gtr100_hit_xt.clear();
+  out_plus_gtr100_hit_yt.clear();
+  out_plus_gtr100_hit_xadc.clear();
+  out_plus_gtr100_hit_yadc.clear();
   out_plus_gtr200_hit_pos_gx.clear();
   out_plus_gtr200_hit_pos_gy.clear();
   out_plus_gtr200_hit_pos_gz.clear();
+  out_plus_gtr200_hit_xt.clear();
+  out_plus_gtr200_hit_yt.clear();
+  out_plus_gtr200_hit_xadc.clear();
+  out_plus_gtr200_hit_yadc.clear();
   out_plus_gtr300_hit_pos_gx.clear();
   out_plus_gtr300_hit_pos_gy.clear();
   out_plus_gtr300_hit_pos_gz.clear();
+  out_plus_gtr300_hit_xt.clear();
+  out_plus_gtr300_hit_yt.clear();
+  out_plus_gtr300_hit_xadc.clear();
+  out_plus_gtr300_hit_yadc.clear();
   out_minus_ssd_fit_pos_x.clear();
   out_minus_ssd_fit_pos_y.clear();
   out_minus_ssd_fit_pos_z.clear();
@@ -438,7 +528,7 @@ void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], doubl
   pair_fitter->SetCharge(0, -1.);
   pair_fitter->SetCharge(1, 1.);
   TVector3 pair_mom;
-  for (int i =0; i < 2; ++i) {
+  for (int i = 0; i < 2; ++i) {
     auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
     pair_fitter->SetInitialMomentum(i, tmp_mom);
   }
@@ -538,54 +628,226 @@ void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
 void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[]) {
   out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
   out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
-  double hbd_adc[2] = {-10000., -10000.};
-  double lg_adc[2]  = {-10000., -10000.};
-  for (int i = 0; i < 2; ++i) {
-    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 1) {
-      if (rk_proj_hbd0_adc->at(track_index_pair[i]) > hbd_adc[i]) {
-        hbd_adc[i] = rk_proj_hbd0_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 2) {
-      if (rk_proj_hbd1_adc->at(track_index_pair[i]) > hbd_adc[i]) {
-        hbd_adc[i] = rk_proj_hbd1_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 3) {
-      if (rk_proj_hbd2_adc->at(track_index_pair[i]) > hbd_adc[i]) {
-        hbd_adc[i] = rk_proj_hbd2_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 4) {
-      if (rk_proj_hbd3_adc->at(track_index_pair[i]) > hbd_adc[i]) {
-        hbd_adc[i] = rk_proj_hbd3_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 1) {
-      if (rk_proj_lg0_adc->at(track_index_pair[i]) > lg_adc[i]) {
-        lg_adc[i] = rk_proj_lg0_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 2) {
-      if (rk_proj_lg1_adc->at(track_index_pair[i]) > lg_adc[i]) {
-        lg_adc[i] = rk_proj_lg1_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 3) {
-      if (rk_proj_lg2_adc->at(track_index_pair[i]) > lg_adc[i]) {
-        lg_adc[i] = rk_proj_lg2_adc->at(track_index_pair[i]);
-      }
-    }
-    if (rk_proj_n_lg->at(track_index_pair[i]) >= 4) {
-      if (rk_proj_lg3_adc->at(track_index_pair[i]) > lg_adc[i]) {
-        lg_adc[i] = rk_proj_lg3_adc->at(track_index_pair[i]);
-      }
-    }
+//  double hbd_adc[2] = {-10000., -10000.};
+//  double lg_adc[2]  = {-10000., -10000.};
+//  for (int i = 0; i < 2; ++i) {
+//    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 1) {
+//      if (rk_proj_hbd0_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+//        hbd_adc[i] = rk_proj_hbd0_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 2) {
+//      if (rk_proj_hbd1_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+//        hbd_adc[i] = rk_proj_hbd1_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 3) {
+//      if (rk_proj_hbd2_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+//        hbd_adc[i] = rk_proj_hbd2_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_n_hbd->at(track_index_pair[i]) >= 4) {
+//      if (rk_proj_hbd3_adc->at(track_index_pair[i]) > hbd_adc[i]) {
+//        hbd_adc[i] = rk_proj_hbd3_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_n_lg->at(track_index_pair[i]) >= 1) {
+//      if (rk_proj_lg0_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_lg0_adc->at(track_index_pair[i]) > lg_adc[i]) {
+//        lg_adc[i] = rk_proj_lg0_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_lg1_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_n_lg->at(track_index_pair[i]) >= 2) {
+//      if (rk_proj_lg1_adc->at(track_index_pair[i]) > lg_adc[i]) {
+//        lg_adc[i] = rk_proj_lg1_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_lg2_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_n_lg->at(track_index_pair[i]) >= 3) {
+//      if (rk_proj_lg2_adc->at(track_index_pair[i]) > lg_adc[i]) {
+//        lg_adc[i] = rk_proj_lg2_adc->at(track_index_pair[i]);
+//      }
+//    }
+//    if (rk_proj_lg3_fflag->at(track_index_pair[i]) != E16ANA_LGConstant::kFitFailure && rk_proj_n_lg->at(track_index_pair[i]) >= 4) {
+//      if (rk_proj_lg3_adc->at(track_index_pair[i]) > lg_adc[i]) {
+//        lg_adc[i] = rk_proj_lg3_adc->at(track_index_pair[i]);
+//      }
+//    }
+//  }
+//  out_minus_proj_hbd_max_adc.emplace_back(hbd_adc[0]);
+//  out_minus_proj_lg_max_adc.emplace_back(lg_adc[0]);
+//  out_plus_proj_hbd_max_adc.emplace_back(hbd_adc[1]);
+//  out_plus_proj_lg_max_adc.emplace_back(lg_adc[1]);
+  out_minus_proj_n_hbd.emplace_back(rk_proj_n_hbd->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
+    out_minus_proj_hbd0_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_minus_proj_hbd0_res.emplace_back(res);
   }
-  out_minus_proj_hbd_max_adc.emplace_back(hbd_adc[0]);
-  out_minus_proj_lg_max_adc.emplace_back(lg_adc[0]);
-  out_plus_proj_hbd_max_adc.emplace_back(hbd_adc[1]);
-  out_plus_proj_lg_max_adc.emplace_back(lg_adc[1]);
+  out_minus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
+  out_minus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
+    out_minus_proj_hbd1_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_minus_proj_hbd1_res.emplace_back(res);
+  }
+  out_minus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
+  out_minus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
+    out_minus_proj_hbd2_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_minus_proj_hbd2_res.emplace_back(res);
+  }
+  out_minus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
+  out_minus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
+    out_minus_proj_hbd3_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_minus_proj_hbd3_res.emplace_back(res);
+  }
+  out_minus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
+  out_minus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
+  out_minus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
+  out_minus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
+//    out_minus_proj_lg0_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_lg0_res.emplace_back(res);
+//  }
+  out_minus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
+  out_minus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
+  out_minus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
+//    out_minus_proj_lg1_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_lg1_res.emplace_back(res);
+//  }
+  out_minus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
+  out_minus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
+  out_minus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
+//    out_minus_proj_lg2_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_lg2_res.emplace_back(res);
+//  }
+  out_minus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
+  out_minus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
+  out_minus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
+//    out_minus_proj_lg3_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_minus_proj_lg3_res.emplace_back(res);
+//  }
+  out_minus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
+  out_minus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
+  out_plus_proj_n_hbd.emplace_back(rk_proj_n_hbd->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd0_mid->at(track_index_pair[0])) {
+    out_plus_proj_hbd0_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd0_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd0_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_plus_proj_hbd0_res.emplace_back(res);
+  }
+  out_plus_proj_hbd0_adc.emplace_back(rk_proj_hbd0_adc->at(track_index_pair[0]));
+  out_plus_proj_hbd0_t.emplace_back(rk_proj_hbd0_t->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd1_mid->at(track_index_pair[0])) {
+    out_plus_proj_hbd1_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd1_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd1_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_plus_proj_hbd1_res.emplace_back(res);
+  }
+  out_plus_proj_hbd1_adc.emplace_back(rk_proj_hbd1_adc->at(track_index_pair[0]));
+  out_plus_proj_hbd1_t.emplace_back(rk_proj_hbd1_t->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd2_mid->at(track_index_pair[0])) {
+    out_plus_proj_hbd2_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd2_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd2_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_plus_proj_hbd2_res.emplace_back(res);
+  }
+  out_plus_proj_hbd2_adc.emplace_back(rk_proj_hbd2_adc->at(track_index_pair[0]));
+  out_plus_proj_hbd2_t.emplace_back(rk_proj_hbd2_t->at(track_index_pair[0]));
+  if (rk_fit_hbd_mid->at(track_index_pair[0]) != rk_proj_hbd3_mid->at(track_index_pair[0])) {
+    out_plus_proj_hbd3_res.emplace_back(-10000.);
+  } else {
+    double res_x = rk_proj_hbd3_x->at(track_index_pair[0]) - rk_fit_hbd_x->at(track_index_pair[0]);
+    double res_y = rk_proj_hbd3_y->at(track_index_pair[0]) - rk_fit_hbd_y->at(track_index_pair[0]);
+    double res = sqrt(res_x * res_x + res_y * res_y);
+    out_plus_proj_hbd3_res.emplace_back(res);
+  }
+  out_plus_proj_hbd3_adc.emplace_back(rk_proj_hbd3_adc->at(track_index_pair[0]));
+  out_plus_proj_hbd3_t.emplace_back(rk_proj_hbd3_t->at(track_index_pair[0]));
+  out_plus_proj_n_lg.emplace_back(rk_proj_n_lg->at(track_index_pair[0]));
+  out_plus_proj_lg0_fflag.emplace_back(rk_proj_lg0_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg0_mid->at(track_index_pair[0])) {
+//    out_plus_proj_lg0_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg0_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg0_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_lg0_res.emplace_back(res);
+//  }
+  out_plus_proj_lg0_adc.emplace_back(rk_proj_lg0_adc->at(track_index_pair[0]));
+  out_plus_proj_lg0_t.emplace_back(rk_proj_lg0_t->at(track_index_pair[0]));
+  out_plus_proj_lg1_fflag.emplace_back(rk_proj_lg1_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg1_mid->at(track_index_pair[0])) {
+//    out_plus_proj_lg1_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg1_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg1_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_lg1_res.emplace_back(res);
+//  }
+  out_plus_proj_lg1_adc.emplace_back(rk_proj_lg1_adc->at(track_index_pair[0]));
+  out_plus_proj_lg1_t.emplace_back(rk_proj_lg1_t->at(track_index_pair[0]));
+  out_plus_proj_lg2_fflag.emplace_back(rk_proj_lg2_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg2_mid->at(track_index_pair[0])) {
+//    out_plus_proj_lg2_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg2_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg2_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_lg2_res.emplace_back(res);
+//  }
+  out_plus_proj_lg2_adc.emplace_back(rk_proj_lg2_adc->at(track_index_pair[0]));
+  out_plus_proj_lg2_t.emplace_back(rk_proj_lg2_t->at(track_index_pair[0]));
+  out_plus_proj_lg3_fflag.emplace_back(rk_proj_lg3_fflag->at(track_index_pair[0]));
+//  if (rk_fit_lg_mid->at(track_index_pair[0]) != rk_proj_lg3_mid->at(track_index_pair[0])) {
+//    out_plus_proj_lg3_res.emplace_back(-10000.);
+//  } else {
+//    double res_x = rk_proj_lg3_x->at(track_index_pair[0]) - rk_fit_lg_x->at(track_index_pair[0]);
+//    double res_y = rk_proj_lg3_y->at(track_index_pair[0]) - rk_fit_lg_y->at(track_index_pair[0]);
+//    double res = sqrt(res_x * res_x + res_y * res_y);
+//    out_plus_proj_lg3_res.emplace_back(res);
+//  }
+  out_plus_proj_lg3_adc.emplace_back(rk_proj_lg3_adc->at(track_index_pair[0]));
+  out_plus_proj_lg3_t.emplace_back(rk_proj_lg3_t->at(track_index_pair[0]));
   auto tmp_vtx       = pair_fitter->GetFitVertex();
   auto tmp_minus_mom = pair_fitter->GetFitMomentum(0);
   auto tmp_plus_mom  = pair_fitter->GetFitMomentum(1);
@@ -634,27 +896,55 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_index_pair[])
   out_minus_ssd_hit_pos_gx.emplace_back(rk_hit_ssd_gx->at(track_index_pair[0]));
   out_minus_ssd_hit_pos_gy.emplace_back(rk_hit_ssd_gy->at(track_index_pair[0]));
   out_minus_ssd_hit_pos_gz.emplace_back(rk_hit_ssd_gz->at(track_index_pair[0]));
+  out_minus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[0]));
+  out_minus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[0]));
   out_minus_gtr100_hit_pos_gx.emplace_back(rk_hit_gtr100_gx->at(track_index_pair[0]));
   out_minus_gtr100_hit_pos_gy.emplace_back(rk_hit_gtr100_gy->at(track_index_pair[0]));
   out_minus_gtr100_hit_pos_gz.emplace_back(rk_hit_gtr100_gz->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[0]));
+  out_minus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[0]));
+  out_minus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[0]));
   out_minus_gtr200_hit_pos_gx.emplace_back(rk_hit_gtr200_gx->at(track_index_pair[0]));
   out_minus_gtr200_hit_pos_gy.emplace_back(rk_hit_gtr200_gy->at(track_index_pair[0]));
   out_minus_gtr200_hit_pos_gz.emplace_back(rk_hit_gtr200_gz->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[0]));
+  out_minus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[0]));
+  out_minus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[0]));
   out_minus_gtr300_hit_pos_gx.emplace_back(rk_hit_gtr300_gx->at(track_index_pair[0]));
   out_minus_gtr300_hit_pos_gy.emplace_back(rk_hit_gtr300_gy->at(track_index_pair[0]));
   out_minus_gtr300_hit_pos_gz.emplace_back(rk_hit_gtr300_gz->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[0]));
+  out_minus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[0]));
+  out_minus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[0]));
   out_plus_ssd_hit_pos_gx.emplace_back(rk_hit_ssd_gx->at(track_index_pair[1]));
   out_plus_ssd_hit_pos_gy.emplace_back(rk_hit_ssd_gy->at(track_index_pair[1]));
   out_plus_ssd_hit_pos_gz.emplace_back(rk_hit_ssd_gz->at(track_index_pair[1]));
+  out_plus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[1]));
+  out_plus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[1]));
   out_plus_gtr100_hit_pos_gx.emplace_back(rk_hit_gtr100_gx->at(track_index_pair[1]));
   out_plus_gtr100_hit_pos_gy.emplace_back(rk_hit_gtr100_gy->at(track_index_pair[1]));
   out_plus_gtr100_hit_pos_gz.emplace_back(rk_hit_gtr100_gz->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[1]));
+  out_plus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[1]));
+  out_plus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[1]));
   out_plus_gtr200_hit_pos_gx.emplace_back(rk_hit_gtr200_gx->at(track_index_pair[1]));
   out_plus_gtr200_hit_pos_gy.emplace_back(rk_hit_gtr200_gy->at(track_index_pair[1]));
   out_plus_gtr200_hit_pos_gz.emplace_back(rk_hit_gtr200_gz->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[1]));
+  out_plus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[1]));
+  out_plus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gx.emplace_back(rk_hit_gtr300_gx->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gy.emplace_back(rk_hit_gtr300_gy->at(track_index_pair[1]));
   out_plus_gtr300_hit_pos_gz.emplace_back(rk_hit_gtr300_gz->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[1]));
+  out_plus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[1]));
+  out_plus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[1]));
   FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_pos_x,    &out_minus_ssd_fit_pos_y,    &out_minus_ssd_fit_pos_z);
   FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_pos_x, &out_minus_gtr100_fit_pos_y, &out_minus_gtr100_fit_pos_z);
   FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_pos_x, &out_minus_gtr200_fit_pos_y, &out_minus_gtr200_fit_pos_z);
