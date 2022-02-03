@@ -44,6 +44,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   double peak;
   double pe;
   double chi2;
+  uint32_t tdc_diff;
   int dst1_hid = 0;
   int dst1_cid = 0;
   
@@ -73,6 +74,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
     in_waveform = dst0_hit.Waveform();
     mid = dst0_hit.ModuleID();
     pid = dst0_hit.ChannelID();
+    tdc_diff = dst0_hit.TDC();
     hbd_calib->GetCalibratedSignal(mid, pid, in_waveform, out_waveform);
     is_dst0hit = hbd_calib->HitDecision(mid, pid, out_waveform, n_sigma);
     
@@ -97,6 +99,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       //----should be modified
       
       timing = wf1d_fitter->GetTimeOverThreshold(0, 0.5);//only one wave is accepted
+      timing = timing + tdc_diff*HBD_Circuit_Constant::SRS_ATCA_TDC;//add delay between B2TT trig. and SRS ATCA trig.
       pe = peak*hbd_calib->GetGain(mid, pid);
       double par[2] = {peak, t0};
       chi2 = wf1d_fitter->MinuitFunction(par);

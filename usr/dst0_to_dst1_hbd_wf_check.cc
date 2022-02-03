@@ -151,6 +151,7 @@ int main(int argc, char **argv){
      for(int i=0; i<dst0_hits.NumberOfHits(); i++){
        E16DST_DST0HBDHit dst0_hit = dst0_hits.Hit(i);
        in_waveform = dst0_hit.Waveform();
+       uint32_t tdc = dst0_hit.TDC();
        int mid = dst0_hit.ModuleID();
        int pid = dst0_hit.ChannelID();
        double out_waveform[n_samples];
