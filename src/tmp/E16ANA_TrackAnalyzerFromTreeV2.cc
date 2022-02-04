@@ -835,10 +835,10 @@ void E16ANA_TrackAnalyzerFromTree::ProjectionHBDAndLG(const TVector3& vertex, co
   std::vector<int> mids;
   std::vector<TVector3> lposs;
   std::vector<TVector3> lmoms;
-  pair_fitter->Clear();
   int mid[n_layers] = {rk_fit_hbd_mid->at(track_index), rk_fit_lg_c_mid->at(track_index), rk_fit_lg_b_mid->at(track_index), rk_fit_lg_a_mid->at(track_index)};
   for (int l = 0; l < n_layers; ++l) {
     auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(mid[l]);
+    pair_fitter->Clear();
     if (l == 0) { // HBD
       auto tmp_geom = geometry->HBD(mid2013);
       pair_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
@@ -1201,8 +1201,8 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
-  auto& tmp_minus_hbd_clst_x     = out_minus_proj_hbd_cluster_res_x.back();
-  auto& tmp_minus_hbd_clst_y     = out_minus_proj_hbd_cluster_res_x.back();
+  auto& tmp_minus_hbd_clst_x     = out_minus_proj_hbd_cluster_x.back();
+  auto& tmp_minus_hbd_clst_y     = out_minus_proj_hbd_cluster_y.back();
   auto& tmp_minus_hbd_clst_res   = out_minus_proj_hbd_cluster_res.back();
   auto& tmp_minus_hbd_clst_res_x = out_minus_proj_hbd_cluster_res_x.back();
   auto& tmp_minus_hbd_clst_res_y = out_minus_proj_hbd_cluster_res_y.back();

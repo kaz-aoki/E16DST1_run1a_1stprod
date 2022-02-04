@@ -317,6 +317,13 @@ target_link_libraries(tmp_track_analyzer
 #  E16DST_DST1
 #)
 #
-#_______________________________________________________________________________
+##_______________________________________________________________________________
+#add_executable(check_position_resolution usr/check_position_resolution.cc)
+#
+#target_link_libraries(check_position_resolution
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
