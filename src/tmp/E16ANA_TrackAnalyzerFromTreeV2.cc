@@ -1189,6 +1189,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
   HasHBDClusters(out_plus_hbd_mid.back(), tmp_lposs[1][0], &hbd_clst_indexs[1]);
   out_plus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[1].size());
   out_plus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
