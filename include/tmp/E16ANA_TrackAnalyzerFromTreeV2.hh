@@ -1519,13 +1519,12 @@ class E16ANA_TrackAnalyzerFromTree {
   bool IsTrackLGValidY(const double track_ys[], bool track_valids[]);
   bool HasLGHits(double track_mom, const int track_mids[], const double track_xs[], const bool track_valids[], std::vector<int>* hit_indexs);
   bool HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const bool track_valids[], std::vector<int>* cluster_indexs);
-  bool HasHBDAndLGProjection(int track_index, std::vector<int>* hbd_cluster_indexs, std::vector<int>* lg_hit_indexs, std::vector<int>* lg_cluster_indexs);
+  bool HasHBDAndLGProjection(int track_index);
 //  bool HasTimeCorrelationInTrack();
-  bool IsGoodTrack(int track_index, std::vector<int>* hbd_cluster_indexs, std::vector<int>* lg_hit_indexs, std::vector<int>* lg_cluster_indexs);
+  bool IsGoodTrack(int track_index);
   double CalcSingleTrackChiSquareWoTarget(int track_index);
-  bool IsGoodPionTrack(int track_index, std::vector<int>* hbd_cluster_indexs, std::vector<int>* lg_hit_indexs, std::vector<int>* lg_cluster_indexs);
-  void CheckUsedClusters(int track_index, const std::vector<int>& hbd_cluster_indexs, const std::vector<int>& lg_hit_indexs, const std::vector<int>& lg_cluster_indexs,
-                         std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
+  bool IsGoodPionTrack(int track_inde);;
+  void CheckUsedClusters(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
   void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
   void SelectTracks();
   void AddTracks(const int track_index_pair[], double tgt_z);
@@ -1551,9 +1550,6 @@ class E16ANA_TrackAnalyzerFromTree {
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both
   int particle_flag; // 0 : electron, 1 : pion
   std::vector<int>              selected_track_indexs;
-  std::vector<std::vector<int>> selected_track_proj_hbd_cluster_indexs;
-  std::vector<std::vector<int>> selected_track_proj_lg_hit_indexs;
-  std::vector<std::vector<int>> selected_track_proj_lg_cluster_indexs;
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* pair_fitter;
