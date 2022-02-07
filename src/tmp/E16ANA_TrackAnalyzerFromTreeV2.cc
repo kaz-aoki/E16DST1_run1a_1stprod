@@ -479,10 +479,25 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDClusters(int track_mid, const TVector3&
       continue;
     }
     auto lpos = TVector3(hbd_cluster_x->at(clst_i), hbd_cluster_y->at(clst_i), 0.);
-    auto residual = (lpos - track_lpos).Mag();
-    if (residual > st_param::kHBDResidualThreshold) {
+//    auto residual = (lpos - track_lpos).Mag();
+//    if (residual > st_param::kHBDResidualThreshold) {
+//      continue;
+//    }
+    int mid2;
+    if (mid < 103 || mid > 107) {
+      continue;
+    } else if (mid < 105) {
+      mid2 = mid - 103;
+    } else {
+      mid2 = mid - 104;
+    }
+    if (fabs(lpos.X() - st_param::kHBDXMean[mid2]) > st_param::kHBDXSigma[mid2]) {
       continue;
     }
+    if (fabs(lpos.Y() - st_param::kHBDYMean[mid2]) > st_param::kHBDYSigma[mid2]) {
+      continue;
+    }
+    
     cluster_indexs->emplace_back(clst_i);
   }
   return cluster_indexs->size() != 0;

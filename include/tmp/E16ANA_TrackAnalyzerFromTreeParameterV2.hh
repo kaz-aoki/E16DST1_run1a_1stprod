@@ -45,6 +45,11 @@ constexpr double kHBDResidualThreshold        = 50.;
 constexpr double kLGHitXResidualThreshold     = 70.;
 constexpr double kLGClusterXResidualThreshold = 80.;
 
+constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
+constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};
+constexpr double kHBDYMean[4]  = {-0.6, -0.9, -0.2, -0.1};
+constexpr double kHBDYSigma[4] = {22.6, 18.4, 12.5, 10.6};
+
 }; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 
 namespace E16ANA_TrackAnalyzerFromTreePionSingleTrackParameter {
