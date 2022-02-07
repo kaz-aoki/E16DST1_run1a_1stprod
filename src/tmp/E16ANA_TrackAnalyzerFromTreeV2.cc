@@ -462,6 +462,10 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
 
 bool E16ANA_TrackAnalyzerFromTree::HasHBDClusters(int track_mid, const TVector3& track_lpos, std::vector<int>* cluster_indexs) {
   for (int clst_i = 0; clst_i < n_hbd_clusters; ++clst_i) {
+    auto adc = hbd_cluster_adc->at(clst_i);
+    if (adc < st_param::kHBDADCThreshold) {
+      continue;
+    }
     auto c_prob = hbd_cluster_cprob->at(clst_i);
     auto e_prob = hbd_cluster_eprob->at(clst_i);
 //    if (particle_flag == cmn_param::kPionFlag && c_prob < 0.5) {
@@ -592,10 +596,12 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index) {
   if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
     return false;
   }
-  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_hit_indexs) ||
-      !HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_clst_indexs)) {
-    return false;
-  }
+//  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_hit_indexs) ||
+//      !HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_clst_indexs)) {
+//    return false;
+//  }
+  HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_hit_indexs);
+  HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_clst_indexs);
   return true;
 }
 
@@ -1592,9 +1598,9 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
       if (charge0 == charge1) {
         continue;
       }
-      if (tgt_z0 != tgt_z1) {
-        continue;
-      }
+//      if (tgt_z0 != tgt_z1) {
+//        continue;
+//      }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;
@@ -1606,7 +1612,8 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
 //      TVector3 st_minus_mom;
 //      TVector3 st_plus_mom;
 //      SearchVertex(minus_index, plus_index, &st_minus_mom, &st_plus_mom);
-      PairTracking(track_indexs_index_pair, tgt_z0);
+//      PairTracking(track_indexs_index_pair, tgt_z0);
+      PairTracking(track_indexs_index_pair, 0.);
     }
   }
   SelectTrackPairs();

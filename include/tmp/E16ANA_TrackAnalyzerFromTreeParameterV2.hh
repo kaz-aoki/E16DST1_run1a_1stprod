@@ -40,6 +40,7 @@ constexpr double kGTR300xResidualThreshold    = 4.;
 constexpr double kGTR300yResidualThreshold    = 4.;
 constexpr double kTargetXThreshold            = 5.;
 constexpr double kTargetYThreshold            = 5.;
+constexpr double kHBDADCThreshold             = 0.5;
 constexpr double kHBDResidualThreshold        = 50.;
 constexpr double kLGHitXResidualThreshold     = 70.;
 constexpr double kLGClusterXResidualThreshold = 80.;
@@ -63,30 +64,31 @@ enum {
   kCalcPiPMassFlag
 };
 
-const double kElectronMass = 511.99894641e-6;
-const double kElectronMass2 = kElectronMass * kElectronMass;
-const double kPionMass = 139.57039e-3;
-const double kPionMass2 = kPionMass * kPionMass;
-const double kProtonMass = 938.272081e-3;
-const double kProtonMass2 = kProtonMass * kProtonMass;
+constexpr double kElectronMass = 511.99894641e-6;
+constexpr double kElectronMass2 = kElectronMass * kElectronMass;
+constexpr double kPionMass = 139.57039e-3;
+constexpr double kPionMass2 = kPionMass * kPionMass;
+constexpr double kProtonMass = 938.272081e-3;
+constexpr double kProtonMass2 = kProtonMass * kProtonMass;
 
-//const double   kStepTrackSizeCm = ;
-//const int      kStepTrackArraySize = ;
-const double   kStepSize = 1.;
-const int      kMaxSteps = 400;
-const TVector3 kVertexSigma = {3., 3., 0.};
-const TVector3 kSSDSigma = {0.1, 0., 0.};
-const TVector3 kGTR100Sigma = {0.3, 1., 0.};
-const TVector3 kGTR200Sigma = {0.3, 1., 0.};
-const TVector3 kGTR300Sigma = {0.3, 1., 0.};
-const bool     kVertexXyFixFlag = false;
-const bool     kPyFixFlag = false;
-const bool     kVertexZFixFlag = true;
-const int      kMinuitStrategy = 2;
-const int      kMaxFunctionCalls = 1.0e4;
-const double   kChiSquareThreshold = 100.;
+//constexpr double   kStepTrackSizeCm = ;
+//constexpr int      kStepTrackArraySize = ;
+constexpr double   kStepSize = 1.;
+constexpr int      kMaxSteps = 400;
+const     TVector3 kVertexSigma = {3., 3., 0.};
+const     TVector3 kSSDSigma = {0.1, 0., 0.};
+const     TVector3 kGTR100Sigma = {0.3, 1., 0.};
+const     TVector3 kGTR200Sigma = {0.3, 1., 0.};
+const     TVector3 kGTR300Sigma = {0.3, 1., 0.};
+constexpr bool     kVertexXyFixFlag = false;
+constexpr bool     kPyFixFlag = false;
+//constexpr bool     kVertexZFixFlag = true;
+constexpr bool     kVertexZFixFlag = false;
+constexpr int      kMinuitStrategy = 2;
+constexpr int      kMaxFunctionCalls = 1.0e4;
+constexpr double   kChiSquareThreshold = 100.;
 
-const bool     kVertexZFixFlagPion = false;
+constexpr bool     kVertexZFixFlagPion = false;
 
 }; // namespace E16ANA_TrackAnalyzerFromTreePairTrackParameter
 
