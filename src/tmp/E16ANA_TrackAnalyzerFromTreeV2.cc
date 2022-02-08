@@ -605,18 +605,17 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index) {
   std::vector<int> tmp_hbd_clst_indexs;
   std::vector<int> tmp_lg_hit_indexs;
   std::vector<int> tmp_lg_clst_indexs;
-  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
-    return false;
-  }
+//  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
+//    return false;
+//  }
+  HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs); // instead ogf above
   if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
     return false;
   }
-//  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_hit_indexs) ||
-//      !HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_clst_indexs)) {
-//    return false;
-//  }
-  HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_hit_indexs);
-  HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_clst_indexs);
+  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_hit_indexs) ||
+      !HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_valids, &tmp_lg_clst_indexs)) {
+    return false;
+  }
   return true;
 }
 
