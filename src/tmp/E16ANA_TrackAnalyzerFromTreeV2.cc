@@ -875,7 +875,7 @@ void E16ANA_TrackAnalyzerFromTree::ProjectionHBDAndLG(const TVector3& vertex, co
     if (l == 0) {
       out_lposs[l] = lposs[hid];
       out_gposs[l] = geometry->HBD(mid2013)->GetGPos(lposs[hid]);
-      out_gmoms[l] = geometry->HBD(mid2013)->GetGPos(lmoms[hid]);
+      out_gmoms[l] = geometry->HBD(mid2013)->GetGMom(lmoms[hid]);
     } else {
       out_lposs[l] = geometry->LGVD(mid2013)->GetLPos(lposs[hid]);
       out_gposs[l] = geometry->LG(mid2013, tmp_lg_block_id[l - 1])->GetGPos(lposs[hid]);
