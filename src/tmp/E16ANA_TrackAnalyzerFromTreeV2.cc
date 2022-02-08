@@ -845,12 +845,20 @@ void E16ANA_TrackAnalyzerFromTree::ProjectionHBDAndLG(const TVector3& vertex, co
   const int hid = 0; // only 1 hit in 1 RK
   const int max_steps = 2000;
   const int tmp_lg_block_id[3] = {0, 10, 20};
-  
+  const TVector3 error_vector = {-10000., -10000., -10000.};
+
   std::vector<int> mids;
   std::vector<TVector3> lposs;
   std::vector<TVector3> lmoms;
   int mid[n_layers] = {rk_fit_hbd_mid->at(track_index), rk_fit_lg_c_mid->at(track_index), rk_fit_lg_b_mid->at(track_index), rk_fit_lg_a_mid->at(track_index)};
   for (int l = 0; l < n_layers; ++l) {
+    if (mid[l] < 0) {
+      out_lposs[l] = error_vector;
+      out_gposs[l] = error_vector;
+      out_lmoms[l] = error_vector;
+      out_gmoms[l] = error_vector;
+      continue;
+    }
     auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(mid[l]);
     pair_fitter->Clear();
     if (l == 0) { // HBD
