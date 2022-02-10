@@ -324,7 +324,13 @@ target_link_libraries(tmp_track_analyzer
 #  E16DST_DST1
 #)
 #
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
+
+target_link_libraries(draw_dead_channel_map
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
-add_subdirectory(tmp)
