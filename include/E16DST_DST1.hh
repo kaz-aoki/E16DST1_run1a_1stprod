@@ -979,6 +979,8 @@ public:
    float Chi2X(){return chi2_x;} 
    float Chi2Y(){return chi2_y;} 
    void SetChi2Y(float chi){chi2_y = chi;}
+   void SetXZTrackUsedTimes(int n){ x_trk_used_times= n ;}
+   int XZTrackUsedTimes(){return x_trk_used_times;}
 //   float TgtZ(){return tgt_z;} 
 
 //   float Distance(){return distance;} 
@@ -1015,10 +1017,11 @@ public:
    float FitAY(){return fit_a_y;}
    float FitBY(){return fit_b_y;}
    void SetDistanceFromTgtXZ(float _distance){distance_fromtgt_xz = _distance;}
-//   void SetDistanceFromTgtYR(float _distance){distance_fromtgt_yr = _distance;}
+   void SetDistanceYTrackAndTgt(float _distance){distance_ytrk_tgt = _distance;}
    void SetDistanceFromUpWireYR(float _distance){distance_fromupwire_yr = _distance;}
    void SetDistanceFromDownWireYR(float _distance){distance_fromdownwire_yr = _distance;}
    float DistanceFromTgtXZ(){return distance_fromtgt_xz;}
+   float DistanceYTrackAndTgt(){return distance_ytrk_tgt;}
 //   float DistanceFromTgtYR(){return distance_fromtgt_yr;}
    float DistanceFromUpWireYR(){return distance_fromupwire_yr;}
    float DistanceFromDownWireYR(){return distance_fromdownwire_yr;}
@@ -1076,6 +1079,7 @@ private:
 //   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
    
    float distance_fromtgt_xz;
+   float distance_ytrk_tgt;
    float distance_fromupwire_yr;//distance  from the upstream wire on YR plane to the track
    float distance_fromdownwire_yr;//distance  from the upstream wire on YR plane to the track
    float residualssd;//residual ssd, fit without itself
@@ -1097,6 +1101,7 @@ private:
    TVector3 fitpt_ongtr100;
    TVector3 fitpt_ongtr200;
    TVector3 fitpt_ongtr300;
+   int x_trk_used_times;
 //   TVector2 point_on_track_gtr100;	
 //   TVector2 point_on_track_gtr300;	
 //   TVector2 point_on_track_3000mm;

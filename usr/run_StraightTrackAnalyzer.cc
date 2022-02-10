@@ -22,6 +22,7 @@
 #include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
+#include "E16ANA_GTRStatus.h"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -125,6 +126,7 @@ int main(int argc, char* argv[]) {
   Double_t fit_b_y;
   Double_t distance_x;
 //  Double_t distance_y;	
+  Double_t distance_fromtgt_y;	
   Double_t distance_fromupwire_y;	
   Double_t distance_fromdownwire_y;	
   Double_t fit_g100x;
@@ -137,6 +139,7 @@ int main(int argc, char* argv[]) {
   Double_t fit_g300y;
   Double_t fit_g300z;
 
+  Int_t x_trk_used_times;
   Int_t trkid_x;
   Int_t trkid_y;
   Int_t cluster_size_ssd;
@@ -231,6 +234,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("fit_b_y", &fit_b_y, "fit_b_y/D");
   tree->Branch("distance_x", &distance_x, "distance_x/D");
 //  tree->Branch("distance_y", &distance_y, "distance_y/D");
+  tree->Branch("distance_fromtgt_y", &distance_fromtgt_y, "distance_fromtgt_y/D");
   tree->Branch("distance_fromupwire_y", &distance_fromupwire_y, "distance_fromupwire_y/D");
   tree->Branch("distance_fromdownwire_y", &distance_fromdownwire_y, "distance_fromdownwire_y/D");
   tree->Branch("fit_g100x", &fit_g100x, "fit_g100x/D");
@@ -245,6 +249,7 @@ int main(int argc, char* argv[]) {
 
 
   tree->Branch("hasMatchedASDHit", &hasMatchedASDHit, "hasMatchedASDHit/I");
+  tree->Branch("x_trk_used_times", &x_trk_used_times, "x_trk_used_times/I");
   tree->Branch("trkid_x", &trkid_x, "trkid_x/I");
   tree->Branch("trkid_y", &trkid_y, "trkid_y/I");
   tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
@@ -312,6 +317,14 @@ int main(int argc, char* argv[]) {
   auto record = new E16DST_DST1PhysicsRecord();
   auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
+  auto gtr_status = new E16ANA_GTRStatus(calib.CurrentRunID());
+  //auto asd_dead = gtr_status->ASDDeadChannel();
+//  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
+  for (int m=101; m< 110; m++){
+	for(int ch=0; ch < 24; ch++){
+ 		std::cout << "isYOK ch``module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->Is300YOK(m, ch) << std::endl;
+	}
+  }
   
   int n_event = 0;
   int n_physics_event = 0;
@@ -425,6 +438,8 @@ int main(int argc, char* argv[]) {
 			distance_fromupwire_y   = t->DistanceFromUpWireYR();
 			distance_fromdownwire_y = t->DistanceFromDownWireYR();
 		}
+		distance_fromtgt_y = -1000;
+        distance_fromtgt_y  = t->DistanceYTrackAndTgt();
 		residual_ssdx = t->ResidualSSD();
 //		residual_100x = t->Residual100();
 //		residual_200x = t->Residual200();
@@ -448,6 +463,7 @@ int main(int argc, char* argv[]) {
 		fit_g300x = t->FitPtOnGTR300().X();
 		fit_g300y = t->FitPtOnGTR300().Y();
 		fit_g300z = t->FitPtOnGTR300().Z();
+		x_trk_used_times = t->XZTrackUsedTimes();
 		
 		timings_100x.clear();
 		timings_200x.clear();
@@ -490,7 +506,6 @@ int main(int argc, char* argv[]) {
 		   	  	//std::cout << "hit ids = " << hit_ids[k] << std::endl; 
 		      	  hit_ids.clear(); 
 		}
-
 		tree->Fill();
 	}
 	
