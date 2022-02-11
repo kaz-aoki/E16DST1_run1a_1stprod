@@ -1517,8 +1517,8 @@ class E16ANA_TrackAnalyzerFromTree {
   void ClearOutBranch();
   bool HasHBDClusters(int track_mid, const TVector3& track_lpos, std::vector<int>* cluster_indexs);
   bool IsTrackLGValidY(const double track_ys[], bool track_valids[]);
-  bool HasLGHits(double track_mom, const int track_mids[], const double track_xs[], const bool track_valids[], std::vector<int>* hit_indexs);
-  bool HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const bool track_valids[], std::vector<int>* cluster_indexs);
+  bool HasLGHits(double track_mom,     const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* hit_indexs);
+  bool HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* cluster_indexs);
   bool HasHBDAndLGProjection(int track_index);
 //  bool HasTimeCorrelationInTrack();
   bool IsGoodTrack(int track_index);
@@ -1667,6 +1667,8 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_x;
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_y;
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_z;
+  std::vector<double> out_proj_lg_hit_min_t_diff;
+  std::vector<double> out_proj_lg_hit_min_diff_t_mean;
 
   std::vector<double> out_minus_ssd_hit_x;
   std::vector<double> out_minus_ssd_hit_y;
@@ -3616,7 +3618,9 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("plus_proj_lg_cluster_adc",     &out_plus_proj_lg_cluster_adc);
   out_tree->Branch("plus_proj_lg_cluster_t",       &out_plus_proj_lg_cluster_t);
   out_tree->Branch("plus_proj_lg_cluster_ise",     &out_plus_proj_lg_cluster_ise);
-  
+  out_tree->Branch("proj_lg_hit_min_t_diff",       &out_proj_lg_hit_min_t_diff);
+  out_tree->Branch("proj_lg_hit_min_diff_t_mean",  &out_proj_lg_hit_min_diff_t_mean);
+
   out_tree->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
   out_tree->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);
   out_tree->Branch("minus_ssd_hit_z",         &out_minus_ssd_hit_z);
@@ -4060,6 +4064,8 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("plus_proj_lg_cluster_adc",     &out_plus_proj_lg_cluster_adc);
   out_tree1->Branch("plus_proj_lg_cluster_t",       &out_plus_proj_lg_cluster_t);
   out_tree1->Branch("plus_proj_lg_cluster_ise",     &out_plus_proj_lg_cluster_ise);
+  out_tree1->Branch("proj_lg_hit_min_t_diff",       &out_proj_lg_hit_min_t_diff);
+  out_tree1->Branch("proj_lg_hit_min_diff_t_mean",  &out_proj_lg_hit_min_diff_t_mean);
   
   out_tree1->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
   out_tree1->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);

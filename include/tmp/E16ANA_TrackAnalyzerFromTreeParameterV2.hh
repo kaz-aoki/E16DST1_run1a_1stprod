@@ -46,9 +46,11 @@ constexpr double kLGHitXResidualThreshold     = 70.;
 constexpr double kLGClusterXResidualThreshold = 80.;
 
 constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
-constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};
+//constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};
+constexpr double kHBDXSigma[4] = {22.3 * 2, 23. * 2,  18.7 * 2, 15.8 * 2};
 constexpr double kHBDYMean[4]  = {-0.6, -0.9, -0.2, -0.1};
-constexpr double kHBDYSigma[4] = {22.6, 18.4, 12.5, 10.6};
+//constexpr double kHBDYSigma[4] = {22.6, 18.4, 12.5, 10.6};
+constexpr double kHBDYSigma[4] = {22.6 * 2, 18.4 * 2, 12.5 * 2, 10.6 * 2};
 
 }; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 
@@ -87,8 +89,8 @@ const     TVector3 kGTR200Sigma = {0.3, 1., 0.};
 const     TVector3 kGTR300Sigma = {0.3, 1., 0.};
 constexpr bool     kVertexXyFixFlag = false;
 constexpr bool     kPyFixFlag = false;
-//constexpr bool     kVertexZFixFlag = true;
-constexpr bool     kVertexZFixFlag = false;
+constexpr bool     kVertexZFixFlag = true;
+//constexpr bool     kVertexZFixFlag = false;
 constexpr int      kMinuitStrategy = 2;
 constexpr int      kMaxFunctionCalls = 1.0e4;
 constexpr double   kChiSquareThreshold = 100.;
