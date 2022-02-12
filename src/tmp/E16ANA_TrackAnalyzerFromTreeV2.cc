@@ -1555,7 +1555,7 @@ void E16ANA_TrackAnalyzerFromTree::PairTracking(const int track_indexs_index_pai
   double tgt_zs[3] = {-20., 0., 20.,};
   double chi2[3];
   for (int i = 0; i < 3; ++i) {
-    AddTracks(track_index_pair, tgt_zs[3]);
+    AddTracks(track_index_pair, tgt_zs[i]);
     pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
     pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
     chi2[i] = pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag, pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls);
@@ -1569,7 +1569,7 @@ void E16ANA_TrackAnalyzerFromTree::PairTracking(const int track_indexs_index_pai
   if (best_z_i == 2) {
     out_chi_square.emplace_back(chi2[2]);
   } else {
-    AddTracks(track_index_pair, tgt_zs[3]);
+    AddTracks(track_index_pair, tgt_zs[best_z_i]);
     pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
     pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
     out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag,
