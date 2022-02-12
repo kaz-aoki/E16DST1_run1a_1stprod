@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
   E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter, out_file);
-//  analyzer.Loop();
+  analyzer.Loop();
 
   delete geometry;
   delete bfield_map;
