@@ -2033,6 +2033,8 @@ std::cout << chain->GetEntries() << std::endl;
 }
 
 E16ANA_TrackAnalyzerFromTree::~E16ANA_TrackAnalyzerFromTree() {
+//  delete out_tree;
+//  delete out_tree1;
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }
