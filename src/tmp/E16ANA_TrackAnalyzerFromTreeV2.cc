@@ -68,6 +68,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_minus_proj_hbd_cluster_res_y.clear();
   out_minus_proj_hbd_cluster_adc.clear();
   out_minus_proj_hbd_cluster_t.clear();
+  out_minus_proj_hbd_cluster_ft.clear();
   out_minus_proj_hbd_cluster_eprob.clear();
   out_minus_proj_hbd_cluster_cprob.clear();
   out_plus_proj_n_hbd_clusters.clear();
@@ -76,6 +77,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_proj_hbd_cluster_res_y.clear();
   out_plus_proj_hbd_cluster_adc.clear();
   out_plus_proj_hbd_cluster_t.clear();
+  out_plus_proj_hbd_cluster_ft.clear();
   out_plus_proj_hbd_cluster_eprob.clear();
   out_plus_proj_hbd_cluster_cprob.clear();
   out_minus_proj_n_lg_hits.clear();
@@ -1223,6 +1225,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_ft.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
   HasHBDClusters(out_plus_hbd_mid.back(), tmp_lposs[1][0], &hbd_clst_indexs[1]);
@@ -1234,6 +1237,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_ft.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
   bool tmp_has_e = false;
@@ -1245,6 +1249,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& res_y = out_minus_proj_hbd_cluster_res_y.back();
     auto& adc   = out_minus_proj_hbd_cluster_adc.back();
     auto& t     = out_minus_proj_hbd_cluster_t.back();
+    auto& ft    = out_minus_proj_hbd_cluster_ft.back();
     auto& eprob = out_minus_proj_hbd_cluster_eprob.back();
     auto& cprob = out_minus_proj_hbd_cluster_cprob.back();
     auto tmp_x = hbd_cluster_x->at(index);
@@ -1258,6 +1263,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     res_y.emplace_back(tmp_res_y);
     adc.emplace_back(hbd_cluster_adc->at(index));
     t.emplace_back(hbd_cluster_t->at(index));
+    ft.emplace_back(hbd_cluster_ftime->at(index));
     eprob.emplace_back(hbd_cluster_eprob->at(index));
     cprob.emplace_back(hbd_cluster_cprob->at(index));
     if (eprob.back() > 0.5) {
@@ -1274,6 +1280,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& res_y = out_plus_proj_hbd_cluster_res_y.back();
     auto& adc   = out_plus_proj_hbd_cluster_adc.back();
     auto& t     = out_plus_proj_hbd_cluster_t.back();
+    auto& ft    = out_plus_proj_hbd_cluster_ft.back();
     auto& eprob = out_plus_proj_hbd_cluster_eprob.back();
     auto& cprob = out_plus_proj_hbd_cluster_cprob.back();
     auto tmp_x = hbd_cluster_x->at(index);
@@ -1287,6 +1294,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     res_y.emplace_back(tmp_res_y);
     adc.emplace_back(hbd_cluster_adc->at(index));
     t.emplace_back(hbd_cluster_t->at(index));
+    ft.emplace_back(hbd_cluster_ftime->at(index));
     eprob.emplace_back(hbd_cluster_eprob->at(index));
     cprob.emplace_back(hbd_cluster_cprob->at(index));
     if (eprob.back() > 0.5) {
