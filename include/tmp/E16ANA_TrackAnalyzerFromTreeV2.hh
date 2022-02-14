@@ -1993,6 +1993,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_ee_mass;
   std::vector<double> out_pipi_mass;
   std::vector<double> out_pip_mass;
+  std::vector<double> out_kk_mass;
   std::vector<double> out_ks_pos_at_x0_gx;
   std::vector<double> out_ks_pos_at_x0_gy;
   std::vector<double> out_ks_pos_at_x0_gz;
@@ -3943,9 +3944,10 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("plus_gtr300_res_y",  &out_plus_gtr300_res_y);
   out_tree->Branch("plus_gtr300_res_z",  &out_plus_gtr300_res_z);
 
-  out_tree->Branch("ee_mass", &out_ee_mass);
+  out_tree->Branch("ee_mass",   &out_ee_mass);
   out_tree->Branch("pipi_mass", &out_pipi_mass);
-  out_tree->Branch("pip_mass", &out_pip_mass);
+  out_tree->Branch("pip_mass",  &out_pip_mass);
+  out_tree->Branch("kk_mass",   &out_kk_mass);
   out_tree->Branch("ks_pos_at_x0_gx", &out_ks_pos_at_x0_gx);
   out_tree->Branch("ks_pos_at_x0_gy", &out_ks_pos_at_x0_gy);
   out_tree->Branch("ks_pos_at_x0_gz", &out_ks_pos_at_x0_gz);
@@ -4341,9 +4343,10 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("plus_gtr300_res_y",  &out_plus_gtr300_res_y);
   out_tree1->Branch("plus_gtr300_res_z",  &out_plus_gtr300_res_z);
 
-  out_tree1->Branch("ee_mass", &out_ee_mass);
+  out_tree1->Branch("ee_mass",   &out_ee_mass);
   out_tree1->Branch("pipi_mass", &out_pipi_mass);
-  out_tree1->Branch("pip_mass", &out_pip_mass);
+  out_tree1->Branch("pip_mass",  &out_pip_mass);
+  out_tree1->Branch("kk_mass",   &out_kk_mass);
   out_tree1->Branch("ks_pos_at_x0_gx", &out_ks_pos_at_x0_gx);
   out_tree1->Branch("ks_pos_at_x0_gy", &out_ks_pos_at_x0_gy);
   out_tree1->Branch("ks_pos_at_x0_gz", &out_ks_pos_at_x0_gz);

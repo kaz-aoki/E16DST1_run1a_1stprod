@@ -452,6 +452,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_ee_mass.clear();
   out_pipi_mass.clear();
   out_pip_mass.clear();
+  out_kk_mass.clear();
   out_ks_pos_at_x0_gx.clear();
   out_ks_pos_at_x0_gy.clear();
   out_ks_pos_at_x0_gz.clear();
@@ -899,6 +900,9 @@ double E16ANA_TrackAnalyzerFromTree::CalcMass(int flag, TVector3 mom0, TVector3 
   } else if (flag == pt_param::kCalcPiPMassFlag) {
     mass2[0] = pt_param::kPionMass2;
     mass2[1] = pt_param::kProtonMass2;
+  } else if (flag == pt_param::kCalcKKMassFlag) {
+    mass2[0] = pt_param::kKaonMass2;
+    mass2[1] = pt_param::kKaonMass2;
   } else {
     std::cerr << "Invalid calculation flag : " << flag << std::endl;
     return -1.;
@@ -1541,6 +1545,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
   out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
   out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   tmp_minus_mom, tmp_plus_mom));
+  out_kk_mass.emplace_back(CalcMass(pt_param::kCalcKKMassFlag,     tmp_minus_mom, tmp_plus_mom));
   FillKsTrackInfo();
   return;
 }
