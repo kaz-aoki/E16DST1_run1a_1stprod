@@ -1513,6 +1513,8 @@ class E16ANA_TrackAnalyzerFromTree {
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
  private:
+  int ModuleID(int module_id);
+  void FillClusterInfo();
   void InitOutTree();
   void ClearOutBranch();
   bool HasHBDClusters(int track_mid, const TVector3& track_lpos, std::vector<int>* cluster_indexs);
@@ -1564,7 +1566,18 @@ class E16ANA_TrackAnalyzerFromTree {
   int out_n_tracks;
   int out_n_pairs;
   int out_n_selected_pairs;
-  
+  int out_n_ssd_clusters[9];
+  int out_n_gtr100x_clusters[9];
+  int out_n_gtr100y_clusters[9];
+  int out_n_gtr100yb_clusters[9];
+  int out_n_gtr200x_clusters[9];
+  int out_n_gtr200y_clusters[9];
+  int out_n_gtr300x_clusters[9];
+  int out_n_gtr300y_clusters[9];
+  int out_n_hbd_clusters[9];
+  int out_n_lg_hits[9];
+  int out_n_lg_clusters[9];
+
   std::vector<bool> out_is_selected;
   std::vector<int> out_minus_track_id;
   std::vector<int> out_plus_track_id;
@@ -3521,6 +3534,18 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("n_pairs", &out_n_pairs, "n_pairs/I");
   out_tree->Branch("n_selected_pairs", &out_n_selected_pairs, "n_selected_pairs/I");
   
+  out_tree->Branch("n_ssd_clusters",      out_n_ssd_clusters,      "n_ssd_clusters[9]/I");
+  out_tree->Branch("n_gtr100x_clusters",  out_n_gtr100x_clusters,  "n_gtr100x_clusters[9]/I");
+  out_tree->Branch("n_gtr100y_clusters",  out_n_gtr100y_clusters,  "n_gtr100y_clusters[9]/I");
+  out_tree->Branch("n_gtr100yb_clusters", out_n_gtr100yb_clusters, "n_gtr100yb_clusters[9]/I");
+  out_tree->Branch("n_gtr200x_clusters",  out_n_gtr200x_clusters,  "n_gtr200x_clusters[9]/I");
+  out_tree->Branch("n_gtr200y_clusters",  out_n_gtr200y_clusters,  "n_gtr200y_clusters[9]/I");
+  out_tree->Branch("n_gtr300x_clusters",  out_n_gtr300x_clusters,  "n_gtr300x_clusters[9]/I");
+  out_tree->Branch("n_gtr300y_clusters",  out_n_gtr300y_clusters,  "n_gtr300y_clusters[9]/I");
+  out_tree->Branch("n_hbd_clusters",      out_n_hbd_clusters,      "n_hbd_clusters[9]/I");
+  out_tree->Branch("n_lg_hits",           out_n_lg_hits,           "n_lg_hits[9]/I");
+  out_tree->Branch("n_lg_clusters",       out_n_lg_clusters,       "n_lg_clusters[9]/I");
+
   out_tree->Branch("is_selected", &out_is_selected);
   out_tree->Branch("minus_track_id", &out_minus_track_id);
   out_tree->Branch("plus_track_id", &out_plus_track_id);
@@ -3969,6 +3994,18 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("n_tracks", &out_n_tracks, "n_tracks/I");
   out_tree1->Branch("n_pairs", &out_n_pairs, "n_pairs/I");
   out_tree1->Branch("n_selected_pairs", &out_n_selected_pairs, "n_selected_pairs/I");
+  
+  out_tree->Branch("n_ssd_clusters",      out_n_ssd_clusters,      "n_ssd_clusters[9]/I");
+  out_tree->Branch("n_gtr100x_clusters",  out_n_gtr100x_clusters,  "n_gtr100x_clusters[9]/I");
+  out_tree->Branch("n_gtr100y_clusters",  out_n_gtr100y_clusters,  "n_gtr100y_clusters[9]/I");
+  out_tree->Branch("n_gtr100yb_clusters", out_n_gtr100yb_clusters, "n_gtr100yb_clusters[9]/I");
+  out_tree->Branch("n_gtr200x_clusters",  out_n_gtr200x_clusters,  "n_gtr200x_clusters[9]/I");
+  out_tree->Branch("n_gtr200y_clusters",  out_n_gtr200y_clusters,  "n_gtr200y_clusters[9]/I");
+  out_tree->Branch("n_gtr300x_clusters",  out_n_gtr300x_clusters,  "n_gtr300x_clusters[9]/I");
+  out_tree->Branch("n_gtr300y_clusters",  out_n_gtr300y_clusters,  "n_gtr300y_clusters[9]/I");
+  out_tree->Branch("n_hbd_clusters",      out_n_hbd_clusters,      "n_hbd_clusters[9]/I");
+  out_tree->Branch("n_lg_hits",           out_n_lg_hits,           "n_lg_hits[9]/I");
+  out_tree->Branch("n_lg_clusters",       out_n_lg_clusters,       "n_lg_clusters[9]/I");
   
   out_tree1->Branch("is_selected", &out_is_selected);
   out_tree1->Branch("minus_track_id", &out_minus_track_id);

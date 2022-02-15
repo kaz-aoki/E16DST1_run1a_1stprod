@@ -14,6 +14,63 @@ namespace st_param    = E16ANA_TrackAnalyzerFromTreeSingleTrackParameter;
 namespace pit_param   = E16ANA_TrackAnalyzerFromTreePionSingleTrackParameter;
 namespace pt_param    = E16ANA_TrackAnalyzerFromTreePairTrackParameter;
 
+int E16ANA_TrackAnalyzerFromTree::ModuleID(int module_id) {
+  if (module_id >= 101 && module_id < 105) {
+    return module_id - 101;
+  } else if (module_id > 105 && module_id <= 109) {
+    return module_id - 102;
+  }
+  return 4;
+}
+
+void E16ANA_TrackAnalyzerFromTree::FillClusterInfo() {
+  out_n_ssd_clusters[9]      = {};
+  out_n_gtr100x_clusters[9]  = {};
+  out_n_gtr100y_clusters[9]  = {};
+  out_n_gtr100yb_clusters[9] = {};
+  out_n_gtr200x_clusters[9]  = {};
+  out_n_gtr200y_clusters[9]  = {};
+  out_n_gtr300x_clusters[9]  = {};
+  out_n_gtr300y_clusters[9]  = {};
+  out_n_hbd_clusters[9]      = {};
+  out_n_lg_hits[9]           = {};
+  out_n_lg_clusters[9]       = {};
+  for (const auto& mid : *ssd_cluster_mid) {
+    ++out_n_ssd_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr100x_cluster_mid) {
+    ++out_n_gtr100x_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr100y_cluster_mid) {
+    ++out_n_gtr100y_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr100yb_cluster_mid) {
+    ++out_n_gtr100yb_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr200x_cluster_mid) {
+    ++out_n_gtr200x_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr200y_cluster_mid) {
+    ++out_n_gtr200y_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr300x_cluster_mid) {
+    ++out_n_gtr300x_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *gtr300y_cluster_mid) {
+    ++out_n_gtr300y_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *hbd_cluster_mid) {
+    ++out_n_hbd_clusters[ModuleID(mid)];
+  }
+  for (const auto& mid : *lg_hit_mid) {
+    ++out_n_lg_hits[ModuleID(mid)];
+  }
+  for (const auto& mid : *lg_cluster_mid) {
+    ++out_n_lg_clusters[ModuleID(mid)];
+  }
+  return;
+}
+
 void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_run_id = run_id;
   out_event_id = event_id;
@@ -23,7 +80,8 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_n_tracks = n_cands;
   out_n_pairs = 0;
   out_n_selected_pairs = 0;
-  
+  FillClusterInfo();
+
   out_is_selected.clear();
   out_minus_track_id.clear();
   out_plus_track_id.clear();
