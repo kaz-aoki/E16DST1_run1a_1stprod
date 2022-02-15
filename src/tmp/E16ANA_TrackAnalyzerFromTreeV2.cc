@@ -120,6 +120,10 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_proj_has_lg_hit_e.clear();
   out_minus_proj_has_lg_cluster_e.clear();
   out_plus_proj_has_lg_cluster_e.clear();
+  out_minus_proj_has_lg_hit_good_t.clear();
+  out_plus_proj_has_lg_hit_good_t.clear();
+  out_minus_proj_has_lg_cluster_good_t.clear();
+  out_plus_proj_has_lg_cluster_good_t.clear();
   out_minus_proj_n_hbd_clusters.clear();
   out_minus_proj_hbd_cluster_res.clear();
   out_minus_proj_hbd_cluster_res_x.clear();
@@ -1421,6 +1425,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_proj_lg_cluster_t.emplace_back(std::vector<double>());
   out_plus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
   tmp_has_e = false;
+  bool tmp_has_good_t = false;
   for (const auto& index : lg_hit_indexs[0]) {
     auto& x     = out_minus_proj_lg_hit_x.back();
     auto& y     = out_minus_proj_lg_hit_y.back();
@@ -1459,13 +1464,18 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     res_y.emplace_back(tmp_res_y);
     adc.emplace_back(lg_hit_adc->at(index));
     t.emplace_back(lg_hit_t->at(index));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t  =true;
+    }
     ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_hit_adc->at(index)));
     if (ise.back() > 0.5) {
       tmp_has_e = true;
     }
   }
   out_minus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
-  tmp_has_e = false;
+  out_minus_proj_has_lg_hit_good_t.emplace_back(tmp_has_good_t);
+  tmp_has_e      = false;
+  tmp_has_good_t = false;
   for (const auto& index : lg_hit_indexs[1]) {
     auto& x     = out_plus_proj_lg_hit_x.back();
     auto& y     = out_plus_proj_lg_hit_y.back();
@@ -1504,11 +1514,15 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     adc.emplace_back(lg_hit_adc->at(index));
     t.emplace_back(lg_hit_t->at(index));
     ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_hit_adc->at(index)));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t  =true;
+    }
     if (ise.back() > 0.5) {
       tmp_has_e = true;
     }
   }
   out_plus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
+  out_plus_proj_has_lg_hit_good_t.emplace_back(tmp_has_good_t);
   double tmp_lg_t[2];
   double tmp_lg_t_diff = 10000.;
   for (const auto& mt : out_minus_proj_lg_hit_t.back()) {
@@ -1523,7 +1537,8 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_proj_lg_hit_min_t_diff.emplace_back(tmp_lg_t_diff);
   out_proj_lg_hit_min_diff_t_mean.emplace_back((tmp_lg_t[0] + tmp_lg_t[1]) / 2.);
 
-  tmp_has_e = false;
+  tmp_has_e      = false;
+  tmp_has_good_t = false;
   for (const auto& index : lg_clst_indexs[0]) {
     auto& x     = out_minus_proj_lg_cluster_x.back();
     auto& y     = out_minus_proj_lg_cluster_y.back();
@@ -1560,12 +1575,17 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     adc.emplace_back(lg_cluster_adc->at(index));
     t.emplace_back(lg_cluster_t->at(index));
     ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_cluster_adc->at(index)));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t  =true;
+    }
     if (ise.back() > 0.5) {
       tmp_has_e = true;
     }
   }
   out_minus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
-  tmp_has_e = false;
+  out_minus_proj_has_lg_cluster_good_t.emplace_back(tmp_has_good_t);
+  tmp_has_e      = false;
+  tmp_has_good_t = false;
   for (const auto& index : lg_clst_indexs[1]) {
     auto& x     = out_plus_proj_lg_cluster_x.back();
     auto& y     = out_plus_proj_lg_cluster_y.back();
@@ -1602,11 +1622,15 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     adc.emplace_back(lg_cluster_adc->at(index));
     t.emplace_back(lg_cluster_t->at(index));
     ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_cluster_adc->at(index)));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t  =true;
+    }
     if (ise.back() > 0.5) {
       tmp_has_e = true;
     }
   }
   out_plus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
+  out_plus_proj_has_lg_cluster_good_t.emplace_back(tmp_has_good_t);
 
   out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
   out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));

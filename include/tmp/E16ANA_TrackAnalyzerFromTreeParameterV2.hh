@@ -84,20 +84,24 @@ constexpr double kKaonMass2     = kKaonMass * kKaonMass;
 
 //constexpr double   kStepTrackSizeCm = ;
 //constexpr int      kStepTrackArraySize = ;
-constexpr double   kStepSize = 1.;
-constexpr int      kMaxSteps = 400;
-const     TVector3 kVertexSigma = {3., 3., 0.};
-const     TVector3 kSSDSigma = {0.1, 0., 0.};
-const     TVector3 kGTR100Sigma = {0.3, 1., 0.};
-const     TVector3 kGTR200Sigma = {0.3, 1., 0.};
-const     TVector3 kGTR300Sigma = {0.3, 1., 0.};
-constexpr bool     kVertexXyFixFlag = false;
-constexpr bool     kPyFixFlag = false;
-constexpr bool     kVertexZFixFlag = true;
-//constexpr bool     kVertexZFixFlag = false;
-constexpr int      kMinuitStrategy = 2;
-constexpr int      kMaxFunctionCalls = 1.0e4;
+constexpr double   kStepSize           = 1.;
+constexpr int      kMaxSteps           = 400;
+const     TVector3 kVertexSigma        = {3., 3., 0.};
+const     TVector3 kSSDSigma           = {0.1, 0., 0.};
+const     TVector3 kGTR100Sigma        = {0.3, 1., 0.};
+const     TVector3 kGTR200Sigma        = {0.3, 1., 0.};
+const     TVector3 kGTR300Sigma        = {0.3, 1., 0.};
+constexpr bool     kVertexXyFixFlag    = false;
+constexpr bool     kPyFixFlag          = false;
+constexpr bool     kVertexZFixFlag     = true;
+//constexpr bool     kVertexZFixFlag     = false;
+constexpr int      kMinuitStrategy     = 2;
+constexpr int      kMaxFunctionCalls   = 1.0e4;
 constexpr double   kChiSquareThreshold = 100.;
+//constexpr double   kSSDTime            = 43.5;
+//constexpr double   kSSDTimeWidth       =  7.5;
+constexpr double   kLGTime             = 93.5;
+constexpr double   kLGTimeWidth        = 11.5;
 
 constexpr bool     kVertexZFixFlagPion = false;
 
