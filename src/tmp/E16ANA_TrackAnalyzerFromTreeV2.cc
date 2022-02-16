@@ -35,6 +35,20 @@ void E16ANA_TrackAnalyzerFromTree::FillClusterInfo() {
   out_n_hbd_clusters[9]      = {};
   out_n_lg_hits[9]           = {};
   out_n_lg_clusters[9]       = {};
+  out_ssd_cluster_t.clear();
+  out_gtr100x_cluster_t.clear();
+  out_gtr100y_cluster_t.clear();
+  out_gtr100yb_cluster_t.clear();
+  out_gtr200x_cluster_t.clear();
+  out_gtr200y_cluster_t.clear();
+  out_gtr300x_cluster_t.clear();
+  out_gtr300y_cluster_t.clear();
+  out_hbd_cluster_t.clear();
+  out_lg_hit_t.clear();
+  out_lg_cluster_t.clear();
+  out_trg_gtr_hit_t.clear();
+  out_trg_hbd_hit_t.clear();
+  out_trg_lg_hit_t.clear();
   for (const auto& mid : *ssd_cluster_mid) {
     ++out_n_ssd_clusters[ModuleID(mid)];
   }
@@ -67,6 +81,48 @@ void E16ANA_TrackAnalyzerFromTree::FillClusterInfo() {
   }
   for (const auto& mid : *lg_cluster_mid) {
     ++out_n_lg_clusters[ModuleID(mid)];
+  }
+  for (const auto& t : *ssd_cluster_fit_t) {
+    out_ssd_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr100x_cluster_t2) {
+    out_gtr100x_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr100y_cluster_t2) {
+    out_gtr100y_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr100yb_cluster_t2) {
+    out_gtr100yb_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr200x_cluster_t2) {
+    out_gtr200x_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr200y_cluster_t2) {
+    out_gtr200y_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr300x_cluster_t2) {
+    out_gtr300x_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *gtr300y_cluster_t2) {
+    out_gtr300y_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *hbd_cluster_t) {
+    out_hbd_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *lg_hit_t) {
+    out_lg_hit_t.emplace_back(t);
+  }
+  for (const auto& t : *lg_cluster_t) {
+    out_lg_cluster_t.emplace_back(t);
+  }
+  for (const auto& t : *trg_gtr_hit_t) {
+    out_trg_gtr_hit_t.emplace_back(t);
+  }
+  for (const auto& t : *trg_hbd_hit_t) {
+    out_trg_hbd_hit_t.emplace_back(t);
+  }
+  for (const auto& t : *trg_lg_hit_t) {
+    out_trg_lg_hit_t.emplace_back(t);
   }
   return;
 }
