@@ -102,6 +102,7 @@ constexpr double   kChiSquareThreshold = 100.;
 //constexpr double   kSSDTimeWidth       =  7.5;
 constexpr double   kLGTime             = 93.5;
 constexpr double   kLGTimeWidth        = 11.5;
+constexpr double   kTriggerLGTimeWidth = 10.;
 
 constexpr bool     kVertexZFixFlagPion = false;
 
