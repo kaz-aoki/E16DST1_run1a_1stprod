@@ -1633,6 +1633,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_adc;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_t;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_ft;
+  std::vector<std::vector<double>> out_minus_proj_hbd_cluster_size;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_eprob;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_cprob;
   std::vector<int>  out_plus_proj_n_hbd_clusters;
@@ -1643,6 +1644,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_adc;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_t;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_ft;
+  std::vector<std::vector<double>> out_plus_proj_hbd_cluster_size;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_eprob;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_cprob;
   std::vector<int>  out_minus_proj_n_lg_hits;
@@ -3641,6 +3643,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("minus_proj_hbd_cluster_adc",       &out_minus_proj_hbd_cluster_adc);
   out_tree->Branch("minus_proj_hbd_cluster_t",         &out_minus_proj_hbd_cluster_t);
   out_tree->Branch("minus_proj_hbd_cluster_ft",        &out_minus_proj_hbd_cluster_ft);
+  out_tree->Branch("minus_proj_hbd_cluster_size",      &out_minus_proj_hbd_cluster_size);
   out_tree->Branch("minus_proj_hbd_cluster_eprob",     &out_minus_proj_hbd_cluster_eprob);
   out_tree->Branch("minus_proj_hbd_cluster_cprob",     &out_minus_proj_hbd_cluster_cprob);
   out_tree->Branch("plus_proj_n_hbd_clusters",         &out_plus_proj_n_hbd_clusters);
@@ -3653,6 +3656,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("plus_proj_hbd_cluster_adc",        &out_plus_proj_hbd_cluster_adc);
   out_tree->Branch("plus_proj_hbd_cluster_t",          &out_plus_proj_hbd_cluster_t);
   out_tree->Branch("plus_proj_hbd_cluster_ft",         &out_plus_proj_hbd_cluster_ft);
+  out_tree->Branch("plus_proj_hbd_cluster_size",       &out_plus_proj_hbd_cluster_size);
   out_tree->Branch("plus_proj_hbd_cluster_eprob",      &out_plus_proj_hbd_cluster_eprob);
   out_tree->Branch("plus_proj_hbd_cluster_cprob",      &out_plus_proj_hbd_cluster_cprob);
   out_tree->Branch("minus_proj_n_lg_hits",             &out_minus_proj_n_lg_hits);
@@ -4140,6 +4144,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("minus_proj_hbd_cluster_adc",       &out_minus_proj_hbd_cluster_adc);
   out_tree1->Branch("minus_proj_hbd_cluster_t",         &out_minus_proj_hbd_cluster_t);
   out_tree1->Branch("minus_proj_hbd_cluster_ft",        &out_minus_proj_hbd_cluster_ft);
+  out_tree1->Branch("minus_proj_hbd_cluster_size",      &out_minus_proj_hbd_cluster_size);
   out_tree1->Branch("minus_proj_hbd_cluster_eprob",     &out_minus_proj_hbd_cluster_eprob);
   out_tree1->Branch("minus_proj_hbd_cluster_cprob",     &out_minus_proj_hbd_cluster_cprob);
   out_tree1->Branch("plus_proj_n_hbd_clusters",         &out_plus_proj_n_hbd_clusters);
@@ -4152,6 +4157,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("plus_proj_hbd_cluster_adc",        &out_plus_proj_hbd_cluster_adc);
   out_tree1->Branch("plus_proj_hbd_cluster_t",          &out_plus_proj_hbd_cluster_t);
   out_tree1->Branch("plus_proj_hbd_cluster_ft",         &out_plus_proj_hbd_cluster_ft);
+  out_tree1->Branch("plus_proj_hbd_cluster_size",       &out_plus_proj_hbd_cluster_size);
   out_tree1->Branch("plus_proj_hbd_cluster_eprob",      &out_plus_proj_hbd_cluster_eprob);
   out_tree1->Branch("plus_proj_hbd_cluster_cprob",      &out_plus_proj_hbd_cluster_cprob);
   out_tree1->Branch("minus_proj_n_lg_hits",             &out_minus_proj_n_lg_hits);
