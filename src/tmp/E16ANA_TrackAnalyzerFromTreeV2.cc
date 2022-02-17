@@ -24,17 +24,19 @@ int E16ANA_TrackAnalyzerFromTree::ModuleID(int module_id) {
 }
 
 void E16ANA_TrackAnalyzerFromTree::FillClusterInfo() {
-  out_n_ssd_clusters[9]      = {};
-  out_n_gtr100x_clusters[9]  = {};
-  out_n_gtr100y_clusters[9]  = {};
-  out_n_gtr100yb_clusters[9] = {};
-  out_n_gtr200x_clusters[9]  = {};
-  out_n_gtr200y_clusters[9]  = {};
-  out_n_gtr300x_clusters[9]  = {};
-  out_n_gtr300y_clusters[9]  = {};
-  out_n_hbd_clusters[9]      = {};
-  out_n_lg_hits[9]           = {};
-  out_n_lg_clusters[9]       = {};
+  for (int i = 0; i < 9; ++i) {
+    out_n_ssd_clusters[i]      = 0;
+    out_n_gtr100x_clusters[i]  = 0;
+    out_n_gtr100y_clusters[i]  = 0;
+    out_n_gtr100yb_clusters[i] = 0;
+    out_n_gtr200x_clusters[i]  = 0;
+    out_n_gtr200y_clusters[i]  = 0;
+    out_n_gtr300x_clusters[i]  = 0;
+    out_n_gtr300y_clusters[i]  = 0;
+    out_n_hbd_clusters[i]      = 0;
+    out_n_lg_hits[i]           = 0;
+    out_n_lg_clusters[i]       = 0;
+  }
   out_ssd_cluster_t.clear();
   out_gtr100x_cluster_t.clear();
   out_gtr100y_cluster_t.clear();
