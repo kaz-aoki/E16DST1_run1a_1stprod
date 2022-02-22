@@ -866,41 +866,6 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index) {
 //  if (CalcSingleTrackChiSquareWoTarget(track_index) > pit_param::kChiSquareThreshold) {
     return false;
   }
-//  if (rk_proj_n_hbd->at(track_index) == 0) {
-//    return false;
-//  }
-//  if (rk_proj_n_lg->at(track_index) == 0) {
-//    return false;
-//  }
-//  bool is_hbd_pion = false;
-//  if (rk_proj_n_hbd->at(track_index) >= 1 && rk_proj_hbd0_eprob->at(track_index) < 0.5 && rk_proj_hbd0_cprob->at(track_index) > 0.5) {
-//    is_hbd_pion = true;
-//  } else if (rk_proj_n_hbd->at(track_index) >= 2 && rk_proj_hbd1_eprob->at(track_index) > 0.5 && rk_proj_hbd1_cprob->at(track_index) > 0.5) {
-//    is_hbd_pion = true;
-//  } else if (rk_proj_n_hbd->at(track_index) >= 3 && rk_proj_hbd2_eprob->at(track_index) > 0.5 && rk_proj_hbd2_cprob->at(track_index) > 0.5) {
-//    is_hbd_pion = true;
-//  } else if (rk_proj_n_hbd->at(track_index) >= 4 && rk_proj_hbd3_eprob->at(track_index) > 0.5 && rk_proj_hbd3_cprob->at(track_index) > 0.5) {
-//    is_hbd_pion = true;
-//  }
-//  if (!is_hbd_pion) {
-//    return false;
-//  }
-//  bool is_lg_low = false;
-//  if (rk_proj_n_lg->at(track_index) >= 1 && rk_proj_lg0_adc->at(track_index) < pit_param::kLGADCThreshold) {
-//    is_lg_low = true;
-//  }
-//  if (rk_proj_n_lg->at(track_index) >= 2 && rk_proj_lg1_adc->at(track_index) < pit_param::kLGADCThreshold) {
-//    is_lg_low = true;
-//  }
-//  if (rk_proj_n_lg->at(track_index) >= 3 && rk_proj_lg2_adc->at(track_index) < pit_param::kLGADCThreshold) {
-//    is_lg_low = true;
-//  }
-//  if (rk_proj_n_lg->at(track_index) >= 4 && rk_proj_lg3_adc->at(track_index) < pit_param::kLGADCThreshold) {
-//    is_lg_low = true;
-//  }
-//  if (!is_lg_low) {
-//    return false;
-//  }
   if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
     return false;
   }
@@ -967,7 +932,7 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, std::array
 }
 
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
-  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index)) || (particle_flag == cmn_param::kPionFlag     && IsGoodPionTrack(track_index))) {
+  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index))) {
     CheckUsedClusters(track_index, used_cluster_ids);
   }
   return;
@@ -2072,7 +2037,6 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
     }
   }
   SelectTrackPairs();
-//  out_tree->Fill();
   out_tree1->Fill();
   return;
 }
@@ -2113,18 +2077,7 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
-    if (Cut(ientry) < 0) continue;
-//    ClearOutBranch();
-//    selected_track_indexs.clear();
-//    selected_track_proj_hbd_cluster_indexs.clear();
-//    selected_track_proj_lg_hit_indexs.clear();
-//    selected_track_proj_lg_cluster_indexs.clear();
-//    SelectTracks();
-//    if (particle_flag == cmn_param::kElectronFlag) {
-//      AnalyzeTrackPairs();
-//    } else if (particle_flag == cmn_param::kPionFlag) {
-//      AnalyzePionTrackPairs();
-//    }
+//    if (Cut(ientry) < 0) continue;
     if (analyze_flag == cmn_param::kElectronFlag || analyze_flag == cmn_param::kBothFlag) {
       particle_flag = cmn_param::kElectronFlag;
       ClearOutBranch();
@@ -2133,7 +2086,7 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
       AnalyzeTrackPairs();
     }
     if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag) {
-      particle_flag = cmn_param::kElectronFlag;
+      particle_flag = cmn_param::kPionFlag;
       ClearOutBranch();
       selected_track_indexs.clear();
       SelectTracks();
