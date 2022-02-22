@@ -1600,6 +1600,8 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_vtx_gx;
   std::vector<double> out_vtx_gy;
   std::vector<double> out_vtx_gz;
+  std::vector<double> out_minus_pre_init_gz;
+  std::vector<double> out_plus_pre_init_gz;
   std::vector<double> out_minus_mom;
   std::vector<double> out_minus_mom_gx;
   std::vector<double> out_minus_mom_gy;
@@ -3604,6 +3606,8 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree->Branch("is_selected", &out_is_selected);
   out_tree->Branch("minus_track_id", &out_minus_track_id);
   out_tree->Branch("plus_track_id", &out_plus_track_id);
+  out_tree->Branch("minus_pre_init_gz", &out_minus_pre_init_gz);
+  out_tree->Branch("plus_pre_init_gz",  &out_plus_pre_init_gz);
   out_tree->Branch("chi_square", &out_chi_square);
   out_tree->Branch("vtx_gx", &out_vtx_gx);
   out_tree->Branch("vtx_gy", &out_vtx_gy);
