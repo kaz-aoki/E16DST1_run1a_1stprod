@@ -157,6 +157,7 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_mom_gx.clear();
   out_plus_mom_gy.clear();
   out_plus_mom_gz.clear();
+  out_pair_cos_theta.clear();
   out_minus_ssd_mid.clear();
   out_minus_gtr100_mid.clear();
   out_minus_gtr200_mid.clear();
@@ -1122,6 +1123,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   FillTVector3ToDouble(tmp_plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
   out_minus_mom.emplace_back(tmp_minus_mom.Mag());
   out_plus_mom.emplace_back(tmp_plus_mom.Mag());
+  out_pair_cos_theta.emplace_back((tmp_minus_mom.X() * tmp_plus_mom.X() + tmp_minus_mom.Y() * tmp_plus_mom.Y() + tmp_minus_mom.Z() + tmp_plus_mom.Z()) / (tmp_minus_mom.Mag() * tmp_plus_mom.Mag()));
   int      mid[2][track_const::kNumTrackingLayers];
   TVector3 lpos[2][track_const::kNumTrackingLayers];
   TVector3 lmom[2][track_const::kNumTrackingLayers];
