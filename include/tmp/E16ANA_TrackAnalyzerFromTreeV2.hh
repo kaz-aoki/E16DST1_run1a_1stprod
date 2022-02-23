@@ -4125,6 +4125,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree() {
   out_tree1->Branch("plus_mom_gx", &out_plus_mom_gx);
   out_tree1->Branch("plus_mom_gy", &out_plus_mom_gy);
   out_tree1->Branch("plus_mom_gz", &out_plus_mom_gz);
+  out_tree1->Branch("pair_cos_theta", &out_pair_cos_theta);
   out_tree1->Branch("minus_ssd_mid",    &out_minus_ssd_mid);
   out_tree1->Branch("minus_gtr100_mid", &out_minus_gtr100_mid);
   out_tree1->Branch("minus_gtr200_mid", &out_minus_gtr200_mid);
