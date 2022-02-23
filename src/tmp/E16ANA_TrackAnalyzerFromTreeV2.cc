@@ -1029,8 +1029,8 @@ void E16ANA_TrackAnalyzerFromTree::ProjectionHBDAndLG(const TVector3& vertex, co
       out_gposs[l] = geometry->HBD(mid2013)->GetGPos(lposs[hid]);
       out_gmoms[l] = geometry->HBD(mid2013)->GetGMom(lmoms[hid]);
     } else {
-      out_lposs[l] = geometry->LGVD(mid2013)->GetLPos(lposs[hid]);
       out_gposs[l] = geometry->LG(mid2013, tmp_lg_block_id[l - 1])->GetGPos(lposs[hid]);
+      out_lposs[l] = geometry->LGVD(mid2013)->GetLPos(out_gposs[l]);
       out_gmoms[l] = geometry->LG(mid2013, tmp_lg_block_id[l - 1])->GetGMom(lmoms[hid]);
     }
   }
@@ -1103,6 +1103,177 @@ void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
   }
   return;
 }
+
+//void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(bool is_first) {
+//  auto tmp_vtx       = pair_fitter->GetFitVertex();
+//  auto tmp_minus_mom = pair_fitter->GetFitMomentum(0);
+//  auto tmp_plus_mom  = pair_fitter->GetFitMomentum(1);
+//  int      mid[2][track_const::kNumTrackingLayers];
+//  TVector3 lpos[2][track_const::kNumTrackingLayers];
+//  TVector3 lmom[2][track_const::kNumTrackingLayers];
+//  TVector3 gpos[2][track_const::kNumTrackingLayers];
+//  TVector3 gmom[2][track_const::kNumTrackingLayers];
+//  TVector3 lres[2][track_const::kNumTrackingLayers];
+//  
+//  for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
+//    for (int layer_index = 0; layer_index < track_const::kNumTrackingLayers; ++layer_index) {
+//      int hid = 0; // hit ID
+//      std::vector<int>      tmp_mid;
+//      std::vector<TVector3> tmp_lpos;
+//      std::vector<TVector3> tmp_lmom;
+//      std::vector<TVector3> tmp_lres;
+//      pair_fitter->GetFitLPos(track_index_in_pair,     layer_index, tmp_mid, tmp_lpos);
+//      pair_fitter->GetFitLMom(track_index_in_pair,     layer_index, tmp_mid, tmp_lmom);
+//      pair_fitter->GetFitResidual(track_index_in_pair, layer_index, tmp_mid, tmp_lres);
+//      mid[track_index_in_pair][layer_index]  = track_const::ModuleID2013To2020(tmp_mid[hid]);
+//      lpos[track_index_in_pair][layer_index] = tmp_lpos[hid];
+//      lmom[track_index_in_pair][layer_index] = tmp_lmom[hid];
+//      if (layer_index == 0) {
+//        gpos[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGPos(tmp_lpos[hid]);
+//        gmom[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGMom(tmp_lmom[hid]);
+//      } else {
+//        gpos[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGPos(tmp_lpos[hid]);
+//        gmom[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGMom(tmp_lmom[hid]);
+//      }
+//      lres[track_index_in_pair][layer_index] = tmp_lres[hid];
+//    }
+//  }
+//  
+//  FillTVector3ToDouble(tmp_vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
+//  FillTVector3ToDouble(tmp_minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
+//  FillTVector3ToDouble(tmp_plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
+//
+//  out_minus_mom.emplace_back(tmp_minus_mom.Mag());
+//  out_plus_mom.emplace_back(tmp_plus_mom.Mag());
+//  out_pair_cos_theta.emplace_back((tmp_minus_mom.X() * tmp_plus_mom.X() + tmp_minus_mom.Y() * tmp_plus_mom.Y() + tmp_minus_mom.Z() + tmp_plus_mom.Z()) / (tmp_minus_mom.Mag() * tmp_plus_mom.Mag()));
+//  out_minus_ssd_mid.emplace_back(mid[0][0]);
+//  out_minus_gtr100_mid.emplace_back(mid[0][1]);
+//  out_minus_gtr200_mid.emplace_back(mid[0][2]);
+//  out_minus_gtr300_mid.emplace_back(mid[0][3]);
+//  out_minus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[0]));
+//  out_minus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[0]));
+//  out_minus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[0]));
+//  out_minus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[0]));
+//  out_plus_ssd_mid.emplace_back(mid[1][0]);
+//  out_plus_gtr100_mid.emplace_back(mid[1][1]);
+//  out_plus_gtr200_mid.emplace_back(mid[1][2]);
+//  out_plus_gtr300_mid.emplace_back(mid[1][3]);
+//  out_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[1]));
+//  out_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[1]));
+//  out_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[1]));
+//  out_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[1]));
+//  
+//  FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_x,     &out_minus_ssd_fit_y,     &out_minus_ssd_fit_z);
+//  FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_x,  &out_minus_gtr100_fit_y,  &out_minus_gtr100_fit_z);
+//  FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_x,  &out_minus_gtr200_fit_y,  &out_minus_gtr200_fit_z);
+//  FillTVector3ToDouble(lpos[0][3], &out_minus_gtr300_fit_x,  &out_minus_gtr300_fit_y,  &out_minus_gtr300_fit_z);
+//  FillTVector3ToDouble(lpos[1][0], &out_plus_ssd_fit_x,      &out_plus_ssd_fit_y,      &out_plus_ssd_fit_z);
+//  FillTVector3ToDouble(lpos[1][1], &out_plus_gtr100_fit_x,   &out_plus_gtr100_fit_y,   &out_plus_gtr100_fit_z);
+//  FillTVector3ToDouble(lpos[1][2], &out_plus_gtr200_fit_x,   &out_plus_gtr200_fit_y,   &out_plus_gtr200_fit_z);
+//  FillTVector3ToDouble(lpos[1][3], &out_plus_gtr300_fit_x,   &out_plus_gtr300_fit_y,   &out_plus_gtr300_fit_z);
+//  FillTVector3ToDouble(gpos[0][0], &out_minus_ssd_fit_gx,    &out_minus_ssd_fit_gy,    &out_minus_ssd_fit_gz);
+//  FillTVector3ToDouble(gpos[0][1], &out_minus_gtr100_fit_gx, &out_minus_gtr100_fit_gy, &out_minus_gtr100_fit_gz);
+//  FillTVector3ToDouble(gpos[0][2], &out_minus_gtr200_fit_gx, &out_minus_gtr200_fit_gy, &out_minus_gtr200_fit_gz);
+//  FillTVector3ToDouble(gpos[0][3], &out_minus_gtr300_fit_gx, &out_minus_gtr300_fit_gy, &out_minus_gtr300_fit_gz);
+//  FillTVector3ToDouble(gpos[1][0], &out_plus_ssd_fit_gx,     &out_plus_ssd_fit_gy,     &out_plus_ssd_fit_gz);
+//  FillTVector3ToDouble(gpos[1][1], &out_plus_gtr100_fit_gx,  &out_plus_gtr100_fit_gy,  &out_plus_gtr100_fit_gz);
+//  FillTVector3ToDouble(gpos[1][2], &out_plus_gtr200_fit_gx,  &out_plus_gtr200_fit_gy,  &out_plus_gtr200_fit_gz);
+//  FillTVector3ToDouble(gpos[1][3], &out_plus_gtr300_fit_gx,  &out_plus_gtr300_fit_gy,  &out_plus_gtr300_fit_gz);
+//  FillTVector3ToDouble(lmom[0][0], &out_minus_ssd_fit_mom_x,    &out_minus_ssd_fit_mom_y,    &out_minus_ssd_fit_mom_z);
+//  FillTVector3ToDouble(lmom[0][1], &out_minus_gtr100_fit_mom_x, &out_minus_gtr100_fit_mom_y, &out_minus_gtr100_fit_mom_z);
+//  FillTVector3ToDouble(lmom[0][2], &out_minus_gtr200_fit_mom_x, &out_minus_gtr200_fit_mom_y, &out_minus_gtr200_fit_mom_z);
+//  FillTVector3ToDouble(lmom[0][3], &out_minus_gtr300_fit_mom_x, &out_minus_gtr300_fit_mom_y, &out_minus_gtr300_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][0], &out_plus_ssd_fit_mom_x,     &out_plus_ssd_fit_mom_y,     &out_plus_ssd_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][1], &out_plus_gtr100_fit_mom_x,  &out_plus_gtr100_fit_mom_y,  &out_plus_gtr100_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][2], &out_plus_gtr200_fit_mom_x,  &out_plus_gtr200_fit_mom_y,  &out_plus_gtr200_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][3], &out_plus_gtr300_fit_mom_x,  &out_plus_gtr300_fit_mom_y,  &out_plus_gtr300_fit_mom_z);
+//  FillTVector3ToDouble(gmom[0][0], &out_minus_ssd_fit_mom_gx,    &out_minus_ssd_fit_mom_gy,    &out_minus_ssd_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[0][1], &out_minus_gtr100_fit_mom_gx, &out_minus_gtr100_fit_mom_gy, &out_minus_gtr100_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[0][2], &out_minus_gtr200_fit_mom_gx, &out_minus_gtr200_fit_mom_gy, &out_minus_gtr200_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[0][3], &out_minus_gtr300_fit_mom_gx, &out_minus_gtr300_fit_mom_gy, &out_minus_gtr300_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][0], &out_plus_ssd_fit_mom_gx,     &out_plus_ssd_fit_mom_gy,     &out_plus_ssd_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][1], &out_plus_gtr100_fit_mom_gx,  &out_plus_gtr100_fit_mom_gy,  &out_plus_gtr100_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][2], &out_plus_gtr200_fit_mom_gx,  &out_plus_gtr200_fit_mom_gy,  &out_plus_gtr200_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][3], &out_plus_gtr300_fit_mom_gx,  &out_plus_gtr300_fit_mom_gy,  &out_plus_gtr300_fit_mom_gz);
+//  out_minus_ssd_fit_mom_tan.emplace_back(lmom[0][0](0) / lmom[0][0](2));
+//  out_minus_gtr100_fit_mom_tan.emplace_back(lmom[0][1](0) / lmom[0][1](2));
+//  out_minus_gtr200_fit_mom_tan.emplace_back(lmom[0][2](0) / lmom[0][2](2));
+//  out_minus_gtr300_fit_mom_tan.emplace_back(lmom[0][3](0) / lmom[0][3](2));
+//  out_plus_ssd_fit_mom_tan.emplace_back(lmom[1][0](0) / lmom[1][0](2));
+//  out_plus_gtr100_fit_mom_tan.emplace_back(lmom[1][1](0) / lmom[1][1](2));
+//  out_plus_gtr200_fit_mom_tan.emplace_back(lmom[1][2](0) / lmom[1][2](2));
+//  out_plus_gtr300_fit_mom_tan.emplace_back(lmom[1][3](0) / lmom[1][3](2));
+//  out_minus_ssd_res.emplace_back(lres[0][0].Mag());
+//  out_minus_gtr100_res.emplace_back(lres[0][1].Mag());
+//  out_minus_gtr200_res.emplace_back(lres[0][2].Mag());
+//  out_minus_gtr300_res.emplace_back(lres[0][3].Mag());
+//  out_plus_ssd_res.emplace_back(lres[1][0].Mag());
+//  out_plus_gtr100_res.emplace_back(lres[1][1].Mag());
+//  out_plus_gtr200_res.emplace_back(lres[1][2].Mag());
+//  out_plus_gtr300_res.emplace_back(lres[1][3].Mag());
+//  FillTVector3ToDouble(lres[0][0], &out_minus_ssd_res_x,     &out_minus_ssd_res_y,     &out_minus_ssd_res_z);
+//  FillTVector3ToDouble(lres[0][1], &out_minus_gtr100_res_x,  &out_minus_gtr100_res_y,  &out_minus_gtr100_res_z);
+//  FillTVector3ToDouble(lres[0][2], &out_minus_gtr200_res_x,  &out_minus_gtr200_res_y,  &out_minus_gtr200_res_z);
+//  FillTVector3ToDouble(lres[0][3], &out_minus_gtr300_res_x,  &out_minus_gtr300_res_y,  &out_minus_gtr300_res_z);
+//  FillTVector3ToDouble(lres[1][0], &out_plus_ssd_res_x,      &out_plus_ssd_res_y,      &out_plus_ssd_res_z);
+//  FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_res_x,   &out_plus_gtr100_res_y,   &out_plus_gtr100_res_z);
+//  FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_res_x,   &out_plus_gtr200_res_y,   &out_plus_gtr200_res_z);
+//  FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
+//
+//  TVector3 tmp_lposs[2][4];
+//  TVector3 tmp_gposs[2][4];
+//  TVector3 tmp_lmoms[2][4];
+//  TVector3 tmp_gmoms[2][4];
+//  ProjectionHBDAndLG(tmp_vtx, tmp_minus_mom, -1, track_index_pair[0], tmp_lposs[0], tmp_gposs[0], tmp_lmoms[0], tmp_gmoms[0]);
+//  FillTVector3ToDouble(tmp_lposs[0][0], &out_minus_hbd_fit_x,       &out_minus_hbd_fit_y,       &out_minus_hbd_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[0][0], &out_minus_hbd_fit_gx,      &out_minus_hbd_fit_gy,      &out_minus_hbd_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[0][0], &out_minus_hbd_fit_mom_x,   &out_minus_hbd_fit_mom_y,   &out_minus_hbd_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[0][0], &out_minus_hbd_fit_mom_gx,  &out_minus_hbd_fit_mom_gy,  &out_minus_hbd_fit_mom_gz);
+//  FillTVector3ToDouble(tmp_lposs[0][1], &out_minus_lg_c_fit_x,      &out_minus_lg_c_fit_y,      &out_minus_lg_c_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[0][1], &out_minus_lg_c_fit_gx,     &out_minus_lg_c_fit_gy,     &out_minus_lg_c_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[0][1], &out_minus_lg_c_fit_mom_x,  &out_minus_lg_c_fit_mom_y,  &out_minus_lg_c_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[0][1], &out_minus_lg_c_fit_mom_gx, &out_minus_lg_c_fit_mom_gy, &out_minus_lg_c_fit_mom_gz);
+//  FillTVector3ToDouble(tmp_lposs[0][2], &out_minus_lg_b_fit_x,      &out_minus_lg_b_fit_y,      &out_minus_lg_b_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[0][2], &out_minus_lg_b_fit_gx,     &out_minus_lg_b_fit_gy,     &out_minus_lg_b_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[0][2], &out_minus_lg_b_fit_mom_x,  &out_minus_lg_b_fit_mom_y,  &out_minus_lg_b_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[0][2], &out_minus_lg_b_fit_mom_gx, &out_minus_lg_b_fit_mom_gy, &out_minus_lg_b_fit_mom_gz);
+//  FillTVector3ToDouble(tmp_lposs[0][3], &out_minus_lg_a_fit_x,      &out_minus_lg_a_fit_y,      &out_minus_lg_a_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[0][3], &out_minus_lg_a_fit_gx,     &out_minus_lg_a_fit_gy,     &out_minus_lg_a_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[0][3], &out_minus_lg_a_fit_mom_x,  &out_minus_lg_a_fit_mom_y,  &out_minus_lg_a_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[0][3], &out_minus_lg_a_fit_mom_gx, &out_minus_lg_a_fit_mom_gy, &out_minus_lg_a_fit_mom_gz);
+//  out_minus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[0][0](0) / tmp_lmoms[0][0](2));
+//  out_minus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[0][1](0) / tmp_lmoms[0][1](2));
+//  out_minus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[0][2](0) / tmp_lmoms[0][2](2));
+//  out_minus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[0][3](0) / tmp_lmoms[0][3](2));
+//  ProjectionHBDAndLG(tmp_vtx, tmp_plus_mom, 1, track_index_pair[1], tmp_lposs[1], tmp_gposs[1], tmp_lmoms[1], tmp_gmoms[1]);
+//  FillTVector3ToDouble(tmp_lposs[1][0], &out_plus_hbd_fit_x,       &out_plus_hbd_fit_y,       &out_plus_hbd_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[1][0], &out_plus_hbd_fit_gx,      &out_plus_hbd_fit_gy,      &out_plus_hbd_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[1][0], &out_plus_hbd_fit_mom_x,   &out_plus_hbd_fit_mom_y,   &out_plus_hbd_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[1][0], &out_plus_hbd_fit_mom_gx,  &out_plus_hbd_fit_mom_gy,  &out_plus_hbd_fit_mom_gz);
+//  FillTVector3ToDouble(tmp_lposs[1][1], &out_plus_lg_c_fit_x,      &out_plus_lg_c_fit_y,      &out_plus_lg_c_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[1][1], &out_plus_lg_c_fit_gx,     &out_plus_lg_c_fit_gy,     &out_plus_lg_c_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[1][1], &out_plus_lg_c_fit_mom_x,  &out_plus_lg_c_fit_mom_y,  &out_plus_lg_c_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[1][1], &out_plus_lg_c_fit_mom_gx, &out_plus_lg_c_fit_mom_gy, &out_plus_lg_c_fit_mom_gz);
+//  FillTVector3ToDouble(tmp_lposs[1][2], &out_plus_lg_b_fit_x,      &out_plus_lg_b_fit_y,      &out_plus_lg_b_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[1][2], &out_plus_lg_b_fit_gx,     &out_plus_lg_b_fit_gy,     &out_plus_lg_b_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[1][2], &out_plus_lg_b_fit_mom_x,  &out_plus_lg_b_fit_mom_y,  &out_plus_lg_b_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[1][2], &out_plus_lg_b_fit_mom_gx, &out_plus_lg_b_fit_mom_gy, &out_plus_lg_b_fit_mom_gz);
+//  FillTVector3ToDouble(tmp_lposs[1][3], &out_plus_lg_a_fit_x,      &out_plus_lg_a_fit_y,      &out_plus_lg_a_fit_z);
+//  FillTVector3ToDouble(tmp_gposs[1][3], &out_plus_lg_a_fit_gx,     &out_plus_lg_a_fit_gy,     &out_plus_lg_a_fit_gz);
+//  FillTVector3ToDouble(tmp_lmoms[1][3], &out_plus_lg_a_fit_mom_x,  &out_plus_lg_a_fit_mom_y,  &out_plus_lg_a_fit_mom_z);
+//  FillTVector3ToDouble(tmp_gmoms[1][3], &out_plus_lg_a_fit_mom_gx, &out_plus_lg_a_fit_mom_gy, &out_plus_lg_a_fit_mom_gz);
+//  out_plus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[1][0](0) / tmp_lmoms[1][0](2));
+//  out_plus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[1][1](0) / tmp_lmoms[1][1](2));
+//  out_plus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[1][2](0) / tmp_lmoms[1][2](2));
+//  out_plus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[1][3](0) / tmp_lmoms[1][3](2));
+//  
+//  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
+//  out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
+//  out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   tmp_minus_mom, tmp_plus_mom));
+//  out_kk_mass.emplace_back(CalcMass(pt_param::kCalcKKMassFlag,     tmp_minus_mom, tmp_plus_mom));
+//  FillKsTrackInfo();
+//  return;
+//}
 
 void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_pair[]) {
   int track_index_pair[2];
@@ -1986,7 +2157,7 @@ double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], 
   *vtx_pos = {cross_point.x() * 10., cross_point.y() * 10., cross_point.z() * 10.};
   *minus_mom = {mom0.x(), mom0.y(), mom0.z()};
   *plus_mom  = {mom1.x(), mom1.y(), mom1.z()};
-  return distance * 10.;
+  return distance * 10.; // cm -> mm
 }
 
 void E16ANA_TrackAnalyzerFromTree::AddPionTracks(const int track_index_pair[]) {
@@ -2037,6 +2208,16 @@ void E16ANA_TrackAnalyzerFromTree::PionPairTracking(const int track_indexs_index
   UpdateFitResult(track_indexs_index_pair);
   return;
 }
+
+//void E16ANA_TrackAnalyzerFromTree::PionPairTrackingWoRefit(const int track_indexs_index_pair[]) {
+//  int track_index_pair[2] = {selected_track_indexs[track_indexs_index_pair[0]], selected_track_indexs[track_indexs_index_pair[1]]};
+//  TVector3 tmp_vtx;
+//  TVector3 tmp_minus_mom;
+//  TVector3 tmp_plus_mom;
+//  auto distance = SearchVertex(track_indexs_index_pair, &tmp_vtx, &tmp_minus_mom, &tmp_plus_mom);
+//  UpdateFitResult(track_indexs_index_pair);
+//  return;
+//}
 
 void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
   int n_selected_tracks = selected_track_indexs.size();
