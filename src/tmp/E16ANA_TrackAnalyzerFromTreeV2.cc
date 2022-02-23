@@ -853,10 +853,10 @@ double E16ANA_TrackAnalyzerFromTree::CalcSingleTrackChiSquareWoTarget(int track_
   double chi_square_from_tgt = 0.;
   auto init_pos = TVector3(rk_fit_init_pos_gx->at(track_index), rk_fit_init_pos_gy->at(track_index), rk_fit_init_pos_gz->at(track_index));
   for (int i = 0; i < 3; ++i) {
-    if (pit_param::kInitPosError(i) == 0.) {
+    if (pit_param::kPreInitPosError(i) == 0.) {
       continue;
     }
-    chi_square_from_tgt += pow(init_pos(i) / pit_param::kInitPosError(i), 2.);
+    chi_square_from_tgt += pow(init_pos(i) / pit_param::kPreInitPosError(i), 2.);
   }
   return chi_square->at(track_index) - chi_square_from_tgt;
 }
