@@ -1949,6 +1949,28 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
   return;
 }
 
+std::vector<int> E16ANA_TrackAnalyzerFromTree::SortTracksWoInitPosErr() {
+  std::vector<std::pair<double, int>> chi_square_track_index_pairs(n_cands);
+  for (int i = 0; i < n_cands; ++i) {
+    chi_square_track_index_pairs[i] = std::make_pair(CalcSingleTrackChiSquareWoTarget(i), i);
+  }
+  std::sort(chi_square_track_index_pairs.begin(), chi_square_track_index_pairs.end());
+  std::vector<int> sorted_index(n_cands);
+  for (int i = 0; i < n_cands; ++i) {
+    sorted_index[i] = chi_square_track_index_pairs[i].second;
+  }
+  return sorted_index;
+}
+
+void E16ANA_TrackAnalyzerFromTree::SelectPionTracks() {
+  auto sorted_track_indexs = SortTracksWoInitPosErr();
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> used_cluster_ids;
+  for (const auto& index : sorted_track_indexs) {
+    SelectTrack(index, &used_cluster_ids);
+  }
+  return;
+}
+
 double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom) {
   auto init_pos0 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[0]) * 0.1);
   auto init_pos1 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[1]) * 0.1);
@@ -2091,7 +2113,7 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
       particle_flag = cmn_param::kPionFlag;
       ClearOutBranch();
       selected_track_indexs.clear();
-      SelectTracks();
+      SelectPionTracks();
       AnalyzePionTrackPairs();
     }
   }
