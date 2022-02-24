@@ -94,7 +94,7 @@ void E16ANA_HBDGeometry::ShowGeometryParameters(){
   }
 }
 
-std::vector<double> E16ANA_HBDGeometry::GetGlobalPosition(const int module_id, const double *lpos){//[xy]
+std::vector<double> E16ANA_HBDGeometry::GetGlobalPosition(const int module_id, const double *lpos){//[lpos: xy]
   double lx=lpos[0];
   double ly=lpos[1];
   double shift_x, shift_y, shift_z;
@@ -265,12 +265,14 @@ bool E16ANA_HBDGeometry::LocalToBoardCoordinate(const int module_id, double *l)
 }
 
 
-std::vector<int> E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(const int module_id, int triggertile_id)
-{//rough. correct triggertile size should be implemented 
+std::vector<int> E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(const int module_id, const int triggertile_id)
+{//rough. correct triggertile size should be implemented
   //triggertile ID: 0, 1, 2, 3, 4, 5, 10, 11, ..., 55
-  int n_pad = E16DST_Constant::NPadsHBD;
+  const int n_pads = E16DST_Constant::NPadsHBD;
   std::vector<int> pads;
-    
+  pads.reserve(n_pads);//without this statement, std::vector<int> pads is allocated too much capacity,
+  //resulting in segmentation violation
+  
   double x_triggertile_width = (HBD_Board_Constant::x_board_center)/3.;
   double y_triggertile_width = (HBD_Board_Constant::y_board_center)/3.;
   
@@ -285,8 +287,8 @@ std::vector<int> E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(const int mod
 
   double cog[2];
   if(0 <= triggertile_id/10 && triggertile_id/10 <= 5){
-    if( 0 <= triggertile_id%10 && triggertile_id%10 <=5 ){
-      for(int i=0; i<n_pad; i++){
+   if( 0 <= triggertile_id%10 && triggertile_id%10 <= 5 ){
+      for(int i=0; i<n_pads; i++){
 	if( GetPadLocalCOG(module_id, i, cog) ){
 	  if(x_triggertile[0] <= cog[0] && cog[0] <= x_triggertile[1]){
 	    if(y_triggertile[0] <= cog[1] && cog[1] <= y_triggertile[1]){
@@ -297,11 +299,12 @@ std::vector<int> E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(const int mod
       }
     }
   }
+  pads.shrink_to_fit();
   
   return pads;
 }
 
-std::vector<int> E16ANA_HBDGeometry::GetGEMAssociatedTriggerTileID(int GEM_id)
+std::vector<int> E16ANA_HBDGeometry::GetGEMAssociatedTriggerTileID(const int GEM_id)
 {
   std::vector<int> triggertiles;
   
@@ -321,10 +324,11 @@ std::vector<int> E16ANA_HBDGeometry::GetGEMAssociatedTriggerTileID(int GEM_id)
   return triggertiles;
 }
 
-std::vector<int> E16ANA_HBDGeometry::GetGEMAssociatedPadID(int module_id, int GEM_id){
+std::vector<int> E16ANA_HBDGeometry::GetGEMAssociatedPadID(const int module_id, const int GEM_id){
   
   std::vector<int> triggertiles = E16ANA_HBDGeometry::GetGEMAssociatedTriggerTileID(GEM_id);
   std::vector<int> pads;
+  pads.reserve(E16DST_Constant::NPadsHBD);
   
   for(auto t : triggertiles){
     std::vector<int> t_pads = E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(module_id, t);
@@ -332,11 +336,12 @@ std::vector<int> E16ANA_HBDGeometry::GetGEMAssociatedPadID(int module_id, int GE
       pads.push_back(p);
     }
   }
+  pads.shrink_to_fit();
   
   return pads;
 }
 
-int E16ANA_HBDGeometry::GetTriggerTileAssociatedGEMID(int triggertile_id)
+int E16ANA_HBDGeometry::GetTriggerTileAssociatedGEMID(const int triggertile_id)
 {
   int GEMs;
   
