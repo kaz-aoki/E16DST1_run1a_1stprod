@@ -1104,203 +1104,15 @@ void E16ANA_TrackAnalyzerFromTree::FillKsTrackInfo() {
   return;
 }
 
-//void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(bool is_first) {
-//  auto tmp_vtx       = pair_fitter->GetFitVertex();
-//  auto tmp_minus_mom = pair_fitter->GetFitMomentum(0);
-//  auto tmp_plus_mom  = pair_fitter->GetFitMomentum(1);
-//  int      mid[2][track_const::kNumTrackingLayers];
-//  TVector3 lpos[2][track_const::kNumTrackingLayers];
-//  TVector3 lmom[2][track_const::kNumTrackingLayers];
-//  TVector3 gpos[2][track_const::kNumTrackingLayers];
-//  TVector3 gmom[2][track_const::kNumTrackingLayers];
-//  TVector3 lres[2][track_const::kNumTrackingLayers];
-//  
-//  for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
-//    for (int layer_index = 0; layer_index < track_const::kNumTrackingLayers; ++layer_index) {
-//      int hid = 0; // hit ID
-//      std::vector<int>      tmp_mid;
-//      std::vector<TVector3> tmp_lpos;
-//      std::vector<TVector3> tmp_lmom;
-//      std::vector<TVector3> tmp_lres;
-//      pair_fitter->GetFitLPos(track_index_in_pair,     layer_index, tmp_mid, tmp_lpos);
-//      pair_fitter->GetFitLMom(track_index_in_pair,     layer_index, tmp_mid, tmp_lmom);
-//      pair_fitter->GetFitResidual(track_index_in_pair, layer_index, tmp_mid, tmp_lres);
-//      mid[track_index_in_pair][layer_index]  = track_const::ModuleID2013To2020(tmp_mid[hid]);
-//      lpos[track_index_in_pair][layer_index] = tmp_lpos[hid];
-//      lmom[track_index_in_pair][layer_index] = tmp_lmom[hid];
-//      if (layer_index == 0) {
-//        gpos[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGPos(tmp_lpos[hid]);
-//        gmom[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGMom(tmp_lmom[hid]);
-//      } else {
-//        gpos[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGPos(tmp_lpos[hid]);
-//        gmom[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGMom(tmp_lmom[hid]);
-//      }
-//      lres[track_index_in_pair][layer_index] = tmp_lres[hid];
-//    }
-//  }
-//  
-//  FillTVector3ToDouble(tmp_vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
-//  FillTVector3ToDouble(tmp_minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
-//  FillTVector3ToDouble(tmp_plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
-//
-//  out_minus_mom.emplace_back(tmp_minus_mom.Mag());
-//  out_plus_mom.emplace_back(tmp_plus_mom.Mag());
-//  out_pair_cos_theta.emplace_back((tmp_minus_mom.X() * tmp_plus_mom.X() + tmp_minus_mom.Y() * tmp_plus_mom.Y() + tmp_minus_mom.Z() + tmp_plus_mom.Z()) / (tmp_minus_mom.Mag() * tmp_plus_mom.Mag()));
-//  out_minus_ssd_mid.emplace_back(mid[0][0]);
-//  out_minus_gtr100_mid.emplace_back(mid[0][1]);
-//  out_minus_gtr200_mid.emplace_back(mid[0][2]);
-//  out_minus_gtr300_mid.emplace_back(mid[0][3]);
-//  out_minus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[0]));
-//  out_minus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[0]));
-//  out_minus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[0]));
-//  out_minus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[0]));
-//  out_plus_ssd_mid.emplace_back(mid[1][0]);
-//  out_plus_gtr100_mid.emplace_back(mid[1][1]);
-//  out_plus_gtr200_mid.emplace_back(mid[1][2]);
-//  out_plus_gtr300_mid.emplace_back(mid[1][3]);
-//  out_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[1]));
-//  out_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[1]));
-//  out_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[1]));
-//  out_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[1]));
-//  
-//  FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_x,     &out_minus_ssd_fit_y,     &out_minus_ssd_fit_z);
-//  FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_x,  &out_minus_gtr100_fit_y,  &out_minus_gtr100_fit_z);
-//  FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_x,  &out_minus_gtr200_fit_y,  &out_minus_gtr200_fit_z);
-//  FillTVector3ToDouble(lpos[0][3], &out_minus_gtr300_fit_x,  &out_minus_gtr300_fit_y,  &out_minus_gtr300_fit_z);
-//  FillTVector3ToDouble(lpos[1][0], &out_plus_ssd_fit_x,      &out_plus_ssd_fit_y,      &out_plus_ssd_fit_z);
-//  FillTVector3ToDouble(lpos[1][1], &out_plus_gtr100_fit_x,   &out_plus_gtr100_fit_y,   &out_plus_gtr100_fit_z);
-//  FillTVector3ToDouble(lpos[1][2], &out_plus_gtr200_fit_x,   &out_plus_gtr200_fit_y,   &out_plus_gtr200_fit_z);
-//  FillTVector3ToDouble(lpos[1][3], &out_plus_gtr300_fit_x,   &out_plus_gtr300_fit_y,   &out_plus_gtr300_fit_z);
-//  FillTVector3ToDouble(gpos[0][0], &out_minus_ssd_fit_gx,    &out_minus_ssd_fit_gy,    &out_minus_ssd_fit_gz);
-//  FillTVector3ToDouble(gpos[0][1], &out_minus_gtr100_fit_gx, &out_minus_gtr100_fit_gy, &out_minus_gtr100_fit_gz);
-//  FillTVector3ToDouble(gpos[0][2], &out_minus_gtr200_fit_gx, &out_minus_gtr200_fit_gy, &out_minus_gtr200_fit_gz);
-//  FillTVector3ToDouble(gpos[0][3], &out_minus_gtr300_fit_gx, &out_minus_gtr300_fit_gy, &out_minus_gtr300_fit_gz);
-//  FillTVector3ToDouble(gpos[1][0], &out_plus_ssd_fit_gx,     &out_plus_ssd_fit_gy,     &out_plus_ssd_fit_gz);
-//  FillTVector3ToDouble(gpos[1][1], &out_plus_gtr100_fit_gx,  &out_plus_gtr100_fit_gy,  &out_plus_gtr100_fit_gz);
-//  FillTVector3ToDouble(gpos[1][2], &out_plus_gtr200_fit_gx,  &out_plus_gtr200_fit_gy,  &out_plus_gtr200_fit_gz);
-//  FillTVector3ToDouble(gpos[1][3], &out_plus_gtr300_fit_gx,  &out_plus_gtr300_fit_gy,  &out_plus_gtr300_fit_gz);
-//  FillTVector3ToDouble(lmom[0][0], &out_minus_ssd_fit_mom_x,    &out_minus_ssd_fit_mom_y,    &out_minus_ssd_fit_mom_z);
-//  FillTVector3ToDouble(lmom[0][1], &out_minus_gtr100_fit_mom_x, &out_minus_gtr100_fit_mom_y, &out_minus_gtr100_fit_mom_z);
-//  FillTVector3ToDouble(lmom[0][2], &out_minus_gtr200_fit_mom_x, &out_minus_gtr200_fit_mom_y, &out_minus_gtr200_fit_mom_z);
-//  FillTVector3ToDouble(lmom[0][3], &out_minus_gtr300_fit_mom_x, &out_minus_gtr300_fit_mom_y, &out_minus_gtr300_fit_mom_z);
-//  FillTVector3ToDouble(lmom[1][0], &out_plus_ssd_fit_mom_x,     &out_plus_ssd_fit_mom_y,     &out_plus_ssd_fit_mom_z);
-//  FillTVector3ToDouble(lmom[1][1], &out_plus_gtr100_fit_mom_x,  &out_plus_gtr100_fit_mom_y,  &out_plus_gtr100_fit_mom_z);
-//  FillTVector3ToDouble(lmom[1][2], &out_plus_gtr200_fit_mom_x,  &out_plus_gtr200_fit_mom_y,  &out_plus_gtr200_fit_mom_z);
-//  FillTVector3ToDouble(lmom[1][3], &out_plus_gtr300_fit_mom_x,  &out_plus_gtr300_fit_mom_y,  &out_plus_gtr300_fit_mom_z);
-//  FillTVector3ToDouble(gmom[0][0], &out_minus_ssd_fit_mom_gx,    &out_minus_ssd_fit_mom_gy,    &out_minus_ssd_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[0][1], &out_minus_gtr100_fit_mom_gx, &out_minus_gtr100_fit_mom_gy, &out_minus_gtr100_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[0][2], &out_minus_gtr200_fit_mom_gx, &out_minus_gtr200_fit_mom_gy, &out_minus_gtr200_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[0][3], &out_minus_gtr300_fit_mom_gx, &out_minus_gtr300_fit_mom_gy, &out_minus_gtr300_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[1][0], &out_plus_ssd_fit_mom_gx,     &out_plus_ssd_fit_mom_gy,     &out_plus_ssd_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[1][1], &out_plus_gtr100_fit_mom_gx,  &out_plus_gtr100_fit_mom_gy,  &out_plus_gtr100_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[1][2], &out_plus_gtr200_fit_mom_gx,  &out_plus_gtr200_fit_mom_gy,  &out_plus_gtr200_fit_mom_gz);
-//  FillTVector3ToDouble(gmom[1][3], &out_plus_gtr300_fit_mom_gx,  &out_plus_gtr300_fit_mom_gy,  &out_plus_gtr300_fit_mom_gz);
-//  out_minus_ssd_fit_mom_tan.emplace_back(lmom[0][0](0) / lmom[0][0](2));
-//  out_minus_gtr100_fit_mom_tan.emplace_back(lmom[0][1](0) / lmom[0][1](2));
-//  out_minus_gtr200_fit_mom_tan.emplace_back(lmom[0][2](0) / lmom[0][2](2));
-//  out_minus_gtr300_fit_mom_tan.emplace_back(lmom[0][3](0) / lmom[0][3](2));
-//  out_plus_ssd_fit_mom_tan.emplace_back(lmom[1][0](0) / lmom[1][0](2));
-//  out_plus_gtr100_fit_mom_tan.emplace_back(lmom[1][1](0) / lmom[1][1](2));
-//  out_plus_gtr200_fit_mom_tan.emplace_back(lmom[1][2](0) / lmom[1][2](2));
-//  out_plus_gtr300_fit_mom_tan.emplace_back(lmom[1][3](0) / lmom[1][3](2));
-//  out_minus_ssd_res.emplace_back(lres[0][0].Mag());
-//  out_minus_gtr100_res.emplace_back(lres[0][1].Mag());
-//  out_minus_gtr200_res.emplace_back(lres[0][2].Mag());
-//  out_minus_gtr300_res.emplace_back(lres[0][3].Mag());
-//  out_plus_ssd_res.emplace_back(lres[1][0].Mag());
-//  out_plus_gtr100_res.emplace_back(lres[1][1].Mag());
-//  out_plus_gtr200_res.emplace_back(lres[1][2].Mag());
-//  out_plus_gtr300_res.emplace_back(lres[1][3].Mag());
-//  FillTVector3ToDouble(lres[0][0], &out_minus_ssd_res_x,     &out_minus_ssd_res_y,     &out_minus_ssd_res_z);
-//  FillTVector3ToDouble(lres[0][1], &out_minus_gtr100_res_x,  &out_minus_gtr100_res_y,  &out_minus_gtr100_res_z);
-//  FillTVector3ToDouble(lres[0][2], &out_minus_gtr200_res_x,  &out_minus_gtr200_res_y,  &out_minus_gtr200_res_z);
-//  FillTVector3ToDouble(lres[0][3], &out_minus_gtr300_res_x,  &out_minus_gtr300_res_y,  &out_minus_gtr300_res_z);
-//  FillTVector3ToDouble(lres[1][0], &out_plus_ssd_res_x,      &out_plus_ssd_res_y,      &out_plus_ssd_res_z);
-//  FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_res_x,   &out_plus_gtr100_res_y,   &out_plus_gtr100_res_z);
-//  FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_res_x,   &out_plus_gtr200_res_y,   &out_plus_gtr200_res_z);
-//  FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
-//
-//  TVector3 tmp_lposs[2][4];
-//  TVector3 tmp_gposs[2][4];
-//  TVector3 tmp_lmoms[2][4];
-//  TVector3 tmp_gmoms[2][4];
-//  ProjectionHBDAndLG(tmp_vtx, tmp_minus_mom, -1, track_index_pair[0], tmp_lposs[0], tmp_gposs[0], tmp_lmoms[0], tmp_gmoms[0]);
-//  FillTVector3ToDouble(tmp_lposs[0][0], &out_minus_hbd_fit_x,       &out_minus_hbd_fit_y,       &out_minus_hbd_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][0], &out_minus_hbd_fit_gx,      &out_minus_hbd_fit_gy,      &out_minus_hbd_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][0], &out_minus_hbd_fit_mom_x,   &out_minus_hbd_fit_mom_y,   &out_minus_hbd_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][0], &out_minus_hbd_fit_mom_gx,  &out_minus_hbd_fit_mom_gy,  &out_minus_hbd_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[0][1], &out_minus_lg_c_fit_x,      &out_minus_lg_c_fit_y,      &out_minus_lg_c_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][1], &out_minus_lg_c_fit_gx,     &out_minus_lg_c_fit_gy,     &out_minus_lg_c_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][1], &out_minus_lg_c_fit_mom_x,  &out_minus_lg_c_fit_mom_y,  &out_minus_lg_c_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][1], &out_minus_lg_c_fit_mom_gx, &out_minus_lg_c_fit_mom_gy, &out_minus_lg_c_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[0][2], &out_minus_lg_b_fit_x,      &out_minus_lg_b_fit_y,      &out_minus_lg_b_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][2], &out_minus_lg_b_fit_gx,     &out_minus_lg_b_fit_gy,     &out_minus_lg_b_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][2], &out_minus_lg_b_fit_mom_x,  &out_minus_lg_b_fit_mom_y,  &out_minus_lg_b_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][2], &out_minus_lg_b_fit_mom_gx, &out_minus_lg_b_fit_mom_gy, &out_minus_lg_b_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[0][3], &out_minus_lg_a_fit_x,      &out_minus_lg_a_fit_y,      &out_minus_lg_a_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][3], &out_minus_lg_a_fit_gx,     &out_minus_lg_a_fit_gy,     &out_minus_lg_a_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][3], &out_minus_lg_a_fit_mom_x,  &out_minus_lg_a_fit_mom_y,  &out_minus_lg_a_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][3], &out_minus_lg_a_fit_mom_gx, &out_minus_lg_a_fit_mom_gy, &out_minus_lg_a_fit_mom_gz);
-//  out_minus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[0][0](0) / tmp_lmoms[0][0](2));
-//  out_minus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[0][1](0) / tmp_lmoms[0][1](2));
-//  out_minus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[0][2](0) / tmp_lmoms[0][2](2));
-//  out_minus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[0][3](0) / tmp_lmoms[0][3](2));
-//  ProjectionHBDAndLG(tmp_vtx, tmp_plus_mom, 1, track_index_pair[1], tmp_lposs[1], tmp_gposs[1], tmp_lmoms[1], tmp_gmoms[1]);
-//  FillTVector3ToDouble(tmp_lposs[1][0], &out_plus_hbd_fit_x,       &out_plus_hbd_fit_y,       &out_plus_hbd_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][0], &out_plus_hbd_fit_gx,      &out_plus_hbd_fit_gy,      &out_plus_hbd_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][0], &out_plus_hbd_fit_mom_x,   &out_plus_hbd_fit_mom_y,   &out_plus_hbd_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][0], &out_plus_hbd_fit_mom_gx,  &out_plus_hbd_fit_mom_gy,  &out_plus_hbd_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[1][1], &out_plus_lg_c_fit_x,      &out_plus_lg_c_fit_y,      &out_plus_lg_c_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][1], &out_plus_lg_c_fit_gx,     &out_plus_lg_c_fit_gy,     &out_plus_lg_c_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][1], &out_plus_lg_c_fit_mom_x,  &out_plus_lg_c_fit_mom_y,  &out_plus_lg_c_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][1], &out_plus_lg_c_fit_mom_gx, &out_plus_lg_c_fit_mom_gy, &out_plus_lg_c_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[1][2], &out_plus_lg_b_fit_x,      &out_plus_lg_b_fit_y,      &out_plus_lg_b_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][2], &out_plus_lg_b_fit_gx,     &out_plus_lg_b_fit_gy,     &out_plus_lg_b_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][2], &out_plus_lg_b_fit_mom_x,  &out_plus_lg_b_fit_mom_y,  &out_plus_lg_b_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][2], &out_plus_lg_b_fit_mom_gx, &out_plus_lg_b_fit_mom_gy, &out_plus_lg_b_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[1][3], &out_plus_lg_a_fit_x,      &out_plus_lg_a_fit_y,      &out_plus_lg_a_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][3], &out_plus_lg_a_fit_gx,     &out_plus_lg_a_fit_gy,     &out_plus_lg_a_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][3], &out_plus_lg_a_fit_mom_x,  &out_plus_lg_a_fit_mom_y,  &out_plus_lg_a_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][3], &out_plus_lg_a_fit_mom_gx, &out_plus_lg_a_fit_mom_gy, &out_plus_lg_a_fit_mom_gz);
-//  out_plus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[1][0](0) / tmp_lmoms[1][0](2));
-//  out_plus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[1][1](0) / tmp_lmoms[1][1](2));
-//  out_plus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[1][2](0) / tmp_lmoms[1][2](2));
-//  out_plus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[1][3](0) / tmp_lmoms[1][3](2));
-//  
-//  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
-//  out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
-//  out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   tmp_minus_mom, tmp_plus_mom));
-//  out_kk_mass.emplace_back(CalcMass(pt_param::kCalcKKMassFlag,     tmp_minus_mom, tmp_plus_mom));
-//  FillKsTrackInfo();
-//  return;
-//}
-
-void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_pair[]) {
-  int track_index_pair[2];
-  for (int i = 0; i < 2; ++i) {
-    auto tmp_i = track_indexs_index_pair[i];
-    track_index_pair[i] = selected_track_indexs[tmp_i];
-  }
-  out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
-  out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
-  out_minus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[0]));
-  out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
-
-  auto tmp_vtx       = pair_fitter->GetFitVertex();
-  auto tmp_minus_mom = pair_fitter->GetFitMomentum(0);
-  auto tmp_plus_mom  = pair_fitter->GetFitMomentum(1);
-  FillTVector3ToDouble(tmp_vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
-  FillTVector3ToDouble(tmp_minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
-  FillTVector3ToDouble(tmp_plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
-  out_minus_mom.emplace_back(tmp_minus_mom.Mag());
-  out_plus_mom.emplace_back(tmp_plus_mom.Mag());
-  out_pair_cos_theta.emplace_back((tmp_minus_mom.X() * tmp_plus_mom.X() + tmp_minus_mom.Y() * tmp_plus_mom.Y() + tmp_minus_mom.Z() + tmp_plus_mom.Z()) / (tmp_minus_mom.Mag() * tmp_plus_mom.Mag()));
-  int      mid[2][track_const::kNumTrackingLayers];
-  TVector3 lpos[2][track_const::kNumTrackingLayers];
-  TVector3 lmom[2][track_const::kNumTrackingLayers];
-  TVector3 gpos[2][track_const::kNumTrackingLayers];
-  TVector3 gmom[2][track_const::kNumTrackingLayers];
-  TVector3 lres[2][track_const::kNumTrackingLayers];
+void E16ANA_TrackAnalyzerFromTree::GetFitResult(TVector3* vtx, TVector3* minus_mom, TVector3* plus_mom, std::array<std::array<int, track_const::kNumTrackingLayers>, 2>* mids,
+                                                std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>* lposs,
+                                                std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>* lmoms,
+                                                std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>* gposs,
+                                                std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>* gmoms,
+                                                std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>* lress) {
+  *vtx       = pair_fitter->GetFitVertex();
+  *minus_mom = pair_fitter->GetFitMomentum(0);
+  *plus_mom  = pair_fitter->GetFitMomentum(1);
   for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
     for (int layer_index = 0; layer_index < track_const::kNumTrackingLayers; ++layer_index) {
       int hid = 0; // hit ID
@@ -1311,19 +1123,45 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
       pair_fitter->GetFitLPos(track_index_in_pair,     layer_index, tmp_mid, tmp_lpos);
       pair_fitter->GetFitLMom(track_index_in_pair,     layer_index, tmp_mid, tmp_lmom);
       pair_fitter->GetFitResidual(track_index_in_pair, layer_index, tmp_mid, tmp_lres);
-      mid[track_index_in_pair][layer_index]  = track_const::ModuleID2013To2020(tmp_mid[hid]);
-      lpos[track_index_in_pair][layer_index] = tmp_lpos[hid];
-      lmom[track_index_in_pair][layer_index] = tmp_lmom[hid];
+      mids->at(track_index_in_pair)[layer_index]  = track_const::ModuleID2013To2020(tmp_mid[hid]);
+      lposs->at(track_index_in_pair)[layer_index] = tmp_lpos[hid];
+      lmoms->at(track_index_in_pair)[layer_index] = tmp_lmom[hid];
       if (layer_index == 0) {
-        gpos[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGPos(tmp_lpos[hid]);
-        gmom[track_index_in_pair][layer_index] = geometry->SSD(tmp_mid[hid])->GetGMom(tmp_lmom[hid]);
+        gposs->at(track_index_in_pair)[layer_index] = geometry->SSD(tmp_mid[hid])->GetGPos(tmp_lpos[hid]);
+        gmoms->at(track_index_in_pair)[layer_index] = geometry->SSD(tmp_mid[hid])->GetGMom(tmp_lmom[hid]);
       } else {
-        gpos[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGPos(tmp_lpos[hid]);
-        gmom[track_index_in_pair][layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGMom(tmp_lmom[hid]);
+        gposs->at(track_index_in_pair)[layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGPos(tmp_lpos[hid]);
+        gmoms->at(track_index_in_pair)[layer_index] = geometry->GTR(tmp_mid[hid], layer_index - 1)->GetGMom(tmp_lmom[hid]);
       }
-      lres[track_index_in_pair][layer_index] = tmp_lres[hid];
+      lress->at(track_index_in_pair)[layer_index] = tmp_lres[hid];
     }
   }
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_pair[], const TVector3& tmp_vtx, const TVector3& tmp_minus_mom, const TVector3& tmp_plus_mom,
+                                                   const std::array<std::array<int,      track_const::kNumTrackingLayers>, 2>& mid,
+                                                   const std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>& lpos,
+                                                   const std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>& lmom,
+                                                   const std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>& gpos,
+                                                   const std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>& gmom,
+                                                   const std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2>& lres) {
+  int track_index_pair[2];
+  for (int i = 0; i < 2; ++i) {
+    auto tmp_i = track_indexs_index_pair[i];
+    track_index_pair[i] = selected_track_indexs[tmp_i];
+  }
+  out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
+  out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
+  out_minus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[0]));
+  out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
+
+  FillTVector3ToDouble(tmp_vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
+  FillTVector3ToDouble(tmp_minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
+  FillTVector3ToDouble(tmp_plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
+  out_minus_mom.emplace_back(tmp_minus_mom.Mag());
+  out_plus_mom.emplace_back(tmp_plus_mom.Mag());
+  out_pair_cos_theta.emplace_back(tmp_minus_mom.Dot(tmp_plus_mom) / (tmp_minus_mom.Mag() * tmp_plus_mom.Mag()));
   out_minus_ssd_mid.emplace_back(mid[0][0]);
   out_minus_gtr100_mid.emplace_back(mid[0][1]);
   out_minus_gtr200_mid.emplace_back(mid[0][2]);
@@ -1989,29 +1827,29 @@ void E16ANA_TrackAnalyzerFromTree::PairTracking(const int track_indexs_index_pai
 //  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag,
 //                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
   double tgt_zs[3] = {-20., 0., 20.,};
-  double chi2[3];
+  double chi2 = 1.0e9;
+  int best_z_i = 0;
+  TVector3 vtx;
+  TVector3 minus_mom;
+  TVector3 plus_mom;
+  std::array<std::array<int, track_const::kNumTrackingLayers>, 2> mids;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lposs;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lmoms;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gposs;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gmoms;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lress;
   for (int i = 0; i < 3; ++i) {
     AddTracks(track_index_pair, tgt_zs[i]);
     pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
     pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
-    chi2[i] = pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag, pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls);
-  }
-  int best_z_i = 0;
-  for (int i = 1; i < 3; ++i) {
-    if (chi2[i] < chi2[best_z_i]) {
+    auto tmp_chi2 = pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag, pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls);
+    if (i == 0 || tmp_chi2 < chi2) {
+      chi2 = tmp_chi2;
       best_z_i = i;
+      GetFitResult(&vtx, &minus_mom, &plus_mom, &mids, &lposs, &lmoms, &gposs, &gmoms, &lress);
     }
   }
-  if (best_z_i == 2) {
-    out_chi_square.emplace_back(chi2[2]);
-  } else {
-    AddTracks(track_index_pair, tgt_zs[best_z_i]);
-    pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
-    pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
-    out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag,
-                                                 pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
-  }
-  UpdateFitResult(track_indexs_index_pair);
+  UpdateFitResult(track_indexs_index_pair, vtx, minus_mom, plus_mom, mids, lposs, lmoms, gposs, gmoms, lress);
   return;
 }
 
@@ -2205,7 +2043,17 @@ void E16ANA_TrackAnalyzerFromTree::PionPairTracking(const int track_indexs_index
   pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
   out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
                                                pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
-  UpdateFitResult(track_indexs_index_pair);
+  TVector3 vtx;
+  TVector3 minus_mom;
+  TVector3 plus_mom;
+  std::array<std::array<int,      track_const::kNumTrackingLayers>, 2> mids;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lposs;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lmoms;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gposs;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gmoms;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lress;
+  GetFitResult(&vtx, &minus_mom, &plus_mom, &mids, &lposs, &lmoms, &gposs, &gmoms, &lress);
+  UpdateFitResult(track_indexs_index_pair, vtx, minus_mom, plus_mom, mids, lposs, lmoms, gposs, gmoms, lress);
   return;
 }
 

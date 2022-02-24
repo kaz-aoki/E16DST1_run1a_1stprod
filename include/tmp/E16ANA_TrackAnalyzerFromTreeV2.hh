@@ -1537,7 +1537,20 @@ class E16ANA_TrackAnalyzerFromTree {
   double CalcMass(int flag, TVector3 mom0, TVector3 mom1);
   void ProjectionX0(int pair_index, TVector3 pos, TVector3 mom);
   void FillKsTrackInfo();
-  void UpdateFitResult(const int track_indexs_index_pair[]);
+  void GetFitResult(TVector3*vtx, TVector3* minus_mom, TVector3* plus_mom,
+                    std::array<std::array<int,      E16ANA_TrackConstant::kNumTrackingLayers>, 2>* mids,
+                    std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>* lposs,
+                    std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>* lmoms,
+                    std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>* gposs,
+                    std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>* gmoms,
+                    std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>* lress);
+  void UpdateFitResult(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom,
+                       const std::array<std::array<int,      E16ANA_TrackConstant::kNumTrackingLayers>, 2>& mids,
+                       const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& lposs,
+                       const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& lmoms,
+                       const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& gposs,
+                       const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& gmoms,
+                       const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& lress);
   void PairTracking(const int track_indexs_index_pair[], double tgt_z);
   std::vector<int> SortedTrackPairIndex();
 //  bool HasTimeCorrelationInTrackPair();
