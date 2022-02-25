@@ -1855,6 +1855,7 @@ void E16ANA_TrackAnalyzerFromTree::PairTracking(const int track_indexs_index_pai
       GetFitResult(&vtx, &minus_mom, &plus_mom, &mids, &lposs, &lmoms, &gposs, &gmoms, &lress);
     }
   }
+  out_chi_square.emplace_back(chi2);
   UpdateFitResult(track_indexs_index_pair, vtx, minus_mom, plus_mom, mids, lposs, lmoms, gposs, gmoms, lress);
   return;
 }
