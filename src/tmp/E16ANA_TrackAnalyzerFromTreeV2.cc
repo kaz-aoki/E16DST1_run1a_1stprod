@@ -641,10 +641,10 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDClusters(int track_mid, const TVector3&
     } else {
       mid2 = mid - 104;
     }
-    if (fabs(lpos.X() - st_param::kHBDXMean[mid2]) > st_param::kHBDXSigma[mid2]) {
+    if (fabs(lpos.X() - track_lpos.X() - st_param::kHBDXMean[mid2]) > st_param::kHBDXSigma[mid2]) {
       continue;
     }
-    if (fabs(lpos.Y() - st_param::kHBDYMean[mid2]) > st_param::kHBDYSigma[mid2]) {
+    if (fabs(lpos.Y() - track_lpos.Y() - st_param::kHBDYMean[mid2]) > st_param::kHBDYSigma[mid2]) {
       continue;
     }
     
@@ -2057,13 +2057,17 @@ void E16ANA_TrackAnalyzerFromTree::PionPairTracking(const int track_indexs_index
   return;
 }
 
+//void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_pair[]) {
+//  return;
+//}
+//
 //void E16ANA_TrackAnalyzerFromTree::PionPairTrackingWoRefit(const int track_indexs_index_pair[]) {
 //  int track_index_pair[2] = {selected_track_indexs[track_indexs_index_pair[0]], selected_track_indexs[track_indexs_index_pair[1]]};
 //  TVector3 tmp_vtx;
 //  TVector3 tmp_minus_mom;
 //  TVector3 tmp_plus_mom;
 //  auto distance = SearchVertex(track_indexs_index_pair, &tmp_vtx, &tmp_minus_mom, &tmp_plus_mom);
-//  UpdateFitResult(track_indexs_index_pair);
+//  FillTreeWoRefit(track_indexs_index_pair);
 //  return;
 //}
 
