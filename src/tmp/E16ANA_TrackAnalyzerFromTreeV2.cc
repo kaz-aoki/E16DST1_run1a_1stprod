@@ -668,7 +668,7 @@ bool E16ANA_TrackAnalyzerFromTree::IsTrackLGValidY(const double track_ys[], bool
 }
 
 bool E16ANA_TrackAnalyzerFromTree::HasLGHits(double track_mom, const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[],
-                                             std::vector<int>* hit_indexs) {
+                                             std::vector<int>* hit_indexs, std::vector<double>* lg_ts) {
   for (int hit_i = 0; hit_i < n_lg_hits; ++hit_i) {
 //    auto adc = lg_hit_adc->at(hit_i);
 //    if (particle_flag == cmn_param::kElectronFlag && E16DST_DST1LGHit::IsE(track_mom, adc) < 0.5) {
@@ -703,12 +703,13 @@ bool E16ANA_TrackAnalyzerFromTree::HasLGHits(double track_mom, const int track_m
       continue;
     }
     hit_indexs->emplace_back(hit_i);
+    lg_ts->emplace_back(lg_hit_t->at(hit_i));
   }
   return hit_indexs->size() != 0;
 }
 
 bool E16ANA_TrackAnalyzerFromTree::HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[],
-                                                 std::vector<int>* cluster_indexs) {
+                                                 std::vector<int>* cluster_indexs, std::vector<double>* lg_ts) {
   for (int clst_i = 0; clst_i < n_lg_clusters; ++clst_i) {
 //    auto adc = lg_cluster_adc->at(clst_i);
 //    if (particle_flag == cmn_param::kElectronFlag && E16DST_DST1LGHit::IsE(track_mom, adc) < 0.5) {
@@ -741,6 +742,7 @@ bool E16ANA_TrackAnalyzerFromTree::HasLGClusters(double track_mom, const int tra
       continue;
     }
     cluster_indexs->emplace_back(clst_i);
+    lg_ts->emplace_back(lg_cluster_t->at(clst_i));
   }
   return cluster_indexs->size() != 0;
 }
@@ -781,7 +783,7 @@ bool E16ANA_TrackAnalyzerFromTree::HasTriggerLGHits(const int track_mids[], cons
   return hit_indexs->size() != 0;
 }
 
-bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index) {
+bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::vector<double>* lg_ts) {
   auto track_hbd_mid  = rk_fit_hbd_mid->at(track_index);
   auto track_hbd_lpos = TVector3(rk_fit_hbd_x->at(track_index), rk_fit_hbd_y->at(track_index), 0.);
   auto track_mom_v = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
@@ -799,17 +801,18 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index) {
   if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
     return false;
   }
-//  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_ys, track_lg_valids, &tmp_lg_hit_indexs) ||
-//      !HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_ys, track_lg_valids, &tmp_lg_clst_indexs)) {
-//    return false;
-//  }
+  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
+    if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
+      return false;
+    }
+  }
   return true;
 }
 
 //bool HasTimeCorrelationInTrack() {
 //}
 
-bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
+bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<double>* lg_ts) {
   // write your selection criteria begin
   if (chi_square->at(track_index) > st_param::kChiSquareThreshold) {
     return false;
@@ -841,7 +844,7 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index) {
   if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
     return false;
   }
-  if (!HasHBDAndLGProjection(track_index)) {
+  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
   // HasTimeCorrelationInTrack()
@@ -861,7 +864,7 @@ double E16ANA_TrackAnalyzerFromTree::CalcSingleTrackChiSquareWoTarget(int track_
   return chi_square->at(track_index) - chi_square_from_tgt;
 }
 
-bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index) {
+bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index, std::vector<double>* lg_ts) {
   // write your selection criteria begin
   if (chi_square->at(track_index) > pit_param::kChiSquareThreshold) {
 //  if (CalcSingleTrackChiSquareWoTarget(track_index) > pit_param::kChiSquareThreshold) {
@@ -888,7 +891,7 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index) {
   if (rk_res_gtr300_y->at(track_index) > st_param::kGTR300yResidualThreshold) {
     return false;
   }
-  if (!HasHBDAndLGProjection(track_index)) {
+  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
   // HasTimeCorrelationInTrack()
@@ -896,7 +899,7 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index) {
   return true;
 }
 
-void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
+void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std::vector<double>& lg_ts, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   int ids[7] = {rk_hit_ssd_id->at(track_index),
                 rk_hit_gtr100_xid->at(track_index), rk_hit_gtr100_yid->at(track_index),
                 rk_hit_gtr200_xid->at(track_index), rk_hit_gtr200_yid->at(track_index),
@@ -929,12 +932,14 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, std::array
   used_cluster_ids->at(3).emplace_back(ids[5]);
   used_cluster_ids->at(3).emplace_back(ids[6]);
   selected_track_indexs.emplace_back(track_index);
+  selected_track_lg_hit_ts.emplace_back(lg_ts);
   return;
 }
 
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
-  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index))) {
-    CheckUsedClusters(track_index, used_cluster_ids);
+  std::vector<double> lg_ts;
+  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
+    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
   }
   return;
 }
@@ -1442,9 +1447,10 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   }
   out_plus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
 
-  std::vector<int> lg_hit_indexs[2];
-  std::vector<int> lg_clst_indexs[2];
-  std::vector<int> trg_lg_hit_indexs[2];
+  std::vector<int>    lg_hit_indexs[2];
+  std::vector<int>    lg_clst_indexs[2];
+  std::vector<int>    trg_lg_hit_indexs[2];
+  std::vector<double> tmp_lg_ts;
   int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(),  out_minus_lg_b_mid.back(),  out_minus_lg_a_mid.back()},
                                                      {out_plus_lg_c_mid.back(),   out_plus_lg_b_mid.back(),   out_plus_lg_a_mid.back()}};
   double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),        tmp_lposs[0][2].X(),        tmp_lposs[0][3].X()},
@@ -1454,10 +1460,10 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   bool track_lg_valids[2][cmn_param::kNumLGTypes];
   IsTrackLGValidY(track_lg_ys[0], track_lg_valids[0]);
   IsTrackLGValidY(track_lg_ys[1], track_lg_valids[1]);
-  HasLGHits(tmp_minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0]);
-  HasLGHits(tmp_plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1]);
-  HasLGClusters(tmp_minus_mom.Mag(), track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_clst_indexs[0]);
-  HasLGClusters(tmp_plus_mom.Mag(),  track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_clst_indexs[1]);
+  HasLGHits(tmp_minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0], &tmp_lg_ts);
+  HasLGHits(tmp_plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1], &tmp_lg_ts);
+  HasLGClusters(tmp_minus_mom.Mag(), track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_clst_indexs[0], &tmp_lg_ts);
+  HasLGClusters(tmp_plus_mom.Mag(),  track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_clst_indexs[1], &tmp_lg_ts);
   HasTriggerLGHits(track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &trg_lg_hit_indexs[0]);
   HasTriggerLGHits(track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &trg_lg_hit_indexs[1]);
   out_minus_proj_n_lg_hits.emplace_back(lg_hit_indexs[0].size());
@@ -1928,16 +1934,34 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
     auto selected_track_index0 = selected_track_indexs[index0];
     auto charge0 = rk_charge->at(selected_track_index0);
     auto tgt_z0 = rk_hit_init_pos_gz->at(selected_track_index0);
+    auto ssd_t0 = rk_hit_ssd_t->at(selected_track_index0);
+    const auto& lg_ts0 = selected_track_lg_hit_ts[index0];
     for (int index1 = index0 + 1; index1 < n_selected_tracks; ++index1) {
       auto selected_track_index1 = selected_track_indexs[index1];
       auto charge1 = rk_charge->at(selected_track_index1);
       auto tgt_z1 = rk_hit_init_pos_gz->at(selected_track_index1);
+      auto ssd_t1 = rk_hit_ssd_t->at(selected_track_index1);
+      const auto& lg_ts1 = selected_track_lg_hit_ts[index1];
       if (charge0 == charge1) {
         continue;
       }
 //      if (tgt_z0 != tgt_z1) {
 //        continue;
 //      }
+      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+        continue;
+      }
+      bool is_lg_t_match = false;
+      for (const auto& t0 : lg_ts0) {
+        for (const auto& t1 : lg_ts1) {
+          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
+            is_lg_t_match = true;
+          }
+        }
+      }
+      if (!is_lg_t_match) {
+        continue;
+      }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;

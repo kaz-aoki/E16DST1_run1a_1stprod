@@ -1519,15 +1519,17 @@ class E16ANA_TrackAnalyzerFromTree {
   void ClearOutBranch();
   bool HasHBDClusters(int track_mid, const TVector3& track_lpos, std::vector<int>* cluster_indexs);
   bool IsTrackLGValidY(const double track_ys[], bool track_valids[]);
-  bool HasLGHits(double track_mom,     const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* hit_indexs);
-  bool HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* cluster_indexs);
+  bool HasLGHits(double track_mom,     const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[],
+                 std::vector<int>* hit_indexs, std::vector<double>* lg_ts);
+  bool HasLGClusters(double track_mom, const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[],
+                     std::vector<int>* cluster_indexs, std::vector<double>* lg_ts);
   bool HasTriggerLGHits(const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* hit_indexs);
-  bool HasHBDAndLGProjection(int track_index);
+  bool HasHBDAndLGProjection(int track_index, std::vector<double>* lg_ts);
 //  bool HasTimeCorrelationInTrack();
-  bool IsGoodTrack(int track_index);
+  bool IsGoodTrack(int track_index, std::vector<double>* lg_ts);
   double CalcSingleTrackChiSquareWoTarget(int track_index);
-  bool IsGoodPionTrack(int track_inde);;
-  void CheckUsedClusters(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
+  bool IsGoodPionTrack(int track_index, std::vector<double>* lg_ts);
+  void CheckUsedClusters(int track_index, const std::vector<double>& lg_ts, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
   void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
   void SelectTracks();
   void AddTracks(const int track_index_pair[], double tgt_z);
@@ -1567,7 +1569,8 @@ class E16ANA_TrackAnalyzerFromTree {
   void AnalyzePionTrackPairs();
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both
   int particle_flag; // 0 : electron, 1 : pion
-  std::vector<int>              selected_track_indexs;
+  std::vector<int> selected_track_indexs;
+  std::vector<std::vector<double>> selected_track_lg_hit_ts;
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* pair_fitter;
