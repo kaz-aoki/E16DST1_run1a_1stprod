@@ -795,9 +795,9 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   std::vector<int> tmp_hbd_clst_indexs;
   std::vector<int> tmp_lg_hit_indexs;
   std::vector<int> tmp_lg_clst_indexs;
-  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
-    return false;
-  }
+//  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
+//    return false;
+//  }
   if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
     return false;
   }
