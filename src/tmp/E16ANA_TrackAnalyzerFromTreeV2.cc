@@ -795,9 +795,9 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   std::vector<int> tmp_hbd_clst_indexs;
   std::vector<int> tmp_lg_hit_indexs;
   std::vector<int> tmp_lg_clst_indexs;
-//  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
-//    return false;
-//  }
+  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
+    return false;
+  }
   if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
     return false;
   }
@@ -939,7 +939,9 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+//    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+    selected_track_indexs.emplace_back(track_index);
+    selected_track_lg_hit_ts.emplace_back(lg_ts);
   }
   return;
 }
@@ -1963,6 +1965,24 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
       if (!is_lg_t_match) {
         continue;
       }
+
+// pi-p begin
+      auto mom0 = TVector3(rk_fit_init_mom_gx->at(selected_track_index0), rk_fit_init_mom_gy->at(selected_track_index0), rk_fit_init_mom_gz->at(selected_track_index0));
+      auto mom1 = TVector3(rk_fit_init_mom_gx->at(selected_track_index1), rk_fit_init_mom_gy->at(selected_track_index1), rk_fit_init_mom_gz->at(selected_track_index1));
+      if (mom0.Mag() > 5. || mom1.Mag() > 5.) {
+        continue;
+      }
+      double pip_mass;
+      if (charge0 == -1) {
+        pip_mass = CalcMass(pt_param::kCalcPiPMassFlag, mom0, mom1);
+      } else {
+        pip_mass = CalcMass(pt_param::kCalcPiPMassFlag, mom1, mom0);
+      }
+      if (pip_mass < 0.8 || pip_mass > 1.4) {
+        continue;
+      }
+// pi-p end
+
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;
