@@ -6,7 +6,8 @@ namespace E16ANA_TrackAnalyzerFromTreeParameter {
 enum {
   kElectronFlag,
   kPionFlag,
-  kBothFlag
+  kBothFlag,
+  kPionWoRefitFlag
 };
 
 enum {
