@@ -36,15 +36,27 @@ bool E16ANA_HBDDeadChannel::ReadFile(const char *filename){
       int k_module_id;
       ss>>type>>module_id>>ch_id>>buf_status;
       
-      if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
-	if(type == 'p' && E16ANA_HBDChannelManager::IsValidPadID(ch_id)){
+      if(type != 'p' || type != 't'){//for backward compatibility
+	ss.str("");
+	ss.clear(std::stringstream::goodbit);
+	ss<<buf_line;
+	ss>>module_id>>ch_id>>buf_status;
+	if(E16ANA_HBDChannelManager::IsValidID(module_id, ch_id)){
 	  k_module_id = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
 	  status[k_module_id][ch_id] = buf_status;
 	}
-	if(type == 't' && E16ANA_HBDChannelManager::IsValidTileID(ch_id)){
-	  k_module_id = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
-	  int tile_id_0to35 = E16ANA_HBDChannelManager::ConvTIDE16ToK(ch_id);
-	  status_tile[k_module_id][tile_id_0to35] = buf_status;
+      }
+      else{
+	if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
+	  if(type == 'p' && E16ANA_HBDChannelManager::IsValidPadID(ch_id)){
+	    k_module_id = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
+	    status[k_module_id][ch_id] = buf_status;
+	  }
+	  else if(type == 't' && E16ANA_HBDChannelManager::IsValidTileID(ch_id)){
+	    k_module_id = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
+	    int tile_id_0to35 = E16ANA_HBDChannelManager::ConvTIDE16ToK(ch_id);
+	    status_tile[k_module_id][tile_id_0to35] = buf_status;
+	  }
 	}
       }
       

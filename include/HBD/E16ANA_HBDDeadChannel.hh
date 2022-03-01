@@ -26,7 +26,12 @@ public:
   bool IsHotTile(const int module_id, const int tile_id);
   int StatusTile(const int module_id, const int tile_id);
   void GetOKChannelsTile(const int module_id, std::vector<int> &ok_chs);
-
+  
+  int GetOKFlag(){return ok_flag;};
+  int GetDeadFlag(){return dead_flag;};
+  int GetNoisyFlag(){return noisy_flag;};
+  int GetHotFlag(){return hot_flag;};
+  
 private:
   enum {
     n_modules = E16DST_Constant::NModules,
