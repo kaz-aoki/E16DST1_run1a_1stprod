@@ -2130,759 +2130,757 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
   return;
 }
 
-//void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance) {
-//  out_distance.emplace_back(distance);
-//
-//  int track_index_pair[2];
-//  for (int i = 0; i < 2; ++i) {
-//    auto tmp_i = track_indexs_index_pair[i];
-//    track_index_pair[i] = selected_track_indexs[tmp_i];
-//  }
-//  out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
-//  out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
-//  out_minus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[0]));
-//  out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
-//  
-//  // vertex
-//  FillTVector3ToDouble(vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
-//  FillTVector3ToDouble(minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
-//  FillTVector3ToDouble(plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
-//  out_minus_mom.emplace_back(minus_mom.Mag());
-//  out_plus_mom.emplace_back(plus_mom.Mag());
-//  out_pair_cos_theta.emplace_back(minus_mom.Dot(plus_mom) / (minus_mom.Mag() * plus_mom.Mag()));
-//  
-//  // module ID
-//  int      mid[2][8];
-////  TVector3 lpos[2][8];
-//  TVector3 gpos[2][8];
-////  TVector3 lmom[2][8];
-////  TVector3 gmom[2][8];
-//  TVector3 lres[2][4];
-//  for (int i = 0; i < 2; ++i) {
-//    auto index = track_index_pair[i];
-//    mid[i][0] = rk_fit_ssd_mid->at(index);
-//    mid[i][1] = rk_fit_gtr100_mid->at(index);
-//    mid[i][2] = rk_fit_gtr200_mid->at(index);
-//    mid[i][3] = rk_fit_gtr300_mid->at(index);
-//    mid[i][4] = rk_fit_hbd_mid->at(index);
-//    mid[i][5] = rk_fit_lg_c_mid->at(index);
-//    mid[i][6] = rk_fit_lg_b_mid->at(index);
-//    mid[i][7] = rk_fit_lg_a_mid->at(index);
-//    gpos[i][0] = TVector3(rk_fit_ssd_gx->at(index),    rk_fit_ssd_gy->at(index),    rk_fit_ssd_gz->at(index));
-//    gpos[i][1] = TVector3(rk_fit_gtr100_gx->at(index), rk_fit_gtr100_gy->at(index), rk_fit_gtr100_gz->at(index));
-//    gpos[i][2] = TVector3(rk_fit_gtr200_gx->at(index), rk_fit_gtr200_gy->at(index), rk_fit_gtr200_gz->at(index));
-//    gpos[i][3] = TVector3(rk_fit_gtr300_gx->at(index), rk_fit_gtr300_gy->at(index), rk_fit_gtr300_gz->at(index));
-//    gpos[i][4] = TVector3(rk_fit_hbd_gx->at(index),    rk_fit_hbd_gy->at(index),    rk_fit_hbd_gz->at(index));
-//    gpos[i][5] = TVector3(rk_fit_lg_c_gx->at(index),   rk_fit_lg_c_gy->at(index),   rk_fit_lg_c_gz->at(index));
-//    gpos[i][6] = TVector3(rk_fit_lg_b_gx->at(index),   rk_fit_lg_b_gy->at(index),   rk_fit_lg_b_gz->at(index));
-//    gpos[i][7] = TVector3(rk_fit_lg_a_gx->at(index),   rk_fit_lg_a_gy->at(index),   rk_fit_lg_a_gz->at(index));
-//    lres[i][0] = TVector3(rk_res_ssd_x->at(index),      0.,                          0.);
-//    lres[i][1] = TVector3(rk_res_gtr100_tx2->at(index), rk_res_gtr100_ty->at(index), 0.);
-//    lres[i][2] = TVector3(rk_res_gtr200_tx2->at(index), rk_res_gtr200_ty->at(index), 0.);
-//    lres[i][3] = TVector3(rk_res_gtr300_tx2->at(index), rk_res_gtr300_ty->at(index), 0.);
-//  }
-//  out_minus_ssd_mid.emplace_back(mid[0][0]);
-//  out_minus_gtr100_mid.emplace_back(mid[0][1]);
-//  out_minus_gtr200_mid.emplace_back(mid[0][2]);
-//  out_minus_gtr300_mid.emplace_back(mid[0][3]);
-//  out_minus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[0]));
-//  out_minus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[0]));
-//  out_minus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[0]));
-//  out_minus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[0]));
-//  out_plus_ssd_mid.emplace_back(mid[1][0]);
-//  out_plus_gtr100_mid.emplace_back(mid[1][1]);
-//  out_plus_gtr200_mid.emplace_back(mid[1][2]);
-//  out_plus_gtr300_mid.emplace_back(mid[1][3]);
-//  out_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[1]));
-//  out_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[1]));
-//  out_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[1]));
-//  out_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[1]));
-//  
-//  // hit info
-//  TVector3 hit_gpos[2][track_const::kNumTrackingLayers];
-//  TVector3 hit_lpos[2][track_const::kNumTrackingLayers];
-//  for (int i = 0; i < 2; ++i) {
-//    hit_gpos[i][0] = TVector3(rk_hit_ssd_gx->at(track_index_pair[i]),
-//                              rk_hit_ssd_gy->at(track_index_pair[i]),
-//                              rk_hit_ssd_gz->at(track_index_pair[i]));
-//    hit_gpos[i][1] = TVector3(rk_hit_gtr100_gx->at(track_index_pair[i]),
-//                              rk_hit_gtr100_gy->at(track_index_pair[i]),
-//                              rk_hit_gtr100_gz->at(track_index_pair[i]));
-//    hit_gpos[i][2] = TVector3(rk_hit_gtr200_gx->at(track_index_pair[i]),
-//                              rk_hit_gtr200_gy->at(track_index_pair[i]),
-//                              rk_hit_gtr200_gz->at(track_index_pair[i]));
-//    hit_gpos[i][3] = TVector3(rk_hit_gtr300_gx->at(track_index_pair[i]),
-//                              rk_hit_gtr300_gy->at(track_index_pair[i]),
-//                              rk_hit_gtr300_gz->at(track_index_pair[i]));
-//    hit_lpos[i][0] = geometry->SSD(track_const::ModuleID2020To2013(mid[i][0]))->GetLPos(hit_gpos[i][0]);
-//    hit_lpos[i][1] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][1]), 0)->GetLPos(hit_gpos[i][1]);
-//    hit_lpos[i][2] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][2]), 1)->GetLPos(hit_gpos[i][2]);
-//    hit_lpos[i][3] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][3]), 2)->GetLPos(hit_gpos[i][3]);
-//  }
-//  FillTVector3ToDouble(hit_lpos[0][0], &out_minus_ssd_hit_x,     &out_minus_ssd_hit_y,     &out_minus_ssd_hit_z);
-//  FillTVector3ToDouble(hit_lpos[0][1], &out_minus_gtr100_hit_x,  &out_minus_gtr100_hit_y,  &out_minus_gtr100_hit_z);
-//  FillTVector3ToDouble(hit_lpos[0][2], &out_minus_gtr200_hit_x,  &out_minus_gtr200_hit_y,  &out_minus_gtr200_hit_z);
-//  FillTVector3ToDouble(hit_lpos[0][3], &out_minus_gtr300_hit_x,  &out_minus_gtr300_hit_y,  &out_minus_gtr300_hit_z);
-//  FillTVector3ToDouble(hit_lpos[1][0], &out_plus_ssd_hit_x,      &out_plus_ssd_hit_y,      &out_plus_ssd_hit_z);
-//  FillTVector3ToDouble(hit_lpos[1][1], &out_plus_gtr100_hit_x,   &out_plus_gtr100_hit_y,   &out_plus_gtr100_hit_z);
-//  FillTVector3ToDouble(hit_lpos[1][2], &out_plus_gtr200_hit_x,   &out_plus_gtr200_hit_y,   &out_plus_gtr200_hit_z);
-//  FillTVector3ToDouble(hit_lpos[1][3], &out_plus_gtr300_hit_x,   &out_plus_gtr300_hit_y,   &out_plus_gtr300_hit_z);
-//  FillTVector3ToDouble(hit_gpos[0][0], &out_minus_ssd_hit_gx,    &out_minus_ssd_hit_gy,    &out_minus_ssd_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[0][1], &out_minus_gtr100_hit_gx, &out_minus_gtr100_hit_gy, &out_minus_gtr100_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[0][2], &out_minus_gtr200_hit_gx, &out_minus_gtr200_hit_gy, &out_minus_gtr200_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[0][3], &out_minus_gtr300_hit_gx, &out_minus_gtr300_hit_gy, &out_minus_gtr300_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[1][0], &out_plus_ssd_hit_gx,     &out_plus_ssd_hit_gy,     &out_plus_ssd_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[1][1], &out_plus_gtr100_hit_gx,  &out_plus_gtr100_hit_gy,  &out_plus_gtr100_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[1][2], &out_plus_gtr200_hit_gx,  &out_plus_gtr200_hit_gy,  &out_plus_gtr200_hit_gz);
-//  FillTVector3ToDouble(hit_gpos[1][3], &out_plus_gtr300_hit_gx,  &out_plus_gtr300_hit_gy,  &out_plus_gtr300_hit_gz);
-//
-//  out_minus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[0]));
-//  out_minus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[0]));
-//  out_minus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[0]));
-//  out_minus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[0]));
-//  out_minus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[0]));
-//  out_minus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[0]));
-//  out_minus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[0]));
-//  out_minus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[0]));
-//  out_minus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[0]));
-//  out_minus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[0]));
-//  out_minus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[0]));
-//  out_minus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[0]));
-//  out_minus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[0]));
-//  out_minus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[0]));
-//  out_plus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[1]));
-//  out_plus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[1]));
-//  out_plus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[1]));
-//  out_plus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[1]));
-//  out_plus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[1]));
-//  out_plus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[1]));
-//  out_plus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[1]));
-//  out_plus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[1]));
-//  out_plus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[1]));
-//  out_plus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[1]));
-//  out_plus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[1]));
-//  out_plus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[1]));
-//  out_plus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[1]));
-//  out_plus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[1]));
-//  
-//  // momentum
-////  FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_x,     &out_minus_ssd_fit_y,     &out_minus_ssd_fit_z);
-////  FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_x,  &out_minus_gtr100_fit_y,  &out_minus_gtr100_fit_z);
-////  FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_x,  &out_minus_gtr200_fit_y,  &out_minus_gtr200_fit_z);
-////  FillTVector3ToDouble(lpos[0][3], &out_minus_gtr300_fit_x,  &out_minus_gtr300_fit_y,  &out_minus_gtr300_fit_z);
-////  FillTVector3ToDouble(lpos[1][0], &out_plus_ssd_fit_x,      &out_plus_ssd_fit_y,      &out_plus_ssd_fit_z);
-////  FillTVector3ToDouble(lpos[1][1], &out_plus_gtr100_fit_x,   &out_plus_gtr100_fit_y,   &out_plus_gtr100_fit_z);
-////  FillTVector3ToDouble(lpos[1][2], &out_plus_gtr200_fit_x,   &out_plus_gtr200_fit_y,   &out_plus_gtr200_fit_z);
-////  FillTVector3ToDouble(lpos[1][3], &out_plus_gtr300_fit_x,   &out_plus_gtr300_fit_y,   &out_plus_gtr300_fit_z);
-//  FillTVector3ToDouble(gpos[0][0], &out_minus_ssd_fit_gx,    &out_minus_ssd_fit_gy,    &out_minus_ssd_fit_gz);
-//  FillTVector3ToDouble(gpos[0][1], &out_minus_gtr100_fit_gx, &out_minus_gtr100_fit_gy, &out_minus_gtr100_fit_gz);
-//  FillTVector3ToDouble(gpos[0][2], &out_minus_gtr200_fit_gx, &out_minus_gtr200_fit_gy, &out_minus_gtr200_fit_gz);
-//  FillTVector3ToDouble(gpos[0][3], &out_minus_gtr300_fit_gx, &out_minus_gtr300_fit_gy, &out_minus_gtr300_fit_gz);
-//  FillTVector3ToDouble(gpos[1][0], &out_plus_ssd_fit_gx,     &out_plus_ssd_fit_gy,     &out_plus_ssd_fit_gz);
-//  FillTVector3ToDouble(gpos[1][1], &out_plus_gtr100_fit_gx,  &out_plus_gtr100_fit_gy,  &out_plus_gtr100_fit_gz);
-//  FillTVector3ToDouble(gpos[1][2], &out_plus_gtr200_fit_gx,  &out_plus_gtr200_fit_gy,  &out_plus_gtr200_fit_gz);
-//  FillTVector3ToDouble(gpos[1][3], &out_plus_gtr300_fit_gx,  &out_plus_gtr300_fit_gy,  &out_plus_gtr300_fit_gz);
-////  FillTVector3ToDouble(lmom[0][0], &out_minus_ssd_fit_mom_x,    &out_minus_ssd_fit_mom_y,    &out_minus_ssd_fit_mom_z);
-////  FillTVector3ToDouble(lmom[0][1], &out_minus_gtr100_fit_mom_x, &out_minus_gtr100_fit_mom_y, &out_minus_gtr100_fit_mom_z);
-////  FillTVector3ToDouble(lmom[0][2], &out_minus_gtr200_fit_mom_x, &out_minus_gtr200_fit_mom_y, &out_minus_gtr200_fit_mom_z);
-////  FillTVector3ToDouble(lmom[0][3], &out_minus_gtr300_fit_mom_x, &out_minus_gtr300_fit_mom_y, &out_minus_gtr300_fit_mom_z);
-////  FillTVector3ToDouble(lmom[1][0], &out_plus_ssd_fit_mom_x,     &out_plus_ssd_fit_mom_y,     &out_plus_ssd_fit_mom_z);
-////  FillTVector3ToDouble(lmom[1][1], &out_plus_gtr100_fit_mom_x,  &out_plus_gtr100_fit_mom_y,  &out_plus_gtr100_fit_mom_z);
-////  FillTVector3ToDouble(lmom[1][2], &out_plus_gtr200_fit_mom_x,  &out_plus_gtr200_fit_mom_y,  &out_plus_gtr200_fit_mom_z);
-////  FillTVector3ToDouble(lmom[1][3], &out_plus_gtr300_fit_mom_x,  &out_plus_gtr300_fit_mom_y,  &out_plus_gtr300_fit_mom_z);
-////  FillTVector3ToDouble(gmom[0][0], &out_minus_ssd_fit_mom_gx,    &out_minus_ssd_fit_mom_gy,    &out_minus_ssd_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[0][1], &out_minus_gtr100_fit_mom_gx, &out_minus_gtr100_fit_mom_gy, &out_minus_gtr100_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[0][2], &out_minus_gtr200_fit_mom_gx, &out_minus_gtr200_fit_mom_gy, &out_minus_gtr200_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[0][3], &out_minus_gtr300_fit_mom_gx, &out_minus_gtr300_fit_mom_gy, &out_minus_gtr300_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[1][0], &out_plus_ssd_fit_mom_gx,     &out_plus_ssd_fit_mom_gy,     &out_plus_ssd_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[1][1], &out_plus_gtr100_fit_mom_gx,  &out_plus_gtr100_fit_mom_gy,  &out_plus_gtr100_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[1][2], &out_plus_gtr200_fit_mom_gx,  &out_plus_gtr200_fit_mom_gy,  &out_plus_gtr200_fit_mom_gz);
-////  FillTVector3ToDouble(gmom[1][3], &out_plus_gtr300_fit_mom_gx,  &out_plus_gtr300_fit_mom_gy,  &out_plus_gtr300_fit_mom_gz);
-////  out_minus_ssd_fit_mom_tan.emplace_back(lmom[0][0](0) / lmom[0][0](2));
-////  out_minus_gtr100_fit_mom_tan.emplace_back(lmom[0][1](0) / lmom[0][1](2));
-////  out_minus_gtr200_fit_mom_tan.emplace_back(lmom[0][2](0) / lmom[0][2](2));
-////  out_minus_gtr300_fit_mom_tan.emplace_back(lmom[0][3](0) / lmom[0][3](2));
-////  out_plus_ssd_fit_mom_tan.emplace_back(lmom[1][0](0) / lmom[1][0](2));
-////  out_plus_gtr100_fit_mom_tan.emplace_back(lmom[1][1](0) / lmom[1][1](2));
-////  out_plus_gtr200_fit_mom_tan.emplace_back(lmom[1][2](0) / lmom[1][2](2));
-////  out_plus_gtr300_fit_mom_tan.emplace_back(lmom[1][3](0) / lmom[1][3](2));
-//  out_minus_ssd_res.emplace_back(lres[0][0].Mag());
-//  out_minus_gtr100_res.emplace_back(lres[0][1].Mag());
-//  out_minus_gtr200_res.emplace_back(lres[0][2].Mag());
-//  out_minus_gtr300_res.emplace_back(lres[0][3].Mag());
-//  out_plus_ssd_res.emplace_back(lres[1][0].Mag());
-//  out_plus_gtr100_res.emplace_back(lres[1][1].Mag());
-//  out_plus_gtr200_res.emplace_back(lres[1][2].Mag());
-//  out_plus_gtr300_res.emplace_back(lres[1][3].Mag());
-//  FillTVector3ToDouble(lres[0][0], &out_minus_ssd_res_x,     &out_minus_ssd_res_y,     &out_minus_ssd_res_z);
-//  FillTVector3ToDouble(lres[0][1], &out_minus_gtr100_res_x,  &out_minus_gtr100_res_y,  &out_minus_gtr100_res_z);
-//  FillTVector3ToDouble(lres[0][2], &out_minus_gtr200_res_x,  &out_minus_gtr200_res_y,  &out_minus_gtr200_res_z);
-//  FillTVector3ToDouble(lres[0][3], &out_minus_gtr300_res_x,  &out_minus_gtr300_res_y,  &out_minus_gtr300_res_z);
-//  FillTVector3ToDouble(lres[1][0], &out_plus_ssd_res_x,      &out_plus_ssd_res_y,      &out_plus_ssd_res_z);
-//  FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_res_x,   &out_plus_gtr100_res_y,   &out_plus_gtr100_res_z);
-//  FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_res_x,   &out_plus_gtr200_res_y,   &out_plus_gtr200_res_z);
-//  FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//  TVector3 tmp_lposs[2][4];
-//  TVector3 tmp_gposs[2][4];
-//  TVector3 tmp_lmoms[2][4];
-//  TVector3 tmp_gmoms[2][4];
-//  ProjectionHBDAndLG(tmp_vtx, tmp_minus_mom, -1, track_index_pair[0], tmp_lposs[0], tmp_gposs[0], tmp_lmoms[0], tmp_gmoms[0]);
-//  FillTVector3ToDouble(tmp_lposs[0][0], &out_minus_hbd_fit_x,       &out_minus_hbd_fit_y,       &out_minus_hbd_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][0], &out_minus_hbd_fit_gx,      &out_minus_hbd_fit_gy,      &out_minus_hbd_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][0], &out_minus_hbd_fit_mom_x,   &out_minus_hbd_fit_mom_y,   &out_minus_hbd_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][0], &out_minus_hbd_fit_mom_gx,  &out_minus_hbd_fit_mom_gy,  &out_minus_hbd_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[0][1], &out_minus_lg_c_fit_x,      &out_minus_lg_c_fit_y,      &out_minus_lg_c_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][1], &out_minus_lg_c_fit_gx,     &out_minus_lg_c_fit_gy,     &out_minus_lg_c_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][1], &out_minus_lg_c_fit_mom_x,  &out_minus_lg_c_fit_mom_y,  &out_minus_lg_c_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][1], &out_minus_lg_c_fit_mom_gx, &out_minus_lg_c_fit_mom_gy, &out_minus_lg_c_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[0][2], &out_minus_lg_b_fit_x,      &out_minus_lg_b_fit_y,      &out_minus_lg_b_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][2], &out_minus_lg_b_fit_gx,     &out_minus_lg_b_fit_gy,     &out_minus_lg_b_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][2], &out_minus_lg_b_fit_mom_x,  &out_minus_lg_b_fit_mom_y,  &out_minus_lg_b_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][2], &out_minus_lg_b_fit_mom_gx, &out_minus_lg_b_fit_mom_gy, &out_minus_lg_b_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[0][3], &out_minus_lg_a_fit_x,      &out_minus_lg_a_fit_y,      &out_minus_lg_a_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[0][3], &out_minus_lg_a_fit_gx,     &out_minus_lg_a_fit_gy,     &out_minus_lg_a_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[0][3], &out_minus_lg_a_fit_mom_x,  &out_minus_lg_a_fit_mom_y,  &out_minus_lg_a_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[0][3], &out_minus_lg_a_fit_mom_gx, &out_minus_lg_a_fit_mom_gy, &out_minus_lg_a_fit_mom_gz);
-//  out_minus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[0][0](0) / tmp_lmoms[0][0](2));
-//  out_minus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[0][1](0) / tmp_lmoms[0][1](2));
-//  out_minus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[0][2](0) / tmp_lmoms[0][2](2));
-//  out_minus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[0][3](0) / tmp_lmoms[0][3](2));
-//  ProjectionHBDAndLG(tmp_vtx, tmp_plus_mom, 1, track_index_pair[1], tmp_lposs[1], tmp_gposs[1], tmp_lmoms[1], tmp_gmoms[1]);
-//  FillTVector3ToDouble(tmp_lposs[1][0], &out_plus_hbd_fit_x,       &out_plus_hbd_fit_y,       &out_plus_hbd_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][0], &out_plus_hbd_fit_gx,      &out_plus_hbd_fit_gy,      &out_plus_hbd_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][0], &out_plus_hbd_fit_mom_x,   &out_plus_hbd_fit_mom_y,   &out_plus_hbd_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][0], &out_plus_hbd_fit_mom_gx,  &out_plus_hbd_fit_mom_gy,  &out_plus_hbd_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[1][1], &out_plus_lg_c_fit_x,      &out_plus_lg_c_fit_y,      &out_plus_lg_c_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][1], &out_plus_lg_c_fit_gx,     &out_plus_lg_c_fit_gy,     &out_plus_lg_c_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][1], &out_plus_lg_c_fit_mom_x,  &out_plus_lg_c_fit_mom_y,  &out_plus_lg_c_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][1], &out_plus_lg_c_fit_mom_gx, &out_plus_lg_c_fit_mom_gy, &out_plus_lg_c_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[1][2], &out_plus_lg_b_fit_x,      &out_plus_lg_b_fit_y,      &out_plus_lg_b_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][2], &out_plus_lg_b_fit_gx,     &out_plus_lg_b_fit_gy,     &out_plus_lg_b_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][2], &out_plus_lg_b_fit_mom_x,  &out_plus_lg_b_fit_mom_y,  &out_plus_lg_b_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][2], &out_plus_lg_b_fit_mom_gx, &out_plus_lg_b_fit_mom_gy, &out_plus_lg_b_fit_mom_gz);
-//  FillTVector3ToDouble(tmp_lposs[1][3], &out_plus_lg_a_fit_x,      &out_plus_lg_a_fit_y,      &out_plus_lg_a_fit_z);
-//  FillTVector3ToDouble(tmp_gposs[1][3], &out_plus_lg_a_fit_gx,     &out_plus_lg_a_fit_gy,     &out_plus_lg_a_fit_gz);
-//  FillTVector3ToDouble(tmp_lmoms[1][3], &out_plus_lg_a_fit_mom_x,  &out_plus_lg_a_fit_mom_y,  &out_plus_lg_a_fit_mom_z);
-//  FillTVector3ToDouble(tmp_gmoms[1][3], &out_plus_lg_a_fit_mom_gx, &out_plus_lg_a_fit_mom_gy, &out_plus_lg_a_fit_mom_gz);
-//  out_plus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[1][0](0) / tmp_lmoms[1][0](2));
-//  out_plus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[1][1](0) / tmp_lmoms[1][1](2));
-//  out_plus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[1][2](0) / tmp_lmoms[1][2](2));
-//  out_plus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[1][3](0) / tmp_lmoms[1][3](2));
-//  
-//  std::vector<int> hbd_clst_indexs[2];
-//  HasHBDClusters(out_minus_hbd_mid.back(), tmp_lposs[0][0], &hbd_clst_indexs[0]);
-//  out_minus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[0].size());
-//  out_minus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_y.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_ft.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_size.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
-//  out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
-//  HasHBDClusters(out_plus_hbd_mid.back(), tmp_lposs[1][0], &hbd_clst_indexs[1]);
-//  out_plus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[1].size());
-//  out_plus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_y.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_ft.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_size.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
-//  out_plus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
-//  bool tmp_has_e = false;
-//  for (const auto& index : hbd_clst_indexs[0]) {
-//    auto& x     = out_minus_proj_hbd_cluster_x.back();
-//    auto& y     = out_minus_proj_hbd_cluster_y.back();
-//    auto& res   = out_minus_proj_hbd_cluster_res.back();
-//    auto& res_x = out_minus_proj_hbd_cluster_res_x.back();
-//    auto& res_y = out_minus_proj_hbd_cluster_res_y.back();
-//    auto& adc   = out_minus_proj_hbd_cluster_adc.back();
-//    auto& t     = out_minus_proj_hbd_cluster_t.back();
-//    auto& ft    = out_minus_proj_hbd_cluster_ft.back();
-//    auto& size  = out_minus_proj_hbd_cluster_size.back();
-//    auto& eprob = out_minus_proj_hbd_cluster_eprob.back();
-//    auto& cprob = out_minus_proj_hbd_cluster_cprob.back();
-//    auto tmp_x = hbd_cluster_x->at(index);
-//    auto tmp_y = hbd_cluster_y->at(index);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    auto tmp_res_x = tmp_x - tmp_lposs[0][0].X();
-//    auto tmp_res_y = tmp_y - tmp_lposs[0][0].Y();
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    adc.emplace_back(hbd_cluster_adc->at(index));
-//    t.emplace_back(hbd_cluster_t->at(index));
-//    ft.emplace_back(hbd_cluster_ftime->at(index));
-//    size.emplace_back(hbd_cluster_size->at(index));
-//    eprob.emplace_back(hbd_cluster_eprob->at(index));
-//    cprob.emplace_back(hbd_cluster_cprob->at(index));
-//    if (eprob.back() > 0.5) {
-//      tmp_has_e = true;
-//    }
-//  }
-//  out_minus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
-//  tmp_has_e = false;
-//  for (const auto& index : hbd_clst_indexs[1]) {
-//    auto& x     = out_plus_proj_hbd_cluster_x.back();
-//    auto& y     = out_plus_proj_hbd_cluster_y.back();
-//    auto& res   = out_plus_proj_hbd_cluster_res.back();
-//    auto& res_x = out_plus_proj_hbd_cluster_res_x.back();
-//    auto& res_y = out_plus_proj_hbd_cluster_res_y.back();
-//    auto& adc   = out_plus_proj_hbd_cluster_adc.back();
-//    auto& t     = out_plus_proj_hbd_cluster_t.back();
-//    auto& ft    = out_plus_proj_hbd_cluster_ft.back();
-//    auto& size  = out_plus_proj_hbd_cluster_size.back();
-//    auto& eprob = out_plus_proj_hbd_cluster_eprob.back();
-//    auto& cprob = out_plus_proj_hbd_cluster_cprob.back();
-//    auto tmp_x = hbd_cluster_x->at(index);
-//    auto tmp_y = hbd_cluster_y->at(index);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    auto tmp_res_x = tmp_x - tmp_lposs[1][0].X();
-//    auto tmp_res_y = tmp_y - tmp_lposs[1][0].Y();
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    adc.emplace_back(hbd_cluster_adc->at(index));
-//    t.emplace_back(hbd_cluster_t->at(index));
-//    ft.emplace_back(hbd_cluster_ftime->at(index));
-//    size.emplace_back(hbd_cluster_size->at(index));
-//    eprob.emplace_back(hbd_cluster_eprob->at(index));
-//    cprob.emplace_back(hbd_cluster_cprob->at(index));
-//    if (eprob.back() > 0.5) {
-//      tmp_has_e = true;
-//    }
-//  }
-//  out_plus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
-//
-//  std::vector<int>    lg_hit_indexs[2];
-//  std::vector<int>    lg_clst_indexs[2];
-//  std::vector<int>    trg_lg_hit_indexs[2];
-//  std::vector<double> tmp_lg_ts;
-//  int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(),  out_minus_lg_b_mid.back(),  out_minus_lg_a_mid.back()},
-//                                                     {out_plus_lg_c_mid.back(),   out_plus_lg_b_mid.back(),   out_plus_lg_a_mid.back()}};
-//  double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),        tmp_lposs[0][2].X(),        tmp_lposs[0][3].X()},
-//                                                     {tmp_lposs[1][1].X(),        tmp_lposs[1][2].X(),        tmp_lposs[1][3].X()}};
-//  double track_lg_ys[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].Y(),        tmp_lposs[0][2].Y(),        tmp_lposs[0][3].Y()},
-//                                                     {tmp_lposs[1][1].Y(),        tmp_lposs[1][2].Y(),        tmp_lposs[1][3].Y()}};
-//  bool track_lg_valids[2][cmn_param::kNumLGTypes];
-//  IsTrackLGValidY(track_lg_ys[0], track_lg_valids[0]);
-//  IsTrackLGValidY(track_lg_ys[1], track_lg_valids[1]);
-//  HasLGHits(tmp_minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0], &tmp_lg_ts);
-//  HasLGHits(tmp_plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1], &tmp_lg_ts);
-//  HasLGClusters(tmp_minus_mom.Mag(), track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_clst_indexs[0], &tmp_lg_ts);
-//  HasLGClusters(tmp_plus_mom.Mag(),  track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_clst_indexs[1], &tmp_lg_ts);
-//  HasTriggerLGHits(track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &trg_lg_hit_indexs[0]);
-//  HasTriggerLGHits(track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &trg_lg_hit_indexs[1]);
-//  out_minus_proj_n_lg_hits.emplace_back(lg_hit_indexs[0].size());
-//  out_minus_proj_lg_hit_x.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_y.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_z.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_type.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_res.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_adc.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_t.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_hit_ise.emplace_back(std::vector<double>());
-//  out_plus_proj_n_lg_hits.emplace_back(lg_hit_indexs[1].size());
-//  out_plus_proj_lg_hit_x.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_y.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_z.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_type.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_res.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_adc.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_t.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_hit_ise.emplace_back(std::vector<double>());
-//  out_minus_proj_n_lg_clusters.emplace_back(lg_clst_indexs[0].size());
-//  out_minus_proj_lg_cluster_x.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_y.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_z.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_type.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_res.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_t.emplace_back(std::vector<double>());
-//  out_minus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
-//  out_plus_proj_n_lg_clusters.emplace_back(lg_clst_indexs[1].size());
-//  out_plus_proj_lg_cluster_x.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_y.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_z.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_type.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_res.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_t.emplace_back(std::vector<double>());
-//  out_plus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
-//  out_minus_proj_n_trg_lg_hits.emplace_back(trg_lg_hit_indexs[0].size());
-//  out_minus_proj_trg_lg_hit_x.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_y.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_z.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_type.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_res.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_res_x.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_res_y.emplace_back(std::vector<double>());
-//  out_minus_proj_trg_lg_hit_t.emplace_back(std::vector<double>());
-//  out_plus_proj_n_trg_lg_hits.emplace_back(trg_lg_hit_indexs[1].size());
-//  out_plus_proj_trg_lg_hit_x.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_y.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_z.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_type.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_res.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_res_x.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_res_y.emplace_back(std::vector<double>());
-//  out_plus_proj_trg_lg_hit_t.emplace_back(std::vector<double>());
-//
-//  tmp_has_e = false;
-//  bool tmp_has_good_t = false;
-//  for (const auto& index : lg_hit_indexs[0]) {
-//    auto& x     = out_minus_proj_lg_hit_x.back();
-//    auto& y     = out_minus_proj_lg_hit_y.back();
-//    auto& z     = out_minus_proj_lg_hit_z.back();
-//    auto& type  = out_minus_proj_lg_hit_type.back();
-//    auto& res   = out_minus_proj_lg_hit_res.back();
-//    auto& res_x = out_minus_proj_lg_hit_res_x.back();
-//    auto& res_y = out_minus_proj_lg_hit_res_y.back();
-//    auto& adc   = out_minus_proj_lg_hit_adc.back();
-//    auto& t     = out_minus_proj_lg_hit_t.back();
-//    auto& ise   = out_minus_proj_lg_hit_ise.back();
-//    auto tmp_x     = lg_hit_x->at(index);
-//    auto tmp_y     = lg_hit_y->at(index);
-//    auto tmp_z     = lg_hit_z->at(index);
-//    int  tmp_cid_y = int{lg_hit_cid->at(index)} / 10;
-//    int  tmp_type;
-//    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
-//      tmp_type = cmn_param::kLGTypeC;
-//    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
-//      tmp_type = cmn_param::kLGTypeB;
-//    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
-//      tmp_type = cmn_param::kLGTypeA;
-//    } else {
-//      tmp_type = cmn_param::kNumLGTypes;
-//      continue;
-//    }
-//    type.emplace_back(tmp_type);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    z.emplace_back(tmp_z);
-//    auto tmp_res_x = tmp_x - track_lg_xs[0][tmp_type];
-//    auto tmp_res_y = tmp_y - track_lg_ys[0][tmp_type];
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    adc.emplace_back(lg_hit_adc->at(index));
-//    t.emplace_back(lg_hit_t->at(index));
-//    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
-//      tmp_has_good_t = true;
-//    }
-//    ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_hit_adc->at(index)));
-//    if (ise.back() > 0.5) {
-//      tmp_has_e = true;
-//    }
-//  }
-//  out_minus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
-//  out_minus_proj_has_lg_hit_good_t.emplace_back(tmp_has_good_t);
-//  tmp_has_e      = false;
-//  tmp_has_good_t = false;
-//  for (const auto& index : lg_hit_indexs[1]) {
-//    auto& x     = out_plus_proj_lg_hit_x.back();
-//    auto& y     = out_plus_proj_lg_hit_y.back();
-//    auto& z     = out_plus_proj_lg_hit_z.back();
-//    auto& type  = out_plus_proj_lg_hit_type.back();
-//    auto& res   = out_plus_proj_lg_hit_res.back();
-//    auto& res_x = out_plus_proj_lg_hit_res_x.back();
-//    auto& res_y = out_plus_proj_lg_hit_res_y.back();
-//    auto& adc   = out_plus_proj_lg_hit_adc.back();
-//    auto& t     = out_plus_proj_lg_hit_t.back();
-//    auto& ise   = out_plus_proj_lg_hit_ise.back();
-//    auto tmp_x     = lg_hit_x->at(index);
-//    auto tmp_y     = lg_hit_y->at(index);
-//    auto tmp_z     = lg_hit_z->at(index);
-//    int  tmp_cid_y = int{lg_hit_cid->at(index)} / 10;
-//    int  tmp_type;
-//    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
-//      tmp_type = cmn_param::kLGTypeC;
-//    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
-//      tmp_type = cmn_param::kLGTypeB;
-//    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
-//      tmp_type = cmn_param::kLGTypeA;
-//    } else {
-//      tmp_type = cmn_param::kNumLGTypes;
-//      continue;
-//    }
-//    type.emplace_back(tmp_type);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    z.emplace_back(tmp_z);
-//    auto tmp_res_x = tmp_x - track_lg_xs[1][tmp_type];
-//    auto tmp_res_y = tmp_y - track_lg_ys[1][tmp_type];
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    adc.emplace_back(lg_hit_adc->at(index));
-//    t.emplace_back(lg_hit_t->at(index));
-//    ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_hit_adc->at(index)));
-//    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
-//      tmp_has_good_t = true;
-//    }
-//    if (ise.back() > 0.5) {
-//      tmp_has_e = true;
-//    }
-//  }
-//  out_plus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
-//  out_plus_proj_has_lg_hit_good_t.emplace_back(tmp_has_good_t);
-//  double tmp_lg_t[2];
-//  double tmp_lg_t_diff = 10000.;
-//  for (const auto& mt : out_minus_proj_lg_hit_t.back()) {
-//    for (const auto& pt : out_plus_proj_lg_hit_t.back()) {
-//      if (fabs(mt - pt) < fabs(tmp_lg_t_diff)) {
-//        tmp_lg_t_diff = mt  -pt;
-//        tmp_lg_t[0] = mt;
-//        tmp_lg_t[1] = pt;
-//      }
-//    }
-//  }
-//  out_proj_lg_hit_min_t_diff.emplace_back(tmp_lg_t_diff);
-//  out_proj_lg_hit_min_diff_t_mean.emplace_back((tmp_lg_t[0] + tmp_lg_t[1]) / 2.);
-//
-//  tmp_has_e      = false;
-//  tmp_has_good_t = false;
-//  for (const auto& index : lg_clst_indexs[0]) {
-//    auto& x     = out_minus_proj_lg_cluster_x.back();
-//    auto& y     = out_minus_proj_lg_cluster_y.back();
-//    auto& z     = out_minus_proj_lg_cluster_z.back();
-//    auto& type  = out_minus_proj_lg_cluster_type.back();
-//    auto& res   = out_minus_proj_lg_cluster_res.back();
-//    auto& res_x = out_minus_proj_lg_cluster_res_x.back();
-//    auto& res_y = out_minus_proj_lg_cluster_res_y.back();
-//    auto& adc   = out_minus_proj_lg_cluster_adc.back();
-//    auto& t     = out_minus_proj_lg_cluster_t.back();
-//    auto& ise   = out_minus_proj_lg_cluster_ise.back();
-//    auto tmp_x = lg_hit_x->at(index);
-//    auto tmp_y = lg_hit_y->at(index);
-//    auto tmp_z = lg_hit_z->at(index);
-//    int  tmp_type;
-//    for (tmp_type = 0; tmp_type < cmn_param::kNumLGTypes + 1; ++tmp_type) {
-//      if (fabs(tmp_z - cmn_param::kLGLocalZ[tmp_type]) < 0.1) {
-//        break;
-//      }
-//    }
-//    if (tmp_type == cmn_param::kNumLGTypes) {
-//      std::cerr << "Invalid LG hit z" << std::endl;
-//      continue;
-//    }
-//    type.emplace_back(tmp_type);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    z.emplace_back(tmp_z);
-//    auto tmp_res_x = tmp_x - track_lg_xs[0][tmp_type];
-//    auto tmp_res_y = tmp_y - track_lg_ys[0][tmp_type];
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    adc.emplace_back(lg_cluster_adc->at(index));
-//    t.emplace_back(lg_cluster_t->at(index));
-//    ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_cluster_adc->at(index)));
-//    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
-//      tmp_has_good_t = true;
-//    }
-//    if (ise.back() > 0.5) {
-//      tmp_has_e = true;
-//    }
-//  }
-//  out_minus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
-//  out_minus_proj_has_lg_cluster_good_t.emplace_back(tmp_has_good_t);
-//  tmp_has_e      = false;
-//  tmp_has_good_t = false;
-//  for (const auto& index : lg_clst_indexs[1]) {
-//    auto& x     = out_plus_proj_lg_cluster_x.back();
-//    auto& y     = out_plus_proj_lg_cluster_y.back();
-//    auto& z     = out_plus_proj_lg_cluster_z.back();
-//    auto& type  = out_plus_proj_lg_cluster_type.back();
-//    auto& res   = out_plus_proj_lg_cluster_res.back();
-//    auto& res_x = out_plus_proj_lg_cluster_res_x.back();
-//    auto& res_y = out_plus_proj_lg_cluster_res_y.back();
-//    auto& adc   = out_plus_proj_lg_cluster_adc.back();
-//    auto& t     = out_plus_proj_lg_cluster_t.back();
-//    auto& ise   = out_plus_proj_lg_cluster_ise.back();
-//    auto tmp_x = lg_hit_x->at(index);
-//    auto tmp_y = lg_hit_y->at(index);
-//    auto tmp_z = lg_hit_z->at(index);
-//    int  tmp_type;
-//    for (tmp_type = 0; tmp_type < cmn_param::kNumLGTypes + 1; ++tmp_type) {
-//      if (fabs(tmp_z - cmn_param::kLGLocalZ[tmp_type]) < 0.1) {
-//        break;
-//      }
-//    }
-//    if (tmp_type == cmn_param::kNumLGTypes) {
-//      std::cerr << "Invalid LG hit z" << std::endl;
-//      continue;
-//    }
-//    type.emplace_back(tmp_type);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    z.emplace_back(tmp_z);
-//    auto tmp_res_x = tmp_x - track_lg_xs[1][tmp_type];
-//    auto tmp_res_y = tmp_y - track_lg_ys[1][tmp_type];
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    adc.emplace_back(lg_cluster_adc->at(index));
-//    t.emplace_back(lg_cluster_t->at(index));
-//    ise.emplace_back(E16DST_DST1LGHit::IsE(tmp_minus_mom.Mag(), lg_cluster_adc->at(index)));
-//    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
-//      tmp_has_good_t = true;
-//    }
-//    if (ise.back() > 0.5) {
-//      tmp_has_e = true;
-//    }
-//  }
-//  out_plus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
-//  out_plus_proj_has_lg_cluster_good_t.emplace_back(tmp_has_good_t);
-//
-//  tmp_has_good_t = false;
-//  for (const auto& index : trg_lg_hit_indexs[0]) {
-//    auto& x     = out_minus_proj_trg_lg_hit_x.back();
-//    auto& y     = out_minus_proj_trg_lg_hit_y.back();
-//    auto& z     = out_minus_proj_trg_lg_hit_z.back();
-//    auto& type  = out_minus_proj_trg_lg_hit_type.back();
-//    auto& res   = out_minus_proj_trg_lg_hit_res.back();
-//    auto& res_x = out_minus_proj_trg_lg_hit_res_x.back();
-//    auto& res_y = out_minus_proj_trg_lg_hit_res_y.back();
-//    auto& t     = out_minus_proj_trg_lg_hit_t.back();
-//    auto tmp_x     = trg_lg_hit_x->at(index);
-//    auto tmp_y     = trg_lg_hit_y->at(index);
-//    auto tmp_z     = trg_lg_hit_z->at(index);
-//    int  tmp_cid_y = int{trg_lg_hit_cid->at(index)} / 10;
-//    int  tmp_type;
-//    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
-//      tmp_type = cmn_param::kLGTypeC;
-//    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
-//      tmp_type = cmn_param::kLGTypeB;
-//    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
-//      tmp_type = cmn_param::kLGTypeA;
-//    } else {
-//      tmp_type = cmn_param::kNumLGTypes;
-//      continue;
-//    }
-//    type.emplace_back(tmp_type);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    z.emplace_back(tmp_z);
-//    auto tmp_res_x = tmp_x - track_lg_xs[0][tmp_type];
-//    auto tmp_res_y = tmp_y - track_lg_ys[0][tmp_type];
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    t.emplace_back(trg_lg_hit_t->at(index));
-//    if (fabs(t.back()) < pt_param::kTriggerLGTimeWidth) {
-//      tmp_has_good_t = true;
-//    }
-//  }
-//  out_minus_proj_has_trg_lg_hit_good_t.emplace_back(tmp_has_good_t);
-//  tmp_has_good_t = false;
-//  for (const auto& index : trg_lg_hit_indexs[1]) {
-//    auto& x     = out_plus_proj_trg_lg_hit_x.back();
-//    auto& y     = out_plus_proj_trg_lg_hit_y.back();
-//    auto& z     = out_plus_proj_trg_lg_hit_z.back();
-//    auto& type  = out_plus_proj_trg_lg_hit_type.back();
-//    auto& res   = out_plus_proj_trg_lg_hit_res.back();
-//    auto& res_x = out_plus_proj_trg_lg_hit_res_x.back();
-//    auto& res_y = out_plus_proj_trg_lg_hit_res_y.back();
-//    auto& t     = out_plus_proj_trg_lg_hit_t.back();
-//    auto tmp_x     = trg_lg_hit_x->at(index);
-//    auto tmp_y     = trg_lg_hit_y->at(index);
-//    auto tmp_z     = trg_lg_hit_z->at(index);
-//    int  tmp_cid_y = int{trg_lg_hit_cid->at(index)} / 10;
-//    int  tmp_type;
-//    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
-//      tmp_type = cmn_param::kLGTypeC;
-//    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
-//      tmp_type = cmn_param::kLGTypeB;
-//    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
-//      tmp_type = cmn_param::kLGTypeA;
-//    } else {
-//      tmp_type = cmn_param::kNumLGTypes;
-//      continue;
-//    }
-//    type.emplace_back(tmp_type);
-//    x.emplace_back(tmp_x);
-//    y.emplace_back(tmp_y);
-//    z.emplace_back(tmp_z);
-//    auto tmp_res_x = tmp_x - track_lg_xs[1][tmp_type];
-//    auto tmp_res_y = tmp_y - track_lg_ys[1][tmp_type];
-//    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
-//    res_x.emplace_back(tmp_res_x);
-//    res_y.emplace_back(tmp_res_y);
-//    t.emplace_back(trg_lg_hit_t->at(index));
-//    if (fabs(t.back()) < pt_param::kTriggerLGTimeWidth) {
-//      tmp_has_good_t = true;
-//    }
-//  }
-//  out_plus_proj_has_trg_lg_hit_good_t.emplace_back(tmp_has_good_t);
-//
-//  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     tmp_minus_mom, tmp_plus_mom));
-//  out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, tmp_minus_mom, tmp_plus_mom));
-//  out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   tmp_minus_mom, tmp_plus_mom));
-//  out_kk_mass.emplace_back(CalcMass(pt_param::kCalcKKMassFlag,     tmp_minus_mom, tmp_plus_mom));
-//  FillKsTrackInfo();
-//  return;
-//}
+void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance) {
+  out_distance.emplace_back(distance);
 
-//void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairsWoRefit() {
-//  int n_selected_tracks = selected_track_indexs.size();
-//  for (int index0 = 0; index0 < n_selected_tracks - 1; ++index0) {
-//    auto selected_track_index0 = selected_track_indexs[index0];
-//    auto charge0 = rk_charge->at(selected_track_index0);
-//    for (int index1 = index0 + 1; index1 < n_selected_tracks; ++index1) {
-//      auto selected_track_index1 = selected_track_indexs[index1];
-//      auto charge1 = rk_charge->at(selected_track_index1);
-//      if (charge0 == charge1) {
-//        continue;
-//      }
-//      int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
-//      if (charge0 == -1) {
-//        track_indexs_index_pair[0] = index0;
-//        track_indexs_index_pair[1] = index1;
-//      } else {
-//        track_indexs_index_pair[0] = index1;
-//        track_indexs_index_pair[1] = index0;
-//      }
-//      TVector3 tmp_vtx_pos;
-//      TVector3 tmp_minus_mom;
-//      TVector3 tmp_plus_mom;
-//      auto tmp_dist = SearchVertex(track_index_pair, &tmp_vtx_pos, &tmp_minus_mom, &tmp_plus_mom);
-//      FillTreeWoRefit(track_indexs_index_pair, tmp_vtx_pos, tmp_minus_mom, tmp_plus_mom, tmp_dist);
-//    }
-//  }
-////  SelectTrackPairs();
-//  out_tree2->Fill();
-//  return;
-//}
+  int track_index_pair[2];
+  for (int i = 0; i < 2; ++i) {
+    auto tmp_i = track_indexs_index_pair[i];
+    track_index_pair[i] = selected_track_indexs[tmp_i];
+  }
+  out_minus_track_id.emplace_back(track_id->at(track_index_pair[0]));
+  out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
+  out_minus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[0]));
+  out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
+  
+  // vertex
+  FillTVector3ToDouble(vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
+  FillTVector3ToDouble(minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
+  FillTVector3ToDouble(plus_mom,  &out_plus_mom_gx,  &out_plus_mom_gy,  &out_plus_mom_gz);
+  out_minus_mom.emplace_back(minus_mom.Mag());
+  out_plus_mom.emplace_back(plus_mom.Mag());
+  out_pair_cos_theta.emplace_back(minus_mom.Dot(plus_mom) / (minus_mom.Mag() * plus_mom.Mag()));
+  
+  // module ID
+  int      mid[2][8];
+  TVector3 lpos[2][8];
+  TVector3 gpos[2][8];
+  TVector3 lmom[2][8];
+  TVector3 gmom[2][8];
+  TVector3 lres[2][4];
+  for (int i = 0; i < 2; ++i) {
+    auto index = track_index_pair[i];
+    mid[i][0] = rk_fit_ssd_mid->at(index);
+    mid[i][1] = rk_fit_gtr100_mid->at(index);
+    mid[i][2] = rk_fit_gtr200_mid->at(index);
+    mid[i][3] = rk_fit_gtr300_mid->at(index);
+    mid[i][4] = rk_fit_hbd_mid->at(index);
+    mid[i][5] = rk_fit_lg_c_mid->at(index);
+    mid[i][6] = rk_fit_lg_b_mid->at(index);
+    mid[i][7] = rk_fit_lg_a_mid->at(index);
+    gpos[i][0] = TVector3(rk_fit_ssd_gx->at(index),    rk_fit_ssd_gy->at(index),    rk_fit_ssd_gz->at(index));
+    gpos[i][1] = TVector3(rk_fit_gtr100_gx->at(index), rk_fit_gtr100_gy->at(index), rk_fit_gtr100_gz->at(index));
+    gpos[i][2] = TVector3(rk_fit_gtr200_gx->at(index), rk_fit_gtr200_gy->at(index), rk_fit_gtr200_gz->at(index));
+    gpos[i][3] = TVector3(rk_fit_gtr300_gx->at(index), rk_fit_gtr300_gy->at(index), rk_fit_gtr300_gz->at(index));
+    gpos[i][4] = TVector3(rk_fit_hbd_gx->at(index),    rk_fit_hbd_gy->at(index),    rk_fit_hbd_gz->at(index));
+    gpos[i][5] = TVector3(rk_fit_lg_c_gx->at(index),   rk_fit_lg_c_gy->at(index),   rk_fit_lg_c_gz->at(index));
+    gpos[i][6] = TVector3(rk_fit_lg_b_gx->at(index),   rk_fit_lg_b_gy->at(index),   rk_fit_lg_b_gz->at(index));
+    gpos[i][7] = TVector3(rk_fit_lg_a_gx->at(index),   rk_fit_lg_a_gy->at(index),   rk_fit_lg_a_gz->at(index));
+    lpos[i][0] = geometry->SSD(track_const::ModuleID2020To2013(mid[i][0]))->GetLPos(gpos[i][0]);
+    lpos[i][1] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][1]), 0)->GetLPos(gpos[i][1]);
+    lpos[i][2] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][2]), 1)->GetLPos(gpos[i][2]);
+    lpos[i][3] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][3]), 2)->GetLPos(gpos[i][3]);
+    lpos[i][4] = geometry->HBD(track_const::ModuleID2020To2013_27(mid[i][4]))->GetLPos(gpos[i][4]);
+    lpos[i][5] = geometry->LGVD(track_const::ModuleID2020To2013_27(mid[i][5]))->GetLPos(gpos[i][5]);
+    lpos[i][6] = geometry->LGVD(track_const::ModuleID2020To2013_27(mid[i][6]))->GetLPos(gpos[i][6]);
+    lpos[i][7] = geometry->LGVD(track_const::ModuleID2020To2013_27(mid[i][7]))->GetLPos(gpos[i][7]);
+    lres[i][0] = TVector3(rk_res_ssd_x->at(index),      0.,                          0.);
+    lres[i][1] = TVector3(rk_res_gtr100_tx2->at(index), rk_res_gtr100_ty->at(index), 0.);
+    lres[i][2] = TVector3(rk_res_gtr200_tx2->at(index), rk_res_gtr200_ty->at(index), 0.);
+    lres[i][3] = TVector3(rk_res_gtr300_tx2->at(index), rk_res_gtr300_ty->at(index), 0.);
+  }
+  out_minus_ssd_mid.emplace_back(mid[0][0]);
+  out_minus_gtr100_mid.emplace_back(mid[0][1]);
+  out_minus_gtr200_mid.emplace_back(mid[0][2]);
+  out_minus_gtr300_mid.emplace_back(mid[0][3]);
+  out_minus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[0]));
+  out_minus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[0]));
+  out_minus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[0]));
+  out_minus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[0]));
+  out_plus_ssd_mid.emplace_back(mid[1][0]);
+  out_plus_gtr100_mid.emplace_back(mid[1][1]);
+  out_plus_gtr200_mid.emplace_back(mid[1][2]);
+  out_plus_gtr300_mid.emplace_back(mid[1][3]);
+  out_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(track_index_pair[1]));
+  out_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(track_index_pair[1]));
+  out_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[1]));
+  out_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[1]));
+  
+  // hit info
+  TVector3 hit_gpos[2][track_const::kNumTrackingLayers];
+  TVector3 hit_lpos[2][track_const::kNumTrackingLayers];
+  for (int i = 0; i < 2; ++i) {
+    hit_gpos[i][0] = TVector3(rk_hit_ssd_gx->at(track_index_pair[i]),
+                              rk_hit_ssd_gy->at(track_index_pair[i]),
+                              rk_hit_ssd_gz->at(track_index_pair[i]));
+    hit_gpos[i][1] = TVector3(rk_hit_gtr100_gtx2->at(track_index_pair[i]),
+                              rk_hit_gtr100_gty->at(track_index_pair[i]),
+                              rk_hit_gtr100_gtz2->at(track_index_pair[i]));
+    hit_gpos[i][2] = TVector3(rk_hit_gtr200_gtx2->at(track_index_pair[i]),
+                              rk_hit_gtr200_gty->at(track_index_pair[i]),
+                              rk_hit_gtr200_gtz2->at(track_index_pair[i]));
+    hit_gpos[i][3] = TVector3(rk_hit_gtr300_gtx2->at(track_index_pair[i]),
+                              rk_hit_gtr300_gty->at(track_index_pair[i]),
+                              rk_hit_gtr300_gtz2->at(track_index_pair[i]));
+    hit_lpos[i][0] = geometry->SSD(track_const::ModuleID2020To2013(mid[i][0]))->GetLPos(hit_gpos[i][0]);
+    hit_lpos[i][1] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][1]), 0)->GetLPos(hit_gpos[i][1]);
+    hit_lpos[i][2] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][2]), 1)->GetLPos(hit_gpos[i][2]);
+    hit_lpos[i][3] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][3]), 2)->GetLPos(hit_gpos[i][3]);
+  }
+  FillTVector3ToDouble(hit_lpos[0][0], &out_minus_ssd_hit_x,     &out_minus_ssd_hit_y,     &out_minus_ssd_hit_z);
+  FillTVector3ToDouble(hit_lpos[0][1], &out_minus_gtr100_hit_x,  &out_minus_gtr100_hit_y,  &out_minus_gtr100_hit_z);
+  FillTVector3ToDouble(hit_lpos[0][2], &out_minus_gtr200_hit_x,  &out_minus_gtr200_hit_y,  &out_minus_gtr200_hit_z);
+  FillTVector3ToDouble(hit_lpos[0][3], &out_minus_gtr300_hit_x,  &out_minus_gtr300_hit_y,  &out_minus_gtr300_hit_z);
+  FillTVector3ToDouble(hit_lpos[1][0], &out_plus_ssd_hit_x,      &out_plus_ssd_hit_y,      &out_plus_ssd_hit_z);
+  FillTVector3ToDouble(hit_lpos[1][1], &out_plus_gtr100_hit_x,   &out_plus_gtr100_hit_y,   &out_plus_gtr100_hit_z);
+  FillTVector3ToDouble(hit_lpos[1][2], &out_plus_gtr200_hit_x,   &out_plus_gtr200_hit_y,   &out_plus_gtr200_hit_z);
+  FillTVector3ToDouble(hit_lpos[1][3], &out_plus_gtr300_hit_x,   &out_plus_gtr300_hit_y,   &out_plus_gtr300_hit_z);
+  FillTVector3ToDouble(hit_gpos[0][0], &out_minus_ssd_hit_gx,    &out_minus_ssd_hit_gy,    &out_minus_ssd_hit_gz);
+  FillTVector3ToDouble(hit_gpos[0][1], &out_minus_gtr100_hit_gx, &out_minus_gtr100_hit_gy, &out_minus_gtr100_hit_gz);
+  FillTVector3ToDouble(hit_gpos[0][2], &out_minus_gtr200_hit_gx, &out_minus_gtr200_hit_gy, &out_minus_gtr200_hit_gz);
+  FillTVector3ToDouble(hit_gpos[0][3], &out_minus_gtr300_hit_gx, &out_minus_gtr300_hit_gy, &out_minus_gtr300_hit_gz);
+  FillTVector3ToDouble(hit_gpos[1][0], &out_plus_ssd_hit_gx,     &out_plus_ssd_hit_gy,     &out_plus_ssd_hit_gz);
+  FillTVector3ToDouble(hit_gpos[1][1], &out_plus_gtr100_hit_gx,  &out_plus_gtr100_hit_gy,  &out_plus_gtr100_hit_gz);
+  FillTVector3ToDouble(hit_gpos[1][2], &out_plus_gtr200_hit_gx,  &out_plus_gtr200_hit_gy,  &out_plus_gtr200_hit_gz);
+  FillTVector3ToDouble(hit_gpos[1][3], &out_plus_gtr300_hit_gx,  &out_plus_gtr300_hit_gy,  &out_plus_gtr300_hit_gz);
+
+  out_minus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[0]));
+  out_minus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[0]));
+  out_minus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[0]));
+  out_minus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[0]));
+  out_minus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[0]));
+  out_minus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[0]));
+  out_minus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[0]));
+  out_minus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[0]));
+  out_plus_ssd_hit_t.emplace_back(rk_hit_ssd_t->at(track_index_pair[1]));
+  out_plus_ssd_hit_adc.emplace_back(rk_hit_ssd_adc->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xt.emplace_back(rk_hit_gtr100_xt->at(track_index_pair[1]));
+  out_plus_gtr100_hit_yt.emplace_back(rk_hit_gtr100_yt->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xadc.emplace_back(rk_hit_gtr100_xadc->at(track_index_pair[1]));
+  out_plus_gtr100_hit_yadc.emplace_back(rk_hit_gtr100_yadc->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xt.emplace_back(rk_hit_gtr200_xt->at(track_index_pair[1]));
+  out_plus_gtr200_hit_yt.emplace_back(rk_hit_gtr200_yt->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xadc.emplace_back(rk_hit_gtr200_xadc->at(track_index_pair[1]));
+  out_plus_gtr200_hit_yadc.emplace_back(rk_hit_gtr200_yadc->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xt.emplace_back(rk_hit_gtr300_xt->at(track_index_pair[1]));
+  out_plus_gtr300_hit_yt.emplace_back(rk_hit_gtr300_yt->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xadc.emplace_back(rk_hit_gtr300_xadc->at(track_index_pair[1]));
+  out_plus_gtr300_hit_yadc.emplace_back(rk_hit_gtr300_yadc->at(track_index_pair[1]));
+  
+  // fit
+  FillTVector3ToDouble(lpos[0][0], &out_minus_ssd_fit_x,     &out_minus_ssd_fit_y,     &out_minus_ssd_fit_z);
+  FillTVector3ToDouble(lpos[0][1], &out_minus_gtr100_fit_x,  &out_minus_gtr100_fit_y,  &out_minus_gtr100_fit_z);
+  FillTVector3ToDouble(lpos[0][2], &out_minus_gtr200_fit_x,  &out_minus_gtr200_fit_y,  &out_minus_gtr200_fit_z);
+  FillTVector3ToDouble(lpos[0][3], &out_minus_gtr300_fit_x,  &out_minus_gtr300_fit_y,  &out_minus_gtr300_fit_z);
+  FillTVector3ToDouble(lpos[1][0], &out_plus_ssd_fit_x,      &out_plus_ssd_fit_y,      &out_plus_ssd_fit_z);
+  FillTVector3ToDouble(lpos[1][1], &out_plus_gtr100_fit_x,   &out_plus_gtr100_fit_y,   &out_plus_gtr100_fit_z);
+  FillTVector3ToDouble(lpos[1][2], &out_plus_gtr200_fit_x,   &out_plus_gtr200_fit_y,   &out_plus_gtr200_fit_z);
+  FillTVector3ToDouble(lpos[1][3], &out_plus_gtr300_fit_x,   &out_plus_gtr300_fit_y,   &out_plus_gtr300_fit_z);
+  FillTVector3ToDouble(gpos[0][0], &out_minus_ssd_fit_gx,    &out_minus_ssd_fit_gy,    &out_minus_ssd_fit_gz);
+  FillTVector3ToDouble(gpos[0][1], &out_minus_gtr100_fit_gx, &out_minus_gtr100_fit_gy, &out_minus_gtr100_fit_gz);
+  FillTVector3ToDouble(gpos[0][2], &out_minus_gtr200_fit_gx, &out_minus_gtr200_fit_gy, &out_minus_gtr200_fit_gz);
+  FillTVector3ToDouble(gpos[0][3], &out_minus_gtr300_fit_gx, &out_minus_gtr300_fit_gy, &out_minus_gtr300_fit_gz);
+  FillTVector3ToDouble(gpos[1][0], &out_plus_ssd_fit_gx,     &out_plus_ssd_fit_gy,     &out_plus_ssd_fit_gz);
+  FillTVector3ToDouble(gpos[1][1], &out_plus_gtr100_fit_gx,  &out_plus_gtr100_fit_gy,  &out_plus_gtr100_fit_gz);
+  FillTVector3ToDouble(gpos[1][2], &out_plus_gtr200_fit_gx,  &out_plus_gtr200_fit_gy,  &out_plus_gtr200_fit_gz);
+  FillTVector3ToDouble(gpos[1][3], &out_plus_gtr300_fit_gx,  &out_plus_gtr300_fit_gy,  &out_plus_gtr300_fit_gz);
+//  FillTVector3ToDouble(lmom[0][0], &out_minus_ssd_fit_mom_x,    &out_minus_ssd_fit_mom_y,    &out_minus_ssd_fit_mom_z);
+//  FillTVector3ToDouble(lmom[0][1], &out_minus_gtr100_fit_mom_x, &out_minus_gtr100_fit_mom_y, &out_minus_gtr100_fit_mom_z);
+//  FillTVector3ToDouble(lmom[0][2], &out_minus_gtr200_fit_mom_x, &out_minus_gtr200_fit_mom_y, &out_minus_gtr200_fit_mom_z);
+//  FillTVector3ToDouble(lmom[0][3], &out_minus_gtr300_fit_mom_x, &out_minus_gtr300_fit_mom_y, &out_minus_gtr300_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][0], &out_plus_ssd_fit_mom_x,     &out_plus_ssd_fit_mom_y,     &out_plus_ssd_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][1], &out_plus_gtr100_fit_mom_x,  &out_plus_gtr100_fit_mom_y,  &out_plus_gtr100_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][2], &out_plus_gtr200_fit_mom_x,  &out_plus_gtr200_fit_mom_y,  &out_plus_gtr200_fit_mom_z);
+//  FillTVector3ToDouble(lmom[1][3], &out_plus_gtr300_fit_mom_x,  &out_plus_gtr300_fit_mom_y,  &out_plus_gtr300_fit_mom_z);
+//  FillTVector3ToDouble(gmom[0][0], &out_minus_ssd_fit_mom_gx,    &out_minus_ssd_fit_mom_gy,    &out_minus_ssd_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[0][1], &out_minus_gtr100_fit_mom_gx, &out_minus_gtr100_fit_mom_gy, &out_minus_gtr100_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[0][2], &out_minus_gtr200_fit_mom_gx, &out_minus_gtr200_fit_mom_gy, &out_minus_gtr200_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[0][3], &out_minus_gtr300_fit_mom_gx, &out_minus_gtr300_fit_mom_gy, &out_minus_gtr300_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][0], &out_plus_ssd_fit_mom_gx,     &out_plus_ssd_fit_mom_gy,     &out_plus_ssd_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][1], &out_plus_gtr100_fit_mom_gx,  &out_plus_gtr100_fit_mom_gy,  &out_plus_gtr100_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][2], &out_plus_gtr200_fit_mom_gx,  &out_plus_gtr200_fit_mom_gy,  &out_plus_gtr200_fit_mom_gz);
+//  FillTVector3ToDouble(gmom[1][3], &out_plus_gtr300_fit_mom_gx,  &out_plus_gtr300_fit_mom_gy,  &out_plus_gtr300_fit_mom_gz);
+//  out_minus_ssd_fit_mom_tan.emplace_back(lmom[0][0](0) / lmom[0][0](2));
+//  out_minus_gtr100_fit_mom_tan.emplace_back(lmom[0][1](0) / lmom[0][1](2));
+//  out_minus_gtr200_fit_mom_tan.emplace_back(lmom[0][2](0) / lmom[0][2](2));
+//  out_minus_gtr300_fit_mom_tan.emplace_back(lmom[0][3](0) / lmom[0][3](2));
+//  out_plus_ssd_fit_mom_tan.emplace_back(lmom[1][0](0) / lmom[1][0](2));
+//  out_plus_gtr100_fit_mom_tan.emplace_back(lmom[1][1](0) / lmom[1][1](2));
+//  out_plus_gtr200_fit_mom_tan.emplace_back(lmom[1][2](0) / lmom[1][2](2));
+//  out_plus_gtr300_fit_mom_tan.emplace_back(lmom[1][3](0) / lmom[1][3](2));
+  out_minus_ssd_res.emplace_back(lres[0][0].Mag());
+  out_minus_gtr100_res.emplace_back(lres[0][1].Mag());
+  out_minus_gtr200_res.emplace_back(lres[0][2].Mag());
+  out_minus_gtr300_res.emplace_back(lres[0][3].Mag());
+  out_plus_ssd_res.emplace_back(lres[1][0].Mag());
+  out_plus_gtr100_res.emplace_back(lres[1][1].Mag());
+  out_plus_gtr200_res.emplace_back(lres[1][2].Mag());
+  out_plus_gtr300_res.emplace_back(lres[1][3].Mag());
+  FillTVector3ToDouble(lres[0][0], &out_minus_ssd_res_x,     &out_minus_ssd_res_y,     &out_minus_ssd_res_z);
+  FillTVector3ToDouble(lres[0][1], &out_minus_gtr100_res_x,  &out_minus_gtr100_res_y,  &out_minus_gtr100_res_z);
+  FillTVector3ToDouble(lres[0][2], &out_minus_gtr200_res_x,  &out_minus_gtr200_res_y,  &out_minus_gtr200_res_z);
+  FillTVector3ToDouble(lres[0][3], &out_minus_gtr300_res_x,  &out_minus_gtr300_res_y,  &out_minus_gtr300_res_z);
+  FillTVector3ToDouble(lres[1][0], &out_plus_ssd_res_x,      &out_plus_ssd_res_y,      &out_plus_ssd_res_z);
+  FillTVector3ToDouble(lres[1][1], &out_plus_gtr100_res_x,   &out_plus_gtr100_res_y,   &out_plus_gtr100_res_z);
+  FillTVector3ToDouble(lres[1][2], &out_plus_gtr200_res_x,   &out_plus_gtr200_res_y,   &out_plus_gtr200_res_z);
+  FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
+
+  // Projection
+  TVector3 tmp_lposs[2][4];
+  TVector3 tmp_gposs[2][4];
+  TVector3 tmp_lmoms[2][4];
+  TVector3 tmp_gmoms[2][4];
+  ProjectionHBDAndLG(vtx, minus_mom, -1, track_index_pair[0], tmp_lposs[0], tmp_gposs[0], tmp_lmoms[0], tmp_gmoms[0]);
+  FillTVector3ToDouble(tmp_lposs[0][0], &out_minus_hbd_fit_x,       &out_minus_hbd_fit_y,       &out_minus_hbd_fit_z);
+  FillTVector3ToDouble(tmp_gposs[0][0], &out_minus_hbd_fit_gx,      &out_minus_hbd_fit_gy,      &out_minus_hbd_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[0][0], &out_minus_hbd_fit_mom_x,   &out_minus_hbd_fit_mom_y,   &out_minus_hbd_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[0][0], &out_minus_hbd_fit_mom_gx,  &out_minus_hbd_fit_mom_gy,  &out_minus_hbd_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[0][1], &out_minus_lg_c_fit_x,      &out_minus_lg_c_fit_y,      &out_minus_lg_c_fit_z);
+  FillTVector3ToDouble(tmp_gposs[0][1], &out_minus_lg_c_fit_gx,     &out_minus_lg_c_fit_gy,     &out_minus_lg_c_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[0][1], &out_minus_lg_c_fit_mom_x,  &out_minus_lg_c_fit_mom_y,  &out_minus_lg_c_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[0][1], &out_minus_lg_c_fit_mom_gx, &out_minus_lg_c_fit_mom_gy, &out_minus_lg_c_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[0][2], &out_minus_lg_b_fit_x,      &out_minus_lg_b_fit_y,      &out_minus_lg_b_fit_z);
+  FillTVector3ToDouble(tmp_gposs[0][2], &out_minus_lg_b_fit_gx,     &out_minus_lg_b_fit_gy,     &out_minus_lg_b_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[0][2], &out_minus_lg_b_fit_mom_x,  &out_minus_lg_b_fit_mom_y,  &out_minus_lg_b_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[0][2], &out_minus_lg_b_fit_mom_gx, &out_minus_lg_b_fit_mom_gy, &out_minus_lg_b_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[0][3], &out_minus_lg_a_fit_x,      &out_minus_lg_a_fit_y,      &out_minus_lg_a_fit_z);
+  FillTVector3ToDouble(tmp_gposs[0][3], &out_minus_lg_a_fit_gx,     &out_minus_lg_a_fit_gy,     &out_minus_lg_a_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[0][3], &out_minus_lg_a_fit_mom_x,  &out_minus_lg_a_fit_mom_y,  &out_minus_lg_a_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[0][3], &out_minus_lg_a_fit_mom_gx, &out_minus_lg_a_fit_mom_gy, &out_minus_lg_a_fit_mom_gz);
+  out_minus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[0][0](0) / tmp_lmoms[0][0](2));
+  out_minus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[0][1](0) / tmp_lmoms[0][1](2));
+  out_minus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[0][2](0) / tmp_lmoms[0][2](2));
+  out_minus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[0][3](0) / tmp_lmoms[0][3](2));
+  ProjectionHBDAndLG(vtx, plus_mom, 1, track_index_pair[1], tmp_lposs[1], tmp_gposs[1], tmp_lmoms[1], tmp_gmoms[1]);
+  FillTVector3ToDouble(tmp_lposs[1][0], &out_plus_hbd_fit_x,       &out_plus_hbd_fit_y,       &out_plus_hbd_fit_z);
+  FillTVector3ToDouble(tmp_gposs[1][0], &out_plus_hbd_fit_gx,      &out_plus_hbd_fit_gy,      &out_plus_hbd_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[1][0], &out_plus_hbd_fit_mom_x,   &out_plus_hbd_fit_mom_y,   &out_plus_hbd_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[1][0], &out_plus_hbd_fit_mom_gx,  &out_plus_hbd_fit_mom_gy,  &out_plus_hbd_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[1][1], &out_plus_lg_c_fit_x,      &out_plus_lg_c_fit_y,      &out_plus_lg_c_fit_z);
+  FillTVector3ToDouble(tmp_gposs[1][1], &out_plus_lg_c_fit_gx,     &out_plus_lg_c_fit_gy,     &out_plus_lg_c_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[1][1], &out_plus_lg_c_fit_mom_x,  &out_plus_lg_c_fit_mom_y,  &out_plus_lg_c_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[1][1], &out_plus_lg_c_fit_mom_gx, &out_plus_lg_c_fit_mom_gy, &out_plus_lg_c_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[1][2], &out_plus_lg_b_fit_x,      &out_plus_lg_b_fit_y,      &out_plus_lg_b_fit_z);
+  FillTVector3ToDouble(tmp_gposs[1][2], &out_plus_lg_b_fit_gx,     &out_plus_lg_b_fit_gy,     &out_plus_lg_b_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[1][2], &out_plus_lg_b_fit_mom_x,  &out_plus_lg_b_fit_mom_y,  &out_plus_lg_b_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[1][2], &out_plus_lg_b_fit_mom_gx, &out_plus_lg_b_fit_mom_gy, &out_plus_lg_b_fit_mom_gz);
+  FillTVector3ToDouble(tmp_lposs[1][3], &out_plus_lg_a_fit_x,      &out_plus_lg_a_fit_y,      &out_plus_lg_a_fit_z);
+  FillTVector3ToDouble(tmp_gposs[1][3], &out_plus_lg_a_fit_gx,     &out_plus_lg_a_fit_gy,     &out_plus_lg_a_fit_gz);
+  FillTVector3ToDouble(tmp_lmoms[1][3], &out_plus_lg_a_fit_mom_x,  &out_plus_lg_a_fit_mom_y,  &out_plus_lg_a_fit_mom_z);
+  FillTVector3ToDouble(tmp_gmoms[1][3], &out_plus_lg_a_fit_mom_gx, &out_plus_lg_a_fit_mom_gy, &out_plus_lg_a_fit_mom_gz);
+  out_plus_hbd_fit_mom_tan.emplace_back(tmp_lmoms[1][0](0) / tmp_lmoms[1][0](2));
+  out_plus_lg_c_fit_mom_tan.emplace_back(tmp_lmoms[1][1](0) / tmp_lmoms[1][1](2));
+  out_plus_lg_b_fit_mom_tan.emplace_back(tmp_lmoms[1][2](0) / tmp_lmoms[1][2](2));
+  out_plus_lg_a_fit_mom_tan.emplace_back(tmp_lmoms[1][3](0) / tmp_lmoms[1][3](2));
+  
+  std::vector<int> hbd_clst_indexs[2];
+  HasHBDClusters(out_minus_hbd_mid.back(), tmp_lposs[0][0], &hbd_clst_indexs[0]);
+  out_minus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[0].size());
+  out_minus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_y.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_ft.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_size.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
+  out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
+  HasHBDClusters(out_plus_hbd_mid.back(), tmp_lposs[1][0], &hbd_clst_indexs[1]);
+  out_plus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[1].size());
+  out_plus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_y.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_adc.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_t.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_ft.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_size.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_eprob.emplace_back(std::vector<double>());
+  out_plus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
+  bool tmp_has_e = false;
+  for (const auto& index : hbd_clst_indexs[0]) {
+    auto& x     = out_minus_proj_hbd_cluster_x.back();
+    auto& y     = out_minus_proj_hbd_cluster_y.back();
+    auto& res   = out_minus_proj_hbd_cluster_res.back();
+    auto& res_x = out_minus_proj_hbd_cluster_res_x.back();
+    auto& res_y = out_minus_proj_hbd_cluster_res_y.back();
+    auto& adc   = out_minus_proj_hbd_cluster_adc.back();
+    auto& t     = out_minus_proj_hbd_cluster_t.back();
+    auto& ft    = out_minus_proj_hbd_cluster_ft.back();
+    auto& size  = out_minus_proj_hbd_cluster_size.back();
+    auto& eprob = out_minus_proj_hbd_cluster_eprob.back();
+    auto& cprob = out_minus_proj_hbd_cluster_cprob.back();
+    auto tmp_x = hbd_cluster_x->at(index);
+    auto tmp_y = hbd_cluster_y->at(index);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    auto tmp_res_x = tmp_x - tmp_lposs[0][0].X();
+    auto tmp_res_y = tmp_y - tmp_lposs[0][0].Y();
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    adc.emplace_back(hbd_cluster_adc->at(index));
+    t.emplace_back(hbd_cluster_t->at(index));
+    ft.emplace_back(hbd_cluster_ftime->at(index));
+    size.emplace_back(hbd_cluster_size->at(index));
+    eprob.emplace_back(hbd_cluster_eprob->at(index));
+    cprob.emplace_back(hbd_cluster_cprob->at(index));
+    if (eprob.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_minus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
+  tmp_has_e = false;
+  for (const auto& index : hbd_clst_indexs[1]) {
+    auto& x     = out_plus_proj_hbd_cluster_x.back();
+    auto& y     = out_plus_proj_hbd_cluster_y.back();
+    auto& res   = out_plus_proj_hbd_cluster_res.back();
+    auto& res_x = out_plus_proj_hbd_cluster_res_x.back();
+    auto& res_y = out_plus_proj_hbd_cluster_res_y.back();
+    auto& adc   = out_plus_proj_hbd_cluster_adc.back();
+    auto& t     = out_plus_proj_hbd_cluster_t.back();
+    auto& ft    = out_plus_proj_hbd_cluster_ft.back();
+    auto& size  = out_plus_proj_hbd_cluster_size.back();
+    auto& eprob = out_plus_proj_hbd_cluster_eprob.back();
+    auto& cprob = out_plus_proj_hbd_cluster_cprob.back();
+    auto tmp_x = hbd_cluster_x->at(index);
+    auto tmp_y = hbd_cluster_y->at(index);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    auto tmp_res_x = tmp_x - tmp_lposs[1][0].X();
+    auto tmp_res_y = tmp_y - tmp_lposs[1][0].Y();
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    adc.emplace_back(hbd_cluster_adc->at(index));
+    t.emplace_back(hbd_cluster_t->at(index));
+    ft.emplace_back(hbd_cluster_ftime->at(index));
+    size.emplace_back(hbd_cluster_size->at(index));
+    eprob.emplace_back(hbd_cluster_eprob->at(index));
+    cprob.emplace_back(hbd_cluster_cprob->at(index));
+    if (eprob.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_plus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
+
+  std::vector<int>    lg_hit_indexs[2];
+  std::vector<int>    lg_clst_indexs[2];
+  std::vector<int>    trg_lg_hit_indexs[2];
+  std::vector<double> tmp_lg_ts;
+  int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(),  out_minus_lg_b_mid.back(),  out_minus_lg_a_mid.back()},
+                                                     {out_plus_lg_c_mid.back(),   out_plus_lg_b_mid.back(),   out_plus_lg_a_mid.back()}};
+  double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),        tmp_lposs[0][2].X(),        tmp_lposs[0][3].X()},
+                                                     {tmp_lposs[1][1].X(),        tmp_lposs[1][2].X(),        tmp_lposs[1][3].X()}};
+  double track_lg_ys[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].Y(),        tmp_lposs[0][2].Y(),        tmp_lposs[0][3].Y()},
+                                                     {tmp_lposs[1][1].Y(),        tmp_lposs[1][2].Y(),        tmp_lposs[1][3].Y()}};
+  bool track_lg_valids[2][cmn_param::kNumLGTypes];
+  IsTrackLGValidY(track_lg_ys[0], track_lg_valids[0]);
+  IsTrackLGValidY(track_lg_ys[1], track_lg_valids[1]);
+  HasLGHits(minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0], &tmp_lg_ts);
+  HasLGHits(plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1], &tmp_lg_ts);
+  HasLGClusters(minus_mom.Mag(), track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_clst_indexs[0], &tmp_lg_ts);
+  HasLGClusters(plus_mom.Mag(),  track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_clst_indexs[1], &tmp_lg_ts);
+  HasTriggerLGHits(track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &trg_lg_hit_indexs[0]);
+  HasTriggerLGHits(track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &trg_lg_hit_indexs[1]);
+  out_minus_proj_n_lg_hits.emplace_back(lg_hit_indexs[0].size());
+  out_minus_proj_lg_hit_x.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_y.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_z.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_type.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_res.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_adc.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_t.emplace_back(std::vector<double>());
+  out_minus_proj_lg_hit_ise.emplace_back(std::vector<double>());
+  out_plus_proj_n_lg_hits.emplace_back(lg_hit_indexs[1].size());
+  out_plus_proj_lg_hit_x.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_y.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_z.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_type.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_res.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_adc.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_t.emplace_back(std::vector<double>());
+  out_plus_proj_lg_hit_ise.emplace_back(std::vector<double>());
+  out_minus_proj_n_lg_clusters.emplace_back(lg_clst_indexs[0].size());
+  out_minus_proj_lg_cluster_x.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_y.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_z.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_type.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_res.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_t.emplace_back(std::vector<double>());
+  out_minus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
+  out_plus_proj_n_lg_clusters.emplace_back(lg_clst_indexs[1].size());
+  out_plus_proj_lg_cluster_x.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_y.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_z.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_type.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_res.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_adc.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_t.emplace_back(std::vector<double>());
+  out_plus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
+  out_minus_proj_n_trg_lg_hits.emplace_back(trg_lg_hit_indexs[0].size());
+  out_minus_proj_trg_lg_hit_x.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_y.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_z.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_type.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_res.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_res_x.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_res_y.emplace_back(std::vector<double>());
+  out_minus_proj_trg_lg_hit_t.emplace_back(std::vector<double>());
+  out_plus_proj_n_trg_lg_hits.emplace_back(trg_lg_hit_indexs[1].size());
+  out_plus_proj_trg_lg_hit_x.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_y.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_z.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_type.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_res.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_res_x.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_res_y.emplace_back(std::vector<double>());
+  out_plus_proj_trg_lg_hit_t.emplace_back(std::vector<double>());
+
+  tmp_has_e = false;
+  bool tmp_has_good_t = false;
+  for (const auto& index : lg_hit_indexs[0]) {
+    auto& x     = out_minus_proj_lg_hit_x.back();
+    auto& y     = out_minus_proj_lg_hit_y.back();
+    auto& z     = out_minus_proj_lg_hit_z.back();
+    auto& type  = out_minus_proj_lg_hit_type.back();
+    auto& res   = out_minus_proj_lg_hit_res.back();
+    auto& res_x = out_minus_proj_lg_hit_res_x.back();
+    auto& res_y = out_minus_proj_lg_hit_res_y.back();
+    auto& adc   = out_minus_proj_lg_hit_adc.back();
+    auto& t     = out_minus_proj_lg_hit_t.back();
+    auto& ise   = out_minus_proj_lg_hit_ise.back();
+    auto tmp_x     = lg_hit_x->at(index);
+    auto tmp_y     = lg_hit_y->at(index);
+    auto tmp_z     = lg_hit_z->at(index);
+    int  tmp_cid_y = int{lg_hit_cid->at(index)} / 10;
+    int  tmp_type;
+    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
+      tmp_type = cmn_param::kLGTypeC;
+    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
+      tmp_type = cmn_param::kLGTypeB;
+    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
+      tmp_type = cmn_param::kLGTypeA;
+    } else {
+      tmp_type = cmn_param::kNumLGTypes;
+      continue;
+    }
+    type.emplace_back(tmp_type);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    z.emplace_back(tmp_z);
+    auto tmp_res_x = tmp_x - track_lg_xs[0][tmp_type];
+    auto tmp_res_y = tmp_y - track_lg_ys[0][tmp_type];
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    adc.emplace_back(lg_hit_adc->at(index));
+    t.emplace_back(lg_hit_t->at(index));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t = true;
+    }
+    ise.emplace_back(E16DST_DST1LGHit::IsE(minus_mom.Mag(), lg_hit_adc->at(index)));
+    if (ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_minus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
+  out_minus_proj_has_lg_hit_good_t.emplace_back(tmp_has_good_t);
+  tmp_has_e      = false;
+  tmp_has_good_t = false;
+  for (const auto& index : lg_hit_indexs[1]) {
+    auto& x     = out_plus_proj_lg_hit_x.back();
+    auto& y     = out_plus_proj_lg_hit_y.back();
+    auto& z     = out_plus_proj_lg_hit_z.back();
+    auto& type  = out_plus_proj_lg_hit_type.back();
+    auto& res   = out_plus_proj_lg_hit_res.back();
+    auto& res_x = out_plus_proj_lg_hit_res_x.back();
+    auto& res_y = out_plus_proj_lg_hit_res_y.back();
+    auto& adc   = out_plus_proj_lg_hit_adc.back();
+    auto& t     = out_plus_proj_lg_hit_t.back();
+    auto& ise   = out_plus_proj_lg_hit_ise.back();
+    auto tmp_x     = lg_hit_x->at(index);
+    auto tmp_y     = lg_hit_y->at(index);
+    auto tmp_z     = lg_hit_z->at(index);
+    int  tmp_cid_y = int{lg_hit_cid->at(index)} / 10;
+    int  tmp_type;
+    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
+      tmp_type = cmn_param::kLGTypeC;
+    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
+      tmp_type = cmn_param::kLGTypeB;
+    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
+      tmp_type = cmn_param::kLGTypeA;
+    } else {
+      tmp_type = cmn_param::kNumLGTypes;
+      continue;
+    }
+    type.emplace_back(tmp_type);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    z.emplace_back(tmp_z);
+    auto tmp_res_x = tmp_x - track_lg_xs[1][tmp_type];
+    auto tmp_res_y = tmp_y - track_lg_ys[1][tmp_type];
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    adc.emplace_back(lg_hit_adc->at(index));
+    t.emplace_back(lg_hit_t->at(index));
+    ise.emplace_back(E16DST_DST1LGHit::IsE(minus_mom.Mag(), lg_hit_adc->at(index)));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t = true;
+    }
+    if (ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_plus_proj_has_lg_hit_e.emplace_back(tmp_has_e);
+  out_plus_proj_has_lg_hit_good_t.emplace_back(tmp_has_good_t);
+  double tmp_lg_t[2];
+  double tmp_lg_t_diff = 10000.;
+  for (const auto& mt : out_minus_proj_lg_hit_t.back()) {
+    for (const auto& pt : out_plus_proj_lg_hit_t.back()) {
+      if (fabs(mt - pt) < fabs(tmp_lg_t_diff)) {
+        tmp_lg_t_diff = mt  -pt;
+        tmp_lg_t[0] = mt;
+        tmp_lg_t[1] = pt;
+      }
+    }
+  }
+  out_proj_lg_hit_min_t_diff.emplace_back(tmp_lg_t_diff);
+  out_proj_lg_hit_min_diff_t_mean.emplace_back((tmp_lg_t[0] + tmp_lg_t[1]) / 2.);
+
+  tmp_has_e      = false;
+  tmp_has_good_t = false;
+  for (const auto& index : lg_clst_indexs[0]) {
+    auto& x     = out_minus_proj_lg_cluster_x.back();
+    auto& y     = out_minus_proj_lg_cluster_y.back();
+    auto& z     = out_minus_proj_lg_cluster_z.back();
+    auto& type  = out_minus_proj_lg_cluster_type.back();
+    auto& res   = out_minus_proj_lg_cluster_res.back();
+    auto& res_x = out_minus_proj_lg_cluster_res_x.back();
+    auto& res_y = out_minus_proj_lg_cluster_res_y.back();
+    auto& adc   = out_minus_proj_lg_cluster_adc.back();
+    auto& t     = out_minus_proj_lg_cluster_t.back();
+    auto& ise   = out_minus_proj_lg_cluster_ise.back();
+    auto tmp_x = lg_hit_x->at(index);
+    auto tmp_y = lg_hit_y->at(index);
+    auto tmp_z = lg_hit_z->at(index);
+    int  tmp_type;
+    for (tmp_type = 0; tmp_type < cmn_param::kNumLGTypes + 1; ++tmp_type) {
+      if (fabs(tmp_z - cmn_param::kLGLocalZ[tmp_type]) < 0.1) {
+        break;
+      }
+    }
+    if (tmp_type == cmn_param::kNumLGTypes) {
+      std::cerr << "Invalid LG hit z" << std::endl;
+      continue;
+    }
+    type.emplace_back(tmp_type);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    z.emplace_back(tmp_z);
+    auto tmp_res_x = tmp_x - track_lg_xs[0][tmp_type];
+    auto tmp_res_y = tmp_y - track_lg_ys[0][tmp_type];
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    adc.emplace_back(lg_cluster_adc->at(index));
+    t.emplace_back(lg_cluster_t->at(index));
+    ise.emplace_back(E16DST_DST1LGHit::IsE(minus_mom.Mag(), lg_cluster_adc->at(index)));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t = true;
+    }
+    if (ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_minus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
+  out_minus_proj_has_lg_cluster_good_t.emplace_back(tmp_has_good_t);
+  tmp_has_e      = false;
+  tmp_has_good_t = false;
+  for (const auto& index : lg_clst_indexs[1]) {
+    auto& x     = out_plus_proj_lg_cluster_x.back();
+    auto& y     = out_plus_proj_lg_cluster_y.back();
+    auto& z     = out_plus_proj_lg_cluster_z.back();
+    auto& type  = out_plus_proj_lg_cluster_type.back();
+    auto& res   = out_plus_proj_lg_cluster_res.back();
+    auto& res_x = out_plus_proj_lg_cluster_res_x.back();
+    auto& res_y = out_plus_proj_lg_cluster_res_y.back();
+    auto& adc   = out_plus_proj_lg_cluster_adc.back();
+    auto& t     = out_plus_proj_lg_cluster_t.back();
+    auto& ise   = out_plus_proj_lg_cluster_ise.back();
+    auto tmp_x = lg_hit_x->at(index);
+    auto tmp_y = lg_hit_y->at(index);
+    auto tmp_z = lg_hit_z->at(index);
+    int  tmp_type;
+    for (tmp_type = 0; tmp_type < cmn_param::kNumLGTypes + 1; ++tmp_type) {
+      if (fabs(tmp_z - cmn_param::kLGLocalZ[tmp_type]) < 0.1) {
+        break;
+      }
+    }
+    if (tmp_type == cmn_param::kNumLGTypes) {
+      std::cerr << "Invalid LG hit z" << std::endl;
+      continue;
+    }
+    type.emplace_back(tmp_type);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    z.emplace_back(tmp_z);
+    auto tmp_res_x = tmp_x - track_lg_xs[1][tmp_type];
+    auto tmp_res_y = tmp_y - track_lg_ys[1][tmp_type];
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    adc.emplace_back(lg_cluster_adc->at(index));
+    t.emplace_back(lg_cluster_t->at(index));
+    ise.emplace_back(E16DST_DST1LGHit::IsE(minus_mom.Mag(), lg_cluster_adc->at(index)));
+    if (fabs(t.back() - pt_param::kLGTime) < pt_param::kLGTimeWidth) {
+      tmp_has_good_t = true;
+    }
+    if (ise.back() > 0.5) {
+      tmp_has_e = true;
+    }
+  }
+  out_plus_proj_has_lg_cluster_e.emplace_back(tmp_has_e);
+  out_plus_proj_has_lg_cluster_good_t.emplace_back(tmp_has_good_t);
+
+  tmp_has_good_t = false;
+  for (const auto& index : trg_lg_hit_indexs[0]) {
+    auto& x     = out_minus_proj_trg_lg_hit_x.back();
+    auto& y     = out_minus_proj_trg_lg_hit_y.back();
+    auto& z     = out_minus_proj_trg_lg_hit_z.back();
+    auto& type  = out_minus_proj_trg_lg_hit_type.back();
+    auto& res   = out_minus_proj_trg_lg_hit_res.back();
+    auto& res_x = out_minus_proj_trg_lg_hit_res_x.back();
+    auto& res_y = out_minus_proj_trg_lg_hit_res_y.back();
+    auto& t     = out_minus_proj_trg_lg_hit_t.back();
+    auto tmp_x     = trg_lg_hit_x->at(index);
+    auto tmp_y     = trg_lg_hit_y->at(index);
+    auto tmp_z     = trg_lg_hit_z->at(index);
+    int  tmp_cid_y = int{trg_lg_hit_cid->at(index)} / 10;
+    int  tmp_type;
+    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
+      tmp_type = cmn_param::kLGTypeC;
+    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
+      tmp_type = cmn_param::kLGTypeB;
+    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
+      tmp_type = cmn_param::kLGTypeA;
+    } else {
+      tmp_type = cmn_param::kNumLGTypes;
+      continue;
+    }
+    type.emplace_back(tmp_type);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    z.emplace_back(tmp_z);
+    auto tmp_res_x = tmp_x - track_lg_xs[0][tmp_type];
+    auto tmp_res_y = tmp_y - track_lg_ys[0][tmp_type];
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    t.emplace_back(trg_lg_hit_t->at(index));
+    if (fabs(t.back()) < pt_param::kTriggerLGTimeWidth) {
+      tmp_has_good_t = true;
+    }
+  }
+  out_minus_proj_has_trg_lg_hit_good_t.emplace_back(tmp_has_good_t);
+  tmp_has_good_t = false;
+  for (const auto& index : trg_lg_hit_indexs[1]) {
+    auto& x     = out_plus_proj_trg_lg_hit_x.back();
+    auto& y     = out_plus_proj_trg_lg_hit_y.back();
+    auto& z     = out_plus_proj_trg_lg_hit_z.back();
+    auto& type  = out_plus_proj_trg_lg_hit_type.back();
+    auto& res   = out_plus_proj_trg_lg_hit_res.back();
+    auto& res_x = out_plus_proj_trg_lg_hit_res_x.back();
+    auto& res_y = out_plus_proj_trg_lg_hit_res_y.back();
+    auto& t     = out_plus_proj_trg_lg_hit_t.back();
+    auto tmp_x     = trg_lg_hit_x->at(index);
+    auto tmp_y     = trg_lg_hit_y->at(index);
+    auto tmp_z     = trg_lg_hit_z->at(index);
+    int  tmp_cid_y = int{trg_lg_hit_cid->at(index)} / 10;
+    int  tmp_type;
+    if (tmp_cid_y == 0 || tmp_cid_y == 5) {
+      tmp_type = cmn_param::kLGTypeC;
+    } else if (tmp_cid_y == 1 || tmp_cid_y == 4) {
+      tmp_type = cmn_param::kLGTypeB;
+    } else if (tmp_cid_y == 2 || tmp_cid_y == 3) {
+      tmp_type = cmn_param::kLGTypeA;
+    } else {
+      tmp_type = cmn_param::kNumLGTypes;
+      continue;
+    }
+    type.emplace_back(tmp_type);
+    x.emplace_back(tmp_x);
+    y.emplace_back(tmp_y);
+    z.emplace_back(tmp_z);
+    auto tmp_res_x = tmp_x - track_lg_xs[1][tmp_type];
+    auto tmp_res_y = tmp_y - track_lg_ys[1][tmp_type];
+    res.emplace_back(sqrt(tmp_res_x * tmp_res_x + tmp_res_y * tmp_res_y));
+    res_x.emplace_back(tmp_res_x);
+    res_y.emplace_back(tmp_res_y);
+    t.emplace_back(trg_lg_hit_t->at(index));
+    if (fabs(t.back()) < pt_param::kTriggerLGTimeWidth) {
+      tmp_has_good_t = true;
+    }
+  }
+  out_plus_proj_has_trg_lg_hit_good_t.emplace_back(tmp_has_good_t);
+
+  out_ee_mass.emplace_back(CalcMass(pt_param::kCalcEEMassFlag,     minus_mom, plus_mom));
+  out_pipi_mass.emplace_back(CalcMass(pt_param::kCalcPiPiMassFlag, minus_mom, plus_mom));
+  out_pip_mass.emplace_back(CalcMass(pt_param::kCalcPiPMassFlag,   minus_mom, plus_mom));
+  out_kk_mass.emplace_back(CalcMass(pt_param::kCalcKKMassFlag,     minus_mom, plus_mom));
+  FillKsTrackInfo();
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairsWoRefit() {
+  int n_selected_tracks = selected_track_indexs.size();
+  for (int index0 = 0; index0 < n_selected_tracks - 1; ++index0) {
+    auto selected_track_index0 = selected_track_indexs[index0];
+    auto charge0 = rk_charge->at(selected_track_index0);
+    for (int index1 = index0 + 1; index1 < n_selected_tracks; ++index1) {
+      auto selected_track_index1 = selected_track_indexs[index1];
+      auto charge1 = rk_charge->at(selected_track_index1);
+      if (charge0 == charge1) {
+        continue;
+      }
+      int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
+      if (charge0 == -1) {
+        track_indexs_index_pair[0] = index0;
+        track_indexs_index_pair[1] = index1;
+      } else {
+        track_indexs_index_pair[0] = index1;
+        track_indexs_index_pair[1] = index0;
+      }
+      TVector3 tmp_vtx_pos;
+      TVector3 tmp_minus_mom;
+      TVector3 tmp_plus_mom;
+      auto tmp_dist = SearchVertex(track_indexs_index_pair, &tmp_vtx_pos, &tmp_minus_mom, &tmp_plus_mom);
+      FillTreeWoRefit(track_indexs_index_pair, tmp_vtx_pos, tmp_minus_mom, tmp_plus_mom, tmp_dist);
+    }
+  }
+//  SelectTrackPairs();
+  out_tree2->Fill();
+  return;
+}
 
 void E16ANA_TrackAnalyzerFromTree::Loop() {
 //   In a ROOT session, you can do:
@@ -2934,8 +2932,8 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
       SelectPionTracks();
       if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag) {
         AnalyzePionTrackPairs();
-//      } else {
-//        AnalyzePionTrackPairsWoRefit();
+      } else {
+        AnalyzePionTrackPairsWoRefit();
       }
     }
   }
