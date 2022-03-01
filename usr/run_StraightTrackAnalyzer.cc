@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
 //  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
   for (int m=101; m< 110; m++){
 	for(int ch=0; ch < 24; ch++){
- 		std::cout << "isYOK ch``module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->Is300YOK(m, ch) << std::endl;
+ 	///	std::cout << "isYOK ch``module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->Is300YOK(m, ch) << std::endl;
 	}
   }
   
