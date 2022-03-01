@@ -1199,15 +1199,24 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     hit_gpos[i][0] = TVector3(rk_hit_ssd_gx->at(track_index_pair[i]),
                               rk_hit_ssd_gy->at(track_index_pair[i]),
                               rk_hit_ssd_gz->at(track_index_pair[i]));
-    hit_gpos[i][1] = TVector3(rk_hit_gtr100_gx->at(track_index_pair[i]),
-                              rk_hit_gtr100_gy->at(track_index_pair[i]),
-                              rk_hit_gtr100_gz->at(track_index_pair[i]));
-    hit_gpos[i][2] = TVector3(rk_hit_gtr200_gx->at(track_index_pair[i]),
-                              rk_hit_gtr200_gy->at(track_index_pair[i]),
-                              rk_hit_gtr200_gz->at(track_index_pair[i]));
-    hit_gpos[i][3] = TVector3(rk_hit_gtr300_gx->at(track_index_pair[i]),
-                              rk_hit_gtr300_gy->at(track_index_pair[i]),
-                              rk_hit_gtr300_gz->at(track_index_pair[i]));
+//    hit_gpos[i][1] = TVector3(rk_hit_gtr100_gx->at(track_index_pair[i]),
+//                              rk_hit_gtr100_gy->at(track_index_pair[i]),
+//                              rk_hit_gtr100_gz->at(track_index_pair[i]));
+//    hit_gpos[i][2] = TVector3(rk_hit_gtr200_gx->at(track_index_pair[i]),
+//                              rk_hit_gtr200_gy->at(track_index_pair[i]),
+//                              rk_hit_gtr200_gz->at(track_index_pair[i]));
+//    hit_gpos[i][3] = TVector3(rk_hit_gtr300_gx->at(track_index_pair[i]),
+//                              rk_hit_gtr300_gy->at(track_index_pair[i]),
+//                              rk_hit_gtr300_gz->at(track_index_pair[i]));
+    hit_gpos[i][1] = TVector3(rk_hit_gtr100_gtx2->at(track_index_pair[i]),
+                              rk_hit_gtr100_gty->at(track_index_pair[i]),
+                              rk_hit_gtr100_gtz2->at(track_index_pair[i]));
+    hit_gpos[i][2] = TVector3(rk_hit_gtr200_gtx2->at(track_index_pair[i]),
+                              rk_hit_gtr200_gty->at(track_index_pair[i]),
+                              rk_hit_gtr200_gtz2->at(track_index_pair[i]));
+    hit_gpos[i][3] = TVector3(rk_hit_gtr300_gtx2->at(track_index_pair[i]),
+                              rk_hit_gtr300_gty->at(track_index_pair[i]),
+                              rk_hit_gtr300_gtz2->at(track_index_pair[i]));
     hit_lpos[i][0] = geometry->SSD(track_const::ModuleID2020To2013(mid[i][0]))->GetLPos(hit_gpos[i][0]);
     hit_lpos[i][1] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][1]), 0)->GetLPos(hit_gpos[i][1]);
     hit_lpos[i][2] = geometry->GTR(track_const::ModuleID2020To2013(mid[i][2]), 1)->GetLPos(hit_gpos[i][2]);
@@ -1972,24 +1981,6 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
       if (!is_lg_t_match) {
         continue;
       }
-
-//// pi-p begin
-//      auto mom0 = TVector3(rk_fit_init_mom_gx->at(selected_track_index0), rk_fit_init_mom_gy->at(selected_track_index0), rk_fit_init_mom_gz->at(selected_track_index0));
-//      auto mom1 = TVector3(rk_fit_init_mom_gx->at(selected_track_index1), rk_fit_init_mom_gy->at(selected_track_index1), rk_fit_init_mom_gz->at(selected_track_index1));
-//      if (mom0.Mag() > 5. || mom1.Mag() > 5.) {
-//        continue;
-//      }
-//      double pip_mass;
-//      if (charge0 == -1) {
-//        pip_mass = CalcMass(pt_param::kCalcPiPMassFlag, mom0, mom1);
-//      } else {
-//        pip_mass = CalcMass(pt_param::kCalcPiPMassFlag, mom1, mom0);
-//      }
-//      if (pip_mass < 0.8 || pip_mass > 1.4) {
-//        continue;
-//      }
-//// pi-p end
-
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;
