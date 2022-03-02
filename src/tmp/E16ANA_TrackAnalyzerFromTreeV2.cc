@@ -943,9 +943,9 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
-//    selected_track_indexs.emplace_back(track_index);
-//    selected_track_lg_hit_ts.emplace_back(lg_ts);
+//    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+    selected_track_indexs.emplace_back(track_index);
+    selected_track_lg_hit_ts.emplace_back(lg_ts);
   }
   return;
 }
