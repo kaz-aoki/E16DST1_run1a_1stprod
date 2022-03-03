@@ -22,7 +22,7 @@ const std::array<double, kNumLGTypes> kLGMaxY   = {388.7, 281.,  160.7};
 const std::array<double, kNumLGTypes> kLGMinY   = {243.2, 137.7, 6.5};
 
 constexpr double kStepTrackStepSizeCm = 0.1;
-constexpr int    kStepTrackArraySize = 10000;
+constexpr int    kStepTrackArraySize = 4000;
 constexpr double kKsMass = 493.677e-3;
 constexpr double kLightSpeed = 299792458.;
 
