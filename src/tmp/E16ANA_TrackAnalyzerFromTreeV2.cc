@@ -943,9 +943,9 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-//    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
-    selected_track_indexs.emplace_back(track_index);
-    selected_track_lg_hit_ts.emplace_back(lg_ts);
+    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+//    selected_track_indexs.emplace_back(track_index);
+//    selected_track_lg_hit_ts.emplace_back(lg_ts);
   }
   return;
 }
@@ -2130,6 +2130,24 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::SelectTrackWClusterDuplicate(int track_index) {
+  std::vector<double> lg_ts;
+  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
+    selected_track_indexs.emplace_back(track_index);
+    selected_track_lg_hit_ts.emplace_back(lg_ts);
+  }
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWClusterDuplicate() {
+  auto sorted_track_indexs = SortTracksWoInitPosErr();
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> used_cluster_ids;
+  for (const auto& index : sorted_track_indexs) {
+    SelectTrackWClusterDuplicate(index);
+  }
+  return;
+}
+
 void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance) {
   out_distance.emplace_back(distance);
 
@@ -2142,7 +2160,9 @@ void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_
   out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
   out_minus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[0]));
   out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
-  
+  out_minus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[0]));
+  out_plus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[1]));
+
   // vertex
   FillTVector3ToDouble(vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
   FillTVector3ToDouble(minus_mom, &out_minus_mom_gx, &out_minus_mom_gy, &out_minus_mom_gz);
@@ -2929,10 +2949,11 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
       particle_flag = cmn_param::kPionFlag;
       ClearOutBranch();
       selected_track_indexs.clear();
-      SelectPionTracks();
       if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag) {
+        SelectPionTracks();
         AnalyzePionTrackPairs();
       } else {
+        SelectPionTracksWClusterDuplicate();
         AnalyzePionTrackPairsWoRefit();
       }
     }

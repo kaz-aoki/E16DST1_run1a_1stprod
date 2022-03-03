@@ -1570,6 +1570,8 @@ class E16ANA_TrackAnalyzerFromTree {
   void AddPionTracks(const int track_index_pair[]);
   void PionPairTracking(const int track_indexs_index_pair[]);
   void AnalyzePionTrackPairs();
+  void SelectTrackWClusterDuplicate(int track_index);
+  void SelectPionTracksWClusterDuplicate();
   void FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance);
   void AnalyzePionTrackPairsWoRefit();
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both
