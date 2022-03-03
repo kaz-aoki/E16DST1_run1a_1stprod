@@ -2108,10 +2108,30 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
   for (int index0 = 0; index0 < n_selected_tracks - 1; ++index0) {
     auto selected_track_index0 = selected_track_indexs[index0];
     auto charge0 = rk_charge->at(selected_track_index0);
+    auto tgt_z0 = rk_hit_init_pos_gz->at(selected_track_index0);
+    auto ssd_t0 = rk_hit_ssd_t->at(selected_track_index0);
+    const auto& lg_ts0 = selected_track_lg_hit_ts[index0];
     for (int index1 = index0 + 1; index1 < n_selected_tracks; ++index1) {
       auto selected_track_index1 = selected_track_indexs[index1];
       auto charge1 = rk_charge->at(selected_track_index1);
+      auto tgt_z1 = rk_hit_init_pos_gz->at(selected_track_index1);
+      auto ssd_t1 = rk_hit_ssd_t->at(selected_track_index1);
+      const auto& lg_ts1 = selected_track_lg_hit_ts[index1];
       if (charge0 == charge1) {
+        continue;
+      }
+      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+        continue;
+      }
+      bool is_lg_t_match = false;
+      for (const auto& t0 : lg_ts0) {
+        for (const auto& t1 : lg_ts1) {
+          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
+            is_lg_t_match = true;
+          }
+        }
+      }
+      if (!is_lg_t_match) {
         continue;
       }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
@@ -2876,10 +2896,30 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairsWoRefit() {
   for (int index0 = 0; index0 < n_selected_tracks - 1; ++index0) {
     auto selected_track_index0 = selected_track_indexs[index0];
     auto charge0 = rk_charge->at(selected_track_index0);
+    auto tgt_z0 = rk_hit_init_pos_gz->at(selected_track_index0);
+    auto ssd_t0 = rk_hit_ssd_t->at(selected_track_index0);
+    const auto& lg_ts0 = selected_track_lg_hit_ts[index0];
     for (int index1 = index0 + 1; index1 < n_selected_tracks; ++index1) {
       auto selected_track_index1 = selected_track_indexs[index1];
       auto charge1 = rk_charge->at(selected_track_index1);
+      auto tgt_z1 = rk_hit_init_pos_gz->at(selected_track_index1);
+      auto ssd_t1 = rk_hit_ssd_t->at(selected_track_index1);
+      const auto& lg_ts1 = selected_track_lg_hit_ts[index1];
       if (charge0 == charge1) {
+        continue;
+      }
+      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+        continue;
+      }
+      bool is_lg_t_match = false;
+      for (const auto& t0 : lg_ts0) {
+        for (const auto& t1 : lg_ts1) {
+          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
+            is_lg_t_match = true;
+          }
+        }
+      }
+      if (!is_lg_t_match) {
         continue;
       }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
