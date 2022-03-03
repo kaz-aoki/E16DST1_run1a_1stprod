@@ -2161,7 +2161,6 @@ void E16ANA_TrackAnalyzerFromTree::SelectTrackWClusterDuplicate(int track_index)
 
 void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWClusterDuplicate() {
   auto sorted_track_indexs = SortTracksWoInitPosErr();
-  std::array<std::vector<int>, track_const::kNumTrackingLayers> used_cluster_ids;
   for (const auto& index : sorted_track_indexs) {
     SelectTrackWClusterDuplicate(index);
   }
@@ -2993,7 +2992,8 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
         SelectPionTracks();
         AnalyzePionTrackPairs();
       } else {
-        SelectPionTracksWClusterDuplicate();
+        SelectPionTracks();
+//        SelectPionTracksWClusterDuplicate();
         AnalyzePionTrackPairsWoRefit();
       }
     }
