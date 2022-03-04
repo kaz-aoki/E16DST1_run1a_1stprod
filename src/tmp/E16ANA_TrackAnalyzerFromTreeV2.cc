@@ -799,17 +799,17 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   std::vector<int> tmp_hbd_clst_indexs;
   std::vector<int> tmp_lg_hit_indexs;
   std::vector<int> tmp_lg_clst_indexs;
-//  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
-//    return false;
-//  }
-  if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
+  if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
     return false;
   }
-  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
-    if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
-      return false;
-    }
-  }
+//  if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
+//    return false;
+//  }
+//  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
+//    if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
+//      return false;
+//    }
+//  }
   return true;
 }
 
@@ -1970,17 +1970,17 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
       if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
         continue;
       }
-      bool is_lg_t_match = false;
-      for (const auto& t0 : lg_ts0) {
-        for (const auto& t1 : lg_ts1) {
-          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
-            is_lg_t_match = true;
-          }
-        }
-      }
-      if (!is_lg_t_match) {
-        continue;
-      }
+//      bool is_lg_t_match = false;
+//      for (const auto& t0 : lg_ts0) {
+//        for (const auto& t1 : lg_ts1) {
+//          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
+//            is_lg_t_match = true;
+//          }
+//        }
+//      }
+//      if (!is_lg_t_match) {
+//        continue;
+//      }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;
