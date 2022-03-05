@@ -36,7 +36,7 @@ bool E16ANA_HBDDeadChannel::ReadFile(const char *filename){
       int k_module_id;
       ss>>type>>module_id>>ch_id>>buf_status;
       
-      if(type != 'p' || type != 't'){//for backward compatibility
+      if(type != 'p' && type != 't'){//for backward compatibility
 	ss.str("");
 	ss.clear(std::stringstream::goodbit);
 	ss<<buf_line;
