@@ -97,6 +97,7 @@ int main(int argc, char* argv[]) {
   hbd_cut->ReadCutData(calib.CurrentRunID());
   std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
   E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
   lgbasic.SetCalibMap();
   E16ANA_TriggerCalibParam trigger_param;
   trigger_param.ReadConstantData(calib.CurrentRunID());
@@ -180,14 +181,15 @@ int main(int argc, char* argv[]) {
       record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
 //      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry);
+//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry);
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry);
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
 //cout << event0->EventID() << endl;
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
