@@ -867,7 +867,7 @@ class E16ANA_TrackCheckFile {
     pair_fit_sigma3 = cands.PairFitSigma(3);
     t_param->Fill();
   }
-  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record, E16ANA_LGBasic& lgbasic) {
+  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record) {
     event_id = _event_id;
     spill_id = _spill_id;
     timestamp_in_spill = _timestamp_in_spill;
@@ -1360,10 +1360,8 @@ class E16ANA_TrackCheckFile {
       lg_hit_gx[i]     = gpos.X();
       lg_hit_gy[i]     = gpos.Y();
       lg_hit_gz[i]     = gpos.Z();
-//      lg_hit_adc[i]    = hit.FitPeak();
-//      lg_hit_t[i]      = hit.FitTiming();
-      lg_hit_adc[i]    = hit.PeakHeight();
-      lg_hit_t[i]      = hit.GetCalibTiming(lgbasic);
+      lg_hit_adc[i]    = hit.FitPeak();
+      lg_hit_t[i]      = hit.FitTiming();
       lg_hit_npeaks[i] = hit.Npeaks();
       lg_hit_fflag[i]  = hit.FitFlag();
     }
