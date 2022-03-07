@@ -57,7 +57,10 @@ public:
 
   void SetHitData(int hid, int mid, int cid, float peak, float timing, float integral, double lx, double ly, double lz);
   void Clustering();
+  void ClusteringXY();
   void CalcTimeRegion(std::vector<lghit>& hits, double& tim_max, double& tim_min);
+  void CalcLocalXRegion(std::vector<lghit>& hits, double& lx_max, double& lx_min);
+  void CalcLocalYRegion(std::vector<lghit>& hits, double& ly_max, double& ly_min);
   int CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& cluster);
   int LGClusterSize(){ return lgclusters.size(); }
   lgcluster& LGClusterIth(int n){ return lgclusters.at(n); }
@@ -66,7 +69,9 @@ protected:
 
 private:
 
-  const double time_diff_threshold = 10;
+  const double time_diff_threshold = 4;
+  const double lx_threshold = 126;
+  const double ly_threshold = 168;
   std::vector<lghit> lghits;
   std::vector<lgcluster> lgclusters;
 

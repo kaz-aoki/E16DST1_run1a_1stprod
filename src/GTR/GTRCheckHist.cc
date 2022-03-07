@@ -2,11 +2,16 @@
 #include "TH1D.h"
 
 GTRCheckHist::GTRCheckHist(){
+  for(int l=0;l<3;l++){
+    h_cl_ncluster_modall_x[l] = new TH1D(Form("cl_ncluster_modall_x_%d", l), Form("cl_ncluster_modall_x_%d", l),1000, -0.5 ,999.5);
+    h_cl_ncluster_modall_y[l] = new TH1D(Form("cl_ncluster_modall_y_%d", l), Form("cl_ncluster_modall_y_%d", l),1000, -0.5,999.5);
+    h_cl_ncluster_modall_yb[l] = new TH1D(Form("cl_ncluster_modall_yb_%d", l), Form("cl_ncluster_modall_yb_%d", l),1000, -0.5, 999.5);
+  }
     for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
-            h_cl_ncluster_x[m-100][l] = new TH1D(Form("cl_ncluster_x%d_%d",m, l), Form("cl_ncluster_x%d_%d",m, l),30, -0.5 ,29.5);
-            h_cl_ncluster_y[m-100][l] = new TH1D(Form("cl_ncluster_y%d_%d",m, l), Form("cl_ncluster_y%d_%d",m, l),30, -0.5,29.5);
-            h_cl_ncluster_yb[m-100][l] = new TH1D(Form("cl_ncluster_yb%d_%d",m, l), Form("cl_ncluster_yb%d_%d",m, l),30, -0.5, 29.5);
+            h_cl_ncluster_x[m-100][l] = new TH1D(Form("cl_ncluster_x%d_%d",m, l), Form("cl_ncluster_x%d_%d",m, l),200, -0.5 ,199.5);
+            h_cl_ncluster_y[m-100][l] = new TH1D(Form("cl_ncluster_y%d_%d",m, l), Form("cl_ncluster_y%d_%d",m, l),200, -0.5,199.5);
+            h_cl_ncluster_yb[m-100][l] = new TH1D(Form("cl_ncluster_yb%d_%d",m, l), Form("cl_ncluster_yb%d_%d",m, l),200, -0.5, 199.5);
             h_cl_numhits_x[m-100][l] = new TH1D(Form("cl_numhits_x%d_%d",m, l), Form("cl_numhits_x%d_%d",m, l),30, -0.5 ,29.5);
             h_cl_numhits_y[m-100][l] = new TH1D(Form("cl_numhits_y%d_%d",m, l), Form("cl_numhits_y%d_%d",m, l),30, -0.5,29.5);
             h_cl_numhits_yb[m-100][l] = new TH1D(Form("cl_numhits_yb%d_%d",m, l), Form("cl_numhits_yb%d_%d",m, l),30, -0.5, 29.5);
@@ -40,6 +45,11 @@ GTRCheckHist::GTRCheckHist(){
 }
 GTRCheckHist::~GTRCheckHist(){
     
+  for(int l=0; l<3; l++){
+    delete h_cl_ncluster_modall_x[l];
+    delete h_cl_ncluster_modall_y[l];
+    delete h_cl_ncluster_modall_yb[l];
+  }
 for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
             delete h_cl_ncluster_x[m-100][l];
@@ -64,6 +74,9 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 	int nclusterx[10][3] = {0};	
 	int nclustery[10][3] = {0};	
 	int nclusteryb[10][3] = {0};	
+	int nclusterx_modall[3] = {0};	
+	int nclustery_modall[3] = {0};	
+	int nclusteryb_modall[3] = {0};	
 
     for(int i=0; i < clusters.size(); i++){
         E16DST_DST1GTRCluster &cl = clusters[i];
@@ -73,6 +86,7 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 //        std::cout << "layer id :: " << cl.LayerId() << std::endl;
 //        std::cout << "cluster charge :: " << cl.PeakSum() << std::endl;
 	  nclusterx[cl.ModuleId()-100][cl.LayerId()]++;
+	  nclusterx_modall[cl.LayerId()]++;
             h_cl_numhits_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.NumHits());
             h_cl_charge_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.PeakSum());
             h_cl_local_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.LocalX());
@@ -84,6 +98,7 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 		}
         else if(cl.Type() == 1){
 	  nclustery[cl.ModuleId()-100][cl.LayerId()]++;
+	  nclustery_modall[cl.LayerId()]++;
             h_cl_numhits_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.NumHits());
             h_cl_charge_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.PeakSum());
             h_cl_local_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.LocalX());
@@ -95,6 +110,7 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
         }
         else if(cl.Type() == 2){
 	  nclusteryb[cl.ModuleId()-100][cl.LayerId()]++;
+	  nclusteryb_modall[cl.LayerId()]++;
             h_cl_numhits_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.NumHits());
             h_cl_charge_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.PeakSum());
             h_cl_local_yb[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.LocalX());
@@ -113,6 +129,11 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 	h_cl_ncluster_y[i][j]->Fill(nclustery[i][j]);
 	h_cl_ncluster_yb[i][j]->Fill(nclusteryb[i][j]);
       }
+    }
+    for(int i=0;i<3;i++){
+      h_cl_ncluster_modall_x[i]->Fill(nclusterx_modall[i]);
+      h_cl_ncluster_modall_y[i]->Fill(nclustery_modall[i]);
+      h_cl_ncluster_modall_yb[i]->Fill(nclusteryb_modall[i]);
     }
 
 }
