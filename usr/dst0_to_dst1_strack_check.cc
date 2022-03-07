@@ -185,6 +185,8 @@ int main(int argc, char* argv[]) {
   double lggz;
   double lghitresx[LMAX];
   double lghitresy[LMAX];
+  double lghitresxdam[LMAX];
+  double lghitresydam[LMAX];
   int lghitcs[LMAX];
   double lghitadc[LMAX];
   double lghittdc[LMAX];
@@ -289,6 +291,8 @@ int main(int argc, char* argv[]) {
   tree->Branch("lggz",&lggz,"lggz/D");
   tree->Branch("lghitresx",lghitresx,"lghitresx[lg_nhs]/D");
   tree->Branch("lghitresy",lghitresy,"lghitresy[lg_nhs]/D");
+  tree->Branch("lghitresxdam",lghitresxdam,"lghitresxdam[lg_nhs]/D");
+  tree->Branch("lghitresydam",lghitresydam,"lghitresydam[lg_nhs]/D");
   tree->Branch("lghitadc",lghitadc,"lghitadc[lg_nhs]/D");
   tree->Branch("lghittdc",lghittdc,"lghittdc[lg_nhs]/D");
   tree->Branch("lghitgx",lghitgx,"lghitgx[lg_nhs]/D");
@@ -349,6 +353,7 @@ int main(int argc, char* argv[]) {
   double hbdcptx_temp=0;
   double hbdcpty_temp=0;
   double lgcptx_temp=0;
+  double lgcpty_temp=0;
   while (dst0->ReadAnEvent()) {
     if (max_event != -1 && n_physics_event >= max_event) {
       break;
@@ -488,6 +493,8 @@ int main(int argc, char* argv[]) {
 	for(int k=0;k<LMAX;k++){
 	  lghitresx[k]=-10000;
 	  lghitresy[k]=-10000;
+	  lghitresxdam[k]=-10000;
+	  lghitresydam[k]=-10000;
 	  lghitadc[k]=-10000;
 	  lghittdc[k]=-10000;
 	  lghitgx[k]=-10000;
@@ -751,42 +758,48 @@ int main(int argc, char* argv[]) {
 	  double nearresx = 10000;
 	  double nearresy = 10000;
 	  double nearresxdam = 10000;
+	  double nearresydam = 10000;
 	  for(int nhs=0;nhs<lg_nhs;nhs++){//cluster loop
 	    auto& lghit = lg_hits1[nhs];
 	    double resx = lghit->LocalPos(*geom).X() - lgcptx;
 	    double resy = lghit->LocalPos(*geom).Y() - lgcpty;
 	    double resxdam = lghit->LocalPos(*geom).X() - lgcptx_temp;
+	    double resydam = lghit->LocalPos(*geom).Y() - lgcpty_temp;
 	    //lgcptx_temp = lgcptx;
 	    //std::cout<<"LGCheck:"<<lghit->ModuleId()<<" "<<lghit->ChannelId()<<" "<<lghit->LocalPos(*geom).X()<<" "<<lghit->LocalPos(*geom).Y()<<std::endl;
 	    lghitresx[nhs] = resx;
 	    lghitresy[nhs] = resy;
+	    lghitresxdam[nhs] = resxdam;
+	    lghitresydam[nhs] = resydam;
 	    lghitadc[nhs] = lghit->FitPeak();
 	    //lghitadc[nhs] = lghit->PeakHeight();
-	    lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());
+	    lghittdc[nhs] = lghit->FitTiming();//220122
+	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->FitTiming());//comment out 220122
 	    //lghittdc[nhs] = lghit->GetCalibTiming(lgbasic, lghit->Timing());
 	    lghitgx[nhs] = lghit->GlobalPos(*geom).X();
 	    lghitgy[nhs] = lghit->GlobalPos(*geom).Y();
 	    lghitgz[nhs] = lghit->GlobalPos(*geom).Z();
 
 	    int lglocaly = lghit->ChannelId()/10;
-	    if(lglocaly*10==block){//comment out 211028
-	    //if(lglocaly*10==block||lglocaly*10==block+10||lglocaly*10==block-10){//211028
-	      //std::cout<<"LG COGPOS: "<<lghit->LocalPos(*geom).X()<<", CROSS PT: "<<lgcptx<<std::endl;
-	      if(fabs(resx)<fabs(nearresx)){
+	    //if(lglocaly*10==block){
+	    //if(fabs(resx)<fabs(nearresx)){
+	      if( resx*resx+resy*resy < nearresx*nearresx+nearresy*nearresy ){
 		nearindex = nhs;
 		nearresx = resx;
 		nearresy = resy;
 	      }
-	      if(fabs(resxdam)<fabs(nearresxdam)){
+	      if( resxdam*resxdam+resydam*resydam < nearresxdam*nearresxdam+nearresydam*nearresydam ){
 		nearresxdam = resxdam;
+		nearresydam = resydam;
 	      }
-	    }
+	      //}
 	  }//cluster loop
 
 	  if(nearindex>=0){
 	    lgresx = nearresx;
 	    lgresy = nearresy;
 	    lgresxdam = nearresxdam;
+	    lgresydam = nearresydam;
 	    lgadc = lghitadc[nearindex];
 	    lgtdc = lghittdc[nearindex];
 	    lggx = lghitgx[nearindex];
@@ -822,6 +835,7 @@ int main(int argc, char* argv[]) {
       hbdcptx_temp = hbdcptx;
       hbdcpty_temp = hbdcpty;
       lgcptx_temp = lgcptx;
+      lgcpty_temp = lgcpty;
 
 
 //// Check begin
