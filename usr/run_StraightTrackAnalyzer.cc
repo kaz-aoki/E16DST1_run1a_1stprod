@@ -22,6 +22,7 @@
 #include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
+#include "E16ANA_GTRStatus.h"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -68,6 +69,7 @@ int main(int argc, char* argv[]) {
   Int_t hitid_100y;
   Int_t hitid_200y;
   Int_t hitid_300y;
+  Int_t hasMatchedASDHit;
   Double_t g_xssd;
   Double_t g_zssd;
   Double_t g_x100;
@@ -124,6 +126,7 @@ int main(int argc, char* argv[]) {
   Double_t fit_b_y;
   Double_t distance_x;
 //  Double_t distance_y;	
+  Double_t distance_fromtgt_y;	
   Double_t distance_fromupwire_y;	
   Double_t distance_fromdownwire_y;	
   Double_t fit_g100x;
@@ -136,6 +139,7 @@ int main(int argc, char* argv[]) {
   Double_t fit_g300y;
   Double_t fit_g300z;
 
+  Int_t x_trk_used_times;
   Int_t trkid_x;
   Int_t trkid_y;
   Int_t cluster_size_ssd;
@@ -150,7 +154,15 @@ int main(int argc, char* argv[]) {
   TVector3 lg_cross_pos;
   Int_t lg_module_id;
   Int_t lg_channel_id;
-
+  Double_t timediff_in_cluster_100x;
+  Double_t timediff_in_cluster_200x;
+  Double_t timediff_in_cluster_300x;
+  vector<Double_t> timings_100x;
+  vector<Double_t> timings_200x;
+  vector<Double_t> timings_300x;
+  vector<Double_t> positions_100x;
+  vector<Double_t> positions_200x;
+  vector<Double_t> positions_300x;
 
 
   //	std::vector<TVector3> two_points_on_track;
@@ -222,6 +234,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("fit_b_y", &fit_b_y, "fit_b_y/D");
   tree->Branch("distance_x", &distance_x, "distance_x/D");
 //  tree->Branch("distance_y", &distance_y, "distance_y/D");
+  tree->Branch("distance_fromtgt_y", &distance_fromtgt_y, "distance_fromtgt_y/D");
   tree->Branch("distance_fromupwire_y", &distance_fromupwire_y, "distance_fromupwire_y/D");
   tree->Branch("distance_fromdownwire_y", &distance_fromdownwire_y, "distance_fromdownwire_y/D");
   tree->Branch("fit_g100x", &fit_g100x, "fit_g100x/D");
@@ -235,7 +248,8 @@ int main(int argc, char* argv[]) {
   tree->Branch("fit_g300z", &fit_g300z, "fit_g300z/D");
 
 
-
+  tree->Branch("hasMatchedASDHit", &hasMatchedASDHit, "hasMatchedASDHit/I");
+  tree->Branch("x_trk_used_times", &x_trk_used_times, "x_trk_used_times/I");
   tree->Branch("trkid_x", &trkid_x, "trkid_x/I");
   tree->Branch("trkid_y", &trkid_y, "trkid_y/I");
   tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
@@ -257,6 +271,17 @@ int main(int argc, char* argv[]) {
   tree->Branch("lg_cross_pos", &lg_cross_pos);
   tree->Branch("lg_module_id", &lg_module_id, "lg_module_id/I");
   tree->Branch("lg_channel_id", &lg_channel_id,"lg_channel_id/I" );
+
+  tree->Branch("timediff_in_cluster_100x", &timediff_in_cluster_100x, "timediff_in_cluster_100x/D"); 
+  tree->Branch("timediff_in_cluster_200x", &timediff_in_cluster_200x, "timediff_in_cluster_200x/D"); 
+  tree->Branch("timediff_in_cluster_300x", &timediff_in_cluster_300x, "timediff_in_cluster_300x/D"); 
+  tree->Branch("timings_100x"  , &timings_100x );
+  tree->Branch("timings_200x"  , &timings_200x );
+  tree->Branch("timings_300x"  , &timings_300x );
+  tree->Branch("positions_100x", &positions_100x );
+  tree->Branch("positions_200x", &positions_200x );
+  tree->Branch("positions_300x", &positions_300x );
+
 
 
 
@@ -286,9 +311,20 @@ int main(int argc, char* argv[]) {
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
   targets.Print();
+  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
   auto record = new E16DST_DST1PhysicsRecord();
   auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
+  auto gtr_status = new E16ANA_GTRStatus(calib.CurrentRunID());
+  //auto asd_dead = gtr_status->ASDDeadChannel();
+//  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
+  for (int m=101; m< 110; m++){
+	for(int ch=0; ch < 24; ch++){
+ 		std::cout << "isYOK ch``module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->Is300YOK(m, ch) << std::endl;
+	}
+  }
   
   int n_event = 0;
   int n_physics_event = 0;
@@ -297,7 +333,7 @@ int main(int argc, char* argv[]) {
     if (max_event != -1 && n_event >= max_event) {
       break;
     }
-    if (n_event % 1000 == 0) {
+    if (n_event % 100 == 0) {
       cout << "Number of event: " << n_event << endl;
     }
     if (dst0->EventType() != E16DST_DST0EventType::Physics){
@@ -311,14 +347,31 @@ int main(int argc, char* argv[]) {
     auto& gtr_hits0 = event0->GTR();
     auto& ssd_hits0 = event0->SSD();
     E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
-    E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
+    E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
     record->GTR().UpdatePtrs();
     record->SSD().UpdatePtrs();
 
-//    &record->GTR();
-	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-	E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+//---test --- //	
+//	for(int mid=100; mid<110; mid++){
+//		for(int l=0; l<2; l++){
+//		std::vector<E16DST_DST1GTRCluster*> &cls  = record->GTR().ClusterPtrs(mid, l, 0);
+//			for(int i =0; i<cls.size(); i++){
+//				for(int j=0; j< cls[i]->HitOrders().size() ; j++){
+//					std::cout << "id = " << cls[i]->HitOrders()[j] << std::endl;
+//				}
+//			}
+//		}
+//	}
+	int noh_trg = event0->TriggerGTR().NumberOfHits();
+	int hit_tile = -1000;
 	
+	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
+	if(targets.IsWire()){
+		E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+	}
+	else if(targets.NoT() == 3){
+		E16DST_DST1StraightTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+	}
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
 		event_id = t->EventID();
@@ -379,10 +432,14 @@ int main(int argc, char* argv[]) {
 	    fit_b_x = t->FitBX();
 	    fit_a_y = t->FitAY();
 	    fit_b_y = t->FitBY();
-		distance_x = t->DistanceFromTgtXZ();
-//		distance_y = t->DistanceFromTgtYR();
-		distance_fromupwire_y   = t->DistanceFromUpWireYR();
-		distance_fromdownwire_y = t->DistanceFromDownWireYR();
+		if(targets.IsWire()){
+			distance_x = t->DistanceFromTgtXZ();
+//			distance_y = t->DistanceFromTgtYR();
+			distance_fromupwire_y   = t->DistanceFromUpWireYR();
+			distance_fromdownwire_y = t->DistanceFromDownWireYR();
+		}
+		distance_fromtgt_y = -1000;
+        distance_fromtgt_y  = t->DistanceYTrackAndTgt();
 		residual_ssdx = t->ResidualSSD();
 //		residual_100x = t->Residual100();
 //		residual_200x = t->Residual200();
@@ -406,6 +463,49 @@ int main(int argc, char* argv[]) {
 		fit_g300x = t->FitPtOnGTR300().X();
 		fit_g300y = t->FitPtOnGTR300().Y();
 		fit_g300z = t->FitPtOnGTR300().Z();
+		x_trk_used_times = t->XZTrackUsedTimes();
+		
+		timings_100x.clear();
+		timings_200x.clear();
+		timings_300x.clear();
+		positions_100x.clear();
+		positions_200x.clear();
+		positions_300x.clear();
+
+		hasMatchedASDHit = 0; //initialized 
+		hit_tile = (int)((t->GTR300YCluster()->CogPos()+150.0)/12.5);
+		for(int j=0; j<noh_trg; j++){
+			E16DST_DST0TriggerHit &trg = event0->TriggerGTR().Hit(j);
+			if(hit_tile == trg.ChannelID()){
+				hasMatchedASDHit = 1;
+			}
+		}
+		for(int l=1; l< 4 ; l++){
+		    vector<int16_t> &hit_ids = t->GTRXCluster(l)->HitOrders();
+		      int min_id = hit_ids[0];
+			  int max_id = hit_ids[hit_ids.size()-1];
+	      		std::vector<E16DST_DST1GTRHit> &hits  = record->GTR().Hits();
+				for(int k=0; k<hit_ids.size(); k++){
+					int hid = hit_ids[k];
+					double timing = hits[hid].Timing();
+					double lpos = hits[hid].LocalPos(*geom).X();
+					if(l==1) {timings_100x.push_back(timing);}
+					else if(l==2) {timings_200x.push_back(timing);}
+					else if(l==3) {timings_300x.push_back(timing);}
+					if(l==1) {positions_100x.push_back(lpos);}
+					else if(l==2) {positions_200x.push_back(lpos);}
+					else if(l==3) {positions_300x.push_back(lpos);}
+						max_id = hit_ids[k];
+				  }
+				  hits.clear();
+//					  int16_t id = hit_ids[k];
+		          double timing_diff = hits[min_id].Timing() - hits[max_id].Timing();
+			      if (l == 1) timediff_in_cluster_100x = timing_diff;
+			      else if (l == 2) timediff_in_cluster_200x = timing_diff;
+			      else if (l == 3) timediff_in_cluster_300x = timing_diff;
+		   	  	//std::cout << "hit ids = " << hit_ids[k] << std::endl; 
+		      	  hit_ids.clear(); 
+		}
 		tree->Fill();
 	}
 	

@@ -7,7 +7,6 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_WaveformFitter.hh"
 #include "E16ANA_FieldMapCalib.hh"
-#include "E16ANA_EventSelect.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_GTRLorentzAngleCalib.hh"
 #include "E16ANA_HBDCalibration.hh"
@@ -23,8 +22,7 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-constexpr bool kIsElectronRun = true;
-constexpr bool kSelectEvent   = false;
+const bool kIsElectronRun = true;
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -81,16 +79,17 @@ int main(int argc, char* argv[]) {
   calib.SetRunID(run_id);
   E16ANA_FieldMapCalibParam field_map_param;
   field_map_param.ReadConstantData(calib.CurrentRunID());
-  E16ANA_EventSelect event_select;
-  event_select.ReadConstantData(calib.CurrentRunID());
-  auto& selected_event_ids = event_select.SelectedEventIDs();
-  int current_ids_index = 0;
-  auto n_selected_events = event_select.NumSelectedEventIDs();
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
-  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
-  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
-  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
+  E16ANA_GTRLorentzAngleCalibParam gtr_lorentz_angle_calib_param;
+  gtr_lorentz_angle_calib_param.ReadConstantData(calib.CurrentRunID());
+//  if (field_map_param.FMCurrent() == 2450.) {
+//    E16DST_DST1GTRHit::lorentz_angle_calib_params     = gtr_lorentz_angle_calib_param.GTRLorentzAngleCalibParams();
+//    E16DST_DST1GTRCluster::lorentz_angle_calib_params = gtr_lorentz_angle_calib_param.GTRLorentzAngleCalibParams();
+//  } else { // FMCurrent() == 0.
+//    E16DST_DST1GTRHit::lorentz_angle_calib_params     = {0., 0., 0.};
+//    E16DST_DST1GTRCluster::lorentz_angle_calib_params = {0., 0., 0.};
+//  }
   E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
   hbd_calib->ReadCalibrationData(calib.CurrentRunID());
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
@@ -144,50 +143,24 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
-      auto event_id = event0->EventID();
-      if (kSelectEvent) {
-        bool is_selected_event = false;
-        while (true) {
-          auto current_id = selected_event_ids[current_ids_index];
-          if (event_id < current_id) {
-            break;
-          } else if (event_id == current_id) {
-            is_selected_event = true;
-            ++current_ids_index;
-            break;
-          } else if (event_id > current_id) {
-            if (current_ids_index == n_selected_events - 1) {
-              break;
-            } else {
-              ++current_ids_index;
-              continue;
-            }
-          }
-        }
-        if (!is_selected_event) {
-          ++n_event;
-          ++n_physics_event;
-          continue;
-        }
-      }
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       record.SSD().UpdatePtrs();
-      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
+      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped);
       record.GTR().AddHitAndClusterIds();
       record.GTR().UpdatePtrs();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
 //      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry);
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1);
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
 //cout << event0->EventID() << endl;
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), record);
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 

@@ -172,6 +172,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetMaxPeakHeight(anahit.MaxValue());
                     cl.SetTiming(anahit.Timing());
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
+                    //std::cout << "cluste charge = " << anahit.ClusterCharge() << std::endl;//cluster charge
                     cl.SetCogPos(anahit.CogHit());
                     if(isnan(anahit.TdcHit())){
 		      //std::cout << "TDC hit pos is nan" << std::endl;

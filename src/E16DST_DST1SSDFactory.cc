@@ -224,37 +224,51 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
       sumtiming = 0;//nakasuga
       ntiming = 0;//nakasuga
       for(int j=0; j<ha.NumHit(); j++){ //number of hit per cluster
-	E16ANA_SSDSingleStripHit &hs = hits_0s[h_id_in_module];
+	//E16ANA_SSDSingleStripHit &hs = hits_0s[h_id_in_module];
 	E16DST_DST1SSDHit &hit1 = hits1[h_id_in_event];
 	hit1.SetInvalid();
 	hit1.SetIds(mid, ha.StripID(j));
 	hit1.SetTiming(ha.StripTiming(j));
-	hit1.SetPeakHeight(hs.FitScale());
-	hit1.SetHitTime(hs.FitT0());
-	hit1.SetPeakTime(hs.FitRisetime());
+	//hit1.SetPeakHeight(hs.FitScale());
+	//hit1.SetHitTime(hs.FitT0());
+	//hit1.SetPeakTime(hs.FitRisetime());
+	hit1.SetPeakHeight(ha.StripFitScale(j));
+	hit1.SetHitTime(ha.StripFitT0(j));
+	hit1.SetPeakTime(ha.StripFitT0(j)+ha.StripFitRiseTime(j));
 	hit_indexs.push_back(h_id_in_cluster);
 	h_id_in_event++;
 	h_id_in_module++;
 	h_id_in_cluster++;
+	/* Bug fixed 220130
 	if(ha.StripTiming(j)>0){//nakasuga
 	  sumtiming += ha.StripTiming(j);//nakasuga
 	  ntiming++;//nakasuga
 	}//nakasuga
+	*/
       }
+      /* Bug fixed 220130
       if(ntiming==0){//nakasuga
 	ntiming = 1;//nakasuga
 	sumtiming = -1000;//nakasuga
       }//nakasuga
+      */
       E16DST_DST1SSDCluster &cluster1 = clusters1[cl_id_in_event];
       cluster1.SetInvalid();
       cluster1.SetModuleId(mid);
-      //cluster1.SetTiming(ha.Timing());
-      cluster1.SetTiming(sumtiming/(float)ntiming);//nakasuga
+      cluster1.SetTiming(ha.Timing());
+      //cluster1.SetTiming(sumtiming/(float)ntiming);//nakasuga Bug fixed 220130
       cluster1.SetPeakSum(ha.ClusterCharge());
       cluster1.SetCogPos(ha.CogHit());
       cluster1.SetTdcPos(ha.TdcHit());
       cluster1.SetTanTheta(ha.TanTheta());
       cluster1.SetHitOrders(hit_indexs);
+
+
+      cluster1.SetCogPosFit(ha.CogHitFit());
+      cluster1.SetTimingFit(ha.TimingFit());
+      cluster1.SetPeakSumFit(ha.ClusterChargeFit());
+      cluster1.SetChi2NdfFit(ha.Chi2NdfFit());
+
       cl_id_in_event++;
     }
   }

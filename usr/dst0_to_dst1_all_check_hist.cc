@@ -291,6 +291,9 @@ int main(int argc, char* argv[]) {
   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
   targets.ReadInfoWithRunID( calib.CurrentRunID());
   targets.Print();
+  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
 
   //HBD initialize
@@ -340,7 +343,7 @@ int main(int argc, char* argv[]) {
       //E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
 
       E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
-      E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped);
+      E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geometry);
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());

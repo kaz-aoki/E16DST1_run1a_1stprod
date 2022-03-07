@@ -53,9 +53,7 @@ class E16DST_DST1Hit {
   float            Timing() { return timing; }
   virtual float    PeakHeight() = 0;
   virtual TVector3 LocalPos(E16ANA_GeometryV2& geometry) = 0;
-//  virtual TVector3 LocalPos(E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) = 0;
   virtual TVector3 GlobalPos(E16ANA_GeometryV2& geometry) = 0;
-//  virtual TVector3 GlobalPos(E16ANA_GeometryV2& geometry, E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) = 0;
   virtual void     Print() {
     std::cout << "Module ID: " << module_id << ", Channel ID: " << channel_id << ", Timing: " << timing << std::endl;
   }
@@ -172,10 +170,19 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
+  void     SetPeakSumFit(double _charge_sum_fit)  { charge_sum_fit = _charge_sum_fit; }
+  void     SetCogPosFit(double _center_of_gravity_fit)    { center_of_gravity_fit = _center_of_gravity_fit; }
+  void     SetChi2NdfFit(double _chi2_ndf_fit)    { chi2_ndf_fit = _chi2_ndf_fit; }
   double   CogPos() { return center_of_gravity; }
   double   TdcPos() { return tdc_pos; }
   float    TanTheta() { return tan_incident_angle; }
+  double   CogPosFit() { return center_of_gravity_fit; }
+  double   TimingFit() { return  timing_fit;}
+  double   PeakSumFit() { return  charge_sum_fit;}
+  double   Chi2NdfFit() { return  chi2_ndf_fit;}
   double   LocalX() { return center_of_gravity; };
+  double   LocalXFit() { return center_of_gravity_fit; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
   int      GetSize() override {}
@@ -191,6 +198,10 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double center_of_gravity; // mm
   double tdc_pos;           // mm
   float  tan_incident_angle;    // radian
+  double center_of_gravity_fit; // mm
+  double charge_sum_fit;
+  double timing_fit;
+  double chi2_ndf_fit;
 };
 
 class E16DST_DST1GTRHit : public E16DST_DST1Hit {
@@ -207,12 +218,16 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
     type        = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot         = E16DST_DST1Constant::kInvalidValue;
+    local_x     = E16DST_DST1Constant::kInvalidValue;
+    ctiming.clear();
+    cpos.clear();
   }
 
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void SetTot(float _tot) { tot = _tot; }
+  void SetLocalX(double _local_x) { local_x = _local_x; }
   int16_t LayerId() override { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
@@ -220,18 +235,38 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   int16_t Type() override { return type; }
   float PeakHeight() override { return peak_height; }
   float Tot() { return tot; }
-  double LocalX();
+  double LocalX() { return local_x; }
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-//  TVector3 LocalPos(E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) override;
-//  TVector3 GlobalPos(E16ANA_GeometryV2& geometry, E16ANA_FieldMapCalibParam& field_map_calib_param, E16ANA_GTRLorentzAngleCalibParam& gtr_lorentz_angle_calib_param) override;
-//  static std::array<double, 3> lorentz_angle_calib_params;
+  void             SetTiming2(float _timing) { timing2 = _timing; }
+  void             SetTdcPos(float _tdchit) { tdchit = _tdchit; }
+  void             SetTanTheta(float _tanthe) { tanthe = _tanthe; }
+  void             SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
+  void             SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
+  void             SetCTiming(float t) { ctiming.push_back(t); }
+  void             SetCPos(float t)    { cpos.push_back(t); }
+  float            Timing2() { return timing2; }
+  float            TdcPos() { return tdchit; }
+  float            TdcPos2() { return tdchit2; }
+  float            TanTheta() { return tanthe; }
+  float            TanTheta2() { return tanthe2; }
+  int              NumCls() { return ctiming.size(); }
+  float            CTiming(int i) { return ctiming[i]; }
+  float            CPos(int i)    { return cpos[i]; }
  private:
   int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
   int16_t type;
   float   peak_height;
   float   tot;
+  double  local_x;
+  float   timing2; // fastest timing
+  float   tdchit; // timing method1
+  float   tdchit2; // timing method2
+  float   tanthe;//angle method1
+  float   tanthe2;//angle method2
+  std::vector<float>           ctiming; //cluster timing
+  std::vector<float>           cpos; 
  };
 
 class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
@@ -250,44 +285,67 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+    timing2         = E16DST_DST1Constant::kInvalidValue;
+    tdchit          = E16DST_DST1Constant::kInvalidValue;
+    tdchit2         = E16DST_DST1Constant::kInvalidValue;
+    tanthe          = E16DST_DST1Constant::kInvalidValue;
+    tanthe2         = E16DST_DST1Constant::kInvalidValue;
+    ctiming.clear();
+    cpos.clear();
   }
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
   void SetCogPos(double _center_of_gravity) { center_of_gravity = _center_of_gravity; }
-  void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
-  void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  //void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
+  //void SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
   int16_t LayerId() override { return layer_id; }
   bool IsX() { return type == E16DST_DST1Constant::kIsX; }
   bool IsY() { return type == E16DST_DST1Constant::kIsY; }
   bool IsYb() { return type == E16DST_DST1Constant::kIsYb; }
   int16_t Type() override { return type; }
   double CogPos() { return center_of_gravity; }
-  double TdcPos() { return tdc_pos; }
-  float TanTheta() { return tan_incident_angle; }
-  double LocalX() { return center_of_gravity; }; // 211127 nakasuga
-/* 211127 nakasuga
+  //double TdcPos() { return tdc_pos; }
+  //float TanTheta() { return tan_incident_angle; }
+  //double LocalX() { return center_of_gravity; }; // 211127 nakasuga
+  void                          SetTiming2(float _timing) { timing2 = _timing; }
+  void                          SetTdcPos(float _tdchit) { tdchit = _tdchit; }
+  void                          SetTanTheta(float _tanthe) { tanthe = _tanthe; }
+  void                          SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
+  void                          SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
+  float                         Timing2() { return timing2; }
+  float                         TdcPos() { return tdchit; }
+  float                         TdcPos2() { return tdchit2; }
+  float                         TanTheta() { return tanthe; }
+  float                         TanTheta2() { return tanthe2; }
+  void                          SetCTiming(float t) { ctiming.push_back(t); }
+  void                          SetCPos(float t)    { cpos.push_back(t); }
+  int                           NumCls() { return ctiming.size(); }
+  float                         CTiming(int i) { return ctiming[i]; }
+  float                         CPos(int i)    { return cpos[i]; }
+  
+
+
   double LocalX() {
     if (IsX()) {
       return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
-//auto& calib = E16ANA_CalibDBManager::Instance();
-//E16ANA_FieldMapCalibParam field_map_param;
-//field_map_param.ReadConstantData(calib.CurrentRunID());
-//E16ANA_GTRLorentzAngleCalibParam lorentz_angle_param;
-//lorentz_angle_param.ReadConstantData(calib.CurrentRunID());
-//auto fm_current = field_map_param.FMCurrent();
-//auto lorentz_angle_params = lorentz_angle_param.GTRLorentzAngleCalibParams();
-//if (fm_current == 2450.) {
-//  return center_of_gravity + lorentz_angle_params[layer_id];
-//} else {
-//  return center_of_gravity;
-//}
     } else {
       return center_of_gravity;
     }
   }
-*/
+  double LocalXT() {
+    if (IsX()) {
+      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+    } else {
+      return tdchit;
+    }
+  }
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+
+  TVector3 LocalPosT() ;
+  TVector3 GlobalPosT(E16ANA_GeometryV2& geometry);
+
+
   int GetSize() override {}
 //  int GetSize() override { return GetBaseSize() + sizeof(layer_id) + sizeof(type) + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void Print() override {
@@ -297,7 +355,6 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
               << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
               << " [mm]" << std::endl;
   }
-//  static std::array<double, 3> lorentz_angle_calib_params;
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
@@ -305,6 +362,14 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double center_of_gravity; // mm
   double tdc_pos;           // mm
   float tan_incident_angle;    // radian
+  float                        timing2;
+  float                        tdchit; // 50% of peak
+  float                        tdchit2; // 50% of peak
+  float                        tanthe;
+  float                        tanthe2;
+  float                        peak_sum;
+  std::vector<float>           ctiming;
+  std::vector<float>           cpos; 
 };
 
 class E16DST_DST1HBDHit : public E16DST_DST1Hit {
@@ -914,6 +979,8 @@ public:
    float Chi2X(){return chi2_x;} 
    float Chi2Y(){return chi2_y;} 
    void SetChi2Y(float chi){chi2_y = chi;}
+   void SetXZTrackUsedTimes(int n){ x_trk_used_times= n ;}
+   int XZTrackUsedTimes(){return x_trk_used_times;}
 //   float TgtZ(){return tgt_z;} 
 
 //   float Distance(){return distance;} 
@@ -925,7 +992,12 @@ public:
    E16DST_DST1GTRCluster* GTR100YCluster(){return ycluster100 ;} 
    E16DST_DST1GTRCluster* GTR200YCluster(){return ycluster200 ;} 
    E16DST_DST1GTRCluster* GTR300YCluster(){return ycluster300 ;}
-    
+   E16DST_DST1GTRCluster* GTRXCluster(int lid){
+   	if(lid == 1) return xcluster100;
+   	if(lid == 2) return xcluster200;
+   	if(lid == 3) return xcluster300;
+   } 
+ 
 //   TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
 //   TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
 //   TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
@@ -945,10 +1017,11 @@ public:
    float FitAY(){return fit_a_y;}
    float FitBY(){return fit_b_y;}
    void SetDistanceFromTgtXZ(float _distance){distance_fromtgt_xz = _distance;}
-//   void SetDistanceFromTgtYR(float _distance){distance_fromtgt_yr = _distance;}
+   void SetDistanceYTrackAndTgt(float _distance){distance_ytrk_tgt = _distance;}
    void SetDistanceFromUpWireYR(float _distance){distance_fromupwire_yr = _distance;}
    void SetDistanceFromDownWireYR(float _distance){distance_fromdownwire_yr = _distance;}
    float DistanceFromTgtXZ(){return distance_fromtgt_xz;}
+   float DistanceYTrackAndTgt(){return distance_ytrk_tgt;}
 //   float DistanceFromTgtYR(){return distance_fromtgt_yr;}
    float DistanceFromUpWireYR(){return distance_fromupwire_yr;}
    float DistanceFromDownWireYR(){return distance_fromdownwire_yr;}
@@ -1006,6 +1079,7 @@ private:
 //   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
    
    float distance_fromtgt_xz;
+   float distance_ytrk_tgt;
    float distance_fromupwire_yr;//distance  from the upstream wire on YR plane to the track
    float distance_fromdownwire_yr;//distance  from the upstream wire on YR plane to the track
    float residualssd;//residual ssd, fit without itself
@@ -1027,6 +1101,7 @@ private:
    TVector3 fitpt_ongtr100;
    TVector3 fitpt_ongtr200;
    TVector3 fitpt_ongtr300;
+   int x_trk_used_times;
 //   TVector2 point_on_track_gtr100;	
 //   TVector2 point_on_track_gtr300;	
 //   TVector2 point_on_track_3000mm;
@@ -1069,6 +1144,12 @@ public:
    E16DST_DST1GTRCluster* GTR100XCluster(){return xcluster100 ;} 
    E16DST_DST1GTRCluster* GTR200XCluster(){return xcluster200 ;} 
    E16DST_DST1GTRCluster* GTR300XCluster(){return xcluster300 ;} 
+   E16DST_DST1GTRCluster*  GTRXCluster(int lid){
+   	if(lid == 1) return xcluster100;
+   	if(lid == 2) return xcluster200;
+   	if(lid == 3) return xcluster300;
+   } 
+    
    TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
    TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
    TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
