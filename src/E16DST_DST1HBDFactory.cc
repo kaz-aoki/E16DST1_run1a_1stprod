@@ -55,6 +55,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   double n_sigma = hbd_cut->GetNSigmaWfDST1();//dst0 hit discard criterion, adc noise*n_sigma
   int n_waves = hbd_cut->GetNWavesDST1(); //number of acceptable waves in each waveform
   int th_csize = hbd_cut->GetThCSizeDST1(); //required cluster size for an electron candidate
+  double th_wf_chi2 = hbd_cut->GetThWaveformChi2(); //required chi2(not divided by ndf) for hbd hit waveform
   double th_ccharge = hbd_cut->GetThCChargeDST1(); //required cluster charge for an electron candidate
   double n_sigma_cadc = hbd_cut->GetNSigmaCADCDST1(); //required cluster adc for a charged particle
   

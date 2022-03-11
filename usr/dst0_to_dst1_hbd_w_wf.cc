@@ -3,6 +3,7 @@
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TInterpreter.h>
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
@@ -31,6 +32,9 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+  
+  gInterpreter->GenerateDictionary("vector<vector<int>>; vector<vector<double>>", "vector");
+  
   if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
     cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
@@ -62,12 +66,13 @@ int main(int argc, char* argv[]) {
   vector<float> h_lpos_x;
   vector<float> h_lpos_y;
   vector<float> h_lpos_z;
-  vector<vector<int>> h_wf;
+  vector<vector<double>> h_wf;
 
   vector<int> c_cid;
   vector<int> c_mid;
   vector<int> c_maxch;
   vector<int> c_maxheight;
+  vector<float> c_sadc;
   vector<float> c_tdc;
   vector<float> c_pe;
   vector<float> c_tdc_fastest;
@@ -76,7 +81,7 @@ int main(int argc, char* argv[]) {
   vector<float> c_lpos_x;
   vector<float> c_lpos_y;
   vector<float> c_lpos_z;
-  vector<vector<int16_t>> c_hitmembers;
+  vector<vector<int>> c_hitmembers;
   vector<float> c_cprob;
   vector<float> c_eprob;
 
@@ -99,6 +104,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("c_mid", &c_mid);
   tree->Branch("c_maxch", &c_maxch);
   tree->Branch("c_maxheight", &c_maxheight);
+  tree->Branch("c_sadc", &c_sadc);
   tree->Branch("c_tdc", &c_tdc);
   tree->Branch("c_pe", &c_pe);
   tree->Branch("c_tdc_fastest", &c_tdc_fastest);
@@ -107,7 +113,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("c_lpos_x", &c_lpos_x);
   tree->Branch("c_lpos_y", &c_lpos_y);
   tree->Branch("c_lpos_z", &c_lpos_z);
-  tree->Branch("c_hitmembers", &c_hitmembers, "vector<vector<int16_t>>");
+  tree->Branch("c_hitmembers", &c_hitmembers);
   tree->Branch("c_cprob", &c_cprob);
   tree->Branch("c_eprob", &c_eprob);
   
@@ -144,7 +150,7 @@ int main(int argc, char* argv[]) {
     ////////    dst1->SetEventType(event_type);
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
-      auto& hbd_hits0         = event0->HBD();
+      E16DST_DST0Detector<E16DST_DST0HBDHit> hbd_hits0 = event0->HBD();
       
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record->HBD());
       event_id = event0->EventID();
@@ -164,13 +170,30 @@ int main(int argc, char* argv[]) {
 	h_lpos_x.push_back(hit.LocalPos(*geometry).X());
 	h_lpos_y.push_back(hit.LocalPos(*geometry).Y());
 	h_lpos_z.push_back(hit.LocalPos(*geometry).Z());
+	
+	for(int ith_dst0hit =0; ith_dst0hit < hbd_hits0.NumberOfHits(); ith_dst0hit++){
+	  E16DST_DST0HBDHit dst0_hit = hbd_hits0.Hit(ith_dst0hit);
+	  if(dst0_hit.ModuleID() == hit.ModuleId()){
+	    if(dst0_hit.ChannelID() == hit.ChannelId()){
+	      int16_t *in_wf = dst0_hit.Waveform();
+	      double out_wf[E16DST_Constant::NSamplesHBD];
+	      vector<double> out_wf_vector;
+	      hbd_calib->GetCalibratedSignal(hit.ModuleId(), hit.ChannelId(), in_wf, out_wf);
+	      for(int i=0; i<E16DST_Constant::NSamplesHBD; i++) out_wf_vector.push_back(out_wf[i]);
+	      out_wf_vector.resize(E16DST_Constant::NSamplesHBD);
+	      h_wf.push_back(out_wf_vector);
+	    }
+	  }
+	}
       }
+      h_wf.resize(n_hits);
       
       for(auto cluster : hbd_clusters1){
+	c_cid.push_back(cluster.ClusterId());
 	c_mid.push_back(cluster.ModuleId());
 	c_maxch.push_back(cluster.MaxPeakCh());
 	c_tdc.push_back(cluster.Timing());
-	c_pe.push_back(cluster.SADC());
+	c_sadc.push_back(cluster.SADC());
 	c_tdc_fastest.push_back(cluster.FastestTiming());
 	c_tdc_diff.push_back(cluster.TimeDifference());
 	c_size.push_back(cluster.ClusterSize());
@@ -180,15 +203,43 @@ int main(int argc, char* argv[]) {
 	c_lpos_z.push_back(cluster.LocalPos().Z());
 	c_cprob.push_back(cluster.IsChargedParticle());
 	c_eprob.push_back(cluster.IsE());
-	vector<int16_t> a;
-	a.push_back(1);
-	//c_hitmembers.push_back(cluster.HitOrders());
-	c_hitmembers.push_back(a);
-      }      
+
+	vector<int> hitmembers;
+	for(auto hit_id : cluster.HitOrders()) hitmembers.push_back((int) hit_id);
+	hitmembers.resize(cluster.ClusterSize());
+	c_hitmembers.push_back(hitmembers);
+      }
+      c_hitmembers.resize(n_clusters);
+      
       tree->Fill();
       
       //clear vector
+      h_hid.clear();
+      h_mid.clear();
+      h_ch.clear();
+      h_chi2.clear();
+      h_pe.clear();
+      h_tdc.clear();
+      h_lpos_x.clear();
+      h_lpos_y.clear();
+      h_lpos_z.clear();
+      h_wf.clear();
       
+      c_cid.clear();
+      c_mid.clear();
+      c_maxch.clear();
+      c_tdc.clear();
+      c_sadc.clear();
+      c_tdc_fastest.clear();
+      c_tdc_diff.clear();
+      c_size.clear();
+      c_pe.clear();
+      c_lpos_x.clear();
+      c_lpos_y.clear();
+      c_lpos_z.clear();
+      c_cprob.clear();
+      c_eprob.clear();
+      c_hitmembers.clear();
       
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
