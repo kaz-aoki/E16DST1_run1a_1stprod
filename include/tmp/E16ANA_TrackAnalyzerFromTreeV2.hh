@@ -1568,6 +1568,7 @@ class E16ANA_TrackAnalyzerFromTree {
   void AnalyzeTrackPairs();
   std::vector<int> SortTracksWoInitPosErr();
   void SelectPionTracks();
+  void SelectPionTracksWClusterDup();
   double SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom);
   void AddPionTracks(const int track_index_pair[]);
   void PionPairTracking(const int track_indexs_index_pair[]);

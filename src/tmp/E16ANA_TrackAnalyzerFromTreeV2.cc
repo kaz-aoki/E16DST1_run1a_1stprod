@@ -2023,6 +2023,21 @@ void E16ANA_TrackAnalyzerFromTree::SelectPionTracks() {
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWClusterDup() {
+  auto sorted_track_indexs = SortTracksWoInitPosErr();
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> plus_used_cluster_ids;
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> minus_used_cluster_ids;
+  for (const auto& index : sorted_track_indexs) {
+    auto charge = rk_charge->at(index);
+    if (charge == -1) {
+      SelectTrack(index, &minus_used_cluster_ids);
+    } else {
+      SelectTrack(index, &plus_used_cluster_ids);
+    }
+  }
+  return;
+}
+
 double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom) {
   auto init_pos0 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[0]) * 0.1);
   auto init_pos1 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[1]) * 0.1);
@@ -2984,17 +2999,20 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
       SelectTracks();
       AnalyzeTrackPairs();
     }
-    if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag) {
+    if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag || analyze_flag == cmn_param::kPionWClusterDup) {
       particle_flag = cmn_param::kPionFlag;
       ClearOutBranch();
       selected_track_indexs.clear();
       if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag) {
         SelectPionTracks();
         AnalyzePionTrackPairs();
-      } else {
+      } else if (analyze_flag == cmn_param::kPionWoRefitFlag) {
         SelectPionTracks();
 //        SelectPionTracksWClusterDuplicate();
         AnalyzePionTrackPairsWoRefit();
+      } else if (analyze_flag == cmn_param::kPionWClusterDup) {
+        SelectPionTracksWClusterDup();
+        AnalyzePionTrackPairs();
       }
     }
   }

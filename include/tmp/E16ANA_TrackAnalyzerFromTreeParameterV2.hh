@@ -7,7 +7,8 @@ enum {
   kElectronFlag,
   kPionFlag,
   kBothFlag,
-  kPionWoRefitFlag
+  kPionWoRefitFlag,
+  kPionWClusterDup
 };
 
 enum {

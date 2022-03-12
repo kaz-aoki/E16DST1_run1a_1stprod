@@ -18,10 +18,11 @@
 
 using namespace std;
 
-//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
-const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
-//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kBothFlag; // 0 : electron, 1 : pion (Ks)
-//const int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWoRefitFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kBothFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWoRefitFlag; // 0 : electron, 1 : pion (Ks)
+constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWClusterDup; // 0 : electron, 1 : pion (Ks)
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
@@ -49,7 +50,6 @@ int main(int argc, char* argv[]) {
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
   E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter, out_file);
-//  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter);
   analyzer.Loop();
 
   delete geometry;
