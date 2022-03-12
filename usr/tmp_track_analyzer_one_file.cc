@@ -13,7 +13,7 @@
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
-#include "E16ANA_TrackAnalyzerFromTree.hh"
+#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
 #include "E16ANA_TrackAnalyzerFromTreeParameterV2.hh"
 
 using namespace std;
@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
   E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter, out_file);
+//  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter);
   analyzer.Loop();
 
   delete geometry;

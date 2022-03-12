@@ -1501,7 +1501,9 @@ class E16ANA_TrackAnalyzerFromTree {
   TBranch        *b_rk_pair_mass_refit;   //!
 
   E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _analyze_flag,
-                                 E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
+                               E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
+//  E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _analyze_flag,
+//                                 E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter);
   E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag,
                                  E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
   virtual ~E16ANA_TrackAnalyzerFromTree();
@@ -2093,9 +2095,12 @@ class E16ANA_TrackAnalyzerFromTree {
 
 #endif
 
-#ifdef E16ANA_TrackAnalyzerFromTree_cxx
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(0), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+#ifdef E16ANA_TrackAnalyzerFromTreeV2_cxx
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map,
+                                                           E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
+    : fChain(nullptr), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+//E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter)
+//    : fChain(nullptr), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter) {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
 //  if (tree == 0) {
@@ -2106,6 +2111,7 @@ E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _ana
 //    f->GetObject("tree",tree);
 
 //  }
+//  out_file->cd();
   Init(tree);
   out_tree  = new TTree("tree",  "tree");
   out_tree1 = new TTree("tree1", "tree1");

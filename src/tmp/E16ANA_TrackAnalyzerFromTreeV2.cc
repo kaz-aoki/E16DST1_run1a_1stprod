@@ -1,4 +1,4 @@
-#define E16ANA_TrackAnalyzerFromTree_cxx
+#define E16ANA_TrackAnalyzerFromTreeV2_cxx
 #include "E16ANA_TrackAnalyzerFromTreeV2.hh"
 
 #include <array>
