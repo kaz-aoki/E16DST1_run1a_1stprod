@@ -848,9 +848,9 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
   if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
     return false;
   }
-  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
-    return false;
-  }
+//  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
+//    return false;
+//  }
   // HasTimeCorrelationInTrack()
   // write your selection criteria end
   return true;
@@ -2120,20 +2120,20 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
       if (charge0 == charge1) {
         continue;
       }
-      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
-        continue;
-      }
-      bool is_lg_t_match = false;
-      for (const auto& t0 : lg_ts0) {
-        for (const auto& t1 : lg_ts1) {
-          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
-            is_lg_t_match = true;
-          }
-        }
-      }
-      if (!is_lg_t_match) {
-        continue;
-      }
+//      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+//        continue;
+//      }
+//      bool is_lg_t_match = false;
+//      for (const auto& t0 : lg_ts0) {
+//        for (const auto& t1 : lg_ts1) {
+//          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
+//            is_lg_t_match = true;
+//          }
+//        }
+//      }
+//      if (!is_lg_t_match) {
+//        continue;
+//      }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;
