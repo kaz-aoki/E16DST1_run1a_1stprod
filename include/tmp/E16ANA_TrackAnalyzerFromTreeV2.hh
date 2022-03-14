@@ -1535,7 +1535,11 @@ class E16ANA_TrackAnalyzerFromTree {
   double CalcSingleTrackChiSquareWoTarget(int track_index);
   bool IsGoodPionTrack(int track_index, std::vector<double>* lg_ts);
   void CheckUsedClusters(int track_index, const std::vector<double>& lg_ts, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
+  void CheckUsedClusters(int track_index, const std::vector<double>& lg_ts, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_x_cluster_ids,
+                                                                            std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_y_cluster_ids);
   void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_cluster_ids);
+  void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_x_cluster_ids,
+                                    std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_y_cluster_ids);
   void SelectTracks();
   void AddTracks(const int track_index_pair[], double tgt_z);
   void FillTVector3ToDouble(TVector3 t_vector, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
@@ -1569,12 +1573,13 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<int> SortTracksWoInitPosErr();
   void SelectPionTracks();
   void SelectPionTracksWClusterDup();
+  void SelectPionTracksWDiffChargeYClusterDup();
   double SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom);
   void AddPionTracks(const int track_index_pair[]);
   void PionPairTracking(const int track_indexs_index_pair[]);
   void AnalyzePionTrackPairs();
-  void SelectTrackWClusterDuplicate(int track_index);
-  void SelectPionTracksWClusterDuplicate();
+//  void SelectTrackWClusterDuplicate(int track_index);
+//  void SelectPionTracksWClusterDuplicate();
   void FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance);
   void AnalyzePionTrackPairsWoRefit();
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both

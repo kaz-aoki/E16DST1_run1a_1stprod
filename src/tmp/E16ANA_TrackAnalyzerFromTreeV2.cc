@@ -903,7 +903,8 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index, std::vector<
   return true;
 }
 
-void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std::vector<double>& lg_ts, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
+void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std::vector<double>& lg_ts,
+                                                     std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   int ids[7] = {rk_hit_ssd_id->at(track_index),
                 rk_hit_gtr100_xid->at(track_index), rk_hit_gtr100_yid->at(track_index),
                 rk_hit_gtr200_xid->at(track_index), rk_hit_gtr200_yid->at(track_index),
@@ -940,12 +941,56 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std::vector<double>& lg_ts,
+                                                     std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_x_cluster_ids,
+                                                     std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_y_cluster_ids) {
+  int x_ids[track_const::kNumTrackingLayers] = {rk_hit_ssd_id->at(track_index), rk_hit_gtr100_xid->at(track_index),
+                                                rk_hit_gtr200_xid->at(track_index), rk_hit_gtr300_xid->at(track_index)};
+  int y_ids[track_const::kNumTrackingLayers] = {0, rk_hit_gtr100_yid->at(track_index), rk_hit_gtr200_yid->at(track_index), rk_hit_gtr300_yid->at(track_index)};
+  for (int i = 0; i < track_const::kNumTrackingLayers; ++i) {
+    for (const auto& id : used_x_cluster_ids->at(i)) {
+      if (id == x_ids[i]) {
+        return;
+      }
+    }
+  }
+  for (int i = 0; i < track_const::kNumTrackingLayers; ++i) {
+    if (i == 0) {
+      continue;
+    }
+    for (const auto& id : used_y_cluster_ids->at(i)) {
+      if (id == y_ids[i]) {
+        return;
+      }
+    }
+  }
+  used_x_cluster_ids->at(0).emplace_back(x_ids[0]);
+  used_x_cluster_ids->at(1).emplace_back(x_ids[1]);
+  used_x_cluster_ids->at(2).emplace_back(x_ids[2]);
+  used_x_cluster_ids->at(3).emplace_back(x_ids[3]);
+  used_y_cluster_ids->at(1).emplace_back(y_ids[1]);
+  used_y_cluster_ids->at(2).emplace_back(y_ids[2]);
+  used_y_cluster_ids->at(3).emplace_back(y_ids[3]);
+  selected_track_indexs.emplace_back(track_index);
+  selected_track_lg_hit_ts.emplace_back(lg_ts);
+  return;
+}
+
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
     CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
 //    selected_track_indexs.emplace_back(track_index);
 //    selected_track_lg_hit_ts.emplace_back(lg_ts);
+  }
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_x_cluster_ids,
+                                                                std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_y_cluster_ids) {
+  std::vector<double> lg_ts;
+  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
+    CheckUsedClusters(track_index, lg_ts, used_x_cluster_ids, used_y_cluster_ids);
   }
   return;
 }
@@ -2038,6 +2083,22 @@ void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWClusterDup() {
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWDiffChargeYClusterDup() {
+  auto sorted_track_indexs = SortTracksWoInitPosErr();
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> used_x_cluster_ids;
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> plus_used_y_cluster_ids;
+  std::array<std::vector<int>, track_const::kNumTrackingLayers> minus_used_y_cluster_ids;
+  for (const auto& index : sorted_track_indexs) {
+    auto charge = rk_charge->at(index);
+    if (charge == -1) {
+      SelectTrack(index, &used_x_cluster_ids, &minus_used_y_cluster_ids);
+    } else {
+      SelectTrack(index, &used_x_cluster_ids, &plus_used_y_cluster_ids);
+    }
+  }
+  return;
+}
+
 double E16ANA_TrackAnalyzerFromTree::SearchVertex(const int track_index_pair[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom) {
   auto init_pos0 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[0]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[0]) * 0.1);
   auto init_pos1 = Hep3Vector(rk_fit_init_pos_gx->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gy->at(track_index_pair[1]) * 0.1, rk_fit_init_pos_gz->at(track_index_pair[1]) * 0.1);
@@ -2165,22 +2226,22 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairs() {
   return;
 }
 
-void E16ANA_TrackAnalyzerFromTree::SelectTrackWClusterDuplicate(int track_index) {
-  std::vector<double> lg_ts;
-  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-    selected_track_indexs.emplace_back(track_index);
-    selected_track_lg_hit_ts.emplace_back(lg_ts);
-  }
-  return;
-}
-
-void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWClusterDuplicate() {
-  auto sorted_track_indexs = SortTracksWoInitPosErr();
-  for (const auto& index : sorted_track_indexs) {
-    SelectTrackWClusterDuplicate(index);
-  }
-  return;
-}
+//void E16ANA_TrackAnalyzerFromTree::SelectTrackWClusterDuplicate(int track_index) {
+//  std::vector<double> lg_ts;
+//  if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
+//    selected_track_indexs.emplace_back(track_index);
+//    selected_track_lg_hit_ts.emplace_back(lg_ts);
+//  }
+//  return;
+//}
+//
+//void E16ANA_TrackAnalyzerFromTree::SelectPionTracksWClusterDuplicate() {
+//  auto sorted_track_indexs = SortTracksWoInitPosErr();
+//  for (const auto& index : sorted_track_indexs) {
+//    SelectTrackWClusterDuplicate(index);
+//  }
+//  return;
+//}
 
 void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance) {
   out_distance.emplace_back(distance);
@@ -2999,7 +3060,8 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
       SelectTracks();
       AnalyzeTrackPairs();
     }
-    if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag || analyze_flag == cmn_param::kPionWClusterDup) {
+    if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag || analyze_flag == cmn_param::kPionWClusterDup ||
+        analyze_flag == cmn_param::kPionWDiffChargeYClusterDup) {
       particle_flag = cmn_param::kPionFlag;
       ClearOutBranch();
       selected_track_indexs.clear();
@@ -3012,6 +3074,9 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
         AnalyzePionTrackPairsWoRefit();
       } else if (analyze_flag == cmn_param::kPionWClusterDup) {
         SelectPionTracksWClusterDup();
+        AnalyzePionTrackPairs();
+      } else if (analyze_flag == cmn_param::kPionWDiffChargeYClusterDup) {
+        SelectPionTracksWDiffChargeYClusterDup();
         AnalyzePionTrackPairs();
       }
     }

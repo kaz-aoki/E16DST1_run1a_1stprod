@@ -8,7 +8,8 @@ enum {
   kPionFlag,
   kBothFlag,
   kPionWoRefitFlag,
-  kPionWClusterDup
+  kPionWClusterDup,
+  kPionWDiffChargeYClusterDup
 };
 
 enum {
