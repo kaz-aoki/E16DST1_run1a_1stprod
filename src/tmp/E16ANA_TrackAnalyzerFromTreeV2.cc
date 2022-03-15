@@ -1514,17 +1514,17 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   std::vector<int>    lg_clst_indexs[2];
   std::vector<int>    trg_lg_hit_indexs[2];
   std::vector<double> tmp_lg_ts;
-  int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(),  out_minus_lg_b_mid.back(),  out_minus_lg_a_mid.back()},
-                                                     {out_plus_lg_c_mid.back(),   out_plus_lg_b_mid.back(),   out_plus_lg_a_mid.back()}};
-  double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),        tmp_lposs[0][2].X(),        tmp_lposs[0][3].X()},
-                                                     {tmp_lposs[1][1].X(),        tmp_lposs[1][2].X(),        tmp_lposs[1][3].X()}};
-  double track_lg_ys[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].Y(),        tmp_lposs[0][2].Y(),        tmp_lposs[0][3].Y()},
-                                                     {tmp_lposs[1][1].Y(),        tmp_lposs[1][2].Y(),        tmp_lposs[1][3].Y()}};
+  int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(), out_minus_lg_b_mid.back(), out_minus_lg_a_mid.back()},
+                                                     {out_plus_lg_c_mid.back(),  out_plus_lg_b_mid.back(),  out_plus_lg_a_mid.back()}};
+  double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),       tmp_lposs[0][2].X(),       tmp_lposs[0][3].X()},
+                                                     {tmp_lposs[1][1].X(),       tmp_lposs[1][2].X(),       tmp_lposs[1][3].X()}};
+  double track_lg_ys[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].Y(),       tmp_lposs[0][2].Y(),       tmp_lposs[0][3].Y()},
+                                                     {tmp_lposs[1][1].Y(),       tmp_lposs[1][2].Y(),       tmp_lposs[1][3].Y()}};
   bool track_lg_valids[2][cmn_param::kNumLGTypes];
   IsTrackLGValidY(track_lg_ys[0], track_lg_valids[0]);
   IsTrackLGValidY(track_lg_ys[1], track_lg_valids[1]);
-  HasLGHits(tmp_minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0], &tmp_lg_ts);
-  HasLGHits(tmp_plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1], &tmp_lg_ts);
+  HasLGHits(tmp_minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0],  &tmp_lg_ts);
+  HasLGHits(tmp_plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1],  &tmp_lg_ts);
   HasLGClusters(tmp_minus_mom.Mag(), track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_clst_indexs[0], &tmp_lg_ts);
   HasLGClusters(tmp_plus_mom.Mag(),  track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_clst_indexs[1], &tmp_lg_ts);
   HasTriggerLGHits(track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &trg_lg_hit_indexs[0]);
@@ -2592,17 +2592,17 @@ void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_
   std::vector<int>    lg_clst_indexs[2];
   std::vector<int>    trg_lg_hit_indexs[2];
   std::vector<double> tmp_lg_ts;
-  int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(),  out_minus_lg_b_mid.back(),  out_minus_lg_a_mid.back()},
-                                                     {out_plus_lg_c_mid.back(),   out_plus_lg_b_mid.back(),   out_plus_lg_a_mid.back()}};
-  double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),        tmp_lposs[0][2].X(),        tmp_lposs[0][3].X()},
-                                                     {tmp_lposs[1][1].X(),        tmp_lposs[1][2].X(),        tmp_lposs[1][3].X()}};
-  double track_lg_ys[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].Y(),        tmp_lposs[0][2].Y(),        tmp_lposs[0][3].Y()},
-                                                     {tmp_lposs[1][1].Y(),        tmp_lposs[1][2].Y(),        tmp_lposs[1][3].Y()}};
+  int    track_lg_mids[2][cmn_param::kNumLGTypes] = {{out_minus_lg_c_mid.back(), out_minus_lg_b_mid.back(), out_minus_lg_a_mid.back()},
+                                                     {out_plus_lg_c_mid.back(),  out_plus_lg_b_mid.back(),  out_plus_lg_a_mid.back()}};
+  double track_lg_xs[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].X(),       tmp_lposs[0][2].X(),       tmp_lposs[0][3].X()},
+                                                     {tmp_lposs[1][1].X(),       tmp_lposs[1][2].X(),       tmp_lposs[1][3].X()}};
+  double track_lg_ys[2][cmn_param::kNumLGTypes]   = {{tmp_lposs[0][1].Y(),       tmp_lposs[0][2].Y(),       tmp_lposs[0][3].Y()},
+                                                     {tmp_lposs[1][1].Y(),       tmp_lposs[1][2].Y(),       tmp_lposs[1][3].Y()}};
   bool track_lg_valids[2][cmn_param::kNumLGTypes];
   IsTrackLGValidY(track_lg_ys[0], track_lg_valids[0]);
   IsTrackLGValidY(track_lg_ys[1], track_lg_valids[1]);
-  HasLGHits(minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0], &tmp_lg_ts);
-  HasLGHits(plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1], &tmp_lg_ts);
+  HasLGHits(minus_mom.Mag(),     track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_hit_indexs[0],  &tmp_lg_ts);
+  HasLGHits(plus_mom.Mag(),      track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_hit_indexs[1],  &tmp_lg_ts);
   HasLGClusters(minus_mom.Mag(), track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &lg_clst_indexs[0], &tmp_lg_ts);
   HasLGClusters(plus_mom.Mag(),  track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &lg_clst_indexs[1], &tmp_lg_ts);
   HasTriggerLGHits(track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &trg_lg_hit_indexs[0]);
