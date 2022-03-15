@@ -601,13 +601,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPosT(*geometry);
 //                  bool is_cand = false;
-                  for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
-                    cluster_set->target_id= tgt_index;
-                    if (IsXTrackCandidate(cluster_set)) {
-//                      is_cand = true;
-//                      break;
-                      cluster_sets[0].emplace_back(*cluster_set);
-                    }
+//                  for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
+//                    cluster_set->target_id= tgt_index;
+//                    if (IsXTrackCandidate(cluster_set)) {
+////                      is_cand = true;
+////                      break;
+//                      cluster_sets[0].emplace_back(*cluster_set);
+//                    }
+//                  }
+                  cluster_set->target_id= 1;
+                  if (IsXTrackCandidate(cluster_set)) {
+                    cluster_sets[0].emplace_back(*cluster_set);
                   }
 //                  if (is_cand) {
 //                    cluster_sets[0].emplace_back(*cluster_set);
@@ -873,9 +877,9 @@ void E16ANA_TrackCandidates::SelectTracks() {
       }
     }
     cand.SetIsLargeResidual(is_large_residual);
-    if (is_large_residual) {
-      continue;
-    }
+//    if (is_large_residual) {
+//      continue;
+//    }
     bool is_near_target = false;
     for (auto& pos : cand.PosAtTargets()) {
       double mag2 = pos.X() * pos.X() + pos.Y() * pos.Y();
@@ -885,9 +889,9 @@ void E16ANA_TrackCandidates::SelectTracks() {
       }
     }
     cand.SetIsNearTarget(is_near_target);
-    if (!is_near_target) {
-      continue;
-    }
+//    if (!is_near_target) {
+//      continue;
+//    }
     bool is_used = false;
     for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
       int n_types = 2;
