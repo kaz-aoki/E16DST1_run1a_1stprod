@@ -20,8 +20,10 @@ enum {
 };
 
 const std::array<double, kNumLGTypes> kLGLocalZ = {36.7,  200.7, 356.8};
-const std::array<double, kNumLGTypes> kLGMaxY   = {388.7, 281.,  160.7};
-const std::array<double, kNumLGTypes> kLGMinY   = {243.2, 137.7, 6.5};
+//const std::array<double, kNumLGTypes> kLGMaxY   = {388.7, 281.,  160.7};
+//const std::array<double, kNumLGTypes> kLGMinY   = {243.2, 137.7, 6.5};
+const std::array<double, kNumLGTypes> kLGMaxY   = {388.7 + 72., 281.  + 72.,  160.7 + 72.};
+const std::array<double, kNumLGTypes> kLGMinY   = {243.2 - 72., 137.7 - 72.,    6.5 - 72.};
 
 constexpr double kStepTrackStepSizeCm = 0.1;
 constexpr int    kStepTrackArraySize = 4000;
@@ -45,8 +47,10 @@ constexpr double kTargetXThreshold            = 5.;
 constexpr double kTargetYThreshold            = 5.;
 constexpr double kHBDADCThreshold             = 0.5;
 constexpr double kHBDResidualThreshold        = 50.;
-constexpr double kLGHitXResidualThreshold     = 70.;
-constexpr double kLGClusterXResidualThreshold = 80.;
+//constexpr double kLGHitXResidualThreshold     = 70.;
+//constexpr double kLGClusterXResidualThreshold = 80.;
+constexpr double kLGHitXResidualThreshold     = 70. * 2;
+constexpr double kLGClusterXResidualThreshold = 80. * 2;
 
 constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
 //constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};
