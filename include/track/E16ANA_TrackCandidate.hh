@@ -565,11 +565,13 @@ class E16ANA_TrackCandidates {
 //  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 60.};
-  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {120., 120., 120.};
+//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {120., 120., 120.};
+  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 120.};
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
-  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {1000., 0.05, 0.1, 0.1, 0.1};
+//  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {1000., 0.05, 0.1, 0.1, 0.1};
+  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {100., 0.05, 0.1, 0.1, 0.1};
   static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                                                              1. / (kXSigma[1] * kXSigma[1]),
                                                                              1. / (kXSigma[2] * kXSigma[2]),
@@ -592,11 +594,13 @@ class E16ANA_TrackCandidates {
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
-  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {1000., 0., 0.001}; // coef[1] not used. ozawa v8
+//  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {1000., 0., 0.001};
+  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {100., 0., 0.001};
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.01}; // coef[1] not used. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
 //  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
-  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {1000., 0.}; // coef[1] not used.
+//  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {1000., 0.}; // coef[1] not used.
+  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.

@@ -877,9 +877,9 @@ void E16ANA_TrackCandidates::SelectTracks() {
       }
     }
     cand.SetIsLargeResidual(is_large_residual);
-//    if (is_large_residual) {
-//      continue;
-//    }
+    if (is_large_residual) {
+      continue;
+    }
     bool is_near_target = false;
     for (auto& pos : cand.PosAtTargets()) {
       double mag2 = pos.X() * pos.X() + pos.Y() * pos.Y();
@@ -889,9 +889,9 @@ void E16ANA_TrackCandidates::SelectTracks() {
       }
     }
     cand.SetIsNearTarget(is_near_target);
-//    if (!is_near_target) {
-//      continue;
-//    }
+    if (!is_near_target) {
+      continue;
+    }
     bool is_used = false;
     for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
       int n_types = 2;
