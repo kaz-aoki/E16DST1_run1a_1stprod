@@ -16,7 +16,7 @@
 #include "E16ANA_LGWaveform.hh"
 
 #define MKWF 1
-#undef MKWF
+//#undef MKWF
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   lg_hits1,  lg_clusters1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geometry);
+      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 0, geometry);
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
 //      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
 //      event1->GTR().SetValidFlag(1);
@@ -292,8 +292,8 @@ int main(int argc, char* argv[]) {
 	  }
 	  hfp[module-102][block]->Fill(lghit.FitPeak());
 	  hfx[module-102][block]->Fill(lghit.FitPeakTime());
-	  //hft[module-102][block]->Fill(lghit.FitTiming());
-	  hft[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic, lghit.FitTiming()));
+	  hft[module-102][block]->Fill(lghit.FitTiming());
+	  //hft[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic, lghit.FitTiming()));
 	  hfw[module-102][block]->Fill(lghit.FitWidth());
 	  hfc[module-102][block]->Fill(lghit.FitChi2());
 	  }

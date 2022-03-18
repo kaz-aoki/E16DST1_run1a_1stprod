@@ -183,6 +183,13 @@ target_link_libraries(dst0_to_dst1_hbd_check
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_w_wf usr/dst0_to_dst1_hbd_w_wf.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_w_wf
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_hbd_wf_check usr/dst0_to_dst1_hbd_wf_check.cc)
 
 target_link_libraries(dst0_to_dst1_hbd_wf_check

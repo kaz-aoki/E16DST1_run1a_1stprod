@@ -240,6 +240,19 @@ bool E16ANA_HBDChannelManager::IsValidPadID(const int pad_id)
   }
 }
 
+bool E16ANA_HBDChannelManager::IsValidTileID(const int tile_id)
+{
+  int kid = ConvTIDE16ToK(tile_id);
+  if(0 <= kid && kid < n_tiles){
+    //found
+    return true;
+  }
+  else{
+    //not found
+    return false;
+  }
+}
+
 bool E16ANA_HBDChannelManager::IsValidID(const int module_id, const int pad_id)
 {
   if(IsValidModuleID(module_id)){
@@ -271,6 +284,16 @@ int E16ANA_HBDChannelManager::ConvMIDKToE16(const int module_id)
     index = HBD_Module_Constant::module_ids[module_id];
   }
   return index;
+}
+
+int E16ANA_HBDChannelManager::ConvTIDE16ToK(const int tid){
+  int kid = tid%10+(tid/10)*6;
+  return kid;
+}
+
+int E16ANA_HBDChannelManager::ConvTIDKToE16(const int kid){
+  int tid = kid%6+(kid/6)*10;
+  return tid;
 }
 
 inline bool E16ANA_HBDChannelManager::comp_hbd_pad_sort(const id_pack& left, const id_pack& right)

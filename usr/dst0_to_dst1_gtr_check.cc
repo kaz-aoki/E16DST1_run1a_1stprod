@@ -172,6 +172,31 @@ int main(int argc, char* argv[]) {
   pdf_name.Form("gtrtest.pdf");
   c1->SaveAs(pdf_name + "[", "pdf");
 
+
+  TCanvas *c_cl_ncluster_modall_x = new TCanvas("ccnax" , "ccnax", 1024, 768);
+  c_cl_ncluster_modall_x->Divide(2,2);
+  for(int l=0; l < 3; l++){
+    c_cl_ncluster_modall_x->cd(l+1);
+    gtrhist->h_cl_ncluster_modall_x[l]->Draw();
+  }
+  c_cl_ncluster_modall_x->SaveAs(pdf_name, "pdf");
+
+  TCanvas *c_cl_ncluster_modall_y = new TCanvas("ccnay" , "ccnay", 1024, 768);
+  c_cl_ncluster_modall_y->Divide(2,2);
+  for(int l=0; l < 3; l++){
+    c_cl_ncluster_modall_y->cd(l+1);
+    gtrhist->h_cl_ncluster_modall_y[l]->Draw();
+  }
+  c_cl_ncluster_modall_y->SaveAs(pdf_name, "pdf");
+
+  TCanvas *c_cl_ncluster_modall_yb = new TCanvas("ccnayb" , "ccnayb", 1024, 768);
+  c_cl_ncluster_modall_yb->Divide(2,2);
+  for(int l=0; l < 3; l++){
+    c_cl_ncluster_modall_yb->cd(l+1);
+    gtrhist->h_cl_ncluster_modall_yb[l]->Draw();
+  }
+  c_cl_ncluster_modall_yb->SaveAs(pdf_name, "pdf");
+
   TCanvas *c_cl_ncluster_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
   for(int m=102; m < 109 ; m++){

@@ -34,9 +34,12 @@ class E16ANA_HBDChannelManager {
   static bool GetNeighboringPadID(const int pad_id, std::vector<int> &neighboring_id);
   static bool IsValidModuleID(const int module_id);
   static bool IsValidPadID(const int pad_id);
+  static bool IsValidTileID(const int tile_id);
   static bool IsValidID(const int module_id, const int pad_id);
   static int ConvMIDE16ToK(const int module_id);
   static int ConvMIDKToE16(const int module_id);
+  static int ConvTIDE16ToK(const int tile_id);
+  static int ConvTIDKToE16(const int tile_id);
   
   static bool comp_hbd_pad_sort(const id_pack& left, const id_pack& right);
   static bool comp_apv_pad_sort(const id_pack& left, const id_pack& right);
@@ -47,7 +50,8 @@ class E16ANA_HBDChannelManager {
   
  private:
   enum {
-    n_pads = HBD_Module_Constant::n_pads
+    n_pads = HBD_Module_Constant::n_pads,
+    n_tiles = HBD_Module_Constant::n_tiles
   };
   char *tablename;
   std::vector<id_pack> ch_forward;// for conversion of circuit ID to detector ID

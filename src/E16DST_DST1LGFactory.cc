@@ -175,12 +175,13 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       	dst1hit.LocalPos(*geometry).Y(),
       	dst1hit.LocalPos(*geometry).Z());
       nhits++;
-      //std::cout<<dst1hit.HitId()<<" "<<dst1hit.ModuleId()<<" "<<dst1hit.ChannelId()<<" "<<dst1hit.FitPeak()<<" "<<dst1hit.FitTiming()<<" "<<dst1hit.Integral()<<" "<<dst1hit.LocalPos(*geometry).X()<<" "<<dst1hit.LocalPos(*geometry).Y()<<std::endl;
+      // std::cout<<dst1hit.HitId()<<" "<<dst1hit.ModuleId()<<" "<<dst1hit.ChannelId()<<" "<<dst1hit.FitPeak()<<" "<<dst1hit.FitTiming()<<" "<<dst1hit.Integral()<<" "<<dst1hit.LocalPos(*geometry).X()<<" "<<dst1hit.LocalPos(*geometry).Y()<<std::endl;
     }
   }//dst1hit loop
-  //std::cout<<"***"<<nhits<<std::endl;
+  // std::cout<<"***"<<nhits<<std::endl;
 
   lgclustering.Clustering();
+  // lgclustering.ClusteringXY();
 
   auto& clusters1 = lg1->Clusters();
   auto max_cluster = lgclustering.LGClusterSize();
@@ -198,9 +199,9 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     clusters1[icluster].SetLocalx(cith.lx);
     clusters1[icluster].SetLocaly(cith.ly);
     clusters1[icluster].SetLocalz(cith.lz);
-     //std::cout<<cith.hids.size()<<" "<<icluster<<" "<<cith.mid<<" "<<cith.peaksum<<" "<<cith.fasttiming<<" "<<cith.timediff<<" "<<cith.intsum<<" "<<cith.maxcid<<" "<<cith.maxpeak<<" "<<cith.lx<<" "<<cith.ly<<"CLUSTER"<<std::endl;
+     // std::cout<<cith.hids.size()<<" "<<icluster<<" "<<cith.mid<<" "<<cith.peaksum<<" "<<cith.fasttiming<<" "<<cith.timediff<<" "<<cith.intsum<<" "<<cith.maxcid<<" "<<cith.maxpeak<<" "<<cith.lx<<" "<<cith.ly<<"CLUSTER"<<std::endl;
   }
-  //std::cout<<"****"<<max_cluster<<std::endl;
+  // std::cout<<"****"<<max_cluster<<std::endl;
   clusters1.resize(max_cluster);
 
 //  return hits1.GetEventSize();
