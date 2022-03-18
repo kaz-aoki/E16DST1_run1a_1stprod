@@ -658,7 +658,8 @@ class E16ANA_TrackCandidates {
   static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
   static bool ExistADCCorrelation(float x_adc, float y_adc) {
-    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
+//    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
+    if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
       return true;
     }
     return false;
