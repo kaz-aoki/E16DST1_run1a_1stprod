@@ -1,5 +1,17 @@
 #include "E16ANA_TrackCandidate.hh"
 
+using namespace E16ANA_TrackParameter;
+
+void E16ANA_TrackCandidate::SetDefaultSigma() {
+  for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+    sigma[i] = kSigmas[i];
+  }
+}
+
+TVector3 E16ANA_TrackCandidate::EachSigma(int n) { return kSigmas[n]; }
+
+TVector3 E16ANA_TrackCandidate::InitPosError() { return kInitPosError; }
+
 TVector3 E16ANA_TrackCandidate::CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1) {
   TVector3 rough_mom;
   TVector3 u0 = ConformalTransformation(gxz0);
@@ -355,6 +367,16 @@ double E16ANA_TrackCandidate::Fit(E16ANA_MultiTrack* fitter, bool vertex_xy_fix_
   return chisq;
 }
 
+void E16ANA_TrackCandidate::PrintParam() {
+//  std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
+  for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
+    std::cout << "  " << E16ANA_TrackConstant::kDetectorName[i] << " : ("  << kSigmas[i](0) << ", " << kSigmas[i](1) << ", " << kSigmas[i](2) << ")" << std::endl;
+  }
+  std::cout << "Initial Position Error : (" << kInitPosError(0) << ", " << kInitPosError(1) << ", " << kInitPosError(2) << ")" << std::endl;
+  std::cout << "Runge Kutta Tracking Max Steps : " << kTrackingMaxSteps << std::endl;
+  std::cout << "Runge Kutta Projection Max Steps : " << kProjectionMaxSteps << std::endl;
+}
+
 bool E16ANA_TrackCandidates::IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set) {
   double coef1_0 = pos_set[1].X() / (pos_set[1].Z() - tgt_z);
   double coef0_0 = -1. * coef1_0 * tgt_z;
@@ -527,6 +549,19 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
   }
   return false;
 }
+
+double E16ANA_TrackCandidates::GTRTimeDiffThreshold(int n) { return kGTRTimeDiffThreshold[n]; }
+double E16ANA_TrackCandidates::XSigma(int n) { return kXSigma[n]; }
+double E16ANA_TrackCandidates::XWeight(int n) { return kXWeight[n]; }
+double E16ANA_TrackCandidates::YSigma(int n) { return kYSigma[n]; }
+double E16ANA_TrackCandidates::YWeight(int n) { return kYWeight[n]; }
+int E16ANA_TrackCandidates::MinHitsInXCluster() { return kMinHitsInXCluster; }
+double E16ANA_TrackCandidates::GTRYDiffThreshold() { return kGTRYDiffThreshold; }
+double E16ANA_TrackCandidates::GTRPeakSumThresholdX(int n) { return kGTRPeakSumThresholdX[n]; }
+double E16ANA_TrackCandidates::GTRPeakSumThresholdY() { return kGTRPeakSumThresholdY; }
+double E16ANA_TrackCandidates::RoughFitChiSquareThreshold(int n) { return kRoughFitChiSquareThreshold[n]; }
+double E16ANA_TrackCandidates::RoughXFitCoefficientThreshold(int n) { return kRoughXFitCoefficientThreshold[n]; }
+double E16ANA_TrackCandidates::RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
 
 void E16ANA_TrackCandidates::SearchTrackCandidates() {
   track_candidates.clear();
@@ -702,7 +737,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
       }
       for (int i = 0; i < kNumGTRLayers; ++i) {
 //        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i]) {
-        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i] || !ExistADCCorrelation(x_peak_sums[i], gtry[i]->PeakSum())) { // ozawa v8
+        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i] || !ExistADCCorrelation(i, x_peak_sums[i], gtry[i]->PeakSum())) { // ozawa v8
           is_same_module = false;
           break;
         }
@@ -1196,7 +1231,33 @@ E16INFO("number of track candidate: %d", track_candidates.size());
   ProjectionX0();
   SearchHBDAndLGHits();
   SelectTracks();
-  AnalyzeTrackPairs();
+  if (kExecutePairFit) {
+    AnalyzeTrackPairs();
+  }
   AddTracksToRecord();
   return;
+}
+
+void E16ANA_TrackCandidates::PrintParam() {
+  std::cout << "GTR Time Difference Threshold :" << std::endl;
+  std::cout << "  GTR100 : " << kGTRTimeDiffThreshold[0] << ", GTR200 : " << kGTRTimeDiffThreshold[1] << ", GTR300 : " << kGTRTimeDiffThreshold[2] << std::endl;
+  std::cout << "Sigma at X Rough Fit :" << std::endl;
+  std::cout << "  Target : " << kXSigma[0] << ", SSD : " << kXSigma[1] << ", GTR100 : " << kXSigma[2] << ", GTR200 : " << kXSigma[3] << ", GTR300 : " << kXSigma[4] << std::endl;
+  std::cout << "Sigma at Y Rough Fit :" << std::endl;
+  std::cout << "  GTR100 : " << kYSigma[0] << ", GTR200 : " << kYSigma[2] << ", GTR300 : " << kYSigma[2] << std::endl;
+  std::cout << "Minimum Hits in X Cluster : " << kMinHitsInXCluster << std::endl;
+  std::cout << "GTR Position Difference Threshold between Layers at Y Candidate Search : " << kGTRYDiffThreshold << std::endl;
+  std::cout << "GTR X ADC Peak Sum Threshold :" << std::endl;
+  std::cout << "  GTR100 : " << kGTRPeakSumThresholdX[0] << ", GTR200 : " << kGTRPeakSumThresholdX[1] << ", GTR300 : " << kGTRPeakSumThresholdX[2] << std::endl;
+  std::cout << "GTR Y ADC Peak Sum Threshold : " << kGTRPeakSumThresholdY << std::endl;
+  std::cout << "Rough Fit Chi Square Threshold :" << std::endl;
+  std::cout << "  X : " << kRoughFitChiSquareThreshold[0] << ", Y : " << kRoughFitChiSquareThreshold[1] << std::endl;
+  std::cout << "X Rough Fit Coefficient Threshold : " 
+            << kRoughXFitCoefficientThreshold[0] << ", " << kRoughXFitCoefficientThreshold[1] << kRoughXFitCoefficientThreshold[2] << std::endl;
+  std::cout << "Y Rough Fit Coefficient Threshold : " << kRoughYFitCoefficientThreshold[0] << ", " << kRoughYFitCoefficientThreshold[1] << std::endl;
+  std::cout << "HBD Projection Threshold : " << kHBDProjectionThreshold << std::endl;
+  std::cout << "LG  Projection Threshold : " << kLGProjectionThreshold << std::endl;
+  std::cout << "Near Target Threshold : " << kNearTargetThreshold << std::endl;
+  std::cout << "E16ANA_StepTrack Step Size [cm] : " << kStepTrackStepSizeCm << std::endl;
+  std::cout << "E16ANA_StepTrack Array Size : " << kStepTrackArraySize << std::endl;
 }
