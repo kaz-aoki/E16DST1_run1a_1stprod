@@ -22,7 +22,8 @@ constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[2] * kYSigma[2])};
 constexpr int kMinHitsInXCluster = 2;
 constexpr double kGTRYDiffThreshold = 20.; // mm
-constexpr std::array<double, 3> kGTRPeakSumThresholdX = {80., 150., 250.};
+//constexpr std::array<double, 3> kGTRPeakSumThresholdX = {80., 150., 250.};
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {50., 100., 200.};
 constexpr double kGTRPeakSumThresholdY = 50.;
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.001};
@@ -30,7 +31,8 @@ constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // c
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
-  if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
+//  if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
+  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) {
     return true;
   }
   return false;
