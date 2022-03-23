@@ -8,6 +8,7 @@ class E16ANA_GTRGEMDeadArea;
 class E16ANA_GTR100GEMDeadArea;
 class E16ANA_GTR200GEMDeadArea;
 class E16ANA_GTR300GEMDeadArea;
+
 class E16ANA_GTRStatus {
 protected:
 	enum {
@@ -35,7 +36,6 @@ private:
     E16ANA_GTR100GEMDeadArea *gem_dead_100;
     E16ANA_GTR200GEMDeadArea *gem_dead_200;
     E16ANA_GTR300GEMDeadArea *gem_dead_300;
-
 };	
 
 
@@ -75,6 +75,8 @@ public:
 	//virtual bool ReadDeadChannelData(const int runID);
 	//bool Is300YOK(const int module_id, const int strip_ch);
     virtual void Init();
+    bool IsXOK(const int module_id, const int ch);
+    bool IsYOK(const int module_id, const int ch);
 protected:
     int n_gem_strip_x;
     int n_gem_strip_y;
@@ -101,16 +103,16 @@ public:
 	E16ANA_GTR100GEMDeadArea()
 	: E16ANA_GTRGEMDeadArea(1,1){
 	};	
-	~E16ANA_GTR100GEMDeadArea();	
+	~E16ANA_GTR100GEMDeadArea(){};	
 	bool ReadDeadChannelData(const int runID);
 private:
 };
 class E16ANA_GTR200GEMDeadArea : public E16ANA_GTRGEMDeadArea {
 public:
 	E16ANA_GTR200GEMDeadArea()
-	: E16ANA_GTRGEMDeadArea(1,1){
+	: E16ANA_GTRGEMDeadArea(4,4){
 	};	
-	~E16ANA_GTR200GEMDeadArea();	
+	~E16ANA_GTR200GEMDeadArea(){};	
 	bool ReadDeadChannelData(const int runID);
 private:
 };
@@ -118,9 +120,9 @@ private:
 class E16ANA_GTR300GEMDeadArea : public E16ANA_GTRGEMDeadArea {
 public:
 	E16ANA_GTR300GEMDeadArea()
-	: E16ANA_GTRGEMDeadArea(1,1){
+	: E16ANA_GTRGEMDeadArea(12,24){
 	};	
-	~E16ANA_GTR300GEMDeadArea();	
+	~E16ANA_GTR300GEMDeadArea(){};	
 	bool ReadDeadChannelData(const int runID);
 private:
 };
