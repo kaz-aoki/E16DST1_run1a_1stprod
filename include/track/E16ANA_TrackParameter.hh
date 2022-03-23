@@ -9,8 +9,10 @@
 namespace E16ANA_TrackParameter {
 const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 const TVector3 kInitPosError = {3., 3.4, 0.};
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 120.};
-constexpr const std::array<double, 5> kXSigma = {100., 0.05, 0.1, 0.1, 0.1}; // x rough fit
+//constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 120.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.}; // 20220324 traditional parameter
+//constexpr const std::array<double, 5> kXSigma = {100., 0.05, 0.1, 0.1, 0.1}; // x rough fit
+constexpr const std::array<double, 5> kXSigma = {50., 0.05, 0.1, 0.1, 0.1}; // x rough fit 220324
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
@@ -23,16 +25,17 @@ constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
 constexpr int kMinHitsInXCluster = 2;
 constexpr double kGTRYDiffThreshold = 20.; // mm
 //constexpr std::array<double, 3> kGTRPeakSumThresholdX = {80., 150., 250.};
-constexpr std::array<double, 3> kGTRPeakSumThresholdX = {50., 100., 200.};
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {50., 100., 200.}; // 220323
 constexpr double kGTRPeakSumThresholdY = 50.;
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.001};
-constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
+//constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {30., 0.}; // coef[1] not used. 220324
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
 //  if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
-  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) {
+  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) { // 220323
     return true;
   }
   return false;
