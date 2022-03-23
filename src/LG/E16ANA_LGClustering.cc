@@ -136,8 +136,6 @@ int E16ANA_LGClustering::CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& 
   else{
     cluster.hids.clear();
     cluster.mid = hits.at(0).mid;
-    cluster.ly = hits.at(0).ly;
-    cluster.lz = hits.at(0).lz;
     float peaksum=0;
     float fasttiming=10000.;
     float latetiming=-10000;
@@ -146,6 +144,8 @@ int E16ANA_LGClustering::CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& 
     float maxpeak=-10000.;
     int maxcid=-10000;
     double lx = 0;
+    double ly = 0;
+    double lz = 0;
     for(int i=0;i<hits.size();i++){
       lghit hit = hits.at(i);
       cluster.hids.push_back(hit.hid);
@@ -155,9 +155,13 @@ int E16ANA_LGClustering::CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& 
       if(hit.timing>latetiming){latetiming = hit.timing;}
       if(hit.peak>maxpeak){maxpeak = hit.peak; maxcid=hit.cid;}
       lx += hit.peak*hit.lx;
+      ly += hit.peak*hit.ly;
+      lz += hit.peak*hit.lz;
     }
     timediff = latetiming - fasttiming;
     lx = lx/peaksum;
+    ly = ly/peaksum;
+    lz = lz/peaksum;
     cluster.peaksum = peaksum;
     cluster.fasttiming = fasttiming;
     cluster.timediff = timediff;
@@ -165,9 +169,101 @@ int E16ANA_LGClustering::CalcHitsToCluster(std::vector<lghit>& hits, lgcluster& 
     cluster.maxpeak = maxpeak;
     cluster.maxcid = maxcid;
     cluster.lx = lx;
+    cluster.ly = ly;
+    cluster.lz = lz;
     //std::cout<<cluster.hids.size()<<" "<<cluster.mid<<" "<<cluster.peaksum<<" "<<cluster.fasttiming<<" "<<cluster.timediff<<" "<<cluster.intsum<<" "<<cluster.maxcid<<" "<<cluster.maxpeak<<" "<<cluster.lx<<" "<<cluster.ly<<"CLUSTER"<<std::endl;
   }
 
   return hits.size();
+
+}
+
+void E16ANA_LGClustering::ClusteringXY(){
+
+  if(lghits.size()==0){return;}
+
+  sort(lghits.begin(),lghits.end());
+  std::vector<std::vector<lghit>> sorthits;
+  sorthits.push_back(std::vector<lghit>());
+  int n_pre_cluster=0;
+  int pre_cluster_tmp;
+  for(int isort=0;isort<lghits.size();isort++){
+    if( isort!=0 && lghits[isort].mid != pre_cluster_tmp ){
+      n_pre_cluster++;
+      sorthits.push_back(std::vector<lghit>());
+    }
+    pre_cluster_tmp = lghits[isort].mid;
+    sorthits[n_pre_cluster].push_back(lghits[isort]);
+  }
+  n_pre_cluster++;
+
+  std::vector<lghit> hits;
+  lgcluster cluster;
+  double tim_max=-10000;
+  double tim_min=10000;
+  double lx_max=-10000;
+  double lx_min=10000;
+  double ly_max=-10000;
+  double ly_min=10000;
+  for(int ipre=0;ipre<n_pre_cluster;ipre++){
+    while(sorthits[ipre].size()!=0){
+      lghit hita = sorthits[ipre].at(0);
+      sorthits[ipre].erase(sorthits[ipre].begin());
+      hits.push_back(hita);
+      CalcTimeRegion(hits,tim_max,tim_min);
+      CalcLocalXRegion(hits,lx_max,lx_min);
+      CalcLocalYRegion(hits,ly_max,ly_min);
+      int ihit=0;
+      int n_pre_hits = sorthits[ipre].size();
+      for(int iprehit=0;iprehit<n_pre_hits;iprehit++){
+	lghit hitb = sorthits[ipre].at(ihit);
+	if( hitb.lx>lx_min && hitb.lx<lx_max && hitb.ly>ly_min && hitb.ly<ly_max && hitb.timing>tim_min && hitb.timing<tim_max && (hitb.cid!=hita.cid) ){
+	  hits.push_back(hitb);
+	  CalcTimeRegion(hits,tim_max,tim_min);
+	  CalcLocalXRegion(hits,lx_max,lx_min);
+	  CalcLocalYRegion(hits,ly_max,ly_min);
+	  sorthits[ipre].erase(sorthits[ipre].begin()+ihit);
+	}
+	else{
+	  ihit++;
+	}
+      }
+      CalcHitsToCluster(hits,cluster);
+      lgclusters.push_back(cluster);
+      hits.clear();
+    }
+  }
+
+}
+
+void E16ANA_LGClustering::CalcLocalXRegion(std::vector<lghit>& hits, double& lx_max, double& lx_min){
+
+  double hitlx_max = -10000.;
+  double hitlx_min = 10000.;
+  int n_size = hits.size();
+  for(int i=0;i<n_size;i++){
+    lghit hit = hits.at(i);
+    if(hit.lx>hitlx_max){ hitlx_max = hit.lx; }
+    if(hit.lx<hitlx_min){ hitlx_min = hit.lx; }
+  }
+
+  lx_max = hitlx_max + lx_threshold;
+  lx_min = hitlx_min - lx_threshold;
+
+}
+
+void E16ANA_LGClustering::CalcLocalYRegion(std::vector<lghit>& hits, double& ly_max, double& ly_min){
+
+  double hitly_max = -10000.;
+  double hitly_min = 10000.;
+  int n_size = hits.size();
+  for(int i=0;i<n_size;i++){
+    lghit hit = hits.at(i);
+    if(hit.ly>hitly_max){ hitly_max = hit.ly; }
+    if(hit.ly<hitly_min){ hitly_min = hit.ly; }
+  }
+
+  ly_max = hitly_max + ly_threshold;
+  ly_min = hitly_min - ly_threshold;
 
 }

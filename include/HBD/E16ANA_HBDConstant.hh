@@ -18,12 +18,15 @@ namespace HBD_Module_Constant{
   constexpr int module_ids[E16DST_Constant::NModules] = {101, 102, 103, 104, 106, 107, 108, 109};
   constexpr int rotated_module_ids[3] = {101, 102, 104}; // ask Kanno
   constexpr int normal_module_ids[5] = {103, 106, 107, 108, 109}; // ask Kanno
-  constexpr int n_chips = 24;//apv25 chips per 2 modules
+  constexpr int n_chips = 24;//number of apv25 chips per 2 modules
+  constexpr int n_GEMs = 4;//number of GEM stacks per module
+  constexpr int n_tiles = 36;//number of triggertiles per module
   constexpr int n_pads = 1400;//hbd pads per module
 }
 
 namespace HBD_Circuit_Constant{
   constexpr int apv25_period = 24; //nsec
+  constexpr int SRS_ATCA_TDC = 2; //nsec
 }
 
 #endif

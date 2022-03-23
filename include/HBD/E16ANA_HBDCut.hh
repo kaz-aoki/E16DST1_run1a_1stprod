@@ -12,6 +12,7 @@ public:
   bool ReadFile(const char* filename);
   double GetNSigmaWfDST1(){ return n_sigma_wf_dst1; };
   int GetNWavesDST1(){ return n_waves_dst1; };
+  double GetThWaveformChi2(){ return th_wf_chi2; };
   int GetThCSizeDST1(){ return th_csize_dst1; };
   double GetThCChargeDST1(){ return th_ccharge_dst1; };
   double GetNSigmaCADCDST1(){ return n_sigma_cadc;};
