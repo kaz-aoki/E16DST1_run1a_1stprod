@@ -3068,8 +3068,7 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairsWoRefit() {
 }
 
 void E16ANA_TrackAnalyzerFromTree::UpdatePrevEvents() {
-  auto n_events = prev_events.size();
-  while (n_events >= 11) {
+  while (prev_events.size() >= 11) {
     prev_events.erase(prev_events.begin());
   }
   prev_events.emplace_back();
