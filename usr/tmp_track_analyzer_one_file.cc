@@ -25,6 +25,9 @@ constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; /
 //constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWClusterDup; // 0 : electron, 1 : pion (Ks)
 //constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWDiffChargeYClusterDup; // 0 : electron, 1 : pion (Ks)
 
+constexpr bool kIsEventMix = true;
+//constexpr bool kIsEventMix = false;
+
 int main(int argc, char* argv[]) {
   if (argc != 3) {
     cerr << "./bin [input.root] [output.root]" << endl;
@@ -50,7 +53,7 @@ int main(int argc, char* argv[]) {
   auto in_file = new TFile(in_file_name);
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
-  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, geometry, bfield_map, &pair_fitter, out_file);
+  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, kIsEventMix, geometry, bfield_map, &pair_fitter, out_file);
   analyzer.Loop();
 
   delete geometry;

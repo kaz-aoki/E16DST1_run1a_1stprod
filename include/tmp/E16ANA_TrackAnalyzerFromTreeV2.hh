@@ -1500,11 +1500,11 @@ class E16ANA_TrackAnalyzerFromTree {
   TBranch        *b_rk_pair_plus_gtr300_res_refit_z;   //!
   TBranch        *b_rk_pair_mass_refit;   //!
 
-  E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _analyze_flag,
+  E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, bool is_event_mix,
                                E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
 //  E16ANA_TrackAnalyzerFromTree(TTree *tree,   int _analyze_flag,
 //                                 E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter);
-  E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag,
+  E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag, bool is_event_mix,
                                  E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file);
   virtual ~E16ANA_TrackAnalyzerFromTree();
   virtual Int_t    Cut(Long64_t entry);
@@ -1515,6 +1515,18 @@ class E16ANA_TrackAnalyzerFromTree {
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
  private:
+  struct Track {
+    int track_index;
+    int charge;
+    TVector3 init_pos;
+    TVector3 init_mom;
+    TVector3 layer_pos[4];
+    int mid[4];
+  };
+  struct PrevEvent {
+    int entry_index;
+    std::vector<Track> tracks;
+  };
   int ModuleID(int module_id);
   void FillClusterInfo();
 //  void InitOutTree();
@@ -1544,6 +1556,8 @@ class E16ANA_TrackAnalyzerFromTree {
   void AddTracks(const int track_index_pair[], double tgt_z);
   void FillTVector3ToDouble(TVector3 t_vector, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
   void ProjectionHBDAndLG(const TVector3& vertex, const TVector3& mom, double charge, int track_index,
+                          TVector3 out_lposs[], TVector3 out_gposs[], TVector3 out_lmoms[], TVector3 out_gmoms[]);
+  void ProjectionHBDAndLG(const TVector3& vertex, const TVector3& mom, double charge, const int mid[],
                           TVector3 out_lposs[], TVector3 out_gposs[], TVector3 out_lmoms[], TVector3 out_gmoms[]);
   double CalcMass(int flag, TVector3 mom0, TVector3 mom1);
   void ProjectionX0(int pair_index, TVector3 pos, TVector3 mom);
@@ -1582,10 +1596,23 @@ class E16ANA_TrackAnalyzerFromTree {
 //  void SelectPionTracksWClusterDuplicate();
   void FillTreeWoRefit(const int track_indexs_index_pair[], const TVector3& vtx, const TVector3& minus_mom, const TVector3& plus_mom, double distance);
   void AnalyzePionTrackPairsWoRefit();
+  void UpdatePrevEvents();
+  double SearchMixedVertex(const int eindex[], const int tindex[], TVector3* vtx_pos, TVector3* minus_mom, TVector3* plus_mom);
+  void AddMixedPionTracks(const int entry_index_index_pair[], const int track_index_index_pair[]);
+  void UpdateMixedFitResult(const int entry_index_index_pair[], const int track_index_index_pair[],
+                            const TVector3& tmp_vtx, const TVector3& tmp_minus_mom, const TVector3& tmp_plus_mom, const std::array<std::array<int, 4>, 2>& mid,
+                            const std::array<std::array<TVector3, 4>, 2>& lpos, const std::array<std::array<TVector3, 4>, 2>& lmom,
+                            const std::array<std::array<TVector3, 4>, 2>& gpos, const std::array<std::array<TVector3, 4>, 2>& gmom,
+                            const std::array<std::array<TVector3, 4>, 2>& lres);
+  void MixedPionPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]);
+  void AnalyzeMixedPionTrackPairs();
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both
   int particle_flag; // 0 : electron, 1 : pion
+  bool is_event_mix;
+  Long64_t jentry;
   std::vector<int> selected_track_indexs;
   std::vector<std::vector<double>> selected_track_lg_hit_ts;
+  std::vector<PrevEvent> prev_events;
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* pair_fitter;
@@ -2102,9 +2129,9 @@ class E16ANA_TrackAnalyzerFromTree {
 #endif
 
 #ifdef E16ANA_TrackAnalyzerFromTreeV2_cxx
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map,
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, bool _is_event_mix, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map,
                                                            E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(nullptr), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+    : fChain(nullptr), analyze_flag(_analyze_flag), is_event_mix(_is_event_mix), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
 //E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter)
 //    : fChain(nullptr), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter) {
 // if parameter tree is not specified (or zero), connect the file
@@ -2125,8 +2152,8 @@ E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TTree *tree, int _ana
   InitOutTrees();
 }
 
-E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
-    : fChain(0), analyze_flag(_analyze_flag), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
+E16ANA_TrackAnalyzerFromTree::E16ANA_TrackAnalyzerFromTree(TChain *chain, int _analyze_flag, bool _is_event_mix, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _pair_fitter, TFile* _out_file)
+    : fChain(0), analyze_flag(_analyze_flag), is_event_mix(_is_event_mix), geometry(_geometry), bfield_map(_bfield_map), pair_fitter(_pair_fitter), out_file(_out_file) {
 std::cout << chain->GetEntries() << std::endl;
   Init(dynamic_cast<TTree*>(chain));
   out_tree  = new TTree("tree",  "tree");
