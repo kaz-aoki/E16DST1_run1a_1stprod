@@ -3233,8 +3233,8 @@ void E16ANA_TrackAnalyzerFromTree::UpdateMixedFitResult(const int entry_index_in
   FillTVector3ToDouble(lres[1][3], &out_plus_gtr300_res_x,   &out_plus_gtr300_res_y,   &out_plus_gtr300_res_z);
   for (int tid = 0; tid < 2; ++tid) {
     auto& track = prev_events[entry_index_index_pair[tid]].tracks[track_index_index_pair[tid]];
-    fChain->GetEntry(entry_index_index_pair[tid]);
-    auto tindex = track_index_index_pair[tid];
+    fChain->GetEntry(prev_events[entry_index_index_pair[tid]].entry_index);
+    auto tindex = track.track_index;
     TVector3 hit_lpos[track_const::kNumTrackingLayers];
     int tmp_mid[4];
     tmp_mid[0] = rk_fit_hbd_mid->at(tindex);
@@ -3838,6 +3838,9 @@ void E16ANA_TrackAnalyzerFromTree::MixedPionPairTracking(const int entry_index_i
 }
 
 void E16ANA_TrackAnalyzerFromTree::AnalyzeMixedPionTrackPairs() {
+  if (selected_track_indexs.size() == 0) {
+    return;
+  }
   UpdatePrevEvents();
   auto n_events = prev_events.size();
   if (n_events < 2) {
@@ -3870,7 +3873,7 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeMixedPionTrackPairs() {
       }
     }
   }
-  SelectTrackPairs();
+//  SelectTrackPairs();
   out_tree1->Fill();
   return;
 }
