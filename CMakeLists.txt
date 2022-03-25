@@ -325,14 +325,14 @@ target_link_libraries(tmp_track_analyzer
 #  E16DST_DST1
 #)
 #
-##_______________________________________________________________________________
-#add_executable(check_position_resolution usr/check_position_resolution.cc)
-#
-#target_link_libraries(check_position_resolution
-#  E16DST_DST1
-#)
-#
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(check_position_resolution usr/tmp/check_position_resolution.cc)
+
+target_link_libraries(check_position_resolution
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 #add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
 #
 #target_link_libraries(draw_dead_channel_map
