@@ -3872,7 +3872,12 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeMixedPionTrackPairs() {
       }
     }
   }
+  out_n_pairs = out_chi_square.size();
+  out_is_selected.assign(out_n_pairs, false);
 //  SelectTrackPairs();
+for (const auto& chi2 : out_chi_square) {
+  std::cout << chi2 << std::endl;
+}
   out_tree1->Fill();
   return;
 }
