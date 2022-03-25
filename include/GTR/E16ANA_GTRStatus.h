@@ -5,6 +5,10 @@
 
 class E16ANA_GTRASDDeadChannel;
 class E16ANA_GTRGEMDeadArea;
+class E16ANA_GTR100GEMDeadArea;
+class E16ANA_GTR200GEMDeadArea;
+class E16ANA_GTR300GEMDeadArea;
+
 class E16ANA_GTRStatus {
 protected:
 	enum {
@@ -21,14 +25,17 @@ public:
 	bool Is300YOK(const int module_id, const int ch);
 	int  StatusYch(const int module_id, const int ch);
 	E16ANA_GTRASDDeadChannel* ASDDeadChannel(){return asd_dead;}
-	E16ANA_GTRGEMDeadArea* GEMDeadArea(){return gem_dead;}
+	E16ANA_GTR100GEMDeadArea* GEMDeadArea100(){return gem_dead_100;}
+	E16ANA_GTR200GEMDeadArea* GEMDeadArea200(){return gem_dead_200;}
+	E16ANA_GTR300GEMDeadArea* GEMDeadArea300(){return gem_dead_300;}
 	void Init();
 
 private:
 	int status_ych[n_modules][n_ychs];
 	E16ANA_GTRASDDeadChannel *asd_dead;
-    E16ANA_GTRGEMDeadArea *gem_dead;
-
+    E16ANA_GTR100GEMDeadArea *gem_dead_100;
+    E16ANA_GTR200GEMDeadArea *gem_dead_200;
+    E16ANA_GTR300GEMDeadArea *gem_dead_300;
 };	
 
 
@@ -62,24 +69,64 @@ private:
 
 class E16ANA_GTRGEMDeadArea {
 public:
-	E16ANA_GTRGEMDeadArea();
+	E16ANA_GTRGEMDeadArea(int _n_gem_strip_x, int _n_gem_strip_y);
 	~E16ANA_GTRGEMDeadArea();
-	bool ReadFile(const char *filename);
-	bool ReadDeadChannelData(const int runID);
-	bool Is300YOK(const int module_id, const int strip_ch);
-    void Init();
-private:
+	bool ReadFile(const char *filename, int xy);
+	//virtual bool ReadDeadChannelData(const int runID);
+	//bool Is300YOK(const int module_id, const int strip_ch);
+    virtual void Init();
+    bool IsXOK(const int module_id, const int ch);
+    bool IsYOK(const int module_id, const int ch);
+protected:
+    int n_gem_strip_x;
+    int n_gem_strip_y;
 	enum {
 		n_modules = E16DST_DST1Constant::n_gtr_modules, 
-		n_ychs = E16DST_DST1Constant::n_gtr_asd_chs,
+		//n_ychs = E16DST_DST1Constant::n_gtr_asd_chs,
 		ok_flag = 0,
 		dead_flag = 1,
 	 	noisy_flag = 2, 
 		hot_flag = 3
 	};
-	int status_300gem_x[n_modules][12];
-	int status_300gem_y[n_modules][n_ychs];
+	//int status_gem_x[n_modules][n_gem_strip_x];
+	//int status_gem_y[n_modules][n_gem_strip_y];
+	std::vector<std::vector<int>> status_gem_x;
+	std::vector<std::vector<int>> status_gem_y;
 };
+
+class E16ANA_GTR100GEMDeadArea;
+class E16ANA_GTR200GEMDeadArea;
+class E16ANA_GTR300GEMDeadArea;
+
+class E16ANA_GTR100GEMDeadArea : public E16ANA_GTRGEMDeadArea {
+public:
+	E16ANA_GTR100GEMDeadArea()
+	: E16ANA_GTRGEMDeadArea(1,1){
+	};	
+	~E16ANA_GTR100GEMDeadArea(){};	
+	bool ReadDeadChannelData(const int runID);
+private:
+};
+class E16ANA_GTR200GEMDeadArea : public E16ANA_GTRGEMDeadArea {
+public:
+	E16ANA_GTR200GEMDeadArea()
+	: E16ANA_GTRGEMDeadArea(4,4){
+	};	
+	~E16ANA_GTR200GEMDeadArea(){};	
+	bool ReadDeadChannelData(const int runID);
+private:
+};
+
+class E16ANA_GTR300GEMDeadArea : public E16ANA_GTRGEMDeadArea {
+public:
+	E16ANA_GTR300GEMDeadArea()
+	: E16ANA_GTRGEMDeadArea(12,24){
+	};	
+	~E16ANA_GTR300GEMDeadArea(){};	
+	bool ReadDeadChannelData(const int runID);
+private:
+};
+
 
 
 #endif //E16ANA_GTRStatus_h

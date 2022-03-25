@@ -10,15 +10,24 @@
 
 E16ANA_GTRStatus::E16ANA_GTRStatus(const int runID){
 	asd_dead = new E16ANA_GTRASDDeadChannel();
-	gem_dead = new E16ANA_GTRGEMDeadArea();
+	gem_dead_100 = new E16ANA_GTR100GEMDeadArea();
+	gem_dead_200 = new E16ANA_GTR200GEMDeadArea();
+	gem_dead_300 = new E16ANA_GTR300GEMDeadArea();
     asd_dead->ReadDeadChannelData(runID);
-    gem_dead->ReadDeadChannelData(runID);
-	
+	gem_dead_100->Init();
+	gem_dead_200->Init();
+	gem_dead_300->Init();
+    gem_dead_100->ReadDeadChannelData(runID);
+    gem_dead_200->ReadDeadChannelData(runID);
+    gem_dead_300->ReadDeadChannelData(runID);
 }
 
 E16ANA_GTRStatus::~E16ANA_GTRStatus()
 {
 	delete asd_dead;
+    delete gem_dead_100;
+    delete gem_dead_200;
+    delete gem_dead_300;
 }
 
 E16ANA_GTRASDDeadChannel::E16ANA_GTRASDDeadChannel(){
@@ -28,13 +37,12 @@ E16ANA_GTRASDDeadChannel::~E16ANA_GTRASDDeadChannel(){
 }
 
 
-E16ANA_GTRGEMDeadArea::E16ANA_GTRGEMDeadArea(){
-
+E16ANA_GTRGEMDeadArea::E16ANA_GTRGEMDeadArea(int _n_strip_gem_x, int _n_strip_gem_y)
+	: n_gem_strip_x(_n_strip_gem_x), n_gem_strip_y(_n_strip_gem_y){
+	
 }
 E16ANA_GTRGEMDeadArea::~E16ANA_GTRGEMDeadArea(){
 }
-
-
 
 bool E16ANA_GTRASDDeadChannel::ReadFile(const char *filename){
   Init();
@@ -55,7 +63,7 @@ bool E16ANA_GTRASDDeadChannel::ReadFile(const char *filename){
       int ch;
       int buf_status;
       ss>>module_id>>ch>>buf_status;
-	  std::cout << "module" << module_id << "ch " << ch << ", " << buf_status << std::endl;
+	 // std::cout << "reading file :: module" << module_id << "ch " << ch << ", " << buf_status << std::endl;
       if(E16ANA_GTRChannelManager::IsValidASDID(module_id, ch)){
 		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
 		status_asd[k_module][ch] = buf_status;
@@ -69,18 +77,14 @@ bool E16ANA_GTRASDDeadChannel::ReadFile(const char *filename){
   }
 }
 
-	
-
-
-
 bool E16ANA_GTRStatus::Is300YOK(const int module_id, const int ch){
   bool flag = false;
   if(E16ANA_GTRChannelManager::IsValidASDID(module_id, ch)){
 	int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
   	if(asd_dead->IsOK(module_id, ch)){
-		if(gem_dead->Is300YOK(module_id, ch)){
-			flag = true;
-		}
+		//if(gem_dead->Is300YOK(module_id, ch)){
+		//	flag = true;
+		//}
 	} 
    }
    return flag;
@@ -173,16 +177,74 @@ void E16ANA_GTRASDDeadChannel::Init(){
   }
 }
 void E16ANA_GTRGEMDeadArea::Init(){
+  status_gem_x.resize(n_modules);
+  status_gem_y.resize(n_modules); 
+  for(int i =0; i< n_modules; i++){
+  	status_gem_x[i].resize(n_gem_strip_x);
+  	status_gem_y[i].resize(n_gem_strip_y);
+  }
   for(int i=0; i<n_modules; i++){
-    for(int j=0; j<n_ychs; j++){
-      status_300gem_y[i][j] = -1;
+    for(int j=0; j<n_gem_strip_x; j++){
+      status_gem_x[i][j] = -1;
+    }
+    for(int j=0; j<n_gem_strip_y; j++){
+      status_gem_y[i][j] = -1;
     }
   }
 }
+//void E16ANA_GTR100GEMDeadArea::Init(){
+//  for(int i=0; i<n_modules; i++){
+//    for(int j=0; j<n_gem_strip_x; j++){
+//      status_gem_x[i][j] = -1;
+//    }
+//    for(int j=0; j<n_gem_strip_y; j++){
+//      status_gem_y[i][j] = -1;
+//    }
+//  }
+//}
+//void E16ANA_GTR200GEMDeadArea::Init(){
+//  for(int i=0; i<n_modules; i++){
+//    for(int j=0; j<n_gem_strip_x; j++){
+//      status_gem_x[i][j] = -1;
+//    }
+//    for(int j=0; j<n_gem_strip_y; j++){
+//      status_gem_y[i][j] = -1;
+//    }
+//  }
+//}
+//void E16ANA_GTR300GEMDeadArea::Init(){
+//  for(int i=0; i<n_modules; i++){
+//    for(int j=0; j<n_gem_strip_x; j++){
+//      status_gem_x[i][j] = -1;
+//    }
+//    for(int j=0; j<n_gem_strip_y; j++){
+//      status_gem_y[i][j] = -1;
+//    }
+//  }
+//}
+bool E16ANA_GTRGEMDeadArea::IsXOK(const int module_id, const int ch){
+  bool flag = false;
+	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
+	int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
+  	if(status_gem_x[k_module][ch] == ok_flag) {
+		flag = true;
+	}
+   }
+   return flag;
+}
 
+bool E16ANA_GTRGEMDeadArea::IsYOK(const int module_id, const int ch){
+  bool flag = false;
+	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
+	int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
+  	if(status_gem_y[k_module][ch] == ok_flag) {
+		flag = true;
+	}
+   }
+   return flag;
+}
 
-bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename){
-  Init();
+bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename, int xy){//x == 0 , y == 1
   std::ifstream fin(filename);
   if( fin ){
     std::string buf_line;
@@ -200,10 +262,11 @@ bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename){
       int ch;
       int buf_status;
       ss>>module_id>>ch>>buf_status;
-	  std::cout << "module" << module_id << "ch " << ch << ", " << buf_status << std::endl;
-      if(E16ANA_GTRChannelManager::IsValidASDID(module_id, ch)){
+//	  std::cout << "reading GEM dead file : module" << module_id << "ch " << ch << ", " << buf_status << std::endl;
+      if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
 		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
-		status_300gem_y[k_module][ch] = buf_status;
+		if(xy == 0) status_gem_x[k_module][ch] = buf_status;
+		else if(xy == 1) status_gem_y[k_module][ch] = buf_status;
       }
     }
     return true;
@@ -213,23 +276,42 @@ bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename){
     return false;
   }
 }
-
-bool E16ANA_GTRGEMDeadArea::ReadDeadChannelData(const int runID){
+bool E16ANA_GTR100GEMDeadArea::ReadDeadChannelData(const int runID){
   E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
-  std::string gtr_300gem_dead_channel_file = calib.CalibFileName("GTR-300gemy-status", runID);
-  this->ReadFile(gtr_300gem_dead_channel_file.c_str());
+  std::string gtr_100gem_dead_channel_file_x = calib.CalibFileName("GTR-100gemx-status", runID);
+  if(this->ReadFile(gtr_100gem_dead_channel_file_x.c_str(), 0)){ return true;}
+	else {std::cout << "failed to read 100x gem dead file " << std::endl; return false;}
+  std::string gtr_100gem_dead_channel_file_y = calib.CalibFileName("GTR-100gemy-status", runID);
+  if(this->ReadFile(gtr_100gem_dead_channel_file_y.c_str(), 1)){ return true;}
+    else {return false;}
+}
+bool E16ANA_GTR200GEMDeadArea::ReadDeadChannelData(const int runID){
+  E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
+  std::string gtr_200gem_dead_channel_file_x = calib.CalibFileName("GTR-200gemx-status", runID);
+  this->ReadFile(gtr_200gem_dead_channel_file_x.c_str(), 0);
+  std::string gtr_200gem_dead_channel_file_y = calib.CalibFileName("GTR-200gemy-status", runID);
+  this->ReadFile(gtr_200gem_dead_channel_file_y.c_str(), 1);
   return true;
 }
 
-bool E16ANA_GTRGEMDeadArea::Is300YOK(const int module_id, const int ch){
-  bool flag = false;
-  if(E16ANA_GTRChannelManager::IsValidASDID(module_id, ch)){
-	int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
-  	if(status_300gem_y[k_module][ch] == ok_flag) {
-		flag = true;
-	}
-   }
-   return flag;
+bool E16ANA_GTR300GEMDeadArea::ReadDeadChannelData(const int runID){
+  E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
+  std::string gtr_300gem_dead_channel_file_x = calib.CalibFileName("GTR-300gemx-status", runID);
+  this->ReadFile(gtr_300gem_dead_channel_file_x.c_str(), 0);
+  std::string gtr_300gem_dead_channel_file_y = calib.CalibFileName("GTR-300gemy-status", runID);
+  this->ReadFile(gtr_300gem_dead_channel_file_y.c_str(), 1);
+  return true;
 }
+
+//bool E16ANA_GTRGEMDeadArea::Is300YOK(const int module_id, const int ch){
+//  bool flag = false;
+//  if(E16ANA_GTRChannelManager::IsValidASDID(module_id, ch)){
+//	int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
+//  	if(status_300gem_y[k_module][ch] == ok_flag) {
+//		flag = true;
+//	}
+//   }
+//   return flag;
+//}
 
 
