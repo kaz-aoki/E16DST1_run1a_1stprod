@@ -146,7 +146,8 @@ target_link_libraries(E16DST_DST1
 
 #_______________________________________________________________________________
 add_library(E16ANA_Track
-  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+#  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
 )
 
 target_link_libraries(E16ANA_Track
@@ -325,5 +326,19 @@ target_link_libraries(tmp_track_analyzer
 #)
 #
 #_______________________________________________________________________________
+add_executable(check_position_resolution usr/tmp/check_position_resolution.cc)
+
+target_link_libraries(check_position_resolution
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+#add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
+#
+#target_link_libraries(draw_dead_channel_map
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

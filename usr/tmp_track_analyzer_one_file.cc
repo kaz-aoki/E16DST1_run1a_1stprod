@@ -13,13 +13,20 @@
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
-#include "E16ANA_TrackAnalyzerFromTree.hh"
-#include "E16ANA_TrackAnalyzerFromTreeParameter.hh"
+#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
+#include "E16ANA_TrackAnalyzerFromTreeParameterV2.hh"
 
 using namespace std;
 
-const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
-//const int kParticleFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
+constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kBothFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWoRefitFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWClusterDup; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWDiffChargeYClusterDup; // 0 : electron, 1 : pion (Ks)
+
+constexpr bool kIsEventMix = true;
+//constexpr bool kIsEventMix = false;
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
@@ -46,11 +53,13 @@ int main(int argc, char* argv[]) {
   auto in_file = new TFile(in_file_name);
   auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
-  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kParticleFlag, geometry, bfield_map, &pair_fitter, out_file);
+  E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, kIsEventMix, geometry, bfield_map, &pair_fitter, out_file);
   analyzer.Loop();
-  
+
   delete geometry;
   delete bfield_map;
+  delete in_tree;
   delete in_file;
+  delete out_file;
   return 0;
 }

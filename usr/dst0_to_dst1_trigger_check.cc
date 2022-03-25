@@ -19,6 +19,7 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 
 #include "E16ANA_TrackCheckFile.hh"
+//#include "E16ANA_TrackCheckFile_wolgfit.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -97,6 +98,7 @@ int main(int argc, char* argv[]) {
   hbd_cut->ReadCutData(calib.CurrentRunID());
   std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
   E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
   lgbasic.SetCalibMap();
   E16ANA_TriggerCalibParam trigger_param;
   trigger_param.ReadConstantData(calib.CurrentRunID());
@@ -179,8 +181,8 @@ int main(int argc, char* argv[]) {
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
-//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0);
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry);
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
+//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
