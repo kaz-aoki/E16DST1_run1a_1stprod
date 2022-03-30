@@ -10,7 +10,8 @@
 #include "E16ANA_HBDGeometry.hh"
 #include "E16ANA_TrackCandidate.hh"
 
-#include "E16ANA_TrackCheckFile.hh"
+//#include "E16ANA_TrackCheckFile.hh"
+#include "E16ANA_TrackCheckFile_wolgfit.hh"
 
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* ssd1);
 int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal& gtrped,

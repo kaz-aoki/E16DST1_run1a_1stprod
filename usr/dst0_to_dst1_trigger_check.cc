@@ -1,3 +1,5 @@
+#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
+
 #include <iostream>
 #include <TROOT.h>
 #include <TH1.h>
@@ -18,8 +20,11 @@
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
+#ifndef WO_LG_FIT
 #include "E16ANA_TrackCheckFile.hh"
-//#include "E16ANA_TrackCheckFile_wolgfit.hh"
+#else
+#include "E16ANA_TrackCheckFile_wolgfit.hh"
+#endif
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -181,15 +186,22 @@ int main(int argc, char* argv[]) {
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
+#ifndef WO_LG_FIT
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
-//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
+#else
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
+#endif
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
 //cout << event0->EventID() << endl;
+#ifndef WO_LG_FIT
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record);
+#else
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
+#endif
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
