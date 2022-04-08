@@ -2536,7 +2536,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double trk_momxz = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);//220213
-	int hbdise = 1;
+	int hbdise = 0;
 	int lgise = 0;
 	// if ( runoption==0 && trk_momxz<1.0 ) continue;//220213
 	if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
@@ -2631,6 +2631,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){
 	  if ( hbd_cluster_t->at(ihbd)>200 ) continue;
 	  if ( runoption==3 && hbdise==1 && hbd_cluster_eprob->at(ihbd)<1 ) continue;//220213;
+	  // if ( runoption==3 && hbdise==1 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<7*60) ) continue;//220407;
 	  if ( runoption==3 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1||hbd_cluster_adc->at(ihbd)>3) ) continue;//220213;
 	  if ( runoption==3 && hbdise==3 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<10) ) continue;//220307;
 	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<4) ) continue;//220213;
@@ -2673,6 +2674,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	  for(int ihbd=0;ihbd<n_hbd_clusters_tmp;ihbd++){
 	    if ( hbd_cluster_t_tmp.at(ihbd)>200 ) continue;
 	    if ( runoption==3 && hbdise==1 && hbd_cluster_eprob_tmp.at(ihbd)<1 ) continue;//220213
+	    // if ( runoption==3 && hbdise==1 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<7*60) ) continue;//220407;
 	    if ( runoption==3 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1||hbd_cluster_adc_tmp.at(ihbd)>3) ) continue;//220213;
 	    if ( runoption==3 && hbdise==3 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<10) ) continue;//220307
 	    if ( runoption==3 && hbdise==4 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<4) ) continue;//220213

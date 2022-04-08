@@ -18,6 +18,7 @@
 using namespace std;
 
 // Header file for the classes stored in the TTree if any.
+#include "SingleTrackAnalyzerForRes.hh"
 #include "vector"
 #include "vector"
 #include "vector"
@@ -219,6 +220,8 @@ public :
    AnalyzerTrackSelection(TTree *tree=0);
    virtual ~AnalyzerTrackSelection();
    virtual Int_t    Cut(Long64_t entry);
+   virtual Int_t    Cut(Long64_t entry, std::vector<int>& goodtracks);
+   virtual Int_t    CutOfTrack(Long64_t entry, int itrack, std::vector<int>& goodtracks);
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack, int runoption );
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack );
    virtual Int_t    GetEntry(Long64_t entry);
@@ -493,11 +496,66 @@ void AnalyzerTrackSelection::Show(Long64_t entry)
 }
 Int_t AnalyzerTrackSelection::Cut(Long64_t entry)
 {
-// This function may be called from Loop.
-// returns  1 if entry is accepted.
-// returns -1 otherwise.
-  // if (n_tracks>4) continue;//220224
-   return 1;
+  std::vector<int> goodtracks(1);
+  return Cut(entry,goodtracks);
+}
+Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
+{
+  if(goodtracks.size()==1){return 1;}
+  else{
+
+  struct set{
+    int track_id;
+    double chisq;
+    int pos_id;
+    double tim;
+
+    bool operator<(const set& another){
+      if( pos_id != another.pos_id ){ return pos_id<another.pos_id; }
+      if( tim != another.tim ){ return tim<another.tim; }
+      return chisq < another.chisq;
+    }
+
+  };
+  std::vector<set> tracks(0);
+  // std::cout<<n_tracks<<std::endl;
+  for(int i=0;i<n_tracks;i++){
+    if(chi_square->at(i)>30.) continue;
+    if(fabs(track_position_block_lx->at(i))>30) continue;
+    if(fabs(track_position_block_ly->at(i))>30) continue;
+    set settmp;
+    settmp.track_id = track_id->at(i);
+    settmp.chisq = chi_square->at(i);
+    int mid = track_lg_mid->at(i);
+    int blockchx = (track_lg_lx->at(i))-(track_position_block_lx->at(i));
+    int blockchy = (track_lg_ly->at(i)/fabs(track_lg_ly->at(i)))*(fabs(track_lg_ly->at(i))+track_position_block_ly->at(i));
+    int cid = SingleTrackAnalyzerForRes::LocaltoCh(blockchx,blockchy);
+    settmp.pos_id = mid*100+cid;
+    settmp.tim = track_ssd_t->at(i);
+    // std::cout<<settmp.pos_id<<" "<<settmp.tim<<" "<<settmp.chisq<<std::endl;
+    tracks.push_back(settmp);
+  }
+
+  sort(tracks.begin(),tracks.end());
+
+  int tmp_pos_id=10000;
+  for(int i=0;i<tracks.size();i++){
+    // std::cout<<tracks.at(i).pos_id<<" "<<tracks.at(i).tim<<" "<<tracks.at(i).chisq<<std::endl;
+    if(tracks.at(i).pos_id!=tmp_pos_id){
+      goodtracks.push_back(tracks.at(i).track_id);
+      tmp_pos_id = tracks.at(i).pos_id;
+    }
+  }
+
+  return 1;
+  }
+}
+Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, std::vector<int> &goodtracks)
+{
+  for(int i=0;i<goodtracks.size();i++){
+    if(track_id->at(itrack)==goodtracks.at(i)){return 1;}
+  }
+  return -1;
 }
 Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runoption)
 {

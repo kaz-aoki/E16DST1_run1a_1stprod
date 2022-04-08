@@ -601,6 +601,10 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
    TH2F* hlghitsumd[5];
    TH1F* hlghitsum1d[5];
    TH1F* hlghitsum1dd[5];
+   TH1F* hedivp[5];
+   TH1F* hedivpd[5];
+   TH1F* hesubp[5];
+   TH1F* hesubpd[5];
    TH2F* htimssdlg[5];
    TH1F* htimssdlg1d[5];
    TH1F* hnlghitwt[5];
@@ -618,6 +622,10 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
      hlghitsumd[i] = new TH2F(Form("hlghitsumd%d",i),Form("LG_HitAdcSumVsMom_dummy_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
      hlghitsum1d[i] = new TH1F(Form("hlghitsum1d%d",i),Form("LG_HitAdcSum/Mom_TrackAssociate_mod%d",103+i),50,0,400);
      hlghitsum1dd[i] = new TH1F(Form("hlghitsum1dd%d",i),Form("LG_HitAdcSum/Mom_dummy_TrackAssociate_mod%d",103+i),50,0,400);
+     hedivp[i] = new TH1F(Form("hedivp%d",i),Form("LG_HitAdc/Mom_TrackAssociate_mod%d",103+i),50,0,400);
+     hedivpd[i] = new TH1F(Form("hedivpd%d",i),Form("LG_HitAdc/Mom_dummy_TrackAssociate_mod%d",103+i),50,0,400);
+     hesubp[i] = new TH1F(Form("hesubp%d",i),Form("LG_HitAdc-250*Mom_TrackAssociate_mod%d",103+i),50,-200,200);
+     hesubpd[i] = new TH1F(Form("hesubpd%d",i),Form("LG_HitAdc-250*Mom_dummy_TrackAssociate_mod%d",103+i),50,-200,200);
      htimssdlg[i] = new TH2F(Form("htimssdlg%d",i),Form("Timing_SSDvsLG_TrackAssociate_mod%d",103+i),60,60,120,60,10,70);
      htimssdlg1d[i] = new TH1F(Form("htimssdlg1d%d",i),Form("Timing_LG-SSD_TrackAssociate_mod%d",103+i),100,0,100);
      hnlghitwt[i] = new TH1F(Form("hnlghitwt%d",i),Form("N_LGHits_TrackAssociate_mod%d",103+i),10,0,10);
@@ -670,11 +678,14 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
       if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
       if( maxevent!=-1&&nevent>maxevent ){break;}
 
-      if (Cut(ientry) < 0) continue;
+      std::vector<int> goodtracks;
+      if (Cut(ientry,goodtracks) < 0) continue;
+      // if (Cut(ientry) < 0) continue;//220407
 
       for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
-	if (CutOfTrack(ientry,itrack,runoption) < 0) continue;
+	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
+	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
 	int x = (track_lg_lx->at(itrack))-(track_position_block_lx->at(itrack));
 	int y = (track_lg_ly->at(itrack)/fabs(track_lg_ly->at(itrack)))*(fabs(track_lg_ly->at(itrack))+track_position_block_ly->at(itrack));
 	int ch = SingleTrackAnalyzerForRes::LocaltoCh(x,y);
@@ -907,7 +918,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    ntrack[trk_mid-103][1][1+trktype*2]++;
 	    hlghitsum[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsum);
 	    hlgcor[trk_mid-103][blockch]->Fill(track_mom->at(itrack),tmpadcsum);
-	    if(tmpadcsum>50){hlghitsum1d[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
+	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
+	    if(tmpadcsum>50){hesubp[trk_mid-103]->Fill(tmpadcsum-250*track_mom->at(itrack));}
 	    hnlghitwt[trk_mid-103]->Fill(nlghitwt);
 	  }
 	  hx[trk_mid-103][1+trktype*2]->Fill(resx_min);
@@ -976,7 +988,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	  }
 	  if(trktype==0){
 	    hlghitsumd[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsumd);
-	    if(tmpadcsumd>50){hlghitsum1dd[trk_mid-103]->Fill(tmpadcsumd/track_mom->at(itrack));}
+	    if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill(tmpadcsumd/track_mom->at(itrack));}
+	    if(tmpadcsumd>50){hesubpd[trk_mid-103]->Fill(tmpadcsumd-250*track_mom->at(itrack));}
 	  }
 	  hxd[trk_mid-103][1+trktype*2]->Fill(resx_dam_min);
 	  hyd[trk_mid-103][1+trktype*2]->Fill(resy_dam_min);
@@ -1690,13 +1703,31 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
      clghitsumd->cd(i+1);
      hlghitsumd[(i+3)%5]->Draw("colz");
    }
-   TCanvas* clghitsum1d = new TCanvas("clghitsum1d","clghitsum1d",700,500);
-   clghitsum1d->Divide(2,2);
+   TCanvas* clghitsumsub = new TCanvas("clghitsumsub","clghitsumsub",700,500);
+   clghitsumsub->Divide(2,2);
+   TH2F* hlghitsumsub[4];
    for(int i=0;i<4;i++){
-     clghitsum1d->cd(i+1);
-     hlghitsum1d[(i+3)%5]->Draw();
-     hlghitsum1dd[(i+3)%5]->SetLineColor(6);
-     hlghitsum1dd[(i+3)%5]->Draw("sames");
+     clghitsumsub->cd(i+1);
+     hlghitsumsub[i] = (TH2F*)hlghitsum[(i+3)%5]->Clone();
+     hlghitsumsub[i]->SetName(Form("hlghitsumsub%d",(i+3)%5+103));
+     hlghitsumsub[i]->Add(hlghitsumd[(i+3)%5],-1);
+     hlghitsumsub[i]->Draw("colz");
+   }
+   TCanvas* cedivp = new TCanvas("cedivp","cedivp",700,500);
+   cedivp->Divide(2,2);
+   for(int i=0;i<4;i++){
+     cedivp->cd(i+1)->SetLogy();
+     hedivp[(i+3)%5]->Draw();
+     hedivpd[(i+3)%5]->SetLineColor(6);
+     hedivpd[(i+3)%5]->Draw("sames");
+   }
+   TCanvas* cesubp = new TCanvas("cesubp","cesubp",700,500);
+   cesubp->Divide(2,2);
+   for(int i=0;i<4;i++){
+     cesubp->cd(i+1);
+     hesubp[(i+3)%5]->Draw();
+     hesubpd[(i+3)%5]->SetLineColor(6);
+     hesubpd[(i+3)%5]->Draw("sames");
    }
    TCanvas* ctimssdlg = new TCanvas("ctimssdlg","ctimssdlg",700,700);
    ctimssdlg->Divide(2,2);
@@ -1749,7 +1780,9 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
    // clgtrk2eff->SaveAs(outfile,"pdf");
    clghitsum->SaveAs(outfile,"pdf");
    clghitsumd->SaveAs(outfile,"pdf");
-   clghitsum1d->SaveAs(outfile,"pdf");
+   clghitsumsub->SaveAs(outfile,"pdf");
+   cedivp->SaveAs(outfile,"pdf");
+   cesubp->SaveAs(outfile,"pdf");
    for(int i=0;i<4;i++){
      clgcor[i]->SaveAs(outfile,"pdf");
    }
