@@ -1,4 +1,5 @@
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_HBDGeometry.hh"
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDChannelManager.hh"
 #include "E16ANA_HBDDeadChannel.hh"
@@ -201,6 +202,20 @@ double E16ANA_HBDCalibration::GetGain(const int module_id, const int pad_id)
   if(E16ANA_HBDChannelManager::IsValidID(module_id, pad_id)){
     int index = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
     f = adc_to_pe[index][pad_id];
+  }
+  return f;
+}
+
+double E16ANA_HBDCalibration::GetTriggerTileGain(const int module_id, const int tile_id)
+{
+  double f = 0.;
+  if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
+    if(E16ANA_HBDChannelManager::IsValidTileID(tile_id)){
+      std::vector<int> pads = E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(module_id, tile_id);
+      for(auto pad : pads){
+	f += this->GetGain(module_id, pad)/(int) pads.size();
+      }
+    }
   }
   return f;
 }

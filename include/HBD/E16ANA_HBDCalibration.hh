@@ -24,6 +24,7 @@ public:
   double GetPedestal(const int module_id, const int pad_id);
   double GetNoise(const int module_id, const int pad_id);
   double GetGain(const int module_id, const int pad_id);
+  double GetTriggerTileGain(const int module_id, const int pad_id);
   bool GetGainCalibrationStatus(){return gain_calibration_status;};
   E16ANA_HBDDeadChannel *GetDeadChannel(){return hbd_dead;};
 

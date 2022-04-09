@@ -125,6 +125,7 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDCalibration.cc
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
+  src/HBD/E16ANA_WaveformFitterCRRC.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   
 	src/E16DST_DST1.cc
@@ -187,6 +188,13 @@ add_executable(dst0_to_dst1_hbd_w_wf usr/dst0_to_dst1_hbd_w_wf.cc)
 
 target_link_libraries(dst0_to_dst1_hbd_w_wf
 	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_w_wf_CRRCfit usr/dst0_to_dst1_hbd_w_wf_CRRCfit.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_w_wf_CRRCfit
+        E16DST_DST1
 )
 
 #_______________________________________________________________________________
