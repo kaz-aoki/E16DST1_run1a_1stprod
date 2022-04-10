@@ -893,14 +893,17 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    // if(tmpadc>20&&tmpadc<50){hares[trk_mid-103][1+trktype*2]->Fill(resx,resy);}//220216tmp
 	    double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<100 ){
-	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){
+	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){//220410
+	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<80 ){
 	      htimssdlg[trk_mid-103]->Fill(tmptdc,track_ssd_t->at(itrack));
 	      htimssdlg1d[trk_mid-103]->Fill(tmptdc-track_ssd_t->at(itrack));
 	      if( tmptdc>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmptdc<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
-		if( fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset)<tmptdiff ){
-		  tmpadcsum = tmpadc;
-		  tmptdiff = fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset);
-		}
+		if( fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset)<tmptdiff ){//220410
+		  tmpadcsum = tmpadc;//220410
+		  tmptdiff = fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset);//220410
+		}//220410
+		// tmpadcsum += tmpadc;
+	      	// nlghitwt++;
 	      }
 	      // if( fabs( (track_ssd_t->at(itrack)+54.)-tmptdc )<10 ){//220405
 	      // 	tmpadcsum+=tmpadc;
@@ -908,7 +911,7 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	      // 	//std::cout<<"ch:"<<cid<<", adc:"<<tmpadc<<", tim:"<<tmptdc<<std::endl;
 	      // }//220405
 	    }
-	  }
+	  }//lghit loop
 	  // if(tmpadcsum!=0){
 	  //   std::cout<<"ch:"<<blockch<<", lx:"<<track_position_block_lx->at(itrack)<<", ly:"<<track_position_block_ly->at(itrack)<<", mom:"<<track_mom->at(itrack)<<", adcsum:"<<tmpadcsum<<", tim:"<<track_ssd_t->at(itrack)+54.<<std::endl;
 	  //   std::cout<<"********************************"<<std::endl;

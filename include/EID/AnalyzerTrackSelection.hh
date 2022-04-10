@@ -507,49 +507,119 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
   struct set{
     int track_id;
     double chisq;
-    int pos_id;
-    double tim;
+    double ssd;
+    double gtr100x;
+    double gtr100y;
+    double gtr200x;
+    double gtr200y;
+    double gtr300x;
+    double gtr300y;
 
-    bool operator<(const set& another){
-      if( pos_id != another.pos_id ){ return pos_id<another.pos_id; }
-      if( tim != another.tim ){ return tim<another.tim; }
-      return chisq < another.chisq;
+    bool operator==(const set& another){
+      if( ssd == another.ssd
+    	|| gtr100x == another.gtr100x
+    	|| gtr100y == another.gtr100y
+    	|| gtr200x == another.gtr200x
+    	|| gtr200y == another.gtr200y
+    	|| gtr300x == another.gtr300x
+    	|| gtr300y == another.gtr300y) return true;
+      return false;
     }
-
   };
+
   std::vector<set> tracks(0);
   // std::cout<<n_tracks<<std::endl;
-  for(int i=0;i<n_tracks;i++){
+  //tracks are already sorted by chi_square in DST1
+  for(int i=0;i<n_tracks;i++){ //track loop
     if(chi_square->at(i)>30.) continue;
-    if(fabs(track_position_block_lx->at(i))>30) continue;
-    if(fabs(track_position_block_ly->at(i))>30) continue;
+    // if(fabs(track_position_block_lx->at(i))>30) continue;
+    // if(fabs(track_position_block_ly->at(i))>30) continue;
     set settmp;
     settmp.track_id = track_id->at(i);
     settmp.chisq = chi_square->at(i);
-    int mid = track_lg_mid->at(i);
-    int blockchx = (track_lg_lx->at(i))-(track_position_block_lx->at(i));
-    int blockchy = (track_lg_ly->at(i)/fabs(track_lg_ly->at(i)))*(fabs(track_lg_ly->at(i))+track_position_block_ly->at(i));
-    int cid = SingleTrackAnalyzerForRes::LocaltoCh(blockchx,blockchy);
-    settmp.pos_id = mid*100+cid;
-    settmp.tim = track_ssd_t->at(i);
-    // std::cout<<settmp.pos_id<<" "<<settmp.tim<<" "<<settmp.chisq<<std::endl;
-    tracks.push_back(settmp);
-  }
+    settmp.ssd = track_ssd_t->at(i);
+    settmp.gtr100x = track_gtr100x_t->at(i);
+    settmp.gtr100y = track_gtr100y_t->at(i);
+    settmp.gtr200x = track_gtr200x_t->at(i);
+    settmp.gtr200y = track_gtr200y_t->at(i);
+    settmp.gtr300x = track_gtr300x_t->at(i);
+    settmp.gtr300y = track_gtr300y_t->at(i);
+    // std::cout<<settmp.chisq<<" "<<settmp.ssd<<" "<<settmp.gtr100x<<" "<<settmp.gtr100y<<" "<<settmp.gtr200x<<" "<<settmp.gtr200y<<" "<<settmp.gtr300x<<" "<<settmp.gtr300y<<std::endl;
 
-  sort(tracks.begin(),tracks.end());
-
-  int tmp_pos_id=10000;
-  for(int i=0;i<tracks.size();i++){
-    // std::cout<<tracks.at(i).pos_id<<" "<<tracks.at(i).tim<<" "<<tracks.at(i).chisq<<std::endl;
-    if(tracks.at(i).pos_id!=tmp_pos_id){
-      goodtracks.push_back(tracks.at(i).track_id);
-      tmp_pos_id = tracks.at(i).pos_id;
+    if(tracks.size()==0){
+      tracks.push_back(settmp);
+      goodtracks.push_back(settmp.track_id);
     }
-  }
+    else{
+      bool isgood = false;
+      for(int j=0;j<tracks.size();j++){
+	if(settmp==tracks.at(j)){
+	  break;
+	}
+	if(j==tracks.size()-1){isgood=true;}
+      }
+      if(isgood==true){
+	tracks.push_back(settmp);
+	goodtracks.push_back(settmp.track_id);
+      }
+    }
+  }//track loop
 
+  // std::cout<<"************"<<tracks.size()<<" "<<goodtracks.size()<<std::endl;
   return 1;
   }
 }
+// Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
+// {
+//   if(goodtracks.size()==1){return 1;}
+//   else{
+
+//   struct set{
+//     int track_id;
+//     double chisq;
+//     int pos_id;
+//     double tim;
+
+//     bool operator<(const set& another){
+//       if( pos_id != another.pos_id ){ return pos_id<another.pos_id; }
+//       if( tim != another.tim ){ return tim<another.tim; }
+//       return chisq < another.chisq;
+//     }
+
+//   };
+//   std::vector<set> tracks(0);
+//   // std::cout<<n_tracks<<std::endl;
+//   for(int i=0;i<n_tracks;i++){
+//     if(chi_square->at(i)>30.) continue;
+//     if(fabs(track_position_block_lx->at(i))>30) continue;
+//     if(fabs(track_position_block_ly->at(i))>30) continue;
+//     set settmp;
+//     settmp.track_id = track_id->at(i);
+//     settmp.chisq = chi_square->at(i);
+//     int mid = track_lg_mid->at(i);
+//     int blockchx = (track_lg_lx->at(i))-(track_position_block_lx->at(i));
+//     int blockchy = (track_lg_ly->at(i)/fabs(track_lg_ly->at(i)))*(fabs(track_lg_ly->at(i))+track_position_block_ly->at(i));
+//     int cid = SingleTrackAnalyzerForRes::LocaltoCh(blockchx,blockchy);
+//     settmp.pos_id = mid*100+cid;
+//     settmp.tim = track_ssd_t->at(i);
+//     // std::cout<<settmp.pos_id<<" "<<settmp.tim<<" "<<settmp.chisq<<std::endl;
+//     tracks.push_back(settmp);
+//   }
+
+//   sort(tracks.begin(),tracks.end());
+
+//   int tmp_pos_id=10000;
+//   for(int i=0;i<tracks.size();i++){
+//     // std::cout<<tracks.at(i).pos_id<<" "<<tracks.at(i).tim<<" "<<tracks.at(i).chisq<<std::endl;
+//     if(tracks.at(i).pos_id!=tmp_pos_id){
+//       goodtracks.push_back(tracks.at(i).track_id);
+//       tmp_pos_id = tracks.at(i).pos_id;
+//     }
+//   }
+
+//   return 1;
+//   }
+// }
 Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, std::vector<int> &goodtracks)
 {
   for(int i=0;i<goodtracks.size();i++){
