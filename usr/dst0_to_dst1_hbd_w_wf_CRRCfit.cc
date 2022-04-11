@@ -126,10 +126,11 @@ int main(int argc, char* argv[]) {
   hbd_calib->ReadCalibrationData(calib.CurrentRunID());
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
   hbd_cut->ReadCutData(calib.CurrentRunID());
-  hbd_cut->SetCut("n_sigma_wf_dst1", 3);
-  
+  std::cerr<<hbd_cut->GetCut("n_sigma_wf_dst1")<<std::endl;
+  std::cerr<<hbd_cut->GetCut("n_waves_dst1")<<std::endl;
+  std::cerr<<HBD_Circuit_Constant::apv25_timeconstant<<std::endl;
   std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
-  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+  E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   
   auto record = new E16DST_DST1PhysicsRecord();
   
@@ -161,7 +162,7 @@ int main(int argc, char* argv[]) {
       auto& hbd_clusters1 = record->HBD().Clusters();
       n_hits = hbd_hits1.size();
       n_clusters = hbd_clusters1.size();
-      
+
       for(auto hit : hbd_hits1){
 	h_hid.push_back(hit.HitId());
 	h_mid.push_back(hit.ModuleId());
@@ -189,7 +190,7 @@ int main(int argc, char* argv[]) {
 	}
       }
       h_wf.resize(n_hits);
-      
+
       for(auto cluster : hbd_clusters1){
 	c_cid.push_back(cluster.ClusterId());
 	c_mid.push_back(cluster.ModuleId());
@@ -205,13 +206,13 @@ int main(int argc, char* argv[]) {
 	c_lpos_z.push_back(cluster.LocalPos().Z());
 	c_cprob.push_back(cluster.IsChargedParticle());
 	c_eprob.push_back(cluster.IsE());
-
+	
 	vector<int> hitmembers;
 	for(auto hit_id : cluster.HitOrders()) hitmembers.push_back((int) hit_id);
-	hitmembers.resize(cluster.ClusterSize());
+	//hitmembers.resize(cluster.ClusterSize());
 	c_hitmembers.push_back(hitmembers);
       }
-      c_hitmembers.resize(n_clusters);
+      //c_hitmembers.resize(n_clusters);
       
       tree->Fill();
       

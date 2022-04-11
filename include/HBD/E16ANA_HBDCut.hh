@@ -10,6 +10,8 @@ public:
   ~E16ANA_HBDCut();
   bool ReadCutData(const int runID);
   bool ReadFile(const char* filename);
+  void SetCut(const char* cut_keyword, const double value);
+  double GetCut(const char* cut_keyword);
   double GetNSigmaWfDST1(){ return n_sigma_wf_dst1; };
   int GetNWavesDST1(){ return n_waves_dst1; };
   double GetThWaveformChi2(){ return th_wf_chi2; };
