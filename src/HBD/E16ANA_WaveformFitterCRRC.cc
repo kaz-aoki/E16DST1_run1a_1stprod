@@ -11,7 +11,7 @@
 #include <algorithm>
 
 E16ANA_WaveformFitterCRRC::E16ANA_WaveformFitterCRRC()
-  : n_waves(1), n_sigma(4.0), noise_sigma(13.0),
+  : n_waves(2), n_sigma(4.0), noise_sigma(13.0),
     clock_period(HBD_Circuit_Constant::apv25_period),
     tau(HBD_Circuit_Constant::apv25_timeconstant)
 {

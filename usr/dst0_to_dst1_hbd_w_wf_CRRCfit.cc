@@ -126,9 +126,9 @@ int main(int argc, char* argv[]) {
   hbd_calib->ReadCalibrationData(calib.CurrentRunID());
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
   hbd_cut->ReadCutData(calib.CurrentRunID());
-  hbd_cut->SetCut("n_sigma_wf_dst1", 4);
-  hbd_cut->SetCut("n_waves_dst1", 2);
-  
+  std::cerr<<hbd_cut->GetCut("n_sigma_wf_dst1")<<std::endl;
+  std::cerr<<hbd_cut->GetCut("n_waves_dst1")<<std::endl;
+  std::cerr<<HBD_Circuit_Constant::apv25_timeconstant<<std::endl;
   std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
   E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   

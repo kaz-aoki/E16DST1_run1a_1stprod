@@ -31,6 +31,7 @@ class E16ANA_HBDChannelManager {
   void GetIPAddress(const int module_id, const int pad_id, char *ip);
   int GetChipID(const int module_id, const int pad_id);
   int GetAPVPadID(const int module_id, const int pad_id);
+  static void GetTriggerTileIDWithThresholdFile(const char *mid_gemid, const int asdid, int &mid, int &tileid);
   static bool GetNeighboringPadID(const int pad_id, std::vector<int> &neighboring_id);
   static bool IsValidModuleID(const int module_id);
   static bool IsValidPadID(const int pad_id);
