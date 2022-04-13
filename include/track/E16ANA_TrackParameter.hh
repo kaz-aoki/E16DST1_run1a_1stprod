@@ -7,6 +7,7 @@
 #include "E16ANA_TrackConstant.hh"
 
 namespace E16ANA_TrackParameter {
+
 //// pion
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 //const TVector3 kInitPosError = {3., 3.4, 0.};
@@ -49,7 +50,8 @@ namespace E16ANA_TrackParameter {
 const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 const TVector3 kInitPosError = {3., 3.4, 0.};
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
-constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
+//constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
+constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.1, 0.1, 0.1}; // 220413 for statistics check
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
@@ -63,8 +65,10 @@ constexpr int kMinHitsInXCluster = 2;
 constexpr double kGTRYDiffThreshold = 20.; // mm
 constexpr std::array<double, 3> kGTRPeakSumThresholdX = {80., 150., 250.};
 constexpr double kGTRPeakSumThresholdY = 50.;
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
-constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {25., 0., 0.001};
+//constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 20.}; // x, y // 220413 for statistics check
+//constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {25., 0., 0.001};
+constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.01}; // 220413 for statistics check
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {

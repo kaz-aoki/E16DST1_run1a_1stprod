@@ -1,4 +1,4 @@
-#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
+//#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
 
 #include <iostream>
 #include <TROOT.h>
