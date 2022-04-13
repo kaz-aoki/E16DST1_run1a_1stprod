@@ -821,36 +821,36 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
   if (chi_square->at(track_index) > st_param::kChiSquareThreshold) {
     return false;
   }
-  if (fabs(rk_res_ssd_x->at(track_index)) > st_param::kSSDResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr100_x->at(track_index)) > st_param::kGTR100xResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr100_y->at(track_index)) > st_param::kGTR100yResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr200_x->at(track_index)) > st_param::kGTR200xResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr200_y->at(track_index)) > st_param::kGTR200yResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr300_x->at(track_index)) > st_param::kGTR300xResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr300_y->at(track_index)) > st_param::kGTR300yResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_fit_init_pos_gx->at(track_index)) > st_param::kTargetXThreshold) {
-    return false;
-  }
-  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
-    return false;
-  }
-  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
-    return false;
-  }
+//  if (fabs(rk_res_ssd_x->at(track_index)) > st_param::kSSDResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr100_x->at(track_index)) > st_param::kGTR100xResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr100_y->at(track_index)) > st_param::kGTR100yResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr200_x->at(track_index)) > st_param::kGTR200xResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr200_y->at(track_index)) > st_param::kGTR200yResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr300_x->at(track_index)) > st_param::kGTR300xResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr300_y->at(track_index)) > st_param::kGTR300yResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_fit_init_pos_gx->at(track_index)) > st_param::kTargetXThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
+//    return false;
+//  }
+//  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
+//    return false;
+//  }
   // HasTimeCorrelationInTrack()
   // write your selection criteria end
   return true;
@@ -979,9 +979,9 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
-//    selected_track_indexs.emplace_back(track_index);
-//    selected_track_lg_hit_ts.emplace_back(lg_ts);
+//    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+    selected_track_indexs.emplace_back(track_index);
+    selected_track_lg_hit_ts.emplace_back(lg_ts);
   }
   return;
 }
@@ -2062,9 +2062,9 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
 //      if (tgt_z0 != tgt_z1) {
 //        continue;
 //      }
-      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
-        continue;
-      }
+//      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+//        continue;
+//      }
 //      bool is_lg_t_match = false;
 //      for (const auto& t0 : lg_ts0) {
 //        for (const auto& t1 : lg_ts1) {

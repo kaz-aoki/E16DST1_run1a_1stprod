@@ -34,7 +34,8 @@ constexpr double kLightSpeed = 299792458.;
 
 namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter {
 
-constexpr double kChiSquareThreshold          = 20;
+//constexpr double kChiSquareThreshold          = 20.;
+constexpr double kChiSquareThreshold          = 50.; // 220413
 //constexpr double kLGADCThreshold              = 50.;
 constexpr double kSSDResidualThreshold        = 1.;
 constexpr double kGTR100xResidualThreshold    = 2.;
