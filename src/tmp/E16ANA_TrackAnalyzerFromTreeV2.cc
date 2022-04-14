@@ -848,9 +848,9 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
 //  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
 //    return false;
 //  }
-//  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
-//    return false;
-//  }
+  if (!HasHBDAndLGProjection(track_index, lg_ts)) {
+    return false;
+  }
   // HasTimeCorrelationInTrack()
   // write your selection criteria end
   return true;
@@ -2062,9 +2062,9 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeTrackPairs() {
 //      if (tgt_z0 != tgt_z1) {
 //        continue;
 //      }
-//      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
-//        continue;
-//      }
+      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+        continue;
+      }
 //      bool is_lg_t_match = false;
 //      for (const auto& t0 : lg_ts0) {
 //        for (const auto& t1 : lg_ts1) {
