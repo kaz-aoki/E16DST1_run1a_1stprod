@@ -198,6 +198,13 @@ target_link_libraries(dst0_to_dst1_hbd_w_wf_CRRCfit
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_220416 usr/dst0_to_dst1_hbd_220416.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_220416
+        E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_hbd_wf_check usr/dst0_to_dst1_hbd_wf_check.cc)
 
 target_link_libraries(dst0_to_dst1_hbd_wf_check
