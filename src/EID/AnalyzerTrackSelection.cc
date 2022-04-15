@@ -893,17 +893,17 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    // if(tmpadc>20&&tmpadc<50){hares[trk_mid-103][1+trktype*2]->Fill(resx,resy);}//220216tmp
 	    double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<100 ){
-	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){//220410
-	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<80 ){
+	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){
+	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<80 ){//220410
 	      htimssdlg[trk_mid-103]->Fill(tmptdc,track_ssd_t->at(itrack));
 	      htimssdlg1d[trk_mid-103]->Fill(tmptdc-track_ssd_t->at(itrack));
 	      if( tmptdc>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmptdc<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
-		if( fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset)<tmptdiff ){//220410
-		  tmpadcsum = tmpadc;//220410
-		  tmptdiff = fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset);//220410
-		}//220410
-		// tmpadcsum += tmpadc;
-	      	// nlghitwt++;
+		if( fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset)<tmptdiff ){
+		  tmpadcsum = tmpadc;
+		  tmptdiff = fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset);
+		}
+		// tmpadcsum += tmpadc;//220410
+	      	// nlghitwt++;//220410
 	      }
 	      // if( fabs( (track_ssd_t->at(itrack)+54.)-tmptdc )<10 ){//220405
 	      // 	tmpadcsum+=tmpadc;
@@ -921,7 +921,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    ntrack[trk_mid-103][1][1+trktype*2]++;
 	    hlghitsum[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsum);
 	    hlgcor[trk_mid-103][blockch]->Fill(track_mom->at(itrack),tmpadcsum);
-	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
+	    // if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
+	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill((tmpadcsum-30)/track_mom->at(itrack));}
 	    if(tmpadcsum>50){hesubp[trk_mid-103]->Fill(tmpadcsum-250*track_mom->at(itrack));}
 	    hnlghitwt[trk_mid-103]->Fill(nlghitwt);
 	  }
@@ -980,18 +981,21 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    // if(adc_dam>20&&adc_dam<50){haresd[trk_mid-103][1+trktype*2]->Fill(resx_dam,resy_dam);}//220216tmp
 	    double tmptdcd = track_lg_allhit_dum_ftime->at(itrack).at(ilg);
 	    if( trktype==0 && fabs(resx_dam)<50 && fabs(resy_dam)<50 ){
+	    // if( trktype==0 && fabs(resx_dam)<80 && fabs(resy_dam)<80 ){//220410
 	      // tmpadcsumd+=adc_dam;
 	      if( tmptdcd>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmptdcd<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
 		if( fabs(tmptdcd-track_ssd_t->at(itrack)-ssdoffset)<tmptdiffd ){
 		  tmpadcsumd = adc_dam;
 		  tmptdiffd = fabs(tmptdcd-track_ssd_t->at(itrack)-ssdoffset);
 		}
+		// tmpadcsumd += adc_dam;//220410
 	      }
 	    }
 	  }
 	  if(trktype==0){
 	    hlghitsumd[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsumd);
-	    if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill(tmpadcsumd/track_mom->at(itrack));}
+	    // if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill(tmpadcsumd/track_mom->at(itrack));}
+	    if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill((tmpadcsumd-30)/track_mom->at(itrack));}
 	    if(tmpadcsumd>50){hesubpd[trk_mid-103]->Fill(tmpadcsumd-250*track_mom->at(itrack));}
 	  }
 	  hxd[trk_mid-103][1+trktype*2]->Fill(resx_dam_min);
@@ -1849,4 +1853,78 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 
 void AnalyzerTrackSelection::CalcLGEfficiency(int runoption, int maxevent, char* out_file_name)
 {
+}
+
+void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent, int moduleid)
+{
+
+   if (fChain == 0) return;
+
+   TFile *fouthist = new TFile("mixing.root","recreate");
+
+   struct hitset{
+     int mid;
+     double lx;
+     double ly;
+     double adc;
+     double tdc;
+   };
+
+   std::vector<std::vector<hitset>> mixhitsets;
+
+   Long64_t n_entries = fChain->GetEntries();
+   Long64_t nentries = fChain->GetEntriesFast();
+   Long64_t nbytes = 0, nb = 0;
+
+   int nevent=0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+      if( maxevent!=-1&&nevent>maxevent ){break;}
+
+      std::vector<int> goodtracks;
+      if (Cut(ientry,goodtracks) < 0) continue;
+      // if (Cut(ientry) < 0) continue;//220407
+
+      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
+
+	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
+	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
+	if (track_lg_mid->at(itrack)!=moduleid) continue;
+
+	std::vector<hitset> hitsets;
+	for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+	  hitset tmphit;
+	  tmphit.mid=track_lg_mid->at(itrack);
+	  tmphit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
+	  tmphit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
+	  tmphit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
+	  tmphit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
+	  hitsets.push_back(tmphit);
+	}
+	mixhitsets.push_back(hitsets);
+
+	if(mixhitsets.size()<10) break;
+
+      }//track loop
+
+      nevent++;
+
+   }//event loop
+
+   // TString outfile = Form("%s",out_file_name);
+
+   // gStyle->SetOptStat(11111111);
+   // gStyle->SetOptFit(11111111);
+
+   // TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+   // cdef->SaveAs(outfile+"[","pdf");
+   // cdef->SaveAs(outfile+"]","pdf");
+
+   fouthist->Write();
+   fouthist->Close();
+
 }

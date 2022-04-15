@@ -231,6 +231,7 @@ public :
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
    virtual void     CalcLGEfficiency(int runtype, int maxevent, char* out_file_name);
+   virtual void     MkMixingHist(int runoption, int maxevent, int moduleid);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -532,8 +533,8 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
   //tracks are already sorted by chi_square in DST1
   for(int i=0;i<n_tracks;i++){ //track loop
     if(chi_square->at(i)>30.) continue;
-    // if(fabs(track_position_block_lx->at(i))>30) continue;
-    // if(fabs(track_position_block_ly->at(i))>30) continue;
+    if(fabs(track_position_block_lx->at(i))>30) continue;
+    if(fabs(track_position_block_ly->at(i))>30) continue;
     set settmp;
     settmp.track_id = track_id->at(i);
     settmp.chisq = chi_square->at(i);
@@ -566,6 +567,8 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
   }//track loop
 
   // std::cout<<"************"<<tracks.size()<<" "<<goodtracks.size()<<std::endl;
+  if(goodtracks.size()==0){return -1;}
+
   return 1;
   }
 }
