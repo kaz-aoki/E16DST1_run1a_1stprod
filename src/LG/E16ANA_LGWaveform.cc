@@ -397,20 +397,20 @@ int E16ANA_LGWaveform::PeakSearchFull(double* pxs, double* ps){
 
   delete hwf;
   delete s;
-  /*
-  static int ctemp0 = 0;
-  static int ctemp1 = 0;
-  static int ctemp2 = 0;
-  static int ctemp3 = 0;
-  static int ctemp4 = 0;
-  static int ctemp5 = 0;
-  if(nps==0){ ctemp0++; std::cout<<"**0** "<<ctemp0<<std::endl;}
-  if(nps==1){ ctemp1++; std::cout<<"**1** "<<ctemp1<<std::endl;}
-  if(nps==2){ ctemp2++; std::cout<<"**2** "<<ctemp2<<std::endl;}
-  if(nps==3){ ctemp3++; std::cout<<"**3** "<<ctemp3<<std::endl;}
-  if(nps==4){ ctemp4++; std::cout<<"**4** "<<ctemp4<<std::endl;}
-  if(nps==5){ ctemp5++; std::cout<<"**5** "<<ctemp5<<std::endl;}
-  */
+
+  // static int ctemp0 = 0;
+  // static int ctemp1 = 0;
+  // static int ctemp2 = 0;
+  // static int ctemp3 = 0;
+  // static int ctemp4 = 0;
+  // static int ctemp5 = 0;
+  // if(nps==0){ ctemp0++; std::cout<<"**0** "<<ctemp0<<std::endl;}
+  // if(nps==1){ ctemp1++; std::cout<<"**1** "<<ctemp1<<std::endl;}
+  // if(nps==2){ ctemp2++; std::cout<<"**2** "<<ctemp2<<std::endl;}
+  // if(nps==3){ ctemp3++; std::cout<<"**3** "<<ctemp3<<std::endl;}
+  // if(nps==4){ ctemp4++; std::cout<<"**4** "<<ctemp4<<std::endl;}
+  // if(nps==5){ ctemp5++; std::cout<<"**5** "<<ctemp5<<std::endl;}
+
   return nps;
 
 }
@@ -421,7 +421,7 @@ int E16ANA_LGWaveform::PeakSearchShort(double* pxs, double* ps){
   int nps = 0;
   double t0cell = nstocell(t0);
   for(int i=0; i<nps_full; i++){
-    if( t0cell-20<pxs_full[i] && pxs_full[i]<t0cell+20 ){
+    if( t0cell-20<pxs_full[i] && pxs_full[i]<t0cell+35 ){
       pxs[nps] = pxs_full[i];
       ps[nps] = ps_full[i];
       nps++;

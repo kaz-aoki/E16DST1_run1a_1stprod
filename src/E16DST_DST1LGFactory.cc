@@ -120,7 +120,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 	hits1[n_dst1hit].SetFitFlag(3);
 	hits1[n_dst1hit].SetFitPeak((float)peakheight);
 	hits1[n_dst1hit].SetFitPeakTime((float)peaktime);
-	hits1[n_dst1hit].SetFitTiming((float)timing);
+	hits1[n_dst1hit].SetFitTiming((float)(timing+100.-lgbasic.GetT0(hit0.ModuleID(), hit0.BlockID())));
 	hits1[n_dst1hit].SetFitWidth((float)E16DST_DST1Constant::kInvalidValue);
 	hits1[n_dst1hit].SetFitChi2((float)E16DST_DST1Constant::kInvalidValue);
       }
