@@ -18,6 +18,7 @@ public:
   int GetThCSizeDST1(){ return th_csize_dst1; };
   double GetThCChargeDST1(){ return th_ccharge_dst1; };
   double GetNSigmaCADCDST1(){ return n_sigma_cadc;};
+  double *GetClusteringTimeWindow(){return clustering_time_window;};
 
 private:
   double n_sigma_wf_dst1;
@@ -28,6 +29,7 @@ private:
   int th_csize_dst1;
   double th_ccharge_dst1;
   double n_sigma_cadc;
+  double clustering_time_window[2];
 };
 
 #endif // E16ANA_HBDCut_h

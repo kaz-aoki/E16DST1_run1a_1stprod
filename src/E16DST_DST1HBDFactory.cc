@@ -218,6 +218,7 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
   double th_wf_chi2 = hbd_cut->GetThWaveformChi2(); //required chi2(not divided by ndf) for hbd hit waveform
   double th_ccharge = hbd_cut->GetThCChargeDST1(); //required cluster charge for an electron candidate
   double n_sigma_cadc = hbd_cut->GetNSigmaCADCDST1(); //required cluster adc for a charged particle
+  double *clustering_timewindow = hbd_cut->GetClusteringTimeWindow();
   
   //----------- prepare for waveform fit
   wf1d_fitter->SetNWaves(n_waves);
@@ -255,17 +256,16 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
       wf1d_fitter->Fit();
 
       for(int i=0; i<wf1d_fitter->GetNCandidates(); i++){
-	E16DST_DST1HBDHit &dst1_hit = dst1_hits[dst1_hid];
 	peak = wf1d_fitter->GetWaveformPeak(i);//in units of adc
 	tdc = wf1d_fitter->GetWaveformTime(i) + tdc_diff*HBD_Circuit_Constant::SRS_ATCA_TDC;//add delay between B2TT trig. and SRS ATCA trig.
 	pe = peak*hbd_calib->GetGain(mid, pid);
 	chi2 = wf1d_fitter->GetChisquare();
 	
+	E16DST_DST1HBDHit &dst1_hit = dst1_hits[dst1_hid];
 	dst1_hit.SetInvalid();
 	dst1_hit.SetIds(mid, pid);
 	dst1_hit.SetHitId(dst1_hid);
 	dst1_hit.SetChi2(chi2);
-	
 	if(gain_calibration_status){
 	  dst1_hit.SetPeakHeight(pe);//peak should be expressed in units of p.e.
 	}else{
@@ -273,11 +273,12 @@ int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& dst0_hits,
 	}
 	dst1_hit.SetTiming(tdc);//50% of maximum peak height
 	dst1_hit.SetLocalPos(E16ANA_HBDGeometry::GetPadLocalCOG(mid, pid));
-	
-	cs.at(E16ANA_HBDChannelManager::ConvMIDE16ToK(mid)).SetData(mid, pid, peak, pe, tdc, dst1_hid);
 	dst1_hid++;
+	
+	if(clustering_timewindow[0]<= tdc && tdc <= clustering_timewindow[1]){
+	  cs.at(E16ANA_HBDChannelManager::ConvMIDE16ToK(mid)).SetData(mid, pid, peak, pe, tdc, dst1_hid);
+	}
       }
-
     }
   }
 
