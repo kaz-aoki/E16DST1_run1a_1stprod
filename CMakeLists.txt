@@ -39,7 +39,7 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-	include/EID
+	include/res
 	include/trigger
 	include/straight_track
 	include/track
@@ -124,9 +124,9 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDCalibration.cc
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
-  src/EID/AnalyzerResidualHBD.cc
-  src/EID/AnalyzerTrackSelection.cc
-  src/EID/SingleTrackAnalyzerForRes.cc
+  src/res/AnalyzerResidualHBD.cc
+  src/res/AnalyzerTrackSelection.cc
+  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   
 	src/E16DST_DST1.cc
