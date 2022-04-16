@@ -124,6 +124,7 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDCalibration.cc
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
+  src/HBD/E16ANA_WaveformFitterCRRC.cc
   src/res/AnalyzerResidualHBD.cc
   src/res/AnalyzerTrackSelection.cc
   src/res/SingleTrackAnalyzerForRes.cc
@@ -147,7 +148,8 @@ target_link_libraries(E16DST_DST1
 
 #_______________________________________________________________________________
 add_library(E16ANA_Track
-  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+#  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
+  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
 )
 
 target_link_libraries(E16ANA_Track
@@ -180,6 +182,27 @@ add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
 
 target_link_libraries(dst0_to_dst1_hbd_check
 	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_w_wf usr/dst0_to_dst1_hbd_w_wf.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_w_wf
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_w_wf_CRRCfit usr/dst0_to_dst1_hbd_w_wf_CRRCfit.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_w_wf_CRRCfit
+        E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_hbd_220416 usr/dst0_to_dst1_hbd_220416.cc)
+
+target_link_libraries(dst0_to_dst1_hbd_220416
+        E16DST_DST1
 )
 
 #_______________________________________________________________________________
@@ -334,5 +357,19 @@ target_link_libraries(tmp_track_analyzer
 #)
 #
 #_______________________________________________________________________________
+add_executable(check_position_resolution usr/tmp/check_position_resolution.cc)
+
+target_link_libraries(check_position_resolution
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+#add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
+#
+#target_link_libraries(draw_dead_channel_map
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

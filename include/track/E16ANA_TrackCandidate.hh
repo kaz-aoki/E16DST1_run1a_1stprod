@@ -7,6 +7,7 @@
 
 #include "TVector3.h"
 #include "E16ANA_TrackConstant.hh"
+#include "E16ANA_TrackParameter.hh"
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_MultiTrack.hh"
@@ -154,20 +155,12 @@ class E16ANA_TrackCandidate {
     init_pos.SetZ(E16ANA_TrackConstant::kTargetZ[target_id]);
   }
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
-  void SetDefaultSigma() {
-//    for (auto& s : sigma) {
-//      s = kSigma;
-//    }
-//    sigma[0].SetY(0.); // SSD-y
-    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
-      sigma[i] = kSigmas[i];
-    }
-  }
+  void SetDefaultSigma();
   void SetPosAtX0(TVector3 _pos) { pos_at_x0 = _pos; }
   void SetMomAtX0(TVector3 _mom) { mom_at_x0 = _mom; }
 //  TVector3 Sigma() { return kSigma; }
-  TVector3 EachSigma(int n) { return kSigmas[n]; }
-  TVector3 InitPosError() { return kInitPosError; }
+  TVector3 EachSigma(int n);
+  TVector3 InitPosError();
   int TrackingMaxSteps() { return kTrackingMaxSteps; }
   int ProjectionMaxSteps() { return kProjectionMaxSteps; }
   int TrackID() { return track_id; }
@@ -237,15 +230,7 @@ class E16ANA_TrackCandidate {
       std::cout << "    Module ID : " << hit->ModuleId() << ", Channel ID : " << hit->ChannelId() << ", Timing : " << hit->Timing()  << std::endl;
     }
   }
-  void PrintParam() {
-//    std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
-    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
-      std::cout << "  " << E16ANA_TrackConstant::kDetectorName[i] << " : ("  << kSigmas[i](0) << ", " << kSigmas[i](1) << ", " << kSigmas[i](2) << ")" << std::endl;
-    }
-    std::cout << "Initial Position Error : (" << kInitPosError(0) << ", " << kInitPosError(1) << ", " << kInitPosError(2) << ")" << std::endl;
-    std::cout << "Runge Kutta Tracking Max Steps : " << kTrackingMaxSteps << std::endl;
-    std::cout << "Runge Kutta Projection Max Steps : " << kProjectionMaxSteps << std::endl;
-  }
+  void PrintParam();
   // tmp
   void SetXCoef(int n, double coef) { x_coef[n] = coef; }
   void SetXChiSquare(double _chi_square) { x_chi_square = _chi_square; }
@@ -272,9 +257,9 @@ class E16ANA_TrackCandidate {
   static constexpr double kGTRLorentzAngleA[3]  = {0.313, -0.233, -0.129};
   // parameter
 //  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
-  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
+//  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}}; // -> parameter
 //  static inline const TVector3 kInitPosError = {1.5, 1.7, 0.};
-  static inline const TVector3 kInitPosError = {3., 3.4, 0.};
+//  static inline const TVector3 kInitPosError = {3., 3.4, 0.}; // -> paramter
 //  static inline const TVector3 kInitPosError = {0., 0., 0.};
 //  static inline const TVector3 kInitPosError = {5., 5., 0.};
   void Copy(const E16ANA_TrackCandidate& rhs) {
@@ -467,18 +452,18 @@ class E16ANA_TrackCandidates {
   bool VertexXYFixFlag() { return vertex_xy_fix_flag; }
   bool PyFixFlag() { return py_fix_flag; }
   bool VertexZFixFlag() { return vertex_z_fix_flag; }
-  double GTRTimeDiffThreshold(int n) { return kGTRTimeDiffThreshold[n]; }
-  double XSigma(int n) { return kXSigma[n]; }
-  double XWeight(int n) { return kXWeight[n]; }
-  double YSigma(int n) { return kYSigma[n]; }
-  double YWeight(int n) { return kYWeight[n]; }
-  int MinHitsInXCluster() { return kMinHitsInXCluster; }
-  double GTRYDiffThreshold() { return kGTRYDiffThreshold; }
-  double GTRPeakSumThresholdX(int n) { return kGTRPeakSumThresholdX[n]; }
-  double GTRPeakSumThresholdY() { return kGTRPeakSumThresholdY; }
-  double RoughFitChiSquareThreshold(int n) { return kRoughFitChiSquareThreshold[n]; }
-  double RoughXFitCoefficientThreshold(int n) { return kRoughXFitCoefficientThreshold[n]; }
-  double RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
+  double GTRTimeDiffThreshold(int n);
+  double XSigma(int n);
+  double XWeight(int n);
+  double YSigma(int n);
+  double YWeight(int n);
+  int MinHitsInXCluster();
+  double GTRYDiffThreshold();
+  double GTRPeakSumThresholdX(int n);
+  double GTRPeakSumThresholdY();
+  double RoughFitChiSquareThreshold(int n);
+  double RoughXFitCoefficientThreshold(int n);
+  double RoughYFitCoefficientThreshold(int n);
   double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
   double LGProjectionThreshold() { return kLGProjectionThreshold; }
   double LGElectronThreshold() { return kLGElectronThreshold; }
@@ -521,29 +506,7 @@ class E16ANA_TrackCandidates {
     std::cout << "Number of track candidates : " << NumTrackCandidates() << std::endl;
     std::cout << "Number of selected track candidates : " << NumSelectedTrackCandidates() << std::endl;
   }
-  void PrintParam() {
-    std::cout << "GTR Time Difference Threshold :" << std::endl;
-    std::cout << "  GTR100 : " << kGTRTimeDiffThreshold[0] << ", GTR200 : " << kGTRTimeDiffThreshold[1] << ", GTR300 : " << kGTRTimeDiffThreshold[2] << std::endl;
-    std::cout << "Sigma at X Rough Fit :" << std::endl;
-    std::cout << "  Target : " << kXSigma[0] << ", SSD : " << kXSigma[1] << ", GTR100 : " << kXSigma[2] << ", GTR200 : " << kXSigma[3] << ", GTR300 : " << kXSigma[4] << std::endl;
-    std::cout << "Sigma at Y Rough Fit :" << std::endl;
-    std::cout << "  GTR100 : " << kYSigma[0] << ", GTR200 : " << kYSigma[2] << ", GTR300 : " << kYSigma[2] << std::endl;
-    std::cout << "Minimum Hits in X Cluster : " << kMinHitsInXCluster << std::endl;
-    std::cout << "GTR Position Difference Threshold between Layers at Y Candidate Search : " << kGTRYDiffThreshold << std::endl;
-    std::cout << "GTR X ADC Peak Sum Threshold :" << std::endl;
-    std::cout << "  GTR100 : " << kGTRPeakSumThresholdX[0] << ", GTR200 : " << kGTRPeakSumThresholdX[1] << ", GTR300 : " << kGTRPeakSumThresholdX[2] << std::endl;
-    std::cout << "GTR Y ADC Peak Sum Threshold : " << kGTRPeakSumThresholdY << std::endl;
-    std::cout << "Rough Fit Chi Square Threshold :" << std::endl;
-    std::cout << "  X : " << kRoughFitChiSquareThreshold[0] << ", Y : " << kRoughFitChiSquareThreshold[1] << std::endl;
-    std::cout << "X Rough Fit Coefficient Threshold : " 
-              << kRoughXFitCoefficientThreshold[0] << ", " << kRoughXFitCoefficientThreshold[1] << kRoughXFitCoefficientThreshold[2] << std::endl;
-    std::cout << "Y Rough Fit Coefficient Threshold : " << kRoughYFitCoefficientThreshold[0] << ", " << kRoughYFitCoefficientThreshold[1] << std::endl;
-    std::cout << "HBD Projection Threshold : " << kHBDProjectionThreshold << std::endl;
-    std::cout << "LG  Projection Threshold : " << kLGProjectionThreshold << std::endl;
-    std::cout << "Near Target Threshold : " << kNearTargetThreshold << std::endl;
-    std::cout << "E16ANA_StepTrack Step Size [cm] : " << kStepTrackStepSizeCm << std::endl;
-    std::cout << "E16ANA_StepTrack Array Size : " << kStepTrackArraySize << std::endl;
-  }
+  void PrintParam();
  private:
   struct OneAxisClusterSet {
     int target_id; // only x
@@ -564,35 +527,43 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
 //  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
-  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 60.};
+//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 60.};
+//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {120., 120., 120.};
+//  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 120.}; // -> parameter
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 80., 120.}; // ozawa v8
 //  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {5., 0.05, 0.1, 0.1, 0.1};
-  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
-  static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
-                                                                             1. / (kXSigma[1] * kXSigma[1]),
-                                                                             1. / (kXSigma[2] * kXSigma[2]),
-                                                                             1. / (kXSigma[3] * kXSigma[3]),
-                                                                             1. / (kXSigma[4] * kXSigma[4])};
-  static constexpr std::array<double, kNumGTRLayers> kYSigma = {1., 1., 1.};
-  static constexpr std::array<double, kNumGTRLayers> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
-                                                                 1. / (kYSigma[1] * kYSigma[1]),
-                                                                 1. / (kYSigma[2] * kYSigma[2])};
-  static constexpr int kMinHitsInXCluster = 2;
-  static constexpr double kGTRYDiffThreshold = 20.; // mm
+//  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
+//  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {1000., 0.05, 0.1, 0.1, 0.1};
+//  static constexpr const std::array<double, kNumTrackingLayersWTarget> kXSigma = {100., 0.05, 0.1, 0.1, 0.1}; // -> parameter
+//  static constexpr std::array<double, kNumTrackingLayersWTarget> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
+//                                                                             1. / (kXSigma[1] * kXSigma[1]),
+//                                                                             1. / (kXSigma[2] * kXSigma[2]),
+//                                                                             1. / (kXSigma[3] * kXSigma[3]),
+//                                                                             1. / (kXSigma[4] * kXSigma[4])};
+//  static constexpr std::array<double, kNumGTRLayers> kYSigma = {1., 1., 1.}; // -> parameter
+//  static constexpr std::array<double, kNumGTRLayers> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
+//                                                                 1. / (kYSigma[1] * kYSigma[1]),
+//                                                                 1. / (kYSigma[2] * kYSigma[2])};
+//  static constexpr int kMinHitsInXCluster = 2; // -> parameter
+//  static constexpr double kGTRYDiffThreshold = 20.; // mm -> parameter
 //  static constexpr double kGTRPeakSumThresholdX = 180.;
-  static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.};
+//  static constexpr std::array<double, kNumGTRLayers> kGTRPeakSumThresholdX = {80., 150., 250.}; // -> parameter
 //  static constexpr double kGTRPeakSumThresholdY = 10.;
-  static constexpr double kGTRPeakSumThresholdY = 50.;
+//  static constexpr double kGTRPeakSumThresholdY = 50.; // -> parameter
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 10.}; // x, y
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 10.}; // x, y
-  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
+//  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y -> parameter
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 150.}; // x, y
 //  static constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 10.}; // x, y. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {10., 0., 0.001}; // coef[1] not used
-  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
+//  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.001}; // coef[1] not used. ozawa v8
+//  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {1000., 0., 0.001};
+//  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {100., 0., 0.001}; // -> parameter
 //  static constexpr std::array<double, kNumRoughFitDegree[0]> kRoughXFitCoefficientThreshold = {25., 0., 0.01}; // coef[1] not used. ozawa v8
 //  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {15., 0.}; // coef[1] not used.
-  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
+//  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
+//  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {1000., 0.}; // coef[1] not used.
+//  static constexpr std::array<double, kNumRoughFitDegree[1]> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used. -> parameter
 //  static constexpr double kHBDProjectionThreshold = 20.;
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
@@ -606,7 +577,8 @@ class E16ANA_TrackCandidates {
   static constexpr int kTrackingMaxSteps = 400;
   static constexpr int kMinuitStrategy = 2;
   static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
-  static inline const TVector3 kVertexSigma = {3., 3., 0.};
+//  static inline const TVector3 kVertexSigma = {3., 3., 0.};
+  static inline const TVector3 kVertexSigma = {0., 0., 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
@@ -648,12 +620,13 @@ class E16ANA_TrackCandidates {
 //  static void CalcChiSquare();
   static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
-  static bool ExistADCCorrelation(float x_adc, float y_adc) {
-    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
-      return true;
-    }
-    return false;
-  }
+//  static bool ExistADCCorrelation(float x_adc, float y_adc) {
+////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
+//    if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
+//      return true;
+//    }
+//    return false;
+//  }
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();

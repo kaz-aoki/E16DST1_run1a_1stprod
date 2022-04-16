@@ -1,4 +1,5 @@
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_HBDGeometry.hh"
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDChannelManager.hh"
 #include "E16ANA_HBDDeadChannel.hh"
@@ -27,11 +28,13 @@ bool E16ANA_HBDCalibration::ReadCalibrationData(const int runID){
   std::string hbd_gain_file = calib.CalibFileName("HBD-gain", runID);
   std::string hbd_gain_calibration_status = calib.CalibFileName("HBD-calib-status", runID);
   std::string hbd_dead_ch_file = calib.CalibFileName("HBD-dead-ch", runID);
+  std::string hbd_trg_threshold_file = calib.CalibFileName("HBD-trg-threshold", runID);
   
   this->ReadPedestalAndNoiseFile(hbd_pedestal_file.c_str());
   this->ReadGainFile(hbd_gain_file.c_str());
   this->ReadGainCalibrationStatusFile(hbd_gain_calibration_status.c_str());
   hbd_dead->ReadFile(hbd_dead_ch_file.c_str());
+  this->ReadTrgThresholdFile(hbd_trg_threshold_file.c_str());
   
   return true;
 }
@@ -127,6 +130,43 @@ bool E16ANA_HBDCalibration::ReadGainCalibrationStatusFile(const char *filename){
   }
 }
 
+bool E16ANA_HBDCalibration::ReadTrgThresholdFile(const char *filename){
+  std::ifstream fin(filename);
+  
+  double buf_trg[9];
+  if( fin ){
+    std::string buf_line;
+    for(;;){
+      if(fin.eof()) break;
+      std::getline(fin, buf_line);
+      
+      if(buf_line[0] == '#' || buf_line[0] == '\0') continue;
+      
+      std::string buf_mid = buf_line.substr(0, 4);
+      buf_line.erase(0, 6);
+      int size = buf_line.size();
+      buf_line.erase(size-1, 1);
+      std::stringstream ss(buf_line);
+      ss>>buf_trg[0]>>buf_trg[1]>>buf_trg[2]>>buf_trg[3]>>buf_trg[4]>>buf_trg[5]>>buf_trg[6]>>buf_trg[7]>>buf_trg[8];
+      
+      for(int i=1; i<10; i++){//asd id start with 1
+	int mid;
+	int tileid;
+	int chid = i;
+	E16ANA_HBDChannelManager::GetTriggerTileIDWithThresholdFile(buf_mid.c_str(), chid, mid, tileid);
+	int index_mid = E16ANA_HBDChannelManager::ConvMIDE16ToK(mid);
+	int index_tid = E16ANA_HBDChannelManager::ConvTIDE16ToK(tileid);
+	trg_threshold[index_mid][index_tid] = buf_trg[i-1];
+      }
+    }
+    return true;
+  }
+  else{
+    std::cerr<<__func__<<" invalid trg threshold filename"<<std::endl;
+    return false;
+  }
+}
+
 bool E16ANA_HBDCalibration::HitDecision(const int module_id, const int pad_id, const double *waveform, const double n_sigma)
 {
   double cms = 0.; //TO DO
@@ -203,4 +243,50 @@ double E16ANA_HBDCalibration::GetGain(const int module_id, const int pad_id)
     f = adc_to_pe[index][pad_id];
   }
   return f;
+}
+
+double E16ANA_HBDCalibration::GetTriggerTileGain(const int module_id, const int tile_id)
+{
+  double f = 0.;
+  if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
+    if(E16ANA_HBDChannelManager::IsValidTileID(tile_id)){
+      std::vector<int> pads = E16ANA_HBDGeometry::GetTriggerTileAssociatedPadID(module_id, tile_id);
+      for(auto pad : pads){
+	f += this->GetGain(module_id, pad)/(int) pads.size();
+      }
+    }
+  }
+  return f;
+}
+
+double E16ANA_HBDCalibration::GetTriggerTileThresholdmV(const int module_id, const int tile_id)
+{
+  if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
+    if(E16ANA_HBDChannelManager::IsValidTileID(tile_id)){
+      int mid = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
+      int tid = E16ANA_HBDChannelManager::ConvTIDE16ToK(tile_id);
+      return trg_threshold[mid][tid];
+    }
+  }
+  return -1.;
+}
+
+double E16ANA_HBDCalibration::GetTriggerTileThreshold(const int module_id, const int tile_id)
+{
+  double pe = -1.;
+  // hard coding //
+  double offset = 210.;//mV
+  double mV_to_fc = 6.7/240.;// fc/mV
+  double fc_to_adc = 1040./20.;// adc/fc
+  // hard coding //
+  
+  if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
+    if(E16ANA_HBDChannelManager::IsValidTileID(tile_id)){
+      int mid = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
+      int tid = E16ANA_HBDChannelManager::ConvTIDE16ToK(tile_id);
+      double gain = GetTriggerTileGain(module_id, tile_id);
+      pe = trg_threshold[mid][tid]*mV_to_fc*fc_to_adc*gain;
+    }
+  }
+  return pe;
 }

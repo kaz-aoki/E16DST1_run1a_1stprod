@@ -53,7 +53,7 @@ class E16ANA_HBDClusterAnalysis{
   E16ANA_HBDClusterAnalysis();
   ~E16ANA_HBDClusterAnalysis();
   void Clear();
-  void SetModuleID(const int _module_id){ module_id = _module_id;};
+  void SetModuleID(const int _module_id){ module_id = _module_id; };
   int GetModuleID(){return module_id;};
   void SetData(const int module_id, const int pad_id, const double _adc, const double _pe, const double _tdc);
   void SetData(const int module_id, const int pad_id, const double _adc, const double _pe, const double _tdc, const int dst_id);
@@ -61,6 +61,7 @@ class E16ANA_HBDClusterAnalysis{
   bool SubClustering(const int pad_id, hbd_cluster &cluster, int &n_call);
   void ShowClusters();
   std::vector<hbd_cluster> GetClusters(){return clusters;};
+  std::vector<hbd_cluster> *GetClustersPointer(){return &clusters;};
   static hbd_cluster GetMaxADCCluster(std::vector<hbd_cluster> &_clusters);
   static hbd_cluster GetMaxSizeCluster(std::vector<hbd_cluster> &_clusters);
  

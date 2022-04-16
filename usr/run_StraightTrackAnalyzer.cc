@@ -22,7 +22,7 @@
 #include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
-#include "E16ANA_GTRStatus.h"
+// #include "E16ANA_GTRStatus.h"//commentout by nakasuga 220416
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -223,108 +223,106 @@ int main(int argc, char* argv[]) {
 //   tree->Branch("fitresidual_ssdx", &fitresidual_ssdx, "fitresidual_ssdx/D");
  
 
+//   tree->Branch("chi2_x", &chi2_x, "chi2_x/D");//commentout by nakasuga 220416
+//   tree->Branch("chi2_y", &chi2_y, "chi2_y/D");//commentout by nakasuga 220416
+//   tree->Branch("tgt_z", &tgt_z, "tgt_z/D");//commentout by nakasuga 220416
+// //  tree->Branch("tgtpos_y", &tgtpos_y, "tgtpos_y/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_a_x", &fit_a_x, "fit_a_x/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_b_x", &fit_b_x, "fit_b_x/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_a_y", &fit_a_y, "fit_a_y/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_b_y", &fit_b_y, "fit_b_y/D");//commentout by nakasuga 220416
+//   tree->Branch("distance_x", &distance_x, "distance_x/D");//commentout by nakasuga 220416
+// //  tree->Branch("distance_y", &distance_y, "distance_y/D");//commentout by nakasuga 220416
+//   tree->Branch("distance_fromtgt_y", &distance_fromtgt_y, "distance_fromtgt_y/D");//commentout by nakasuga 220416
+//   tree->Branch("distance_fromupwire_y", &distance_fromupwire_y, "distance_fromupwire_y/D");//commentout by nakasuga 220416
+//   tree->Branch("distance_fromdownwire_y", &distance_fromdownwire_y, "distance_fromdownwire_y/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g100x", &fit_g100x, "fit_g100x/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g100y", &fit_g100y, "fit_g100y/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g100z", &fit_g100z, "fit_g100z/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g200x", &fit_g200x, "fit_g200x/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g200y", &fit_g200y, "fit_g200y/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g200z", &fit_g200z, "fit_g200z/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g300x", &fit_g300x, "fit_g300x/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g300y", &fit_g300y, "fit_g300y/D");//commentout by nakasuga 220416
+//   tree->Branch("fit_g300z", &fit_g300z, "fit_g300z/D");//commentout by nakasuga 220416
 
-//   tree->Branch("chi2_x", &chi2_x, "chi2_x/D");
-//   tree->Branch("chi2_y", &chi2_y, "chi2_y/D");
-//   tree->Branch("tgt_z", &tgt_z, "tgt_z/D");
-// //  tree->Branch("tgtpos_y", &tgtpos_y, "tgtpos_y/D");
-//   tree->Branch("fit_a_x", &fit_a_x, "fit_a_x/D");
-//   tree->Branch("fit_b_x", &fit_b_x, "fit_b_x/D");
-//   tree->Branch("fit_a_y", &fit_a_y, "fit_a_y/D");
-//   tree->Branch("fit_b_y", &fit_b_y, "fit_b_y/D");
-//   tree->Branch("distance_x", &distance_x, "distance_x/D");
-// //  tree->Branch("distance_y", &distance_y, "distance_y/D");
-//   tree->Branch("distance_fromtgt_y", &distance_fromtgt_y, "distance_fromtgt_y/D");
-//   tree->Branch("distance_fromupwire_y", &distance_fromupwire_y, "distance_fromupwire_y/D");
-//   tree->Branch("distance_fromdownwire_y", &distance_fromdownwire_y, "distance_fromdownwire_y/D");
-//   tree->Branch("fit_g100x", &fit_g100x, "fit_g100x/D");
-//   tree->Branch("fit_g100y", &fit_g100y, "fit_g100y/D");
-//   tree->Branch("fit_g100z", &fit_g100z, "fit_g100z/D");
-//   tree->Branch("fit_g200x", &fit_g200x, "fit_g200x/D");
-//   tree->Branch("fit_g200y", &fit_g200y, "fit_g200y/D");
-//   tree->Branch("fit_g200z", &fit_g200z, "fit_g200z/D");
-//   tree->Branch("fit_g300x", &fit_g300x, "fit_g300x/D");
-//   tree->Branch("fit_g300y", &fit_g300y, "fit_g300y/D");
-//   tree->Branch("fit_g300z", &fit_g300z, "fit_g300z/D");
 
+//   tree->Branch("hasMatchedASDHit", &hasMatchedASDHit, "hasMatchedASDHit/I");//commentout by nakasuga 220416
+//   tree->Branch("x_trk_used_times", &x_trk_used_times, "x_trk_used_times/I");//commentout by nakasuga 220416
+//   tree->Branch("trkid_x", &trkid_x, "trkid_x/I");//commentout by nakasuga 220416
+//   tree->Branch("trkid_y", &trkid_y, "trkid_y/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_100x", &hitid_100x, "hitid_100x/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_200x", &hitid_200x, "hitid_200x/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_300x", &hitid_300x, "hitid_300x/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_100y", &hitid_100y, "hitid_100y/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_200y", &hitid_200y, "hitid_200y/I");//commentout by nakasuga 220416
+//   tree->Branch("hitid_300y", &hitid_300y, "hitid_300y/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_ssd", &cluster_size_ssd, "cluster_size_ssd/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_g100x", &cluster_size_g100x, "cluster_size_g100x/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_g200x", &cluster_size_g200x, "cluster_size_g200x/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_g300x", &cluster_size_g300x, "cluster_size_g300x/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_g100y", &cluster_size_g100y, "cluster_size_g100y/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_g200y", &cluster_size_g200y, "cluster_size_g200y/I");//commentout by nakasuga 220416
+//   tree->Branch("cluster_size_g300y", &cluster_size_g300y, "cluster_size_g300y/I");//commentout by nakasuga 220416
+//   tree->Branch("asd_hit",&asd_hit, "asd_hit/I" );//commentout by nakasuga 220416
+//   tree->Branch("lg_hit",&lg_hit, "lg_hit/I" );//commentout by nakasuga 220416
+//   tree->Branch("lg_cross_pos", &lg_cross_pos);//commentout by nakasuga 220416
+//   tree->Branch("lg_module_id", &lg_module_id, "lg_module_id/I");//commentout by nakasuga 220416
+//   tree->Branch("lg_channel_id", &lg_channel_id,"lg_channel_id/I" );//commentout by nakasuga 220416
 
-//   tree->Branch("hasMatchedASDHit", &hasMatchedASDHit, "hasMatchedASDHit/I");
-//   tree->Branch("x_trk_used_times", &x_trk_used_times, "x_trk_used_times/I");
-//   tree->Branch("trkid_x", &trkid_x, "trkid_x/I");
-//   tree->Branch("trkid_y", &trkid_y, "trkid_y/I");
-//   tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
-//   tree->Branch("hitid_100x", &hitid_100x, "hitid_100x/I");
-//   tree->Branch("hitid_200x", &hitid_200x, "hitid_200x/I");
-//   tree->Branch("hitid_300x", &hitid_300x, "hitid_300x/I");
-//   tree->Branch("hitid_100y", &hitid_100y, "hitid_100y/I");
-//   tree->Branch("hitid_200y", &hitid_200y, "hitid_200y/I");
-//   tree->Branch("hitid_300y", &hitid_300y, "hitid_300y/I");
-//   tree->Branch("cluster_size_ssd", &cluster_size_ssd, "cluster_size_ssd/I");
-//   tree->Branch("cluster_size_g100x", &cluster_size_g100x, "cluster_size_g100x/I");
-//   tree->Branch("cluster_size_g200x", &cluster_size_g200x, "cluster_size_g200x/I");
-//   tree->Branch("cluster_size_g300x", &cluster_size_g300x, "cluster_size_g300x/I");
-//   tree->Branch("cluster_size_g100y", &cluster_size_g100y, "cluster_size_g100y/I");
-//   tree->Branch("cluster_size_g200y", &cluster_size_g200y, "cluster_size_g200y/I");
-//   tree->Branch("cluster_size_g300y", &cluster_size_g300y, "cluster_size_g300y/I");
-//   tree->Branch("asd_hit",&asd_hit, "asd_hit/I" );
-//   tree->Branch("lg_hit",&lg_hit, "lg_hit/I" );
-//   tree->Branch("lg_cross_pos", &lg_cross_pos);
-//   tree->Branch("lg_module_id", &lg_module_id, "lg_module_id/I");
-//   tree->Branch("lg_channel_id", &lg_channel_id,"lg_channel_id/I" );
-
-//   tree->Branch("timediff_in_cluster_100x", &timediff_in_cluster_100x, "timediff_in_cluster_100x/D"); 
-//   tree->Branch("timediff_in_cluster_200x", &timediff_in_cluster_200x, "timediff_in_cluster_200x/D"); 
-//   tree->Branch("timediff_in_cluster_300x", &timediff_in_cluster_300x, "timediff_in_cluster_300x/D"); 
-//   tree->Branch("timings_100x"  , &timings_100x );
-//   tree->Branch("timings_200x"  , &timings_200x );
-//   tree->Branch("timings_300x"  , &timings_300x );
-//   tree->Branch("positions_100x", &positions_100x );
-//   tree->Branch("positions_200x", &positions_200x );
-//   tree->Branch("positions_300x", &positions_300x );
-
+//   tree->Branch("timediff_in_cluster_100x", &timediff_in_cluster_100x, "timediff_in_cluster_100x/D");//commentout by nakasuga 220416 
+//   tree->Branch("timediff_in_cluster_200x", &timediff_in_cluster_200x, "timediff_in_cluster_200x/D");//commentout by nakasuga 220416 
+//   tree->Branch("timediff_in_cluster_300x", &timediff_in_cluster_300x, "timediff_in_cluster_300x/D");//commentout by nakasuga 220416 
+//   tree->Branch("timings_100x"  , &timings_100x );//commentout by nakasuga 220416
+//   tree->Branch("timings_200x"  , &timings_200x );//commentout by nakasuga 220416
+//   tree->Branch("timings_300x"  , &timings_300x );//commentout by nakasuga 220416
+//   tree->Branch("positions_100x", &positions_100x );//commentout by nakasuga 220416
+//   tree->Branch("positions_200x", &positions_200x );//commentout by nakasuga 220416
+//   tree->Branch("positions_300x", &positions_300x );//commentout by nakasuga 220416
 
 
 
+  //auto in_file_name  = argv[1];
+  auto out_file_name = argv[2];
+  auto run_id        = stoi(argv[3]);
+  auto max_event     = stoi(argv[4]);
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(run_id);
+//  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
+//  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
+//  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
+//  E16ANA_GeometryV2::SetGlobalPointer(geom);
 
-//   //auto in_file_name  = argv[1];
-//   auto out_file_name = argv[2];
-//   auto run_id        = stoi(argv[3]);
-//   auto max_event     = stoi(argv[4]);
-//   auto& calib = E16ANA_CalibDBManager::Instance();
-//   calib.SetRunID(run_id);
-// //  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
-// //  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
-// //  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
-// //  E16ANA_GeometryV2::SetGlobalPointer(geom);
-
-// //  E16ANA_ParamManager *paramMgr;
-// //  E16ANA_GTRAnalyzerManager *gtr_manager;
-// //  const char *file = "/ccj/u/mtomoki/E16CalibFiles-local.cfg";
-// //  paramMgr = new E16ANA_ParamManager(file);
-// //  gtr_manager = new E16ANA_GTRAnalyzerManager(paramMgr);
+//  E16ANA_ParamManager *paramMgr;
+//  E16ANA_GTRAnalyzerManager *gtr_manager;
+//  const char *file = "/ccj/u/mtomoki/E16CalibFiles-local.cfg";
+//  paramMgr = new E16ANA_ParamManager(file);
+//  gtr_manager = new E16ANA_GTRAnalyzerManager(paramMgr);
 
 
-//   auto trigger_param = new E16ANA_TriggerCalibParam();
-//   trigger_param->ReadConstantData(calib.CurrentRunID());
-//   E16ANA_GTRcalibPedestal gtrped;
-//   gtrped.ReadCalibData( calib.CurrentRunID() );
-//   E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
-//   targets.ReadInfoWithRunID( calib.CurrentRunID());
-//   targets.Print();
-//   E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
-//   gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
-//   auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
-//   auto record = new E16DST_DST1PhysicsRecord();
-//   auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-//   auto *gtrhist = new GTRCheckHist();
-//   auto gtr_status = new E16ANA_GTRStatus(calib.CurrentRunID());
-//   //auto asd_dead = gtr_status->ASDDeadChannel();
-// //  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
-//   for (int m=101; m< 110; m++){
-// 	for(int ch=0; ch < 24; ch++){
-//  		std::cout << "isYOK ch``module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->Is300YOK(m, ch) << std::endl;
-// 	}
-//   }
+  auto trigger_param = new E16ANA_TriggerCalibParam();
+  trigger_param->ReadConstantData(calib.CurrentRunID());
+  E16ANA_GTRcalibPedestal gtrped;
+  gtrped.ReadCalibData( calib.CurrentRunID() );
+  E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
+  targets.ReadInfoWithRunID( calib.CurrentRunID());
+  targets.Print();
+  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
+  auto record = new E16DST_DST1PhysicsRecord();
+  auto geom = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  auto *gtrhist = new GTRCheckHist();
+  // auto gtr_status = new E16ANA_GTRStatus(calib.CurrentRunID());//commentout by nakasuga 220416
+  //auto asd_dead = gtr_status->ASDDeadChannel();
+//  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
+  for (int m=101; m< 110; m++){
+	for(int ch=0; ch < 24; ch++){
+ 		// std::cout << "GEM Status : module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->GEMDeadArea300()->IsYOK(m, ch) << std::endl;//commentout by nakasuga 220416
+	}
+  }
+
   
 //   int n_event = 0;
 //   int n_physics_event = 0;

@@ -328,14 +328,16 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
 //        minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, -20.0, 20.0); // mm
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20.0, vertex_init.X()+20.0); // mm // update 2021-02-24
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-10., vertex_init.X()+10.); // mm // update 2021-09-20
-      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-50., vertex_init.X()+50.); // mm // update 2021-11-06 for Ks?
+//      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-50., vertex_init.X()+50.); // mm // update 2021-11-06 for Ks?
+      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-80., vertex_init.X()+80.); // mm // update 2022-02-23 for Ks?
       if(pyfixflag){
          minuit->SetFixedVariable(1, "Vertex_Y", vertex_init.Y());
       }else{
          //minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20.0, 20.0); // mm
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20.0, vertex_init.Y()+20.0); // mm // update 2021-02-24
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-10., vertex_init.Y()+10.); // mm // update 2021-09-20
-         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-50., vertex_init.Y()+50.); // mm // update 2021-11-06 for Ks?
+//         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-50., vertex_init.Y()+50.); // mm // update 2021-11-06 for Ks?
+         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-80., vertex_init.Y()+80.); // mm // update 2022-02-23 for Ks?
       }
    }
    /*
@@ -359,8 +361,9 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    }else{
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, vertex_init.Z()-20.0, vertex_init.Z()+20.0);
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -25.0, 25.0); // update 2021-10-15
-      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -50.0, 50.0); // update 2021-10-19
+//      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -50.0, 50.0); // update 2021-10-19
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 20., -20.0, 20.0); // update 2021-10-19
+      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -40.0, 60.0); // update 2022-02-23 for Ks?
    }
    for(int i=0; i<n_tracks; i++){
       minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
