@@ -42,7 +42,7 @@ public:
   int GetFalltime(){return falltime;}
   bool GetSpikeFlag(){return spikeflag;}
 
-  void MethodForTrack(double* _wf, double t0);
+  // void MethodForTrack(double* _wf, double t0);
   int GetHitFlag(){return hitflag;}
 
   //fitting method

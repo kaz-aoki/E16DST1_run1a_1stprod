@@ -2,6 +2,7 @@
 #define E16DST_DST1FACTORY_HH
 
 #include "E16ANA_WaveformFitter.hh"
+#include "E16ANA_WaveformFitterCRRC.hh"
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDChannelManager.hh"
 #include "E16ANA_HBDConstant.hh"
@@ -18,6 +19,9 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_
                           const std::array<double, 3>& lorentz_angle_calib_params);
 int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16ANA_HBDCalibration* hbd_calib,
                           E16ANA_HBDCut* hbd_cut, E16ANA_WaveformFitter* wf1d_fitter,
+                          E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* hbd1);
+int E16DST_DST1HBDFactory(E16DST_DST0Detector<E16DST_DST0HBDHit>& hits0, E16ANA_HBDCalibration* hbd_calib,
+                          E16ANA_HBDCut* hbd_cut, E16ANA_WaveformFitterCRRC* wf1d_fitter,
                           E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>* hbd1);
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1, int fit_option, E16ANA_GeometryV2* geometry ); // 0: w/o fit, 1: w/ fit
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger);
