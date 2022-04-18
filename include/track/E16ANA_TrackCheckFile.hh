@@ -302,8 +302,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("lg_hit_gz",     &lg_hit_gz);
     tree->Branch("lg_hit_adc",    &lg_hit_adc);
     tree->Branch("lg_hit_t",      &lg_hit_t);
-    tree->Branch("lg_hit_adc_wofit",    &lg_hit_adc_wofit);
-    tree->Branch("lg_hit_t_wofit",      &lg_hit_t_wofit);
+    tree->Branch("lg_hit_wofit_adc",    &lg_hit_wofit_adc);
+    tree->Branch("lg_hit_wofit_t",      &lg_hit_wofit_t);
     tree->Branch("lg_hit_npeaks", &lg_hit_npeaks);
     tree->Branch("lg_hit_fflag",  &lg_hit_fflag);
     tree->Branch("n_lg_clusters",      &n_lg_clusters, "n_lg_clusters/I");
@@ -1374,8 +1374,8 @@ class E16ANA_TrackCheckFile {
     lg_hit_gz.resize(n_lg_hits);
     lg_hit_adc.resize(n_lg_hits);
     lg_hit_t.resize(n_lg_hits);
-    lg_hit_adc_wofit.resize(n_lg_hits);
-    lg_hit_t_wofit.resize(n_lg_hits);
+    lg_hit_wofit_adc.resize(n_lg_hits);
+    lg_hit_wofit_t.resize(n_lg_hits);
     lg_hit_npeaks.resize(n_lg_hits);
     lg_hit_fflag.resize(n_lg_hits);
     for (int i = 0; i < n_lg_hits; ++i) {
@@ -1393,8 +1393,8 @@ class E16ANA_TrackCheckFile {
       lg_hit_gz[i]        = gpos.Z();
       lg_hit_adc[i]       = hit.FitPeak();
       lg_hit_t[i]         = hit.FitTiming();
-      lg_hit_adc_wofit[i] = hit.PeakHeight();
-      lg_hit_t_wofit[i]   = hit.GetCalibTiming(lgbasic);
+      lg_hit_wofit_adc[i] = hit.PeakHeight();
+      lg_hit_wofit_t[i]   = hit.GetCalibTiming(lgbasic);
       lg_hit_npeaks[i]    = hit.Npeaks();
       lg_hit_fflag[i]     = hit.FitFlag();
     }
@@ -3208,8 +3208,8 @@ class E16ANA_TrackCheckFile {
   std::vector<double> lg_hit_gz;
   std::vector<float>  lg_hit_adc;
   std::vector<float>  lg_hit_t;
-  std::vector<float>  lg_hit_adc_wofit;
-  std::vector<float>  lg_hit_t_wofit;
+  std::vector<float>  lg_hit_wofit_adc;
+  std::vector<float>  lg_hit_wofit_t;
   std::vector<int>    lg_hit_npeaks;
   std::vector<int>    lg_hit_fflag;
   int n_lg_clusters;

@@ -7,7 +7,8 @@
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
-#include "E16ANA_WaveformFitter.hh"
+//#include "E16ANA_WaveformFitter.hh"
+#include "E16ANA_WaveformFitterCRRC.hh"
 #include "E16ANA_FieldMapCalib.hh"
 #include "E16ANA_EventSelect.hh"
 #include "E16ANA_GTRcalib.hh"
@@ -105,7 +106,7 @@ int main(int argc, char* argv[]) {
   hbd_cut_wo_timing->ReadCutData(calib.CurrentRunID());
   hbd_cut_wo_timing->SetCut("clustering_time_window_start", -10000.);
   hbd_cut_wo_timing->SetCut("clustering_time_window_end", 10000.);
-  std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+//  std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
   E16ANA_LGBasic lgbasic;
   lgbasic.SetMap();
   lgbasic.SetCalibMap();
@@ -118,7 +119,8 @@ int main(int argc, char* argv[]) {
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   
-  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+//  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+  E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
   E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
 
