@@ -2128,3 +2128,695 @@ void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent)
 
 }
 
+void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, char* out_file_name)
+{
+
+   if (fChain == 0) return;
+
+   TFile *fouthist = new TFile("hist.root","recreate");
+
+   int mixevent = 50;
+   const int ndet=5;
+   char det[ndet][20] = {"HBD","LGHit","LGCluster","LGHit_woHBDhit","LGCluster_woHBDhit"};
+   int roughbin[ndet] = {200,50,50,50,50};//bin
+   int halfwidth[ndet] = {50,100,100,100,100};
+   int hw_intx[ndet] = {20,80,80,80,80};
+   int hw_inty[ndet] = {20,120,120,120,120};
+   int ex_2d[ndet] = {50,200,200,200,200};
+   double fitregion[ndet] = {30,100,100,100,100};
+   int adcbinw[ndet] = {40,200,200,200,200};
+   int adcbin[ndet] = {40,400,400,400,400};
+   int tbinw[ndet] = {800,200,200,200,200};
+   int tbin0[ndet] = {-150,0,0,0,0};
+   int tbin[ndet] = {600,200,200,200,200};
+   double ssdoffset = 51.;
+   double ssdregion = 11.;
+   
+   TH1F *hn[5][ndet];
+   TH1F *hnd[5][ndet];
+   const int nopt=4;
+   char opt[nopt][25] = {"nocut","resy(x)cut","plus_charge","minus_charge"};
+   TH1F *haresx[5][nopt][ndet];
+   TH1F *haresy[5][nopt][ndet];
+   TH1F *haresxd[5][nopt][ndet];
+   TH1F *haresyd[5][nopt][ndet];
+   int ntrack[5][nopt][ndet]={0};
+   TH2F *hares[5][ndet];
+   TH2F *haresd[5][ndet];
+   TH1F *ht[5][ndet];
+   TH1F *htd[5][ndet];
+   for(int k=0;k<ndet;k++){
+     for(int i=0;i<5;i++){
+       hn[i][k] = new TH1F(Form("hn%d%d",i,k),Form("%s_multiplicity_mod%d",det[k],103+i),200,0,200);
+       hnd[i][k] = new TH1F(Form("hnd%d%d",i,k),Form("%s_multiplicity_dummy_mod%d",det[k],103+i),200,0,200);
+       for(int j=0;j<nopt;j++){
+	 haresx[i][j][k] = new TH1F(Form("haresx%d%d%d",i,j,k),Form("%s_allhit_residual_x_mod%d_%s",det[k],103+i,opt[j]),roughbin[k],-800,800);
+	 haresy[i][j][k] = new TH1F(Form("haresy%d%d%d",i,j,k),Form("%s_allhit_residual_y_mod%d_%s",det[k],103+i,opt[j]),roughbin[k],-800,800);
+	 haresxd[i][j][k] = new TH1F(Form("haresxd%d%d%d",i,j,k),Form("%s_allhit_residual_x_dummy_mod%d_%s",det[k],103+i,opt[j]),roughbin[k],-800,800);
+	 haresyd[i][j][k] = new TH1F(Form("haresyd%d%d%d",i,j,k),Form("%s_allhit_residual_y_dummy_mod%d_%s",det[k],103+i,opt[j]),roughbin[k],-800,800);
+       }
+       hares[i][k] = new TH2F(Form("hares%d%d",i,k),Form("%s_allhit_residual_mod%d",det[k],103+i),roughbin[k],-800,800,roughbin[k],-800,800);
+       haresd[i][k] = new TH2F(Form("haresd%d%d",i,k),Form("%s_allhit_residual_dummy_mod%d",det[k],103+i),roughbin[k],-800,800,roughbin[k],-800,800);
+       ht[i][k] = new TH1F(Form("ht%d%d",i,k),Form("%s_fastest_time_mod%d",det[k],103+i),tbinw[k],tbin0[k],tbin[k]);
+       htd[i][k] = new TH1F(Form("htd%d%d",i,k),Form("%s_fastest_time_dummy_mod%d",det[k],103+i),tbinw[k],tbin0[k],tbin[k]);
+     }
+   }
+   TH1F* trkmom[5];
+   TH2F* hevsp[5];
+   TH2F* hevspd[5];
+   TH1F* hedivp[5];
+   TH1F* hedivpd[5];
+   TH1F* hesubp[5];
+   TH1F* hesubpd[5];
+   // TH1F* hnlghitwt[5];
+   for(int i=0;i<5;i++){
+     trkmom[i] = new TH1F(Form("trkmom%d",i),Form("Track_mom_w/HBDHit_mod%d",103+i),50,0,5);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_HitAdcSumVsMom_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_HitAdcSumVsMom_dummy_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
+     hedivp[i] = new TH1F(Form("hedivp%d",i),Form("LG_HitAdc/Mom_TrackAssociate_mod%d",103+i),50,0,400);
+     hedivpd[i] = new TH1F(Form("hedivpd%d",i),Form("LG_HitAdc/Mom_dummy_TrackAssociate_mod%d",103+i),50,0,400);
+     hesubp[i] = new TH1F(Form("hesubp%d",i),Form("LG_HitAdc-250*Mom_TrackAssociate_mod%d",103+i),50,-200,200);
+     hesubpd[i] = new TH1F(Form("hesubpd%d",i),Form("LG_HitAdc-250*Mom_dummy_TrackAssociate_mod%d",103+i),50,-200,200);
+     // hnlghitwt[i] = new TH1F(Form("hnlghitwt%d",i),Form("N_LGHits_TrackAssociate_mod%d",103+i),10,0,10);
+   }
+
+
+   //HBD residual region for selecting tracks
+   double track_select_sigma = 2.;
+   double hbd_voriginx[4]={0.};
+   double hbd_voriginy[4]={0.};
+   double hbd_vsigmax[4]={25.,25.,25.,25.};
+   double hbd_vsigmay[4]={25.,25.,25.,25.};
+
+   //for mixing
+   struct hitset{
+     int mid;
+     double lx;
+     double ly;
+     double adc;
+     double tdc;
+   };
+   std::vector<std::vector<hitset>> hbdmixhits[5];
+   std::vector<std::vector<hitset>> lgmixhits[5];
+   TH1F *hbdresxmix[5];
+   TH1F *hbdresymix[5];
+   TH1F *lgresxmix[5];
+   TH1F *lgresymix[5];
+   TH1F *lgadcmix[5];
+   for(int i=0;i<5;i++){
+     hbdresxmix[i] = new TH1F(Form("hbdresxmix%d",i),Form("hbd_resx_mix_mod%d",103+i),roughbin[0],-800,800);
+     hbdresymix[i] = new TH1F(Form("hbdresymix%d",i),Form("hbd_resy_mix_mod%d",103+i),roughbin[0],-800,800);
+     lgresxmix[i] = new TH1F(Form("lgresxmix%d",i),Form("lg_resx_mix_mod%d",103+i),roughbin[1],-800,800);
+     lgresymix[i] = new TH1F(Form("lgresymix%d",i),Form("lg_resy_mix_mod%d",103+i),roughbin[1],-800,800);
+     lgadcmix[i] = new TH1F(Form("lgadcmix%d",i),Form("lg_adc_mix_mod%d",103+i),50,0,400);
+   }
+   //for mixing
+
+   Long64_t n_entries = fChain->GetEntries();
+   Long64_t nentries = fChain->GetEntriesFast();
+   Long64_t nbytes = 0, nb = 0;
+
+   int nevent=0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+      if( maxevent!=-1&&nevent>maxevent ){break;}
+
+      std::vector<int> goodtracks;
+      if (Cut(ientry,goodtracks) < 0) continue;
+      // if (Cut(ientry) < 0) continue;//220407
+
+      bool alfill[5]={false};
+
+      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
+
+	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
+	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
+
+	//HBD Fill
+	int trk_mid = track_hbd_mid->at(itrack);
+	int mide = trk_mid-103;
+	double resx_min = track_hbd_nearx->at(itrack);
+	double resy_min = track_hbd_neary->at(itrack);
+	int nhbdc = track_hbd_multiplicity->at(itrack);
+	for(int ihbd=0;ihbd<nhbdc;ihbd++){// hbdcluster loop
+	  double resx = track_hbd_allhit_resx->at(itrack).at(ihbd);
+	  double resy = track_hbd_allhit_resy->at(itrack).at(ihbd);
+	  haresx[trk_mid-103][0][0]->Fill(resx);
+	  haresy[trk_mid-103][0][0]->Fill(resy);
+	  if(fabs(resy)<hw_intx[0]){
+	    haresx[trk_mid-103][1][0]->Fill(resx);
+	    if(rk_charge->at(itrack)==1){haresx[trk_mid-103][2][0]->Fill(resx);}
+	    if(rk_charge->at(itrack)==-1){haresx[trk_mid-103][3][0]->Fill(resx);}
+	  }
+	  if(fabs(resx)<hw_intx[0]){
+	    haresy[trk_mid-103][1][0]->Fill(resy);
+	    if(rk_charge->at(itrack)==1){haresy[trk_mid-103][2][0]->Fill(resy);}
+	    if(rk_charge->at(itrack)==-1){haresy[trk_mid-103][3][0]->Fill(resy);}
+	  }
+	  hares[trk_mid-103][0]->Fill(resx,resy);
+	  if( resx*resx+resy*resy < hw_intx[0]*hw_intx[0] ){
+	    ht[trk_mid-103][0]->Fill(track_hbd_allhit_ftime->at(itrack).at(ihbd));
+	  }
+	}// hbdcluster loop
+	ntrack[trk_mid-103][0][0]++;
+	ntrack[trk_mid-103][1][0]++;
+	ntrack[trk_mid-103][2][0]++;
+	ntrack[trk_mid-103][3][0]++;
+	hn[trk_mid-103][0]->Fill(nhbdc);
+
+      	if(hbdmixhits[mide].size()!=0){//calc mix
+	  int nhbdc_dum = 0;
+	  for(int ihbd=0;ihbd<hbdmixhits[mide].size();ihbd++){
+	    for(int jhbd=0;jhbd<hbdmixhits[mide].at(ihbd).size();jhbd++){
+	      double tmpresx = hbdmixhits[mide].at(ihbd).at(jhbd).lx-track_hbd_lx->at(itrack);
+	      double tmpresy = hbdmixhits[mide].at(ihbd).at(jhbd).ly-track_hbd_ly->at(itrack);
+	      haresxd[mide][0][0]->Fill(tmpresx);
+	      haresyd[mide][0][0]->Fill(tmpresy);
+	      if(fabs(tmpresy)<hw_intx[0]){
+		haresxd[mide][1][0]->Fill(tmpresx);
+		if(rk_charge->at(itrack)==1){haresxd[mide][2][0]->Fill(tmpresx);}
+		if(rk_charge->at(itrack)==-1){haresxd[mide][3][0]->Fill(tmpresx);}
+	      }
+	      if(fabs(tmpresx)<hw_intx[0]){
+		hbdresymix[mide]->Fill(hbdmixhits[mide].at(ihbd).at(jhbd).ly-track_hbd_ly->at(itrack));
+		haresyd[mide][1][0]->Fill(tmpresy);
+		if(rk_charge->at(itrack)==1){haresyd[mide][2][0]->Fill(tmpresy);}
+		if(rk_charge->at(itrack)==-1){haresyd[mide][3][0]->Fill(tmpresy);}
+	      }
+	      haresd[mide][0]->Fill(tmpresx,tmpresy);
+	      if( tmpresx*tmpresx+tmpresy*tmpresy < hw_intx[0]*hw_intx[0] ){
+		htd[mide][0]->Fill(hbdmixhits[mide].at(ihbd).at(jhbd).tdc);
+	      }
+	      nhbdc_dum++;
+	    }
+	  }
+	  hnd[mide][0]->Fill(nhbdc_dum);
+	}//calc mix
+
+	bool HBDhit=false;
+	double rxt = resx_min-hbd_voriginx[(trk_mid-103+2)%5];
+	double ryt = resy_min-hbd_voriginy[(trk_mid-103+2)%5];
+	if( fabs(rxt)<hbd_vsigmax[(trk_mid-103+2)%5] && fabs(ryt)<hbd_vsigmay[(trk_mid-103+2)%5] ){
+	  HBDhit=true;
+	}
+
+	//LG Fill
+	trk_mid = track_lg_mid->at(itrack);
+	for(int trktype=0;trktype<2;trktype++){
+	  if(trktype==0&&(!HBDhit||trk_mid<103||trk_mid>107)){continue;}
+	  if(trktype==1&&(trk_mid<103||trk_mid>107)){continue;}
+	  double resx_min = track_lg_nearx->at(itrack);
+	  double resy_min = track_lg_neary->at(itrack);
+	  double tmptrkm = track_mom->at(itrack);
+	  int nlgh = track_lg_multiplicity->at(itrack);
+	  double tmpadcsum=0;
+	  double tmptdiff=10000;
+	  for(int ilg=0;ilg<nlgh;ilg++){//lghit fore
+	    double resx = track_lg_allhit_resx->at(itrack).at(ilg);
+	    double resy = track_lg_allhit_resy->at(itrack).at(ilg);
+	    double tmpadc = track_lg_allhit_adc->at(itrack).at(ilg);
+	    double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
+	    if(track_lg_allhit_adc->at(itrack).at(ilg)<50||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	    haresx[trk_mid-103][0][1+trktype*2]->Fill(resx);
+	    haresy[trk_mid-103][0][1+trktype*2]->Fill(resy);
+	    if(fabs(resy)<hw_inty[1+trktype*2]){
+	      haresx[trk_mid-103][1][1+trktype*2]->Fill(resx);
+	      if(rk_charge->at(itrack)==1){haresx[trk_mid-103][2][1+trktype*2]->Fill(resx);}
+	      if(rk_charge->at(itrack)==-1){haresx[trk_mid-103][3][1+trktype*2]->Fill(resx);}
+	    }
+	    if(fabs(resx)<hw_intx[1+trktype*2]){
+	      haresy[trk_mid-103][1][1+trktype*2]->Fill(resy);
+	      if(rk_charge->at(itrack)==1){haresy[trk_mid-103][2][1+trktype*2]->Fill(resy);}
+	      if(rk_charge->at(itrack)==-1){haresy[trk_mid-103][3][1+trktype*2]->Fill(resy);}
+	    }
+	    if(fabs(resx)<hw_intx[1+trktype*2]&&fabs(resy)<hw_inty[1+trktype*2]){
+	      ht[trk_mid-103][1+trktype*2]->Fill(track_lg_allhit_ftime->at(itrack).at(ilg));
+	    }
+	    hares[trk_mid-103][1+trktype*2]->Fill(resx,resy);
+	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){
+	      if( tmptdc>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmptdc<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
+		if( fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset)<tmptdiff ){
+		  tmpadcsum = tmpadc;
+		  tmptdiff = fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset);
+		}
+	      }
+	    }
+	  }//lghit fore
+	  hn[trk_mid-103][1+trktype*2]->Fill(nlgh);
+	  if(trktype==0){
+	    ntrack[trk_mid-103][0][1+trktype*2]++;
+	    ntrack[trk_mid-103][1][1+trktype*2]++;
+	    hevsp[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsum);
+	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
+	    if(tmpadcsum>50){hesubp[trk_mid-103]->Fill(tmpadcsum-250*track_mom->at(itrack));}
+	  }
+
+	  if(lgmixhits[mide].size()!=0){//calc mix
+	    double tmpadcsumd=0;
+	    double tmptdiffd=10000;
+	    int nlgh_dum = 0;
+	    for(int ilg=0;ilg<lgmixhits[mide].size();ilg++){//lghit loop
+	      for(int jlg=0;jlg<lgmixhits[mide].at(ilg).size();jlg++){
+		double tmpresx = lgmixhits[mide].at(ilg).at(jlg).lx-track_lg_lx->at(itrack);
+		double tmpresy = lgmixhits[mide].at(ilg).at(jlg).ly-track_lg_ly->at(itrack);
+		double tmpt = lgmixhits[mide].at(ilg).at(jlg).tdc;
+		double tmpa = lgmixhits[mide].at(ilg).at(jlg).adc;
+		if(tmpa<50||tmpt<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmpt>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+		haresxd[mide][0][1+trktype*2]->Fill(tmpresx);
+		haresyd[mide][0][1+trktype*2]->Fill(tmpresy);
+		if(fabs(tmpresy)<hw_inty[1+trktype*2]){
+		  haresxd[mide][1][1+trktype*2]->Fill(tmpresx);
+		  if(rk_charge->at(itrack)==1){haresxd[mide][2][1+trktype*2]->Fill(tmpresx);}
+		  if(rk_charge->at(itrack)==-1){haresxd[mide][3][1+trktype*2]->Fill(tmpresx);}
+		}
+		if(fabs(tmpresx)<hw_intx[1+trktype*2]){
+		  haresyd[mide][1][1+trktype*2]->Fill(tmpresy);
+		  if(rk_charge->at(itrack)==1){haresyd[mide][2][1+trktype*2]->Fill(tmpresy);}
+		  if(rk_charge->at(itrack)==-1){haresyd[mide][3][1+trktype*2]->Fill(tmpresy);}
+		  if(fabs(tmpresy)<hw_inty[1+trktype*2]){
+		    htd[mide][1+trktype*2]->Fill(tmpt);
+		  }
+		}
+		haresd[mide][1+trktype*2]->Fill(tmpresx,tmpresy);
+		if( trktype==0 && fabs(tmpresx)<50 && fabs(tmpresy)<50 ){
+		  if( tmpt>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmpt<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
+		    if( fabs(tmpt-track_ssd_t->at(itrack)-ssdoffset)<tmptdiffd ){
+		      tmpadcsumd = tmpa;
+		      tmptdiffd = fabs(tmpt-track_ssd_t->at(itrack)-ssdoffset);
+		    }
+		  }
+		}
+		nlgh_dum++;
+	      }
+	    }//lghit loop
+	    hnd[mide][1+trktype*2]->Fill(nlgh_dum);
+	    if(trktype==0){
+	      hevspd[mide]->Fill(track_mom->at(itrack),tmpadcsumd);
+	      if(tmpadcsumd>50){hedivpd[mide]->Fill(tmpadcsumd/track_mom->at(itrack));}
+	      if(tmpadcsumd>50){hesubpd[mide]->Fill(tmpadcsumd-250*track_mom->at(itrack));}
+	    }
+	  }//calc mix
+
+	  if(trktype==0){//HBDHit
+	    ntrack[trk_mid-103][2][1+trktype*2]++;//220218tmp
+	    ntrack[trk_mid-103][3][1+trktype*2]++;//220218tmp
+	    trkmom[trk_mid-103]->Fill(track_mom->at(itrack));
+	  }//220216
+	  if(trktype==1&&fabs(resx_min)<hw_intx[1]&&fabs(resy_min)<hw_inty[1]){//LGHit w/oHBDHit
+	    ntrack[trk_mid-103][0][1+trktype*2]++;
+	    ntrack[trk_mid-103][1][1+trktype*2]++;
+	    ntrack[trk_mid-103][2][1+trktype*2]++;//220216tmp
+	    ntrack[trk_mid-103][3][1+trktype*2]++;//220216tmp
+	  }//220215
+
+	}//trktype
+
+	//fill mixing hit
+      	if(alfill[mide]==false){
+      	  alfill[mide]=true;
+	  std::vector<hitset> hbdhits;
+      	  for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
+      	    hitset hbdhit;
+      	    hbdhit.mid=track_hbd_mid->at(itrack);
+      	    hbdhit.lx=track_hbd_allhit_resx->at(itrack).at(ihbd)+track_hbd_lx->at(itrack);
+      	    hbdhit.ly=track_hbd_allhit_resy->at(itrack).at(ihbd)+track_hbd_ly->at(itrack);
+      	    hbdhit.adc=track_hbd_allhit_adc->at(itrack).at(ihbd);
+      	    hbdhit.tdc=track_hbd_allhit_ftime->at(itrack).at(ihbd);
+      	    hbdhits.push_back(hbdhit);
+      	  }
+	  hbdmixhits[mide].push_back(hbdhits);
+	  std::vector<hitset> lghits;
+      	  for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+      	    hitset lghit;
+      	    lghit.mid=track_lg_mid->at(itrack);
+      	    lghit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
+      	    lghit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
+      	    lghit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
+      	    lghit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
+      	    lghits.push_back(lghit);
+      	  }
+	  lgmixhits[mide].push_back(lghits);
+	  if(hbdmixhits[mide].size()>mixevent){
+	    hbdmixhits[mide].erase(hbdmixhits[mide].begin());
+	  }
+	  if(lgmixhits[mide].size()>mixevent){
+	    lgmixhits[mide].erase(lgmixhits[mide].begin());
+	  }
+      	}
+	//fill mixing hit
+
+      }//track loop
+
+      nevent++;
+
+   }//event loop
+
+
+   TString outfile = Form("%s",out_file_name);
+
+   gStyle->SetOptStat(11111111);
+   gStyle->SetOptFit(11111111);
+   TCanvas* cn[ndet];
+   TCanvas* cnd[ndet];
+   for(int k=0;k<ndet;k++){
+     cn[k] = new TCanvas(Form("cn%d",k),Form("cn%d",k),700,500);
+     cn[k]->Divide(2,2);
+     cnd[k] = new TCanvas(Form("cnd%d",k),Form("cnd%d",k),700,500);
+     cnd[k]->Divide(2,2);
+     for(int i=0;i<4;i++){
+       cn[k]->cd(i+1);
+       hn[(i+3)%5][k]->Draw();
+       cnd[k]->cd(i+1);
+       hnd[(i+3)%5][k]->Draw();
+     }
+   }
+   TCanvas* ct[ndet];
+   for(int k=0;k<ndet;k++){
+     ct[k] = new TCanvas(Form("ct%d",k),Form("ct%d",k),700,500);
+     ct[k]->Divide(2,2);
+     for(int i=0;i<4;i++){
+       ct[k]->cd(i+1);
+       ht[(i+3)%5][k]->Draw("hist");
+       int norma = ht[(i+3)%5][k]->Integral();
+       int normb = htd[(i+3)%5][k]->Integral();
+       htd[(i+3)%5][k]->Scale((double)norma/(double)normb);
+       htd[(i+3)%5][k]->SetLineColor(6);
+       htd[(i+3)%5][k]->Draw("hist&&sames");
+       ct[k]->cd(i+1)->Update();
+       TPaveStats *st1 = (TPaveStats*)htd[(i+3)%5][k]->FindObject("stats");
+       st1->SetLineColor(6);
+       st1->SetX1NDC(0.58);
+       st1->SetX2NDC(0.78);
+       st1->SetY1NDC(0.495);
+       st1->SetY2NDC(0.935);
+       ct[k]->cd(i+1)->Modified();
+     }
+   }
+   TCanvas* casubd[4][nopt][ndet];
+   TH1F* hasubd[4][2][nopt][ndet];
+   TF1* fasubd[4][2][nopt][ndet];
+   TLegend* lasubd[4][2][nopt][ndet];
+   int vasubd[4][2][nopt][ndet];
+   for(int k=0;k<ndet;k++){
+     for(int j=0;j<nopt;j++){
+       for(int i=0;i<4;i++){
+	 casubd[i][j][k] = new TCanvas(Form("casubd%d%d%d",i,j,k),Form("casubd%d%d%d",i,j,k),700,500);
+	 casubd[i][j][k]->Divide(2,2);
+	 casubd[i][j][k]->cd(1);
+	 haresx[(i+3)%5][j][k]->Draw("hist");
+	 int reg[4] = {haresx[(i+3)%5][j][k]->FindBin(-800.),haresx[(i+3)%5][j][k]->FindBin(-100.),haresx[(i+3)%5][j][k]->FindBin(100.),haresx[(i+3)%5][j][k]->FindBin(800.)};
+	 int norma = haresx[(i+3)%5][j][k]->Integral(reg[0],reg[1])+haresx[(i+3)%5][j][k]->Integral(reg[2],reg[3]);
+	 int normb = haresxd[(i+3)%5][j][k]->Integral(reg[0],reg[1])+haresxd[(i+3)%5][j][k]->Integral(reg[2],reg[3]);
+	 haresxd[(i+3)%5][j][k]->Scale((double)norma/(double)normb);
+	 haresxd[(i+3)%5][j][k]->SetLineColor(6);
+	 haresxd[(i+3)%5][j][k]->Draw("hist&&same");
+	 casubd[i][j][k]->cd(2);
+	 haresy[(i+3)%5][j][k]->Draw("hist");
+	 norma = haresy[(i+3)%5][j][k]->Integral(reg[0],reg[1])+haresy[(i+3)%5][j][k]->Integral(reg[2],reg[3]);
+	 normb = haresyd[(i+3)%5][j][k]->Integral(reg[0],reg[1])+haresyd[(i+3)%5][j][k]->Integral(reg[2],reg[3]);
+	 haresyd[(i+3)%5][j][k]->Scale((double)norma/(double)normb);
+	 haresyd[(i+3)%5][j][k]->SetLineColor(6);
+	 haresyd[(i+3)%5][j][k]->Draw("hist&&same");
+	 casubd[i][j][k]->cd(3);
+	 hasubd[i][0][j][k] = (TH1F*)haresx[(i+3)%5][j][k]->Clone();
+	 hasubd[i][0][j][k]->SetName(Form("haresxcp%d%d%d",(i+3)%5,j,k));
+	 hasubd[i][0][j][k]->Add(haresxd[(i+3)%5][j][k],-1);
+	 hasubd[i][0][j][k]->Draw("hist");
+	 fasubd[i][0][j][k] = new TF1(Form("fasubd%dx%d%d",i,j,k),"gaus",-800,800);
+	 hasubd[i][0][j][k]->Fit(Form("fasubd%dx%d%d",i,j,k),"","",-fitregion[k],fitregion[k]);
+	 lasubd[i][0][j][k] = new TLegend(0.1,0.75,0.4,0.9);
+	 vasubd[i][0][j][k] = hasubd[i][0][j][k]->Integral(roughbin[k]/2-hw_intx[k]*roughbin[k]/1600,roughbin[k]/2+hw_inty[k]*roughbin[k]/1600);
+	 lasubd[i][0][j][k]->AddEntry(hasubd[i][0][j][k],Form("%d<Integral<%d, %d",-hw_intx[k],hw_intx[k],vasubd[i][0][j][k]),"l");
+	 lasubd[i][0][j][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][j][k]),"");
+	 lasubd[i][0][j][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasubd[i][0][j][k]/(double)ntrack[(i+3)%5][j][k]),"");
+	 lasubd[i][0][j][k]->Draw();
+	 casubd[i][j][k]->cd(4);
+	 hasubd[i][1][j][k] = (TH1F*)haresy[(i+3)%5][j][k]->Clone();
+	 hasubd[i][1][j][k]->SetName(Form("haresycp%d%d%d",(i+3)%5,j,k));
+	 hasubd[i][1][j][k]->Add(haresyd[(i+3)%5][j][k],-1);
+	 hasubd[i][1][j][k]->Draw("hist");
+	 fasubd[i][1][j][k] = new TF1(Form("fasubd%dy%d%d",i,j,k),"gaus",-800,800);
+	 hasubd[i][1][j][k]->Fit(Form("fasubd%dy%d%d",i,j,k),"","",-fitregion[k],fitregion[k]);
+	 lasubd[i][1][j][k] = new TLegend(0.1,0.75,0.4,0.9);
+	 vasubd[i][1][j][k] = hasubd[i][1][j][k]->Integral(roughbin[k]/2-hw_intx[k]*roughbin[k]/1600,roughbin[k]/2+hw_inty[k]*roughbin[k]/1600);
+	 lasubd[i][1][j][k]->AddEntry(hasubd[i][1][j][k],Form("%d<Integral<%d, %d",-hw_intx[k],hw_intx[k],vasubd[i][1][j][k]),"l");
+	 lasubd[i][1][j][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][j][k]),"");
+	 lasubd[i][1][j][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasubd[i][1][j][k]/(double)ntrack[(i+3)%5][j][k]),"");
+	 lasubd[i][1][j][k]->Draw();
+       }
+     }
+   }
+   TCanvas* casub2d[4][ndet];
+   TH2F* hasub2d[4][ndet];
+   TH2F* hasub2dcopy[4][ndet];
+   TLegend* lasub2d[3][4][ndet];
+   int vasub2d[3][4][ndet];
+   double voriginx[4][ndet]={0.};
+   double voriginy[4][ndet]={0.};
+   double vsigmax[4][ndet]={0.};
+   double vsigmay[4][ndet]={0.};
+   int ntracks[4][ndet]={0};
+   double missurv[4][ndet]={0.};
+   double effxtrkp[4][ndet]={0.};
+   for(int k=0;k<ndet;k++){
+     for(int i=0;i<4;i++){
+       casub2d[i][k] = new TCanvas(Form("casub2d%d%d",i,k),Form("casub2d%d%d",i,k),700,700);
+       casub2d[i][k]->Divide(2,2);
+       voriginx[i][k] = fasubd[i][0][1][k]->GetParameter(1);
+       voriginy[i][k] = fasubd[i][1][1][k]->GetParameter(1);
+       vsigmax[i][k] = fasubd[i][0][1][k]->GetParameter(2)*track_select_sigma;
+       vsigmay[i][k] = fasubd[i][1][1][k]->GetParameter(2)*track_select_sigma;
+       if(k==0){voriginx[i][k]=hbd_voriginx[i];voriginy[i][k]=hbd_voriginy[i];vsigmax[i][k]=hbd_vsigmax[i];vsigmay[i][k]=hbd_vsigmay[i];}
+       if(k==1||k==3){voriginx[i][k]=0;voriginy[i][k]=0;vsigmax[i][k]=hw_intx[1];vsigmay[i][k]=hw_inty[1];}
+       if(k==2||k==4){voriginy[i][k]=0;vsigmay[i][k]=hw_inty[1];}
+       int n_track = hn[(i+3)%5][k]->GetEntries();
+       ntracks[i][k] = n_track;
+       casub2d[i][k]->cd(1);
+       hares[(i+3)%5][k]->Draw("colz");
+       lasub2d[0][i][k] = new TLegend(0.1,0.8,0.45,0.9);
+       vasub2d[0][i][k] = AnalyzerResidualHBD::Get2DHistSquareIntegral(hares[(i+3)%5][k],voriginx[i][k],voriginy[i][k],vsigmax[i][k],vsigmay[i][k]);
+       lasub2d[0][i][k]->AddEntry(hares[(i+3)%5][k],Form("Integral, %d",vasub2d[0][i][k]),"l");
+       lasub2d[0][i][k]->AddEntry((TObject*)0,Form("int/ntrack: %1.3f",(double)vasub2d[0][i][k]/(double)n_track),"");
+       lasub2d[0][i][k]->Draw();
+       casub2d[i][k]->cd(2);
+       int x0 = haresd[(i+3)%5][k]->GetXaxis()->FindBin(-100.);
+       int x1 = haresd[(i+3)%5][k]->GetXaxis()->FindBin(100.);
+       int y0 = haresd[(i+3)%5][k]->GetYaxis()->FindBin(-100.);
+       int y1 = haresd[(i+3)%5][k]->GetYaxis()->FindBin(100.);
+       int norma = hares[(i+3)%5][k]->Integral()-hares[(i+3)%5][k]->Integral(x0,x1,y0,y1);
+       int normb = haresd[(i+3)%5][k]->Integral()-haresd[(i+3)%5][k]->Integral(x0,x1,y0,y1);
+       haresd[(i+3)%5][k]->Scale((double)norma/(double)normb);
+       haresd[(i+3)%5][k]->Draw("colz");
+       lasub2d[1][i][k] = new TLegend(0.1,0.8,0.7,0.9);
+       vasub2d[1][i][k] = AnalyzerResidualHBD::Get2DHistSquareIntegral(haresd[(i+3)%5][k],voriginx[i][k],voriginy[i][k],vsigmax[i][k],vsigmay[i][k]);
+       lasub2d[1][i][k]->AddEntry(haresd[(i+3)%5][k],Form("Integral, %d",vasub2d[1][i][k]),"l");
+       lasub2d[1][i][k]->AddEntry((TObject*)0,Form("int/ntrack (mis-track survival): %1.3f",(double)vasub2d[1][i][k]/(double)n_track),"");
+       lasub2d[1][i][k]->Draw();
+       missurv[i][k] = (double)vasub2d[1][i][k]/(double)n_track;
+       casub2d[i][k]->cd(3);
+       hasub2d[i][k] = (TH2F*)hares[(i+3)%5][k]->Clone();
+       hasub2d[i][k]->Add(haresd[(i+3)%5][k],-1);
+       hasub2d[i][k]->Draw("colz");
+       lasub2d[2][i][k] = new TLegend(0.1,0.75,0.6,0.9);
+       hasub2dcopy[i][k] = (TH2F*)hasub2d[i][k]->Clone();
+       //vasub2d[2][i][k] = AnalyzerResidualHBD::Get2DHistIntegral(hasub2d[i][k],vsigmax[i][k],hasub2dcopy[i][k],voriginx[i][k],voriginy[i][k]);
+       vasub2d[2][i][k] = AnalyzerResidualHBD::Get2DHistSquareIntegral(hasub2d[i][k],hasub2dcopy[i][k],voriginx[i][k],voriginy[i][k],vsigmax[i][k],vsigmay[i][k]);
+       lasub2d[2][i][k]->AddEntry(hasub2d[i][k],Form("Integral(sx:%dmm,sy:%dmm), %d",(int)vsigmax[i][k],(int)vsigmay[i][k],vasub2d[2][i][k]),"l");
+       lasub2d[2][i][k]->AddEntry((TObject*)0,Form("n_track: %d",n_track),"");
+       lasub2d[2][i][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasub2d[2][i][k]/(double)n_track),"");
+       lasub2d[2][i][k]->Draw();
+       effxtrkp[i][k] = (double)vasub2d[2][i][k]/(double)n_track;
+       casub2d[i][k]->cd(4)->DrawFrame(-ex_2d[k],-ex_2d[k],ex_2d[k],ex_2d[k]);
+       hasub2dcopy[i][k]->Draw("colz sames");
+     }
+   }
+
+   // Efficiency Summary
+   const int step = 10;
+   double trkpforhbdrej[4]={0.};
+   double trkpforlgrej[4]={0.};
+   TGraphErrors* geffh[4];
+   TGraphErrors* geffc[4];
+   TGraphErrors* geffhb[4];
+   TGraphErrors* geffcb[4];
+   TGraphErrors* gtrkp[4];
+   TGraphErrors* gtrkpb[4];
+   TGraphErrors* gtrkp2[4];
+   TCanvas *ceff = new TCanvas("ceff","ceff",700,500);
+   TLegend* leff = new TLegend(0.1,0.1,0.5,0.5);
+   ceff->Divide(2,2);
+   for(int i=0;i<4;i++){
+     double graphx[step]={0.};
+     double veffh[step]={0.};
+     double veffc[step]={0.};
+     double veffhb[step]={0.};
+     double veffcb[step]={0.};
+     double vtrkp[step]={0.};
+     double vtrkpb[step]={0.};
+     double vtrkp2[step]={0.};
+     double zero[step]={0.};
+     double veffh_err[step]={0.};
+     double veffc_err[step]={0.};
+     double veffhb_err[step]={0.};
+     double veffcb_err[step]={0.};
+     double vtrkp_err[step]={0.};
+     double vtrkpb_err[step]={0.};
+     double vtrkp2_err[step]={0.};
+     for(int st=0;st<step;st++){
+       graphx[st] = effxtrkp[i][0] + st*(1.-effxtrkp[i][0])/((double)step-1.) ;
+       veffh[st] = (double)vasub2d[2][i][1]/(double)vasub2d[2][i][0];
+       veffh_err[st] = veffh[st]/sqrt((double)vasub2d[2][i][1]);
+       veffc[st] = (double)vasub2d[2][i][2]/(double)vasub2d[2][i][0];
+       veffc_err[st] = veffc[st]/sqrt((double)vasub2d[2][i][2]);
+       vtrkp[st] = (double)vasub2d[2][i][0]/(double)ntracks[i][1];
+       vtrkp_err[st] = vtrkp[st]/sqrt((double)vasub2d[2][i][0]);
+       vtrkp2[st] = (double)vasub2d[2][i][3]/(double)ntrack[(i+3)%5][0][3];
+       vtrkp2_err[st] = vtrkp[st]/sqrt((double)vasub2d[2][i][3]);
+       vtrkpb[st] = effxtrkp[i][0]/graphx[st];
+       veffhb[st] = effxtrkp[i][3]/vtrkpb[st];
+       veffcb[st] = effxtrkp[i][4]/vtrkpb[st];
+     }
+     trkpforhbdrej[i] = vtrkp2[0];
+     trkpforlgrej[i] = vtrkp[0];
+     geffh[i] = new TGraphErrors(step,graphx,veffh,zero,veffh_err);
+     geffc[i] = new TGraphErrors(step,graphx,veffc,zero,veffc_err);
+     gtrkp[i] = new TGraphErrors(step,graphx,vtrkp,zero,vtrkp_err);
+     gtrkpb[i] = new TGraphErrors(step,graphx,vtrkpb,zero,vtrkpb_err);
+     gtrkp2[i] = new TGraphErrors(step,graphx,vtrkp2,zero,vtrkp2_err);
+     geffhb[i] = new TGraphErrors(step,graphx,veffhb,zero,veffhb_err);
+     geffcb[i] = new TGraphErrors(step,graphx,veffcb,zero,veffcb_err);
+     ceff->cd(i+1)->SetGrid();
+     gtrkp[i]->SetTitle(Form("Efficiency&TrackPurity_Module%d;HBDefficiency;",(i+3)%5+103));
+     gtrkp[i]->SetMaximum(1.);
+     gtrkp[i]->SetMinimum(0.);
+     gtrkp[i]->GetXaxis()->SetLimits(0,1);
+     gtrkp[i]->Draw("ALP");
+     gtrkp2[i]->SetMarkerColor(3);
+     gtrkp2[i]->SetLineColor(3);
+     gtrkp2[i]->Draw("LP");
+     geffh[i]->SetMarkerColor(2);
+     geffh[i]->SetLineColor(2);
+     geffh[i]->Draw("LP");
+     geffc[i]->SetMarkerColor(4);
+     geffc[i]->SetLineColor(4);
+     geffc[i]->Draw("LP");
+     geffhb[i]->SetMarkerColor(6);
+     geffhb[i]->SetLineColor(6);
+     geffhb[i]->Draw("LP");
+     geffcb[i]->SetMarkerColor(7);
+     geffcb[i]->SetLineColor(7);
+     geffcb[i]->Draw("LP");
+     gtrkpb[i]->SetMarkerColor(8);
+     gtrkpb[i]->SetLineColor(8);
+     gtrkpb[i]->Draw("LP");
+     if(i==2){
+       leff->AddEntry(gtrkp[2],"TrackPurity w/HBD","l");
+       leff->AddEntry(gtrkpb[2],"TrackPurityBefore","l");
+       leff->AddEntry(gtrkp2[2],"TrackPurity w/LG","l");
+       leff->AddEntry(geffh[2],"LGHitEff byTrackw/HBD","l");
+       leff->AddEntry(geffc[2],"LGClsEff byTrackw/HBD","l");
+       leff->AddEntry(geffhb[2],"LGHitEff byTrackw/oHBD","l");
+       leff->AddEntry(geffcb[2],"LGClsEff byTrackw/oHBD","l");
+       leff->Draw();
+     }
+   }
+   TCanvas *ceff2 = new TCanvas("ceff2","ceff2",700,500);
+   ceff2->Divide(2,2);
+   TLegend* leff2[4];
+   for(int i=0;i<4;i++){
+     ceff2->cd(i+1);
+     leff2[i] = new TLegend(0.1,0.1,0.9,0.9);
+     leff2[i]->AddEntry((TObject*)0,Form("Module%d",(i+3)%5+103),"");
+     leff2[i]->AddEntry((TObject*)0,Form("E_HBD(Hit): %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][1],vasub2d[2][i][3],(double)vasub2d[2][i][1]/(double)vasub2d[2][i][3],sqrt((double)vasub2d[2][i][1])/(double)vasub2d[2][i][3]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("E_HBD(Cls): %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][2],vasub2d[2][i][4],(double)vasub2d[2][i][2]/(double)vasub2d[2][i][4],sqrt((double)vasub2d[2][i][2])/(double)vasub2d[2][i][4]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("E_LGHit: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][1],vasub2d[2][i][0],(double)vasub2d[2][i][1]/(double)vasub2d[2][i][0],sqrt((double)vasub2d[2][i][1])/(double)vasub2d[2][i][0]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("E_LGCls: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][2],vasub2d[2][i][0],(double)vasub2d[2][i][2]/(double)vasub2d[2][i][0],sqrt((double)vasub2d[2][i][2])/(double)vasub2d[2][i][0]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/HBD: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][0],ntracks[i][1],(double)vasub2d[2][i][0]/(double)ntracks[i][1],sqrt((double)vasub2d[2][i][0])/(double)ntracks[i][1]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurityB: %d/%dx1./E_HBD=%1.3f +/- %1.3f",vasub2d[2][i][0],ntracks[i][0],(double)vasub2d[2][i][0]/(double)ntracks[i][0]/(double)vasub2d[2][i][1]*(double)vasub2d[2][i][3],sqrt((double)vasub2d[2][i][0])/(double)ntracks[i][0]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/LG: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][3],ntrack[(i+3)%5][0][3],(double)vasub2d[2][i][3]/(double)ntrack[(i+3)%5][0][3],sqrt((double)vasub2d[2][i][3])/(double)ntrack[(i+3)%5][0][3]),"");
+     leff2[i]->Draw();
+   }
+   // Efficiency Summary   
+
+
+   TCanvas* ctrkmom = new TCanvas("ctrkmom","ctrkmom",700,500);
+   ctrkmom->Divide(2,2);
+   for(int i=0;i<4;i++){
+     ctrkmom->cd(i+1);
+     trkmom[(i+3)%5]->Draw();
+   }
+   TCanvas* cevsp = new TCanvas("cevsp","cevsp",700,500);
+   cevsp->Divide(2,2);
+   for(int i=0;i<4;i++){
+     cevsp->cd(i+1);
+     hevsp[(i+3)%5]->Draw("colz");
+   }
+   TCanvas* cevspd = new TCanvas("cevspd","cevspd",700,500);
+   cevspd->Divide(2,2);
+   for(int i=0;i<4;i++){
+     cevspd->cd(i+1);
+     hevspd[(i+3)%5]->Draw("colz");
+   }
+   TCanvas* cedivp = new TCanvas("cedivp","cedivp",700,500);
+   cedivp->Divide(2,2);
+   for(int i=0;i<4;i++){
+     cedivp->cd(i+1)->SetLogy();
+     int norma = hedivp[(i+3)%5]->Integral();
+     int normb = hedivpd[(i+3)%5]->Integral();
+     hedivp[(i+3)%5]->Draw("hist");
+     hedivpd[(i+3)%5]->Scale((double)norma/(double)normb);
+     hedivpd[(i+3)%5]->SetLineColor(2);
+     hedivpd[(i+3)%5]->Draw("hist&&sames");
+     cedivp->cd(i+1)->Update();
+     TPaveStats *st1 = (TPaveStats*)hedivpd[(i+3)%5]->FindObject("stats");
+     st1->SetLineColor(2);
+     st1->SetX1NDC(0.58);
+     st1->SetX2NDC(0.78);
+     st1->SetY1NDC(0.495);
+     st1->SetY2NDC(0.935);
+     cedivp->cd(i+1)->Modified();
+   }
+   TCanvas* cesubp = new TCanvas("cesubp","cesubp",700,500);
+   cesubp->Divide(2,2);
+   for(int i=0;i<4;i++){
+     cesubp->cd(i+1);
+     int norma = hesubp[(i+3)%5]->Integral();
+     int normb = hesubpd[(i+3)%5]->Integral();
+     hesubp[(i+3)%5]->Draw("hist");
+     hesubpd[(i+3)%5]->Scale((double)norma/(double)normb);
+     hesubpd[(i+3)%5]->SetLineColor(2);
+     hesubpd[(i+3)%5]->Draw("hist&&sames");
+   }
+
+
+   TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+   cdef->SaveAs(outfile+"[","pdf");
+   ceff->SaveAs(outfile,"pdf");
+   ceff2->SaveAs(outfile,"pdf");
+   ctrkmom->SaveAs(outfile,"pdf");
+   cevsp->SaveAs(outfile,"pdf");
+   cevspd->SaveAs(outfile,"pdf");
+   cedivp->SaveAs(outfile,"pdf");
+   cesubp->SaveAs(outfile,"pdf");
+   for(int k=0;k<ndet;k++){
+     cn[k]->SaveAs(outfile,"pdf");
+     cnd[k]->SaveAs(outfile,"pdf");
+     for(int i=0;i<4;i++){
+       for(int j=0;j<nopt;j++){
+	 casubd[i][j][k]->SaveAs(outfile,"pdf");
+       }
+       casub2d[i][k]->SaveAs(outfile,"pdf");
+     }
+     ct[k]->SaveAs(outfile,"pdf");
+     std::cout<<det[k]<<"end"<<std::endl;
+   }
+   cdef->SaveAs(outfile+"]","pdf");
+
+   fouthist->Write();
+   fouthist->Close();
+
+}

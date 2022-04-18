@@ -230,6 +230,7 @@ public :
    virtual void     Loop();
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
+   virtual void     DrawForLGEfficiency(int runtype, int maxevent, char* out_file_name);
    virtual void     MkMixingHist(int runoption, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);

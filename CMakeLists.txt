@@ -274,6 +274,17 @@ target_link_libraries(DrawForTrackSelection
 )
 
 #_______________________________________________________________________________
+add_executable(DrawForLGEfficiency usr/DrawForLGEfficiency.cc)
+
+target_link_libraries(DrawForLGEfficiency
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
 add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
 
 target_link_libraries(MkTreeForTrackSelection
