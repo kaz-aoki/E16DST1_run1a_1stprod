@@ -273,6 +273,33 @@ class E16ANA_TrackCheckFile {
     tree->Branch("lg_hit_gx",     &lg_hit_gx);
     tree->Branch("lg_hit_gy",     &lg_hit_gy);
     tree->Branch("lg_hit_gz",     &lg_hit_gz);
+    tree->Branch("n_hbd_clusters2",  &n_hbd_clusters2, "n_hbd_clusters2/I");
+    tree->Branch("hbd_cluster2_id",  &hbd_cluster2_id);
+    tree->Branch("hbd_cluster2_mid", &hbd_cluster2_mid);
+//    tree->Branch("hbd_cluster2_cid", &hbd_cluster2_cid);
+    tree->Branch("hbd_cluster2_x",   &hbd_cluster2_x);
+    tree->Branch("hbd_cluster2_y",   &hbd_cluster2_y);
+    tree->Branch("hbd_cluster2_gx",  &hbd_cluster2_gx);
+    tree->Branch("hbd_cluster2_gy",  &hbd_cluster2_gy);
+    tree->Branch("hbd_cluster2_gz",  &hbd_cluster2_gz);
+    tree->Branch("hbd_cluster2_adc", &hbd_cluster2_adc);
+    tree->Branch("hbd_cluster2_max_cid", &hbd_cluster2_max_cid);
+    tree->Branch("hbd_cluster2_t",   &hbd_cluster2_t);
+    tree->Branch("hbd_cluster2_ftime", &hbd_cluster2_ftime);
+    tree->Branch("hbd_cluster2_tdiff", &hbd_cluster2_tdiff);
+    tree->Branch("hbd_cluster2_size", &hbd_cluster2_size);
+    tree->Branch("hbd_cluster2_eprob", &hbd_cluster2_eprob);
+    tree->Branch("hbd_cluster2_cprob", &hbd_cluster2_cprob);
+    tree->Branch("n_lg_hits",     &n_lg_hits, "n_lg_hits/I");
+    tree->Branch("lg_hit_id",     &lg_hit_id);
+    tree->Branch("lg_hit_mid",    &lg_hit_mid);
+    tree->Branch("lg_hit_cid",    &lg_hit_cid);
+    tree->Branch("lg_hit_x",      &lg_hit_x);
+    tree->Branch("lg_hit_y",      &lg_hit_y);
+    tree->Branch("lg_hit_z",      &lg_hit_z);
+    tree->Branch("lg_hit_gx",     &lg_hit_gx);
+    tree->Branch("lg_hit_gy",     &lg_hit_gy);
+    tree->Branch("lg_hit_gz",     &lg_hit_gz);
     tree->Branch("lg_hit_adc",    &lg_hit_adc);
     tree->Branch("lg_hit_t",      &lg_hit_t);
     tree->Branch("lg_hit_npeaks", &lg_hit_npeaks);
@@ -1799,6 +1826,45 @@ class E16ANA_TrackCheckFile {
     }
     return;
   }
+  void AddHBDClusters(E16ANA_GeometryV2& geometry, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& hbd) {
+    n_hbd_clusters2 = hbd.NumClusters();
+    hbd_cluster2_id.resize(n_hbd_clusters2);
+    hbd_cluster2_mid.resize(n_hbd_clusters2);
+    hbd_cluster2_x.resize(n_hbd_clusters2);
+    hbd_cluster2_y.resize(n_hbd_clusters2);
+    hbd_cluster2_gx.resize(n_hbd_clusters2);
+    hbd_cluster2_gy.resize(n_hbd_clusters2);
+    hbd_cluster2_gz.resize(n_hbd_clusters2);
+    hbd_cluster2_adc.resize(n_hbd_clusters2);
+    hbd_cluster2_max_cid.resize(n_hbd_clusters2);
+    hbd_cluster2_t.resize(n_hbd_clusters2);
+    hbd_cluster2_ftime.resize(n_hbd_clusters2);
+    hbd_cluster2_tdiff.resize(n_hbd_clusters2);
+    hbd_cluster2_size.resize(n_hbd_clusters2);
+    hbd_cluster2_eprob.resize(n_hbd_clusters2);
+    hbd_cluster2_cprob.resize(n_hbd_clusters2);
+    for (int i = 0; i < n_hbd_clusters2; ++i) {
+      auto& clst = hbd.Cluster(i);
+      hbd_cluster2_id[i] = clst.ClusterId();
+      hbd_cluster2_mid[i] = clst.ModuleId();
+      auto lpos = clst.LocalPos();
+      hbd_cluster2_x[i] = lpos.X();
+      hbd_cluster2_y[i] = lpos.Y();
+      auto gpos = clst.GlobalPos(geometry);
+      hbd_cluster2_gx[i] = gpos.X();
+      hbd_cluster2_gy[i] = gpos.Y();
+      hbd_cluster2_gz[i] = gpos.Z();
+      hbd_cluster2_adc[i] = clst.PeakSum();
+      hbd_cluster2_max_cid[i] = clst.MaxPeakCh();
+      hbd_cluster2_t[i] = clst.Timing();
+      hbd_cluster2_ftime[i] = clst.FastestTiming();
+      hbd_cluster2_tdiff[i] = clst.TimeDifference();
+      hbd_cluster2_size[i] = clst.ClusterSize();
+      hbd_cluster2_eprob[i] = clst.IsE();
+      hbd_cluster2_cprob[i] = clst.IsChargedParticle();
+    }
+    return;
+  }
   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
     n_fill = _n_fill;
     AddCandidate(geometry, cands);
@@ -3108,6 +3174,22 @@ class E16ANA_TrackCheckFile {
   std::vector<int> hbd_cluster_size;
   std::vector<float> hbd_cluster_eprob;
   std::vector<float> hbd_cluster_cprob;
+  int n_hbd_clusters2;
+  std::vector<int> hbd_cluster2_id;
+  std::vector<int> hbd_cluster2_mid;
+  std::vector<double> hbd_cluster2_x;
+  std::vector<double> hbd_cluster2_y;
+  std::vector<double> hbd_cluster2_gx;
+  std::vector<double> hbd_cluster2_gy;
+  std::vector<double> hbd_cluster2_gz;
+  std::vector<float> hbd_cluster2_adc;
+  std::vector<int>   hbd_cluster2_max_cid;
+  std::vector<double> hbd_cluster2_t;
+  std::vector<float> hbd_cluster2_ftime;
+  std::vector<float> hbd_cluster2_tdiff;
+  std::vector<int> hbd_cluster2_size;
+  std::vector<float> hbd_cluster2_eprob;
+  std::vector<float> hbd_cluster2_cprob;
   int n_lg_hits;
   std::vector<int>    lg_hit_id;
   std::vector<int>    lg_hit_mid;
