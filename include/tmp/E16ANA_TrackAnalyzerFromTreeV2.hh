@@ -4656,7 +4656,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("n_tracks", &out_n_tracks, "n_tracks/I");
   tree->Branch("n_pairs", &out_n_pairs, "n_pairs/I");
   tree->Branch("n_selected_pairs", &out_n_selected_pairs, "n_selected_pairs/I");
-  
+
   tree->Branch("n_ssd_clusters",      out_n_ssd_clusters,      "n_ssd_clusters[9]/I");
   tree->Branch("n_gtr100x_clusters",  out_n_gtr100x_clusters,  "n_gtr100x_clusters[9]/I");
   tree->Branch("n_gtr100y_clusters",  out_n_gtr100y_clusters,  "n_gtr100y_clusters[9]/I");
