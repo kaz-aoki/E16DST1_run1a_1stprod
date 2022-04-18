@@ -508,7 +508,7 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 
    const int ndet=5;
    char det[ndet][20] = {"HBD","LGHit","LGCluster","LGHit_woHBDhit","LGCluster_woHBDhit"};
-   int roughbin[ndet] = {800,200,200,200,200};//bin
+   int roughbin[ndet] = {800,50,50,50,50};//bin
    int halfwidth[ndet] = {50,100,100,100,100};
    int hw_intx[ndet] = {20,80,80,80,80};
    int hw_inty[ndet] = {20,120,120,120,120};
@@ -665,6 +665,30 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
      hbd_vsigmay[1]=6.64*track_select_sigma;
    }
 
+   //for mixing
+   struct hitset{
+     int mid;
+     double lx;
+     double ly;
+     double adc;
+     double tdc;
+   };
+   std::vector<std::vector<hitset>> hbdmixhits[5];
+   std::vector<std::vector<hitset>> lgmixhits[5];
+   TH1F *hbdresxmix[5];
+   TH1F *hbdresymix[5];
+   TH1F *lgresxmix[5];
+   TH1F *lgresymix[5];
+   TH1F *lgadcmix[5];
+   for(int i=0;i<5;i++){
+     hbdresxmix[i] = new TH1F(Form("hbdresxmix%d",i),Form("hbd_resx_mix_mod%d",103+i),roughbin[0],-800,800);
+     hbdresymix[i] = new TH1F(Form("hbdresymix%d",i),Form("hbd_resy_mix_mod%d",103+i),roughbin[0],-800,800);
+     lgresxmix[i] = new TH1F(Form("lgresxmix%d",i),Form("lg_resx_mix_mod%d",103+i),roughbin[1],-800,800);
+     lgresymix[i] = new TH1F(Form("lgresymix%d",i),Form("lg_resy_mix_mod%d",103+i),roughbin[1],-800,800);
+     lgadcmix[i] = new TH1F(Form("lgadcmix%d",i),Form("lg_adc_mix_mod%d",103+i),50,0,400);
+   }
+   //for mixing
+
    Long64_t n_entries = fChain->GetEntries();
    Long64_t nentries = fChain->GetEntriesFast();
    Long64_t nbytes = 0, nb = 0;
@@ -681,6 +705,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
       std::vector<int> goodtracks;
       if (Cut(ientry,goodtracks) < 0) continue;
       // if (Cut(ientry) < 0) continue;//220407
+
+      bool alfill[5]={false};
 
       for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
@@ -823,6 +849,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    double resx = track_lg_allhit_resx->at(itrack).at(ilg);
 	    double resy = track_lg_allhit_resy->at(itrack).at(ilg);
 	    double tmpadc = track_lg_allhit_adc->at(itrack).at(ilg);
+	    double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
+	    if(track_lg_allhit_adc->at(itrack).at(ilg)<50||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
 	    int cid = SingleTrackAnalyzerForRes::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
 	    if(cid==blockch+11&&tmpadc>phtext[0]){phtext[0]=tmpadc;}
 	    if(cid==blockch+10&&tmpadc>phtext[1]){phtext[1]=tmpadc;}
@@ -891,7 +919,6 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    }
 	    hares[trk_mid-103][1+trktype*2]->Fill(resx,resy);
 	    // if(tmpadc>20&&tmpadc<50){hares[trk_mid-103][1+trktype*2]->Fill(resx,resy);}//220216tmp
-	    double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<100 ){
 	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){
 	    // if( trktype==0 && fabs(resx)<80 && fabs(resy)<80 ){//220410
@@ -921,8 +948,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	    ntrack[trk_mid-103][1][1+trktype*2]++;
 	    hlghitsum[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsum);
 	    hlgcor[trk_mid-103][blockch]->Fill(track_mom->at(itrack),tmpadcsum);
-	    // if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
-	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill((tmpadcsum-30)/track_mom->at(itrack));}
+	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
+	    // if(tmpadcsum>50){hedivp[trk_mid-103]->Fill((tmpadcsum-30)/track_mom->at(itrack));}
 	    if(tmpadcsum>50){hesubp[trk_mid-103]->Fill(tmpadcsum-250*track_mom->at(itrack));}
 	    hnlghitwt[trk_mid-103]->Fill(nlghitwt);
 	  }
@@ -994,8 +1021,8 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	  }
 	  if(trktype==0){
 	    hlghitsumd[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsumd);
-	    // if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill(tmpadcsumd/track_mom->at(itrack));}
-	    if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill((tmpadcsumd-30)/track_mom->at(itrack));}
+	    if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill(tmpadcsumd/track_mom->at(itrack));}
+	    // if(tmpadcsumd>50){hedivpd[trk_mid-103]->Fill((tmpadcsumd-30)/track_mom->at(itrack));}
 	    if(tmpadcsumd>50){hesubpd[trk_mid-103]->Fill(tmpadcsumd-250*track_mom->at(itrack));}
 	  }
 	  hxd[trk_mid-103][1+trktype*2]->Fill(resx_dam_min);
@@ -1172,6 +1199,76 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 	if(HBDhit){
 	  outtextfile<<" "<<phtext[0]<<" "<<phtext[1]<<" "<<phtext[2]<<" "<<phtext[3]<<" "<<phtext[4]<<" "<<phtext[5]<<" "<<phtext[6]<<" "<<phtext[7]<<" "<<phtext[8]<<std::endl;
 	}
+
+
+	//make mixing
+      	int mide = track_hbd_mid->at(itrack)-103;
+      	if(hbdmixhits[mide].size()!=0&&lgmixhits[mide].size()!=0){//calc res
+	  for(int ihbd=0;ihbd<hbdmixhits[mide].size();ihbd++){
+	    for(int jhbd=0;jhbd<hbdmixhits[mide].at(ihbd).size();jhbd++){
+	      double tmpresx = hbdmixhits[mide].at(ihbd).at(jhbd).lx-track_hbd_lx->at(itrack);
+	      double tmpresy = hbdmixhits[mide].at(ihbd).at(jhbd).ly-track_hbd_ly->at(itrack);
+	      if(fabs(tmpresy)<hw_intx[0]){
+		hbdresxmix[mide]->Fill(hbdmixhits[mide].at(ihbd).at(jhbd).lx-track_hbd_lx->at(itrack));
+	      }
+	      if(fabs(tmpresx)<hw_intx[0]){
+		hbdresymix[mide]->Fill(hbdmixhits[mide].at(ihbd).at(jhbd).ly-track_hbd_ly->at(itrack));
+	      }
+	    }
+	  }
+	  for(int ilg=0;ilg<lgmixhits[mide].size();ilg++){
+	    for(int jlg=0;jlg<lgmixhits[mide].at(ilg).size();jlg++){
+	      double tmpresx = lgmixhits[mide].at(ilg).at(jlg).lx-track_lg_lx->at(itrack);
+	      double tmpresy = lgmixhits[mide].at(ilg).at(jlg).ly-track_lg_ly->at(itrack);
+	      double tmpt = lgmixhits[mide].at(ilg).at(jlg).tdc;
+	      double tmpa = lgmixhits[mide].at(ilg).at(jlg).adc;
+	      if(tmpa<50||tmpt<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmpt>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	      if(HBDhit && fabs(tmpresy)<hw_inty[1]){
+		lgresxmix[mide]->Fill(tmpresx);
+	      }
+	      if(HBDhit && fabs(tmpresx)<hw_intx[1]){
+		lgresymix[mide]->Fill(tmpresy);
+	      }
+	      if(HBDhit && fabs(tmpresx)<50 && fabs(tmpresy)<50 &&
+		tmpt>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) &&
+		tmpt<(ssdoffset+ssdregion)+track_ssd_t->at(itrack)){
+		if(tmpa>50){lgadcmix[mide]->Fill(tmpa/track_mom->at(itrack));}
+	      }
+	    }
+	  }
+	}//calc res
+      	if(alfill[mide]==false){//hit fill
+      	  alfill[mide]=true;
+	  std::vector<hitset> hbdhits;
+      	  for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
+      	    hitset hbdhit;
+      	    hbdhit.mid=track_hbd_mid->at(itrack);
+      	    hbdhit.lx=track_hbd_allhit_resx->at(itrack).at(ihbd)+track_hbd_lx->at(itrack);
+      	    hbdhit.ly=track_hbd_allhit_resy->at(itrack).at(ihbd)+track_hbd_ly->at(itrack);
+      	    hbdhit.adc=track_hbd_allhit_adc->at(itrack).at(ihbd);
+      	    hbdhit.tdc=track_hbd_allhit_ftime->at(itrack).at(ihbd);
+      	    hbdhits.push_back(hbdhit);
+      	  }
+	  hbdmixhits[mide].push_back(hbdhits);
+	  std::vector<hitset> lghits;
+      	  for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+      	    hitset lghit;
+      	    lghit.mid=track_lg_mid->at(itrack);
+      	    lghit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
+      	    lghit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
+      	    lghit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
+      	    lghit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
+      	    lghits.push_back(lghit);
+      	  }
+	  lgmixhits[mide].push_back(lghits);
+	  if(hbdmixhits[mide].size()>50){
+	    hbdmixhits[mide].erase(hbdmixhits[mide].begin());
+	  }
+	  if(lgmixhits[mide].size()>50){
+	    lgmixhits[mide].erase(lgmixhits[mide].begin());
+	  }
+      	}//hit fill
+	//make mixing
 
       }//track loop
 
@@ -1727,6 +1824,14 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
      hedivp[(i+3)%5]->Draw();
      hedivpd[(i+3)%5]->SetLineColor(6);
      hedivpd[(i+3)%5]->Draw("sames");
+     cedivp->cd(i+1)->Update();
+     TPaveStats *st1 = (TPaveStats*)hedivpd[(i+3)%5]->FindObject("stats");
+     st1->SetLineColor(6);
+     st1->SetX1NDC(0.58);
+     st1->SetX2NDC(0.78);
+     st1->SetY1NDC(0.495);
+     st1->SetY2NDC(0.935);
+     cedivp->cd(i+1)->Modified();
    }
    TCanvas* cesubp = new TCanvas("cesubp","cesubp",700,500);
    cesubp->Divide(2,2);
@@ -1770,6 +1875,62 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
        hlgcor[(i+3)%5][tmpch]->Draw("colz");
      }
    }
+   TCanvas* chbdresxmix = new TCanvas("chbdresxmix","chbdresxmix",700,500);
+   chbdresxmix->Divide(2,2);
+   for(int i=0;i<4;i++){
+     chbdresxmix->cd(i+1);
+     int norma = haresx[(i+3)%5][1][0]->Integral(haresx[(i+3)%5][1][0]->FindBin(-600.),haresx[(i+3)%5][1][0]->FindBin(-100.))+haresx[(i+3)%5][1][0]->Integral(haresx[(i+3)%5][1][0]->FindBin(100.),haresx[(i+3)%5][1][0]->FindBin(600.));
+     int normb = hbdresxmix[(i+3)%5]->Integral(hbdresxmix[(i+3)%5]->FindBin(-600.),hbdresxmix[(i+3)%5]->FindBin(-100.))+hbdresxmix[(i+3)%5]->Integral(hbdresxmix[(i+3)%5]->FindBin(100.),hbdresxmix[(i+3)%5]->FindBin(600.));
+     haresx[(i+3)%5][1][0]->Draw("hist");
+     hbdresxmix[(i+3)%5]->SetLineColor(2);
+     hbdresxmix[(i+3)%5]->Scale((double)norma/(double)normb);
+     hbdresxmix[(i+3)%5]->Draw("hist&&sames");
+   }
+   TCanvas* chbdresymix = new TCanvas("chbdresymix","chbdresymix",700,500);
+   chbdresymix->Divide(2,2);
+   for(int i=0;i<4;i++){
+     chbdresymix->cd(i+1);
+     int norma = haresy[(i+3)%5][1][0]->Integral(haresy[(i+3)%5][1][0]->FindBin(-600.),haresy[(i+3)%5][1][0]->FindBin(-100.))+haresy[(i+3)%5][1][0]->Integral(haresy[(i+3)%5][1][0]->FindBin(100.),haresy[(i+3)%5][1][0]->FindBin(600.));
+     int normb = hbdresymix[(i+3)%5]->Integral(hbdresymix[(i+3)%5]->FindBin(-600.),hbdresymix[(i+3)%5]->FindBin(-100.))+hbdresymix[(i+3)%5]->Integral(hbdresymix[(i+3)%5]->FindBin(100.),hbdresymix[(i+3)%5]->FindBin(600.));
+     haresy[(i+3)%5][1][0]->Draw("hist");
+     hbdresymix[(i+3)%5]->SetLineColor(2);
+     hbdresymix[(i+3)%5]->Scale((double)norma/(double)normb);
+     hbdresymix[(i+3)%5]->Draw("hist&&sames");
+   }
+   TCanvas* clgresxmix = new TCanvas("clgresxmix","clgresxmix",700,500);
+   clgresxmix->Divide(2,2);
+   for(int i=0;i<4;i++){
+     clgresxmix->cd(i+1);
+     int norma = haresx[(i+3)%5][1][1]->Integral(haresx[(i+3)%5][1][1]->FindBin(-600.),haresx[(i+3)%5][1][1]->FindBin(-100.))+haresx[(i+3)%5][1][1]->Integral(haresx[(i+3)%5][1][1]->FindBin(100.),haresx[(i+3)%5][1][1]->FindBin(600.));
+     int normb = lgresxmix[(i+3)%5]->Integral(lgresxmix[(i+3)%5]->FindBin(-600.),lgresxmix[(i+3)%5]->FindBin(-100.))+lgresxmix[(i+3)%5]->Integral(lgresxmix[(i+3)%5]->FindBin(100.),lgresxmix[(i+3)%5]->FindBin(600.));
+     haresx[(i+3)%5][1][1]->Draw("hist");
+     lgresxmix[(i+3)%5]->SetLineColor(2);
+     lgresxmix[(i+3)%5]->Scale((double)norma/(double)normb);
+     lgresxmix[(i+3)%5]->Draw("hist&&sames");
+   }
+   TCanvas* clgresymix = new TCanvas("clgresymix","clgresymix",700,500);
+   clgresymix->Divide(2,2);
+   for(int i=0;i<4;i++){
+     clgresymix->cd(i+1);
+     int norma = haresy[(i+3)%5][1][1]->Integral(haresy[(i+3)%5][1][1]->FindBin(-600.),haresy[(i+3)%5][1][1]->FindBin(-100.))+haresy[(i+3)%5][1][1]->Integral(haresy[(i+3)%5][1][1]->FindBin(100.),haresy[(i+3)%5][1][1]->FindBin(600.));
+     int normb = lgresymix[(i+3)%5]->Integral(lgresymix[(i+3)%5]->FindBin(-600.),lgresymix[(i+3)%5]->FindBin(-100.))+lgresymix[(i+3)%5]->Integral(lgresymix[(i+3)%5]->FindBin(100.),lgresymix[(i+3)%5]->FindBin(600.));
+     haresy[(i+3)%5][1][1]->Draw("hist");
+     lgresymix[(i+3)%5]->SetLineColor(2);
+     lgresymix[(i+3)%5]->Scale((double)norma/(double)normb);
+     lgresymix[(i+3)%5]->Draw("hist&&sames");
+   }
+   TCanvas* clgadcmix = new TCanvas("clgadcmix","clgadcmix",700,500);
+   clgadcmix->Divide(2,2);
+   for(int i=0;i<4;i++){
+     clgadcmix->cd(i+1);
+     int norma = hedivp[(i+3)%5]->Integral();
+     int normb = lgadcmix[(i+3)%5]->Integral();
+     hedivp[(i+3)%5]->Draw("hist");
+     lgadcmix[(i+3)%5]->SetLineColor(2);
+     lgadcmix[(i+3)%5]->Scale((double)norma/(double)normb);
+     lgadcmix[(i+3)%5]->Draw("hist&&sames");
+   }
+
 
 
    TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
@@ -1777,6 +1938,11 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
    ce->SaveAs(outfile,"pdf");
    ceff->SaveAs(outfile,"pdf");
    ceff2->SaveAs(outfile,"pdf");
+   chbdresxmix->SaveAs(outfile,"pdf");
+   chbdresymix->SaveAs(outfile,"pdf");
+   clgresxmix->SaveAs(outfile,"pdf");
+   clgresymix->SaveAs(outfile,"pdf");
+   clgadcmix->SaveAs(outfile,"pdf");
    // chbdadc->SaveAs(outfile,"pdf");//pi
    // chbdadc2->SaveAs(outfile,"pdf");//pi
    // clgadc->SaveAs(outfile,"pdf");//pi
@@ -1851,11 +2017,7 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
    // lgenerejsub->Write();
 }
 
-void AnalyzerTrackSelection::CalcLGEfficiency(int runoption, int maxevent, char* out_file_name)
-{
-}
-
-void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent, int moduleid)
+void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent)
 {
 
    if (fChain == 0) return;
@@ -1870,7 +2032,19 @@ void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent, int modul
      double tdc;
    };
 
-   std::vector<std::vector<hitset>> mixhitsets;
+   std::vector<hitset> hbdmixhits[5];
+   std::vector<hitset> lgmixhits[5];
+   int roughbin[5] = {800,100,100,100,100};//bin
+   TH1F *hbdresxmix[5];
+   TH1F *hbdresymix[5];
+   TH1F *lgresxmix[5];
+   TH1F *lgresymix[5];
+   for(int i=0;i<5;i++){
+     hbdresxmix[i] = new TH1F(Form("hbdresxmix%d",i),Form("hbd_resx_mix_mod%d",103+i),roughbin[0],-800,800);
+     hbdresymix[i] = new TH1F(Form("hbdresymix%d",i),Form("hbd_resy_mix_mod%d",103+i),roughbin[0],-800,800);
+     lgresxmix[i] = new TH1F(Form("lgresxmix%d",i),Form("lg_resx_mix_mod%d",103+i),roughbin[1],-800,800);
+     lgresymix[i] = new TH1F(Form("lgresymix%d",i),Form("lg_resy_mix_mod%d",103+i),roughbin[1],-800,800);
+   }
 
    Long64_t n_entries = fChain->GetEntries();
    Long64_t nentries = fChain->GetEntriesFast();
@@ -1889,25 +2063,50 @@ void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent, int modul
       if (Cut(ientry,goodtracks) < 0) continue;
       // if (Cut(ientry) < 0) continue;//220407
 
+      bool alfill[5]={false};
+
       for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
-	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
-	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
-	if (track_lg_mid->at(itrack)!=moduleid) continue;
+      	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
+      	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
 
-	std::vector<hitset> hitsets;
-	for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
-	  hitset tmphit;
-	  tmphit.mid=track_lg_mid->at(itrack);
-	  tmphit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
-	  tmphit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
-	  tmphit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
-	  tmphit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
-	  hitsets.push_back(tmphit);
+      	int mide = track_hbd_mid->at(itrack)-103;
+      	if(alfill[mide]==false){//hit fill
+      	  alfill[mide]=true;
+      	  for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
+      	    hitset hbdhit;
+      	    hbdhit.mid=track_hbd_mid->at(itrack);
+      	    hbdhit.lx=track_hbd_allhit_resx->at(itrack).at(ihbd)+track_hbd_lx->at(itrack);
+      	    hbdhit.ly=track_hbd_allhit_resy->at(itrack).at(ihbd)+track_hbd_ly->at(itrack);
+      	    hbdhit.adc=track_hbd_allhit_adc->at(itrack).at(ihbd);
+      	    hbdhit.tdc=track_hbd_allhit_ftime->at(itrack).at(ihbd);
+      	    hbdmixhits[mide].push_back(hbdhit);
+      	  }
+      	  for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+      	    hitset lghit;
+      	    lghit.mid=track_lg_mid->at(itrack);
+      	    lghit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
+      	    lghit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
+      	    lghit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
+      	    lghit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
+      	    lgmixhits[mide].push_back(lghit);
+      	  }
+      	}//hit fill
+      	if(hbdmixhits[mide].size()==0||lgmixhits[mide].size()==0) continue;
+      	for(int ihbd=0;ihbd<hbdmixhits[mide].size();ihbd++){
+      	  hbdresxmix[mide]->Fill(hbdmixhits[mide].at(ihbd).lx-track_hbd_lx->at(itrack));
+      	  hbdresymix[mide]->Fill(hbdmixhits[mide].at(ihbd).ly-track_hbd_ly->at(itrack));
+      	}
+      	for(int ilg=0;ilg<lgmixhits[mide].size();ilg++){
+      	  lgresxmix[mide]->Fill(lgmixhits[mide].at(ilg).lx-track_lg_lx->at(itrack));
+      	  lgresymix[mide]->Fill(lgmixhits[mide].at(ilg).ly-track_lg_ly->at(itrack));
+      	}
+	if(hbdmixhits[mide].size()>500){
+	  hbdmixhits[mide].clear();
 	}
-	mixhitsets.push_back(hitsets);
-
-	if(mixhitsets.size()<10) break;
+	if(lgmixhits[mide].size()>500){
+	  lgmixhits[mide].clear();
+	}
 
       }//track loop
 
@@ -1928,3 +2127,4 @@ void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent, int modul
    fouthist->Close();
 
 }
+

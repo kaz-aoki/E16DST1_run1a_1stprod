@@ -110,6 +110,8 @@ add_library(E16DST_DST1
   src/GTR/E16ANA_GTRAnalyzer2.cc
   src/GTR/E16ANA_GTRPedestal.cc
   src/GTR/E16ANA_GTRStripAnalyzer.cc
+  src/GTR/E16ANA_GTRChannelManager.cc
+  src/GTR/E16ANA_GTRStatus.cc
   src/GTR/E16ANA_GTRAnalyzerMaker.cc
   src/GTR/GTRCheckHist.cc
 #  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
@@ -136,6 +138,7 @@ add_library(E16DST_DST1
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc
+  src/E16DST_DST1StraightTrackFactory.cc
 	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
 	src/E16DST_DST1TrackFactory.cc
@@ -346,6 +349,13 @@ target_link_libraries(tmp_track_analyzer
 #add_executable(write_test_gtr usr/write_test_gtr.cc)
 #
 #target_link_libraries(write_test_gtr
+#  E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
+#add_executable(tmp_check_coin_map usr/tmp_check_coin_map.cc)
+#
+#target_link_libraries(tmp_check_coin_map
 #  E16DST_DST1
 #)
 #
