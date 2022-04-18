@@ -164,22 +164,17 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
       double sumx =0;
       int nhit = c.NumCls();
       for(int j=0;j<nhit;j++){
-	double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleA[lid]);//106
-	sumx  += c.CPos(j)  - (tthe*lz);
+        double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleA[lid]);//106
+        sumx  += c.CPos(j)  - (tthe*lz);
       }
       double intc  = sumx/nhit;
       double ltdc2 = intc+tthe*centtdc*drift_v*cos(kGTRLorentzAngleA[lid])+kGTRLorentzAngle[lid];
       TVector3 lc(ltdc2,c.LocalPos().Y(),c.LocalPos().Z());
       cluster_pairs[l].SetT(geometry,l,c.ModuleID(), lc);
       auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
-      
-
       //printf("l:%d,  nhit:%d,  the1:%f, the2:%f,  x1:%f,  x2:%f, time:%f  \n",l,nhit,xclst->TanTheta(),tthe,c.LocalPos().X(),ltdc2,xclst->Timing());
-
-
     }
   }
-
 
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
