@@ -34,7 +34,8 @@ constexpr double kLightSpeed = 299792458.;
 
 namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter {
 
-constexpr double kChiSquareThreshold          = 20;
+//constexpr double kChiSquareThreshold          = 20.;
+constexpr double kChiSquareThreshold          = 50.; // 220413
 //constexpr double kLGADCThreshold              = 50.;
 constexpr double kSSDResidualThreshold        = 1.;
 constexpr double kGTR100xResidualThreshold    = 2.;
@@ -108,7 +109,8 @@ constexpr int      kMaxFunctionCalls   = 1.0e4;
 constexpr double   kChiSquareThreshold = 100.;
 //constexpr double   kSSDTime            = 43.5;
 //constexpr double   kSSDTimeWidth       =  7.5;
-constexpr double   kSSDTimeDiff        = 5.;
+//constexpr double   kSSDTimeDiff        = 5.;
+constexpr double   kSSDTimeDiff        = 20.; // 220414 rough cut
 constexpr double   kLGTimeDiff         = 10.;
 constexpr double   kLGTime             = 93.5;
 constexpr double   kLGTimeWidth        = 11.5;

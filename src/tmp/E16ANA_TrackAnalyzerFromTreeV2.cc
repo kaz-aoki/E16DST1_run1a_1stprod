@@ -821,33 +821,33 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
   if (chi_square->at(track_index) > st_param::kChiSquareThreshold) {
     return false;
   }
-  if (fabs(rk_res_ssd_x->at(track_index)) > st_param::kSSDResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr100_x->at(track_index)) > st_param::kGTR100xResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr100_y->at(track_index)) > st_param::kGTR100yResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr200_x->at(track_index)) > st_param::kGTR200xResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr200_y->at(track_index)) > st_param::kGTR200yResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr300_x->at(track_index)) > st_param::kGTR300xResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_res_gtr300_y->at(track_index)) > st_param::kGTR300yResidualThreshold) {
-    return false;
-  }
-  if (fabs(rk_fit_init_pos_gx->at(track_index)) > st_param::kTargetXThreshold) {
-    return false;
-  }
-  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
-    return false;
-  }
+//  if (fabs(rk_res_ssd_x->at(track_index)) > st_param::kSSDResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr100_x->at(track_index)) > st_param::kGTR100xResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr100_y->at(track_index)) > st_param::kGTR100yResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr200_x->at(track_index)) > st_param::kGTR200xResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr200_y->at(track_index)) > st_param::kGTR200yResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr300_x->at(track_index)) > st_param::kGTR300xResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_res_gtr300_y->at(track_index)) > st_param::kGTR300yResidualThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_fit_init_pos_gx->at(track_index)) > st_param::kTargetXThreshold) {
+//    return false;
+//  }
+//  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
+//    return false;
+//  }
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
@@ -2307,6 +2307,7 @@ void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_
   out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
   out_minus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[0]));
   out_plus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[1]));
+  out_chi_square.emplace_back(out_minus_chi_square.back() + out_plus_chi_square.back());
 
   // vertex
   FillTVector3ToDouble(vtx,       &out_vtx_gx,       &out_vtx_gy,       &out_vtx_gz);
@@ -3033,20 +3034,20 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairsWoRefit() {
       if (charge0 == charge1) {
         continue;
       }
-      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
-        continue;
-      }
-      bool is_lg_t_match = false;
-      for (const auto& t0 : lg_ts0) {
-        for (const auto& t1 : lg_ts1) {
-          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
-            is_lg_t_match = true;
-          }
-        }
-      }
-      if (!is_lg_t_match) {
-        continue;
-      }
+//      if (fabs(ssd_t0 - ssd_t1) > pt_param::kSSDTimeDiff) {
+//        continue;
+//      }
+//      bool is_lg_t_match = false;
+//      for (const auto& t0 : lg_ts0) {
+//        for (const auto& t1 : lg_ts1) {
+//          if (fabs(t0 - t1) < pt_param::kLGTimeDiff) {
+//            is_lg_t_match = true;
+//          }
+//        }
+//      }
+//      if (!is_lg_t_match) {
+//        continue;
+//      }
       int track_indexs_index_pair[2]; // 0 : minus, 1 : plus
       if (charge0 == -1) {
         track_indexs_index_pair[0] = index0;
@@ -3062,6 +3063,8 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzePionTrackPairsWoRefit() {
       FillTreeWoRefit(track_indexs_index_pair, tmp_vtx_pos, tmp_minus_mom, tmp_plus_mom, tmp_dist);
     }
   }
+  out_n_pairs = out_chi_square.size();
+  out_is_selected.assign(out_n_pairs, false);
 //  SelectTrackPairs();
   out_tree2->Fill();
   return;
@@ -3872,7 +3875,12 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeMixedPionTrackPairs() {
       }
     }
   }
+  out_n_pairs = out_chi_square.size();
+  out_is_selected.assign(out_n_pairs, false);
 //  SelectTrackPairs();
+for (const auto& chi2 : out_chi_square) {
+  std::cout << chi2 << std::endl;
+}
   out_tree1->Fill();
   return;
 }

@@ -1,3 +1,5 @@
+//#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
+
 #include <iostream>
 #include <TROOT.h>
 #include <TH1.h>
@@ -5,7 +7,8 @@
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
-#include "E16ANA_WaveformFitter.hh"
+//#include "E16ANA_WaveformFitter.hh"
+#include "E16ANA_WaveformFitterCRRC.hh"
 #include "E16ANA_FieldMapCalib.hh"
 #include "E16ANA_EventSelect.hh"
 #include "E16ANA_GTRcalib.hh"
@@ -18,8 +21,11 @@
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
+#ifndef WO_LG_FIT
 #include "E16ANA_TrackCheckFile.hh"
-//#include "E16ANA_TrackCheckFile_wolgfit.hh"
+#else
+#include "E16ANA_TrackCheckFile_wolgfit.hh"
+#endif
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -96,7 +102,11 @@ int main(int argc, char* argv[]) {
   hbd_calib->ReadCalibrationData(calib.CurrentRunID());
   E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
   hbd_cut->ReadCutData(calib.CurrentRunID());
-  std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+  E16ANA_HBDCut *hbd_cut_wo_timing = new E16ANA_HBDCut();
+  hbd_cut_wo_timing->ReadCutData(calib.CurrentRunID());
+  hbd_cut_wo_timing->SetCut("clustering_time_window_start", -10000.);
+  hbd_cut_wo_timing->SetCut("clustering_time_window_end", 10000.);
+//  std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
   E16ANA_LGBasic lgbasic;
   lgbasic.SetMap();
   lgbasic.SetCalibMap();
@@ -109,7 +119,8 @@ int main(int argc, char* argv[]) {
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   
-  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+//  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
+  E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
   E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
 
@@ -121,6 +132,7 @@ int main(int argc, char* argv[]) {
     return -1;
   }
   E16DST_DST1PhysicsRecord record;
+  E16DST_DST1PhysicsRecord record_for_another_hbd_cluster;
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -181,15 +193,26 @@ int main(int argc, char* argv[]) {
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
       record.HBD().UpdatePtrs();
+#ifndef WO_LG_FIT
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
-//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
+#else
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
+#endif
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
 //cout << event0->EventID() << endl;
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
+
+// HBD clustering w/o timing selection begin
+      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());
+      record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
+      record_for_another_hbd_cluster.HBD().UpdatePtrs();
+      check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
+// HBD clustering w/o timing selection end
+
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 

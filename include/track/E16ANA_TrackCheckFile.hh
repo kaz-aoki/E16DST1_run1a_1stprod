@@ -273,8 +273,37 @@ class E16ANA_TrackCheckFile {
     tree->Branch("lg_hit_gx",     &lg_hit_gx);
     tree->Branch("lg_hit_gy",     &lg_hit_gy);
     tree->Branch("lg_hit_gz",     &lg_hit_gz);
+    tree->Branch("n_hbd_clusters_wotime",  &n_hbd_clusters_wotime, "n_hbd_clusters_wotime/I");
+    tree->Branch("hbd_cluster_wotime_id",  &hbd_cluster_wotime_id);
+    tree->Branch("hbd_cluster_wotime_mid", &hbd_cluster_wotime_mid);
+//    tree->Branch("hbd_cluster_wotime_cid", &hbd_cluster_wotime_cid);
+    tree->Branch("hbd_cluster_wotime_x",   &hbd_cluster_wotime_x);
+    tree->Branch("hbd_cluster_wotime_y",   &hbd_cluster_wotime_y);
+    tree->Branch("hbd_cluster_wotime_gx",  &hbd_cluster_wotime_gx);
+    tree->Branch("hbd_cluster_wotime_gy",  &hbd_cluster_wotime_gy);
+    tree->Branch("hbd_cluster_wotime_gz",  &hbd_cluster_wotime_gz);
+    tree->Branch("hbd_cluster_wotime_adc", &hbd_cluster_wotime_adc);
+    tree->Branch("hbd_cluster_wotime_max_cid", &hbd_cluster_wotime_max_cid);
+    tree->Branch("hbd_cluster_wotime_t",   &hbd_cluster_wotime_t);
+    tree->Branch("hbd_cluster_wotime_ftime", &hbd_cluster_wotime_ftime);
+    tree->Branch("hbd_cluster_wotime_tdiff", &hbd_cluster_wotime_tdiff);
+    tree->Branch("hbd_cluster_wotime_size", &hbd_cluster_wotime_size);
+    tree->Branch("hbd_cluster_wotime_eprob", &hbd_cluster_wotime_eprob);
+    tree->Branch("hbd_cluster_wotime_cprob", &hbd_cluster_wotime_cprob);
+    tree->Branch("n_lg_hits",     &n_lg_hits, "n_lg_hits/I");
+    tree->Branch("lg_hit_id",     &lg_hit_id);
+    tree->Branch("lg_hit_mid",    &lg_hit_mid);
+    tree->Branch("lg_hit_cid",    &lg_hit_cid);
+    tree->Branch("lg_hit_x",      &lg_hit_x);
+    tree->Branch("lg_hit_y",      &lg_hit_y);
+    tree->Branch("lg_hit_z",      &lg_hit_z);
+    tree->Branch("lg_hit_gx",     &lg_hit_gx);
+    tree->Branch("lg_hit_gy",     &lg_hit_gy);
+    tree->Branch("lg_hit_gz",     &lg_hit_gz);
     tree->Branch("lg_hit_adc",    &lg_hit_adc);
     tree->Branch("lg_hit_t",      &lg_hit_t);
+    tree->Branch("lg_hit_wofit_adc",    &lg_hit_wofit_adc);
+    tree->Branch("lg_hit_wofit_t",      &lg_hit_wofit_t);
     tree->Branch("lg_hit_npeaks", &lg_hit_npeaks);
     tree->Branch("lg_hit_fflag",  &lg_hit_fflag);
     tree->Branch("n_lg_clusters",      &n_lg_clusters, "n_lg_clusters/I");
@@ -867,7 +896,7 @@ class E16ANA_TrackCheckFile {
     pair_fit_sigma3 = cands.PairFitSigma(3);
     t_param->Fill();
   }
-  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record) {
+  void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record, E16ANA_LGBasic& lgbasic) {
     event_id = _event_id;
     spill_id = _spill_id;
     timestamp_in_spill = _timestamp_in_spill;
@@ -1345,6 +1374,8 @@ class E16ANA_TrackCheckFile {
     lg_hit_gz.resize(n_lg_hits);
     lg_hit_adc.resize(n_lg_hits);
     lg_hit_t.resize(n_lg_hits);
+    lg_hit_wofit_adc.resize(n_lg_hits);
+    lg_hit_wofit_t.resize(n_lg_hits);
     lg_hit_npeaks.resize(n_lg_hits);
     lg_hit_fflag.resize(n_lg_hits);
     for (int i = 0; i < n_lg_hits; ++i) {
@@ -1357,13 +1388,15 @@ class E16ANA_TrackCheckFile {
       lg_hit_y[i] = lpos.Y();
       lg_hit_z[i] = lpos.Z();
       auto gpos = hit.GlobalPos(geometry);
-      lg_hit_gx[i]     = gpos.X();
-      lg_hit_gy[i]     = gpos.Y();
-      lg_hit_gz[i]     = gpos.Z();
-      lg_hit_adc[i]    = hit.FitPeak();
-      lg_hit_t[i]      = hit.FitTiming();
-      lg_hit_npeaks[i] = hit.Npeaks();
-      lg_hit_fflag[i]  = hit.FitFlag();
+      lg_hit_gx[i]        = gpos.X();
+      lg_hit_gy[i]        = gpos.Y();
+      lg_hit_gz[i]        = gpos.Z();
+      lg_hit_adc[i]       = hit.FitPeak();
+      lg_hit_t[i]         = hit.FitTiming();
+      lg_hit_wofit_adc[i] = hit.PeakHeight();
+      lg_hit_wofit_t[i]   = hit.GetCalibTiming(lgbasic);
+      lg_hit_npeaks[i]    = hit.Npeaks();
+      lg_hit_fflag[i]     = hit.FitFlag();
     }
     n_lg_clusters = record.LG().NumClusters();
     lg_cluster_id.resize(n_lg_clusters);
@@ -1799,6 +1832,45 @@ class E16ANA_TrackCheckFile {
     }
     return;
   }
+  void AddHBDClusters(E16ANA_GeometryV2& geometry, E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& hbd) {
+    n_hbd_clusters_wotime = hbd.NumClusters();
+    hbd_cluster_wotime_id.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_mid.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_x.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_y.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_gx.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_gy.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_gz.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_adc.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_max_cid.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_t.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_ftime.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_tdiff.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_size.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_eprob.resize(n_hbd_clusters_wotime);
+    hbd_cluster_wotime_cprob.resize(n_hbd_clusters_wotime);
+    for (int i = 0; i < n_hbd_clusters_wotime; ++i) {
+      auto& clst = hbd.Cluster(i);
+      hbd_cluster_wotime_id[i] = clst.ClusterId();
+      hbd_cluster_wotime_mid[i] = clst.ModuleId();
+      auto lpos = clst.LocalPos();
+      hbd_cluster_wotime_x[i] = lpos.X();
+      hbd_cluster_wotime_y[i] = lpos.Y();
+      auto gpos = clst.GlobalPos(geometry);
+      hbd_cluster_wotime_gx[i] = gpos.X();
+      hbd_cluster_wotime_gy[i] = gpos.Y();
+      hbd_cluster_wotime_gz[i] = gpos.Z();
+      hbd_cluster_wotime_adc[i] = clst.PeakSum();
+      hbd_cluster_wotime_max_cid[i] = clst.MaxPeakCh();
+      hbd_cluster_wotime_t[i] = clst.Timing();
+      hbd_cluster_wotime_ftime[i] = clst.FastestTiming();
+      hbd_cluster_wotime_tdiff[i] = clst.TimeDifference();
+      hbd_cluster_wotime_size[i] = clst.ClusterSize();
+      hbd_cluster_wotime_eprob[i] = clst.IsE();
+      hbd_cluster_wotime_cprob[i] = clst.IsChargedParticle();
+    }
+    return;
+  }
   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
     n_fill = _n_fill;
     AddCandidate(geometry, cands);
@@ -1818,6 +1890,7 @@ class E16ANA_TrackCheckFile {
     return sqrt(2. * (kElectronMass2 + e0 * e1 - p0p1));
   }
  private:
+  static constexpr double kChi2Threshold = 10000.;
   static constexpr double kElectronMass = 511.9989461e-6;
   static constexpr double kElectronMass2 = kElectronMass * kElectronMass;
   void AddCandidate(E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
@@ -2047,7 +2120,6 @@ class E16ANA_TrackCheckFile {
 //    rk_proj_hbd1_y.resize(n_cands);
 //    rk_proj_hbd1_adc.resize(n_cands);
 //    rk_proj_hbd1_t.resize(n_cands);
-//    rk_proj_hbd1_ftime.resize(n_cands);
 //    rk_proj_hbd1_tdiff.resize(n_cands);
 //    rk_proj_hbd1_size.resize(n_cands);
 //    rk_proj_hbd1_eprob.resize(n_cands);
@@ -3108,6 +3180,22 @@ class E16ANA_TrackCheckFile {
   std::vector<int> hbd_cluster_size;
   std::vector<float> hbd_cluster_eprob;
   std::vector<float> hbd_cluster_cprob;
+  int n_hbd_clusters_wotime;
+  std::vector<int> hbd_cluster_wotime_id;
+  std::vector<int> hbd_cluster_wotime_mid;
+  std::vector<double> hbd_cluster_wotime_x;
+  std::vector<double> hbd_cluster_wotime_y;
+  std::vector<double> hbd_cluster_wotime_gx;
+  std::vector<double> hbd_cluster_wotime_gy;
+  std::vector<double> hbd_cluster_wotime_gz;
+  std::vector<float> hbd_cluster_wotime_adc;
+  std::vector<int>   hbd_cluster_wotime_max_cid;
+  std::vector<double> hbd_cluster_wotime_t;
+  std::vector<float> hbd_cluster_wotime_ftime;
+  std::vector<float> hbd_cluster_wotime_tdiff;
+  std::vector<int> hbd_cluster_wotime_size;
+  std::vector<float> hbd_cluster_wotime_eprob;
+  std::vector<float> hbd_cluster_wotime_cprob;
   int n_lg_hits;
   std::vector<int>    lg_hit_id;
   std::vector<int>    lg_hit_mid;
@@ -3120,6 +3208,8 @@ class E16ANA_TrackCheckFile {
   std::vector<double> lg_hit_gz;
   std::vector<float>  lg_hit_adc;
   std::vector<float>  lg_hit_t;
+  std::vector<float>  lg_hit_wofit_adc;
+  std::vector<float>  lg_hit_wofit_t;
   std::vector<int>    lg_hit_npeaks;
   std::vector<int>    lg_hit_fflag;
   int n_lg_clusters;
