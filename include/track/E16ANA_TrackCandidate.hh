@@ -42,6 +42,16 @@ class E16ANA_TrackClusterPair {
 //    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
     global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
+  void SetOneAxis(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _global_pos, E16DST_DST1Cluster* cluster) { // GTR, for track eff. estimation
+    set_flag = 1;
+    layer_order = _layer_order;
+    module_id = _module_id;
+    clusters[0] = cluster;
+    clusters[1] = cluster;
+    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(cluster)->LocalPosT().X(), dynamic_cast<E16DST_DST1GTRCluster*>(cluster)->LocalPosT().Y(), 0.}; // z = 0?
+//    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
+    global_pos = {_global_pos.X(), _global_pos.Y(), _global_pos.Z()};
+  }
   void Clear() {
     set_flag = 0;
     layer_order = E16DST_DST1Constant::kInvalidValue;
@@ -618,7 +628,7 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  static bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
+  static bool IsXTrackCandidate(double* prev_chi2, OneAxisClusterSet* cluster_set);
   static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
@@ -628,6 +638,7 @@ class E16ANA_TrackCandidates {
 //    return false;
 //  }
   void SearchTrackCandidates();
+  void FillAllTrackCandidatesSeparateXY();
   void Fit();
   void SearchHBDAndLGHits();
   void SelectTracks();
