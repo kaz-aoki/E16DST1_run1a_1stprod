@@ -435,7 +435,7 @@ void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTracki
   return;
 }
 
-bool E16ANA_TrackCandidates::IsXTrackCandidate(double* prev_chi2, OneAxisClusterSet* cluster_set) {
+bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[cluster_set->target_id];
   
@@ -491,11 +491,10 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(double* prev_chi2, OneAxisCluster
     chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
   }
 
-  if (chi2_cand < *prev_chi2 && chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
+  if (chi2_cand < prev_chi2 && chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
     cluster_set->charge = coef[2] > 0 ? 1 : -1;
     cluster_set->xy = tgt_x_cand;
     cluster_set->chi_square = chi2_cand;
-    *prev_chi2 = chi2_cand;
     for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
       cluster_set->coefs[i] = coef[i];
     }
@@ -634,14 +633,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPosT(*geometry);
                   bool is_cand = false;
                   double chi2 = 10000000.;
+                  int best_tgt = -1;
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id = tgt_index;
-                    if (IsXTrackCandidate(&chi2, cluster_set)) {
+                    if (IsXTrackCandidate(chi2, cluster_set)) {
                       is_cand = true;
                       chi2 = cluster_set->chi_square;
+                      best_tgt = tgt_index;
                     }
                   }
                   if (is_cand) {
+                    cluster_set->target_id = best_tgt;
                     cluster_sets[0].emplace_back(*cluster_set);
                   }
 //                  cluster_set->target_id= 1;
@@ -794,16 +796,25 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
       if (gtr100_cluster.Type() != 0 || gtr100_cluster.LayerId() != 0) {
         continue;
       }
+      if (gtr100_cluster.PeakSum() < 250.) {
+        continue;
+      }
       cluster_set->gtr_clusters[0] = &gtr100_cluster;
       cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100_cluster.GlobalPosT(*geometry);
       for (auto& gtr200_cluster : gtr.Clusters()) {
         if (gtr200_cluster.Type() != 0 || gtr200_cluster.LayerId() != 1) {
           continue;
         }
+        if (gtr200_cluster.PeakSum() < 250.) {
+          continue;
+        }
         cluster_set->gtr_clusters[1] = &gtr200_cluster;
         cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200_cluster.GlobalPosT(*geometry);
         for (auto& gtr300_cluster : gtr.Clusters()) {
           if (gtr300_cluster.Type() != 0 || gtr300_cluster.LayerId() != 2) {
+            continue;
+          }
+          if (gtr300_cluster.PeakSum() < 250.) {
             continue;
           }
           cluster_set->gtr_clusters[2] = &gtr300_cluster;
@@ -813,9 +824,11 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
       }
     }
   }
-std::cout << "awtrfe" << std::endl;
   for (auto& gtr100_cluster : gtr.Clusters()) {
     if (gtr100_cluster.Type() == 0 || gtr100_cluster.LayerId() != 0) {
+      continue;
+    }
+    if (gtr100_cluster.PeakSum() < 250.) {
       continue;
     }
     cluster_set->gtr_clusters[0] = &gtr100_cluster;
@@ -824,10 +837,16 @@ std::cout << "awtrfe" << std::endl;
       if (gtr200_cluster.Type() == 0 || gtr200_cluster.LayerId() != 1) {
         continue;
       }
+      if (gtr200_cluster.PeakSum() < 250.) {
+        continue;
+      }
       cluster_set->gtr_clusters[1] = &gtr200_cluster;
       cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200_cluster.GlobalPosT(*geometry);
       for (auto& gtr300_cluster : gtr.Clusters()) {
         if (gtr300_cluster.Type() == 0 || gtr300_cluster.LayerId() != 2) {
+          continue;
+        }
+        if (gtr300_cluster.PeakSum() < 250.) {
           continue;
         }
         cluster_set->gtr_clusters[2] = &gtr300_cluster;
