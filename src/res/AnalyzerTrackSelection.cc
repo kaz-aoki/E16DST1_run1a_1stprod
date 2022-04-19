@@ -2135,6 +2135,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 
    TFile *fouthist = new TFile("hist.root","recreate");
 
+   int searchx = 50;//lghit integral
+   int searchy = 50;//lghit integral
    int mixevent = 50;
    const int ndet=5;
    char det[ndet][20] = {"HBD","LGHit","LGCluster","LGHit_woHBDhit","LGCluster_woHBDhit"};
@@ -2160,7 +2162,12 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH1F *haresy[5][nopt][ndet];
    TH1F *haresxd[5][nopt][ndet];
    TH1F *haresyd[5][nopt][ndet];
-   int ntrack[5][nopt][ndet]={0};
+   int ntrack[5][9];
+   for(int i=0;i<5;i++){
+     for(int j=0;j<9;j++){
+       ntrack[i][j]=0;
+     }
+   }
    TH2F *hares[5][ndet];
    TH2F *haresd[5][ndet];
    TH1F *ht[5][ndet];
@@ -2282,10 +2289,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	    ht[trk_mid-103][0]->Fill(track_hbd_allhit_ftime->at(itrack).at(ihbd));
 	  }
 	}// hbdcluster loop
-	ntrack[trk_mid-103][0][0]++;
-	ntrack[trk_mid-103][1][0]++;
-	ntrack[trk_mid-103][2][0]++;
-	ntrack[trk_mid-103][3][0]++;
+	ntrack[trk_mid-103][0]++;
 	hn[trk_mid-103][0]->Fill(nhbdc);
 
       	if(hbdmixhits[mide].size()!=0){//calc mix
@@ -2329,9 +2333,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	for(int trktype=0;trktype<2;trktype++){
 	  if(trktype==0&&(!HBDhit||trk_mid<103||trk_mid>107)){continue;}
 	  if(trktype==1&&(trk_mid<103||trk_mid>107)){continue;}
-	  double resx_min = track_lg_nearx->at(itrack);
-	  double resy_min = track_lg_neary->at(itrack);
-	  double tmptrkm = track_mom->at(itrack);
+	  double resx_min = -10000.;
+	  double resy_min = -10000.;
 	  int nlgh = track_lg_multiplicity->at(itrack);
 	  double tmpadcsum=0;
 	  double tmptdiff=10000;
@@ -2341,6 +2344,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	    double tmpadc = track_lg_allhit_adc->at(itrack).at(ilg);
 	    double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	    if(track_lg_allhit_adc->at(itrack).at(ilg)<50||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	    if(fabs(resx)<fabs(resx_min)){resx_min=resx;}
+	    if(fabs(resy)<fabs(resy_min)){resy_min=resy;}
 	    haresx[trk_mid-103][0][1+trktype*2]->Fill(resx);
 	    haresy[trk_mid-103][0][1+trktype*2]->Fill(resy);
 	    if(fabs(resy)<hw_inty[1+trktype*2]){
@@ -2357,7 +2362,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	      ht[trk_mid-103][1+trktype*2]->Fill(track_lg_allhit_ftime->at(itrack).at(ilg));
 	    }
 	    hares[trk_mid-103][1+trktype*2]->Fill(resx,resy);
-	    if( trktype==0 && fabs(resx)<50 && fabs(resy)<50 ){
+	    if( trktype==0 && fabs(resx)<searchx && fabs(resy)<searchy ){
 	      if( tmptdc>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmptdc<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
 		if( fabs(tmptdc-track_ssd_t->at(itrack)-ssdoffset)<tmptdiff ){
 		  tmpadcsum = tmpadc;
@@ -2368,12 +2373,25 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	  }//lghit fore
 	  hn[trk_mid-103][1+trktype*2]->Fill(nlgh);
 	  if(trktype==0){
-	    ntrack[trk_mid-103][0][1+trktype*2]++;
-	    ntrack[trk_mid-103][1][1+trktype*2]++;
+	    ntrack[trk_mid-103][1]++;//track_after_hbd
+	    ntrack[trk_mid-103][2]++;//track_after_hbd(clutser)
+	    trkmom[trk_mid-103]->Fill(track_mom->at(itrack));
 	    hevsp[trk_mid-103]->Fill(track_mom->at(itrack),tmpadcsum);
 	    if(tmpadcsum>50){hedivp[trk_mid-103]->Fill(tmpadcsum/track_mom->at(itrack));}
 	    if(tmpadcsum>50){hesubp[trk_mid-103]->Fill(tmpadcsum-250*track_mom->at(itrack));}
+	    if(fabs(resx_min)<hw_intx[1]&&fabs(resy_min)<hw_inty[1]){
+	      ntrack[trk_mid-103][7]++;//track_after_hbdlg
+	      ntrack[trk_mid-103][8]++;//track_after_hbdlg
+	    }
 	  }
+	  if(trktype==1){
+	    ntrack[trk_mid-103][3]++;//track_before_lg
+	    ntrack[trk_mid-103][4]++;//track_before_lg
+	    if(fabs(resx_min)<hw_intx[1]&&fabs(resy_min)<hw_inty[1]){
+	      ntrack[trk_mid-103][5]++;//track_after_lg
+	      ntrack[trk_mid-103][6]++;//track_after_lg
+	    }
+	  }//220215
 
 	  if(lgmixhits[mide].size()!=0){//calc mix
 	    double tmpadcsumd=0;
@@ -2402,7 +2420,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 		  }
 		}
 		haresd[mide][1+trktype*2]->Fill(tmpresx,tmpresy);
-		if( trktype==0 && fabs(tmpresx)<50 && fabs(tmpresy)<50 ){
+		if( trktype==0 && fabs(tmpresx)<searchx && fabs(tmpresy)<searchy ){
 		  if( tmpt>(ssdoffset-ssdregion)+track_ssd_t->at(itrack) && tmpt<(ssdoffset+ssdregion)+track_ssd_t->at(itrack) ){
 		    if( fabs(tmpt-track_ssd_t->at(itrack)-ssdoffset)<tmptdiffd ){
 		      tmpadcsumd = tmpa;
@@ -2420,18 +2438,6 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	      if(tmpadcsumd>50){hesubpd[mide]->Fill(tmpadcsumd-250*track_mom->at(itrack));}
 	    }
 	  }//calc mix
-
-	  if(trktype==0){//HBDHit
-	    ntrack[trk_mid-103][2][1+trktype*2]++;//220218tmp
-	    ntrack[trk_mid-103][3][1+trktype*2]++;//220218tmp
-	    trkmom[trk_mid-103]->Fill(track_mom->at(itrack));
-	  }//220216
-	  if(trktype==1&&fabs(resx_min)<hw_intx[1]&&fabs(resy_min)<hw_inty[1]){//LGHit w/oHBDHit
-	    ntrack[trk_mid-103][0][1+trktype*2]++;
-	    ntrack[trk_mid-103][1][1+trktype*2]++;
-	    ntrack[trk_mid-103][2][1+trktype*2]++;//220216tmp
-	    ntrack[trk_mid-103][3][1+trktype*2]++;//220216tmp
-	  }//220215
 
 	}//trktype
 
@@ -2551,8 +2557,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 lasubd[i][0][j][k] = new TLegend(0.1,0.75,0.4,0.9);
 	 vasubd[i][0][j][k] = hasubd[i][0][j][k]->Integral(roughbin[k]/2-hw_intx[k]*roughbin[k]/1600,roughbin[k]/2+hw_inty[k]*roughbin[k]/1600);
 	 lasubd[i][0][j][k]->AddEntry(hasubd[i][0][j][k],Form("%d<Integral<%d, %d",-hw_intx[k],hw_intx[k],vasubd[i][0][j][k]),"l");
-	 lasubd[i][0][j][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][j][k]),"");
-	 lasubd[i][0][j][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasubd[i][0][j][k]/(double)ntrack[(i+3)%5][j][k]),"");
+	 lasubd[i][0][j][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][k]),"");
+	 lasubd[i][0][j][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasubd[i][0][j][k]/(double)ntrack[(i+3)%5][k]),"");
 	 lasubd[i][0][j][k]->Draw();
 	 casubd[i][j][k]->cd(4);
 	 hasubd[i][1][j][k] = (TH1F*)haresy[(i+3)%5][j][k]->Clone();
@@ -2564,8 +2570,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 lasubd[i][1][j][k] = new TLegend(0.1,0.75,0.4,0.9);
 	 vasubd[i][1][j][k] = hasubd[i][1][j][k]->Integral(roughbin[k]/2-hw_intx[k]*roughbin[k]/1600,roughbin[k]/2+hw_inty[k]*roughbin[k]/1600);
 	 lasubd[i][1][j][k]->AddEntry(hasubd[i][1][j][k],Form("%d<Integral<%d, %d",-hw_intx[k],hw_intx[k],vasubd[i][1][j][k]),"l");
-	 lasubd[i][1][j][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][j][k]),"");
-	 lasubd[i][1][j][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasubd[i][1][j][k]/(double)ntrack[(i+3)%5][j][k]),"");
+	 lasubd[i][1][j][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][k]),"");
+	 lasubd[i][1][j][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasubd[i][1][j][k]/(double)ntrack[(i+3)%5][k]),"");
 	 lasubd[i][1][j][k]->Draw();
        }
      }
@@ -2579,7 +2585,6 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    double voriginy[4][ndet]={0.};
    double vsigmax[4][ndet]={0.};
    double vsigmay[4][ndet]={0.};
-   int ntracks[4][ndet]={0};
    double missurv[4][ndet]={0.};
    double effxtrkp[4][ndet]={0.};
    for(int k=0;k<ndet;k++){
@@ -2593,14 +2598,12 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        if(k==0){voriginx[i][k]=hbd_voriginx[i];voriginy[i][k]=hbd_voriginy[i];vsigmax[i][k]=hbd_vsigmax[i];vsigmay[i][k]=hbd_vsigmay[i];}
        if(k==1||k==3){voriginx[i][k]=0;voriginy[i][k]=0;vsigmax[i][k]=hw_intx[1];vsigmay[i][k]=hw_inty[1];}
        if(k==2||k==4){voriginy[i][k]=0;vsigmay[i][k]=hw_inty[1];}
-       int n_track = hn[(i+3)%5][k]->GetEntries();
-       ntracks[i][k] = n_track;
        casub2d[i][k]->cd(1);
        hares[(i+3)%5][k]->Draw("colz");
        lasub2d[0][i][k] = new TLegend(0.1,0.8,0.45,0.9);
        vasub2d[0][i][k] = AnalyzerResidualHBD::Get2DHistSquareIntegral(hares[(i+3)%5][k],voriginx[i][k],voriginy[i][k],vsigmax[i][k],vsigmay[i][k]);
        lasub2d[0][i][k]->AddEntry(hares[(i+3)%5][k],Form("Integral, %d",vasub2d[0][i][k]),"l");
-       lasub2d[0][i][k]->AddEntry((TObject*)0,Form("int/ntrack: %1.3f",(double)vasub2d[0][i][k]/(double)n_track),"");
+       lasub2d[0][i][k]->AddEntry((TObject*)0,Form("int/ntrack: %1.3f",(double)vasub2d[0][i][k]/(double)ntrack[(i+3)%5][k]),"");
        lasub2d[0][i][k]->Draw();
        casub2d[i][k]->cd(2);
        int x0 = haresd[(i+3)%5][k]->GetXaxis()->FindBin(-100.);
@@ -2614,29 +2617,28 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        lasub2d[1][i][k] = new TLegend(0.1,0.8,0.7,0.9);
        vasub2d[1][i][k] = AnalyzerResidualHBD::Get2DHistSquareIntegral(haresd[(i+3)%5][k],voriginx[i][k],voriginy[i][k],vsigmax[i][k],vsigmay[i][k]);
        lasub2d[1][i][k]->AddEntry(haresd[(i+3)%5][k],Form("Integral, %d",vasub2d[1][i][k]),"l");
-       lasub2d[1][i][k]->AddEntry((TObject*)0,Form("int/ntrack (mis-track survival): %1.3f",(double)vasub2d[1][i][k]/(double)n_track),"");
+       lasub2d[1][i][k]->AddEntry((TObject*)0,Form("int/ntrack (mis-track survival): %1.3f",(double)vasub2d[1][i][k]/(double)ntrack[(i+3)%5][k]),"");
        lasub2d[1][i][k]->Draw();
-       missurv[i][k] = (double)vasub2d[1][i][k]/(double)n_track;
+       missurv[i][k] = (double)vasub2d[1][i][k]/(double)ntrack[(i+3)%5][k];
        casub2d[i][k]->cd(3);
        hasub2d[i][k] = (TH2F*)hares[(i+3)%5][k]->Clone();
        hasub2d[i][k]->Add(haresd[(i+3)%5][k],-1);
        hasub2d[i][k]->Draw("colz");
        lasub2d[2][i][k] = new TLegend(0.1,0.75,0.6,0.9);
        hasub2dcopy[i][k] = (TH2F*)hasub2d[i][k]->Clone();
-       //vasub2d[2][i][k] = AnalyzerResidualHBD::Get2DHistIntegral(hasub2d[i][k],vsigmax[i][k],hasub2dcopy[i][k],voriginx[i][k],voriginy[i][k]);
        vasub2d[2][i][k] = AnalyzerResidualHBD::Get2DHistSquareIntegral(hasub2d[i][k],hasub2dcopy[i][k],voriginx[i][k],voriginy[i][k],vsigmax[i][k],vsigmay[i][k]);
        lasub2d[2][i][k]->AddEntry(hasub2d[i][k],Form("Integral(sx:%dmm,sy:%dmm), %d",(int)vsigmax[i][k],(int)vsigmay[i][k],vasub2d[2][i][k]),"l");
-       lasub2d[2][i][k]->AddEntry((TObject*)0,Form("n_track: %d",n_track),"");
-       lasub2d[2][i][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasub2d[2][i][k]/(double)n_track),"");
+       lasub2d[2][i][k]->AddEntry((TObject*)0,Form("n_track: %d",ntrack[(i+3)%5][k]),"");
+       lasub2d[2][i][k]->AddEntry((TObject*)0,Form("ratio  : %1.3f",(double)vasub2d[2][i][k]/(double)ntrack[(i+3)%5][k]),"");
        lasub2d[2][i][k]->Draw();
-       effxtrkp[i][k] = (double)vasub2d[2][i][k]/(double)n_track;
+       effxtrkp[i][k] = (double)vasub2d[2][i][k]/(double)ntrack[(i+3)%5][k];
        casub2d[i][k]->cd(4)->DrawFrame(-ex_2d[k],-ex_2d[k],ex_2d[k],ex_2d[k]);
        hasub2dcopy[i][k]->Draw("colz sames");
      }
    }
 
    // Efficiency Summary
-   const int step = 10;
+   const int step = 50;
    double trkpforhbdrej[4]={0.};
    double trkpforlgrej[4]={0.};
    TGraphErrors* geffh[4];
@@ -2646,8 +2648,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TGraphErrors* gtrkp[4];
    TGraphErrors* gtrkpb[4];
    TGraphErrors* gtrkp2[4];
+   TGraphErrors* gtrkpa[4];
    TCanvas *ceff = new TCanvas("ceff","ceff",700,500);
-   TLegend* leff = new TLegend(0.1,0.1,0.5,0.5);
+   TLegend* leff = new TLegend(0.5,0.5,0.9,0.9);
    ceff->Divide(2,2);
    for(int i=0;i<4;i++){
      double graphx[step]={0.};
@@ -2658,6 +2661,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      double vtrkp[step]={0.};
      double vtrkpb[step]={0.};
      double vtrkp2[step]={0.};
+     double vtrkpa[step]={0.};
      double zero[step]={0.};
      double veffh_err[step]={0.};
      double veffc_err[step]={0.};
@@ -2666,19 +2670,24 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      double vtrkp_err[step]={0.};
      double vtrkpb_err[step]={0.};
      double vtrkp2_err[step]={0.};
+     double vtrkpa_err[step]={0.};
      for(int st=0;st<step;st++){
        graphx[st] = effxtrkp[i][0] + st*(1.-effxtrkp[i][0])/((double)step-1.) ;
        veffh[st] = (double)vasub2d[2][i][1]/(double)vasub2d[2][i][0];
        veffh_err[st] = veffh[st]/sqrt((double)vasub2d[2][i][1]);
        veffc[st] = (double)vasub2d[2][i][2]/(double)vasub2d[2][i][0];
        veffc_err[st] = veffc[st]/sqrt((double)vasub2d[2][i][2]);
-       vtrkp[st] = (double)vasub2d[2][i][0]/(double)ntracks[i][1];
+       vtrkp[st] = (double)vasub2d[2][i][0]/(double)ntrack[(i+3)%5][1];
        vtrkp_err[st] = vtrkp[st]/sqrt((double)vasub2d[2][i][0]);
-       vtrkp2[st] = (double)vasub2d[2][i][3]/(double)ntrack[(i+3)%5][0][3];
+       vtrkp2[st] = (double)vasub2d[2][i][3]/(double)ntrack[(i+3)%5][5];
        vtrkp2_err[st] = vtrkp[st]/sqrt((double)vasub2d[2][i][3]);
+       vtrkpa[st] = (double)vasub2d[2][i][1]/(double)ntrack[(i+3)%5][7];
        vtrkpb[st] = effxtrkp[i][0]/graphx[st];
        veffhb[st] = effxtrkp[i][3]/vtrkpb[st];
        veffcb[st] = effxtrkp[i][4]/vtrkpb[st];
+     }
+     for(int n=0;n<9;n++){
+       std::cout<<ntrack[(i+3)%5][n]<<std::endl;
      }
      trkpforhbdrej[i] = vtrkp2[0];
      trkpforlgrej[i] = vtrkp[0];
@@ -2687,6 +2696,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      gtrkp[i] = new TGraphErrors(step,graphx,vtrkp,zero,vtrkp_err);
      gtrkpb[i] = new TGraphErrors(step,graphx,vtrkpb,zero,vtrkpb_err);
      gtrkp2[i] = new TGraphErrors(step,graphx,vtrkp2,zero,vtrkp2_err);
+     gtrkpa[i] = new TGraphErrors(step,graphx,vtrkpa,zero,vtrkpa_err);
      geffhb[i] = new TGraphErrors(step,graphx,veffhb,zero,veffhb_err);
      geffcb[i] = new TGraphErrors(step,graphx,veffcb,zero,veffcb_err);
      ceff->cd(i+1)->SetGrid();
@@ -2694,10 +2704,15 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      gtrkp[i]->SetMaximum(1.);
      gtrkp[i]->SetMinimum(0.);
      gtrkp[i]->GetXaxis()->SetLimits(0,1);
+     gtrkp[i]->SetMarkerColor(3);
+     gtrkp[i]->SetLineColor(3);
      gtrkp[i]->Draw("ALP");
-     gtrkp2[i]->SetMarkerColor(3);
-     gtrkp2[i]->SetLineColor(3);
+     gtrkp2[i]->SetMarkerColor(5);
+     gtrkp2[i]->SetLineColor(5);
      gtrkp2[i]->Draw("LP");
+     gtrkpa[i]->SetMarkerColor(1);
+     gtrkpa[i]->SetLineColor(1);
+     gtrkpa[i]->Draw("LP");
      geffh[i]->SetMarkerColor(2);
      geffh[i]->SetLineColor(2);
      geffh[i]->Draw("LP");
@@ -2717,6 +2732,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        leff->AddEntry(gtrkp[2],"TrackPurity w/HBD","l");
        leff->AddEntry(gtrkpb[2],"TrackPurityBefore","l");
        leff->AddEntry(gtrkp2[2],"TrackPurity w/LG","l");
+       leff->AddEntry(gtrkpa[2],"TrackPurity w/ALL","l");
        leff->AddEntry(geffh[2],"LGHitEff byTrackw/HBD","l");
        leff->AddEntry(geffc[2],"LGClsEff byTrackw/HBD","l");
        leff->AddEntry(geffhb[2],"LGHitEff byTrackw/oHBD","l");
@@ -2735,9 +2751,10 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      leff2[i]->AddEntry((TObject*)0,Form("E_HBD(Cls): %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][2],vasub2d[2][i][4],(double)vasub2d[2][i][2]/(double)vasub2d[2][i][4],sqrt((double)vasub2d[2][i][2])/(double)vasub2d[2][i][4]),"");
      leff2[i]->AddEntry((TObject*)0,Form("E_LGHit: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][1],vasub2d[2][i][0],(double)vasub2d[2][i][1]/(double)vasub2d[2][i][0],sqrt((double)vasub2d[2][i][1])/(double)vasub2d[2][i][0]),"");
      leff2[i]->AddEntry((TObject*)0,Form("E_LGCls: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][2],vasub2d[2][i][0],(double)vasub2d[2][i][2]/(double)vasub2d[2][i][0],sqrt((double)vasub2d[2][i][2])/(double)vasub2d[2][i][0]),"");
-     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/HBD: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][0],ntracks[i][1],(double)vasub2d[2][i][0]/(double)ntracks[i][1],sqrt((double)vasub2d[2][i][0])/(double)ntracks[i][1]),"");
-     leff2[i]->AddEntry((TObject*)0,Form("TrkPurityB: %d/%dx1./E_HBD=%1.3f +/- %1.3f",vasub2d[2][i][0],ntracks[i][0],(double)vasub2d[2][i][0]/(double)ntracks[i][0]/(double)vasub2d[2][i][1]*(double)vasub2d[2][i][3],sqrt((double)vasub2d[2][i][0])/(double)ntracks[i][0]),"");
-     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/LG: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][3],ntrack[(i+3)%5][0][3],(double)vasub2d[2][i][3]/(double)ntrack[(i+3)%5][0][3],sqrt((double)vasub2d[2][i][3])/(double)ntrack[(i+3)%5][0][3]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/HBD: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][0],ntrack[(i+3)/5][1],(double)vasub2d[2][i][0]/(double)ntrack[(i+3)/5][1],sqrt((double)vasub2d[2][i][0])/(double)ntrack[(i+3)/5][1]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurityB: %d/%d/E_HBD=%1.3f +/- %1.3f",vasub2d[2][i][0],ntrack[(i+3)%5][0],(double)vasub2d[2][i][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1]*(double)vasub2d[2][i][3],sqrt((double)vasub2d[2][i][0])/(double)ntrack[(i+3)%5][0]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/LG: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][3],ntrack[(i+3)%5][5],(double)vasub2d[2][i][3]/(double)ntrack[(i+3)%5][5],sqrt((double)vasub2d[2][i][3])/(double)ntrack[(i+3)%5][5]),"");
+     leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/ALL: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][1],ntrack[(i+3)%5][7],(double)vasub2d[2][i][1]/(double)ntrack[(i+3)%5][7],sqrt((double)vasub2d[2][i][1])/(double)ntrack[(i+3)%5][7]),"");
      leff2[i]->Draw();
    }
    // Efficiency Summary   

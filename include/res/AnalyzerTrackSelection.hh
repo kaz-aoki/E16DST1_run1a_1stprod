@@ -536,6 +536,7 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
     if(chi_square->at(i)>30.) continue;
     // if(fabs(track_position_block_lx->at(i))>30) continue;
     // if(fabs(track_position_block_ly->at(i))>30) continue;
+    if(track_ssd_t->at(i)<40.||track_ssd_t->at(i)>55.) continue;
     set settmp;
     settmp.track_id = track_id->at(i);
     settmp.chisq = chi_square->at(i);
