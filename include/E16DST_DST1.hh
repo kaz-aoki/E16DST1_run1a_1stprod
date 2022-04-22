@@ -518,7 +518,7 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float integral; // baseline subtracted
   int npeaks;
   int npeak;
-  int fitflag; // 0: not fitted (no pulse), 1: fit OK, 2: fit failed
+  int fitflag; // 0: not fitted (no pulse), 1: fit OK, 2: fit failed, 3: no pulse in fit method
   float fitpeak;
   float fitpeaktime;
   float fittiming; // calibrated channel by channel

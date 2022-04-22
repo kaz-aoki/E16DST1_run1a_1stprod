@@ -25,7 +25,26 @@ using namespace std;
 #include "vector"
 
 class AnalyzerTrackSelection {
+private :
+   //HBD residual region for selecting tracks
+   double track_select_sigma = 2.;
+   double hbd_voriginx[4]={0.};
+   double hbd_voriginy[4]={0.};
+   double hbd_vsigmax[4]={25.,25.,25.,25.};
+   double hbd_vsigmay[4]={25.,25.,25.,25.};
+
 public :
+   struct hitset{
+     int mid;
+     double lx;
+     double ly;
+     double adc;
+     double tdc;
+     bool operator<(const hitset& another){
+       return tdc < another.tdc;
+     }
+   };
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -227,6 +246,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
+   virtual double   CalcADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    virtual void     Loop();
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
@@ -533,10 +553,14 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
   //tracks are already sorted by chi_square in DST1
   for(int i=0;i<n_tracks;i++){ //track loop
     if(track_hbd_mid->at(i)!=track_lg_mid->at(i)) continue;
+    int trk_mid = track_hbd_mid->at(i);
+    double rxt = track_hbd_nearx->at(i)-hbd_voriginx[(trk_mid-103+2)%5];
+    double ryt = track_hbd_neary->at(i)-hbd_voriginy[(trk_mid-103+2)%5];
+    if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) continue;
     if(chi_square->at(i)>30.) continue;
     // if(fabs(track_position_block_lx->at(i))>30) continue;
     // if(fabs(track_position_block_ly->at(i))>30) continue;
-    if(track_ssd_t->at(i)<40.||track_ssd_t->at(i)>55.) continue;
+    // if(track_ssd_t->at(i)<40.||track_ssd_t->at(i)>55.) continue;
     set settmp;
     settmp.track_id = track_id->at(i);
     settmp.chisq = chi_square->at(i);
