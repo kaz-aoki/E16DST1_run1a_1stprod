@@ -1,6 +1,8 @@
 #ifndef E16ANA_TRACKCANDIDATE_HH
 #define E16ANA_TRACKCANDIDATE_HH
 
+//#define NO_BIAS_TRACKING
+
 #include <array>
 #include <iostream>
 #include <vector>
@@ -42,6 +44,7 @@ class E16ANA_TrackClusterPair {
 //    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
     global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
+#ifdef NO_BIAS_TRACKING
   void SetOneAxis(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _global_pos, E16DST_DST1Cluster* cluster) { // GTR, for track eff. estimation
     set_flag = 1;
     layer_order = _layer_order;
@@ -52,6 +55,7 @@ class E16ANA_TrackClusterPair {
 //    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
     global_pos = {_global_pos.X(), _global_pos.Y(), _global_pos.Z()};
   }
+#endif // NO_BIAS_TRACKING
   void Clear() {
     set_flag = 0;
     layer_order = E16DST_DST1Constant::kInvalidValue;
@@ -638,7 +642,9 @@ class E16ANA_TrackCandidates {
 //    return false;
 //  }
   void SearchTrackCandidates();
+#ifdef NO_BIAS_TRACKING
   void FillAllTrackCandidatesSeparateXY();
+#endif // NO_BIAS_TRACKING
   void Fit();
   void SearchHBDAndLGHits();
   void SelectTracks();

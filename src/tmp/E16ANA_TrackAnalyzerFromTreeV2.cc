@@ -3125,6 +3125,34 @@ double E16ANA_TrackAnalyzerFromTree::SearchMixedVertex(const int eindex[], const
   return distance * 10.; // cm -> mm
 }
 
+void E16ANA_TrackAnalyzerFromTree::AddMixedTracks(const int entry_index_index_pair[], const int track_index_index_pair[], double tgt_z) {
+  pair_fitter->Clear();
+  pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_z), pt_param::kVertexSigma);
+  auto init_mom0 = TVector3(prev_events[entry_index_index_pair[0]].tracks[track_index_index_pair[0]].init_mom.X(),
+                            prev_events[entry_index_index_pair[0]].tracks[track_index_index_pair[0]].init_mom.Y(),
+                            prev_events[entry_index_index_pair[0]].tracks[track_index_index_pair[0]].init_mom.Z());
+  auto init_mom1 = TVector3(prev_events[entry_index_index_pair[1]].tracks[track_index_index_pair[1]].init_mom.X(),
+                            prev_events[entry_index_index_pair[1]].tracks[track_index_index_pair[1]].init_mom.Y(),
+                            prev_events[entry_index_index_pair[1]].tracks[track_index_index_pair[1]].init_mom.Z());
+  pair_fitter->SetInitialMomentum(0, init_mom0);
+  pair_fitter->SetInitialMomentum(1, init_mom1);
+  pair_fitter->SetCharge(0, -1.);
+  pair_fitter->SetCharge(1, 1.);
+  TVector3 pair_mom;
+  for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
+    auto& track = prev_events[entry_index_index_pair[track_index_in_pair]].tracks[track_index_index_pair[track_index_in_pair]];
+    pair_fitter->AddHit(track_index_in_pair, 0, geometry->SSD(track_const::ModuleID2020To2013(track.mid[0])),
+                        geometry->SSD(track_const::ModuleID2020To2013(track.mid[0]))->GetLPos(track.layer_pos[0]), pt_param::kSSDSigma);
+    pair_fitter->AddHit(track_index_in_pair, 1, geometry->GTR(track_const::ModuleID2020To2013(track.mid[1]), 0),
+                        geometry->GTR(track_const::ModuleID2020To2013(track.mid[1]), 0)->GetLPos(track.layer_pos[1]), pt_param::kGTR100Sigma);
+    pair_fitter->AddHit(track_index_in_pair, 2, geometry->GTR(track_const::ModuleID2020To2013(track.mid[2]), 1),
+                        geometry->GTR(track_const::ModuleID2020To2013(track.mid[2]), 1)->GetLPos(track.layer_pos[2]), pt_param::kGTR200Sigma);
+    pair_fitter->AddHit(track_index_in_pair, 3, geometry->GTR(track_const::ModuleID2020To2013(track.mid[3]), 2),
+                        geometry->GTR(track_const::ModuleID2020To2013(track.mid[3]), 2)->GetLPos(track.layer_pos[3]), pt_param::kGTR300Sigma);
+  }
+  return;
+}
+
 void E16ANA_TrackAnalyzerFromTree::AddMixedPionTracks(const int entry_index_index_pair[], const int track_index_index_pair[]) {
   pair_fitter->Clear();
   TVector3 tmp_vtx_pos;
@@ -3819,6 +3847,81 @@ void E16ANA_TrackAnalyzerFromTree::UpdateMixedFitResult(const int entry_index_in
   return;
 }
 
+void E16ANA_TrackAnalyzerFromTree::MixedPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]) {
+  double tgt_zs[3] = {-20., 0., 20.,};
+  double chi2 = 1.0e9;
+  int best_z_i = 0;
+  TVector3 vtx;
+  TVector3 minus_mom;
+  TVector3 plus_mom;
+  std::array<std::array<int, track_const::kNumTrackingLayers>, 2> mids;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lposs;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lmoms;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gposs;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gmoms;
+  std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lress;
+  for (int i = 0; i < 3; ++i) {
+    AddMixedTracks(entry_index_index_pair, track_index_index_pair, tgt_zs[i]);
+    pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
+    pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
+    auto tmp_chi2 = pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag, pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls);
+    if (i == 0 || tmp_chi2 < chi2) {
+      chi2 = tmp_chi2;
+      best_z_i = i;
+      GetFitResult(&vtx, &minus_mom, &plus_mom, &mids, &lposs, &lmoms, &gposs, &gmoms, &lress);
+    }
+  }
+  out_chi_square.emplace_back(chi2);
+  UpdateMixedFitResult(entry_index_index_pair, track_index_index_pair, vtx, minus_mom, plus_mom, mids, lposs, lmoms, gposs, gmoms, lress);
+  return;
+}
+
+void E16ANA_TrackAnalyzerFromTree::AnalyzeMixedTrackPairs() {
+  if (selected_track_indexs.size() == 0) {
+    return;
+  }
+  UpdatePrevEvents();
+  auto n_events = prev_events.size();
+  if (n_events < 2) {
+    return;
+  }
+  auto& event = prev_events.back();
+  for (int ti = 0; ti < event.tracks.size(); ++ti) {
+    auto charge = event.tracks[ti].charge;
+    for (int ei = 0; ei < n_events - 1; ++ei) {
+      auto& prev_event = prev_events[ei];
+      auto& prev_tracks = prev_event.tracks;
+      for (int pti = 0; pti < prev_tracks.size(); ++pti) {
+        auto& prev_charge = prev_tracks[pti].charge;
+        if (charge != prev_charge) {
+          int entry_index_index_pair[2];
+          int track_index_index_pair[2];
+          if (charge == -1) {
+            entry_index_index_pair[0] = n_events - 1;
+            entry_index_index_pair[1] = ei;
+            track_index_index_pair[0] = ti;
+            track_index_index_pair[1] = pti;
+          } else {
+            entry_index_index_pair[0] = ei;
+            entry_index_index_pair[1] = n_events - 1;
+            track_index_index_pair[0] = pti;
+            track_index_index_pair[1] = ti;
+          }
+          MixedPairTracking(entry_index_index_pair, track_index_index_pair);
+        }
+      }
+    }
+  }
+  out_n_pairs = out_chi_square.size();
+  out_is_selected.assign(out_n_pairs, false);
+//  SelectTrackPairs();
+//for (const auto& chi2 : out_chi_square) {
+//  std::cout << chi2 << std::endl;
+//}
+  out_tree->Fill();
+  return;
+}
+
 void E16ANA_TrackAnalyzerFromTree::MixedPionPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]) {
   AddMixedPionTracks(entry_index_index_pair, track_index_index_pair);
   pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
@@ -3878,9 +3981,9 @@ void E16ANA_TrackAnalyzerFromTree::AnalyzeMixedPionTrackPairs() {
   out_n_pairs = out_chi_square.size();
   out_is_selected.assign(out_n_pairs, false);
 //  SelectTrackPairs();
-for (const auto& chi2 : out_chi_square) {
-  std::cout << chi2 << std::endl;
-}
+//for (const auto& chi2 : out_chi_square) {
+//  std::cout << chi2 << std::endl;
+//}
   out_tree1->Fill();
   return;
 }
@@ -3951,7 +4054,13 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
         }
       }
     } else {
-      if (analyze_flag == cmn_param::kPionFlag) {
+      if (analyze_flag == cmn_param::kElectronFlag) {
+        particle_flag = cmn_param::kElectronFlag;
+        ClearOutBranch();
+        selected_track_indexs.clear();
+        SelectTracks();
+        AnalyzeMixedTrackPairs();
+      } else if (analyze_flag == cmn_param::kPionFlag) {
         particle_flag = cmn_param::kPionFlag;
         ClearOutBranch();
         selected_track_indexs.clear();

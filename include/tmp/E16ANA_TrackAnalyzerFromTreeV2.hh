@@ -1606,6 +1606,9 @@ class E16ANA_TrackAnalyzerFromTree {
                             const std::array<std::array<TVector3, 4>, 2>& lres);
   void MixedPionPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]);
   void AnalyzeMixedPionTrackPairs();
+  void AddMixedTracks(const int entry_index_index_pair[], const int track_index_index_pair[], double tgt_z);
+  void MixedPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]);
+  void AnalyzeMixedTrackPairs();
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both
   int particle_flag; // 0 : electron, 1 : pion
   bool is_event_mix;
