@@ -1553,7 +1553,7 @@ class E16ANA_TrackAnalyzerFromTree {
   void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_x_cluster_ids,
                                     std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_y_cluster_ids);
   void SelectTracks();
-  void AddTracks(const int track_index_pair[], double tgt_z);
+  void AddTracks(const int track_index_pair[], int tgt_id);
   void FillTVector3ToDouble(TVector3 t_vector, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
   void ProjectionHBDAndLG(const TVector3& vertex, const TVector3& mom, double charge, int track_index,
                           TVector3 out_lposs[], TVector3 out_gposs[], TVector3 out_lmoms[], TVector3 out_gmoms[]);

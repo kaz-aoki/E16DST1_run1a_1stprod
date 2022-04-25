@@ -1003,14 +1003,23 @@ void E16ANA_TrackAnalyzerFromTree::SelectTracks() {
   return;
 }
 
-void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], double tgt_z) {
+void E16ANA_TrackAnalyzerFromTree::AddTracks(const int track_index_pair[], int tgt_id) {
+  double tgt_zs[3] = {-20., 0., 20.,};
   pair_fitter->Clear();
-  pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_z), pt_param::kVertexSigma);
+  pair_fitter->SetInitialVertex(TVector3(0., 0., tgt_zs[tgt_id]), pt_param::kVertexSigma);
   pair_fitter->SetCharge(0, -1.);
   pair_fitter->SetCharge(1, 1.);
   TVector3 pair_mom;
   for (int i = 0; i < 2; ++i) {
-    auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
+//    auto tmp_mom = TVector3(rk_fit_init_mom_gx->at(track_index_pair[i]), rk_fit_init_mom_gy->at(track_index_pair[i]), rk_fit_init_mom_gz->at(track_index_pair[i]));
+    TVector3 tmp_mom;
+    if (tgt_id == 0) {
+      tmp_mom = TVector3(rk_proj_tgt0_mom_gx->at(track_index_pair[i]), rk_proj_tgt0_mom_gy->at(track_index_pair[i]), rk_proj_tgt0_mom_gz->at(track_index_pair[i]));
+    } else if (tgt_id == 1) {
+      tmp_mom = TVector3(rk_proj_tgt1_mom_gx->at(track_index_pair[i]), rk_proj_tgt1_mom_gy->at(track_index_pair[i]), rk_proj_tgt1_mom_gz->at(track_index_pair[i]));
+    } else {
+      tmp_mom = TVector3(rk_proj_tgt2_mom_gx->at(track_index_pair[i]), rk_proj_tgt2_mom_gy->at(track_index_pair[i]), rk_proj_tgt2_mom_gz->at(track_index_pair[i]));
+    }
     pair_fitter->SetInitialMomentum(i, tmp_mom);
   }
   for (int track_index_in_pair = 0; track_index_in_pair < 2; ++track_index_in_pair) {
@@ -1945,7 +1954,6 @@ void E16ANA_TrackAnalyzerFromTree::PairTracking(const int track_indexs_index_pai
 //  pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
 //  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag,
 //                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
-  double tgt_zs[3] = {-20., 0., 20.,};
   double chi2 = 1.0e9;
   int best_z_i = 0;
   TVector3 vtx;
@@ -1958,7 +1966,7 @@ void E16ANA_TrackAnalyzerFromTree::PairTracking(const int track_indexs_index_pai
   std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> gmoms;
   std::array<std::array<TVector3, track_const::kNumTrackingLayers>, 2> lress;
   for (int i = 0; i < 3; ++i) {
-    AddTracks(track_index_pair, tgt_zs[i]);
+    AddTracks(track_index_pair, i);
     pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
     pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
     auto tmp_chi2 = pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlag, pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls);
