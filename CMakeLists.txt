@@ -42,6 +42,7 @@ include_directories(
 	include/trigger
 	include/straight_track
 	include/track
+	include/tmp
   E16DST
   E16ANA_Basic/include
 
@@ -126,6 +127,8 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
+  src/tmp/SingleTrackAnalyzerForRes.cc
+  src/tmp/AnalyzerResidualHBD.cc
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
@@ -268,8 +271,23 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
-
 #_______________________________________________________________________________
+add_executable(run_HBDLGResidualCalc usr/run_HBDLGResidualCalc.cc)
+
+target_link_libraries(run_HBDLGResidualCalc
+	E16DST
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+
+target_link_libraries(run_GTRResidualCalc
+	E16DST
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+
 add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 
 target_link_libraries(tmp_track_analyzer_one_file

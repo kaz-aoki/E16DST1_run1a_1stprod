@@ -76,7 +76,9 @@ public:
 	//bool Is300YOK(const int module_id, const int strip_ch);
     virtual void Init();
     bool IsXOK(const int module_id, const int ch);
+    bool IsXOK(const int module_id, const double lx_mm);
     bool IsYOK(const int module_id, const int ch);
+    bool IsYOK(const int module_id, const double ly_mm);
 protected:
     int n_gem_strip_x;
     int n_gem_strip_y;

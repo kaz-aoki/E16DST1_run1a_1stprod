@@ -44,3 +44,32 @@ int E16ANA_GTRChannelManager::ConvMIDE16ToK(const int module_id){
 	return index;
 }
 
+int E16ANA_GTRChannelManager::ConvLocalXToGEMch(const int n_gem_strip_x, const double lx_mm){
+	int gem_ch = -1;
+	if(n_gem_strip_x == 1){//100GEM
+		gem_ch = 0;
+	}
+	else if(n_gem_strip_x == 4){//200GEM
+		double conv_lx = lx_mm + 100;
+		gem_ch = conv_lx/50;
+	}
+	else if(n_gem_strip_x == 12){//300GEM
+		double conv_lx = lx_mm + 150;
+		gem_ch  = conv_lx/25; 
+	}
+}
+
+int E16ANA_GTRChannelManager::ConvLocalYToGEMch(const int n_gem_strip_y, const double ly_mm){
+	int gem_ch = -1;
+	if(n_gem_strip_y == 1){//100GEM
+		gem_ch = 0;
+	}
+	else if(n_gem_strip_y == 4){//200GEM
+		double conv_ly = ly_mm + 100;
+		gem_ch = conv_ly/50;
+	}
+	else if(n_gem_strip_y == 24){//300GEM
+		double conv_ly = ly_mm + 150;
+		gem_ch  = conv_ly/12.5; 
+	}
+}

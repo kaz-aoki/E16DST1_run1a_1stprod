@@ -10,6 +10,8 @@ public:
 	static bool IsValidModuleID(const int module_id);	
 	static bool IsValidASDID(const int m, const int c);
 	static int ConvMIDE16ToK(const int m);
+	static int ConvLocalXToGEMch(const int n_gem_strip_x, const double lx_mm);
+	static int ConvLocalYToGEMch(const int n_gem_strip_y, const double ly_mm);
 private:
 	enum {
 		n_ychs = E16DST_DST1Constant::n_gtr_asd_chs
