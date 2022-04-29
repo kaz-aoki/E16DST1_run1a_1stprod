@@ -125,6 +125,116 @@ public :
    vector<float>   *lg_hit_t;
    vector<int>     *lg_hit_npeaks;
    vector<int>     *lg_hit_fflag;
+   Int_t           n_trg_gtr_hits;
+   vector<int>     *trg_gtr_hit_id;
+   vector<int>     *trg_gtr_hit_mid;
+   vector<int>     *trg_gtr_hit_cid;
+   vector<double>  *trg_gtr_hit_x;
+   vector<double>  *trg_gtr_hit_y;
+   vector<double>  *trg_gtr_hit_gx;
+   vector<double>  *trg_gtr_hit_gy;
+   vector<double>  *trg_gtr_hit_gz;
+   vector<float>   *trg_gtr_hit_t;
+   Int_t           n_trg_hbd_hits;
+   vector<int>     *trg_hbd_hit_id;
+   vector<int>     *trg_hbd_hit_mid;
+   vector<int>     *trg_hbd_hit_cid;
+   vector<double>  *trg_hbd_hit_x;
+   vector<double>  *trg_hbd_hit_y;
+   vector<double>  *trg_hbd_hit_gx;
+   vector<double>  *trg_hbd_hit_gy;
+   vector<double>  *trg_hbd_hit_gz;
+   vector<float>   *trg_hbd_hit_t;
+   Int_t           n_trg_lg_hits;
+   vector<int>     *trg_lg_hit_id;
+   vector<int>     *trg_lg_hit_mid;
+   vector<int>     *trg_lg_hit_cid;
+   vector<double>  *trg_lg_hit_x;
+   vector<double>  *trg_lg_hit_y;
+   vector<double>  *trg_lg_hit_z;
+   vector<double>  *trg_lg_hit_gx;
+   vector<double>  *trg_lg_hit_gy;
+   vector<double>  *trg_lg_hit_gz;
+   vector<float>   *trg_lg_hit_t;
+   Int_t           n_trg_tracks;
+   vector<int>     *trg_track_n_gtr_hits;
+   vector<vector<double> > *trg_track_gtr_id;
+   vector<vector<double> > *trg_track_gtr_mid;
+   vector<vector<double> > *trg_track_gtr_cid;
+   vector<vector<double> > *trg_track_gtr_x;
+   vector<vector<double> > *trg_track_gtr_y;
+   vector<vector<double> > *trg_track_gtr_t;
+   vector<vector<double> > *trg_track_gtr_is_t_match;
+   vector<int>     *trg_track_n_hbd_hits;
+   vector<vector<double> > *trg_track_hbd_id;
+   vector<vector<double> > *trg_track_hbd_mid;
+   vector<vector<double> > *trg_track_hbd_cid;
+   vector<vector<double> > *trg_track_hbd_x;
+   vector<vector<double> > *trg_track_hbd_y;
+   vector<vector<double> > *trg_track_hbd_t;
+   vector<vector<double> > *trg_track_hbd_is_t_match;
+   vector<int>     *trg_track_lg_id;
+   vector<int>     *trg_track_lg_mid;
+   vector<int>     *trg_track_lg_cid;
+   vector<double>  *trg_track_lg_x;
+   vector<double>  *trg_track_lg_y;
+   vector<float>   *trg_track_lg_t;
+   vector<int>     *trg_track_gtr0_id;
+   vector<int>     *trg_track_gtr0_mid;
+   vector<int>     *trg_track_gtr0_cid;
+   vector<double>  *trg_track_gtr0_x;
+   vector<double>  *trg_track_gtr0_y;
+   vector<float>   *trg_track_gtr0_t;
+   vector<bool>    *trg_track_gtr0_is_t_match;
+   vector<int>     *trg_track_gtr1_id;
+   vector<int>     *trg_track_gtr1_mid;
+   vector<int>     *trg_track_gtr1_cid;
+   vector<double>  *trg_track_gtr1_x;
+   vector<double>  *trg_track_gtr1_y;
+   vector<float>   *trg_track_gtr1_t;
+   vector<bool>    *trg_track_gtr1_is_t_match;
+   vector<int>     *trg_track_gtr2_id;
+   vector<int>     *trg_track_gtr2_mid;
+   vector<int>     *trg_track_gtr2_cid;
+   vector<double>  *trg_track_gtr2_x;
+   vector<double>  *trg_track_gtr2_y;
+   vector<float>   *trg_track_gtr2_t;
+   vector<bool>    *trg_track_gtr2_is_t_match;
+   vector<int>     *trg_track_gtr3_id;
+   vector<int>     *trg_track_gtr3_mid;
+   vector<int>     *trg_track_gtr3_cid;
+   vector<double>  *trg_track_gtr3_x;
+   vector<double>  *trg_track_gtr3_y;
+   vector<float>   *trg_track_gtr3_t;
+   vector<bool>    *trg_track_gtr3_is_t_match;
+   vector<int>     *trg_track_hbd0_id;
+   vector<int>     *trg_track_hbd0_mid;
+   vector<int>     *trg_track_hbd0_cid;
+   vector<double>  *trg_track_hbd0_x;
+   vector<double>  *trg_track_hbd0_y;
+   vector<float>   *trg_track_hbd0_t;
+   vector<bool>    *trg_track_hbd0_is_t_match;
+   vector<int>     *trg_track_hbd1_id;
+   vector<int>     *trg_track_hbd1_mid;
+   vector<int>     *trg_track_hbd1_cid;
+   vector<double>  *trg_track_hbd1_x;
+   vector<double>  *trg_track_hbd1_y;
+   vector<float>   *trg_track_hbd1_t;
+   vector<bool>    *trg_track_hbd1_is_t_match;
+   vector<int>     *trg_track_hbd2_id;
+   vector<int>     *trg_track_hbd2_mid;
+   vector<int>     *trg_track_hbd2_cid;
+   vector<double>  *trg_track_hbd2_x;
+   vector<double>  *trg_track_hbd2_y;
+   vector<float>   *trg_track_hbd2_t;
+   vector<bool>    *trg_track_hbd2_is_t_match;
+   vector<int>     *trg_track_hbd3_id;
+   vector<int>     *trg_track_hbd3_mid;
+   vector<int>     *trg_track_hbd3_cid;
+   vector<double>  *trg_track_hbd3_x;
+   vector<double>  *trg_track_hbd3_y;
+   vector<float>   *trg_track_hbd3_t;
+   vector<bool>    *trg_track_hbd3_is_t_match;
    Int_t           n_x_cands;
    Int_t           n_y_cands;
    Int_t           n_cands;
@@ -552,6 +662,116 @@ public :
    TBranch        *b_lg_hit_t;   //!
    TBranch        *b_lg_hit_npeaks;   //!
    TBranch        *b_lg_hit_fflag;   //!
+   TBranch        *b_n_trg_gtr_hits;   //!
+   TBranch        *b_trg_gtr_hit_id;   //!
+   TBranch        *b_trg_gtr_hit_mid;   //!
+   TBranch        *b_trg_gtr_hit_cid;   //!
+   TBranch        *b_trg_gtr_hit_x;   //!
+   TBranch        *b_trg_gtr_hit_y;   //!
+   TBranch        *b_trg_gtr_hit_gx;   //!
+   TBranch        *b_trg_gtr_hit_gy;   //!
+   TBranch        *b_trg_gtr_hit_gz;   //!
+   TBranch        *b_trg_gtr_hit_t;   //!
+   TBranch        *b_n_trg_hbd_hits;   //!
+   TBranch        *b_trg_hbd_hit_id;   //!
+   TBranch        *b_trg_hbd_hit_mid;   //!
+   TBranch        *b_trg_hbd_hit_cid;   //!
+   TBranch        *b_trg_hbd_hit_x;   //!
+   TBranch        *b_trg_hbd_hit_y;   //!
+   TBranch        *b_trg_hbd_hit_gx;   //!
+   TBranch        *b_trg_hbd_hit_gy;   //!
+   TBranch        *b_trg_hbd_hit_gz;   //!
+   TBranch        *b_trg_hbd_hit_t;   //!
+   TBranch        *b_n_trg_lg_hits;   //!
+   TBranch        *b_trg_lg_hit_id;   //!
+   TBranch        *b_trg_lg_hit_mid;   //!
+   TBranch        *b_trg_lg_hit_cid;   //!
+   TBranch        *b_trg_lg_hit_x;   //!
+   TBranch        *b_trg_lg_hit_y;   //!
+   TBranch        *b_trg_lg_hit_z;   //!
+   TBranch        *b_trg_lg_hit_gx;   //!
+   TBranch        *b_trg_lg_hit_gy;   //!
+   TBranch        *b_trg_lg_hit_gz;   //!
+   TBranch        *b_trg_lg_hit_t;   //!
+   TBranch        *b_n_trg_tracks;   //!
+   TBranch        *b_trg_track_n_gtr_hits;   //!
+   TBranch        *b_trg_track_gtr_id;   //!
+   TBranch        *b_trg_track_gtr_mid;   //!
+   TBranch        *b_trg_track_gtr_cid;   //!
+   TBranch        *b_trg_track_gtr_x;   //!
+   TBranch        *b_trg_track_gtr_y;   //!
+   TBranch        *b_trg_track_gtr_t;   //!
+   TBranch        *b_trg_track_gtr_is_t_match;   //!
+   TBranch        *b_trg_track_n_hbd_hits;   //!
+   TBranch        *b_trg_track_hbd_id;   //!
+   TBranch        *b_trg_track_hbd_mid;   //!
+   TBranch        *b_trg_track_hbd_cid;   //!
+   TBranch        *b_trg_track_hbd_x;   //!
+   TBranch        *b_trg_track_hbd_y;   //!
+   TBranch        *b_trg_track_hbd_t;   //!
+   TBranch        *b_trg_track_hbd_is_t_match;   //!
+   TBranch        *b_trg_track_lg_id;   //!
+   TBranch        *b_trg_track_lg_mid;   //!
+   TBranch        *b_trg_track_lg_cid;   //!
+   TBranch        *b_trg_track_lg_x;   //!
+   TBranch        *b_trg_track_lg_y;   //!
+   TBranch        *b_trg_track_lg_t;   //!
+   TBranch        *b_trg_track_gtr0_id;   //!
+   TBranch        *b_trg_track_gtr0_mid;   //!
+   TBranch        *b_trg_track_gtr0_cid;   //!
+   TBranch        *b_trg_track_gtr0_x;   //!
+   TBranch        *b_trg_track_gtr0_y;   //!
+   TBranch        *b_trg_track_gtr0_t;   //!
+   TBranch        *b_trg_track_gtr0_is_t_match;   //!
+   TBranch        *b_trg_track_gtr1_id;   //!
+   TBranch        *b_trg_track_gtr1_mid;   //!
+   TBranch        *b_trg_track_gtr1_cid;   //!
+   TBranch        *b_trg_track_gtr1_x;   //!
+   TBranch        *b_trg_track_gtr1_y;   //!
+   TBranch        *b_trg_track_gtr1_t;   //!
+   TBranch        *b_trg_track_gtr1_is_t_match;   //!
+   TBranch        *b_trg_track_gtr2_id;   //!
+   TBranch        *b_trg_track_gtr2_mid;   //!
+   TBranch        *b_trg_track_gtr2_cid;   //!
+   TBranch        *b_trg_track_gtr2_x;   //!
+   TBranch        *b_trg_track_gtr2_y;   //!
+   TBranch        *b_trg_track_gtr2_t;   //!
+   TBranch        *b_trg_track_gtr2_is_t_match;   //!
+   TBranch        *b_trg_track_gtr3_id;   //!
+   TBranch        *b_trg_track_gtr3_mid;   //!
+   TBranch        *b_trg_track_gtr3_cid;   //!
+   TBranch        *b_trg_track_gtr3_x;   //!
+   TBranch        *b_trg_track_gtr3_y;   //!
+   TBranch        *b_trg_track_gtr3_t;   //!
+   TBranch        *b_trg_track_gtr3_is_t_match;   //!
+   TBranch        *b_trg_track_hbd0_id;   //!
+   TBranch        *b_trg_track_hbd0_mid;   //!
+   TBranch        *b_trg_track_hbd0_cid;   //!
+   TBranch        *b_trg_track_hbd0_x;   //!
+   TBranch        *b_trg_track_hbd0_y;   //!
+   TBranch        *b_trg_track_hbd0_t;   //!
+   TBranch        *b_trg_track_hbd0_is_t_match;   //!
+   TBranch        *b_trg_track_hbd1_id;   //!
+   TBranch        *b_trg_track_hbd1_mid;   //!
+   TBranch        *b_trg_track_hbd1_cid;   //!
+   TBranch        *b_trg_track_hbd1_x;   //!
+   TBranch        *b_trg_track_hbd1_y;   //!
+   TBranch        *b_trg_track_hbd1_t;   //!
+   TBranch        *b_trg_track_hbd1_is_t_match;   //!
+   TBranch        *b_trg_track_hbd2_id;   //!
+   TBranch        *b_trg_track_hbd2_mid;   //!
+   TBranch        *b_trg_track_hbd2_cid;   //!
+   TBranch        *b_trg_track_hbd2_x;   //!
+   TBranch        *b_trg_track_hbd2_y;   //!
+   TBranch        *b_trg_track_hbd2_t;   //!
+   TBranch        *b_trg_track_hbd2_is_t_match;   //!
+   TBranch        *b_trg_track_hbd3_id;   //!
+   TBranch        *b_trg_track_hbd3_mid;   //!
+   TBranch        *b_trg_track_hbd3_cid;   //!
+   TBranch        *b_trg_track_hbd3_x;   //!
+   TBranch        *b_trg_track_hbd3_y;   //!
+   TBranch        *b_trg_track_hbd3_t;   //!
+   TBranch        *b_trg_track_hbd3_is_t_match;   //!
    TBranch        *b_n_x_cands;   //!
    TBranch        *b_n_y_cands;   //!
    TBranch        *b_n_cands;   //!
@@ -918,6 +1138,7 @@ public :
    virtual void     MkTreeForResidualHBD(int runoption, int maxevent, char* out_file_name);
    virtual void     ResidualHBD(int runoption, int maxevent);
    virtual void     MkTreeForTrackSelection(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
+   virtual void     MkTreeWYass(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -1050,6 +1271,112 @@ void SingleTrackAnalyzerForRes::Init(TTree *tree)
    lg_hit_t = 0;
    lg_hit_npeaks = 0;
    lg_hit_fflag = 0;
+   trg_gtr_hit_id = 0;
+   trg_gtr_hit_mid = 0;
+   trg_gtr_hit_cid = 0;
+   trg_gtr_hit_x = 0;
+   trg_gtr_hit_y = 0;
+   trg_gtr_hit_gx = 0;
+   trg_gtr_hit_gy = 0;
+   trg_gtr_hit_gz = 0;
+   trg_gtr_hit_t = 0;
+   trg_hbd_hit_id = 0;
+   trg_hbd_hit_mid = 0;
+   trg_hbd_hit_cid = 0;
+   trg_hbd_hit_x = 0;
+   trg_hbd_hit_y = 0;
+   trg_hbd_hit_gx = 0;
+   trg_hbd_hit_gy = 0;
+   trg_hbd_hit_gz = 0;
+   trg_hbd_hit_t = 0;
+   trg_lg_hit_id = 0;
+   trg_lg_hit_mid = 0;
+   trg_lg_hit_cid = 0;
+   trg_lg_hit_x = 0;
+   trg_lg_hit_y = 0;
+   trg_lg_hit_z = 0;
+   trg_lg_hit_gx = 0;
+   trg_lg_hit_gy = 0;
+   trg_lg_hit_gz = 0;
+   trg_lg_hit_t = 0;
+   trg_track_n_gtr_hits = 0;
+   trg_track_gtr_id = 0;
+   trg_track_gtr_mid = 0;
+   trg_track_gtr_cid = 0;
+   trg_track_gtr_x = 0;
+   trg_track_gtr_y = 0;
+   trg_track_gtr_t = 0;
+   trg_track_gtr_is_t_match = 0;
+   trg_track_n_hbd_hits = 0;
+   trg_track_hbd_id = 0;
+   trg_track_hbd_mid = 0;
+   trg_track_hbd_cid = 0;
+   trg_track_hbd_x = 0;
+   trg_track_hbd_y = 0;
+   trg_track_hbd_t = 0;
+   trg_track_hbd_is_t_match = 0;
+   trg_track_lg_id = 0;
+   trg_track_lg_mid = 0;
+   trg_track_lg_cid = 0;
+   trg_track_lg_x = 0;
+   trg_track_lg_y = 0;
+   trg_track_lg_t = 0;
+   trg_track_gtr0_id = 0;
+   trg_track_gtr0_mid = 0;
+   trg_track_gtr0_cid = 0;
+   trg_track_gtr0_x = 0;
+   trg_track_gtr0_y = 0;
+   trg_track_gtr0_t = 0;
+   trg_track_gtr0_is_t_match = 0;
+   trg_track_gtr1_id = 0;
+   trg_track_gtr1_mid = 0;
+   trg_track_gtr1_cid = 0;
+   trg_track_gtr1_x = 0;
+   trg_track_gtr1_y = 0;
+   trg_track_gtr1_t = 0;
+   trg_track_gtr1_is_t_match = 0;
+   trg_track_gtr2_id = 0;
+   trg_track_gtr2_mid = 0;
+   trg_track_gtr2_cid = 0;
+   trg_track_gtr2_x = 0;
+   trg_track_gtr2_y = 0;
+   trg_track_gtr2_t = 0;
+   trg_track_gtr2_is_t_match = 0;
+   trg_track_gtr3_id = 0;
+   trg_track_gtr3_mid = 0;
+   trg_track_gtr3_cid = 0;
+   trg_track_gtr3_x = 0;
+   trg_track_gtr3_y = 0;
+   trg_track_gtr3_t = 0;
+   trg_track_gtr3_is_t_match = 0;
+   trg_track_hbd0_id = 0;
+   trg_track_hbd0_mid = 0;
+   trg_track_hbd0_cid = 0;
+   trg_track_hbd0_x = 0;
+   trg_track_hbd0_y = 0;
+   trg_track_hbd0_t = 0;
+   trg_track_hbd0_is_t_match = 0;
+   trg_track_hbd1_id = 0;
+   trg_track_hbd1_mid = 0;
+   trg_track_hbd1_cid = 0;
+   trg_track_hbd1_x = 0;
+   trg_track_hbd1_y = 0;
+   trg_track_hbd1_t = 0;
+   trg_track_hbd1_is_t_match = 0;
+   trg_track_hbd2_id = 0;
+   trg_track_hbd2_mid = 0;
+   trg_track_hbd2_cid = 0;
+   trg_track_hbd2_x = 0;
+   trg_track_hbd2_y = 0;
+   trg_track_hbd2_t = 0;
+   trg_track_hbd2_is_t_match = 0;
+   trg_track_hbd3_id = 0;
+   trg_track_hbd3_mid = 0;
+   trg_track_hbd3_cid = 0;
+   trg_track_hbd3_x = 0;
+   trg_track_hbd3_y = 0;
+   trg_track_hbd3_t = 0;
+   trg_track_hbd3_is_t_match = 0;
    track_id = 0;
    has_e_hbd_cluster = 0;
    has_e_lg_hit = 0;
@@ -1475,6 +1802,116 @@ void SingleTrackAnalyzerForRes::Init(TTree *tree)
    fChain->SetBranchAddress("lg_hit_t", &lg_hit_t, &b_lg_hit_t);
    fChain->SetBranchAddress("lg_hit_npeaks", &lg_hit_npeaks, &b_lg_hit_npeaks);
    fChain->SetBranchAddress("lg_hit_fflag", &lg_hit_fflag, &b_lg_hit_fflag);
+   fChain->SetBranchAddress("n_trg_gtr_hits", &n_trg_gtr_hits, &b_n_trg_gtr_hits);
+   fChain->SetBranchAddress("trg_gtr_hit_id", &trg_gtr_hit_id, &b_trg_gtr_hit_id);
+   fChain->SetBranchAddress("trg_gtr_hit_mid", &trg_gtr_hit_mid, &b_trg_gtr_hit_mid);
+   fChain->SetBranchAddress("trg_gtr_hit_cid", &trg_gtr_hit_cid, &b_trg_gtr_hit_cid);
+   fChain->SetBranchAddress("trg_gtr_hit_x", &trg_gtr_hit_x, &b_trg_gtr_hit_x);
+   fChain->SetBranchAddress("trg_gtr_hit_y", &trg_gtr_hit_y, &b_trg_gtr_hit_y);
+   fChain->SetBranchAddress("trg_gtr_hit_gx", &trg_gtr_hit_gx, &b_trg_gtr_hit_gx);
+   fChain->SetBranchAddress("trg_gtr_hit_gy", &trg_gtr_hit_gy, &b_trg_gtr_hit_gy);
+   fChain->SetBranchAddress("trg_gtr_hit_gz", &trg_gtr_hit_gz, &b_trg_gtr_hit_gz);
+   fChain->SetBranchAddress("trg_gtr_hit_t", &trg_gtr_hit_t, &b_trg_gtr_hit_t);
+   fChain->SetBranchAddress("n_trg_hbd_hits", &n_trg_hbd_hits, &b_n_trg_hbd_hits);
+   fChain->SetBranchAddress("trg_hbd_hit_id", &trg_hbd_hit_id, &b_trg_hbd_hit_id);
+   fChain->SetBranchAddress("trg_hbd_hit_mid", &trg_hbd_hit_mid, &b_trg_hbd_hit_mid);
+   fChain->SetBranchAddress("trg_hbd_hit_cid", &trg_hbd_hit_cid, &b_trg_hbd_hit_cid);
+   fChain->SetBranchAddress("trg_hbd_hit_x", &trg_hbd_hit_x, &b_trg_hbd_hit_x);
+   fChain->SetBranchAddress("trg_hbd_hit_y", &trg_hbd_hit_y, &b_trg_hbd_hit_y);
+   fChain->SetBranchAddress("trg_hbd_hit_gx", &trg_hbd_hit_gx, &b_trg_hbd_hit_gx);
+   fChain->SetBranchAddress("trg_hbd_hit_gy", &trg_hbd_hit_gy, &b_trg_hbd_hit_gy);
+   fChain->SetBranchAddress("trg_hbd_hit_gz", &trg_hbd_hit_gz, &b_trg_hbd_hit_gz);
+   fChain->SetBranchAddress("trg_hbd_hit_t", &trg_hbd_hit_t, &b_trg_hbd_hit_t);
+   fChain->SetBranchAddress("n_trg_lg_hits", &n_trg_lg_hits, &b_n_trg_lg_hits);
+   fChain->SetBranchAddress("trg_lg_hit_id", &trg_lg_hit_id, &b_trg_lg_hit_id);
+   fChain->SetBranchAddress("trg_lg_hit_mid", &trg_lg_hit_mid, &b_trg_lg_hit_mid);
+   fChain->SetBranchAddress("trg_lg_hit_cid", &trg_lg_hit_cid, &b_trg_lg_hit_cid);
+   fChain->SetBranchAddress("trg_lg_hit_x", &trg_lg_hit_x, &b_trg_lg_hit_x);
+   fChain->SetBranchAddress("trg_lg_hit_y", &trg_lg_hit_y, &b_trg_lg_hit_y);
+   fChain->SetBranchAddress("trg_lg_hit_z", &trg_lg_hit_z, &b_trg_lg_hit_z);
+   fChain->SetBranchAddress("trg_lg_hit_gx", &trg_lg_hit_gx, &b_trg_lg_hit_gx);
+   fChain->SetBranchAddress("trg_lg_hit_gy", &trg_lg_hit_gy, &b_trg_lg_hit_gy);
+   fChain->SetBranchAddress("trg_lg_hit_gz", &trg_lg_hit_gz, &b_trg_lg_hit_gz);
+   fChain->SetBranchAddress("trg_lg_hit_t", &trg_lg_hit_t, &b_trg_lg_hit_t);
+   fChain->SetBranchAddress("n_trg_tracks", &n_trg_tracks, &b_n_trg_tracks);
+   fChain->SetBranchAddress("trg_track_n_gtr_hits", &trg_track_n_gtr_hits, &b_trg_track_n_gtr_hits);
+   fChain->SetBranchAddress("trg_track_gtr_id", &trg_track_gtr_id, &b_trg_track_gtr_id);
+   fChain->SetBranchAddress("trg_track_gtr_mid", &trg_track_gtr_mid, &b_trg_track_gtr_mid);
+   fChain->SetBranchAddress("trg_track_gtr_cid", &trg_track_gtr_cid, &b_trg_track_gtr_cid);
+   fChain->SetBranchAddress("trg_track_gtr_x", &trg_track_gtr_x, &b_trg_track_gtr_x);
+   fChain->SetBranchAddress("trg_track_gtr_y", &trg_track_gtr_y, &b_trg_track_gtr_y);
+   fChain->SetBranchAddress("trg_track_gtr_t", &trg_track_gtr_t, &b_trg_track_gtr_t);
+   fChain->SetBranchAddress("trg_track_gtr_is_t_match", &trg_track_gtr_is_t_match, &b_trg_track_gtr_is_t_match);
+   fChain->SetBranchAddress("trg_track_n_hbd_hits", &trg_track_n_hbd_hits, &b_trg_track_n_hbd_hits);
+   fChain->SetBranchAddress("trg_track_hbd_id", &trg_track_hbd_id, &b_trg_track_hbd_id);
+   fChain->SetBranchAddress("trg_track_hbd_mid", &trg_track_hbd_mid, &b_trg_track_hbd_mid);
+   fChain->SetBranchAddress("trg_track_hbd_cid", &trg_track_hbd_cid, &b_trg_track_hbd_cid);
+   fChain->SetBranchAddress("trg_track_hbd_x", &trg_track_hbd_x, &b_trg_track_hbd_x);
+   fChain->SetBranchAddress("trg_track_hbd_y", &trg_track_hbd_y, &b_trg_track_hbd_y);
+   fChain->SetBranchAddress("trg_track_hbd_t", &trg_track_hbd_t, &b_trg_track_hbd_t);
+   fChain->SetBranchAddress("trg_track_hbd_is_t_match", &trg_track_hbd_is_t_match, &b_trg_track_hbd_is_t_match);
+   fChain->SetBranchAddress("trg_track_lg_id", &trg_track_lg_id, &b_trg_track_lg_id);
+   fChain->SetBranchAddress("trg_track_lg_mid", &trg_track_lg_mid, &b_trg_track_lg_mid);
+   fChain->SetBranchAddress("trg_track_lg_cid", &trg_track_lg_cid, &b_trg_track_lg_cid);
+   fChain->SetBranchAddress("trg_track_lg_x", &trg_track_lg_x, &b_trg_track_lg_x);
+   fChain->SetBranchAddress("trg_track_lg_y", &trg_track_lg_y, &b_trg_track_lg_y);
+   fChain->SetBranchAddress("trg_track_lg_t", &trg_track_lg_t, &b_trg_track_lg_t);
+   fChain->SetBranchAddress("trg_track_gtr0_id", &trg_track_gtr0_id, &b_trg_track_gtr0_id);
+   fChain->SetBranchAddress("trg_track_gtr0_mid", &trg_track_gtr0_mid, &b_trg_track_gtr0_mid);
+   fChain->SetBranchAddress("trg_track_gtr0_cid", &trg_track_gtr0_cid, &b_trg_track_gtr0_cid);
+   fChain->SetBranchAddress("trg_track_gtr0_x", &trg_track_gtr0_x, &b_trg_track_gtr0_x);
+   fChain->SetBranchAddress("trg_track_gtr0_y", &trg_track_gtr0_y, &b_trg_track_gtr0_y);
+   fChain->SetBranchAddress("trg_track_gtr0_t", &trg_track_gtr0_t, &b_trg_track_gtr0_t);
+   fChain->SetBranchAddress("trg_track_gtr0_is_t_match", &trg_track_gtr0_is_t_match, &b_trg_track_gtr0_is_t_match);
+   fChain->SetBranchAddress("trg_track_gtr1_id", &trg_track_gtr1_id, &b_trg_track_gtr1_id);
+   fChain->SetBranchAddress("trg_track_gtr1_mid", &trg_track_gtr1_mid, &b_trg_track_gtr1_mid);
+   fChain->SetBranchAddress("trg_track_gtr1_cid", &trg_track_gtr1_cid, &b_trg_track_gtr1_cid);
+   fChain->SetBranchAddress("trg_track_gtr1_x", &trg_track_gtr1_x, &b_trg_track_gtr1_x);
+   fChain->SetBranchAddress("trg_track_gtr1_y", &trg_track_gtr1_y, &b_trg_track_gtr1_y);
+   fChain->SetBranchAddress("trg_track_gtr1_t", &trg_track_gtr1_t, &b_trg_track_gtr1_t);
+   fChain->SetBranchAddress("trg_track_gtr1_is_t_match", &trg_track_gtr1_is_t_match, &b_trg_track_gtr1_is_t_match);
+   fChain->SetBranchAddress("trg_track_gtr2_id", &trg_track_gtr2_id, &b_trg_track_gtr2_id);
+   fChain->SetBranchAddress("trg_track_gtr2_mid", &trg_track_gtr2_mid, &b_trg_track_gtr2_mid);
+   fChain->SetBranchAddress("trg_track_gtr2_cid", &trg_track_gtr2_cid, &b_trg_track_gtr2_cid);
+   fChain->SetBranchAddress("trg_track_gtr2_x", &trg_track_gtr2_x, &b_trg_track_gtr2_x);
+   fChain->SetBranchAddress("trg_track_gtr2_y", &trg_track_gtr2_y, &b_trg_track_gtr2_y);
+   fChain->SetBranchAddress("trg_track_gtr2_t", &trg_track_gtr2_t, &b_trg_track_gtr2_t);
+   fChain->SetBranchAddress("trg_track_gtr2_is_t_match", &trg_track_gtr2_is_t_match, &b_trg_track_gtr2_is_t_match);
+   fChain->SetBranchAddress("trg_track_gtr3_id", &trg_track_gtr3_id, &b_trg_track_gtr3_id);
+   fChain->SetBranchAddress("trg_track_gtr3_mid", &trg_track_gtr3_mid, &b_trg_track_gtr3_mid);
+   fChain->SetBranchAddress("trg_track_gtr3_cid", &trg_track_gtr3_cid, &b_trg_track_gtr3_cid);
+   fChain->SetBranchAddress("trg_track_gtr3_x", &trg_track_gtr3_x, &b_trg_track_gtr3_x);
+   fChain->SetBranchAddress("trg_track_gtr3_y", &trg_track_gtr3_y, &b_trg_track_gtr3_y);
+   fChain->SetBranchAddress("trg_track_gtr3_t", &trg_track_gtr3_t, &b_trg_track_gtr3_t);
+   fChain->SetBranchAddress("trg_track_gtr3_is_t_match", &trg_track_gtr3_is_t_match, &b_trg_track_gtr3_is_t_match);
+   fChain->SetBranchAddress("trg_track_hbd0_id", &trg_track_hbd0_id, &b_trg_track_hbd0_id);
+   fChain->SetBranchAddress("trg_track_hbd0_mid", &trg_track_hbd0_mid, &b_trg_track_hbd0_mid);
+   fChain->SetBranchAddress("trg_track_hbd0_cid", &trg_track_hbd0_cid, &b_trg_track_hbd0_cid);
+   fChain->SetBranchAddress("trg_track_hbd0_x", &trg_track_hbd0_x, &b_trg_track_hbd0_x);
+   fChain->SetBranchAddress("trg_track_hbd0_y", &trg_track_hbd0_y, &b_trg_track_hbd0_y);
+   fChain->SetBranchAddress("trg_track_hbd0_t", &trg_track_hbd0_t, &b_trg_track_hbd0_t);
+   fChain->SetBranchAddress("trg_track_hbd0_is_t_match", &trg_track_hbd0_is_t_match, &b_trg_track_hbd0_is_t_match);
+   fChain->SetBranchAddress("trg_track_hbd1_id", &trg_track_hbd1_id, &b_trg_track_hbd1_id);
+   fChain->SetBranchAddress("trg_track_hbd1_mid", &trg_track_hbd1_mid, &b_trg_track_hbd1_mid);
+   fChain->SetBranchAddress("trg_track_hbd1_cid", &trg_track_hbd1_cid, &b_trg_track_hbd1_cid);
+   fChain->SetBranchAddress("trg_track_hbd1_x", &trg_track_hbd1_x, &b_trg_track_hbd1_x);
+   fChain->SetBranchAddress("trg_track_hbd1_y", &trg_track_hbd1_y, &b_trg_track_hbd1_y);
+   fChain->SetBranchAddress("trg_track_hbd1_t", &trg_track_hbd1_t, &b_trg_track_hbd1_t);
+   fChain->SetBranchAddress("trg_track_hbd1_is_t_match", &trg_track_hbd1_is_t_match, &b_trg_track_hbd1_is_t_match);
+   fChain->SetBranchAddress("trg_track_hbd2_id", &trg_track_hbd2_id, &b_trg_track_hbd2_id);
+   fChain->SetBranchAddress("trg_track_hbd2_mid", &trg_track_hbd2_mid, &b_trg_track_hbd2_mid);
+   fChain->SetBranchAddress("trg_track_hbd2_cid", &trg_track_hbd2_cid, &b_trg_track_hbd2_cid);
+   fChain->SetBranchAddress("trg_track_hbd2_x", &trg_track_hbd2_x, &b_trg_track_hbd2_x);
+   fChain->SetBranchAddress("trg_track_hbd2_y", &trg_track_hbd2_y, &b_trg_track_hbd2_y);
+   fChain->SetBranchAddress("trg_track_hbd2_t", &trg_track_hbd2_t, &b_trg_track_hbd2_t);
+   fChain->SetBranchAddress("trg_track_hbd2_is_t_match", &trg_track_hbd2_is_t_match, &b_trg_track_hbd2_is_t_match);
+   fChain->SetBranchAddress("trg_track_hbd3_id", &trg_track_hbd3_id, &b_trg_track_hbd3_id);
+   fChain->SetBranchAddress("trg_track_hbd3_mid", &trg_track_hbd3_mid, &b_trg_track_hbd3_mid);
+   fChain->SetBranchAddress("trg_track_hbd3_cid", &trg_track_hbd3_cid, &b_trg_track_hbd3_cid);
+   fChain->SetBranchAddress("trg_track_hbd3_x", &trg_track_hbd3_x, &b_trg_track_hbd3_x);
+   fChain->SetBranchAddress("trg_track_hbd3_y", &trg_track_hbd3_y, &b_trg_track_hbd3_y);
+   fChain->SetBranchAddress("trg_track_hbd3_t", &trg_track_hbd3_t, &b_trg_track_hbd3_t);
+   fChain->SetBranchAddress("trg_track_hbd3_is_t_match", &trg_track_hbd3_is_t_match, &b_trg_track_hbd3_is_t_match);
    fChain->SetBranchAddress("n_x_cands", &n_x_cands, &b_n_x_cands);
    fChain->SetBranchAddress("n_y_cands", &n_y_cands, &b_n_y_cands);
    fChain->SetBranchAddress("n_cands", &n_cands, &b_n_cands);

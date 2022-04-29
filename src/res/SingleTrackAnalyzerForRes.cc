@@ -2959,3 +2959,891 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 
 }
 
+void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square)
+{
+   if (fChain == 0) return;
+
+   TFile* fout = new TFile(out_file_name,"recreate");
+   TTree* tree = new TTree("tree","tree");
+
+   TH1F* hbdxres[5];
+   TH1F* gtr1yres[9];
+   TH1F* gtr2yres[9];
+   TH1F* gtr3yres[9];
+   for(int i=0;i<5;i++){
+     hbdxres[i] = new TH1F(Form("hbdxres%d",i+103),Form("hbdxres%d",i+103),200,-800,800);
+   }
+   for(int i=0;i<9;i++){
+     gtr1yres[i] = new TH1F(Form("gtr1yres%d",i+101),Form("gtr1yres%d",i+101),200,-100,100);
+     gtr2yres[i] = new TH1F(Form("gtr2yres%d",i+101),Form("gtr2yres%d",i+101),200,-200,200);
+     gtr3yres[i] = new TH1F(Form("gtr3yres%d",i+101),Form("gtr3yres%d",i+101),200,-300,300);
+   }
+   TH1F* ychisq = new TH1F("ychisq","ychisq",10000,0,10000);
+
+
+   Int_t           out_run_id;
+   Int_t           out_event_id;
+   Int_t           out_spill_id;
+   Int_t out_n_tracks;
+   vector<int> out_track_id;
+   vector<double> out_chi_square;
+   vector<int> out_rk_charge;
+   vector<int> out_is_selected;
+   vector<double> out_track_mom;
+   vector<double> out_track_mom_x;
+   vector<double> out_track_mom_y;
+   vector<double> out_track_mom_z;
+   vector<double> out_track_tgt_dist;
+   vector<double> out_track_lg_pi_eff1;
+   vector<double> out_track_lg_pi_eff2;
+   vector<double> out_track_angle_lx;
+   vector<double> out_track_angle_ly;
+   vector<double> out_track_position_block_lx;
+   vector<double> out_track_position_block_ly;
+   vector<double> out_track_ssd_t;
+   vector<double> out_track_ssd_adc;
+   vector<double> out_track_gtr100x_t;
+   vector<double> out_track_gtr100x_adc;
+   vector<double> out_track_gtr100y_t;
+   vector<double> out_track_gtr100y_adc;
+   vector<double> out_track_gtr200x_t;
+   vector<double> out_track_gtr200x_adc;
+   vector<double> out_track_gtr200y_t;
+   vector<double> out_track_gtr200y_adc;
+   vector<double> out_track_gtr300x_t;
+   vector<double> out_track_gtr300x_adc;
+   vector<double> out_track_gtr300y_t;
+   vector<double> out_track_gtr300y_adc;
+   vector<int> out_track_hbd_mid;
+   vector<double> out_track_hbd_lx;
+   vector<double> out_track_hbd_ly;
+   vector<double> out_track_hbd_nearx;
+   vector<double> out_track_hbd_neary;
+   vector<int> out_track_hbd_multiplicity;
+   vector<double> out_track_hbd_dum_nearx;
+   vector<double> out_track_hbd_dum_neary;
+   vector<int> out_track_hbd_dum_multiplicity;
+   vector<int> out_track_lg_mid;
+   vector<double> out_track_lg_lx;
+   vector<double> out_track_lg_ly;
+   vector<double> out_track_lg_nearx;
+   vector<double> out_track_lg_neary;
+   vector<int> out_track_lg_multiplicity;
+   vector<double> out_track_lg_dum_nearx;
+   vector<double> out_track_lg_dum_neary;
+   vector<int> out_track_lg_dum_multiplicity;
+   vector<double> out_track_lg_cl_nearx;
+   vector<double> out_track_lg_cl_neary;
+   vector<int> out_track_lg_cl_multiplicity;
+   vector<double> out_track_lg_cl_dum_nearx;
+   vector<double> out_track_lg_cl_dum_neary;
+   vector<int> out_track_lg_cl_dum_multiplicity;
+   vector<vector<double>> out_track_hbd_allhit_resx;
+   vector<vector<double>> out_track_hbd_allhit_resy;
+   vector<vector<double>> out_track_hbd_allhit_ftime;
+   vector<vector<double>> out_track_hbd_allhit_adc;
+   vector<vector<double>> out_track_hbd_allhit_size;
+   vector<vector<double>> out_track_hbd_allhit_eprob;
+   vector<vector<double>> out_track_hbd_allhit_cprob;
+   vector<vector<double>> out_track_hbd_allhit_dum_resx;
+   vector<vector<double>> out_track_hbd_allhit_dum_resy;
+   vector<vector<double>> out_track_hbd_allhit_dum_ftime;
+   vector<vector<double>> out_track_hbd_allhit_dum_adc;
+   vector<vector<double>> out_track_hbd_allhit_dum_size;
+   vector<vector<double>> out_track_hbd_allhit_dum_eprob;
+   vector<vector<double>> out_track_hbd_allhit_dum_cprob;
+   vector<vector<double>> out_track_lg_allhit_resx;
+   vector<vector<double>> out_track_lg_allhit_resy;
+   vector<vector<double>> out_track_lg_allhit_ftime;
+   vector<vector<double>> out_track_lg_allhit_adc;
+   vector<vector<double>> out_track_lg_allhit_dum_resx;
+   vector<vector<double>> out_track_lg_allhit_dum_resy;
+   vector<vector<double>> out_track_lg_allhit_dum_ftime;
+   vector<vector<double>> out_track_lg_allhit_dum_adc;
+   vector<vector<double>> out_track_lg_cl_allhit_resx;
+   vector<vector<double>> out_track_lg_cl_allhit_resy;
+   vector<vector<double>> out_track_lg_cl_allhit_ftime;
+   vector<vector<double>> out_track_lg_cl_allhit_adc;
+   vector<vector<double>> out_track_lg_cl_allhit_maxpeak;
+   vector<vector<double>> out_track_lg_cl_allhit_maxcid;
+   vector<vector<double>> out_track_lg_cl_allhit_dum_resx;
+   vector<vector<double>> out_track_lg_cl_allhit_dum_resy;
+   vector<vector<double>> out_track_lg_cl_allhit_dum_ftime;
+   vector<vector<double>> out_track_lg_cl_allhit_dum_adc;
+   vector<vector<double>> out_track_lg_cl_allhit_dum_maxpeak;
+   vector<vector<double>> out_track_lg_cl_allhit_dum_maxcid;
+
+   tree->Branch("run_id",&out_run_id,"run_id/I");
+   tree->Branch("event_id",&out_event_id,"event_id/I");
+   tree->Branch("spill_id",&out_run_id,"spill_id/I");
+   tree->Branch("n_tracks",&out_n_tracks,"n_tracks/I");
+   tree->Branch("track_id", &out_track_id);
+   tree->Branch("chi_square", &out_chi_square);
+   tree->Branch("rk_charge", &out_rk_charge);
+   tree->Branch("is_selected", &out_is_selected);
+   tree->Branch("track_mom", &out_track_mom);
+   tree->Branch("track_mom_x", &out_track_mom_x);
+   tree->Branch("track_mom_y", &out_track_mom_y);
+   tree->Branch("track_mom_z", &out_track_mom_z);
+   tree->Branch("track_tgt_dist", &out_track_tgt_dist);
+   tree->Branch("track_lg_pi_eff1", &out_track_lg_pi_eff1);
+   tree->Branch("track_lg_pi_eff2", &out_track_lg_pi_eff2);
+   tree->Branch("track_angle_lx", &out_track_angle_lx);
+   tree->Branch("track_angle_ly", &out_track_angle_ly);
+   tree->Branch("track_position_block_lx", &out_track_position_block_lx);
+   tree->Branch("track_position_block_ly", &out_track_position_block_ly);
+   tree->Branch("track_ssd_t", &out_track_ssd_t);
+   tree->Branch("track_ssd_adc", &out_track_ssd_adc);
+   tree->Branch("track_gtr100x_t", &out_track_gtr100x_t);
+   tree->Branch("track_gtr100x_adc", &out_track_gtr100x_adc);
+   tree->Branch("track_gtr100y_t", &out_track_gtr100y_t);
+   tree->Branch("track_gtr100y_adc", &out_track_gtr100y_adc);
+   tree->Branch("track_gtr200x_t", &out_track_gtr200x_t);
+   tree->Branch("track_gtr200x_adc", &out_track_gtr200x_adc);
+   tree->Branch("track_gtr200y_t", &out_track_gtr200y_t);
+   tree->Branch("track_gtr200y_adc", &out_track_gtr200y_adc);
+   tree->Branch("track_gtr300x_t", &out_track_gtr300x_t);
+   tree->Branch("track_gtr300x_adc", &out_track_gtr300x_adc);
+   tree->Branch("track_gtr300y_t", &out_track_gtr300y_t);
+   tree->Branch("track_gtr300y_adc", &out_track_gtr300y_adc);
+   tree->Branch("track_hbd_mid", &out_track_hbd_mid);
+   tree->Branch("track_hbd_lx", &out_track_hbd_lx);
+   tree->Branch("track_hbd_ly", &out_track_hbd_ly);
+   tree->Branch("track_hbd_nearx", &out_track_hbd_nearx);
+   tree->Branch("track_hbd_neary", &out_track_hbd_neary);
+   tree->Branch("track_hbd_multiplicity", &out_track_hbd_multiplicity);
+   tree->Branch("track_hbd_dum_nearx", &out_track_hbd_dum_nearx);
+   tree->Branch("track_hbd_dum_neary", &out_track_hbd_dum_neary);
+   tree->Branch("track_hbd_dum_multiplicity", &out_track_hbd_dum_multiplicity);
+   tree->Branch("track_lg_mid", &out_track_lg_mid);
+   tree->Branch("track_lg_lx", &out_track_lg_lx);
+   tree->Branch("track_lg_ly", &out_track_lg_ly);
+   tree->Branch("track_lg_nearx", &out_track_lg_nearx);
+   tree->Branch("track_lg_neary", &out_track_lg_neary);
+   tree->Branch("track_lg_multiplicity", &out_track_lg_multiplicity);
+   tree->Branch("track_lg_dum_nearx", &out_track_lg_dum_nearx);
+   tree->Branch("track_lg_dum_neary", &out_track_lg_dum_neary);
+   tree->Branch("track_lg_dum_multiplicity", &out_track_lg_dum_multiplicity);
+   tree->Branch("track_lg_cl_nearx", &out_track_lg_cl_nearx);
+   tree->Branch("track_lg_cl_neary", &out_track_lg_cl_neary);
+   tree->Branch("track_lg_cl_multiplicity", &out_track_lg_cl_multiplicity);
+   tree->Branch("track_lg_cl_dum_nearx", &out_track_lg_cl_dum_nearx);
+   tree->Branch("track_lg_cl_dum_neary", &out_track_lg_cl_dum_neary);
+   tree->Branch("track_lg_cl_dum_multiplicity", &out_track_lg_cl_dum_multiplicity);
+   tree->Branch("track_hbd_allhit_resx", &out_track_hbd_allhit_resx);
+   tree->Branch("track_hbd_allhit_resy", &out_track_hbd_allhit_resy);
+   tree->Branch("track_hbd_allhit_ftime", &out_track_hbd_allhit_ftime);
+   tree->Branch("track_hbd_allhit_adc", &out_track_hbd_allhit_adc);
+   tree->Branch("track_hbd_allhit_size", &out_track_hbd_allhit_size);
+   tree->Branch("track_hbd_allhit_eprob", &out_track_hbd_allhit_eprob);
+   tree->Branch("track_hbd_allhit_cprob", &out_track_hbd_allhit_cprob);
+   tree->Branch("track_hbd_allhit_dum_resx", &out_track_hbd_allhit_dum_resx);
+   tree->Branch("track_hbd_allhit_dum_resy", &out_track_hbd_allhit_dum_resy);
+   tree->Branch("track_hbd_allhit_dum_ftime", &out_track_hbd_allhit_dum_ftime);
+   tree->Branch("track_hbd_allhit_dum_adc", &out_track_hbd_allhit_dum_adc);
+   tree->Branch("track_hbd_allhit_dum_size", &out_track_hbd_allhit_dum_size);
+   tree->Branch("track_hbd_allhit_dum_eprob", &out_track_hbd_allhit_dum_eprob);
+   tree->Branch("track_hbd_allhit_dum_cprob", &out_track_hbd_allhit_dum_cprob);
+   tree->Branch("track_lg_allhit_resx", &out_track_lg_allhit_resx);
+   tree->Branch("track_lg_allhit_resy", &out_track_lg_allhit_resy);
+   tree->Branch("track_lg_allhit_ftime", &out_track_lg_allhit_ftime);
+   tree->Branch("track_lg_allhit_adc", &out_track_lg_allhit_adc);
+   tree->Branch("track_lg_allhit_dum_resx", &out_track_lg_allhit_dum_resx);
+   tree->Branch("track_lg_allhit_dum_resy", &out_track_lg_allhit_dum_resy);
+   tree->Branch("track_lg_allhit_dum_ftime", &out_track_lg_allhit_dum_ftime);
+   tree->Branch("track_lg_allhit_dum_adc", &out_track_lg_allhit_dum_adc);
+   tree->Branch("track_lg_cl_allhit_resx", &out_track_lg_cl_allhit_resx);
+   tree->Branch("track_lg_cl_allhit_resy", &out_track_lg_cl_allhit_resy);
+   tree->Branch("track_lg_cl_allhit_ftime", &out_track_lg_cl_allhit_ftime);
+   tree->Branch("track_lg_cl_allhit_adc", &out_track_lg_cl_allhit_adc);
+   tree->Branch("track_lg_cl_allhit_maxpeak", &out_track_lg_cl_allhit_maxpeak);
+   tree->Branch("track_lg_cl_allhit_maxcid", &out_track_lg_cl_allhit_maxcid);
+   tree->Branch("track_lg_cl_allhit_dum_resx", &out_track_lg_cl_allhit_dum_resx);
+   tree->Branch("track_lg_cl_allhit_dum_resy", &out_track_lg_cl_allhit_dum_resy);
+   tree->Branch("track_lg_cl_allhit_dum_ftime", &out_track_lg_cl_allhit_dum_ftime);
+   tree->Branch("track_lg_cl_allhit_dum_adc", &out_track_lg_cl_allhit_dum_adc);
+   tree->Branch("track_lg_cl_allhit_dum_maxpeak", &out_track_lg_cl_allhit_dum_maxpeak);
+   tree->Branch("track_lg_cl_allhit_dum_maxcid", &out_track_lg_cl_allhit_dum_maxcid);
+
+   E16ANA_HBDDeadChannel hbddch;
+   std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
+   if(runoption==0){
+     hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
+   }
+   hbddch.ReadFile(hbd_deadch_file.c_str());
+
+   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+   E16ANA_GeometryV2::SetGlobalPointer(geometry);
+   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+   bfield_map->Initialize_binary();
+   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+   E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
+
+   Long64_t n_entries = fChain->GetEntries();
+   Long64_t nentries = fChain->GetEntriesFast();
+   Long64_t nbytes = 0, nb = 0;
+
+   // Int_t n_hbd_clusters_tmp = 100000;
+   // std::vector<int> hbd_cluster_mid_tmp(0);
+   // std::vector<double> hbd_cluster_x_tmp(0);
+   // std::vector<double> hbd_cluster_y_tmp(0);
+   // std::vector<double> hbd_cluster_adc_tmp(0);
+   // std::vector<double> hbd_cluster_eprob_tmp(0);
+   // std::vector<double> hbd_cluster_cprob_tmp(0);
+   // std::vector<int> hbd_cluster_size_tmp(0);
+   // std::vector<double> hbd_cluster_t_tmp(0);
+   // std::vector<double> hbd_cluster_ftime_tmp(0);
+   // Int_t n_lg_hits_tmp = 100000;
+   // std::vector<int> lg_hit_mid_tmp(0);
+   // std::vector<double> lg_hit_x_tmp(0);
+   // std::vector<double> lg_hit_y_tmp(0);
+   // std::vector<float> lg_hit_adc_tmp(0);
+   // std::vector<float> lg_hit_t_tmp(0);
+   // std::vector<int> lg_hit_fflag_tmp(0);
+   // Int_t n_lg_clusters_tmp = 100000;
+   // std::vector<int> lg_cluster_mid_tmp(0);
+   // std::vector<double> lg_cluster_x_tmp(0);
+   // std::vector<double> lg_cluster_y_tmp(0);
+   // std::vector<float> lg_cluster_adc_tmp(0);
+   // std::vector<float> lg_cluster_t_tmp(0);
+   // std::vector<float> lg_cluster_maxpeak_tmp(0);
+   // std::vector<int> lg_cluster_maxcid_tmp(0);
+
+   int nevent=0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+      if( maxevent!=-1&&nevent>maxevent ){break;}
+
+      out_track_id.clear();
+      out_chi_square.clear();
+      out_rk_charge.clear();
+      out_is_selected.clear();
+      out_track_mom.clear();
+      out_track_mom_x.clear();
+      out_track_mom_y.clear();
+      out_track_mom_z.clear();
+      out_track_tgt_dist.clear();
+      out_track_lg_pi_eff1.clear();
+      out_track_lg_pi_eff2.clear();
+      out_track_angle_lx.clear();
+      out_track_angle_ly.clear();
+      out_track_position_block_lx.clear();
+      out_track_position_block_ly.clear();
+      out_track_ssd_t.clear();
+      out_track_ssd_adc.clear();
+      out_track_gtr100x_t.clear();
+      out_track_gtr100x_adc.clear();
+      out_track_gtr100y_t.clear();
+      out_track_gtr100y_adc.clear();
+      out_track_gtr200x_t.clear();
+      out_track_gtr200x_adc.clear();
+      out_track_gtr200y_t.clear();
+      out_track_gtr200y_adc.clear();
+      out_track_gtr300x_t.clear();
+      out_track_gtr300x_adc.clear();
+      out_track_gtr300y_t.clear();
+      out_track_gtr300y_adc.clear();
+      out_track_hbd_mid.clear();
+      out_track_hbd_lx.clear();
+      out_track_hbd_ly.clear();
+      out_track_hbd_nearx.clear();
+      out_track_hbd_neary.clear();
+      out_track_hbd_multiplicity.clear();
+      out_track_hbd_dum_nearx.clear();
+      out_track_hbd_dum_neary.clear();
+      out_track_hbd_dum_multiplicity.clear();
+      out_track_lg_mid.clear();
+      out_track_lg_lx.clear();
+      out_track_lg_ly.clear();
+      out_track_lg_nearx.clear();
+      out_track_lg_neary.clear();
+      out_track_lg_multiplicity.clear();
+      out_track_lg_dum_nearx.clear();
+      out_track_lg_dum_neary.clear();
+      out_track_lg_dum_multiplicity.clear();
+      out_track_lg_cl_nearx.clear();
+      out_track_lg_cl_neary.clear();
+      out_track_lg_cl_multiplicity.clear();
+      out_track_lg_cl_dum_nearx.clear();
+      out_track_lg_cl_dum_neary.clear();
+      out_track_lg_cl_dum_multiplicity.clear();
+      out_track_hbd_allhit_resx.clear();
+      out_track_hbd_allhit_resy.clear();
+      out_track_hbd_allhit_ftime.clear();
+      out_track_hbd_allhit_adc.clear();
+      out_track_hbd_allhit_size.clear();
+      out_track_hbd_allhit_eprob.clear();
+      out_track_hbd_allhit_cprob.clear();
+      out_track_hbd_allhit_dum_resx.clear();
+      out_track_hbd_allhit_dum_resy.clear();
+      out_track_hbd_allhit_dum_ftime.clear();
+      out_track_hbd_allhit_dum_adc.clear();
+      out_track_hbd_allhit_dum_size.clear();
+      out_track_hbd_allhit_dum_eprob.clear();
+      out_track_hbd_allhit_dum_cprob.clear();
+      out_track_lg_allhit_resx.clear();
+      out_track_lg_allhit_resy.clear();
+      out_track_lg_allhit_ftime.clear();
+      out_track_lg_allhit_adc.clear();
+      out_track_lg_allhit_dum_resx.clear();
+      out_track_lg_allhit_dum_resy.clear();
+      out_track_lg_allhit_dum_ftime.clear();
+      out_track_lg_allhit_dum_adc.clear();
+      out_track_lg_cl_allhit_resx.clear();
+      out_track_lg_cl_allhit_resy.clear();
+      out_track_lg_cl_allhit_ftime.clear();
+      out_track_lg_cl_allhit_adc.clear();
+      out_track_lg_cl_allhit_maxpeak.clear();
+      out_track_lg_cl_allhit_maxcid.clear();
+      out_track_lg_cl_allhit_dum_resx.clear();
+      out_track_lg_cl_allhit_dum_resy.clear();
+      out_track_lg_cl_allhit_dum_ftime.clear();
+      out_track_lg_cl_allhit_dum_adc.clear();
+      out_track_lg_cl_allhit_dum_maxpeak.clear();
+      out_track_lg_cl_allhit_dum_maxcid.clear();
+
+      //LG clustering
+      // E16ANA_LGClustering clustering;
+      // for (int idst1hit = 0; idst1hit < n_lg_hits; idst1hit++) {
+      // 	if(lg_hit_fflag->at(idst1hit)<2){
+      // 	  clustering.SetHitData(
+      // 	    idst1hit,
+      // 	    lg_hit_mid->at(idst1hit),
+      // 	    LocaltoCh(lg_hit_x->at(idst1hit),lg_hit_y->at(idst1hit)),
+      // 	    lg_hit_adc->at(idst1hit),
+      // 	    lg_hit_t->at(idst1hit),
+      // 	    lg_hit_adc->at(idst1hit),
+      // 	    lg_hit_x->at(idst1hit),
+      // 	    lg_hit_y->at(idst1hit),
+      // 	    0.);
+      // 	}
+      // }
+      // // clustering.Clustering();
+      // clustering.ClusteringXY();//220303
+      // int n_lg_clusters = clustering.LGClusterSize();
+      // std::vector<int> lg_cluster_mid(n_lg_clusters);
+      // std::vector<double> lg_cluster_x(n_lg_clusters);
+      // std::vector<double> lg_cluster_y(n_lg_clusters);
+      // std::vector<float> lg_cluster_adc(n_lg_clusters);
+      // std::vector<float> lg_cluster_t(n_lg_clusters);
+      // std::vector<float> lg_cluster_maxpeak(n_lg_clusters);
+      // std::vector<int> lg_cluster_maxcid(n_lg_clusters);
+      // for(int icluster=0;icluster<n_lg_clusters;icluster++){
+      // 	E16ANA_LGClustering::lgcluster cith = clustering.LGClusterIth(icluster);
+      // 	lg_cluster_mid.at(icluster) = cith.mid;
+      // 	lg_cluster_x.at(icluster) = cith.lx;
+      // 	lg_cluster_y.at(icluster) = cith.ly;
+      // 	lg_cluster_adc.at(icluster) = cith.peaksum;
+      // 	lg_cluster_t.at(icluster) = cith.fasttiming;
+      // 	lg_cluster_maxpeak.at(icluster) = cith.maxpeak;
+      // 	lg_cluster_maxcid.at(icluster) = cith.maxcid;
+      // }
+
+      int ntrkacc = 0;
+      int ntracks = track_id->size();
+      double chisq_plus_min = 10000;
+      double chisq_minus_min = 10000;
+      int plus_index = -10000;
+      int minus_index = -10000;
+
+      for(int itrack=0;itrack<ntracks;itrack++){//track loop
+	int hbdise = 4;// e or pi
+	int lgise = 0;// e or pi
+	double hbdtimthr = 90.;
+	double hbdposthr = 35.;
+	double gtrposthr[3] = {11.,12.,15.};
+	double gtrtimthr[3] = {75.,95.,100.};
+	int ntrglg = 0;
+	for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
+	  if(fabs(trg_lg_hit_t->at(itrg))>10&&fabs(trg_lg_hit_t->at(itrg))<150){ntrglg++;}
+	}
+	if ( ntrglg>20 ) continue;
+
+	//matching with HBD hit
+	int trk_gtr_mid = rk_fit_gtr300_mid->at(itrack);
+	double dgx[3] = {rk_fit_gtr100_gx->at(itrack),rk_fit_gtr200_gx->at(itrack),rk_fit_gtr300_gx->at(itrack)};
+	double dgz[3] = {rk_fit_gtr100_gz->at(itrack)-rk_fit_init_pos_gz->at(itrack),rk_fit_gtr200_gz->at(itrack)-rk_fit_init_pos_gz->at(itrack),rk_fit_gtr300_gz->at(itrack)-rk_fit_init_pos_gz->at(itrack)};
+	int gtr_y_hitids[3]={-10000,-10000,-10000};
+	double gtr_y_chisq_min=100000.;
+	for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){//hbdcluster loop
+	  // if ( fabs(hbd_cluster_mid->at(ihbd) - trk_gtr_mid)>1 ) continue;
+	  if ( fabs(hbd_cluster_mid->at(ihbd) - trk_gtr_mid)>0 ) continue;
+	  if ( hbd_cluster_t->at(ihbd)>hbdtimthr ) continue;
+	  if ( runoption==3 && hbdise==1 && hbd_cluster_eprob->at(ihbd)<1 ) continue;//220213;
+	  // if(runoption==3&&hbdise==1&&(hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<7*60)) continue;//220407;
+	  if ( runoption==3 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1||hbd_cluster_adc->at(ihbd)>3) ) continue;//220213;
+	  if ( runoption==3 && hbdise==3 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<10) ) continue;//220307;
+	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<4) ) continue;//220213;
+	  if ( runoption==0 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1) ) continue;//220213;
+	  double resx = hbd_cluster_x->at(ihbd) - rk_fit_hbd_x->at(itrack);
+	  hbdxres[hbd_cluster_mid->at(ihbd)-103]->Fill(resx);
+	  if(fabs(resx)>hbdposthr) continue;
+	  //HBD Y associated
+	  double dhx = hbd_cluster_gx->at(ihbd);
+	  double dhz = hbd_cluster_gz->at(ihbd)-rk_fit_init_pos_gz->at(itrack);
+	  double slope = hbd_cluster_gy->at(ihbd) / sqrt(dhx*dhx+dhz*dhz);
+	  double crs_gy[3];
+	  for(int i=0;i<3;i++){
+	    crs_gy[i] = slope * sqrt(dgx[i]*dgx[i]+dgz[i]*dgz[i]);
+	  }
+	  //Search GTR Y Hit
+	  int ncrs=0;
+	  int gy_id_min[3]={-10000,-10000,-10000};
+	  bool gy_ishit[3]={false,false,false};
+	  double gy_res_min[3]={10000.,10000.,10000.};
+	  double gy_tim_min[3]={10000.,10000.,10000.};
+	  for(int i=0;i<n_gtr100y_clusters;i++){//-------------100
+	    if(gtr100y_cluster_mid->at(i)!=rk_fit_gtr100_mid->at(itrack)) continue;
+	    double res = gtr100y_cluster_y->at(i)-crs_gy[0];
+	    gtr1yres[rk_fit_gtr100_mid->at(itrack)-101]->Fill(res);
+	    if( fabs(res)<gy_res_min[0] ){
+	      gy_res_min[0] = res;
+	      gy_id_min[0] = gtr100y_cluster_id->at(i);
+	      gy_tim_min[0] = gtr100y_cluster_t->at(i);
+	    }
+	  }
+	  if(fabs(gy_res_min[0])<gtrposthr[0] && fabs(gy_tim_min[0]-rk_hit_gtr100_xt->at(itrack))<gtrtimthr[0]){
+	    gy_ishit[0]=true;
+	    ncrs++;
+	  }
+	  else{
+	    for(int i=0;i<n_gtr100yb_clusters;i++){//-------------100b
+	      if(gtr100yb_cluster_mid->at(i)!=rk_fit_gtr100_mid->at(itrack)) continue;
+	      double res = gtr100yb_cluster_y->at(i)-crs_gy[0];
+	      gtr1yres[rk_fit_gtr100_mid->at(itrack)-101]->Fill(res);
+	      if( fabs(res)<gy_res_min[0] ){
+		gy_res_min[0] = res;
+		gy_id_min[0] = gtr100yb_cluster_id->at(i);
+		gy_tim_min[0] = gtr100yb_cluster_t->at(i);
+	      }
+	    }
+	    if(fabs(gy_res_min[0])<gtrposthr[0] && fabs(gy_tim_min[0]-rk_hit_gtr100_xt->at(itrack))<gtrtimthr[0]){
+	      gy_ishit[0]=true;
+	      ncrs++;
+	    }
+	  }
+	  for(int i=0;i<n_gtr200y_clusters;i++){//-------------200
+	    if(gtr200y_cluster_mid->at(i)!=rk_fit_gtr200_mid->at(itrack)) continue;
+	    double res = gtr200y_cluster_y->at(i)-crs_gy[1];
+	    gtr2yres[rk_fit_gtr200_mid->at(itrack)-101]->Fill(res);
+	    if( fabs(res)<gy_res_min[1] ){
+	      gy_res_min[1] = res;
+	      gy_id_min[1] = gtr200y_cluster_id->at(i);
+	      gy_tim_min[1] = gtr200y_cluster_t->at(i);
+	    }
+	  }
+	  if(fabs(gy_res_min[1])<gtrposthr[1] && fabs(gy_tim_min[1]-rk_hit_gtr200_xt->at(itrack))<gtrtimthr[1]){
+	    gy_ishit[1]=true;
+	    ncrs++;
+	  }
+	  for(int i=0;i<n_gtr300y_clusters;i++){//-------------300
+	    if(gtr300y_cluster_mid->at(i)!=rk_fit_gtr300_mid->at(itrack)) continue;
+	    double res = gtr300y_cluster_y->at(i)-crs_gy[2];
+	    gtr3yres[rk_fit_gtr300_mid->at(itrack)-101]->Fill(res);
+	    if( fabs(res)<gy_res_min[2] ){
+	      gy_res_min[2] = res;
+	      gy_id_min[2] = gtr300y_cluster_id->at(i);
+	      gy_tim_min[2] = gtr300y_cluster_t->at(i);
+	    }
+	  }
+	  if(fabs(gy_res_min[2])<gtrposthr[2] && fabs(gy_tim_min[2]-rk_hit_gtr300_xt->at(itrack))<gtrtimthr[2]){
+	    gy_ishit[2]=true;
+	    ncrs++;
+	  }
+	  if(ncrs>1){
+	    //accept track
+	    double gy_chisq = gy_res_min[0]*gy_res_min[0]/1.+gy_res_min[1]*gy_res_min[1]/1.+gy_res_min[2]*gy_res_min[2]/1.;
+	    ychisq->Fill(gy_chisq);
+
+
+
+	  }
+	}//hbdcluster loop
+
+	/*
+	// double trk_mom = -10000;
+	// double trk_momx = -10000;
+	// double trk_momy = -10000;
+	// double trk_momz = -10000;
+	// double trk_hbd_lx = -10000;
+	// double trk_hbd_ly = -10000;
+	if (chi_square->at(itrack)>max_chi_square) continue;
+      	// int trk_hbd_mid = CutOfTrackForResidualHBD(ientry,itrack,trk_hbd_lx,trk_hbd_ly,trk_mom,trk_momx,trk_momy,trk_momz);
+      	// if (trk_hbd_mid < 0) continue;
+      	// double cog[2] = {trk_hbd_lx,trk_hbd_ly};
+      	// int hbd_padid = E16ANA_HBDGeometry::GetPadIDWLocalCoordinate(trk_hbd_mid,cog);
+      	// if( hbddch.Status(trk_hbd_mid,hbd_padid) != 0 ) continue;
+	double trk_lg_lx = -10000;
+	double trk_lg_ly = -10000;
+	int ytype = -10000;
+      	int trk_lg_mid = CutOfTrackForResidualLG(ientry,itrack,trk_lg_lx,trk_lg_ly,ytype);
+      	if (trk_lg_mid < 0) continue;
+	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
+	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
+	// if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
+	// if ( runoption==1 && (rk_hit_ssd_t->at(itrack)<38||rk_hit_ssd_t->at(itrack)>54) ) continue;//220213
+	// if ( runoption==1 && CutOfTrackByMorino(ientry,itrack) < 0) continue;//220208
+	// double track_angle_lx = -10000.;
+	// double track_angle_ly = -10000.;
+	// double track_position_block_lx = -10000;
+	// double track_position_block_ly = -10000;
+	// int ret = CalcAngleOnLGPlane(ientry,itrack,geometry,&pair_fitter,trk_hbd_mid,trk_lg_mid,ytype,track_angle_lx,track_angle_ly,track_position_block_lx,track_position_block_ly);
+	// if ( runoption==0 && fabs(track_angle_lx)>0.2 ) continue;//220224
+	// // if ( runoption==1 && fabs(track_angle_lx)>0.2 ) continue;//220224
+	// int lgmulti=0;
+	// for(int ilgmulti=0;ilgmulti<n_lg_hits;ilgmulti++){
+	//   if(lg_hit_mid->at(ilgmulti)==trk_lg_mid&&lg_hit_fflag->at(ilgmulti)!=2){lgmulti++;}
+	// }
+	// // if ( runoption==3 && lgmulti>5 ) continue;//220310
+	// // if ( runoption==0 && lgmulti>4 ) continue;//220310
+	// int hbdmulti=0;
+	// for(int ihbdmulti=0;ihbdmulti<n_hbd_clusters;ihbdmulti++){
+	//   if(hbd_cluster_mid->at(ihbdmulti)==trk_hbd_mid){hbdmulti++;}
+	// }
+	// // if ( runoption==3 && hbdmulti>8 ) continue;//220310
+	double tgtdist = CutOfTrackTGT(ientry,itrack,5);
+	if( tgtdist<0 ) continue;
+
+	out_track_id.push_back(track_id->at(itrack));
+	out_chi_square.push_back(chi_square->at(itrack));
+	out_rk_charge.push_back(rk_charge->at(itrack));
+	out_is_selected.push_back(0);
+	out_track_mom.push_back(trk_mom);
+	out_track_mom_x.push_back(trk_momx);
+	out_track_mom_y.push_back(trk_momy);
+	out_track_mom_z.push_back(trk_momz);
+	out_track_tgt_dist.push_back(tgtdist);
+	out_track_lg_pi_eff1.push_back(MomtoLGPieff1(trk_mom));
+	out_track_lg_pi_eff2.push_back(MomtoLGPieff2(trk_mom));
+	out_track_angle_lx.push_back(track_angle_lx);
+	out_track_angle_ly.push_back(track_angle_ly);
+	out_track_position_block_lx.push_back(track_position_block_lx);
+	out_track_position_block_ly.push_back(track_position_block_ly);
+	out_track_ssd_t.push_back(rk_hit_ssd_t->at(itrack));
+	out_track_ssd_adc.push_back(rk_hit_ssd_adc->at(itrack));
+	out_track_gtr100x_t.push_back(rk_hit_gtr100_xt->at(itrack));
+	out_track_gtr100x_adc.push_back(rk_hit_gtr100_xadc->at(itrack));
+	out_track_gtr100y_t.push_back(rk_hit_gtr100_yt->at(itrack));
+	out_track_gtr100y_adc.push_back(rk_hit_gtr100_yadc->at(itrack));
+	out_track_gtr200x_t.push_back(rk_hit_gtr200_xt->at(itrack));
+	out_track_gtr200x_adc.push_back(rk_hit_gtr200_xadc->at(itrack));
+	out_track_gtr200y_t.push_back(rk_hit_gtr200_yt->at(itrack));
+	out_track_gtr200y_adc.push_back(rk_hit_gtr200_yadc->at(itrack));
+	out_track_gtr300x_t.push_back(rk_hit_gtr300_xt->at(itrack));
+	out_track_gtr300x_adc.push_back(rk_hit_gtr300_xadc->at(itrack));
+	out_track_gtr300y_t.push_back(rk_hit_gtr300_yt->at(itrack));
+	out_track_gtr300y_adc.push_back(rk_hit_gtr300_yadc->at(itrack));
+	out_track_hbd_mid.push_back(trk_hbd_mid);
+	out_track_hbd_lx.push_back(trk_hbd_lx);
+	out_track_hbd_ly.push_back(trk_hbd_ly);
+	out_track_lg_mid.push_back(trk_lg_mid);
+	out_track_lg_lx.push_back(trk_lg_lx);
+	out_track_lg_ly.push_back(trk_lg_ly);
+      	if(rk_charge->at(itrack)==1){
+      	  if(chi_square->at(itrack)<chisq_plus_min){
+      	    chisq_plus_min = chi_square->at(itrack);
+      	    plus_index = ntrkacc;
+      	  }	  
+      	}
+      	if(rk_charge->at(itrack)==-1){
+      	  if(chi_square->at(itrack)<chisq_minus_min){
+      	    chisq_minus_min = chi_square->at(itrack);
+      	    minus_index = ntrkacc;
+      	  }	  
+      	}
+
+	//HBD loop
+	double resx = 0;
+	double resy = 0;
+	double resx_min = 10000;
+	double resy_min = 10000;
+	out_track_hbd_allhit_resx.push_back(vector<double>());
+	out_track_hbd_allhit_resy.push_back(vector<double>());
+	out_track_hbd_allhit_ftime.push_back(vector<double>());
+	out_track_hbd_allhit_adc.push_back(vector<double>());
+	out_track_hbd_allhit_size.push_back(vector<double>());
+	out_track_hbd_allhit_eprob.push_back(vector<double>());
+	out_track_hbd_allhit_cprob.push_back(vector<double>());
+	int nhbdc = 0;
+	for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){
+	  if ( hbd_cluster_t->at(ihbd)>hbdtimthr ) continue;
+	  if ( runoption==3 && hbdise==1 && hbd_cluster_eprob->at(ihbd)<1 ) continue;//220213;
+	  // if ( runoption==3 && hbdise==1 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<7*60) ) continue;//220407;
+	  if ( runoption==3 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1||hbd_cluster_adc->at(ihbd)>3) ) continue;//220213;
+	  if ( runoption==3 && hbdise==3 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<10) ) continue;//220307;
+	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<4) ) continue;//220213;
+	  if ( runoption==0 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1) ) continue;//220213;
+	  // if ( hbd_cluster_t->at(ihbd)>80 || hbd_cluster_t->at(ihbd)<20 ) continue;//220212
+	  if(  hbd_cluster_mid->at(ihbd) == trk_hbd_mid ){
+	    resx = hbd_cluster_x->at(ihbd) - trk_hbd_lx;
+	    resy = hbd_cluster_y->at(ihbd) - trk_hbd_ly;
+	    out_track_hbd_allhit_resx[ntrkacc].push_back(resx);
+	    out_track_hbd_allhit_resy[ntrkacc].push_back(resy);
+	    out_track_hbd_allhit_ftime[ntrkacc].push_back(hbd_cluster_ftime->at(ihbd));
+	    out_track_hbd_allhit_adc[ntrkacc].push_back(hbd_cluster_adc->at(ihbd));
+	    out_track_hbd_allhit_size[ntrkacc].push_back(hbd_cluster_size->at(ihbd));
+	    out_track_hbd_allhit_eprob[ntrkacc].push_back(hbd_cluster_eprob->at(ihbd));
+	    out_track_hbd_allhit_cprob[ntrkacc].push_back(hbd_cluster_cprob->at(ihbd));
+	    if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
+	      resx_min = resx;
+	      resy_min = resy;
+	    }
+	    nhbdc++;
+	  }
+	}
+	out_track_hbd_nearx.push_back(resx_min);
+	out_track_hbd_neary.push_back(resy_min);
+	out_track_hbd_multiplicity.push_back(nhbdc);
+
+	// out_track_hbd_allhit_dum_resx.push_back(vector<double>());
+	// out_track_hbd_allhit_dum_resy.push_back(vector<double>());
+	// out_track_hbd_allhit_dum_ftime.push_back(vector<double>());
+	// out_track_hbd_allhit_dum_adc.push_back(vector<double>());
+	// out_track_hbd_allhit_dum_eprob.push_back(vector<double>());
+	// out_track_hbd_allhit_dum_cprob.push_back(vector<double>());
+	// out_track_hbd_allhit_dum_size.push_back(vector<double>());
+	// double resx_dam = 0;
+	// double resy_dam = 0;
+	// double resx_dam_min = 10000;
+	// double resy_dam_min = 10000;
+	// int nhbdc_dam = 0;
+	// if( n_hbd_clusters_tmp!=100000 ){//dummy
+	//   for(int ihbd=0;ihbd<n_hbd_clusters_tmp;ihbd++){
+	//     if ( hbd_cluster_t_tmp.at(ihbd)>hbdtimthr ) continue;
+	//     if ( runoption==3 && hbdise==1 && hbd_cluster_eprob_tmp.at(ihbd)<1 ) continue;//220213
+	//     // if ( runoption==3 && hbdise==1 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<7*60) ) continue;//220407;
+	//     if ( runoption==3 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1||hbd_cluster_adc_tmp.at(ihbd)>3) ) continue;//220213;
+	//     if ( runoption==3 && hbdise==3 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<10) ) continue;//220307
+	//     if ( runoption==3 && hbdise==4 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<4) ) continue;//220213
+	//     if ( runoption==0 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1) ) continue;
+	//     //if ( hbd_cluster_t_tmp.at(ihbd)>80 || hbd_cluster_t_tmp.at(ihbd)<20 ) continue;//220212
+	//     if(  hbd_cluster_mid_tmp.at(ihbd) == trk_hbd_mid ){
+	//       resx_dam = hbd_cluster_x_tmp.at(ihbd) - trk_hbd_lx;
+	//       resy_dam = hbd_cluster_y_tmp.at(ihbd) - trk_hbd_ly;
+	//       out_track_hbd_allhit_dum_resx[ntrkacc].push_back(resx_dam);
+	//       out_track_hbd_allhit_dum_resy[ntrkacc].push_back(resy_dam);
+	//       out_track_hbd_allhit_dum_ftime[ntrkacc].push_back(hbd_cluster_ftime_tmp.at(ihbd));
+	//       out_track_hbd_allhit_dum_adc[ntrkacc].push_back(hbd_cluster_adc_tmp.at(ihbd));
+	//       out_track_hbd_allhit_dum_size[ntrkacc].push_back(hbd_cluster_size_tmp.at(ihbd));
+	//       out_track_hbd_allhit_dum_eprob[ntrkacc].push_back(hbd_cluster_eprob_tmp.at(ihbd));
+	//       out_track_hbd_allhit_dum_cprob[ntrkacc].push_back(hbd_cluster_cprob_tmp.at(ihbd));
+	//       if( resx_dam*resx_dam+resy_dam*resy_dam < resx_dam_min*resx_dam_min+resy_dam_min*resy_dam_min ){
+	// 	resx_dam_min = resx_dam;
+	// 	resy_dam_min = resy_dam;
+	//       }
+	//       nhbdc_dam++;
+	//     }	    
+	//   }
+	// }//dummy
+	// out_track_hbd_dum_nearx.push_back(resx_dam_min);
+	// out_track_hbd_dum_neary.push_back(resy_dam_min);
+	// out_track_hbd_dum_multiplicity.push_back(nhbdc_dam);
+
+
+	//LG Hit loop
+	resx = 0;
+	resy = 0;
+	resx_min = 10000;
+	resy_min = 10000;
+	out_track_lg_allhit_resx.push_back(vector<double>());
+	out_track_lg_allhit_resy.push_back(vector<double>());
+	out_track_lg_allhit_ftime.push_back(vector<double>());
+	out_track_lg_allhit_adc.push_back(vector<double>());
+	int nlgh = 0;
+	for(int ilg=0;ilg<n_lg_hits;ilg++){
+	  if ( runoption==3 && lgise==2 && (lg_hit_adc->at(ilg)<20||lg_hit_adc->at(ilg)>50) ) continue;
+	  if(  lg_hit_mid->at(ilg) == trk_lg_mid && lg_hit_fflag->at(ilg)!=2 ){
+	    resx = lg_hit_x->at(ilg) - trk_lg_lx;
+	    resy = lg_hit_y->at(ilg) - trk_lg_ly;
+	    out_track_lg_allhit_resx[ntrkacc].push_back(resx);
+	    out_track_lg_allhit_resy[ntrkacc].push_back(resy);
+	    out_track_lg_allhit_ftime[ntrkacc].push_back(lg_hit_t->at(ilg));
+	    out_track_lg_allhit_adc[ntrkacc].push_back(lg_hit_adc->at(ilg));
+	    if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
+	      resx_min = resx;
+	      resy_min = resy;
+	    }
+	    nlgh++;
+	  }
+	}
+	out_track_lg_nearx.push_back(resx_min);
+	out_track_lg_neary.push_back(resy_min);
+	out_track_lg_multiplicity.push_back(nlgh);
+
+	// out_track_lg_allhit_dum_resx.push_back(vector<double>());
+	// out_track_lg_allhit_dum_resy.push_back(vector<double>());
+	// out_track_lg_allhit_dum_ftime.push_back(vector<double>());
+	// out_track_lg_allhit_dum_adc.push_back(vector<double>());
+	// resx_dam = 0;
+	// resy_dam = 0;
+	// resx_dam_min = 10000;
+	// resy_dam_min = 10000;
+	// int nlgh_dam = 0;
+	// if( n_lg_hits_tmp!=100000 ){//dummy
+	//   for(int ilg=0;ilg<n_lg_hits_tmp;ilg++){
+	//     if ( runoption==3 && lgise==2 && (lg_hit_adc_tmp.at(ilg)<20||lg_hit_adc_tmp.at(ilg)>50) ) continue;
+	//     if(  lg_hit_mid_tmp.at(ilg) == trk_lg_mid && lg_hit_fflag_tmp.at(ilg)!=2 ){
+	//       resx_dam = lg_hit_x_tmp.at(ilg) - trk_lg_lx;
+	//       resy_dam = lg_hit_y_tmp.at(ilg) - trk_lg_ly;
+	//       out_track_lg_allhit_dum_resx[ntrkacc].push_back(resx_dam);
+	//       out_track_lg_allhit_dum_resy[ntrkacc].push_back(resy_dam);
+	//       out_track_lg_allhit_dum_ftime[ntrkacc].push_back(lg_hit_t_tmp.at(ilg));
+	//       out_track_lg_allhit_dum_adc[ntrkacc].push_back(lg_hit_adc_tmp.at(ilg));
+	//       if( resx_dam*resx_dam+resy_dam*resy_dam < resx_dam_min*resx_dam_min+resy_dam_min*resy_dam_min ){
+	// 	resx_dam_min = resx_dam;
+	// 	resy_dam_min = resy_dam;
+	//       }
+	//       nlgh_dam++;
+	//     }	    
+	//   }
+	// }//dummy
+	// out_track_lg_dum_nearx.push_back(resx_dam_min);
+	// out_track_lg_dum_neary.push_back(resy_dam_min);
+	// out_track_lg_dum_multiplicity.push_back(nlgh_dam);
+
+
+	//LG Cluster loop
+	// resx = 0;
+	// resy = 0;
+	// resx_min = 10000;
+	// resy_min = 10000;
+	// out_track_lg_cl_allhit_resx.push_back(vector<double>());
+	// out_track_lg_cl_allhit_resy.push_back(vector<double>());
+	// out_track_lg_cl_allhit_ftime.push_back(vector<double>());
+	// out_track_lg_cl_allhit_adc.push_back(vector<double>());
+	// out_track_lg_cl_allhit_maxpeak.push_back(vector<double>());
+	// out_track_lg_cl_allhit_maxcid.push_back(vector<double>());
+	// int nlgc = 0;
+	// for(int ilg=0;ilg<n_lg_clusters;ilg++){
+	//   if(  lg_cluster_mid.at(ilg) == trk_lg_mid ){
+	//     resx = lg_cluster_x.at(ilg) - trk_lg_lx;
+	//     resy = lg_cluster_y.at(ilg) - trk_lg_ly;
+	//     out_track_lg_cl_allhit_resx[ntrkacc].push_back(resx);
+	//     out_track_lg_cl_allhit_resy[ntrkacc].push_back(resy);
+	//     out_track_lg_cl_allhit_ftime[ntrkacc].push_back(lg_cluster_t.at(ilg));
+	//     out_track_lg_cl_allhit_adc[ntrkacc].push_back(lg_cluster_adc.at(ilg));
+	//     out_track_lg_cl_allhit_maxpeak[ntrkacc].push_back(lg_cluster_maxpeak.at(ilg));
+	//     out_track_lg_cl_allhit_maxcid[ntrkacc].push_back(lg_cluster_maxcid.at(ilg));
+	//     if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
+	//       resx_min = resx;
+	//       resy_min = resy;
+	//     }
+	//     nlgc++;
+	//   }
+	// }
+	// out_track_lg_cl_nearx.push_back(resx_min);
+	// out_track_lg_cl_neary.push_back(resy_min);
+	// out_track_lg_cl_multiplicity.push_back(nlgc);
+
+	// out_track_lg_cl_allhit_dum_resx.push_back(vector<double>());
+	// out_track_lg_cl_allhit_dum_resy.push_back(vector<double>());
+	// out_track_lg_cl_allhit_dum_ftime.push_back(vector<double>());
+	// out_track_lg_cl_allhit_dum_adc.push_back(vector<double>());
+	// out_track_lg_cl_allhit_dum_maxpeak.push_back(vector<double>());
+	// out_track_lg_cl_allhit_dum_maxcid.push_back(vector<double>());
+	// resx_dam = 0;
+	// resy_dam = 0;
+	// resx_dam_min = 10000;
+	// resy_dam_min = 10000;
+	// int nlgc_dam = 0;
+	// if( n_lg_clusters_tmp!=100000 ){//dummy
+	//   for(int ilg=0;ilg<n_lg_clusters_tmp;ilg++){
+	//     if(  lg_cluster_mid_tmp.at(ilg) == trk_lg_mid ){
+	//       resx_dam = lg_cluster_x_tmp.at(ilg) - trk_lg_lx;
+	//       resy_dam = lg_cluster_y_tmp.at(ilg) - trk_lg_ly;
+	//       out_track_lg_cl_allhit_dum_resx[ntrkacc].push_back(resx_dam);
+	//       out_track_lg_cl_allhit_dum_resy[ntrkacc].push_back(resy_dam);
+	//       out_track_lg_cl_allhit_dum_ftime[ntrkacc].push_back(lg_cluster_t_tmp.at(ilg));
+	//       out_track_lg_cl_allhit_dum_adc[ntrkacc].push_back(lg_cluster_adc_tmp.at(ilg));
+	//       out_track_lg_cl_allhit_dum_maxpeak[ntrkacc].push_back(lg_cluster_maxpeak_tmp.at(ilg));
+	//       out_track_lg_cl_allhit_dum_maxcid[ntrkacc].push_back(lg_cluster_maxcid_tmp.at(ilg));
+	//       if( resx_dam*resx_dam+resy_dam*resy_dam < resx_dam_min*resx_dam_min+resy_dam_min*resy_dam_min ){
+	// 	resx_dam_min = resx_dam;
+	// 	resy_dam_min = resy_dam;
+	//       }
+	//       nlgc_dam++;
+	//     }	    
+	//   }
+	// }//dummy
+	// out_track_lg_cl_dum_nearx.push_back(resx_dam_min);
+	// out_track_lg_cl_dum_neary.push_back(resy_dam_min);
+	// out_track_lg_cl_dum_multiplicity.push_back(nlgc_dam);
+	*/
+	ntrkacc++;
+
+      }//track loop
+
+      if(plus_index!=-10000){out_is_selected.at(plus_index)=1;}
+      if(minus_index!=-10000){out_is_selected.at(minus_index)=1;}
+
+      if(ntrkacc!=0){
+      	// n_hbd_clusters_tmp = n_hbd_clusters;
+      	// hbd_cluster_mid_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_x_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_y_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_adc_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_eprob_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_cprob_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_size_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_t_tmp.resize(n_hbd_clusters);
+      	// hbd_cluster_ftime_tmp.resize(n_hbd_clusters);
+      	// copy( hbd_cluster_mid->begin(), hbd_cluster_mid->end(), hbd_cluster_mid_tmp.begin() );
+      	// copy( hbd_cluster_x->begin(), hbd_cluster_x->end(), hbd_cluster_x_tmp.begin() );
+      	// copy( hbd_cluster_y->begin(), hbd_cluster_y->end(), hbd_cluster_y_tmp.begin() );
+      	// copy( hbd_cluster_adc->begin(), hbd_cluster_adc->end(), hbd_cluster_adc_tmp.begin() );
+      	// copy( hbd_cluster_eprob->begin(), hbd_cluster_eprob->end(), hbd_cluster_eprob_tmp.begin() );
+      	// copy( hbd_cluster_cprob->begin(), hbd_cluster_cprob->end(), hbd_cluster_cprob_tmp.begin() );
+      	// copy( hbd_cluster_size->begin(), hbd_cluster_size->end(), hbd_cluster_size_tmp.begin() );
+      	// copy( hbd_cluster_t->begin(), hbd_cluster_t->end(), hbd_cluster_t_tmp.begin() );
+      	// copy( hbd_cluster_ftime->begin(), hbd_cluster_ftime->end(), hbd_cluster_ftime_tmp.begin() );
+      	// n_lg_hits_tmp = n_lg_hits;
+      	// lg_hit_mid_tmp.resize(n_lg_hits);
+      	// lg_hit_x_tmp.resize(n_lg_hits);
+      	// lg_hit_y_tmp.resize(n_lg_hits);
+      	// lg_hit_adc_tmp.resize(n_lg_hits);
+      	// lg_hit_t_tmp.resize(n_lg_hits);
+      	// lg_hit_fflag_tmp.resize(n_lg_hits);
+      	// copy( lg_hit_mid->begin(), lg_hit_mid->end(), lg_hit_mid_tmp.begin() );
+      	// copy( lg_hit_x->begin(), lg_hit_x->end(), lg_hit_x_tmp.begin() );
+      	// copy( lg_hit_y->begin(), lg_hit_y->end(), lg_hit_y_tmp.begin() );
+      	// copy( lg_hit_adc->begin(), lg_hit_adc->end(), lg_hit_adc_tmp.begin() );
+      	// copy( lg_hit_t->begin(), lg_hit_t->end(), lg_hit_t_tmp.begin() );
+      	// copy( lg_hit_fflag->begin(), lg_hit_fflag->end(), lg_hit_fflag_tmp.begin() );
+      	// n_lg_clusters_tmp = n_lg_clusters;
+      	// lg_cluster_mid_tmp.resize(n_lg_clusters);
+      	// lg_cluster_x_tmp.resize(n_lg_clusters);
+      	// lg_cluster_y_tmp.resize(n_lg_clusters);
+      	// lg_cluster_t_tmp.resize(n_lg_clusters);
+      	// lg_cluster_adc_tmp.resize(n_lg_clusters);
+      	// lg_cluster_maxpeak_tmp.resize(n_lg_clusters);
+      	// lg_cluster_maxcid_tmp.resize(n_lg_clusters);
+      	// for(int i=0;i<n_lg_clusters;i++){
+      	//   lg_cluster_mid_tmp.at(i) = lg_cluster_mid.at(i);
+      	//   lg_cluster_x_tmp.at(i) = lg_cluster_x.at(i);
+      	//   lg_cluster_y_tmp.at(i) = lg_cluster_y.at(i);
+      	//   lg_cluster_t_tmp.at(i) = lg_cluster_t.at(i);
+      	//   lg_cluster_adc_tmp.at(i) = lg_cluster_adc.at(i);
+      	//   lg_cluster_maxpeak_tmp.at(i) = lg_cluster_maxpeak.at(i);
+      	//   lg_cluster_maxcid_tmp.at(i) = lg_cluster_maxcid.at(i);
+      	// }
+
+	//Get Hits & Clusters
+	out_n_tracks = ntrkacc;
+	out_run_id = run_id;
+	out_event_id = event_id;
+	out_spill_id = spill_id;
+
+	tree->Fill();
+      }
+      nevent++;
+
+   }//event loop
+
+   fout->Write();
+   fout->Close();
+
+}

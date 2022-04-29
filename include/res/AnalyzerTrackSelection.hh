@@ -45,6 +45,29 @@ public :
      }
    };
 
+   struct trackset{
+     int track_id;
+     double chisq;
+     double ssd;
+     double gtr100x;
+     double gtr100y;
+     double gtr200x;
+     double gtr200y;
+     double gtr300x;
+     double gtr300y;
+
+     bool operator==(const trackset& another){
+       if( ssd == another.ssd
+	 || gtr100x == another.gtr100x
+	 || gtr100y == another.gtr100y
+	 || gtr200x == another.gtr200x
+	 || gtr200y == another.gtr200y
+	 || gtr300x == another.gtr300x
+	 || gtr300y == another.gtr300y) return true;
+       return false;
+     }
+   };
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -239,10 +262,11 @@ public :
    AnalyzerTrackSelection(TTree *tree=0);
    virtual ~AnalyzerTrackSelection();
    virtual Int_t    Cut(Long64_t entry);
-   virtual Int_t    Cut(Long64_t entry, std::vector<int>& goodtracks);
+   virtual Int_t    SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks);
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack, std::vector<int>& goodtracks);
-   virtual Int_t    CutOfTrack(Long64_t entry, int itrack, int runoption );
+   // virtual Int_t    CutOfTrack(Long64_t entry, int itrack, int runoption );
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack );
+   virtual Int_t    IsGoodTrack(Long64_t entry, int itrack, std::vector<trackset> &tracksets);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
@@ -518,9 +542,9 @@ void AnalyzerTrackSelection::Show(Long64_t entry)
 Int_t AnalyzerTrackSelection::Cut(Long64_t entry)
 {
   std::vector<int> goodtracks(1);
-  return Cut(entry,goodtracks);
+  return SelectGoodTrack(entry,goodtracks);
 }
-Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
+Int_t AnalyzerTrackSelection::SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks)
 {
   if(goodtracks.size()==1){return 1;}
   else{
@@ -552,15 +576,13 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
   // std::cout<<n_tracks<<std::endl;
   //tracks are already sorted by chi_square in DST1
   for(int i=0;i<n_tracks;i++){ //track loop
-    if(track_hbd_mid->at(i)!=track_lg_mid->at(i)) continue;
+    // if(CutOfTrack(entry,i)<0) continue;
     int trk_mid = track_hbd_mid->at(i);
     double rxt = track_hbd_nearx->at(i)-hbd_voriginx[(trk_mid-103+2)%5];
     double ryt = track_hbd_neary->at(i)-hbd_voriginy[(trk_mid-103+2)%5];
+    if(track_hbd_mid->at(i)!=track_lg_mid->at(i)) continue;
     if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) continue;
     if(chi_square->at(i)>30.) continue;
-    // if(fabs(track_position_block_lx->at(i))>30) continue;
-    // if(fabs(track_position_block_ly->at(i))>30) continue;
-    // if(track_ssd_t->at(i)<40.||track_ssd_t->at(i)>55.) continue;
     set settmp;
     settmp.track_id = track_id->at(i);
     settmp.chisq = chi_square->at(i);
@@ -596,6 +618,65 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
   if(goodtracks.size()==0){return -1;}
 
   return 1;
+  }
+}
+Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, std::vector<int> &goodtracks)
+{
+  for(int i=0;i<goodtracks.size();i++){
+    if(track_id->at(itrack)==goodtracks.at(i)){return 1;}
+  }
+  return -1;
+}
+Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
+{
+  // int trk_mid = track_hbd_mid->at(itrack);
+  // double rxt = track_hbd_nearx->at(itrack)-hbd_voriginx[(trk_mid-103+2)%5];
+  // double ryt = track_hbd_neary->at(itrack)-hbd_voriginy[(trk_mid-103+2)%5];
+  if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
+  // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
+  if(chi_square->at(itrack)>30.) {return -1;}
+  // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
+  // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
+  // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
+  if (track_mom->at(itrack) > 2.5) {return -1;}
+  else{
+    return 1;
+  }
+}
+Int_t AnalyzerTrackSelection::IsGoodTrack(Long64_t entry, int itrack, std::vector<trackset> &tracksets)
+{
+  //tracks are already sorted by chi_square in DST1
+  trackset settmp;
+  settmp.track_id = track_id->at(itrack);
+  settmp.chisq = chi_square->at(itrack);
+  settmp.ssd = track_ssd_t->at(itrack);
+  settmp.gtr100x = track_gtr100x_t->at(itrack);
+  settmp.gtr100y = track_gtr100y_t->at(itrack);
+  settmp.gtr200x = track_gtr200x_t->at(itrack);
+  settmp.gtr200y = track_gtr200y_t->at(itrack);
+  settmp.gtr300x = track_gtr300x_t->at(itrack);
+  settmp.gtr300y = track_gtr300y_t->at(itrack);
+  // std::cout<<settmp.chisq<<" "<<settmp.ssd<<" "<<settmp.gtr100x<<" "<<settmp.gtr100y<<" "<<settmp.gtr200x<<" "<<settmp.gtr200y<<" "<<settmp.gtr300x<<" "<<settmp.gtr300y<<std::endl;
+
+  if(tracksets.size()==0){
+    tracksets.push_back(settmp);
+    return 1;
+  }
+  else{
+    bool isgood = false;
+    for(int j=0;j<tracksets.size();j++){
+      if(settmp==tracksets.at(j)){
+	return -1;
+      }
+      if(j==tracksets.size()-1){isgood=true;}
+    }
+    if(isgood==true){
+      tracksets.push_back(settmp);
+      return 1;
+    }
+    else{
+      return -2;
+    }
   }
 }
 // Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
@@ -649,60 +730,54 @@ Int_t AnalyzerTrackSelection::Cut(Long64_t entry, std::vector<int>& goodtracks)
 //   return 1;
 //   }
 // }
-Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, std::vector<int> &goodtracks)
-{
-  for(int i=0;i<goodtracks.size();i++){
-    if(track_id->at(itrack)==goodtracks.at(i)){return 1;}
-  }
-  return -1;
-}
-Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runoption)
-{
-  double momxz = sqrt(track_mom_x->at(itrack)*track_mom_x->at(itrack)+track_mom_z->at(itrack)*track_mom_z->at(itrack));//220212
-  if (track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -2;}
-  // else if (momxz<1.0) {return -1;}//220212
-  else if (chi_square->at(itrack)>30.) {return -1;}
-  // else if (fabs(track_angle_lx->at(itrack))>0.2) {return -1;}//220222
-  else if (fabs(track_position_block_lx->at(itrack))>30) {return -1;}//220222
-  else if (fabs(track_position_block_ly->at(itrack))>30) {return -1;}//220222
-  // else if ( runoption==0 && (track_ssd_t->at(itrack)<40||track_ssd_t->at(itrack)>55) ) {return -1;}//220213
-  // else if ( runoption==3 && (track_ssd_t->at(itrack)<41||track_ssd_t->at(itrack)>56) ) {return -1;}//220213
-  // else if ( runoption==1 && (track_ssd_t->at(itrack)<38||track_ssd_t->at(itrack)>54) ) {return -1;}//220213
-  // else if ( is_selected->at(itrack)==0 ) {return -1;}
-  // else if ( track_lg_multiplicity->at(itrack)>4 ) {return -1;}//220306
-  // else if ( track_hbd_multiplicity->at(itrack)>5 ) {return -1;}//220306
-  // else if ( track_tgt_dist->at(itrack)>5 ) {return -1;}
-  // else if((track_gtr100x_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
-  // else if((track_gtr100x_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
-  // else if((track_gtr100y_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
-  // else if((track_gtr100y_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
-  // else if((track_gtr200x_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
-  // else if((track_gtr200x_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
-  // else if((track_gtr200y_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
-  // else if((track_gtr200y_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
-  // else if((track_gtr300x_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
-  // else if((track_gtr300x_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
-  // else if((track_gtr300y_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
-  // else if((track_gtr300y_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
-  // else if(track_gtr100y_adc->at(itrack)/track_gtr100x_adc->at(itrack)<0.25) {return -1;}
-  // else if(track_gtr100y_adc->at(itrack)/track_gtr100x_adc->at(itrack)>1.5) {return -1;}
-  // else if(track_gtr200y_adc->at(itrack)/track_gtr200x_adc->at(itrack)<0.25) {return -1;}
-  // else if(track_gtr200y_adc->at(itrack)/track_gtr200x_adc->at(itrack)>1.5) {return -1;}
-  // else if(track_gtr300y_adc->at(itrack)/track_gtr300x_adc->at(itrack)<0.25) {return -1;}
-  // else if(track_gtr300y_adc->at(itrack)/track_gtr300x_adc->at(itrack)>1.5) {return -1;}
-  // else if(  runoption==1 && (track_gtr100x_t->at(itrack)-track_gtr100y_t->at(itrack))<-20)  {return -1;}
-  // else if(  runoption==1 && (track_gtr100x_t->at(itrack)-track_gtr100y_t->at(itrack))>30)  {return -1;}
-  // else if(  runoption==1 && (track_gtr200x_t->at(itrack)-track_gtr200y_t->at(itrack))<-30)  {return -1;}
-  // else if(  runoption==1 && (track_gtr200x_t->at(itrack)-track_gtr200y_t->at(itrack))>30)  {return -1;}
-  // else if(  runoption==1 && (track_gtr300x_t->at(itrack)-track_gtr300y_t->at(itrack))<-30)  {return -1;}
-  // else if(  runoption==1 && (track_gtr300x_t->at(itrack)-track_gtr300y_t->at(itrack))>30)  {return -1;}
-  else{
-    return 1;
-  }
-}
-Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
-{
-  int runoption = 0;
-  return CutOfTrack(entry,itrack,runoption);
-}
+
+// Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runoption)
+// {
+//   double momxz = sqrt(track_mom_x->at(itrack)*track_mom_x->at(itrack)+track_mom_z->at(itrack)*track_mom_z->at(itrack));//220212
+//   if (track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -2;}
+//   // else if (momxz<1.0) {return -1;}//220212
+//   else if (chi_square->at(itrack)>30.) {return -1;}
+//   // else if (fabs(track_angle_lx->at(itrack))>0.2) {return -1;}//220222
+//   else if (fabs(track_position_block_lx->at(itrack))>30) {return -1;}//220222
+//   else if (fabs(track_position_block_ly->at(itrack))>30) {return -1;}//220222
+//   // else if ( runoption==0 && (track_ssd_t->at(itrack)<40||track_ssd_t->at(itrack)>55) ) {return -1;}//220213
+//   // else if ( runoption==3 && (track_ssd_t->at(itrack)<41||track_ssd_t->at(itrack)>56) ) {return -1;}//220213
+//   // else if ( runoption==1 && (track_ssd_t->at(itrack)<38||track_ssd_t->at(itrack)>54) ) {return -1;}//220213
+//   // else if ( is_selected->at(itrack)==0 ) {return -1;}
+//   // else if ( track_lg_multiplicity->at(itrack)>4 ) {return -1;}//220306
+//   // else if ( track_hbd_multiplicity->at(itrack)>5 ) {return -1;}//220306
+//   // else if ( track_tgt_dist->at(itrack)>5 ) {return -1;}
+//   // else if((track_gtr100x_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
+//   // else if((track_gtr100x_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
+//   // else if((track_gtr100y_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
+//   // else if((track_gtr100y_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
+//   // else if((track_gtr200x_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
+//   // else if((track_gtr200x_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
+//   // else if((track_gtr200y_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
+//   // else if((track_gtr200y_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
+//   // else if((track_gtr300x_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
+//   // else if((track_gtr300x_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
+//   // else if((track_gtr300y_t->at(itrack)-track_ssd_t->at(itrack))<10) {return -1;}
+//   // else if((track_gtr300y_t->at(itrack)-track_ssd_t->at(itrack))>250) {return -1;}
+//   // else if(track_gtr100y_adc->at(itrack)/track_gtr100x_adc->at(itrack)<0.25) {return -1;}
+//   // else if(track_gtr100y_adc->at(itrack)/track_gtr100x_adc->at(itrack)>1.5) {return -1;}
+//   // else if(track_gtr200y_adc->at(itrack)/track_gtr200x_adc->at(itrack)<0.25) {return -1;}
+//   // else if(track_gtr200y_adc->at(itrack)/track_gtr200x_adc->at(itrack)>1.5) {return -1;}
+//   // else if(track_gtr300y_adc->at(itrack)/track_gtr300x_adc->at(itrack)<0.25) {return -1;}
+//   // else if(track_gtr300y_adc->at(itrack)/track_gtr300x_adc->at(itrack)>1.5) {return -1;}
+//   // else if(  runoption==1 && (track_gtr100x_t->at(itrack)-track_gtr100y_t->at(itrack))<-20)  {return -1;}
+//   // else if(  runoption==1 && (track_gtr100x_t->at(itrack)-track_gtr100y_t->at(itrack))>30)  {return -1;}
+//   // else if(  runoption==1 && (track_gtr200x_t->at(itrack)-track_gtr200y_t->at(itrack))<-30)  {return -1;}
+//   // else if(  runoption==1 && (track_gtr200x_t->at(itrack)-track_gtr200y_t->at(itrack))>30)  {return -1;}
+//   // else if(  runoption==1 && (track_gtr300x_t->at(itrack)-track_gtr300y_t->at(itrack))<-30)  {return -1;}
+//   // else if(  runoption==1 && (track_gtr300x_t->at(itrack)-track_gtr300y_t->at(itrack))>30)  {return -1;}
+//   else{
+//     return 1;
+//   }
+// }
+// Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
+// {
+//   int runoption = 0;
+//   return CutOfTrack(entry,itrack,runoption);
+// }
 #endif // #ifdef AnalyzerTrackSelection_cxx

@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 
 
   SingleTrackAnalyzerForRes* t = new SingleTrackAnalyzerForRes(in_chain);
-  t->MkTreeForTrackSelection(runtype,maxevent,out_file_name,hbd_track_module,track_charge,max_chi_square);
+  t->MkTreeWYass(runtype,maxevent,out_file_name,hbd_track_module,track_charge,max_chi_square);
   
   delete in_chain;
   return 0;
