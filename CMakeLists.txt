@@ -32,6 +32,7 @@ include_directories(
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 #  /opt/E16/include/Geant4 # evb
+  /ccj/u/E16/include
   /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
@@ -60,6 +61,8 @@ link_libraries(
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
   libG4clhep.so
+  libHepPDT.so
+  libHepPID.so
 	libz.so
 )
 
@@ -371,5 +374,12 @@ target_link_libraries(check_position_resolution
 #)
 #
 ##_______________________________________________________________________________
+add_executable(mockdataIOtestSimple tmp/mockdataIOtestSimple.cc)
+
+target_link_libraries(mockdataIOtestSimple
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

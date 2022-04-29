@@ -2,6 +2,10 @@
 
 using namespace std;
 using namespace E16ANA_TrackParameter;
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_MakeDummyDST1Parmaeter.hh"
+using namespace E16ANA_MakeDummyDST1Parmaeter;
+#endif // TRACK_EFF_CHECK
 
 void E16ANA_TrackCandidate::SetDefaultSigma() {
   for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
@@ -149,10 +153,17 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 //  single_track->SetInitialVertex(TVector3(0., 0., 0.), kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
-#ifndef NO_BIAS_TRACKING
+//#ifndef NO_BIAS_TRACKING
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     if (l != E16ANA_TrackConstant::kSSD) {
       auto& c      = cluster_pairs[l];
+#ifdef TRACK_EFF_CHECK
+      auto cid = c.ClusterId();
+      if (cid >= kMockClusterID) {
+        cluster_pairs[l].SetT(geometry, l, c.ModuleID(), c.LocalPos());
+        continue;
+      }
+#endif // TRACK_EFF_CHECK
       double phi   = atan2(c.GlobalPos().Z()-init_circ.Y(),c.GlobalPos().X()-init_circ.X());
       double x0    = init_circ.X()+init_circ.Z()*cos(phi);
       double z0    = init_circ.Y()+init_circ.Z()*sin(phi);
@@ -178,7 +189,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
       //printf("l:%d,  nhit:%d,  the1:%f, the2:%f,  x1:%f,  x2:%f, time:%f  \n",l,nhit,xclst->TanTheta(),tthe,c.LocalPos().X(),ltdc2,xclst->Timing());
     }
   }
-#endif // NO_BIAS_TRACKING
+//#endif // NO_BIAS_TRACKING
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
     if (l == E16ANA_TrackConstant::kSSD) {

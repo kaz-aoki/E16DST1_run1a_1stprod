@@ -23,6 +23,10 @@
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDCut.hh"
 #include "E16ANA_WaveformFitter.hh"
+
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_MakeDummyDST1Parmaeter.hh"
+#endif // TRACK_EFF_CHECK
 //#pragma pack(2)
 
 class E16DST_DST1Hit {
@@ -103,7 +107,18 @@ class E16DST_DST1Cluster {
 //  int                           NumHits() { return hit_orders.NumberOfHits(); }
 //  E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
 //  int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
+#ifndef TRACK_EFF_CHECK
   int                           NumHits() { return hit_orders.size(); }
+#else
+  void                          SetNumHits(int _n_hits) { n_hits = _n_hits; }
+  int                           NumHits() {
+    if (cid < E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
+      return hit_orders.size();
+    } else {
+      return n_hits;
+    }
+  }
+#endif // TRACK_EFF_CHECK
   std::vector<int16_t>&         HitOrders() { return hit_orders; }
   int16_t                       HitOrder(int n) { return hit_orders[n]; }
   virtual TVector3              LocalPos() = 0;
@@ -123,6 +138,9 @@ class E16DST_DST1Cluster {
   float                        peak_sum;
 //  E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
   std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+#ifdef TRACK_EFF_CHECK
+  int n_hits;
+#endif // TRACK_EFF_CHECK
 };
 
 class E16DST_DST1SSDHit : public E16DST_DST1Hit {

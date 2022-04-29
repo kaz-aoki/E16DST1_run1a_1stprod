@@ -1,4 +1,5 @@
 //#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
+//#define TRACK_EFF_CHECK
 
 #include <iostream>
 #include <TROOT.h>
@@ -27,6 +28,11 @@
 #include "E16ANA_TrackCheckFile_wolgfit.hh"
 #endif
 
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_MakeDummyDST1.hh"
+#include "mockdataIOtestSimple.cc"
+#endif // TRACK_EFF_CHECK
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -34,8 +40,13 @@ constexpr bool kIsElectronRun = true;
 constexpr bool kSelectEvent   = false;
 
 int main(int argc, char* argv[]) {
+#ifndef TRACK_EFF_CHECK
   if (argc != 6) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
+#else
+  if (argc != 7) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout]" << endl;
+#endif
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -43,6 +54,9 @@ int main(int argc, char* argv[]) {
   auto run_id        = stoi(argv[3]);
   auto event_start   = stoi(argv[4]);
   auto event_end     = stoi(argv[5]);
+#ifdef TRACK_EFF_CHECK
+  auto mock_data_name = argv[6];
+#endif
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -126,6 +140,13 @@ int main(int argc, char* argv[]) {
 
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
   
+#ifdef TRACK_EFF_CHECK
+  auto mock_data = E16ANA_MockTrackOutputData();
+  if (mock_data.OpenReadFile(mock_data_name) != E16ANA_MockTrackOutputData::OK) {
+    cerr << "cannot open mock data file" << endl;
+    return -1;
+  }
+#endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -212,7 +233,13 @@ int main(int argc, char* argv[]) {
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
-
+#ifdef TRACK_EFF_CHECK
+      if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+        cerr << "mock data finished at " << n_physics_event << " events" << endl;
+        break;
+      }
+      E16ANA_MakeDummyDST1::MergeMockToRealData(mock_data.Track(), &record);
+#endif // TRACK_EFF_CHECK
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 
