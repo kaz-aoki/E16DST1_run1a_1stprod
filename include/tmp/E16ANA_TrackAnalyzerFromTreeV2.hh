@@ -1542,7 +1542,7 @@ class E16ANA_TrackAnalyzerFromTree {
                      std::vector<int>* cluster_indexs, std::vector<double>* lg_ts);
   bool HasTriggerLGHits(const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* hit_indexs);
   bool HasHBDAndLGProjection(int track_index, std::vector<double>* lg_ts);
-//  bool HasTimeCorrelationInTrack();
+  bool HasTimeCorrelationInTrack(int track_index, const std::vector<double>& lg_ts);
   bool IsGoodTrack(int track_index, std::vector<double>* lg_ts);
   double CalcSingleTrackChiSquareWoTarget(int track_index);
   bool IsGoodPionTrack(int track_index, std::vector<double>* lg_ts);
@@ -1576,7 +1576,9 @@ class E16ANA_TrackAnalyzerFromTree {
                        const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& gposs,
                        const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& gmoms,
                        const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& lress);
-  void PairTracking(const int track_indexs_index_pair[], double tgt_z);
+  std::array<bool, 3> SelectTrackPairCandidate(int selected_track_index0, int selected_track_index1);
+//  void PairTracking(const int track_indexs_index_pair[], double tgt_z);
+  void PairTracking(const int track_indexs_index_pair[], const std::array<bool, 3>& good_target_list);
   std::vector<int> SortedTrackPairIndex();
 //  bool HasTimeCorrelationInTrackPair();
   bool IsGoodPair(const int track_index_pair);
@@ -1660,6 +1662,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_distance;
   std::vector<double> out_minus_chi_square;
   std::vector<double> out_plus_chi_square;
+  std::vector<bool>   out_has_cluster_duplication;
   std::vector<bool> out_is_selected;
   std::vector<int> out_minus_track_id;
   std::vector<int> out_plus_track_id;
@@ -4728,6 +4731,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("lg_cluster_tdiff",    &lg_cluster_tdiff);
   tree->Branch("lg_cluster_size",     &lg_cluster_size);
 
+  tree->Branch("has_cluster_duplication", &out_has_cluster_duplication);
   tree->Branch("is_selected", &out_is_selected);
   tree->Branch("minus_track_id", &out_minus_track_id);
   tree->Branch("plus_track_id", &out_plus_track_id);

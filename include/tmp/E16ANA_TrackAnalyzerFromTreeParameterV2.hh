@@ -46,8 +46,9 @@ constexpr double kGTR300xResidualThreshold    = 4.;
 constexpr double kGTR300yResidualThreshold    = 4.;
 constexpr double kTargetXThreshold            = 5.;
 constexpr double kTargetYThreshold            = 5.;
-constexpr double kHBDADCThreshold             = 0.5;
-constexpr double kHBDResidualThreshold        = 50.;
+constexpr double kHBDADCThreshold             = 4.; // electron efficiency: ~0.95, pion rejection: ~15 (w/o cluster size analysis)
+constexpr double kHBDSizeThreshold            = 1.5;
+//constexpr double kHBDResidualThreshold        = 50.;
 //constexpr double kLGHitXResidualThreshold     = 70.;
 //constexpr double kLGClusterXResidualThreshold = 80.;
 constexpr double kLGHitXResidualThreshold     = 70. * 2;
@@ -59,6 +60,8 @@ constexpr double kHBDXSigma[4] = {22.3 * 2, 23. * 2,  18.7 * 2, 15.8 * 2};
 constexpr double kHBDYMean[4]  = {-0.6, -0.9, -0.2, -0.1};
 //constexpr double kHBDYSigma[4] = {22.6, 18.4, 12.5, 10.6};
 constexpr double kHBDYSigma[4] = {22.6 * 2, 18.4 * 2, 12.5 * 2, 10.6 * 2};
+constexpr double kTimeOffsetSSDAndLG = -55.;
+constexpr double kMaxTimeDiffSSDAndLG = 15.;
 
 }; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 
@@ -115,6 +118,7 @@ constexpr double   kLGTimeDiff         = 10.;
 constexpr double   kLGTime             = 93.5;
 constexpr double   kLGTimeWidth        = 11.5;
 constexpr double   kTriggerLGTimeWidth = 10.;
+constexpr double   kMaxPairDistance    = 50.;
 
 constexpr bool     kVertexZFixFlagPion = false;
 
