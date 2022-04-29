@@ -1,5 +1,4 @@
 //#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
-//#define TRACK_EFF_CHECK
 
 #include <iostream>
 #include <TROOT.h>
@@ -30,7 +29,7 @@
 
 #ifdef TRACK_EFF_CHECK
 #include "E16ANA_MakeDummyDST1.hh"
-#include "mockdataIOtestSimple.cc"
+#include "mockdataIOtestSimple.hh"
 #endif // TRACK_EFF_CHECK
 
 using namespace std;

@@ -3,8 +3,8 @@
 using namespace std;
 using namespace E16ANA_TrackParameter;
 #ifdef TRACK_EFF_CHECK
-#include "E16ANA_MakeDummyDST1Parmaeter.hh"
-using namespace E16ANA_MakeDummyDST1Parmaeter;
+#include "E16ANA_MakeDummyDST1Parameter.hh"
+using namespace E16ANA_MakeDummyDST1Parameter;
 #endif // TRACK_EFF_CHECK
 
 void E16ANA_TrackCandidate::SetDefaultSigma() {
@@ -158,7 +158,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
     if (l != E16ANA_TrackConstant::kSSD) {
       auto& c      = cluster_pairs[l];
 #ifdef TRACK_EFF_CHECK
-      auto cid = c.ClusterId();
+      auto cid = c.Cluster(0)->ClusterId();
       if (cid >= kMockClusterID) {
         cluster_pairs[l].SetT(geometry, l, c.ModuleID(), c.LocalPos());
         continue;

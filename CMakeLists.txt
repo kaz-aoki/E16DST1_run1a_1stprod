@@ -27,6 +27,8 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
+add_definitions(-DTRACK_EFF_CHECK)
+
 include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
@@ -48,6 +50,7 @@ include_directories(
   E16ANA_Basic/include
 
   include/tmp
+  include/tmp_mock
 )
 
 link_directories(
@@ -156,6 +159,16 @@ add_library(E16ANA_Track
 )
 
 target_link_libraries(E16ANA_Track
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_library(E16ANA_MockTrack
+  src/tmp_mock/E16ANA_MakeDummyDST1.cc
+  src/tmp_mock/mockdataIOtestSimple.cc
+)
+
+target_link_libraries(E16ANA_MockTrack
   E16DST_DST1
 )
 
@@ -300,6 +313,7 @@ add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 target_link_libraries(dst0_to_dst1_trigger_check
 	E16ANA_Basic
   E16DST_DST1
+  E16ANA_MockTrack
 )
 
 #_______________________________________________________________________________
@@ -373,13 +387,6 @@ target_link_libraries(check_position_resolution
 #  E16DST_DST1
 #)
 #
-##_______________________________________________________________________________
-add_executable(mockdataIOtestSimple tmp/mockdataIOtestSimple.cc)
-
-target_link_libraries(mockdataIOtestSimple
-  E16ANA_Basic
-)
-
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

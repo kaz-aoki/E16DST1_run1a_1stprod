@@ -25,7 +25,7 @@
 #include "E16ANA_WaveformFitter.hh"
 
 #ifdef TRACK_EFF_CHECK
-#include "E16ANA_MakeDummyDST1Parmaeter.hh"
+#include "E16ANA_MakeDummyDST1Parameter.hh"
 #endif // TRACK_EFF_CHECK
 //#pragma pack(2)
 
@@ -112,7 +112,7 @@ class E16DST_DST1Cluster {
 #else
   void                          SetNumHits(int _n_hits) { n_hits = _n_hits; }
   int                           NumHits() {
-    if (cid < E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
+    if (cluster_id < E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
       return hit_orders.size();
     } else {
       return n_hits;
@@ -506,6 +506,9 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetFitWidth(float _fitwidth) { fitwidth = _fitwidth; }
   void SetFitChi2(float _fitchi2) { fitchi2 = _fitchi2; }
   void SetHitId(int _hitid) { hitid = _hitid; } // temporary
+#ifdef TRACK_EFF_CHECK
+  void SetLocalPos(TVector3 _local_pos) { local_pos = _local_pos; }
+#endif // TRACK_EFF_CHECK
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
@@ -543,6 +546,9 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float fitwidth;
   float fitchi2;
   int hitid; // temporary
+#ifdef TRACK_EFF_CHECK
+  TVector3 local_pos;
+#endif // TRACK_EFF_CHECK
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
