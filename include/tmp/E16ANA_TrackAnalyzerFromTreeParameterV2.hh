@@ -46,13 +46,14 @@ constexpr double kGTR300xResidualThreshold    = 4.;
 constexpr double kGTR300yResidualThreshold    = 4.;
 constexpr double kTargetXThreshold            = 5.;
 constexpr double kTargetYThreshold            = 5.;
-constexpr double kHBDADCThreshold             = 4.; // electron efficiency: ~0.95, pion rejection: ~15 (w/o cluster size analysis)
+constexpr double kHBDADCThreshold             = 7.; // electron efficiency: ~0.95, pion rejection: ~15 (w/o cluster size analysis)
 constexpr double kHBDSizeThreshold            = 1.5;
 //constexpr double kHBDResidualThreshold        = 50.;
 //constexpr double kLGHitXResidualThreshold     = 70.;
 //constexpr double kLGClusterXResidualThreshold = 80.;
 constexpr double kLGHitXResidualThreshold     = 70. * 2;
 constexpr double kLGClusterXResidualThreshold = 80. * 2;
+constexpr double kMinLGADC                    = 50.;
 
 constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
 //constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};

@@ -732,6 +732,11 @@ bool E16ANA_TrackAnalyzerFromTree::HasLGHits(double track_mom, const int track_m
     if (fabs(x - track_xs[type]) > st_param::kLGHitXResidualThreshold) {
       continue;
     }
+    // ADC match
+    auto adc = lg_hit_adc->at(hit_i);
+    if (adc < st_param::kMinLGADC) {
+      continue;
+    }
     hit_indexs->emplace_back(hit_i);
     lg_ts->emplace_back(lg_hit_t->at(hit_i));
   }
@@ -769,6 +774,11 @@ bool E16ANA_TrackAnalyzerFromTree::HasLGClusters(double track_mom, const int tra
     // x match
     auto x = lg_cluster_x->at(clst_i);
     if (fabs(x - track_xs[type]) > st_param::kLGClusterXResidualThreshold) {
+      continue;
+    }
+    // ADC match
+    auto adc = lg_cluster_adc->at(clst_i);
+    if (adc < st_param::kMinLGADC) {
       continue;
     }
     cluster_indexs->emplace_back(clst_i);
