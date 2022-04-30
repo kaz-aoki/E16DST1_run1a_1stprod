@@ -281,6 +281,27 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_proj_lg_hit_min_t_diff.clear();
   out_proj_lg_hit_min_diff_t_mean.clear();
 
+  out_minus_ssd_hit_cid.clear();
+  out_minus_gtr100_hit_xcid.clear();
+  out_minus_gtr100_hit_ycid.clear();
+  out_minus_gtr200_hit_xcid.clear();
+  out_minus_gtr200_hit_ycid.clear();
+  out_minus_gtr300_hit_xcid.clear();
+  out_minus_gtr300_hit_ycid.clear();
+  out_plus_ssd_hit_cid.clear();
+  out_plus_gtr100_hit_xcid.clear();
+  out_plus_gtr100_hit_ycid.clear();
+  out_plus_gtr200_hit_xcid.clear();
+  out_plus_gtr200_hit_ycid.clear();
+  out_plus_gtr300_hit_xcid.clear();
+  out_plus_gtr300_hit_ycid.clear();
+  out_minus_ssd_hit_cid.clear();
+  out_minus_gtr100_hit_xcid.clear();
+  out_minus_gtr100_hit_ycid.clear();
+  out_minus_gtr200_hit_xcid.clear();
+  out_minus_gtr200_hit_ycid.clear();
+  out_minus_gtr300_hit_xcid.clear();
+  out_minus_gtr300_hit_ycid.clear();
   out_minus_ssd_hit_x.clear();
   out_minus_ssd_hit_y.clear();
   out_minus_ssd_hit_z.clear();
@@ -1312,6 +1333,20 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(track_index_pair[1]));
   out_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[1]));
   
+  out_minus_ssd_hit_cid.emplace_back(rk_hit_ssd_id->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xcid.emplace_back(rk_hit_gtr100_xid->at(track_index_pair[0]));
+  out_minus_gtr100_hit_ycid.emplace_back(rk_hit_gtr100_yid->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xcid.emplace_back(rk_hit_gtr200_xid->at(track_index_pair[0]));
+  out_minus_gtr200_hit_ycid.emplace_back(rk_hit_gtr200_yid->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xcid.emplace_back(rk_hit_gtr300_xid->at(track_index_pair[0]));
+  out_minus_gtr300_hit_ycid.emplace_back(rk_hit_gtr300_yid->at(track_index_pair[0]));
+  out_plus_ssd_hit_cid.emplace_back(rk_hit_ssd_id->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xcid.emplace_back(rk_hit_gtr100_xid->at(track_index_pair[1]));
+  out_plus_gtr100_hit_ycid.emplace_back(rk_hit_gtr100_yid->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xcid.emplace_back(rk_hit_gtr200_xid->at(track_index_pair[1]));
+  out_plus_gtr200_hit_ycid.emplace_back(rk_hit_gtr200_yid->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xcid.emplace_back(rk_hit_gtr300_xid->at(track_index_pair[1]));
+  out_plus_gtr300_hit_ycid.emplace_back(rk_hit_gtr300_yid->at(track_index_pair[1]));
   TVector3 hit_gpos[2][track_const::kNumTrackingLayers];
   TVector3 hit_lpos[2][track_const::kNumTrackingLayers];
   for (int i = 0; i < 2; ++i) {
@@ -2430,6 +2465,20 @@ void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_
   out_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(track_index_pair[1]));
   
   // hit info
+  out_minus_ssd_hit_cid.emplace_back(rk_hit_ssd_id->at(track_index_pair[0]));
+  out_minus_gtr100_hit_xcid.emplace_back(rk_hit_gtr100_xid->at(track_index_pair[0]));
+  out_minus_gtr100_hit_ycid.emplace_back(rk_hit_gtr100_yid->at(track_index_pair[0]));
+  out_minus_gtr200_hit_xcid.emplace_back(rk_hit_gtr200_xid->at(track_index_pair[0]));
+  out_minus_gtr200_hit_ycid.emplace_back(rk_hit_gtr200_yid->at(track_index_pair[0]));
+  out_minus_gtr300_hit_xcid.emplace_back(rk_hit_gtr300_xid->at(track_index_pair[0]));
+  out_minus_gtr300_hit_ycid.emplace_back(rk_hit_gtr300_yid->at(track_index_pair[0]));
+  out_plus_ssd_hit_cid.emplace_back(rk_hit_ssd_id->at(track_index_pair[1]));
+  out_plus_gtr100_hit_xcid.emplace_back(rk_hit_gtr100_xid->at(track_index_pair[1]));
+  out_plus_gtr100_hit_ycid.emplace_back(rk_hit_gtr100_yid->at(track_index_pair[1]));
+  out_plus_gtr200_hit_xcid.emplace_back(rk_hit_gtr200_xid->at(track_index_pair[1]));
+  out_plus_gtr200_hit_ycid.emplace_back(rk_hit_gtr200_yid->at(track_index_pair[1]));
+  out_plus_gtr300_hit_xcid.emplace_back(rk_hit_gtr300_xid->at(track_index_pair[1]));
+  out_plus_gtr300_hit_ycid.emplace_back(rk_hit_gtr300_yid->at(track_index_pair[1]));
   TVector3 hit_gpos[2][track_const::kNumTrackingLayers];
   TVector3 hit_lpos[2][track_const::kNumTrackingLayers];
   for (int i = 0; i < 2; ++i) {

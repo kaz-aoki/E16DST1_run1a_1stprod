@@ -1798,7 +1798,21 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_plus_proj_trg_lg_hit_z;
   std::vector<double> out_proj_lg_hit_min_t_diff;
   std::vector<double> out_proj_lg_hit_min_diff_t_mean;
-
+  
+  std::vector<int>    out_minus_ssd_hit_cid;
+  std::vector<int>    out_minus_gtr100_hit_xcid;
+  std::vector<int>    out_minus_gtr100_hit_ycid;
+  std::vector<int>    out_minus_gtr200_hit_xcid;
+  std::vector<int>    out_minus_gtr200_hit_ycid;
+  std::vector<int>    out_minus_gtr300_hit_xcid;
+  std::vector<int>    out_minus_gtr300_hit_ycid;
+  std::vector<int>    out_plus_ssd_hit_cid;
+  std::vector<int>    out_plus_gtr100_hit_xcid;
+  std::vector<int>    out_plus_gtr100_hit_ycid;
+  std::vector<int>    out_plus_gtr200_hit_xcid;
+  std::vector<int>    out_plus_gtr200_hit_ycid;
+  std::vector<int>    out_plus_gtr300_hit_xcid;
+  std::vector<int>    out_plus_gtr300_hit_ycid;
   std::vector<double> out_minus_ssd_hit_x;
   std::vector<double> out_minus_ssd_hit_y;
   std::vector<double> out_minus_ssd_hit_z;
@@ -4868,6 +4882,20 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("proj_lg_hit_min_t_diff",           &out_proj_lg_hit_min_t_diff);
   tree->Branch("proj_lg_hit_min_diff_t_mean",      &out_proj_lg_hit_min_diff_t_mean);
 
+  tree->Branch("minus_ssd_hit_cid",       &out_minus_ssd_hit_cid);
+  tree->Branch("minus_gtr100_hit_xcid",   &out_minus_gtr100_hit_xcid);
+  tree->Branch("minus_gtr100_hit_ycid",   &out_minus_gtr100_hit_ycid);
+  tree->Branch("minus_gtr200_hit_xcid",   &out_minus_gtr200_hit_xcid);
+  tree->Branch("minus_gtr200_hit_ycid",   &out_minus_gtr200_hit_ycid);
+  tree->Branch("minus_gtr300_hit_xcid",   &out_minus_gtr300_hit_xcid);
+  tree->Branch("minus_gtr300_hit_ycid",   &out_minus_gtr300_hit_ycid);
+  tree->Branch("plus_ssd_hit_cid",        &out_plus_ssd_hit_cid);
+  tree->Branch("plus_gtr100_hit_xcid",    &out_plus_gtr100_hit_xcid);
+  tree->Branch("plus_gtr100_hit_ycid",    &out_plus_gtr100_hit_ycid);
+  tree->Branch("plus_gtr200_hit_xcid",    &out_plus_gtr200_hit_xcid);
+  tree->Branch("plus_gtr200_hit_ycid",    &out_plus_gtr200_hit_ycid);
+  tree->Branch("plus_gtr300_hit_xcid",    &out_plus_gtr300_hit_xcid);
+  tree->Branch("plus_gtr300_hit_ycid",    &out_plus_gtr300_hit_ycid);
   tree->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
   tree->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);
   tree->Branch("minus_ssd_hit_z",         &out_minus_ssd_hit_z);
@@ -5377,6 +5405,20 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("proj_lg_hit_min_t_diff",           &out_proj_lg_hit_min_t_diff);
   tree->Branch("proj_lg_hit_min_diff_t_mean",      &out_proj_lg_hit_min_diff_t_mean);
 
+  tree->Branch("minus_ssd_hit_cid",       &out_minus_ssd_hit_cid);
+  tree->Branch("minus_gtr100_hit_xcid",   &out_minus_gtr100_hit_xcid);
+  tree->Branch("minus_gtr100_hit_ycid",   &out_minus_gtr100_hit_ycid);
+  tree->Branch("minus_gtr200_hit_xcid",   &out_minus_gtr200_hit_xcid);
+  tree->Branch("minus_gtr200_hit_ycid",   &out_minus_gtr200_hit_ycid);
+  tree->Branch("minus_gtr300_hit_xcid",   &out_minus_gtr300_hit_xcid);
+  tree->Branch("minus_gtr300_hit_ycid",   &out_minus_gtr300_hit_ycid);
+  tree->Branch("plus_ssd_hit_cid",        &out_plus_ssd_hit_cid);
+  tree->Branch("plus_gtr100_hit_xcid",    &out_plus_gtr100_hit_xcid);
+  tree->Branch("plus_gtr100_hit_ycid",    &out_plus_gtr100_hit_ycid);
+  tree->Branch("plus_gtr200_hit_xcid",    &out_plus_gtr200_hit_xcid);
+  tree->Branch("plus_gtr200_hit_ycid",    &out_plus_gtr200_hit_ycid);
+  tree->Branch("plus_gtr300_hit_xcid",    &out_plus_gtr300_hit_xcid);
+  tree->Branch("plus_gtr300_hit_ycid",    &out_plus_gtr300_hit_ycid);
   tree->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
   tree->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);
   tree->Branch("minus_ssd_hit_z",         &out_minus_ssd_hit_z);
