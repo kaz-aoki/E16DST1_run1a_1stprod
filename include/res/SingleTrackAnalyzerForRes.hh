@@ -1118,12 +1118,15 @@ public :
    virtual Int_t    CutOfTrackByMorino(Long64_t entry, Int_t elem);
    virtual Int_t    CutOfTrackForEvsPwCluster(Long64_t entry, Int_t elem, E16ANA_HBDDeadChannel* hbddch, double& trk_lx, double& trk_ly, int& ytype);
    virtual Int_t    CutOfTrackForResidualLG(Long64_t entry, Int_t elem, E16ANA_HBDDeadChannel* hbddch, double& trk_lx, double& trk_ly, int& ytype);
+
    virtual Int_t    CutOfTrackForResidualLG(Long64_t entry, Int_t elem, double& trk_lx, double& trk_ly, int& ytype);
+   virtual Int_t    ExLGDeadRegion(Long64_t entry, Int_t elem, double slope, double& trk_lx, double& trk_ly, int& ytype);
    virtual Int_t    CutOfTrackForResidualHBD(Long64_t entry, Int_t elem, double& trk_lx, double& trk_ly, double& trk_mom, double& trk_momx, double& trk_momy, double& trk_momz, float& trk_lg_time, float& trk_lg_adc, int& trk_lg_mod, int& trk_lg_ch);
    virtual Int_t    CutOfTrackForResidualHBD(Long64_t entry, Int_t elem, double& trk_lx, double& trk_ly, double& trk_mom, double& trk_momx, double& trk_momy, double& trk_momz);
    virtual Int_t    CutOfTrackForResidualHBD(Long64_t entry, Int_t elem, double& trk_lx, double& trk_ly);
    virtual Int_t    CutOfTrackForHBDADC(Long64_t entry, Int_t elem);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
+   virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double trk_momy, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
@@ -2735,6 +2738,83 @@ Int_t SingleTrackAnalyzerForRes::CutOfTrackForResidualLG(Long64_t entry, Int_t e
     ytype = 3;
     trk_lx = rk_fit_lg_a_x->at(elem);
     trk_ly = rk_fit_lg_a_y->at(elem);
+    return rk_fit_lg_a_mid->at(elem);
+  }
+  else{
+    return -3;
+  }
+
+}
+
+Int_t SingleTrackAnalyzerForRes::ExLGDeadRegion(Long64_t entry, Int_t elem, double slope, double& trk_lx, double& trk_ly, int& ytype)
+{
+
+  //  normal cut
+  double xregion[3] = {433.,372.,372.};//plane a, b, c
+  double yinner[3] = {6.5,  137.7,243.2};
+  double youter[3] = {160.7,281.0,388.7};
+
+  int deadchm[2]={107,107};
+  double deadchx[2]={-62,-248};
+  double deadchy[2]={-315,-83.2};
+
+  double rk_fit_lg_y[3];//plane a, b, c
+  rk_fit_lg_y[0] = slope * sqrt(rk_fit_lg_a_gx->at(elem)*rk_fit_lg_a_gx->at(elem)+rk_fit_lg_a_gz->at(elem)*rk_fit_lg_a_gz->at(elem));
+  rk_fit_lg_y[1] = slope * sqrt(rk_fit_lg_b_gx->at(elem)*rk_fit_lg_b_gx->at(elem)+rk_fit_lg_b_gz->at(elem)*rk_fit_lg_b_gz->at(elem));
+  rk_fit_lg_y[2] = slope * sqrt(rk_fit_lg_c_gx->at(elem)*rk_fit_lg_c_gx->at(elem)+rk_fit_lg_c_gz->at(elem)*rk_fit_lg_c_gz->at(elem));
+
+  if( CutOfTrack(entry,elem)<0 ){
+    return -1;
+  }
+  else if( rk_fit_lg_c_mid->at(elem)==deadchm[0] && fabs(rk_fit_lg_c_x->at(elem)-(deadchx[0]))<65 && fabs(rk_fit_lg_y[2]-(deadchy[0]))<80 ){
+    return -4;
+  }
+  else if( rk_fit_lg_a_mid->at(elem)==deadchm[1] && fabs(rk_fit_lg_a_x->at(elem)-(deadchx[1]))<65 && fabs(rk_fit_lg_y[0]-(deadchy[1]))<80 ){
+    return -4;
+  }
+  else if(fabs(rk_fit_lg_a_x->at(elem))>xregion[0]){
+    return -2;
+  }
+  else if(fabs(rk_fit_lg_b_x->at(elem))>xregion[1]){
+    return -2;
+  }
+  else if(fabs(rk_fit_lg_c_x->at(elem))>xregion[2]){
+    return -2;
+  }
+  else if( rk_fit_lg_y[2] > -youter[2] && rk_fit_lg_y[2] < -yinner[2] ){
+    ytype = 0;
+    trk_lx = rk_fit_lg_c_x->at(elem);
+    trk_ly = rk_fit_lg_y[2];
+    return rk_fit_lg_c_mid->at(elem);
+  }
+  else if( rk_fit_lg_y[2] > yinner[2] && rk_fit_lg_y[2] < youter[2] ){
+    ytype = 5;
+    trk_lx = rk_fit_lg_c_x->at(elem);
+    trk_ly = rk_fit_lg_y[2];
+    return rk_fit_lg_c_mid->at(elem);
+  }
+  else if( rk_fit_lg_y[1] > -youter[1] && rk_fit_lg_y[1] < -yinner[1] ){
+    ytype = 1;
+    trk_lx = rk_fit_lg_b_x->at(elem);
+    trk_ly = rk_fit_lg_y[1];
+    return rk_fit_lg_b_mid->at(elem);
+  }
+  else if( rk_fit_lg_y[1] > yinner[1] && rk_fit_lg_y[1] < youter[1] ){
+    ytype = 4;
+    trk_lx = rk_fit_lg_b_x->at(elem);
+    trk_ly = rk_fit_lg_y[1];
+    return rk_fit_lg_b_mid->at(elem);
+  }
+  else if( rk_fit_lg_y[0] > -youter[0] && rk_fit_lg_y[0] < -yinner[0] ){
+    ytype = 2;
+    trk_lx = rk_fit_lg_a_x->at(elem);
+    trk_ly = rk_fit_lg_y[0];
+    return rk_fit_lg_a_mid->at(elem);
+  }
+  else if( rk_fit_lg_y[0] > yinner[0] && rk_fit_lg_y[0] < youter[0] ){
+    ytype = 3;
+    trk_lx = rk_fit_lg_a_x->at(elem);
+    trk_ly = rk_fit_lg_y[0];
     return rk_fit_lg_a_mid->at(elem);
   }
   else{

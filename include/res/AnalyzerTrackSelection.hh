@@ -30,8 +30,10 @@ private :
    double track_select_sigma = 2.;
    double hbd_voriginx[4]={0.};
    double hbd_voriginy[4]={0.};
-   double hbd_vsigmax[4]={25.,25.,25.,25.};
-   double hbd_vsigmay[4]={25.,25.,25.,25.};
+   // double hbd_vsigmax[4]={25.,25.,25.,25.};
+   // double hbd_vsigmay[4]={25.,25.,25.,25.};
+   double hbd_vsigmax[4]={35.,35.,35.,35.};//220429
+   double hbd_vsigmay[4]={35.,35.,35.,35.};//220429
 
 public :
    struct hitset{

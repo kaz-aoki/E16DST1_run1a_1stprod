@@ -2159,16 +2159,19 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    // int searchy = 50;//lghit integral
    int mixevent = 50;
    double lgthr[4] = {50.,60.,70.,80.};
-   double lgresthr = lgthr[3];
+   // double lgresthr = lgthr[3];
+   double lgresthr = lgthr[0];//220429
    double lgcon[4] = {240.,250.,260.,270.};
-   double hbdthr = 7.;
+   double hbdthr = 4.;//220429
    const int ndet=5;
    char det[ndet][20] = {"HBD","LGHit","LGCluster","LGHit_woHBDhit","LGCluster_woHBDhit"};
    int roughbin[ndet] = {200,50,50,50,200};//bin;
    // int roughbin[ndet] = {200,400,400,400,400};//bin
    int halfwidth[ndet] = {50,100,100,100,100};
-   int hw_intx[ndet] = {25,80,80,80,80};
-   int hw_inty[ndet] = {25,100,100,100,100};
+   // int hw_intx[ndet] = {25,80,80,80,80};
+   // int hw_inty[ndet] = {25,100,100,100,100};
+   int hw_intx[ndet] = {35,80,80,80,80};//220429
+   int hw_inty[ndet] = {35,100,100,100,100};//220429
    int ex_2d[ndet] = {50,200,200,200,200};
    double fitregion[ndet] = {30,100,100,100,100};
    int adcbinw[ndet] = {40,200,200,200,200};
@@ -2178,7 +2181,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    int tbin[ndet] = {600,200,200,200,200};
    double ssdoffset = 51.;
    // double ssdregion = 11.;
-   double ssdregion = 6.;
+   // double ssdregion = 6.;
+   double ssdregion = 30.;//220429
    
    TH1F *hnt[5];
    TH1F *hn[5][ndet];
@@ -2859,7 +2863,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      cesubp[j]->Divide(2,2);
      for(int i=0;i<4;i++){
        gStyle->SetOptStat(1111);
-       cedivp[j]->cd(i+1)->SetLogy();
+       // cedivp[j]->cd(i+1)->SetLogy();
+       cedivp[j]->cd(i+1);
        int norma = hedivp[(i+3)%5][j]->Integral(hedivp[(i+3)%5][j]->FindBin(0),hedivp[(i+3)%5][j]->FindBin(200));
        int normb = hedivpd[(i+3)%5][j]->Integral(hedivpd[(i+3)%5][j]->FindBin(0),hedivpd[(i+3)%5][j]->FindBin(200));
        hedivp[(i+3)%5][j]->Draw("hist");

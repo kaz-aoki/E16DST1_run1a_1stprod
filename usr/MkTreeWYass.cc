@@ -61,6 +61,8 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("./root/calib220216/run03031*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/1e10etc220331/run0307*.root");
       in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03029*.root");
+      in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03030*.root");
+      in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03031*.root");
     }
   }
   else if(argc==8){
