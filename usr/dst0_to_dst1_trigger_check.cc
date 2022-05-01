@@ -145,6 +145,7 @@ int main(int argc, char* argv[]) {
     cerr << "cannot open mock data file" << endl;
     return -1;
   }
+  auto data_merger = E16ANA_MakeDummyDST1();
 #endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
@@ -157,6 +158,7 @@ int main(int argc, char* argv[]) {
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
+    record.Clear();
     if (event_end != -1 && n_physics_event > event_end) {
       break;
     }
@@ -204,41 +206,39 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
-      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
-      record.SSD().AddHitAndClusterIds();
-      record.SSD().UpdatePtrs();
-      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
-      record.GTR().AddHitAndClusterIds();
-      record.GTR().UpdatePtrs();
-      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
-      record.HBD().AddHitAndClusterIds();
-      record.HBD().UpdatePtrs();
-#ifndef WO_LG_FIT
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
-#else
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
-#endif
-      record.LG().AddHitAndClusterIds();
-      record.LG().UpdatePtrs();
-      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-      record.Trigger().AddHitAndClusterIDs();
-      record.Trigger().UpdatePtrs();
-//cout << event0->EventID() << endl;
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
-
-// HBD clustering w/o timing selection begin
-      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());
-      record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
-      record_for_another_hbd_cluster.HBD().UpdatePtrs();
-      check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
-// HBD clustering w/o timing selection end
+//      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+//      record.SSD().AddHitAndClusterIds();
+//      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
+//      record.GTR().AddHitAndClusterIds();
+//      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
+//      record.HBD().AddHitAndClusterIds();
+//#ifndef WO_LG_FIT
+//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
+//#else
+//      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
+//#endif
+//      record.LG().AddHitAndClusterIds();
+//      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+//      record.Trigger().AddHitAndClusterIDs();
+//// HBD clustering w/o timing selection begin
+//      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());
+//      record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
+//      record_for_another_hbd_cluster.HBD().UpdatePtrs();
+//      check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
+//// HBD clustering w/o timing selection end
 #ifdef TRACK_EFF_CHECK
       if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
         cerr << "mock data finished at " << n_physics_event << " events" << endl;
         break;
       }
-      E16ANA_MakeDummyDST1::MergeMockToRealData(mock_data.Track(), &record);
+      data_merger.MergeMockToRealData(mock_data.Track(), &record);
 #endif // TRACK_EFF_CHECK
+      record.SSD().UpdatePtrs();
+      record.GTR().UpdatePtrs();
+      record.HBD().UpdatePtrs();
+      record.LG().UpdatePtrs();
+      record.Trigger().UpdatePtrs();
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 

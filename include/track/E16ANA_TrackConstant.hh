@@ -15,7 +15,12 @@ enum {
   kLG0 = 5,
   kLG1 = 6,
   kLG2 = 7,
+#ifndef TRACK_EFF_CHECK
   kNumDetectorLayers = 8
+#else
+  kLGVD = 8,
+  kNumDetectorLayers = 9
+#endif
 };
 
 const std::array<std::string, kNumDetectorLayers> kDetectorName = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG c-type", "LG b-type", "LG a-type"};

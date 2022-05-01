@@ -575,6 +575,14 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_fit_lg_a_gx",  &rk_fit_lg_a_gx);
     tree->Branch("rk_fit_lg_a_gy",  &rk_fit_lg_a_gy);
     tree->Branch("rk_fit_lg_a_gz",  &rk_fit_lg_a_gz);
+#ifdef TRACK_EFF_CHECK
+    tree->Branch("rk_fit_lgvd_mid", &rk_fit_lgvd_mid);
+    tree->Branch("rk_fit_lgvd_x",   &rk_fit_lgvd_x);
+    tree->Branch("rk_fit_lgvd_y",   &rk_fit_lgvd_y);
+    tree->Branch("rk_fit_lgvd_gx",  &rk_fit_lgvd_gx);
+    tree->Branch("rk_fit_lgvd_gy",  &rk_fit_lgvd_gy);
+    tree->Branch("rk_fit_lgvd_gz",  &rk_fit_lgvd_gz);
+#endif // TRACK_EFF_CHECK
     tree->Branch("rk_res_init_pos_gx", &rk_res_init_pos_gx);
     tree->Branch("rk_res_init_pos_gy", &rk_res_init_pos_gy);
     tree->Branch("rk_res_init_pos_gz", &rk_res_init_pos_gz);
@@ -912,7 +920,8 @@ class E16ANA_TrackCheckFile {
     ssd_hit_adc.resize(n_ssd_hits);
     for (int i = 0; i < n_ssd_hits; ++i) {
       auto& hit = record.SSD().Hit(i);
-      ssd_hit_id[i] = i;
+//      ssd_hit_id[i] = i;
+      ssd_hit_id[i] = hit.HitId();
       ssd_hit_mid[i] = hit.ModuleId();
       ssd_hit_cid[i] = hit.ChannelId();
       ssd_hit_x[i] = hit.LocalX();
@@ -1110,7 +1119,8 @@ class E16ANA_TrackCheckFile {
     ssd_cluster_size.resize(n_ssd_clusters);
     for (int i = 0; i < n_ssd_clusters; ++i) {
       auto& clst = record.SSD().Cluster(i);
-      ssd_cluster_id[i] = i;
+//      ssd_cluster_id[i] = i;
+      ssd_cluster_id[i] = clst.ClusterId();
       ssd_cluster_mid[i] = clst.ModuleId();
       ssd_cluster_x[i] = clst.LocalX();
       auto gpos = clst.GlobalPos(geometry);
@@ -1394,7 +1404,11 @@ class E16ANA_TrackCheckFile {
       lg_hit_adc[i]       = hit.FitPeak();
       lg_hit_t[i]         = hit.FitTiming();
       lg_hit_wofit_adc[i] = hit.PeakHeight();
+#ifndef TRACK_EFF_CHECK
       lg_hit_wofit_t[i]   = hit.GetCalibTiming(lgbasic);
+#else
+      lg_hit_wofit_t[i]   = -9999.;
+#endif // TRACK_EFF_CHECK
       lg_hit_npeaks[i]    = hit.Npeaks();
       lg_hit_fflag[i]     = hit.FitFlag();
     }
@@ -2035,6 +2049,14 @@ class E16ANA_TrackCheckFile {
     rk_fit_lg_a_gx.resize(n_cands);
     rk_fit_lg_a_gy.resize(n_cands);
     rk_fit_lg_a_gz.resize(n_cands);
+#ifdef TRACK_EFF_CHECK
+    rk_fit_lgvd_mid.resize(n_cands);
+    rk_fit_lgvd_x.resize(n_cands);
+    rk_fit_lgvd_y.resize(n_cands);
+    rk_fit_lgvd_gx.resize(n_cands);
+    rk_fit_lgvd_gy.resize(n_cands);
+    rk_fit_lgvd_gz.resize(n_cands);
+#endif
     rk_res_init_pos_gx.resize(n_cands);
     rk_res_init_pos_gy.resize(n_cands);
     rk_res_init_pos_gz.resize(n_cands);
@@ -2487,6 +2509,16 @@ class E16ANA_TrackCheckFile {
       rk_fit_lg_a_gx[i] = lgafit_gpos.X();
       rk_fit_lg_a_gy[i] = lgafit_gpos.Y();
       rk_fit_lg_a_gz[i] = lgafit_gpos.Z();
+#ifdef TRACK_EFF_CHECK
+      rk_fit_lgvd_mid[i] = fits[8].module_id;
+      auto& lgvdfit_lpos = fits[8].local_pos;
+      rk_fit_lgvd_x[i] = lgvdfit_lpos.X();
+      rk_fit_lgvd_y[i] = lgvdfit_lpos.Y();
+      auto& lgvdfit_gpos = fits[8].global_pos;
+      rk_fit_lgvd_gx[i] = lgvdfit_gpos.X();
+      rk_fit_lgvd_gy[i] = lgvdfit_gpos.Y();
+      rk_fit_lgvd_gz[i] = lgvdfit_gpos.Z();
+#endif
       auto proj_tgt0 = cand.PosAtTarget(0);
       rk_proj_tgt0_gx[i] = proj_tgt0.X();
       rk_proj_tgt0_gy[i] = proj_tgt0.Y();
@@ -3497,6 +3529,14 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_fit_lg_a_gx;
   std::vector<double> rk_fit_lg_a_gy;
   std::vector<double> rk_fit_lg_a_gz;
+#ifdef TRACK_EFF_CHECK
+  std::vector<int> rk_fit_lgvd_mid;
+  std::vector<double> rk_fit_lgvd_x;
+  std::vector<double> rk_fit_lgvd_y;
+  std::vector<double> rk_fit_lgvd_gx;
+  std::vector<double> rk_fit_lgvd_gy;
+  std::vector<double> rk_fit_lgvd_gz;
+#endif
   std::vector<double> rk_res_init_pos_gx;
   std::vector<double> rk_res_init_pos_gy;
   std::vector<double> rk_res_init_pos_gz;

@@ -452,7 +452,7 @@ class E16ANA_TrackCandidates {
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
         is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true),
         record(_record) {
-  track_candidates.clear();
+    track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
   void SetIsUseLayer(int n, bool _is_used) { is_used_layer[n] = _is_used; }
@@ -632,7 +632,8 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  static bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
+//  static bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
+  bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
   static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
