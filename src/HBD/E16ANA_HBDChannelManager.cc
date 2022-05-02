@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstring>
 #include <string>
+#include <string.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -161,6 +162,91 @@ int E16ANA_HBDChannelManager::GetAPVPadID(const int module_id, const int hbd_pad
   delete ip;
   
   return apv_pad_id;
+}
+
+void E16ANA_HBDChannelManager::GetTriggerTileIDWithThresholdFile(const char *mid_gemid, const int asdid, int &mid, int &tileid)
+{
+  mid = -1;
+  tileid = -1;
+  int gemid = -1;
+  if(std::strcmp(mid_gemid, "R1_1")==0){  mid = 104; gemid = 11;}
+  if(std::strcmp(mid_gemid, "R1_2")==0){  mid = 104; gemid = 10;}
+  if(std::strcmp(mid_gemid, "R1_3")==0){  mid = 104; gemid =  1;}
+  if(std::strcmp(mid_gemid, "R1_4")==0){  mid = 104; gemid =  0;}
+  if(std::strcmp(mid_gemid, "R2_1")==0){  mid = 103; gemid = 11;}
+  if(std::strcmp(mid_gemid, "R2_2")==0){  mid = 103; gemid = 10;}
+  if(std::strcmp(mid_gemid, "R2_3")==0){  mid = 103; gemid =  1;}
+  if(std::strcmp(mid_gemid, "R2_4")==0){  mid = 103; gemid =  0;}
+  if(std::strcmp(mid_gemid, "R3_1")==0){  mid = 102; gemid = 11;}
+  if(std::strcmp(mid_gemid, "R3_2")==0){  mid = 102; gemid = 10;}
+  if(std::strcmp(mid_gemid, "R3_3")==0){  mid = 102; gemid =  1;}
+  if(std::strcmp(mid_gemid, "R3_4")==0){  mid = 102; gemid =  0;}
+  if(std::strcmp(mid_gemid, "R4_1")==0){  mid = 101; gemid = 11;}
+  if(std::strcmp(mid_gemid, "R4_2")==0){  mid = 101; gemid = 10;}
+  if(std::strcmp(mid_gemid, "R4_3")==0){  mid = 101; gemid =  1;}
+  if(std::strcmp(mid_gemid, "R4_4")==0){  mid = 101; gemid =  0;}
+  
+  if(std::strcmp(mid_gemid, "L1_1")==0){  mid = 106; gemid = 10;}
+  if(std::strcmp(mid_gemid, "L1_2")==0){  mid = 106; gemid = 11;}
+  if(std::strcmp(mid_gemid, "L1_3")==0){  mid = 106; gemid =  0;}
+  if(std::strcmp(mid_gemid, "L1_4")==0){  mid = 106; gemid =  1;}
+  if(std::strcmp(mid_gemid, "L2_1")==0){  mid = 107; gemid = 10;}
+  if(std::strcmp(mid_gemid, "L2_2")==0){  mid = 107; gemid = 11;}
+  if(std::strcmp(mid_gemid, "L2_3")==0){  mid = 107; gemid =  0;}
+  if(std::strcmp(mid_gemid, "L2_4")==0){  mid = 107; gemid =  1;}
+  if(std::strcmp(mid_gemid, "L3_1")==0){  mid = 108; gemid = 10;}
+  if(std::strcmp(mid_gemid, "L3_2")==0){  mid = 108; gemid = 11;}
+  if(std::strcmp(mid_gemid, "L3_3")==0){  mid = 108; gemid =  0;}
+  if(std::strcmp(mid_gemid, "L3_4")==0){  mid = 108; gemid =  1;}
+  if(std::strcmp(mid_gemid, "L4_1")==0){  mid = 109; gemid = 10;}
+  if(std::strcmp(mid_gemid, "L4_2")==0){  mid = 109; gemid = 11;}
+  if(std::strcmp(mid_gemid, "L4_3")==0){  mid = 109; gemid =  0;}
+  if(std::strcmp(mid_gemid, "L4_4")==0){  mid = 109; gemid =  1;}
+  
+  if(gemid == 0){
+    if(asdid == 1) tileid = 20;
+    if(asdid == 2) tileid = 10;
+    if(asdid == 3) tileid =  0;
+    if(asdid == 4) tileid = 21;
+    if(asdid == 5) tileid = 11;
+    if(asdid == 6) tileid =  1;
+    if(asdid == 7) tileid =  2;
+    if(asdid == 8) tileid = 12;
+    if(asdid == 9) tileid = 22;
+  }
+  if(gemid == 1){
+    if(asdid == 1) tileid = 23;
+    if(asdid == 2) tileid = 13;
+    if(asdid == 3) tileid =  3;
+    if(asdid == 4) tileid = 24;
+    if(asdid == 5) tileid = 14;
+    if(asdid == 6) tileid =  4;
+    if(asdid == 7) tileid =  5;
+    if(asdid == 8) tileid = 15;
+    if(asdid == 9) tileid = 25;
+  }
+  if(gemid == 10){
+    if(asdid == 1) tileid = 32;
+    if(asdid == 2) tileid = 42;
+    if(asdid == 3) tileid = 52;
+    if(asdid == 4) tileid = 31;
+    if(asdid == 5) tileid = 41;
+    if(asdid == 6) tileid = 51;
+    if(asdid == 7) tileid = 50;
+    if(asdid == 8) tileid = 40;
+    if(asdid == 9) tileid = 30;
+  }
+  if(gemid == 11){
+    if(asdid == 1) tileid = 35;
+    if(asdid == 2) tileid = 45;
+    if(asdid == 3) tileid = 55;
+    if(asdid == 4) tileid = 34;
+    if(asdid == 5) tileid = 44;
+    if(asdid == 6) tileid = 54;
+    if(asdid == 7) tileid = 53;
+    if(asdid == 8) tileid = 43;
+    if(asdid == 9) tileid = 33;
+  }
 }
 
 bool E16ANA_HBDChannelManager::GetNeighboringPadID(const int hbd_pad_id, std::vector<int> &neighboring_id)

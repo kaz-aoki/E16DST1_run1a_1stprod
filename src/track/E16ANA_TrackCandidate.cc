@@ -145,6 +145,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 //  single_track->SetInitialVertex(init_pos, kInitPosError);
   single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), kInitPosError);
 //  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), TVector3(0., 0., 0.)); // for Ks
+//  single_track->SetInitialVertex(TVector3(0., 0., 0.), kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
@@ -164,22 +165,17 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
       double sumx =0;
       int nhit = c.NumCls();
       for(int j=0;j<nhit;j++){
-	double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleA[lid]);//106
-	sumx  += c.CPos(j)  - (tthe*lz);
+        double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleA[lid]);//106
+        sumx  += c.CPos(j)  - (tthe*lz);
       }
       double intc  = sumx/nhit;
       double ltdc2 = intc+tthe*centtdc*drift_v*cos(kGTRLorentzAngleA[lid])+kGTRLorentzAngle[lid];
       TVector3 lc(ltdc2,c.LocalPos().Y(),c.LocalPos().Z());
       cluster_pairs[l].SetT(geometry,l,c.ModuleID(), lc);
       auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
-      
-
       //printf("l:%d,  nhit:%d,  the1:%f, the2:%f,  x1:%f,  x2:%f, time:%f  \n",l,nhit,xclst->TanTheta(),tthe,c.LocalPos().X(),ltdc2,xclst->Timing());
-
-
     }
   }
-
 
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
@@ -439,7 +435,7 @@ void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTracki
   return;
 }
 
-bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
+bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[cluster_set->target_id];
   
@@ -458,7 +454,6 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   std::array<double, kNumRoughFitDegree[0]> zx;
   std::array<double, kNumRoughFitDegree[0]> coef;
   CalcQuadCurve(lotated_pos, &zz, &zx, &coef);
-  cluster_set->charge = coef[2] > 0 ? 1 : -1;
 
 //  CalcTargetZ();
   double grad = -1. * (rot_sin / rot_cos);
@@ -496,7 +491,8 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
     chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
   }
 
-  if (chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
+  if (chi2_cand < prev_chi2 && chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
+    cluster_set->charge = coef[2] > 0 ? 1 : -1;
     cluster_set->xy = tgt_x_cand;
     cluster_set->chi_square = chi2_cand;
     for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
@@ -635,14 +631,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   }
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPosT(*geometry);
-//                  bool is_cand = false;
+                  bool is_cand = false;
+                  double chi2 = 10000000.;
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
-                    cluster_set->target_id= tgt_index;
-                    if (IsXTrackCandidate(cluster_set)) {
-//                      is_cand = true;
-//                      break;
-                      cluster_sets[0].emplace_back(*cluster_set);
+                    cluster_set->target_id = tgt_index;
+                    if (IsXTrackCandidate(chi2, cluster_set)) {
+                      is_cand = true;
+                      chi2 = cluster_set->chi_square;
                     }
+                  }
+                  if (is_cand) {
+                    cluster_sets[0].emplace_back(*cluster_set);
                   }
 //                  cluster_set->target_id= 1;
 //                  if (IsXTrackCandidate(cluster_set)) {
