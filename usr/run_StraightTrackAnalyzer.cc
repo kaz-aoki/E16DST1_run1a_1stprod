@@ -325,6 +325,7 @@ int main(int argc, char* argv[]) {
  		std::cout << "GEM Status : module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->GEMDeadArea300()->IsYOK(m, ch) << std::endl;
 	}
   }
+  std::cout << "x status : " << gtr_status->IsXOK(m, l, ch) << std::endl;
   
   int n_event = 0;
   int n_physics_event = 0;
