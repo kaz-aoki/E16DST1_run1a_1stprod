@@ -441,6 +441,14 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_selected", &n_selected, "n_selected/I");
     tree->Branch("n_pairs", &n_pairs, "n_pairs/I");
     tree->Branch("n_refit_pairs", &n_refit_pairs, "n_refit_pairs/I");
+#ifdef TRACK_EFF_CHECK
+    tree->Branch("x_search_reject_point", &x_search_reject_point, "x_search_reject_point/i");
+    tree->Branch("x_fit_reject_point",    &x_fit_reject_point,    "x_fit_reject_point/i");
+    tree->Branch("y_reject_point",        &y_reject_point,        "y_reject_point/i");
+    tree->Branch("xy_reject_point",       &xy_reject_point,       "xy_reject_point/i");
+    tree->Branch("reject_point",          &reject_point,          "reject_point/i");
+    tree->Branch("sim_track_detected",    &sim_track_detected,    "sim_track_detected/O");
+#endif // TRACK_EFF_CHECK
     tree->Branch("track_id", &track_id);
     tree->Branch("has_e_hbd_cluster", &has_e_hbd_cluster);
     tree->Branch("has_e_lg_hit", &has_e_lg_hit);
@@ -1915,6 +1923,14 @@ class E16ANA_TrackCheckFile {
 //    n_pairs = cands.NumSelectedTrackCandidatePairs();
     n_pairs = cands.NumTrackCandidatePairs();
     n_refit_pairs = 0;
+#ifdef TRACK_EFF_CHECK
+    x_search_reject_point = cands.XSearchRejectPoint();
+    x_fit_reject_point    = cands.XFitRejectPoint();
+    y_reject_point        = cands.YRejectPoint();
+    xy_reject_point       = cands.XYRejectPoint();
+    reject_point          = cands.RejectPoint();
+    sim_track_detected    = cands.SimTrackDetected();
+#endif // TRACK_EFF_CHECK
     track_id.resize(n_cands);
     has_e_hbd_cluster.resize(n_cands);
     has_e_lg_hit.resize(n_cands);
@@ -3395,6 +3411,14 @@ class E16ANA_TrackCheckFile {
   int n_selected;
   int n_pairs;
   int n_refit_pairs;
+#ifdef TRACK_EFF_CHECK
+  uint32_t x_search_reject_point;
+  uint32_t x_fit_reject_point;
+  uint32_t y_reject_point;
+  uint32_t xy_reject_point;
+  uint32_t reject_point;
+  bool     sim_track_detected;
+#endif // TRACK_EFF_CHECK
   std::vector<int> track_id;
   std::vector<bool> has_e_hbd_cluster;
   std::vector<bool> has_e_lg_hit;

@@ -109,28 +109,36 @@ target_link_libraries(E16ANA
 )
 
 #_______________________________________________________________________________
+file(GLOB E16ANA_SSD_SRCS src/SSD/*)
+file(GLOB E16ANA_GTR_SRCS src/GTR/*)
+file(GLOB E16ANA_HBD_SRCS src/HBD/*)
+
 add_library(E16DST_DST1
-  src/SSD/E16ANA_SSDAnalyzer.cc
-  src/SSD/E16ANA_SSDStripAnalyzer.cc
-  src/SSD/E16DST_DST1SSDAnalyzerMaker.cxx
-  src/GTR/E16ANA_GTRAnalyzer2.cc
-  src/GTR/E16ANA_GTRPedestal.cc
-  src/GTR/E16ANA_GTRStripAnalyzer.cc
-  src/GTR/E16ANA_GTRAnalyzerMaker.cc
-  src/GTR/GTRCheckHist.cc
-#  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
-#  src/GTR_ozawa/E16ANA_GTRPedestal.cc
-#  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
-#  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
-#  src/GTR_ozawa/GTRCheckHist.cc
-  src/HBD/E16ANA_HBDChannelManager.cc
-  src/HBD/E16ANA_HBDDeadChannel.cc
-  src/HBD/E16ANA_HBDClusterAnalysis.cc
-  src/HBD/E16ANA_HBDCut.cc
-  src/HBD/E16ANA_HBDCalibration.cc
-  src/HBD/E16ANA_HBDGeometry.cc
-  src/HBD/E16ANA_HBDTH2Hex.cc
-  src/HBD/E16ANA_WaveformFitterCRRC.cc
+#  src/SSD/E16ANA_SSDAnalyzer.cc
+#  src/SSD/E16ANA_SSDStripAnalyzer.cc
+#  src/SSD/E16DST_DST1SSDAnalyzerMaker.cxx
+#  src/GTR/E16ANA_GTRAnalyzer2.cc
+#  src/GTR/E16ANA_GTRPedestal.cc
+#  src/GTR/E16ANA_GTRStripAnalyzer.cc
+#  src/GTR/E16ANA_GTRAnalyzerMaker.cc
+#  src/GTR/E16ANA_GTRStatus.cc
+#  src/GTR/GTRCheckHist.cc
+##  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
+##  src/GTR_ozawa/E16ANA_GTRPedestal.cc
+##  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
+##  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
+##  src/GTR_ozawa/GTRCheckHist.cc
+#  src/HBD/E16ANA_HBDChannelManager.cc
+#  src/HBD/E16ANA_HBDDeadChannel.cc
+#  src/HBD/E16ANA_HBDClusterAnalysis.cc
+#  src/HBD/E16ANA_HBDCut.cc
+#  src/HBD/E16ANA_HBDCalibration.cc
+#  src/HBD/E16ANA_HBDGeometry.cc
+#  src/HBD/E16ANA_HBDTH2Hex.cc
+#  src/HBD/E16ANA_WaveformFitterCRRC.cc
+  ${E16ANA_SSD_SRCS}
+  ${E16ANA_GTR_SRCS}
+  ${E16ANA_HBD_SRCS}
   src/res/AnalyzerResidualHBD.cc
   src/res/AnalyzerTrackSelection.cc
   src/res/SingleTrackAnalyzerForRes.cc

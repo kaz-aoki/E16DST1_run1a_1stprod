@@ -23,6 +23,62 @@ enum {
 #endif
 };
 
+#ifdef TRACK_EFF_CHECK
+enum { // x search
+  kRej100xADC,
+  kRej100xSize,
+  kRej200xADC,
+  kRej200xSize,
+  kRej300xADC,
+  kRej300xSize,
+  kRejXFit,
+  kNumXSearchRejectPoints
+};
+enum { // x fit
+  kRejTgt0Curve,
+  kRejTgt1Curve,
+  kRejTgt2Curve,
+  kRejTgt0XChi2,
+  kRejTgt1XChi2,
+  kRejTgt2XChi2,
+  kRejTgt0XCoef0,
+  kRejTgt1XCoef0,
+  kRejTgt2XCoef0,
+  kRejTgt0XCoef2,
+  kRejTgt1XCoef2,
+  kRejTgt2XCoef2,
+};
+enum { // y search & fit
+  kRej300yADC,
+  kRej200yADC,
+  kRej100yADC,
+  kRejYSubtract,
+  kRejYChi2,
+  kRejYCoef0,
+  kNumYSearchRejectPoints
+};
+enum { // x - y match
+  kRej100YYb,
+  kRej100XYModule,
+  kRej200XYModule,
+  kRej300XYModule,
+  kRej100XYTime,
+  kRej200XYTime,
+  kRej300XYTime,
+  kRej100XYADC,
+  kRej200XYADC,
+  kRej300XYADC,
+  kNumXYMatchRejectPoints
+};
+enum { // total
+  kRejXCand,
+  kRejYCand,
+  kTotalRej100YYb,
+  kRejXYMatch,
+  kNumRejectPoints
+};
+#endif // TRACK_EFF_CHECK
+
 const std::array<std::string, kNumDetectorLayers> kDetectorName = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG c-type", "LG b-type", "LG a-type"};
 
 constexpr int kNumTrackingLayers = 4;

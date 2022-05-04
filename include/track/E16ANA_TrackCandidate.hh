@@ -1,8 +1,6 @@
 #ifndef E16ANA_TRACKCANDIDATE_HH
 #define E16ANA_TRACKCANDIDATE_HH
 
-//#define NO_BIAS_TRACKING
-
 #include <array>
 #include <iostream>
 #include <vector>
@@ -44,18 +42,6 @@ class E16ANA_TrackClusterPair {
 //    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
     global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
-#ifdef NO_BIAS_TRACKING
-  void SetOneAxis(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _global_pos, E16DST_DST1Cluster* cluster) { // GTR, for track eff. estimation
-    set_flag = 1;
-    layer_order = _layer_order;
-    module_id = _module_id;
-    clusters[0] = cluster;
-    clusters[1] = cluster;
-    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(cluster)->LocalPosT().X(), dynamic_cast<E16DST_DST1GTRCluster*>(cluster)->LocalPosT().Y(), 0.}; // z = 0?
-//    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
-    global_pos = {_global_pos.X(), _global_pos.Y(), _global_pos.Z()};
-  }
-#endif // NO_BIAS_TRACKING
   void Clear() {
     set_flag = 0;
     layer_order = E16DST_DST1Constant::kInvalidValue;
@@ -521,6 +507,21 @@ class E16ANA_TrackCandidates {
     std::cout << "Number of selected track candidates : " << NumSelectedTrackCandidates() << std::endl;
   }
   void PrintParam();
+#ifdef TRACK_EFF_CHECK
+  uint32_t XSearchRejectPoint() { return x_search_reject_point; }
+  uint32_t XFitRejectPoint() { return x_fit_reject_point; }
+  uint32_t YRejectPoint() { return y_reject_point; }
+  uint32_t XYRejectPoint() { return xy_reject_point; }
+  uint32_t RejectPoint() { return reject_point; }
+  bool     SimTrackDetected() { return sim_track_detected; }
+  uint32_t Pow2(int n) {
+    int val = 1;
+    for (int i = 0; i < n; ++i) {
+      val * 2;
+    }
+    return val;
+  }
+#endif // TRACK_EFF_CHECK
  private:
   struct OneAxisClusterSet {
     int target_id; // only x
@@ -632,9 +633,8 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-//  static bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
   bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
-  static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
+  bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
 //    if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
@@ -643,9 +643,6 @@ class E16ANA_TrackCandidates {
 //    return false;
 //  }
   void SearchTrackCandidates();
-#ifdef NO_BIAS_TRACKING
-  void FillAllTrackCandidatesSeparateXY();
-#endif // NO_BIAS_TRACKING
   void Fit();
   void SearchHBDAndLGHits();
   void SelectTracks();
@@ -674,6 +671,16 @@ class E16ANA_TrackCandidates {
   std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
+#ifdef TRACK_EFF_CHECK
+  std::array<bool, 4> is_sim_xcluster;
+  std::array<bool, 3> is_sim_ycluster;
+  uint32_t x_search_reject_point;
+  uint32_t x_fit_reject_point;
+  uint32_t y_reject_point;
+  uint32_t xy_reject_point;
+  uint32_t reject_point;
+  bool     sim_track_detected;
+#endif
 };
 
 #endif // E16ANA_TRACKCANDIDATE_HH
