@@ -515,9 +515,9 @@ class E16ANA_TrackCandidates {
   uint32_t RejectPoint() { return reject_point; }
   bool     SimTrackDetected() { return sim_track_detected; }
   uint32_t Pow2(int n) {
-    int val = 1;
+    uint32_t val = 1;
     for (int i = 0; i < n; ++i) {
-      val * 2;
+      val *= 2;
     }
     return val;
   }
@@ -672,6 +672,8 @@ class E16ANA_TrackCandidates {
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
 #ifdef TRACK_EFF_CHECK
+  std::array<bool, 4> is_xchecked;
+  std::array<bool, 3> is_ychecked;
   std::array<bool, 4> is_sim_xcluster;
   std::array<bool, 3> is_sim_ycluster;
   uint32_t x_search_reject_point;
