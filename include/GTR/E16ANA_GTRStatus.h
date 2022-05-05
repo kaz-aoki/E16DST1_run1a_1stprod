@@ -28,6 +28,7 @@ public:
 	E16ANA_GTR100GEMDeadArea* GEMDeadArea100(){return gem_dead_100;}
 	E16ANA_GTR200GEMDeadArea* GEMDeadArea200(){return gem_dead_200;}
 	E16ANA_GTR300GEMDeadArea* GEMDeadArea300(){return gem_dead_300;}
+//	E16ANA_GTRAPVDeadChannel* APVDeadChannel(){return apv_dead;}
 	void Init();
 
 private:
@@ -36,6 +37,7 @@ private:
     E16ANA_GTR100GEMDeadArea *gem_dead_100;
     E16ANA_GTR200GEMDeadArea *gem_dead_200;
     E16ANA_GTR300GEMDeadArea *gem_dead_300;
+//	E16ANA_GTRAPVDeadChannel *apv_dead;
 };	
 
 
@@ -128,6 +130,7 @@ public:
 	bool ReadDeadChannelData(const int runID);
 private:
 };
+
 
 
 

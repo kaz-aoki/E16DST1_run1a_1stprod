@@ -23,6 +23,7 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16ANA_GTRStatus.h"
+#include "E16ANA_GTRChannelManager.h"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -325,7 +326,10 @@ int main(int argc, char* argv[]) {
  		std::cout << "GEM Status : module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->GEMDeadArea300()->IsYOK(m, ch) << std::endl;
 	}
   }
-  std::cout << "x status : " << gtr_status->IsXOK(m, l, ch) << std::endl;
+  std::cout << "Is X GEM OK  == " << gtr_status->GEMDeadArea300()->IsXOK(106, 13.2) << std::endl;//GEM  
+  int apvch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12);//(gtr_size, local_pos[mm])
+  std::cout << "apv ch convorotor returns   == " << E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12) << std::endl;//
+  
   
   int n_event = 0;
   int n_physics_event = 0;

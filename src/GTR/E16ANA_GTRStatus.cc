@@ -237,7 +237,7 @@ bool E16ANA_GTRGEMDeadArea::IsXOK(const int module_id, const double lx_mm){
 	bool flag = false;	
 	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
 		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
-        int gem_ch = E16ANA_GTRChannelManager::ConvLocalXToGEMch(n_gem_strip_y, lx_mm);
+        int gem_ch = E16ANA_GTRChannelManager::ConvLocalXToGEMch(n_gem_strip_x, lx_mm);
   		if(status_gem_x[k_module][gem_ch] == ok_flag) {
 			flag = true;
 		}

@@ -57,6 +57,7 @@ int E16ANA_GTRChannelManager::ConvLocalXToGEMch(const int n_gem_strip_x, const d
 		double conv_lx = lx_mm + 150;
 		gem_ch  = conv_lx/25; 
 	}
+	return gem_ch;
 }
 
 int E16ANA_GTRChannelManager::ConvLocalYToGEMch(const int n_gem_strip_y, const double ly_mm){
@@ -72,4 +73,25 @@ int E16ANA_GTRChannelManager::ConvLocalYToGEMch(const int n_gem_strip_y, const d
 		double conv_ly = ly_mm + 150;
 		gem_ch  = conv_ly/12.5; 
 	}
+	return gem_ch;
 }
+
+int E16ANA_GTRChannelManager::ConvLocalXToAPVch(const int gtr_size, const double lx_mm){//
+	int n_strips_100 = E16DST_DST1Constant::nstrips_100x;
+	int n_strips_200 = E16DST_DST1Constant::nstrips_200x;
+	int n_strips_300 = E16DST_DST1Constant::nstrips_300x;
+	int n_strips = -1;
+	if(gtr_size == 0) {n_strips = n_strips_100;}
+	else if(gtr_size == 1) {n_strips = n_strips_200;}
+	else if(gtr_size == 2) {n_strips = n_strips_200;}
+	else {return -1;}
+    int apv_ch = -1;
+    if(signbit(lx_mm)){//MINUS
+		apv_ch = (n_strips/2 - 1) + (int)lx_mm/E16DST_DST1Constant::gtr_strip_pitch_x;
+	}
+    else {
+		apv_ch = n_strips/2  + (int)lx_mm/E16DST_DST1Constant::gtr_strip_pitch_x;
+	}
+	return apv_ch;
+}
+
