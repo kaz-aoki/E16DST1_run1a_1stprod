@@ -47,11 +47,12 @@ const int n_gtr_layers = 3;
 const int n_gtr_modules = 8;
 const int n_gtr_asd_chs = 24;
 constexpr int gtr_module_ids[n_gtr_modules] = {101, 102, 103, 104, 106, 107, 108, 109};
-//const int nstrips_100y = 72;
-////const int nstrips_200x = 576;
-//const int nstrips_200y = 144;
-//const int nstrips_300x = 864;
-//const int nstrips_300y = 216;
+const int nstrips_100x = 288;
+const int nstrips_100y = 72;
+const int nstrips_200x = 576;
+const int nstrips_200y = 144;
+const int nstrips_300x = 864;
+const int nstrips_300y = 216;
 
 // data
 const int kReserve = 1024;

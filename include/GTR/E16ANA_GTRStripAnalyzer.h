@@ -228,6 +228,7 @@ public:
       bad_pedestal_sigma_threshold = th;
    }
 
+   bool IsBadStrip(int strip_id);
 protected:
    // Analysis parameters
    double drift_velocity;
@@ -326,7 +327,6 @@ protected:
    std::vector<std::vector<double>> clustered_x;
    std::vector<std::vector<double>> clustered_z;
    std::vector<std::vector<double>> clustered_peak;
-   bool IsBadStrip(int strip_id);
 
    void CalcCenterOfGravity(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit);
    void CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);

@@ -39,14 +39,15 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-	include/res
+#	include/res
 	include/trigger
 	include/straight_track
 	include/track
+#	include/tmp
   E16DST
   E16ANA_Basic/include
 
-  include/tmp
+#  include/tmp
 )
 
 link_directories(
@@ -127,10 +128,12 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
   src/HBD/E16ANA_WaveformFitterCRRC.cc
-  src/res/AnalyzerResidualHBD.cc
-  src/res/AnalyzerTrackSelection.cc
-  src/res/SingleTrackAnalyzerForRes.cc
+#  src/res/AnalyzerResidualHBD.cc
+#  src/res/AnalyzerTrackSelection.cc
+#  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
+#  src/tmp/SingleTrackAnalyzerForRes.cc
+#  src/tmp/AnalyzerResidualHBD.cc
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
@@ -150,15 +153,15 @@ target_link_libraries(E16DST_DST1
 )
 
 #_______________________________________________________________________________
-add_library(E16ANA_Track
+#add_library(E16ANA_Track
 #  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
-  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
-)
-
-target_link_libraries(E16ANA_Track
-  E16DST_DST1
-)
-
+#  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
+#)
+#
+#target_link_libraries(E16ANA_Track
+#  E16DST_DST1
+#)
+#
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
@@ -263,27 +266,27 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
-
-target_link_libraries(DrawForTrackSelection
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+#add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+#
+#target_link_libraries(DrawForTrackSelection
+#	E16DST_DST1
+##E16ANA_CalibDB
+#	E16ANA_Basic
+#	E16DST
+#	E16ANA
+#)
 
 #_______________________________________________________________________________
-add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
-
-target_link_libraries(MkTreeForTrackSelection
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
-
+#add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+#
+#target_link_libraries(MkTreeForTrackSelection
+#	E16DST_DST1
+##E16ANA_CalibDB
+#	E16ANA_Basic
+#	E16DST
+#	E16ANA
+#)
+#
 #_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
@@ -303,26 +306,49 @@ target_link_libraries(dst0_to_dst1_trigger_check
 )
 
 #_______________________________________________________________________________
+add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
+
+target_link_libraries(gtr_deadch_check
+	E16DST
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+#_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
-
 #_______________________________________________________________________________
-add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
-
-target_link_libraries(tmp_track_analyzer_one_file
-	E16ANA_Track
-)
-
+#add_executable(run_HBDLGResidualCalc usr/run_HBDLGResidualCalc.cc)
+#
+#target_link_libraries(run_HBDLGResidualCalc
+#	E16DST
+#	E16DST_DST1
+#)
+##_______________________________________________________________________________
 #_______________________________________________________________________________
-add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
+#add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+#
+#target_link_libraries(run_GTRResidualCalc
+#	E16DST
+#	E16DST_DST1
+#)
+##_______________________________________________________________________________
 
-target_link_libraries(tmp_track_analyzer
-	E16ANA_Track
-)
+#add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
+#
+#target_link_libraries(tmp_track_analyzer_one_file
+#	E16ANA_Track
+#)
+#
+##_______________________________________________________________________________
+#add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
+#
+#target_link_libraries(tmp_track_analyzer
+#	E16ANA_Track
+#)
 
 #_______________________________________________________________________________
 #add_executable(tmp_gtr usr/tmp_gtr.cc)
