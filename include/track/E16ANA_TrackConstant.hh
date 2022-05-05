@@ -71,7 +71,8 @@ enum { // x - y match
   kNumXYMatchRejectPoints
 };
 enum { // total
-  kRejXCand,
+  kRejXSearch,
+  kTotalRejXFit,
   kRejYCand,
   kTotalRej100YYb,
   kRejXYMatch,
