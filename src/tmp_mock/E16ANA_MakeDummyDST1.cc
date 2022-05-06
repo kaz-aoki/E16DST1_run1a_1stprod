@@ -9,6 +9,23 @@
 using namespace std;
 using namespace E16ANA_MakeDummyDST1Parameter;
 
+bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos) {
+  if (lid == kGTR100) {
+    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
+      return true;
+    }
+  } else if (kGTR200) {
+    if (gtr200_dead_area->IsXOK(mid, pos.X()) && gtr200_dead_area->IsYOK(mid, pos.Y())) {
+      return true;
+    }
+  } else if (kGTR300) {
+    if (gtr300_dead_area->IsXOK(mid, pos.X()) && gtr300_dead_area->IsYOK(mid, pos.Y())) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
   if (mid == 103) {
     if (pos.X() > 0 && pos.Y() < 0) {
