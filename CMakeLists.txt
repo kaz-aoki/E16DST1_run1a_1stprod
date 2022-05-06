@@ -28,6 +28,7 @@ endif()
 #find_package(Geant4 REQUIRED)
 
 add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DSIM_DST1_GEOM_CHECK)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}

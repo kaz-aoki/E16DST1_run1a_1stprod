@@ -722,10 +722,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   bool is_cand = false;
                   double chi2 = 10000000.;
                   int best_tgt = -1;
-//for (int i = 0; i < 4; ++i) {
-//  auto& pos = cluster_set->global_poss[i];
-//  cout << i << " x: " << pos.X() << ", z: " << pos.Z() << endl;
-//}
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id = tgt_index;
                     if (IsXTrackCandidate(chi2, cluster_set)) {
@@ -791,10 +787,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               }
               cluster_set->gtr_clusters[0] = gtr100y_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100y_cluster->GlobalPosT(*geometry);
-//for (int i = 1; i < 4; ++i) {
-//  auto& pos = cluster_set->global_poss[i];
-//  cout << i << " y: " << pos.Y() << endl;
-//}
               if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               }
@@ -805,10 +797,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               }
               cluster_set->gtr_clusters[0] = gtr100yb_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100yb_cluster->GlobalPosT(*geometry);
-//for (int i = 1; i < 4; ++i) {
-//  auto& pos = cluster_set->global_poss[i];
-//  cout << i << " y: " << pos.Y() << endl;
-//}
               if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               }
@@ -1000,10 +988,12 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   bool is_cand = false;
                   double chi2 = 10000000.;
                   int best_tgt = -1;
-//for (int i = 0; i < 4; ++i) {
-//  auto& pos = cluster_set->global_poss[i];
-//  cout << i << " x: " << pos.X() << ", z: " << pos.Z() << endl;
-//}
+#ifdef SIM_DST1_GEOM_CHECK
+for (int i = 0; i < 4; ++i) {
+  auto& pos = cluster_set->global_poss[i];
+  cout << i << " x: " << pos.X() << ", z: " << pos.Z() << endl;
+}
+#endif // SIM_DST1_GEOM_CHECK
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id = tgt_index;
                     if (IsXTrackCandidate(chi2, cluster_set)) {
@@ -1086,10 +1076,12 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               }
               cluster_set->gtr_clusters[0] = gtr100y_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100y_cluster->GlobalPosT(*geometry);
-//for (int i = 1; i < 4; ++i) {
-//  auto& pos = cluster_set->global_poss[i];
-//  cout << i << " y: " << pos.Y() << endl;
-//}
+#ifdef SIM_DST1_GEOM_CHECK
+for (int i = 1; i < 4; ++i) {
+  auto& pos = cluster_set->global_poss[i];
+  cout << i << " y: " << pos.Y() << endl;
+}
+#endif // SIM_DST1_GEOM_CHECK
               if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               } else {
@@ -1108,10 +1100,12 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               }
               cluster_set->gtr_clusters[0] = gtr100yb_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100yb_cluster->GlobalPosT(*geometry);
-//for (int i = 1; i < 4; ++i) {
-//  auto& pos = cluster_set->global_poss[i];
-//  cout << i << " y: " << pos.Y() << endl;
-//}
+#ifdef SIM_DST1_GEOM_CHECK
+for (int i = 1; i < 4; ++i) {
+  auto& pos = cluster_set->global_poss[i];
+  cout << i << " y: " << pos.Y() << endl;
+}
+#endif // SIM_DST1_GEOM_CHECK
               if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               } else {

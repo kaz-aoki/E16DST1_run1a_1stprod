@@ -278,6 +278,14 @@ void E16ANA_TrackAnalyzerFromTree::ClearOutBranch() {
   out_plus_proj_trg_lg_hit_x.clear();
   out_plus_proj_trg_lg_hit_y.clear();
   out_plus_proj_trg_lg_hit_z.clear();
+  out_minus_proj_hbd_cluster_id.clear();
+  out_minus_proj_lg_hit_id.clear();
+  out_minus_proj_lg_cluster_id.clear();
+  out_minus_proj_trg_lg_hit_id.clear();
+  out_plus_proj_hbd_cluster_id.clear();
+  out_plus_proj_lg_hit_id.clear();
+  out_plus_proj_lg_cluster_id.clear();
+  out_plus_proj_trg_lg_hit_id.clear();
   out_proj_lg_hit_min_t_diff.clear();
   out_proj_lg_hit_min_diff_t_mean.clear();
 
@@ -892,9 +900,20 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
 //  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
 //    return false;
 //  }
+  // max mom.
+  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
+  if (mom.Mag() > st_param::kMaxMom) {
+    return false;
+  }
+  // max SSD ADC
+  if (rk_hit_ssd_adc->at(track_index) > st_param::kMaxSSDADC) {
+    return false;
+  }
+  // HBD and LG association
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
+  // time correration between SSD and LG
   if (!HasTimeCorrelationInTrack(track_index, *lg_ts)) {
     return false;
   }
@@ -1538,6 +1557,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   std::vector<int> hbd_clst_indexs[2];
   HasHBDClusters(out_minus_hbd_mid.back(), tmp_lposs[0][0], &hbd_clst_indexs[0]);
   out_minus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[0].size());
+  out_minus_proj_hbd_cluster_id.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_y.emplace_back(std::vector<double>());
   out_minus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
@@ -1551,6 +1571,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
   HasHBDClusters(out_plus_hbd_mid.back(), tmp_lposs[1][0], &hbd_clst_indexs[1]);
   out_plus_proj_n_hbd_clusters.emplace_back(hbd_clst_indexs[1].size());
+  out_plus_proj_hbd_cluster_id.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_x.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_y.emplace_back(std::vector<double>());
   out_plus_proj_hbd_cluster_res.emplace_back(std::vector<double>());
@@ -1564,6 +1585,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_proj_hbd_cluster_cprob.emplace_back(std::vector<double>());
   bool tmp_has_e = false;
   for (const auto& index : hbd_clst_indexs[0]) {
+    auto& id    = out_minus_proj_hbd_cluster_id.back();
     auto& x     = out_minus_proj_hbd_cluster_x.back();
     auto& y     = out_minus_proj_hbd_cluster_y.back();
     auto& res   = out_minus_proj_hbd_cluster_res.back();
@@ -1575,6 +1597,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& size  = out_minus_proj_hbd_cluster_size.back();
     auto& eprob = out_minus_proj_hbd_cluster_eprob.back();
     auto& cprob = out_minus_proj_hbd_cluster_cprob.back();
+    id.emplace_back(hbd_cluster_id->at(index));
     auto tmp_x = hbd_cluster_x->at(index);
     auto tmp_y = hbd_cluster_y->at(index);
     x.emplace_back(tmp_x);
@@ -1597,6 +1620,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_has_hbd_cluster_e.emplace_back(tmp_has_e);
   tmp_has_e = false;
   for (const auto& index : hbd_clst_indexs[1]) {
+    auto& id    = out_plus_proj_hbd_cluster_id.back();
     auto& x     = out_plus_proj_hbd_cluster_x.back();
     auto& y     = out_plus_proj_hbd_cluster_y.back();
     auto& res   = out_plus_proj_hbd_cluster_res.back();
@@ -1608,6 +1632,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& size  = out_plus_proj_hbd_cluster_size.back();
     auto& eprob = out_plus_proj_hbd_cluster_eprob.back();
     auto& cprob = out_plus_proj_hbd_cluster_cprob.back();
+    id.emplace_back(hbd_cluster_id->at(index));
     auto tmp_x = hbd_cluster_x->at(index);
     auto tmp_y = hbd_cluster_y->at(index);
     x.emplace_back(tmp_x);
@@ -1649,6 +1674,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   HasTriggerLGHits(track_lg_mids[0], track_lg_xs[0], track_lg_ys[0], track_lg_valids[0], &trg_lg_hit_indexs[0]);
   HasTriggerLGHits(track_lg_mids[1], track_lg_xs[1], track_lg_ys[1], track_lg_valids[1], &trg_lg_hit_indexs[1]);
   out_minus_proj_n_lg_hits.emplace_back(lg_hit_indexs[0].size());
+  out_minus_proj_lg_hit_id.emplace_back(std::vector<double>());
   out_minus_proj_lg_hit_x.emplace_back(std::vector<double>());
   out_minus_proj_lg_hit_y.emplace_back(std::vector<double>());
   out_minus_proj_lg_hit_z.emplace_back(std::vector<double>());
@@ -1660,6 +1686,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_lg_hit_t.emplace_back(std::vector<double>());
   out_minus_proj_lg_hit_ise.emplace_back(std::vector<double>());
   out_plus_proj_n_lg_hits.emplace_back(lg_hit_indexs[1].size());
+  out_plus_proj_lg_hit_id.emplace_back(std::vector<double>());
   out_plus_proj_lg_hit_x.emplace_back(std::vector<double>());
   out_plus_proj_lg_hit_y.emplace_back(std::vector<double>());
   out_plus_proj_lg_hit_z.emplace_back(std::vector<double>());
@@ -1671,6 +1698,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_proj_lg_hit_t.emplace_back(std::vector<double>());
   out_plus_proj_lg_hit_ise.emplace_back(std::vector<double>());
   out_minus_proj_n_lg_clusters.emplace_back(lg_clst_indexs[0].size());
+  out_minus_proj_lg_cluster_id.emplace_back(std::vector<double>());
   out_minus_proj_lg_cluster_x.emplace_back(std::vector<double>());
   out_minus_proj_lg_cluster_y.emplace_back(std::vector<double>());
   out_minus_proj_lg_cluster_z.emplace_back(std::vector<double>());
@@ -1682,6 +1710,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_lg_cluster_t.emplace_back(std::vector<double>());
   out_minus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
   out_plus_proj_n_lg_clusters.emplace_back(lg_clst_indexs[1].size());
+  out_plus_proj_lg_cluster_id.emplace_back(std::vector<double>());
   out_plus_proj_lg_cluster_x.emplace_back(std::vector<double>());
   out_plus_proj_lg_cluster_y.emplace_back(std::vector<double>());
   out_plus_proj_lg_cluster_z.emplace_back(std::vector<double>());
@@ -1693,6 +1722,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_plus_proj_lg_cluster_t.emplace_back(std::vector<double>());
   out_plus_proj_lg_cluster_ise.emplace_back(std::vector<double>());
   out_minus_proj_n_trg_lg_hits.emplace_back(trg_lg_hit_indexs[0].size());
+  out_minus_proj_trg_lg_hit_id.emplace_back(std::vector<double>());
   out_minus_proj_trg_lg_hit_x.emplace_back(std::vector<double>());
   out_minus_proj_trg_lg_hit_y.emplace_back(std::vector<double>());
   out_minus_proj_trg_lg_hit_z.emplace_back(std::vector<double>());
@@ -1702,6 +1732,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_trg_lg_hit_res_y.emplace_back(std::vector<double>());
   out_minus_proj_trg_lg_hit_t.emplace_back(std::vector<double>());
   out_plus_proj_n_trg_lg_hits.emplace_back(trg_lg_hit_indexs[1].size());
+  out_plus_proj_trg_lg_hit_id.emplace_back(std::vector<double>());
   out_plus_proj_trg_lg_hit_x.emplace_back(std::vector<double>());
   out_plus_proj_trg_lg_hit_y.emplace_back(std::vector<double>());
   out_plus_proj_trg_lg_hit_z.emplace_back(std::vector<double>());
@@ -1714,6 +1745,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   tmp_has_e = false;
   bool tmp_has_good_t = false;
   for (const auto& index : lg_hit_indexs[0]) {
+    auto& id    = out_minus_proj_lg_hit_id.back();
     auto& x     = out_minus_proj_lg_hit_x.back();
     auto& y     = out_minus_proj_lg_hit_y.back();
     auto& z     = out_minus_proj_lg_hit_z.back();
@@ -1724,6 +1756,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& adc   = out_minus_proj_lg_hit_adc.back();
     auto& t     = out_minus_proj_lg_hit_t.back();
     auto& ise   = out_minus_proj_lg_hit_ise.back();
+    id.emplace_back(lg_hit_id->at(index));
     auto tmp_x     = lg_hit_x->at(index);
     auto tmp_y     = lg_hit_y->at(index);
     auto tmp_z     = lg_hit_z->at(index);
@@ -1763,6 +1796,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   tmp_has_e      = false;
   tmp_has_good_t = false;
   for (const auto& index : lg_hit_indexs[1]) {
+    auto& id    = out_plus_proj_lg_hit_id.back();
     auto& x     = out_plus_proj_lg_hit_x.back();
     auto& y     = out_plus_proj_lg_hit_y.back();
     auto& z     = out_plus_proj_lg_hit_z.back();
@@ -1773,6 +1807,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& adc   = out_plus_proj_lg_hit_adc.back();
     auto& t     = out_plus_proj_lg_hit_t.back();
     auto& ise   = out_plus_proj_lg_hit_ise.back();
+    id.emplace_back(lg_hit_id->at(index));
     auto tmp_x     = lg_hit_x->at(index);
     auto tmp_y     = lg_hit_y->at(index);
     auto tmp_z     = lg_hit_z->at(index);
@@ -1826,6 +1861,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   tmp_has_e      = false;
   tmp_has_good_t = false;
   for (const auto& index : lg_clst_indexs[0]) {
+    auto& id    = out_minus_proj_lg_cluster_id.back();
     auto& x     = out_minus_proj_lg_cluster_x.back();
     auto& y     = out_minus_proj_lg_cluster_y.back();
     auto& z     = out_minus_proj_lg_cluster_z.back();
@@ -1836,9 +1872,10 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& adc   = out_minus_proj_lg_cluster_adc.back();
     auto& t     = out_minus_proj_lg_cluster_t.back();
     auto& ise   = out_minus_proj_lg_cluster_ise.back();
-    auto tmp_x = lg_hit_x->at(index);
-    auto tmp_y = lg_hit_y->at(index);
-    auto tmp_z = lg_hit_z->at(index);
+    id.emplace_back(lg_cluster_id->at(index));
+    auto tmp_x = lg_cluster_x->at(index);
+    auto tmp_y = lg_cluster_y->at(index);
+    auto tmp_z = lg_cluster_z->at(index);
     int  tmp_type;
     for (tmp_type = 0; tmp_type < cmn_param::kNumLGTypes + 1; ++tmp_type) {
       if (fabs(tmp_z - cmn_param::kLGLocalZ[tmp_type]) < 0.1) {
@@ -1873,6 +1910,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   tmp_has_e      = false;
   tmp_has_good_t = false;
   for (const auto& index : lg_clst_indexs[1]) {
+    auto& id    = out_plus_proj_lg_cluster_id.back();
     auto& x     = out_plus_proj_lg_cluster_x.back();
     auto& y     = out_plus_proj_lg_cluster_y.back();
     auto& z     = out_plus_proj_lg_cluster_z.back();
@@ -1883,9 +1921,10 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& adc   = out_plus_proj_lg_cluster_adc.back();
     auto& t     = out_plus_proj_lg_cluster_t.back();
     auto& ise   = out_plus_proj_lg_cluster_ise.back();
-    auto tmp_x = lg_hit_x->at(index);
-    auto tmp_y = lg_hit_y->at(index);
-    auto tmp_z = lg_hit_z->at(index);
+    id.emplace_back(lg_cluster_id->at(index));
+    auto tmp_x = lg_cluster_x->at(index);
+    auto tmp_y = lg_cluster_y->at(index);
+    auto tmp_z = lg_cluster_z->at(index);
     int  tmp_type;
     for (tmp_type = 0; tmp_type < cmn_param::kNumLGTypes + 1; ++tmp_type) {
       if (fabs(tmp_z - cmn_param::kLGLocalZ[tmp_type]) < 0.1) {
@@ -1920,6 +1959,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
 
   tmp_has_good_t = false;
   for (const auto& index : trg_lg_hit_indexs[0]) {
+    auto& id    = out_minus_proj_trg_lg_hit_id.back();
     auto& x     = out_minus_proj_trg_lg_hit_x.back();
     auto& y     = out_minus_proj_trg_lg_hit_y.back();
     auto& z     = out_minus_proj_trg_lg_hit_z.back();
@@ -1928,6 +1968,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& res_x = out_minus_proj_trg_lg_hit_res_x.back();
     auto& res_y = out_minus_proj_trg_lg_hit_res_y.back();
     auto& t     = out_minus_proj_trg_lg_hit_t.back();
+    id.emplace_back(trg_lg_hit_id->at(index));
     auto tmp_x     = trg_lg_hit_x->at(index);
     auto tmp_y     = trg_lg_hit_y->at(index);
     auto tmp_z     = trg_lg_hit_z->at(index);
@@ -1960,6 +2001,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
   out_minus_proj_has_trg_lg_hit_good_t.emplace_back(tmp_has_good_t);
   tmp_has_good_t = false;
   for (const auto& index : trg_lg_hit_indexs[1]) {
+    auto& id    = out_plus_proj_trg_lg_hit_id.back();
     auto& x     = out_plus_proj_trg_lg_hit_x.back();
     auto& y     = out_plus_proj_trg_lg_hit_y.back();
     auto& z     = out_plus_proj_trg_lg_hit_z.back();
@@ -1968,6 +2010,7 @@ void E16ANA_TrackAnalyzerFromTree::UpdateFitResult(const int track_indexs_index_
     auto& res_x = out_plus_proj_trg_lg_hit_res_x.back();
     auto& res_y = out_plus_proj_trg_lg_hit_res_y.back();
     auto& t     = out_plus_proj_trg_lg_hit_t.back();
+    id.emplace_back(trg_lg_hit_id->at(index));
     auto tmp_x     = trg_lg_hit_x->at(index);
     auto tmp_y     = trg_lg_hit_y->at(index);
     auto tmp_z     = trg_lg_hit_z->at(index);

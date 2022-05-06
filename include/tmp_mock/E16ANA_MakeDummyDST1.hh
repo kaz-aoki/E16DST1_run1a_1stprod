@@ -19,7 +19,7 @@ class E16ANA_MakeDummyDST1 {
       : gtr100_dead_area(_gtr100_dead_area), gtr200_dead_area(_gtr200_dead_area), gtr300_dead_area(_gtr300_dead_area), hbd_dead_ch(_hbd_dead_ch), lg_dead_ch(_lg_dead_ch) {}
   ~E16ANA_MakeDummyDST1() {}
   bool IsSSDDeadRegion(int mid, const TVector3& pos);
-  bool IsGTRDeadRegion(int layer_id, int mid, const TVector3& pos);
+  bool IsGTRDeadRegion(int lid, int mid, const TVector3& pos);
   bool IsHBDDeadRegion(int mid, const TVector3& pos);
   bool IsLGDeadRegion(int mid, const TVector3& pos);
   bool IsDeadRegion(E16ANA_MockTrack& track);

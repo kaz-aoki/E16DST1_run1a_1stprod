@@ -35,7 +35,7 @@ constexpr double kLightSpeed = 299792458.;
 namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter {
 
 //constexpr double kChiSquareThreshold          = 20.;
-constexpr double kChiSquareThreshold          = 50.; // 220413
+constexpr double kChiSquareThreshold          = 150.; // 220413
 //constexpr double kLGADCThreshold              = 50.;
 constexpr double kSSDResidualThreshold        = 1.;
 constexpr double kGTR100xResidualThreshold    = 2.;
@@ -51,16 +51,23 @@ constexpr double kHBDSizeThreshold            = 1.5;
 //constexpr double kHBDResidualThreshold        = 50.;
 //constexpr double kLGHitXResidualThreshold     = 70.;
 //constexpr double kLGClusterXResidualThreshold = 80.;
-constexpr double kLGHitXResidualThreshold     = 70. * 2;
-constexpr double kLGClusterXResidualThreshold = 80. * 2;
+constexpr double kLGHitXResidualThreshold     = 100. * 2;
+constexpr double kLGClusterXResidualThreshold = 100. * 2;
 constexpr double kMinLGADC                    = 50.;
+constexpr double kMaxMom                      = 2.;
+constexpr double kMaxSSDADC                   = 600.;
 
-constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
-//constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};
-constexpr double kHBDXSigma[4] = {22.3 * 2, 23. * 2,  18.7 * 2, 15.8 * 2};
-constexpr double kHBDYMean[4]  = {-0.6, -0.9, -0.2, -0.1};
-//constexpr double kHBDYSigma[4] = {22.6, 18.4, 12.5, 10.6};
-constexpr double kHBDYSigma[4] = {22.6 * 2, 18.4 * 2, 12.5 * 2, 10.6 * 2};
+//constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
+////constexpr double kHBDXSigma[4] = {22.3, 23.,  18.7, 15.8};
+//constexpr double kHBDXSigma[4] = {22.3 * 2, 23. * 2,  18.7 * 2, 15.8 * 2};
+//constexpr double kHBDYMean[4]  = {-0.6, -0.9, -0.2, -0.1};
+////constexpr double kHBDYSigma[4] = {22.6, 18.4, 12.5, 10.6};
+//constexpr double kHBDYSigma[4] = {22.6 * 2, 18.4 * 2, 12.5 * 2, 10.6 * 2};
+constexpr double kHBDXMean[4]  = {-5.7, 2.2,  6.,  4.8};
+constexpr double kHBDYMean[4]  = {-1.6, 1.3, -1.1, 0.};
+constexpr double kHBDXSigma[4] = {25., 25., 25., 25.};
+constexpr double kHBDYSigma[4] = {25., 25., 25., 25.};
+
 constexpr double kTimeOffsetSSDAndLG = -55.;
 constexpr double kMaxTimeDiffSSDAndLG = 15.;
 
@@ -114,7 +121,7 @@ constexpr double   kChiSquareThreshold = 100.;
 //constexpr double   kSSDTime            = 43.5;
 //constexpr double   kSSDTimeWidth       =  7.5;
 //constexpr double   kSSDTimeDiff        = 5.;
-constexpr double   kSSDTimeDiff        = 20.; // 220414 rough cut
+constexpr double   kSSDTimeDiff        = 7.;
 constexpr double   kLGTimeDiff         = 10.;
 constexpr double   kLGTime             = 93.5;
 constexpr double   kLGTimeWidth        = 11.5;
