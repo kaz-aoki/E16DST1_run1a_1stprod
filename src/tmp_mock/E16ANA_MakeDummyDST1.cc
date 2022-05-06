@@ -1,3 +1,5 @@
+#ifdef TRACK_EFF_CHECK
+
 //#define WO_LAYER_EFF
 //#define GEOM_VER0
 
@@ -308,3 +310,5 @@ cout << "300 " << mock_gtr300.GX() << " " << mock_gtr300.GY() << " " << mock_gtr
 #endif //SIM_DST1_GEOM_CHECK
   return;
 }
+
+#endif // TRACK_EFF_CHECK
