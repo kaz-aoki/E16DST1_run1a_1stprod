@@ -1,6 +1,5 @@
-//#ifdef TRACK_EFF_CHECK
-
 //#define WO_LAYER_EFF
+//#define GEOM_VER0
 
 #include "E16ANA_MakeDummyDST1.hh"
 
@@ -8,6 +7,13 @@
 
 using namespace std;
 using namespace E16ANA_MakeDummyDST1Parameter;
+
+bool E16ANA_MakeDummyDST1::IsSSDDeadRegion(int mid, const TVector3& pos) {
+  if (mid == kSSDDeadModuleID && pos.X() > kSSDDeadX[0] && pos.X() < kSSDDeadX[1]) {
+    return true;
+  }
+  return false;
+}
 
 bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos) {
   if (lid == kGTR100) {
@@ -27,30 +33,31 @@ bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos
 }
 
 bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
-  if (mid == 103) {
-    if (pos.X() > 0 && pos.Y() < 0) {
-      return true;
-    }
-  } else if (mid == 104) {
-    if (pos.X() < 0 && pos.Y() > 0) {
-      return true;
-    }
-  } else if (mid == 106) {
-    if (pos.X() < 0 && pos.Y() < 0) {
-      return true;
-    }
-  } else if (mid == 107) {
-    if (pos.X() > 0 || pos.Y() > 0) {
-      return true;
-    }
-  } else {
-    return true;
-  }
-  return false;
+//  if (mid == 103) {
+//    if (pos.X() > 0 && pos.Y() < 0) {
+//      return true;
+//    }
+//  } else if (mid == 104) {
+//    if (pos.X() < 0 && pos.Y() > 0) {
+//      return true;
+//    }
+//  } else if (mid == 106) {
+//    if (pos.X() < 0 && pos.Y() < 0) {
+//      return true;
+//    }
+//  } else if (mid == 107) {
+//    if (pos.X() > 0 || pos.Y() > 0) {
+//      return true;
+//    }
+//  } else {
+//    return true;
+//  }
+//  return false;
+  double cog[2] = {pos.X(), pos.Y()};
+  return hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
 }
 
 bool E16ANA_MakeDummyDST1::IsDeadRegion(E16ANA_MockTrack& track) {
-#ifdef arokgp
   const auto& ssd_mid    = track.SSD().ModuleID();
   const auto& gtr100_mid = track.GTR1().ModuleID();
   const auto& gtr200_mid = track.GTR2().ModuleID();
@@ -79,19 +86,20 @@ bool E16ANA_MakeDummyDST1::IsDeadRegion(E16ANA_MockTrack& track) {
   if (IsHBDDeadRegion(hbd_mid, hbd_pos)) {
     return true;
   }
-  if (IsLGDeadRegion(lg_mid, lg_pos)) {
-    return true;
-  }
-#endif
+//  if (IsLGDeadRegion(lg_mid, lg_pos)) {
+//    return true;
+//  }
   return false;
 }
 
+#ifdef GEOM_VER0
 bool E16ANA_MakeDummyDST1::IsAType(int module_id) {
   if (module_id % 2 == 1) {
     return true;
   }
   return false;
 }
+#endif // GEOM_VER0
 
 array<double, 2> E16ANA_MakeDummyDST1::DistributeTiming(int detector_id, double t) {
 #ifndef WO_LAYER_EFF
@@ -157,22 +165,30 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   
   ssd.SetClusterId(kMockClusterID);
   ssd.SetModuleId(mock_ssd.ModuleID());
+#ifndef GEOM_VER0
+  ssd.SetCogPos(mock_ssd.X());
+#else
   if (IsAType(mock_ssd.ModuleID())) {
     ssd.SetCogPos(-1. * mock_ssd.X());
   } else {
     ssd.SetCogPos(mock_ssd.X());
   }
+#endif
   ssd.SetTimingFit(ssd_t[0]);
   
   gtr100x.SetClusterId(kMockClusterID + kGTR100x);
   gtr100x.SetLayerId(0);
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mock_gtr100.ModuleID());
+#ifndef GEOM_VER0
+  gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
+#else // GEOM_VER0
   if (IsAType(mock_gtr100.ModuleID())) {
     gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
   } else {
     gtr100x.SetTdcPos(-1. * mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
   }
+#endif // GEOM_VER0
   gtr100x.SetTiming(gtr100_t[0]);
   gtr100x.SetPeakSum(kGTRADC);
   gtr100x.SetNumHits(GTRClusterSize(kGTRx, mock_gtr100));
@@ -185,7 +201,11 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
     gtr100y.SetType(2);
   }
   gtr100y.SetModuleId(mock_gtr100.ModuleID());
+#ifndef GEOM_VER0
+  gtr100y.SetTdcPos(mock_gtr100.Y()); // xt?, xt2?
+#else
   gtr100y.SetTdcPos(-1. * mock_gtr100.Y()); // xt?, xt2?
+#endif
   gtr100y.SetTiming(gtr100_t[1]);
   gtr100y.SetPeakSum(kGTRADC);
   gtr100y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr100));
@@ -194,11 +214,15 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200x.SetLayerId(1);
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mock_gtr200.ModuleID());
+#ifndef GEOM_VER0
+  gtr200x.SetTdcPos(mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
+#else
   if (IsAType(mock_gtr200.ModuleID())) {
     gtr200x.SetTdcPos(-1. * mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
   } else {
     gtr200x.SetTdcPos(mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
   }
+#endif
   gtr200x.SetTiming(gtr200_t[0]);
   gtr200x.SetPeakSum(kGTRADC);
   gtr200x.SetNumHits(GTRClusterSize(kGTRx, mock_gtr200));
@@ -216,11 +240,15 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300x.SetLayerId(2);
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mock_gtr300.ModuleID());
+#ifndef GEOM_VER0
+  gtr300x.SetTdcPos(mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
+#else
   if (IsAType(mock_gtr300.ModuleID())) {
     gtr300x.SetTdcPos(-1. * mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
   } else {
     gtr300x.SetTdcPos(mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
   }
+#endif
   gtr300x.SetTiming(gtr300_t[0]);
   gtr300x.SetPeakSum(kGTRADC);
   gtr300x.SetNumHits(GTRClusterSize(kGTRx, mock_gtr300));
@@ -260,23 +288,23 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   record->GTR().PushBackCluster(gtr300y);
   record->HBD().PushBackCluster(hbd);
   record->LG().PushBackHit(lg);
-//cout << "mock pos" << endl;
-//cout << "module " << mock_ssd.ModuleID() << " " << mock_gtr100.ModuleID() << " " << mock_gtr200.ModuleID() << " " << mock_gtr300.ModuleID() << endl;
-//cout << "SSD " << mock_ssd.X()    << " " << mock_ssd.Y()    << " " << mock_ssd.Z()    << endl;
-//cout << "100 " << mock_gtr100.X() << " " << mock_gtr100.Y() << " " << mock_gtr100.Z() << endl;
-//cout << "200 " << mock_gtr200.X() << " " << mock_gtr200.Y() << " " << mock_gtr200.Z() << endl;
-//cout << "300 " << mock_gtr300.X() << " " << mock_gtr300.Y() << " " << mock_gtr300.Z() << endl;
-//cout << "DST1 pos" << endl;
-//cout << "SSD " << ssd.LocalPos().X()                                        << endl;
-//cout << "100 " << gtr100x.LocalPosT().X() << " " << gtr100y.LocalPosT().Y() << endl;
-//cout << "200 " << gtr200x.LocalPosT().X() << " " << gtr200y.LocalPosT().Y() << endl;
-//cout << "300 " << gtr300x.LocalPosT().X() << " " << gtr300y.LocalPosT().Y() << endl;
-//cout << "mock global pos" << endl;
-//cout << "SSD " << mock_ssd.GX()    << " " << mock_ssd.GY()    << " " << mock_ssd.GZ()    << endl;
-//cout << "100 " << mock_gtr100.GX() << " " << mock_gtr100.GY() << " " << mock_gtr100.GZ() << endl;
-//cout << "200 " << mock_gtr200.GX() << " " << mock_gtr200.GY() << " " << mock_gtr200.GZ() << endl;
-//cout << "300 " << mock_gtr300.GX() << " " << mock_gtr300.GY() << " " << mock_gtr300.GZ() << endl;
+#ifdef SIM_DST1_GEOM_CHECK
+cout << "mock pos" << endl;
+cout << "module " << mock_ssd.ModuleID() << " " << mock_gtr100.ModuleID() << " " << mock_gtr200.ModuleID() << " " << mock_gtr300.ModuleID() << endl;
+cout << "SSD " << mock_ssd.X()    << " " << mock_ssd.Y()    << " " << mock_ssd.Z()    << endl;
+cout << "100 " << mock_gtr100.X() << " " << mock_gtr100.Y() << " " << mock_gtr100.Z() << endl;
+cout << "200 " << mock_gtr200.X() << " " << mock_gtr200.Y() << " " << mock_gtr200.Z() << endl;
+cout << "300 " << mock_gtr300.X() << " " << mock_gtr300.Y() << " " << mock_gtr300.Z() << endl;
+cout << "DST1 pos" << endl;
+cout << "SSD " << ssd.LocalPos().X()                                        << endl;
+cout << "100 " << gtr100x.LocalPosT().X() << " " << gtr100y.LocalPosT().Y() << endl;
+cout << "200 " << gtr200x.LocalPosT().X() << " " << gtr200y.LocalPosT().Y() << endl;
+cout << "300 " << gtr300x.LocalPosT().X() << " " << gtr300y.LocalPosT().Y() << endl;
+cout << "mock global pos" << endl;
+cout << "SSD " << mock_ssd.GX()    << " " << mock_ssd.GY()    << " " << mock_ssd.GZ()    << endl;
+cout << "100 " << mock_gtr100.GX() << " " << mock_gtr100.GY() << " " << mock_gtr100.GZ() << endl;
+cout << "200 " << mock_gtr200.GX() << " " << mock_gtr200.GY() << " " << mock_gtr200.GZ() << endl;
+cout << "300 " << mock_gtr300.GX() << " " << mock_gtr300.GY() << " " << mock_gtr300.GZ() << endl;
+#endif //SIM_DST1_GEOM_CHECK
   return;
 }
-
-//#endif // TRACK_EFF_CHECK

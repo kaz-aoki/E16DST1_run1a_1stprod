@@ -7,7 +7,11 @@ enum {
   kSSD,
   kGTR
 };
-
+enum {
+  kGTR100,
+  kGTR200,
+  kGTR300
+};
 enum {
   kGTR100x,
   kGTR100y,
@@ -16,15 +20,17 @@ enum {
   kGTR300x,
   kGTR300y
 };
-
 enum {
   kGTRx,
   kGTRy,
   kNumGTRTypes
 };
 
+constexpr int    kSSDDeadModuleID = 108;
+constexpr double kSSDDeadX[2] = {-20.6, -10.28};
 constexpr double kGTRDriftLength = 3.;
 constexpr double kGTRStripPitch[kNumGTRTypes] = {0.35, 1.4};
+
 constexpr double kGTRDriftSigma = 0.265;
 constexpr int    kMockClusterID = 10000;
 constexpr double kGTRADC = 1500.;
