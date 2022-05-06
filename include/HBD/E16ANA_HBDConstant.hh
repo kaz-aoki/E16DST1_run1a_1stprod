@@ -12,16 +12,19 @@ namespace HBD_Board_Constant{
   constexpr double hex_pad_length = 10.0 + 0.5/std::sqrt(3.); // length of hex. pad (pad electrode of 10 mm + gap of 0.5/sqrt(3) mm)
   constexpr int n_pad_x = 40; // number of hex. pads along x-axis
   constexpr int n_pad_y = 34; // number of hex. pads alogn y-axis
+  constexpr double GEM_spacing_x = 305.7;
 }
 
 namespace HBD_Module_Constant{
   constexpr int module_ids[E16DST_Constant::NModules] = {101, 102, 103, 104, 106, 107, 108, 109};
   constexpr int rotated_module_ids[3] = {101, 102, 104}; // ask Kanno
   constexpr int normal_module_ids[5] = {103, 106, 107, 108, 109}; // ask Kanno
+  constexpr int n_modules = E16DST_Constant::NModules;
   constexpr int n_chips = 24;//number of apv25 chips per 2 modules
   constexpr int n_GEMs = 4;//number of GEM stacks per module
   constexpr int n_tiles = 36;//number of triggertiles per module
   constexpr int n_pads = 1400;//hbd pads per module
+  constexpr int n_tiles_x_in_GEM = 3;//number of tiles along x-axis in a GEM
 }
 
 namespace HBD_Circuit_Constant{

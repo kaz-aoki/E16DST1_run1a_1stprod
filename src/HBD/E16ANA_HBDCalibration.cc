@@ -14,6 +14,12 @@
 E16ANA_HBDCalibration::E16ANA_HBDCalibration()
 {
   hbd_dead = new E16ANA_HBDDeadChannel();
+  // hard coding //
+  trg_asd_offset_mV = 210.;//mV
+  trg_asd_noise_mV = 55.;//mV
+  trg_asd_mV_to_fc = 6.7/240.;// fc/mV
+  apv_fc_to_adc = 1040./20.;// adc/fc
+  // hard coding //
 }
 
 E16ANA_HBDCalibration::~E16ANA_HBDCalibration()
@@ -274,18 +280,28 @@ double E16ANA_HBDCalibration::GetTriggerTileThresholdmV(const int module_id, con
 double E16ANA_HBDCalibration::GetTriggerTileThreshold(const int module_id, const int tile_id)
 {
   double pe = -1.;
-  // hard coding //
-  double offset = 210.;//mV
-  double mV_to_fc = 6.7/240.;// fc/mV
-  double fc_to_adc = 1040./20.;// adc/fc
-  // hard coding //
   
   if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
     if(E16ANA_HBDChannelManager::IsValidTileID(tile_id)){
       int mid = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
       int tid = E16ANA_HBDChannelManager::ConvTIDE16ToK(tile_id);
       double gain = GetTriggerTileGain(module_id, tile_id);
-      pe = trg_threshold[mid][tid]*mV_to_fc*fc_to_adc*gain;
+      pe = (trg_threshold[mid][tid]-trg_asd_offset_mV)*trg_asd_mV_to_fc*apv_fc_to_adc*gain;
+    }
+  }
+  return pe;
+}
+
+double E16ANA_HBDCalibration::GetTriggerTileNoise(const int module_id, const int tile_id)
+{
+  double pe = -1.;
+  
+  if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
+    if(E16ANA_HBDChannelManager::IsValidTileID(tile_id)){
+      int mid = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
+      int tid = E16ANA_HBDChannelManager::ConvTIDE16ToK(tile_id);
+      double gain = GetTriggerTileGain(module_id, tile_id);
+      pe = trg_asd_noise_mV*trg_asd_mV_to_fc*apv_fc_to_adc*gain;
     }
   }
   return pe;
