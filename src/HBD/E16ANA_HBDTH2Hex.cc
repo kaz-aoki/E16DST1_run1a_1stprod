@@ -303,7 +303,7 @@ int E16ANA_HBDTH2Hex::FindBin(const double x, const double y)
   return pad; 
 }
 
-void E16ANA_HBDTH2Hex::DrawWLocalCoordinate(char *option)
+void E16ANA_HBDTH2Hex::DrawWLocalCoordinate(char *option=NULL)
 {
   this->Draw(option);
 

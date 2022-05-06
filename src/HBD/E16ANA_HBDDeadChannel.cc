@@ -1,4 +1,5 @@
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_HBDGeometry.hh"
 #include "E16ANA_HBDDeadChannel.hh"
 #include "E16ANA_HBDChannelManager.hh"
 
@@ -126,6 +127,13 @@ int E16ANA_HBDDeadChannel::Status(const int module_id, const int pad_id){
   }
 }
 
+int E16ANA_HBDDeadChannel::StatusWLocalCoordinate(const int module_id, const double *lpos)
+{
+  int pad_id = E16ANA_HBDGeometry::GetPadIDWLocalCoordinate(module_id, lpos);
+  int status = Status(module_id, pad_id);
+  return status;
+}
+
 void E16ANA_HBDDeadChannel::GetOKChannels(const int module_id, std::vector<int> &ok_chs){
   ok_chs.clear();
   if(E16ANA_HBDChannelManager::IsValidModuleID(module_id)){
@@ -224,3 +232,4 @@ void E16ANA_HBDDeadChannel::Init(){
   }
   
 }
+
