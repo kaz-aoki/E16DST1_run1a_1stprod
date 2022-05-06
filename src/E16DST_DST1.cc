@@ -170,6 +170,11 @@ float E16DST_DST1LGHit::GetEnergyDeposit(E16ANA_LGBasic& lgbasic){
 }
 
 TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
+#ifdef TRACK_EFF_CHECK
+  if (hit_id >= E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
+    return local_pos;
+  }
+#endif // TRACK_EFF_CHECK
   TVector3 gpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   TVector3 lpos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int mod = ModuleId2020To2013(module_id);
@@ -181,6 +186,11 @@ TVector3 E16DST_DST1LGHit::LocalPos(E16ANA_GeometryV2& geometry) {
 TVector3 E16DST_DST1LGHit::GlobalPos(E16ANA_GeometryV2& geometry) {
   TVector3 pos = {E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue};
   int mod = ModuleId2020To2013(module_id);
+#ifdef TRACK_EFF_CHECK
+  if (hit_id >= E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
+    return geometry.LGVD(mod)->GetGPos(local_pos);
+  }
+#endif // TRACK_EFF_CHECK
   pos = geometry.LG( mod, channel_id)->GetDetectorCenter();
   return pos;
 }

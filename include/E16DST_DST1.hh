@@ -23,6 +23,10 @@
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDCut.hh"
 #include "E16ANA_WaveformFitter.hh"
+
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_MakeDummyDST1Parameter.hh"
+#endif // TRACK_EFF_CHECK
 //#pragma pack(2)
 
 class E16DST_DST1Hit {
@@ -103,7 +107,18 @@ class E16DST_DST1Cluster {
 //  int                           NumHits() { return hit_orders.NumberOfHits(); }
 //  E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
 //  int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
+#ifndef TRACK_EFF_CHECK
   int                           NumHits() { return hit_orders.size(); }
+#else
+  void                          SetNumHits(int _n_hits) { n_hits = _n_hits; }
+  int                           NumHits() {
+    if (cluster_id < E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
+      return hit_orders.size();
+    } else {
+      return n_hits;
+    }
+  }
+#endif // TRACK_EFF_CHECK
   std::vector<int16_t>&         HitOrders() { return hit_orders; }
   int16_t                       HitOrder(int n) { return hit_orders[n]; }
   virtual TVector3              LocalPos() = 0;
@@ -123,6 +138,9 @@ class E16DST_DST1Cluster {
   float                        peak_sum;
 //  E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
   std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+#ifdef TRACK_EFF_CHECK
+  int n_hits;
+#endif // TRACK_EFF_CHECK
 };
 
 class E16DST_DST1SSDHit : public E16DST_DST1Hit {
@@ -487,7 +505,9 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetFitTiming(float _fittiming) { fittiming = _fittiming; }
   void SetFitWidth(float _fitwidth) { fitwidth = _fitwidth; }
   void SetFitChi2(float _fitchi2) { fitchi2 = _fitchi2; }
-  void SetHitId(int _hitid) { hitid = _hitid; } // temporary
+#ifdef TRACK_EFF_CHECK
+  void SetLocalPos(TVector3 _local_pos) { local_pos = _local_pos; }
+#endif // TRACK_EFF_CHECK
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
@@ -501,7 +521,6 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitTiming() { return fittiming; }
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
-  int HitId() { return hitid; } // temporary
   static float IsE(double _momentum, float _fitpeak);
   float IsE(double _momentum);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
@@ -524,7 +543,9 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float fittiming; // calibrated channel by channel
   float fitwidth;
   float fitchi2;
-  int hitid; // temporary
+#ifdef TRACK_EFF_CHECK
+  TVector3 local_pos;
+#endif // TRACK_EFF_CHECK
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {

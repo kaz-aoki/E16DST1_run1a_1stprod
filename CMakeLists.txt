@@ -27,11 +27,14 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
+add_definitions(-DTRACK_EFF_CHECK)
+
 include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 #  /opt/E16/include/Geant4 # evb
+  /ccj/u/E16/include
   /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
@@ -39,15 +42,14 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-#	include/res
+	include/res
 	include/trigger
 	include/straight_track
 	include/track
-#	include/tmp
   E16DST
   E16ANA_Basic/include
-
-#  include/tmp
+  include/tmp
+  include/tmp_mock
 )
 
 link_directories(
@@ -61,6 +63,8 @@ link_libraries(
 #	${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
   libG4clhep.so
+  libHepPDT.so
+  libHepPID.so
 	libz.so
 )
 
@@ -104,33 +108,39 @@ target_link_libraries(E16ANA
 )
 
 #_______________________________________________________________________________
+file(GLOB E16ANA_SSD_SRCS src/SSD/*)
+file(GLOB E16ANA_GTR_SRCS src/GTR/*)
+file(GLOB E16ANA_HBD_SRCS src/HBD/*)
+
 add_library(E16DST_DST1
-  src/SSD/E16ANA_SSDAnalyzer.cc
-  src/SSD/E16ANA_SSDStripAnalyzer.cc
-  src/SSD/E16DST_DST1SSDAnalyzerMaker.cxx
-  src/GTR/E16ANA_GTRAnalyzer2.cc
-  src/GTR/E16ANA_GTRPedestal.cc
-  src/GTR/E16ANA_GTRStripAnalyzer.cc
-  src/GTR/E16ANA_GTRChannelManager.cc
-  src/GTR/E16ANA_GTRStatus.cc
-  src/GTR/E16ANA_GTRAnalyzerMaker.cc
-  src/GTR/GTRCheckHist.cc
-#  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
-#  src/GTR_ozawa/E16ANA_GTRPedestal.cc
-#  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
-#  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
-#  src/GTR_ozawa/GTRCheckHist.cc
-  src/HBD/E16ANA_HBDChannelManager.cc
-  src/HBD/E16ANA_HBDDeadChannel.cc
-  src/HBD/E16ANA_HBDClusterAnalysis.cc
-  src/HBD/E16ANA_HBDCut.cc
-  src/HBD/E16ANA_HBDCalibration.cc
-  src/HBD/E16ANA_HBDGeometry.cc
-  src/HBD/E16ANA_HBDTH2Hex.cc
-  src/HBD/E16ANA_WaveformFitterCRRC.cc
-#  src/res/AnalyzerResidualHBD.cc
-#  src/res/AnalyzerTrackSelection.cc
-#  src/res/SingleTrackAnalyzerForRes.cc
+#  src/SSD/E16ANA_SSDAnalyzer.cc
+#  src/SSD/E16ANA_SSDStripAnalyzer.cc
+#  src/SSD/E16DST_DST1SSDAnalyzerMaker.cxx
+#  src/GTR/E16ANA_GTRAnalyzer2.cc
+#  src/GTR/E16ANA_GTRPedestal.cc
+#  src/GTR/E16ANA_GTRStripAnalyzer.cc
+#  src/GTR/E16ANA_GTRAnalyzerMaker.cc
+#  src/GTR/E16ANA_GTRStatus.cc
+#  src/GTR/GTRCheckHist.cc
+##  src/GTR_ozawa/E16ANA_GTRAnalyzer2.cc
+##  src/GTR_ozawa/E16ANA_GTRPedestal.cc
+##  src/GTR_ozawa/E16ANA_GTRStripAnalyzer.cc
+##  src/GTR_ozawa/E16DST_DST1GTRAnalyzerMaker.cxx
+##  src/GTR_ozawa/GTRCheckHist.cc
+#  src/HBD/E16ANA_HBDChannelManager.cc
+#  src/HBD/E16ANA_HBDDeadChannel.cc
+#  src/HBD/E16ANA_HBDClusterAnalysis.cc
+#  src/HBD/E16ANA_HBDCut.cc
+#  src/HBD/E16ANA_HBDCalibration.cc
+#  src/HBD/E16ANA_HBDGeometry.cc
+#  src/HBD/E16ANA_HBDTH2Hex.cc
+#  src/HBD/E16ANA_WaveformFitterCRRC.cc
+  ${E16ANA_SSD_SRCS}
+  ${E16ANA_GTR_SRCS}
+  ${E16ANA_HBD_SRCS}
+  src/res/AnalyzerResidualHBD.cc
+  src/res/AnalyzerTrackSelection.cc
+  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
@@ -153,15 +163,24 @@ target_link_libraries(E16DST_DST1
 )
 
 #_______________________________________________________________________________
-#add_library(E16ANA_Track
-#  src/tmp/E16ANA_TrackAnalyzerFromTree.cc
-#  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
-#)
-#
-#target_link_libraries(E16ANA_Track
-#  E16DST_DST1
-#)
-#
+add_library(E16ANA_Track
+  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
+)
+
+target_link_libraries(E16ANA_Track
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_library(E16ANA_MockTrack
+  src/tmp_mock/E16ANA_MakeDummyDST1.cc
+  src/tmp_mock/mockdataIOtestSimple.cc
+)
+
+target_link_libraries(E16ANA_MockTrack
+  E16DST_DST1
+)
+
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
@@ -266,27 +285,27 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-#add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
-#
-#target_link_libraries(DrawForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
+add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+
+target_link_libraries(DrawForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
-#add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
-#
-#target_link_libraries(MkTreeForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
+add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+
+target_link_libraries(MkTreeForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 #_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
@@ -303,24 +322,24 @@ add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 target_link_libraries(dst0_to_dst1_trigger_check
 	E16ANA_Basic
   E16DST_DST1
+  E16ANA_MockTrack
 )
 
-#_______________________________________________________________________________
-add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
-
-target_link_libraries(gtr_deadch_check
-	E16DST
-	E16DST_DST1
-)
-#_______________________________________________________________________________
-#_______________________________________________________________________________
+##_______________________________________________________________________________
+#add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
+#
+#target_link_libraries(gtr_deadch_check
+#	E16DST
+#	E16DST_DST1
+#)
+##_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
-#_______________________________________________________________________________
+##_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalc usr/run_HBDLGResidualCalc.cc)
 #
 #target_link_libraries(run_HBDLGResidualCalc
@@ -328,7 +347,6 @@ target_link_libraries(run_StraightTrackAnalyzer
 #	E16DST_DST1
 #)
 ##_______________________________________________________________________________
-#_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
 #
 #target_link_libraries(run_GTRResidualCalc
@@ -336,13 +354,12 @@ target_link_libraries(run_StraightTrackAnalyzer
 #	E16DST_DST1
 #)
 ##_______________________________________________________________________________
+add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 
-#add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
-#
-#target_link_libraries(tmp_track_analyzer_one_file
-#	E16ANA_Track
-#)
-#
+target_link_libraries(tmp_track_analyzer_one_file
+	E16ANA_Track
+)
+
 ##_______________________________________________________________________________
 #add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
 #
@@ -406,6 +423,6 @@ target_link_libraries(check_position_resolution
 #  E16DST_DST1
 #)
 #
-##_______________________________________________________________________________
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
