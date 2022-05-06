@@ -30,7 +30,9 @@ int main(int argc, char* argv[]) {
   auto out_file_name = static_cast<TString>(argv[2]);
 
   auto in_file = new TFile(in_file_name);
-  auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
+  auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree1"));//pipi
+// auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree2"));//pipi
+//  auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));//electron
   int run_id;
   int event_id;
   int n_pairs;
@@ -216,8 +218,9 @@ int main(int argc, char* argv[]) {
   vector<int> plus_track_ids;
   for (int entry_i = 0; entry_i < n_entries; ++entry_i) {
     if (entry_i % 100 == 0) {
-      cout << entry_i << " / " << n_entries << endl;
+      cout << entry_i << " / " << n_entries << endl; 
     }
+//	if(entry_i  > 50000) break;
     in_tree->GetEntry(entry_i);
     minus_track_ids.clear();
     plus_track_ids.clear();

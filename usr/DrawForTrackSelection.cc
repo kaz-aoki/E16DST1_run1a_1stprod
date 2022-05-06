@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("./out/root/trackselection_5e9rev_prod220131.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_5e9rev_prod220131_chisq20_modall_morino.root");
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v30/*.root");
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v33/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v33/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v31/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDadd_22033101.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_22031701.root");//eID(LG)

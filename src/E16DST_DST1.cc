@@ -154,12 +154,14 @@ float E16DST_DST1LGHit::IsE(double p){
 
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic){
   double param = lgbasic.GetT0(module_id, channel_id);// [ns]
-  return timing+100.-param;
+  if(timing!=E16DST_DST1Constant::kInvalidValue){return timing+100.-param;}
+  else{return timing;}
 }
 
 float E16DST_DST1LGHit::GetCalibTiming(E16ANA_LGBasic& lgbasic, float _timing){
   double param = lgbasic.GetT0(module_id, channel_id);// [ns]
-  return _timing+100.-param;
+  if(_timing!=E16DST_DST1Constant::kInvalidValue){return _timing+100.-param;}
+  else{return _timing;}
 }
 
 float E16DST_DST1LGHit::GetEnergyDeposit(E16ANA_LGBasic& lgbasic){

@@ -396,6 +396,7 @@ private:
          for(int j=0; j<(int)module.size(); j++){
             module_ids.push_back(module_id);
             lposs.push_back((module[j]->*pfunc)());
+         //std::cout << "infunc " << lposs[0].X() << std::endl;;
             ret++;
          }
       }

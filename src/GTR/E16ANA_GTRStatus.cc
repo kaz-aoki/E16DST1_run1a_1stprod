@@ -223,14 +223,26 @@ void E16ANA_GTRGEMDeadArea::Init(){
 //  }
 //}
 bool E16ANA_GTRGEMDeadArea::IsXOK(const int module_id, const int ch){
-  bool flag = false;
+  	bool flag = false;
 	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
-	int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
-  	if(status_gem_x[k_module][ch] == ok_flag) {
-		flag = true;
-	}
+		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
+  		if(status_gem_x[k_module][ch] == ok_flag) {
+			flag = true;
+		}
    }
    return flag;
+}
+
+bool E16ANA_GTRGEMDeadArea::IsXOK(const int module_id, const double lx_mm){
+	bool flag = false;	
+	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
+		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
+        int gem_ch = E16ANA_GTRChannelManager::ConvLocalXToGEMch(n_gem_strip_x, lx_mm);
+  		if(status_gem_x[k_module][gem_ch] == ok_flag) {
+			flag = true;
+		}
+  	}
+   	return flag;
 }
 
 bool E16ANA_GTRGEMDeadArea::IsYOK(const int module_id, const int ch){
@@ -243,6 +255,18 @@ bool E16ANA_GTRGEMDeadArea::IsYOK(const int module_id, const int ch){
    }
    return flag;
 }
+bool E16ANA_GTRGEMDeadArea::IsYOK(const int module_id, const double ly_mm){
+  bool flag = false;
+	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
+		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
+        int gem_ch = E16ANA_GTRChannelManager::ConvLocalYToGEMch(n_gem_strip_y, ly_mm);
+  	if(status_gem_y[k_module][gem_ch] == ok_flag) {
+		flag = true;
+	}
+   }
+   return flag;
+}
+
 
 bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename, int xy){//x == 0 , y == 1
   std::ifstream fin(filename);

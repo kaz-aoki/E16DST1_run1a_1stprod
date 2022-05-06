@@ -28,6 +28,7 @@ public:
 	E16ANA_GTR100GEMDeadArea* GEMDeadArea100(){return gem_dead_100;}
 	E16ANA_GTR200GEMDeadArea* GEMDeadArea200(){return gem_dead_200;}
 	E16ANA_GTR300GEMDeadArea* GEMDeadArea300(){return gem_dead_300;}
+//	E16ANA_GTRAPVDeadChannel* APVDeadChannel(){return apv_dead;}
 	void Init();
 
 private:
@@ -36,6 +37,7 @@ private:
     E16ANA_GTR100GEMDeadArea *gem_dead_100;
     E16ANA_GTR200GEMDeadArea *gem_dead_200;
     E16ANA_GTR300GEMDeadArea *gem_dead_300;
+//	E16ANA_GTRAPVDeadChannel *apv_dead;
 };	
 
 
@@ -76,7 +78,9 @@ public:
 	//bool Is300YOK(const int module_id, const int strip_ch);
     virtual void Init();
     bool IsXOK(const int module_id, const int ch);
+    bool IsXOK(const int module_id, const double lx_mm);
     bool IsYOK(const int module_id, const int ch);
+    bool IsYOK(const int module_id, const double ly_mm);
 protected:
     int n_gem_strip_x;
     int n_gem_strip_y;
@@ -126,6 +130,7 @@ public:
 	bool ReadDeadChannelData(const int runID);
 private:
 };
+
 
 
 
