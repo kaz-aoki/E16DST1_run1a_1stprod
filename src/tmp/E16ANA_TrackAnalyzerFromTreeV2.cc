@@ -900,9 +900,20 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
 //  if (fabs(rk_fit_init_pos_gy->at(track_index)) > st_param::kTargetYThreshold) {
 //    return false;
 //  }
+  // max mom.
+  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
+  if (mom.Mag() > st_param::kMaxMom) {
+    return false;
+  }
+  // max SSD ADC
+  if (rk_hit_ssd_adc->at(track_index) > st_param::kMaxSSDADC) {
+    return false;
+  }
+  // HBD and LG association
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
+  // time correration between SSD and LG
   if (!HasTimeCorrelationInTrack(track_index, *lg_ts)) {
     return false;
   }
