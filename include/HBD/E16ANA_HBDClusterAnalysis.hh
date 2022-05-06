@@ -29,7 +29,7 @@ class E16ANA_HBDClusterAnalysis{
     double time_diff;    // timing difference between the fastest and latest pad tdc
     double fastest_tdc;
     double average_time;
-    int max_adc_id;
+    int max_adc_id; // max adc pad id
     double max_adc;
     int max_pe_id;
     double max_pe;

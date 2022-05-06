@@ -18,6 +18,7 @@ public:
   bool IsNoisy(const int module_id, const int pad_id);
   bool IsHot(const int module_id, const int pad_id);
   int Status(const int module_id, const int pad_id);
+  int StatusWLocalCoordinate(const int module_id, const double *cog);
   void GetOKChannels(const int module_id, std::vector<int> &ok_chs);
   
   bool IsOKTile(const int module_id, const int tile_id);
