@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
 
   auto in_file = new TFile(in_file_name);
-  auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree1"));
+  auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
   auto out_file = new TFile(out_file_name, "recreate");
   E16ANA_TrackAnalyzerFromTree analyzer(in_tree, kAnalyzeFlag, kIsEventMix, geometry, bfield_map, &pair_fitter, out_file);
   analyzer.Loop();
