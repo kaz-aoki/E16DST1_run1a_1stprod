@@ -325,14 +325,14 @@ target_link_libraries(dst0_to_dst1_trigger_check
   E16ANA_MockTrack
 )
 
-##_______________________________________________________________________________
-#add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
-#
-#target_link_libraries(gtr_deadch_check
-#	E16DST
-#	E16DST_DST1
-#)
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
+
+target_link_libraries(gtr_deadch_check
+	E16DST
+	E16DST_DST1
+)
+#_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
