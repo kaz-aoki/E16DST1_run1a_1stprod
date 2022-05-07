@@ -168,7 +168,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   ssd.SetClusterId(kMockClusterID);
   ssd.SetModuleId(mock_ssd.ModuleID());
 #ifndef GEOM_VER0
-  ssd.SetCogPos(mock_ssd.X());
+  ssd.SetCogPos(mock_ssd.Xsmear(kSSDXSigma));
 #else
   if (IsAType(mock_ssd.ModuleID())) {
     ssd.SetCogPos(-1. * mock_ssd.X());
@@ -183,7 +183,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mock_gtr100.ModuleID());
 #ifndef GEOM_VER0
-  gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
+  gtr100x.SetTdcPos(mock_gtr100.Xsmear(kGTRXYSigma[0][0]) - E16DST_DST1Constant::kGTRLorentzAngle[0]);
 #else // GEOM_VER0
   if (IsAType(mock_gtr100.ModuleID())) {
     gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
@@ -204,7 +204,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   }
   gtr100y.SetModuleId(mock_gtr100.ModuleID());
 #ifndef GEOM_VER0
-  gtr100y.SetTdcPos(mock_gtr100.Y()); // xt?, xt2?
+  gtr100y.SetTdcPos(mock_gtr100.Ysmear(kGTRXYSigma[0][1])); // xt?, xt2?
 #else
   gtr100y.SetTdcPos(-1. * mock_gtr100.Y()); // xt?, xt2?
 #endif
@@ -217,7 +217,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mock_gtr200.ModuleID());
 #ifndef GEOM_VER0
-  gtr200x.SetTdcPos(mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
+  gtr200x.SetTdcPos(mock_gtr200.Xsmear(kGTRXYSigma[1][0]) - E16DST_DST1Constant::kGTRLorentzAngle[1]);
 #else
   if (IsAType(mock_gtr200.ModuleID())) {
     gtr200x.SetTdcPos(-1. * mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
@@ -233,7 +233,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200y.SetLayerId(1);
   gtr200y.SetType(1);
   gtr200y.SetModuleId(mock_gtr200.ModuleID());
-  gtr200y.SetTdcPos(mock_gtr200.Y());
+  gtr200y.SetTdcPos(mock_gtr200.Ysmear(kGTRXYSigma[1][1]));
   gtr200y.SetTiming(gtr200_t[1]);
   gtr200y.SetPeakSum(kGTRADC);
   gtr200y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr200));
@@ -243,7 +243,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mock_gtr300.ModuleID());
 #ifndef GEOM_VER0
-  gtr300x.SetTdcPos(mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
+  gtr300x.SetTdcPos(mock_gtr300.Xsmear(kGTRXYSigma[2][0]) - E16DST_DST1Constant::kGTRLorentzAngle[2]);
 #else
   if (IsAType(mock_gtr300.ModuleID())) {
     gtr300x.SetTdcPos(-1. * mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
@@ -259,7 +259,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300y.SetLayerId(2);
   gtr300y.SetType(1);
   gtr300y.SetModuleId(mock_gtr300.ModuleID());
-  gtr300y.SetTdcPos(mock_gtr300.Y());
+  gtr300y.SetTdcPos(mock_gtr300.Ysmear(kGTRXYSigma[2][1]));
   gtr300y.SetTiming(gtr300_t[1]);
   gtr300y.SetPeakSum(kGTRADC);
   gtr300y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr300));

@@ -37,7 +37,7 @@ include_directories(
 #  /opt/E16/include/Geant4 # evb
   /ccj/u/E16/include
   /ccj/u/E16/include/Geant4 # ccj
-	include
+  include
   include/SSD
 	include/GTR
 #	include/GTR_ozawa
@@ -175,7 +175,7 @@ target_link_libraries(E16ANA_Track
 #_______________________________________________________________________________
 add_library(E16ANA_MockTrack
   src/tmp_mock/E16ANA_MakeDummyDST1.cc
-  src/tmp_mock/mockdataIOtestSimple.cc
+#  src/tmp_mock/mockdataIOtestSimple.cc
 )
 
 target_link_libraries(E16ANA_MockTrack

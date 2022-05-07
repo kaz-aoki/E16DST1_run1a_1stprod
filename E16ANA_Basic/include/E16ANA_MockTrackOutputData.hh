@@ -1,88 +1,26 @@
-//mockdataIOtestSimple.cc 220426 by S. Yokkaichi
-//    Last modified at <2022-04-26 22:07:35 >
-//
-//mockdataIOtest.cc 220426 by S. Yokkaichi
-//    Last modified at <2022-04-26 21:12:07 >
-//from
-//g4trajectoryDump.cc 220422 by S. Yokkaichi
-//    Last modified at <2022-04-26 18:55:50 >
+//2022-05-06, uploaded by yokkaich
+//E16ANA_MockTrackOutputData.hh 220504 by S. Yokkaichi
+//    Last modified at <2022-05-06 07:00:37 >
 
-#ifndef MOCKDATAIOTESTSIMPLE_HH
-#define MOCKDATAIOTESTSIMPLE_HH
+#ifndef E16ANA_MockTrackOutputData_HH
+#define E16ANA_MockTrackOutputData_HH
 
-#include <ctime>
-#include <cmath>
-#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <iostream>
-#include <sstream>
-#include <unordered_map>
+#include <string>
 
-#include <HepPDT/ParticleData.hh>
-
-#include <TFile.h>
-#include <TPostScript.h>
-#include <TPDF.h>
-#include <TCanvas.h>
-#include <TPad.h>
-#include <TText.h>
-#include <TStyle.h>
-
-#include <TH1.h>
-#include <TH2.h>
-#include <TTree.h>
-#include <TMath.h>
-#include <TVector3.h>
-
-#include "E16ANA_Constant.hh"
-
-#include "E16ANA_ParamManager.hh"
-#include "E16ANA_G4OutputData.hh"
-#include "E16ANA_ErrorMessage.hh"
-
-
-using namespace std;
 #include <CLHEP/Vector/ThreeVector.h>
-#include <CLHEP/Vector/LorentzVector.h>
+#include <HepPID/ParticleName.hh>
+#include <TVector3.h>
+#include <TRandom.h>
+
 using namespace CLHEP;
 
-class E16ANA_G4ANATrajectory;
+#include "E16ANA_ErrorMessage.hh"
+#include "E16ANA_Constant.hh"
 
-inline int ModuleID_2013to2020_33(int id )
-{
-   const int moduleID_2013to2020_33[33] = {
-     10, 110, 210, 9, 109, 209, 8, 108, 208, 7, 107, 207, 6, 106, 206, 
-     5, 105, 205,
-     4,  104, 204, 3, 103, 203, 2, 102, 202, 1, 101, 201, 0, 100, 200 };
-   return  moduleID_2013to2020_33[ id ];
-}
-inline int ModuleID_2020to2013_33(int id ){//GTR,SSD
-   const int module_id_kawama33[3][11] = {
-     {30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0},
-     {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
-     {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}};
-   return module_id_kawama33[ id / 100][id % 100];
-}
-inline int ModuleID_2013to2020_27( int id ){// //LG,HBD
-   const int moduleID_2013to2020_27[27] = {
-   9, 109, 209, 8, 108, 208, 7, 107, 207,  6, 106, 206, 
-   5, 105, 205, 
-   4, 104, 204, 3, 103, 203, 2, 102, 202,  1, 101, 201};
-   return  moduleID_2013to2020_27[ id ];
-}
-inline int ModuleID_2020to2013_27(int id ){//LG,HBD
-   const int module_id_kawama27[3][9] = {
-     {24, 21, 18, 15, 12, 9, 6, 3, 0 },
-     {25, 22, 19, 16, 13, 10, 7, 4, 1},
-     {26, 23, 20, 17, 14, 11, 8, 5, 2}};
-
-   int id2=(id %100) -1;
-
-   return module_id_kawama27[ id / 100][ id2 ];
-}
-
-
-
-//===============================================================
 class E16ANA_MockHit{
 private:
   short pID;         //particle ID in PDG code
@@ -107,8 +45,10 @@ public:
 
   void SetXYZ (double ix, double iy, double iz){    x=ix; y=iy; z=iz; }
   void SetXYZ(TVector3& v){    x=v.X();y=v.Y();z=v.Z(); }
+  void SetXYZ(TVector3 v){    x=v.X();y=v.Y();z=v.Z(); }
   void SetGXYZ(double ix, double iy, double iz){    gx=ix; gy=iy; gz=iz;}
   void SetGXYZ(TVector3& gv){    gx=gv.X();gy=gv.Y();gz=gv.Z(); }
+  void SetGXYZ(TVector3 gv){    gx=gv.X();gy=gv.Y();gz=gv.Z(); }
 
   void SetP   (double ix, double iy, double iz){    px=ix; py=iy; pz=iz; 
     p=sqrt(ix*ix + iy*iy + iz*iz);}
@@ -120,11 +60,14 @@ public:
   void SetGP  (TVector3& gv){    gpx=gv.X(); gpy=gv.Y(); gpz=gv.Z(); p=gv.Mag();}
   void SetGP  (TVector3 gv){    gpx=gv.X(); gpy=gv.Y(); gpz=gv.Z(); p=gv.Mag();}
 
+
   void SetT(double it){ t=it;}
 
   int PID(){return pID;}
   int Charge(){return charge;}
-  int ModuleID() { return moduleID; }
+
+
+
   double X()  {return x;}
   double Y()  {return y;}
   double Z()   {return z;}
@@ -140,8 +83,47 @@ public:
   TVector3 GXTV(){return TVector3(gx,gy,gz);}
   TVector3 PTV() {return TVector3(px,py,pz);}
   TVector3 GPTV() {return TVector3(gpx,gpy,gpz);}
+	
+
+  double Xsmear(double sigma_mm)  { return gRandom->Gaus(x, sigma_mm); }
+  double Ysmear(double sigma_mm)  { return gRandom->Gaus(y, sigma_mm); }
+  Hep3Vector XVsmear(double sigma_Xmm, double sigma_Ymm)    { 
+    return 
+      Hep3Vector (  gRandom->Gaus(x, sigma_Xmm),
+      gRandom->Gaus(y, sigma_Ymm),   z ); 
+  }
+  TVector3 XTVsmear(double sigma_Xmm, double sigma_Ymm)    { 
+    return 
+      TVector3 (  gRandom->Gaus(x, sigma_Xmm),
+      gRandom->Gaus(y, sigma_Ymm),   z ); 
+  }
+
+  Hep3Vector XV_HBDcorrected(double sigma_Xmm=0.0, double sigma_Ymm=0.0)  {
+    double zdiff = 0 - Z();
+    double scale = zdiff/pz;
+    Hep3Vector cX= XV() + PV()*scale;
+    //    std::cerr<<" HBD correct "<<X() <<" "<<PV()<<" "<<correctedX<<std::endl;
+    return   Hep3Vector(  
+      gRandom->Gaus(cX.x(), sigma_Xmm),
+      gRandom->Gaus(cX.y(), sigma_Ymm),   cX.z()  ); 
+  }
+  TVector3 XTV_HBDcorrected(double sigma_Xmm=0.0, double sigma_Ymm=0.0)  {
+    double zdiff = 0 - Z();
+    double scale = zdiff/pz;
+    Hep3Vector cX= XV() + PV()*scale;
+    //    std::cerr<<" HBD correct "<<X() <<" "<<PV()<<" "<<correctedX<<std::endl;
+
+    return   TVector3(  
+      gRandom->Gaus(cX.x(), sigma_Xmm),
+      gRandom->Gaus(cX.y(), sigma_Ymm),   cX.z()  ); 
+  }
 
 
+
+  bool IsTypeA(){
+    if(  (moduleID%100) %2 == 1 ){return true;}//101,103,105,107,...
+    else {return false;}
+  }
   double AngleY(){
     double pxz = sqrt( px*px + pz*pz );
     double incidentAngley = atan2(py, pxz);
@@ -151,6 +133,13 @@ public:
     double incidentAnglex = atan2(px, pz);
     return incidentAnglex;
   }
+
+  double AngleXZ_Tracker(){
+    double pxtemp = IsTypeA() ? -px : px ;
+    double incidentAnglex = atan2(pxtemp, pz);
+    return incidentAnglex;
+  }
+
   double Time(){return t;}
 
   void Clear(){
@@ -163,6 +152,7 @@ public:
   }
 
   void Dump(std::string tag=""){
+
     fprintf(stderr, 
 	    "E16ANA_MockHit: %s : %6.1f %6.1f %6.1f /%6.3f %6.3f %6.3f\n",
 	    tag.c_str(), x, y, z, gx, gy, gz);
@@ -230,15 +220,15 @@ public:
   }
 
   int WriteData(FILE* fp){
-    E16INFO("write");
+    //    E16INFO("write");
     int flag = fwrite(&pID, sizeof(double), 8, fp);
     flag = fwrite(hits, sizeof(E16ANA_MockHit), 8, fp);
     return flag;
   }
 
   void Dump(){
-    cerr<<"E16ANA_MockTrack "<<pID <<" "<<charge<<" "<<p<<" ";
-    cerr<<Hep3Vector(px,py,pz)<<" "<<Hep3Vector(x,y,z)<<endl;
+    std::cerr<<"E16ANA_MockTrack "<<pID <<" "<<charge<<" "<<p<<" ";
+    std::cerr<<Hep3Vector(px,py,pz)<<" "<<Hep3Vector(x,y,z)<<std::endl;
     hits[0].Dump("  ssd");
     hits[1].Dump("  gtr1");
     hits[2].Dump("  gtr2");
@@ -247,7 +237,14 @@ public:
     hits[5].Dump("  hbdb");
     hits[6].Dump("  LGVD");
     hits[7].Dump("  LG  ");
-      cerr<<"----------------"<<endl;
+    std::cerr<<"----------------"<<std::endl;
+    std::cerr<<" SSD   "<<hits[0].Xsmear(0.1)<<std::endl;
+    std::cerr<<" GTR1  "<<hits[1].Xsmear(0.3)<<std::endl;
+    std::cerr<<" GTR2  "<<hits[2].Ysmear(0.5)<<std::endl;
+    std::cerr<<" GTR3  "<<hits[3].XVsmear(0.3,0.5)<<std::endl;
+    std::cerr<<" HBDbc  "<<hits[5].XV_HBDcorrected()<<std::endl;
+    std::cerr<<" HBDbcsmear "<<hits[5].XV_HBDcorrected(10.0, 10.0)<<std::endl;
+    std::cerr<<"----------------"<<std::endl;
   }
 
 };
@@ -290,112 +287,5 @@ public:
 
 };
   
-//E16ANA_MockTrackOutputData::~E16ANA_MockTrackOutputData(){
-//  if( fpRead != NULL){    fclose(fpRead);     }
-//  if( fpWrite != NULL){      fclose(fpWrite); }
-//}
-//  
-//
-//int E16ANA_MockTrackOutputData::CloseReadFile(){
-//  fclose(fpRead); fpRead=NULL;
-//  return 0;
-//}
-//int E16ANA_MockTrackOutputData::CloseWriteFile(){
-//  fclose(fpWrite); fpWrite=NULL;
-//  return 0;
-//}
-//
-//int E16ANA_MockTrackOutputData::OpenReadFile(const char* filename){
-//  if( fpRead != NULL ){
-//    E16FATAL("file is already opened for reading: %s",filename);
-//    return OpenERROR;
-//  }
-//
-//  fpRead = fopen(filename, "r");
-//
-//  if ( fpRead==NULL ){
-//    E16FATAL("file open error for reading: %s",filename);
-//    return OpenERROR;
-//  }
-//  return OK;
-//}
-//
-//int E16ANA_MockTrackOutputData::OpenWriteFile(const char* filename){
-//  if( fpWrite != NULL ){
-//    E16FATAL("file is already opened for writing: %s",filename);
-//    return OpenERROR;
-//  }
-//
-//  fpWrite = fopen(filename, "w");
-//
-//  if ( fpWrite==NULL ){
-//    E16FATAL("file open error for writing: %s",filename);
-//    return OpenERROR;
-//  }
-//  return OK;
-//}
 
-
-////======================================================
-//void ReadAndDumpData(int nEvent,
-//  E16ANA_MockTrackOutputData& mockdata){
-//
-//  for(int i=0; i<nEvent; i++) {
-//
-//    int flag = mockdata.ReadATrack();
-//    if(flag == mockdata.ReadERROR){
-//      E16FATAL("possibly nEvent/nTrack over the file size");
-//      return;
-//    }
-//    E16INFO("readATrack %d",flag);
-//    mockdata.Track().Dump();
-//  }
-//
-//}
-////-------------------------------------------
-//int main(int argc, char* argv[]){
-//
-//  //E16ANA_ParamManager *paramMgr;
-//   char* filename1; char* filename2; 
-//   char* outfilenamebase;
-//   char outfilename0[128]; 
-//
-//   char outfilename1[128];
-//   char outfilename2[128];   char outfilename3[128];
-//   char outfilename4[128];   char outfilename5[128];
-//   char outfilename6[128];
-//   char overfilename0[128];
-//
-//   char outfilenameG4out[128];
-//   char outfilenameMockout[128];
-//   int nEvent = 0;
-//
-//   if (argc!=3){
-//      cerr << "Usage: ./mockdataIOtestSimple inputmockdatafile nevent"<<endl;
-//      return 1;
-//   }
-//   else{
-//     filename1=argv[1];
-//     nEvent = atoi(argv[2]);
-//   }
-//
-//   stringstream argStr;
-//   for(int i=0;i<argc;i++){
-//     argStr <<argv[i]<<" ";
-//   }
-//
-//   E16ANA_MockTrackOutputData mockdata1;
-//   int flag3 = mockdata1.OpenReadFile(filename1);
-//   if( flag3 != mockdata1.OK ){     exit(1);   }
-//
-//
-//   ReadAndDumpData(nEvent, mockdata1);
-//
-//   mockdata1.CloseReadFile();
-//   //   mockdata1.CloseWriteFile();
-//
-//
-//   return 0;
-//}
-
-#endif // MOCKDATAIOTESTSIMPLE_HH
+#endif // E16ANA_MockTrackOutputData_HH

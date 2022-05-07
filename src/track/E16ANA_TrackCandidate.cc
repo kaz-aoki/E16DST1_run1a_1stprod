@@ -930,14 +930,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 }
                 continue;
               }
-              if (gtr100x_cluster->NumHits() < kMinHitsInXCluster) {
-                if (!is_xchecked[1] && is_sim_xcluster[0] && is_sim_xcluster[1]) {
-                  x_search_reject_point += Pow2(kRej100xSize);
-                  reject_point += Pow2(kRejXSearch);
-                  is_xchecked[1] = true;
-                }
+              if (gtr100x_cluster->ClusterId() < kMockClusterID && gtr100x_cluster->NumHits() < kMinHitsInXCluster) {
                 continue;
               }
+//              if (gtr100x_cluster->NumHits() < kMinHitsInXCluster) {
+//                if (!is_xchecked[1] && is_sim_xcluster[0] && is_sim_xcluster[1]) {
+//                  x_search_reject_point += Pow2(kRej100xSize);
+//                  reject_point += Pow2(kRejXSearch);
+//                  is_xchecked[1] = true;
+//                }
+//                continue;
+//              }
               cluster_set->gtr_clusters[0] = gtr100x_cluster;
               cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPosT(*geometry);
         //TVector3 testg = gtr100x_cluster->GlobalPos(*geometry);
@@ -955,14 +958,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   }
                   continue;
                 }
-                if (gtr200x_cluster->NumHits() < kMinHitsInXCluster) {
-                  if (!is_xchecked[2] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2]) {
-                    x_search_reject_point += Pow2(kRej200xSize);
-                    reject_point += Pow2(kRejXSearch);
-                    is_xchecked[2] = true;
-                  }
+                if (gtr200x_cluster->ClusterId() < kMockClusterID && gtr200x_cluster->NumHits() < kMinHitsInXCluster) {
                   continue;
                 }
+//                if (gtr200x_cluster->NumHits() < kMinHitsInXCluster) {
+//                  if (!is_xchecked[2] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2]) {
+//                    x_search_reject_point += Pow2(kRej200xSize);
+//                    reject_point += Pow2(kRejXSearch);
+//                    is_xchecked[2] = true;
+//                  }
+//                  continue;
+//                }
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
                 cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPosT(*geometry);
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
@@ -975,14 +981,17 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                     }
                     continue;
                   }
-                  if (gtr300x_cluster->NumHits() < kMinHitsInXCluster) {
-                    if (!is_xchecked[3] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
-                      x_search_reject_point += Pow2(kRej300xSize);
-                      reject_point += Pow2(kRejXSearch);
-                      is_xchecked[3] = true;
-                    }
+                  if (gtr300x_cluster->ClusterId() < kMockClusterID && gtr300x_cluster->NumHits() < kMinHitsInXCluster) {
                     continue;
                   }
+//                  if (gtr300x_cluster->NumHits() < kMinHitsInXCluster) {
+//                    if (!is_xchecked[3] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
+//                      x_search_reject_point += Pow2(kRej300xSize);
+//                      reject_point += Pow2(kRejXSearch);
+//                      is_xchecked[3] = true;
+//                    }
+//                    continue;
+//                  }
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPosT(*geometry);
                   bool is_cand = false;
