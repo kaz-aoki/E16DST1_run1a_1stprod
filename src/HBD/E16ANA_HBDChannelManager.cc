@@ -372,6 +372,16 @@ int E16ANA_HBDChannelManager::ConvMIDKToE16(const int module_id)
   return index;
 }
 
+int E16ANA_HBDChannelManager::ConvGIDE16ToK(const int gid){
+  int kid = gid%10+(gid/10)*2;
+  return kid;
+}
+
+int E16ANA_HBDChannelManager::ConvGIDKToE16(const int kid){
+  int gid = kid%2+(kid/2)*10;
+  return gid;
+}
+
 int E16ANA_HBDChannelManager::ConvTIDE16ToK(const int tid){
   int kid = tid%10+(tid/10)*6;
   return kid;
