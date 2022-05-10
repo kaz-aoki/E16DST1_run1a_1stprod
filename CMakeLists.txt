@@ -43,10 +43,11 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-	include/res
+#	include/res
 	include/trigger
 	include/straight_track
 	include/track
+
   E16DST
   E16ANA_Basic/include
   include/tmp
@@ -139,12 +140,13 @@ add_library(E16DST_DST1
   ${E16ANA_SSD_SRCS}
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
-  src/res/AnalyzerResidualHBD.cc
-  src/res/AnalyzerTrackSelection.cc
-  src/res/SingleTrackAnalyzerForRes.cc
+#  src/res/AnalyzerResidualHBD.cc
+#  src/res/AnalyzerTrackSelection.cc
+#  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
-#  src/tmp/SingleTrackAnalyzerForRes.cc
-#  src/tmp/AnalyzerResidualHBD.cc
+  src/tmp/SingleTrackAnalyzerForRes.cc
+  src/tmp/AnalyzerResidualHBD.cc
+  #src/tmp/EfficiencyCalc.cc
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
@@ -286,27 +288,27 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
-
-target_link_libraries(DrawForTrackSelection
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+#add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+#
+#target_link_libraries(DrawForTrackSelection
+#	E16DST_DST1
+##E16ANA_CalibDB
+#	E16ANA_Basic
+#	E16DST
+#	E16ANA
+#)
 
 #_______________________________________________________________________________
-add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
-
-target_link_libraries(MkTreeForTrackSelection
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
-
+#add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+#
+#target_link_libraries(MkTreeForTrackSelection
+#	E16DST_DST1
+##E16ANA_CalibDB
+#	E16ANA_Basic
+#	E16DST
+#	E16ANA
+#)
+#
 #_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
@@ -350,10 +352,12 @@ target_link_libraries(run_StraightTrackAnalyzer
 ##_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
 #
-#target_link_libraries(run_GTRResidualCalc
+#target_link_libraries(run_EfficiencyCalc
 #	E16DST
 #	E16DST_DST1
 #)
+#_______________________________________________________________________________
+
 ##_______________________________________________________________________________
 add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 

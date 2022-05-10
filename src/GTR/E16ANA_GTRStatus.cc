@@ -260,8 +260,12 @@ bool E16ANA_GTRGEMDeadArea::IsYOK(const int module_id, const double ly_mm){
 	if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
 		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
         int gem_ch = E16ANA_GTRChannelManager::ConvLocalYToGEMch(n_gem_strip_y, ly_mm);
+//		std::cout << "gem ch " << gem_ch << std::endl;
+//		std::cout << "status " << status_gem_y[k_module][gem_ch] << std::endl;
+		
   	if(status_gem_y[k_module][gem_ch] == ok_flag) {
 		flag = true;
+//		std::cout  << "flag " << flag << std::endl;
 	}
    }
    return flag;
@@ -289,8 +293,8 @@ bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename, int xy){//x == 0 , y 
 //	  std::cout << "reading GEM dead file : module" << module_id << "ch " << ch << ", " << buf_status << std::endl;
       if(E16ANA_GTRChannelManager::IsValidModuleID(module_id)){
 		int k_module = E16ANA_GTRChannelManager::ConvMIDE16ToK(module_id); 
-		if(xy == 0) status_gem_x[k_module][ch] = buf_status;
-		else if(xy == 1) status_gem_y[k_module][ch] = buf_status;
+		if(xy == 0) {status_gem_x[k_module][ch] = buf_status;}
+		else if(xy == 1) {status_gem_y[k_module][ch] = buf_status;}
       }
     }
     return true;
@@ -303,11 +307,21 @@ bool E16ANA_GTRGEMDeadArea::ReadFile(const char *filename, int xy){//x == 0 , y 
 bool E16ANA_GTR100GEMDeadArea::ReadDeadChannelData(const int runID){
   E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
   std::string gtr_100gem_dead_channel_file_x = calib.CalibFileName("GTR-100gemx-status", runID);
-  if(this->ReadFile(gtr_100gem_dead_channel_file_x.c_str(), 0)){ return true;}
-	else {std::cout << "failed to read 100x gem dead file " << std::endl; return false;}
+  if(this->ReadFile(gtr_100gem_dead_channel_file_x.c_str(), 0)){ 
+//	return true;
+	}
+	else {std::cout << "failed to read 100x gem dead file " << std::endl;
+ return false;
+	}
   std::string gtr_100gem_dead_channel_file_y = calib.CalibFileName("GTR-100gemy-status", runID);
-  if(this->ReadFile(gtr_100gem_dead_channel_file_y.c_str(), 1)){ return true;}
-    else {return false;}
+  if(this->ReadFile(gtr_100gem_dead_channel_file_y.c_str(), 1)){ 
+	//return true;
+	}
+    else {
+		std::cout << "failed to read 100x gem dead file " << std::endl;	
+		return false;
+		}
+	return true;
 }
 bool E16ANA_GTR200GEMDeadArea::ReadDeadChannelData(const int runID){
   E16ANA_CalibDBManager &calib = E16ANA_CalibDBManager::Instance();
