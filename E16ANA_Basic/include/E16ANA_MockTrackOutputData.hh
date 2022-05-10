@@ -66,7 +66,7 @@ public:
   int PID(){return pID;}
   int Charge(){return charge;}
 
-
+  int ModuleID() { return moduleID; }
 
   double X()  {return x;}
   double Y()  {return y;}

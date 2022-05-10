@@ -19,19 +19,20 @@ bool E16ANA_MakeDummyDST1::IsSSDDeadRegion(int mid, const TVector3& pos) {
 
 bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos) {
   if (lid == kGTR100) {
-    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
-      return true;
+//    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
+    if (gtr100_dead_area->IsXOK(mid, pos.X())) {
+      return false;
     }
   } else if (kGTR200) {
     if (gtr200_dead_area->IsXOK(mid, pos.X()) && gtr200_dead_area->IsYOK(mid, pos.Y())) {
-      return true;
+      return false;
     }
   } else if (kGTR300) {
     if (gtr300_dead_area->IsXOK(mid, pos.X()) && gtr300_dead_area->IsYOK(mid, pos.Y())) {
-      return true;
+      return false;
     }
   }
-  return false;
+  return true;
 }
 
 bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
@@ -56,7 +57,11 @@ bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
 //  }
 //  return false;
   double cog[2] = {pos.X(), pos.Y()};
-  return hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
+  auto status = hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
+  if (status == 0) {
+    return false;
+  }
+  return true;
 }
 
 bool E16ANA_MakeDummyDST1::IsDeadRegion(E16ANA_MockTrack& track) {
@@ -74,18 +79,23 @@ bool E16ANA_MakeDummyDST1::IsDeadRegion(E16ANA_MockTrack& track) {
   const auto& lg_pos     = track.LGVD().XTV();
   
   if (IsSSDDeadRegion(ssd_mid, ssd_pos)) {
+cout << "SSD dead" << endl;
     return true;
   }
-  if (IsGTRDeadRegion(0, gtr100_mid, gtr100_pos)) {
+  if (IsGTRDeadRegion(kGTR100, gtr100_mid, gtr100_pos)) {
+cout << "GTR100 dead" << endl;
     return true;
   }
-  if (IsGTRDeadRegion(1, gtr200_mid, gtr200_pos)) {
+  if (IsGTRDeadRegion(kGTR200, gtr200_mid, gtr200_pos)) {
+cout << "GTR200 dead" << endl;
     return true;
   }
-  if (IsGTRDeadRegion(2, gtr300_mid, gtr300_pos)) {
+  if (IsGTRDeadRegion(kGTR300, gtr300_mid, gtr300_pos)) {
+cout << "GTR300 dead" << endl;
     return true;
   }
   if (IsHBDDeadRegion(hbd_mid, hbd_pos)) {
+cout << "HBD dead" << endl;
     return true;
   }
 //  if (IsLGDeadRegion(lg_mid, lg_pos)) {
