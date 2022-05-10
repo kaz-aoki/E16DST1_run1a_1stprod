@@ -1,3 +1,5 @@
+#ifdef TRACK_EFF_CHECK
+
 //#define WO_LAYER_EFF
 //#define GEOM_VER0
 
@@ -17,19 +19,20 @@ bool E16ANA_MakeDummyDST1::IsSSDDeadRegion(int mid, const TVector3& pos) {
 
 bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos) {
   if (lid == kGTR100) {
-    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
-      return true;
+//    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
+    if (gtr100_dead_area->IsXOK(mid, pos.X())) {
+      return false;
     }
   } else if (kGTR200) {
     if (gtr200_dead_area->IsXOK(mid, pos.X()) && gtr200_dead_area->IsYOK(mid, pos.Y())) {
-      return true;
+      return false;
     }
   } else if (kGTR300) {
     if (gtr300_dead_area->IsXOK(mid, pos.X()) && gtr300_dead_area->IsYOK(mid, pos.Y())) {
-      return true;
+      return false;
     }
   }
-  return false;
+  return true;
 }
 
 bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
@@ -54,7 +57,11 @@ bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
 //  }
 //  return false;
   double cog[2] = {pos.X(), pos.Y()};
-  return hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
+  auto status = hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
+  if (status == 0) {
+    return false;
+  }
+  return true;
 }
 
 bool E16ANA_MakeDummyDST1::IsDeadRegion(E16ANA_MockTrack& track) {
@@ -72,18 +79,23 @@ bool E16ANA_MakeDummyDST1::IsDeadRegion(E16ANA_MockTrack& track) {
   const auto& lg_pos     = track.LGVD().XTV();
   
   if (IsSSDDeadRegion(ssd_mid, ssd_pos)) {
+cout << "SSD dead" << endl;
     return true;
   }
-  if (IsGTRDeadRegion(0, gtr100_mid, gtr100_pos)) {
+  if (IsGTRDeadRegion(kGTR100, gtr100_mid, gtr100_pos)) {
+cout << "GTR100 dead" << endl;
     return true;
   }
-  if (IsGTRDeadRegion(1, gtr200_mid, gtr200_pos)) {
+  if (IsGTRDeadRegion(kGTR200, gtr200_mid, gtr200_pos)) {
+cout << "GTR200 dead" << endl;
     return true;
   }
-  if (IsGTRDeadRegion(2, gtr300_mid, gtr300_pos)) {
+  if (IsGTRDeadRegion(kGTR300, gtr300_mid, gtr300_pos)) {
+cout << "GTR300 dead" << endl;
     return true;
   }
   if (IsHBDDeadRegion(hbd_mid, hbd_pos)) {
+cout << "HBD dead" << endl;
     return true;
   }
 //  if (IsLGDeadRegion(lg_mid, lg_pos)) {
@@ -166,7 +178,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   ssd.SetClusterId(kMockClusterID);
   ssd.SetModuleId(mock_ssd.ModuleID());
 #ifndef GEOM_VER0
-  ssd.SetCogPos(mock_ssd.X());
+  ssd.SetCogPos(mock_ssd.Xsmear(kSSDXSigma));
 #else
   if (IsAType(mock_ssd.ModuleID())) {
     ssd.SetCogPos(-1. * mock_ssd.X());
@@ -181,7 +193,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mock_gtr100.ModuleID());
 #ifndef GEOM_VER0
-  gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
+  gtr100x.SetTdcPos(mock_gtr100.Xsmear(kGTRXYSigma[0][0]) - E16DST_DST1Constant::kGTRLorentzAngle[0]);
 #else // GEOM_VER0
   if (IsAType(mock_gtr100.ModuleID())) {
     gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
@@ -202,7 +214,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   }
   gtr100y.SetModuleId(mock_gtr100.ModuleID());
 #ifndef GEOM_VER0
-  gtr100y.SetTdcPos(mock_gtr100.Y()); // xt?, xt2?
+  gtr100y.SetTdcPos(mock_gtr100.Ysmear(kGTRXYSigma[0][1])); // xt?, xt2?
 #else
   gtr100y.SetTdcPos(-1. * mock_gtr100.Y()); // xt?, xt2?
 #endif
@@ -215,7 +227,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mock_gtr200.ModuleID());
 #ifndef GEOM_VER0
-  gtr200x.SetTdcPos(mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
+  gtr200x.SetTdcPos(mock_gtr200.Xsmear(kGTRXYSigma[1][0]) - E16DST_DST1Constant::kGTRLorentzAngle[1]);
 #else
   if (IsAType(mock_gtr200.ModuleID())) {
     gtr200x.SetTdcPos(-1. * mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
@@ -231,7 +243,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200y.SetLayerId(1);
   gtr200y.SetType(1);
   gtr200y.SetModuleId(mock_gtr200.ModuleID());
-  gtr200y.SetTdcPos(mock_gtr200.Y());
+  gtr200y.SetTdcPos(mock_gtr200.Ysmear(kGTRXYSigma[1][1]));
   gtr200y.SetTiming(gtr200_t[1]);
   gtr200y.SetPeakSum(kGTRADC);
   gtr200y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr200));
@@ -241,7 +253,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mock_gtr300.ModuleID());
 #ifndef GEOM_VER0
-  gtr300x.SetTdcPos(mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
+  gtr300x.SetTdcPos(mock_gtr300.Xsmear(kGTRXYSigma[2][0]) - E16DST_DST1Constant::kGTRLorentzAngle[2]);
 #else
   if (IsAType(mock_gtr300.ModuleID())) {
     gtr300x.SetTdcPos(-1. * mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
@@ -257,7 +269,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300y.SetLayerId(2);
   gtr300y.SetType(1);
   gtr300y.SetModuleId(mock_gtr300.ModuleID());
-  gtr300y.SetTdcPos(mock_gtr300.Y());
+  gtr300y.SetTdcPos(mock_gtr300.Ysmear(kGTRXYSigma[2][1]));
   gtr300y.SetTiming(gtr300_t[1]);
   gtr300y.SetPeakSum(kGTRADC);
   gtr300y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr300));
@@ -308,3 +320,5 @@ cout << "300 " << mock_gtr300.GX() << " " << mock_gtr300.GY() << " " << mock_gtr
 #endif //SIM_DST1_GEOM_CHECK
   return;
 }
+
+#endif // TRACK_EFF_CHECK
