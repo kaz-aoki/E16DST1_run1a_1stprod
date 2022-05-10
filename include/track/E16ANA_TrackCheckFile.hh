@@ -139,6 +139,16 @@ class E16ANA_TrackCheckFile {
     tree->Branch("hbd_hit_gz",  &hbd_hit_gz);
     tree->Branch("hbd_hit_t",   &hbd_hit_t);
     tree->Branch("hbd_hit_adc", &hbd_hit_adc);
+#ifdef TRACK_EFF_CHECK
+    tree->Branch("ssd_cluster_is_merged", &ssd_cluster_is_merged);
+    tree->Branch("gtr100x_cluster_is_merged", &gtr100x_cluster_is_merged);
+    tree->Branch("gtr200x_cluster_is_merged", &gtr200x_cluster_is_merged);
+    tree->Branch("gtr300x_cluster_is_merged", &gtr300x_cluster_is_merged);
+    tree->Branch("gtr100y_cluster_is_merged", &gtr100y_cluster_is_merged);
+    tree->Branch("gtr100yb_cluster_is_merged", &gtr100yb_cluster_is_merged);
+    tree->Branch("gtr200y_cluster_is_merged", &gtr200y_cluster_is_merged);
+    tree->Branch("gtr300y_cluster_is_merged", &gtr300y_cluster_is_merged);
+#endif // TRACK_EFF_CHECK
     tree->Branch("n_ssd_clusters",  &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_id", &ssd_cluster_id);
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
@@ -1125,6 +1135,9 @@ class E16ANA_TrackCheckFile {
     ssd_cluster_fit_adc.resize(n_ssd_clusters);
     ssd_cluster_fit_chi2.resize(n_ssd_clusters);
     ssd_cluster_size.resize(n_ssd_clusters);
+#ifdef TRACK_EFF_CHECK
+    ssd_cluster_is_merged.resize(n_ssd_clusters);
+#endif // TRACK_EFF_CHECK
     for (int i = 0; i < n_ssd_clusters; ++i) {
       auto& clst = record.SSD().Cluster(i);
 //      ssd_cluster_id[i] = i;
@@ -1141,6 +1154,9 @@ class E16ANA_TrackCheckFile {
       ssd_cluster_fit_t[i] = clst.TimingFit();
       ssd_cluster_fit_adc[i] = clst.PeakSumFit();
       ssd_cluster_fit_chi2[i] = clst.Chi2NdfFit();
+#ifdef TRACK_EFF_CHECK
+      ssd_cluster_is_merged[i] = clst.IsMerged();
+#endif // TRACK_EFF_CHECK
     }
     n_gtr100x_clusters = 0;
     n_gtr200x_clusters = 0;
@@ -1196,6 +1212,7 @@ class E16ANA_TrackCheckFile {
     gtr300y_cluster_y.clear();
     gtr300y_cluster_adc.clear();
     gtr300y_cluster_t.clear();
+    gtr300y_cluster_size.clear();
     gtr100x_cluster_t2.clear();
     gtr100x_cluster_tx.clear();
     gtr100x_cluster_the.clear();
@@ -1231,7 +1248,15 @@ class E16ANA_TrackCheckFile {
     gtr100yb_cluster_the.clear();
     gtr100yb_cluster_nc.clear();
     gtr100yb_cluster_gty.clear();
-    gtr300y_cluster_size.clear();
+#ifdef TRACK_EFF_CHECK
+    gtr100x_cluster_is_merged.clear();
+    gtr200x_cluster_is_merged.clear();
+    gtr300x_cluster_is_merged.clear();
+    gtr100y_cluster_is_merged.clear();
+    gtr100yb_cluster_is_merged.clear();
+    gtr200y_cluster_is_merged.clear();
+    gtr300y_cluster_is_merged.clear();
+#endif // TRACK_EFF_CHECK
     auto n_gtr_clusters = record.GTR().NumClusters();
     for (int i = 0; i < n_gtr_clusters; ++i) {
       auto& clst = record.GTR().Cluster(i);
@@ -1255,6 +1280,9 @@ class E16ANA_TrackCheckFile {
 	        auto gpost = clst.GlobalPosT(geometry);
           gtr100x_cluster_gtx.emplace_back(gpost.X());
           gtr100x_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr100x_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         } else if (type == 1) {
           ++n_gtr100y_clusters;
           gtr100y_cluster_id.emplace_back(clst.ClusterId());
@@ -1267,6 +1295,9 @@ class E16ANA_TrackCheckFile {
           gtr100y_cluster_the.emplace_back(clst.TanTheta());
           gtr100y_cluster_ty.emplace_back(clst.LocalXT());
           gtr100y_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr100y_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         } else {
           ++n_gtr100yb_clusters;
           gtr100yb_cluster_id.emplace_back(clst.ClusterId());
@@ -1279,6 +1310,9 @@ class E16ANA_TrackCheckFile {
           gtr100yb_cluster_the.emplace_back(clst.TanTheta());
           gtr100yb_cluster_ty.emplace_back(clst.LocalXT());
           gtr100yb_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr100yb_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         }
       } else if (lid == 1) {
         if (type == 0) {
@@ -1298,6 +1332,9 @@ class E16ANA_TrackCheckFile {
           auto gpost = clst.GlobalPosT(geometry);
           gtr200x_cluster_gtx.emplace_back(gpost.X());
           gtr200x_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr200x_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         } else if (type == 1) {
           ++n_gtr200y_clusters;
           gtr200y_cluster_id.emplace_back(clst.ClusterId());
@@ -1310,6 +1347,9 @@ class E16ANA_TrackCheckFile {
           gtr200y_cluster_the.emplace_back(clst.TanTheta());
           gtr200y_cluster_ty.emplace_back(clst.LocalXT());
           gtr200y_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr200y_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         }
       } else {
         if (type == 0) {
@@ -1329,6 +1369,9 @@ class E16ANA_TrackCheckFile {
           auto gpost = clst.GlobalPosT(geometry);
           gtr300x_cluster_gtx.emplace_back(gpost.X());
           gtr300x_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr300x_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         } else if (type == 1) {
           ++n_gtr300y_clusters;
           gtr300y_cluster_id.emplace_back(clst.ClusterId());
@@ -1341,6 +1384,9 @@ class E16ANA_TrackCheckFile {
           gtr300y_cluster_the.emplace_back(clst.TanTheta());
           gtr300y_cluster_ty.emplace_back(clst.LocalXT());
           gtr300y_cluster_size.emplace_back(clst.NumHits());
+#ifdef TRACK_EFF_CHECK
+          gtr300y_cluster_is_merged.emplace_back(clst.IsMerged());
+#endif // TRACK_EFF_CHECK
         }
       }
     }
@@ -3109,6 +3155,16 @@ class E16ANA_TrackCheckFile {
   std::vector<double> hbd_hit_gz;
   std::vector<double> hbd_hit_t;
   std::vector<float>  hbd_hit_adc;
+#ifdef TRACK_EFF_CHECK
+  std::vector<bool> ssd_cluster_is_merged;
+  std::vector<bool> gtr100x_cluster_is_merged;
+  std::vector<bool> gtr200x_cluster_is_merged;
+  std::vector<bool> gtr300x_cluster_is_merged;
+  std::vector<bool> gtr100y_cluster_is_merged;
+  std::vector<bool> gtr100yb_cluster_is_merged;
+  std::vector<bool> gtr200y_cluster_is_merged;
+  std::vector<bool> gtr300y_cluster_is_merged;
+#endif // TRACK_EFF_CHECK
   int n_ssd_clusters;
   std::vector<int> ssd_cluster_id;
   std::vector<int> ssd_cluster_mid;
