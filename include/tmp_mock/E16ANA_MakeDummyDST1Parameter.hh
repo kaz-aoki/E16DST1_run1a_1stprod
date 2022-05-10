@@ -31,6 +31,7 @@ constexpr int    kMockClusterID = 10000;
 constexpr int    kSSDDeadModuleID = 108;
 constexpr double kSSDDeadX[2] = {-20.6, -10.28};
 constexpr double kGTRDriftLength = 3.;
+constexpr double kStripSize[] = {0.08, 0.35, 1.4, 1.4, 0.35, 1.4, 0.35, 1.4};
 constexpr double kGTRStripPitch[kNumGTRTypes] = {0.35, 1.4};
 constexpr double kGTRADC = 1500.;
 constexpr double kHBDPE = 10.;
@@ -52,6 +53,10 @@ constexpr double kGTRTimeMean    = 300.;
 constexpr double kSSDTimeSigma   =   5.;
 constexpr double kGTRTimeSigma   = 120.;
 constexpr double kGTRXYTimeSigma =  20.;
+
+constexpr int    kSSDClusterSize  = 1;
+constexpr int    kGTRxClusterSize = 3;
+constexpr int    kGTRyClusterSize = 1;
 
 }; // E16ANA_MakeDummyDST1Parameter
 

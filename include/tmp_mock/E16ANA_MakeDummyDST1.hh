@@ -29,8 +29,14 @@ class E16ANA_MakeDummyDST1 {
   bool IsAType(int module_id);
   std::array<double, 2> DistributeTiming(int detector_id, double t);
   int GTRClusterSize(int type, E16ANA_MockHit& hit);
+  bool IsOverlap(int detector_id, const double x[], const int size[]);
   void MergeMockToRealData(E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record);
  private:
+  struct MergedValues {
+    double x;
+    float  t;
+    int    size;
+  };
 //  E16ANA_GTRcalibPedestal*  gtr_pedestal;
 //  E16ANA_GTRcalibParams*    gtr_params;
 //  E16ANA_GTRAnalyzerMaker*  gtr_analyzers;
