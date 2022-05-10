@@ -43,7 +43,7 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-#	include/res
+	include/res
 	include/trigger
 	include/straight_track
 	include/track
@@ -140,12 +140,12 @@ add_library(E16DST_DST1
   ${E16ANA_SSD_SRCS}
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
-#  src/res/AnalyzerResidualHBD.cc
-#  src/res/AnalyzerTrackSelection.cc
-#  src/res/SingleTrackAnalyzerForRes.cc
+  src/res/AnalyzerResidualHBD.cc
+  src/res/AnalyzerTrackSelection.cc
+  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
-  src/tmp/SingleTrackAnalyzerForRes.cc
-  src/tmp/AnalyzerResidualHBD.cc
+#  src/tmp/SingleTrackAnalyzerForRes.cc
+#  src/tmp/AnalyzerResidualHBD.cc
   #src/tmp/EfficiencyCalc.cc
   
 	src/E16DST_DST1.cc
