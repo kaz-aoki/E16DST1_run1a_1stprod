@@ -501,6 +501,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr100_yt", &rk_hit_gtr100_yt);
     tree->Branch("rk_hit_gtr100_xt2", &rk_hit_gtr100_xt2);
     tree->Branch("rk_hit_gtr100_yt2", &rk_hit_gtr100_yt2);
+    tree->Branch("rk_hit_gtr100_tx2", &rk_hit_gtr100_tx2);
+    tree->Branch("rk_hit_gtr100_ty" , &rk_hit_gtr100_ty);
     tree->Branch("rk_hit_gtr100_gtx", &rk_hit_gtr100_gtx);
     tree->Branch("rk_hit_gtr100_gty", &rk_hit_gtr100_gty);
     tree->Branch("rk_hit_gtr100_gtz", &rk_hit_gtr100_gtz);
@@ -520,6 +522,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr200_yt", &rk_hit_gtr200_yt);
     tree->Branch("rk_hit_gtr200_xt2", &rk_hit_gtr200_xt2);
     tree->Branch("rk_hit_gtr200_yt2", &rk_hit_gtr200_yt2);
+    tree->Branch("rk_hit_gtr200_tx2", &rk_hit_gtr200_tx2);
+    tree->Branch("rk_hit_gtr200_ty" , &rk_hit_gtr200_ty);
     tree->Branch("rk_hit_gtr200_gtx", &rk_hit_gtr200_gtx);
     tree->Branch("rk_hit_gtr200_gty", &rk_hit_gtr200_gty);
     tree->Branch("rk_hit_gtr200_gtz", &rk_hit_gtr200_gtz);
@@ -539,6 +543,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr300_yt", &rk_hit_gtr300_yt);
     tree->Branch("rk_hit_gtr300_xt2", &rk_hit_gtr300_xt2);
     tree->Branch("rk_hit_gtr300_yt2", &rk_hit_gtr300_yt2);
+    tree->Branch("rk_hit_gtr300_tx2", &rk_hit_gtr300_tx2);
+    tree->Branch("rk_hit_gtr300_ty" , &rk_hit_gtr300_ty);
     tree->Branch("rk_hit_gtr300_gtx", &rk_hit_gtr300_gtx);
     tree->Branch("rk_hit_gtr300_gty", &rk_hit_gtr300_gty);
     tree->Branch("rk_hit_gtr300_gtz", &rk_hit_gtr300_gtz);
@@ -2037,6 +2043,8 @@ class E16ANA_TrackCheckFile {
     rk_hit_gtr300_yt.resize(n_cands);
     rk_hit_gtr100_xt2.resize(n_cands);
     rk_hit_gtr100_yt2.resize(n_cands);
+    rk_hit_gtr100_tx2.resize(n_cands);
+    rk_hit_gtr100_ty.resize(n_cands);
     rk_hit_gtr100_gtx.resize(n_cands);
     rk_hit_gtr100_gty.resize(n_cands);
     rk_hit_gtr100_gtz.resize(n_cands);
@@ -2047,6 +2055,8 @@ class E16ANA_TrackCheckFile {
     rk_hit_gtr100_the2.resize(n_cands);
     rk_hit_gtr200_xt2.resize(n_cands);
     rk_hit_gtr200_yt2.resize(n_cands);
+    rk_hit_gtr200_tx2.resize(n_cands);
+    rk_hit_gtr200_ty.resize(n_cands);
     rk_hit_gtr200_gtx.resize(n_cands);
     rk_hit_gtr200_gty.resize(n_cands);
     rk_hit_gtr200_gtz.resize(n_cands);
@@ -2057,6 +2067,8 @@ class E16ANA_TrackCheckFile {
     rk_hit_gtr200_the2.resize(n_cands);
     rk_hit_gtr300_xt2.resize(n_cands);
     rk_hit_gtr300_yt2.resize(n_cands);
+    rk_hit_gtr300_tx2.resize(n_cands);
+    rk_hit_gtr300_ty.resize(n_cands);
     rk_hit_gtr300_gtx.resize(n_cands);
     rk_hit_gtr300_gty.resize(n_cands);
     rk_hit_gtr300_gtz.resize(n_cands);
@@ -2419,6 +2431,9 @@ class E16ANA_TrackCheckFile {
 //      rk_hit_ssd_t[i]  = ssd_clst->Timing();
       rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
       rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+      auto& gtr100hit_lpos = pairs[1].LocalPosT();
+      rk_hit_gtr100_tx2[i]  = gtr100hit_lpos.X();
+      rk_hit_gtr100_ty[i]   = gtr100hit_lpos.Y();
       auto& gtr100hit_gpos = pairs[1].GlobalPos();
       rk_hit_gtr100_gtx[i]  = gtr100hit_gpos.X();
       rk_hit_gtr100_gty[i]  = gtr100hit_gpos.Y();
@@ -2442,6 +2457,9 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr100_gy[i]  = gtr100_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr100_gz[i]  = gtr100_xclst->GlobalPos(geometry).Z();
       rk_hit_gtr100_the[i] = gtr100_xclst->TanTheta();
+      auto& gtr200hit_lpos = pairs[2].LocalPosT();
+      rk_hit_gtr200_tx2[i]  = gtr200hit_lpos.X();
+      rk_hit_gtr200_ty[i]   = gtr200hit_lpos.Y();
       auto& gtr200hit_gpos = pairs[2].GlobalPos();
       rk_hit_gtr200_gtx[i]  = gtr200hit_gpos.X();
       rk_hit_gtr200_gty[i]  = gtr200hit_gpos.Y();
@@ -2465,6 +2483,9 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr200_gy[i]  = gtr200_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr200_gz[i]  = gtr200_xclst->GlobalPos(geometry).Z();
       rk_hit_gtr200_the[i] = gtr200_xclst->TanTheta();
+      auto& gtr300hit_lpos = pairs[3].LocalPosT();
+      rk_hit_gtr300_tx2[i]  = gtr300hit_lpos.X();
+      rk_hit_gtr300_ty[i]   = gtr300hit_lpos.Y();
       auto& gtr300hit_gpos = pairs[3].GlobalPos();
       rk_hit_gtr300_gtx[i]  = gtr300hit_gpos.X();
       rk_hit_gtr300_gty[i]  = gtr300hit_gpos.Y();
@@ -3517,6 +3538,8 @@ class E16ANA_TrackCheckFile {
   std::vector<float> rk_hit_gtr100_yt;
   std::vector<float> rk_hit_gtr100_xt2;//
   std::vector<float> rk_hit_gtr100_yt2;//
+  std::vector<double> rk_hit_gtr100_tx2;
+  std::vector<double> rk_hit_gtr100_ty;
   std::vector<double> rk_hit_gtr100_gtx;//
   std::vector<double> rk_hit_gtr100_gty;//
   std::vector<double> rk_hit_gtr100_gtz;//
@@ -3536,6 +3559,8 @@ class E16ANA_TrackCheckFile {
   std::vector<float> rk_hit_gtr200_yt;
   std::vector<float>  rk_hit_gtr200_xt2;
   std::vector<float>  rk_hit_gtr200_yt2;
+  std::vector<double> rk_hit_gtr200_tx2;
+  std::vector<double> rk_hit_gtr200_ty;
   std::vector<double> rk_hit_gtr200_gtx;
   std::vector<double> rk_hit_gtr200_gty;
   std::vector<double> rk_hit_gtr200_gtz;
@@ -3555,6 +3580,8 @@ class E16ANA_TrackCheckFile {
   std::vector<float> rk_hit_gtr300_yt;
   std::vector<float>  rk_hit_gtr300_xt2;
   std::vector<float>  rk_hit_gtr300_yt2;
+  std::vector<double> rk_hit_gtr300_tx2;
+  std::vector<double> rk_hit_gtr300_ty;
   std::vector<double> rk_hit_gtr300_gtx;
   std::vector<double> rk_hit_gtr300_gty;
   std::vector<double> rk_hit_gtr300_gtz;

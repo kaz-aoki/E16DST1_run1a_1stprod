@@ -162,17 +162,17 @@ int main(int argc, char* argv[]) {
   }
   auto gtr_stat = E16ANA_GTRStatus(run_id);
   
-for (int mid = 101; mid <= 109; ++mid) {
-  for (int i = 0; i < 20; ++i) {
-    double y = 5. * i - 50.;
-    auto stat = gtr_stat.GEMDeadArea100()->IsYOK(mid, y);
-    if (stat) {
-      cout << "mid " << mid << " y " << y << " OK" << endl;
-    } else {
-      cout << "mid " << mid << " y " << y << " dead" << endl;
-    }
-  }
-}
+//for (int mid = 101; mid <= 109; ++mid) {
+//  for (int i = 0; i < 20; ++i) {
+//    double y = 5. * i - 50.;
+//    auto stat = gtr_stat.GEMDeadArea100()->IsYOK(mid, y);
+//    if (stat) {
+//      cout << "mid " << mid << " y " << y << " OK" << endl;
+//    } else {
+//      cout << "mid " << mid << " y " << y << " dead" << endl;
+//    }
+//  }
+//}
   
   auto hbd_dead_ch = E16ANA_HBDDeadChannel();
   hbd_dead_ch.ReadDeadChannelData(run_id);
@@ -256,13 +256,17 @@ for (int mid = 101; mid <= 109; ++mid) {
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
 #ifdef TRACK_EFF_CHECK
+      record.SSD().UpdatePtrs();
+      record.GTR().UpdatePtrs();
+      record.HBD().UpdatePtrs();
+      record.LG().UpdatePtrs();
+      record.Trigger().UpdatePtrs();
       if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
         cerr << "mock data finished at " << n_physics_event << " events" << endl;
         break;
       }
       bool is_finished = false;
       while (data_merger.IsDeadRegion(mock_data.Track())) {
-        cout << "dead region" << endl;
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
           cerr << "mock data finished at " << n_physics_event << " events" << endl;
           is_finished = true;
