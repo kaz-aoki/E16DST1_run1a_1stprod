@@ -277,6 +277,7 @@ int main(int argc, char* argv[]) {
         break;
       }
       data_merger.MergeMockToRealData(mock_data.Track(), &record);
+      check_file.AddSimTrack(mock_data.Track());
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();

@@ -6,9 +6,9 @@
 
 #include "E16ANA_MakeDummyDST1.hh"
 
-//#include <random>
+#include <random>
 
-#include "TRandom3.h"
+//#include "TRandom3.h"
 
 using namespace std;
 using namespace E16ANA_MakeDummyDST1Parameter;
@@ -131,33 +131,33 @@ bool E16ANA_MakeDummyDST1::IsAType(int module_id) {
 
 array<double, 2> E16ANA_MakeDummyDST1::DistributeTiming(int detector_id, double t) {
 #ifndef WO_LAYER_EFF
-//  double mean;
-//  double sigma;
-//  if (detector_id == kSSD) {
-//    mean  = kSSDTimeMean;
-//    sigma = kSSDTimeSigma;
-//  } else if (detector_id == kGTR) {
-//    mean  = kGTRTimeMean;
-//    sigma = kGTRTimeSigma;
-//  }
-//  random_device seed_gen;
-//  default_random_engine engine(seed_gen());
-//  normal_distribution<> dist(mean, sigma);
-//  auto time = dist(engine);
-//  if (detector_id == kSSD) {
-//    return {time, 0.};
-//  }
-//  normal_distribution<> xy_dist(time, kGTRXYTimeSigma);
-//  return {xy_dist(engine), xy_dist(engine)};
-  auto rnd = TRandom3();
+  double mean;
+  double sigma;
   if (detector_id == kSSD) {
-    auto time = rnd.Gaus(t + kSSDTimeMean, kSSDTimeSigma);
-    return {time, -10000.};
+    mean  = kSSDTimeMean;
+    sigma = kSSDTimeSigma;
   } else if (detector_id == kGTR) {
-    auto time = rnd.Gaus(t + kGTRTimeMean, kGTRTimeSigma);
-    return {rnd.Gaus(time, kGTRXYTimeSigma), rnd.Gaus(time, kGTRXYTimeSigma)};
+    mean  = kGTRTimeMean;
+    sigma = kGTRTimeSigma;
   }
-  return {-10000., -10000.};
+  random_device seed_gen;
+  default_random_engine engine(seed_gen());
+  normal_distribution<> dist(t + mean, sigma);
+  auto time = dist(engine);
+  if (detector_id == kSSD) {
+    return {time, 0.};
+  }
+  normal_distribution<> xy_dist(time, kGTRXYTimeSigma);
+  return {xy_dist(engine), xy_dist(engine)};
+//  auto rnd = TRandom3();
+//  if (detector_id == kSSD) {
+//    auto time = rnd.Gaus(t + kSSDTimeMean, kSSDTimeSigma);
+//    return {time, -10000.};
+//  } else if (detector_id == kGTR) {
+//    auto time = rnd.Gaus(t + kGTRTimeMean, kGTRTimeSigma);
+//    return {rnd.Gaus(time, kGTRXYTimeSigma), rnd.Gaus(time, kGTRXYTimeSigma)};
+//  }
+//  return {-10000., -10000.};
 #else
   return {0., 0.};
 #endif

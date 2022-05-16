@@ -363,6 +363,15 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
       gmom = geometry->GTR(mid[hid], l - 1)->GetGMom(lmom[hid]);
     }
     auto rpos = cluster_pairs[l].LocalPos() - lpos[hid];
+//    TVector3 rpos = 
+//    if (l == 0) {
+//      rpos = cluster_pairs[l].LocalPos() - lpos[hid];
+//    } else {
+//      rpos = cluster_pairs[l].LocalPosT() - lpos[hid];
+//    }
+//    std::vector<TVector3> rposs;
+//    fitter->GetFitResidual(tid, l, mid, rposs);
+//    auto rpos = rposs[0];
     fit_results[l].Set(l, mid2020, lpos[hid], lmom[hid], gpos, gmom, rpos);
     //if(l==0 && chisq<20){
     //printf("%f res:%f, modsize:%d lx:%f %f , z:%f \n",chisq,rpos.X(), mid.size(),cluster_pairs[l].LocalPos().X(),lpos[hid].X(),init_pos_fit.Z() );
@@ -377,8 +386,6 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
       TVector3 lcx(xclst->LocalX()-lpos[hid].X(),yclst->LocalX()-lpos[hid].Y(),0);
       fit_results[l].SetC(lcx);
     }
-
-    
   }
   Projection(fitter);
   return;

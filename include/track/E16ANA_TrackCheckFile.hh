@@ -11,6 +11,10 @@
 #include "TVector3.h"
 #include "E16ANA_TrackCandidate.hh"
 
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_MockTrackOutputData.hh"
+#endif // TRACK_EFF_CHECK
+
 class E16ANA_TrackCheckFile {
  public:
   E16ANA_TrackCheckFile(char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
@@ -458,6 +462,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("xy_reject_point",       &xy_reject_point,       "xy_reject_point/i");
     tree->Branch("reject_point",          &reject_point,          "reject_point/i");
     tree->Branch("sim_track_detected",    &sim_track_detected,    "sim_track_detected/O");
+    tree->Branch("is_sim_track", &is_sim_track);
 #endif // TRACK_EFF_CHECK
     tree->Branch("track_id", &track_id);
     tree->Branch("has_e_hbd_cluster", &has_e_hbd_cluster);
@@ -1945,6 +1950,39 @@ class E16ANA_TrackCheckFile {
     }
     return;
   }
+#ifdef TRACK_EFF_CHECK
+  void AddSimTrack(E16ANA_MockTrack& track) {
+    mock_pid      = track.PID();
+    mock_charge   = track.Charge();
+    mock_init_pos = track.VertexT();
+    mock_init_mom = track.OrigPTV();
+    auto& ssd = track.SSD();
+    mock_ssd_mid  = ssd.ModuleID();
+    mock_ssd_lpos = ssd.XTV();
+    mock_ssd_gpos = ssd.GXTV();
+    mock_ssd_lmom = ssd.PTV();
+    mock_ssd_gmom = ssd.GPTV();
+    auto& gtr100 = track.GTR1();
+    mock_gtr100_mid  = gtr100.ModuleID();
+    mock_gtr100_lpos = gtr100.XTV();
+    mock_gtr100_gpos = gtr100.GXTV();
+    mock_gtr100_lmom = gtr100.PTV();
+    mock_gtr100_gmom = gtr100.GPTV();
+    auto& gtr200 = track.GTR2();
+    mock_gtr200_mid  = gtr200.ModuleID();
+    mock_gtr200_lpos = gtr200.XTV();
+    mock_gtr200_gpos = gtr200.GXTV();
+    mock_gtr200_lmom = gtr200.PTV();
+    mock_gtr200_gmom = gtr200.GPTV();
+    auto& gtr300 = track.GTR3();
+    mock_gtr300_mid  = gtr300.ModuleID();
+    mock_gtr300_lpos = gtr300.XTV();
+    mock_gtr300_gpos = gtr300.GXTV();
+    mock_gtr300_lmom = gtr300.PTV();
+    mock_gtr300_gmom = gtr300.GPTV();
+    return;
+  }
+#endif // TRACK_EFF_CHECK
   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands) {
     n_fill = _n_fill;
     AddCandidate(geometry, cands);
@@ -1982,6 +2020,7 @@ class E16ANA_TrackCheckFile {
     xy_reject_point       = cands.XYRejectPoint();
     reject_point          = cands.RejectPoint();
     sim_track_detected    = cands.SimTrackDetected();
+    is_sim_track.resize(n_cands);
 #endif // TRACK_EFF_CHECK
     track_id.resize(n_cands);
     has_e_hbd_cluster.resize(n_cands);
@@ -2688,6 +2727,12 @@ class E16ANA_TrackCheckFile {
         rk_proj_lg_npeaks[i][j] = lghit->Npeaks();
         rk_proj_lg_fflag[i][j]  = lghit->FitFlag();
       }
+#ifdef TRACK_EFF_CHECK
+      is_sim_track[i] = rk_hit_ssd_id[i]     >= 10000 &&
+                        rk_hit_gtr100_xid[i] >= 10000 && rk_hit_gtr100_yid[i] >= 10000 &&
+                        rk_hit_gtr200_xid[i] >= 10000 && rk_hit_gtr200_yid[i] >= 10000 &&
+                        rk_hit_gtr300_xid[i] >= 10000 && rk_hit_gtr300_yid[i] >= 10000;
+#endif // TRACK_EFF_CHECK
 //      rk_proj_hbd0_id[i] = -10000;
 //      rk_proj_hbd0_mid[i] = -10000;
 //      rk_proj_hbd0_x[i] = -10000.;
@@ -3481,6 +3526,32 @@ class E16ANA_TrackCheckFile {
 //  std::vector<double> trg_track_lg_y;
 //  std::vector<float> trg_track_lg_t;
   // not used end
+#ifdef TRACK_EFF_CHECK
+  int      mock_pid;
+  int      mock_charge;
+  TVector3 mock_init_pos;
+  TVector3 mock_init_mom;
+  int       mock_ssd_mid;
+  TVector3 mock_ssd_lpos;
+  TVector3 mock_ssd_gpos;
+  TVector3 mock_ssd_lmom;
+  TVector3 mock_ssd_gmom;
+  int      mock_gtr100_mid;
+  TVector3 mock_gtr100_lpos;
+  TVector3 mock_gtr100_gpos;
+  TVector3 mock_gtr100_lmom;
+  TVector3 mock_gtr100_gmom;
+  int      mock_gtr200_mid;
+  TVector3 mock_gtr200_lpos;
+  TVector3 mock_gtr200_gpos;
+  TVector3 mock_gtr200_lmom;
+  TVector3 mock_gtr200_gmom;
+  int      mock_gtr300_mid;
+  TVector3 mock_gtr300_lpos;
+  TVector3 mock_gtr300_gpos;
+  TVector3 mock_gtr300_lmom;
+  TVector3 mock_gtr300_gmom;
+#endif // TRACK_EFF_CHECK
   // Track
   int n_x_cands;
   int n_y_cands;
@@ -3495,6 +3566,7 @@ class E16ANA_TrackCheckFile {
   uint32_t xy_reject_point;
   uint32_t reject_point;
   bool     sim_track_detected;
+  std::vector<bool> is_sim_track;
 #endif // TRACK_EFF_CHECK
   std::vector<int> track_id;
   std::vector<bool> has_e_hbd_cluster;
