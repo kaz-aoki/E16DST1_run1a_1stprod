@@ -448,6 +448,32 @@ class E16ANA_TrackCheckFile {
     tree->Branch("trg_track_hbd3_t",          &trg_track_hbd3_t);
     tree->Branch("trg_track_hbd3_is_t_match", &trg_track_hbd3_is_t_match);
     // not use end
+#ifdef TRACK_EFF_CHECK
+    tree->Branch("mock_pid",         &mock_pid,    "mock_pid/I");
+    tree->Branch("mock_charge",      &mock_charge, "mock_charge/I");
+    tree->Branch("mock_init_pos",    &mock_init_pos);
+    tree->Branch("mock_init_mom",    &mock_init_mom);
+    tree->Branch("mock_ssd_mid",     &mock_ssd_mid, "mock_ssd_mid/I");
+    tree->Branch("mock_ssd_lpos",    &mock_ssd_lpos);
+    tree->Branch("mock_ssd_gpos",    &mock_ssd_gpos);
+    tree->Branch("mock_ssd_lmom",    &mock_ssd_lmom);
+    tree->Branch("mock_ssd_gmom",    &mock_ssd_gmom);
+    tree->Branch("mock_gtr100_mid",  &mock_gtr100_mid, "mock_gtr100_mid/I");
+    tree->Branch("mock_gtr100_lpos", &mock_gtr100_lpos);
+    tree->Branch("mock_gtr100_gpos", &mock_gtr100_gpos);
+    tree->Branch("mock_gtr100_lmom", &mock_gtr100_lmom);
+    tree->Branch("mock_gtr100_gmom", &mock_gtr100_gmom);
+    tree->Branch("mock_gtr200_mid",  &mock_gtr200_mid, "mock_gtr200_mid/I");
+    tree->Branch("mock_gtr200_lpos", &mock_gtr200_lpos);
+    tree->Branch("mock_gtr200_gpos", &mock_gtr200_gpos);
+    tree->Branch("mock_gtr200_lmom", &mock_gtr200_lmom);
+    tree->Branch("mock_gtr200_gmom", &mock_gtr200_gmom);
+    tree->Branch("mock_gtr300_mid",  &mock_gtr300_mid, "mock_gtr300_mid/I");
+    tree->Branch("mock_gtr300_lpos", &mock_gtr300_lpos);
+    tree->Branch("mock_gtr300_gpos", &mock_gtr300_gpos);
+    tree->Branch("mock_gtr300_lmom", &mock_gtr300_lmom);
+    tree->Branch("mock_gtr300_gmom", &mock_gtr300_gmom);
+#endif // TRACK_EFF_CHECK
     // Track
     tree->Branch("n_x_cands", &n_x_cands, "n_x_cands/I");
     tree->Branch("n_y_cands", &n_y_cands, "n_y_cands/I");
