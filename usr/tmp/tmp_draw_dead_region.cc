@@ -28,6 +28,8 @@
 
 #include "E16ANA_GTRAnalyzerMaker.hh"
 
+#include "E16ANA_MakeDummyDST1.hh"
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -103,7 +105,8 @@ int main(int argc, char* argv[]) {
   hbd_dead_ch.ReadDeadChannelData(run_id);
   auto lg_dead_ch = E16ANA_LGDeadChannel();
   lg_dead_ch.ReadDeadChannelData();
-  
+  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(), &hbd_dead_ch, &lg_dead_ch);
+
   array<array<TH2I*, 9>, 4> h_gem;
   array<array<TH2I*, 9>, 4> h_apv;
   array<array<TH2I*, 9>, 4> h_dead;
@@ -152,7 +155,8 @@ int main(int argc, char* argv[]) {
             } else {
               h_apv[i][j]->Fill(x, y, -1);
             }
-            if (gtr100_stat->IsXOK(mid, x) && gtr100_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
+//            if (gtr100_stat->IsXOK(mid, x) && gtr100_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
+            if (!data_merger.IsGTRDeadRegion(0, mid, TVector3(x, y, 0.))) {
               h_dead[i][j]->Fill(x, y, 1);
             } else {
               h_dead[i][j]->Fill(x, y, -1);
@@ -168,7 +172,8 @@ int main(int argc, char* argv[]) {
             } else {
               h_apv[i][j]->Fill(x, y, -1);
             }
-            if (gtr200_stat->IsXOK(mid, x) && gtr200_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
+//            if (gtr200_stat->IsXOK(mid, x) && gtr200_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
+            if (!data_merger.IsGTRDeadRegion(1, mid, TVector3(x, y, 0.))) {
               h_dead[i][j]->Fill(x, y, 1);
             } else {
               h_dead[i][j]->Fill(x, y, -1);
@@ -184,7 +189,8 @@ int main(int argc, char* argv[]) {
             } else {
               h_apv[i][j]->Fill(x, y, -1);
             }
-            if (gtr300_stat->IsXOK(mid, x) && gtr300_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
+//            if (gtr300_stat->IsXOK(mid, x) && gtr300_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
+            if (!data_merger.IsGTRDeadRegion(2, mid, TVector3(x, y, 0.))) {
               h_dead[i][j]->Fill(x, y, 1);
             } else {
               h_dead[i][j]->Fill(x, y, -1);

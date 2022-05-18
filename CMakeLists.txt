@@ -427,6 +427,7 @@ add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
 target_link_libraries(tmp_draw_dead_region
 	E16ANA_Basic
   E16DST_DST1
+  E16ANA_MockTrack
 )
 
 ##_______________________________________________________________________________

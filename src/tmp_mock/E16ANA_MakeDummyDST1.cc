@@ -4,6 +4,7 @@
 //#define GEOM_VER0
 #define MERGE_CLUSTERS
 
+#include "E16ANA_GTRChannelManager.h"
 #include "E16ANA_MakeDummyDST1.hh"
 
 #include <random>
@@ -24,9 +25,18 @@ bool E16ANA_MakeDummyDST1::IsSSDDeadRegion(int mid, const TVector3& pos) {
 }
 
 bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos) {
+  auto apv_x_ch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(lid, pos.X());
+  auto is_apv_x_dead = gtr_analyzers->Chamber(mid, lid)->GetStripX()->IsBadStrip(apv_x_ch);
+  if (is_apv_x_dead) {
+    return true;
+  }
+  auto apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(lid, pos.Y());
+  auto is_apv_y_dead = gtr_analyzers->Chamber(mid, lid)->GetStripY()->IsBadStrip(apv_y_ch);
+  if (is_apv_y_dead) {
+    return true;
+  }
   if (lid == kGTR100) {
-//    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
-    if (gtr100_dead_area->IsXOK(mid, pos.X())) {
+    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
       return false;
     }
   } else if (kGTR200) {
