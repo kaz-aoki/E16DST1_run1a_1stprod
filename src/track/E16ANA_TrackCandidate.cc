@@ -1182,6 +1182,11 @@ E16INFO("number of y candidates: %d", n_y_cands);
                           gtry[0]->ClusterId() >= kMockClusterID &&
                           gtry[1]->ClusterId() >= kMockClusterID &&
                           gtry[2]->ClusterId() >= kMockClusterID;
+#ifdef MOM_RECONSTRUCT_CHECK
+      if (!is_sim_track) {
+        continue;
+      }
+#endif // MOM_RECONSTRUCT_CHECK
       bool is_same_module = true;
       if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {
         if (is_sim_track) {

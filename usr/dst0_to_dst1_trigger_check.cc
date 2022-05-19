@@ -239,6 +239,7 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
+//#ifndef MOM_RECONSTRUCT_CHECK
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
@@ -255,6 +256,7 @@ int main(int argc, char* argv[]) {
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
+//#endif
 #ifdef TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
@@ -265,8 +267,10 @@ int main(int argc, char* argv[]) {
         cerr << "mock data finished at " << n_physics_event << " events" << endl;
         break;
       }
+      check_file.ClearSimTrack();
       bool is_finished = false;
       while (data_merger.IsDeadRegion(mock_data.Track())) {
+        check_file.AddSimTrack(false, mock_data.Track());
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
           cerr << "mock data finished at " << n_physics_event << " events" << endl;
           is_finished = true;
@@ -276,8 +280,8 @@ int main(int argc, char* argv[]) {
       if (is_finished) {
         break;
       }
+      check_file.AddSimTrack(true, mock_data.Track());
       data_merger.MergeMockToRealData(mock_data.Track(), &record);
-      check_file.AddSimTrack(mock_data.Track());
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();

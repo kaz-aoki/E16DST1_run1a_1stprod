@@ -45,8 +45,13 @@ constexpr double kLGTime = 100.;
 // parameter
 //constexpr double kGTRDriftSigma = 0.265;
 
+//#ifndef MOM_RECONSTRUCT_CHECK
 constexpr double kSSDXSigma = 0.1;
 constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
+//#else
+//constexpr double kSSDXSigma = 0.;
+//constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
+//#endif
 
 constexpr double kSSDTimeMean    =  45.;
 constexpr double kGTRTimeMean    = 300.;

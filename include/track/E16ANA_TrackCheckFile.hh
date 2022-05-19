@@ -61,6 +61,9 @@ class E16ANA_TrackCheckFile {
     tree->Branch("timestamp_in_spill", &timestamp_in_spill, "timestamp_in_spill/l");
     tree->Branch("trigger_fine_time", &trigger_fine_time, "trigger_fine_time/I");
     tree->Branch("n_fill", &n_fill, "n_fill/I");
+#ifdef TRACK_EFF_CHECK
+    tree->Branch("cluster_merged", &cluster_merged, "cluster_merged/O");
+#endif // TRACK_EFF_CHECK
     tree->Branch("n_ssd_hits",  &n_ssd_hits, "n_ssd_hits/I");
     tree->Branch("ssd_hit_id",  &ssd_hit_id);
     tree->Branch("ssd_hit_mid", &ssd_hit_mid);
@@ -449,30 +452,68 @@ class E16ANA_TrackCheckFile {
     tree->Branch("trg_track_hbd3_is_t_match", &trg_track_hbd3_is_t_match);
     // not use end
 #ifdef TRACK_EFF_CHECK
-    tree->Branch("mock_pid",         &mock_pid,    "mock_pid/I");
-    tree->Branch("mock_charge",      &mock_charge, "mock_charge/I");
-    tree->Branch("mock_init_pos",    &mock_init_pos);
-    tree->Branch("mock_init_mom",    &mock_init_mom);
-    tree->Branch("mock_ssd_mid",     &mock_ssd_mid, "mock_ssd_mid/I");
-    tree->Branch("mock_ssd_lpos",    &mock_ssd_lpos);
-    tree->Branch("mock_ssd_gpos",    &mock_ssd_gpos);
-    tree->Branch("mock_ssd_lmom",    &mock_ssd_lmom);
-    tree->Branch("mock_ssd_gmom",    &mock_ssd_gmom);
-    tree->Branch("mock_gtr100_mid",  &mock_gtr100_mid, "mock_gtr100_mid/I");
-    tree->Branch("mock_gtr100_lpos", &mock_gtr100_lpos);
-    tree->Branch("mock_gtr100_gpos", &mock_gtr100_gpos);
-    tree->Branch("mock_gtr100_lmom", &mock_gtr100_lmom);
-    tree->Branch("mock_gtr100_gmom", &mock_gtr100_gmom);
-    tree->Branch("mock_gtr200_mid",  &mock_gtr200_mid, "mock_gtr200_mid/I");
-    tree->Branch("mock_gtr200_lpos", &mock_gtr200_lpos);
-    tree->Branch("mock_gtr200_gpos", &mock_gtr200_gpos);
-    tree->Branch("mock_gtr200_lmom", &mock_gtr200_lmom);
-    tree->Branch("mock_gtr200_gmom", &mock_gtr200_gmom);
-    tree->Branch("mock_gtr300_mid",  &mock_gtr300_mid, "mock_gtr300_mid/I");
-    tree->Branch("mock_gtr300_lpos", &mock_gtr300_lpos);
-    tree->Branch("mock_gtr300_gpos", &mock_gtr300_gpos);
-    tree->Branch("mock_gtr300_lmom", &mock_gtr300_lmom);
-    tree->Branch("mock_gtr300_gmom", &mock_gtr300_gmom);
+    tree->Branch("mock_n_tracks",      &mock_n_tracks, "mock_n_tracks/I");
+    tree->Branch("mock_is_dead",       &mock_is_dead);
+    tree->Branch("mock_pid",           &mock_pid);
+    tree->Branch("mock_charge",        &mock_charge);
+    tree->Branch("mock_init_pos_x",    &mock_init_pos_x);
+    tree->Branch("mock_init_pos_y",    &mock_init_pos_y);
+    tree->Branch("mock_init_pos_z",    &mock_init_pos_z);
+    tree->Branch("mock_init_mom_x",    &mock_init_mom_x);
+    tree->Branch("mock_init_mom_y",    &mock_init_mom_y);
+    tree->Branch("mock_init_mom_z",    &mock_init_mom_z);
+    tree->Branch("mock_ssd_mid",       &mock_ssd_mid);
+    tree->Branch("mock_ssd_lpos_x",    &mock_ssd_lpos_x);
+    tree->Branch("mock_ssd_lpos_y",    &mock_ssd_lpos_y);
+    tree->Branch("mock_ssd_lpos_z",    &mock_ssd_lpos_z);
+    tree->Branch("mock_ssd_gpos_x",    &mock_ssd_gpos_x);
+    tree->Branch("mock_ssd_gpos_y",    &mock_ssd_gpos_y);
+    tree->Branch("mock_ssd_gpos_z",    &mock_ssd_gpos_z);
+    tree->Branch("mock_ssd_lmom_x",    &mock_ssd_lmom_x);
+    tree->Branch("mock_ssd_lmom_y",    &mock_ssd_lmom_y);
+    tree->Branch("mock_ssd_lmom_z",    &mock_ssd_lmom_z);
+    tree->Branch("mock_ssd_gmom_x",    &mock_ssd_gmom_x);
+    tree->Branch("mock_ssd_gmom_y",    &mock_ssd_gmom_y);
+    tree->Branch("mock_ssd_gmom_z",    &mock_ssd_gmom_z);
+    tree->Branch("mock_gtr100_mid",    &mock_gtr100_mid);
+    tree->Branch("mock_gtr100_lpos_x", &mock_gtr100_lpos_x);
+    tree->Branch("mock_gtr100_lpos_y", &mock_gtr100_lpos_y);
+    tree->Branch("mock_gtr100_lpos_z", &mock_gtr100_lpos_z);
+    tree->Branch("mock_gtr100_gpos_x", &mock_gtr100_gpos_x);
+    tree->Branch("mock_gtr100_gpos_y", &mock_gtr100_gpos_y);
+    tree->Branch("mock_gtr100_gpos_z", &mock_gtr100_gpos_z);
+    tree->Branch("mock_gtr100_lmom_x", &mock_gtr100_lmom_x);
+    tree->Branch("mock_gtr100_lmom_y", &mock_gtr100_lmom_y);
+    tree->Branch("mock_gtr100_lmom_z", &mock_gtr100_lmom_z);
+    tree->Branch("mock_gtr100_gmom_x", &mock_gtr100_gmom_x);
+    tree->Branch("mock_gtr100_gmom_y", &mock_gtr100_gmom_y);
+    tree->Branch("mock_gtr100_gmom_z", &mock_gtr100_gmom_z);
+    tree->Branch("mock_gtr200_mid",    &mock_gtr200_mid);
+    tree->Branch("mock_gtr200_lpos_x", &mock_gtr200_lpos_x);
+    tree->Branch("mock_gtr200_lpos_y", &mock_gtr200_lpos_y);
+    tree->Branch("mock_gtr200_lpos_z", &mock_gtr200_lpos_z);
+    tree->Branch("mock_gtr200_gpos_x", &mock_gtr200_gpos_x);
+    tree->Branch("mock_gtr200_gpos_y", &mock_gtr200_gpos_y);
+    tree->Branch("mock_gtr200_gpos_z", &mock_gtr200_gpos_z);
+    tree->Branch("mock_gtr200_lmom_x", &mock_gtr200_lmom_x);
+    tree->Branch("mock_gtr200_lmom_y", &mock_gtr200_lmom_y);
+    tree->Branch("mock_gtr200_lmom_z", &mock_gtr200_lmom_z);
+    tree->Branch("mock_gtr200_gmom_x", &mock_gtr200_gmom_x);
+    tree->Branch("mock_gtr200_gmom_y", &mock_gtr200_gmom_y);
+    tree->Branch("mock_gtr200_gmom_z", &mock_gtr200_gmom_z);
+    tree->Branch("mock_gtr300_mid",    &mock_gtr300_mid);
+    tree->Branch("mock_gtr300_lpos_x", &mock_gtr300_lpos_x);
+    tree->Branch("mock_gtr300_lpos_y", &mock_gtr300_lpos_y);
+    tree->Branch("mock_gtr300_lpos_z", &mock_gtr300_lpos_z);
+    tree->Branch("mock_gtr300_gpos_x", &mock_gtr300_gpos_x);
+    tree->Branch("mock_gtr300_gpos_y", &mock_gtr300_gpos_y);
+    tree->Branch("mock_gtr300_gpos_z", &mock_gtr300_gpos_z);
+    tree->Branch("mock_gtr300_lmom_x", &mock_gtr300_lmom_x);
+    tree->Branch("mock_gtr300_lmom_y", &mock_gtr300_lmom_y);
+    tree->Branch("mock_gtr300_lmom_z", &mock_gtr300_lmom_z);
+    tree->Branch("mock_gtr300_gmom_x", &mock_gtr300_gmom_x);
+    tree->Branch("mock_gtr300_gmom_y", &mock_gtr300_gmom_y);
+    tree->Branch("mock_gtr300_gmom_z", &mock_gtr300_gmom_z);
 #endif // TRACK_EFF_CHECK
     // Track
     tree->Branch("n_x_cands", &n_x_cands, "n_x_cands/I");
@@ -964,6 +1005,9 @@ class E16ANA_TrackCheckFile {
     spill_id = _spill_id;
     timestamp_in_spill = _timestamp_in_spill;
     trigger_fine_time = _trigger_fine_time;
+#ifdef TRACK_EFF_CHECK
+    cluster_merged = false;
+#endif // TRACK_EFF_CHECK
     n_ssd_hits = record.SSD().NumHits();
     ssd_hit_id.resize(n_ssd_hits);
     ssd_hit_mid.resize(n_ssd_hits);
@@ -1193,6 +1237,9 @@ class E16ANA_TrackCheckFile {
       ssd_cluster_fit_chi2[i] = clst.Chi2NdfFit();
 #ifdef TRACK_EFF_CHECK
       ssd_cluster_is_merged[i] = clst.IsMerged();
+      if (clst.IsMerged()) {
+        cluster_merged = true;
+      }
 #endif // TRACK_EFF_CHECK
     }
     n_gtr100x_clusters = 0;
@@ -1319,6 +1366,9 @@ class E16ANA_TrackCheckFile {
           gtr100x_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr100x_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         } else if (type == 1) {
           ++n_gtr100y_clusters;
@@ -1334,6 +1384,9 @@ class E16ANA_TrackCheckFile {
           gtr100y_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr100y_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         } else {
           ++n_gtr100yb_clusters;
@@ -1349,6 +1402,9 @@ class E16ANA_TrackCheckFile {
           gtr100yb_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr100yb_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         }
       } else if (lid == 1) {
@@ -1371,6 +1427,9 @@ class E16ANA_TrackCheckFile {
           gtr200x_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr200x_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         } else if (type == 1) {
           ++n_gtr200y_clusters;
@@ -1386,6 +1445,9 @@ class E16ANA_TrackCheckFile {
           gtr200y_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr200y_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         }
       } else {
@@ -1408,6 +1470,9 @@ class E16ANA_TrackCheckFile {
           gtr300x_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr300x_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         } else if (type == 1) {
           ++n_gtr300y_clusters;
@@ -1423,6 +1488,9 @@ class E16ANA_TrackCheckFile {
           gtr300y_cluster_size.emplace_back(clst.NumHits());
 #ifdef TRACK_EFF_CHECK
           gtr300y_cluster_is_merged.emplace_back(clst.IsMerged());
+          if (clst.IsMerged()) {
+            cluster_merged = true;
+          }
 #endif // TRACK_EFF_CHECK
         }
       }
@@ -1977,35 +2045,137 @@ class E16ANA_TrackCheckFile {
     return;
   }
 #ifdef TRACK_EFF_CHECK
-  void AddSimTrack(E16ANA_MockTrack& track) {
-    mock_pid      = track.PID();
-    mock_charge   = track.Charge();
-    mock_init_pos = track.VertexT();
-    mock_init_mom = track.OrigPTV();
+  void ClearSimTrack() {
+    mock_n_tracks = 0;
+    mock_is_dead.clear();
+    mock_pid.clear();
+    mock_charge.clear();
+    mock_init_pos_x.clear();
+    mock_init_pos_y.clear();
+    mock_init_pos_z.clear();
+    mock_init_mom_x.clear();
+    mock_init_mom_y.clear();
+    mock_init_mom_z.clear();
+    mock_ssd_mid.clear();
+    mock_ssd_lpos_x.clear();
+    mock_ssd_lpos_y.clear();
+    mock_ssd_lpos_z.clear();
+    mock_ssd_gpos_x.clear();
+    mock_ssd_gpos_y.clear();
+    mock_ssd_gpos_z.clear();
+    mock_ssd_lmom_x.clear();
+    mock_ssd_lmom_y.clear();
+    mock_ssd_lmom_z.clear();
+    mock_ssd_gmom_x.clear();
+    mock_ssd_gmom_y.clear();
+    mock_ssd_gmom_z.clear();
+    mock_gtr100_mid.clear();
+    mock_gtr100_lpos_x.clear();
+    mock_gtr100_lpos_y.clear();
+    mock_gtr100_lpos_z.clear();
+    mock_gtr100_gpos_x.clear();
+    mock_gtr100_gpos_y.clear();
+    mock_gtr100_gpos_z.clear();
+    mock_gtr100_lmom_x.clear();
+    mock_gtr100_lmom_y.clear();
+    mock_gtr100_lmom_z.clear();
+    mock_gtr100_gmom_x.clear();
+    mock_gtr100_gmom_y.clear();
+    mock_gtr100_gmom_z.clear();
+    mock_gtr200_mid.clear();
+    mock_gtr200_lpos_x.clear();
+    mock_gtr200_lpos_y.clear();
+    mock_gtr200_lpos_z.clear();
+    mock_gtr200_gpos_x.clear();
+    mock_gtr200_gpos_y.clear();
+    mock_gtr200_gpos_z.clear();
+    mock_gtr200_lmom_x.clear();
+    mock_gtr200_lmom_y.clear();
+    mock_gtr200_lmom_z.clear();
+    mock_gtr200_gmom_x.clear();
+    mock_gtr200_gmom_y.clear();
+    mock_gtr200_gmom_z.clear();
+    mock_gtr300_mid.clear();
+    mock_gtr300_lpos_x.clear();
+    mock_gtr300_lpos_y.clear();
+    mock_gtr300_lpos_z.clear();
+    mock_gtr300_gpos_x.clear();
+    mock_gtr300_gpos_y.clear();
+    mock_gtr300_gpos_z.clear();
+    mock_gtr300_lmom_x.clear();
+    mock_gtr300_lmom_y.clear();
+    mock_gtr300_lmom_z.clear();
+    mock_gtr300_gmom_x.clear();
+    mock_gtr300_gmom_y.clear();
+    mock_gtr300_gmom_z.clear();
+  }
+  void AddSimTrack(bool is_dead, E16ANA_MockTrack& track) {
+    ++mock_n_tracks;
+    mock_is_dead.emplace_back(is_dead);
+    mock_pid.emplace_back(track.PID());
+    mock_charge.emplace_back(track.Charge());
+    mock_init_pos_x.emplace_back(track.VertexT().X());
+    mock_init_pos_y.emplace_back(track.VertexT().Y());
+    mock_init_pos_z.emplace_back(track.VertexT().Z());
+    mock_init_mom_x.emplace_back(track.OrigPTV().X());
+    mock_init_mom_y.emplace_back(track.OrigPTV().Y());
+    mock_init_mom_z.emplace_back(track.OrigPTV().Z());
     auto& ssd = track.SSD();
-    mock_ssd_mid  = ssd.ModuleID();
-    mock_ssd_lpos = ssd.XTV();
-    mock_ssd_gpos = ssd.GXTV();
-    mock_ssd_lmom = ssd.PTV();
-    mock_ssd_gmom = ssd.GPTV();
+    mock_ssd_mid.emplace_back(ssd.ModuleID());
+    mock_ssd_lpos_x.emplace_back(ssd.X());
+    mock_ssd_lpos_y.emplace_back(ssd.Y());
+    mock_ssd_lpos_z.emplace_back(ssd.Z());
+    mock_ssd_gpos_x.emplace_back(ssd.GX());
+    mock_ssd_gpos_y.emplace_back(ssd.GY());
+    mock_ssd_gpos_z.emplace_back(ssd.GZ());
+    mock_ssd_lmom_x.emplace_back(ssd.PTV().X());
+    mock_ssd_lmom_y.emplace_back(ssd.PTV().Y());
+    mock_ssd_lmom_z.emplace_back(ssd.PTV().Z());
+    mock_ssd_gmom_x.emplace_back(ssd.GPTV().X());
+    mock_ssd_gmom_y.emplace_back(ssd.GPTV().Y());
+    mock_ssd_gmom_z.emplace_back(ssd.GPTV().Z());
     auto& gtr100 = track.GTR1();
-    mock_gtr100_mid  = gtr100.ModuleID();
-    mock_gtr100_lpos = gtr100.XTV();
-    mock_gtr100_gpos = gtr100.GXTV();
-    mock_gtr100_lmom = gtr100.PTV();
-    mock_gtr100_gmom = gtr100.GPTV();
+    mock_gtr100_mid.emplace_back(gtr100.ModuleID());
+    mock_gtr100_lpos_x.emplace_back(gtr100.X());
+    mock_gtr100_lpos_y.emplace_back(gtr100.Y());
+    mock_gtr100_lpos_z.emplace_back(gtr100.Z());
+    mock_gtr100_gpos_x.emplace_back(gtr100.GX());
+    mock_gtr100_gpos_y.emplace_back(gtr100.GY());
+    mock_gtr100_gpos_z.emplace_back(gtr100.GZ());
+    mock_gtr100_lmom_x.emplace_back(gtr100.PTV().X());
+    mock_gtr100_lmom_y.emplace_back(gtr100.PTV().Y());
+    mock_gtr100_lmom_z.emplace_back(gtr100.PTV().Z());
+    mock_gtr100_gmom_x.emplace_back(gtr100.GPTV().X());
+    mock_gtr100_gmom_y.emplace_back(gtr100.GPTV().Y());
+    mock_gtr100_gmom_z.emplace_back(gtr100.GPTV().Z());
     auto& gtr200 = track.GTR2();
-    mock_gtr200_mid  = gtr200.ModuleID();
-    mock_gtr200_lpos = gtr200.XTV();
-    mock_gtr200_gpos = gtr200.GXTV();
-    mock_gtr200_lmom = gtr200.PTV();
-    mock_gtr200_gmom = gtr200.GPTV();
+    mock_gtr200_mid.emplace_back(gtr200.ModuleID());
+    mock_gtr200_lpos_x.emplace_back(gtr200.X());
+    mock_gtr200_lpos_y.emplace_back(gtr200.Y());
+    mock_gtr200_lpos_z.emplace_back(gtr200.Z());
+    mock_gtr200_gpos_x.emplace_back(gtr200.GX());
+    mock_gtr200_gpos_y.emplace_back(gtr200.GY());
+    mock_gtr200_gpos_z.emplace_back(gtr200.GZ());
+    mock_gtr200_lmom_x.emplace_back(gtr200.PTV().X());
+    mock_gtr200_lmom_y.emplace_back(gtr200.PTV().Y());
+    mock_gtr200_lmom_z.emplace_back(gtr200.PTV().Z());
+    mock_gtr200_gmom_x.emplace_back(gtr200.GPTV().X());
+    mock_gtr200_gmom_y.emplace_back(gtr200.GPTV().Y());
+    mock_gtr200_gmom_z.emplace_back(gtr200.GPTV().Z());
     auto& gtr300 = track.GTR3();
-    mock_gtr300_mid  = gtr300.ModuleID();
-    mock_gtr300_lpos = gtr300.XTV();
-    mock_gtr300_gpos = gtr300.GXTV();
-    mock_gtr300_lmom = gtr300.PTV();
-    mock_gtr300_gmom = gtr300.GPTV();
+    mock_gtr300_mid.emplace_back(gtr300.ModuleID());
+    mock_gtr300_lpos_x.emplace_back(gtr300.X());
+    mock_gtr300_lpos_y.emplace_back(gtr300.Y());
+    mock_gtr300_lpos_z.emplace_back(gtr300.Z());
+    mock_gtr300_gpos_x.emplace_back(gtr300.GX());
+    mock_gtr300_gpos_y.emplace_back(gtr300.GY());
+    mock_gtr300_gpos_z.emplace_back(gtr300.GZ());
+    mock_gtr300_lmom_x.emplace_back(gtr300.PTV().X());
+    mock_gtr300_lmom_y.emplace_back(gtr300.PTV().Y());
+    mock_gtr300_lmom_z.emplace_back(gtr300.PTV().Z());
+    mock_gtr300_gmom_x.emplace_back(gtr300.GPTV().X());
+    mock_gtr300_gmom_y.emplace_back(gtr300.GPTV().Y());
+    mock_gtr300_gmom_z.emplace_back(gtr300.GPTV().Z());
     return;
   }
 #endif // TRACK_EFF_CHECK
@@ -3164,6 +3334,9 @@ class E16ANA_TrackCheckFile {
   uint64_t timestamp_in_spill;
   int trigger_fine_time;
   int n_fill;
+#ifdef TRACK_EFF_CHECK
+  bool cluster_merged;
+#endif // TRACK_EFF_CHECK
   // Hit, Cluster
   int n_ssd_hits;
   std::vector<int>    ssd_hit_id;
@@ -3553,30 +3726,68 @@ class E16ANA_TrackCheckFile {
 //  std::vector<float> trg_track_lg_t;
   // not used end
 #ifdef TRACK_EFF_CHECK
-  int      mock_pid;
-  int      mock_charge;
-  TVector3 mock_init_pos;
-  TVector3 mock_init_mom;
-  int       mock_ssd_mid;
-  TVector3 mock_ssd_lpos;
-  TVector3 mock_ssd_gpos;
-  TVector3 mock_ssd_lmom;
-  TVector3 mock_ssd_gmom;
-  int      mock_gtr100_mid;
-  TVector3 mock_gtr100_lpos;
-  TVector3 mock_gtr100_gpos;
-  TVector3 mock_gtr100_lmom;
-  TVector3 mock_gtr100_gmom;
-  int      mock_gtr200_mid;
-  TVector3 mock_gtr200_lpos;
-  TVector3 mock_gtr200_gpos;
-  TVector3 mock_gtr200_lmom;
-  TVector3 mock_gtr200_gmom;
-  int      mock_gtr300_mid;
-  TVector3 mock_gtr300_lpos;
-  TVector3 mock_gtr300_gpos;
-  TVector3 mock_gtr300_lmom;
-  TVector3 mock_gtr300_gmom;
+  int                 mock_n_tracks;
+  std::vector<bool>   mock_is_dead;
+  std::vector<int>    mock_pid;
+  std::vector<int>    mock_charge;
+  std::vector<double> mock_init_pos_x;
+  std::vector<double> mock_init_pos_y;
+  std::vector<double> mock_init_pos_z;
+  std::vector<double> mock_init_mom_x;
+  std::vector<double> mock_init_mom_y;
+  std::vector<double> mock_init_mom_z;
+  std::vector<int>    mock_ssd_mid;
+  std::vector<double> mock_ssd_lpos_x;
+  std::vector<double> mock_ssd_lpos_y;
+  std::vector<double> mock_ssd_lpos_z;
+  std::vector<double> mock_ssd_gpos_x;
+  std::vector<double> mock_ssd_gpos_y;
+  std::vector<double> mock_ssd_gpos_z;
+  std::vector<double> mock_ssd_lmom_x;
+  std::vector<double> mock_ssd_lmom_y;
+  std::vector<double> mock_ssd_lmom_z;
+  std::vector<double> mock_ssd_gmom_x;
+  std::vector<double> mock_ssd_gmom_y;
+  std::vector<double> mock_ssd_gmom_z;
+  std::vector<int>    mock_gtr100_mid;
+  std::vector<double> mock_gtr100_lpos_x;
+  std::vector<double> mock_gtr100_lpos_y;
+  std::vector<double> mock_gtr100_lpos_z;
+  std::vector<double> mock_gtr100_gpos_x;
+  std::vector<double> mock_gtr100_gpos_y;
+  std::vector<double> mock_gtr100_gpos_z;
+  std::vector<double> mock_gtr100_lmom_x;
+  std::vector<double> mock_gtr100_lmom_y;
+  std::vector<double> mock_gtr100_lmom_z;
+  std::vector<double> mock_gtr100_gmom_x;
+  std::vector<double> mock_gtr100_gmom_y;
+  std::vector<double> mock_gtr100_gmom_z;
+  std::vector<int>    mock_gtr200_mid;
+  std::vector<double> mock_gtr200_lpos_x;
+  std::vector<double> mock_gtr200_lpos_y;
+  std::vector<double> mock_gtr200_lpos_z;
+  std::vector<double> mock_gtr200_gpos_x;
+  std::vector<double> mock_gtr200_gpos_y;
+  std::vector<double> mock_gtr200_gpos_z;
+  std::vector<double> mock_gtr200_lmom_x;
+  std::vector<double> mock_gtr200_lmom_y;
+  std::vector<double> mock_gtr200_lmom_z;
+  std::vector<double> mock_gtr200_gmom_x;
+  std::vector<double> mock_gtr200_gmom_y;
+  std::vector<double> mock_gtr200_gmom_z;
+  std::vector<int>    mock_gtr300_mid;
+  std::vector<double> mock_gtr300_lpos_x;
+  std::vector<double> mock_gtr300_lpos_y;
+  std::vector<double> mock_gtr300_lpos_z;
+  std::vector<double> mock_gtr300_gpos_x;
+  std::vector<double> mock_gtr300_gpos_y;
+  std::vector<double> mock_gtr300_gpos_z;
+  std::vector<double> mock_gtr300_lmom_x;
+  std::vector<double> mock_gtr300_lmom_y;
+  std::vector<double> mock_gtr300_lmom_z;
+  std::vector<double> mock_gtr300_gmom_x;
+  std::vector<double> mock_gtr300_gmom_y;
+  std::vector<double> mock_gtr300_gmom_z;
 #endif // TRACK_EFF_CHECK
   // Track
   int n_x_cands;

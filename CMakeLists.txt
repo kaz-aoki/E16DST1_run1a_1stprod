@@ -29,6 +29,7 @@ endif()
 
 add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
+#add_definitions(-DMOM_RECONSTRUCT_CHECK)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
