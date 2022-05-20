@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
       check_file.ClearSimTrack();
       bool is_finished = false;
       while (data_merger.IsDeadRegion(mock_data.Track())) {
-        check_file.AddSimTrack(false, mock_data.Track());
+        check_file.AddSimTrack(true, mock_data.Track());
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
           cerr << "mock data finished at " << n_physics_event << " events" << endl;
           is_finished = true;
@@ -280,7 +280,7 @@ int main(int argc, char* argv[]) {
       if (is_finished) {
         break;
       }
-      check_file.AddSimTrack(true, mock_data.Track());
+      check_file.AddSimTrack(false, mock_data.Track());
       data_merger.MergeMockToRealData(mock_data.Track(), &record);
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
