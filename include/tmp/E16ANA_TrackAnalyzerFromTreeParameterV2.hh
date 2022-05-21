@@ -30,7 +30,7 @@ constexpr int    kStepTrackArraySize = 4000;
 constexpr double kKsMass = 493.677e-3;
 constexpr double kLightSpeed = 299792458.;
 
-}; // namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter
+}; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 
 namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter {
 
@@ -70,6 +70,8 @@ constexpr double kHBDYSigma[4] = {25., 25., 25., 25.};
 
 constexpr double kTimeOffsetSSDAndLG = -55.;
 constexpr double kMaxTimeDiffSSDAndLG = 15.;
+
+constexpr bool   kIsRequireLG = false;
 
 }; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 

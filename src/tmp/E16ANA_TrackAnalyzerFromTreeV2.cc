@@ -846,12 +846,14 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
     return false;
   }
-  if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
-    return false;
-  }
-  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
-    if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
+  if (st_param::kIsRequireLG) {
+    if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
       return false;
+    }
+    if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
+      if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
+        return false;
+      }
     }
   }
   return true;
@@ -913,10 +915,10 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
-  // time correration between SSD and LG
-  if (!HasTimeCorrelationInTrack(track_index, *lg_ts)) {
-    return false;
-  }
+//  // time correration between SSD and LG
+//  if (!HasTimeCorrelationInTrack(track_index, *lg_ts)) {
+//    return false;
+//  }
   // write your selection criteria end
   return true;
 }
@@ -1044,7 +1046,7 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-//    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
     selected_track_indexs.emplace_back(track_index);
     selected_track_lg_hit_ts.emplace_back(lg_ts);
   }
