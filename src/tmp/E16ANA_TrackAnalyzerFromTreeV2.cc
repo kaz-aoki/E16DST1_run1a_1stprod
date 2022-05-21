@@ -846,7 +846,8 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
     return false;
   }
-  if (st_param::kIsRequireLG) {
+  if ((particle_flag == st_param::kElectronFlag && st_param::kIsRequireLG) ||
+       particle_flag == st_param::kPionFlag     && pit_param::kIsRequireLG) {
     if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
       return false;
     }
@@ -941,25 +942,34 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index, std::vector<
 //  if (CalcSingleTrackChiSquareWoTarget(track_index) > pit_param::kChiSquareThreshold) {
     return false;
   }
-  if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
+//  if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr100_x->at(track_index) > st_param::kGTR100xResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr100_y->at(track_index) > st_param::kGTR100yResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr200_x->at(track_index) > st_param::kGTR200xResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr200_y->at(track_index) > st_param::kGTR200yResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr300_x->at(track_index) > st_param::kGTR300xResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr300_y->at(track_index) > st_param::kGTR300yResidualThreshold) {
+//    return false;
+//  }
+  // max mom.
+  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
+  if (mom.Mag() > st_param::kMaxMom) {
     return false;
   }
-  if (rk_res_gtr100_x->at(track_index) > st_param::kGTR100xResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr100_y->at(track_index) > st_param::kGTR100yResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr200_x->at(track_index) > st_param::kGTR200xResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr200_y->at(track_index) > st_param::kGTR200yResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr300_x->at(track_index) > st_param::kGTR300xResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr300_y->at(track_index) > st_param::kGTR300yResidualThreshold) {
+  // max SSD ADC
+  if (rk_hit_ssd_adc->at(track_index) > st_param::kMaxSSDADC) {
     return false;
   }
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
@@ -4197,8 +4207,8 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
         SelectTracks();
         AnalyzeTrackPairs();
       }
-      if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag || analyze_flag == cmn_param::kPionWClusterDup ||
-          analyze_flag == cmn_param::kPionWDiffChargeYClusterDup) {
+      if (analyze_flag == cmn_param::kPionFlag        || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag ||
+          analyze_flag == cmn_param::kPionWClusterDup || analyze_flag == cmn_param::kPionWDiffChargeYClusterDup) {
         particle_flag = cmn_param::kPionFlag;
         ClearOutBranch();
         selected_track_indexs.clear();

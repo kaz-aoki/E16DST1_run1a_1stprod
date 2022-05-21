@@ -80,8 +80,10 @@ namespace E16ANA_TrackAnalyzerFromTreePionSingleTrackParameter {
 //const     TVector3 kInitPosError = {1.5, 1.7, 0};
 const     TVector3 kPreInitPosError = {3., 3.4, 0};
 //constexpr double   kChiSquareThreshold = 1.0e9; // Ks
-constexpr double   kChiSquareThreshold = 2000.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
+//constexpr double   kChiSquareThreshold = 2000.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
+constexpr double   kChiSquareThreshold = 150.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
 constexpr double   kLGADCThreshold = 30.; // Ks, maximum
+constexpr bool     kIsRequireLG = false;
 
 }; // namespace E16ANA_TrackAnalyzerFromTreeSinglePionTrackParameter
 
