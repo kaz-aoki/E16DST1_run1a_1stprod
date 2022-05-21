@@ -846,8 +846,8 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
     return false;
   }
-  if ((particle_flag == st_param::kElectronFlag && st_param::kIsRequireLG) ||
-       particle_flag == st_param::kPionFlag     && pit_param::kIsRequireLG) {
+  if ((particle_flag == cmn_param::kElectronFlag && st_param::kIsRequireLG) ||
+       particle_flag == cmn_param::kPionFlag     && pit_param::kIsRequireLG) {
     if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
       return false;
     }
