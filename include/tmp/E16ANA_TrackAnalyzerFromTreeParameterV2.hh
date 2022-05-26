@@ -30,7 +30,7 @@ constexpr int    kStepTrackArraySize = 4000;
 constexpr double kKsMass = 493.677e-3;
 constexpr double kLightSpeed = 299792458.;
 
-}; // namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter
+}; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 
 namespace E16ANA_TrackAnalyzerFromTreeSingleTrackParameter {
 
@@ -48,6 +48,8 @@ constexpr double kTargetXThreshold            = 5.;
 constexpr double kTargetYThreshold            = 5.;
 constexpr double kHBDADCThreshold             = 7.; // electron efficiency: ~0.95, pion rejection: ~15 (w/o cluster size analysis)
 constexpr double kHBDSizeThreshold            = 1.5;
+//constexpr double kHBDADCThreshold             = -10000.; // no cut
+//constexpr double kHBDSizeThreshold            = -10000.; // no cut
 //constexpr double kHBDResidualThreshold        = 50.;
 //constexpr double kLGHitXResidualThreshold     = 70.;
 //constexpr double kLGClusterXResidualThreshold = 80.;
@@ -55,6 +57,7 @@ constexpr double kLGHitXResidualThreshold     = 100. * 2;
 constexpr double kLGClusterXResidualThreshold = 100. * 2;
 constexpr double kMinLGADC                    = 50.;
 constexpr double kMaxMom                      = 2.;
+constexpr double kMinMom                      = 0.5;
 constexpr double kMaxSSDADC                   = 600.;
 
 //constexpr double kHBDXMean[4]  = {-3.2,  2.3, -5.,   1.3};
@@ -71,6 +74,8 @@ constexpr double kHBDYSigma[4] = {25., 25., 25., 25.};
 constexpr double kTimeOffsetSSDAndLG = -55.;
 constexpr double kMaxTimeDiffSSDAndLG = 15.;
 
+constexpr bool   kIsRequireLG = false;
+
 }; // namespace E16ANA_TrackAnalyzerFromTreeParameter
 
 namespace E16ANA_TrackAnalyzerFromTreePionSingleTrackParameter {
@@ -78,8 +83,11 @@ namespace E16ANA_TrackAnalyzerFromTreePionSingleTrackParameter {
 //const     TVector3 kInitPosError = {1.5, 1.7, 0};
 const     TVector3 kPreInitPosError = {3., 3.4, 0};
 //constexpr double   kChiSquareThreshold = 1.0e9; // Ks
-constexpr double   kChiSquareThreshold = 2000.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
+//constexpr double   kChiSquareThreshold = 2000.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
+constexpr double   kChiSquareThreshold = 150.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
+//constexpr double   kChiSquareThreshold = 30.; // Ks chi2 from initial position : (50 / 3)^ 2 + (50 / 3.4) ^2 ~494
 constexpr double   kLGADCThreshold = 30.; // Ks, maximum
+constexpr bool     kIsRequireLG = false;
 
 }; // namespace E16ANA_TrackAnalyzerFromTreeSinglePionTrackParameter
 
@@ -129,6 +137,9 @@ constexpr double   kTriggerLGTimeWidth = 10.;
 constexpr double   kMaxPairDistance    = 50.;
 
 constexpr bool     kVertexZFixFlagPion = false;
+constexpr double   kPionXRange[2]      = {-50., 50.};
+constexpr double   kPionYRange[2]      = {-50., 50.};
+constexpr double   kPionZRange[2]      = {-25., 50.};
 
 }; // namespace E16ANA_TrackAnalyzerFromTreePairTrackParameter
 

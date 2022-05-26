@@ -27,8 +27,9 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
+#add_definitions(-DMOM_RECONSTRUCT_CHECK)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
@@ -421,14 +422,15 @@ target_link_libraries(check_position_resolution
   E16DST_DST1
 )
 
-#_______________________________________________________________________________
-add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
-
-target_link_libraries(tmp_draw_dead_region
-	E16ANA_Basic
-  E16DST_DST1
-)
-
+##_______________________________________________________________________________
+#add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
+#
+#target_link_libraries(tmp_draw_dead_region
+#	E16ANA_Basic
+#  E16DST_DST1
+#  E16ANA_MockTrack
+#)
+#
 ##_______________________________________________________________________________
 #add_executable(tmp_gtr_deadch_check usr/tmp/tmp_gtr_deadch_check.cc)
 #

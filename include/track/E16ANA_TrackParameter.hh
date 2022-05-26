@@ -50,6 +50,8 @@ namespace E16ANA_TrackParameter {
 // electron
 const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 const TVector3 kInitPosError = {3., 3.4, 0.};
+//const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
+//const TVector3 kInitPosError = {2., 2., 0.};
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
 constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.1, 0.1, 0.1}; // 220413 for statistics check

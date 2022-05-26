@@ -16,9 +16,11 @@
 
 class E16ANA_MakeDummyDST1 {
  public:
-  E16ANA_MakeDummyDST1(E16ANA_GTR100GEMDeadArea* _gtr100_dead_area, E16ANA_GTR200GEMDeadArea* _gtr200_dead_area, E16ANA_GTR300GEMDeadArea* _gtr300_dead_area,
+  E16ANA_MakeDummyDST1(E16ANA_GTRAnalyzerMaker* _gtr_analyzers,
+                       E16ANA_GTR100GEMDeadArea* _gtr100_dead_area, E16ANA_GTR200GEMDeadArea* _gtr200_dead_area, E16ANA_GTR300GEMDeadArea* _gtr300_dead_area,
                        E16ANA_HBDDeadChannel* _hbd_dead_ch, E16ANA_LGDeadChannel* _lg_dead_ch)
-      : gtr100_dead_area(_gtr100_dead_area), gtr200_dead_area(_gtr200_dead_area), gtr300_dead_area(_gtr300_dead_area), hbd_dead_ch(_hbd_dead_ch), lg_dead_ch(_lg_dead_ch) {}
+      : gtr_analyzers(_gtr_analyzers),
+        gtr100_dead_area(_gtr100_dead_area), gtr200_dead_area(_gtr200_dead_area), gtr300_dead_area(_gtr300_dead_area), hbd_dead_ch(_hbd_dead_ch), lg_dead_ch(_lg_dead_ch) {}
 //  E16ANA_MakeDummyDST1(int run_id);
   ~E16ANA_MakeDummyDST1() {}
   bool IsSSDDeadRegion(int mid, const TVector3& pos);
@@ -29,11 +31,17 @@ class E16ANA_MakeDummyDST1 {
   bool IsAType(int module_id);
   std::array<double, 2> DistributeTiming(int detector_id, double t);
   int GTRClusterSize(int type, E16ANA_MockHit& hit);
+  bool IsOverlap(int detector_id, const double x[], const int size[], const float t[]);
   void MergeMockToRealData(E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record);
  private:
+  struct MergedValues {
+    double x;
+    float  t;
+    int    size;
+  };
 //  E16ANA_GTRcalibPedestal*  gtr_pedestal;
 //  E16ANA_GTRcalibParams*    gtr_params;
-//  E16ANA_GTRAnalyzerMaker*  gtr_analyzers;
+  E16ANA_GTRAnalyzerMaker*  gtr_analyzers;
 //  E16ANA_GTRStatus*         gtr_stat;
   E16ANA_GTR100GEMDeadArea* gtr100_dead_area;
   E16ANA_GTR200GEMDeadArea* gtr200_dead_area;

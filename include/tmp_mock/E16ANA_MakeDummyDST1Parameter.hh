@@ -31,6 +31,7 @@ constexpr int    kMockClusterID = 10000;
 constexpr int    kSSDDeadModuleID = 108;
 constexpr double kSSDDeadX[2] = {-20.6, -10.28};
 constexpr double kGTRDriftLength = 3.;
+constexpr double kStripSize[3] = {0.08, 0.35, 1.4};
 constexpr double kGTRStripPitch[kNumGTRTypes] = {0.35, 1.4};
 constexpr double kGTRADC = 1500.;
 constexpr double kHBDPE = 10.;
@@ -42,16 +43,27 @@ constexpr double kLGADC = 200.;
 constexpr double kLGTime = 100.;
 
 // parameter
-constexpr double kGTRDriftSigma = 0.265;
+//constexpr double kGTRDriftSigma = 0.265;
 
+//#ifndef MOM_RECONSTRUCT_CHECK
 constexpr double kSSDXSigma = 0.1;
 constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
+//#else
+//constexpr double kSSDXSigma = 0.;
+//constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
+//#endif
 
 constexpr double kSSDTimeMean    =  45.;
 constexpr double kGTRTimeMean    = 300.;
 constexpr double kSSDTimeSigma   =   5.;
 constexpr double kGTRTimeSigma   = 120.;
 constexpr double kGTRXYTimeSigma =  20.;
+
+constexpr double kMaxTimeDiff[2] = {10., 150.};
+
+constexpr int    kSSDClusterSize  = 1;
+constexpr int    kGTRxClusterSize = 3;
+constexpr int    kGTRyClusterSize = 1;
 
 }; // E16ANA_MakeDummyDST1Parameter
 

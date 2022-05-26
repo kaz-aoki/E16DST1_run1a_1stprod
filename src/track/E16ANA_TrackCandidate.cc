@@ -363,6 +363,15 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
       gmom = geometry->GTR(mid[hid], l - 1)->GetGMom(lmom[hid]);
     }
     auto rpos = cluster_pairs[l].LocalPos() - lpos[hid];
+//    TVector3 rpos = 
+//    if (l == 0) {
+//      rpos = cluster_pairs[l].LocalPos() - lpos[hid];
+//    } else {
+//      rpos = cluster_pairs[l].LocalPosT() - lpos[hid];
+//    }
+//    std::vector<TVector3> rposs;
+//    fitter->GetFitResidual(tid, l, mid, rposs);
+//    auto rpos = rposs[0];
     fit_results[l].Set(l, mid2020, lpos[hid], lmom[hid], gpos, gmom, rpos);
     //if(l==0 && chisq<20){
     //printf("%f res:%f, modsize:%d lx:%f %f , z:%f \n",chisq,rpos.X(), mid.size(),cluster_pairs[l].LocalPos().X(),lpos[hid].X(),init_pos_fit.Z() );
@@ -377,8 +386,6 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
       TVector3 lcx(xclst->LocalX()-lpos[hid].X(),yclst->LocalX()-lpos[hid].Y(),0);
       fit_results[l].SetC(lcx);
     }
-
-    
   }
   Projection(fitter);
   return;
@@ -914,6 +921,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
           }
           auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
           for (const auto& ssd_cluster : ssd_cluster_ptrs) {
+            if (ssd_cluster->IsMerged()) {
+              continue;
+            }
             is_sim_xcluster[0] = ssd_cluster->ClusterId() >= kMockClusterID;
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
@@ -921,6 +931,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
               is_xchecked[0] = true;
             }
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
+              if (gtr100x_cluster->IsMerged()) {
+                continue;
+              }
               is_sim_xcluster[1] = gtr100x_cluster->ClusterId() >= kMockClusterID;
               if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100 - 1]) {
                 if (!is_xchecked[1] && is_sim_xcluster[0] && is_sim_xcluster[1]) {
@@ -949,6 +962,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
 	      //     cluster_set->global_poss[E16ANA_TrackConstant::kGTR100].Z(),testg.Z());
 
               for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
+                if (gtr200x_cluster->IsMerged()) {
+                  continue;
+                }
                 is_sim_xcluster[2] = gtr200x_cluster->ClusterId() >= kMockClusterID;
                 if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200 - 1]) {
                   if (!is_xchecked[2] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2]) {
@@ -972,6 +988,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
                 cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPosT(*geometry);
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
+                  if (gtr300x_cluster->IsMerged()) {
+                    continue;
+                  }
                   is_sim_xcluster[3] = gtr300x_cluster->ClusterId() >= kMockClusterID;
                   if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300 - 1]) {
                     if (!is_xchecked[3] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
@@ -1056,6 +1075,9 @@ for (int i = 0; i < 4; ++i) {
         auto& gtr100y_cluster_ptrs  = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsY);
         auto& gtr100yb_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsYb);
         for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
+          if (gtr300y_cluster->IsMerged()) {
+            continue;
+          }
           is_sim_ycluster[2] = gtr300y_cluster->ClusterId() >= kMockClusterID;
           if (gtr300y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
             if (is_sim_ycluster[2]) {
@@ -1066,6 +1088,9 @@ for (int i = 0; i < 4; ++i) {
           cluster_set->gtr_clusters[2] = gtr300y_cluster;
           cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPosT(*geometry);
           for (const auto& gtr200y_cluster : gtr200y_cluster_ptrs) {
+            if (gtr200y_cluster->IsMerged()) {
+              continue;
+            }
             is_sim_ycluster[1] = gtr200y_cluster->ClusterId() >= kMockClusterID;
             if (gtr200y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
               if (is_sim_ycluster[2]&& is_sim_ycluster[1]) {
@@ -1076,6 +1101,9 @@ for (int i = 0; i < 4; ++i) {
             cluster_set->gtr_clusters[1] = gtr200y_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200y_cluster->GlobalPosT(*geometry);
             for (const auto& gtr100y_cluster : gtr100y_cluster_ptrs) {
+              if (gtr100y_cluster->IsMerged()) {
+                continue;
+              }
               is_sim_ycluster[0] = gtr100y_cluster->ClusterId() >= kMockClusterID;
               if (gtr100y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
                 if (is_sim_ycluster[2]&& is_sim_ycluster[1] && is_sim_ycluster[0]) {
@@ -1100,6 +1128,9 @@ for (int i = 1; i < 4; ++i) {
               }
             }
             for (const auto& gtr100yb_cluster : gtr100yb_cluster_ptrs) {
+              if (gtr100yb_cluster->IsMerged()) {
+                continue;
+              }
               is_sim_ycluster[0] = gtr100yb_cluster->ClusterId() >= kMockClusterID;
               if (gtr100yb_cluster->PeakSum() < kGTRPeakSumThresholdY) {
                 if (is_sim_ycluster[2]&& is_sim_ycluster[1] && is_sim_ycluster[0]) {
@@ -1151,6 +1182,11 @@ E16INFO("number of y candidates: %d", n_y_cands);
                           gtry[0]->ClusterId() >= kMockClusterID &&
                           gtry[1]->ClusterId() >= kMockClusterID &&
                           gtry[2]->ClusterId() >= kMockClusterID;
+#ifdef MOM_RECONSTRUCT_CHECK
+      if (!is_sim_track) {
+        continue;
+      }
+#endif // MOM_RECONSTRUCT_CHECK
       bool is_same_module = true;
       if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {
         if (is_sim_track) {

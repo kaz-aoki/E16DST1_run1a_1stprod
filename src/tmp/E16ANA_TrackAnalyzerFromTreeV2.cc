@@ -846,12 +846,15 @@ bool E16ANA_TrackAnalyzerFromTree::HasHBDAndLGProjection(int track_index, std::v
   if (!HasHBDClusters(track_hbd_mid, track_hbd_lpos, &tmp_hbd_clst_indexs)) {
     return false;
   }
-  if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
-    return false;
-  }
-  if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
-    if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
+  if ((particle_flag == cmn_param::kElectronFlag && st_param::kIsRequireLG) ||
+       particle_flag == cmn_param::kPionFlag     && pit_param::kIsRequireLG) {
+    if (!IsTrackLGValidY(track_lg_ys, track_lg_valids)) {
       return false;
+    }
+    if (!HasLGHits(track_mom,     track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_hit_indexs, lg_ts)) {
+      if (!HasLGClusters(track_mom, track_lg_mids, track_lg_xs, track_lg_ys, track_lg_valids, &tmp_lg_clst_indexs, lg_ts)) {
+        return false;
+      }
     }
   }
   return true;
@@ -913,10 +916,10 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodTrack(int track_index, std::vector<doub
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
     return false;
   }
-  // time correration between SSD and LG
-  if (!HasTimeCorrelationInTrack(track_index, *lg_ts)) {
-    return false;
-  }
+//  // time correration between SSD and LG
+//  if (!HasTimeCorrelationInTrack(track_index, *lg_ts)) {
+//    return false;
+//  }
   // write your selection criteria end
   return true;
 }
@@ -939,25 +942,38 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index, std::vector<
 //  if (CalcSingleTrackChiSquareWoTarget(track_index) > pit_param::kChiSquareThreshold) {
     return false;
   }
-  if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
+//  if (rk_res_ssd_x->at(track_index) > st_param::kSSDResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr100_x->at(track_index) > st_param::kGTR100xResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr100_y->at(track_index) > st_param::kGTR100yResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr200_x->at(track_index) > st_param::kGTR200xResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr200_y->at(track_index) > st_param::kGTR200yResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr300_x->at(track_index) > st_param::kGTR300xResidualThreshold) {
+//    return false;
+//  }
+//  if (rk_res_gtr300_y->at(track_index) > st_param::kGTR300yResidualThreshold) {
+//    return false;
+//  }
+  // max mom.
+  auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
+  auto mom_r = mom.Mag();
+  if (mom_r > st_param::kMaxMom) {
     return false;
   }
-  if (rk_res_gtr100_x->at(track_index) > st_param::kGTR100xResidualThreshold) {
+  if (mom_r < st_param::kMinMom) {
     return false;
   }
-  if (rk_res_gtr100_y->at(track_index) > st_param::kGTR100yResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr200_x->at(track_index) > st_param::kGTR200xResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr200_y->at(track_index) > st_param::kGTR200yResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr300_x->at(track_index) > st_param::kGTR300xResidualThreshold) {
-    return false;
-  }
-  if (rk_res_gtr300_y->at(track_index) > st_param::kGTR300yResidualThreshold) {
+  // max SSD ADC
+  if (rk_hit_ssd_adc->at(track_index) > st_param::kMaxSSDADC) {
     return false;
   }
   if (!HasHBDAndLGProjection(track_index, lg_ts)) {
@@ -1044,7 +1060,7 @@ void E16ANA_TrackAnalyzerFromTree::CheckUsedClusters(int track_index, const std:
 void E16ANA_TrackAnalyzerFromTree::SelectTrack(int track_index, std::array<std::vector<int>, track_const::kNumTrackingLayers>* used_cluster_ids) {
   std::vector<double> lg_ts;
   if ((particle_flag == cmn_param::kElectronFlag && IsGoodTrack(track_index, &lg_ts)) || (particle_flag == cmn_param::kPionFlag && IsGoodPionTrack(track_index, &lg_ts))) {
-//    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
+    CheckUsedClusters(track_index, lg_ts, used_cluster_ids);
     selected_track_indexs.emplace_back(track_index);
     selected_track_lg_hit_ts.emplace_back(lg_ts);
   }
@@ -2062,6 +2078,17 @@ std::array<bool, 3> E16ANA_TrackAnalyzerFromTree::SelectTrackPairCandidate(int s
   if (charges[0] == charges[1]) {
     return is_good_pair;
   }
+//  // only LR (only for vertex drawing)
+//  int mids[2] = {rk_fit_ssd_mid->at(stindexs[0]), rk_fit_ssd_mid->at(stindexs[1])};
+//  if (charges[0] == 1) {
+//    if (mids[0] < 105 || mids[1] > 105) {
+//      return is_good_pair;
+//    }
+//  } else {
+//    if (mids[0] > 105 || mids[1] < 105) {
+//      return is_good_pair;
+//    }
+//  }
   // SSD time diff.
   auto ssd_t_diff = fabs(rk_hit_ssd_t->at(stindexs[0]) - rk_hit_ssd_t->at(stindexs[1]));
   if (ssd_t_diff > pt_param::kSSDTimeDiff) {
@@ -2358,8 +2385,15 @@ void E16ANA_TrackAnalyzerFromTree::PionPairTracking(const int track_indexs_index
   AddPionTracks(track_index_pair);
   pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
   pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
+//  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
+//                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
+//  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
+//                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
   out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
-                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
+                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls,
+                                               pt_param::kPionXRange[0], pt_param::kPionXRange[1],
+                                               pt_param::kPionYRange[0], pt_param::kPionYRange[1],
+                                               pt_param::kPionZRange[0], pt_param::kPionZRange[1]));
   TVector3 vtx;
   TVector3 minus_mom;
   TVector3 plus_mom;
@@ -4195,8 +4229,8 @@ void E16ANA_TrackAnalyzerFromTree::Loop() {
         SelectTracks();
         AnalyzeTrackPairs();
       }
-      if (analyze_flag == cmn_param::kPionFlag || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag || analyze_flag == cmn_param::kPionWClusterDup ||
-          analyze_flag == cmn_param::kPionWDiffChargeYClusterDup) {
+      if (analyze_flag == cmn_param::kPionFlag        || analyze_flag == cmn_param::kBothFlag || analyze_flag == cmn_param::kPionWoRefitFlag ||
+          analyze_flag == cmn_param::kPionWClusterDup || analyze_flag == cmn_param::kPionWDiffChargeYClusterDup) {
         particle_flag = cmn_param::kPionFlag;
         ClearOutBranch();
         selected_track_indexs.clear();
