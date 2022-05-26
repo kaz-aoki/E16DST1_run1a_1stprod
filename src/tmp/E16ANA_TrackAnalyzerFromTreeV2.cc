@@ -965,7 +965,11 @@ bool E16ANA_TrackAnalyzerFromTree::IsGoodPionTrack(int track_index, std::vector<
 //  }
   // max mom.
   auto mom = TVector3(rk_fit_init_mom_gx->at(track_index), rk_fit_init_mom_gy->at(track_index), rk_fit_init_mom_gz->at(track_index));
-  if (mom.Mag() > st_param::kMaxMom) {
+  auto mom_r = mom.Mag();
+  if (mom_r > st_param::kMaxMom) {
+    return false;
+  }
+  if (mom_r < st_param::kMinMom) {
     return false;
   }
   // max SSD ADC
@@ -2074,6 +2078,17 @@ std::array<bool, 3> E16ANA_TrackAnalyzerFromTree::SelectTrackPairCandidate(int s
   if (charges[0] == charges[1]) {
     return is_good_pair;
   }
+//  // only LR (only for vertex drawing)
+//  int mids[2] = {rk_fit_ssd_mid->at(stindexs[0]), rk_fit_ssd_mid->at(stindexs[1])};
+//  if (charges[0] == 1) {
+//    if (mids[0] < 105 || mids[1] > 105) {
+//      return is_good_pair;
+//    }
+//  } else {
+//    if (mids[0] > 105 || mids[1] < 105) {
+//      return is_good_pair;
+//    }
+//  }
   // SSD time diff.
   auto ssd_t_diff = fabs(rk_hit_ssd_t->at(stindexs[0]) - rk_hit_ssd_t->at(stindexs[1]));
   if (ssd_t_diff > pt_param::kSSDTimeDiff) {
@@ -2370,8 +2385,15 @@ void E16ANA_TrackAnalyzerFromTree::PionPairTracking(const int track_indexs_index
   AddPionTracks(track_index_pair);
   pair_fitter->SetRungeKuttaStepSize(pt_param::kStepSize);
   pair_fitter->SetMaxSteps(pt_param::kMaxSteps);
+//  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
+//                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
+//  out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
+//                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
   out_chi_square.emplace_back(pair_fitter->Fit(pt_param::kVertexXyFixFlag, pt_param::kPyFixFlag, pt_param::kVertexZFixFlagPion,
-                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls));
+                                               pt_param::kMinuitStrategy, pt_param::kMaxFunctionCalls,
+                                               pt_param::kPionXRange[0], pt_param::kPionXRange[1],
+                                               pt_param::kPionYRange[0], pt_param::kPionYRange[1],
+                                               pt_param::kPionZRange[0], pt_param::kPionZRange[1]));
   TVector3 vtx;
   TVector3 minus_mom;
   TVector3 plus_mom;
