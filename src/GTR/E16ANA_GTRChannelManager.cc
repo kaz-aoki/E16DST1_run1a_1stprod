@@ -105,11 +105,22 @@ int E16ANA_GTRChannelManager::ConvLocalYToAPVch(const int gtr_size, const double
 	else if(gtr_size == 2) {n_strips = n_strips_200;}
 	else {return -1;}
     int apv_ch = -1;
+    if(gtr_size == 0){
     if(signbit(ly_mm)){//MINUS
 		apv_ch = (n_strips/2 - 1) + (int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
 	}
     else {
 		apv_ch = n_strips/2  + (int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
 	}
+	}
+    else{
+    if(signbit(ly_mm)){//MINUS
+		apv_ch = (n_strips/2 - 1) + -1*(int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
+	}
+    else {
+		apv_ch = n_strips/2  + -1*(int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
+	}
+	}
+
 	return apv_ch;
 }
