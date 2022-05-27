@@ -1142,6 +1142,7 @@ public :
    virtual void     ResidualHBD(int runoption, int maxevent);
    virtual void     MkTreeForTrackSelection(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
    virtual void     MkTreeWYass(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
+   virtual void     CalcLGWFefficiency(int runnum, int maxevent, double wfthrh, double wfthrl);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -2773,13 +2774,28 @@ Int_t SingleTrackAnalyzerForRes::ExLGDeadRegion(Long64_t entry, Int_t elem, doub
     return -4;
   }
   else if(fabs(rk_fit_lg_a_x->at(elem))>xregion[0]){
-    return -2;
+    if(rk_fit_lg_a_x->at(elem)>0){
+      return -10;
+    }
+    else{
+      return -20;
+    }
   }
   else if(fabs(rk_fit_lg_b_x->at(elem))>xregion[1]){
-    return -2;
+    if(rk_fit_lg_b_x->at(elem)>0){
+      return -10;
+    }
+    else{
+      return -20;
+    }
   }
   else if(fabs(rk_fit_lg_c_x->at(elem))>xregion[2]){
-    return -2;
+    if(rk_fit_lg_c_x->at(elem)>0){
+      return -10;
+    }
+    else{
+      return -20;
+    }
   }
   else if( rk_fit_lg_y[2] > -youter[2] && rk_fit_lg_y[2] < -yinner[2] ){
     ytype = 0;

@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     }
   }
   uint16_t module, block;
-  float peakheight, timing, baseline, baselinerms, integral, calibtiming, energydeposit, fitpeak, fitpeaktime, fittiming, fitwidth, fitchi2;
+  float peakheight, timing, baseline, baselinerms, integral, calibtiming, energydeposit, fitpeak, fitpeaktime, fittiming, fitwidth, fitchi2, trg_lg_hit_t;
   int event, peaktime, npeak, npeaks, fitflag;
   double gpos[3];
   double lpos[3];
@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
 #ifdef MKWF
   tree->Branch("Waveform",waveform,"Waveform[200]/D");
 #endif
+  tree->Branch("trg_lg_hit_t",&trg_lg_hit_t,"trg_lg_hit_t/F");
 
 //  bpo::options_description command_options("command options");
 //  command_options.add_options()
@@ -200,9 +201,9 @@ int main(int argc, char* argv[]) {
       //      auto& gtr_hits0         = event0->GTR();
       //      auto& hbd_hits0         = event0->HBD();
       auto& lg_hits0          = event0->LG();
-      //      auto& trigger_gtr_hits0 = event0->TriggerGTR();
-      //      auto& trigger_hbd_hits0 = event0->TriggerHBD();
-      //      auto& trigger_lg_hits0  = event0->TriggerLG();
+      auto& trigger_gtr_hits0 = event0->TriggerGTR();
+      auto& trigger_hbd_hits0 = event0->TriggerHBD();
+      auto& trigger_lg_hits0  = event0->TriggerLG();
 //      E16DST_DST0Detector<E16DST_DST1LGHit> lg_hits1;
 //      E16DST_DST0Detector<E16DST_DST1LGCluster> lg_clusters1;
 //      auto& lg_hits1 = record->LG().Hits();
@@ -214,7 +215,7 @@ int main(int argc, char* argv[]) {
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   lg_hits1,  lg_clusters1);
       E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geometry);
 //      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
+     E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record->Trigger());
 //      event1->GTR().SetValidFlag(1);
 //      event1->LG().SetValidFlag(1);
       //      event1->Trigger().SetValidFlag(1);
@@ -274,6 +275,18 @@ int main(int argc, char* argv[]) {
 	    waveform[cell] = ph*wftype;
 	  }
 #endif
+
+	  //trglg
+	  int nall_trg_lg_hits = record->Trigger().NumLGHits();
+	  trg_lg_hit_t = -10000.;
+	  for(int itrg=0;itrg<nall_trg_lg_hits;itrg++){
+	    auto& hit = record->Trigger().LGHit(itrg);
+	    if( hit.ModuleId()==module && hit.ChannelId()==block && fabs(hit.Timing()-fittiming+100.)<10. ){
+	      trg_lg_hit_t = hit.Timing();
+	      break;
+	    }
+	  }
+	  //trglg
 
 	  tree->Fill();
 

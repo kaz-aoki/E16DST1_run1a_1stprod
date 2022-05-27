@@ -14,6 +14,8 @@
 #include <TLegend.h>
 
 #include <TH1.h>
+#include <TF1.h>
+#include <TGraphErrors.h>
 #include <stdio.h>
 #include <iostream>
 #include <vector>
@@ -3024,9 +3026,18 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 {
    if (fChain == 0) return;
 
+   int count = 0;
    TFile* fout = new TFile(out_file_name,"recreate");
    TTree* tree = new TTree("tree","tree");
 
+   TH2F* hdead = new TH2F("hdead","hdead",135,-25,110,135,-25,110);
+   TH1F* htrglg = new TH1F("htrglg","htrglg",200,0,200);
+   TH1F* xzchisq = new TH1F("xzchisq","xzchisq",100,0,100);
+   double originx[5] = {0.,5.,0.,-10.,0.};
+   if(runoption==0){originx[1]=0.;originx[3]=0.;}
+   TH1F* htrkmom = new TH1F("htrkmom","htrkmom",100,0,10);
+   TH1F* htrkacc = new TH1F("htrkacc","htrkacc",3,0,3);
+   TH1F* htrkacc2 = new TH1F("htrkacc2","htrkacc2",3,0,3);
    TH2F* gtr2d = new TH2F("gtr2d","gtr2d",4000,-2000,2000,400,-200,200);
    TH1F* hhbdxres[5];
    TH1F* gtr1yres[9];
@@ -3249,9 +3260,9 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 
    E16ANA_HBDDeadChannel hbddch;
    std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
-   if(runoption==0){
-     hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
-   }
+   // if(runoption==0){
+   //   hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
+   // }
    hbddch.ReadFile(hbd_deadch_file.c_str());
 
    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
@@ -3377,18 +3388,22 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
       int minus_index = -10000;
 
       for(int itrack=0;itrack<ntracks;itrack++){//track loop
-	int hbdise = 4;// e or pi
+	int hbdise = 0;// e or pi
 	int lgise = 0;// e or pi
-	double hbdtimthr = 90.;
+	double hbdtimthr = 200.;
 	double hbdposthr = 35.;
 	double gtrposthr[3] = {11.,12.,15.};
 	double gtrtimthr[3] = {75.,95.,100.};
+	int hbdmatch = 0;
+	int gtrymatch = 0;
 	int ntrglg = 0;
 	for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
 	  if(fabs(trg_lg_hit_t->at(itrg))>10&&fabs(trg_lg_hit_t->at(itrg))<150){ntrglg++;}
 	}
+	if(itrack==0){htrglg->Fill(ntrglg);}
 	if ( ntrglg>20 ) continue;
 	if (chi_square->at(itrack)>max_chi_square) continue;
+	xzchisq->Fill(chi_square->at(itrack));
 	if (hbd_track_module!=-1&&rk_fit_gtr300_mid->at(itrack)!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double tgtdist = CutOfTrackTGT(ientry,itrack,5);
@@ -3397,6 +3412,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	double trk_momz = rk_fit_init_mom_gz->at(itrack);
 	double trk_mom = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);
 	if (trk_mom<0.4||trk_mom>2.4) continue;
+	htrkmom->Fill(trk_mom);
 
 	//matching with HBD hit
 	int trk_gtr_mid = rk_fit_gtr300_mid->at(itrack);
@@ -3418,8 +3434,9 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	  double dz = hbd_cluster_gz->at(ihbd)-rk_fit_hbd_gz->at(itrack);
 	  double hbdxres = sqrt(dx*dx+dz*dz)*dx/fabs(dx);
 	  hhbdxres[hbd_cluster_mid->at(ihbd)-103]->Fill(hbdxres);
-	  if(fabs(hbdxres)>hbdposthr) continue;
+	  if(fabs(hbdxres-originx[hbd_cluster_mid->at(ihbd)-103])>hbdposthr) continue;
 	  //HBD Y associated
+	  hbdmatch = 1;
 	  double dhx = hbd_cluster_gx->at(ihbd);
 	  double dhz = hbd_cluster_gz->at(ihbd)-rk_fit_init_pos_gz->at(itrack);
 	  double slope = hbd_cluster_gy->at(ihbd) / sqrt(dhx*dhx+dhz*dhz);
@@ -3439,7 +3456,8 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	  if(g1local.X()>0){//-------------100
 	    for(int i=0;i<n_gtr100y_clusters;i++){
 	      if(gtr100y_cluster_mid->at(i)!=rk_fit_gtr100_mid->at(itrack)) continue;
-	      double res = gtr100y_cluster_y->at(i)-crs_gy[0];
+	      // double res = gtr100y_cluster_y->at(i)-crs_gy[0];
+	      double res = -gtr100y_cluster_y->at(i)-crs_gy[0];
 	      gtr1yres[rk_fit_gtr100_mid->at(itrack)-101]->Fill(res);
 	      gtr1ytim[rk_fit_gtr100_mid->at(itrack)-101]->Fill(gtr100y_cluster_t->at(i)-rk_hit_gtr100_xt->at(itrack));
 	      if(fabs(res)<gtrposthr[0] && fabs(gtr100y_cluster_t->at(i)-rk_hit_gtr100_xt->at(itrack))<gtrtimthr[0]){
@@ -3459,7 +3477,8 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	  else{
 	    for(int i=0;i<n_gtr100yb_clusters;i++){
 	      if(gtr100yb_cluster_mid->at(i)!=rk_fit_gtr100_mid->at(itrack)) continue;
-	      double res = gtr100yb_cluster_y->at(i)-crs_gy[0];
+	      // double res = gtr100yb_cluster_y->at(i)-crs_gy[0];
+	      double res = -gtr100yb_cluster_y->at(i)-crs_gy[0];
 	      gtr1yres[rk_fit_gtr100_mid->at(itrack)-101]->Fill(res);
 	      gtr1ytim[rk_fit_gtr100_mid->at(itrack)-101]->Fill(gtr100yb_cluster_t->at(i)-rk_hit_gtr100_xt->at(itrack));
 	      if(fabs(res)<gtrposthr[0] && fabs(gtr100yb_cluster_t->at(i)-rk_hit_gtr100_xt->at(itrack))<gtrtimthr[0]){
@@ -3512,6 +3531,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	    ncrs++;
 	  }
 	  if(ncrs>1){//GTR y associated
+	    gtrymatch = 1;
 	    double gy_chisq = gy_res_min[0]*gy_res_min[0]/1.+gy_res_min[1]*gy_res_min[1]/1.+gy_res_min[2]*gy_res_min[2]/1.;
 	    ychisq->Fill(gy_chisq);
 
@@ -3524,6 +3544,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	    double trk_lg_ly = -10000;
 	    int ytype = -10000;
 	    int trk_lg_mid = ExLGDeadRegion(ientry,itrack,slope,trk_lg_lx,trk_lg_ly,ytype);
+	    hdead->Fill(trk_hbd_mid,trk_lg_mid);
 	    if (trk_lg_mid < 0) continue;
 	    double track_angle_lx = -10000.;
 	    double track_angle_ly = -10000.;
@@ -3660,10 +3681,14 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	    out_track_lg_multiplicity.push_back(nlgh);
 
 	    ntrkacc++;
+	    count++;
 
 	  }//GTR y associated
 
 	}//hbdcluster loop
+
+	htrkacc->Fill(hbdmatch);
+	htrkacc2->Fill(gtrymatch);
 
       }//track loop
 
@@ -3685,5 +3710,241 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 
    fout->Write();
    fout->Close();
+
+   std::cout<<count<<std::endl;
+
+}
+
+void SingleTrackAnalyzerForRes::CalcLGWFefficiency(int runnum, int maxevent, double wfthrh, double wfthrl)
+{
+
+  TFile* froot = new TFile(Form("wfeff%06d.root",runnum),"recreate");
+  TString fout = Form("wfeff%06d.pdf",runnum);
+  // std::ofstream ftext;
+  // std::string ftextname = "" + runnum + ".txt";
+  // ftext.open(ftextname);
+
+  TH1F* ht[7];
+  TF1* ft[7];
+  double param[7]={94.,94.5,95.,94.5,93.5,94.5,95.5};
+  TCanvas* ct = new TCanvas("ct","ct",1400,500);
+  ct->Divide(4,2);
+  gStyle->SetOptFit(1111);
+  // for(int i=0;i<7;i++){
+  //   ht[i] = new TH1F(Form("ht%d",i+102),Form("ht%d",i+102),100,50,150);
+  //   ft[i] = new TF1(Form("ft%d",i),"gaus",0,200);
+  //   if(i==3) continue;
+  //   ct->cd(i+1);
+  //   fChain->Draw(Form("lg_hit_t>>ht%d",i+102),Form("lg_hit_mid==%d",i+102));
+  //   ht[i]->Fit(Form("ft%d",i),"","",90,110);
+  //   param[i] = ft[i]->GetParameter(1);
+  // }
+
+  double reg_trg_t = 10.;
+  double reg_wf_t = 10.;
+
+  TH1F* heffav[7];
+  TH1F* htav[7];
+  TH1F* htavwo[7];
+  TH1F* htdiffav[7];
+  TH2F* ht2dav[7];
+  TH2F* henter[7];
+  TH2F* hhit[7];
+  TH1F* hnwfhits[7];
+  TH1F* heff1d[7];
+  TH1F* hwfadc[7];
+  for(int i=0;i<7;i++){
+    heffav[i] = new TH1F(Form("heffav%d",i+102),Form("WaveformEff_mod%d",i+102),5,-0.5,4.5);
+    htav[i] = new TH1F(Form("htav%d",i+102),Form("WF_t_mod%d",i+102),100,50,150);
+    htavwo[i] = new TH1F(Form("htavwo%d",i+102),Form("WF_t_NotCalibrated_mod%d",i+102),100,50,150);
+    htdiffav[i] = new TH1F(Form("htdiffav%d",i+102),Form("Discri_t-WF_t_mod%d",i+102),40,-20,20);
+    ht2dav[i] = new TH2F(Form("ht2dav%d",i+102),Form("Discri_t_vs_WF_t_mod%d",102+i),80,-40,40,80,-40,40);
+    henter[i] = new TH2F(Form("henter%d",i+102),Form("DiscriOut_block_mod%d",102+i),7,-0.5,6.5,6,-0.5,5.5);
+    hhit[i] = new TH2F(Form("hhit%d",i+102),Form("DST1Hit_block_mod%d",102+i),7,-0.5,6.5,6,-0.5,5.5);
+    hnwfhits[i] = new TH1F(Form("hnwfhits%d",i+102),Form("N_WFhits_mod%d",i+102),200,0,200);
+    heff1d[i] = new TH1F(Form("heff1d%d",i+102),Form("WFefficiency_block_mod%d",i+102),60,0.5,1.1);
+    hwfadc[i] = new TH1F(Form("hwfadc%d",i+102),Form("WF_adc_mod%d",i+102),100,0,200);
+  }
+
+   if (fChain == 0) return;
+
+   Long64_t nentries = fChain->GetEntriesFast();
+
+   Long64_t nbytes = 0, nb = 0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      if (ientry%1000==0) {std::cout<<"Loop "<<ientry<<std::endl;}
+      if( maxevent!=-1&&ientry>maxevent ){break;}
+
+      int nwfhit[7]={0};
+      for(int ilg=0;ilg<n_lg_hits;ilg++){
+	int mide = lg_hit_mid->at(ilg)-102;
+	if(fabs(lg_hit_t->at(ilg)-trigger_fine_time-param[mide])>10.) continue;
+	nwfhit[mide]++;
+	nwfhit[3]++;
+      }
+      for(int imod=0;imod<7;imod++){
+	hnwfhits[imod]->Fill(nwfhit[imod]);
+      }
+
+      for(int itrg=0;itrg<n_trg_lg_hits;itrg++){//trg loop
+	if(fabs(trg_lg_hit_t->at(itrg))>reg_trg_t) continue;
+	int mide = trg_lg_hit_mid->at(itrg)-102;
+	int mid = trg_lg_hit_mid->at(itrg);
+	int cid = trg_lg_hit_cid->at(itrg);
+	henter[mide]->Fill((double)(cid%10),(double)(cid/10));
+	henter[3]->Fill((double)(cid%10),(double)(cid/10));
+	int nLGhit = 0;
+	for(int ilg=0;ilg<n_lg_hits;ilg++){
+	  if(lg_hit_mid->at(ilg)!=mid||lg_hit_cid->at(ilg)!=cid) continue;
+	  if(fabs(trg_lg_hit_t->at(itrg)-(lg_hit_t->at(ilg)-trigger_fine_time-param[mide]))>reg_wf_t) continue;
+	  if((mid==106||mid==104)&&lg_hit_adc->at(ilg)<wfthrh) continue;
+	  if((mid==102||mid==103||mid==107||mid==108)&&lg_hit_adc->at(ilg)<wfthrl) continue;
+	  hhit[mide]->Fill((double)(cid%10),(double)(cid/10));
+	  hhit[3]->Fill((double)(cid%10),(double)(cid/10));
+	  htav[mide]->Fill((lg_hit_t->at(ilg)-trigger_fine_time));
+	  htav[3]->Fill((lg_hit_t->at(ilg)-trigger_fine_time));
+	  htavwo[mide]->Fill(lg_hit_t->at(ilg));
+	  htavwo[3]->Fill(lg_hit_t->at(ilg));
+	  htdiffav[mide]->Fill(trg_lg_hit_t->at(itrg)-(lg_hit_t->at(ilg)-trigger_fine_time-param[mide]));
+	  htdiffav[3]->Fill(trg_lg_hit_t->at(itrg)-(lg_hit_t->at(ilg)-trigger_fine_time-param[mide]));
+	  ht2dav[mide]->Fill(lg_hit_t->at(ilg)-trigger_fine_time-param[mide],trg_lg_hit_t->at(itrg));
+	  ht2dav[3]->Fill(lg_hit_t->at(ilg)-trigger_fine_time-param[mide],trg_lg_hit_t->at(itrg));
+	  hwfadc[mide]->Fill(lg_hit_adc->at(ilg));
+	  if(mid==103||mid==104||mid==106||mid==107){hwfadc[3]->Fill(lg_hit_adc->at(ilg));}
+	  nLGhit++;
+	}
+	heffav[mide]->Fill(nLGhit);
+	heffav[3]->Fill(nLGhit);
+      }//trg loop
+
+   }//event loop
+
+
+   TH2F* heff[7];
+   for(int i=0;i<7;i++){
+     heff[i] = (TH2F*)hhit[i]->Clone();
+     heff[i]->SetName(Form("heff%d",i+102));
+     heff[i]->Divide(henter[i]);
+   }
+
+   double venter[7][6][7]={0.};
+   double vhit[7][6][7]={0.};
+   double vcid[7][57]={0.};
+   double veff[7][57]={0.};
+   double zero[7][57]={0.};
+   double veff_err[7][57]={0.};
+   for(int m=0;m<7;m++){//mod
+     for(int i=0;i<6;i++){//y
+       for(int j=0;j<7;j++){//x
+	 int xbin = henter[m]->GetXaxis()->FindBin(j);
+	 int ybin = henter[m]->GetYaxis()->FindBin(i);
+	 venter[m][i][j] = henter[m]->GetBinContent(xbin,ybin);
+	 vhit[m][i][j] = hhit[m]->GetBinContent(xbin,ybin);
+       	 vcid[m][i*10+j] = (double)i*10.+(double)j;
+       	 veff[m][i*10+j] = vhit[m][i][j]/venter[m][i][j];
+       	 veff_err[m][i*10+j] = sqrt(veff[m][i*10+j]*(1.-veff[m][i*10+j])/venter[m][i][j]);
+	 if(m!=3){heff1d[m]->Fill(veff[m][i*10+j]);}
+	 if(m==1||m==2||m==4||m==5){
+	   heff1d[3]->Fill(veff[m][i*10+j]);
+	 }
+       }
+     }
+   }
+   TGraphErrors* geff[7];
+   TCanvas* cgeff = new TCanvas("cgeff","cgeff",1400,500);
+   cgeff->Divide(4,2);
+   for(int m=0;m<7;m++){
+     geff[m] = new TGraphErrors(57,vcid[m],veff[m],zero[m],veff_err[m]);
+     cgeff->cd(m+1)->SetGridy();
+     geff[m]->Draw("AP");
+   }
+
+
+   //draw
+   TCanvas* ceffav = new TCanvas("ceffav","ceffav",1400,500);
+   ceffav->Divide(4,2);
+   for(int i=0;i<7;i++){
+     ceffav->cd(i+1);
+     heffav[i]->Draw("hist text");
+   }
+   TCanvas* ctav = new TCanvas("ctav","ctav",1400,500);
+   ctav->Divide(4,2);
+   for(int i=0;i<7;i++){
+     ctav->cd(i+1);
+     htav[i]->Draw();
+   }
+   TCanvas* ctavwo = new TCanvas("ctavwo","ctavwo",1400,500);
+   ctavwo->Divide(4,2);
+   for(int i=0;i<7;i++){
+     ctavwo->cd(i+1);
+     htavwo[i]->Draw();
+   }
+   TCanvas* ctdiffav = new TCanvas("ctdiffav","ctdiffav",1400,500);
+   ctdiffav->Divide(4,2);
+   for(int i=0;i<7;i++){
+     ctdiffav->cd(i+1);
+     htdiffav[i]->Draw();
+   }
+   TCanvas* center = new TCanvas("center","center",1000,500);
+   center->Divide(4,2);
+   for(int i=0;i<7;i++){
+     center->cd(i+1);
+     henter[i]->Draw("colz text");
+   }
+   TCanvas* chit = new TCanvas("chit","chit",1000,500);
+   chit->Divide(4,2);
+   for(int i=0;i<7;i++){
+     chit->cd(i+1);
+     hhit[i]->Draw("colz text");
+   }
+   TCanvas* ceff = new TCanvas("ceff","ceff",1000,500);
+   ceff->Divide(4,2);
+   for(int i=0;i<7;i++){
+     ceff->cd(i+1);
+     heff[i]->Draw("colz text");
+   }
+   TCanvas* cnwfhits = new TCanvas("cnwfhits","cnwfhits",1000,500);
+   cnwfhits->Divide(4,2);
+   for(int i=0;i<7;i++){
+     cnwfhits->cd(i+1);
+     hnwfhits[i]->Draw();
+   }
+   TCanvas* ceff1d = new TCanvas("ceff1d","ceff1d",1000,500);
+   ceff1d->Divide(4,2);
+   for(int i=0;i<7;i++){
+     ceff1d->cd(i+1);
+     heff1d[i]->Draw();
+   }
+   TCanvas* cwfadc = new TCanvas("cwfadc","cwfadc",1000,500);
+   cwfadc->Divide(4,2);
+   for(int i=0;i<7;i++){
+     cwfadc->cd(i+1);
+     hwfadc[i]->Draw();
+   }
+
+   TCanvas* cc = new TCanvas("cc","cc",1400,500);
+   cc->SaveAs(fout+"[","pdf");
+   cgeff->SaveAs(fout,"pdf");
+   ceff1d->SaveAs(fout,"pdf");
+   cwfadc->SaveAs(fout,"pdf");
+   ceffav->SaveAs(fout,"pdf");
+   ctdiffav->SaveAs(fout,"pdf");
+   ctavwo->SaveAs(fout,"pdf");
+   ctav->SaveAs(fout,"pdf");
+   center->SaveAs(fout,"pdf");
+   chit->SaveAs(fout,"pdf");
+   ceff->SaveAs(fout,"pdf");
+   cnwfhits->SaveAs(fout,"pdf");
+   ct->SaveAs(fout,"pdf");
+   cc->SaveAs(fout+"]","pdf");
+
+   // ftext << wfthrh << " " << wfthrl << std::endl;
+
+   froot->Write();
+   froot->Close();
 
 }

@@ -285,6 +285,17 @@ target_link_libraries(DrawForLGEfficiency
 )
 
 #_______________________________________________________________________________
+add_executable(DrawForLGRejection usr/DrawForLGRejection.cc)
+
+target_link_libraries(DrawForLGRejection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
 add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
 
 target_link_libraries(MkTreeForTrackSelection
@@ -299,6 +310,17 @@ target_link_libraries(MkTreeForTrackSelection
 add_executable(MkTreeWYass usr/MkTreeWYass.cc)
 
 target_link_libraries(MkTreeWYass
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(CalcLGWFefficiency usr/CalcLGWFefficiency.cc)
+
+target_link_libraries(CalcLGWFefficiency
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -392,6 +414,13 @@ target_link_libraries(tmp_track_analyzer
 add_executable(check_position_resolution usr/tmp/check_position_resolution.cc)
 
 target_link_libraries(check_position_resolution
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(check_gaindrop usr/tmp/check_gaindrop.cc)
+
+target_link_libraries(check_gaindrop
   E16DST_DST1
 )
 

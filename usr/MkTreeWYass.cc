@@ -36,7 +36,10 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b220212-0/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b220212-1/*.root");
 
-      in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");
+      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");
+
+      //morino
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/had030322.root");//fwd
 
     }
     else if(runtype==1){
@@ -60,9 +63,14 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("./root/calib220216/run03030*.root");
       // in_chain->Add("./root/calib220216/run03031*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/1e10etc220331/run0307*.root");
-      in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03029*.root");
-      in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03030*.root");
-      in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03031*.root");
+      //morino
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/x3run03029*.root");//rev
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/x3run03030*.root");//rev
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/x3run03031*.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030294.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030295.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030296.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030302.root");//rev
     }
   }
   else if(argc==8){

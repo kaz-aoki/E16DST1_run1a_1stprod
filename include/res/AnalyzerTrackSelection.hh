@@ -27,13 +27,11 @@ using namespace std;
 class AnalyzerTrackSelection {
 private :
    //HBD residual region for selecting tracks
-   double track_select_sigma = 2.;
-   double hbd_voriginx[4]={0.};
-   double hbd_voriginy[4]={0.};
+   // double track_select_sigma = 2.;
+   // double hbd_voriginx[4]={0.};
+   // double hbd_voriginy[4]={0.};
    // double hbd_vsigmax[4]={25.,25.,25.,25.};
    // double hbd_vsigmay[4]={25.,25.,25.,25.};
-   double hbd_vsigmax[4]={35.,35.,35.,35.};//220429
-   double hbd_vsigmay[4]={35.,35.,35.,35.};//220429
 
 public :
    struct hitset{
@@ -69,6 +67,58 @@ public :
        return false;
      }
    };
+
+  double relg[5][6][7]={
+    {//103
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    },
+    {//104
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    },
+    {//
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    },
+    // {//106morino
+    // {1.18,0.93,1.10,0.97,1.06,1.08,1},
+    // {0.98,1.00,0.87,0.99,0.93,0.98,1},
+    // {1.59,0.96,0.92,0.83,0.85,0.86,0.95},
+    // {1.19,0.95,0.89,1.03,1.11,1.09,0.73},
+    // {0.95,0.85,0.85,0.88,0.77,1.08,1},
+    // {1.28,1.09,0.96,0.87,0.85,1.00,1},
+    // },
+    {//106
+      {1,0.788,0.932,0.822,0.898,0.915,1},
+      {0.831,0.847,0.737,0.839,0.788,0.831,1},
+      {1.35,0.814,0.78,0.703,0.72,0.729,0.805},
+      {1.01,0.805,0.754,0.873,0.941,0.924,0.619},
+      {0.805,0.72,0.72,0.746,0.653,0.915,1},
+      {1.08,0.924,0.814,0.737,0.72,0.847,1},
+    },
+    {//107
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    }
+  };
+
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -109,6 +159,13 @@ public :
    vector<double>  *track_gtr300x_adc;
    vector<double>  *track_gtr300y_t;
    vector<double>  *track_gtr300y_adc;
+   vector<double>  *track_select_hbd_resx;
+   vector<double>  *track_select_hbd_adc;
+   vector<int>     *track_select_gtr_nass;
+   vector<double>  *track_select_gtr100y_res;
+   vector<double>  *track_select_gtr200y_res;
+   vector<double>  *track_select_gtr300y_res;
+   vector<double>  *track_select_gtr_chisq;
    vector<int>     *track_hbd_mid;
    vector<double>  *track_hbd_lx;
    vector<double>  *track_hbd_ly;
@@ -202,6 +259,13 @@ public :
    TBranch        *b_track_gtr300x_adc;   //!
    TBranch        *b_track_gtr300y_t;   //!
    TBranch        *b_track_gtr300y_adc;   //!
+   TBranch        *b_track_select_hbd_resx;   //!
+   TBranch        *b_track_select_hbd_adc;   //!
+   TBranch        *b_track_select_gtr_nass;   //!
+   TBranch        *b_track_select_gtr100y_res;   //!
+   TBranch        *b_track_select_gtr200y_res;   //!
+   TBranch        *b_track_select_gtr300y_res;   //!
+   TBranch        *b_track_select_gtr_chisq;   //!
    TBranch        *b_track_hbd_mid;   //!
    TBranch        *b_track_hbd_lx;   //!
    TBranch        *b_track_hbd_ly;   //!
@@ -264,19 +328,23 @@ public :
    AnalyzerTrackSelection(TTree *tree=0);
    virtual ~AnalyzerTrackSelection();
    virtual Int_t    Cut(Long64_t entry);
-   virtual Int_t    SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks);
+   virtual Int_t    SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks, double* hbd_voriginx, double* hbd_voriginy, double* hbd_vsigmax, double* hbd_vsigmay);
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack, std::vector<int>& goodtracks);
    // virtual Int_t    CutOfTrack(Long64_t entry, int itrack, int runoption );
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack );
    virtual Int_t    IsGoodTrack(Long64_t entry, int itrack, std::vector<trackset> &tracksets);
+   virtual Int_t    IsGoodTrackWHBD(Long64_t entry, int itrack, std::vector<trackset> &tracksets, double hbdadc);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual double   CalcADCNearHit(std::vector<hitset>& lgnear, double ssdt);
+   virtual double   CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt);
+   virtual double   CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    virtual void     Loop();
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
-   virtual void     DrawForLGEfficiency(int runtype, int maxevent, char* out_file_name);
+   virtual void     DrawForLGEfficiency(int runtype, int maxevent, char* out_file_name, char* out_root_name, double hbdthr, int hbdclthr);
+   virtual void     DrawForLGRejection(int runtype, int maxevent, char* out_file_name, char* out_root_name, int hbdoptype);
    virtual void     MkMixingHist(int runoption, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -365,6 +433,13 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_gtr300x_adc = 0;
    track_gtr300y_t = 0;
    track_gtr300y_adc = 0;
+   track_select_hbd_resx = 0;
+   track_select_hbd_adc = 0;
+   track_select_gtr_nass = 0;
+   track_select_gtr100y_res = 0;
+   track_select_gtr200y_res = 0;
+   track_select_gtr300y_res = 0;
+   track_select_gtr_chisq = 0;
    track_hbd_mid = 0;
    track_hbd_lx = 0;
    track_hbd_ly = 0;
@@ -462,6 +537,13 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_gtr300x_adc", &track_gtr300x_adc, &b_track_gtr300x_adc);
    fChain->SetBranchAddress("track_gtr300y_t", &track_gtr300y_t, &b_track_gtr300y_t);
    fChain->SetBranchAddress("track_gtr300y_adc", &track_gtr300y_adc, &b_track_gtr300y_adc);
+   fChain->SetBranchAddress("track_select_hbd_resx", &track_select_hbd_resx, &b_track_select_hbd_resx);
+   fChain->SetBranchAddress("track_select_hbd_adc", &track_select_hbd_adc, &b_track_select_hbd_adc);
+   fChain->SetBranchAddress("track_select_gtr_nass", &track_select_gtr_nass, &b_track_select_gtr_nass);
+   fChain->SetBranchAddress("track_select_gtr100y_res", &track_select_gtr100y_res, &b_track_select_gtr100y_res);
+   fChain->SetBranchAddress("track_select_gtr200y_res", &track_select_gtr200y_res, &b_track_select_gtr200y_res);
+   fChain->SetBranchAddress("track_select_gtr300y_res", &track_select_gtr300y_res, &b_track_select_gtr300y_res);
+   fChain->SetBranchAddress("track_select_gtr_chisq", &track_select_gtr_chisq, &b_track_select_gtr_chisq);
    fChain->SetBranchAddress("track_hbd_mid", &track_hbd_mid, &b_track_hbd_mid);
    fChain->SetBranchAddress("track_hbd_lx", &track_hbd_lx, &b_track_hbd_lx);
    fChain->SetBranchAddress("track_hbd_ly", &track_hbd_ly, &b_track_hbd_ly);
@@ -544,9 +626,13 @@ void AnalyzerTrackSelection::Show(Long64_t entry)
 Int_t AnalyzerTrackSelection::Cut(Long64_t entry)
 {
   std::vector<int> goodtracks(1);
-  return SelectGoodTrack(entry,goodtracks);
+  double hbd_voriginx[4]={0.};
+  double hbd_voriginy[4]={0.};
+  double hbd_vsigmax[4]={25.,25.,25.,25.};
+  double hbd_vsigmay[4]={25.,25.,25.,25.};
+  return SelectGoodTrack(entry,goodtracks,hbd_voriginx,hbd_voriginy,hbd_vsigmax,hbd_vsigmay);
 }
-Int_t AnalyzerTrackSelection::SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks)
+Int_t AnalyzerTrackSelection::SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks, double* hbd_voriginx, double* hbd_voriginy, double* hbd_vsigmax, double* hbd_vsigmay)
 {
   if(goodtracks.size()==1){return 1;}
   else{
@@ -636,11 +722,19 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
   // double ryt = track_hbd_neary->at(itrack)-hbd_voriginy[(trk_mid-103+2)%5];
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
-  if(chi_square->at(itrack)>30.) {return -1;}
+  // if(chi_square->at(itrack)>30.) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
-  if (track_mom->at(itrack) > 2.5) {return -1;}
+  // if (track_mom->at(itrack) > 2.4) {return -1;}
+  // if (track_mom->at(itrack) > 0.6) {return -1;}
+  // if (track_mom->at(itrack) < 1.6) {return -1;}
+  // if (rk_charge->at(itrack) != -1) {return -1;}
+  // if (rk_charge->at(itrack)==1) {return -1;}
+  // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
+  // if(chi_square->at(itrack)>5.) {return -1;}
+  // if(is_selected->at(itrack)==0) {return -1;}
+
   else{
     return 1;
   }
@@ -658,6 +752,42 @@ Int_t AnalyzerTrackSelection::IsGoodTrack(Long64_t entry, int itrack, std::vecto
   settmp.gtr200y = track_gtr200y_t->at(itrack);
   settmp.gtr300x = track_gtr300x_t->at(itrack);
   settmp.gtr300y = track_gtr300y_t->at(itrack);
+  // std::cout<<settmp.chisq<<" "<<settmp.ssd<<" "<<settmp.gtr100x<<" "<<settmp.gtr100y<<" "<<settmp.gtr200x<<" "<<settmp.gtr200y<<" "<<settmp.gtr300x<<" "<<settmp.gtr300y<<std::endl;
+
+  if(tracksets.size()==0){
+    tracksets.push_back(settmp);
+    return 1;
+  }
+  else{
+    bool isgood = false;
+    for(int j=0;j<tracksets.size();j++){
+      if(settmp==tracksets.at(j)){
+	return -1;
+      }
+      if(j==tracksets.size()-1){isgood=true;}
+    }
+    if(isgood==true){
+      tracksets.push_back(settmp);
+      return 1;
+    }
+    else{
+      return -2;
+    }
+  }
+}
+Int_t AnalyzerTrackSelection::IsGoodTrackWHBD(Long64_t entry, int itrack, std::vector<trackset> &tracksets, double hbdadc)
+{
+  //tracks are already sorted by chi_square in DST1
+  trackset settmp;
+  settmp.track_id = track_id->at(itrack);
+  settmp.chisq = chi_square->at(itrack);
+  settmp.ssd = hbdadc;//HBD
+  settmp.gtr100x = itrack;
+  settmp.gtr100y = itrack;
+  settmp.gtr200x = itrack;
+  settmp.gtr200y = itrack;
+  settmp.gtr300x = itrack;
+  settmp.gtr300y = itrack;
   // std::cout<<settmp.chisq<<" "<<settmp.ssd<<" "<<settmp.gtr100x<<" "<<settmp.gtr100y<<" "<<settmp.gtr200x<<" "<<settmp.gtr200y<<" "<<settmp.gtr300x<<" "<<settmp.gtr300y<<std::endl;
 
   if(tracksets.size()==0){
