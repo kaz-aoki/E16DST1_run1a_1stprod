@@ -500,8 +500,10 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterS
 
   if (!IsCurveCorrelation(tgt_z, pos_set)) {
   #ifdef TRACK_EFF_CHECK
-    if (is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
-      x_fit_reject_point += Pow2(kRejTgt0Curve + tgt_id);
+    for (int i = 0; i < 2; ++i) {
+      if (is_sim_xcluster[i][0] && is_sim_xcluster[i][1] && is_sim_xcluster[i][2] && is_sim_xcluster[i][3]) {
+        x_fit_reject_point[i] += Pow2(kRejTgt0Curve + tgt_id);
+      }
     }
   #endif // TRACK_EFF_CHECK
     return false;
@@ -565,15 +567,17 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterS
     return true;
   }
 #ifdef TRACK_EFF_CHECK
-  if (is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
-    if (chi2_cand >= kRoughFitChiSquareThreshold[0]) {
-      x_fit_reject_point += Pow2(kRejTgt0XChi2 + tgt_id);
-    }
-    if (fabs(coef[0]) >= kRoughXFitCoefficientThreshold[0]) {
-      x_fit_reject_point += Pow2(kRejTgt0XCoef0 + tgt_id);
-    }
-    if (fabs(coef[2]) >= kRoughXFitCoefficientThreshold[2]) {
-      x_fit_reject_point += Pow2(kRejTgt0XCoef2 + tgt_id);
+  for (int i = 0; i < 2; ++i) {
+    if (is_sim_xcluster[i][0] && is_sim_xcluster[i][1] && is_sim_xcluster[i][2] && is_sim_xcluster[i][3]) {
+      if (chi2_cand >= kRoughFitChiSquareThreshold[0]) {
+        x_fit_reject_point[i] += Pow2(kRejTgt0XChi2 + tgt_id);
+      }
+      if (fabs(coef[0]) >= kRoughXFitCoefficientThreshold[0]) {
+        x_fit_reject_point[i] += Pow2(kRejTgt0XCoef0 + tgt_id);
+      }
+      if (fabs(coef[2]) >= kRoughXFitCoefficientThreshold[2]) {
+        x_fit_reject_point[i] += Pow2(kRejTgt0XCoef2 + tgt_id);
+      }
     }
   }
 #endif // TRACK_EFF_CHECK
@@ -592,8 +596,10 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
       fabs(kGTRSizeCoef[1] * gtr_y[1] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold) {
 //cout << "y subtract bad" << endl;
 #ifdef TRACK_EFF_CHECK
-    if (is_sim_ycluster[0] && is_sim_ycluster[1] && is_sim_ycluster[2]) {
-      y_reject_point += Pow2(kRejYSubtract);
+    for (int i = 0; i < 2; ++i) {
+      if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
+        y_reject_point[i] += Pow2(kRejYSubtract);
+      }
     }
 #endif
     return false;
@@ -628,12 +634,14 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
     return true;
   }
 #ifdef TRACK_EFF_CHECK
-  if (is_sim_ycluster[0] && is_sim_ycluster[1] && is_sim_ycluster[2]) {
-    if (chi2_cand < kRoughFitChiSquareThreshold[1]) {
-      y_reject_point += Pow2(kRejYChi2);
-    }
-    if (fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
-      y_reject_point += Pow2(kRejYCoef0);
+  for (int i = 0; i < 2; ++i) {
+    if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
+      if (chi2_cand < kRoughFitChiSquareThreshold[1]) {
+        y_reject_point[i] += Pow2(kRejYChi2);
+      }
+      if (fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
+        y_reject_point[i] += Pow2(kRejYCoef0);
+      }
     }
   }
 #endif
@@ -875,16 +883,18 @@ E16INFO("number of y candidates: %d", n_y_cands);
 }
 #else // TRACK_EFF_CHECK
 void E16ANA_TrackCandidates::SearchTrackCandidates() {
-  is_xchecked.fill(false);
-  is_ychecked.fill(false);
-  is_sim_xcluster.fill(false);
-  is_sim_ycluster.fill(false);
-  x_search_reject_point = 0;
-  x_fit_reject_point    = 0;
-  y_reject_point        = 0;
-  xy_reject_point       = 0;
-  reject_point          = 0;
-  sim_track_detected    = false;
+  for (int i = 0; i < 2; ++i) {
+    is_xchecked[i].fill(false);
+    is_ychecked[i].fill(false);
+    is_sim_xcluster[i].fill(false);
+    is_sim_ycluster[i].fill(false);
+  }
+  x_search_reject_point.fill(0);
+  x_fit_reject_point.fill(0);
+  y_reject_point.fill(0);
+  xy_reject_point.fill(0);
+  reject_point.fill(0);
+  sim_track_detected.fill(false);
   track_candidates.clear();
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& ssd = record->SSD();
@@ -924,22 +934,30 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
             if (ssd_cluster->IsMerged()) {
               continue;
             }
-            is_sim_xcluster[0] = ssd_cluster->ClusterId() >= kMockClusterID;
+            auto ssdcid = ssd_cluster->ClusterId();
+            is_sim_xcluster[0][0] = ssdcid >= kMockClusterID && ssdcid < kMockClusterID * 2;
+            is_sim_xcluster[1][0] = ssdcid >= kMockClusterID * 2;
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
-            if (is_sim_xcluster[0]) {
-              is_xchecked[0] = true;
+            for (int i = 0; i < 2; ++i) {
+              if (!is_xchecked[i][0] && is_sim_xcluster[i][0]) {
+                is_xchecked[i][0] = true;
+              }
             }
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
               if (gtr100x_cluster->IsMerged()) {
                 continue;
               }
-              is_sim_xcluster[1] = gtr100x_cluster->ClusterId() >= kMockClusterID;
+              auto gtr1xcid = gtr100x_cluster->ClusterId();
+              is_sim_xcluster[0][1] = gtr1xcid >= kMockClusterID && gtr1xcid < kMockClusterID * 2;
+              is_sim_xcluster[1][1] = gtr1xcid >= kMockClusterID * 2;
               if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100 - 1]) {
-                if (!is_xchecked[1] && is_sim_xcluster[0] && is_sim_xcluster[1]) {
-                  x_search_reject_point += Pow2(kRej100xADC);
-                  reject_point += Pow2(kRejXSearch);
-                  is_xchecked[1] = true;
+                for (int i = 0; i < 2; ++i) {
+                  if (!is_xchecked[i][1] && is_sim_xcluster[i][0] && is_sim_xcluster[i][1]) {
+                    x_search_reject_point[i] += Pow2(kRej100xADC);
+                    reject_point[i] += Pow2(kRejXSearch);
+                    is_xchecked[i][1] = true;
+                  }
                 }
                 continue;
               }
@@ -965,12 +983,16 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 if (gtr200x_cluster->IsMerged()) {
                   continue;
                 }
-                is_sim_xcluster[2] = gtr200x_cluster->ClusterId() >= kMockClusterID;
+                auto gtr2xcid = gtr200x_cluster->ClusterId();
+                is_sim_xcluster[0][2] = gtr2xcid >= kMockClusterID && gtr2xcid < kMockClusterID * 2;
+                is_sim_xcluster[1][2] = gtr2xcid >= kMockClusterID * 2;
                 if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200 - 1]) {
-                  if (!is_xchecked[2] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2]) {
-                    x_search_reject_point += Pow2(kRej200xADC);
-                    reject_point += Pow2(kRejXSearch);
-                    is_xchecked[2] = true;
+                  for (int i = 0; i < 2; ++i) {
+                    if (!is_xchecked[i][2] && is_sim_xcluster[i][0] && is_sim_xcluster[i][1] && is_sim_xcluster[i][2]) {
+                      x_search_reject_point[i] += Pow2(kRej200xADC);
+                      reject_point[i] += Pow2(kRejXSearch);
+                      is_xchecked[i][2] = true;
+                    }
                   }
                   continue;
                 }
@@ -991,12 +1013,16 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   if (gtr300x_cluster->IsMerged()) {
                     continue;
                   }
-                  is_sim_xcluster[3] = gtr300x_cluster->ClusterId() >= kMockClusterID;
+                  auto gtr3xcid = gtr300x_cluster->ClusterId();
+                  is_sim_xcluster[0][3] = gtr3xcid >= kMockClusterID && gtr3xcid < kMockClusterID * 2;
+                  is_sim_xcluster[1][3] = gtr3xcid >= kMockClusterID * 2;
                   if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300 - 1]) {
-                    if (!is_xchecked[3] && is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
-                      x_search_reject_point += Pow2(kRej300xSize);
-                      reject_point += Pow2(kRejXSearch);
-                      is_xchecked[3] = true;
+                    for (int i = 0; i < 2; ++i) {
+                      if (!is_xchecked[i][3] && is_sim_xcluster[i][0] && is_sim_xcluster[i][1] && is_sim_xcluster[i][2] && is_sim_xcluster[i][3]) {
+                        x_search_reject_point[i] += Pow2(kRej300xSize);
+                        reject_point[i] += Pow2(kRejXSearch);
+                        is_xchecked[i][3] = true;
+                      }
                     }
                     continue;
                   }
@@ -1034,9 +1060,11 @@ for (int i = 0; i < 4; ++i) {
                     cluster_set->target_id = best_tgt;
                     cluster_sets[0].emplace_back(*cluster_set);
                   } else {
-                    if (is_sim_xcluster[0] && is_sim_xcluster[1] && is_sim_xcluster[2] && is_sim_xcluster[3]) {
-                      x_search_reject_point += Pow2(kRejXFit);
-                      reject_point += Pow2(kTotalRejXFit);
+                    for (int i = 0; i < 2; ++i) {
+                      if (is_sim_xcluster[i][0] && is_sim_xcluster[i][1] && is_sim_xcluster[i][2] && is_sim_xcluster[i][3]) {
+                        x_search_reject_point[i] += Pow2(kRejXFit);
+                        reject_point[i] += Pow2(kTotalRejXFit);
+                      }
                     }
                   }
 //                  cluster_set->target_id= 1;
@@ -1078,10 +1106,16 @@ for (int i = 0; i < 4; ++i) {
           if (gtr300y_cluster->IsMerged()) {
             continue;
           }
-          is_sim_ycluster[2] = gtr300y_cluster->ClusterId() >= kMockClusterID;
+          auto gtr3ycid = gtr300y_cluster->ClusterId();
+          is_sim_ycluster[0][2] = gtr3ycid >= kMockClusterID && gtr3ycid < kMockClusterID * 2;
+          is_sim_ycluster[1][2] = gtr3ycid >= kMockClusterID * 2;
           if (gtr300y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
-            if (is_sim_ycluster[2]) {
-              y_reject_point += Pow2(kRej300yADC);
+            for (int i = 0; i < 2; ++i) {
+              if (!is_ychecked[i][2] && is_sim_ycluster[i][2]) {
+                y_reject_point[i] += Pow2(kRej300yADC);
+                reject_point[i] += Pow2(kRejYSearch);
+                is_ychecked[i][2] = true;
+              }
             }
             continue;
           }
@@ -1091,10 +1125,16 @@ for (int i = 0; i < 4; ++i) {
             if (gtr200y_cluster->IsMerged()) {
               continue;
             }
-            is_sim_ycluster[1] = gtr200y_cluster->ClusterId() >= kMockClusterID;
+            auto gtr2ycid = gtr200y_cluster->ClusterId();
+            is_sim_ycluster[0][1] = gtr2ycid >= kMockClusterID && gtr2ycid < kMockClusterID * 2;
+            is_sim_ycluster[1][1] = gtr2ycid >= kMockClusterID * 2;
             if (gtr200y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
-              if (is_sim_ycluster[2]&& is_sim_ycluster[1]) {
-                y_reject_point += Pow2(kRej200yADC);
+              for (int i = 0; i < 2; ++i) {
+                if (!is_ychecked[i][1] && is_sim_ycluster[i][2] && is_sim_ycluster[i][1]) {
+                  y_reject_point[i] += Pow2(kRej200yADC);
+                  reject_point[i] += Pow2(kRejYSearch);
+                  is_ychecked[i][1] = true;
+                }
               }
               continue;
             }
@@ -1104,10 +1144,16 @@ for (int i = 0; i < 4; ++i) {
               if (gtr100y_cluster->IsMerged()) {
                 continue;
               }
-              is_sim_ycluster[0] = gtr100y_cluster->ClusterId() >= kMockClusterID;
+              auto gtr1ycid = gtr100y_cluster->ClusterId();
+              is_sim_ycluster[0][0] = gtr1ycid >= kMockClusterID && gtr1ycid < kMockClusterID * 2;
+              is_sim_ycluster[1][0] = gtr1ycid >= kMockClusterID * 2;
               if (gtr100y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
-                if (is_sim_ycluster[2]&& is_sim_ycluster[1] && is_sim_ycluster[0]) {
-                  y_reject_point += Pow2(kRej100yADC);
+                for (int i = 0; i < 2; ++i) {
+                  if (!is_ychecked[i][0] && is_sim_ycluster[i][2] && is_sim_ycluster[i][1] && is_sim_ycluster[i][0]) {
+                    y_reject_point[i] += Pow2(kRej100yADC);
+                    reject_point[i] += Pow2(kRejYSearch);
+                    is_ychecked[i][0] = true;
+                  }
                 }
                 continue;
               }
@@ -1122,8 +1168,10 @@ for (int i = 1; i < 4; ++i) {
               if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               } else {
-                if (is_sim_ycluster[0] && is_sim_ycluster[1] && is_sim_ycluster[2]) {
-                  reject_point += Pow2(kRejYCand);
+                for (int i = 0; i < 2; ++i) {
+                  if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
+                    reject_point[i] += Pow2(kRejYCand);
+                  }
                 }
               }
             }
@@ -1131,10 +1179,15 @@ for (int i = 1; i < 4; ++i) {
               if (gtr100yb_cluster->IsMerged()) {
                 continue;
               }
-              is_sim_ycluster[0] = gtr100yb_cluster->ClusterId() >= kMockClusterID;
+              auto gtr1ybcid = gtr100yb_cluster->ClusterId();
+              is_sim_ycluster[0][0] = gtr1ybcid >= kMockClusterID && gtr1ybcid < kMockClusterID * 2;
+              is_sim_ycluster[1][0] = gtr1ybcid >= kMockClusterID * 2;
               if (gtr100yb_cluster->PeakSum() < kGTRPeakSumThresholdY) {
-                if (is_sim_ycluster[2]&& is_sim_ycluster[1] && is_sim_ycluster[0]) {
-                  y_reject_point += Pow2(kRej100yADC);
+                for (int i = 0; i < 2; ++i) {
+                  if (is_sim_ycluster[i][2] && is_sim_ycluster[i][1] && is_sim_ycluster[i][0]) {
+                    y_reject_point[i] += Pow2(kRej100yADC);
+                    reject_point[i] += Pow2(kRejYSearch);
+                  }
                 }
                 continue;
               }
@@ -1149,8 +1202,10 @@ for (int i = 1; i < 4; ++i) {
               if (IsYTrackCandidate(cluster_set)) {
                 cluster_sets[1].emplace_back(*cluster_set);
               } else {
-                if (is_sim_ycluster[0] && is_sim_ycluster[1] && is_sim_ycluster[2]) {
-                  reject_point += Pow2(kRejYCand);
+                for (int i = 0; i < 2; ++i) {
+                  if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
+                    reject_point[i] += Pow2(kRejYCand);
+                  }
                 }
               }
             }
@@ -1171,47 +1226,55 @@ E16INFO("number of y candidates: %d", n_y_cands);
     std::array<int, kNumGTRLayers> x_module_ids = {gtrx[0]->ModuleId(), gtrx[1]->ModuleId(), gtrx[2]->ModuleId()};
     std::array<float, kNumGTRLayers> x_timings = {gtrx[0]->Timing(), gtrx[1]->Timing(), gtrx[2]->Timing()};
     std::array<float, kNumGTRLayers> x_peak_sums = {gtrx[0]->PeakSum(), gtrx[1]->PeakSum(), gtrx[2]->PeakSum()};
-    bool is_sim_xtrack = ssdx.ClusterId() >= kMockClusterID &&
-                         gtrx[0]->ClusterId() >= kMockClusterID &&
-                         gtrx[1]->ClusterId() >= kMockClusterID &&
-                         gtrx[2]->ClusterId() >= kMockClusterID;
+    bool is_sim_xtrack[2] = {ssdx.ClusterId()     >= kMockClusterID && ssdx.ClusterId()     < kMockClusterID * 2 &&
+                             gtrx[0]->ClusterId() >= kMockClusterID && gtrx[0]->ClusterId() < kMockClusterID * 2 &&
+                             gtrx[1]->ClusterId() >= kMockClusterID && gtrx[1]->ClusterId() < kMockClusterID * 2 &&
+                             gtrx[2]->ClusterId() >= kMockClusterID && gtrx[2]->ClusterId() < kMockClusterID * 2, 
+                             ssdx.ClusterId()     >= 2 * kMockClusterID &&
+                             gtrx[0]->ClusterId() >= 2 * kMockClusterID &&
+                             gtrx[1]->ClusterId() >= 2 * kMockClusterID &&
+                             gtrx[2]->ClusterId() >= 2 * kMockClusterID};
     for (const auto& y_cand : cluster_sets[1]) {
       auto& gtry = y_cand.gtr_clusters;
 //      IsSameModules();
-      bool is_sim_track = is_sim_xtrack &&
-                          gtry[0]->ClusterId() >= kMockClusterID &&
-                          gtry[1]->ClusterId() >= kMockClusterID &&
-                          gtry[2]->ClusterId() >= kMockClusterID;
+      bool is_sim_track[2] = {is_sim_xtrack[0] &&
+                              gtry[0]->ClusterId() >= kMockClusterID && gtry[0]->ClusterId() < kMockClusterID * 2 &&
+                              gtry[1]->ClusterId() >= kMockClusterID && gtry[1]->ClusterId() < kMockClusterID * 2 &&
+                              gtry[2]->ClusterId() >= kMockClusterID && gtry[2]->ClusterId() < kMockClusterID * 2,
+                              is_sim_xtrack[1] &&
+                              gtry[0]->ClusterId() >= 2 * kMockClusterID &&
+                              gtry[1]->ClusterId() >= 2 * kMockClusterID &&
+                              gtry[2]->ClusterId() >= 2 * kMockClusterID};
 #ifdef MOM_RECONSTRUCT_CHECK
       if (!is_sim_track) {
         continue;
       }
 #endif // MOM_RECONSTRUCT_CHECK
       bool is_same_module = true;
-      if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {
-        if (is_sim_track) {
-          xy_reject_point += Pow2(kRej100YYb);
-          reject_point += Pow2(kTotalRej100YYb);
-        }
+      if (!is_sim_track[0] && !is_sim_track[1]) {
+        if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {
 //cout << "is y yb not match" << endl;
-        continue;
+          continue;
+        }
       }
       for (int i = 0; i < kNumGTRLayers; ++i) {
 //        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i]) {
         if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i] || !ExistADCCorrelation(i, x_peak_sums[i], gtry[i]->PeakSum())) { // ozawa v8
 //cout << "x y timing not match" << endl;
           is_same_module = false;
-          if (is_sim_track) {
-            if (x_module_ids[i] != gtry[i]->ModuleId()) {
-              xy_reject_point += Pow2(kRej100XYModule + i);
+          for (int j = 0; j < 2; ++j) {
+            if (is_sim_track[j]) {
+              if (x_module_ids[i] != gtry[i]->ModuleId()) {
+                xy_reject_point[j] += Pow2(kRej100XYModule + i);
+              }
+              if (fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i]) {
+                xy_reject_point[j] += Pow2(kRej100XYTime + i);
+              }
+              if (!ExistADCCorrelation(i, x_peak_sums[i], gtry[i]->PeakSum())) {
+                xy_reject_point[j] += Pow2(kRej100XYADC + i);
+              }
+              reject_point[j] += Pow2(kRejXYMatch);
             }
-            if (fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i]) {
-              xy_reject_point += Pow2(kRej100XYTime + i);
-            }
-            if (!ExistADCCorrelation(i, x_peak_sums[i], gtry[i]->PeakSum())) {
-              xy_reject_point += Pow2(kRej100XYADC + i);
-            }
-            reject_point += Pow2(kRejXYMatch);
           }
           break;
         }
@@ -1219,8 +1282,10 @@ E16INFO("number of y candidates: %d", n_y_cands);
       if (!is_same_module) {
         continue;
       }
-      if (is_sim_track) {
-        sim_track_detected = true;
+      for (int i = 0; i < 2; ++i) {
+        if (is_sim_track[i]) {
+          sim_track_detected[i] = true;
+        }
       }
       track_candidates.emplace_back(E16ANA_TrackCandidate(geometry, bfield_map));
       auto& tmp_cand = track_candidates.back();

@@ -508,12 +508,12 @@ class E16ANA_TrackCandidates {
   }
   void PrintParam();
 #ifdef TRACK_EFF_CHECK
-  uint32_t XSearchRejectPoint() { return x_search_reject_point; }
-  uint32_t XFitRejectPoint() { return x_fit_reject_point; }
-  uint32_t YRejectPoint() { return y_reject_point; }
-  uint32_t XYRejectPoint() { return xy_reject_point; }
-  uint32_t RejectPoint() { return reject_point; }
-  bool     SimTrackDetected() { return sim_track_detected; }
+  uint32_t XSearchRejectPoint(int n) { return x_search_reject_point[n]; }
+  uint32_t XFitRejectPoint(int n) { return x_fit_reject_point[n]; }
+  uint32_t YRejectPoint(int n) { return y_reject_point[n]; }
+  uint32_t XYRejectPoint(int n) { return xy_reject_point[n]; }
+  uint32_t RejectPoint(int n) { return reject_point[n]; }
+  bool     SimTrackDetected(int n) { return sim_track_detected[n]; }
   uint32_t Pow2(int n) {
     uint32_t val = 1;
     for (int i = 0; i < n; ++i) {
@@ -672,16 +672,16 @@ class E16ANA_TrackCandidates {
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
 #ifdef TRACK_EFF_CHECK
-  std::array<bool, 4> is_xchecked;
-  std::array<bool, 3> is_ychecked;
-  std::array<bool, 4> is_sim_xcluster;
-  std::array<bool, 3> is_sim_ycluster;
-  uint32_t x_search_reject_point;
-  uint32_t x_fit_reject_point;
-  uint32_t y_reject_point;
-  uint32_t xy_reject_point;
-  uint32_t reject_point;
-  bool     sim_track_detected;
+  std::array<std::array<bool, 4>, 2> is_xchecked;
+  std::array<std::array<bool, 3>, 2> is_ychecked;
+  std::array<std::array<bool, 4>, 2> is_sim_xcluster;
+  std::array<std::array<bool, 3>, 2> is_sim_ycluster;
+  std::array<uint32_t, 2> x_search_reject_point;
+  std::array<uint32_t, 2> x_fit_reject_point;
+  std::array<uint32_t, 2> y_reject_point;
+  std::array<uint32_t, 2> xy_reject_point;
+  std::array<uint32_t, 2> reject_point;
+  std::array<bool, 2>     sim_track_detected;
 #endif
 };
 
