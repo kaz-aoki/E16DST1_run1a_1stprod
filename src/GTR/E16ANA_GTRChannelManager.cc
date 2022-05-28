@@ -95,7 +95,7 @@ int E16ANA_GTRChannelManager::ConvLocalXToAPVch(const int gtr_size, const double
 	return apv_ch;
 }
 
-int E16ANA_GTRChannelManager::ConvLocalYToAPVch(const int gtr_size, const double ly_mm){//
+int E16ANA_GTRChannelManager::ConvLocalYToAPVch(const int gtr_size, const double lx_mm, const double ly_mm ){//
 	int n_strips_100 = E16DST_DST1Constant::nstrips_100y;
 	int n_strips_200 = E16DST_DST1Constant::nstrips_200y;
 	int n_strips_300 = E16DST_DST1Constant::nstrips_300y;
@@ -106,14 +106,24 @@ int E16ANA_GTRChannelManager::ConvLocalYToAPVch(const int gtr_size, const double
 	else {return -1;}
     int apv_ch = -1;
     if(gtr_size == 0){
-    if(signbit(ly_mm)){//MINUS
-		apv_ch = (n_strips/2 - 1) + (int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
-	}
-    else {
-		apv_ch = n_strips/2  + (int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
-	}
-	}
-    else{
+		if(IsYa(lx_mm)){//Ya
+		    if(signbit(ly_mm)){//MINUS
+				apv_ch = (n_strips/2 - 1) + (int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
+			}
+	    	else {
+				apv_ch = n_strips/2 + (int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
+			}
+		}
+		else{//Yb
+		    if(signbit(ly_mm)){//MINUS
+				apv_ch = n_strips/2  + -1*(int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y  ;
+			}
+	    	else {
+				apv_ch = (n_strips/2 - 1) + -1*(int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y ;
+			}
+		}			
+	}//GTR100
+    else{//GTR200, 300
     if(signbit(ly_mm)){//MINUS
 		apv_ch = (n_strips/2 - 1) + -1*(int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
 	}
@@ -121,6 +131,14 @@ int E16ANA_GTRChannelManager::ConvLocalYToAPVch(const int gtr_size, const double
 		apv_ch = n_strips/2  + -1*(int)ly_mm/E16DST_DST1Constant::gtr_strip_pitch_y;
 	}
 	}
-
 	return apv_ch;
+}
+
+bool E16ANA_GTRChannelManager::IsYa(const double lx_mm){//should be updated, gizagiza in y strip length should be considered
+	if(lx_mm  > 0){
+		return true;
+	}
+	else {
+		return false;
+	}
 }
