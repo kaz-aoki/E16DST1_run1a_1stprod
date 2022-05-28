@@ -724,4 +724,4 @@ cout << "300 " << mock_gtr300.GX() << " " << mock_gtr300.GY() << " " << mock_gtr
 }
 #endif // MERGE_CLUSTERS
 
-#endif // TRACK_EFF_CHECK
+#endif // TRACKEFF_CHECK

@@ -1,3 +1,5 @@
+#ifdef TRACK_EFF_CHECK
+
 #include <iostream>
 #include <TCanvas.h>
 #include <TROOT.h>
@@ -35,6 +37,8 @@ using namespace std;
 
 constexpr bool kIsElectronRun = true;
 constexpr bool kSelectEvent   = false;
+
+constexpr int kNumBins = 200;
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
@@ -117,9 +121,9 @@ int main(int argc, char* argv[]) {
       TString name0 = Form("h_gem_%d_%d", i, j);
       TString name1 = Form("h_apv_%d_%d", i, j);
       TString name2 = Form("h_dead_%d_%d", i, j);
-      h_gem[i][j] = new TH2I(name0, name0, 200, -1. * range[i], range[i], 200, -1. * range[i], range[i]);
-      h_apv[i][j] = new TH2I(name1, name1, 200, -1. * range[i], range[i], 200, -1. * range[i], range[i]);
-      h_dead[i][j]     = new TH2I(name2, name2, 200, -1. * range[i], range[i], 200, -1. * range[i], range[i]);
+      h_gem[i][j] = new TH2I(name0, name0, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
+      h_apv[i][j] = new TH2I(name1, name1, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
+      h_dead[i][j]     = new TH2I(name2, name2, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
     }
   }
   auto gtr100_stat = gtr_stat.GEMDeadArea100();
@@ -128,15 +132,15 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 9; ++j) {
       auto mid = 101 + j;
-      for (int k = 0; k < 200; ++k) {
-        double x = k * range[i] / 100 - range[i];
+      for (int k = 0; k < kNumBins; ++k) {
+        double x = k * range[i] / kNumBins * 2. - range[i];
         int apv_x_ch;
         bool is_apv_x_dead;
         if (i < 3) {
           apv_x_ch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(i, x);
           is_apv_x_dead = gtr_analyzers->Chamber(mid, i)->GetStripX()->IsBadStrip(apv_x_ch);
         }
-        for (int l = 0; l < 200; ++l) {
+        for (int l = 0; l < kNumBins; ++l) {
           double y = l * range[i] / 100 - range[i];
           int apv_y_ch;
           bool is_apv_y_dead;
@@ -187,6 +191,9 @@ int main(int argc, char* argv[]) {
             if (!is_apv_x_dead && !is_apv_y_dead) {
               h_apv[i][j]->Fill(x, y, 1);
             } else {
+//if (mid == 107 && k == 100 && y > -70. && y < -50.) {
+//  cout << y << " " << apv_y_ch << endl;
+//}
               h_apv[i][j]->Fill(x, y, -1);
             }
 //            if (gtr300_stat->IsXOK(mid, x) && gtr300_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
@@ -235,3 +242,5 @@ int main(int argc, char* argv[]) {
   out_canvas->Print(out_file_name + "]");
   return 0;
 }
+
+#endif // TRACK_EFF_CHECK
