@@ -30,8 +30,13 @@ bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos
   if (is_apv_x_dead) {
     return true;
   }
-  auto apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(lid, pos.Y());
-  auto is_apv_y_dead = gtr_analyzers->Chamber(mid, lid)->GetStripY()->IsBadStrip(apv_y_ch);
+  auto apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(lid, pos.X(), pos.Y());
+  bool is_apv_y_dead;
+  if (lid == kGTR100 && pos.X() < 0) {
+    is_apv_y_dead = static_cast<E16ANA_GTR100Analyzer*>(gtr_analyzers->Chamber(mid, lid))->GetStripYb()->IsBadStrip(apv_y_ch);
+  } else {
+    is_apv_y_dead = gtr_analyzers->Chamber(mid, lid)->GetStripY()->IsBadStrip(apv_y_ch);
+  }
   if (is_apv_y_dead) {
     return true;
   }

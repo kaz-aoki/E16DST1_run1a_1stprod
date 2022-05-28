@@ -145,8 +145,12 @@ int main(int argc, char* argv[]) {
           int apv_y_ch;
           bool is_apv_y_dead;
           if (i < 3) {
-            apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(i, y);
-            is_apv_y_dead = gtr_analyzers->Chamber(mid, i)->GetStripY()->IsBadStrip(apv_y_ch);
+            apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(i, x, y);
+            if (i == 0 && x < 0) {
+              is_apv_y_dead = static_cast<E16ANA_GTR100Analyzer*>(gtr_analyzers->Chamber(mid, i))->GetStripYb()->IsBadStrip(apv_y_ch);
+            } else {
+              is_apv_y_dead = gtr_analyzers->Chamber(mid, i)->GetStripY()->IsBadStrip(apv_y_ch);
+            }
           }
           if (i == 0) {
             if (gtr100_stat->IsXOK(mid, x) && gtr100_stat->IsYOK(mid, y)) {
