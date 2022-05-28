@@ -319,7 +319,7 @@ int main(int argc, char* argv[]) {
       int mock_read_flag;
       E16ANA_MockTrack mock_tracks[2];
       while (true) {
-        mock_read_flag = ReadAndAddMockTrackPair(data_merger, &mock_data, mock_tracks[], &check_file);
+        mock_read_flag = ReadAndAddMockTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
         if (mock_read_flag != kReadMockNG) {
           break;
         }
