@@ -126,13 +126,11 @@ int main(int argc, char* argv[]) {
     	for(int j = 0; j < n_xs; j++){
 		double lx = -50 *(l+1) + 0.35*j;
  	
- 	   int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch(l,lx, ly);//(gtr_size, local_pos[mm])
-// 	 	int apv_ch_y = cm->ConvLocalYToAPVch(l,lx, ly);//(gtr_size, local_pos[mm])
+ 	    int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch(l,lx, ly);//(gtr_size, local_pos[mm])
  	 	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch(l, lx);//(gtr_size, local_pos[mm])
-//		std::cout << "layer, lx, ly  apv ch " << l << ", " <<lx << ", "<< ly << " , " << apv_ch_y << std::endl;
 		bool x =gtr_analyzers->Chamber(m, l)->GetStripX()->IsBadStrip(apv_ch_x);
 		bool y; 
-  		if(l == 0 &&  lx > 0) y =static_cast<E16ANA_GTR100Analyzer *> (gtr_analyzers->Chamber(m, l))->GetStripYb()->IsBadStrip(apv_ch_y);
+  		if(l == 0 &&  lx < 0) y =static_cast<E16ANA_GTR100Analyzer *> (gtr_analyzers->Chamber(m, l))->GetStripYb()->IsBadStrip(apv_ch_y);
   	    else  { y =gtr_analyzers->Chamber(m, l)->GetStripY()->IsBadStrip(apv_ch_y);}
 		int flag = 0;
 		if(x == 0 && y == 0){flag = 1;}
