@@ -549,12 +549,12 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_pairs", &n_pairs, "n_pairs/I");
     tree->Branch("n_refit_pairs", &n_refit_pairs, "n_refit_pairs/I");
 #ifdef TRACK_EFF_CHECK
-    tree->Branch("x_search_reject_point", &x_search_reject_point, "x_search_reject_point/i");
-    tree->Branch("x_fit_reject_point",    &x_fit_reject_point,    "x_fit_reject_point/i");
-    tree->Branch("y_reject_point",        &y_reject_point,        "y_reject_point/i");
-    tree->Branch("xy_reject_point",       &xy_reject_point,       "xy_reject_point/i");
-    tree->Branch("reject_point",          &reject_point,          "reject_point/i");
-    tree->Branch("sim_track_detected",    &sim_track_detected,    "sim_track_detected/O");
+    tree->Branch("x_search_reject_point", &x_search_reject_point);
+    tree->Branch("x_fit_reject_point",    &x_fit_reject_point);
+    tree->Branch("y_reject_point",        &y_reject_point);
+    tree->Branch("xy_reject_point",       &xy_reject_point);
+    tree->Branch("reject_point",          &reject_point);
+    tree->Branch("sim_track_detected",    &sim_track_detected);
     tree->Branch("is_sim_track", &is_sim_track);
 #endif // TRACK_EFF_CHECK
     tree->Branch("track_id", &track_id);
@@ -2352,12 +2352,26 @@ class E16ANA_TrackCheckFile {
     n_pairs = cands.NumTrackCandidatePairs();
     n_refit_pairs = 0;
 #ifdef TRACK_EFF_CHECK
-    x_search_reject_point = cands.XSearchRejectPoint();
-    x_fit_reject_point    = cands.XFitRejectPoint();
-    y_reject_point        = cands.YRejectPoint();
-    xy_reject_point       = cands.XYRejectPoint();
-    reject_point          = cands.RejectPoint();
-    sim_track_detected    = cands.SimTrackDetected();
+//    x_search_reject_point.clear();
+//    x_fit_reject_point.clear();
+//    y_reject_point.clear();
+//    xy_reject_point.clear();
+//    reject_point.clear();
+//    sim_track_detected.clear();
+    x_search_reject_point.resize(2);
+    x_fit_reject_point.resize(2);
+    y_reject_point.resize(2);
+    xy_reject_point.resize(2);
+    reject_point.resize(2);
+    sim_track_detected.resize(2);
+    for (int i = 0; i < 2; ++i) {
+      x_search_reject_point[i] = cands.XSearchRejectPoint(i);
+      x_fit_reject_point[i]    = cands.XFitRejectPoint(i);
+      y_reject_point[i]        = cands.YRejectPoint(i);
+      xy_reject_point[i]       = cands.XYRejectPoint(i);
+      reject_point[i]          = cands.RejectPoint(i);
+      sim_track_detected[i]    = cands.SimTrackDetected(i);
+    }
     is_sim_track.resize(n_cands);
 #endif // TRACK_EFF_CHECK
     track_id.resize(n_cands);
@@ -4111,12 +4125,12 @@ class E16ANA_TrackCheckFile {
   int n_pairs;
   int n_refit_pairs;
 #ifdef TRACK_EFF_CHECK
-  uint32_t x_search_reject_point;
-  uint32_t x_fit_reject_point;
-  uint32_t y_reject_point;
-  uint32_t xy_reject_point;
-  uint32_t reject_point;
-  bool     sim_track_detected;
+  std::vector<uint32_t> x_search_reject_point;
+  std::vector<uint32_t> x_fit_reject_point;
+  std::vector<uint32_t> y_reject_point;
+  std::vector<uint32_t> xy_reject_point;
+  std::vector<uint32_t> reject_point;
+  std::vector<bool>     sim_track_detected;
   std::vector<bool> is_sim_track;
 #endif // TRACK_EFF_CHECK
   std::vector<int> track_id;

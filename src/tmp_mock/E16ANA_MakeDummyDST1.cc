@@ -208,7 +208,8 @@ cout << "Overlap " << detector_id << endl;
   return false;
 }
 
-void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record) {
+void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record) {
+  int cid_offset = kMockClusterID * (1 + cluster_id_offset);
   auto ssd     = E16DST_DST1SSDCluster();
   auto gtr100x = E16DST_DST1GTRCluster();
   auto gtr100y = E16DST_DST1GTRCluster();
@@ -261,7 +262,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   x_size /= size_sum;
   t_size /= size_sum;
   
-  ssd.SetClusterId(kMockClusterID);
+  ssd.SetClusterId(cid_offset);
   ssd.SetModuleId(mid);
   ssd.SetCogPos(x_size);
   ssd.SetTimingFit(t_size);
@@ -300,7 +301,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr100x.SetTdcPos(x_size);
   gtr100x.SetTiming(t_size);
 
-  gtr100x.SetClusterId(kMockClusterID + kGTR100x);
+  gtr100x.SetClusterId(cid_offset + kGTR100x);
   gtr100x.SetLayerId(0);
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mid);
@@ -348,7 +349,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   
   gtr100y.SetTdcPos(x_size);
   gtr100y.SetTiming(t_size);
-  gtr100y.SetClusterId(kMockClusterID + kGTR100y);
+  gtr100y.SetClusterId(cid_offset + kGTR100y);
   gtr100y.SetLayerId(0);
   gtr100y.SetType(type);
   gtr100y.SetModuleId(mid);
@@ -391,7 +392,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200x.SetTdcPos(x_size);
   gtr200x.SetTiming(t_size);
 
-  gtr200x.SetClusterId(kMockClusterID + kGTR200x);
+  gtr200x.SetClusterId(cid_offset + kGTR200x);
   gtr200x.SetLayerId(1);
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mid);
@@ -433,7 +434,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   
   gtr200y.SetTdcPos(x_size);
   gtr200y.SetTiming(t_size);
-  gtr200y.SetClusterId(kMockClusterID + kGTR200y);
+  gtr200y.SetClusterId(cid_offset + kGTR200y);
   gtr200y.SetLayerId(1);
   gtr200y.SetType(1);
   gtr200y.SetModuleId(mid);
@@ -475,7 +476,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300x.SetTdcPos(x_size);
   gtr300x.SetTiming(t_size);
 
-  gtr300x.SetClusterId(kMockClusterID + kGTR300x);
+  gtr300x.SetClusterId(cid_offset + kGTR300x);
   gtr300x.SetLayerId(2);
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mid);
@@ -517,7 +518,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   
   gtr300y.SetTdcPos(x_size);
   gtr300y.SetTiming(t_size);
-  gtr300y.SetClusterId(kMockClusterID + kGTR300y);
+  gtr300y.SetClusterId(cid_offset + kGTR300y);
   gtr300y.SetLayerId(2);
   gtr300y.SetType(1);
   gtr300y.SetModuleId(mid);
@@ -526,7 +527,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300y.SetPeakSum(kGTRADC);
   gtr300y.SetNumHits(1);
   // HBD
-  hbd.SetClusterId(kMockClusterID);
+  hbd.SetClusterId(cid_offset);
   hbd.SetModuleId(mock_hbd.ModuleID());
   hbd.SetPeakSum(kHBDPE);
   hbd.SetTiming(kHBDTime);
@@ -536,7 +537,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   hbd.SetLocalPos(mock_hbd.XTV());
   hbd.SetEProb(kHBDEProb);
   // LG
-  lg.SetHitId(kMockClusterID);
+  lg.SetHitId(cid_offset);
   lg.SetIds(mock_lg.ModuleID(), -9999.);
   lg.SetLocalPos(mock_lg.XTV());
   lg.SetFitPeak(kLGADC);
@@ -556,7 +557,8 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
 }
 
 #else
-void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record) {
+void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record) {
+  int cid_offset = kMockClusterID * (1 + cluster_idoffsett);
   auto ssd     = E16DST_DST1SSDCluster();
   auto gtr100x = E16DST_DST1GTRCluster();
   auto gtr100y = E16DST_DST1GTRCluster();
@@ -577,7 +579,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   auto gtr200_t = DistributeTiming(kGTR, mock_gtr200.Time());
   auto gtr300_t = DistributeTiming(kGTR, mock_gtr300.Time());
   
-  ssd.SetClusterId(kMockClusterID);
+  ssd.SetClusterId(cid_offset);
   ssd.SetModuleId(mock_ssd.ModuleID());
 #ifndef GEOM_VER0
   ssd.SetCogPos(mock_ssd.Xsmear(kSSDXSigma));
@@ -590,7 +592,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
 #endif
   ssd.SetTimingFit(ssd_t[0]);
   
-  gtr100x.SetClusterId(kMockClusterID + kGTR100x);
+  gtr100x.SetClusterId(cid_offset + kGTR100x);
   gtr100x.SetLayerId(0);
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mock_gtr100.ModuleID());
@@ -607,7 +609,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr100x.SetPeakSum(kGTRADC);
   gtr100x.SetNumHits(GTRClusterSize(kGTRx, mock_gtr100));
 
-  gtr100y.SetClusterId(kMockClusterID + kGTR100y);
+  gtr100y.SetClusterId(cid_offset + kGTR100y);
   gtr100y.SetLayerId(0);
   if (gtr100x.LocalXT() >= 0) {
     gtr100y.SetType(1);
@@ -624,7 +626,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr100y.SetPeakSum(kGTRADC);
   gtr100y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr100));
   
-  gtr200x.SetClusterId(kMockClusterID + kGTR200x);
+  gtr200x.SetClusterId(cid_offset + kGTR200x);
   gtr200x.SetLayerId(1);
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mock_gtr200.ModuleID());
@@ -641,7 +643,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200x.SetPeakSum(kGTRADC);
   gtr200x.SetNumHits(GTRClusterSize(kGTRx, mock_gtr200));
   
-  gtr200y.SetClusterId(kMockClusterID + kGTR200y);
+  gtr200y.SetClusterId(cid_offset + kGTR200y);
   gtr200y.SetLayerId(1);
   gtr200y.SetType(1);
   gtr200y.SetModuleId(mock_gtr200.ModuleID());
@@ -650,7 +652,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr200y.SetPeakSum(kGTRADC);
   gtr200y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr200));
   
-  gtr300x.SetClusterId(kMockClusterID + kGTR300x);
+  gtr300x.SetClusterId(cid_offset + kGTR300x);
   gtr300x.SetLayerId(2);
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mock_gtr300.ModuleID());
@@ -667,7 +669,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300x.SetPeakSum(kGTRADC);
   gtr300x.SetNumHits(GTRClusterSize(kGTRx, mock_gtr300));
   
-  gtr300y.SetClusterId(kMockClusterID + kGTR300y);
+  gtr300y.SetClusterId(cid_offset + kGTR300y);
   gtr300y.SetLayerId(2);
   gtr300y.SetType(1);
   gtr300y.SetModuleId(mock_gtr300.ModuleID());
@@ -676,7 +678,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   gtr300y.SetPeakSum(kGTRADC);
   gtr300y.SetNumHits(GTRClusterSize(kGTRy, mock_gtr300));
   
-  hbd.SetClusterId(kMockClusterID);
+  hbd.SetClusterId(cid_offset);
   hbd.SetModuleId(mock_hbd.ModuleID());
   hbd.SetPeakSum(kHBDPE);
   hbd.SetTiming(kHBDTime);
@@ -686,7 +688,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(E16ANA_MockTrack& track, E16DST_D
   hbd.SetLocalPos(mock_hbd.XTV());
   hbd.SetEProb(kHBDEProb);
   
-  lg.SetHitId(kMockClusterID);
+  lg.SetHitId(cid_offset);
   lg.SetIds(mock_lg.ModuleID(), -9999.);
   lg.SetLocalPos(mock_lg.XTV());
   lg.SetFitPeak(kLGADC);
