@@ -142,9 +142,9 @@ add_library(E16DST_DST1
   ${E16ANA_SSD_SRCS}
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
-  src/res/AnalyzerResidualHBD.cc
-  src/res/AnalyzerTrackSelection.cc
-  src/res/SingleTrackAnalyzerForRes.cc
+#  src/res/AnalyzerResidualHBD.cc
+#  src/res/AnalyzerTrackSelection.cc
+#  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
@@ -338,6 +338,15 @@ target_link_libraries(gtr_deadch_check
 	E16DST_DST1
 )
 #_______________________________________________________________________________
+add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+
+target_link_libraries(run_GTRResidualCalc
+	E16DST
+	E16DST_DST1
+)
+##_______________________________________________________________________________
+
+#_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
@@ -345,20 +354,37 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST_DST1
 )
 ##_______________________________________________________________________________
+#add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
+#
+#target_link_libraries(run_HBDLGResidualCalcForEff
+#	E16DST
+#E16DST_DST1
+#)
+##_______________________________________________________________________________
+##_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalc usr/run_HBDLGResidualCalc.cc)
 #
 #target_link_libraries(run_HBDLGResidualCalc
 #	E16DST
-#	E16DST_DST1
+#E16DST_DST1
 #)
-##_______________________________________________________________________________
-#add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+###_______________________________________________________________________________
+add_executable(run_EfficiencyCalcV2 usr/run_EfficiencyCalcV2.cc)
+
+target_link_libraries(run_EfficiencyCalcV2
+	E16DST
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+
+###_______________________________________________________________________________
+#add_executable(run_EfficiencyCalc usr/run_EfficiencyCalc.cc)
 #
 #target_link_libraries(run_EfficiencyCalc
 #	E16DST
 #	E16DST_DST1
 #)
-#_______________________________________________________________________________
+##_______________________________________________________________________________
 
 ##_______________________________________________________________________________
 add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
