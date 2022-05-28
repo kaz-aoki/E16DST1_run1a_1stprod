@@ -54,12 +54,17 @@ constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
 //#endif
 
 constexpr double kSSDTimeMean    =  45.;
-constexpr double kGTRTimeMean    = 300.;
 constexpr double kSSDTimeSigma   =   5.;
-constexpr double kGTRTimeSigma   = 120.;
-constexpr double kGTRXYTimeSigma =  20.;
+//constexpr double kGTRTimeMean    = 300.; // tmp Timing0
+//constexpr double kGTRTimeSigma   = 120.;
+constexpr double kGTRTimeMean    = 276.45; // 220528 Timing0, from Murakami's study
+constexpr double kGTRTimeSigma   = 83.86;
+//constexpr double kGTRTimeMean    = 192.9; // 220528 Timing1, from Murakami's study
+//constexpr double kGTRTimeSigma   = 130.0;
+//constexpr double kGTRXYTimeSigma =  20.; // tmp
+constexpr double kGTRXYTimeSigma = 35.53; // 220528 from Murakami's study
 
-constexpr double kMaxTimeDiff[2] = {10., 150.};
+constexpr double kMaxTimeDiff[2] = {10., 150.}; // clustering threshold
 
 constexpr int    kSSDClusterSize  = 1;
 constexpr int    kGTRxClusterSize = 3;

@@ -327,8 +327,8 @@ int main(int argc, char* argv[]) {
       if (mock_read_flag == kReadMockError) {
         break;
       }
-      data_merger.MergeMockToRealData(0, mock_data.Track(), &record);
-      data_merger.MergeMockToRealData(1, mock_data.Track(), &record);
+      data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
+      data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
 #endif // ifdef MERGE_TRACK_PAIR
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();

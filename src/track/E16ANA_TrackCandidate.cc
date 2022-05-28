@@ -1113,6 +1113,7 @@ for (int i = 0; i < 4; ++i) {
             for (int i = 0; i < 2; ++i) {
               if (!is_ychecked[i][2] && is_sim_ycluster[i][2]) {
                 y_reject_point[i] += Pow2(kRej300yADC);
+                reject_point[i] += Pow2(kRejYSearch);
                 is_ychecked[i][2] = true;
               }
             }
@@ -1131,6 +1132,7 @@ for (int i = 0; i < 4; ++i) {
               for (int i = 0; i < 2; ++i) {
                 if (!is_ychecked[i][1] && is_sim_ycluster[i][2] && is_sim_ycluster[i][1]) {
                   y_reject_point[i] += Pow2(kRej200yADC);
+                  reject_point[i] += Pow2(kRejYSearch);
                   is_ychecked[i][1] = true;
                 }
               }
@@ -1149,6 +1151,7 @@ for (int i = 0; i < 4; ++i) {
                 for (int i = 0; i < 2; ++i) {
                   if (!is_ychecked[i][0] && is_sim_ycluster[i][2] && is_sim_ycluster[i][1] && is_sim_ycluster[i][0]) {
                     y_reject_point[i] += Pow2(kRej100yADC);
+                    reject_point[i] += Pow2(kRejYSearch);
                     is_ychecked[i][0] = true;
                   }
                 }
@@ -1183,6 +1186,7 @@ for (int i = 1; i < 4; ++i) {
                 for (int i = 0; i < 2; ++i) {
                   if (is_sim_ycluster[i][2] && is_sim_ycluster[i][1] && is_sim_ycluster[i][0]) {
                     y_reject_point[i] += Pow2(kRej100yADC);
+                    reject_point[i] += Pow2(kRejYSearch);
                   }
                 }
                 continue;
@@ -1247,33 +1251,29 @@ E16INFO("number of y candidates: %d", n_y_cands);
       }
 #endif // MOM_RECONSTRUCT_CHECK
       bool is_same_module = true;
-      if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {
-        for (int i = 0; i < 2; ++i) {
-          if (is_sim_track[i]) {
-            xy_reject_point[i] += Pow2(kRej100YYb);
-            reject_point[i] += Pow2(kTotalRej100YYb);
-          }
-        }
+      if (!is_sim_track[0] && !is_sim_track[1]) {
+        if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {
 //cout << "is y yb not match" << endl;
-        continue;
+          continue;
+        }
       }
       for (int i = 0; i < kNumGTRLayers; ++i) {
 //        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i]) {
         if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i] || !ExistADCCorrelation(i, x_peak_sums[i], gtry[i]->PeakSum())) { // ozawa v8
 //cout << "x y timing not match" << endl;
           is_same_module = false;
-          for (int i = 0; i < 2; ++i) {
-            if (is_sim_track[i]) {
+          for (int j = 0; j < 2; ++j) {
+            if (is_sim_track[j]) {
               if (x_module_ids[i] != gtry[i]->ModuleId()) {
-                xy_reject_point[i] += Pow2(kRej100XYModule + i);
+                xy_reject_point[j] += Pow2(kRej100XYModule + i);
               }
               if (fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i]) {
-                xy_reject_point[i] += Pow2(kRej100XYTime + i);
+                xy_reject_point[j] += Pow2(kRej100XYTime + i);
               }
               if (!ExistADCCorrelation(i, x_peak_sums[i], gtry[i]->PeakSum())) {
-                xy_reject_point[i] += Pow2(kRej100XYADC + i);
+                xy_reject_point[j] += Pow2(kRej100XYADC + i);
               }
-              reject_point[i] += Pow2(kRejXYMatch);
+              reject_point[j] += Pow2(kRejXYMatch);
             }
           }
           break;

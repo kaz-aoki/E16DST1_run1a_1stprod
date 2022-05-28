@@ -58,7 +58,7 @@ enum { // y search & fit
   kNumYSearchRejectPoints
 };
 enum { // x - y match
-  kRej100YYb,
+//  kRej100YYb,
   kRej100XYModule,
   kRej200XYModule,
   kRej300XYModule,
@@ -73,8 +73,9 @@ enum { // x - y match
 enum { // total
   kRejXSearch,
   kTotalRejXFit,
+  kRejYSearch,
   kRejYCand,
-  kTotalRej100YYb,
+//  kTotalRej100YYb,
   kRejXYMatch,
   kNumRejectPoints
 };
