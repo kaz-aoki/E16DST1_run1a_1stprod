@@ -18,8 +18,8 @@
 
 using namespace std;
 
-constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
-//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
+//constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kElectronFlag; // 0 : electron, 1 : pion (Ks)
+constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionFlag; // 0 : electron, 1 : pion (Ks)
 //constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kBothFlag; // 0 : electron, 1 : pion (Ks)
 //constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWoRefitFlag; // 0 : electron, 1 : pion (Ks)
 //constexpr int kAnalyzeFlag = E16ANA_TrackAnalyzerFromTreeParameter::kPionWClusterDup; // 0 : electron, 1 : pion (Ks)

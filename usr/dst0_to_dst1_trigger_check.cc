@@ -25,8 +25,10 @@
 #include "E16ANA_TrackCheckFile.hh"
 
 #ifdef TRACK_EFF_CHECK
+#include "E16ANA_GTRAnalyzerMaker.hh"
 #include "E16ANA_MakeDummyDST1.hh"
-#include "mockdataIOtestSimple.hh"
+#include "E16ANA_MockTrackOutputData.hh"
+//#include "mockdataIOtestSimple.hh"
 #endif // TRACK_EFF_CHECK
 
 using namespace std;
@@ -137,18 +139,46 @@ int main(int argc, char* argv[]) {
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
   
 #ifdef TRACK_EFF_CHECK
-  auto gtr_stat = E16ANA_GTRStatus(run_id);
-  auto hbd_dead_ch = E16ANA_HBDDeadChannel();
-  hbd_dead_ch.ReadDeadChannelData(run_id);
-  auto lg_dead_ch = E16ANA_LGDeadChannel();
-  lg_dead_ch.ReadDeadChannelData();
-  
   auto mock_data = E16ANA_MockTrackOutputData();
   if (mock_data.OpenReadFile(mock_data_name) != E16ANA_MockTrackOutputData::OK) {
     cerr << "cannot open mock data file" << endl;
     return -1;
   }
-  auto data_merger = E16ANA_MakeDummyDST1(gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(), &hbd_dead_ch, &lg_dead_ch);
+  
+  E16ANA_GTRcalibParams gtr_params;
+  gtr_params.ReadCalibData(run_id);
+  auto gtr_analyzers = new E16ANA_GTRAnalyzerMaker(gtr_params);
+  for(int mid = 100; mid <= 110; ++mid) {
+    for(int lid = 0; lid < 3; ++lid) {
+      auto gtr_analyzer2 = gtr_analyzers->Chamber(mid, lid);
+      int n_strips = gtr_analyzer2->GetNumberOfStrips();
+      for(int strip_id = 0; strip_id < n_strips; ++strip_id) {
+        double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
+        double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
+        gtr_analyzer2->SetPedestal(strip_id, ped);
+        gtr_analyzer2->SetPedestalSigma(strip_id, sigma);
+      }
+    }
+  }
+  auto gtr_stat = E16ANA_GTRStatus(run_id);
+  
+//for (int mid = 101; mid <= 109; ++mid) {
+//  for (int i = 0; i < 20; ++i) {
+//    double y = 5. * i - 50.;
+//    auto stat = gtr_stat.GEMDeadArea100()->IsYOK(mid, y);
+//    if (stat) {
+//      cout << "mid " << mid << " y " << y << " OK" << endl;
+//    } else {
+//      cout << "mid " << mid << " y " << y << " dead" << endl;
+//    }
+//  }
+//}
+  
+  auto hbd_dead_ch = E16ANA_HBDDeadChannel();
+  hbd_dead_ch.ReadDeadChannelData(run_id);
+  auto lg_dead_ch = E16ANA_LGDeadChannel();
+  lg_dead_ch.ReadDeadChannelData();
+  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(), &hbd_dead_ch, &lg_dead_ch);
 #endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
@@ -209,6 +239,7 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
+#ifndef MOM_RECONSTRUCT_CHECK
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
@@ -225,11 +256,31 @@ int main(int argc, char* argv[]) {
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
+#endif
 #ifdef TRACK_EFF_CHECK
+      record.SSD().UpdatePtrs();
+      record.GTR().UpdatePtrs();
+      record.HBD().UpdatePtrs();
+      record.LG().UpdatePtrs();
+      record.Trigger().UpdatePtrs();
       if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
         cerr << "mock data finished at " << n_physics_event << " events" << endl;
         break;
       }
+      check_file.ClearSimTrack();
+      bool is_finished = false;
+      while (data_merger.IsDeadRegion(mock_data.Track())) {
+        check_file.AddSimTrack(true, mock_data.Track());
+        if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+          cerr << "mock data finished at " << n_physics_event << " events" << endl;
+          is_finished = true;
+          break;
+        }
+      }
+      if (is_finished) {
+        break;
+      }
+      check_file.AddSimTrack(false, mock_data.Track());
       data_merger.MergeMockToRealData(mock_data.Track(), &record);
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();

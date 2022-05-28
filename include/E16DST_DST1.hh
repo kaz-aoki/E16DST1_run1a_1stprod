@@ -77,7 +77,13 @@ class E16DST_DST1Cluster {
         max_peak_height(E16DST_DST1Constant::kInvalidValue),
         timing(E16DST_DST1Constant::kInvalidValue),
         peak_sum(E16DST_DST1Constant::kInvalidValue),
+#ifndef TRACK_EFF_CHECK
         hit_orders({}) {}
+#else
+        hit_orders({}),
+        n_hits(E16DST_DST1Constant::kInvalidValue),
+        is_merged(false) {}
+#endif
 //  ~E16DST_DST1Cluster() { hit_orders.clear(); }
   ~E16DST_DST1Cluster() { std::vector<int16_t>().swap(hit_orders); }
   virtual void                  SetInvalid() { SetBaseInvalid(); }
@@ -118,6 +124,8 @@ class E16DST_DST1Cluster {
       return n_hits;
     }
   }
+  void                          SetIsMerged(bool _is_merged) { is_merged = _is_merged; }
+  bool                          IsMerged() { return is_merged; }
 #endif // TRACK_EFF_CHECK
   std::vector<int16_t>&         HitOrders() { return hit_orders; }
   int16_t                       HitOrder(int n) { return hit_orders[n]; }
@@ -140,6 +148,7 @@ class E16DST_DST1Cluster {
   std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
 #ifdef TRACK_EFF_CHECK
   int n_hits;
+  bool is_merged;
 #endif // TRACK_EFF_CHECK
 };
 
