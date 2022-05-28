@@ -1001,6 +1001,9 @@ private:
    int maxevent;
    int rm_size;
    vector<vector<int>> matched_lghit_ids;
+   TH1D *h_fit_profile[10];
+
+
    TH1D *h_n_cluster_inrange[10];
    TH1D *h_n_cluster_inrange_y[10];
    TH1D *h_n_cluster_inrange_wo_Y[10];
@@ -1071,6 +1074,7 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 //   out_tree->Branch("ssd_t", &ssd_t, "ssd_t/D");
 
    for(int m = 100; m < 110; m++){
+		h_fit_profile[m-100] = new TH1D(Form("h_fit_profile_%d", m),Form("h_fit_profile_%d", m ), 200, -50, 50);
 		h_n_cluster_inrange[m-100] = new TH1D(Form("h_n_cluster_inrange_%d", m),Form("h_n_cluster_inrange_%d", m ), 10, -0.5, 9.5);
 		h_n_cluster_inrange_y[m-100] = new TH1D(Form("h_n_cluster_inrange_y_%d", m),Form("h_n_cluster_inrange_y_%d", m ), 10, -0.5, 9.5);
 		h_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_n_cluster_inrange_wo_Y_%d", m),Form("h_n_cluster_inrange_wo_Y%d", m ), 10, -0.5, 9.5);
@@ -2135,7 +2139,6 @@ void LayerEfficiencyCalculator::SelectTrack(E16ANA_GTRStatus *gtr_status, E16ANA
 	if(CheckUsedClusters(track_index, used_cluster_ids)){
 		if(IsGoodHBDAssociation(track_index, ass_hbd_resx, ass_hbd_resy)){
 			if(IsHittedOnSurvivalArea(gtr_status, gtr_analyzers, track_index)){
-		
 				if(IsGoodLGAssociation(track_index)){
 			    cnt++;
 				//std::cout << "selected tid  = " << track_index << std::endl;
@@ -2184,6 +2187,8 @@ double LayerEfficiencyCalculator::SelectTracks(E16ANA_GTRStatus *gtr_status, E16
 //	std::array<std::vector<int> , 10> used_hbd_cluster_mid_and_ids> ;
 //    used_hbd_cluster_mid_ids.clear();
 	for(int tid = 0; tid < track_id->size(); tid++){	
+
+		h_fit_profile[rk_fit_gtr100_mid->at(tid) - 100] ->Fill(rk_fit_gtr100_gy->at(tid));
 		AssociateHBDCluster(tid, ass_hbd_resx, ass_hbd_resy, ass_hbd_cluster_id );	
 		AssociateLGHit(tid);
     	SelectTrack(gtr_status, gtr_analyzers, tid,  &used_cluster_ids, cnt);	
@@ -2194,36 +2199,41 @@ double LayerEfficiencyCalculator::SelectTracks(E16ANA_GTRStatus *gtr_status, E16
 
 bool LayerEfficiencyCalculator::IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_id){
     bool flag = true;
-    int mid[3] = { rk_fit_gtr100_mid->at(track_id), 
-     rk_fit_gtr200_mid->at(track_id), 
-     rk_fit_gtr300_mid->at(track_id)};
-    
-    TVector3 gpos[3] = {TVector3(rk_fit_gtr100_gx->at(track_id), rk_fit_gtr100_gy->at(track_id), rk_fit_gtr100_gz->at(track_id)), 
-                        TVector3(rk_fit_gtr200_gx->at(track_id), rk_fit_gtr200_gy->at(track_id), rk_fit_gtr200_gz->at(track_id)), 
-                        TVector3(rk_fit_gtr300_gx->at(track_id), rk_fit_gtr300_gy->at(track_id), rk_fit_gtr300_gz->at(track_id))}; 
-    E16ANA_GeometryV2 *geom = E16ANA_GeometryV2::GlobalPointer();
-    TVector3 lpos = geom->GTR(track_const::ModuleID2020To2013(mid[rm_size]), rm_size)->GetLPos(gpos[rm_size]);
-	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch( rm_size,lpos.X());
-	int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch( rm_size,lpos.Y());
-	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripX()->IsBadStrip(apv_ch_x)){
-		flag = false;
-	}
-	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripY()->IsBadStrip(apv_ch_y)){
-		flag = false;
-	}
-    if(rm_size == 0 && gtr_status->GEMDeadArea100()->IsXOK(mid[rm_size], lpos.X()) == true){
-	}
-    else if(rm_size == 1 && gtr_status->GEMDeadArea200()->IsXOK(mid[rm_size], lpos.X()) == true 
-			&& gtr_status->GEMDeadArea200()->IsYOK(mid[rm_size], lpos.Y()) == true){
-	}
-    else if(rm_size == 2 && gtr_status->GEMDeadArea300()->IsXOK(mid[rm_size], lpos.X()) == true
-		&& gtr_status->GEMDeadArea300()->IsYOK(mid[rm_size], lpos.Y()) == true
-		){
-	}
-
-	else {flag = false;}
-
-
+//    int mid[3] = { rk_fit_gtr100_mid->at(track_id), 
+//     rk_fit_gtr200_mid->at(track_id), 
+//     rk_fit_gtr300_mid->at(track_id)};
+//    
+//    TVector3 gpos[3] = {TVector3(rk_fit_gtr100_gx->at(track_id), rk_fit_gtr100_gy->at(track_id), rk_fit_gtr100_gz->at(track_id)), 
+//                        TVector3(rk_fit_gtr200_gx->at(track_id), rk_fit_gtr200_gy->at(track_id), rk_fit_gtr200_gz->at(track_id)), 
+//                        TVector3(rk_fit_gtr300_gx->at(track_id), rk_fit_gtr300_gy->at(track_id), rk_fit_gtr300_gz->at(track_id))}; 
+//    E16ANA_GeometryV2 *geom = E16ANA_GeometryV2::GlobalPointer();
+//    TVector3 lpos = geom->GTR(track_const::ModuleID2020To2013(mid[rm_size]), rm_size)->GetLPos(gpos[rm_size]);
+//	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch( rm_size,lpos.X());
+/////	int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch( rm_size, lpos.X(), lpos.Y());
+//	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripX()->IsBadStrip(apv_ch_x)){
+//		std::cout << " dead by x" << lpos.X() << std::endl; 
+//		flag = false;
+//	}
+//	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripY()->IsBadStrip(apv_ch_y)){
+//		std::cout << " dead by y" << lpos.Y() << std::endl; 
+//		flag = false;
+//	}
+//    if(rm_size == 0 && gtr_status->GEMDeadArea100()->IsXOK(mid[rm_size], lpos.X()) == true){
+//	}
+//    else if(rm_size == 1 && gtr_status->GEMDeadArea200()->IsXOK(mid[rm_size], lpos.X()) == true 
+//			&& gtr_status->GEMDeadArea200()->IsYOK(mid[rm_size], lpos.Y()) == true){
+//	}
+//    else if(rm_size == 2 && gtr_status->GEMDeadArea300()->IsXOK(mid[rm_size], lpos.X()) == true
+//		&& gtr_status->GEMDeadArea300()->IsYOK(mid[rm_size], lpos.Y()) == true
+//		){
+//	}
+//
+//	else {
+//		std::cout << " dead final " << lpos.X() << std::endl; 
+//	flag = false;}
+//
+//	if(rk_fit_gtr100_gy->at(track_id) < 20 && 10  < rk_fit_gtr100_gy->at(track_id))
+//	std::cout << "flag " << flag << std::endl;
     return flag;
 	
 }
@@ -2354,11 +2364,13 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
         double dum_resy = gtry_cluster_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
 		if(fabs(resy) < y_range[rm_size]) tn_cluster_inrange++;
 		if(fabs(dum_resy) < y_range[rm_size]) dum_tn_cluster_inrange++;
+//		std::cout << "tn cluster y " << tn_cluster_inrange << std::endl;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
 	    if(min_resy > resy) min_resy = resy;
         h_hit_fit[mid]->Fill(gtry_cluster_y[rm_size]->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
-	}
+//	h_fit_profile[mid]->Fill(rk_fit_gtr_gy[rm_size]->at(tid));
+		}
 	if(rm_size == 0){
    	for(int k = 0; k < n_gtr100yb_clusters; k++){
 		if(rk_fit_gtr100_mid->at(tid) != gtr100yb_cluster_mid->at(k) ) continue; //module match
@@ -2367,9 +2379,11 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
         double dum_resy = gtr100yb_cluster_y->at(k) - dum_rk_fit_gtr_y[mid][c];
 		if(fabs(resy) < y_range[rm_size]) tn_cluster_inrange++;
 		if(fabs(dum_resy) < y_range[rm_size]) dum_tn_cluster_inrange++;
+//		std::cout << "tn cluster yb " << tn_cluster_inrange << std::endl;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid]->Fill(dum_resy);
 	    if(min_resy > resy) min_resy = resy;
+  //      h_hit_fit[mid]->Fill(gtr100yb_cluster_y->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
 	}
 	}
 	dum_rk_fit_gtr_y[mid][c] = rk_fit_gtr_gy[rm_size]->at(tid);
@@ -2757,6 +2771,7 @@ void LayerEfficiencyCalculator::Calculate(){
 	   h_dum_gtr_res_all_x[m]->Write();
 	   h_n_lg_hits_inrange[m]->Write();
 	   h_n_lg_dum_hits_inrange[m]->Write();
+	   h_fit_profile[m]->Write();
 	   h_rk_hit_plane[m]->Write();
 	   h_hit_fit[m]->Write();
 	   for(int gm = 0; gm < 10; gm++){

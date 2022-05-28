@@ -62,7 +62,10 @@ public:
    void SetFadcT0CorrectionParameter(int _fadc_t0) { fadc_t0_correction = _fadc_t0 * tdc_lsb; };
 
    E16ANA_GTRStripAnalyzer *GetStripX() { return strip_ana_x; };
-   E16ANA_GTRStripAnalyzer *GetStripY() { return strip_ana_y; };
+   E16ANA_GTRStripAnalyzer *GetStripY() { return strip_ana_y; }; 
+//   virtual E16ANA_GTRStripAnalyzer *GetStripYb() { return 0; }; 
+   
+   
 #if 0
   virtual E16ANA_GTRStripAnalyzer* GetStripYa()=0;
   virtual E16ANA_GTRStripAnalyzer* GetStripYb()=0;
