@@ -960,7 +960,7 @@ TBranch       *b_gtr300y_cluster_size;
    double dum_rk_fit_lg_c_x[10];
    double dum_rk_fit_lg_b_x[10];
    double dum_rk_fit_lg_a_x[10];
-
+   int    memoryk;
    // Set branch addresses and branch pointers
    //if (!tree) return;
    E16ANA_MultiTrack *fitter;
@@ -1032,8 +1032,14 @@ private:
    TH1D *h_mix_all_true_lg_res_x[10][10];
    TH2D *h_rk_hit_plane[10];
    TH2D *h_hit_fit[10];
-   TH1D *h_timing_dis[10];
-   TH1D *h_timing2_dis[10];
+   TH1D *h_timingx_dis[10];
+   TH1D *h_timingx2_dis[10];
+   TH1D *h_timingy_dis[10];
+   TH1D *h_timingy2_dis[10];
+   TH2D *h_timing_corr_xy[10];
+   TH2D *h_timing2_corr_xy[10];
+   TH1D *h_timing_diff[10];
+   TH1D *h_timing2_diff[10];
    
 };
 
@@ -1080,24 +1086,31 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 		h_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_n_cluster_inrange_wo_Y_%d", m),Form("h_n_cluster_inrange_wo_Y%d", m ), 10, -0.5, 9.5);
 		h_dum_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_wo_Y_%d", m),Form("h_dum_n_cluster_inrange_wo_Y%d", m ), 10, -0.5, 9.5);
 		h_all_cut_n_cluster_inrange[m-100] = new TH1D(Form("h_all_cut_n_cluster_inrange_%d", m),Form("h_all_cut_n_cluster_inrange_%d", m ), 10, -0.5, 9.5);
-		h_timing_dis[m-100] = new TH1D(Form("h_timing_dis_x_%d", m),Form("h_htiming_dis_x_%d", m ), 400, 0, 800);
-		h_timing2_dis[m-100] = new TH1D(Form("h_timing2_dis_x_%d", m),Form("h_htiming2_dis_x_%d", m ), 400, 0, 800);
+		h_timingx_dis[m-100] = new TH1D(Form("h_timingx_dis_x_%d", m),Form("h_htimingx_dis_x_%d", m ), 100, 0, 600);
+		h_timingx2_dis[m-100] = new TH1D(Form("h_timingx2_dis_x_%d", m),Form("h_htimingx2_dis_x_%d", m ), 100, 0, 600);
+		h_timingy_dis[m-100] = new TH1D(Form("h_timingy_dis_x_%d", m),Form("h_htimingy_dis_x_%d", m ), 100, 0, 600);
+		h_timingy2_dis[m-100] = new TH1D(Form("h_timingy2_dis_x_%d", m),Form("h_htimingy2_dis_x_%d", m ), 100, 0, 600);
+		h_timing_corr_xy[m-100] = new TH2D(Form("h_timing_corr_xy_%d", m),Form("h_htiming_corr_xy_%d", m ), 50, 0, 600, 50, 0, 600);
+		h_timing2_corr_xy[m-100] = new TH2D(Form("h_timing2_corr_xy_%d", m),Form("h_htiming2_corr_xy_%d", m ), 50, 0, 600, 50, 0, 600);
+		h_timing_diff[m-100] = new TH1D(Form("h_timing_diff_%d", m),Form("h_htiming_diff_%d", m ), 100, -500, 500);
+		h_timing2_diff[m-100] = new TH1D(Form("h_timing2_diff_%d", m),Form("h_htiming2_diff_%d", m ), 100, -500, 500);
+    
 		h_dum_n_cluster_inrange[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_%d", m),Form("h_dum_n_cluster_inrange_%d", m ), 10, -0.5, 9.5);
 		h_dum_n_cluster_inrange_y[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_y_%d", m),Form("h_dum_n_cluster_inrange_y_%d", m ), 10, -0.5, 9.5);
 		h_hbd_res_x[m-100] = new TH1D(Form("h_hbd_res_x_%d", m),Form("h_hbd_res_x_%d", m ), 400, -200, 200);
 		h_hbd_res_y[m-100] = new TH1D(Form("h_hbd_res_y_%d", m),Form("h_hbd_res_y_%d", m ), 400, -200, 200);
 		h_lg_res_x[m-100] = new TH1D(Form("h_lg_res_x_%d", m),Form("h_lg_res_x_%d", m ), 400, -400, 400);
 		h_lg_res_y[m-100] = new TH1D(Form("h_lg_res_y_%d", m),Form("h_lg_res_y_%d", m ), 400, -400, 400);
-		h_gtr_res_all_x[m-100]     = new TH1D(Form("h_gtr_res_all_x_%d", m),    Form("h_gtr_res_all_x_%d", m ), 400, -20, 20);
-		h_gtr_res_all_x_wo_Y[m-100]     = new TH1D(Form("h_gtr_res_all_x_wo_Y_%d", m),    Form("h_gtr_res_all_x_wo_Y%d", m ), 400, -20, 20);
-		h_dum_gtr_res_all_x_wo_Y[m-100]     = new TH1D(Form("h_dum_gtr_res_all_x_wo_Y_%d", m),    Form("h_dum_gtr_res_all_x_wo_Y%d", m ), 400, -20, 20);
-		h_gtr_res_min_x[m-100]     = new TH1D(Form("h_gtr_res_min_x_%d", m),    Form("h_gtr_res_min_x_%d", m ), 400, -20, 20);
-		h_gtr_res_min_y[m-100]     = new TH1D(Form("h_gtr_res_min_y_%d", m),    Form("h_gtr_res_min_y_%d", m ), 400, -20, 20);
-		h_dum_gtr_res_min_x[m-100] = new TH1D(Form("h_dum_gtr_res_min_x_%d", m),    Form("h_dum_gtr_res_min_x_%d", m ), 400, -20, 20);
-		h_dum_gtr_res_all_x[m-100] = new TH1D(Form("h_dum_gtr_res_all_x_%d", m),Form("h_dum_gtr_res_all_x_%d", m ), 400, -20, 20);
-		h_gtr_res_all_y[m-100]     = new TH1D(Form("h_gtr_res_all_y_%d", m),    Form("h_gtr_res_all_y_%d", m ),     400, -100, 100);
-		h_dum_gtr_res_all_y[m-100] = new TH1D(Form("h_dum_gtr_res_all_y_%d", m),Form("h_dum_gtr_res_all_y_%d", m ), 400, -100, 100);
-		h_n_lg_hits_inrange[m-100] = new TH1D(Form("h_n_lg_hits_inrange_%d", m),Form("h_n_lg_hits_inrange__%d", m ), 10, -0.5, 9.5);
+		h_gtr_res_all_x[m-100]            = new TH1D(Form("h_gtr_res_all_x_%d", m),    Form("h_gtr_res_all_x_%d", m ),                  100, -20, 20);
+		h_gtr_res_all_x_wo_Y[m-100]       = new TH1D(Form("h_gtr_res_all_x_wo_Y_%d", m),    Form("h_gtr_res_all_x_wo_Y%d", m ),         100, -20, 20);
+		h_dum_gtr_res_all_x_wo_Y[m-100]   = new TH1D(Form("h_dum_gtr_res_all_x_wo_Y_%d", m),    Form("h_dum_gtr_res_all_x_wo_Y%d", m ), 100, -20, 20);
+		h_gtr_res_min_x[m-100]            = new TH1D(Form("h_gtr_res_min_x_%d", m),    Form("h_gtr_res_min_x_%d", m ),                  100, -20, 20);
+		h_gtr_res_min_y[m-100]            = new TH1D(Form("h_gtr_res_min_y_%d", m),    Form("h_gtr_res_min_y_%d", m ),                  100, -20, 20);
+		h_dum_gtr_res_min_x[m-100]        = new TH1D(Form("h_dum_gtr_res_min_x_%d", m),    Form("h_dum_gtr_res_min_x_%d", m ),          100, -20, 20);
+		h_dum_gtr_res_all_x[m-100]        = new TH1D(Form("h_dum_gtr_res_all_x_%d", m),Form("h_dum_gtr_res_all_x_%d", m ),              100, -20, 20);
+		h_gtr_res_all_y[m-100]            = new TH1D(Form("h_gtr_res_all_y_%d", m),    Form("h_gtr_res_all_y_%d", m ),                  100, -20, 20);
+		h_dum_gtr_res_all_y[m-100]        = new TH1D(Form("h_dum_gtr_res_all_y_%d", m),Form("h_dum_gtr_res_all_y_%d", m ),              100, -20, 20);
+		h_n_lg_hits_inrange[m-100]        = new TH1D(Form("h_n_lg_hits_inrange_%d", m),Form("h_n_lg_hits_inrange__%d", m ), 10, -0.5, 9.5);
 		h_n_lg_dum_hits_inrange[m-100] = new TH1D(Form("h_n_lg_dum_hits_inrange_%d", m),Form("h_n_lg_dum_hits_inrange__%d", m ), 10, -0.5, 9.5);
 		h_rk_hit_plane[m-100]  = new TH2D(Form("h_rk_hit_plane_%d", m), Form("h_rk_hit_plane_%d", m ), 1500, 100, 300, 800, 100, 300);
 		h_hit_fit[m-100]  = new TH2D(Form("h_hit_fit_%d", m), Form("h_hit_fit_%d", m ), 100, -150, 150, 100, -150, 150);
@@ -2199,41 +2212,43 @@ double LayerEfficiencyCalculator::SelectTracks(E16ANA_GTRStatus *gtr_status, E16
 
 bool LayerEfficiencyCalculator::IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_id){
     bool flag = true;
-//    int mid[3] = { rk_fit_gtr100_mid->at(track_id), 
-//     rk_fit_gtr200_mid->at(track_id), 
-//     rk_fit_gtr300_mid->at(track_id)};
-//    
-//    TVector3 gpos[3] = {TVector3(rk_fit_gtr100_gx->at(track_id), rk_fit_gtr100_gy->at(track_id), rk_fit_gtr100_gz->at(track_id)), 
-//                        TVector3(rk_fit_gtr200_gx->at(track_id), rk_fit_gtr200_gy->at(track_id), rk_fit_gtr200_gz->at(track_id)), 
-//                        TVector3(rk_fit_gtr300_gx->at(track_id), rk_fit_gtr300_gy->at(track_id), rk_fit_gtr300_gz->at(track_id))}; 
-//    E16ANA_GeometryV2 *geom = E16ANA_GeometryV2::GlobalPointer();
-//    TVector3 lpos = geom->GTR(track_const::ModuleID2020To2013(mid[rm_size]), rm_size)->GetLPos(gpos[rm_size]);
-//	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch( rm_size,lpos.X());
-/////	int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch( rm_size, lpos.X(), lpos.Y());
-//	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripX()->IsBadStrip(apv_ch_x)){
-//		std::cout << " dead by x" << lpos.X() << std::endl; 
-//		flag = false;
-//	}
-//	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripY()->IsBadStrip(apv_ch_y)){
-//		std::cout << " dead by y" << lpos.Y() << std::endl; 
-//		flag = false;
-//	}
-//    if(rm_size == 0 && gtr_status->GEMDeadArea100()->IsXOK(mid[rm_size], lpos.X()) == true){
-//	}
-//    else if(rm_size == 1 && gtr_status->GEMDeadArea200()->IsXOK(mid[rm_size], lpos.X()) == true 
-//			&& gtr_status->GEMDeadArea200()->IsYOK(mid[rm_size], lpos.Y()) == true){
-//	}
-//    else if(rm_size == 2 && gtr_status->GEMDeadArea300()->IsXOK(mid[rm_size], lpos.X()) == true
-//		&& gtr_status->GEMDeadArea300()->IsYOK(mid[rm_size], lpos.Y()) == true
-//		){
-//	}
-//
-//	else {
-//		std::cout << " dead final " << lpos.X() << std::endl; 
-//	flag = false;}
-//
-//	if(rk_fit_gtr100_gy->at(track_id) < 20 && 10  < rk_fit_gtr100_gy->at(track_id))
-//	std::cout << "flag " << flag << std::endl;
+    int mid[3] = { rk_fit_gtr100_mid->at(track_id), 
+     rk_fit_gtr200_mid->at(track_id), 
+     rk_fit_gtr300_mid->at(track_id)};
+    
+    TVector3 gpos[3] = {TVector3(rk_fit_gtr100_gx->at(track_id), rk_fit_gtr100_gy->at(track_id), rk_fit_gtr100_gz->at(track_id)), 
+                        TVector3(rk_fit_gtr200_gx->at(track_id), rk_fit_gtr200_gy->at(track_id), rk_fit_gtr200_gz->at(track_id)), 
+                        TVector3(rk_fit_gtr300_gx->at(track_id), rk_fit_gtr300_gy->at(track_id), rk_fit_gtr300_gz->at(track_id))}; 
+    E16ANA_GeometryV2 *geom = E16ANA_GeometryV2::GlobalPointer();
+    TVector3 lpos = geom->GTR(track_const::ModuleID2020To2013(mid[rm_size]), rm_size)->GetLPos(gpos[rm_size]);
+	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch( rm_size,lpos.X());
+	int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch( rm_size, lpos.X(), lpos.Y());
+	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripX()->IsBadStrip(apv_ch_x)){
+		flag = false;
+	}
+	if(gtr_analyzers->Chamber(mid[rm_size], rm_size)->GetStripY()->IsBadStrip(apv_ch_y)){
+		flag = false;
+	}
+  	else if(rm_size == 0 &&  lpos.X()  < 0){
+		 if(static_cast<E16ANA_GTR100Analyzer *> (gtr_analyzers->Chamber(mid[rm_size], rm_size))->GetStripYb()->IsBadStrip(apv_ch_y)){
+			flag = false;	
+		}
+	}
+    if(rm_size == 0 && gtr_status->GEMDeadArea100()->IsXOK(mid[rm_size], lpos.X()) == true){
+	}
+    else if(rm_size == 1 && gtr_status->GEMDeadArea200()->IsXOK(mid[rm_size], lpos.X()) == true 
+			&& gtr_status->GEMDeadArea200()->IsYOK(mid[rm_size], lpos.Y()) == true){
+	}
+    else if(rm_size == 2 && gtr_status->GEMDeadArea300()->IsXOK(mid[rm_size], lpos.X()) == true
+		&& gtr_status->GEMDeadArea300()->IsYOK(mid[rm_size], lpos.Y()) == true
+		){
+	}
+
+	else {
+	flag = false;}
+
+	if(rk_fit_gtr100_gy->at(track_id) < 20 && 10  < rk_fit_gtr100_gy->at(track_id))
+	std::cout << "flag " << flag << std::endl;
     return flag;
 	
 }
@@ -2353,6 +2368,8 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
     std::vector<double> *rk_fit_gtr_gy[3] =    {rk_fit_gtr100_gy,   rk_fit_gtr200_gy,   rk_fit_gtr300_gy};
     std::vector<double> *rk_fit_gtr_gz[3] =    {rk_fit_gtr100_gz,   rk_fit_gtr200_gz,   rk_fit_gtr300_gz};
     std::vector<double> *gtry_cluster_y[3] =  {gtr100y_cluster_y, gtr200y_cluster_y, gtr300y_cluster_y};
+    std::vector<double> *gtry_cluster_t[3] =   {gtr100y_cluster_t, gtr200y_cluster_t, gtr300y_cluster_t};
+    std::vector<double> *gtry_cluster_t2[3] =  {gtr100y_cluster_t2, gtr200y_cluster_t2, gtr300y_cluster_t2};
     int mid = rk_fit_gtr_mid[rm_size] - 100;
 	int c = rk_charge->at(tid);
 	if(c == -1) c = 0; //charge minus
@@ -2360,39 +2377,81 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
 	for(int k = 0; k < n_gtr_clusters[rm_size]; k++){
 		if(rk_fit_gtr_mid[rm_size] != gtry_cluster_mid[rm_size]->at(k) ) continue; //module match
 		if(gtry_cluster_adc[rm_size]->at(k)>50e3) continue;//remove fake hit
-    	double resy     = gtry_cluster_y[rm_size]->at(k) - rk_fit_gtr_gy[rm_size]->at(tid);
-        double dum_resy = gtry_cluster_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
+		double resy, dum_resy;
+		if(rm_size == 0 ){//gtr 100
+       	     resy     = gtry_cluster_y[rm_size]->at(k) + rk_fit_gtr_gy[rm_size]->at(tid);
+             dum_resy = gtry_cluster_y[rm_size]->at(k) + dum_rk_fit_gtr_y[mid][c];
+		}
+		else {//gtr200, 300
+    	     resy     = gtry_cluster_y[rm_size]->at(k) - rk_fit_gtr_gy[rm_size]->at(tid);
+             dum_resy = gtry_cluster_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
+		}
 		if(fabs(resy) < y_range[rm_size]) tn_cluster_inrange++;
 		if(fabs(dum_resy) < y_range[rm_size]) dum_tn_cluster_inrange++;
-//		std::cout << "tn cluster y " << tn_cluster_inrange << std::endl;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
-	    if(min_resy > resy) min_resy = resy;
-        h_hit_fit[mid]->Fill(gtry_cluster_y[rm_size]->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
+	    if(min_resy > resy) {
+			min_resy = resy;
+			memoryk = k ;
+		}
+//        h_hit_fit[mid]->Fill(gtry_cluster_y[rm_size]->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
 //	h_fit_profile[mid]->Fill(rk_fit_gtr_gy[rm_size]->at(tid));
 		}
+// -- yb 
 	if(rm_size == 0){
    	for(int k = 0; k < n_gtr100yb_clusters; k++){
 		if(rk_fit_gtr100_mid->at(tid) != gtr100yb_cluster_mid->at(k) ) continue; //module match
 		if(gtr100yb_cluster_adc->at(k)>50e3) continue;//remove fake hit
-    	double resy = gtr100yb_cluster_y->at(k) + rk_fit_gtr100_gy->at(tid);
+    	double resy =     gtr100yb_cluster_y->at(k) - rk_fit_gtr100_gy->at(tid);
         double dum_resy = gtr100yb_cluster_y->at(k) - dum_rk_fit_gtr_y[mid][c];
 		if(fabs(resy) < y_range[rm_size]) tn_cluster_inrange++;
 		if(fabs(dum_resy) < y_range[rm_size]) dum_tn_cluster_inrange++;
-//		std::cout << "tn cluster yb " << tn_cluster_inrange << std::endl;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid]->Fill(dum_resy);
 	    if(min_resy > resy) min_resy = resy;
-  //      h_hit_fit[mid]->Fill(gtr100yb_cluster_y->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
+		if(fabs(resy) < y_range[rm_size]){ 
+//			h_timingy_dis[mid]->Fill(gtr100yb_cluster_t->at(k));
+//			h_timingy2_dis[mid]->Fill(gtr100yb_cluster_t2->at(k));
+		}
 	}
 	}
 	dum_rk_fit_gtr_y[mid][c] = rk_fit_gtr_gy[rm_size]->at(tid);
-
     h_gtr_res_min_y[mid]->Fill(min_resy);
 	if(tn_cluster_inrange > 0){
+		
 		return true;
 	}
 	else { return false;}
+
+//	else if(rm_size == 0){
+//	for(int k = 0; k < n_gtr_clusters[rm_size]; k++){
+//		if(rk_fit_gtr_mid[rm_size] != gtry_cluster_mid[rm_size]->at(k) ) continue; //module match
+//		if(gtry_cluster_adc[rm_size]->at(k)>50e3) continue;//remove fake hit
+//    	double resy     = gtry_cluster_y[rm_size]->at(k) + rk_fit_gtr_gy[rm_size]->at(tid);
+//        double dum_resy = gtry_cluster_y[rm_size]->at(k) + dum_rk_fit_gtr_y[mid][c];
+//		if(fabs(resy) < y_range[rm_size]) tn_cluster_inrange++;
+//		if(fabs(dum_resy) < y_range[rm_size]) dum_tn_cluster_inrange++;
+//		h_gtr_res_all_y[mid] ->Fill(resy);
+//        h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
+//	    if(min_resy > resy) min_resy = resy;
+//        h_hit_fit[mid]->Fill(gtry_cluster_y[rm_size]->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
+////	h_fit_profile[mid]->Fill(rk_fit_gtr_gy[rm_size]->at(tid));
+//		}
+//
+//// -- yb 
+//   	for(int k = 0; k < n_gtr100yb_clusters; k++){
+//		if(rk_fit_gtr100_mid->at(tid) != gtr100yb_cluster_mid->at(k) ) continue; //module match
+//		if(gtr100yb_cluster_adc->at(k)>50e3) continue;//remove fake hit
+//    	double resy =     gtr100yb_cluster_y->at(k) - rk_fit_gtr100_gy->at(tid);
+//        double dum_resy = gtr100yb_cluster_y->at(k) - dum_rk_fit_gtr_y[mid][c];
+//		if(fabs(resy) < y_range[rm_size]) tn_cluster_inrange++;
+//		if(fabs(dum_resy) < y_range[rm_size]) dum_tn_cluster_inrange++;
+//		h_gtr_res_all_y[mid] ->Fill(resy);
+//        h_dum_gtr_res_all_y[mid]->Fill(dum_resy);
+//	    if(min_resy > resy) min_resy = resy;
+//  //      h_hit_fit[mid]->Fill(gtr100yb_cluster_y->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
+//	}
+//	}
 }
 
 void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange , bool IsBeforeY){
@@ -2412,6 +2471,9 @@ void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inr
     std::vector<double> *gtrx_cluster_gz[3] =  {gtr100x_cluster_gz, gtr200x_cluster_gz, gtr300x_cluster_gz};
     std::vector<double> *gtrx_cluster_t[3] =  {gtr100x_cluster_t, gtr200x_cluster_t, gtr300x_cluster_t};
     std::vector<double> *gtrx_cluster_t2[3] =  {gtr100x_cluster_t2, gtr200x_cluster_t2, gtr300x_cluster_t2};
+    std::vector<double> *gtry_cluster_t[3] =   {gtr100y_cluster_t, gtr200y_cluster_t, gtr300y_cluster_t};
+    std::vector<double> *gtry_cluster_t2[3] =  {gtr100y_cluster_t2, gtr200y_cluster_t2, gtr300y_cluster_t2};
+    int memoryxk;
 	if(c == -1) c = 0; //charge minus
 		for(int k = 0; k < n_gtr_clusters[rm_size];k++){
 			if(rk_fit_gtr_mid[rm_size] != gtrx_cluster_mid[rm_size]->at(k) ) continue; //module match
@@ -2441,6 +2503,7 @@ void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inr
 			if(fabs(resx) < fabs(min_resx)) {
 				min_resx = resx;
 				min_dum_resx = dum_resx;
+				memoryxk = k;
 			}
 			if(IsBeforeY){
 				h_gtr_res_all_x_wo_Y[mid- 100]->Fill(resx);
@@ -2449,8 +2512,7 @@ void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inr
 			else {
 				h_gtr_res_all_x[mid- 100]->Fill(resx);
 				h_dum_gtr_res_all_x[mid - 100]->Fill(dum_resx);
-				h_timing_dis[mid-100]->Fill(gtrx_cluster_t[rm_size]->at(k));
-				h_timing2_dis[mid-100]->Fill(gtrx_cluster_t2[rm_size]->at(k));
+	
 			}
 //            h_rk_hit_plane[mid-100]->Fill(rk_fit_gtr100_gx->at(tid), rk_fit_gtr100_gz->at(tid));
 		}
@@ -2467,6 +2529,17 @@ void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inr
 	dum2_rk_fit_gtr_gx[mid-100][c] = rk_fit_gtr_gx[rm_size]->at(tid);
 	dum2_rk_fit_gtr_gy[mid-100][c] = rk_fit_gtr_gy[rm_size]->at(tid);
 	dum2_rk_fit_gtr_gz[mid-100][c] = rk_fit_gtr_gz[rm_size]->at(tid);
+				if(rm_size == 1){
+				h_timingx_dis[mid-100]->Fill(gtrx_cluster_t[rm_size]->at(memoryxk));
+				h_timingx2_dis[mid-100]->Fill(gtrx_cluster_t2[rm_size]->at(memoryxk));
+				h_timingy_dis[mid-100]->Fill(gtry_cluster_t[rm_size]->at(memoryk));
+				h_timingy2_dis[mid-100]->Fill(gtry_cluster_t2[rm_size]->at(memoryk));
+				h_timing_corr_xy[mid-100] ->Fill(gtrx_cluster_t[rm_size]->at(memoryxk), gtry_cluster_t[rm_size]->at(memoryk));
+				h_timing2_corr_xy[mid-100]->Fill(gtrx_cluster_t2[rm_size]->at(memoryxk), gtry_cluster_t2[rm_size]->at(memoryk));
+				h_timing_diff[mid-100] ->Fill(gtrx_cluster_t[rm_size]->at(memoryxk) - gtry_cluster_t[rm_size]->at(memoryk));
+				h_timing2_diff[mid-100] ->Fill(gtrx_cluster_t2[rm_size]->at(memoryxk) - gtry_cluster_t2[rm_size]->at(memoryk));
+				}
+
 	}
 }
 
@@ -2530,7 +2603,7 @@ void LayerEfficiencyCalculator::CalculateResiduals(int &cnt){
 //           ------ before Y association
 //           after Y association ------------
 		if(y_ass){
-			CalculateResidualsX(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x, 0 );
+			CalculateResidualsX(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x, 0 );//after Y associate
 		    cnt++;
 		h_n_cluster_inrange[gtrmid - 100]->Fill(tn_cluster_inrange_x);
 		trk_charge = rk_charge->at(tid);
@@ -2780,8 +2853,15 @@ void LayerEfficiencyCalculator::Calculate(){
 		   h_mix_all_true_lg_res_x[gm][m]->Write();
 		   h_mix_all_dum_lg_res_x[gm][m]->Write();
 	   }
-      h_timing_dis[m]->Write();
-      h_timing2_dis[m]->Write();
+      h_timingx_dis[m]->Write();
+      h_timingx2_dis[m]->Write();
+      h_timingy_dis[m]->Write();
+      h_timingy2_dis[m]->Write();
+      h_timing_corr_xy[m]->Write();
+      h_timing2_corr_xy[m]->Write();
+	  h_timing_diff[m]->Write();
+	  h_timing2_diff[m]->Write();
+
 	}
    
   int m = 6;//gtr module
