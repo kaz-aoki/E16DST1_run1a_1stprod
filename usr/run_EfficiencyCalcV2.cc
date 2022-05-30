@@ -29,9 +29,11 @@ constexpr int kMaxSteps = 400;
 constexpr int kMinuitStrategy = 2;
 constexpr int kMaxFunctionCalls = 1.0e4;
 const int out_n_layer = 6;//including hbd,lg
-const double x_hitrange[3] = {2.75, 2.75, 5};// hit within -1 * yrange ~ yrange is regarded as a true hit
+const double xm_hitrange[3]     = {-2, -3, -4};// hit within -1 * yrange ~ yrange is regarded as a true hit
+const double xp_hitrange[3]     = { 3, 2, 4};// hit within -1 * yrange ~ yrange is regarded as a true hit
 const double x_clusterrange[3] = {2.75, 2.75, 3.5};// hit within -1 * yrange ~ yrange is regarded as a true hit
-const double y_hitrange[3] =     {5, 5, 5};// hit within -1 * yrange ~ yrange is regarded as a true hit
+const double ym_hitrange[3]     = {-3, -5, -3};// hit within -1 * yrange ~ yrange is regarded as a true hit
+const double yp_hitrange[3]     = { 4,  5,  3};// hit within -1 * yrange ~ yrange is regarded as a true hit
 const double y_clusterrange[3] = {5, 5, 5};// hit within -1 * yrange ~ yrange is regarded as a true hit
 
 const TVector3 zero_sigma = {0, 0, 0};
@@ -988,6 +990,7 @@ TBranch       *b_gtr300y_cluster_size;
    bool IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_index);
 //   void RKAnalyze(E16ANA_MultiTrack *fitter);
    void CalculateResiduals(int &cnt);
+   void CalculateResidualsUsingHits(int &cnt);
    void CalculateResidualsX(int tid, int &ncluster, int &dum_ncluster, bool IsBeforeY);
    void CalculateResidualsXUsingHits(int tid, int &ncluster, int &dum_ncluster, bool IsBeforeY);
    bool AssociationGTRY(int tid, int &ncluster, int &dum_ncluster);
@@ -1086,11 +1089,11 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 
    for(int m = 100; m < 110; m++){
 		h_fit_profile[m-100] = new TH1D(Form("h_fit_profile_%d", m),Form("h_fit_profile_%d", m ), 200, -50, 50);
-		h_n_cluster_inrange[m-100] = new TH1D(Form("h_n_cluster_inrange_%d", m),Form("h_n_cluster_inrange_%d", m ), 10, -0.5, 9.5);
-		h_n_cluster_inrange_y[m-100] = new TH1D(Form("h_n_cluster_inrange_y_%d", m),Form("h_n_cluster_inrange_y_%d", m ), 10, -0.5, 9.5);
-		h_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_n_cluster_inrange_wo_Y_%d", m),Form("h_n_cluster_inrange_wo_Y%d", m ), 10, -0.5, 9.5);
-		h_dum_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_wo_Y_%d", m),Form("h_dum_n_cluster_inrange_wo_Y%d", m ), 10, -0.5, 9.5);
-		h_all_cut_n_cluster_inrange[m-100] = new TH1D(Form("h_all_cut_n_cluster_inrange_%d", m),Form("h_all_cut_n_cluster_inrange_%d", m ), 10, -0.5, 9.5);
+		h_n_cluster_inrange[m-100]      = new TH1D(Form("h_n_cluster_inrange_%d", m),Form("h_n_cluster_inrange_%d", m ), 20, -0.5, 19.5);
+		h_n_cluster_inrange_y[m-100]    = new TH1D(Form("h_n_cluster_inrange_y_%d", m),Form("h_n_cluster_inrange_y_%d", m ), 20, -0.5, 19.5);
+		h_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_n_cluster_inrange_wo_Y_%d", m),Form("h_n_cluster_inrange_wo_Y%d", m ), 20, -0.5, 19.5);
+		h_dum_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_wo_Y_%d", m),Form("h_dum_n_cluster_inrange_wo_Y%d", m ), 20, -0.5, 19.5);
+		h_all_cut_n_cluster_inrange[m-100] = new TH1D(Form("h_all_cut_n_cluster_inrange_%d", m),Form("h_all_cut_n_cluster_inrange_%d", m ), 20, -0.5, 19.5);
 		h_timingx_dis[m-100] = new TH1D(Form("h_timingx_dis_x_%d", m),Form("h_htimingx_dis_x_%d", m ), 100, 0, 600);
 		h_timingx2_dis[m-100] = new TH1D(Form("h_timingx2_dis_x_%d", m),Form("h_htimingx2_dis_x_%d", m ), 100, 0, 600);
 		h_timingy_dis[m-100] = new TH1D(Form("h_timingy_dis_x_%d", m),Form("h_htimingy_dis_x_%d", m ), 100, 0, 600);
@@ -1100,8 +1103,8 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 		h_timing_diff[m-100] = new TH1D(Form("h_timing_diff_%d", m),Form("h_htiming_diff_%d", m ), 100, -500, 500);
 		h_timing2_diff[m-100] = new TH1D(Form("h_timing2_diff_%d", m),Form("h_htiming2_diff_%d", m ), 100, -500, 500);
     
-		h_dum_n_cluster_inrange[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_%d", m),Form("h_dum_n_cluster_inrange_%d", m ), 10, -0.5, 9.5);
-		h_dum_n_cluster_inrange_y[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_y_%d", m),Form("h_dum_n_cluster_inrange_y_%d", m ), 10, -0.5, 9.5);
+		h_dum_n_cluster_inrange[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_%d", m),Form("h_dum_n_cluster_inrange_%d", m ), 20, -0.5, 19.5);
+		h_dum_n_cluster_inrange_y[m-100] = new TH1D(Form("h_dum_n_cluster_inrange_y_%d", m),Form("h_dum_n_cluster_inrange_y_%d", m ), 20, -0.5, 19.5);
 		h_hbd_res_x[m-100] = new TH1D(Form("h_hbd_res_x_%d", m),Form("h_hbd_res_x_%d", m ), 400, -200, 200);
 		h_hbd_res_y[m-100] = new TH1D(Form("h_hbd_res_y_%d", m),Form("h_hbd_res_y_%d", m ), 400, -200, 200);
 		h_lg_res_x[m-100] = new TH1D(Form("h_lg_res_x_%d", m),Form("h_lg_res_x_%d", m ), 400, -400, 400);
@@ -2398,8 +2401,8 @@ bool LayerEfficiencyCalculator::AssociationGTRYUsingHit(int tid, int &tn_hits_in
     	     resy     = gtry_hit_y[rm_size]->at(k) - rk_fit_gtr_gy[rm_size]->at(tid);
              dum_resy = gtry_hit_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
 		}
-		if(fabs(resy) < y_hitrange[rm_size]) tn_hits_inrange++;
-		if(fabs(dum_resy) < y_hitrange[rm_size]) dum_tn_hits_inrange++;
+		if(ym_hitrange[rm_size] < resy  && resy < yp_hitrange[rm_size]) tn_hits_inrange++;
+		if(ym_hitrange[rm_size] <  dum_resy &&  dum_resy < yp_hitrange[rm_size]) dum_tn_hits_inrange++;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
 	    if(min_resy > resy) {
@@ -2414,17 +2417,15 @@ bool LayerEfficiencyCalculator::AssociationGTRYUsingHit(int tid, int &tn_hits_in
    	for(int k = 0; k < n_gtr100yb_hits; k++){
 		if(rk_fit_gtr100_mid->at(tid) != gtr100yb_hit_mid->at(k) ) continue; //module match
 		if(gtr100yb_hit_adc->at(k)>50e3) continue;//remove fake hit
-    	double resy =     gtr100yb_hit_y->at(k) - rk_fit_gtr100_gy->at(tid);
-        double dum_resy = gtr100yb_hit_y->at(k) - dum_rk_fit_gtr_y[mid][c];
-		if(fabs(resy) < y_hitrange[rm_size]) tn_hits_inrange++;
-		if(fabs(dum_resy) < y_hitrange[rm_size]) dum_tn_hits_inrange++;
+    	double resy =     gtr100yb_hit_y->at(k) + rk_fit_gtr100_gy->at(tid);
+        double dum_resy = gtr100yb_hit_y->at(k) + dum_rk_fit_gtr_y[mid][c];
+		if(ym_hitrange[rm_size] < resy  && resy < yp_hitrange[rm_size]) tn_hits_inrange++;
+		if(ym_hitrange[rm_size] <  dum_resy &&  dum_resy < yp_hitrange[rm_size]) dum_tn_hits_inrange++;
+		//if(fabs(resy) < y_hitrange[rm_size]) tn_hits_inrange++;
+		//if(fabs(dum_resy) < y_hitrange[rm_size]) dum_tn_hits_inrange++;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid]->Fill(dum_resy);
 	    if(min_resy > resy) min_resy = resy;
-		if(fabs(resy) < y_hitrange[rm_size]){ 
-//			h_timingy_dis[mid]->Fill(gtr100yb_hit_t->at(k));
-//			h_timingy2_dis[mid]->Fill(gtr100yb_hit_t2->at(k));
-		}
 	}
 	}
 	dum_rk_fit_gtr_y[mid][c] = rk_fit_gtr_gy[rm_size]->at(tid);
@@ -2591,8 +2592,8 @@ void LayerEfficiencyCalculator::CalculateResidualsXUsingHits(int tid, int &tn_hi
 			}
 
 //			std::cout << "res x using hit  : " << resx << std::endl;
-			if(fabs(resx) < x_hitrange[rm_size]) tn_hits_inrange++;
-			if(fabs(dum_resx) < x_hitrange[rm_size]) dum_tn_hits_inrange++;
+			if( xm_hitrange[rm_size] < resx && resx < xp_hitrange[rm_size] ) tn_hits_inrange++;
+			if( xm_hitrange[rm_size] < dum_resx && dum_resx < xp_hitrange[rm_size]) dum_tn_hits_inrange++;
 			if(fabs(resx) < fabs(min_resx)) {
 				min_resx = resx;
 				min_dum_resx = dum_resx;
@@ -2777,20 +2778,54 @@ void LayerEfficiencyCalculator::CalculateResiduals(int &cnt){
 		int tn_cluster_inrange_y = 0;
 		int dum_tn_cluster_inrange_y = 0;
 		int all_cut_n_cluster_inrange = 0;
-////	if(IsTriggerdTrack(tid)){
 		CalculateResidualsX(tid, tn_cluster_inrange_x_wo_Y, dum_tn_cluster_inrange_x_wo_Y, 1); // before Y associate
-//		CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x_wo_Y, dum_tn_cluster_inrange_x_wo_Y, 1); // before Y associate
 		h_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(tn_cluster_inrange_x_wo_Y);
 		h_dum_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x_wo_Y);
        bool y_ass = AssociationGTRY(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
-//        bool y_ass = AssociationGTRYUsingHit(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
 		h_n_cluster_inrange_y[gtrmid - 100]->Fill(tn_cluster_inrange_y);
 		h_dum_n_cluster_inrange_y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_y);
 //           ------ before Y association
 //           after Y association ------------
 		if(y_ass){
 			CalculateResidualsX(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x, 0 );//after Y associate
-//		    CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x, 0); // after Y associate
+		    cnt++;
+			h_n_cluster_inrange[gtrmid - 100]->Fill(tn_cluster_inrange_x);
+	 		trk_charge = rk_charge->at(tid);
+		    n_cluster_inrange = tn_cluster_inrange_x;
+    		module_id[rm_size] = gtrmid; 
+			//post_detector_res_x[1] = min_resx;
+			h_dum_n_cluster_inrange[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x);
+			h_all_cut_n_cluster_inrange[gtrmid - 100]->Fill(all_cut_n_cluster_inrange);
+			out_tree->Fill();
+		}
+	}//end tid
+}
+
+void LayerEfficiencyCalculator::CalculateResidualsUsingHits(int &cnt){
+	for(int i = 0; i < selected_track_indexes.size() ; i++){//modified 220519
+		int tid = selected_track_indexes[i];
+	    int gtrmid;
+	    if(rm_size == 0)gtrmid = rk_fit_gtr100_mid->at(tid);
+    	else if(rm_size == 1)gtrmid = rk_fit_gtr200_mid->at(tid);
+	    else if(rm_size == 2)gtrmid = rk_fit_gtr300_mid->at(tid);
+		int tn_cluster_inrange_x = 0;
+		int tn_cluster_inrange_x_wo_Y = 0;
+		int dum_tn_cluster_inrange_x = 0;
+		int dum_tn_cluster_inrange_x_wo_Y = 0;
+		int tn_cluster_inrange_y = 0;
+		int dum_tn_cluster_inrange_y = 0;
+		int all_cut_n_cluster_inrange = 0;
+////	if(IsTriggerdTrack(tid)){
+		CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x_wo_Y, dum_tn_cluster_inrange_x_wo_Y, 1); // before Y associate
+		h_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(tn_cluster_inrange_x_wo_Y);
+		h_dum_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x_wo_Y);
+        bool y_ass = AssociationGTRYUsingHit(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
+		h_n_cluster_inrange_y[gtrmid - 100]->Fill(tn_cluster_inrange_y);
+		h_dum_n_cluster_inrange_y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_y);
+//           ------ before Y association
+//           after Y association ------------
+		if(y_ass){
+		    CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x, 0); // after Y associate
 		    cnt++;
 		h_n_cluster_inrange[gtrmid - 100]->Fill(tn_cluster_inrange_x);
 		trk_charge = rk_charge->at(tid);
@@ -2804,7 +2839,6 @@ void LayerEfficiencyCalculator::CalculateResiduals(int &cnt){
 		}
 	}//end tid
 }
-
 double  LayerEfficiencyCalculator::EvalTrueTrackRatioByLGX(  E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int &cnt){
     std::array<std::vector<int> , 6> used_cluster_ids;
     for(int l = 0; l < 6; l++){
@@ -2978,7 +3012,8 @@ void LayerEfficiencyCalculator::Calculate(){
 	   h_rk_hit_plane[rk_fit_gtr100_mid->at(i)-100]->Fill(rk_fit_gtr100_gx->at(i), rk_fit_gtr100_gz->at(i));
       }
 	  double aa = SelectTracks(gtr_status, gtr_analyzers);//selected by hbd residual and delete duplicated gtr cluster
-      CalculateResiduals(cnt1);//analyze for selected tracks
+  //    CalculateResiduals(cnt1);//analyze using cluster info 
+     CalculateResidualsUsingHits(cnt1);//analyze using hit info
 	  Clear();
 	  double a = EvalTrueTrackRatioByLGX(gtr_status, gtr_analyzers, cnt2);
 //      if(a != aa){
@@ -3158,7 +3193,7 @@ void LayerEfficiencyCalculator::Calculate(){
     std::cout <<"lg n hit in range dum(scaled) = " <<  h_n_lg_dum_hits_inrange[gtrmid]->Integral(2,10) * lgbg_ratio  << std::endl; 
     
     hadd_mix_all_true_lg_res_x[gtrmid]->Write();
-    hadd_mix_all_dum_lg_res_x[gtrmid]->Scale((double)(side_lg_true/side_lg_dum));
+//    hadd_mix_all_dum_lg_res_x[gtrmid]->Scale((double)(side_lg_true/side_lg_dum));
     hadd_mix_all_dum_lg_res_x[gtrmid]->SetLineColor(kRed);;
     hadd_mix_all_dum_lg_res_x[gtrmid]->Write();
 
