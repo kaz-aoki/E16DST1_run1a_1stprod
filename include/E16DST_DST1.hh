@@ -1083,6 +1083,8 @@ public:
    TVector3 FitPtOnGTR100(){return fitpt_ongtr100;}
    TVector3 FitPtOnGTR200(){return fitpt_ongtr200;}
    TVector3 FitPtOnGTR300(){return fitpt_ongtr300;}
+   void SetTgtID(int id){tgt_id = id;}
+   int16_t TgtID(){return tgt_id;}
 //   void SetPtOnTrackGTR100(TVector2 _pt0){point_on_track_gtr100 = _pt0;}
 //   void SetPtOnTrackGTR300(TVector2 _pt0){point_on_track_gtr300 = _pt0;}
 //   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
@@ -1108,6 +1110,7 @@ private:
    float tgt_pos_z;//intercept with track
 //   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
    
+   int16_t tgt_id;
    float distance_fromtgt_xz;
    float distance_ytrk_tgt;
    float distance_fromupwire_yr;//distance  from the upstream wire on YR plane to the track
