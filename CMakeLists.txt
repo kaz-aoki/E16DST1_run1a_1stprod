@@ -27,7 +27,8 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-#add_definitions(-DTRACK_EFF_CHECK)
+add_definitions(-DTRACK_EFF_CHECK)
+add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
 #add_definitions(-DMOM_RECONSTRUCT_CHECK)
 
@@ -141,9 +142,9 @@ add_library(E16DST_DST1
   ${E16ANA_SSD_SRCS}
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
-#  src/res/AnalyzerResidualHBD.cc
-#  src/res/AnalyzerTrackSelection.cc
-#  src/res/SingleTrackAnalyzerForRes.cc
+  src/res/AnalyzerResidualHBD.cc
+  src/res/AnalyzerTrackSelection.cc
+  src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
 #  src/straight_track/StraightTrackAnalyzerForASDEffwithWireV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
@@ -351,13 +352,21 @@ target_link_libraries(run_CalcASDEffUsingStraightTrack
 )
 ##_______________________________________________________________________________
 #_______________________________________________________________________________
+#add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+#
+#target_link_libraries(run_GTRResidualCalc
+#	E16DST
+#	E16DST_DST1
+#)
+#
+##_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
 
 target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
-##_______________________________________________________________________________
+#_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
 #target_link_libraries(run_HBDLGResidualCalcForEff
@@ -365,14 +374,13 @@ target_link_libraries(run_StraightTrackAnalyzer
 #E16DST_DST1
 #)
 ##_______________________________________________________________________________
-##_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalc usr/run_HBDLGResidualCalc.cc)
 #
 #target_link_libraries(run_HBDLGResidualCalc
 #	E16DST
 #E16DST_DST1
 #)
-###_______________________________________________________________________________
+##_______________________________________________________________________________
 add_executable(run_EfficiencyCalcV2 usr/run_EfficiencyCalcV2.cc)
 
 target_link_libraries(run_EfficiencyCalcV2
@@ -389,15 +397,14 @@ target_link_libraries(run_ASDEfficiencyCalcWMag
 )
 #_______________________________________________________________________________
 
-###_______________________________________________________________________________
+#_______________________________________________________________________________
 #add_executable(run_EfficiencyCalc usr/run_EfficiencyCalc.cc)
 #
 #target_link_libraries(run_EfficiencyCalc
 #	E16DST
 #	E16DST_DST1
 #)
-##_______________________________________________________________________________
-
+#
 ##_______________________________________________________________________________
 add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 
@@ -469,16 +476,16 @@ target_link_libraries(check_position_resolution
   E16DST_DST1
 )
 
-##_______________________________________________________________________________
-#add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
-#
-#target_link_libraries(tmp_draw_dead_region
-#	E16ANA_Basic
-#  E16DST_DST1
-#  E16ANA_MockTrack
-#)
-#
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
+
+target_link_libraries(tmp_draw_dead_region
+	E16ANA_Basic
+  E16DST_DST1
+  E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
 #add_executable(tmp_gtr_deadch_check usr/tmp/tmp_gtr_deadch_check.cc)
 #
 #target_link_libraries(tmp_gtr_deadch_check

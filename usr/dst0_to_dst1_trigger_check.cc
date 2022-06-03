@@ -37,6 +37,38 @@ using namespace std;
 constexpr bool kIsElectronRun = true;
 constexpr bool kSelectEvent   = false;
 
+enum {
+  kReadMockOK,
+  kReadMockNG,
+  kReadMockError
+};
+
+int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[], E16ANA_TrackCheckFile* check_file) {
+  bool is_dead = false;
+  for (int i = 0; i < 2; ++i) {
+    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+      cerr << "mock data finished at " << endl;
+      return kReadMockError;
+    }
+    if (mock_data->TrackID() % 2 != 1 - i)  {
+      cerr << "something error occured in mock track reading: " << mock_data->TrackID() << endl;
+      return kReadMockError;
+    }
+    mock_tracks[i] = mock_data->Track();
+    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
+    check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
+    if (is_dead_track) {
+      is_dead = true;
+    }
+  }
+  if (!is_dead) {
+    return kReadMockOK;
+  } else {
+    return kReadMockNG;
+  }
+  return kReadMockError;
+}
+
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
   if (argc != 6) {
@@ -263,11 +295,12 @@ int main(int argc, char* argv[]) {
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
       record.Trigger().UpdatePtrs();
+      check_file.ClearSimTrack();
+#ifndef MERGE_TRACK_PAIR
       if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
         cerr << "mock data finished at " << n_physics_event << " events" << endl;
         break;
       }
-      check_file.ClearSimTrack();
       bool is_finished = false;
       while (data_merger.IsDeadRegion(mock_data.Track())) {
         check_file.AddSimTrack(true, mock_data.Track());
@@ -281,7 +314,22 @@ int main(int argc, char* argv[]) {
         break;
       }
       check_file.AddSimTrack(false, mock_data.Track());
-      data_merger.MergeMockToRealData(mock_data.Track(), &record);
+      data_merger.MergeMockToRealData(0, mock_data.Track(), &record);
+#else // ifdef MERGE_TRACK_PAIR
+      int mock_read_flag;
+      E16ANA_MockTrack mock_tracks[2];
+      while (true) {
+        mock_read_flag = ReadAndAddMockTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
+        if (mock_read_flag != kReadMockNG) {
+          break;
+        }
+      }
+      if (mock_read_flag == kReadMockError) {
+        break;
+      }
+      data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
+      data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
+#endif // ifdef MERGE_TRACK_PAIR
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();

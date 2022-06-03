@@ -255,10 +255,12 @@ private:
   FILE* fpRead;
   FILE* fpWrite;
   E16ANA_MockTrack  track;            //handle for current track in the data file
+  int track_id;
 
 public:
   E16ANA_MockTrackOutputData(){
     fpRead=NULL;    fpWrite=NULL;
+    track_id = 0;
   }
   ~E16ANA_MockTrackOutputData();
 
@@ -281,10 +283,11 @@ public:
       return ReadERROR;
     }
     else{
+      ++track_id;
       return OK;
     }
   }
-
+  int TrackID() { return track_id; }
 };
   
 
