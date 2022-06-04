@@ -16,13 +16,19 @@
 
 class E16ANA_MakeDummyDST1 {
  public:
-  E16ANA_MakeDummyDST1(E16ANA_GTRAnalyzerMaker* _gtr_analyzers,
+  E16ANA_MakeDummyDST1(E16ANA_GTRAnalyzerMaker* _gtr_analyzers, E16ANA_GTRASDDeadChannel* _gtr_asd_dead_ch,
                        E16ANA_GTR100GEMDeadArea* _gtr100_dead_area, E16ANA_GTR200GEMDeadArea* _gtr200_dead_area, E16ANA_GTR300GEMDeadArea* _gtr300_dead_area,
                        E16ANA_HBDDeadChannel* _hbd_dead_ch, E16ANA_LGDeadChannel* _lg_dead_ch)
-      : gtr_analyzers(_gtr_analyzers),
+      : gtr_analyzers(_gtr_analyzers), gtr_asd_dead_ch(_gtr_asd_dead_ch),
         gtr100_dead_area(_gtr100_dead_area), gtr200_dead_area(_gtr200_dead_area), gtr300_dead_area(_gtr300_dead_area), hbd_dead_ch(_hbd_dead_ch), lg_dead_ch(_lg_dead_ch) {}
 //  E16ANA_MakeDummyDST1(int run_id);
   ~E16ANA_MakeDummyDST1() {}
+  int GTRYToASDCh(double y);
+  bool IsGTRASDDeadRegion(int mid, const TVector3& pos);
+  int HBDPosToASDCh(const TVector3& pos);
+  bool IsHBDASDDeadRegion(int mid, const TVector3& pos);
+  bool IsLGDiscriDeadRegion(int mid, const TVector3& pos);
+  bool IsDiscriDeadRegion(E16ANA_MockTrack& track);
   bool IsSSDDeadRegion(int mid, const TVector3& pos);
   bool IsGTRDeadRegion(int lid, int mid, const TVector3& pos);
   bool IsHBDDeadRegion(int mid, const TVector3& pos);
@@ -43,6 +49,7 @@ class E16ANA_MakeDummyDST1 {
 //  E16ANA_GTRcalibParams*    gtr_params;
   E16ANA_GTRAnalyzerMaker*  gtr_analyzers;
 //  E16ANA_GTRStatus*         gtr_stat;
+  E16ANA_GTRASDDeadChannel* gtr_asd_dead_ch;
   E16ANA_GTR100GEMDeadArea* gtr100_dead_area;
   E16ANA_GTR200GEMDeadArea* gtr200_dead_area;
   E16ANA_GTR300GEMDeadArea* gtr300_dead_area;

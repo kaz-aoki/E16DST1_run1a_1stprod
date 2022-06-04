@@ -27,8 +27,8 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-add_definitions(-DTRACK_EFF_CHECK)
-add_definitions(-DMERGE_TRACK_PAIR)
+#add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
 #add_definitions(-DMOM_RECONSTRUCT_CHECK)
 
