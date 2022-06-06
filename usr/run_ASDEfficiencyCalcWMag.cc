@@ -5,8 +5,8 @@
 // found on file: out.root
 //////////////////////////////////////////////////////////
 
-#ifndef LayerEfficiencyCalculator_h
-#define LayerEfficiencyCalculator_h
+#ifndef ASDLayerEfficiencyCalculator_h
+#define ASDLayerEfficiencyCalculator_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -18,7 +18,6 @@
 #include "E16ANA_GTRChannelManager.h"
 #include "E16ANA_GTRStatus.h"
 #include "E16ANA_GTRAnalyzerMaker.hh"
-#include <TString.h>
 // Header file for the classes stored in the TTree if any.
 #include <vector>
 #include <vector>
@@ -43,7 +42,7 @@ const TVector3 kTargetSigma = {3., 3., 0.};
 const TVector3 kDetectorSigma[4]  = {{0.1, 0, 0}, {0.3, 1, 0}, {0.3, 1, 0},{0.3, 1, 0} };
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
-class LayerEfficiencyCalculator {
+class ASDLayerEfficiencyCalculator {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -151,13 +150,6 @@ public :
    vector<vector<double> > *track_lg_cl_allhit_dum_adc;
    vector<vector<double> > *track_lg_cl_allhit_dum_maxpeak;
    vector<vector<double> > *track_lg_cl_allhit_dum_maxcid;
-   
-   vector<int> *trg_track_lg_id;
-   vector<int> *trg_track_lg_mid;
-   vector<int> *trg_track_lg_cid;
-   vector<double> *trg_track_lg_x; 
-   vector<double> *trg_track_lg_y; 
-   vector<double> *trg_track_lg_t; 
 
    vector<double>  *l_hit_ssd_x;
    vector<double>  *l_hit_gtr100_x;
@@ -459,6 +451,20 @@ vector<double>  *rk_hit_init_mom_gx;
    vector<float>   *gtr300y_cluster_adc;
    vector<double>  *gtr300y_cluster_t;
    vector<double>  *gtr300y_cluster_t2;
+   
+   Int_t           n_trg_gtr_hits;
+   vector<int>     *trg_gtr_hit_id;
+   vector<int>     *trg_gtr_hit_mid;
+   vector<int>     *trg_gtr_hit_cid;
+   vector<double>  *trg_gtr_hit_x;
+   vector<double>  *trg_gtr_hit_y;
+   vector<double>  *trg_gtr_hit_gx;
+   vector<double>  *trg_gtr_hit_gy;
+   vector<double>  *trg_gtr_hit_gz;
+   vector<double>  *trg_gtr_hit_t;
+   
+
+
 
    Int_t           n_hbd_clusters;
    vector<int>     *hbd_cluster_id;
@@ -583,19 +589,7 @@ vector<double>  *rk_hit_init_mom_gx;
    TBranch        *b_track_lg_cl_allhit_dum_adc;   //!
    TBranch        *b_track_lg_cl_allhit_dum_maxpeak;   //!
    TBranch        *b_track_lg_cl_allhit_dum_maxcid;   //!
-
-   TBranch        *b_trg_track_lg_id;
-   TBranch        *b_trg_track_lg_mid;
-   TBranch        *b_trg_track_lg_cid;
-   TBranch        *b_trg_track_lg_x; 
-   TBranch        *b_trg_track_lg_y; 
-   TBranch        *b_trg_track_lg_t; 
-
-
-
 //   TBranch        *b_rk_hit_ssd_gx;   //!
-//
-//
 //   TBranch        *b_rk_hit_ssd_gy;   //!
 //   TBranch        *b_rk_hit_ssd_gz;   //!
 //   TBranch        *b_rk_hit_gtr100_gx;   //!
@@ -924,6 +918,22 @@ vector<double>  *rk_hit_init_mom_gx;
    TBranch        *b_gtr300y_cluster_t;   //!  
    TBranch        *b_gtr300y_cluster_t2;   //!
 
+   TBranch   *b_n_trg_gtr_hits;
+   TBranch   *b_trg_gtr_hit_id;
+   TBranch   *b_trg_gtr_hit_mid;
+   TBranch   *b_trg_gtr_hit_cid;
+   TBranch   *b_trg_gtr_hit_x;
+   TBranch   *b_trg_gtr_hit_y;
+   TBranch   *b_trg_gtr_hit_gx;
+   TBranch   *b_trg_gtr_hit_gy;
+   TBranch   *b_trg_gtr_hit_gz;
+   TBranch   *b_trg_gtr_hit_t;
+   
+
+
+
+
+
 TBranch    *b_ssd_cluster_size ;
 TBranch       *b_gtr100x_cluster_size; 
 TBranch       *b_gtr200x_cluster_size; 
@@ -985,13 +995,14 @@ TBranch       *b_gtr300y_cluster_size;
    double dum_rk_fit_lg_c_x[10];
    double dum_rk_fit_lg_b_x[10];
    double dum_rk_fit_lg_a_x[10];
+   int dum_trk_hitch;
    int    memoryk;
    // Set branch addresses and branch pointers
    //if (!tree) return;
    E16ANA_MultiTrack *fitter;
-   LayerEfficiencyCalculator(char* out_file_name, TChain *chain, E16ANA_MultiTrack *_fitter, int maxevent, int rm_size);
-   LayerEfficiencyCalculator(TTree *tree, E16ANA_MultiTrack *_fitter, int maxevent);
-   virtual ~LayerEfficiencyCalculator();
+   ASDLayerEfficiencyCalculator(char* out_file_name, TChain *chain, E16ANA_MultiTrack *_fitter, int maxevent, int rm_size);
+   ASDLayerEfficiencyCalculator(TTree *tree, E16ANA_MultiTrack *_fitter, int maxevent);
+   virtual ~ASDLayerEfficiencyCalculator();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -1007,22 +1018,21 @@ TBranch       *b_gtr300y_cluster_size;
    bool IsGoodHBDAssociation(int track_index, std::vector<double> &v, std::vector<double> &vv);
    bool IsGoodLGAssociation(int track_index);
    bool IsTriggerdTrack(int tid);
-   int  LGLocalToCh(double lx, double ly);
    bool IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_index);
 //   void RKAnalyze(E16ANA_MultiTrack *fitter);
    void CalculateResiduals(int &cnt);
    void CalculateResidualsUsingHits(int &cnt);
-   void CalculateResidualsUsingRawHits(int &cnt);
    void CalculateResidualsX(int tid, int &ncluster, int &dum_ncluster, bool IsBeforeY);
    void CalculateResidualsXUsingHits(int tid, int &ncluster, int &dum_ncluster, bool IsBeforeY);
-   void CalculateResidualsXUsingRawHits(int tid, int &ncluster, int &dum_ncluster);
    bool AssociationGTRY(int tid, int &ncluster, int &dum_ncluster);
    bool AssociationGTRYUsingHit(int tid, int &ncluster, int &dum_ncluster);
    void SelectTrack(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_index, std::array<std::vector<int>,6> *used_cluster_ids, int &cnt);
    double  SelectTracks(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers);
    void Clear();
    double  EvalTrueTrackRatioByLGX(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int &cnt);
+   bool IsThereASDHit(int tid, int &n, int &nn);
    void EvaluateBGOfLGHits(int mid);
+   void CalculateASDEfficiency();
    
 	
    void AssociateHBDCluster(int track_id, std::vector<double> &v, std::vector<double> &vv, std::vector<int> &i);
@@ -1033,7 +1043,6 @@ private:
    int rm_size;
    vector<vector<int>> matched_lghit_ids;
    TH1D *h_fit_profile[10];
-   TH1D *h_y_hit_adc[10];
 
 
    TH1D *h_n_cluster_inrange[10];
@@ -1078,7 +1087,7 @@ private:
 #endif
 
 
-LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain *chain, E16ANA_MultiTrack *_fitter, int _maxevent, int _rm_size)
+ASDLayerEfficiencyCalculator::ASDLayerEfficiencyCalculator(char* out_file_name, TChain *chain, E16ANA_MultiTrack *_fitter, int _maxevent, int _rm_size)
  : fChain(0) , fitter(_fitter), maxevent(_maxevent),rm_size(_rm_size)  
 {
 //   out_file = new TFile("./dst1ana_out/outgtr_test.root", "recreate");
@@ -1113,7 +1122,6 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 
    for(int m = 100; m < 110; m++){
 		h_fit_profile[m-100] = new TH1D(Form("h_fit_profile_%d", m),Form("h_fit_profile_%d", m ), 200, -50, 50);
-		h_y_hit_adc[m-100] = new TH1D(Form("h_y_hit_adc_%d", m),Form("h_y_hit_adc_%d", m ), 500, 0, 2500);
 		h_n_cluster_inrange[m-100]      = new TH1D(Form("h_n_cluster_inrange_%d", m),Form("h_n_cluster_inrange_%d", m ), 20, -0.5, 19.5);
 		h_n_cluster_inrange_y[m-100]    = new TH1D(Form("h_n_cluster_inrange_y_%d", m),Form("h_n_cluster_inrange_y_%d", m ), 20, -0.5, 19.5);
 		h_n_cluster_inrange_wo_Y[m-100] = new TH1D(Form("h_n_cluster_inrange_wo_Y_%d", m),Form("h_n_cluster_inrange_wo_Y%d", m ), 20, -0.5, 19.5);
@@ -1141,8 +1149,8 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 		h_gtr_res_min_y[m-100]            = new TH1D(Form("h_gtr_res_min_y_%d", m),    Form("h_gtr_res_min_y_%d", m ),                  100, -20, 20);
 		h_dum_gtr_res_min_x[m-100]        = new TH1D(Form("h_dum_gtr_res_min_x_%d", m),    Form("h_dum_gtr_res_min_x_%d", m ),          100, -20, 20);
 		h_dum_gtr_res_all_x[m-100]        = new TH1D(Form("h_dum_gtr_res_all_x_%d", m),Form("h_dum_gtr_res_all_x_%d", m ),              100, -20, 20);
-		h_gtr_res_all_y[m-100]            = new TH1D(Form("h_gtr_res_all_y_%d", m),    Form("h_gtr_res_all_y_%d", m ),                  100, -20, 20);
-		h_dum_gtr_res_all_y[m-100]        = new TH1D(Form("h_dum_gtr_res_all_y_%d", m),Form("h_dum_gtr_res_all_y_%d", m ),              100, -20, 20);
+		h_gtr_res_all_y[m-100]            = new TH1D(Form("h_gtr_res_all_y_%d", m),    Form("h_gtr_res_all_y_%d", m ),                  48, -24.5, 23.5);
+		h_dum_gtr_res_all_y[m-100]            = new TH1D(Form("h_dum_gtr_res_all_y_%d", m),    Form("h_dum_gtr_res_all_y_%d", m ),      48, -24.5, 23.5);
 		h_n_lg_hits_inrange[m-100]        = new TH1D(Form("h_n_lg_hits_inrange_%d", m),Form("h_n_lg_hits_inrange__%d", m ), 10, -0.5, 9.5);
 		h_n_lg_dum_hits_inrange[m-100] = new TH1D(Form("h_n_lg_dum_hits_inrange_%d", m),Form("h_n_lg_dum_hits_inrange__%d", m ), 10, -0.5, 9.5);
 		h_rk_hit_plane[m-100]  = new TH2D(Form("h_rk_hit_plane_%d", m), Form("h_rk_hit_plane_%d", m ), 1500, 100, 300, 800, 100, 300);
@@ -1158,7 +1166,7 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(char* out_file_name, TChain
 		}
    Init(dynamic_cast<TTree*>(chain));
 }
-LayerEfficiencyCalculator::LayerEfficiencyCalculator(TTree *tree, E16ANA_MultiTrack *_fitter, int _maxevent)
+ASDLayerEfficiencyCalculator::ASDLayerEfficiencyCalculator(TTree *tree, E16ANA_MultiTrack *_fitter, int _maxevent)
 {
 //// if parameter tree is not specified (or zero), connect the file
 //// used to generate this class and read the Tree.
@@ -1172,18 +1180,18 @@ LayerEfficiencyCalculator::LayerEfficiencyCalculator(TTree *tree, E16ANA_MultiTr
    Init(tree);
 }
 
-LayerEfficiencyCalculator::~LayerEfficiencyCalculator()
+ASDLayerEfficiencyCalculator::~ASDLayerEfficiencyCalculator()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
-Int_t LayerEfficiencyCalculator::GetEntry(Long64_t entry)
+Int_t ASDLayerEfficiencyCalculator::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t LayerEfficiencyCalculator::LoadTree(Long64_t entry)
+Long64_t ASDLayerEfficiencyCalculator::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -1196,7 +1204,7 @@ Long64_t LayerEfficiencyCalculator::LoadTree(Long64_t entry)
    return centry;
 }
 
-void LayerEfficiencyCalculator::Init(TTree *tree)
+void ASDLayerEfficiencyCalculator::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -1379,13 +1387,6 @@ void LayerEfficiencyCalculator::Init(TTree *tree)
 //
 //
 
-   trg_track_lg_id  =0;
-   trg_track_lg_mid =0;
-   trg_track_lg_cid =0;
-   trg_track_lg_x   =0; 
-   trg_track_lg_y   =0; 
-   trg_track_lg_t   =0; 
-
 
 
 
@@ -1542,7 +1543,23 @@ void LayerEfficiencyCalculator::Init(TTree *tree)
      gtr300y_cluster_y    =0;       
      gtr300y_cluster_adc  =0;         
      gtr300y_cluster_t    =0;        
-     gtr300y_cluster_t2    =0;        
+     gtr300y_cluster_t2    =0;     
+
+   trg_gtr_hit_id =0    ;
+   trg_gtr_hit_mid=0   ;
+   trg_gtr_hit_cid=0   ;
+   trg_gtr_hit_x  =0  ;
+   trg_gtr_hit_y  =0  ;
+   trg_gtr_hit_gx =0  ;
+   trg_gtr_hit_gy =0  ;
+   trg_gtr_hit_gz =0  ;
+   trg_gtr_hit_t  =0  ;
+ 
+
+
+
+
+   
   rk_fit_gtr100_gx = 0;   //!
   rk_fit_gtr100_gy = 0;   //!
   rk_fit_gtr100_gz = 0;   //!
@@ -1714,17 +1731,6 @@ void LayerEfficiencyCalculator::Init(TTree *tree)
    fChain->SetBranchAddress("track_lg_cl_allhit_dum_adc", &track_lg_cl_allhit_dum_adc, &b_track_lg_cl_allhit_dum_adc);
    fChain->SetBranchAddress("track_lg_cl_allhit_dum_maxpeak", &track_lg_cl_allhit_dum_maxpeak, &b_track_lg_cl_allhit_dum_maxpeak);
    fChain->SetBranchAddress("track_lg_cl_allhit_dum_maxcid", &track_lg_cl_allhit_dum_maxcid, &b_track_lg_cl_allhit_dum_maxcid);
-   fChain->SetBranchAddress("trg_track_lg_id",  &trg_track_lg_id , &b_trg_track_lg_id ) ;
-   fChain->SetBranchAddress("trg_track_lg_mid", &trg_track_lg_mid, &b_trg_track_lg_mid) ;
-   fChain->SetBranchAddress("trg_track_lg_cid", &trg_track_lg_cid, &b_trg_track_lg_cid) ;
-   fChain->SetBranchAddress("trg_track_lg_x",   &trg_track_lg_x  , &b_trg_track_lg_x  ) ; 
-   fChain->SetBranchAddress("trg_track_lg_y",   &trg_track_lg_y  , &b_trg_track_lg_y  ) ; 
-   fChain->SetBranchAddress("trg_track_lg_t",   &trg_track_lg_t  , &b_trg_track_lg_t  ) ; 
-
-
-
-
-
 
 //   fChain->SetBranchAddress("rk_hit_ssd_gx", &rk_hit_ssd_gx, &b_rk_hit_ssd_gx);
 //   fChain->SetBranchAddress("rk_hit_ssd_gy", &rk_hit_ssd_gy, &b_rk_hit_ssd_gy);
@@ -1910,6 +1916,18 @@ void LayerEfficiencyCalculator::Init(TTree *tree)
    fChain->SetBranchAddress("gtr300y_hit_t",    &gtr300y_hit_t,     &b_gtr300y_hit_t);   
    fChain->SetBranchAddress("gtr300y_hit_adc",  &gtr300y_hit_adc,   &b_gtr300y_hit_adc);   
 
+   fChain->SetBranchAddress("n_trg_gtr_hits", &n_trg_gtr_hits,  &b_n_trg_gtr_hits);
+   fChain->SetBranchAddress("trg_gtr_hit_id",   &trg_gtr_hit_id,  &b_trg_gtr_hit_id);
+   fChain->SetBranchAddress("trg_gtr_hit_mid", &trg_gtr_hit_mid, &b_trg_gtr_hit_mid);
+   fChain->SetBranchAddress("trg_gtr_hit_cid", &trg_gtr_hit_cid, &b_trg_gtr_hit_cid);
+   fChain->SetBranchAddress("trg_gtr_hit_x",  &trg_gtr_hit_x,   &b_trg_gtr_hit_x);
+   fChain->SetBranchAddress("trg_gtr_hit_y",  &trg_gtr_hit_y,   &b_trg_gtr_hit_y);
+   fChain->SetBranchAddress("trg_gtr_hit_gx", &trg_gtr_hit_gx,  &b_trg_gtr_hit_gx);
+   fChain->SetBranchAddress("trg_gtr_hit_gy", &trg_gtr_hit_gy,  &b_trg_gtr_hit_gy);
+   fChain->SetBranchAddress("trg_gtr_hit_gz", &trg_gtr_hit_gz,  &b_trg_gtr_hit_gz);
+   fChain->SetBranchAddress("trg_gtr_hit_t",  &trg_gtr_hit_t,   &b_trg_gtr_hit_t);
+   
+
 
 
 
@@ -2054,7 +2072,7 @@ void LayerEfficiencyCalculator::Init(TTree *tree)
    Notify();
 }
 
-Bool_t LayerEfficiencyCalculator::Notify()
+Bool_t ASDLayerEfficiencyCalculator::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -2065,14 +2083,14 @@ Bool_t LayerEfficiencyCalculator::Notify()
    return kTRUE;
 }
 
-void LayerEfficiencyCalculator::Show(Long64_t entry)
+void ASDLayerEfficiencyCalculator::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t LayerEfficiencyCalculator::Cut(Long64_t entry)
+Int_t ASDLayerEfficiencyCalculator::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
@@ -2082,13 +2100,13 @@ Int_t LayerEfficiencyCalculator::Cut(Long64_t entry)
 
 
 
-//#include "LayerEfficiencyCalculator.h"
+//#include "ASDLayerEfficiencyCalculator.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
 
-bool LayerEfficiencyCalculator::CheckUsedClusters(int track_index, 
+bool ASDLayerEfficiencyCalculator::CheckUsedClusters(int track_index, 
 	std::array<std::vector<int>, 6> * used_cluster_ids){
 	int ids[8] = {rk_hit_ssd_id->at(track_index), 
 				  rk_hit_gtr100_xid->at(track_index), rk_hit_gtr100_yid->at(track_index),
@@ -2147,7 +2165,7 @@ bool LayerEfficiencyCalculator::CheckUsedClusters(int track_index,
 	return true;
 }
 
-bool LayerEfficiencyCalculator::CheckUsedClustersForMix(int track_index, 
+bool ASDLayerEfficiencyCalculator::CheckUsedClustersForMix(int track_index, 
 	std::array<std::vector<int>, 6> * used_cluster_ids){
 	int ids[8] = {rk_hit_ssd_id->at(track_index), 
 				  rk_hit_gtr100_xid->at(track_index), rk_hit_gtr100_yid->at(track_index),
@@ -2201,16 +2219,14 @@ bool LayerEfficiencyCalculator::CheckUsedClustersForMix(int track_index,
 	//selected_track_indexes.emplace_back(track_index);
    return true;
 }
-void LayerEfficiencyCalculator::SelectTrack(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers,  int track_index, std::array<std::vector<int>, 6> *used_cluster_ids, int &cnt){
+void ASDLayerEfficiencyCalculator::SelectTrack(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers,  int track_index, std::array<std::vector<int>, 6> *used_cluster_ids, int &cnt){
 	if(CheckUsedClusters(track_index, used_cluster_ids)){
 		if(IsGoodHBDAssociation(track_index, ass_hbd_resx, ass_hbd_resy)){
 			if(IsHittedOnSurvivalArea(gtr_status, gtr_analyzers, track_index)){
-//				if(IsTriggerdTrack(track_index)){
-					if(IsGoodLGAssociation(track_index)){//this cut shouuld be the last 
-			    		cnt++;
-						//std::cout << "selected tid  = " << track_index << std::endl;
-						selected_track_indexes.emplace_back(track_index);
-//					}
+				if(IsGoodLGAssociation(track_index)){
+			    cnt++;
+				//std::cout << "selected tid  = " << track_index << std::endl;
+					selected_track_indexes.emplace_back(track_index);
 				}
 			}
 		}
@@ -2220,7 +2236,7 @@ void LayerEfficiencyCalculator::SelectTrack(E16ANA_GTRStatus *gtr_status, E16ANA
 
 
 
-bool LayerEfficiencyCalculator::IsGoodLGAssociation(int track_index){
+bool ASDLayerEfficiencyCalculator::IsGoodLGAssociation(int track_index){
 	double resx = ass_lg_resx.at(track_index);
 	double resy = ass_lg_resy.at(track_index);
 	//std::cout << "lg residual = " << resx << std::endl;
@@ -2233,7 +2249,7 @@ bool LayerEfficiencyCalculator::IsGoodLGAssociation(int track_index){
 }
 
 
-bool LayerEfficiencyCalculator::IsGoodHBDAssociation(int track_index, std::vector<double> &v_ass_hbd_resx, std::vector<double> &v_ass_hbd_resy){
+bool ASDLayerEfficiencyCalculator::IsGoodHBDAssociation(int track_index, std::vector<double> &v_ass_hbd_resx, std::vector<double> &v_ass_hbd_resy){
 	double resx = v_ass_hbd_resx.at(track_index);
 	double resy = v_ass_hbd_resy.at(track_index);
 	//std::cout << "hbd residual = " << resx << std::endl;
@@ -2244,7 +2260,7 @@ bool LayerEfficiencyCalculator::IsGoodHBDAssociation(int track_index, std::vecto
 	return flag;
 }
 
-double LayerEfficiencyCalculator::SelectTracks(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers){
+double ASDLayerEfficiencyCalculator::SelectTracks(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers){
 	std::array<std::vector<int> , 6> used_cluster_ids;
     for(int l = 0; l < 6; l++){
 		used_cluster_ids.at(l).clear();	
@@ -2265,7 +2281,7 @@ double LayerEfficiencyCalculator::SelectTracks(E16ANA_GTRStatus *gtr_status, E16
     return cnt;
 }
 
-bool LayerEfficiencyCalculator::IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_id){
+bool ASDLayerEfficiencyCalculator::IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int track_id){
     bool flag = true;
     int mid[3] = { rk_fit_gtr100_mid->at(track_id), 
      rk_fit_gtr200_mid->at(track_id), 
@@ -2313,7 +2329,7 @@ bool LayerEfficiencyCalculator::IsHittedOnSurvivalArea(E16ANA_GTRStatus *gtr_sta
 
 
 
-void LayerEfficiencyCalculator::AssociateLGHit(int track_id){	
+void ASDLayerEfficiencyCalculator::AssociateLGHit(int track_id){	
 	double resx = 10000;
     double resy = 10000;
 	double resx2 = 10000;
@@ -2369,7 +2385,7 @@ void LayerEfficiencyCalculator::AssociateLGHit(int track_id){
 }
 
 
-void LayerEfficiencyCalculator::AssociateHBDCluster(int track_id, std::vector<double> &v_ass_hbd_resx, std::vector<double> &v_ass_hbd_resy, std::vector<int> &v_ass_hbd_cluster_id){
+void ASDLayerEfficiencyCalculator::AssociateHBDCluster(int track_id, std::vector<double> &v_ass_hbd_resx, std::vector<double> &v_ass_hbd_resy, std::vector<int> &v_ass_hbd_cluster_id){
 	double resx = 10000;
     double resy = 10000;
     int    min_cluster_id = -1;
@@ -2392,40 +2408,28 @@ void LayerEfficiencyCalculator::AssociateHBDCluster(int track_id, std::vector<do
 }
 
 
-int LayerEfficiencyCalculator::LGLocalToCh(double lx, double ly){
-	int y_ch = (ly + 400)/130;
-	int x_ch = (lx + 500)/120-1;
-	return y_ch * 10 + x_ch;
-}
 
-bool LayerEfficiencyCalculator::IsTriggerdTrack(int tid){//
-    int rk_fit_lg_mid[3] = {rk_fit_lg_c_mid->at(tid), rk_fit_lg_b_mid->at(tid), rk_fit_lg_a_mid->at(tid)};
-    int rk_fit_lg_x[3] = {rk_fit_lg_c_x->at(tid), rk_fit_lg_b_x->at(tid), rk_fit_lg_a_x->at(tid)};
-    int rk_fit_lg_y[3] = {rk_fit_lg_c_y->at(tid), rk_fit_lg_b_y->at(tid), rk_fit_lg_a_y->at(tid)};
-    bool isFound = false;
-//	std::cout << "trg trl lg mid size = " << trg_track_lg_mid->size() << std::endl;
-	for(int p = 0; p < 3; p++){//plane a, b, or c 
-		for(int i=0; i < trg_track_lg_mid->size(); i++){
-//			std::cout << "trg trl lg cid size = " << trg_track_lg_cid->size() << std::endl;
-//			std::cout << "trg trl lg cid size = " << trg_track_lg_x->size() << std::endl;
-			int tt_lg_mid = trg_track_lg_mid->at(i);//triggerd track
-			int tt_lg_cid = trg_track_lg_cid->at(i);//triggerd track
+bool ASDLayerEfficiencyCalculator::IsTriggerdTrack(int tid){//
+//    int rk_fit_lg_mid[3] = {rk_fit_lg_c_mid->at(tid), rk_fit_lg_b_mid->at(tid), rk_fit_lg_a_mid->at(tid)};
+//	int rk_fit_lg_cid[3] = {rk_fit_lg_c_cid->at(tid), rk_fit_lg_b_cid->at(tid), rk_fit_lg_a_cid->at(tid)};
+//    bool isFound = false; 
+//	for(int p = 0; p < 3; p++){//plane a, b, or c 
+//		for(int i=0; i < n_trg_tracks; i++){
+//			int tt_lg_mid = trg_track_lg_mid->at(i);//triggerd track
+//			int tt_lg_cid = trg_track_lg_cid->at(i);//triggerd track
 //			double tt_lg_t = trg_track_lg_t->at(i);
-			int rk_lg_ch = LGLocalToCh(rk_fit_lg_x[p], rk_fit_lg_y[p]);
-	
-			if(rk_fit_lg_mid[p] == tt_lg_mid && rk_lg_ch == tt_lg_cid){
-				isFound = true;
-				std::cout <<  "found " << std::endl;
-//				std::cout << "rk_fit_lg_t  = " << lg_t->at(tid) << std::endl;
+//			if(rk_fit_lg_mid[p] == tt_lg_mid && rk_fit_lg_mid[p] == tt_lg_cid){
+//				isFound = true;
+//				std::cout << "rk_fit_lg_t  = " << rk_fit_lg_t->at(tid) << std::endl;
 //				std::cout << "trg trklg t  = " << trg_track_lg_t->at(i) << std::endl;
-			}
-		}
-	}
-	return isFound;
+//			}
+//		}
+//	}
+//	return isFound;
 }
 
 
-bool LayerEfficiencyCalculator::AssociationGTRYUsingHit(int tid, int &tn_hits_inrange, int &dum_tn_hits_inrange){
+bool ASDLayerEfficiencyCalculator::AssociationGTRYUsingHit(int tid, int &tn_hits_inrange, int &dum_tn_hits_inrange){
 	int rk_fit_gtr_mid[3] = {rk_fit_gtr100_mid->at(tid), rk_fit_gtr200_mid->at(tid), rk_fit_gtr300_mid->at(tid)};
     int n_gtr_hits[3] = {n_gtr100y_hits, n_gtr200y_hits, n_gtr300y_hits};
     std::vector<int>    *gtry_hit_mid[3]  =  {gtr100y_hit_mid,  gtr200y_hit_mid,  gtr300y_hit_mid};
@@ -2450,9 +2454,6 @@ bool LayerEfficiencyCalculator::AssociationGTRYUsingHit(int tid, int &tn_hits_in
 //		std::cout <<" t       = " <<  gtry_hit_t[rm_size]->at(k) << std::endl;
 		if(rk_fit_gtr_mid[rm_size] != gtry_hit_mid[rm_size]->at(k) ) continue; //module match
 		if(gtry_hit_adc[rm_size]->at(k)>50e3) continue;//remove fake hit (maybe no meaning here)
-//5		std::cout << "gtry hit adc = " << gtry_hit_adc[rm_size]->at(k) << std::endl;
-		h_y_hit_adc[mid]->Fill(gtry_hit_adc[rm_size]->at(k));
-//		if(gtry_hit_adc[rm_size]->at(k)<50) continue;
 		double resy, dum_resy;
 		if(rm_size == 0 ){//gtr 100
        	     resy     = gtry_hit_y[rm_size]->at(k) + rk_fit_gtr_gy[rm_size]->at(tid);
@@ -2501,7 +2502,7 @@ bool LayerEfficiencyCalculator::AssociationGTRYUsingHit(int tid, int &tn_hits_in
 
 
 
-bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange){
+bool ASDLayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange){
 	int rk_fit_gtr_mid[3] = {rk_fit_gtr100_mid->at(tid), rk_fit_gtr200_mid->at(tid), rk_fit_gtr300_mid->at(tid)};
     int n_gtr_clusters[3] = {n_gtr100y_clusters, n_gtr200y_clusters, n_gtr300y_clusters};
     std::vector<int> *gtry_cluster_mid[3]    =  {gtr100y_cluster_mid, gtr200y_cluster_mid, gtr300y_cluster_mid};
@@ -2531,7 +2532,7 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
              dum_resy = gtry_cluster_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
 		}
 		if(fabs(resy) < y_clusterrange[rm_size]) tn_cluster_inrange++;
-//		std::cout << "residual y = " << resy << std::endl;  
+		std::cout << "residual y = " << resy << std::endl;  
 		if(fabs(dum_resy) < y_clusterrange[rm_size]) dum_tn_cluster_inrange++;
 		h_gtr_res_all_y[mid] ->Fill(resy);
         h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
@@ -2549,7 +2550,7 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
 		if(gtr100yb_cluster_adc->at(k)>50e3) continue;//remove fake hit
     	double resy =     gtr100yb_cluster_y->at(k) + rk_fit_gtr100_gy->at(tid);
         double dum_resy = gtr100yb_cluster_y->at(k) + dum_rk_fit_gtr_y[mid][c];
-//		std::cout << "residual yb = " << resy << std::endl;  
+		std::cout << "residual yb = " << resy << std::endl;  
 		if(fabs(resy) < y_clusterrange[rm_size]) tn_cluster_inrange++;
 		if(fabs(dum_resy) < y_clusterrange[rm_size]) dum_tn_cluster_inrange++;
 		h_gtr_res_all_y[mid] ->Fill(resy);
@@ -2607,7 +2608,7 @@ bool LayerEfficiencyCalculator::AssociationGTRY(int tid, int &tn_cluster_inrange
 
 
 
-void LayerEfficiencyCalculator::CalculateResidualsXUsingHits(int tid, int &tn_hits_inrange, int &dum_tn_hits_inrange , bool IsBeforeY){
+void ASDLayerEfficiencyCalculator::CalculateResidualsXUsingHits(int tid, int &tn_hits_inrange, int &dum_tn_hits_inrange , bool IsBeforeY){
 	int c = rk_charge->at(tid);
 	double min_resx = 10000;
 	double min_dum_resx = 10000;
@@ -2699,7 +2700,7 @@ void LayerEfficiencyCalculator::CalculateResidualsXUsingHits(int tid, int &tn_hi
 }
 
 
-void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange , bool IsBeforeY){
+void ASDLayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange , bool IsBeforeY){
 	int c = rk_charge->at(tid);
 	double min_resx = 10000;
 	double min_dum_resx = 10000;
@@ -2785,11 +2786,10 @@ void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inr
 				h_timing_diff[mid-100] ->Fill(gtrx_cluster_t[rm_size]->at(memoryxk) - gtry_cluster_t[rm_size]->at(memoryk));
 				h_timing2_diff[mid-100] ->Fill(gtrx_cluster_t2[rm_size]->at(memoryxk) - gtry_cluster_t2[rm_size]->at(memoryk));
 				}
-
 	}
 }
 
-//void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange){
+//void ASDLayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange){
 //	int mid = rk_fit_gtr100_mid->at(tid);
 //	int c = rk_charge->at(id);
 //	double min_resx = 10000;
@@ -2825,7 +2825,7 @@ void LayerEfficiencyCalculator::CalculateResidualsX(int tid, int &tn_cluster_inr
 //	dum_rk_fit_gtr_gz[mid-100][c] = rk_fit_gtr100_gz->at(tid);
 //}
 
-void LayerEfficiencyCalculator::CalculateResiduals(int &cnt){
+void ASDLayerEfficiencyCalculator::CalculateResiduals(int &cnt){
 	for(int i = 0; i < selected_track_indexes.size() ; i++){//modified 220519
 		int tid = selected_track_indexes[i];
 	    int gtrmid;
@@ -2842,7 +2842,7 @@ void LayerEfficiencyCalculator::CalculateResiduals(int &cnt){
 		CalculateResidualsX(tid, tn_cluster_inrange_x_wo_Y, dum_tn_cluster_inrange_x_wo_Y, 1); // before Y associate
 		h_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(tn_cluster_inrange_x_wo_Y);
 		h_dum_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x_wo_Y);
-       bool y_ass = AssociationGTRY(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
+        bool y_ass = AssociationGTRY(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
 		h_n_cluster_inrange_y[gtrmid - 100]->Fill(tn_cluster_inrange_y);
 		h_dum_n_cluster_inrange_y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_y);
 //           ------ before Y association
@@ -2862,82 +2862,7 @@ void LayerEfficiencyCalculator::CalculateResiduals(int &cnt){
 	}//end tid
 }
 
-
-
-void LayerEfficiencyCalculator::CalculateResidualsXUsingRawHits(int tid ,int &tn_hits_inrange, int &tn_dum_hits_inrange) {
-	int rk_fit_gtr_mid[3] = {rk_fit_gtr100_mid->at(tid), rk_fit_gtr200_mid->at(tid), rk_fit_gtr300_mid->at(tid)};
-    int n_gtr_yhits[3] = {n_gtr100y_hits, n_gtr200y_hits, n_gtr300y_hits};
-    int n_gtr_xhits[3] = {n_gtr100x_hits, n_gtr200x_hits, n_gtr300x_hits};
-    std::vector<int>    *gtry_hit_mid[3]  =  {gtr100y_hit_mid,  gtr200y_hit_mid,  gtr300y_hit_mid};
-    std::vector<float> *gtry_hit_adc[3]  =  {gtr100y_hit_adc,  gtr200y_hit_adc,  gtr300y_hit_adc};
-//    std::vector<int>    *gtry_hit_size[3] =  {gtr100y_hit_size, gtr200y_hit_size, gtr300y_hit_size};
-    std::vector<double> *rk_fit_gtr_gx[3] =  {rk_fit_gtr100_gx,   rk_fit_gtr200_gx,   rk_fit_gtr300_gx};
-    std::vector<double> *rk_fit_gtr_gy[3] =  {rk_fit_gtr100_gy,   rk_fit_gtr200_gy,   rk_fit_gtr300_gy};
-    std::vector<double> *rk_fit_gtr_gz[3] =  {rk_fit_gtr100_gz,   rk_fit_gtr200_gz,   rk_fit_gtr300_gz};
-    std::vector<double> *gtry_hit_y[3]    =  {gtr100y_hit_y, gtr200y_hit_y, gtr300y_hit_y};
-    std::vector<double> *gtry_hit_t[3]    =  {gtr100y_hit_t, gtr200y_hit_t, gtr300y_hit_t};
-	int c = rk_charge->at(tid);
-	double min_resx = 10000;
-	double min_dum_resx = 10000;
-    int n_gtr_hits[3] = {n_gtr100x_hits, n_gtr200x_hits, n_gtr300x_hits};
-    int mid = rk_fit_gtr_mid[rm_size];
-    std::vector<int> *gtrx_hit_mid[3]    =  {gtr100x_hit_mid, gtr200x_hit_mid, gtr300x_hit_mid};
-    std::vector<float> *gtrx_hit_adc[3] =  {gtr100x_hit_adc, gtr200x_hit_adc, gtr300x_hit_adc};
-    std::vector<double> *gtrx_hit_gx[3] =  {gtr100x_hit_gx, gtr200x_hit_gx, gtr300x_hit_gx};
-    std::vector<double> *gtrx_hit_gz[3] =  {gtr100x_hit_gz, gtr200x_hit_gz, gtr300x_hit_gz};
-    std::vector<double> *gtrx_hit_t[3] =  {gtr100x_hit_t, gtr200x_hit_t, gtr300x_hit_t};
-    int memoryxk;
-	if(c == -1) c = 0; //charge minus
-    double min_resy = 10000;
-    double resx,dum_resx, resy, dum_resy;
-	for(int k = 0; k < n_gtr_yhits[rm_size]; k++){
-		if(rk_fit_gtr_mid[rm_size] != gtry_hit_mid[rm_size]->at(k) ) continue; //module match
-		if(gtry_hit_adc[rm_size]->at(k)>50e3) continue;//remove fake hit (maybe no meaning here)
-		if(gtry_hit_adc[rm_size]->at(k)<50) continue;//remove fake hit (maybe no meaning here)
-		for(int j = 0; j < n_gtr_xhits[rm_size]; j++){
-//			if(rk_fit_gtr_mid[rm_size] != gtrx_hit_mid[rm_size]->at(j) ) continue; //module match
-//			if(gtrx_hit_adc[rm_size]->at(j)>50e3) continue;//remove fake hit (maybe no meaning here)
-//			if(gtrx_hit_adc[rm_size]->at(j)<50) continue;//remove fake hit (maybe no meaning here)
-//    	    if(fabs(gtrx_hit_t[rm_size]->at(j) - gtry_hit_t[rm_size]->at(j)) < 300){
-//			if(rm_size == 0 ){//gtr 100
-//    	   	     resy     = gtry_hit_y[rm_size]->at(k) + rk_fit_gtr_gy[rm_size]->at(tid);
-//	             dum_resy = gtry_hit_y[rm_size]->at(k) + dum_rk_fit_gtr_y[mid][c];
-//			}
-//			else {//gtr200, 300
-//    		     resy     = gtry_hit_y[rm_size]->at(k) - rk_fit_gtr_gy[rm_size]->at(tid);
-//        	     dum_resy = gtry_hit_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
-//			}
-//				
-//				resx = sqrt(pow(gtrx_hit_gx[rm_size]->at(j) - rk_fit_gtr_gx[rm_size]->at(tid), 2) 
-//					 + pow(gtrx_hit_gz[rm_size]->at(j) - rk_fit_gtr_gz[rm_size]->at(tid), 2));
-//				dum_resx = sqrt(pow(gtrx_hit_gx[rm_size]->at(j) - dum2_rk_fit_gtr_gx[mid-100][c], 2) 
-//							 + pow(gtrx_hit_gz[rm_size]->at(j) - dum2_rk_fit_gtr_gz[mid-100][c], 2));
-//			if(gtrx_hit_gx[rm_size]->at(j) - rk_fit_gtr_gx[rm_size]->at(tid) < 0) {resx = -1 * resx;}
-//			if(gtrx_hit_gx[rm_size]->at(j) - dum2_rk_fit_gtr_gx[mid-100][c] < 0)   {dum_resx = -1 * dum_resx;}
-//			}
-//			if(fabs(resx) < 5 && fabs(resy) < 5){
-//		//if(ym_hitrange[rm_size] < resy  && resy < yp_hitrange[rm_size]) tn_hits_inrange++;
-////		if(ym_hitrange[rm_size] <  dum_resy &&  dum_resy < yp_hitrange[rm_size]) dum_tn_hits_inrange++;
-//	
-//				h_gtr_res_all_y[mid] ->Fill(resy);
-//    		    h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
-//				h_gtr_res_all_x[mid] ->Fill(resx);
-//    		    h_dum_gtr_res_all_x[mid ]->Fill(dum_resx);
-//			}
-//
-
-			}
-		}
-		
-
-	dum_rk_fit_gtr_y[mid][c] = rk_fit_gtr_gy[rm_size]->at(tid);
-    h_gtr_res_min_y[mid]->Fill(min_resy);
-	if(tn_hits_inrange > 0){
-		
-	}
-}
-
-void LayerEfficiencyCalculator::CalculateResidualsUsingRawHits(int &cnt){
+void ASDLayerEfficiencyCalculator::CalculateResidualsUsingHits(int &cnt){
 	for(int i = 0; i < selected_track_indexes.size() ; i++){//modified 220519
 		int tid = selected_track_indexes[i];
 	    int gtrmid;
@@ -2951,41 +2876,7 @@ void LayerEfficiencyCalculator::CalculateResidualsUsingRawHits(int &cnt){
 		int tn_cluster_inrange_y = 0;
 		int dum_tn_cluster_inrange_y = 0;
 		int all_cut_n_cluster_inrange = 0;
-		h_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(tn_cluster_inrange_x_wo_Y);
-		h_dum_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x_wo_Y);
-		h_n_cluster_inrange_y[gtrmid - 100]->Fill(tn_cluster_inrange_y);
-		h_dum_n_cluster_inrange_y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_y);
-		    CalculateResidualsXUsingRawHits(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x); 
-		    cnt++;
-		h_n_cluster_inrange[gtrmid - 100]->Fill(tn_cluster_inrange_x);
-		trk_charge = rk_charge->at(tid);
-	    n_cluster_inrange = tn_cluster_inrange_x;
-    	module_id[rm_size] = gtrmid; 
-		//post_detector_res_x[1] = min_resx;
-		h_dum_n_cluster_inrange[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x);
-		h_all_cut_n_cluster_inrange[gtrmid - 100]->Fill(all_cut_n_cluster_inrange);
-		out_tree->Fill();
-	}//end tid
-}
-
-
-
-
-
-void LayerEfficiencyCalculator::CalculateResidualsUsingHits(int &cnt){
-	for(int i = 0; i < selected_track_indexes.size() ; i++){//modified 220519
-		int tid = selected_track_indexes[i];
-	    int gtrmid;
-	    if(rm_size == 0)gtrmid = rk_fit_gtr100_mid->at(tid);
-    	else if(rm_size == 1)gtrmid = rk_fit_gtr200_mid->at(tid);
-	    else if(rm_size == 2)gtrmid = rk_fit_gtr300_mid->at(tid);
-		int tn_cluster_inrange_x = 0;
-		int tn_cluster_inrange_x_wo_Y = 0;
-		int dum_tn_cluster_inrange_x = 0;
-		int dum_tn_cluster_inrange_x_wo_Y = 0;
-		int tn_cluster_inrange_y = 0;
-		int dum_tn_cluster_inrange_y = 0;
-		int all_cut_n_cluster_inrange = 0;
+////	if(IsTriggerdTrack(tid)){
 		CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x_wo_Y, dum_tn_cluster_inrange_x_wo_Y, 1); // before Y associate
 		h_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(tn_cluster_inrange_x_wo_Y);
 		h_dum_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x_wo_Y);
@@ -3005,10 +2896,103 @@ void LayerEfficiencyCalculator::CalculateResidualsUsingHits(int &cnt){
 		h_dum_n_cluster_inrange[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x);
 		h_all_cut_n_cluster_inrange[gtrmid - 100]->Fill(all_cut_n_cluster_inrange);
 		out_tree->Fill();
-	    }
+//	    }
+		}
 	}//end tid
 }
-double  LayerEfficiencyCalculator::EvalTrueTrackRatioByLGX(  E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int &cnt){
+
+void ASDLayerEfficiencyCalculator::CalculateASDEfficiency(){
+	for(int i = 0; i < selected_track_indexes.size() ; i++){//modified 220519
+		int tid = selected_track_indexes[i];
+	    int gtrmid = rk_fit_gtr300_mid->at(tid);
+		int tn_cluster_inrange_x = 0;
+		int tn_cluster_inrange_x_wo_Y = 0;
+		int dum_tn_cluster_inrange_x = 0;
+		int dum_tn_cluster_inrange_x_wo_Y = 0;
+		int tn_cluster_inrange_y = 0;
+		int dum_tn_cluster_inrange_y = 0;
+		int all_cut_n_cluster_inrange = 0;
+//		CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x_wo_Y, dum_tn_cluster_inrange_x_wo_Y, 1); // before Y associate
+//		h_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(tn_cluster_inrange_x_wo_Y);
+//		h_dum_n_cluster_inrange_wo_Y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x_wo_Y);
+//        bool y_ass = AssociationGTRYUsingHit(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
+		bool isThereASD = IsThereASDHit(tid, tn_cluster_inrange_y, dum_tn_cluster_inrange_y);
+		h_n_cluster_inrange_y[gtrmid - 100]->Fill(tn_cluster_inrange_y);
+		h_dum_n_cluster_inrange_y[gtrmid - 100]->Fill(dum_tn_cluster_inrange_y);
+//           ------ before Y association
+//           after Y association ------------
+//		if(y_ass){
+//		    CalculateResidualsXUsingHits(tid, tn_cluster_inrange_x, dum_tn_cluster_inrange_x, 0); // after Y associate
+//		    cnt++;
+//			h_n_cluster_inrange[gtrmid - 100]->Fill(tn_cluster_inrange_x);
+//			trk_charge = rk_charge->at(tid);
+//		    n_cluster_inrange = tn_cluster_inrange_x;
+//	    	module_id[rm_size] = gtrmid; 
+//			//post_detector_res_x[1] = min_resx;
+//			h_dum_n_cluster_inrange[gtrmid - 100]->Fill(dum_tn_cluster_inrange_x);
+//			h_all_cut_n_cluster_inrange[gtrmid - 100]->Fill(all_cut_n_cluster_inrange);
+//			out_tree->Fill();
+//		}
+	}//end tid
+}
+bool ASDLayerEfficiencyCalculator::IsThereASDHit(int tid, int &tn_cluster_inrange, int &dum_tn_cluster_inrange){
+	int mid = rk_fit_gtr300_mid->at(tid) ;
+    int n_gtr_clusters = n_gtr300y_clusters;
+	double rk_fit_gy = rk_fit_gtr300_gy->at(tid);
+//    std::vector<int> *gtry_cluster_mid    =  {gtr100ycluster_mid, gtr200y_cluster_mid, gtr300y_cluster_mid};
+//    std::vector<float> *gtry_cluster_adc =  {gtr100y_cluster_adc, gtr200y_cluster_adc, gtr300y_cluster_adc};
+//    std::vector<int> *gtry_cluster_size[3] =  {gtr100y_cluster_size, gtr200y_cluster_size, gtr300y_cluster_size};
+//    std::vector<double> *rk_fit_gtr_gx[3] =    {rk_fit_gtr100_gx,   rk_fit_gtr200_gx,   rk_fit_gtr300_gx};
+//    std::vector<double> *rk_fit_gtr_gy[3] =    {rk_fit_gtr100_gy,   rk_fit_gtr200_gy,   rk_fit_gtr300_gy};
+//    std::vector<double> *rk_fit_gtr_gz[3] =    {rk_fit_gtr100_gz,   rk_fit_gtr200_gz,   rk_fit_gtr300_gz};
+//    std::vector<double> *gtry_cluster_y[3] =  {gtr100y_cluster_y, gtr200y_cluster_y, gtr300y_cluster_y};
+//    std::vector<double> *gtry_cluster_t[3] =   {gtr100y_cluster_t, gtr200y_cluster_t, gtr300y_cluster_t};
+//    std::vector<double> *gtry_cluster_t2[3] =  {gtr100y_cluster_t2, gtr200y_cluster_t2, gtr300y_cluster_t2};
+	int c = rk_charge->at(tid);
+	if(c == -1) c = 0; //charge minus
+    double min_resy = 10000;
+	std::cout << "tid " << tid << std::endl;
+	std::cout << "ntrg gtr " << n_trg_gtr_hits << std::endl;
+	int trk_hitch = (rk_fit_gy + 150)/12.5;
+	for(int k = 0; k < n_trg_gtr_hits; k++){
+///		std::cout << "mid " << mid << std::endl;
+//		std::cout << "trg mid " << trg_gtr_hit_mid->at(k) << std::endl;
+		if(mid != trg_gtr_hit_mid->at(k) ) continue; //module match
+		std::cout << "k = " << k << std::endl;
+		int cid = trg_gtr_hit_cid->at(k);
+		double hit_y = trg_gtr_hit_y->at(k);
+		double hit_gy = trg_gtr_hit_gy->at(k);
+		std::cout << "cid, y, gy " << cid << ", " << hit_y << ", " << hit_gy << std::endl;
+		std::cout << "rk_fit y, trkhitch = "  << hit_y << ",  " << trk_hitch <<  std::endl;
+		int resy     = cid - trk_hitch;
+        int dum_resy = cid - dum_trk_hitch;;
+		std::cout << "resy " << resy << std::endl;
+		if(fabs(resy) < 3) tn_cluster_inrange++;
+		h_gtr_res_all_y[mid-100] ->Fill(resy);
+		if(fabs(dum_resy) < 3) tn_cluster_inrange++;
+		h_dum_gtr_res_all_y[mid-100] ->Fill(dum_resy);
+		
+//    	     resy     = gtry_cluster_y[rm_size]->at(k) - rk_fit_gtr_gy[rm_size]->at(tid);
+//             dum_resy = gtry_cluster_y[rm_size]->at(k) - dum_rk_fit_gtr_y[mid][c];
+//		std::cout << "residual y = " << resy << std::endl;  
+//		if(fabs(dum_resy) < y_clusterrange[rm_size]) dum_tn_cluster_inrange++;
+//		h_gtr_res_all_y[mid] ->Fill(resy);
+//        h_dum_gtr_res_all_y[mid ]->Fill(dum_resy);
+//	    if(min_resy > resy) {
+//			min_resy = resy;
+//			memoryk = k ;
+//		}
+//        h_hit_fit[mid]->Fill(gtry_cluster_y[rm_size]->at(k), rk_fit_gtr_gy[rm_size]->at(tid));
+//	h_fit_profile[mid]->Fill(rk_fit_gtr_gy[rm_size]->at(tid));
+	}
+	dum_trk_hitch = trk_hitch;
+
+	return true;
+
+}
+
+
+double  ASDLayerEfficiencyCalculator::EvalTrueTrackRatioByLGX(  E16ANA_GTRStatus *gtr_status, E16ANA_GTRAnalyzerMaker *gtr_analyzers, int &cnt){
     std::array<std::vector<int> , 6> used_cluster_ids;
     for(int l = 0; l < 6; l++){
 		used_cluster_ids.at(l).clear();	
@@ -3022,10 +3006,8 @@ double  LayerEfficiencyCalculator::EvalTrueTrackRatioByLGX(  E16ANA_GTRStatus *g
 			if(IsGoodHBDAssociation(tid, mix_ass_hbd_resx, mix_ass_hbd_resy)){
 //				std::cout << "tid after hbd = " << tid << std::endl;
 				if(IsHittedOnSurvivalArea(gtr_status, gtr_analyzers, tid)){
-//					if(IsTriggerdTrack(tid)){
 //				std::cout << "tid after dsead area = " << tid << std::endl;
 					mix_selected_track_id.emplace_back(tid);		
-//					}
 				}
 			}
 		}
@@ -3087,10 +3069,6 @@ double  LayerEfficiencyCalculator::EvalTrueTrackRatioByLGX(  E16ANA_GTRStatus *g
     				min_resx2 = resx2;
      				min_resy2 = resy2;
                     min_dumx = dum_resx2;
-					if(-50 < min_dumx && min_dumx < 0){
-					std::cout << "res" << resx2 << std::endl;
-					std::cout << "dum_res" << dum_resx2 << std::endl;
-					}
                     min_mod  = mid;
 //    				min_cluster_id = lg_hit_id->at(i);
 	    		}
@@ -3132,7 +3110,7 @@ double  LayerEfficiencyCalculator::EvalTrueTrackRatioByLGX(  E16ANA_GTRStatus *g
 }
 
 
-void LayerEfficiencyCalculator::Clear(){
+void ASDLayerEfficiencyCalculator::Clear(){
 	ass_hbd_resx.clear();	
 	ass_hbd_resy.clear();	
 	ass_hbd_cluster_id.clear();
@@ -3145,7 +3123,7 @@ void LayerEfficiencyCalculator::Clear(){
  	selected_track_indexes.clear();
 }
 
-void LayerEfficiencyCalculator::Calculate(){
+void ASDLayerEfficiencyCalculator::Calculate(){
    if (fChain == 0) return;
    Long64_t nentries = fChain->GetEntriesFast();
    Long64_t nbytes = 0, nb = 0;
@@ -3180,17 +3158,14 @@ void LayerEfficiencyCalculator::Calculate(){
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
-	  if(run_id != 30322) continue;
+	  ///if(run_id != 30322) continue;
 	  n_tk += track_id->size();
 	  Clear();
       for(int i = 0; i < n_cands; i++){
 	   h_rk_hit_plane[rk_fit_gtr100_mid->at(i)-100]->Fill(rk_fit_gtr100_gx->at(i), rk_fit_gtr100_gz->at(i));
       }
 	  double aa = SelectTracks(gtr_status, gtr_analyzers);//selected by hbd residual and delete duplicated gtr cluster
-//      CalculateResiduals(cnt1);//analyze using cluster info 
-//     CalculateResidualsUsingHits(cnt1);//analyze using hit info
-     CalculateResidualsUsingRawHits(cnt1);//analyze using hit info
-	  
+      CalculateASDEfficiency();
 	  Clear();
 	  double a = EvalTrueTrackRatioByLGX(gtr_status, gtr_analyzers, cnt2);
 //      if(a != aa){
@@ -3213,13 +3188,11 @@ void LayerEfficiencyCalculator::Calculate(){
 		hadd_mix_all_dum_lg_res_x[m-100]  = new TH1D(Form("hadd_mix_all_dum_lg_res_x_gtr%d", m),  Form("hadd_mix_all_dum_lg_res_x_gtr%d", m ),  200, -800, 800);
 		hadd_mix_all_true_lg_res_x[m-100]  = new TH1D(Form("hadd_mix_all_true_lg_res_x_gtr%d", m),  Form("hadd_mix_all_true_lg_res_x_gtr%d", m ),  200, -800, 800);
     }
-	for(int tm=0; tm < 10; tm++){
 	for(int m = 0; m<10 ; m++){
 	//    lgt_s[gtrmid] += h_mix_true_lg_res_x[gtrmid][m]->Integral(ibin_m_100, ibin_p_100);
-	    hadd_mix_min_true_lg_res_x[tm]->Add(h_mix_true_lg_res_x[tm][m]);
-	    hadd_mix_all_dum_lg_res_x[tm]->Add(h_mix_all_dum_lg_res_x[tm][m]);
-	    hadd_mix_all_true_lg_res_x[tm]->Add(h_mix_all_true_lg_res_x[tm][m]);
-	}
+	    hadd_mix_min_true_lg_res_x[gtrmid]->Add(h_mix_true_lg_res_x[gtrmid][m]);
+	    hadd_mix_all_dum_lg_res_x[gtrmid]->Add(h_mix_all_dum_lg_res_x[gtrmid][m]);
+	    hadd_mix_all_true_lg_res_x[gtrmid]->Add(h_mix_all_true_lg_res_x[gtrmid][m]);
 	}
    
 	TFile *fout = new TFile("hist.root", "recreate");
@@ -3246,7 +3219,6 @@ void LayerEfficiencyCalculator::Calculate(){
 	   h_n_lg_hits_inrange[m]->Write();
 	   h_n_lg_dum_hits_inrange[m]->Write();
 	   h_fit_profile[m]->Write();
-	h_y_hit_adc[m]->Write();
 	   h_rk_hit_plane[m]->Write();
 	   h_hit_fit[m]->Write();
 	   for(int gm = 0; gm < 10; gm++){
@@ -3382,7 +3354,7 @@ void LayerEfficiencyCalculator::Calculate(){
   fout->Close(); 
 }
 
-void LayerEfficiencyCalculator::EvaluateBGOfLGHits(int gtrmid ){
+void ASDLayerEfficiencyCalculator::EvaluateBGOfLGHits(int gtrmid ){
 	double left_low  = -400;
 	double left_high = -200;
 	double right_low  = 200;
@@ -3455,7 +3427,7 @@ int main(int argc, char* argv[]){
 	auto in_file_name = argv[1];
 	auto out_file_name = argv[2];
 	int maxevent = stoi(argv[3]);
-    int rm_size = stoi(argv[4]);//removed gtr size
+    int rm_size = 2;//removed gtr size, always gtr300
 	FILE *fp = fopen(in_file_name, "r");
 	if(!fp){
 		cerr << "could not open file : " << in_file_name << std::endl;
@@ -3470,7 +3442,7 @@ int main(int argc, char* argv[]){
 	bfield_map->Initialize_binary();
 	E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
 	E16ANA_MultiTrack fitter(bfield_map, geom, 1);
-	LayerEfficiencyCalculator *t = new LayerEfficiencyCalculator(out_file_name, in_chain, &fitter, maxevent, rm_size);
+	ASDLayerEfficiencyCalculator *t = new ASDLayerEfficiencyCalculator(out_file_name, in_chain, &fitter, maxevent, rm_size);
 	t->Calculate();
     t->GetOutFile()->Write();
 	delete in_chain;
