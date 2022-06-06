@@ -341,7 +341,6 @@ target_link_libraries(gtr_deadch_check
 	E16DST
 	E16DST_DST1
 )
-#_______________________________________________________________________________
 
 #_______________________________________________________________________________
 add_executable(run_CalcASDEffUsingStraightTrack usr/run_CalcASDEffUsingStraightTrack.cc)
@@ -350,8 +349,8 @@ target_link_libraries(run_CalcASDEffUsingStraightTrack
 	E16DST
 	E16DST_DST1
 )
+
 ##_______________________________________________________________________________
-#_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
 #
 #target_link_libraries(run_GTRResidualCalc
@@ -366,6 +365,7 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
+
 #_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
@@ -411,14 +411,14 @@ add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 target_link_libraries(tmp_track_analyzer_one_file
 	E16ANA_Track
 )
-#_______________________________________________________________________________
 
-add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
-
-target_link_libraries(run_GTRResidualCalc
-	E16DST
-	E16DST_DST1
-)
+##_______________________________________________________________________________
+#add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+#
+#target_link_libraries(run_GTRResidualCalc
+#	E16DST
+#	E16DST_DST1
+#)
 #
 ##_______________________________________________________________________________
 #add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
