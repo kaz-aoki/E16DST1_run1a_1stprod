@@ -52,8 +52,9 @@ include_directories(
 
   E16DST
   E16ANA_Basic/include
-  include/tmp
+  include/tmp_ichikawa
   include/tmp_mock
+  include/tmp_murakami
 )
 
 link_directories(
@@ -173,7 +174,7 @@ target_link_libraries(E16DST_DST1
 
 #_______________________________________________________________________________
 add_library(E16ANA_Track
-  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
+  src/tmp_ichikawa/E16ANA_TrackAnalyzerFromTreeV2.cc
 )
 
 target_link_libraries(E16ANA_Track
