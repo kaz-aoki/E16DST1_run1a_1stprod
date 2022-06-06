@@ -37,6 +37,7 @@ using namespace std;
 constexpr bool kIsElectronRun = true;
 constexpr bool kSelectEvent   = false;
 
+#ifdef TRACK_EFF_CHECK
 enum {
   kReadMockOK,
   kReadMockNG,
@@ -56,6 +57,7 @@ int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackO
     }
     mock_tracks[i] = mock_data->Track();
     auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
+//    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
     check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
     if (is_dead_track) {
       is_dead = true;
@@ -68,6 +70,7 @@ int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackO
   }
   return kReadMockError;
 }
+#endif // TRACK_EFF_CHECK
 
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
@@ -193,24 +196,13 @@ int main(int argc, char* argv[]) {
     }
   }
   auto gtr_stat = E16ANA_GTRStatus(run_id);
-  
-//for (int mid = 101; mid <= 109; ++mid) {
-//  for (int i = 0; i < 20; ++i) {
-//    double y = 5. * i - 50.;
-//    auto stat = gtr_stat.GEMDeadArea100()->IsYOK(mid, y);
-//    if (stat) {
-//      cout << "mid " << mid << " y " << y << " OK" << endl;
-//    } else {
-//      cout << "mid " << mid << " y " << y << " dead" << endl;
-//    }
-//  }
-//}
-  
   auto hbd_dead_ch = E16ANA_HBDDeadChannel();
   hbd_dead_ch.ReadDeadChannelData(run_id);
   auto lg_dead_ch = E16ANA_LGDeadChannel();
   lg_dead_ch.ReadDeadChannelData();
-  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(), &hbd_dead_ch, &lg_dead_ch);
+  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
+                                          &hbd_dead_ch, &lg_dead_ch);
+
 #endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
@@ -303,6 +295,7 @@ int main(int argc, char* argv[]) {
       }
       bool is_finished = false;
       while (data_merger.IsDeadRegion(mock_data.Track())) {
+//      while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
         check_file.AddSimTrack(true, mock_data.Track());
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
           cerr << "mock data finished at " << n_physics_event << " events" << endl;

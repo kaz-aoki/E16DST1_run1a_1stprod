@@ -1,5 +1,3 @@
-#ifdef TRACK_EFF_CHECK
-
 #include <iostream>
 #include <TCanvas.h>
 #include <TROOT.h>
@@ -41,6 +39,7 @@ constexpr bool kSelectEvent   = false;
 constexpr int kNumBins = 200;
 
 int main(int argc, char* argv[]) {
+#ifdef TRACK_EFF_CHECK
   if (argc != 3) {
     cerr << "./bin run_id output.pdf" << endl;
     return -1;
@@ -109,7 +108,8 @@ int main(int argc, char* argv[]) {
   hbd_dead_ch.ReadDeadChannelData(run_id);
   auto lg_dead_ch = E16ANA_LGDeadChannel();
   lg_dead_ch.ReadDeadChannelData();
-  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(), &hbd_dead_ch, &lg_dead_ch);
+  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
+                                          &hbd_dead_ch, &lg_dead_ch);
 
   array<array<TH2I*, 9>, 4> h_gem;
   array<array<TH2I*, 9>, 4> h_apv;
@@ -121,9 +121,9 @@ int main(int argc, char* argv[]) {
       TString name0 = Form("h_gem_%d_%d", i, j);
       TString name1 = Form("h_apv_%d_%d", i, j);
       TString name2 = Form("h_dead_%d_%d", i, j);
-      h_gem[i][j] = new TH2I(name0, name0, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
-      h_apv[i][j] = new TH2I(name1, name1, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
-      h_dead[i][j]     = new TH2I(name2, name2, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
+      h_gem[i][j]  = new TH2I(name0, name0, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
+      h_apv[i][j]  = new TH2I(name1, name1, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
+      h_dead[i][j] = new TH2I(name2, name2, kNumBins, -1. * range[i], range[i], kNumBins, -1. * range[i], range[i]);
     }
   }
   auto gtr100_stat = gtr_stat.GEMDeadArea100();
@@ -244,7 +244,6 @@ int main(int argc, char* argv[]) {
     out_canvas->Print(out_file_name);
   }
   out_canvas->Print(out_file_name + "]");
+#endif // TRACK_EFF_CHECK
   return 0;
 }
-
-#endif // TRACK_EFF_CHECK

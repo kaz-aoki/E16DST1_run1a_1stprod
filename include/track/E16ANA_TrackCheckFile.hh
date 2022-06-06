@@ -581,12 +581,13 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_init_pos_gx", &rk_hit_init_pos_gx);
     tree->Branch("rk_hit_init_pos_gy", &rk_hit_init_pos_gy);
     tree->Branch("rk_hit_init_pos_gz", &rk_hit_init_pos_gz);
-    tree->Branch("rk_hit_ssd_id", &rk_hit_ssd_id);
-    tree->Branch("rk_hit_ssd_gx", &rk_hit_ssd_gx);
-    tree->Branch("rk_hit_ssd_gy", &rk_hit_ssd_gy);
-    tree->Branch("rk_hit_ssd_gz", &rk_hit_ssd_gz);
-    tree->Branch("rk_hit_ssd_adc", &rk_hit_ssd_adc);
-    tree->Branch("rk_hit_ssd_t",  &rk_hit_ssd_t);
+    tree->Branch("rk_hit_ssd_id",   &rk_hit_ssd_id);
+    tree->Branch("rk_hit_ssd_x",    &rk_hit_ssd_x);
+    tree->Branch("rk_hit_ssd_gx",   &rk_hit_ssd_gx);
+    tree->Branch("rk_hit_ssd_gy",   &rk_hit_ssd_gy);
+    tree->Branch("rk_hit_ssd_gz",   &rk_hit_ssd_gz);
+    tree->Branch("rk_hit_ssd_adc",  &rk_hit_ssd_adc);
+    tree->Branch("rk_hit_ssd_t",    &rk_hit_ssd_t);
     tree->Branch("rk_hit_ssd_chi2", &rk_hit_ssd_chi2);
     tree->Branch("rk_hit_gtr100_xid", &rk_hit_gtr100_xid);
     tree->Branch("rk_hit_gtr100_yid", &rk_hit_gtr100_yid);
@@ -2399,6 +2400,7 @@ class E16ANA_TrackCheckFile {
     rk_hit_init_pos_gy.resize(n_cands);
     rk_hit_init_pos_gz.resize(n_cands);
     rk_hit_ssd_id.resize(n_cands);
+    rk_hit_ssd_x.resize(n_cands);
     rk_hit_ssd_gx.resize(n_cands);
     rk_hit_ssd_gy.resize(n_cands);
     rk_hit_ssd_gz.resize(n_cands);
@@ -2874,6 +2876,8 @@ class E16ANA_TrackCheckFile {
       rk_hit_init_pos_gy[i] = hit_init_pos.Y();
       rk_hit_init_pos_gz[i] = hit_init_pos.Z();
       auto& pairs = cand.ClusterPairs();
+      auto& ssdhit_lpos = pairs[0].LocalPos();
+      rk_hit_ssd_gx[i] = ssdhit_lpos.X();
       auto& ssdhit_gpos = pairs[0].GlobalPos();
       rk_hit_ssd_gx[i] = ssdhit_gpos.X();
       rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
@@ -4158,6 +4162,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_init_pos_gy;
   std::vector<double> rk_hit_init_pos_gz;
   std::vector<int> rk_hit_ssd_id;
+  std::vector<double> rk_hit_ssd_x;
   std::vector<double> rk_hit_ssd_gx;
   std::vector<double> rk_hit_ssd_gy;
   std::vector<double> rk_hit_ssd_gz;

@@ -27,8 +27,8 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-add_definitions(-DTRACK_EFF_CHECK)
-add_definitions(-DMERGE_TRACK_PAIR)
+#add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
 #add_definitions(-DMOM_RECONSTRUCT_CHECK)
 
@@ -52,8 +52,9 @@ include_directories(
 
   E16DST
   E16ANA_Basic/include
-  include/tmp
+  include/tmp_ichikawa
   include/tmp_mock
+  include/tmp_murakami
 )
 
 link_directories(
@@ -173,7 +174,7 @@ target_link_libraries(E16DST_DST1
 
 #_______________________________________________________________________________
 add_library(E16ANA_Track
-  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
+  src/tmp_ichikawa/E16ANA_TrackAnalyzerFromTreeV2.cc
 )
 
 target_link_libraries(E16ANA_Track
@@ -341,7 +342,6 @@ target_link_libraries(gtr_deadch_check
 	E16DST
 	E16DST_DST1
 )
-#_______________________________________________________________________________
 
 #_______________________________________________________________________________
 add_executable(run_CalcASDEffUsingStraightTrack usr/run_CalcASDEffUsingStraightTrack.cc)
@@ -350,8 +350,8 @@ target_link_libraries(run_CalcASDEffUsingStraightTrack
 	E16DST
 	E16DST_DST1
 )
+
 ##_______________________________________________________________________________
-#_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
 #
 #target_link_libraries(run_GTRResidualCalc
@@ -366,6 +366,7 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
+
 #_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
@@ -411,14 +412,14 @@ add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 target_link_libraries(tmp_track_analyzer_one_file
 	E16ANA_Track
 )
-#_______________________________________________________________________________
 
-add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
-
-target_link_libraries(run_GTRResidualCalc
-	E16DST
-	E16DST_DST1
-)
+##_______________________________________________________________________________
+#add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+#
+#target_link_libraries(run_GTRResidualCalc
+#	E16DST
+#	E16DST_DST1
+#)
 #
 ##_______________________________________________________________________________
 #add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
