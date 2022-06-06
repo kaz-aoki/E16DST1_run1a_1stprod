@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
 	 }
   }
   auto asd_dead = gtr_status->ASDDeadChannel();
-  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
+  //gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
 //<<<<<<< HEAD
 //  for (int m=101; m< 110; m++){
 //	for(int ch=0; ch < 24; ch++){
