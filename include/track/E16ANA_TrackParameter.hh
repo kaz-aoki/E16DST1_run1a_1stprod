@@ -48,8 +48,13 @@ namespace E16ANA_TrackParameter {
 //}
 
 // electron
+constexpr bool kVtxZFixFlag = false; // 220607
+constexpr double kInitXRange[2] = {-40., 40.}; // 220607
+constexpr double kInitYRange[2] = {-40., 40.}; // 220607
+constexpr double kInitZRange[2] = {-40., 40.}; // 220607
 const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
-const TVector3 kInitPosError = {3., 3.4, 0.};
+//const TVector3 kInitPosError = {3., 3.4, 0.};
+const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
 //const TVector3 kInitPosError = {2., 2., 0.};
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};

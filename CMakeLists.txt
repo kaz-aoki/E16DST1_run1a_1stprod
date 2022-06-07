@@ -295,28 +295,28 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-#add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
-#
-#target_link_libraries(DrawForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
+add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+
+target_link_libraries(DrawForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
-#add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
-#
-#target_link_libraries(MkTreeForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
-#_______________________________________________________________________________
+add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+
+target_link_libraries(MkTreeForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+##_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
 #target_link_libraries(lg_check_standalone
@@ -326,6 +326,7 @@ target_link_libraries(dst0_to_dst1_strack_check
 #       E16DST
 #       E16ANA
 #)
+#
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
