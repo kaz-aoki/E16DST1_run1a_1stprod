@@ -35,7 +35,7 @@ using namespace std;
 //namespace  bpo = boost::program_options;
 
 constexpr bool kIsElectronRun = true;
-constexpr bool kSelectEvent   = true;
+constexpr bool kSelectEvent   = false;
 
 #ifdef TRACK_EFF_CHECK
 enum {
