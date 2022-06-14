@@ -31,6 +31,8 @@ endif()
 #add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
 #add_definitions(-DMOM_RECONSTRUCT_CHECK)
+#add_definitions(-DREQ_HBD_BEFORE_FIT)
+#add_definitions(-DWO_TRACK_FIT)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
@@ -485,6 +487,14 @@ target_link_libraries(tmp_draw_dead_region
 	E16ANA_Basic
   E16DST_DST1
   E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
+add_executable(calc_ssd_rate usr/tmp/calc_ssd_rate.cc)
+
+target_link_libraries(calc_ssd_rate
+	E16ANA_Basic
+  E16DST
 )
 
 #_______________________________________________________________________________

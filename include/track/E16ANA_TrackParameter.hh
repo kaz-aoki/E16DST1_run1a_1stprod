@@ -8,6 +8,9 @@
 
 namespace E16ANA_TrackParameter {
 
+constexpr double kHBDRadius = 1235.;
+constexpr double kRoughFitHBDYMaxDiff = 50.;
+
 //// pion
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 //const TVector3 kInitPosError = {3., 3.4, 0.};

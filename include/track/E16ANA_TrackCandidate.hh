@@ -519,7 +519,7 @@ class E16ANA_TrackCandidates {
     uint32_t val = 1;
     for (int i = 0; i < n; ++i) {
       val *= 2;
-    }
+    e
     return val;
   }
 #endif // TRACK_EFF_CHECK
@@ -643,6 +643,7 @@ class E16ANA_TrackCandidates {
 //    }
 //    return false;
 //  }
+  bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand);
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();

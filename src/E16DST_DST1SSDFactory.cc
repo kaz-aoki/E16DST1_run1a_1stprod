@@ -118,7 +118,7 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
 	for(int sample=0; sample<n_sample; sample++){
 	  if(moduleID==102||moduleID==103||moduleID==104){
 	    pedestal[sample]=ssdped.Pedestal(moduleID-102, stripID, sample);
-	  }
+    }
 	  else if(moduleID==106||moduleID==107||moduleID==108){
 	    pedestal[sample]=ssdped.Pedestal(moduleID-106+3, stripID, sample);
 	  }
