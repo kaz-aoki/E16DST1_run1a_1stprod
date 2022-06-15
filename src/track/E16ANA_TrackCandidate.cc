@@ -397,7 +397,9 @@ double E16ANA_TrackCandidate::Fit(E16ANA_MultiTrack* fitter, bool vertex_xy_fix_
   this->AddTrackHit(fitter);
   fitter->SetRungeKuttaStepSize(kTrackingStepSize);
   fitter->SetMaxSteps(kTrackingMaxSteps);
-  chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
+//  chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
+  chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls,
+                      kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
   UpdateFitResult(fitter);
 //E16INFO("vtx (set): (%lf, %lf, %lf)", vtx.X(), vtx.Y(), vtx.Z());
 //E16INFO("vtx (fit): (%lf, %lf, %lf)", vtx_fit.X(), vtx_fit.Y(), vtx_fit.Z());
@@ -662,6 +664,28 @@ double E16ANA_TrackCandidates::RoughFitChiSquareThreshold(int n) { return kRough
 double E16ANA_TrackCandidates::RoughXFitCoefficientThreshold(int n) { return kRoughXFitCoefficientThreshold[n]; }
 double E16ANA_TrackCandidates::RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
 
+bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand) {
+  bool is_l = y_cand.gtr_clusters[2]->ModuleId() > 105;
+  double track_y = y_cand.coefs[0] + kHBDRadius * y_cand.coefs[1];
+  for (const auto& mid : E16ANA_TrackConstant::kModuleIDs) {
+    if (is_l && mid <= 105) {
+      continue;
+    }
+    if (!is_l && mid >= 105) {
+      continue;
+    }
+    auto& hbd_cluster_ptrs = record->HBD().ClusterPtrs(mid, 0, 0);
+    for (const auto& clst : hbd_cluster_ptrs) {
+      // Other HBD cut?
+      auto hbd_y = clst->LocalPos().Y();
+      if (fabs(hbd_y - track_y) < kRoughFitHBDYMaxDiff) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 #ifndef TRACK_EFF_CHECK
 void E16ANA_TrackCandidates::SearchTrackCandidates() {
   track_candidates.clear();
@@ -852,6 +876,11 @@ E16INFO("number of y candidates: %d", n_y_cands);
       if (!is_same_module) {
         continue;
       }
+#ifdef REQ_HBD_BEFORE_FIT
+      if (!HasAssociatedHBD(x_cand, y_cand)) {
+        continue;
+      }
+#endif // REQ_HBD_BEFORE_FIT
       track_candidates.emplace_back(E16ANA_TrackCandidate(geometry, bfield_map));
       auto& tmp_cand = track_candidates.back();
       tmp_cand.SetTrackID(track_candidates.size() - 1);
@@ -1775,6 +1804,7 @@ void E16ANA_TrackCandidates::Analyze() {
   selected_track_candidates.clear();
   SearchTrackCandidates();
 E16INFO("number of track candidate: %d", track_candidates.size());
+#ifndef WO_TRACK_FIT
   Fit();
   ProjectionTarget();
   ProjectionX0();
@@ -1783,6 +1813,7 @@ E16INFO("number of track candidate: %d", track_candidates.size());
   if (kExecutePairFit) {
     AnalyzeTrackPairs();
   }
+#endif // WO_TRACK_FIT
   AddTracksToRecord();
   return;
 }

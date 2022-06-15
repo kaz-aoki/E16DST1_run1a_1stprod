@@ -31,6 +31,8 @@ endif()
 #add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
 #add_definitions(-DMOM_RECONSTRUCT_CHECK)
+#add_definitions(-DREQ_HBD_BEFORE_FIT)
+#add_definitions(-DWO_TRACK_FIT)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
@@ -295,28 +297,28 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-#add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
-#
-#target_link_libraries(DrawForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
+add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+
+target_link_libraries(DrawForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
-#add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
-#
-#target_link_libraries(MkTreeForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
-#_______________________________________________________________________________
+add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+
+target_link_libraries(MkTreeForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+##_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
 #target_link_libraries(lg_check_standalone
@@ -326,6 +328,7 @@ target_link_libraries(dst0_to_dst1_strack_check
 #       E16DST
 #       E16ANA
 #)
+#
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
@@ -484,6 +487,14 @@ target_link_libraries(tmp_draw_dead_region
 	E16ANA_Basic
   E16DST_DST1
   E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
+add_executable(calc_ssd_rate usr/tmp/calc_ssd_rate.cc)
+
+target_link_libraries(calc_ssd_rate
+	E16ANA_Basic
+  E16DST
 )
 
 #_______________________________________________________________________________

@@ -436,7 +436,8 @@ class E16ANA_TrackCandidates {
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter, bool _is_electron_run, E16DST_DST1PhysicsRecord* _record)
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
-        is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(true),
+        is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false),
+        vertex_z_fix_flag(E16ANA_TrackParameter::kVtxZFixFlag),
         record(_record) {
     track_candidates.clear();
   }
@@ -518,7 +519,7 @@ class E16ANA_TrackCandidates {
     uint32_t val = 1;
     for (int i = 0; i < n; ++i) {
       val *= 2;
-    }
+    e
     return val;
   }
 #endif // TRACK_EFF_CHECK
@@ -642,6 +643,7 @@ class E16ANA_TrackCandidates {
 //    }
 //    return false;
 //  }
+  bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand);
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
