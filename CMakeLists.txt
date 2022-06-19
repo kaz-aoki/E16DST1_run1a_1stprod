@@ -27,12 +27,15 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-#add_definitions(-DTRACK_EFF_CHECK)
-#add_definitions(-DMERGE_TRACK_PAIR)
+add_definitions(-DTRACK_EFF_CHECK)
+add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK)
-#add_definitions(-DMOM_RECONSTRUCT_CHECK)
-#add_definitions(-DREQ_HBD_BEFORE_FIT)
+add_definitions(-DREMOVE_REAL_HIT)
+add_definitions(-DWO_POS_SMEAR)
+
 #add_definitions(-DWO_TRACK_FIT)
+
+#add_definitions(-DREQ_HBD_BEFORE_FIT)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
@@ -495,6 +498,26 @@ add_executable(calc_ssd_rate usr/tmp/calc_ssd_rate.cc)
 target_link_libraries(calc_ssd_rate
 	E16ANA_Basic
   E16DST
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_fit_mock_pair_220616_wrapper
+  usr/tmp/tmp_fit_mock_pair_220616_wrapper.cc
+  usr/tmp/tmp_fit_mock_pair_220616.C
+)
+
+target_link_libraries(tmp_fit_mock_pair_220616_wrapper
+	E16ANA_Basic
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_fit_mock_pair_from_dst1_220618_wrapper
+  usr/tmp/tmp_fit_mock_pair_from_dst1_220618_wrapper.cc
+  usr/tmp/tmp_fit_mock_pair_from_dst1_220618.C
+)
+
+target_link_libraries(tmp_fit_mock_pair_from_dst1_220618_wrapper
+	E16ANA_Basic
 )
 
 #_______________________________________________________________________________

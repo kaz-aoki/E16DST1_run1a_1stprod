@@ -263,7 +263,7 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
-#ifndef MOM_RECONSTRUCT_CHECK
+#ifndef REMOVE_REAL_HIT
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
@@ -280,7 +280,7 @@ int main(int argc, char* argv[]) {
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
-#endif
+#endif // REMOVE_REAL_HIT
 #ifdef TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
