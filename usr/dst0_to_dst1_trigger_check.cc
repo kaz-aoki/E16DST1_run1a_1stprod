@@ -56,8 +56,8 @@ int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackO
       return kReadMockError;
     }
     mock_tracks[i] = mock_data->Track();
-    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
-//    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
+//    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
+    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
     check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
     if (is_dead_track) {
       is_dead = true;
@@ -294,8 +294,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       bool is_finished = false;
-      while (data_merger.IsDeadRegion(mock_data.Track())) {
-//      while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
+//      while (data_merger.IsDeadRegion(mock_data.Track())) {
+      while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
         check_file.AddSimTrack(true, mock_data.Track());
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
           cerr << "mock data finished at " << n_physics_event << " events" << endl;

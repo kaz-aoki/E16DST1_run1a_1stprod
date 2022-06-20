@@ -51,7 +51,7 @@ constexpr double kRoughFitHBDYMaxDiff = 50.;
 //}
 
 // electron
-constexpr bool kVtxZFixFlag = false; // 220607
+constexpr bool kVtxZFixFlag = true; // 220607
 constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-40., 40.}; // 220607
