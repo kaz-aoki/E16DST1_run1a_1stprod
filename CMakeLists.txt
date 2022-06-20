@@ -521,6 +521,12 @@ target_link_libraries(tmp_fit_mock_pair_from_dst1_220618_wrapper
 )
 
 #_______________________________________________________________________________
+add_executable(tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper
+  usr/tmp/tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper.cc
+  usr/tmp/tmp_fit_mock_pair_from_dst1_drawer_220620.C
+)
+
+#_______________________________________________________________________________
 #add_executable(tmp_gtr_deadch_check usr/tmp/tmp_gtr_deadch_check.cc)
 #
 #target_link_libraries(tmp_gtr_deadch_check

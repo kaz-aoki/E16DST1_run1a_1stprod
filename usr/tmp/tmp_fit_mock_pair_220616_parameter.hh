@@ -16,6 +16,7 @@ const TVector3 kSSDSigma    = TVector3(0.1, 0., 0.);
 const TVector3 kGTR100Sigma = TVector3(0.3, 1., 0.);
 const TVector3 kGTR200Sigma = TVector3(0.3, 1., 0.);
 const TVector3 kGTR300Sigma = TVector3(0.3, 1., 0.);
+//const TVector3 kVertexSigma = TVector3(1.5, 1.5, 0.); // simlation value
 //const TVector3 kSSDSigma    = TVector3(0.067, 0.,    0.); // TDR2106
 //const TVector3 kGTR100Sigma = TVector3(0.265, 0.626, 0.);
 //const TVector3 kGTR200Sigma = TVector3(0.252, 0.542, 0.);

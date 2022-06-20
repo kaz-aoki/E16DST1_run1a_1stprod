@@ -542,6 +542,7 @@ public :
    std::vector<double>  *rk_hit_gtr100_gty;
    std::vector<double>  *rk_hit_gtr100_gtz;
    std::vector<double>  *rk_hit_gtr100_gtx2;
+   std::vector<double>  *rk_hit_gtr100_gty2;
    std::vector<double>  *rk_hit_gtr100_gtz2;
    std::vector<int>     *rk_hit_gtr100_nc;
    std::vector<double>  *rk_hit_gtr100_the;
@@ -563,6 +564,7 @@ public :
    std::vector<double>  *rk_hit_gtr200_gty;
    std::vector<double>  *rk_hit_gtr200_gtz;
    std::vector<double>  *rk_hit_gtr200_gtx2;
+   std::vector<double>  *rk_hit_gtr200_gty2;
    std::vector<double>  *rk_hit_gtr200_gtz2;
    std::vector<int>     *rk_hit_gtr200_nc;
    std::vector<double>  *rk_hit_gtr200_the;
@@ -584,6 +586,7 @@ public :
    std::vector<double>  *rk_hit_gtr300_gty;
    std::vector<double>  *rk_hit_gtr300_gtz;
    std::vector<double>  *rk_hit_gtr300_gtx2;
+   std::vector<double>  *rk_hit_gtr300_gty2;
    std::vector<double>  *rk_hit_gtr300_gtz2;
    std::vector<int>     *rk_hit_gtr300_nc;
    std::vector<double>  *rk_hit_gtr300_the;
@@ -1483,6 +1486,7 @@ public :
    TBranch        *b_rk_hit_gtr100_gty;   //!
    TBranch        *b_rk_hit_gtr100_gtz;   //!
    TBranch        *b_rk_hit_gtr100_gtx2;   //!
+   TBranch        *b_rk_hit_gtr100_gty2;   //!
    TBranch        *b_rk_hit_gtr100_gtz2;   //!
    TBranch        *b_rk_hit_gtr100_nc;   //!
    TBranch        *b_rk_hit_gtr100_the;   //!
@@ -1504,6 +1508,7 @@ public :
    TBranch        *b_rk_hit_gtr200_gty;   //!
    TBranch        *b_rk_hit_gtr200_gtz;   //!
    TBranch        *b_rk_hit_gtr200_gtx2;   //!
+   TBranch        *b_rk_hit_gtr200_gty2;   //!
    TBranch        *b_rk_hit_gtr200_gtz2;   //!
    TBranch        *b_rk_hit_gtr200_nc;   //!
    TBranch        *b_rk_hit_gtr200_the;   //!
@@ -1525,6 +1530,7 @@ public :
    TBranch        *b_rk_hit_gtr300_gty;   //!
    TBranch        *b_rk_hit_gtr300_gtz;   //!
    TBranch        *b_rk_hit_gtr300_gtx2;   //!
+   TBranch        *b_rk_hit_gtr300_gty2;   //!
    TBranch        *b_rk_hit_gtr300_gtz2;   //!
    TBranch        *b_rk_hit_gtr300_nc;   //!
    TBranch        *b_rk_hit_gtr300_the;   //!
@@ -2451,6 +2457,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Init(TTree *tree)
    rk_hit_gtr100_gty = 0;
    rk_hit_gtr100_gtz = 0;
    rk_hit_gtr100_gtx2 = 0;
+   rk_hit_gtr100_gty2 = 0;
    rk_hit_gtr100_gtz2 = 0;
    rk_hit_gtr100_nc = 0;
    rk_hit_gtr100_the = 0;
@@ -2472,6 +2479,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Init(TTree *tree)
    rk_hit_gtr200_gty = 0;
    rk_hit_gtr200_gtz = 0;
    rk_hit_gtr200_gtx2 = 0;
+   rk_hit_gtr200_gty2 = 0;
    rk_hit_gtr200_gtz2 = 0;
    rk_hit_gtr200_nc = 0;
    rk_hit_gtr200_the = 0;
@@ -2493,6 +2501,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Init(TTree *tree)
    rk_hit_gtr300_gty = 0;
    rk_hit_gtr300_gtz = 0;
    rk_hit_gtr300_gtx2 = 0;
+   rk_hit_gtr300_gty2 = 0;
    rk_hit_gtr300_gtz2 = 0;
    rk_hit_gtr300_nc = 0;
    rk_hit_gtr300_the = 0;
@@ -3396,6 +3405,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Init(TTree *tree)
    fChain->SetBranchAddress("rk_hit_gtr100_gty", &rk_hit_gtr100_gty, &b_rk_hit_gtr100_gty);
    fChain->SetBranchAddress("rk_hit_gtr100_gtz", &rk_hit_gtr100_gtz, &b_rk_hit_gtr100_gtz);
    fChain->SetBranchAddress("rk_hit_gtr100_gtx2", &rk_hit_gtr100_gtx2, &b_rk_hit_gtr100_gtx2);
+   fChain->SetBranchAddress("rk_hit_gtr100_gty2", &rk_hit_gtr100_gty2, &b_rk_hit_gtr100_gty2);
    fChain->SetBranchAddress("rk_hit_gtr100_gtz2", &rk_hit_gtr100_gtz2, &b_rk_hit_gtr100_gtz2);
    fChain->SetBranchAddress("rk_hit_gtr100_nc", &rk_hit_gtr100_nc, &b_rk_hit_gtr100_nc);
    fChain->SetBranchAddress("rk_hit_gtr100_the", &rk_hit_gtr100_the, &b_rk_hit_gtr100_the);
@@ -3417,6 +3427,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Init(TTree *tree)
    fChain->SetBranchAddress("rk_hit_gtr200_gty", &rk_hit_gtr200_gty, &b_rk_hit_gtr200_gty);
    fChain->SetBranchAddress("rk_hit_gtr200_gtz", &rk_hit_gtr200_gtz, &b_rk_hit_gtr200_gtz);
    fChain->SetBranchAddress("rk_hit_gtr200_gtx2", &rk_hit_gtr200_gtx2, &b_rk_hit_gtr200_gtx2);
+   fChain->SetBranchAddress("rk_hit_gtr200_gty2", &rk_hit_gtr200_gty2, &b_rk_hit_gtr200_gty2);
    fChain->SetBranchAddress("rk_hit_gtr200_gtz2", &rk_hit_gtr200_gtz2, &b_rk_hit_gtr200_gtz2);
    fChain->SetBranchAddress("rk_hit_gtr200_nc", &rk_hit_gtr200_nc, &b_rk_hit_gtr200_nc);
    fChain->SetBranchAddress("rk_hit_gtr200_the", &rk_hit_gtr200_the, &b_rk_hit_gtr200_the);
@@ -3438,6 +3449,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Init(TTree *tree)
    fChain->SetBranchAddress("rk_hit_gtr300_gty", &rk_hit_gtr300_gty, &b_rk_hit_gtr300_gty);
    fChain->SetBranchAddress("rk_hit_gtr300_gtz", &rk_hit_gtr300_gtz, &b_rk_hit_gtr300_gtz);
    fChain->SetBranchAddress("rk_hit_gtr300_gtx2", &rk_hit_gtr300_gtx2, &b_rk_hit_gtr300_gtx2);
+   fChain->SetBranchAddress("rk_hit_gtr300_gty2", &rk_hit_gtr300_gty2, &b_rk_hit_gtr300_gty2);
    fChain->SetBranchAddress("rk_hit_gtr300_gtz2", &rk_hit_gtr300_gtz2, &b_rk_hit_gtr300_gtz2);
    fChain->SetBranchAddress("rk_hit_gtr300_nc", &rk_hit_gtr300_nc, &b_rk_hit_gtr300_nc);
    fChain->SetBranchAddress("rk_hit_gtr300_the", &rk_hit_gtr300_the, &b_rk_hit_gtr300_the);

@@ -1,3 +1,5 @@
+//#define FROM_MOCK
+
 #define tmp_fit_mock_pair_from_dst1_220618_cxx
 #include "tmp_fit_mock_pair_from_dst1_220618.h"
 
@@ -88,6 +90,19 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   TVector3 minus_gtr100_lpos;
   TVector3 minus_gtr200_lpos;
   TVector3 minus_gtr300_lpos;
+  // mock
+  TVector3 mock_vtx;
+  TVector3 mock_plus_init_mom;
+  TVector3 mock_plus_ssd_lpos;
+  TVector3 mock_plus_gtr100_lpos;
+  TVector3 mock_plus_gtr200_lpos;
+  TVector3 mock_plus_gtr300_lpos;
+  TVector3 mock_minus_init_mom;
+  TVector3 mock_minus_ssd_lpos;
+  TVector3 mock_minus_gtr100_lpos;
+  TVector3 mock_minus_gtr200_lpos;
+  TVector3 mock_minus_gtr300_lpos;
+  double mock_mass;
   // pre fit
   double   pre_fit_plus_chi2;
   TVector3 pre_fit_plus_init_mom;
@@ -104,7 +119,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   TVector3 pre_fit_minus_gtr200_lpos;
   TVector3 pre_fit_minus_gtr300_lpos;
   double   pre_fit_mass;
-  // fit
+  // single fit
   double   fit_plus_chi2;
   TVector3 fit_plus_init_mom;
   TVector3 fit_plus_init_pos;
@@ -120,7 +135,22 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   TVector3 fit_minus_gtr200_lpos;
   TVector3 fit_minus_gtr300_lpos;
   double   fit_mass;
+  // pair fit
+  double   pair_fit_chi2;
+  TVector3 pair_fit_vtx;
+  TVector3 pair_fit_plus_init_mom;
+  TVector3 pair_fit_plus_ssd_lpos;
+  TVector3 pair_fit_plus_gtr100_lpos;
+  TVector3 pair_fit_plus_gtr200_lpos;
+  TVector3 pair_fit_plus_gtr300_lpos;
+  TVector3 pair_fit_minus_init_mom;
+  TVector3 pair_fit_minus_ssd_lpos;
+  TVector3 pair_fit_minus_gtr100_lpos;
+  TVector3 pair_fit_minus_gtr200_lpos;
+  TVector3 pair_fit_minus_gtr300_lpos;
+  double   pair_fit_mass;
   
+  // common
   out_tree.Branch("run_id",                    &run_id,          "run_id/I");
   out_tree.Branch("event_id",                  &event_id,        "event_id/I");
   out_tree.Branch("plus_ssd_mid",              &plus_ssd_mid,    "plus_ssd_mid/I");
@@ -139,6 +169,20 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   out_tree.Branch("minus_gtr100_lpos",         &minus_gtr100_lpos);
   out_tree.Branch("minus_gtr200_lpos",         &minus_gtr200_lpos);
   out_tree.Branch("minus_gtr300_lpos",         &minus_gtr300_lpos);
+  // mock
+  out_tree.Branch("mock_vtx",               &mock_vtx);
+  out_tree.Branch("mock_plus_init_mom",     &mock_plus_init_mom);
+  out_tree.Branch("mock_plus_ssd_lpos",     &mock_plus_ssd_lpos);
+  out_tree.Branch("mock_plus_gtr100_lpos",  &mock_plus_gtr100_lpos);
+  out_tree.Branch("mock_plus_gtr200_lpos",  &mock_plus_gtr200_lpos);
+  out_tree.Branch("mock_plus_gtr300_lpos",  &mock_plus_gtr300_lpos);
+  out_tree.Branch("mock_minus_init_mom",    &mock_minus_init_mom);
+  out_tree.Branch("mock_minus_ssd_lpos",    &mock_minus_ssd_lpos);
+  out_tree.Branch("mock_minus_gtr100_lpos", &mock_minus_gtr100_lpos);
+  out_tree.Branch("mock_minus_gtr200_lpos", &mock_minus_gtr200_lpos);
+  out_tree.Branch("mock_minus_gtr300_lpos", &mock_minus_gtr300_lpos);
+  out_tree.Branch("mock_mass",              &mock_mass, "mock_mass/D");
+  // pre fit
   out_tree.Branch("pre_fit_plus_chi2",         &pre_fit_plus_chi2, "pre_fit_plus_chi2/D");
   out_tree.Branch("pre_fit_plus_init_mom",     &pre_fit_plus_init_mom);
   out_tree.Branch("pre_fit_plus_init_pos",     &pre_fit_plus_init_pos);
@@ -154,6 +198,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   out_tree.Branch("pre_fit_minus_gtr200_lpos", &pre_fit_minus_gtr200_lpos);
   out_tree.Branch("pre_fit_minus_gtr300_lpos", &pre_fit_minus_gtr300_lpos);
   out_tree.Branch("pre_fit_mass",              &pre_fit_mass, "pre_fit_mass/D");
+  // single fit
   out_tree.Branch("fit_plus_chi2",             &fit_plus_chi2, "fit_plus_chi2/D");
   out_tree.Branch("fit_plus_init_mom",         &fit_plus_init_mom);
   out_tree.Branch("fit_plus_init_pos",         &fit_plus_init_pos);
@@ -169,12 +214,26 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   out_tree.Branch("fit_minus_gtr200_lpos",     &fit_minus_gtr200_lpos);
   out_tree.Branch("fit_minus_gtr300_lpos",     &fit_minus_gtr300_lpos);
   out_tree.Branch("fit_mass",                  &fit_mass, "fit_mass/D");
+  // pair fit
+  out_tree.Branch("pair_fit_chi2",              &pair_fit_chi2, "pair_fit_chi2/D");
+  out_tree.Branch("pair_fit_vtx",               &pair_fit_vtx);
+  out_tree.Branch("pair_fit_plus_init_mom",     &pair_fit_plus_init_mom);
+  out_tree.Branch("pair_fit_plus_ssd_lpos",     &pair_fit_plus_ssd_lpos);
+  out_tree.Branch("pair_fit_plus_gtr100_lpos",  &pair_fit_plus_gtr100_lpos);
+  out_tree.Branch("pair_fit_plus_gtr200_lpos",  &pair_fit_plus_gtr200_lpos);
+  out_tree.Branch("pair_fit_plus_gtr300_lpos",  &pair_fit_plus_gtr300_lpos);
+  out_tree.Branch("pair_fit_minus_init_mom",    &pair_fit_minus_init_mom);
+  out_tree.Branch("pair_fit_minus_ssd_lpos",    &pair_fit_minus_ssd_lpos);
+  out_tree.Branch("pair_fit_minus_gtr100_lpos", &pair_fit_minus_gtr100_lpos);
+  out_tree.Branch("pair_fit_minus_gtr200_lpos", &pair_fit_minus_gtr200_lpos);
+  out_tree.Branch("pair_fit_minus_gtr300_lpos", &pair_fit_minus_gtr300_lpos);
+  out_tree.Branch("pair_fit_mass",              &pair_fit_mass, "pair_fit_mass/D");
 
   if (max_events == -1) {
     max_events = nentries;
   }
   for (Long64_t jentry = 0; jentry < max_events; ++jentry) {
-    if (jentry % 100 == 0) {
+    if (jentry % 10 == 0) {
       cout << jentry << " / " << nentries << endl;
     }
     Long64_t ientry = LoadTree(jentry);
@@ -185,6 +244,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     if (!sim_track_detected->at(0) || !sim_track_detected->at(1)) {
       continue;
     }
+    array<array<int, 4>, 2> mids;
+    // hit
     array<bool, 2> is_sim_filled;
     is_sim_filled.fill(false);
     for (int i = 0; i < n_cands; ++i) {
@@ -197,10 +258,17 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         plus_gtr100_mid  = rk_fit_gtr100_mid->at(i);
         plus_gtr200_mid  = rk_fit_gtr200_mid->at(i);
         plus_gtr300_mid  = rk_fit_gtr300_mid->at(i);
-        plus_ssd_lpos    = geometry->SSD(ModuleID2020To2013(plus_ssd_mid))->GetLPos(TVector3(rk_hit_ssd_gx->at(i), rk_hit_ssd_gy->at(i), rk_hit_ssd_gz->at(i)));
-        plus_gtr100_lpos = geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 0)->GetLPos(TVector3(rk_hit_gtr100_gtx2->at(i), rk_hit_gtr100_gty->at(i), rk_hit_gtr100_gtz2->at(i)));
-        plus_gtr200_lpos = geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty->at(i), rk_hit_gtr200_gtz2->at(i)));
-        plus_gtr300_lpos = geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty->at(i), rk_hit_gtr300_gtz2->at(i)));
+        mids[0][0] = ModuleID2020To2013(plus_ssd_mid);
+        mids[0][1] = ModuleID2020To2013(plus_gtr100_mid);
+        mids[0][2] = ModuleID2020To2013(plus_gtr200_mid);
+        mids[0][3] = ModuleID2020To2013(plus_gtr300_mid);
+        plus_ssd_lpos    = geometry->SSD(mids[0][0])->GetLPos(TVector3(rk_hit_ssd_gx->at(i),         rk_hit_ssd_gy->at(i),     rk_hit_ssd_gz->at(i)));
+//        plus_gtr100_lpos = geometry->GTR(mids[0][1], 0)->GetLPos(TVector3(rk_hit_gtr100_gtx2->at(i), rk_hit_gtr100_gty->at(i), rk_hit_gtr100_gtz2->at(i)));
+//        plus_gtr200_lpos = geometry->GTR(mids[0][2], 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty->at(i), rk_hit_gtr200_gtz2->at(i)));
+//        plus_gtr300_lpos = geometry->GTR(mids[0][3], 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty->at(i), rk_hit_gtr300_gtz2->at(i)));
+        plus_gtr100_lpos = geometry->GTR(mids[0][1], 0)->GetLPos(TVector3(rk_hit_gtr100_gtx2->at(i), rk_hit_gtr100_gty2->at(i), rk_hit_gtr100_gtz2->at(i)));
+        plus_gtr200_lpos = geometry->GTR(mids[0][2], 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty2->at(i), rk_hit_gtr200_gtz2->at(i)));
+        plus_gtr300_lpos = geometry->GTR(mids[0][3], 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty2->at(i), rk_hit_gtr300_gtz2->at(i)));
         pre_fit_plus_chi2        = chi_square->at(i);
         pre_fit_plus_init_mom    = TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
         pre_fit_plus_init_pos    = TVector3(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
@@ -214,10 +282,17 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         minus_gtr100_mid  = rk_fit_gtr100_mid->at(i);
         minus_gtr200_mid  = rk_fit_gtr200_mid->at(i);
         minus_gtr300_mid  = rk_fit_gtr300_mid->at(i);
-        minus_ssd_lpos    = geometry->SSD(ModuleID2020To2013(plus_ssd_mid))->GetLPos(TVector3(rk_hit_ssd_gx->at(i), rk_hit_ssd_gy->at(i), rk_hit_ssd_gz->at(i)));
-        minus_gtr100_lpos = geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 0)->GetLPos(TVector3(rk_hit_gtr100_gtx2->at(i), rk_hit_gtr100_gty->at(i), rk_hit_gtr100_gtz2->at(i)));
-        minus_gtr200_lpos = geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty->at(i), rk_hit_gtr200_gtz2->at(i)));
-        minus_gtr300_lpos = geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty->at(i), rk_hit_gtr300_gtz2->at(i)));
+        mids[1][0] = ModuleID2020To2013(minus_ssd_mid);
+        mids[1][1] = ModuleID2020To2013(minus_gtr100_mid);
+        mids[1][2] = ModuleID2020To2013(minus_gtr200_mid);
+        mids[1][3] = ModuleID2020To2013(minus_gtr300_mid);
+        minus_ssd_lpos    = geometry->SSD(mids[1][0])->GetLPos(TVector3(rk_hit_ssd_gx->at(i),         rk_hit_ssd_gy->at(i),     rk_hit_ssd_gz->at(i)));
+//        minus_gtr100_lpos = geometry->GTR(mids[1][1], 0)->GetLPos(TVector3(rk_hit_gtr100_gtx2->at(i), rk_hit_gtr100_gty->at(i), rk_hit_gtr100_gtz2->at(i)));
+//        minus_gtr200_lpos = geometry->GTR(mids[1][2], 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty->at(i), rk_hit_gtr200_gtz2->at(i)));
+//        minus_gtr300_lpos = geometry->GTR(mids[1][3], 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty->at(i), rk_hit_gtr300_gtz2->at(i)));
+        minus_gtr100_lpos = geometry->GTR(mids[1][1], 0)->GetLPos(TVector3(rk_hit_gtr100_gtx2->at(i), rk_hit_gtr100_gty2->at(i), rk_hit_gtr100_gtz2->at(i)));
+        minus_gtr200_lpos = geometry->GTR(mids[1][2], 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty2->at(i), rk_hit_gtr200_gtz2->at(i)));
+        minus_gtr300_lpos = geometry->GTR(mids[1][3], 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty2->at(i), rk_hit_gtr300_gtz2->at(i)));
         pre_fit_minus_chi2        = chi_square->at(i);
         pre_fit_minus_init_mom    = TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
         pre_fit_minus_init_pos    = TVector3(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
@@ -230,6 +305,20 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         break;
       }
     }
+    // mock
+    auto mock_id = mock_n_tracks - 2;
+    mock_vtx               = TVector3(mock_init_pos_x->at(mock_id),        mock_init_pos_y->at(mock_id),        mock_init_pos_z->at(mock_id));
+    mock_plus_init_mom     = TVector3(mock_init_mom_x->at(mock_id),        mock_init_mom_y->at(mock_id),        mock_init_mom_z->at(mock_id));
+    mock_plus_ssd_lpos     = TVector3(mock_ssd_lpos_x->at(mock_id),        mock_ssd_lpos_y->at(mock_id),        mock_ssd_lpos_z->at(mock_id));
+    mock_plus_gtr100_lpos  = TVector3(mock_gtr100_lpos_x->at(mock_id),     mock_gtr100_lpos_y->at(mock_id),     mock_gtr100_lpos_z->at(mock_id));
+    mock_plus_gtr200_lpos  = TVector3(mock_gtr200_lpos_x->at(mock_id),     mock_gtr200_lpos_y->at(mock_id),     mock_gtr200_lpos_z->at(mock_id));
+    mock_plus_gtr300_lpos  = TVector3(mock_gtr300_lpos_x->at(mock_id),     mock_gtr300_lpos_y->at(mock_id),     mock_gtr300_lpos_z->at(mock_id));
+    mock_minus_init_mom    = TVector3(mock_init_mom_x->at(mock_id + 1),    mock_init_mom_y->at(mock_id + 1),    mock_init_mom_z->at(mock_id + 1));
+    mock_minus_ssd_lpos    = TVector3(mock_ssd_lpos_x->at(mock_id + 1),    mock_ssd_lpos_y->at(mock_id + 1),    mock_ssd_lpos_z->at(mock_id + 1));
+    mock_minus_gtr100_lpos = TVector3(mock_gtr100_lpos_x->at(mock_id + 1), mock_gtr100_lpos_y->at(mock_id + 1), mock_gtr100_lpos_z->at(mock_id + 1));
+    mock_minus_gtr200_lpos = TVector3(mock_gtr200_lpos_x->at(mock_id + 1), mock_gtr200_lpos_y->at(mock_id + 1), mock_gtr200_lpos_z->at(mock_id + 1));
+    mock_minus_gtr300_lpos = TVector3(mock_gtr300_lpos_x->at(mock_id + 1), mock_gtr300_lpos_y->at(mock_id + 1), mock_gtr300_lpos_z->at(mock_id + 1));
+    // single fit
     for (int t = 0; t < 2; ++t) {
       sfitter.Clear();
       sfitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
@@ -238,44 +327,43 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
       } else {
         sfitter.SetCharge(0, -1.);
       }
-      if (t == 0) {
 #ifndef FROM_MOCK
+      if (t == 0) {
         sfitter.SetInitialMomentum(0, pre_fit_plus_init_mom);
-#else // FROM_MOCK
-        sfitter.SetInitialMomentum(0, *mock_plus_init_mom);
-#endif // FROM_MOCK
+//        sfitter.SetInitialMomentum(0, mock_plus_init_mom);
       } else {
-#ifndef FROM_MOCK
         sfitter.SetInitialMomentum(0, pre_fit_minus_init_mom);
-#else // FROM_MOCK
-        sfitter.SetInitialMomentum(0, *mock_minus_init_mom);
-#endif // FROM_MOCK
+//        sfitter.SetInitialMomentum(0, mock_minus_init_mom);
       }
       if (t == 0) {
-#ifndef FROM_MOCK
-        sfitter.AddHit(0, 0, geometry->SSD(ModuleID2020To2013(plus_ssd_mid)),       plus_ssd_lpos,    kSSDSigma);
-        sfitter.AddHit(0, 1, geometry->GTR(ModuleID2020To2013(plus_gtr100_mid), 0), plus_gtr100_lpos, kGTR100Sigma);
-        sfitter.AddHit(0, 2, geometry->GTR(ModuleID2020To2013(plus_gtr200_mid), 1), plus_gtr200_lpos, kGTR200Sigma);
-        sfitter.AddHit(0, 3, geometry->GTR(ModuleID2020To2013(plus_gtr300_mid), 2), plus_gtr300_lpos, kGTR300Sigma);
-//#else // FROM_MOCK
-//        sfitter.AddHit(0, 0, geometry->SSD(mids0[0]),    *mock_plus_ssd_lpos,    kSSDSigma);
-//        sfitter.AddHit(0, 1, geometry->GTR(mids0[1], 0), *mock_plus_gtr100_lpos, kGTR100Sigma);
-//        sfitter.AddHit(0, 2, geometry->GTR(mids0[2], 1), *mock_plus_gtr200_lpos, kGTR200Sigma);
-//        sfitter.AddHit(0, 3, geometry->GTR(mids0[3], 2), *mock_plus_gtr300_lpos, kGTR300Sigma);
-#endif // FROM_MOCK
+        sfitter.AddHit(0, 0, geometry->SSD(mids[0][0]),    plus_ssd_lpos,    kSSDSigma);
+        sfitter.AddHit(0, 1, geometry->GTR(mids[0][1], 0), plus_gtr100_lpos, kGTR100Sigma);
+        sfitter.AddHit(0, 2, geometry->GTR(mids[0][2], 1), plus_gtr200_lpos, kGTR200Sigma);
+        sfitter.AddHit(0, 3, geometry->GTR(mids[0][3], 2), plus_gtr300_lpos, kGTR300Sigma);
       } else {
-#ifndef FROM_MOCK
-        sfitter.AddHit(0, 0, geometry->SSD(ModuleID2020To2013(minus_ssd_mid)),       minus_ssd_lpos,    kSSDSigma);
-        sfitter.AddHit(0, 1, geometry->GTR(ModuleID2020To2013(minus_gtr100_mid), 0), minus_gtr100_lpos, kGTR100Sigma);
-        sfitter.AddHit(0, 2, geometry->GTR(ModuleID2020To2013(minus_gtr200_mid), 1), minus_gtr200_lpos, kGTR200Sigma);
-        sfitter.AddHit(0, 3, geometry->GTR(ModuleID2020To2013(minus_gtr300_mid), 2), minus_gtr300_lpos, kGTR300Sigma);
-//#else // FROM_MOCK
-//        sfitter.AddHit(0, 0, geometry->SSD(mids1[0]),    *mock_minus_ssd_lpos,    kSSDSigma);
-//        sfitter.AddHit(0, 1, geometry->GTR(mids1[1], 0), *mock_minus_gtr100_lpos, kGTR100Sigma);
-//        sfitter.AddHit(0, 2, geometry->GTR(mids1[2], 1), *mock_minus_gtr200_lpos, kGTR200Sigma);
-//        sfitter.AddHit(0, 3, geometry->GTR(mids1[3], 2), *mock_minus_gtr300_lpos, kGTR300Sigma);
-#endif // FROM_MOCK
+        sfitter.AddHit(0, 0, geometry->SSD(mids[1][0]),    minus_ssd_lpos,    kSSDSigma);
+        sfitter.AddHit(0, 1, geometry->GTR(mids[1][1], 0), minus_gtr100_lpos, kGTR100Sigma);
+        sfitter.AddHit(0, 2, geometry->GTR(mids[1][2], 1), minus_gtr200_lpos, kGTR200Sigma);
+        sfitter.AddHit(0, 3, geometry->GTR(mids[1][3], 2), minus_gtr300_lpos, kGTR300Sigma);
       }
+#else
+      if (t == 0) {
+        sfitter.SetInitialMomentum(0, mock_plus_init_mom);
+      } else {
+        sfitter.SetInitialMomentum(0, mock_minus_init_mom);
+      }
+      if (t == 0) {
+        sfitter.AddHit(0, 0, geometry->SSD(mids[0][0]),    mock_plus_ssd_lpos,    kSSDSigma);
+        sfitter.AddHit(0, 1, geometry->GTR(mids[0][1], 0), mock_plus_gtr100_lpos, kGTR100Sigma);
+        sfitter.AddHit(0, 2, geometry->GTR(mids[0][2], 1), mock_plus_gtr200_lpos, kGTR200Sigma);
+        sfitter.AddHit(0, 3, geometry->GTR(mids[0][3], 2), mock_plus_gtr300_lpos, kGTR300Sigma);
+      } else {
+        sfitter.AddHit(0, 0, geometry->SSD(mids[1][0]),    mock_minus_ssd_lpos,    kSSDSigma);
+        sfitter.AddHit(0, 1, geometry->GTR(mids[1][1], 0), mock_minus_gtr100_lpos, kGTR100Sigma);
+        sfitter.AddHit(0, 2, geometry->GTR(mids[1][2], 1), mock_minus_gtr200_lpos, kGTR200Sigma);
+        sfitter.AddHit(0, 3, geometry->GTR(mids[1][3], 2), mock_minus_gtr300_lpos, kGTR300Sigma);
+      }
+#endif
       sfitter.SetRungeKuttaStepSize(kStepSize);
       sfitter.SetMaxSteps(kMaxSteps);
       auto tmp_chi2     = sfitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls, kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
@@ -306,8 +394,78 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         fit_minus_gtr300_lpos = tmp_lposs[3];
       }
     }
-    pre_fit_mass = CalcMass(pre_fit_plus_init_mom, pre_fit_minus_init_mom);
-    fit_mass     = CalcMass(fit_plus_init_mom,     fit_minus_init_mom);
+    // pair fit
+    fitter.Clear();
+    fitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
+    fitter.SetCharge(0, 1.);
+#ifndef FROM_MOCK
+    fitter.SetInitialMomentum(0, pre_fit_plus_init_mom);
+//    fitter.SetInitialMomentum(0, mock_plus_init_mom);
+    fitter.AddHit(0, 0, geometry->SSD(mids[0][0]),    plus_ssd_lpos,    kSSDSigma);
+    fitter.AddHit(0, 1, geometry->GTR(mids[0][1], 0), plus_gtr100_lpos, kGTR100Sigma);
+    fitter.AddHit(0, 2, geometry->GTR(mids[0][2], 1), plus_gtr200_lpos, kGTR200Sigma);
+    fitter.AddHit(0, 3, geometry->GTR(mids[0][3], 2), plus_gtr300_lpos, kGTR300Sigma);
+#else
+    fitter.SetInitialMomentum(0, mock_plus_init_mom);
+    fitter.AddHit(0, 0, geometry->SSD(mids[0][0]),    mock_plus_ssd_lpos,    kSSDSigma);
+    fitter.AddHit(0, 1, geometry->GTR(mids[0][1], 0), mock_plus_gtr100_lpos, kGTR100Sigma);
+    fitter.AddHit(0, 2, geometry->GTR(mids[0][2], 1), mock_plus_gtr200_lpos, kGTR200Sigma);
+    fitter.AddHit(0, 3, geometry->GTR(mids[0][3], 2), mock_plus_gtr300_lpos, kGTR300Sigma);
+#endif
+    fitter.SetCharge(1, -1.);
+#ifndef FROM_MOCK
+    fitter.SetInitialMomentum(1, pre_fit_minus_init_mom);
+//    fitter.SetInitialMomentum(1, mock_minus_init_mom);
+    fitter.AddHit(1, 0, geometry->SSD(mids[1][0]),    minus_ssd_lpos,    kSSDSigma);
+    fitter.AddHit(1, 1, geometry->GTR(mids[1][1], 0), minus_gtr100_lpos, kGTR100Sigma);
+    fitter.AddHit(1, 2, geometry->GTR(mids[1][2], 1), minus_gtr200_lpos, kGTR200Sigma);
+    fitter.AddHit(1, 3, geometry->GTR(mids[1][3], 2), minus_gtr300_lpos, kGTR300Sigma);
+#else
+    fitter.SetInitialMomentum(1, mock_minus_init_mom);
+    fitter.AddHit(1, 0, geometry->SSD(mids[1][0]),    mock_minus_ssd_lpos,    kSSDSigma);
+    fitter.AddHit(1, 1, geometry->GTR(mids[1][1], 0), mock_minus_gtr100_lpos, kGTR100Sigma);
+    fitter.AddHit(1, 2, geometry->GTR(mids[1][2], 1), mock_minus_gtr200_lpos, kGTR200Sigma);
+    fitter.AddHit(1, 3, geometry->GTR(mids[1][3], 2), mock_minus_gtr300_lpos, kGTR300Sigma);
+#endif
+    fitter.SetRungeKuttaStepSize(kStepSize);
+    fitter.SetMaxSteps(kMaxSteps);
+    pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls,
+                                         kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+    pair_fit_vtx            = fitter.GetFitVertex();
+    pair_fit_plus_init_mom  = fitter.GetFitMomentum(0);
+    pair_fit_minus_init_mom = fitter.GetFitMomentum(1);
+    for (int t = 0; t < 2; ++t) {
+      for (int l = 0; l < 4; ++l) {
+        vector<int>      mids;
+        vector<TVector3> lposs;
+        fitter.GetFitLPos(t, l, mids, lposs);
+        if (t == 0) {
+          if (l == 0) {
+            pair_fit_plus_ssd_lpos = lposs[0];
+          } else if (l == 1) {
+            pair_fit_plus_gtr100_lpos = lposs[0];
+          } else if (l == 2) {
+            pair_fit_plus_gtr200_lpos = lposs[0];
+          } else {
+            pair_fit_plus_gtr300_lpos = lposs[0];
+          }
+        } else {
+          if (l == 0) {
+            pair_fit_minus_ssd_lpos = lposs[0];
+          } else if (l == 1) {
+            pair_fit_minus_gtr100_lpos = lposs[0];
+          } else if (l == 2) {
+            pair_fit_minus_gtr200_lpos = lposs[0];
+          } else {
+            pair_fit_minus_gtr300_lpos = lposs[0];
+          }
+        }
+      }
+    }
+    mock_mass     = CalcMass(mock_plus_init_mom,     mock_minus_init_mom);
+    pre_fit_mass  = CalcMass(pre_fit_plus_init_mom,  pre_fit_minus_init_mom);
+    fit_mass      = CalcMass(fit_plus_init_mom,      fit_minus_init_mom);
+    pair_fit_mass = CalcMass(pair_fit_plus_init_mom, pair_fit_minus_init_mom);
     out_tree.Fill();
   }
   out_file.Write();
