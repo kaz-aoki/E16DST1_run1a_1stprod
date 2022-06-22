@@ -665,7 +665,8 @@ int main(int argc, char* argv[]) {
 	//std::cout<<n_event<<" "<<ntr<<" "<<st_track->XTrackID()<<" "<<st_track->YTrackID()<<" "<<hbdeff<<std::endl;
 
 	//Cross point at LG plane
-	double ea = atan2(g300.Y(), g300.Mag());
+	// double ea = atan2(g300.Y(), g300.Mag());
+	double ea = atan2(g300.Y(), sqrt(g300.X()*g300.X()+g300.Z()*g300.Z()));
 	angle = rtod(ea);
 	//int block;
 	if(ea<=dtor(15)&&ea>dtor(10)){

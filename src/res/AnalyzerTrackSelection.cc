@@ -2215,6 +2215,10 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    // std::ofstream outtext("lgcluster.txt");
    TFile *fouthist = new TFile(out_root_name,"recreate");
 
+   int bene = 1;
+   double enepar[2] = {1.,198.};
+   int ienepar[2] = {1,200};
+
    bool gaincalib = true;
    bool fwdonly = false;
    int searchx = 100;//for lg cluster
@@ -2351,22 +2355,22 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH2F* hhitmap[5];
    for(int i=0;i<5;i++){
      trkmom[i] = new TH1F(Form("trkmom%d",i),Form("Track_mom_w/HBDHit_mod%d",103+i),50,0,5);
-     hexp[i] = new TH1F(Form("hexp%d",i),Form("expected_LG_HitAdc/Mom_TrackAssociate_mod%d",103+i),32,0,800);
-     hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_HitAdc_TrackAssociate_mod%d",103+i),128,0,800);
-     hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_HitAdc_dummy_TrackAssociate_mod%d",103+i),128,0,800);
-     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_HitAdcSumVsMom_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
-     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_HitAdcSumVsMom_dummy_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
+     hexp[i] = new TH1F(Form("hexp%d",i),Form("expected_LG_HitAdc/Mom_TrackAssociate_mod%d",103+i),32,0,800/ienepar[bene]);
+     hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_HitAdc_TrackAssociate_mod%d",103+i),128,0,800/ienepar[bene]);
+     hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_HitAdc_dummy_TrackAssociate_mod%d",103+i),128,0,800/ienepar[bene]);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_HitAdcSumVsMom_TrackAssociate_mod%d",103+i),100,0,6,100,0,600/ienepar[bene]);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_HitAdcSumVsMom_dummy_TrackAssociate_mod%d",103+i),100,0,6,100,0,600/ienepar[bene]);
      for(int j=0;j<4;j++){
-       hedivp[i][j] = new TH1F(Form("hedivp%d%d",i,j),Form("LG_HitAdc/Mom_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800);
-       hedivpd[i][j] = new TH1F(Form("hedivpd%d%d",i,j),Form("LG_HitAdc/Mom_dummy_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800);
+       hedivp[i][j] = new TH1F(Form("hedivp%d%d",i,j),Form("LG_HitAdc/Mom_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
+       hedivpd[i][j] = new TH1F(Form("hedivpd%d%d",i,j),Form("LG_HitAdc/Mom_dummy_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
        hassp[i][j] = new TH1F(Form("hassp%d%d",i,j),Form("Mom_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hasspd[i][j] = new TH1F(Form("hasspd%d%d",i,j),Form("Mom_dummy_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hasspha[i][j] = new TH1F(Form("hasspha%d%d",i,j),Form("Mom_TrackAssociate_ADC>200_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hassphad[i][j] = new TH1F(Form("hassphad%d%d",i,j),Form("Mom_dummy_TrackAssociate_ADC>200_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hasspla[i][j] = new TH1F(Form("hasspla%d%d",i,j),Form("Mom_TrackAssociate_ADC<200_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hassplad[i][j] = new TH1F(Form("hassplad%d%d",i,j),Form("Mom_dummy_TrackAssociate_ADC<200_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
-       hasse[i][j] = new TH1F(Form("hasse%d%d",i,j),Form("HitAdc_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),128,0,800);
-       hassed[i][j] = new TH1F(Form("hassed%d%d",i,j),Form("HitAdc_dummy_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),128,0,800);
+       hasse[i][j] = new TH1F(Form("hasse%d%d",i,j),Form("HitAdc_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),128,0,800/ienepar[bene]);
+       hassed[i][j] = new TH1F(Form("hassed%d%d",i,j),Form("HitAdc_dummy_TrackAssociate_%1.0fmV_mod%d",lgthr[j],103+i),128,0,800/ienepar[bene]);
        hesubp[i][j] = new TH1F(Form("hesubp%d%d",i,j),Form("LG_HitAdc-%1.0f*Mom_TrackAssociate_mod%d",lgcon[j],103+i),16,-200,200);
        hesubpd[i][j] = new TH1F(Form("hesubpd%d%d",i,j),Form("LG_HitAdc-%1.0f*Mom_dummy_TrackAssociate_mod%d",lgcon[j],103+i),16,-200,200);
      }
@@ -2600,8 +2604,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 trkmom[lmide]->Fill(track_mom->at(itrack));
 	 trkmom[2]->Fill(track_mom->at(itrack));
 	 if(lgnear.size()>0){
-	   hexp[lmide]->Fill(ExpectedE(track_mom->at(itrack))/track_mom->at(itrack));
-	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/track_mom->at(itrack));
+	   hexp[lmide]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
+	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/ienepar[bene]/track_mom->at(itrack));
 	 }
 	 hnlghitwt[lmide]->Fill(lgnear.size());
 	 hnlghitwt[2]->Fill(lgnear.size());
@@ -2613,31 +2617,31 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   // }
 	   // outtext<<"------------"<<std::endl;
 	 }
-	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum);
-	 hevsp[2]->Fill(track_mom->at(itrack),adcsum);
-	 if(adcsum>0){hadc[lmide]->Fill(adcsum);hadc[2]->Fill(adcsum);}
+	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum/ienepar[bene]);
+	 hevsp[2]->Fill(track_mom->at(itrack),adcsum/ienepar[bene]);
+	 if(adcsum>0){hadc[lmide]->Fill(adcsum/ienepar[bene]);hadc[2]->Fill(adcsum/ienepar[bene]);}
 	 for(int j=0;j<4;j++){
 	   if(adcsum>lgthr[j]){
-	     hedivp[lmide][j]->Fill(adcsum/track_mom->at(itrack));
+	     hedivp[lmide][j]->Fill(adcsum/ienepar[bene]/track_mom->at(itrack));
 	     hassp[lmide][j]->Fill(track_mom->at(itrack));
 	     if(adcsum>200){hasspha[lmide][j]->Fill(track_mom->at(itrack));}
 	     if(adcsum<200){hasspla[lmide][j]->Fill(track_mom->at(itrack));}
-	     hasse[lmide][j]->Fill(adcsum);
+	     hasse[lmide][j]->Fill(adcsum/ienepar[bene]);
 	     if(fwdonly){
 	       if(lmide==1||lmide==3){
-		 hedivp[2][j]->Fill(adcsum/track_mom->at(itrack));
+		 hedivp[2][j]->Fill(adcsum/ienepar[bene]/track_mom->at(itrack));
 		 hassp[2][j]->Fill(track_mom->at(itrack));
 		 if(adcsum>200){hasspha[2][j]->Fill(track_mom->at(itrack));}
 		 if(adcsum<200){hasspla[2][j]->Fill(track_mom->at(itrack));}
-		 hasse[2][j]->Fill(adcsum);
+		 hasse[2][j]->Fill(adcsum/ienepar[bene]);
 	       }
 	     }
 	     else{
-	       hedivp[2][j]->Fill(adcsum/track_mom->at(itrack));
+	       hedivp[2][j]->Fill(adcsum/ienepar[bene]/track_mom->at(itrack));
 	       hassp[2][j]->Fill(track_mom->at(itrack));
 	       if(adcsum>200){hasspha[2][j]->Fill(track_mom->at(itrack));}
 	       if(adcsum<200){hasspla[2][j]->Fill(track_mom->at(itrack));}
-	       hasse[2][j]->Fill(adcsum);
+	       hasse[2][j]->Fill(adcsum/ienepar[bene]);
 	     }
 	   }
 	   if(adcsum>lgresthr){
@@ -2696,31 +2700,31 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     hnlghitwtd[2]->Fill(lgneard.size());
 	     if(lgneard.size()==1){adcsumd=lgneard.at(0).adc;}
 	     if(lgneard.size()>1){adcsumd=CalcADCNearHit(lgneard,track_ssd_t->at(itrack));}
-	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd);
-	     hevspd[2]->Fill(track_mom->at(itrack),adcsumd);
-	     if(adcsumd>0){hadcd[lmide]->Fill(adcsumd);hadcd[2]->Fill(adcsumd);}
+	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd/ienepar[bene]);
+	     hevspd[2]->Fill(track_mom->at(itrack),adcsumd/ienepar[bene]);
+	     if(adcsumd>0){hadcd[lmide]->Fill(adcsumd/ienepar[bene]);hadcd[2]->Fill(adcsumd/ienepar[bene]);}
 	     for(int j=0;j<4;j++){
 	       if(adcsumd>lgthr[j]){
-		 hedivpd[lmide][j]->Fill(adcsumd/track_mom->at(itrack));
+		 hedivpd[lmide][j]->Fill(adcsumd/ienepar[bene]/track_mom->at(itrack));
 		 hasspd[lmide][j]->Fill(track_mom->at(itrack));
 		 if(adcsumd>200){hassphad[lmide][j]->Fill(track_mom->at(itrack));}
 		 if(adcsumd<200){hassplad[lmide][j]->Fill(track_mom->at(itrack));}
-		 hassed[lmide][j]->Fill(adcsumd);
+		 hassed[lmide][j]->Fill(adcsumd/ienepar[bene]);
 		 if(fwdonly){
 		   if(lmide==1||lmide==3){
-		     hedivpd[2][j]->Fill(adcsumd/track_mom->at(itrack));
+		     hedivpd[2][j]->Fill(adcsumd/ienepar[bene]/track_mom->at(itrack));
 		     hasspd[2][j]->Fill(track_mom->at(itrack));
 		     if(adcsumd>200){hassphad[2][j]->Fill(track_mom->at(itrack));}
 		     if(adcsumd<200){hassplad[2][j]->Fill(track_mom->at(itrack));}
-		     hassed[2][j]->Fill(adcsumd);
+		     hassed[2][j]->Fill(adcsumd/ienepar[bene]);
 		   }
 		 }
 		 else{
-		   hedivpd[2][j]->Fill(adcsumd/track_mom->at(itrack));
+		   hedivpd[2][j]->Fill(adcsumd/ienepar[bene]/track_mom->at(itrack));
 		   hasspd[2][j]->Fill(track_mom->at(itrack));
 		   if(adcsumd>200){hassphad[2][j]->Fill(track_mom->at(itrack));}
 		   if(adcsumd<200){hassplad[2][j]->Fill(track_mom->at(itrack));}
-		   hassed[2][j]->Fill(adcsumd);
+		   hassed[2][j]->Fill(adcsumd/ienepar[bene]);
 		 }
 	       }
 	       if(adcsumd>lgresthr){
@@ -3348,8 +3352,9 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
 
    TFile *fouthist = new TFile(out_root_name,"recreate");
 
+   int bene = 1;// 0 or 1
    bool gaincalib = true;
-   bool leftonly = false;
+   bool leftonly = true;
    int searchx = 100;//for lg cluster
    int searchy = 60;//for lg cluster
    int mixevent = 50;
@@ -3358,6 +3363,8 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
    // double ssdregion = 11.;
    double ssdregion = 60.;
 
+   double enepar[2] = {1.,198.};
+   int ienepar[2] = {1,200};
    const int ndet=2;
    char det[ndet][20] = {"HBD","LGHit"};
    const int ntrktype=4;
@@ -3464,6 +3471,10 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
    TH1F* hadcd[5];
    TH1F* hmom[5];
    TH1F* hmomd[5];
+   TH1F* hexrej1[5];
+   TH1F* hexrej1d[5];
+   TH1F* hexrej2[5];
+   TH1F* hexrej2d[5];
    TH2F* hevsp[5];
    TH2F* hevspd[5];
    TH1F* hedivp[5];
@@ -3474,12 +3485,16 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
    for(int i=0;i<5;i++){
      hmom[i] = new TH1F(Form("hmom%d",i),Form("Track_mom_w/HBDHit_mod%d",103+i),50,0,5);
      hmomd[i] = new TH1F(Form("hmomd%d",i),Form("Track_mom_w/HBDHit_mod%d",103+i),50,0,5);
-     hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_HitAdc_TrackAssociate_mod%d",103+i),128,0,800);
-     hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_HitAdc_dummy_TrackAssociate_mod%d",103+i),128,0,800);
-     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_HitAdcSumVsMom_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
-     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_HitAdcSumVsMom_dummy_TrackAssociate_mod%d",103+i),100,0,5,100,0,500);
-     hedivp[i] = new TH1F(Form("hedivp%d",i),Form("LG_HitAdc/Mom_TrackAssociate_mod%d",103+i),32,0,800);
-     hedivpd[i] = new TH1F(Form("hedivpd%d",i),Form("LG_HitAdc/Mom_dummy_TrackAssociate_mod%d",103+i),32,0,800);
+     hexrej1[i] = new TH1F(Form("hexrej1%d",i),Form("Track_expected_rejection1_w/HBDHit_mod%d",103+i),35,0,0.35);
+     hexrej1d[i] = new TH1F(Form("hexrej1d%d",i),Form("Track_expected_rejection1_w/HBDHit_mod%d",103+i),35,0,0.35);
+     hexrej2[i] = new TH1F(Form("hexrej2%d",i),Form("Track_expected_rejection2_w/HBDHit_mod%d",103+i),35,0,0.35);
+     hexrej2d[i] = new TH1F(Form("hexrej2d%d",i),Form("Track_expected_rejection2_w/HBDHit_mod%d",103+i),35,0,0.35);
+     hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_HitAdc_TrackAssociate_mod%d",103+i),128,0,800/ienepar[bene]);
+     hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_HitAdc_dummy_TrackAssociate_mod%d",103+i),128,0,800/ienepar[bene]);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_HitAdcSumVsMom_TrackAssociate_mod%d",103+i),100,0,6,100,0,600/ienepar[bene]);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_HitAdcSumVsMom_dummy_TrackAssociate_mod%d",103+i),100,0,6,100,0,600/ienepar[bene]);
+     hedivp[i] = new TH1F(Form("hedivp%d",i),Form("LG_HitAdc/Mom_TrackAssociate_mod%d",103+i),32,0,800/ienepar[bene]);
+     hedivpd[i] = new TH1F(Form("hedivpd%d",i),Form("LG_HitAdc/Mom_dummy_TrackAssociate_mod%d",103+i),32,0,800/ienepar[bene]);
      hnlghitwt[i] = new TH1F(Form("hnlghitwt%d",i),Form("N_LGHits_TrackAssociate_mod%d",103+i),10,0,10);
      hnlghitwtd[i] = new TH1F(Form("hnlghitwtd%d",i),Form("N_LGHits_TrackAssociate_dummy_mod%d",103+i),10,0,10);
      hhitmap[i] = new TH2F(Form("hhitmap%d",i),Form("LGhitmap_mod%d",103+i),7,-0.5,6.5,6,-0.5,5.5);
@@ -3507,7 +3522,7 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
      bool alfill[2][5][ntrktype]={false};//for mixing
      std::vector<hitset> hbdhits[5][ntrktype];//for mixing
      std::vector<hitset> lghits[5][ntrktype];//for mixing
-     // std::vector<trackset> tracksets[ntrktype];//kill dup
+     std::vector<trackset> tracksets[ntrktype];//kill dup
 
      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
@@ -3559,15 +3574,34 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
 
        int btrktype[ntrktype]={-1,-1,-1,-1};
        btrktype[0]=1;
-       if(HBDhit){
-	 btrktype[1]=1;
-       }
-       if(LGhit){
-	 btrktype[2]=1;
-       }
-       if(HBDhit&&LGhit){
-	 btrktype[3]=1;
-       }
+       if(HBDhit){btrktype[1]=1;}
+       if(LGhit){btrktype[2]=1;}
+       if(HBDhit&&LGhit){btrktype[3]=1;}
+
+       // btrktype[0]=IsGoodTrack(ientry,itrack,tracksets[0]);
+       // btrktype[1]=IsGoodTrack(ientry,itrack,tracksets[1]);
+       // btrktype[2]=IsGoodTrack(ientry,itrack,tracksets[2]);
+       // btrktype[3]=IsGoodTrack(ientry,itrack,tracksets[3]);
+       // if(!HBDhit){
+       // 	 btrktype[1]=-2;
+       // }
+       // if(!LGhit){
+       // 	 btrktype[2]=-2;
+       // }
+       // if(!HBDhit||!LGhit){
+       // 	 btrktype[3]=-2;
+       // }
+
+       // btrktype[0]=IsGoodTrack(ientry,itrack,tracksets[0]);
+       // if(HBDhit){
+       // 	 btrktype[1]=IsGoodTrack(ientry,itrack,tracksets[1]);
+       // }
+       // if(LGhit){
+       // 	 btrktype[2]=IsGoodTrack(ientry,itrack,tracksets[2]);
+       // }
+       // if(HBDhit&&LGhit){
+       // 	 btrktype[3]=IsGoodTrack(ientry,itrack,tracksets[3]);
+       // }
 
        for(int itype=0;itype<ntrktype;itype++){//trktype loop
 	 if(btrktype[itype]<0) continue;
@@ -3703,22 +3737,28 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
 	   adcsum=CalcADCNearHit(lgnear,track_ssd_t->at(itrack));
 	 }
 	 hmom[lmide]->Fill(track_mom->at(itrack));
-	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum);
-	 hadc[lmide]->Fill(adcsum);
-	 hedivp[lmide]->Fill(adcsum/track_mom->at(itrack));
+	 hexrej1[lmide]->Fill(track_lg_pi_eff1->at(itrack));
+	 hexrej2[lmide]->Fill(track_lg_pi_eff2->at(itrack));
+	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	 hadc[lmide]->Fill(adcsum/enepar[bene]);
+	 hedivp[lmide]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 	 if(leftonly){
-	   if(lmide==3||lmide==4){
+	   if(lmide==3||lmide==1){
 	     hmom[2]->Fill(track_mom->at(itrack));
-	     hevsp[2]->Fill(track_mom->at(itrack),adcsum);
-	     hadc[2]->Fill(adcsum);
-	     hedivp[2]->Fill(adcsum/track_mom->at(itrack));
+	     hexrej1[2]->Fill(track_lg_pi_eff1->at(itrack));
+	     hexrej2[2]->Fill(track_lg_pi_eff2->at(itrack));
+	     hevsp[2]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	     hadc[2]->Fill(adcsum/enepar[bene]);
+	     hedivp[2]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 	   }
 	 }
 	 else{
 	   hmom[2]->Fill(track_mom->at(itrack));
-	   hevsp[2]->Fill(track_mom->at(itrack),adcsum);
-	   hadc[2]->Fill(adcsum);
-	   hedivp[2]->Fill(adcsum/track_mom->at(itrack));
+	   hexrej1[2]->Fill(track_lg_pi_eff1->at(itrack));
+	   hexrej2[2]->Fill(track_lg_pi_eff2->at(itrack));
+	   hevsp[2]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	   hadc[2]->Fill(adcsum/enepar[bene]);
+	   hedivp[2]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 	 }
        }
 
@@ -3772,22 +3812,28 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
 	     if(lgneard.size()==1){adcsumd=lgneard.at(0).adc;}
 	     if(lgneard.size()>1){adcsumd=CalcADCNearHit(lgneard,track_ssd_t->at(itrack));}
 	     hmomd[lmide]->Fill(track_mom->at(itrack));
-	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd);
-	     hadcd[lmide]->Fill(adcsumd);
-	     hedivpd[lmide]->Fill(adcsumd/track_mom->at(itrack));
+	     hexrej1d[lmide]->Fill(track_lg_pi_eff1->at(itrack));
+	     hexrej2d[lmide]->Fill(track_lg_pi_eff2->at(itrack));
+	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	     hadcd[lmide]->Fill(adcsumd/enepar[bene]);
+	     hedivpd[lmide]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 	     if(leftonly){
-	       if(lmide==3||lmide==4){
+	       if(lmide==3||lmide==1){
 		 hmomd[2]->Fill(track_mom->at(itrack));
-		 hevspd[2]->Fill(track_mom->at(itrack),adcsumd);
-		 hadcd[2]->Fill(adcsumd);
-		 hedivpd[2]->Fill(adcsumd/track_mom->at(itrack));
+		 hexrej1d[2]->Fill(track_lg_pi_eff1->at(itrack));
+		 hexrej2d[2]->Fill(track_lg_pi_eff2->at(itrack));
+		 hevspd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+		 hadcd[2]->Fill(adcsumd/enepar[bene]);
+		 hedivpd[2]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 	       }
 	     }
 	     else{
 	       hmomd[2]->Fill(track_mom->at(itrack));
-	       hevspd[2]->Fill(track_mom->at(itrack),adcsumd);
-	       hadcd[2]->Fill(adcsumd);
-	       hedivpd[2]->Fill(adcsumd/track_mom->at(itrack));
+	       hexrej1d[2]->Fill(track_lg_pi_eff1->at(itrack));
+	       hexrej2d[2]->Fill(track_lg_pi_eff2->at(itrack));
+	       hevspd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	       hadcd[2]->Fill(adcsumd/enepar[bene]);
+	       hedivpd[2]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 	     }
 	   }
 	 }//lghit loop
@@ -4207,7 +4253,18 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
    TCanvas* cmomsub = new TCanvas("cmomsub","cmomsub",700,500);
    cmom->Divide(2,2);
    cmomsub->Divide(2,2);
+   TH1F* hexrej1sub[4];
+   TCanvas* cexrej1 = new TCanvas("cexrej1","cexrej1",700,500);
+   TCanvas* cexrej1sub = new TCanvas("cexrej1sub","cexrej1sub",700,500);
+   cexrej1->Divide(2,2);
+   cexrej1sub->Divide(2,2);
+   TH1F* hexrej2sub[4];
+   TCanvas* cexrej2 = new TCanvas("cexrej2","cexrej2",700,500);
+   TCanvas* cexrej2sub = new TCanvas("cexrej2sub","cexrej2sub",700,500);
+   cexrej2->Divide(2,2);
+   cexrej2sub->Divide(2,2);
    TH1F* hadcsub[4];
+   TLegend* legadc[4];
    TCanvas* cadc = new TCanvas("cadc","cadc",700,500);
    TCanvas* cadcsub = new TCanvas("cadcsub","cadcsub",700,500);
    cadc->Divide(2,2);
@@ -4237,6 +4294,17 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
      hadcsub[i]->SetName(Form("hadcsub%d",(i+3)%5));
      hadcsub[i]->Add(hadcd[(i+3)%5],-1);
      hadcsub[i]->Draw("hist e");
+     //calc rej
+     double thr1 = 55./enepar[bene];
+     double thr2 = 100./enepar[bene];
+     int all = hadcsub[i]->Integral(1,hadcsub[i]->GetNbinsX()+1);
+     int sur1 = hadcsub[i]->Integral(hadcsub[i]->FindBin(thr1),hadcsub[i]->GetNbinsX()+1);
+     int sur2 = hadcsub[i]->Integral(hadcsub[i]->FindBin(thr2),hadcsub[i]->GetNbinsX()+1);
+     legadc[i] = new TLegend(0.50,0.45,0.9,0.65);
+     legadc[i]->AddEntry((TObject*)0,Form("%d/%d=%1.3f+/-%1.3f @%1.2f",sur1,all,(double)sur1/(double)all,(double)sur1/(double)all/sqrt((double)sur1),thr1),"");
+     legadc[i]->AddEntry((TObject*)0,Form("%d/%d=%1.3f+/-%1.3f @%1.2f",sur2,all,(double)sur2/(double)all,(double)sur2/(double)all/sqrt((double)sur2),thr2),"");
+     legadc[i]->Draw("sames");
+     //calc rej
 
      cmom->cd(i+1);
      hmom[(i+3)%5]->Draw("hist");
@@ -4256,6 +4324,44 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
      hmomsub[i]->SetName(Form("hmomsub%d",(i+3)%5));
      hmomsub[i]->Add(hmomd[(i+3)%5],-1);
      hmomsub[i]->Draw("hist e");
+
+     cexrej1->cd(i+1);
+     hexrej1[(i+3)%5]->Draw("hist");
+     if(hexrej1d[(i+3)%5]->Integral()!=0){hexrej1d[(i+3)%5]->Scale((double)hexrej1[(i+3)%5]->Integral()*(1.-trkpforlgrej[i])/(double)hexrej1d[(i+3)%5]->Integral());}
+     hexrej1d[(i+3)%5]->SetLineColor(2);
+     hexrej1d[(i+3)%5]->Draw("hist&&sames");
+     cexrej1->cd(i+1)->Update();
+     TPaveStats *st4 = (TPaveStats*)hexrej1d[(i+3)%5]->FindObject("stats");
+     st4->SetLineColor(2);
+     st4->SetX1NDC(0.58);
+     st4->SetX2NDC(0.78);
+     st4->SetY1NDC(0.75);
+     st4->SetY2NDC(0.935);
+     cexrej1->cd(i+1)->Modified();
+     cexrej1sub->cd(i+1);//->SetGridy();
+     hexrej1sub[i] = (TH1F*)hexrej1[(i+3)%5]->Clone();
+     hexrej1sub[i]->SetName(Form("hexrej1sub%d",(i+3)%5));
+     hexrej1sub[i]->Add(hexrej1d[(i+3)%5],-1);
+     hexrej1sub[i]->Draw("hist e");
+
+     cexrej2->cd(i+1);
+     hexrej2[(i+3)%5]->Draw("hist");
+     if(hexrej2d[(i+3)%5]->Integral()!=0){hexrej2d[(i+3)%5]->Scale((double)hexrej2[(i+3)%5]->Integral()*(1.-trkpforlgrej[i])/(double)hexrej2d[(i+3)%5]->Integral());}
+     hexrej2d[(i+3)%5]->SetLineColor(2);
+     hexrej2d[(i+3)%5]->Draw("hist&&sames");
+     cexrej2->cd(i+1)->Update();
+     TPaveStats *st5 = (TPaveStats*)hexrej2d[(i+3)%5]->FindObject("stats");
+     st5->SetLineColor(2);
+     st5->SetX1NDC(0.58);
+     st5->SetX2NDC(0.78);
+     st5->SetY1NDC(0.75);
+     st5->SetY2NDC(0.935);
+     cexrej2->cd(i+1)->Modified();
+     cexrej2sub->cd(i+1);//->SetGridy();
+     hexrej2sub[i] = (TH1F*)hexrej2[(i+3)%5]->Clone();
+     hexrej2sub[i]->SetName(Form("hexrej2sub%d",(i+3)%5));
+     hexrej2sub[i]->Add(hexrej2d[(i+3)%5],-1);
+     hexrej2sub[i]->Draw("hist e");
 
      cedivp->cd(i+1);
      hedivp[(i+3)%5]->Draw("hist");
@@ -4305,10 +4411,12 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
    cevsp->SaveAs(outfile,"pdf");
    cevspd->SaveAs(outfile,"pdf");
    // cevspsub->SaveAs(outfile,"pdf");
-   cmom->SaveAs(outfile,"pdf");
-   cmomsub->SaveAs(outfile,"pdf");
    cadc->SaveAs(outfile,"pdf");
    cadcsub->SaveAs(outfile,"pdf");
+   cmom->SaveAs(outfile,"pdf");
+   cmomsub->SaveAs(outfile,"pdf");
+   cexrej1->SaveAs(outfile,"pdf");
+   cexrej2->SaveAs(outfile,"pdf");
    cedivp->SaveAs(outfile,"pdf");
    cedivpsub->SaveAs(outfile,"pdf");
    for(int l=0;l<ntrktype;l++){

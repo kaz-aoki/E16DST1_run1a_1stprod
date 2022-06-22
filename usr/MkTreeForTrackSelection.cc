@@ -36,7 +36,10 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b220212-0/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b220212-1/*.root");
 
-      in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");
+      in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
+      in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032401-v1/root_finished/*.root");//5e9ks+1e9ks
+
+      // in_chain->Add("/work22/ichikawa/lsf_file/22041000-v1/root_finished/*.root");//1e9ks
 
     }
     else if(runtype==1){

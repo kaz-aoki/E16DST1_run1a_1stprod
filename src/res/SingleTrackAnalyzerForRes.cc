@@ -2204,6 +2204,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    vector<double> out_track_gtr300x_adc;
    vector<double> out_track_gtr300y_t;
    vector<double> out_track_gtr300y_adc;
+   vector<double> out_track_w_trg_bias;
    vector<int> out_track_hbd_mid;
    vector<double> out_track_hbd_lx;
    vector<double> out_track_hbd_ly;
@@ -2246,6 +2247,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    vector<vector<double>> out_track_lg_allhit_resy;
    vector<vector<double>> out_track_lg_allhit_ftime;
    vector<vector<double>> out_track_lg_allhit_adc;
+   vector<vector<double>> out_track_lg_allhit_trgt;
    vector<vector<double>> out_track_lg_allhit_dum_resx;
    vector<vector<double>> out_track_lg_allhit_dum_resy;
    vector<vector<double>> out_track_lg_allhit_dum_ftime;
@@ -2334,6 +2336,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    tree->Branch("track_gtr300x_adc", &out_track_gtr300x_adc);
    tree->Branch("track_gtr300y_t", &out_track_gtr300y_t);
    tree->Branch("track_gtr300y_adc", &out_track_gtr300y_adc);
+   tree->Branch("track_w_trg_bias", &out_track_w_trg_bias);
    tree->Branch("track_hbd_mid", &out_track_hbd_mid);
    tree->Branch("track_hbd_lx", &out_track_hbd_lx);
    tree->Branch("track_hbd_ly", &out_track_hbd_ly);
@@ -2376,6 +2379,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    tree->Branch("track_lg_allhit_resy", &out_track_lg_allhit_resy);
    tree->Branch("track_lg_allhit_ftime", &out_track_lg_allhit_ftime);
    tree->Branch("track_lg_allhit_adc", &out_track_lg_allhit_adc);
+   tree->Branch("track_lg_allhit_trgt", &out_track_lg_allhit_trgt);
    tree->Branch("track_lg_allhit_dum_resx", &out_track_lg_allhit_dum_resx);
    tree->Branch("track_lg_allhit_dum_resy", &out_track_lg_allhit_dum_resy);
    tree->Branch("track_lg_allhit_dum_ftime", &out_track_lg_allhit_dum_ftime);
@@ -2475,6 +2479,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
       out_track_gtr300x_adc.clear();
       out_track_gtr300y_t.clear();
       out_track_gtr300y_adc.clear();
+      out_track_w_trg_bias.clear();
       out_track_hbd_mid.clear();
       out_track_hbd_lx.clear();
       out_track_hbd_ly.clear();
@@ -2517,6 +2522,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
       out_track_lg_allhit_resy.clear();
       out_track_lg_allhit_ftime.clear();
       out_track_lg_allhit_adc.clear();
+      out_track_lg_allhit_trgt.clear();
       out_track_lg_allhit_dum_resx.clear();
       out_track_lg_allhit_dum_resy.clear();
       out_track_lg_allhit_dum_ftime.clear();
@@ -2613,7 +2619,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	double track_position_block_lx = -10000;
 	double track_position_block_ly = -10000;
 	int ret = CalcAngleOnLGPlane(ientry,itrack,geometry,&pair_fitter,trk_hbd_mid,trk_lg_mid,ytype,track_angle_lx,track_angle_ly,track_position_block_lx,track_position_block_ly);
-	if ( runoption==0 && fabs(track_angle_lx)>0.2 ) continue;//220224
+	// if ( runoption==0 && fabs(track_angle_lx)>0.2 ) continue;//220224
 	// if ( runoption==1 && fabs(track_angle_lx)>0.2 ) continue;//220224
 	int lgmulti=0;
 	for(int ilgmulti=0;ilgmulti<n_lg_hits;ilgmulti++){
@@ -2659,6 +2665,8 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	out_track_gtr300x_adc.push_back(rk_hit_gtr300_xadc->at(itrack));
 	out_track_gtr300y_t.push_back(rk_hit_gtr300_yt->at(itrack));
 	out_track_gtr300y_adc.push_back(rk_hit_gtr300_yadc->at(itrack));
+	double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid);
+	out_track_w_trg_bias.push_back(trg_bias);
 	out_track_hbd_mid.push_back(trk_hbd_mid);
 	out_track_hbd_lx.push_back(trk_hbd_lx);
 	out_track_hbd_ly.push_back(trk_hbd_ly);
@@ -2775,6 +2783,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	out_track_lg_allhit_resy.push_back(vector<double>());
 	out_track_lg_allhit_ftime.push_back(vector<double>());
 	out_track_lg_allhit_adc.push_back(vector<double>());
+	out_track_lg_allhit_trgt.push_back(vector<double>());
 	int nlgh = 0;
 	for(int ilg=0;ilg<n_lg_hits;ilg++){
 	  if ( runoption==3 && lgise==2 && (lg_hit_adc->at(ilg)<20||lg_hit_adc->at(ilg)>50) ) continue;
@@ -2785,6 +2794,15 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	    out_track_lg_allhit_resy[ntrkacc].push_back(resy);
 	    out_track_lg_allhit_ftime[ntrkacc].push_back(lg_hit_t->at(ilg));
 	    out_track_lg_allhit_adc[ntrkacc].push_back(lg_hit_adc->at(ilg));
+	    double trgt_tmp=-10000;
+	    for(int itlg=0;itlg<n_trg_tracks;itlg++){
+	      if(trg_track_lg_mid->at(itlg)!=lg_hit_mid->at(ilg)||trg_track_lg_cid->at(itlg)!=lg_hit_cid->at(ilg)) continue;
+	      if(fabs(trg_track_lg_t->at(itlg))<11){
+		trgt_tmp=trg_track_lg_t->at(itlg);
+		break;
+	      }
+	    }
+	    out_track_lg_allhit_trgt[ntrkacc].push_back(trgt_tmp);
 	    if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
 	      resx_min = resx;
 	      resy_min = resy;
@@ -3093,6 +3111,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
    vector<double> out_track_gtr300x_adc;
    vector<double> out_track_gtr300y_t;
    vector<double> out_track_gtr300y_adc;
+   vector<double> out_track_w_trg_bias;
    vector<double> out_track_select_hbd_resx;//
    vector<double> out_track_select_hbd_adc;//
    vector<int> out_track_select_gtr_nass;//
@@ -3142,6 +3161,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
    vector<vector<double>> out_track_lg_allhit_resy;
    vector<vector<double>> out_track_lg_allhit_ftime;
    vector<vector<double>> out_track_lg_allhit_adc;
+   vector<vector<double>> out_track_lg_allhit_trgt;
    vector<vector<double>> out_track_lg_allhit_dum_resx;
    vector<vector<double>> out_track_lg_allhit_dum_resy;
    vector<vector<double>> out_track_lg_allhit_dum_ftime;
@@ -3192,6 +3212,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
    tree->Branch("track_gtr300x_adc", &out_track_gtr300x_adc);
    tree->Branch("track_gtr300y_t", &out_track_gtr300y_t);
    tree->Branch("track_gtr300y_adc", &out_track_gtr300y_adc);
+   tree->Branch("track_w_trg_bias", &out_track_w_trg_bias);
    tree->Branch("track_select_hbd_resx", &out_track_select_hbd_resx);//
    tree->Branch("track_select_hbd_adc", &out_track_select_hbd_adc);//
    tree->Branch("track_select_gtr_nass", &out_track_select_gtr_nass);//
@@ -3241,6 +3262,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
    tree->Branch("track_lg_allhit_resy", &out_track_lg_allhit_resy);
    tree->Branch("track_lg_allhit_ftime", &out_track_lg_allhit_ftime);
    tree->Branch("track_lg_allhit_adc", &out_track_lg_allhit_adc);
+   tree->Branch("track_lg_allhit_trgt", &out_track_lg_allhit_trgt);
    tree->Branch("track_lg_allhit_dum_resx", &out_track_lg_allhit_dum_resx);
    tree->Branch("track_lg_allhit_dum_resy", &out_track_lg_allhit_dum_resy);
    tree->Branch("track_lg_allhit_dum_ftime", &out_track_lg_allhit_dum_ftime);
@@ -3314,6 +3336,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
       out_track_gtr300x_adc.clear();
       out_track_gtr300y_t.clear();
       out_track_gtr300y_adc.clear();
+      out_track_w_trg_bias.clear();
       out_track_select_hbd_resx.clear();//
       out_track_select_hbd_adc.clear();//
       out_track_select_gtr_nass.clear();//
@@ -3363,6 +3386,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
       out_track_lg_allhit_resy.clear();
       out_track_lg_allhit_ftime.clear();
       out_track_lg_allhit_adc.clear();
+      out_track_lg_allhit_trgt.clear();
       out_track_lg_allhit_dum_resx.clear();
       out_track_lg_allhit_dum_resy.clear();
       out_track_lg_allhit_dum_ftime.clear();
@@ -3588,6 +3612,8 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	    out_track_select_gtr200y_res.push_back(gy_res_min[1]);//
 	    out_track_select_gtr300y_res.push_back(gy_res_min[2]);//
 	    out_track_select_gtr_chisq.push_back(gy_chisq);//
+	    double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid);
+	    out_track_w_trg_bias.push_back(trg_bias);
 	    out_track_hbd_mid.push_back(trk_hbd_mid);
 	    out_track_hbd_lx.push_back(trk_hbd_lx);
 	    out_track_hbd_ly.push_back(trk_hbd_ly);
@@ -3659,6 +3685,7 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	    out_track_lg_allhit_resy.push_back(vector<double>());
 	    out_track_lg_allhit_ftime.push_back(vector<double>());
 	    out_track_lg_allhit_adc.push_back(vector<double>());
+	    out_track_lg_allhit_trgt.push_back(vector<double>());
 	    int nlgh = 0;
 	    for(int ilg=0;ilg<n_lg_hits;ilg++){
 	      if ( runoption==3 && lgise==2 && (lg_hit_adc->at(ilg)<20||lg_hit_adc->at(ilg)>50) ) continue;
@@ -3669,6 +3696,15 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 		out_track_lg_allhit_resy[ntrkacc].push_back(resy);
 		out_track_lg_allhit_ftime[ntrkacc].push_back(lg_hit_t->at(ilg));
 		out_track_lg_allhit_adc[ntrkacc].push_back(lg_hit_adc->at(ilg));
+		double trgt_tmp=-10000;
+		for(int itlg=0;itlg<n_trg_tracks;itlg++){
+		  if(trg_track_lg_mid->at(itlg)!=lg_hit_mid->at(ilg)||trg_track_lg_cid->at(itlg)!=lg_hit_cid->at(ilg)) continue;
+		  if(fabs(trg_track_lg_t->at(itlg))<11){
+		    trgt_tmp=trg_track_lg_t->at(itlg);
+		    break;
+		  }
+		}
+		out_track_lg_allhit_trgt[ntrkacc].push_back(trgt_tmp);
 		if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
 		  resx_min = resx;
 		  resy_min = resy;

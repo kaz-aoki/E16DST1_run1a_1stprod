@@ -159,6 +159,7 @@ public :
    vector<double>  *track_gtr300x_adc;
    vector<double>  *track_gtr300y_t;
    vector<double>  *track_gtr300y_adc;
+   vector<double>  *track_w_trg_bias;
    vector<double>  *track_select_hbd_resx;
    vector<double>  *track_select_hbd_adc;
    vector<int>     *track_select_gtr_nass;
@@ -208,6 +209,7 @@ public :
    vector<vector<double> > *track_lg_allhit_resy;
    vector<vector<double> > *track_lg_allhit_ftime;
    vector<vector<double> > *track_lg_allhit_adc;
+   vector<vector<double> > *track_lg_allhit_trgt;
    vector<vector<double> > *track_lg_allhit_dum_resx;
    vector<vector<double> > *track_lg_allhit_dum_resy;
    vector<vector<double> > *track_lg_allhit_dum_ftime;
@@ -259,6 +261,7 @@ public :
    TBranch        *b_track_gtr300x_adc;   //!
    TBranch        *b_track_gtr300y_t;   //!
    TBranch        *b_track_gtr300y_adc;   //!
+   TBranch        *b_track_w_trg_bias;   //!
    TBranch        *b_track_select_hbd_resx;   //!
    TBranch        *b_track_select_hbd_adc;   //!
    TBranch        *b_track_select_gtr_nass;   //!
@@ -308,6 +311,7 @@ public :
    TBranch        *b_track_lg_allhit_resy;   //!
    TBranch        *b_track_lg_allhit_ftime;   //!
    TBranch        *b_track_lg_allhit_adc;   //!
+   TBranch        *b_track_lg_allhit_trgt;   //!
    TBranch        *b_track_lg_allhit_dum_resx;   //!
    TBranch        *b_track_lg_allhit_dum_resy;   //!
    TBranch        *b_track_lg_allhit_dum_ftime;   //!
@@ -433,6 +437,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_gtr300x_adc = 0;
    track_gtr300y_t = 0;
    track_gtr300y_adc = 0;
+   track_w_trg_bias = 0;
    track_select_hbd_resx = 0;
    track_select_hbd_adc = 0;
    track_select_gtr_nass = 0;
@@ -482,6 +487,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_lg_allhit_resy = 0;
    track_lg_allhit_ftime = 0;
    track_lg_allhit_adc = 0;
+   track_lg_allhit_trgt = 0;
    track_lg_allhit_dum_resx = 0;
    track_lg_allhit_dum_resy = 0;
    track_lg_allhit_dum_ftime = 0;
@@ -537,6 +543,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_gtr300x_adc", &track_gtr300x_adc, &b_track_gtr300x_adc);
    fChain->SetBranchAddress("track_gtr300y_t", &track_gtr300y_t, &b_track_gtr300y_t);
    fChain->SetBranchAddress("track_gtr300y_adc", &track_gtr300y_adc, &b_track_gtr300y_adc);
+   fChain->SetBranchAddress("track_w_trg_bias", &track_w_trg_bias, &b_track_w_trg_bias);
    fChain->SetBranchAddress("track_select_hbd_resx", &track_select_hbd_resx, &b_track_select_hbd_resx);
    fChain->SetBranchAddress("track_select_hbd_adc", &track_select_hbd_adc, &b_track_select_hbd_adc);
    fChain->SetBranchAddress("track_select_gtr_nass", &track_select_gtr_nass, &b_track_select_gtr_nass);
@@ -572,6 +579,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_hbd_allhit_resy", &track_hbd_allhit_resy, &b_track_hbd_allhit_resy);
    fChain->SetBranchAddress("track_hbd_allhit_ftime", &track_hbd_allhit_ftime, &b_track_hbd_allhit_ftime);
    fChain->SetBranchAddress("track_hbd_allhit_adc", &track_hbd_allhit_adc, &b_track_hbd_allhit_adc);
+   fChain->SetBranchAddress("track_lg_allhit_trgt", &track_lg_allhit_trgt, &b_track_lg_allhit_trgt);
    fChain->SetBranchAddress("track_hbd_allhit_size", &track_hbd_allhit_size, &b_track_hbd_allhit_size);
    fChain->SetBranchAddress("track_hbd_allhit_eprob", &track_hbd_allhit_eprob, &b_track_hbd_allhit_eprob);
    fChain->SetBranchAddress("track_hbd_allhit_cprob", &track_hbd_allhit_cprob, &b_track_hbd_allhit_cprob);
@@ -722,19 +730,21 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
   // double ryt = track_hbd_neary->at(itrack)-hbd_voriginy[(trk_mid-103+2)%5];
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
-  // if(chi_square->at(itrack)>30.) {return -1;}
+  if(chi_square->at(itrack)>30.) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   // if (track_mom->at(itrack) > 2.4) {return -1;}
   // if (track_mom->at(itrack) > 0.6) {return -1;}
-  // if (track_mom->at(itrack) < 1.6) {return -1;}
+  // if (track_mom->at(itrack) < 0.4) {return -1;}
   // if (rk_charge->at(itrack) != -1) {return -1;}
   // if (rk_charge->at(itrack)==1) {return -1;}
   // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
-  // if(chi_square->at(itrack)>5.) {return -1;}
-  // if(is_selected->at(itrack)==0) {return -1;}
 
+  if(run_id>20980) {return -1;}
+  if(chi_square->at(itrack)>5.) {return -1;}
+  if(is_selected->at(itrack)==0) {return -1;}
+  if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
   else{
     return 1;
   }

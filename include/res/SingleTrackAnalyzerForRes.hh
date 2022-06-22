@@ -1127,6 +1127,7 @@ public :
    virtual Int_t    CutOfTrackForHBDADC(Long64_t entry, Int_t elem);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double trk_momy, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
+   virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
@@ -3067,5 +3068,17 @@ Int_t SingleTrackAnalyzerForRes::CutOfTrackForHBDADC(Long64_t entry, Int_t elem)
     return 1;
   }
 
+}
+
+Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid)
+{
+  double wbias=-10000.;
+  for(int i=0;i<n_trg_tracks;i++){
+    if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+    if(trk_lg_mid==trg_track_lg_mid->at(i)){
+      wbias=trg_track_lg_t->at(i);
+    }
+  }
+  return wbias;
 }
 #endif // #ifdef SingleTrackAnalyzerForRes_cxx
