@@ -45,13 +45,15 @@ constexpr double kLGTime = 100.;
 // parameter
 //constexpr double kGTRDriftSigma = 0.265;
 
-//#ifndef MOM_RECONSTRUCT_CHECK
-constexpr double kSSDXSigma = 0.1;
-constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
-//#else
-//constexpr double kSSDXSigma = 0.;
-//constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
-//#endif
+#ifndef WO_POS_SMEAR
+//constexpr double kSSDXSigma = 0.1;
+//constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
+constexpr double kSSDXSigma = 0.067; // TDR2206
+constexpr double kGTRXYSigma[3][2] = {{0.265, 0.626}, {0.252, 0.542}, {0.262, 0.518}};
+#else
+constexpr double kSSDXSigma = 0.;
+constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
+#endif
 
 constexpr double kSSDTimeMean    =  45.;
 constexpr double kSSDTimeSigma   =   5.;

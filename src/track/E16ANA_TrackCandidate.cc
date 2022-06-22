@@ -193,8 +193,14 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
     auto& c = cluster_pairs[l];
     if (l == E16ANA_TrackConstant::kSSD) {
       single_track->AddHit(tid, c.LayerOrder(), geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
+//cout << l << " " << c.LocalPos().X() << " " << c.LocalPos().Y() << " " << c.LocalPos().Z() << endl;
+//auto gpos = c.GlobalPos();
+//cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     } else {
       single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPosT(), sigma[l]);
+//cout << l << " " << c.LocalPosT().X() << " " << c.LocalPosT().Y() << " " << c.LocalPosT().Z() << endl;
+//auto gpos = c.GlobalPosT();
+//cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     }
   }
   return;
@@ -1274,11 +1280,11 @@ E16INFO("number of y candidates: %d", n_y_cands);
                               gtry[0]->ClusterId() >= 2 * kMockClusterID &&
                               gtry[1]->ClusterId() >= 2 * kMockClusterID &&
                               gtry[2]->ClusterId() >= 2 * kMockClusterID};
-#ifdef MOM_RECONSTRUCT_CHECK
+//#ifdef MOM_RECONSTRUCT_CHECK
       if (!is_sim_track) {
         continue;
       }
-#endif // MOM_RECONSTRUCT_CHECK
+//#endif // MOM_RECONSTRUCT_CHECK
       bool is_same_module = true;
       if (!is_sim_track[0] && !is_sim_track[1]) {
         if ((gtry[0]->IsY() && gtrx[0]->LocalPosT().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPosT().X() >= 0)) {

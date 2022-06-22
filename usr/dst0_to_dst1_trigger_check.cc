@@ -56,8 +56,8 @@ int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackO
       return kReadMockError;
     }
     mock_tracks[i] = mock_data->Track();
-    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
-//    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
+//    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
+    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
     check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
     if (is_dead_track) {
       is_dead = true;
@@ -263,7 +263,7 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
-#ifndef MOM_RECONSTRUCT_CHECK
+#ifndef REMOVE_REAL_HIT
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
@@ -280,7 +280,7 @@ int main(int argc, char* argv[]) {
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
-#endif
+#endif // REMOVE_REAL_HIT
 #ifdef TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
@@ -294,8 +294,8 @@ int main(int argc, char* argv[]) {
         break;
       }
       bool is_finished = false;
-      while (data_merger.IsDeadRegion(mock_data.Track())) {
-//      while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
+//      while (data_merger.IsDeadRegion(mock_data.Track())) {
+      while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
         check_file.AddSimTrack(true, mock_data.Track());
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
           cerr << "mock data finished at " << n_physics_event << " events" << endl;
