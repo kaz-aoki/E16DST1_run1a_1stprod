@@ -56,7 +56,10 @@ constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-40., 40.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
-const std::array<TVector3, 4> kSigmas = {{{0.067, 0., 0.}, {0.265, 0.626, 0.}, {0.252, 542, 0.}, {0.262, 518, 0.}}}; // 220623 TDR2206
+const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
+                                          {0.265, 0.626, 0.},
+                                          {0.252, 0.542, 0.},
+                                          {0.262, 0.518, 0.}}}; // 220623 TDR2206
 //const TVector3 kInitPosError = {3., 3.4, 0.};
 const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
@@ -95,13 +98,14 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 // other
 constexpr bool kExecutePairFit = false;
 
+constexpr double kTrackingStepSize = 5.;
+constexpr int    kTrackingMaxSteps = 80;
 constexpr int    kMinuitStrategy = 0;
 constexpr int    kMinuitMaxFunctionCalls = 1.0e3;
 //constexpr double kTrackingStepSize = 1.; // pair fit value
+//constexpr int    kTrackingMaxSteps = 400;
 //constexpr int    kMinuitStrategy = 2;
 //constexpr int    kMinuitMaxFunctionCalls = 1.0e4;
-constexpr double kTrackingStepSize = 5.;
-constexpr int    kTrackingMaxSteps = 80;
 constexpr int    kProjectionMaxSteps = 2000;
 
 }; // E16ANA_TrackParameter
