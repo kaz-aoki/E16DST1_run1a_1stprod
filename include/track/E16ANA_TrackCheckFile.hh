@@ -50,10 +50,10 @@ class E16ANA_TrackCheckFile {
     t_param->Branch("step_track_step_size_cm", &step_track_step_size_cm, "step_track_step_size_cm/D");
     t_param->Branch("step_track_array_size", &step_track_array_size, "step_track_array_size/I");
     t_param->Branch("vertex_sigma", &vertex_sigma);
-    t_param->Branch("pair_fit_sigma0", &pair_fit_sigma0);
-    t_param->Branch("pair_fit_sigma1", &pair_fit_sigma1);
-    t_param->Branch("pair_fit_sigma2", &pair_fit_sigma2);
-    t_param->Branch("pair_fit_sigma3", &pair_fit_sigma3);
+//    t_param->Branch("pair_fit_sigma0", &pair_fit_sigma0);
+//    t_param->Branch("pair_fit_sigma1", &pair_fit_sigma1);
+//    t_param->Branch("pair_fit_sigma2", &pair_fit_sigma2);
+//    t_param->Branch("pair_fit_sigma3", &pair_fit_sigma3);
     
     tree->Branch("run_id", &run_id, "run_id/I");
     tree->Branch("event_id", &event_id, "event_id/I");
@@ -1086,10 +1086,10 @@ class E16ANA_TrackCheckFile {
     step_track_step_size_cm = cands.StepTrackStepSizeCm();
     step_track_array_size= cands.StepTrackArraySize();
     vertex_sigma = cands.VertexSigma();
-    pair_fit_sigma0 = cands.PairFitSigma(0);
-    pair_fit_sigma1 = cands.PairFitSigma(1);
-    pair_fit_sigma2 = cands.PairFitSigma(2);
-    pair_fit_sigma3 = cands.PairFitSigma(3);
+//    pair_fit_sigma0 = cands.PairFitSigma(0);
+//    pair_fit_sigma1 = cands.PairFitSigma(1);
+//    pair_fit_sigma2 = cands.PairFitSigma(2);
+//    pair_fit_sigma3 = cands.PairFitSigma(3);
     t_param->Fill();
   }
   void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id, uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record, E16ANA_LGBasic& lgbasic) {
@@ -3638,10 +3638,10 @@ class E16ANA_TrackCheckFile {
   double step_track_step_size_cm;
   int step_track_array_size;
   TVector3 vertex_sigma;
-  TVector3 pair_fit_sigma0;
-  TVector3 pair_fit_sigma1;
-  TVector3 pair_fit_sigma2;
-  TVector3 pair_fit_sigma3;
+//  TVector3 pair_fit_sigma0;
+//  TVector3 pair_fit_sigma1;
+//  TVector3 pair_fit_sigma2;
+//  TVector3 pair_fit_sigma3;
   // Common
   int run_id;
   int event_id;

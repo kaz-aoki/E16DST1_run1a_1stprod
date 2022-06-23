@@ -93,6 +93,7 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Loop(const TString& out_name) {
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
 //    if (Cut(ientry) < 0) continue;
+    // mock
     h_mom_res_x[0][0].Fill(mock_plus_init_mom->X()  - mock_plus_init_mom->X());
     h_mom_res_x[0][1].Fill(mock_minus_init_mom->X() - mock_minus_init_mom->X());
     h_mom_res_y[0][0].Fill(mock_plus_init_mom->Y()  - mock_plus_init_mom->Y());
@@ -136,6 +137,7 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Loop(const TString& out_name) {
     h_gtr300_res_y[0][0].Fill(plus_gtr300_lpos->Y()  - mock_plus_gtr300_lpos->Y());
     h_gtr300_res_y[0][1].Fill(minus_gtr300_lpos->Y() - mock_minus_gtr300_lpos->Y());
     h_mass[0].Fill(mock_mass);
+    // pre fit
     h_mom_res_x[1][0].Fill(pre_fit_plus_init_mom->X()  - mock_plus_init_mom->X());
     h_mom_res_x[1][1].Fill(pre_fit_minus_init_mom->X() - mock_minus_init_mom->X());
     h_mom_res_y[1][0].Fill(pre_fit_plus_init_mom->Y()  - mock_plus_init_mom->Y());
@@ -163,6 +165,7 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Loop(const TString& out_name) {
     h_gtr300_res_y[1][0].Fill(pre_fit_plus_gtr300_lpos->Y()  - mock_plus_gtr300_lpos->Y());
     h_gtr300_res_y[1][1].Fill(pre_fit_minus_gtr300_lpos->Y() - mock_minus_gtr300_lpos->Y());
     h_mass[1].Fill(pre_fit_mass);
+    // single fit
     h_mom_res_x[2][0].Fill(fit_plus_init_mom->X()  - mock_plus_init_mom->X());
     h_mom_res_x[2][1].Fill(fit_minus_init_mom->X() - mock_minus_init_mom->X());
     h_mom_res_y[2][0].Fill(fit_plus_init_mom->Y()  - mock_plus_init_mom->Y());
@@ -190,6 +193,7 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Loop(const TString& out_name) {
     h_gtr300_res_y[2][0].Fill(fit_plus_gtr300_lpos->Y()  - mock_plus_gtr300_lpos->Y());
     h_gtr300_res_y[2][1].Fill(fit_minus_gtr300_lpos->Y() - mock_minus_gtr300_lpos->Y());
     h_mass[2].Fill(fit_mass);
+    // pair fit
     h_mom_res_x[3][0].Fill(pair_fit_plus_init_mom->X()  - mock_plus_init_mom->X());
     h_mom_res_x[3][1].Fill(pair_fit_minus_init_mom->X() - mock_minus_init_mom->X());
     h_mom_res_y[3][0].Fill(pair_fit_plus_init_mom->Y()  - mock_plus_init_mom->Y());

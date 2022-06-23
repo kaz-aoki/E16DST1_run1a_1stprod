@@ -17,6 +17,8 @@ void E16ANA_TrackCandidate::SetDefaultSigma() {
 TVector3 E16ANA_TrackCandidate::EachSigma(int n) { return kSigmas[n]; }
 
 TVector3 E16ANA_TrackCandidate::InitPosError() { return kInitPosError; }
+int E16ANA_TrackCandidate::TrackingMaxSteps() { return kTrackingMaxSteps; }
+int E16ANA_TrackCandidate::ProjectionMaxSteps() { return kProjectionMaxSteps; }
 
 TVector3 E16ANA_TrackCandidate::CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1) {
   TVector3 rough_mom;
@@ -72,7 +74,8 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
   double x[5],y[5];
   double By = 1.3; 
   x[0] = 0;
-  y[0] = init_pos.Z();
+//  y[0] = init_pos.Z();
+  y[0] = 0.;
   double the;
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
@@ -149,9 +152,9 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   int tid = 0; // only 1 track is fitted by the fitter
   single_track->Clear();
 //  single_track->SetInitialVertex(init_pos, kInitPosError);
-  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), kInitPosError);
+//  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), kInitPosError);
 //  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), TVector3(0., 0., 0.)); // for Ks
-//  single_track->SetInitialVertex(TVector3(0., 0., 0.), kInitPosError);
+  single_track->SetInitialVertex(TVector3(0., 0., 0.), kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
@@ -1730,9 +1733,9 @@ void E16ANA_TrackCandidates::UpdateFitResult(TrackPair* track_pair) {
 
 void E16ANA_TrackCandidates::PairTracking(TrackPair* track_pair, double tgt_z) {
   AddTracks(track_pair, tgt_z);
-  pair_fitter->SetRungeKuttaStepSize(kTrackingStepSize);
-  pair_fitter->SetMaxSteps(kTrackingMaxSteps);
-  track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
+  pair_fitter->SetRungeKuttaStepSize(kPairTrackingStepSize);
+  pair_fitter->SetMaxSteps(kPairTrackingMaxSteps);
+  track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kPairMinuitStrategy, kPairMinuitMaxFunctionCalls);
   UpdateFitResult(track_pair);
   return;
 }

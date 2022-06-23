@@ -29,7 +29,7 @@ endif()
 
 add_definitions(-DTRACK_EFF_CHECK)
 add_definitions(-DMERGE_TRACK_PAIR)
-#add_definitions(-DREMOVE_REAL_HIT)
+add_definitions(-DREMOVE_REAL_HIT)
 #add_definitions(-DWO_POS_SMEAR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
 

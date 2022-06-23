@@ -161,8 +161,8 @@ class E16ANA_TrackCandidate {
 //  TVector3 Sigma() { return kSigma; }
   TVector3 EachSigma(int n);
   TVector3 InitPosError();
-  int TrackingMaxSteps() { return kTrackingMaxSteps; }
-  int ProjectionMaxSteps() { return kProjectionMaxSteps; }
+  int TrackingMaxSteps();
+  int ProjectionMaxSteps();
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
   bool HasElectronHBDCluster() { return has_e_hbd_cluster; }
@@ -243,14 +243,14 @@ class E16ANA_TrackCandidate {
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
-  static constexpr int kMinuitStrategy = 0;
-  static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
-  static constexpr double kTrackingStepSize = 5.;
+//  static constexpr int kMinuitStrategy = 0;
+//  static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
+//  static constexpr double kTrackingStepSize = 5.;
 //  static constexpr int kTrackingMaxSteps = 300;
 //  static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kTrackingMaxSteps = 80;
+//  static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
-  static constexpr int kProjectionMaxSteps = 2000;
+//  static constexpr int kProjectionMaxSteps = 2000;
   static constexpr double drift_v  = 8e-3;
   static constexpr double centtdc = 328;
   static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
@@ -474,7 +474,7 @@ class E16ANA_TrackCandidates {
   double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
   int StepTrackArraySize() { return kStepTrackArraySize; }
   TVector3 VertexSigma() { return kVertexSigma; }
-  TVector3 PairFitSigma(int n) { return kSigmas[n]; }
+//  TVector3 PairFitSigma(int n) { return kSigmas[n]; }
   int NumXCandidates() { return n_x_cands; }
   int NumYCandidates() { return n_y_cands; }
   int NumTrackCandidates() { return track_candidates.size(); }
@@ -589,13 +589,13 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
-  static constexpr double kTrackingStepSize = 1.;
-  static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kMinuitStrategy = 2;
-  static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
+  static constexpr double kPairTrackingStepSize = 1.;
+  static constexpr int kPairTrackingMaxSteps = 400;
+  static constexpr int kPairMinuitStrategy = 2;
+  static constexpr int kPairMinuitMaxFunctionCalls = 1.0e4;
 //  static inline const TVector3 kVertexSigma = {3., 3., 0.};
   static inline const TVector3 kVertexSigma = {0., 0., 0.};
-  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
+//  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
