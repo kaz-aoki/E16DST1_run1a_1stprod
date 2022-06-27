@@ -11,12 +11,12 @@ constexpr std::array<std::array<int, 11>, 3> kModuleID2020To2013 = {{{30, 27, 24
 static int ModuleID2020To2013(int _module_id) { return kModuleID2020To2013[_module_id / 100][_module_id % 100]; }
 
 //const TVector3 kVertexSigma = TVector3(3., 3., 0.);
-const TVector3 kVertexSigma = TVector3(0., 0., 0.); // for comparing
+//const TVector3 kVertexSigma = TVector3(0., 0., 0.); // for comparing
 //const TVector3 kSSDSigma    = TVector3(0.1, 0., 0.); // for comparing
 //const TVector3 kGTR100Sigma = TVector3(0.3, 1., 0.); // for comparing
 //const TVector3 kGTR200Sigma = TVector3(0.3, 1., 0.); // for comparing
 //const TVector3 kGTR300Sigma = TVector3(0.3, 1., 0.); // for comparing
-//const TVector3 kVertexSigma = TVector3(1.5, 1.5, 0.); // simlation value
+const TVector3 kVertexSigma = TVector3(1.5, 1.5, 0.); // simlation value
 const TVector3 kSSDSigma    = TVector3(0.067, 0.,    0.); // TDR2106
 const TVector3 kGTR100Sigma = TVector3(0.265, 0.626, 0.);
 const TVector3 kGTR200Sigma = TVector3(0.252, 0.542, 0.);

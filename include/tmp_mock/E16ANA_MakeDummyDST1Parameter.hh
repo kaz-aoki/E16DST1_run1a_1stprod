@@ -68,7 +68,7 @@ constexpr double kGTRTimeSigma   = 87.55;
 //constexpr double kGTRXYTimeSigma =  20.; // tmp
 constexpr double kGTRXYTimeSigma = 25.12; // 220528 from Murakami's study
 
-constexpr double kMaxTimeDiff[2] = {10., 150.}; // clustering threshold
+constexpr double kMaxTimeDiff[3] = {10., 150., 150.}; // clustering threshold
 
 constexpr int    kSSDClusterSize  = 1;
 constexpr int    kGTRxClusterSize = 3;
