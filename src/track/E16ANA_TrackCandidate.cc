@@ -504,6 +504,47 @@ void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTracki
   return;
 }
 
+bool E16ANA_TrackCandidates::HasXAssociatedHBD(const OneAxisClusterSet& cluster_set, vector<int>* hbd_indexs, vector<int>* hbd_ids, vector<double>* hbd_ress) {
+  bool has_hbd =- false;
+  hbd_indexs->clear();
+  hbd_ids->clear();
+  hbd_ress->clear();
+  auto offset = kTargetZ[cluster_set.target_id];
+  auto& ssd = cluster_set.global_poss[0];
+  auto rot_phi = std::atan2(ssd.X(), ssd.Z() - offset);
+  auto rot_cos = std::cos(rot_phi);
+  auto rot_sin = std::sin(rot_phi);
+  
+  auto gtr300 = cluster_set.global_poss[3];
+  auto x = gtr300.X();
+  auto z = gtr300.Z();
+  double lotate_x = rot_cos * x - rot_sin * (z - offset);
+  double lotate_z = rot_sin * x + rot_cos * (z - offset);
+  array<double, 2> coefs;
+  coefs[1] = 2. * cluster_set.coefs[2] * lotate_z + cluster_set.coefs[1];
+  coefs[0] = lotate_x - coefs[1] * lotate_z;
+  
+  auto n_hbds = record->HBD().NumClusters();
+  for (int i = 0; i < n_hbds; ++i) {
+    auto& hbd = record->HBD().Cluster(i);
+    if (hbd.PeakSum() < kMinHBDADCForRK) {
+      continue;
+    }
+    auto x = hbd.GlobalPos(*geometry).X();
+    auto z = hbd.GlobalPos(*geometry).Z();
+    double lotate_hit_x = rot_cos * x - rot_sin * (z - offset);
+    double lotate_hit_z = rot_sin * x + rot_cos * (z - offset);
+    auto res = pow((lotate_hit_x - coefs[0] - coefs[1] * lotate_hit_z) * (lotate_hit_x - coefs[0] - coefs[1] * lotate_hit_z) / (coefs[1] * coefs[1] + 1.), 0.5);
+    if (res < kMaxHBDRoughXRes) {
+      has_hbd = true;
+      hbd_indexs->emplace_back(i);
+      hbd_ids->emplace_back(hbd.ClusterId());
+      hbd_ress->emplace_back(res);
+    }
+  }
+  return has_hbd;
+}
+
 bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
   auto tgt_id = cluster_set->target_id;
@@ -569,11 +610,22 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterS
   }
 
   if (chi2_cand < prev_chi2 && chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
-    cluster_set->charge = coef[2] > 0 ? 1 : -1;
-    cluster_set->xy = tgt_x_cand;
-    cluster_set->chi_square = chi2_cand;
-    for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
-      cluster_set->coefs[i] = coef[i];
+    vector<int> hbd_indexs;
+    vector<int> hbd_ids;
+    vector<double> hbd_ress;
+    if (!kReqHBDAssociation || HasXAssociatedHBD(*cluster_set, &hbd_indexs, &hbd_ids, &hbd_ress)) {
+      cluster_set->charge = coef[2] > 0 ? 1 : -1;
+      cluster_set->xy = tgt_x_cand;
+      cluster_set->chi_square = chi2_cand;
+      for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
+        cluster_set->coefs[i] = coef[i];
+      }
+      cluster_set->hbd_indexs.clear();
+      cluster_set->hbd_ids.clear();
+      cluster_set->hbd_ress.clear();
+      copy(hbd_indexs.begin(),  hbd_indexs.end(),  back_inserter(cluster_set->hbd_indexs));
+      copy(hbd_ids.begin(),     hbd_ids.end(),     back_inserter(cluster_set->hbd_ids));
+      copy(hbd_ress.begin(),    hbd_ress.end(),    back_inserter(cluster_set->hbd_ress));
     }
     return true;
   }
@@ -674,22 +726,11 @@ double E16ANA_TrackCandidates::RoughXFitCoefficientThreshold(int n) { return kRo
 double E16ANA_TrackCandidates::RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
 
 bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand) {
-  bool is_l = y_cand.gtr_clusters[2]->ModuleId() > 105;
-  double track_y = y_cand.coefs[0] + kHBDRadius * y_cand.coefs[1];
-  for (const auto& mid : E16ANA_TrackConstant::kModuleIDs) {
-    if (is_l && mid <= 105) {
-      continue;
-    }
-    if (!is_l && mid >= 105) {
-      continue;
-    }
-    auto& hbd_cluster_ptrs = record->HBD().ClusterPtrs(mid, 0, 0);
-    for (const auto& clst : hbd_cluster_ptrs) {
-      // Other HBD cut?
-      auto hbd_y = clst->LocalPos().Y();
-      if (fabs(hbd_y - track_y) < kRoughFitHBDYMaxDiff) {
-        return true;
-      }
+  auto fit_y = y_cand.coefs[0] + y_cand.coefs[1] * kHBDRadius;
+  for (const auto& i : x_cand.hbd_indexs) {
+    auto y = record->HBD().Cluster(i).LocalPos().Y();
+    if (fabs(y - fit_y) < kMaxHBDRoughYRes) {
+      return true;
     }
   }
   return false;
@@ -885,11 +926,9 @@ E16INFO("number of y candidates: %d", n_y_cands);
       if (!is_same_module) {
         continue;
       }
-#ifdef REQ_HBD_BEFORE_FIT
-      if (!HasAssociatedHBD(x_cand, y_cand)) {
+      if (kReqHBDAssociation && !HasAssociatedHBD(x_cand, y_cand)) {
         continue;
       }
-#endif // REQ_HBD_BEFORE_FIT
       track_candidates.emplace_back(E16ANA_TrackCandidate(geometry, bfield_map));
       auto& tmp_cand = track_candidates.back();
       tmp_cand.SetTrackID(track_candidates.size() - 1);

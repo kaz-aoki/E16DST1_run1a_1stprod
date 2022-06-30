@@ -234,10 +234,19 @@ class E16ANA_TrackCandidate {
   // tmp
   void SetXCoef(int n, double coef) { x_coef[n] = coef; }
   void SetXChiSquare(double _chi_square) { x_chi_square = _chi_square; }
+  void SetXAssociatedHBD(const std::vector<int>& _hbd_ids, const std::vector<double>& _hbd_ress) {
+    hbd_ids.clear();
+    hbd_ress.clear();
+    copy(_hbd_ids.begin(),  _hbd_ids.end(),  back_inserter(hbd_ids));
+    copy(_hbd_ress.begin(), _hbd_ress.end(), back_inserter(hbd_ress));
+    return;
+  }
   void SetYCoef(int n, double coef) { y_coef[n] = coef; }
   void SetYChiSquare(double _chi_square) { y_chi_square = _chi_square; }
   double XCoef(int n) { return x_coef[n]; }
   double XChiSquare() { return x_chi_square; }
+  std::vector<int>& RoughAssociatedHBDIDs() { return hbd_ids; }
+  std::vector<double>& RoughAssociatedHBDResiduals() { return hbd_ress; }
   double YCoef(int n) { return y_coef[n]; }
   double YChiSquare() { return y_chi_square; }
  private:
@@ -280,6 +289,8 @@ class E16ANA_TrackCandidate {
     this->sigma = rhs.sigma;
     this->x_coef = rhs.x_coef;
     this->x_chi_square = rhs.x_chi_square;
+    this->hbd_ids = rhs.hbd_ids;
+    this->hbd_ress = rhs.hbd_ress;
     this->y_coef = rhs.y_coef;
     this->y_chi_square = rhs.y_chi_square;
     this->init_pos_fit = rhs.init_pos_fit;
@@ -343,6 +354,8 @@ class E16ANA_TrackCandidate {
   // raugh fit chi square (tmp?)
   std::array<double, 3> x_coef;
   double x_chi_square;
+  std::vector<int> hbd_ids;
+  std::vector<double> hbd_ress;
   std::array<double, 2> y_coef;
   double y_chi_square;
   // Fit Result
@@ -530,6 +543,9 @@ class E16ANA_TrackCandidates {
     int charge; // only x
     double chi_square;
     std::array<double, 3> coefs;
+    std::vector<int> hbd_indexs;
+    std::vector<int> hbd_ids;
+    std::vector<double> hbd_ress;
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
 //    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
@@ -634,6 +650,7 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
+  bool HasXAssociatedHBD(const OneAxisClusterSet& cluster_set, std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
   bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {

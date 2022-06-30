@@ -67,21 +67,21 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Loop(const TString& out_name) {
   array<TH1F, 4> h_mass;
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 2; ++j) {
-      h_mom_res_x[i][j]    = TH1F(Form("h_mom_res_x_%d_%d",    i, j), Form("h_mom_res_x_%d_%d",    i, j), 100, -5., 5.);
-      h_mom_res_y[i][j]    = TH1F(Form("h_mom_res_y_%d_%d",    i, j), Form("h_mom_res_y_%d_%d",    i, j), 100, -5., 5.);
-      h_mom_res_z[i][j]    = TH1F(Form("h_mom_res_z_%d_%d",    i, j), Form("h_mom_res_z_%d_%d",    i, j), 100, -5., 5.);
-      h_vtx_x[i][j]        = TH1F(Form("h_vtx_x_%d_%d",        i, j), Form("h_vtx_x_%d_%d",        i, j), 100, -5., 5.);
-      h_vtx_y[i][j]        = TH1F(Form("h_vtx_y_%d_%d",        i, j), Form("h_vtx_y_%d_%d",        i, j), 100, -5., 5.);
-      h_ssd_res_x[i][j]    = TH1F(Form("h_ssd_res_x_%d_%d",    i, j), Form("h_ssd_res_x_%d_%d",    i, j), 100, -5., 5.);
-      h_ssd_res_y[i][j]    = TH1F(Form("h_ssd_res_y_%d_%d",    i, j), Form("h_ssd_res_y_%d_%d",    i, j), 100, -5., 5.);
-      h_gtr100_res_x[i][j] = TH1F(Form("h_gtr100_res_x_%d_%d", i, j), Form("h_gtr100_res_x_%d_%d", i, j), 100, -5., 5.);
-      h_gtr100_res_y[i][j] = TH1F(Form("h_gtr100_res_y_%d_%d", i, j), Form("h_gtr100_res_y_%d_%d", i, j), 100, -5., 5.);
-      h_gtr200_res_x[i][j] = TH1F(Form("h_gtr200_res_x_%d_%d", i, j), Form("h_gtr200_res_x_%d_%d", i, j), 100, -5., 5.);
-      h_gtr200_res_y[i][j] = TH1F(Form("h_gtr200_res_y_%d_%d", i, j), Form("h_gtr200_res_y_%d_%d", i, j), 100, -5., 5.);
-      h_gtr300_res_x[i][j] = TH1F(Form("h_gtr300_res_x_%d_%d", i, j), Form("h_gtr300_res_x_%d_%d", i, j), 100, -5., 5.);
-      h_gtr300_res_y[i][j] = TH1F(Form("h_gtr300_res_y_%d_%d", i, j), Form("h_gtr300_res_y_%d_%d", i, j), 100, -5., 5.);
+      h_mom_res_x[i][j]    = TH1F(Form("h_mom_res_x_%d_%d",    i, j), Form("h_mom_res_x_%d_%d",    i, j), 100, -0.2, 0.2);
+      h_mom_res_y[i][j]    = TH1F(Form("h_mom_res_y_%d_%d",    i, j), Form("h_mom_res_y_%d_%d",    i, j), 100, -0.2, 0.2);
+      h_mom_res_z[i][j]    = TH1F(Form("h_mom_res_z_%d_%d",    i, j), Form("h_mom_res_z_%d_%d",    i, j), 100, -0.2, 0.2);
+      h_vtx_x[i][j]        = TH1F(Form("h_vtx_x_%d_%d",        i, j), Form("h_vtx_x_%d_%d",        i, j), 100, -5.,  5.);
+      h_vtx_y[i][j]        = TH1F(Form("h_vtx_y_%d_%d",        i, j), Form("h_vtx_y_%d_%d",        i, j), 100, -5.,  5.);
+      h_ssd_res_x[i][j]    = TH1F(Form("h_ssd_res_x_%d_%d",    i, j), Form("h_ssd_res_x_%d_%d",    i, j), 100, -1.,  1.);
+      h_ssd_res_y[i][j]    = TH1F(Form("h_ssd_res_y_%d_%d",    i, j), Form("h_ssd_res_y_%d_%d",    i, j), 100, -3.,  3.);
+      h_gtr100_res_x[i][j] = TH1F(Form("h_gtr100_res_x_%d_%d", i, j), Form("h_gtr100_res_x_%d_%d", i, j), 100, -1.,  1.);
+      h_gtr100_res_y[i][j] = TH1F(Form("h_gtr100_res_y_%d_%d", i, j), Form("h_gtr100_res_y_%d_%d", i, j), 100, -3.,  3.);
+      h_gtr200_res_x[i][j] = TH1F(Form("h_gtr200_res_x_%d_%d", i, j), Form("h_gtr200_res_x_%d_%d", i, j), 100, -1.,  1.);
+      h_gtr200_res_y[i][j] = TH1F(Form("h_gtr200_res_y_%d_%d", i, j), Form("h_gtr200_res_y_%d_%d", i, j), 100, -3.,  3.);
+      h_gtr300_res_x[i][j] = TH1F(Form("h_gtr300_res_x_%d_%d", i, j), Form("h_gtr300_res_x_%d_%d", i, j), 100, -1.,  1.);
+      h_gtr300_res_y[i][j] = TH1F(Form("h_gtr300_res_y_%d_%d", i, j), Form("h_gtr300_res_y_%d_%d", i, j), 100, -3.,  3.);
     }
-    h_mass[i] = TH1F(Form("h_mass_%d", i), Form("h_mass_%d", i), 80, 0.8, 1.2);
+    h_mass[i] = TH1F(Form("h_mass_%d", i), Form("h_mass_%d", i), 160, 0.8, 1.2);
   }
 
   for (Long64_t jentry = 0; jentry < nentries; ++jentry) {

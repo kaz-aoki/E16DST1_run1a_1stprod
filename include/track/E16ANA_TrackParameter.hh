@@ -8,9 +8,6 @@
 
 namespace E16ANA_TrackParameter {
 
-constexpr double kHBDRadius = 1235.;
-constexpr double kRoughFitHBDYMaxDiff = 50.;
-
 //// pion
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 //const TVector3 kInitPosError = {3., 3.4, 0.};
@@ -97,6 +94,11 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 
 // other
 constexpr bool kExecutePairFit = false;
+constexpr bool kReqHBDAssociation = true;
+constexpr double kHBDRadius = 1200.;
+constexpr double kMaxHBDRoughXRes = 180.;
+constexpr double kMaxHBDRoughYRes = 22.5; // HBD y residual 3 sigma = 3 x 5.6 mm, 99 % threshold of residual between rough fit and RK fit = 15 mm
+constexpr double kMinHBDADCForRK = 2.;
 
 constexpr double kTrackingStepSize = 5.;
 constexpr int    kTrackingMaxSteps = 80;
