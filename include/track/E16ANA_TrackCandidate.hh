@@ -141,6 +141,7 @@ class E16ANA_TrackCandidate {
   }
   ~E16ANA_TrackCandidate() {}
   void SetTrackID(int _track_id) { track_id = _track_id; }
+  void SetIsSearchAssociatedHits(bool _is_search_associated_hits) { is_search_associated_hits = _is_search_associated_hits; }
   void SetHasElectronHBDCluster(bool _has_e_hbd_cluster) { has_e_hbd_cluster = _has_e_hbd_cluster; }
   void SetHasElectronLGHit(bool _has_e_lg_hit) { has_e_lg_hit = _has_e_lg_hit; }
   void SetIsLargeResidual(bool _is_large_residual) { is_large_residual = _is_large_residual; }
@@ -185,6 +186,7 @@ class E16ANA_TrackCandidate {
   int MatrixStatus() { return matrix_status; }
   int NumSteps() { return n_steps; }
   int NumCalls() { return n_calls; }
+  bool IsSearchAssociatedHits() { return is_search_associated_hits; }
   int ProjectionFlag() { return projection_flag; }
   E16ANA_TrackClusterPair& ClusterPair(int layer_index) { return cluster_pairs[layer_index]; }
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers>& ClusterPairs() { return cluster_pairs; }
@@ -373,6 +375,7 @@ class E16ANA_TrackCandidate {
   std::array<TVector3, E16ANA_TrackConstant::kNumTargets> mom_at_targets;
   TVector3 pos_at_x0;
   TVector3 mom_at_x0;
+  bool is_search_associated_hits;
   int projection_flag; // bit0: HBD, 1: LG0, 2: LG1, 3: LG2
   std::vector<E16DST_DST1HBDHit*> hbd_hits;
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;

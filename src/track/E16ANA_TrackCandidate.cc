@@ -945,6 +945,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
       for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
         tmp_cand.SetYCoef(i, y_cand.coefs[i]);
       }
+      tmp_cand.SetXAssociatedHBD(x_cand.hbd_ids, x_cand.hbd_ress);
       auto& cluster_pairs = tmp_cand.ClusterPairs();
       cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);
       for (int i = 0; i < kNumGTRLayers; ++i) {
@@ -1408,8 +1409,14 @@ void E16ANA_TrackCandidates::SearchHBDAndLGHits() {
 //    for (auto& cand : cands) {
   for (auto& cand : track_candidates) {
       if (cand.ChiSquare() >= 1.0e10) {
+        cand.SetIsSearchAssociatedHits(false);
         continue;
       }
+      if (cand.ChiSquare() >= kMaxChi2ForSearchAssociatedHits) {
+        cand.SetIsSearchAssociatedHits(false);
+        continue;
+      }
+      cand.SetIsSearchAssociatedHits(true);
       auto& fit_results = cand.LocalFitResults();
       for (int l = E16ANA_TrackConstant::kHBD; l < E16ANA_TrackConstant::kNumDetectorLayers; ++l) {
         if (fit_results[l].set_flag == 0) {

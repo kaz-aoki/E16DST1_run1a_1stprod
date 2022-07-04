@@ -110,6 +110,8 @@ constexpr int    kMinuitMaxFunctionCalls = 1.0e3;
 //constexpr int    kMinuitMaxFunctionCalls = 1.0e4;
 constexpr int    kProjectionMaxSteps = 2000;
 
+constexpr double kMaxChi2ForSearchAssociatedHits = 500.;
+
 }; // E16ANA_TrackParameter
 
 #endif // E16ANA_TRACK_PARAMETER_HH
