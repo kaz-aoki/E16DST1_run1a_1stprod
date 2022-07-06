@@ -653,8 +653,9 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  bool HasXAssociatedHBD(const OneAxisClusterSet& cluster_set, std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
-  bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
+  bool HasXAssociatedHBD(int tgt_id, const OneAxisClusterSet& cluster_set, const std::array<double, kNumRoughFitDegree[0]>& coef,
+                         std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
+  bool IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {

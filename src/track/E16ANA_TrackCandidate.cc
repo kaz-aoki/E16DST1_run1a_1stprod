@@ -504,12 +504,13 @@ void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTracki
   return;
 }
 
-bool E16ANA_TrackCandidates::HasXAssociatedHBD(const OneAxisClusterSet& cluster_set, vector<int>* hbd_indexs, vector<int>* hbd_ids, vector<double>* hbd_ress) {
+bool E16ANA_TrackCandidates::HasXAssociatedHBD(int tgt_id, const OneAxisClusterSet& cluster_set, const array<double, kNumRoughFitDegree[0]>& coef,
+                                               vector<int>* hbd_indexs, vector<int>* hbd_ids, vector<double>* hbd_ress) {
   bool has_hbd = false;
   hbd_indexs->clear();
   hbd_ids->clear();
   hbd_ress->clear();
-  auto offset = kTargetZ[cluster_set.target_id];
+  auto offset = kTargetZ[tgt_id];
   auto& ssd = cluster_set.global_poss[0];
   auto rot_phi = std::atan2(ssd.X(), ssd.Z() - offset);
   auto rot_cos = std::cos(rot_phi);
@@ -521,7 +522,7 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(const OneAxisClusterSet& cluster_
   double lotate_x = rot_cos * x - rot_sin * (z - offset);
   double lotate_z = rot_sin * x + rot_cos * (z - offset);
   array<double, 2> coefs;
-  coefs[1] = 2. * cluster_set.coefs[2] * lotate_z + cluster_set.coefs[1];
+  coefs[1] = 2. * coef[2] * lotate_z + coef[1];
   coefs[0] = lotate_x - coefs[1] * lotate_z;
   
   auto n_hbds = record->HBD().NumClusters();
@@ -535,31 +536,34 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(const OneAxisClusterSet& cluster_
     double lotate_hit_x = rot_cos * hit_x - rot_sin * (hit_z - offset);
     double lotate_hit_z = rot_sin * hit_x + rot_cos * (hit_z - offset);
     auto res = pow((lotate_hit_x - coefs[0] - coefs[1] * lotate_hit_z) * (lotate_hit_x - coefs[0] - coefs[1] * lotate_hit_z) / (coefs[1] * coefs[1] + 1.), 0.5);
-    if (res < kMaxHBDRoughXRes) {
-      has_hbd = true;
-      hbd_indexs->emplace_back(i);
-      hbd_ids->emplace_back(hbd.ClusterId());
-      hbd_ress->emplace_back(res);
-////if (hbd.ClusterId() == 18 && fabs(rot_phi + 0.464793) < 0.01 && fabs(x + 243.727) < 0.01 && fabs(coefs[0] + 100.933) < 0.01 && fabs(coefs[1] - 0.224326) < 0.01) {
-//if (hbd.ClusterId() == 18 && fabs(rot_phi + 0.464793) < 0.01 && fabs(x + 243.727) < 0.01) {
+//int cid[4] = {cluster_set.ssd_cluster->ClusterId(), cluster_set.gtr_clusters[0]->ClusterId(), cluster_set.gtr_clusters[1]->ClusterId(), cluster_set.gtr_clusters[2]->ClusterId()};
+//if (cid[0] == 7 && cid[1] == 28 && cid[2] == 63 && cid[3] == 93 && hbd.ClusterId() == 19) {
+//  cout << "        ID: " << cid[0] << " " << cid[1] << " " << cid[2] << " " << cid[3] << endl;
 //  cout << "        rot phi: " << rot_phi << " " << rot_cos << " " << rot_sin << " " << offset << endl;
 //  cout << "        gtr: " << x << " " << z << endl;
 //  cout << "        lotate gtr: " << lotate_x << " " << lotate_z << endl;
-//  cout << "        x coefs: " << cluster_set.coefs[2] << " " << cluster_set.coefs[1] << endl;
+////  cout << "        x coefs: " << cluster_set.coefs[2] << " " << cluster_set.coefs[1] << endl;
+//  cout << "        x coefs: " << coef[2] << " " << coef[1] << endl;
 //  cout << "        coef: " << coefs[0] << " " << coefs[1] << endl;
 //  cout << "        HBD ID: " << hbd.ClusterId() << endl;
 //  cout << "        HBD: " << hit_x << " " << hit_z << endl;
 //  cout << "        lotate HBD: " << lotate_hit_x << " " << lotate_hit_z << endl;
 //  cout << "        res: " << res << endl;
 //}
+    if (res < kMaxHBDRoughXRes) {
+      has_hbd = true;
+      hbd_indexs->emplace_back(i);
+      hbd_ids->emplace_back(hbd.ClusterId());
+      hbd_ress->emplace_back(res);
+//if (hbd.ClusterId() == 18 && fabs(rot_phi + 0.464793) < 0.01 && fabs(x + 243.727) < 0.01 && fabs(coefs[0] + 100.933) < 0.01 && fabs(coefs[1] - 0.224326) < 0.01) {
+//if (hbd.ClusterId() == 19 && fabs(rot_phi + 0.952164) < 0.01 && fabs(x + 635.074) < 0.01) {
     }
   }
   return has_hbd;
 }
 
-bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set) {
+bool E16ANA_TrackCandidates::IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
-  auto tgt_id = cluster_set->target_id;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[tgt_id];
 
   if (!IsCurveCorrelation(tgt_z, pos_set)) {
@@ -621,24 +625,25 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(double prev_chi2, OneAxisClusterS
     chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
   }
 
-  if (chi2_cand < prev_chi2 && chi2_cand < kRoughFitChiSquareThreshold[0] && fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2]) {
-    vector<int> hbd_indexs;
-    vector<int> hbd_ids;
-    vector<double> hbd_ress;
+  vector<int> hbd_indexs;
+  vector<int> hbd_ids;
+  vector<double> hbd_ress;
+  if (chi2_cand < prev_chi2 && chi2_cand < kRoughFitChiSquareThreshold[0] &&
+      fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2] &&
+      (!kReqHBDAssociation || HasXAssociatedHBD(tgt_id, *cluster_set, coef, &hbd_indexs, &hbd_ids, &hbd_ress))) {
+    cluster_set->charge = coef[2] > 0 ? 1 : -1;
+    cluster_set->target_id = tgt_id;
+    cluster_set->xy = tgt_x_cand;
+    cluster_set->chi_square = chi2_cand;
+    cluster_set->hbd_indexs.clear();
+    cluster_set->hbd_ids.clear();
+    cluster_set->hbd_ress.clear();
     for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
       cluster_set->coefs[i] = coef[i];
     }
-    if (!kReqHBDAssociation || HasXAssociatedHBD(*cluster_set, &hbd_indexs, &hbd_ids, &hbd_ress)) {
-      cluster_set->charge = coef[2] > 0 ? 1 : -1;
-      cluster_set->xy = tgt_x_cand;
-      cluster_set->chi_square = chi2_cand;
-      cluster_set->hbd_indexs.clear();
-      cluster_set->hbd_ids.clear();
-      cluster_set->hbd_ress.clear();
-      copy(hbd_indexs.begin(),  hbd_indexs.end(),  back_inserter(cluster_set->hbd_indexs));
-      copy(hbd_ids.begin(),     hbd_ids.end(),     back_inserter(cluster_set->hbd_ids));
-      copy(hbd_ress.begin(),    hbd_ress.end(),    back_inserter(cluster_set->hbd_ress));
-    }
+    copy(hbd_indexs.begin(),  hbd_indexs.end(),  back_inserter(cluster_set->hbd_indexs));
+    copy(hbd_ids.begin(),     hbd_ids.end(),     back_inserter(cluster_set->hbd_ids));
+    copy(hbd_ress.begin(),    hbd_ress.end(),    back_inserter(cluster_set->hbd_ress));
     return true;
   }
 #ifdef TRACK_EFF_CHECK
@@ -822,17 +827,13 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPosT(*geometry);
                   bool is_cand = false;
                   double chi2 = 10000000.;
-                  int best_tgt = -1;
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
-                    cluster_set->target_id = tgt_index;
-                    if (IsXTrackCandidate(chi2, cluster_set)) {
+                    if (IsXTrackCandidate(tgt_index, chi2, cluster_set)) {
                       is_cand = true;
                       chi2 = cluster_set->chi_square;
-                      best_tgt = tgt_index;
                     }
                   }
                   if (is_cand) {
-                    cluster_set->target_id = best_tgt;
                     cluster_sets[0].emplace_back(*cluster_set);
                   }
 //                  cluster_set->target_id= 1;
@@ -955,6 +956,8 @@ E16INFO("number of y candidates: %d", n_y_cands);
 //array<double, 2> coefs;
 //coefs[1] = 2. * x_cand.coefs[2] * lotate_z + x_cand.coefs[1];
 //coefs[0] = lotate_x - coefs[1] * lotate_z;
+//int cid[4] = {x_cand.ssd_cluster->ClusterId(), x_cand.gtr_clusters[0]->ClusterId(), x_cand.gtr_clusters[1]->ClusterId(), x_cand.gtr_clusters[2]->ClusterId()};
+//cout << "ID: " << cid[0] << " " << cid[1] << " " << cid[2] << " " << cid[3] << endl;
 //cout << "rot phi: " << rot_phi << " " << rot_cos << " " << rot_sin << " " << offset << endl;
 //cout << "gtr: " << x << " " << z << endl;
 //cout << "lotate gtr: " << lotate_x << " " << lotate_z << endl;
