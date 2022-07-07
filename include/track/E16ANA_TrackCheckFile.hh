@@ -512,6 +512,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rough_fit_n_hbds", &rough_fit_n_hbds);
     tree->Branch("rough_fit_hbd_ids", &rough_fit_hbd_ids);
     tree->Branch("rough_fit_hbd_ress",   &rough_fit_hbd_ress);
+    tree->Branch("rough_fit_hbd_y_oks",   &rough_fit_hbd_y_oks);
     tree->Branch("y_rough_fit_chi_square", &y_rough_fit_chi_square);
     tree->Branch("y_rough_fit_coef0", &y_rough_fit_coef0);
     tree->Branch("y_rough_fit_coef1", &y_rough_fit_coef1);
@@ -2193,8 +2194,10 @@ class E16ANA_TrackCheckFile {
     rough_fit_n_hbds.resize(n_cands);
     rough_fit_hbd_ids.clear();
     rough_fit_hbd_ress.clear();
+    rough_fit_hbd_y_oks.clear();
     rough_fit_hbd_ids.resize(n_cands);
     rough_fit_hbd_ress.resize(n_cands);
+    rough_fit_hbd_y_oks.resize(n_cands);
     y_rough_fit_chi_square.resize(n_cands);
     y_rough_fit_coef0.resize(n_cands);
     y_rough_fit_coef1.resize(n_cands);
@@ -2612,9 +2615,11 @@ class E16ANA_TrackCheckFile {
       x_rough_fit_coef2[i] = cand.XCoef(2);
       auto& hbd_ids = cand.RoughAssociatedHBDIDs();
       auto& hbd_ress = cand.RoughAssociatedHBDResiduals();
+      auto& hbd_y_oks = cand.RoughAssociatedHBDYOKs();
       rough_fit_n_hbds[i] = hbd_ids.size();
       copy(hbd_ids.begin(),  hbd_ids.end(),  back_inserter(rough_fit_hbd_ids[i]));
       copy(hbd_ress.begin(), hbd_ress.end(), back_inserter(rough_fit_hbd_ress[i]));
+      copy(hbd_y_oks.begin(), hbd_y_oks.end(), back_inserter(rough_fit_hbd_y_oks[i]));
       y_rough_fit_chi_square[i] = cand.YChiSquare();
       y_rough_fit_coef0[i] = cand.YCoef(0);
       y_rough_fit_coef1[i] = cand.YCoef(1);
@@ -3842,6 +3847,7 @@ class E16ANA_TrackCheckFile {
   std::vector<int>    rough_fit_n_hbds;
   std::vector<std::vector<double>> rough_fit_hbd_ids;
   std::vector<std::vector<double>> rough_fit_hbd_ress;
+  std::vector<std::vector<double>> rough_fit_hbd_y_oks;
   std::vector<double> y_rough_fit_chi_square;
   std::vector<double> y_rough_fit_coef0;
   std::vector<double> y_rough_fit_coef1;

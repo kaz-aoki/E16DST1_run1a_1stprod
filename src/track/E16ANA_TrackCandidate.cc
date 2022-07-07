@@ -742,15 +742,20 @@ double E16ANA_TrackCandidates::RoughFitChiSquareThreshold(int n) { return kRough
 double E16ANA_TrackCandidates::RoughXFitCoefficientThreshold(int n) { return kRoughXFitCoefficientThreshold[n]; }
 double E16ANA_TrackCandidates::RoughYFitCoefficientThreshold(int n) { return kRoughYFitCoefficientThreshold[n]; }
 
-bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand) {
+bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand, vector<bool>* hbd_y_oks) {
+  hbd_y_oks->clear();
+  hbd_y_oks->assign(x_cand.hbd_indexs.size(), false);
+  bool has_hbd = false;
   auto fit_y = y_cand.coefs[0] + y_cand.coefs[1] * kHBDRadius;
-  for (const auto& i : x_cand.hbd_indexs) {
-    auto y = record->HBD().Cluster(i).LocalPos().Y();
+  for (int i = 0; i < x_cand.hbd_indexs.size(); ++i) {
+    auto index = x_cand.hbd_indexs[i];
+    auto y = record->HBD().Cluster(index).LocalPos().Y();
     if (fabs(y - fit_y) < kMaxHBDRoughYRes) {
-      return true;
-    }
+      hbd_y_oks->at(i) = true;
+    
+    } has_hbd = true;
   }
-  return false;
+  return has_hbd;
 }
 
 #ifndef TRACK_EFF_CHECK
@@ -939,7 +944,8 @@ E16INFO("number of y candidates: %d", n_y_cands);
       if (!is_same_module) {
         continue;
       }
-      if (kReqHBDAssociation && !HasAssociatedHBD(x_cand, y_cand)) {
+      vector<bool> hbd_y_oks;
+      if (kReqHBDAssociation && !HasAssociatedHBD(x_cand, y_cand, &hbd_y_oks)) {
         continue;
       }
 //auto offset = kTargetZ[x_cand.target_id];
@@ -993,7 +999,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
       for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
         tmp_cand.SetYCoef(i, y_cand.coefs[i]);
       }
-      tmp_cand.SetXAssociatedHBD(x_cand.hbd_ids, x_cand.hbd_ress);
+      tmp_cand.SetAssociatedHBD(x_cand.hbd_ids, x_cand.hbd_ress, hbd_y_oks);
       auto& cluster_pairs = tmp_cand.ClusterPairs();
       cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);
       for (int i = 0; i < kNumGTRLayers; ++i) {

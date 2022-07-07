@@ -236,11 +236,13 @@ class E16ANA_TrackCandidate {
   // tmp
   void SetXCoef(int n, double coef) { x_coef[n] = coef; }
   void SetXChiSquare(double _chi_square) { x_chi_square = _chi_square; }
-  void SetXAssociatedHBD(const std::vector<int>& _hbd_ids, const std::vector<double>& _hbd_ress) {
+  void SetAssociatedHBD(const std::vector<int>& _hbd_ids, const std::vector<double>& _hbd_ress, const std::vector<bool>& _hbd_y_oks) {
     hbd_ids.clear();
     hbd_ress.clear();
+    hbd_y_oks.clear();
     copy(_hbd_ids.begin(),  _hbd_ids.end(),  back_inserter(hbd_ids));
     copy(_hbd_ress.begin(), _hbd_ress.end(), back_inserter(hbd_ress));
+    copy(_hbd_y_oks.begin(), _hbd_y_oks.end(), back_inserter(hbd_y_oks));
     return;
   }
   void SetYCoef(int n, double coef) { y_coef[n] = coef; }
@@ -249,6 +251,7 @@ class E16ANA_TrackCandidate {
   double XChiSquare() { return x_chi_square; }
   std::vector<int>& RoughAssociatedHBDIDs() { return hbd_ids; }
   std::vector<double>& RoughAssociatedHBDResiduals() { return hbd_ress; }
+  std::vector<bool>& RoughAssociatedHBDYOKs() { return hbd_y_oks; }
   double YCoef(int n) { return y_coef[n]; }
   double YChiSquare() { return y_chi_square; }
  private:
@@ -293,6 +296,7 @@ class E16ANA_TrackCandidate {
     this->x_chi_square = rhs.x_chi_square;
     this->hbd_ids = rhs.hbd_ids;
     this->hbd_ress = rhs.hbd_ress;
+    this->hbd_y_oks = rhs.hbd_y_oks;
     this->y_coef = rhs.y_coef;
     this->y_chi_square = rhs.y_chi_square;
     this->init_pos_fit = rhs.init_pos_fit;
@@ -358,6 +362,7 @@ class E16ANA_TrackCandidate {
   double x_chi_square;
   std::vector<int> hbd_ids;
   std::vector<double> hbd_ress;
+  std::vector<bool> hbd_y_oks;
   std::array<double, 2> y_coef;
   double y_chi_square;
   // Fit Result
@@ -664,7 +669,7 @@ class E16ANA_TrackCandidates {
 //    }
 //    return false;
 //  }
-  bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand);
+  bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand, std::vector<bool>* hbd_y_oks);
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
