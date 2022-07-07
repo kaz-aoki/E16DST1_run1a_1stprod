@@ -307,7 +307,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   double x[2]    = {mock_ssd.X(), -10000.};
   int    size[2] = {kSSDClusterSize, -1};
   float  t[2]    = {ssd_t[0], -10000.};
-  auto& ssd_clusters = record->SSD().ClusterPtrs(mid, -1, -1);
+  auto& ssd_clusters = record->SSD().ClusterPtrs(mid, 0, 0);
   for (int i = 0; i < ssd_clusters.size(); ++i) {
     auto clst = ssd_clusters[i];
     x[1] = clst->LocalX();

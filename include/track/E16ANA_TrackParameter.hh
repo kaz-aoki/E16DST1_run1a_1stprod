@@ -8,9 +8,6 @@
 
 namespace E16ANA_TrackParameter {
 
-constexpr double kHBDRadius = 1235.;
-constexpr double kRoughFitHBDYMaxDiff = 50.;
-
 //// pion
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 //const TVector3 kInitPosError = {3., 3.4, 0.};
@@ -55,7 +52,11 @@ constexpr bool kVtxZFixFlag = true; // 220607
 constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-40., 40.}; // 220607
-const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
+//const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
+const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
+                                          {0.265, 0.626, 0.},
+                                          {0.252, 0.542, 0.},
+                                          {0.262, 0.518, 0.}}}; // 220623 TDR2206
 //const TVector3 kInitPosError = {3., 3.4, 0.};
 const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
@@ -91,7 +92,27 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
   return false;
 }
 
+// other
 constexpr bool kExecutePairFit = false;
+constexpr bool kReqHBDAssociation = true;
+constexpr double kHBDRadius = 1200.;
+constexpr double kMaxHBDRoughXRes = 180.;
+constexpr double kMaxHBDRoughYRes = 22.5; // HBD y residual 3 sigma = 3 x 5.6 mm, 99 % threshold of residual between rough fit and RK fit = 15 mm
+constexpr double kMinHBDADCForRK = 2.;
+
+constexpr double kTrackingStepSize = 5.;
+constexpr int    kTrackingMaxSteps = 80;
+constexpr int    kMinuitStrategy = 0;
+constexpr int    kMinuitMaxFunctionCalls = 1.0e3;
+//constexpr double kTrackingStepSize = 1.; // pair fit value
+//constexpr int    kTrackingMaxSteps = 400;
+//constexpr int    kMinuitStrategy = 2;
+//constexpr int    kMinuitMaxFunctionCalls = 1.0e4;
+constexpr int    kProjectionMaxSteps = 2000;
+
+//constexpr double kMaxChi2ForSearchAssociatedHits = 500.;
+constexpr double kMaxChi2ForSearchAssociatedHits = 1.0e10;
+
 }; // E16ANA_TrackParameter
 
 #endif // E16ANA_TRACK_PARAMETER_HH

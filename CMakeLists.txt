@@ -27,15 +27,13 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-add_definitions(-DTRACK_EFF_CHECK)
-add_definitions(-DMERGE_TRACK_PAIR)
+#add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DREMOVE_REAL_HIT)
 #add_definitions(-DWO_POS_SMEAR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
 
 #add_definitions(-DWO_TRACK_FIT)
-
-#add_definitions(-DREQ_HBD_BEFORE_FIT)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
@@ -524,6 +522,12 @@ target_link_libraries(tmp_fit_mock_pair_from_dst1_220618_wrapper
 add_executable(tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper
   usr/tmp/tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper.cc
   usr/tmp/tmp_fit_mock_pair_from_dst1_drawer_220620.C
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_check_pos_smear_220627_wrapper
+  usr/tmp/tmp_check_pos_smear_220627_wrapper.cc
+  usr/tmp/tmp_check_pos_smear_220627.C
 )
 
 #_______________________________________________________________________________

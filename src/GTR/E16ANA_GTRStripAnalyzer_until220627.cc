@@ -71,18 +71,8 @@ void E16ANA_GTRStripAnalyzer::Clear()
 
 void E16ANA_GTRStripAnalyzer::SetFadc(int strip_id, int16_t *waveform)
 {
-
-  /*
-  double local_pedestal = 0.0;
-   for (int j = 0; j < 5; j++) {
-     local_pedestal += waveform[j];
-   }
-   local_pedestal /= 5.0;
-  */
-
    for (int j = 0; j < n_sampling; j++) {
-     fadc[strip_id][j] = waveform[j] - fadc_ped[strip_id];
-     //fadc[strip_id][j] = waveform[j] - local_pedestal;
+      fadc[strip_id][j] = waveform[j] - fadc_ped[strip_id];
       if( strip_id== 100 ){
 //        std::cout << "wave form j0 = " << waveform[j] << ", ped = "  <<fadc_ped[strip_id] << ", sigma = "<< fadc_ped_sigma[strip_id] <<  std::endl;
       }
@@ -312,13 +302,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
             }
          }
          fadc_tot[ch] = tot_end - tot_start;
-	 //std::cout << fadc_tot[ch] << ", " << tot_start << ", " << tot_end << 
-	 //  std::endl;
-         //if (fadc_tot[ch] < gem_tot_threshold ) { // Original
-         //if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0 ) {
-	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 
-	 && fadc_tot[ch] > 0 ) { // Morino Updates
-	 //if (fabs(fadc_tot[ch]) < gem_tot_threshold) { // Morino
+         if (fadc_tot[ch] < gem_tot_threshold) {
             fadc_peak[ch] = -255.0;
             fadc_tdc[ch] = -1000.0;
             fadc_peak_time[ch] = -1000.0;

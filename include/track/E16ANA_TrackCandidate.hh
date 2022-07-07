@@ -141,6 +141,7 @@ class E16ANA_TrackCandidate {
   }
   ~E16ANA_TrackCandidate() {}
   void SetTrackID(int _track_id) { track_id = _track_id; }
+  void SetIsSearchAssociatedHits(bool _is_search_associated_hits) { is_search_associated_hits = _is_search_associated_hits; }
   void SetHasElectronHBDCluster(bool _has_e_hbd_cluster) { has_e_hbd_cluster = _has_e_hbd_cluster; }
   void SetHasElectronLGHit(bool _has_e_lg_hit) { has_e_lg_hit = _has_e_lg_hit; }
   void SetIsLargeResidual(bool _is_large_residual) { is_large_residual = _is_large_residual; }
@@ -161,8 +162,8 @@ class E16ANA_TrackCandidate {
 //  TVector3 Sigma() { return kSigma; }
   TVector3 EachSigma(int n);
   TVector3 InitPosError();
-  int TrackingMaxSteps() { return kTrackingMaxSteps; }
-  int ProjectionMaxSteps() { return kProjectionMaxSteps; }
+  int TrackingMaxSteps();
+  int ProjectionMaxSteps();
   int TrackID() { return track_id; }
   int TargetID() { return target_id; }
   bool HasElectronHBDCluster() { return has_e_hbd_cluster; }
@@ -185,6 +186,7 @@ class E16ANA_TrackCandidate {
   int MatrixStatus() { return matrix_status; }
   int NumSteps() { return n_steps; }
   int NumCalls() { return n_calls; }
+  bool IsSearchAssociatedHits() { return is_search_associated_hits; }
   int ProjectionFlag() { return projection_flag; }
   E16ANA_TrackClusterPair& ClusterPair(int layer_index) { return cluster_pairs[layer_index]; }
   std::array<E16ANA_TrackClusterPair, E16ANA_TrackConstant::kNumTrackingLayers>& ClusterPairs() { return cluster_pairs; }
@@ -234,23 +236,35 @@ class E16ANA_TrackCandidate {
   // tmp
   void SetXCoef(int n, double coef) { x_coef[n] = coef; }
   void SetXChiSquare(double _chi_square) { x_chi_square = _chi_square; }
+  void SetAssociatedHBD(const std::vector<int>& _hbd_ids, const std::vector<double>& _hbd_ress, const std::vector<bool>& _hbd_y_oks) {
+    hbd_ids.clear();
+    hbd_ress.clear();
+    hbd_y_oks.clear();
+    copy(_hbd_ids.begin(),  _hbd_ids.end(),  back_inserter(hbd_ids));
+    copy(_hbd_ress.begin(), _hbd_ress.end(), back_inserter(hbd_ress));
+    copy(_hbd_y_oks.begin(), _hbd_y_oks.end(), back_inserter(hbd_y_oks));
+    return;
+  }
   void SetYCoef(int n, double coef) { y_coef[n] = coef; }
   void SetYChiSquare(double _chi_square) { y_chi_square = _chi_square; }
   double XCoef(int n) { return x_coef[n]; }
   double XChiSquare() { return x_chi_square; }
+  std::vector<int>& RoughAssociatedHBDIDs() { return hbd_ids; }
+  std::vector<double>& RoughAssociatedHBDResiduals() { return hbd_ress; }
+  std::vector<bool>& RoughAssociatedHBDYOKs() { return hbd_y_oks; }
   double YCoef(int n) { return y_coef[n]; }
   double YChiSquare() { return y_chi_square; }
  private:
   static constexpr int kRKPrintLevel = 1; // tmp
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
-  static constexpr int kMinuitStrategy = 0;
-  static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
-  static constexpr double kTrackingStepSize = 5.;
+//  static constexpr int kMinuitStrategy = 0;
+//  static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
+//  static constexpr double kTrackingStepSize = 5.;
 //  static constexpr int kTrackingMaxSteps = 300;
 //  static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kTrackingMaxSteps = 80;
+//  static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
-  static constexpr int kProjectionMaxSteps = 2000;
+//  static constexpr int kProjectionMaxSteps = 2000;
   static constexpr double drift_v  = 8e-3;
   static constexpr double centtdc = 328;
   static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
@@ -280,6 +294,9 @@ class E16ANA_TrackCandidate {
     this->sigma = rhs.sigma;
     this->x_coef = rhs.x_coef;
     this->x_chi_square = rhs.x_chi_square;
+    this->hbd_ids = rhs.hbd_ids;
+    this->hbd_ress = rhs.hbd_ress;
+    this->hbd_y_oks = rhs.hbd_y_oks;
     this->y_coef = rhs.y_coef;
     this->y_chi_square = rhs.y_chi_square;
     this->init_pos_fit = rhs.init_pos_fit;
@@ -343,6 +360,9 @@ class E16ANA_TrackCandidate {
   // raugh fit chi square (tmp?)
   std::array<double, 3> x_coef;
   double x_chi_square;
+  std::vector<int> hbd_ids;
+  std::vector<double> hbd_ress;
+  std::vector<bool> hbd_y_oks;
   std::array<double, 2> y_coef;
   double y_chi_square;
   // Fit Result
@@ -360,6 +380,7 @@ class E16ANA_TrackCandidate {
   std::array<TVector3, E16ANA_TrackConstant::kNumTargets> mom_at_targets;
   TVector3 pos_at_x0;
   TVector3 mom_at_x0;
+  bool is_search_associated_hits;
   int projection_flag; // bit0: HBD, 1: LG0, 2: LG1, 3: LG2
   std::vector<E16DST_DST1HBDHit*> hbd_hits;
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
@@ -474,7 +495,7 @@ class E16ANA_TrackCandidates {
   double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
   int StepTrackArraySize() { return kStepTrackArraySize; }
   TVector3 VertexSigma() { return kVertexSigma; }
-  TVector3 PairFitSigma(int n) { return kSigmas[n]; }
+//  TVector3 PairFitSigma(int n) { return kSigmas[n]; }
   int NumXCandidates() { return n_x_cands; }
   int NumYCandidates() { return n_y_cands; }
   int NumTrackCandidates() { return track_candidates.size(); }
@@ -530,6 +551,9 @@ class E16ANA_TrackCandidates {
     int charge; // only x
     double chi_square;
     std::array<double, 3> coefs;
+    std::vector<int> hbd_indexs;
+    std::vector<int> hbd_ids;
+    std::vector<double> hbd_ress;
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
 //    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
@@ -589,13 +613,13 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
-  static constexpr double kTrackingStepSize = 1.;
-  static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kMinuitStrategy = 2;
-  static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
+  static constexpr double kPairTrackingStepSize = 1.;
+  static constexpr int kPairTrackingMaxSteps = 400;
+  static constexpr int kPairMinuitStrategy = 2;
+  static constexpr int kPairMinuitMaxFunctionCalls = 1.0e4;
 //  static inline const TVector3 kVertexSigma = {3., 3., 0.};
   static inline const TVector3 kVertexSigma = {0., 0., 0.};
-  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
+//  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
@@ -634,7 +658,9 @@ class E16ANA_TrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  bool IsXTrackCandidate(double prev_chi2, OneAxisClusterSet* cluster_set);
+  bool HasXAssociatedHBD(int tgt_id, const OneAxisClusterSet& cluster_set, const std::array<double, kNumRoughFitDegree[0]>& coef,
+                         std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
+  bool IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
@@ -643,7 +669,7 @@ class E16ANA_TrackCandidates {
 //    }
 //    return false;
 //  }
-  bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand);
+  bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand, std::vector<bool>* hbd_y_oks);
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();

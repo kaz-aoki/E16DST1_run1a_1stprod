@@ -46,10 +46,12 @@ constexpr double kLGTime = 100.;
 //constexpr double kGTRDriftSigma = 0.265;
 
 #ifndef WO_POS_SMEAR
-//constexpr double kSSDXSigma = 0.1;
+//constexpr double kSSDXSigma = 0.1; // current analysis
 //constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
 constexpr double kSSDXSigma = 0.067; // TDR2206
 constexpr double kGTRXYSigma[3][2] = {{0.265, 0.626}, {0.252, 0.542}, {0.262, 0.518}};
+//constexpr double kSSDXSigma = 0.03; // Nakai's simulation
+//constexpr double kGTRXYSigma[3][2] = {{0.1, 0.3}, {0.1, 0.3}, {0.1, 0.3}};
 #else
 constexpr double kSSDXSigma = 0.;
 constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
@@ -66,7 +68,7 @@ constexpr double kGTRTimeSigma   = 87.55;
 //constexpr double kGTRXYTimeSigma =  20.; // tmp
 constexpr double kGTRXYTimeSigma = 25.12; // 220528 from Murakami's study
 
-constexpr double kMaxTimeDiff[2] = {10., 150.}; // clustering threshold
+constexpr double kMaxTimeDiff[3] = {10., 150., 150.}; // clustering threshold
 
 constexpr int    kSSDClusterSize  = 1;
 constexpr int    kGTRxClusterSize = 3;
