@@ -74,9 +74,14 @@ constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[1] * kYSigma[1]),
                                             1. / (kYSigma[2] * kYSigma[2])};
 constexpr int kMinHitsInXCluster = 2;
+//constexpr int kMinHitsInXCluster = 1;
 constexpr double kGTRYDiffThreshold = 20.; // mm
 //constexpr std::array<double, 3> kGTRPeakSumThresholdX = {80., 150., 250.};
 constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
+////constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 220.}; // Ozawa modification 220618
+////constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 60.}; // Ozawa modification 220620
+//constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 100.}; // Ozawa modification 220620-2 Ozawa's final value?
+////constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 130.}; // Ozawa modification 220620-3
 constexpr double kGTRPeakSumThresholdY = 50.;
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 20.}; // x, y // 220413 for statistics check, 220418 for production
@@ -93,7 +98,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 }
 
 // other
-constexpr bool kExecutePairFit = false;
+constexpr bool kExecutePairFit = true;
 constexpr bool kReqHBDAssociation = true;
 constexpr double kHBDRadius = 1200.;
 constexpr double kMaxHBDRoughXRes = 180.;

@@ -752,8 +752,8 @@ bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, c
     auto y = record->HBD().Cluster(index).LocalPos().Y();
     if (fabs(y - fit_y) < kMaxHBDRoughYRes) {
       hbd_y_oks->at(i) = true;
-    
-    } has_hbd = true;
+      has_hbd = true;
+    }
   }
   return has_hbd;
 }
@@ -1173,7 +1173,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPosT(*geometry);
                   bool is_cand = false;
                   double chi2 = 10000000.;
-                  int best_tgt = -1;
 #ifdef SIM_DST1_GEOM_CHECK
 for (int i = 0; i < 4; ++i) {
   auto& pos = cluster_set->global_poss[i];
@@ -1182,14 +1181,12 @@ for (int i = 0; i < 4; ++i) {
 #endif // SIM_DST1_GEOM_CHECK
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
                     cluster_set->target_id = tgt_index;
-                    if (IsXTrackCandidate(chi2, cluster_set)) {
+                    if (IsXTrackCandidate(tgt_index, chi2, cluster_set)) {
                       is_cand = true;
                       chi2 = cluster_set->chi_square;
-                      best_tgt = tgt_index;
                     }
                   }
                   if (is_cand) {
-                    cluster_set->target_id = best_tgt;
                     cluster_sets[0].emplace_back(*cluster_set);
                   } else {
                     for (int i = 0; i < 2; ++i) {
