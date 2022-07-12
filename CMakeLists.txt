@@ -425,6 +425,20 @@ target_link_libraries(check_gaindrop
 )
 
 #_______________________________________________________________________________
+add_executable(check_lggaincalib usr/tmp/check_lggaincalib.cc)
+
+target_link_libraries(check_lggaincalib
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(LGHitADC usr/tmp/LGHitADC.cc)
+
+target_link_libraries(LGHitADC
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 #add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
 #
 #target_link_libraries(draw_dead_channel_map

@@ -2665,7 +2665,10 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	out_track_gtr300x_adc.push_back(rk_hit_gtr300_xadc->at(itrack));
 	out_track_gtr300y_t.push_back(rk_hit_gtr300_yt->at(itrack));
 	out_track_gtr300y_adc.push_back(rk_hit_gtr300_yadc->at(itrack));
-	double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid);
+        int blockchx = (trk_lg_lx)-(track_position_block_lx);
+        int blockchy = (trk_lg_ly/fabs(trk_lg_ly))*(fabs(trk_lg_ly)+track_position_block_ly);
+        int blockch = LocaltoCh(blockchx,blockchy);
+	double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid,blockch);
 	out_track_w_trg_bias.push_back(trg_bias);
 	out_track_hbd_mid.push_back(trk_hbd_mid);
 	out_track_hbd_lx.push_back(trk_hbd_lx);
@@ -2705,7 +2708,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	  // if ( runoption==3 && hbdise==1 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<7*60) ) continue;//220407;
 	  if ( runoption==3 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1||hbd_cluster_adc->at(ihbd)>3) ) continue;//220213;
 	  if ( runoption==3 && hbdise==3 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<10) ) continue;//220307;
-	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<4) ) continue;//220213;
+	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<1||hbd_cluster_adc->at(ihbd)<4) ) continue;//220213;
 	  if ( runoption==0 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1) ) continue;//220213;
 	  // if ( hbd_cluster_t->at(ihbd)>80 || hbd_cluster_t->at(ihbd)<20 ) continue;//220212
 	  if(  hbd_cluster_mid->at(ihbd) == trk_hbd_mid ){
@@ -2748,7 +2751,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	    // if ( runoption==3 && hbdise==1 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<7*60) ) continue;//220407;
 	    if ( runoption==3 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1||hbd_cluster_adc_tmp.at(ihbd)>3) ) continue;//220213;
 	    if ( runoption==3 && hbdise==3 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<10) ) continue;//220307
-	    if ( runoption==3 && hbdise==4 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<4) ) continue;//220213
+	    if ( runoption==3 && hbdise==4 && (hbd_cluster_size_tmp.at(ihbd)<1||hbd_cluster_adc_tmp.at(ihbd)<4) ) continue;//220213
 	    if ( runoption==0 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1) ) continue;
 	    //if ( hbd_cluster_t_tmp.at(ihbd)>80 || hbd_cluster_t_tmp.at(ihbd)<20 ) continue;//220212
 	    if(  hbd_cluster_mid_tmp.at(ihbd) == trk_hbd_mid ){
@@ -3982,5 +3985,77 @@ void SingleTrackAnalyzerForRes::CalcLGWFefficiency(int runnum, int maxevent, dou
 
    froot->Write();
    froot->Close();
+
+}
+
+void SingleTrackAnalyzerForRes::LGHitADC(int maxevent, char* out_pdf_file, char* out_root_file)
+{
+
+  TFile *fout = new TFile(out_root_file,"recreate");
+
+  TH1F* adc[7][60];
+  for(int i=0;i<7;i++){
+    for(int j=0;j<60;j++){
+      adc[i][j] = new TH1F(Form("adc%d%d",i,j),Form("LGadc_mid%d_cid%d",i+102,j),200,0,200);
+    }
+  }
+
+   if (fChain == 0) return;
+   Long64_t n_entries = fChain->GetEntries();
+   Long64_t nentries = fChain->GetEntriesFast();
+   int nevent=0;
+   Long64_t nbytes = 0, nb = 0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+      if( maxevent!=-1&&nevent>maxevent ){break;}
+
+      if (Cut(ientry) < 0) continue;
+
+      for(int ilg=0;ilg<n_lg_hits;ilg++){//lghit loop
+	if(lg_hit_fflag->at(ilg)>1) continue;
+	int mid = lg_hit_mid->at(ilg)-102;
+	int cid = lg_hit_cid->at(ilg);
+	if(mid<0||mid>6||cid<0||cid>59) continue;
+	adc[mid][cid]->Fill(lg_hit_adc->at(ilg));
+      }//lghit loop
+      nevent++;
+   }//event loop
+
+   TString outfile = Form("%s",out_pdf_file);
+   TCanvas* c[7];
+   TLine* l[7][42];
+   for(int i=0;i<7;i++){
+     c[i] = new TCanvas(Form("c%d",i),Form("c%d",i),1400,1000);
+     c[i]->Divide(7,6);
+     for(int j=0;j<42;j++){
+       c[i]->cd(42-j);
+       int tmpch = (j/7)*10 + j%7;
+       adc[i][tmpch]->Draw("colz");
+       if(i==2||i==4){
+	 gPad->Update();
+	 l[i][j] = new TLine(98.,gPad->GetUymin(),98.,gPad->GetUymax());
+       }
+       else{
+	 gPad->Update();
+	 l[i][j] = new TLine(49.,gPad->GetUymin(),49.,gPad->GetUymax());
+       }
+       l[i][j]->SetLineColor(2);
+       l[i][j]->Draw("sames");
+     }
+   }
+
+   TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+   cdef->SaveAs(outfile+"[","pdf");
+   for(int i=0;i<7;i++){
+     c[i]->SaveAs(outfile,"pdf");
+   }
+   cdef->SaveAs(outfile+"]","pdf");
+
+   fout->Write();
+   fout->Close();
 
 }

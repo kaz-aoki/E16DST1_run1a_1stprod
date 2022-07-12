@@ -2090,122 +2090,122 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
    // lgenerejsub->Write();
 }
 
-void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent)
-{
+// void AnalyzerTrackSelection::MkMixingHist(int runoption, int maxevent)
+// {
 
-   if (fChain == 0) return;
+//    if (fChain == 0) return;
 
-   TFile *fouthist = new TFile("mixing.root","recreate");
+//    TFile *fouthist = new TFile("mixing.root","recreate");
 
-   struct hitset{
-     int mid;
-     double lx;
-     double ly;
-     double adc;
-     double tdc;
-   };
+//    struct hitset{
+//      int mid;
+//      double lx;
+//      double ly;
+//      double adc;
+//      double tdc;
+//    };
 
-   std::vector<hitset> hbdmixhits[5];
-   std::vector<hitset> lgmixhits[5];
-   int roughbin[5] = {800,100,100,100,100};//bin
-   TH1F *hbdresxmix[5];
-   TH1F *hbdresymix[5];
-   TH1F *lgresxmix[5];
-   TH1F *lgresymix[5];
-   for(int i=0;i<5;i++){
-     hbdresxmix[i] = new TH1F(Form("hbdresxmix%d",i),Form("hbd_resx_mix_mod%d",103+i),roughbin[0],-800,800);
-     hbdresymix[i] = new TH1F(Form("hbdresymix%d",i),Form("hbd_resy_mix_mod%d",103+i),roughbin[0],-800,800);
-     lgresxmix[i] = new TH1F(Form("lgresxmix%d",i),Form("lg_resx_mix_mod%d",103+i),roughbin[1],-800,800);
-     lgresymix[i] = new TH1F(Form("lgresymix%d",i),Form("lg_resy_mix_mod%d",103+i),roughbin[1],-800,800);
-   }
+//    std::vector<hitset> hbdmixhits[5];
+//    std::vector<hitset> lgmixhits[5];
+//    int roughbin[5] = {800,100,100,100,100};//bin
+//    TH1F *hbdresxmix[5];
+//    TH1F *hbdresymix[5];
+//    TH1F *lgresxmix[5];
+//    TH1F *lgresymix[5];
+//    for(int i=0;i<5;i++){
+//      hbdresxmix[i] = new TH1F(Form("hbdresxmix%d",i),Form("hbd_resx_mix_mod%d",103+i),roughbin[0],-800,800);
+//      hbdresymix[i] = new TH1F(Form("hbdresymix%d",i),Form("hbd_resy_mix_mod%d",103+i),roughbin[0],-800,800);
+//      lgresxmix[i] = new TH1F(Form("lgresxmix%d",i),Form("lg_resx_mix_mod%d",103+i),roughbin[1],-800,800);
+//      lgresymix[i] = new TH1F(Form("lgresymix%d",i),Form("lg_resy_mix_mod%d",103+i),roughbin[1],-800,800);
+//    }
 
-   double track_select_sigma = 2.;
-   double hbd_voriginx[4]={0.};
-   double hbd_voriginy[4]={0.};
-   double hbd_vsigmax[4]={25.,25.,25.,25.};
-   double hbd_vsigmay[4]={25.,25.,25.,25.};
+//    double track_select_sigma = 2.;
+//    double hbd_voriginx[4]={0.};
+//    double hbd_voriginy[4]={0.};
+//    double hbd_vsigmax[4]={25.,25.,25.,25.};
+//    double hbd_vsigmay[4]={25.,25.,25.,25.};
 
-   Long64_t n_entries = fChain->GetEntries();
-   Long64_t nentries = fChain->GetEntriesFast();
-   Long64_t nbytes = 0, nb = 0;
+//    Long64_t n_entries = fChain->GetEntries();
+//    Long64_t nentries = fChain->GetEntriesFast();
+//    Long64_t nbytes = 0, nb = 0;
 
-   int nevent=0;
-   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
-      Long64_t ientry = LoadTree(jentry);
-      if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+//    int nevent=0;
+//    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+//       Long64_t ientry = LoadTree(jentry);
+//       if (ientry < 0) break;
+//       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
-      if( maxevent!=-1&&nevent>maxevent ){break;}
+//       if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+//       if( maxevent!=-1&&nevent>maxevent ){break;}
 
-      std::vector<int> goodtracks;
-      if (SelectGoodTrack(ientry,goodtracks,hbd_voriginx,hbd_voriginy,hbd_vsigmax,hbd_vsigmay) < 0) continue;
-      // if (Cut(ientry) < 0) continue;//220407
+//       std::vector<int> goodtracks;
+//       if (SelectGoodTrack(ientry,goodtracks,hbd_voriginx,hbd_voriginy,hbd_vsigmax,hbd_vsigmay) < 0) continue;
+//       // if (Cut(ientry) < 0) continue;//220407
 
-      bool alfill[5]={false};
+//       bool alfill[5]={false};
 
-      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
+//       for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
-      	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
-      	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
+//       	if (CutOfTrack(ientry,itrack,goodtracks) < 0) continue;
+//       	// if (CutOfTrack(ientry,itrack,runoption) < 0) continue;//220407
 
-      	int mide = track_hbd_mid->at(itrack)-103;
-      	if(alfill[mide]==false){//hit fill
-      	  alfill[mide]=true;
-      	  for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
-      	    hitset hbdhit;
-      	    hbdhit.mid=track_hbd_mid->at(itrack);
-      	    hbdhit.lx=track_hbd_allhit_resx->at(itrack).at(ihbd)+track_hbd_lx->at(itrack);
-      	    hbdhit.ly=track_hbd_allhit_resy->at(itrack).at(ihbd)+track_hbd_ly->at(itrack);
-      	    hbdhit.adc=track_hbd_allhit_adc->at(itrack).at(ihbd);
-      	    hbdhit.tdc=track_hbd_allhit_ftime->at(itrack).at(ihbd);
-      	    hbdmixhits[mide].push_back(hbdhit);
-      	  }
-      	  for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
-      	    hitset lghit;
-      	    lghit.mid=track_lg_mid->at(itrack);
-      	    lghit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
-      	    lghit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
-      	    lghit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
-      	    lghit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
-      	    lgmixhits[mide].push_back(lghit);
-      	  }
-      	}//hit fill
-      	if(hbdmixhits[mide].size()==0||lgmixhits[mide].size()==0) continue;
-      	for(int ihbd=0;ihbd<hbdmixhits[mide].size();ihbd++){
-      	  hbdresxmix[mide]->Fill(hbdmixhits[mide].at(ihbd).lx-track_hbd_lx->at(itrack));
-      	  hbdresymix[mide]->Fill(hbdmixhits[mide].at(ihbd).ly-track_hbd_ly->at(itrack));
-      	}
-      	for(int ilg=0;ilg<lgmixhits[mide].size();ilg++){
-      	  lgresxmix[mide]->Fill(lgmixhits[mide].at(ilg).lx-track_lg_lx->at(itrack));
-      	  lgresymix[mide]->Fill(lgmixhits[mide].at(ilg).ly-track_lg_ly->at(itrack));
-      	}
-	if(hbdmixhits[mide].size()>500){
-	  hbdmixhits[mide].clear();
-	}
-	if(lgmixhits[mide].size()>500){
-	  lgmixhits[mide].clear();
-	}
+//       	int mide = track_hbd_mid->at(itrack)-103;
+//       	if(alfill[mide]==false){//hit fill
+//       	  alfill[mide]=true;
+//       	  for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
+//       	    hitset hbdhit;
+//       	    hbdhit.mid=track_hbd_mid->at(itrack);
+//       	    hbdhit.lx=track_hbd_allhit_resx->at(itrack).at(ihbd)+track_hbd_lx->at(itrack);
+//       	    hbdhit.ly=track_hbd_allhit_resy->at(itrack).at(ihbd)+track_hbd_ly->at(itrack);
+//       	    hbdhit.adc=track_hbd_allhit_adc->at(itrack).at(ihbd);
+//       	    hbdhit.tdc=track_hbd_allhit_ftime->at(itrack).at(ihbd);
+//       	    hbdmixhits[mide].push_back(hbdhit);
+//       	  }
+//       	  for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+//       	    hitset lghit;
+//       	    lghit.mid=track_lg_mid->at(itrack);
+//       	    lghit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
+//       	    lghit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
+//       	    lghit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
+//       	    lghit.tdc=track_lg_allhit_ftime->at(itrack).at(ilg);
+//       	    lgmixhits[mide].push_back(lghit);
+//       	  }
+//       	}//hit fill
+//       	if(hbdmixhits[mide].size()==0||lgmixhits[mide].size()==0) continue;
+//       	for(int ihbd=0;ihbd<hbdmixhits[mide].size();ihbd++){
+//       	  hbdresxmix[mide]->Fill(hbdmixhits[mide].at(ihbd).lx-track_hbd_lx->at(itrack));
+//       	  hbdresymix[mide]->Fill(hbdmixhits[mide].at(ihbd).ly-track_hbd_ly->at(itrack));
+//       	}
+//       	for(int ilg=0;ilg<lgmixhits[mide].size();ilg++){
+//       	  lgresxmix[mide]->Fill(lgmixhits[mide].at(ilg).lx-track_lg_lx->at(itrack));
+//       	  lgresymix[mide]->Fill(lgmixhits[mide].at(ilg).ly-track_lg_ly->at(itrack));
+//       	}
+// 	if(hbdmixhits[mide].size()>500){
+// 	  hbdmixhits[mide].clear();
+// 	}
+// 	if(lgmixhits[mide].size()>500){
+// 	  lgmixhits[mide].clear();
+// 	}
 
-      }//track loop
+//       }//track loop
 
-      nevent++;
+//       nevent++;
 
-   }//event loop
+//    }//event loop
 
-   // TString outfile = Form("%s",out_file_name);
+//    // TString outfile = Form("%s",out_file_name);
 
-   // gStyle->SetOptStat(11111111);
-   // gStyle->SetOptFit(11111111);
+//    // gStyle->SetOptStat(11111111);
+//    // gStyle->SetOptFit(11111111);
 
-   // TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
-   // cdef->SaveAs(outfile+"[","pdf");
-   // cdef->SaveAs(outfile+"]","pdf");
+//    // TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+//    // cdef->SaveAs(outfile+"[","pdf");
+//    // cdef->SaveAs(outfile+"]","pdf");
 
-   fouthist->Write();
-   fouthist->Close();
+//    fouthist->Write();
+//    fouthist->Close();
 
-}
+// }
 
 void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, char* out_file_name, char* out_root_name, double hbdthr, int hbdclthr)
 {
@@ -4441,5 +4441,361 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
 
    fouthist->Write();
    fouthist->Close();
+
+}
+
+void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_file_name, char* out_root_name)
+{
+
+   if (fChain == 0) return;
+
+   TFile *fout = new TFile(out_root_name,"recreate");
+   TTree* tree = new TTree("tree","tree");
+   int out_run_id;
+   int out_event_id;
+   //block
+   int out_mid; 
+   int out_cid;
+   double out_adc;
+   double out_resx;
+   //track
+   double out_posx;
+   double out_anglex;
+   double out_length;
+   double out_rk_charge;
+   double out_mom;
+   int out_is_trg;
+
+   tree->Branch("run_id",&out_run_id,"run_id/I");
+   tree->Branch("event_id",&out_event_id,"event_id/I");
+   tree->Branch("mid",&out_mid,"mid/I");
+   tree->Branch("cid",&out_cid,"cid/I");
+   tree->Branch("adc",&out_adc,"adc/D");
+   tree->Branch("resx",&out_resx,"resx/D");
+   tree->Branch("posx",&out_posx,"posx/D");
+   tree->Branch("anglex",&out_anglex,"anglex/D");
+   tree->Branch("length",&out_length,"length/D");
+   tree->Branch("rk_charge",&out_rk_charge,"rk_charge/D");
+   tree->Branch("mom",&out_mom,"mom/D");
+   tree->Branch("is_trg",&out_is_trg,"is_trg/I");
+
+   TH1F* hadc[7][60];
+   TH1F* hadcd[7][60];
+   for(int i=0;i<7;i++){
+     for(int j=0;j<60;j++){
+       hadc[i][j] = new TH1F(Form("hadc%d%d",i,j),Form("LGadc_mid%d_cid%d",i+102,j),100,0,200);
+       hadcd[i][j] = new TH1F(Form("hadcd%d%d",i,j),Form("LGadc_dummy_mid%d_cid%d",i+102,j),100,0,200);
+     }
+   }
+
+   int mixevent = 50;
+   double ssdoffset = 51.;
+   double ssdregion = 11.;
+
+   const int ndet=2;
+   char det[ndet][20] = {"HBD","LGHit"};
+   double originx[5][ndet];
+   double originy[5][ndet];
+   double widthx[5][ndet];
+   double widthy[5][ndet];
+   for(int i=0;i<5;i++){
+     originx[i][0]=0.;
+     originy[i][0]=0.;
+     widthx[i][0]=25.;
+     widthy[i][0]=25.;
+     originx[i][1]=0.;
+     originy[i][1]=0.;
+     widthx[i][1]=100.;
+     widthy[i][1]=50.;
+   }
+   if(runoption==1){
+     //HBD
+     originx[0][0]= 6.0;//103
+     originy[0][0]=-1.1;
+     originx[1][0]= 4.8;//104
+     originy[1][0]= 0. ;
+     originx[3][0]=-5.7;//106
+     originy[3][0]=-1.6;
+     originx[4][0]= 2.2;//107
+     originy[4][0]= 1.3;
+   }
+
+   //for mixing
+   std::vector<std::vector<hitset>> hbdmixhits[5];
+   std::vector<std::vector<hitset>> lgmixhits[5];
+
+   Long64_t n_entries = fChain->GetEntries();
+   Long64_t nentries = fChain->GetEntriesFast();
+   Long64_t nbytes = 0, nb = 0;
+
+   int nevent=0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+     Long64_t ientry = LoadTree(jentry);
+     if (ientry < 0) break;
+     nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+     if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+     if( maxevent!=-1&&nevent>maxevent ){break;}
+
+     int ntrk[5]={0};
+     bool alfill[2][5]={false};//for mixing
+     std::vector<hitset> hbdhits[5];//for mixing
+     std::vector<hitset> lghits[5];//for mixing
+     std::vector<trackset> tracksets;//kill dup
+
+     for(int itrack=0;itrack<n_tracks;itrack++){//track loop
+
+       if (CutOfTrack(ientry,itrack) < 0) continue;
+
+       //Search near HBD hit
+       int hmide = track_hbd_mid->at(itrack)-103;
+       int lmide = track_lg_mid->at(itrack)-103;
+       double resx_min = 10000.;
+       double resy_min = 10000.;
+       double adc_max = -10000.;
+       for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
+	 double resx = track_hbd_allhit_resx->at(itrack).at(ihbd)-originx[hmide][0];
+	 double resy = track_hbd_allhit_resy->at(itrack).at(ihbd)-originy[hmide][0];
+	 if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
+	   resx_min=resx;
+	   resy_min=resy;
+	 }
+	 if(fabs(resx)<widthx[hmide][0]&&fabs(resy)<widthy[hmide][0]){
+	   if(adc_max<track_hbd_allhit_adc->at(itrack).at(ihbd)){
+	     adc_max = track_hbd_allhit_adc->at(itrack).at(ihbd);
+	   }
+	 }
+       }
+       bool HBDhit=false;
+       if( fabs(resx_min)<widthx[hmide][0] && fabs(resy_min)<widthy[hmide][0] ){
+	 HBDhit=true;
+       }
+       //Search near LG hit
+       bool LGhit=false;
+       int nlgh=0;
+       for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+	 double resx = track_lg_allhit_resx->at(itrack).at(ilg)-originx[lmide][1];
+	 double resy = track_lg_allhit_resy->at(itrack).at(ilg)-originy[lmide][1];
+	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
+	 if(tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	 if( fabs(resx)<widthx[lmide][1] && fabs(resy)<widthy[lmide][1] ){
+	   LGhit=true;
+	 }
+	 nlgh++;
+       }
+
+       int btrktype=-1;
+       if(HBDhit&&LGhit){
+	 btrktype=IsGoodTrack(ientry,itrack,tracksets);
+       }
+
+       if(btrktype<0) continue;
+
+       // //HBD Fill
+       // int nhbdc = 0;
+       // for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){// hbdcluster loop
+       // 	 double resx = track_hbd_allhit_resx->at(itrack).at(ihbd);
+       // 	 double resy = track_hbd_allhit_resy->at(itrack).at(ihbd);
+       // 	 double rxs = resx-originx[hmide][0];
+       // 	 double rys = resy-originy[hmide][0];
+       // 	 nhbdc++;
+       // }// hbdcluster loop
+
+       // if(hbdmixhits[hmide].size()!=0){//calc mix
+       // 	 for(int ihbd=0;ihbd<hbdmixhits[hmide].size();ihbd++){
+       // 	   int nhbdc_dum = 0;
+       // 	   for(int jhbd=0;jhbd<hbdmixhits[hmide].at(ihbd).size();jhbd++){
+       // 	     double tmpresx = hbdmixhits[hmide].at(ihbd).at(jhbd).lx-track_hbd_lx->at(itrack);
+       // 	     double tmpresy = hbdmixhits[hmide].at(ihbd).at(jhbd).ly-track_hbd_ly->at(itrack);
+       // 	     double tmprxs = tmpresx - originx[hmide][0];
+       // 	     double tmprys = tmpresy - originy[hmide][0];
+       // 	     nhbdc_dum++;
+       // 	   }
+       // 	 }
+       // }//calc mix
+
+       //LG Fill
+       for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){//lgfore
+	 double resx = track_lg_allhit_resx->at(itrack).at(ilg);
+	 double resy = track_lg_allhit_resy->at(itrack).at(ilg);
+	 double rxs = resx-originx[lmide][1];
+	 double rys = resy-originy[lmide][1];
+	 double tmpadc = track_lg_allhit_adc->at(itrack).at(ilg);
+	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
+	 int cid = SingleTrackAnalyzerForRes::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
+	 if(tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	 if( fabs(resx)<widthx[lmide][1] && fabs(resy)<widthy[lmide][1] ){
+	   out_run_id = run_id;
+	   out_event_id = event_id;
+	   out_mid = track_lg_mid->at(itrack);
+	   out_cid = cid;
+	   out_adc = tmpadc;
+	   out_resx = resx;
+	   out_posx = track_position_block_lx->at(itrack);
+	   out_anglex = track_angle_lx->at(itrack);
+	   //y=tt*x+b
+	   double tt = tan(out_anglex);
+	   double b = -resx;
+	   double y135 = tt*135.+b;
+	   double p[2]={0.};
+	   double q[2]={0.};
+	   if(b>61){
+	     if(y135>61){
+	       //not cross
+	     }
+	     else if(y135>-61&&y135<=61){
+	       p[0]=(61.-b)/tt;p[1]=61.;
+	       q[0]=135.;q[1]=y135;
+	     }
+	     else{
+	       p[0]=(61.-b)/tt;p[1]=61.;
+	       q[0]=(-61.-b)/tt;q[1]=-61.;
+	     }
+	   }
+	   else if(b>-61&&b<=61){
+	     p[0]=0.;p[1]=b;
+	     if(y135>61){
+	       q[0]=(61.-b)/tt;q[1]=61.;
+	     }
+	     else if(y135>-61&&y135<=61){
+	       q[0]=135.;q[1]=y135;
+	     }
+	     else{
+	       q[0]=(-61.-b)/tt;q[1]=-61.;
+	     }
+	   }
+	   else{
+	     if(y135>61){
+	       p[0]=(-61.-b)/tt;p[1]=-61.;
+	       q[0]=(61.-b)/tt;q[1]=61.;
+	     }
+	     else if(y135>-61&&y135<=61){
+	       p[0]=(-61.-b)/tt;p[1]=-61.;
+	       q[0]=135.;q[1]=y135;
+	     }
+	     else{
+	       //not cross
+	     }
+	   }
+	   out_length = sqrt((q[0]-p[0])*(q[0]-p[0])+(q[1]-p[1])*(q[1]-p[1]));
+	   out_rk_charge = rk_charge->at(itrack);
+	   out_mom = track_mom->at(itrack);
+	   out_is_trg = 1;
+	   if(track_w_trg_bias->at(itrack)<-1000){out_is_trg = 0;}
+	   tree->Fill();
+	   hadc[out_mid-102][cid]->Fill(tmpadc);
+	 }
+       }//lgfore
+
+       if(lgmixhits[lmide].size()!=0){//calc mix
+       	 for(int ilg=0;ilg<lgmixhits[lmide].size();ilg++){//lghit loop
+       	   int nlgh_dum = 0;
+       	   for(int jlg=0;jlg<lgmixhits[lmide].at(ilg).size();jlg++){
+       	     double tmpresx = lgmixhits[lmide].at(ilg).at(jlg).lx-track_lg_lx->at(itrack);
+       	     double tmpresy = lgmixhits[lmide].at(ilg).at(jlg).ly-track_lg_ly->at(itrack);
+       	     double tmprxs = tmpresx - originx[lmide][1];
+       	     double tmprys = tmpresy - originy[lmide][1];
+       	     double tmpt = lgmixhits[lmide].at(ilg).at(jlg).tdc;
+       	     double tmpa = lgmixhits[lmide].at(ilg).at(jlg).adc;
+	     int cid = SingleTrackAnalyzerForRes::LocaltoCh(lgmixhits[lmide].at(ilg).at(jlg).lx,lgmixhits[lmide].at(ilg).at(jlg).ly);
+	     if( fabs(tmpresx)<widthx[lmide][1] && fabs(tmpresy)<widthy[lmide][1] ){
+	       hadcd[lmide+103-102][cid]->Fill(tmpa);
+	     }
+       	     nlgh_dum++;
+       	   }
+       	 }//lghit loop
+       }//calc mix
+
+	//fill mixing hit
+       if(alfill[0][hmide]==false){
+	 alfill[0][hmide]=true;
+	 for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
+	   hitset hbdhit;
+	   hbdhit.mid=track_hbd_mid->at(itrack);
+	   hbdhit.lx=track_hbd_allhit_resx->at(itrack).at(ihbd)+track_hbd_lx->at(itrack);
+	   hbdhit.ly=track_hbd_allhit_resy->at(itrack).at(ihbd)+track_hbd_ly->at(itrack);
+	   hbdhit.adc=track_hbd_allhit_adc->at(itrack).at(ihbd);
+	   hbdhit.tdc=track_hbd_allhit_ftime->at(itrack).at(ihbd);
+	   hbdhits[hmide].push_back(hbdhit);
+	 }
+       }
+       if(alfill[1][lmide]==false){
+
+
+	 alfill[1][lmide]=true;
+	 for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
+	   double tmpt = track_lg_allhit_ftime->at(itrack).at(ilg);
+	   if(tmpt<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmpt>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;
+	   hitset lghit;
+	   lghit.mid=track_lg_mid->at(itrack);
+	   lghit.lx=track_lg_allhit_resx->at(itrack).at(ilg)+track_lg_lx->at(itrack);
+	   lghit.ly=track_lg_allhit_resy->at(itrack).at(ilg)+track_lg_ly->at(itrack);
+	   lghit.adc=track_lg_allhit_adc->at(itrack).at(ilg);
+	   lghit.tdc=tmpt;
+	   lghits[lmide].push_back(lghit);
+	 }
+       }
+       //fill mixing hit
+
+       ntrk[hmide]++;
+
+     }//track loop
+
+     for(int im=0;im<5;im++){
+       if(alfill[0][im]==true){
+	 hbdmixhits[im].push_back(hbdhits[im]);
+	 if(hbdmixhits[im].size()>mixevent){
+	   hbdmixhits[im].erase(hbdmixhits[im].begin());
+	 }
+       }
+       if(alfill[1][im]==true){
+	 lgmixhits[im].push_back(lghits[im]);
+	 if(lgmixhits[im].size()>mixevent){
+	   lgmixhits[im].erase(lgmixhits[im].begin());
+	 }
+       }
+     }
+     nevent++;
+
+   }//event loop
+
+
+   //Draw canvas
+   TString outfile = Form("%s",out_file_name);
+   TCanvas* c[7];
+   TLine* l[7][42];
+   for(int i=0;i<7;i++){
+     c[i] = new TCanvas(Form("c%d",i),Form("c%d",i),1400,1000);
+     c[i]->Divide(7,6);
+     for(int j=0;j<42;j++){
+       c[i]->cd(42-j);
+       int tmpch = (j/7)*10 + j%7;
+       hadc[i][tmpch]->Draw();
+       hadcd[i][tmpch]->Scale(1./(double)mixevent);
+       hadcd[i][tmpch]->SetLineColor(6);
+       hadcd[i][tmpch]->SetMarkerColor(6);
+       hadcd[i][tmpch]->Draw("hist&&sames");
+       if(i==2||i==4){
+         gPad->Update();
+         l[i][j] = new TLine(98.,gPad->GetUymin(),98.,gPad->GetUymax());
+       }
+       else{
+         gPad->Update();
+         l[i][j] = new TLine(49.,gPad->GetUymin(),49.,gPad->GetUymax());
+       }
+       l[i][j]->SetLineColor(2);
+       l[i][j]->Draw("sames");
+     }
+   }
+
+   TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+   cdef->SaveAs(outfile+"[","pdf");
+   for(int i=0;i<7;i++){
+     c[i]->SaveAs(outfile,"pdf");
+   }
+   cdef->SaveAs(outfile+"]","pdf");
+
+   fout->Write();
+   fout->Close();
 
 }

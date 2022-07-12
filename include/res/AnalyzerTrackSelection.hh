@@ -349,7 +349,8 @@ public :
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForLGEfficiency(int runtype, int maxevent, char* out_file_name, char* out_root_name, double hbdthr, int hbdclthr);
    virtual void     DrawForLGRejection(int runtype, int maxevent, char* out_file_name, char* out_root_name, int hbdoptype);
-   virtual void     MkMixingHist(int runoption, int maxevent);
+   virtual void     GainCalib(int runtype, int maxevent, char* out_file_name, char* out_root_name);
+   // virtual void     MkMixingHist(int runoption, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -741,10 +742,10 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
   // if (rk_charge->at(itrack)==1) {return -1;}
   // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
 
-  if(run_id>20980) {return -1;}
-  if(chi_square->at(itrack)>5.) {return -1;}
-  if(is_selected->at(itrack)==0) {return -1;}
-  if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
+  // if(run_id>20980) {return -1;}
+  // if(chi_square->at(itrack)>5.) {return -1;}
+  // if(is_selected->at(itrack)==0) {return -1;}
+  // if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
   else{
     return 1;
   }

@@ -1128,6 +1128,7 @@ public :
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double trk_momy, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid);
+   virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
@@ -1144,6 +1145,7 @@ public :
    virtual void     MkTreeForTrackSelection(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
    virtual void     MkTreeWYass(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
    virtual void     CalcLGWFefficiency(int runnum, int maxevent, double wfthrh, double wfthrl);
+   virtual void     LGHitADC(int maxevent, char* out_pdf_file, char* out_root_file);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -3076,7 +3078,21 @@ Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, doub
   for(int i=0;i<n_trg_tracks;i++){
     if( fabs(trg_track_lg_t->at(i))>11 ) continue;
     if(trk_lg_mid==trg_track_lg_mid->at(i)){
-      wbias=trg_track_lg_t->at(i);
+	wbias=trg_track_lg_t->at(i);
+    }
+  }
+  return wbias;
+}
+
+Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch)
+{
+  double wbias=-10000.;
+  for(int i=0;i<n_trg_tracks;i++){
+    if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+    if(trk_lg_mid==trg_track_lg_mid->at(i)){
+      if(blockch==trg_track_lg_cid->at(i)){
+	wbias=trg_track_lg_t->at(i);
+      }
     }
   }
   return wbias;
