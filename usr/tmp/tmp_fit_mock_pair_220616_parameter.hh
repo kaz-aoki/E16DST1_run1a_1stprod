@@ -38,6 +38,8 @@ constexpr double kMaxFuncCalls = 1.0e3; // current DST1
 constexpr double kVtxXRange[2] = {-40., 40.};
 constexpr double kVtxYRange[2] = {-40., 40.};
 constexpr double kVtxZRange[2] = {-40., 40.};
+constexpr double kStepTrackSizeCm    = 0.1;
+constexpr double kStepTrackArraySize = 1000.;
 
 }; // namespace tmp_fit_mock_pair_220616_parameter
 

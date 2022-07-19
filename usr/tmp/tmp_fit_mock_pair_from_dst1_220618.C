@@ -11,6 +11,7 @@
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_MultiTrack.hh"
+#include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "tmp_fit_mock_pair_220616_parameter.hh"
 
@@ -152,6 +153,13 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   TVector3 pair_fit_minus_gtr200_lpos;
   TVector3 pair_fit_minus_gtr300_lpos;
   double   pair_fit_mass;
+  // w/o fit
+  int      wo_fit_flag;
+  double   wo_fit_distance;
+  TVector3 wo_fit_vtx;
+  TVector3 wo_fit_plus_init_mom;
+  TVector3 wo_fit_minus_init_mom;
+  double   wo_fit_mass;
   
   // common
   out_tree.Branch("run_id",                    &run_id,          "run_id/I");
@@ -234,6 +242,13 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   out_tree.Branch("pair_fit_minus_gtr200_lpos", &pair_fit_minus_gtr200_lpos);
   out_tree.Branch("pair_fit_minus_gtr300_lpos", &pair_fit_minus_gtr300_lpos);
   out_tree.Branch("pair_fit_mass",              &pair_fit_mass, "pair_fit_mass/D");
+  // w/o fit
+  out_tree.Branch("wo_fit_flag",               &wo_fit_flag,     "wo_fit_flag/I");
+  out_tree.Branch("wo_fit_distance",           &wo_fit_distance, "wo_fit_distance/D");
+  out_tree.Branch("wo_fit_vtx",                &wo_fit_vtx);
+  out_tree.Branch("wo_fit_plus_init_mom",      &wo_fit_plus_init_mom);
+  out_tree.Branch("wo_fit_minus_init_mom",     &wo_fit_minus_init_mom);
+  out_tree.Branch("wo_fit_mass",               &wo_fit_mass, "wo_fit_mass/D");
 
   if (max_events == -1) {
     max_events = nentries;
@@ -466,10 +481,28 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         }
       }
     }
+    // w/o fit
+    auto hep_plus_init_pos  = Hep3Vector(pre_fit_plus_init_pos.X()  * 0.1, pre_fit_plus_init_pos.Y()  * 0.1, pre_fit_plus_init_pos.Z()  * 0.1);
+    auto hep_minus_init_pos = Hep3Vector(pre_fit_minus_init_pos.X() * 0.1, pre_fit_minus_init_pos.Y() * 0.1, pre_fit_minus_init_pos.Z() * 0.1);
+    auto hep_plus_init_mom  = Hep3Vector(pre_fit_plus_init_mom.X(),        pre_fit_plus_init_mom.Y(),        pre_fit_plus_init_mom.Z());
+    auto hep_minus_init_mom = Hep3Vector(pre_fit_minus_init_mom.X(),       pre_fit_minus_init_mom.Y(),       pre_fit_minus_init_mom.Z());
+    auto plus_step_track    = E16ANA_StepTrack(bfield_map, hep_plus_init_pos,  hep_plus_init_mom,   1., kStepTrackSizeCm, kStepTrackArraySize);
+    auto minus_step_track   = E16ANA_StepTrack(bfield_map, hep_minus_init_pos, hep_minus_init_mom, -1., kStepTrackSizeCm, kStepTrackArraySize);
+    auto distance_cm       = double();
+    auto hep_vtx           = Hep3Vector();
+    auto hep_plus_vtx_mom  = Hep3Vector();
+    auto hep_minus_vtx_mom = Hep3Vector();
+    wo_fit_flag = plus_step_track.Cross(minus_step_track, &distance_cm, &hep_vtx, &hep_plus_vtx_mom, &hep_minus_vtx_mom);
+    wo_fit_distance = distance_cm * 10.;
+    wo_fit_vtx.SetXYZ(hep_vtx.x() * 10., hep_vtx.y() * 10., hep_vtx.z() * 10.);
+    wo_fit_plus_init_mom.SetXYZ(hep_plus_vtx_mom.x()   * 10., hep_plus_vtx_mom.y()  * 10., hep_plus_vtx_mom.z()  * 10.);
+    wo_fit_minus_init_mom.SetXYZ(hep_minus_vtx_mom.x() * 10., hep_minus_vtx_mom.y() * 10., hep_minus_vtx_mom.z() * 10.);
+    
     mock_mass     = CalcMass(mock_plus_init_mom,     mock_minus_init_mom);
     pre_fit_mass  = CalcMass(pre_fit_plus_init_mom,  pre_fit_minus_init_mom);
     fit_mass      = CalcMass(fit_plus_init_mom,      fit_minus_init_mom);
     pair_fit_mass = CalcMass(pair_fit_plus_init_mom, pair_fit_minus_init_mom);
+    wo_fit_mass   = CalcMass(wo_fit_plus_init_mom,   wo_fit_minus_init_mom);
     out_tree.Fill();
   }
   out_file.Write();

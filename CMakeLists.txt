@@ -531,6 +531,16 @@ add_executable(tmp_check_pos_smear_220627_wrapper
 )
 
 #_______________________________________________________________________________
+add_executable(track_analyzer_220715_wrapper
+  usr/tmp/track_analyzer_220715_wrapper.cc
+  usr/tmp/track_analyzer_220715.C
+)
+
+target_link_libraries(track_analyzer_220715_wrapper
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 #add_executable(tmp_gtr_deadch_check usr/tmp/tmp_gtr_deadch_check.cc)
 #
 #target_link_libraries(tmp_gtr_deadch_check
