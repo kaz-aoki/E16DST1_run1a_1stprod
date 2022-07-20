@@ -2215,7 +2215,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    // std::ofstream outtext("lgcluster.txt");
    TFile *fouthist = new TFile(out_root_name,"recreate");
 
-   int bene = 1;
+   int bene = 0;
    double enepar[2] = {1.,198.};
    int ienepar[2] = {1,200};
 
@@ -2226,7 +2226,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    // int searchx = 100;//for lg cluster
    // int searchy = 80;//for lg cluster
    int mixevent = 50;
-   double lgthr[4] = {20.,50.,60.,80.};
+   double lgthr[4] = {20.,50.,80.,100.};
    double lgresthr = 20.;
    // if(runoption==3){lgresthr = lgthr[0];}
    // if(runoption==4){lgresthr = lgthr[0];}
@@ -2264,7 +2264,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      if(runoption==0){widthx[i][0]=35.;widthy[i][0]=35.;}
      originx[i][1]=0.;
      originy[i][1]=0.;
-     widthx[i][1]=150.;
+     // widthx[i][1]=150.;//220720
+     widthx[i][1]=100.;
      widthy[i][1]=100.;
    }
    if(runoption==1){

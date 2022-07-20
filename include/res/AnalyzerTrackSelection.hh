@@ -731,10 +731,11 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
   // double ryt = track_hbd_neary->at(itrack)-hbd_voriginy[(trk_mid-103+2)%5];
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
-  if(chi_square->at(itrack)>30.) {return -1;}
+  if(chi_square->at(itrack)>20.) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
+  if (track_mom->at(itrack) > 2.) {return -1;}
   // if (track_mom->at(itrack) > 2.4) {return -1;}
   // if (track_mom->at(itrack) > 0.6) {return -1;}
   // if (track_mom->at(itrack) < 0.4) {return -1;}

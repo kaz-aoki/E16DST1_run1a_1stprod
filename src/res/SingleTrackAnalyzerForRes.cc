@@ -2605,7 +2605,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double trk_momxz = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);//220213
-	int hbdise = 0;
+	int hbdise = 4;
 	int lgise = 0;
 	// if ( runoption==0 && trk_momxz<1.0 ) continue;//220213
 	if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
