@@ -985,7 +985,7 @@ void track_analyzer_220715::ProjectionHBDAndLG(int n) {
       int nstps = 100000;
 //      double r;
       for (int m = mid - 2; m <= mid + 2; ++m) {
-        if (m < 101 || m == 105 || mid > 109) {
+        if (m < 101 || m == 105 || m > 109) {
           continue;
         }
         auto mid2013 = ModuleID2013_27(m);
@@ -1417,9 +1417,7 @@ void track_analyzer_220715::Loop(const TString& out_name) {
   auto tree = TTree("tree", "tree");
   MakeBranches(&tree);
   for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
-//    if (jentry % 10 == 0) {
-      cout << jentry << " / " << nentries << endl;
-//    }
+    cout << jentry << " / " << nentries << endl;
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);
