@@ -1440,7 +1440,7 @@ public :
   int DirID(int i, int j);
   int ModuleID2013_27(int m);
   void ProjectionHBDAndLG(int n);
-  int BestTargetID(int n);
+  int BestTargetID(int n, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
   void ParentInfo(int n);
   void AssociatedHBDAndLG(int n);
   void FillCommonBranches();
@@ -1452,6 +1452,7 @@ public :
   E16ANA_MultiTrack*       proj_fitter;
   // Tree branch
   int out_n_pairs;
+// single fit imfo. chi2, ...
   // Hit
   std::vector<int>    out_plus_track_id;
   std::vector<int>    out_hit_plus_ssd_id;
@@ -1627,16 +1628,18 @@ public :
   std::vector<double> out_res_minus_gtr200_ly;
   std::vector<double> out_res_minus_gtr300_lx;
   std::vector<double> out_res_minus_gtr300_ly;
-  std::vector<double> out_fit_parent_mom_x;
-  std::vector<double> out_fit_parent_mom_y;
-  std::vector<double> out_fit_parent_mom_z;
-  std::vector<double> out_fit_parent_tgt_minus_x;
-  std::vector<double> out_fit_parent_tgt_minus_y;
-  std::vector<double> out_fit_parent_tgt_zero_x;
-  std::vector<double> out_fit_parent_tgt_zero_y;
-  std::vector<double> out_fit_parent_tgt_plus_x;
-  std::vector<double> out_fit_parent_tgt_plus_y;
-  std::vector<int>    out_fit_parent_best_tgt_id;
+  std::vector<double>              out_fit_parent_mom_x;
+  std::vector<double>              out_fit_parent_mom_y;
+  std::vector<double>              out_fit_parent_mom_z;
+  std::vector<double>              out_fit_parent_tgt_minus_x;
+  std::vector<double>              out_fit_parent_tgt_minus_y;
+  std::vector<double>              out_fit_parent_tgt_zero_x;
+  std::vector<double>              out_fit_parent_tgt_zero_y;
+  std::vector<double>              out_fit_parent_tgt_plus_x;
+  std::vector<double>              out_fit_parent_tgt_plus_y;
+  std::vector<int>                 out_fit_parent_best_tgt_id;
+  std::vector<int>                 out_fit_parent_good_tgt_id_set;
+  std::vector<std::vector<double>> out_fit_parent_good_tgt_ids;
   // Projected HBD
   std::vector<double>              out_proj_plus_n_hbds;
   std::vector<std::vector<double>> out_proj_plus_hbd_id;
