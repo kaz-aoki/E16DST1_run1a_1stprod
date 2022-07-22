@@ -278,11 +278,11 @@ bool track_analyzer_220715::HasUsedCluster(const array<int, kNumTrackingDetector
   for (int i = 0; i < kNumTrackingDetectors; ++i) {
     for (const auto& used_id : used_cluster_ids[i]) {
       if (cids[i] == used_id) {
-        return false;
+        return true;
       }
     }
   }
-  return true;
+  return false;
 }
 
 bool track_analyzer_220715::IsGoodTrack(int n) {
