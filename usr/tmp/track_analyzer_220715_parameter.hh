@@ -63,7 +63,7 @@ constexpr double kMaxMom       = 3.;
 constexpr bool   kUseHBDAssociationCut = true;
 constexpr double kMaxHBDXResidual      = 25.;
 constexpr double kMaxHBDYResidual      = 25.;
-constexpr double kMinHBDADC            = 5.;
+constexpr double kMinHBDADC            = 7.;
 constexpr double kMinHBDSize           = 1.5;
 constexpr bool   kUseHBDEProb          = false;
 //constexpr bool   kUseLGAssociationCut
