@@ -1440,6 +1440,9 @@ void track_analyzer_220715::Loop(const TString& out_name) {
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
 //    if (Cut(ientry) < 0) continue;
+    for (auto& ids : used_cluster_ids) {
+      ids.clear();
+    }
     SetHBDs();
     SetTracks();
     SetPairs();
