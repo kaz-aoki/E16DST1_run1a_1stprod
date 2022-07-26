@@ -65,8 +65,10 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   Long64_t nbytes = 0, nb = 0;
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+//  auto geometry = new E16ANA_GeometryV2("/ccj/u/E16/database/geometry/v2/geometry_Run0b_210226_design.dat"); // for geometry effect estimation
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+//  auto bfield_map = new E16ANA_MagneticFieldMap3D("/ccj/u/E16/database/fieldmap/Bmap_201207010_mod.binary"); // for magnetic field estimation
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   E16ANA_MultiTrack fitter(bfield_map, geometry, 2);
@@ -338,7 +340,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     // single fit
     for (int t = 0; t < 2; ++t) {
       sfitter.Clear();
-      sfitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
+      sfitter.SetInitialVertex(kInitVertex, kVertexSigma);
       if (t == 0) {
         sfitter.SetCharge(0, 1.);
       } else {
@@ -415,7 +417,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     }
     // pair fit
     fitter.Clear();
-    fitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
+    fitter.SetInitialVertex(kInitVertex, kVertexSigma);
     fitter.SetCharge(0, 1.);
 #ifndef FROM_MOCK
     fitter.SetInitialMomentum(0, pre_fit_plus_init_mom);

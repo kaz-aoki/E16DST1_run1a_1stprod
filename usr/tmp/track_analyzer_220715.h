@@ -1440,7 +1440,7 @@ public :
   int DirID(int i, int j);
   int ModuleID2013_27(int m);
   void ProjectionHBDAndLG(int n);
-  int BestTargetID(int n, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
+  int BestTargetID(int n);
   void ParentInfo(int n);
   void AssociatedHBDAndLG(int n);
   void FillCommonBranches();
@@ -1633,10 +1633,13 @@ public :
   std::vector<double>              out_fit_parent_mom_z;
   std::vector<double>              out_fit_parent_tgt_minus_x;
   std::vector<double>              out_fit_parent_tgt_minus_y;
+  std::vector<double>              out_fit_parent_tgt_minus_flight_path;
   std::vector<double>              out_fit_parent_tgt_zero_x;
   std::vector<double>              out_fit_parent_tgt_zero_y;
+  std::vector<double>              out_fit_parent_tgt_zero_flight_path;
   std::vector<double>              out_fit_parent_tgt_plus_x;
   std::vector<double>              out_fit_parent_tgt_plus_y;
+  std::vector<double>              out_fit_parent_tgt_plus_flight_path;
   std::vector<int>                 out_fit_parent_best_tgt_id;
   std::vector<int>                 out_fit_parent_good_tgt_id_set;
   std::vector<std::vector<double>> out_fit_parent_good_tgt_ids;

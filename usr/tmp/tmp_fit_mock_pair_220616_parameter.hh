@@ -10,6 +10,7 @@ constexpr std::array<std::array<int, 11>, 3> kModuleID2020To2013 = {{{30, 27, 24
                                                                      {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}}};
 static int ModuleID2020To2013(int _module_id) { return kModuleID2020To2013[_module_id / 100][_module_id % 100]; }
 
+const TVector3 kInitVertex = TVector3(0., 0., 0.);
 //const TVector3 kVertexSigma = TVector3(3., 3., 0.);
 //const TVector3 kVertexSigma = TVector3(0., 0., 0.); // for comparing
 //const TVector3 kSSDSigma    = TVector3(0.1, 0., 0.); // for comparing
