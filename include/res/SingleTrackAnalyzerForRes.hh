@@ -1115,6 +1115,7 @@ public :
    virtual Int_t    CutOfTrack(Long64_t entry, Int_t elem, double& trk_mom, double& trk_momx, double& trk_momy, double& trk_momz);
    virtual Int_t    CutOfTrack(Long64_t entry, Int_t elem);
    virtual Double_t    CutOfTrackTGT(Long64_t entry, Int_t elem, double th);
+   virtual Double_t    CutOfTrackTGT(Long64_t entry, Int_t elem, int& tgtid);
    virtual Int_t    CutOfTrackByMorino(Long64_t entry, Int_t elem);
    virtual Int_t    CutOfTrackForEvsPwCluster(Long64_t entry, Int_t elem, E16ANA_HBDDeadChannel* hbddch, double& trk_lx, double& trk_ly, int& ytype);
    virtual Int_t    CutOfTrackForResidualLG(Long64_t entry, Int_t elem, E16ANA_HBDDeadChannel* hbddch, double& trk_lx, double& trk_ly, int& ytype);
@@ -2429,6 +2430,35 @@ Double_t SingleTrackAnalyzerForRes::CutOfTrackTGT(Long64_t entry, Int_t elem, do
   else if( rk_fit_init_pos_gz->at(elem)==20 ){
     if( (x2*x2+y2*y2)>th*th ){return -1;}
     else{return sqrt(x2*x2+y2*y2);}
+  }
+  else{
+    return -1;
+  }
+}
+
+Double_t SingleTrackAnalyzerForRes::CutOfTrackTGT(Long64_t entry, Int_t elem, int& tgtid)
+{
+  double x0 = rk_proj_tgt0_gx->at(elem);
+  double y0 = rk_proj_tgt0_gy->at(elem);
+  double x1 = rk_proj_tgt1_gx->at(elem);
+  double y1 = rk_proj_tgt1_gy->at(elem);
+  double x2 = rk_proj_tgt2_gx->at(elem);
+  double y2 = rk_proj_tgt2_gy->at(elem);
+
+  double r0 = x0*x0+y0*y0;
+  double r1 = x1*x1+y1*y1;
+  double r2 = x2*x2+y2*y2;
+  if(r0<r1&&r0<r2){
+    tgtid = 0;
+    return r0;
+  }
+  else if(r1<r0&&r1<r2){
+    tgtid = 1;
+    return r1;
+  }
+  else if(r2<r0&&r2<r1){
+    tgtid = 2;
+    return r2;
   }
   else{
     return -1;

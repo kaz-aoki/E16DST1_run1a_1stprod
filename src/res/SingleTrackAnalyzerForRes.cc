@@ -2184,6 +2184,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    vector<double> out_track_mom_y;
    vector<double> out_track_mom_z;
    vector<double> out_track_tgt_dist;
+   vector<int> out_track_tgt_id;
    vector<double> out_track_lg_pi_eff1;
    vector<double> out_track_lg_pi_eff2;
    vector<double> out_track_angle_lx;
@@ -2316,6 +2317,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    tree->Branch("track_mom_y", &out_track_mom_y);
    tree->Branch("track_mom_z", &out_track_mom_z);
    tree->Branch("track_tgt_dist", &out_track_tgt_dist);
+   tree->Branch("track_tgt_id", &out_track_tgt_id);
    tree->Branch("track_lg_pi_eff1", &out_track_lg_pi_eff1);
    tree->Branch("track_lg_pi_eff2", &out_track_lg_pi_eff2);
    tree->Branch("track_angle_lx", &out_track_angle_lx);
@@ -2459,6 +2461,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
       out_track_mom_y.clear();
       out_track_mom_z.clear();
       out_track_tgt_dist.clear();
+      out_track_tgt_id.clear();
       out_track_lg_pi_eff1.clear();
       out_track_lg_pi_eff2.clear();
       out_track_angle_lx.clear();
@@ -2605,7 +2608,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double trk_momxz = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);//220213
-	int hbdise = 4;
+	int hbdise = 5;
 	int lgise = 0;
 	// if ( runoption==0 && trk_momxz<1.0 ) continue;//220213
 	if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
@@ -2632,8 +2635,11 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	  if(hbd_cluster_mid->at(ihbdmulti)==trk_hbd_mid){hbdmulti++;}
 	}
 	// if ( runoption==3 && hbdmulti>8 ) continue;//220310
-	double tgtdist = CutOfTrackTGT(ientry,itrack,5);
-	if( tgtdist<0 ) continue;
+	// double tgtdist = CutOfTrackTGT(ientry,itrack,5);//220725out, for the production in 220418
+	// if( tgtdist<0 ) continue;//220725out, for the production in 220418
+	int tgtid = -10000;
+	double tgtdist = CutOfTrackTGT(ientry,itrack,tgtid);//220725 for the production in 220707
+	if( tgtdist<0 || tgtdist>100 ) continue;//220725 for the production in 220707
 
 	out_track_id.push_back(track_id->at(itrack));
 	out_chi_square.push_back(chi_square->at(itrack));
@@ -2644,6 +2650,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	out_track_mom_y.push_back(trk_momy);
 	out_track_mom_z.push_back(trk_momz);
 	out_track_tgt_dist.push_back(tgtdist);
+	out_track_tgt_id.push_back(tgtid);
 	out_track_lg_pi_eff1.push_back(MomtoLGPieff1(trk_mom));
 	out_track_lg_pi_eff2.push_back(MomtoLGPieff2(trk_mom));
 	out_track_angle_lx.push_back(track_angle_lx);
@@ -2708,7 +2715,8 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	  // if ( runoption==3 && hbdise==1 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<7*60) ) continue;//220407;
 	  if ( runoption==3 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1||hbd_cluster_adc->at(ihbd)>3) ) continue;//220213;
 	  if ( runoption==3 && hbdise==3 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<10) ) continue;//220307;
-	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<1||hbd_cluster_adc->at(ihbd)<4) ) continue;//220213;
+	  if ( runoption==3 && hbdise==4 && (hbd_cluster_size->at(ihbd)<1||hbd_cluster_adc->at(ihbd)<4) ) continue;
+	  if ( runoption==3 && hbdise==5 && (hbd_cluster_size->at(ihbd)<1||hbd_cluster_adc->at(ihbd)<2) ) continue;//220721;
 	  if ( runoption==0 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1) ) continue;//220213;
 	  // if ( hbd_cluster_t->at(ihbd)>80 || hbd_cluster_t->at(ihbd)<20 ) continue;//220212
 	  if(  hbd_cluster_mid->at(ihbd) == trk_hbd_mid ){
@@ -2751,7 +2759,8 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	    // if ( runoption==3 && hbdise==1 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<7*60) ) continue;//220407;
 	    if ( runoption==3 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1||hbd_cluster_adc_tmp.at(ihbd)>3) ) continue;//220213;
 	    if ( runoption==3 && hbdise==3 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<10) ) continue;//220307
-	    if ( runoption==3 && hbdise==4 && (hbd_cluster_size_tmp.at(ihbd)<1||hbd_cluster_adc_tmp.at(ihbd)<4) ) continue;//220213
+	    if ( runoption==3 && hbdise==4 && (hbd_cluster_size_tmp.at(ihbd)<1||hbd_cluster_adc_tmp.at(ihbd)<4) ) continue;
+	    if ( runoption==3 && hbdise==5 && (hbd_cluster_size_tmp.at(ihbd)<1||hbd_cluster_adc_tmp.at(ihbd)<2) ) continue;//220721
 	    if ( runoption==0 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1) ) continue;
 	    //if ( hbd_cluster_t_tmp.at(ihbd)>80 || hbd_cluster_t_tmp.at(ihbd)<20 ) continue;//220212
 	    if(  hbd_cluster_mid_tmp.at(ihbd) == trk_hbd_mid ){

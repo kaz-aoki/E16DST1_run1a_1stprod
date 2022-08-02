@@ -26,14 +26,22 @@ int main(int argc, char* argv[]) {
     hbdclthr = stoi(argv[7]);
   }
 
+  bool input=false;
   if(argc==5&&strlen(out_file_name)>4&&strlen(out_root_name)>5){
     //default
+    input=false;
   }
   else if(argc==6&&strlen(out_file_name)>4&&strlen(out_root_name)>5&&strlen(in_file_name)>5){
     //supply input file
+    input=true;
   }
   else if(argc==8&&strlen(out_file_name)>4&&strlen(out_root_name)>5&&strlen(in_file_name)>5){
     //supply input file & hbd threshold
+    input=true;
+  }
+  else if(argc==8&&strlen(out_file_name)>4&&strlen(out_root_name)>5&&strlen(in_file_name)<4){
+    //supply hbd threshold
+    input=false;
   }
   else{
     std::cerr << "./bin [Ks:0, vmeson:1, eIDrev:3, eIDfwd:4] [out.pdf] [out.root] [maxevent]" << std::endl;
@@ -42,7 +50,7 @@ int main(int argc, char* argv[]) {
    
   auto in_chain = new TChain("tree", "tree");
 
-  if(argc==5){
+  if(argc==5||!input){
     if(runtype==0){
       // in_chain->Add("./out/root03a/trackselection_chisq30_fflag01.root");
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root03a/trackselection_prod220212_chisq30.root");
@@ -61,7 +69,7 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_22032501.root");//gas
       //*******
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v36/*.root");//vmeson; production new
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v39/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v42/*.root");
     }
     else if(runtype==2){
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_1e9FM*.root");

@@ -139,6 +139,7 @@ public :
    vector<double>  *track_mom_y;
    vector<double>  *track_mom_z;
    vector<double>  *track_tgt_dist;
+   vector<int>  *track_tgt_id;
    vector<double>  *track_lg_pi_eff1;
    vector<double>  *track_lg_pi_eff2;
    vector<double>  *track_angle_lx;
@@ -241,6 +242,7 @@ public :
    TBranch        *b_track_mom_y;   //!
    TBranch        *b_track_mom_z;   //!
    TBranch        *b_track_tgt_dist;   //!
+   TBranch        *b_track_tgt_id;   //!
    TBranch        *b_track_lg_pi_eff1;   //!
    TBranch        *b_track_lg_pi_eff2;   //!
    TBranch        *b_track_angle_lx;   //!
@@ -418,6 +420,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_mom_y = 0;
    track_mom_z = 0;
    track_tgt_dist = 0;
+   track_tgt_id = 0;
    track_lg_pi_eff1 = 0;
    track_lg_pi_eff2 = 0;
    track_angle_lx = 0;
@@ -524,6 +527,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_mom_y", &track_mom_y, &b_track_mom_y);
    fChain->SetBranchAddress("track_mom_z", &track_mom_z, &b_track_mom_z);
    fChain->SetBranchAddress("track_tgt_dist", &track_tgt_dist, &b_track_tgt_dist);
+   fChain->SetBranchAddress("track_tgt_id", &track_tgt_id, &b_track_tgt_id);
    fChain->SetBranchAddress("track_lg_pi_eff1", &track_lg_pi_eff1, &b_track_lg_pi_eff1);
    fChain->SetBranchAddress("track_lg_pi_eff2", &track_lg_pi_eff2, &b_track_lg_pi_eff2);
    fChain->SetBranchAddress("track_angle_lx", &track_angle_lx, &b_track_angle_lx);
@@ -742,6 +746,9 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
   // if (rk_charge->at(itrack) != -1) {return -1;}
   // if (rk_charge->at(itrack)==1) {return -1;}
   // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
+  if (track_tgt_dist->at(itrack)>30) {return -1;}
+  // if (track_tgt_id->at(itrack)==0) {return -1;}
+  // if (track_tgt_id->at(itrack)==2) {return -1;}
 
   // if(run_id>20980) {return -1;}
   // if(chi_square->at(itrack)>5.) {return -1;}
