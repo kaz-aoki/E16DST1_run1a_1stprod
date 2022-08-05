@@ -52,6 +52,8 @@ constexpr double kSSDXSigma = 0.067; // TDR2206
 constexpr double kGTRXYSigma[3][2] = {{0.265, 0.626}, {0.252, 0.542}, {0.262, 0.518}};
 //constexpr double kSSDXSigma = 0.03; // Nakai's simulation
 //constexpr double kGTRXYSigma[3][2] = {{0.1, 0.3}, {0.1, 0.3}, {0.1, 0.3}};
+//constexpr double kSSDXSigma = 0.; // w/o smear
+//constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
 #else
 constexpr double kSSDXSigma = 0.;
 constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};

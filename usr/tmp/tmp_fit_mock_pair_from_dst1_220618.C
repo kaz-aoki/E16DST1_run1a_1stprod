@@ -36,7 +36,7 @@ double tmp_fit_mock_pair_from_dst1_220618::CalcMass(const TVector3& mom0, const 
   return sqrt(mass2[0] + mass2[1] + 2. * (e0 * e1 - p0p1));
 }
 
-void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out_name) {
+void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, const TString& out_name) {
 //   In a ROOT session, you can do:
 //      root> .L tmp_fit_mock_pair_from_dst1_220618.C
 //      root> tmp_fit_mock_pair_from_dst1_220618 t
@@ -340,7 +340,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     // single fit
     for (int t = 0; t < 2; ++t) {
       sfitter.Clear();
-      sfitter.SetInitialVertex(kInitVertex, kVertexSigma);
+      sfitter.SetInitialVertex(kInitVertex[vtx_z_flag], kVertexSigma);
       if (t == 0) {
         sfitter.SetCharge(0, 1.);
       } else {
@@ -387,7 +387,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
 #endif
       sfitter.SetRungeKuttaStepSize(kStepSize);
       sfitter.SetMaxSteps(kMaxSteps);
-      auto tmp_chi2     = sfitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls, kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+      auto tmp_chi2     = sfitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ[vtx_z_flag], kStrategy, kMaxFuncCalls,
+                                      kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
       auto tmp_mom      = sfitter.GetFitMomentum(0);
       auto tmp_init_pos = sfitter.GetFitVertex();
       array<TVector3, 4> tmp_lposs;
@@ -417,7 +418,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     }
     // pair fit
     fitter.Clear();
-    fitter.SetInitialVertex(kInitVertex, kVertexSigma);
+    fitter.SetInitialVertex(kInitVertex[vtx_z_flag], kVertexSigma);
     fitter.SetCharge(0, 1.);
 #ifndef FROM_MOCK
     fitter.SetInitialMomentum(0, pre_fit_plus_init_mom);
@@ -450,7 +451,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
 #endif
     fitter.SetRungeKuttaStepSize(kStepSize);
     fitter.SetMaxSteps(kMaxSteps);
-    pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls,
+    pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ[vtx_z_flag], kStrategy, kMaxFuncCalls,
                                          kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
     pair_fit_vtx            = fitter.GetFitVertex();
     pair_fit_plus_init_mom  = fitter.GetFitMomentum(0);
@@ -497,8 +498,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     wo_fit_flag = plus_step_track.Cross(minus_step_track, &distance_cm, &hep_vtx, &hep_plus_vtx_mom, &hep_minus_vtx_mom);
     wo_fit_distance = distance_cm * 10.;
     wo_fit_vtx.SetXYZ(hep_vtx.x() * 10., hep_vtx.y() * 10., hep_vtx.z() * 10.);
-    wo_fit_plus_init_mom.SetXYZ(hep_plus_vtx_mom.x()   * 10., hep_plus_vtx_mom.y()  * 10., hep_plus_vtx_mom.z()  * 10.);
-    wo_fit_minus_init_mom.SetXYZ(hep_minus_vtx_mom.x() * 10., hep_minus_vtx_mom.y() * 10., hep_minus_vtx_mom.z() * 10.);
+    wo_fit_plus_init_mom.SetXYZ(hep_plus_vtx_mom.x(),   hep_plus_vtx_mom.y(),  hep_plus_vtx_mom.z());
+    wo_fit_minus_init_mom.SetXYZ(hep_minus_vtx_mom.x(), hep_minus_vtx_mom.y(), hep_minus_vtx_mom.z());
     
     mock_mass     = CalcMass(mock_plus_init_mom,     mock_minus_init_mom);
     pre_fit_mass  = CalcMass(pre_fit_plus_init_mom,  pre_fit_minus_init_mom);

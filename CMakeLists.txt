@@ -498,16 +498,16 @@ target_link_libraries(calc_ssd_rate
   E16DST
 )
 
-#_______________________________________________________________________________
-add_executable(tmp_fit_mock_pair_220616_wrapper
-  usr/tmp/tmp_fit_mock_pair_220616_wrapper.cc
-  usr/tmp/tmp_fit_mock_pair_220616.C
-)
-
-target_link_libraries(tmp_fit_mock_pair_220616_wrapper
-	E16ANA_Basic
-)
-
+##_______________________________________________________________________________
+#add_executable(tmp_fit_mock_pair_220616_wrapper
+#  usr/tmp/tmp_fit_mock_pair_220616_wrapper.cc
+#  usr/tmp/tmp_fit_mock_pair_220616.C
+#)
+#
+#target_link_libraries(tmp_fit_mock_pair_220616_wrapper
+#	E16ANA_Basic
+#)
+#
 #_______________________________________________________________________________
 add_executable(tmp_fit_mock_pair_from_dst1_220618_wrapper
   usr/tmp/tmp_fit_mock_pair_from_dst1_220618_wrapper.cc

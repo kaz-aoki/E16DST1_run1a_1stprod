@@ -1917,7 +1917,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(int max_events, const TString& out_name);
+   virtual void     Loop(int vtx_z_flag, int max_events, const TString& out_name);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  private:
