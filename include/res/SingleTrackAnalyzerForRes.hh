@@ -309,14 +309,20 @@ public :
    vector<double>  *rk_fit_ssd_gy;
    vector<double>  *rk_fit_ssd_gz;
    vector<int>     *rk_fit_gtr100_mid;
+   vector<double>  *rk_fit_gtr100_x;
+   vector<double>  *rk_fit_gtr100_y;
    vector<double>  *rk_fit_gtr100_gx;
    vector<double>  *rk_fit_gtr100_gy;
    vector<double>  *rk_fit_gtr100_gz;
    vector<int>     *rk_fit_gtr200_mid;
+   vector<double>  *rk_fit_gtr200_x;
+   vector<double>  *rk_fit_gtr200_y;
    vector<double>  *rk_fit_gtr200_gx;
    vector<double>  *rk_fit_gtr200_gy;
    vector<double>  *rk_fit_gtr200_gz;
    vector<int>     *rk_fit_gtr300_mid;
+   vector<double>  *rk_fit_gtr300_x;
+   vector<double>  *rk_fit_gtr300_y;
    vector<double>  *rk_fit_gtr300_gx;
    vector<double>  *rk_fit_gtr300_gy;
    vector<double>  *rk_fit_gtr300_gz;
@@ -846,14 +852,20 @@ public :
    TBranch        *b_rk_fit_ssd_gy;   //!
    TBranch        *b_rk_fit_ssd_gz;   //!
    TBranch        *b_rk_fit_gtr100_mid;   //!
+   TBranch        *b_rk_fit_gtr100_x;   //!
+   TBranch        *b_rk_fit_gtr100_y;   //!
    TBranch        *b_rk_fit_gtr100_gx;   //!
    TBranch        *b_rk_fit_gtr100_gy;   //!
    TBranch        *b_rk_fit_gtr100_gz;   //!
    TBranch        *b_rk_fit_gtr200_mid;   //!
+   TBranch        *b_rk_fit_gtr200_x;   //!
+   TBranch        *b_rk_fit_gtr200_y;   //!
    TBranch        *b_rk_fit_gtr200_gx;   //!
    TBranch        *b_rk_fit_gtr200_gy;   //!
    TBranch        *b_rk_fit_gtr200_gz;   //!
    TBranch        *b_rk_fit_gtr300_mid;   //!
+   TBranch        *b_rk_fit_gtr300_x;   //!
+   TBranch        *b_rk_fit_gtr300_y;   //!
    TBranch        *b_rk_fit_gtr300_gx;   //!
    TBranch        *b_rk_fit_gtr300_gy;   //!
    TBranch        *b_rk_fit_gtr300_gz;   //!
@@ -1129,7 +1141,8 @@ public :
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double trk_momy, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid);
-   virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch);
+   virtual Double_t    wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int TrigAWmin, int TrigAWmax, int TrigTW);
+   // virtual void    wTrgBias_Pair(vector<double>& track_w_trg_bias, const vector<int>& track_lg_mid, const vector<int>& track_lg_blockch);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
@@ -1453,14 +1466,20 @@ void SingleTrackAnalyzerForRes::Init(TTree *tree)
    rk_fit_ssd_gy = 0;
    rk_fit_ssd_gz = 0;
    rk_fit_gtr100_mid = 0;
+   rk_fit_gtr100_x = 0;
+   rk_fit_gtr100_y = 0;
    rk_fit_gtr100_gx = 0;
    rk_fit_gtr100_gy = 0;
    rk_fit_gtr100_gz = 0;
    rk_fit_gtr200_mid = 0;
+   rk_fit_gtr200_x = 0;
+   rk_fit_gtr200_y = 0;
    rk_fit_gtr200_gx = 0;
    rk_fit_gtr200_gy = 0;
    rk_fit_gtr200_gz = 0;
    rk_fit_gtr300_mid = 0;
+   rk_fit_gtr300_x = 0;
+   rk_fit_gtr300_y = 0;
    rk_fit_gtr300_gx = 0;
    rk_fit_gtr300_gy = 0;
    rk_fit_gtr300_gz = 0;
@@ -1994,14 +2013,20 @@ void SingleTrackAnalyzerForRes::Init(TTree *tree)
    fChain->SetBranchAddress("rk_fit_ssd_gy", &rk_fit_ssd_gy, &b_rk_fit_ssd_gy);
    fChain->SetBranchAddress("rk_fit_ssd_gz", &rk_fit_ssd_gz, &b_rk_fit_ssd_gz);
    fChain->SetBranchAddress("rk_fit_gtr100_mid", &rk_fit_gtr100_mid, &b_rk_fit_gtr100_mid);
+   fChain->SetBranchAddress("rk_fit_gtr100_x", &rk_fit_gtr100_x, &b_rk_fit_gtr100_x);
+   fChain->SetBranchAddress("rk_fit_gtr100_y", &rk_fit_gtr100_y, &b_rk_fit_gtr100_y);
    fChain->SetBranchAddress("rk_fit_gtr100_gx", &rk_fit_gtr100_gx, &b_rk_fit_gtr100_gx);
    fChain->SetBranchAddress("rk_fit_gtr100_gy", &rk_fit_gtr100_gy, &b_rk_fit_gtr100_gy);
    fChain->SetBranchAddress("rk_fit_gtr100_gz", &rk_fit_gtr100_gz, &b_rk_fit_gtr100_gz);
    fChain->SetBranchAddress("rk_fit_gtr200_mid", &rk_fit_gtr200_mid, &b_rk_fit_gtr200_mid);
+   fChain->SetBranchAddress("rk_fit_gtr200_x", &rk_fit_gtr200_x, &b_rk_fit_gtr200_x);
+   fChain->SetBranchAddress("rk_fit_gtr200_y", &rk_fit_gtr200_y, &b_rk_fit_gtr200_y);
    fChain->SetBranchAddress("rk_fit_gtr200_gx", &rk_fit_gtr200_gx, &b_rk_fit_gtr200_gx);
    fChain->SetBranchAddress("rk_fit_gtr200_gy", &rk_fit_gtr200_gy, &b_rk_fit_gtr200_gy);
    fChain->SetBranchAddress("rk_fit_gtr200_gz", &rk_fit_gtr200_gz, &b_rk_fit_gtr200_gz);
    fChain->SetBranchAddress("rk_fit_gtr300_mid", &rk_fit_gtr300_mid, &b_rk_fit_gtr300_mid);
+   fChain->SetBranchAddress("rk_fit_gtr300_x", &rk_fit_gtr300_x, &b_rk_fit_gtr300_x);
+   fChain->SetBranchAddress("rk_fit_gtr300_y", &rk_fit_gtr300_y, &b_rk_fit_gtr300_y);
    fChain->SetBranchAddress("rk_fit_gtr300_gx", &rk_fit_gtr300_gx, &b_rk_fit_gtr300_gx);
    fChain->SetBranchAddress("rk_fit_gtr300_gy", &rk_fit_gtr300_gy, &b_rk_fit_gtr300_gy);
    fChain->SetBranchAddress("rk_fit_gtr300_gz", &rk_fit_gtr300_gz, &b_rk_fit_gtr300_gz);
@@ -3114,17 +3139,120 @@ Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, doub
   return wbias;
 }
 
-Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch)
+int GTRTrgCid(double ly)
 {
-  double wbias=-10000.;
+  double cid = (ly+150)/300.*24.;
+  return (int)cid;
+}
+int HBDTrgCid(double lx, double ly)
+{
+  double cidx = (lx+300)/600.*6.;
+  double cidy = (ly+300)/600.*6.;
+  return (int)cidx+((int)cidy*10);
+}
+
+Double_t SingleTrackAnalyzerForRes::wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int awmin, int awmax, int tw)
+{
+  int gtrmid=-10000;
+  int gtrcid=-10000;
+  if(rk_fit_gtr300_y==0){
+    gtrmid = rk_fit_gtr300_mid->at(elem);
+    gtrcid = GTRTrgCid(rk_fit_gtr300_gy->at(elem));
+  }
+  else{
+    gtrmid = rk_fit_gtr300_mid->at(elem);
+    gtrcid = GTRTrgCid(rk_fit_gtr300_y->at(elem));
+  }
+  int hbdmid = rk_fit_hbd_mid->at(elem);
+  int hbdcid = HBDTrgCid(rk_fit_hbd_x->at(elem),rk_fit_hbd_y->at(elem));
+
+  vector<bool> trgwbias(n_trg_tracks, false);
   for(int i=0;i<n_trg_tracks;i++){
-    if( fabs(trg_track_lg_t->at(i))>11 ) continue;
-    if(trk_lg_mid==trg_track_lg_mid->at(i)){
-      if(blockch==trg_track_lg_cid->at(i)){
-	wbias=trg_track_lg_t->at(i);
+    for(int j=i+1;j<n_trg_tracks;j++){
+      int d1x = (trg_track_lg_mid->at(i)-100)*7+(trg_track_lg_cid->at(i))%10;
+      int d1y = (trg_track_lg_cid->at(i))/10;
+      int d2x = (trg_track_lg_mid->at(j)-100)*7+(trg_track_lg_cid->at(j))%10;
+      int d2y = (trg_track_lg_cid->at(j))/10;
+      int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+      if( (trg_track_lg_t->at(i)==0||trg_track_lg_t->at(j)==0) && 
+	  fabs(trg_track_lg_t->at(i)-trg_track_lg_t->at(j))<tw &&
+	  dist>awmin && dist<awmax ){
+	trgwbias.at(i)=true;
+	trgwbias.at(j)=true;
       }
     }
   }
+
+  double wbias=-10000.;
+  for(int i=0;i<n_trg_tracks;i++){
+    // if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+    bool gtrflag = false;
+    for(int j=0;j<trg_track_n_gtr_hits->at(i);j++){
+      if(trg_track_gtr_is_t_match->at(i).at(j)==0) continue;
+      if(trg_track_gtr_mid->at(i).at(j)==gtrmid&&trg_track_gtr_cid->at(i).at(j)==gtrcid){
+      	gtrflag = true;
+	break;
+      }
+    }
+    bool hbdflag = false;
+    for(int j=0;j<trg_track_n_hbd_hits->at(i);j++){
+      if(trg_track_hbd_is_t_match->at(i).at(j)==0) continue;
+      if(trg_track_hbd_mid->at(i).at(j)==hbdmid&&trg_track_hbd_cid->at(i).at(j)==hbdcid){
+      	hbdflag = true;
+	break;
+      }
+    }
+    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
+      wbias=-9000;
+    }
+    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag ){
+      wbias=-8000;
+    }
+    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag && gtrflag ){
+      wbias=-7000;
+    }
+    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag && gtrflag && trgwbias.at(i) ){
+      wbias=trg_track_lg_t->at(i);
+      break;
+    }
+  }
+
   return wbias;
 }
+
+// void SingleTrackAnalyzerForRes::wTrgBias_Pair(vector<double>& track_w_trg_bias, const vector<int>& v_mid, const vector<int>& v_cid)
+// {
+
+//   if(track_w_trg_bias.size()!=v_mid.size()||track_w_trg_bias.size()!=v_cid.size()) return;
+//   vector<double> v_copy;
+//   int ntrks = track_w_trg_bias.size();
+//   for(int i=0;i<ntrks;i++){
+//     v_copy.push_back(track_w_trg_bias.at(i));
+//     std::cout<<track_w_trg_bias.at(i);
+//   }
+//   std::cout<<std::endl;
+//   for(int i=0;i<ntrks;i++){
+//     if(v_copy.at(i)<-1000) continue;
+//     for(int j=i+1;j<ntrks;j++){
+//       if(v_copy.at(j)<-1000) continue;
+//       int d1x = (v_mid.at(i)-100)*7+(v_cid.at(i))%10;
+//       int d1y = (v_cid.at(i))/10;
+//       int d2x = (v_mid.at(j)-100)*7+(v_cid.at(j))%10;
+//       int d2y = (v_cid.at(j))/10;
+//       int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+//       if(dist>64&&fabs(track_w_trg_bias.at(i)-track_w_trg_bias.at(j))<10){
+// 	v_copy.at(i) = 10000;
+// 	v_copy.at(j) = 10000;
+//       }
+//     }
+//   }
+//   for(int i=0;i<ntrks;i++){
+//     if(v_copy.at(i)>1000){
+//       track_w_trg_bias.at(i) = -10000;
+//     }
+//     std::cout<<track_w_trg_bias.at(i);
+//   }
+//   std::cout<<std::endl;
+
+// }
 #endif // #ifdef SingleTrackAnalyzerForRes_cxx

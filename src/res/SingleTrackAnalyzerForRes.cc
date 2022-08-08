@@ -2218,6 +2218,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    vector<int> out_track_lg_mid;
    vector<double> out_track_lg_lx;
    vector<double> out_track_lg_ly;
+   vector<int> out_track_lg_blockch;
    vector<double> out_track_lg_nearx;
    vector<double> out_track_lg_neary;
    vector<int> out_track_lg_multiplicity;
@@ -2351,6 +2352,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    tree->Branch("track_lg_mid", &out_track_lg_mid);
    tree->Branch("track_lg_lx", &out_track_lg_lx);
    tree->Branch("track_lg_ly", &out_track_lg_ly);
+   tree->Branch("track_lg_blockch", &out_track_lg_blockch);
    tree->Branch("track_lg_nearx", &out_track_lg_nearx);
    tree->Branch("track_lg_neary", &out_track_lg_neary);
    tree->Branch("track_lg_multiplicity", &out_track_lg_multiplicity);
@@ -2443,6 +2445,18 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    std::vector<float> lg_cluster_maxpeak_tmp(0);
    std::vector<int> lg_cluster_maxcid_tmp(0);
 
+   fChain->GetEntry(0);
+   auto& calib = E16ANA_CalibDBManager::Instance();
+   calib.SetRunID(run_id);
+   auto trigger_param = new E16ANA_TriggerCalibParam();
+   trigger_param->ReadConstantData(calib.CurrentRunID());
+   bool TrigIsAWmax = trigger_param->IsMaximumWidth();
+   int TrigAWmax = trigger_param->MaximumWidth();
+   int TrigAWmin = trigger_param->MinimumWidth();
+   int TrigTW = trigger_param->TimeWidth();
+   if(!TrigIsAWmax){TrigAWmax=10000;}
+   std::cout<<"Trig:"<<run_id<<" "<<TrigAWmin<<" "<<TrigAWmax<<" "<<TrigTW<<std::endl;
+
    int nevent=0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
       Long64_t ientry = LoadTree(jentry);
@@ -2495,6 +2509,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
       out_track_lg_mid.clear();
       out_track_lg_lx.clear();
       out_track_lg_ly.clear();
+      out_track_lg_blockch.clear();
       out_track_lg_nearx.clear();
       out_track_lg_neary.clear();
       out_track_lg_multiplicity.clear();
@@ -2608,7 +2623,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double trk_momxz = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);//220213
-	int hbdise = 5;
+	int hbdise = 2;
 	int lgise = 0;
 	// if ( runoption==0 && trk_momxz<1.0 ) continue;//220213
 	if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
@@ -2635,10 +2650,15 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	  if(hbd_cluster_mid->at(ihbdmulti)==trk_hbd_mid){hbdmulti++;}
 	}
 	// if ( runoption==3 && hbdmulti>8 ) continue;//220310
-	// double tgtdist = CutOfTrackTGT(ientry,itrack,5);//220725out, for the production in 220418
-	// if( tgtdist<0 ) continue;//220725out, for the production in 220418
+	double tgtth = 5.;
 	int tgtid = -10000;
-	double tgtdist = CutOfTrackTGT(ientry,itrack,tgtid);//220725 for the production in 220707
+	double tgtdist = -10000.;
+	if(runoption==0){
+	  tgtdist = CutOfTrackTGT(ientry,itrack,tgtth);// for the production in 220418(etc)
+	}
+	else{
+	  tgtdist = CutOfTrackTGT(ientry,itrack,tgtid);//220725 for the production in 220707
+	}
 	if( tgtdist<0 || tgtdist>100 ) continue;//220725 for the production in 220707
 
 	out_track_id.push_back(track_id->at(itrack));
@@ -2672,11 +2692,14 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	out_track_gtr300x_adc.push_back(rk_hit_gtr300_xadc->at(itrack));
 	out_track_gtr300y_t.push_back(rk_hit_gtr300_yt->at(itrack));
 	out_track_gtr300y_adc.push_back(rk_hit_gtr300_yadc->at(itrack));
+	/////////
         int blockchx = (trk_lg_lx)-(track_position_block_lx);
         int blockchy = (trk_lg_ly/fabs(trk_lg_ly))*(fabs(trk_lg_ly)+track_position_block_ly);
         int blockch = LocaltoCh(blockchx,blockchy);
-	double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid,blockch);
+	double trg_bias = wTrgBias_Single(ientry,itrack,trk_lg_mid,blockch,TrigAWmin,TrigAWmax,TrigTW);
 	out_track_w_trg_bias.push_back(trg_bias);
+	out_track_lg_blockch.push_back(blockch);
+	/////////
 	out_track_hbd_mid.push_back(trk_hbd_mid);
 	out_track_hbd_lx.push_back(trk_hbd_lx);
 	out_track_hbd_ly.push_back(trk_hbd_ly);
@@ -3041,6 +3064,8 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	// copy( lg_hit_t->begin(), lg_hit_t->end(), out_lg_hit_t.begin() );
 	// copy( lg_hit_npeaks->begin(), lg_hit_npeaks->end(), out_lg_hit_npeaks.begin() );
 	// copy( lg_hit_fflag->begin(), lg_hit_fflag->end(), out_lg_hit_fflag.begin() );
+
+	// wTrgBias_Pair(out_track_w_trg_bias,out_track_lg_mid,out_track_lg_blockch);
 
 	tree->Fill();
       }

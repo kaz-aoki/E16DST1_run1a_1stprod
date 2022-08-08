@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_22032501.root");//gas
       //*******
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v36/*.root");//vmeson; production new
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v42/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/lsf/*.root");
     }
     else if(runtype==2){
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_1e9FM*.root");

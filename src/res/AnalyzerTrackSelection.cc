@@ -2222,13 +2222,15 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    bool gaincalib = true;
    bool fwdonly = false;
    int searchx = 100;//for lg cluster
-   int searchy = 60;//for lg cluster
+   int searchy = 100;//for lg cluster
+   // int searchx = 100;//for lg cluster
+   // int searchy = 60;//for lg cluster
    // int searchx = 100;//for lg cluster
    // int searchy = 80;//for lg cluster
    int mixevent = 50;
    double lgthr[4] = {20.,50.,80.,100.};
-   // double lgresthr = 20.;
    double lgresthr = 50.;
+   if(runoption==0){lgresthr = 20.;}
    // if(runoption==3){lgresthr = lgthr[0];}
    // if(runoption==4){lgresthr = lgthr[0];}
    double lgcon[4] = {240.,250.,260.,270.};

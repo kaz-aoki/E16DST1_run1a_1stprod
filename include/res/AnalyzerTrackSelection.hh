@@ -753,7 +753,7 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
   // if(run_id>20980) {return -1;}
   // if(chi_square->at(itrack)>5.) {return -1;}
   // if(is_selected->at(itrack)==0) {return -1;}
-  // if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
+  if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
   else{
     return 1;
   }
