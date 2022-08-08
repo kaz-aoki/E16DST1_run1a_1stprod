@@ -74,8 +74,8 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
   double x[5],y[5];
   double By = 1.3; 
   x[0] = 0;
-//  y[0] = init_pos.Z();
-  y[0] = 0.;
+  y[0] = init_pos.Z();
+//  y[0] = 0.;
   double the;
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
@@ -133,7 +133,17 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
     cos0 = -cos0;
   }
   double py = p * the;
-  init_mom.SetXYZ(p*cos0, py, p*sin0);
+//  init_mom.SetXYZ(p*cos0, py, p*sin0);
+constexpr double mom_range = 3.;
+auto tmp_mom = TVector3(p * cos0, py, p * sin0);
+for (int i = 0; i < 3; ++i) {
+  if (tmp_mom(i) > mom_range) {
+    tmp_mom(i) = 3.;
+  } else if (tmp_mom(i) < -1. * mom_range) {
+    tmp_mom(i) = -3.;
+  }
+}
+init_mom.SetXYZ(tmp_mom.X(), tmp_mom.Y(), tmp_mom.Z());
   init_circ.SetXYZ(x0, y0, r);
   return true;
 }
@@ -154,7 +164,8 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 //  single_track->SetInitialVertex(init_pos, kInitPosError);
 //  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), kInitPosError);
 //  single_track->SetInitialVertex(TVector3(0., 0., init_pos.Z()), TVector3(0., 0., 0.)); // for Ks
-  single_track->SetInitialVertex(TVector3(0., 0., 0.), kInitPosError);
+//  single_track->SetInitialVertex(TVector3(0., 0., 0.), kInitPosError);
+  single_track->SetInitialVertex(init_pos, kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
@@ -1180,7 +1191,6 @@ for (int i = 0; i < 4; ++i) {
 }
 #endif // SIM_DST1_GEOM_CHECK
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
-                    cluster_set->target_id = tgt_index;
                     if (IsXTrackCandidate(tgt_index, chi2, cluster_set)) {
                       is_cand = true;
                       chi2 = cluster_set->chi_square;
