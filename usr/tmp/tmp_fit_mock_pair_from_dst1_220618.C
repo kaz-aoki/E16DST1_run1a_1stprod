@@ -107,7 +107,9 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
   TVector3 mock_minus_gtr300_lpos;
   double mock_mass;
   // rough fit
+  TVector3 rough_fit_plus_init_pos;
   TVector3 rough_fit_plus_init_mom;
+  TVector3 rough_fit_minus_init_pos;
   TVector3 rough_fit_minus_init_mom;
   // pre fit
   double   pre_fit_plus_chi2;
@@ -118,6 +120,12 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
   TVector3 pre_fit_plus_gtr100_lpos;
   TVector3 pre_fit_plus_gtr200_lpos;
   TVector3 pre_fit_plus_gtr300_lpos;
+  TVector3 pre_fit_plus_tgt0_pos;
+  TVector3 pre_fit_plus_tgt0_mom;
+  TVector3 pre_fit_plus_tgt1_pos;
+  TVector3 pre_fit_plus_tgt1_mom;
+  TVector3 pre_fit_plus_tgt2_pos;
+  TVector3 pre_fit_plus_tgt2_mom;
   double   pre_fit_minus_chi2;
   int      pre_fit_minus_n_calls;
   TVector3 pre_fit_minus_init_mom;
@@ -126,6 +134,12 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
   TVector3 pre_fit_minus_gtr100_lpos;
   TVector3 pre_fit_minus_gtr200_lpos;
   TVector3 pre_fit_minus_gtr300_lpos;
+  TVector3 pre_fit_minus_tgt0_pos;
+  TVector3 pre_fit_minus_tgt0_mom;
+  TVector3 pre_fit_minus_tgt1_pos;
+  TVector3 pre_fit_minus_tgt1_mom;
+  TVector3 pre_fit_minus_tgt2_pos;
+  TVector3 pre_fit_minus_tgt2_mom;
   double   pre_fit_mass;
   // single fit
   double   fit_plus_chi2;
@@ -198,7 +212,9 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
   out_tree.Branch("mock_minus_gtr300_lpos", &mock_minus_gtr300_lpos);
   out_tree.Branch("mock_mass",              &mock_mass, "mock_mass/D");
   // rough fit
+  out_tree.Branch("rough_fit_plus_init_pos",  &rough_fit_plus_init_pos);
   out_tree.Branch("rough_fit_plus_init_mom",  &rough_fit_plus_init_mom);
+  out_tree.Branch("rough_fit_minus_init_pos", &rough_fit_minus_init_pos);
   out_tree.Branch("rough_fit_minus_init_mom", &rough_fit_minus_init_mom);
   // pre fit
   out_tree.Branch("pre_fit_plus_chi2",         &pre_fit_plus_chi2, "pre_fit_plus_chi2/D");
@@ -209,6 +225,12 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
   out_tree.Branch("pre_fit_plus_gtr100_lpos",  &pre_fit_plus_gtr100_lpos);
   out_tree.Branch("pre_fit_plus_gtr200_lpos",  &pre_fit_plus_gtr200_lpos);
   out_tree.Branch("pre_fit_plus_gtr300_lpos",  &pre_fit_plus_gtr300_lpos);
+  out_tree.Branch("pre_fit_plus_tgt0_pos",     &pre_fit_plus_tgt0_pos);
+  out_tree.Branch("pre_fit_plus_tgt0_mom",     &pre_fit_plus_tgt0_mom);
+  out_tree.Branch("pre_fit_plus_tgt1_pos",     &pre_fit_plus_tgt1_pos);
+  out_tree.Branch("pre_fit_plus_tgt1_mom",     &pre_fit_plus_tgt1_mom);
+  out_tree.Branch("pre_fit_plus_tgt2_pos",     &pre_fit_plus_tgt2_pos);
+  out_tree.Branch("pre_fit_plus_tgt2_mom",     &pre_fit_plus_tgt2_mom);
   out_tree.Branch("pre_fit_minus_chi2",        &pre_fit_minus_chi2, "pre_fit_minus_chi2/D");
   out_tree.Branch("pre_fit_minus_n_calls",     &pre_fit_minus_n_calls, "pre_fit_minus_n_calls/I");
   out_tree.Branch("pre_fit_minus_init_mom",    &pre_fit_minus_init_mom);
@@ -217,6 +239,12 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
   out_tree.Branch("pre_fit_minus_gtr100_lpos", &pre_fit_minus_gtr100_lpos);
   out_tree.Branch("pre_fit_minus_gtr200_lpos", &pre_fit_minus_gtr200_lpos);
   out_tree.Branch("pre_fit_minus_gtr300_lpos", &pre_fit_minus_gtr300_lpos);
+  out_tree.Branch("pre_fit_minus_tgt0_pos",    &pre_fit_minus_tgt0_pos);
+  out_tree.Branch("pre_fit_minus_tgt0_mom",    &pre_fit_minus_tgt0_mom);
+  out_tree.Branch("pre_fit_minus_tgt1_pos",    &pre_fit_minus_tgt1_pos);
+  out_tree.Branch("pre_fit_minus_tgt1_mom",    &pre_fit_minus_tgt1_mom);
+  out_tree.Branch("pre_fit_minus_tgt2_pos",    &pre_fit_minus_tgt2_pos);
+  out_tree.Branch("pre_fit_minus_tgt2_mom",    &pre_fit_minus_tgt2_mom);
   out_tree.Branch("pre_fit_mass",              &pre_fit_mass, "pre_fit_mass/D");
   // single fit
   out_tree.Branch("fit_plus_chi2",             &fit_plus_chi2, "fit_plus_chi2/D");
@@ -296,12 +324,19 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
         pre_fit_plus_chi2        = chi_square->at(i);
         pre_fit_plus_n_calls     = n_calls->at(i);
         pre_fit_plus_init_mom    = TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
+        rough_fit_plus_init_pos  = TVector3(rk_hit_init_pos_gx->at(i), rk_hit_init_pos_gy->at(i), rk_hit_init_pos_gz->at(i));
         rough_fit_plus_init_mom  = TVector3(rk_hit_init_mom_gx->at(i), rk_hit_init_mom_gy->at(i), rk_hit_init_mom_gz->at(i));
         pre_fit_plus_init_pos    = TVector3(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
         pre_fit_plus_ssd_lpos    = TVector3(rk_fit_ssd_x->at(i),    rk_fit_ssd_y->at(i),    0.);
         pre_fit_plus_gtr100_lpos = TVector3(rk_fit_gtr100_x->at(i), rk_fit_gtr100_y->at(i), 0.);
         pre_fit_plus_gtr200_lpos = TVector3(rk_fit_gtr200_x->at(i), rk_fit_gtr200_y->at(i), 0.);
         pre_fit_plus_gtr300_lpos = TVector3(rk_fit_gtr300_x->at(i), rk_fit_gtr300_y->at(i), 0.);
+        pre_fit_plus_tgt0_pos    = TVector3(rk_proj_tgt0_gx->at(i),     rk_proj_tgt0_gy->at(i),     rk_proj_tgt0_gz->at(i));
+        pre_fit_plus_tgt0_mom    = TVector3(rk_proj_tgt0_mom_gx->at(i), rk_proj_tgt0_mom_gy->at(i), rk_proj_tgt0_mom_gz->at(i));
+        pre_fit_plus_tgt1_pos    = TVector3(rk_proj_tgt1_gx->at(i),     rk_proj_tgt1_gy->at(i),     rk_proj_tgt1_gz->at(i));
+        pre_fit_plus_tgt1_mom    = TVector3(rk_proj_tgt1_mom_gx->at(i), rk_proj_tgt1_mom_gy->at(i), rk_proj_tgt1_mom_gz->at(i));
+        pre_fit_plus_tgt2_pos    = TVector3(rk_proj_tgt2_gx->at(i),     rk_proj_tgt2_gy->at(i),     rk_proj_tgt2_gz->at(i));
+        pre_fit_plus_tgt2_mom    = TVector3(rk_proj_tgt2_mom_gx->at(i), rk_proj_tgt2_mom_gy->at(i), rk_proj_tgt2_mom_gz->at(i));
       } else {
         is_sim_filled[1] = true;
         minus_ssd_mid     = rk_fit_ssd_mid->at(i);
@@ -319,12 +354,19 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, co
         pre_fit_minus_chi2        = chi_square->at(i);
         pre_fit_minus_n_calls     = n_calls->at(i);
         pre_fit_minus_init_mom    = TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
+        rough_fit_minus_init_pos  = TVector3(rk_hit_init_pos_gx->at(i), rk_hit_init_pos_gy->at(i), rk_hit_init_pos_gz->at(i));
         rough_fit_minus_init_mom  = TVector3(rk_hit_init_mom_gx->at(i), rk_hit_init_mom_gy->at(i), rk_hit_init_mom_gz->at(i));
         pre_fit_minus_init_pos    = TVector3(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
         pre_fit_minus_ssd_lpos    = TVector3(rk_fit_ssd_x->at(i),    rk_fit_ssd_y->at(i),    0.);
         pre_fit_minus_gtr100_lpos = TVector3(rk_fit_gtr100_x->at(i), rk_fit_gtr100_y->at(i), 0.);
         pre_fit_minus_gtr200_lpos = TVector3(rk_fit_gtr200_x->at(i), rk_fit_gtr200_y->at(i), 0.);
         pre_fit_minus_gtr300_lpos = TVector3(rk_fit_gtr300_x->at(i), rk_fit_gtr300_y->at(i), 0.);
+        pre_fit_minus_tgt0_pos    = TVector3(rk_proj_tgt0_gx->at(i),     rk_proj_tgt0_gy->at(i),     rk_proj_tgt0_gz->at(i));
+        pre_fit_minus_tgt0_mom    = TVector3(rk_proj_tgt0_mom_gx->at(i), rk_proj_tgt0_mom_gy->at(i), rk_proj_tgt0_mom_gz->at(i));
+        pre_fit_minus_tgt1_pos    = TVector3(rk_proj_tgt1_gx->at(i),     rk_proj_tgt1_gy->at(i),     rk_proj_tgt1_gz->at(i));
+        pre_fit_minus_tgt1_mom    = TVector3(rk_proj_tgt1_mom_gx->at(i), rk_proj_tgt1_mom_gy->at(i), rk_proj_tgt1_mom_gz->at(i));
+        pre_fit_minus_tgt2_pos    = TVector3(rk_proj_tgt2_gx->at(i),     rk_proj_tgt2_gy->at(i),     rk_proj_tgt2_gz->at(i));
+        pre_fit_minus_tgt2_mom    = TVector3(rk_proj_tgt2_mom_gx->at(i), rk_proj_tgt2_mom_gy->at(i), rk_proj_tgt2_mom_gz->at(i));
       }
       if (is_sim_filled[0] && is_sim_filled[1]) {
         break;

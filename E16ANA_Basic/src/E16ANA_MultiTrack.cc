@@ -477,7 +477,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
             //momentum_init[i].X(), momentum_step_size, -1.5, 1.5); // GeV
 //            momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.1, momentum_init[i].X()+0.1); // GeV // 2021-02-24
 //            momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.5, momentum_init[i].X()+0.5); // GeV // 2021-10-19
-            momentum_init[i].X(), momentum_step_size, -3., 3.); // GeV // 2022-08-05
+            momentum_init[i].X(), momentum_step_size, -5., 5.); // GeV // 2022-08-05
             //-track_charge[i]*momentum_init[i].X(), momentum_step_size, -1.5, 1.5); // 160928
       if(pyfixflag){
          minuit->SetFixedVariable(i*3+4, Form("Momentum%02d_Y", i), momentum_init[i].Y());
@@ -486,13 +486,13 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
                //momentum_init[i].Y(), momentum_step_size, -1.5, 1.5); // GeV
 //               momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.1, momentum_init[i].Y()+0.1); // GeV // 2021-02-24
 //               momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.5, momentum_init[i].Y()+0.5); // GeV // 2021-10-19
-               momentum_init[i].Y(), momentum_step_size, -3., 3.); // GeV // 2022-08-05
+               momentum_init[i].Y(), momentum_step_size, -5., 5.); // GeV // 2022-08-05
       }
       minuit->SetLimitedVariable(i*3+5, Form("Momentum%02d_Z", i),
             //momentum_init[i].Z(), momentum_step_size, -0.3, 6.0); // GeV
 //            momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.1, momentum_init[i].Z()+0.1); // GeV // 2021-02-24
 //            momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.5, momentum_init[i].Z()+0.5); // GeV // 2021-02-24
-            momentum_init[i].Z(), momentum_step_size, -3., 3.); // GeV // 2022-08-05
+            momentum_init[i].Z(), momentum_step_size, -5., 5.); // GeV // 2022-08-05
    }
    minimize_status = minuit->Minimize();
    matrix_status = minuit->CovMatrixStatus();
