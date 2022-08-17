@@ -30,6 +30,7 @@ endif()
 #add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DREMOVE_REAL_HIT)
+#add_definitions(-DREMOVE_DEAD_REGION_CUT)
 #add_definitions(-DWO_POS_SMEAR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
 
@@ -538,6 +539,15 @@ add_executable(track_analyzer_220715_wrapper
 
 target_link_libraries(track_analyzer_220715_wrapper
   E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_check_n_events_220811
+  usr/tmp/tmp_check_n_events_220811.cc
+)
+
+target_link_libraries(tmp_check_n_events_220811
+  E16DST
 )
 
 #_______________________________________________________________________________

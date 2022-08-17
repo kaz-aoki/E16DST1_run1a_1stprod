@@ -230,7 +230,11 @@ void E16ANA_HBDClusterAnalysis::CalcLocalPositionWADCWeight(hbd_cluster &cluster
     double buf[3];
     E16ANA_HBDGeometry::GetPadLocalCOG(cluster.module_id, id.at(i), buf);
     for(int j=0; j<3; j++){
-      lpos[j] += buf[j]*cluster.adc.at(i)/sadc;
+      if (j < 2) {
+        lpos[j] += buf[j]*cluster.adc.at(i)/sadc;
+      } else {
+        lpos[j] = 0.;
+      }
     }
   }
   
