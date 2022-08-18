@@ -11,6 +11,7 @@
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_MultiTrack.hh"
+#include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "tmp_fit_mock_pair_220616_parameter.hh"
 
@@ -35,7 +36,7 @@ double tmp_fit_mock_pair_from_dst1_220618::CalcMass(const TVector3& mom0, const 
   return sqrt(mass2[0] + mass2[1] + 2. * (e0 * e1 - p0p1));
 }
 
-void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out_name) {
+void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int max_events, const TString& out_name) {
 //   In a ROOT session, you can do:
 //      root> .L tmp_fit_mock_pair_from_dst1_220618.C
 //      root> tmp_fit_mock_pair_from_dst1_220618 t
@@ -64,8 +65,10 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   Long64_t nbytes = 0, nb = 0;
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+//  auto geometry = new E16ANA_GeometryV2("/ccj/u/E16/database/geometry/v2/geometry_Run0b_210226_design.dat"); // for geometry effect estimation
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+//  auto bfield_map = new E16ANA_MagneticFieldMap3D("/ccj/u/E16/database/fieldmap/Bmap_201207010_mod.binary"); // for magnetic field estimation
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   E16ANA_MultiTrack fitter(bfield_map, geometry, 2);
@@ -104,23 +107,39 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   TVector3 mock_minus_gtr300_lpos;
   double mock_mass;
   // rough fit
+  TVector3 rough_fit_plus_init_pos;
   TVector3 rough_fit_plus_init_mom;
+  TVector3 rough_fit_minus_init_pos;
   TVector3 rough_fit_minus_init_mom;
   // pre fit
   double   pre_fit_plus_chi2;
+  int      pre_fit_plus_n_calls;
   TVector3 pre_fit_plus_init_mom;
   TVector3 pre_fit_plus_init_pos;
   TVector3 pre_fit_plus_ssd_lpos;
   TVector3 pre_fit_plus_gtr100_lpos;
   TVector3 pre_fit_plus_gtr200_lpos;
   TVector3 pre_fit_plus_gtr300_lpos;
+  TVector3 pre_fit_plus_tgt0_pos;
+  TVector3 pre_fit_plus_tgt0_mom;
+  TVector3 pre_fit_plus_tgt1_pos;
+  TVector3 pre_fit_plus_tgt1_mom;
+  TVector3 pre_fit_plus_tgt2_pos;
+  TVector3 pre_fit_plus_tgt2_mom;
   double   pre_fit_minus_chi2;
+  int      pre_fit_minus_n_calls;
   TVector3 pre_fit_minus_init_mom;
   TVector3 pre_fit_minus_init_pos;
   TVector3 pre_fit_minus_ssd_lpos;
   TVector3 pre_fit_minus_gtr100_lpos;
   TVector3 pre_fit_minus_gtr200_lpos;
   TVector3 pre_fit_minus_gtr300_lpos;
+  TVector3 pre_fit_minus_tgt0_pos;
+  TVector3 pre_fit_minus_tgt0_mom;
+  TVector3 pre_fit_minus_tgt1_pos;
+  TVector3 pre_fit_minus_tgt1_mom;
+  TVector3 pre_fit_minus_tgt2_pos;
+  TVector3 pre_fit_minus_tgt2_mom;
   double   pre_fit_mass;
   // single fit
   double   fit_plus_chi2;
@@ -152,6 +171,13 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   TVector3 pair_fit_minus_gtr200_lpos;
   TVector3 pair_fit_minus_gtr300_lpos;
   double   pair_fit_mass;
+  // w/o fit
+  int      wo_fit_flag;
+  double   wo_fit_distance;
+  TVector3 wo_fit_vtx;
+  TVector3 wo_fit_plus_init_mom;
+  TVector3 wo_fit_minus_init_mom;
+  double   wo_fit_mass;
   
   // common
   out_tree.Branch("run_id",                    &run_id,          "run_id/I");
@@ -186,23 +212,39 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   out_tree.Branch("mock_minus_gtr300_lpos", &mock_minus_gtr300_lpos);
   out_tree.Branch("mock_mass",              &mock_mass, "mock_mass/D");
   // rough fit
+  out_tree.Branch("rough_fit_plus_init_pos",  &rough_fit_plus_init_pos);
   out_tree.Branch("rough_fit_plus_init_mom",  &rough_fit_plus_init_mom);
+  out_tree.Branch("rough_fit_minus_init_pos", &rough_fit_minus_init_pos);
   out_tree.Branch("rough_fit_minus_init_mom", &rough_fit_minus_init_mom);
   // pre fit
   out_tree.Branch("pre_fit_plus_chi2",         &pre_fit_plus_chi2, "pre_fit_plus_chi2/D");
+  out_tree.Branch("pre_fit_plus_n_calls",      &pre_fit_plus_n_calls, "pre_fit_plus_n_calls/I");
   out_tree.Branch("pre_fit_plus_init_mom",     &pre_fit_plus_init_mom);
   out_tree.Branch("pre_fit_plus_init_pos",     &pre_fit_plus_init_pos);
   out_tree.Branch("pre_fit_plus_ssd_lpos",     &pre_fit_plus_ssd_lpos);
   out_tree.Branch("pre_fit_plus_gtr100_lpos",  &pre_fit_plus_gtr100_lpos);
   out_tree.Branch("pre_fit_plus_gtr200_lpos",  &pre_fit_plus_gtr200_lpos);
   out_tree.Branch("pre_fit_plus_gtr300_lpos",  &pre_fit_plus_gtr300_lpos);
+  out_tree.Branch("pre_fit_plus_tgt0_pos",     &pre_fit_plus_tgt0_pos);
+  out_tree.Branch("pre_fit_plus_tgt0_mom",     &pre_fit_plus_tgt0_mom);
+  out_tree.Branch("pre_fit_plus_tgt1_pos",     &pre_fit_plus_tgt1_pos);
+  out_tree.Branch("pre_fit_plus_tgt1_mom",     &pre_fit_plus_tgt1_mom);
+  out_tree.Branch("pre_fit_plus_tgt2_pos",     &pre_fit_plus_tgt2_pos);
+  out_tree.Branch("pre_fit_plus_tgt2_mom",     &pre_fit_plus_tgt2_mom);
   out_tree.Branch("pre_fit_minus_chi2",        &pre_fit_minus_chi2, "pre_fit_minus_chi2/D");
+  out_tree.Branch("pre_fit_minus_n_calls",     &pre_fit_minus_n_calls, "pre_fit_minus_n_calls/I");
   out_tree.Branch("pre_fit_minus_init_mom",    &pre_fit_minus_init_mom);
   out_tree.Branch("pre_fit_minus_init_pos",    &pre_fit_minus_init_pos);
   out_tree.Branch("pre_fit_minus_ssd_lpos",    &pre_fit_minus_ssd_lpos);
   out_tree.Branch("pre_fit_minus_gtr100_lpos", &pre_fit_minus_gtr100_lpos);
   out_tree.Branch("pre_fit_minus_gtr200_lpos", &pre_fit_minus_gtr200_lpos);
   out_tree.Branch("pre_fit_minus_gtr300_lpos", &pre_fit_minus_gtr300_lpos);
+  out_tree.Branch("pre_fit_minus_tgt0_pos",    &pre_fit_minus_tgt0_pos);
+  out_tree.Branch("pre_fit_minus_tgt0_mom",    &pre_fit_minus_tgt0_mom);
+  out_tree.Branch("pre_fit_minus_tgt1_pos",    &pre_fit_minus_tgt1_pos);
+  out_tree.Branch("pre_fit_minus_tgt1_mom",    &pre_fit_minus_tgt1_mom);
+  out_tree.Branch("pre_fit_minus_tgt2_pos",    &pre_fit_minus_tgt2_pos);
+  out_tree.Branch("pre_fit_minus_tgt2_mom",    &pre_fit_minus_tgt2_mom);
   out_tree.Branch("pre_fit_mass",              &pre_fit_mass, "pre_fit_mass/D");
   // single fit
   out_tree.Branch("fit_plus_chi2",             &fit_plus_chi2, "fit_plus_chi2/D");
@@ -234,6 +276,13 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
   out_tree.Branch("pair_fit_minus_gtr200_lpos", &pair_fit_minus_gtr200_lpos);
   out_tree.Branch("pair_fit_minus_gtr300_lpos", &pair_fit_minus_gtr300_lpos);
   out_tree.Branch("pair_fit_mass",              &pair_fit_mass, "pair_fit_mass/D");
+  // w/o fit
+  out_tree.Branch("wo_fit_flag",               &wo_fit_flag,     "wo_fit_flag/I");
+  out_tree.Branch("wo_fit_distance",           &wo_fit_distance, "wo_fit_distance/D");
+  out_tree.Branch("wo_fit_vtx",                &wo_fit_vtx);
+  out_tree.Branch("wo_fit_plus_init_mom",      &wo_fit_plus_init_mom);
+  out_tree.Branch("wo_fit_minus_init_mom",     &wo_fit_minus_init_mom);
+  out_tree.Branch("wo_fit_mass",               &wo_fit_mass, "wo_fit_mass/D");
 
   if (max_events == -1) {
     max_events = nentries;
@@ -273,13 +322,21 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         plus_gtr200_lpos = geometry->GTR(mids[0][2], 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty2->at(i), rk_hit_gtr200_gtz2->at(i)));
         plus_gtr300_lpos = geometry->GTR(mids[0][3], 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty2->at(i), rk_hit_gtr300_gtz2->at(i)));
         pre_fit_plus_chi2        = chi_square->at(i);
+        pre_fit_plus_n_calls     = n_calls->at(i);
         pre_fit_plus_init_mom    = TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
+        rough_fit_plus_init_pos  = TVector3(rk_hit_init_pos_gx->at(i), rk_hit_init_pos_gy->at(i), rk_hit_init_pos_gz->at(i));
         rough_fit_plus_init_mom  = TVector3(rk_hit_init_mom_gx->at(i), rk_hit_init_mom_gy->at(i), rk_hit_init_mom_gz->at(i));
         pre_fit_plus_init_pos    = TVector3(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
         pre_fit_plus_ssd_lpos    = TVector3(rk_fit_ssd_x->at(i),    rk_fit_ssd_y->at(i),    0.);
         pre_fit_plus_gtr100_lpos = TVector3(rk_fit_gtr100_x->at(i), rk_fit_gtr100_y->at(i), 0.);
         pre_fit_plus_gtr200_lpos = TVector3(rk_fit_gtr200_x->at(i), rk_fit_gtr200_y->at(i), 0.);
         pre_fit_plus_gtr300_lpos = TVector3(rk_fit_gtr300_x->at(i), rk_fit_gtr300_y->at(i), 0.);
+        pre_fit_plus_tgt0_pos    = TVector3(rk_proj_tgt0_gx->at(i),     rk_proj_tgt0_gy->at(i),     rk_proj_tgt0_gz->at(i));
+        pre_fit_plus_tgt0_mom    = TVector3(rk_proj_tgt0_mom_gx->at(i), rk_proj_tgt0_mom_gy->at(i), rk_proj_tgt0_mom_gz->at(i));
+        pre_fit_plus_tgt1_pos    = TVector3(rk_proj_tgt1_gx->at(i),     rk_proj_tgt1_gy->at(i),     rk_proj_tgt1_gz->at(i));
+        pre_fit_plus_tgt1_mom    = TVector3(rk_proj_tgt1_mom_gx->at(i), rk_proj_tgt1_mom_gy->at(i), rk_proj_tgt1_mom_gz->at(i));
+        pre_fit_plus_tgt2_pos    = TVector3(rk_proj_tgt2_gx->at(i),     rk_proj_tgt2_gy->at(i),     rk_proj_tgt2_gz->at(i));
+        pre_fit_plus_tgt2_mom    = TVector3(rk_proj_tgt2_mom_gx->at(i), rk_proj_tgt2_mom_gy->at(i), rk_proj_tgt2_mom_gz->at(i));
       } else {
         is_sim_filled[1] = true;
         minus_ssd_mid     = rk_fit_ssd_mid->at(i);
@@ -295,13 +352,21 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         minus_gtr200_lpos = geometry->GTR(mids[1][2], 1)->GetLPos(TVector3(rk_hit_gtr200_gtx2->at(i), rk_hit_gtr200_gty2->at(i), rk_hit_gtr200_gtz2->at(i)));
         minus_gtr300_lpos = geometry->GTR(mids[1][3], 2)->GetLPos(TVector3(rk_hit_gtr300_gtx2->at(i), rk_hit_gtr300_gty2->at(i), rk_hit_gtr300_gtz2->at(i)));
         pre_fit_minus_chi2        = chi_square->at(i);
+        pre_fit_minus_n_calls     = n_calls->at(i);
         pre_fit_minus_init_mom    = TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
+        rough_fit_minus_init_pos  = TVector3(rk_hit_init_pos_gx->at(i), rk_hit_init_pos_gy->at(i), rk_hit_init_pos_gz->at(i));
         rough_fit_minus_init_mom  = TVector3(rk_hit_init_mom_gx->at(i), rk_hit_init_mom_gy->at(i), rk_hit_init_mom_gz->at(i));
         pre_fit_minus_init_pos    = TVector3(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
         pre_fit_minus_ssd_lpos    = TVector3(rk_fit_ssd_x->at(i),    rk_fit_ssd_y->at(i),    0.);
         pre_fit_minus_gtr100_lpos = TVector3(rk_fit_gtr100_x->at(i), rk_fit_gtr100_y->at(i), 0.);
         pre_fit_minus_gtr200_lpos = TVector3(rk_fit_gtr200_x->at(i), rk_fit_gtr200_y->at(i), 0.);
         pre_fit_minus_gtr300_lpos = TVector3(rk_fit_gtr300_x->at(i), rk_fit_gtr300_y->at(i), 0.);
+        pre_fit_minus_tgt0_pos    = TVector3(rk_proj_tgt0_gx->at(i),     rk_proj_tgt0_gy->at(i),     rk_proj_tgt0_gz->at(i));
+        pre_fit_minus_tgt0_mom    = TVector3(rk_proj_tgt0_mom_gx->at(i), rk_proj_tgt0_mom_gy->at(i), rk_proj_tgt0_mom_gz->at(i));
+        pre_fit_minus_tgt1_pos    = TVector3(rk_proj_tgt1_gx->at(i),     rk_proj_tgt1_gy->at(i),     rk_proj_tgt1_gz->at(i));
+        pre_fit_minus_tgt1_mom    = TVector3(rk_proj_tgt1_mom_gx->at(i), rk_proj_tgt1_mom_gy->at(i), rk_proj_tgt1_mom_gz->at(i));
+        pre_fit_minus_tgt2_pos    = TVector3(rk_proj_tgt2_gx->at(i),     rk_proj_tgt2_gy->at(i),     rk_proj_tgt2_gz->at(i));
+        pre_fit_minus_tgt2_mom    = TVector3(rk_proj_tgt2_mom_gx->at(i), rk_proj_tgt2_mom_gy->at(i), rk_proj_tgt2_mom_gz->at(i));
       }
       if (is_sim_filled[0] && is_sim_filled[1]) {
         break;
@@ -323,7 +388,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     // single fit
     for (int t = 0; t < 2; ++t) {
       sfitter.Clear();
-      sfitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
+      sfitter.SetInitialVertex(kInitVertex[vtx_z_flag], kVertexSigma);
       if (t == 0) {
         sfitter.SetCharge(0, 1.);
       } else {
@@ -370,7 +435,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
 #endif
       sfitter.SetRungeKuttaStepSize(kStepSize);
       sfitter.SetMaxSteps(kMaxSteps);
-      auto tmp_chi2     = sfitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls, kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+      auto tmp_chi2     = sfitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ[vtx_z_flag], kStrategy, kMaxFuncCalls,
+                                      kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
       auto tmp_mom      = sfitter.GetFitMomentum(0);
       auto tmp_init_pos = sfitter.GetFitVertex();
       array<TVector3, 4> tmp_lposs;
@@ -400,7 +466,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
     }
     // pair fit
     fitter.Clear();
-    fitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
+    fitter.SetInitialVertex(kInitVertex[vtx_z_flag], kVertexSigma);
     fitter.SetCharge(0, 1.);
 #ifndef FROM_MOCK
     fitter.SetInitialMomentum(0, pre_fit_plus_init_mom);
@@ -433,7 +499,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
 #endif
     fitter.SetRungeKuttaStepSize(kStepSize);
     fitter.SetMaxSteps(kMaxSteps);
-    pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls,
+    pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ[vtx_z_flag], kStrategy, kMaxFuncCalls,
                                          kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
     pair_fit_vtx            = fitter.GetFitVertex();
     pair_fit_plus_init_mom  = fitter.GetFitMomentum(0);
@@ -466,10 +532,28 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int max_events, const TString& out
         }
       }
     }
+    // w/o fit
+    auto hep_plus_init_pos  = Hep3Vector(pre_fit_plus_init_pos.X()  * 0.1, pre_fit_plus_init_pos.Y()  * 0.1, pre_fit_plus_init_pos.Z()  * 0.1);
+    auto hep_minus_init_pos = Hep3Vector(pre_fit_minus_init_pos.X() * 0.1, pre_fit_minus_init_pos.Y() * 0.1, pre_fit_minus_init_pos.Z() * 0.1);
+    auto hep_plus_init_mom  = Hep3Vector(pre_fit_plus_init_mom.X(),        pre_fit_plus_init_mom.Y(),        pre_fit_plus_init_mom.Z());
+    auto hep_minus_init_mom = Hep3Vector(pre_fit_minus_init_mom.X(),       pre_fit_minus_init_mom.Y(),       pre_fit_minus_init_mom.Z());
+    auto plus_step_track    = E16ANA_StepTrack(bfield_map, hep_plus_init_pos,  hep_plus_init_mom,   1., kStepTrackSizeCm, kStepTrackArraySize);
+    auto minus_step_track   = E16ANA_StepTrack(bfield_map, hep_minus_init_pos, hep_minus_init_mom, -1., kStepTrackSizeCm, kStepTrackArraySize);
+    auto distance_cm       = double();
+    auto hep_vtx           = Hep3Vector();
+    auto hep_plus_vtx_mom  = Hep3Vector();
+    auto hep_minus_vtx_mom = Hep3Vector();
+    wo_fit_flag = plus_step_track.Cross(minus_step_track, &distance_cm, &hep_vtx, &hep_plus_vtx_mom, &hep_minus_vtx_mom);
+    wo_fit_distance = distance_cm * 10.;
+    wo_fit_vtx.SetXYZ(hep_vtx.x() * 10., hep_vtx.y() * 10., hep_vtx.z() * 10.);
+    wo_fit_plus_init_mom.SetXYZ(hep_plus_vtx_mom.x(),   hep_plus_vtx_mom.y(),  hep_plus_vtx_mom.z());
+    wo_fit_minus_init_mom.SetXYZ(hep_minus_vtx_mom.x(), hep_minus_vtx_mom.y(), hep_minus_vtx_mom.z());
+    
     mock_mass     = CalcMass(mock_plus_init_mom,     mock_minus_init_mom);
     pre_fit_mass  = CalcMass(pre_fit_plus_init_mom,  pre_fit_minus_init_mom);
     fit_mass      = CalcMass(fit_plus_init_mom,      fit_minus_init_mom);
     pair_fit_mass = CalcMass(pair_fit_plus_init_mom, pair_fit_minus_init_mom);
+    wo_fit_mass   = CalcMass(wo_fit_plus_init_mom,   wo_fit_minus_init_mom);
     out_tree.Fill();
   }
   out_file.Write();

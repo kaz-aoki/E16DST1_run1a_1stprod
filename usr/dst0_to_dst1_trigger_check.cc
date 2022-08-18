@@ -63,12 +63,16 @@ int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackO
       is_dead = true;
     }
   }
+#ifndef REMOVE_DEAD_REGION_CUT
   if (!is_dead) {
     return kReadMockOK;
   } else {
     return kReadMockNG;
   }
   return kReadMockError;
+#else // REMOVE_DEAD_REGION_CUT
+  return kReadMockOK;
+#endif // REMOVE_DEAD_REGION_CUT
 }
 #endif // TRACK_EFF_CHECK
 

@@ -30,6 +30,7 @@ endif()
 #add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DMERGE_TRACK_PAIR)
 #add_definitions(-DREMOVE_REAL_HIT)
+#add_definitions(-DREMOVE_DEAD_REGION_CUT)
 #add_definitions(-DWO_POS_SMEAR)
 #add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
 
@@ -498,16 +499,16 @@ target_link_libraries(calc_ssd_rate
   E16DST
 )
 
-#_______________________________________________________________________________
-add_executable(tmp_fit_mock_pair_220616_wrapper
-  usr/tmp/tmp_fit_mock_pair_220616_wrapper.cc
-  usr/tmp/tmp_fit_mock_pair_220616.C
-)
-
-target_link_libraries(tmp_fit_mock_pair_220616_wrapper
-	E16ANA_Basic
-)
-
+##_______________________________________________________________________________
+#add_executable(tmp_fit_mock_pair_220616_wrapper
+#  usr/tmp/tmp_fit_mock_pair_220616_wrapper.cc
+#  usr/tmp/tmp_fit_mock_pair_220616.C
+#)
+#
+#target_link_libraries(tmp_fit_mock_pair_220616_wrapper
+#	E16ANA_Basic
+#)
+#
 #_______________________________________________________________________________
 add_executable(tmp_fit_mock_pair_from_dst1_220618_wrapper
   usr/tmp/tmp_fit_mock_pair_from_dst1_220618_wrapper.cc
@@ -528,6 +529,25 @@ add_executable(tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper
 add_executable(tmp_check_pos_smear_220627_wrapper
   usr/tmp/tmp_check_pos_smear_220627_wrapper.cc
   usr/tmp/tmp_check_pos_smear_220627.C
+)
+
+#_______________________________________________________________________________
+add_executable(track_analyzer_220715_wrapper
+  usr/tmp/track_analyzer_220715_wrapper.cc
+  usr/tmp/track_analyzer_220715.C
+)
+
+target_link_libraries(track_analyzer_220715_wrapper
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_check_n_events_220811
+  usr/tmp/tmp_check_n_events_220811.cc
+)
+
+target_link_libraries(tmp_check_n_events_220811
+  E16DST
 )
 
 #_______________________________________________________________________________

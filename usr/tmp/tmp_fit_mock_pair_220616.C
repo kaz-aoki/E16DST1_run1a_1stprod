@@ -229,7 +229,7 @@ void tmp_fit_mock_pair_220616::Loop(int max_events, const TString& out_name) {
     pre_mass = CalcMass(*plus_init_mom, *minus_init_mom);
     // pair fit
     fitter.Clear();
-    fitter.SetInitialVertex(TVector3(0., 0., 0.), kVertexSigma);
+    fitter.SetInitialVertex(kInitVertex, kVertexSigma);
     fitter.SetCharge(0, 1.);
 #ifndef FROM_MOCK
     fitter.SetInitialMomentum(0, *plus_init_mom);
