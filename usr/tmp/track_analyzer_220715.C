@@ -228,12 +228,17 @@ void track_analyzer_220715::SetHBDs() {
     hbd.clear();
   }
   for (int i = 0; i < n_hbd_clusters; ++i) {
-    if (kUseHBDEProb) {
+    if (kHBDSelection == kUseHBDEProb) {
       auto eprob = hbd_cluster_eprob->at(i);
       if (eprob < 0.5) {
         continue;
       }
-    } else {
+    } else if (kHBDSelection == kUseHBDCProb) {
+      auto cprob = hbd_cluster_cprob->at(i);
+      if (cprob < 0.5) {
+        continue;
+      }
+    } else if (kHBDSelection == kNotUseHBDProb) {
       auto adc = hbd_cluster_adc->at(i);
       auto csize = hbd_cluster_size->at(i);
       if (adc < kMinHBDADC || csize < kMinHBDSize) {

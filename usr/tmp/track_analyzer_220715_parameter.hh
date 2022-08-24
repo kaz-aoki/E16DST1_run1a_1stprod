@@ -49,6 +49,11 @@ constexpr double kKaonMass2     = kKaonMass * kKaonMass;
 
 // Track selection
 enum {
+  kUseHBDEProb,
+  kUseHBDCProb,
+  kNotUseHBDProb
+};
+enum {
   kNoClusterDuplicationCut,
   kSSDAndGTRDuplicationCut,
   kSameChargeSSDAndGTRDuplicationCut,
@@ -65,7 +70,7 @@ constexpr double kMaxHBDXResidual      = 25.;
 constexpr double kMaxHBDYResidual      = 25.;
 constexpr double kMinHBDADC            = 7.;
 constexpr double kMinHBDSize           = 1.5;
-constexpr bool   kUseHBDEProb          = false;
+constexpr int    kHBDSelection         = kUseHBDEProb;
 //constexpr bool   kUseLGAssociationCut
 constexpr int    kUseClulsterDuplicationCut = kSSDAndGTRDuplicationCut;
 
