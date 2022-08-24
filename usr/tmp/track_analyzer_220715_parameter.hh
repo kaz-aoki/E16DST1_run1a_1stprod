@@ -9,7 +9,7 @@ enum {
   kAnalyzePairFit,
   kAnalyzeNearestPoint
 };
-constexpr int kAnalyzeFlag = kAnalyzePairFit;
+constexpr int kAnalyzeFlag = kAnalyzeNearestPoint;
 
 // Constsant
 enum {
@@ -70,7 +70,7 @@ constexpr double kMaxHBDXResidual      = 25.;
 constexpr double kMaxHBDYResidual      = 25.;
 constexpr double kMinHBDADC            = 7.;
 constexpr double kMinHBDSize           = 1.5;
-constexpr int    kHBDSelection         = kUseHBDEProb;
+constexpr int    kHBDSelection         = kUseHBDCProb;
 //constexpr bool   kUseLGAssociationCut
 constexpr int    kUseClulsterDuplicationCut = kSSDAndGTRDuplicationCut;
 
