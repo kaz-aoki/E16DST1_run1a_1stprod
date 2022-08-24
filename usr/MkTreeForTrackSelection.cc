@@ -39,8 +39,11 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
       // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032401-v1/root_finished/*.root");//5e9ks+1e9ks
 
-      in_chain->Add("/ccj/w/data03z/E16/ichikawa/lsf_file/finished/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
-      in_chain->Add("/ccj/w/data03z/E16/ichikawa/lsf_file/finished/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
+      in_chain->Add("/ccj/w/data03z/E16/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
+      in_chain->Add("/ccj/w/data03z/E16/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
+
+      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22072100-v1/root_finished/*.root");//5e9ks+1e9ks
+      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22072101-v1/root_finished/*.root");//5e9ks+1e9ks
 
       // in_chain->Add("/work22/ichikawa/lsf_file/22041000-v1/root_finished/*.root");//1e9ks
 

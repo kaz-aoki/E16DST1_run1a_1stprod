@@ -1141,7 +1141,8 @@ public :
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double trk_momy, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid);
-   virtual Double_t    wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int TrigAWmin, int TrigAWmax, int TrigTW);
+   virtual Double_t    wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch);
+   virtual Double_t    wTrgBias_Pair(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int TrigAWmin, int TrigAWmax, int TrigTW);
    // virtual void    wTrgBias_Pair(vector<double>& track_w_trg_bias, const vector<int>& track_lg_mid, const vector<int>& track_lg_blockch);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -3139,6 +3140,19 @@ Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, doub
   return wbias;
 }
 
+Double_t SingleTrackAnalyzerForRes::wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch)
+{
+  double wbias=-10000.;
+  for(int i=0;i<n_trg_tracks;i++){
+    if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
+      wbias=trg_track_lg_t->at(i);
+      break;
+    }
+  }
+  return wbias;
+}
+
 int GTRTrgCid(double ly)
 {
   double cid = (ly+150)/300.*24.;
@@ -3151,7 +3165,7 @@ int HBDTrgCid(double lx, double ly)
   return (int)cidx+((int)cidy*10);
 }
 
-Double_t SingleTrackAnalyzerForRes::wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int awmin, int awmax, int tw)
+Double_t SingleTrackAnalyzerForRes::wTrgBias_Pair(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int awmin, int awmax, int tw)
 {
   int gtrmid=-10000;
   int gtrcid=-10000;

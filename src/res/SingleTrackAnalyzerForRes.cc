@@ -2623,10 +2623,10 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double trk_momxz = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);//220213
-	int hbdise = 2;
+	int hbdise = 0;
 	int lgise = 0;
 	// if ( runoption==0 && trk_momxz<1.0 ) continue;//220213
-	if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
+	// if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
 	// if ( runoption==3 && trk_momxz<1.0 ) continue;//220213;
 	// if ( runoption==3 && (rk_hit_ssd_t->at(itrack)<41||rk_hit_ssd_t->at(itrack)>56) ) continue;//220213
 	// if ( runoption==3 && CutOfTrackByMorino(ientry,itrack) < 0) continue;//220208
@@ -2696,7 +2696,8 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
         int blockchx = (trk_lg_lx)-(track_position_block_lx);
         int blockchy = (trk_lg_ly/fabs(trk_lg_ly))*(fabs(trk_lg_ly)+track_position_block_ly);
         int blockch = LocaltoCh(blockchx,blockchy);
-	double trg_bias = wTrgBias_Single(ientry,itrack,trk_lg_mid,blockch,TrigAWmin,TrigAWmax,TrigTW);
+	// double trg_bias = wTrgBias_Pair(ientry,itrack,trk_lg_mid,blockch,TrigAWmin,TrigAWmax,TrigTW);//220808
+	double trg_bias = wTrgBias_Single(ientry,itrack,trk_lg_mid,blockch);//220808
 	out_track_w_trg_bias.push_back(trg_bias);
 	out_track_lg_blockch.push_back(blockch);
 	/////////
@@ -3064,8 +3065,6 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	// copy( lg_hit_t->begin(), lg_hit_t->end(), out_lg_hit_t.begin() );
 	// copy( lg_hit_npeaks->begin(), lg_hit_npeaks->end(), out_lg_hit_npeaks.begin() );
 	// copy( lg_hit_fflag->begin(), lg_hit_fflag->end(), out_lg_hit_fflag.begin() );
-
-	// wTrgBias_Pair(out_track_w_trg_bias,out_track_lg_mid,out_track_lg_blockch);
 
 	tree->Fill();
       }

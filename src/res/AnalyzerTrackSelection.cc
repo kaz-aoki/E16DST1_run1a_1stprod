@@ -2215,9 +2215,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    // std::ofstream outtext("lgcluster.txt");
    TFile *fouthist = new TFile(out_root_name,"recreate");
 
-   int bene = 0;
-   double enepar[2] = {1.,198.};
-   int ienepar[2] = {1,200};
+   int bene = 2;
+   double enepar[3] = {1.,198.,40.};
+   int ienepar[3] = {1,200,40};
 
    bool gaincalib = true;
    bool fwdonly = false;
@@ -2231,6 +2231,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    double lgthr[4] = {20.,50.,80.,100.};
    double lgresthr = 50.;
    if(runoption==0){lgresthr = 20.;}
+   if(runoption==3){lgresthr = 20.;}
    // if(runoption==3){lgresthr = lgthr[0];}
    // if(runoption==4){lgresthr = lgthr[0];}
    double lgcon[4] = {240.,250.,260.,270.};
@@ -2567,7 +2568,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 double gain=1.;
 	 int cid = SingleTrackAnalyzerForRes::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
-	 if(cid>=0&&cid<56){gain=relg[lmide][cid/10][cid%10];}
+	 if(cid>=0&&cid<56){gain=relg_ene[lmide][cid/10][cid%10]*40;}
 	 if(gaincalib){tmpadc = tmpadc*gain;}
 	 if(tmpadc<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
 	 haresx[lmide][0][1][itype]->Fill(resx);
@@ -2609,7 +2610,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 trkmom[2]->Fill(track_mom->at(itrack));
 	 if(lgnear.size()>0){
 	   hexp[lmide]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
-	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/ienepar[bene]/track_mom->at(itrack));
+	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
 	 }
 	 hnlghitwt[lmide]->Fill(lgnear.size());
 	 hnlghitwt[2]->Fill(lgnear.size());
@@ -2621,31 +2622,31 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   // }
 	   // outtext<<"------------"<<std::endl;
 	 }
-	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum/ienepar[bene]);
-	 hevsp[2]->Fill(track_mom->at(itrack),adcsum/ienepar[bene]);
-	 if(adcsum>0){hadc[lmide]->Fill(adcsum/ienepar[bene]);hadc[2]->Fill(adcsum/ienepar[bene]);}
+	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	 hevsp[2]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	 if(adcsum>0){hadc[lmide]->Fill(adcsum/enepar[bene]);hadc[2]->Fill(adcsum/enepar[bene]);}
 	 for(int j=0;j<4;j++){
 	   if(adcsum>lgthr[j]){
-	     hedivp[lmide][j]->Fill(adcsum/ienepar[bene]/track_mom->at(itrack));
+	     hedivp[lmide][j]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 	     hassp[lmide][j]->Fill(track_mom->at(itrack));
 	     if(adcsum>200){hasspha[lmide][j]->Fill(track_mom->at(itrack));}
 	     if(adcsum<200){hasspla[lmide][j]->Fill(track_mom->at(itrack));}
-	     hasse[lmide][j]->Fill(adcsum/ienepar[bene]);
+	     hasse[lmide][j]->Fill(adcsum/enepar[bene]);
 	     if(fwdonly){
 	       if(lmide==1||lmide==3){
-		 hedivp[2][j]->Fill(adcsum/ienepar[bene]/track_mom->at(itrack));
+		 hedivp[2][j]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 		 hassp[2][j]->Fill(track_mom->at(itrack));
 		 if(adcsum>200){hasspha[2][j]->Fill(track_mom->at(itrack));}
 		 if(adcsum<200){hasspla[2][j]->Fill(track_mom->at(itrack));}
-		 hasse[2][j]->Fill(adcsum/ienepar[bene]);
+		 hasse[2][j]->Fill(adcsum/enepar[bene]);
 	       }
 	     }
 	     else{
-	       hedivp[2][j]->Fill(adcsum/ienepar[bene]/track_mom->at(itrack));
+	       hedivp[2][j]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 	       hassp[2][j]->Fill(track_mom->at(itrack));
 	       if(adcsum>200){hasspha[2][j]->Fill(track_mom->at(itrack));}
 	       if(adcsum<200){hasspla[2][j]->Fill(track_mom->at(itrack));}
-	       hasse[2][j]->Fill(adcsum/ienepar[bene]);
+	       hasse[2][j]->Fill(adcsum/enepar[bene]);
 	     }
 	   }
 	   if(adcsum>lgresthr){
@@ -2704,31 +2705,31 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     hnlghitwtd[2]->Fill(lgneard.size());
 	     if(lgneard.size()==1){adcsumd=lgneard.at(0).adc;}
 	     if(lgneard.size()>1){adcsumd=CalcADCNearHit(lgneard,track_ssd_t->at(itrack));}
-	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd/ienepar[bene]);
-	     hevspd[2]->Fill(track_mom->at(itrack),adcsumd/ienepar[bene]);
-	     if(adcsumd>0){hadcd[lmide]->Fill(adcsumd/ienepar[bene]);hadcd[2]->Fill(adcsumd/ienepar[bene]);}
+	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	     hevspd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	     if(adcsumd>0){hadcd[lmide]->Fill(adcsumd/enepar[bene]);hadcd[2]->Fill(adcsumd/enepar[bene]);}
 	     for(int j=0;j<4;j++){
 	       if(adcsumd>lgthr[j]){
-		 hedivpd[lmide][j]->Fill(adcsumd/ienepar[bene]/track_mom->at(itrack));
+		 hedivpd[lmide][j]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 		 hasspd[lmide][j]->Fill(track_mom->at(itrack));
 		 if(adcsumd>200){hassphad[lmide][j]->Fill(track_mom->at(itrack));}
 		 if(adcsumd<200){hassplad[lmide][j]->Fill(track_mom->at(itrack));}
-		 hassed[lmide][j]->Fill(adcsumd/ienepar[bene]);
+		 hassed[lmide][j]->Fill(adcsumd/enepar[bene]);
 		 if(fwdonly){
 		   if(lmide==1||lmide==3){
-		     hedivpd[2][j]->Fill(adcsumd/ienepar[bene]/track_mom->at(itrack));
+		     hedivpd[2][j]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 		     hasspd[2][j]->Fill(track_mom->at(itrack));
 		     if(adcsumd>200){hassphad[2][j]->Fill(track_mom->at(itrack));}
 		     if(adcsumd<200){hassplad[2][j]->Fill(track_mom->at(itrack));}
-		     hassed[2][j]->Fill(adcsumd/ienepar[bene]);
+		     hassed[2][j]->Fill(adcsumd/enepar[bene]);
 		   }
 		 }
 		 else{
-		   hedivpd[2][j]->Fill(adcsumd/ienepar[bene]/track_mom->at(itrack));
+		   hedivpd[2][j]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 		   hasspd[2][j]->Fill(track_mom->at(itrack));
 		   if(adcsumd>200){hassphad[2][j]->Fill(track_mom->at(itrack));}
 		   if(adcsumd<200){hassplad[2][j]->Fill(track_mom->at(itrack));}
-		   hassed[2][j]->Fill(adcsumd/ienepar[bene]);
+		   hassed[2][j]->Fill(adcsumd/enepar[bene]);
 		 }
 	       }
 	       if(adcsumd>lgresthr){
@@ -2764,7 +2765,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   double tmpa = track_lg_allhit_adc->at(itrack).at(ilg);
 	   double gain=1.;
 	   int cid = SingleTrackAnalyzerForRes::LocaltoCh(tmplx,tmply);
-	   if(cid>=0&&cid<56){gain=relg[lmide][cid/10][cid%10];}
+	   if(cid>=0&&cid<56){gain=relg_ene[lmide][cid/10][cid%10]*40;}
 	   if(gaincalib){tmpa=tmpa*gain;}
 	   if(tmpa<lgresthr||tmpt<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmpt>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;
 	   hitset lghit;
@@ -4453,6 +4454,8 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
 
    if (fChain == 0) return;
 
+   bool gaincalib = false;
+
    TFile *fout = new TFile(out_root_name,"recreate");
    TTree* tree = new TTree("tree","tree");
    int out_run_id;
@@ -4485,7 +4488,18 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
 
    TH1F* hadc[7][60];
    TH1F* hadcd[7][60];
+   TH1F* hresx[7];
+   TH1F* hresy[7];
+   TH1F* hresxd[7];
+   TH1F* hresyd[7];
+   int ass_hit[7]={0};
+   int ass_hitd[7]={0};
+   int ass_track[7]={0};
    for(int i=0;i<7;i++){
+     hresx[i] = new TH1F(Form("hresx%d",i),Form("LGresidualX_mid%d",i+102),100,-800,800);
+     hresy[i] = new TH1F(Form("hresy%d",i),Form("LGresidualY_mid%d",i+102),100,-800,800);
+     hresxd[i] = new TH1F(Form("hresxd%d",i),Form("LGresidualX_dummy_mid%d",i+102),100,-800,800);
+     hresyd[i] = new TH1F(Form("hresyd%d",i),Form("LGresidualY_dummy_mid%d",i+102),100,-800,800);
      for(int j=0;j<60;j++){
        hadc[i][j] = new TH1F(Form("hadc%d%d",i,j),Form("LGadc_mid%d_cid%d",i+102,j),100,0,200);
        hadcd[i][j] = new TH1F(Form("hadcd%d%d",i,j),Form("LGadc_dummy_mid%d_cid%d",i+102,j),100,0,200);
@@ -4589,8 +4603,9 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
        }
 
        int btrktype=-1;
-       if(HBDhit&&LGhit){
-	 btrktype=IsGoodTrack(ientry,itrack,tracksets);
+       if(HBDhit){
+	 // btrktype=IsGoodTrack(ientry,itrack,tracksets);
+	 btrktype=IsGoodTrackWHBD(ientry,itrack,tracksets,adc_max);
        }
 
        if(btrktype<0) continue;
@@ -4619,6 +4634,10 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
        // }//calc mix
 
        //LG Fill
+       out_run_id = run_id;
+       out_event_id = event_id;
+       out_mid = track_lg_mid->at(itrack);
+       int ass_track_flag = 0;
        for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){//lgfore
 	 double resx = track_lg_allhit_resx->at(itrack).at(ilg);
 	 double resy = track_lg_allhit_resy->at(itrack).at(ilg);
@@ -4627,11 +4646,21 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
 	 double tmpadc = track_lg_allhit_adc->at(itrack).at(ilg);
 	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 int cid = SingleTrackAnalyzerForRes::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
+	 double gain=1.;
+	 if(cid>=0&&cid<56){gain=relg_ene[lmide][cid/10][cid%10]*40;}
+	 if(gaincalib){tmpadc=tmpadc*gain;}
 	 if(tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	 if(fabs(rys)<widthy[lmide][1]){
+	   hresx[out_mid-102]->Fill(resx);
+	   hresx[3]->Fill(resx);
+	 }
+	 if(fabs(rxs)<widthx[lmide][1]){
+	   hresy[out_mid-102]->Fill(resx);
+	   hresy[3]->Fill(resx);
+	 }
 	 if( fabs(resx)<widthx[lmide][1] && fabs(resy)<widthy[lmide][1] ){
-	   out_run_id = run_id;
-	   out_event_id = event_id;
-	   out_mid = track_lg_mid->at(itrack);
+	   ass_track_flag = 1;
+	   ass_hit[out_mid-102]++;
 	   out_cid = cid;
 	   out_adc = tmpadc;
 	   out_resx = resx;
@@ -4690,6 +4719,7 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
 	   hadc[out_mid-102][cid]->Fill(tmpadc);
 	 }
        }//lgfore
+       ass_track[out_mid-102]+=ass_track_flag;
 
        if(lgmixhits[lmide].size()!=0){//calc mix
        	 for(int ilg=0;ilg<lgmixhits[lmide].size();ilg++){//lghit loop
@@ -4702,7 +4732,17 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
        	     double tmpt = lgmixhits[lmide].at(ilg).at(jlg).tdc;
        	     double tmpa = lgmixhits[lmide].at(ilg).at(jlg).adc;
 	     int cid = SingleTrackAnalyzerForRes::LocaltoCh(lgmixhits[lmide].at(ilg).at(jlg).lx,lgmixhits[lmide].at(ilg).at(jlg).ly);
+	     double gain=1.;
+	     if(cid>=0&&cid<56){gain=relg_ene[lmide][cid/10][cid%10]*40;}
+	     if(gaincalib){tmpa=tmpa*gain;}
+	     if( fabs(tmpresy)<widthy[lmide][1] ){
+	       hresxd[lmide+103-102]->Fill(tmpresx);
+	     }
+	     if( fabs(tmpresx)<widthx[lmide][1] ){
+	       hresyd[lmide+103-102]->Fill(tmpresy);
+	     }
 	     if( fabs(tmpresx)<widthx[lmide][1] && fabs(tmpresy)<widthy[lmide][1] ){
+	       ass_hitd[lmide+103-102]++;
 	       hadcd[lmide+103-102][cid]->Fill(tmpa);
 	     }
        	     nlgh_dum++;
@@ -4791,12 +4831,26 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
        l[i][j]->Draw("sames");
      }
    }
+   TCanvas* cresx = new TCanvas("cresx","cresx",1400,700);
+   cresx->Divide(3,2);
+   for(int i=0;i<7;i++){
+     if(i==3) continue;
+     cresx->cd(i+1-(i/4));
+     hresx[i]->Draw();
+     hresxd[i]->Scale(1./(double)mixevent);
+     hresxd[i]->SetLineColor(6);
+     hresxd[i]->SetMarkerColor(6);
+     hresxd[i]->Draw("hist&&sames");
+     double purity = (double)(ass_hit[i]-ass_hitd[i]/50)/(double)ass_track[i];
+     std::cout<<i<<" "<<i+1-(i/4)<<" "<<ass_hit[i]<<" "<<ass_hitd[i]/50<<" "<<ass_track[i]<<" "<<purity<<std::endl;
+   }
 
    TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
    cdef->SaveAs(outfile+"[","pdf");
    for(int i=0;i<7;i++){
      c[i]->SaveAs(outfile,"pdf");
    }
+   cresx->SaveAs(outfile,"pdf");
    cdef->SaveAs(outfile+"]","pdf");
 
    fout->Write();
