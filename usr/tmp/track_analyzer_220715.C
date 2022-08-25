@@ -900,8 +900,8 @@ void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double di
   out_vtx_x[n]       = hep_vtx.x()       * 10.;
   out_vtx_y[n]       = hep_vtx.y()       * 10.;
   out_vtx_z[n]       = hep_vtx.z()       * 10.;
-  auto pmom = TVector3(hep_plus_mom.x()  * 10., hep_plus_mom.y()  * 10., hep_plus_mom.z()  * 10.);
-  auto mmom = TVector3(hep_minus_mom.x() * 10., hep_minus_mom.y() * 10., hep_minus_mom.z() * 10.);
+  auto pmom = TVector3(hep_plus_mom.x(),  hep_plus_mom.y(),  hep_plus_mom.z());
+  auto mmom = TVector3(hep_minus_mom.x(), hep_minus_mom.y(), hep_minus_mom.z());
   out_plus_mom[n]        = pmom.Mag();
   out_plus_mom_x[n]      = pmom.X();
   out_plus_mom_y[n]      = pmom.Y();
@@ -928,7 +928,7 @@ void track_analyzer_220715::NearestPoint(int n) {
   array<E16ANA_StepTrack*, 2> tracks;
   for (int t = 0; t < 2; ++t) {
     auto i = good_pair_indexs[n][t];
-    auto pos = Hep3Vector(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gy->at(i), rk_fit_init_pos_gz->at(i));
+    auto pos = Hep3Vector(rk_fit_init_pos_gx->at(i) * 0.1, rk_fit_init_pos_gy->at(i) * 0.1, rk_fit_init_pos_gz->at(i) * 0.1);
     auto mom = Hep3Vector(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i));
     double charge;
     if (t == 0) {
