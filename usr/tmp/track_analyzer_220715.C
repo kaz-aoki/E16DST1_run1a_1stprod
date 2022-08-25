@@ -88,6 +88,8 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("hit_minus_gtr300_xsize",           &out_hit_minus_gtr300_xsize);
   tree->Branch("hit_minus_gtr300_ysize",           &out_hit_minus_gtr300_ysize);
   tree->Branch("chi2",                             &out_chi2);
+  tree->Branch("plus_chi2",                        &out_plus_chi2);
+  tree->Branch("minus_chi2",                       &out_minus_chi2);
   tree->Branch("flag",                             &out_flag);
   tree->Branch("distance",                         &out_distance);
   tree->Branch("dir_id",                           &out_dir_id);
@@ -448,6 +450,8 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_hit_minus_gtr300_xsize.clear();
   out_hit_minus_gtr300_ysize.clear();
   out_chi2.clear();
+  out_plus_chi2.clear();
+  out_minus_chi2.clear();
   out_flag.clear();
   out_distance.clear();
   out_dir_id.clear();
@@ -653,6 +657,8 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_hit_minus_gtr300_xsize.resize(out_n_pairs);
   out_hit_minus_gtr300_ysize.resize(out_n_pairs);
   out_chi2.resize(out_n_pairs);
+  out_plus_chi2.resize(out_n_pairs);
+  out_minus_chi2.resize(out_n_pairs);
   out_flag.resize(out_n_pairs);
   out_distance.resize(out_n_pairs);
   out_dir_id.resize(out_n_pairs);
@@ -895,6 +901,8 @@ void track_analyzer_220715::PairFit(int n) {
 }
 
 void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx, const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom) {
+  out_plus_chi2[n]   = chi_square->at(good_pair_indexs[n][0]);
+  out_minus_chi2[n]  = chi_square->at(good_pair_indexs[n][1]);
   out_flag[n]        = flag;
   out_distance[n]    = dist_cm           * 10.;
   out_vtx_x[n]       = hep_vtx.x()       * 10.;

@@ -1452,7 +1452,7 @@ public :
   E16ANA_MultiTrack*       proj_fitter;
   // Tree branch
   int out_n_pairs;
-// single fit imfo. chi2, ...
+// single fit info. chi2, ...
   // Hit
   std::vector<int>    out_plus_track_id;
   std::vector<int>    out_hit_plus_ssd_id;
@@ -1528,6 +1528,8 @@ public :
   std::vector<int>    out_hit_minus_gtr300_ysize;
   // Fit
   std::vector<double> out_chi2;
+  std::vector<double> out_plus_chi2;
+  std::vector<double> out_minus_chi2;
   std::vector<int>    out_flag;
   std::vector<double> out_distance;
   std::vector<int>    out_dir_id;
