@@ -51,7 +51,7 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("hit_plus_gtr300_yadc",             &out_hit_plus_gtr300_yadc);
   tree->Branch("hit_plus_gtr300_xsize",            &out_hit_plus_gtr300_xsize);
   tree->Branch("hit_plus_gtr300_ysize",            &out_hit_plus_gtr300_ysize);
-  tree->Branch("minus_track_id",                   &out_plus_track_id);
+  tree->Branch("minus_track_id",                   &out_minus_track_id);
   tree->Branch("hit_minus_ssd_id",                 &out_hit_minus_ssd_id);
   tree->Branch("hit_minus_ssd_lx",                 &out_hit_minus_ssd_lx);
   tree->Branch("hit_minus_ssd_t",                  &out_hit_minus_ssd_t);
@@ -222,6 +222,225 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("proj_minus_hbd_adc",               &out_proj_minus_hbd_adc);
   tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
   tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
+  return;
+}
+
+void track_analyzer_220715::MakeEMBranches(TTree* tree) {
+  tree->Branch("plus_run_id",                      &em_plus_run_id);
+  tree->Branch("plus_event_id",                    &em_plus_event_id);
+  tree->Branch("plus_n_cands",                     &em_plus_n_cands);
+//  tree->Branch("plus_n_pairs",                     &em_plus_n_pairs);
+  tree->Branch("plus_track_id",                    &em_plus_track_id);
+//  tree->Branch("hit_plus_ssd_id",                  &out_hit_plus_ssd_id);
+//  tree->Branch("hit_plus_ssd_lx",                  &out_hit_plus_ssd_lx);
+//  tree->Branch("hit_plus_ssd_t",                   &out_hit_plus_ssd_t);
+//  tree->Branch("hit_plus_ssd_adc",                 &out_hit_plus_ssd_adc);
+//  tree->Branch("hit_plus_ssd_size",                &out_hit_plus_ssd_size);
+//  tree->Branch("hit_plus_gtr100_xid",              &out_hit_plus_gtr100_xid);
+//  tree->Branch("hit_plus_gtr100_yid",              &out_hit_plus_gtr100_yid);
+//  tree->Branch("hit_plus_gtr100_lx",               &out_hit_plus_gtr100_lx);
+//  tree->Branch("hit_plus_gtr100_ly",               &out_hit_plus_gtr100_ly);
+//  tree->Branch("hit_plus_gtr100_xt",               &out_hit_plus_gtr100_xt);
+//  tree->Branch("hit_plus_gtr100_yt",               &out_hit_plus_gtr100_yt);
+//  tree->Branch("hit_plus_gtr100_xadc",             &out_hit_plus_gtr100_xadc);
+//  tree->Branch("hit_plus_gtr100_yadc",             &out_hit_plus_gtr100_yadc);
+//  tree->Branch("hit_plus_gtr100_xsize",            &out_hit_plus_gtr100_xsize);
+//  tree->Branch("hit_plus_gtr100_ysize",            &out_hit_plus_gtr100_ysize);
+//  tree->Branch("hit_plus_gtr200_xid",              &out_hit_plus_gtr200_xid);
+//  tree->Branch("hit_plus_gtr200_yid",              &out_hit_plus_gtr200_yid);
+//  tree->Branch("hit_plus_gtr200_lx",               &out_hit_plus_gtr200_lx);
+//  tree->Branch("hit_plus_gtr200_ly",               &out_hit_plus_gtr200_ly);
+//  tree->Branch("hit_plus_gtr200_xt",               &out_hit_plus_gtr200_xt);
+//  tree->Branch("hit_plus_gtr200_yt",               &out_hit_plus_gtr200_yt);
+//  tree->Branch("hit_plus_gtr200_xadc",             &out_hit_plus_gtr200_xadc);
+//  tree->Branch("hit_plus_gtr200_yadc",             &out_hit_plus_gtr200_yadc);
+//  tree->Branch("hit_plus_gtr200_xsize",            &out_hit_plus_gtr200_xsize);
+//  tree->Branch("hit_plus_gtr200_ysize",            &out_hit_plus_gtr200_ysize);
+//  tree->Branch("hit_plus_gtr300_xid",              &out_hit_plus_gtr300_xid);
+//  tree->Branch("hit_plus_gtr300_yid",              &out_hit_plus_gtr300_yid);
+//  tree->Branch("hit_plus_gtr300_lx",               &out_hit_plus_gtr300_lx);
+//  tree->Branch("hit_plus_gtr300_ly",               &out_hit_plus_gtr300_ly);
+//  tree->Branch("hit_plus_gtr300_xt",               &out_hit_plus_gtr300_xt);
+//  tree->Branch("hit_plus_gtr300_yt",               &out_hit_plus_gtr300_yt);
+//  tree->Branch("hit_plus_gtr300_xadc",             &out_hit_plus_gtr300_xadc);
+//  tree->Branch("hit_plus_gtr300_yadc",             &out_hit_plus_gtr300_yadc);
+//  tree->Branch("hit_plus_gtr300_xsize",            &out_hit_plus_gtr300_xsize);
+//  tree->Branch("hit_plus_gtr300_ysize",            &out_hit_plus_gtr300_ysize);
+  tree->Branch("minus_run_id",                     &em_minus_run_id);
+  tree->Branch("minus_event_id",                   &em_minus_event_id);
+  tree->Branch("minus_n_cands",                    &em_minus_n_cands);
+//  tree->Branch("minus_n_pairs",                    &em_minus_n_pairs);
+  tree->Branch("minus_track_id",                   &em_minus_track_id);
+//  tree->Branch("hit_minus_ssd_id",                 &out_hit_minus_ssd_id);
+//  tree->Branch("hit_minus_ssd_lx",                 &out_hit_minus_ssd_lx);
+//  tree->Branch("hit_minus_ssd_t",                  &out_hit_minus_ssd_t);
+//  tree->Branch("hit_minus_ssd_adc",                &out_hit_minus_ssd_adc);
+//  tree->Branch("hit_minus_ssd_size",               &out_hit_minus_ssd_size);
+//  tree->Branch("hit_minus_gtr100_xid",             &out_hit_minus_gtr100_xid);
+//  tree->Branch("hit_minus_gtr100_yid",             &out_hit_minus_gtr100_yid);
+//  tree->Branch("hit_minus_gtr100_lx",              &out_hit_minus_gtr100_lx);
+//  tree->Branch("hit_minus_gtr100_ly",              &out_hit_minus_gtr100_ly);
+//  tree->Branch("hit_minus_gtr100_xt",              &out_hit_minus_gtr100_xt);
+//  tree->Branch("hit_minus_gtr100_yt",              &out_hit_minus_gtr100_yt);
+//  tree->Branch("hit_minus_gtr100_xadc",            &out_hit_minus_gtr100_xadc);
+//  tree->Branch("hit_minus_gtr100_yadc",            &out_hit_minus_gtr100_yadc);
+//  tree->Branch("hit_minus_gtr100_xsize",           &out_hit_minus_gtr100_xsize);
+//  tree->Branch("hit_minus_gtr100_ysize",           &out_hit_minus_gtr100_ysize);
+//  tree->Branch("hit_minus_gtr200_xid",             &out_hit_minus_gtr200_xid);
+//  tree->Branch("hit_minus_gtr200_yid",             &out_hit_minus_gtr200_yid);
+//  tree->Branch("hit_minus_gtr200_lx",              &out_hit_minus_gtr200_lx);
+//  tree->Branch("hit_minus_gtr200_ly",              &out_hit_minus_gtr200_ly);
+//  tree->Branch("hit_minus_gtr200_xt",              &out_hit_minus_gtr200_xt);
+//  tree->Branch("hit_minus_gtr200_yt",              &out_hit_minus_gtr200_yt);
+//  tree->Branch("hit_minus_gtr200_xadc",            &out_hit_minus_gtr200_xadc);
+//  tree->Branch("hit_minus_gtr200_yadc",            &out_hit_minus_gtr200_yadc);
+//  tree->Branch("hit_minus_gtr200_xsize",           &out_hit_minus_gtr200_xsize);
+//  tree->Branch("hit_minus_gtr200_ysize",           &out_hit_minus_gtr200_ysize);
+//  tree->Branch("hit_minus_gtr300_xid",             &out_hit_minus_gtr300_xid);
+//  tree->Branch("hit_minus_gtr300_yid",             &out_hit_minus_gtr300_yid);
+//  tree->Branch("hit_minus_gtr300_lx",              &out_hit_minus_gtr300_lx);
+//  tree->Branch("hit_minus_gtr300_ly",              &out_hit_minus_gtr300_ly);
+//  tree->Branch("hit_minus_gtr300_xt",              &out_hit_minus_gtr300_xt);
+//  tree->Branch("hit_minus_gtr300_yt",              &out_hit_minus_gtr300_yt);
+//  tree->Branch("hit_minus_gtr300_xadc",            &out_hit_minus_gtr300_xadc);
+//  tree->Branch("hit_minus_gtr300_yadc",            &out_hit_minus_gtr300_yadc);
+//  tree->Branch("hit_minus_gtr300_xsize",           &out_hit_minus_gtr300_xsize);
+//  tree->Branch("hit_minus_gtr300_ysize",           &out_hit_minus_gtr300_ysize);
+  tree->Branch("chi2",                             &em_chi2);
+  tree->Branch("plus_chi2",                        &em_plus_chi2);
+  tree->Branch("minus_chi2",                       &em_minus_chi2);
+  tree->Branch("flag",                             &em_flag);
+  tree->Branch("distance",                         &em_distance);
+  tree->Branch("dir_id",                           &em_dir_id);
+  tree->Branch("vtx_x",                            &em_vtx_x);
+  tree->Branch("vtx_y",                            &em_vtx_y);
+  tree->Branch("vtx_z",                            &em_vtx_z);
+  tree->Branch("plus_mom",                         &em_plus_mom);
+  tree->Branch("plus_mom_x",                       &em_plus_mom_x);
+  tree->Branch("plus_mom_y",                       &em_plus_mom_y);
+  tree->Branch("plus_mom_z",                       &em_plus_mom_z);
+  tree->Branch("plus_mom_theta",                   &em_plus_mom_theta);
+  tree->Branch("plus_mom_phi",                     &em_plus_mom_phi);
+  tree->Branch("minus_mom",                        &em_minus_mom);
+  tree->Branch("minus_mom_x",                      &em_minus_mom_x);
+  tree->Branch("minus_mom_y",                      &em_minus_mom_y);
+  tree->Branch("minus_mom_z",                      &em_minus_mom_z);
+  tree->Branch("minus_mom_theta",                  &em_minus_mom_theta);
+  tree->Branch("minus_mom_phi",                    &em_minus_mom_phi);
+  tree->Branch("mom_angle",                        &em_mom_angle);
+  tree->Branch("ee_mass",                          &em_ee_mass);
+  tree->Branch("pipi_mass",                        &em_pipi_mass);
+  tree->Branch("pip_mass",                         &em_pip_mass);
+  tree->Branch("kk_mass",                          &em_kk_mass);
+  tree->Branch("plus_ssd_mid",                     &em_plus_ssd_mid);
+  tree->Branch("plus_gtr100_mid",                  &em_plus_gtr100_mid);
+  tree->Branch("plus_gtr200_mid",                  &em_plus_gtr200_mid);
+  tree->Branch("plus_gtr300_mid",                  &em_plus_gtr300_mid);
+  tree->Branch("plus_hbd_mid",                     &em_plus_hbd_mid);
+  tree->Branch("plus_lg_c_mid",                    &em_plus_lg_c_mid);
+  tree->Branch("plus_lg_b_mid",                    &em_plus_lg_b_mid);
+  tree->Branch("plus_lg_a_mid",                    &em_plus_lg_a_mid);
+  tree->Branch("minus_ssd_mid",                    &em_minus_ssd_mid);
+  tree->Branch("minus_gtr100_mid",                 &em_minus_gtr100_mid);
+  tree->Branch("minus_gtr200_mid",                 &em_minus_gtr200_mid);
+  tree->Branch("minus_gtr300_mid",                 &em_minus_gtr300_mid);
+  tree->Branch("minus_hbd_mid",                    &em_minus_hbd_mid);
+  tree->Branch("minus_lg_c_mid",                   &em_minus_lg_c_mid);
+  tree->Branch("minus_lg_b_mid",                   &em_minus_lg_b_mid);
+  tree->Branch("minus_lg_a_mid",                   &em_minus_lg_a_mid);
+//  tree->Branch("fit_plus_ssd_lx",                  &out_fit_plus_ssd_lx);
+//  tree->Branch("fit_plus_ssd_ly",                  &out_fit_plus_ssd_ly);
+//  tree->Branch("fit_plus_gtr100_lx",               &out_fit_plus_gtr100_lx);
+//  tree->Branch("fit_plus_gtr100_ly",               &out_fit_plus_gtr100_ly);
+//  tree->Branch("fit_plus_gtr200_lx",               &out_fit_plus_gtr200_lx);
+//  tree->Branch("fit_plus_gtr200_ly",               &out_fit_plus_gtr200_ly);
+//  tree->Branch("fit_plus_gtr300_lx",               &out_fit_plus_gtr300_lx);
+//  tree->Branch("fit_plus_gtr300_ly",               &out_fit_plus_gtr300_ly);
+//  tree->Branch("fit_plus_hbd_lx",                  &out_fit_plus_hbd_lx);
+//  tree->Branch("fit_plus_hbd_ly",                  &out_fit_plus_hbd_ly);
+//  tree->Branch("fit_plus_lg_c_lx",                 &out_fit_plus_lg_c_lx);
+//  tree->Branch("fit_plus_lg_c_ly",                 &out_fit_plus_lg_c_ly);
+//  tree->Branch("fit_plus_lg_b_lx",                 &out_fit_plus_lg_b_lx);
+//  tree->Branch("fit_plus_lg_b_ly",                 &out_fit_plus_lg_b_ly);
+//  tree->Branch("fit_plus_lg_a_lx",                 &out_fit_plus_lg_a_lx);
+//  tree->Branch("fit_plus_lg_a_ly",                 &out_fit_plus_lg_a_ly);
+//  tree->Branch("fit_plus_tgt_minus_x",             &out_fit_plus_tgt_minus_x);
+//  tree->Branch("fit_plus_tgt_minus_y",             &out_fit_plus_tgt_minus_y);
+//  tree->Branch("fit_plus_tgt_zero_x",              &out_fit_plus_tgt_zero_x);
+//  tree->Branch("fit_plus_tgt_zero_y",              &out_fit_plus_tgt_zero_y);
+//  tree->Branch("fit_plus_tgt_plus_x",              &out_fit_plus_tgt_plus_x);
+//  tree->Branch("fit_plus_tgt_plus_y",              &out_fit_plus_tgt_plus_y);
+//  tree->Branch("fit_minus_ssd_lx",                 &out_fit_minus_ssd_lx);
+//  tree->Branch("fit_minus_ssd_ly",                 &out_fit_minus_ssd_ly);
+//  tree->Branch("fit_minus_gtr100_lx",              &out_fit_minus_gtr100_lx);
+//  tree->Branch("fit_minus_gtr100_ly",              &out_fit_minus_gtr100_ly);
+//  tree->Branch("fit_minus_gtr200_lx",              &out_fit_minus_gtr200_lx);
+//  tree->Branch("fit_minus_gtr200_ly",              &out_fit_minus_gtr200_ly);
+//  tree->Branch("fit_minus_gtr300_lx",              &out_fit_minus_gtr300_lx);
+//  tree->Branch("fit_minus_gtr300_ly",              &out_fit_minus_gtr300_ly);
+//  tree->Branch("fit_minus_hbd_lx",                 &out_fit_minus_hbd_lx);
+//  tree->Branch("fit_minus_hbd_ly",                 &out_fit_minus_hbd_ly);
+//  tree->Branch("fit_minus_lg_c_lx",                &out_fit_minus_lg_c_lx);
+//  tree->Branch("fit_minus_lg_c_ly",                &out_fit_minus_lg_c_ly);
+//  tree->Branch("fit_minus_lg_b_lx",                &out_fit_minus_lg_b_lx);
+//  tree->Branch("fit_minus_lg_b_ly",                &out_fit_minus_lg_b_ly);
+//  tree->Branch("fit_minus_lg_a_lx",                &out_fit_minus_lg_a_lx);
+//  tree->Branch("fit_minus_lg_a_ly",                &out_fit_minus_lg_a_ly);
+//  tree->Branch("fit_minus_tgt_minus_x",            &out_fit_minus_tgt_minus_x);
+//  tree->Branch("fit_minus_tgt_minus_y",            &out_fit_minus_tgt_minus_y);
+//  tree->Branch("fit_minus_tgt_zero_x",             &out_fit_minus_tgt_zero_x);
+//  tree->Branch("fit_minus_tgt_zero_y",             &out_fit_minus_tgt_zero_y);
+//  tree->Branch("fit_minus_tgt_plus_x",             &out_fit_minus_tgt_plus_x);
+//  tree->Branch("fit_minus_tgt_plus_y",             &out_fit_minus_tgt_plus_y);
+//  tree->Branch("res_plus_ssd_lx",                  &out_res_plus_ssd_lx);
+////  tree->Branch("res_plus_ssd_ly",                  &out_res_plus_ssd_ly);
+//  tree->Branch("res_plus_gtr100_lx",               &out_res_plus_gtr100_lx);
+//  tree->Branch("res_plus_gtr100_ly",               &out_res_plus_gtr100_ly);
+//  tree->Branch("res_plus_gtr200_lx",               &out_res_plus_gtr200_lx);
+//  tree->Branch("res_plus_gtr200_ly",               &out_res_plus_gtr200_ly);
+//  tree->Branch("res_plus_gtr300_lx",               &out_res_plus_gtr300_lx);
+//  tree->Branch("res_plus_gtr300_ly",               &out_res_plus_gtr300_ly);
+//  tree->Branch("res_minus_ssd_lx",                 &out_res_minus_ssd_lx);
+////  tree->Branch("res_minus_ssd_ly",                 &out_res_minus_ssd_ly);
+//  tree->Branch("res_minus_gtr100_lx",              &out_res_minus_gtr100_lx);
+//  tree->Branch("res_minus_gtr100_ly",              &out_res_minus_gtr100_ly);
+//  tree->Branch("res_minus_gtr200_lx",              &out_res_minus_gtr200_lx);
+//  tree->Branch("res_minus_gtr200_ly",              &out_res_minus_gtr200_ly);
+//  tree->Branch("res_minus_gtr300_lx",              &out_res_minus_gtr300_lx);
+//  tree->Branch("res_minus_gtr300_ly",              &out_res_minus_gtr300_ly);
+  tree->Branch("fit_parent_mom_x",                 &em_fit_parent_mom_x);
+  tree->Branch("fit_parent_mom_y",                 &em_fit_parent_mom_y);
+  tree->Branch("fit_parent_mom_z",                 &em_fit_parent_mom_z);
+  tree->Branch("fit_parent_tgt_minus_x",           &em_fit_parent_tgt_minus_x);
+  tree->Branch("fit_parent_tgt_minus_y",           &em_fit_parent_tgt_minus_y);
+  tree->Branch("fit_parent_tgt_minus_flight_path", &em_fit_parent_tgt_minus_flight_path);
+  tree->Branch("fit_parent_tgt_zero_x",            &em_fit_parent_tgt_zero_x);
+  tree->Branch("fit_parent_tgt_zero_y",            &em_fit_parent_tgt_zero_y);
+  tree->Branch("fit_parent_tgt_zero_flight_path",  &em_fit_parent_tgt_zero_flight_path);
+  tree->Branch("fit_parent_tgt_plus_x",            &em_fit_parent_tgt_plus_x);
+  tree->Branch("fit_parent_tgt_plus_y",            &em_fit_parent_tgt_plus_y);
+  tree->Branch("fit_parent_tgt_plus_flight_path",  &em_fit_parent_tgt_plus_flight_path);
+  tree->Branch("fit_parent_best_tgt_id",           &em_fit_parent_best_tgt_id);
+  tree->Branch("fit_parent_good_tgt_id_set",       &em_fit_parent_good_tgt_id_set);
+  tree->Branch("fit_parent_good_tgt_ids",          &em_fit_parent_good_tgt_ids);
+//  tree->Branch("proj_plus_n_hbds",                 &out_proj_plus_n_hbds);
+//  tree->Branch("proj_plus_hbd_id",                 &out_proj_plus_hbd_id);
+//  tree->Branch("proj_plus_hbd_lx",                 &out_proj_plus_hbd_lx);
+//  tree->Branch("proj_plus_hbd_ly",                 &out_proj_plus_hbd_ly);
+//  tree->Branch("proj_plus_hbd_resx",               &out_proj_plus_hbd_resx);
+//  tree->Branch("proj_plus_hbd_resy",               &out_proj_plus_hbd_resy);
+//  tree->Branch("proj_plus_hbd_adc",                &out_proj_plus_hbd_adc);
+//  tree->Branch("proj_plus_hbd_size",               &out_proj_plus_hbd_size);
+//  tree->Branch("proj_plus_hbd_eprob",              &out_proj_plus_hbd_eprob);
+//  tree->Branch("proj_minus_n_hbds",                &out_proj_minus_n_hbds);
+//  tree->Branch("proj_minus_hbd_id",                &out_proj_minus_hbd_id);
+//  tree->Branch("proj_minus_hbd_lx",                &out_proj_minus_hbd_lx);
+//  tree->Branch("proj_minus_hbd_ly",                &out_proj_minus_hbd_ly);
+//  tree->Branch("proj_minus_hbd_resx",              &out_proj_minus_hbd_resx);
+//  tree->Branch("proj_minus_hbd_resy",              &out_proj_minus_hbd_resy);
+//  tree->Branch("proj_minus_hbd_adc",               &out_proj_minus_hbd_adc);
+//  tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
+//  tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
   return;
 }
 
@@ -938,8 +1157,6 @@ void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double di
 }
 
 void track_analyzer_220715::NearestPoint(int n) {
-  array<Hep3Vector, 2> init_poss;
-  array<Hep3Vector, 2> init_moms;
   array<E16ANA_StepTrack*, 2> tracks;
   for (int t = 0; t < 2; ++t) {
     auto i = good_pair_indexs[n][t];
@@ -965,9 +1182,7 @@ void track_analyzer_220715::NearestPoint(int n) {
   return;
 }
 
-int track_analyzer_220715::DirID(int i, int j) {
-  auto mid0 = rk_fit_gtr300_mid->at(i);
-  auto mid1 = rk_fit_gtr300_mid->at(j);
+int track_analyzer_220715::DirID(int mid0, int mid1) {
   if (mid0 > 105) {
     if (mid1 > 105) {
       return kLL;
@@ -1106,52 +1321,112 @@ void track_analyzer_220715::ProjectionHBDAndLG(int n) {
   return;
 }
 
-int track_analyzer_220715::BestTargetID(int n) {
-  out_fit_parent_good_tgt_id_set[n] = 0;
-  array<TVector3, kNumTgts> tgt_poss;
-  tgt_poss[0].SetXYZ(out_fit_parent_tgt_minus_x[n], out_fit_parent_tgt_minus_y[n], 0.);
-  tgt_poss[1].SetXYZ(out_fit_parent_tgt_zero_x[n],  out_fit_parent_tgt_zero_y[n],  0.);
-  tgt_poss[2].SetXYZ(out_fit_parent_tgt_plus_x[n],  out_fit_parent_tgt_plus_y[n],  0.);
-//  array<double, kNumTgts> r = {pow(out_fit_parent_tgt_minus_x[n] * out_fit_parent_tgt_minus_x[n] + out_fit_parent_tgt_minus_y[n] * out_fit_parent_tgt_minus_y[n], 0.5),
-//                               pow(out_fit_parent_tgt_zero_x[n]  * out_fit_parent_tgt_zero_x[n]  + out_fit_parent_tgt_zero_y[n]  * out_fit_parent_tgt_zero_y[n], 0.5),
-//                               pow(out_fit_parent_tgt_plus_x[n]  * out_fit_parent_tgt_plus_x[n]  + out_fit_parent_tgt_plus_y[n]  * out_fit_parent_tgt_plus_y[n], 0.5)};
+//int track_analyzer_220715::BestTargetID(int n) {
+//  out_fit_parent_good_tgt_id_set[n] = 0;
+//  array<TVector3, kNumTgts> tgt_poss;
+//  tgt_poss[0].SetXYZ(out_fit_parent_tgt_minus_x[n], out_fit_parent_tgt_minus_y[n], 0.);
+//  tgt_poss[1].SetXYZ(out_fit_parent_tgt_zero_x[n],  out_fit_parent_tgt_zero_y[n],  0.);
+//  tgt_poss[2].SetXYZ(out_fit_parent_tgt_plus_x[n],  out_fit_parent_tgt_plus_y[n],  0.);
+////  array<double, kNumTgts> r = {pow(out_fit_parent_tgt_minus_x[n] * out_fit_parent_tgt_minus_x[n] + out_fit_parent_tgt_minus_y[n] * out_fit_parent_tgt_minus_y[n], 0.5),
+////                               pow(out_fit_parent_tgt_zero_x[n]  * out_fit_parent_tgt_zero_x[n]  + out_fit_parent_tgt_zero_y[n]  * out_fit_parent_tgt_zero_y[n], 0.5),
+////                               pow(out_fit_parent_tgt_plus_x[n]  * out_fit_parent_tgt_plus_x[n]  + out_fit_parent_tgt_plus_y[n]  * out_fit_parent_tgt_plus_y[n], 0.5)};
+//  int best_id = 0;
+//  double best_r = 10000.;
+//  for (int i = 0; i < kNumTgts; ++i) {
+//    if (out_vtx_z[n] < kTargetZ[i] - kMaxDiffTgtAndVtx) {
+//      continue;
+//    }
+//    auto r = tgt_poss[i].Perp();
+//    if (i == 0) {
+//      out_fit_parent_tgt_minus_flight_path[n] = r;
+//    } else if (i == 1) {
+//      out_fit_parent_tgt_zero_flight_path[n]  = r;
+//    } else if (i == 2) {
+//      out_fit_parent_tgt_plus_flight_path[n]  = r;
+//    }
+//    if (r < best_r) {
+//      best_id = i;
+//      best_r  = r;
+//    }
+//    if (fabs(tgt_poss[i].X()) < kMaxGoodTgtXDiff && fabs(tgt_poss[i].Y()) < kMaxGoodTgtYDiff) {
+//      out_fit_parent_good_tgt_ids[n].emplace_back(i);
+//      out_fit_parent_good_tgt_id_set[n] += pow(2, i);
+//    }
+//  }
+//  return best_id;
+//}
+
+//void track_analyzer_220715::ParentInfo(int n) {
+//  out_fit_parent_mom_x[n]       = out_plus_mom_x[n] + out_minus_mom_x[n];
+//  out_fit_parent_mom_y[n]       = out_plus_mom_y[n] + out_minus_mom_y[n];
+//  out_fit_parent_mom_z[n]       = out_plus_mom_z[n] + out_minus_mom_z[n];
+//  out_fit_parent_tgt_minus_x[n] = out_vtx_x[n] + out_fit_parent_mom_x[n] * (kTargetZ[0] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
+//  out_fit_parent_tgt_minus_y[n] = out_vtx_y[n] + out_fit_parent_mom_y[n] * (kTargetZ[0] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
+//  out_fit_parent_tgt_zero_x[n]  = out_vtx_x[n] + out_fit_parent_mom_x[n] * (kTargetZ[1] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
+//  out_fit_parent_tgt_zero_y[n]  = out_vtx_y[n] + out_fit_parent_mom_y[n] * (kTargetZ[1] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
+//  out_fit_parent_tgt_plus_x[n]  = out_vtx_x[n] + out_fit_parent_mom_x[n] * (kTargetZ[2] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
+//  out_fit_parent_tgt_plus_y[n]  = out_vtx_y[n] + out_fit_parent_mom_y[n] * (kTargetZ[2] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
+//  out_fit_parent_best_tgt_id[n] = BestTargetID(n);
+//  return;
+//}
+
+int track_analyzer_220715::BestTargetID(double vtx_z, const array<TVector3, kNumTgts>& tgt_poss,
+                                        array<double, kNumTgts>* flight_paths, int* good_tgt_id_set, vector<double>* good_tgt_ids) {
+  *good_tgt_id_set = 0;
   int best_id = 0;
   double best_r = 10000.;
   for (int i = 0; i < kNumTgts; ++i) {
-    if (out_vtx_z[n] < kTargetZ[i] - kMaxDiffTgtAndVtx) {
+    if (vtx_z < kTargetZ[i] - kMaxDiffTgtAndVtx) {
       continue;
     }
     auto r = tgt_poss[i].Perp();
-    if (i == 0) {
-      out_fit_parent_tgt_minus_flight_path[n] = r;
-    } else if (i == 1) {
-      out_fit_parent_tgt_zero_flight_path[n]  = r;
-    } else if (i == 2) {
-      out_fit_parent_tgt_plus_flight_path[n]  = r;
-    }
+    flight_paths->at(i) = r;
     if (r < best_r) {
       best_id = i;
       best_r  = r;
     }
     if (fabs(tgt_poss[i].X()) < kMaxGoodTgtXDiff && fabs(tgt_poss[i].Y()) < kMaxGoodTgtYDiff) {
-      out_fit_parent_good_tgt_ids[n].emplace_back(i);
-      out_fit_parent_good_tgt_id_set[n] += pow(2, i);
+      good_tgt_ids->emplace_back(i);
+      *good_tgt_id_set += pow(2, i);
     }
   }
   return best_id;
 }
 
+void track_analyzer_220715::ParentInfo(const TVector3& vtx, const array<TVector3, 2>& moms, TVector3* parent_mom, array<TVector3, kNumTgts>* tgt_poss,
+                                       array<double, kNumTgts>* flight_paths, int* best_tgt_id, int* good_tgt_id_set, vector<double>* good_tgt_ids) {
+  *parent_mom = moms[0] + moms[1];
+  for (int i = 0; i < kNumTgts; ++i) {
+    tgt_poss->at(i).SetX(vtx.X() + parent_mom->X() * (kTargetZ[i] - vtx.Z()) / parent_mom->Z());
+    tgt_poss->at(i).SetY(vtx.Y() + parent_mom->Y() * (kTargetZ[i] - vtx.Z()) / parent_mom->Z());
+    tgt_poss->at(i).SetZ(0.);
+  }
+  *best_tgt_id = BestTargetID(vtx.Z(), *tgt_poss, flight_paths, good_tgt_id_set, good_tgt_ids);
+  return;
+}
+
 void track_analyzer_220715::ParentInfo(int n) {
-  out_fit_parent_mom_x[n]       = out_plus_mom_x[n] + out_minus_mom_x[n];
-  out_fit_parent_mom_y[n]       = out_plus_mom_y[n] + out_minus_mom_y[n];
-  out_fit_parent_mom_z[n]       = out_plus_mom_z[n] + out_minus_mom_z[n];
-  out_fit_parent_tgt_minus_x[n] = out_vtx_x[n] + out_fit_parent_mom_x[n] * (kTargetZ[0] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
-  out_fit_parent_tgt_minus_y[n] = out_vtx_y[n] + out_fit_parent_mom_y[n] * (kTargetZ[0] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
-  out_fit_parent_tgt_zero_x[n]  = out_vtx_x[n] + out_fit_parent_mom_x[n] * (kTargetZ[1] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
-  out_fit_parent_tgt_zero_y[n]  = out_vtx_y[n] + out_fit_parent_mom_y[n] * (kTargetZ[1] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
-  out_fit_parent_tgt_plus_x[n]  = out_vtx_x[n] + out_fit_parent_mom_x[n] * (kTargetZ[2] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
-  out_fit_parent_tgt_plus_y[n]  = out_vtx_y[n] + out_fit_parent_mom_y[n] * (kTargetZ[2] - out_vtx_z[n]) / out_fit_parent_mom_z[n];
-  out_fit_parent_best_tgt_id[n] = BestTargetID(n);
+  auto vtx = TVector3(out_vtx_x[n], out_vtx_y[n], out_vtx_z[n]);
+  array<TVector3, 2> moms;
+  moms[0] = TVector3(out_plus_mom_x[n],  out_plus_mom_y[n],  out_plus_mom_z[n]);
+  moms[1] = TVector3(out_minus_mom_x[n], out_minus_mom_y[n], out_minus_mom_z[n]);
+  
+  TVector3 parent_mom;
+  array<TVector3, kNumTgts> tgt_poss;
+  array<double,   kNumTgts> flight_paths;
+  ParentInfo(vtx, moms, &parent_mom, &tgt_poss, &flight_paths, &out_fit_parent_best_tgt_id[n], &out_fit_parent_good_tgt_id_set[n], &out_fit_parent_good_tgt_ids[n]);
+  out_fit_parent_mom_x[n] = parent_mom.X();
+  out_fit_parent_mom_y[n] = parent_mom.Y();
+  out_fit_parent_mom_z[n] = parent_mom.Z();
+  out_fit_parent_tgt_minus_x[n] = tgt_poss[0].X();
+  out_fit_parent_tgt_minus_y[n] = tgt_poss[0].Y();
+  out_fit_parent_tgt_zero_x[n]  = tgt_poss[1].X();
+  out_fit_parent_tgt_zero_y[n]  = tgt_poss[1].Y();
+  out_fit_parent_tgt_plus_x[n]  = tgt_poss[2].X();
+  out_fit_parent_tgt_plus_y[n]  = tgt_poss[2].Y();
+  out_fit_parent_tgt_minus_flight_path[n] = flight_paths[0];
+  out_fit_parent_tgt_zero_flight_path[n]  = flight_paths[1];
+  out_fit_parent_tgt_plus_flight_path[n]  = flight_paths[2];
   return;
 }
 
@@ -1283,7 +1558,7 @@ void track_analyzer_220715::FillCommonBranches() {
     out_hit_minus_gtr300_yt[i]   = rk_hit_gtr300_yt2->at(i1);
     out_hit_minus_gtr300_xadc[i] = rk_hit_gtr300_xadc->at(i1);
     out_hit_minus_gtr300_yadc[i] = rk_hit_gtr300_yadc->at(i1);
-    out_dir_id[i]                = DirID(i0, i1);
+    out_dir_id[i]                = DirID(rk_fit_gtr300_mid->at(i0), rk_fit_gtr300_mid->at(i1));
     out_plus_ssd_mid[i]          = rk_fit_ssd_mid->at(i0);
     out_plus_gtr100_mid[i]       = rk_fit_gtr100_mid->at(i0);
     out_plus_gtr200_mid[i]       = rk_fit_gtr200_mid->at(i0);
@@ -1438,6 +1713,432 @@ cout << "Number of pairs: " << good_pair_indexs.size() << endl;
   return;
 }
 
+void track_analyzer_220715::FillEntryInfo(int entry_index, EntryInfo* plus_entry, EntryInfo* minus_entry) {
+  plus_entry->entry_index  = entry_index;
+  minus_entry->entry_index = entry_index;
+  for (const auto& i : good_track_indexs) {
+    if (rk_charge->at(i) == 1) {
+      plus_entry->track_indexs.emplace_back(i);
+    } else {
+      minus_entry->track_indexs.emplace_back(i);
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::ClearEMBranches() {
+  em_plus_run_id.clear();
+  em_plus_event_id.clear();
+  em_plus_n_cands.clear();
+//  em_plus_n_pairs.clear();
+  em_plus_track_id.clear();
+//  tree->Branch("hit_plus_ssd_id",                  &out_hit_plus_ssd_id);
+//  tree->Branch("hit_plus_ssd_lx",                  &out_hit_plus_ssd_lx);
+//  tree->Branch("hit_plus_ssd_t",                   &out_hit_plus_ssd_t);
+//  tree->Branch("hit_plus_ssd_adc",                 &out_hit_plus_ssd_adc);
+//  tree->Branch("hit_plus_ssd_size",                &out_hit_plus_ssd_size);
+//  tree->Branch("hit_plus_gtr100_xid",              &out_hit_plus_gtr100_xid);
+//  tree->Branch("hit_plus_gtr100_yid",              &out_hit_plus_gtr100_yid);
+//  tree->Branch("hit_plus_gtr100_lx",               &out_hit_plus_gtr100_lx);
+//  tree->Branch("hit_plus_gtr100_ly",               &out_hit_plus_gtr100_ly);
+//  tree->Branch("hit_plus_gtr100_xt",               &out_hit_plus_gtr100_xt);
+//  tree->Branch("hit_plus_gtr100_yt",               &out_hit_plus_gtr100_yt);
+//  tree->Branch("hit_plus_gtr100_xadc",             &out_hit_plus_gtr100_xadc);
+//  tree->Branch("hit_plus_gtr100_yadc",             &out_hit_plus_gtr100_yadc);
+//  tree->Branch("hit_plus_gtr100_xsize",            &out_hit_plus_gtr100_xsize);
+//  tree->Branch("hit_plus_gtr100_ysize",            &out_hit_plus_gtr100_ysize);
+//  tree->Branch("hit_plus_gtr200_xid",              &out_hit_plus_gtr200_xid);
+//  tree->Branch("hit_plus_gtr200_yid",              &out_hit_plus_gtr200_yid);
+//  tree->Branch("hit_plus_gtr200_lx",               &out_hit_plus_gtr200_lx);
+//  tree->Branch("hit_plus_gtr200_ly",               &out_hit_plus_gtr200_ly);
+//  tree->Branch("hit_plus_gtr200_xt",               &out_hit_plus_gtr200_xt);
+//  tree->Branch("hit_plus_gtr200_yt",               &out_hit_plus_gtr200_yt);
+//  tree->Branch("hit_plus_gtr200_xadc",             &out_hit_plus_gtr200_xadc);
+//  tree->Branch("hit_plus_gtr200_yadc",             &out_hit_plus_gtr200_yadc);
+//  tree->Branch("hit_plus_gtr200_xsize",            &out_hit_plus_gtr200_xsize);
+//  tree->Branch("hit_plus_gtr200_ysize",            &out_hit_plus_gtr200_ysize);
+//  tree->Branch("hit_plus_gtr300_xid",              &out_hit_plus_gtr300_xid);
+//  tree->Branch("hit_plus_gtr300_yid",              &out_hit_plus_gtr300_yid);
+//  tree->Branch("hit_plus_gtr300_lx",               &out_hit_plus_gtr300_lx);
+//  tree->Branch("hit_plus_gtr300_ly",               &out_hit_plus_gtr300_ly);
+//  tree->Branch("hit_plus_gtr300_xt",               &out_hit_plus_gtr300_xt);
+//  tree->Branch("hit_plus_gtr300_yt",               &out_hit_plus_gtr300_yt);
+//  tree->Branch("hit_plus_gtr300_xadc",             &out_hit_plus_gtr300_xadc);
+//  tree->Branch("hit_plus_gtr300_yadc",             &out_hit_plus_gtr300_yadc);
+//  tree->Branch("hit_plus_gtr300_xsize",            &out_hit_plus_gtr300_xsize);
+//  tree->Branch("hit_plus_gtr300_ysize",            &out_hit_plus_gtr300_ysize);
+  em_minus_run_id.clear();
+  em_minus_event_id.clear();
+  em_minus_n_cands.clear();
+//  em_minus_n_pairs.clear();
+  em_minus_track_id.clear();
+//  tree->Branch("hit_minus_ssd_id",                 &out_hit_minus_ssd_id);
+//  tree->Branch("hit_minus_ssd_lx",                 &out_hit_minus_ssd_lx);
+//  tree->Branch("hit_minus_ssd_t",                  &out_hit_minus_ssd_t);
+//  tree->Branch("hit_minus_ssd_adc",                &out_hit_minus_ssd_adc);
+//  tree->Branch("hit_minus_ssd_size",               &out_hit_minus_ssd_size);
+//  tree->Branch("hit_minus_gtr100_xid",             &out_hit_minus_gtr100_xid);
+//  tree->Branch("hit_minus_gtr100_yid",             &out_hit_minus_gtr100_yid);
+//  tree->Branch("hit_minus_gtr100_lx",              &out_hit_minus_gtr100_lx);
+//  tree->Branch("hit_minus_gtr100_ly",              &out_hit_minus_gtr100_ly);
+//  tree->Branch("hit_minus_gtr100_xt",              &out_hit_minus_gtr100_xt);
+//  tree->Branch("hit_minus_gtr100_yt",              &out_hit_minus_gtr100_yt);
+//  tree->Branch("hit_minus_gtr100_xadc",            &out_hit_minus_gtr100_xadc);
+//  tree->Branch("hit_minus_gtr100_yadc",            &out_hit_minus_gtr100_yadc);
+//  tree->Branch("hit_minus_gtr100_xsize",           &out_hit_minus_gtr100_xsize);
+//  tree->Branch("hit_minus_gtr100_ysize",           &out_hit_minus_gtr100_ysize);
+//  tree->Branch("hit_minus_gtr200_xid",             &out_hit_minus_gtr200_xid);
+//  tree->Branch("hit_minus_gtr200_yid",             &out_hit_minus_gtr200_yid);
+//  tree->Branch("hit_minus_gtr200_lx",              &out_hit_minus_gtr200_lx);
+//  tree->Branch("hit_minus_gtr200_ly",              &out_hit_minus_gtr200_ly);
+//  tree->Branch("hit_minus_gtr200_xt",              &out_hit_minus_gtr200_xt);
+//  tree->Branch("hit_minus_gtr200_yt",              &out_hit_minus_gtr200_yt);
+//  tree->Branch("hit_minus_gtr200_xadc",            &out_hit_minus_gtr200_xadc);
+//  tree->Branch("hit_minus_gtr200_yadc",            &out_hit_minus_gtr200_yadc);
+//  tree->Branch("hit_minus_gtr200_xsize",           &out_hit_minus_gtr200_xsize);
+//  tree->Branch("hit_minus_gtr200_ysize",           &out_hit_minus_gtr200_ysize);
+//  tree->Branch("hit_minus_gtr300_xid",             &out_hit_minus_gtr300_xid);
+//  tree->Branch("hit_minus_gtr300_yid",             &out_hit_minus_gtr300_yid);
+//  tree->Branch("hit_minus_gtr300_lx",              &out_hit_minus_gtr300_lx);
+//  tree->Branch("hit_minus_gtr300_ly",              &out_hit_minus_gtr300_ly);
+//  tree->Branch("hit_minus_gtr300_xt",              &out_hit_minus_gtr300_xt);
+//  tree->Branch("hit_minus_gtr300_yt",              &out_hit_minus_gtr300_yt);
+//  tree->Branch("hit_minus_gtr300_xadc",            &out_hit_minus_gtr300_xadc);
+//  tree->Branch("hit_minus_gtr300_yadc",            &out_hit_minus_gtr300_yadc);
+//  tree->Branch("hit_minus_gtr300_xsize",           &out_hit_minus_gtr300_xsize);
+//  tree->Branch("hit_minus_gtr300_ysize",           &out_hit_minus_gtr300_ysize);
+  em_chi2.clear();
+  em_plus_chi2.clear();
+  em_minus_chi2.clear();
+  em_flag.clear();
+  em_distance.clear();
+  em_dir_id.clear();
+  em_vtx_x.clear();
+  em_vtx_y.clear();
+  em_vtx_z.clear();
+  em_plus_mom.clear();
+  em_plus_mom_x.clear();
+  em_plus_mom_y.clear();
+  em_plus_mom_z.clear();
+  em_plus_mom_theta.clear();
+  em_plus_mom_phi.clear();
+  em_minus_mom.clear();
+  em_minus_mom_x.clear();
+  em_minus_mom_y.clear();
+  em_minus_mom_z.clear();
+  em_minus_mom_theta.clear();
+  em_minus_mom_phi.clear();
+  em_mom_angle.clear();
+  em_ee_mass.clear();
+  em_pipi_mass.clear();
+  em_pip_mass.clear();
+  em_kk_mass.clear();
+  em_plus_ssd_mid.clear();
+  em_plus_gtr100_mid.clear();
+  em_plus_gtr200_mid.clear();
+  em_plus_gtr300_mid.clear();
+  em_plus_hbd_mid.clear();
+  em_plus_lg_c_mid.clear();
+  em_plus_lg_b_mid.clear();
+  em_plus_lg_a_mid.clear();
+  em_minus_ssd_mid.clear();
+  em_minus_gtr100_mid.clear();
+  em_minus_gtr200_mid.clear();
+  em_minus_gtr300_mid.clear();
+  em_minus_hbd_mid.clear();
+  em_minus_lg_c_mid.clear();
+  em_minus_lg_b_mid.clear();
+  em_minus_lg_a_mid.clear();
+//  tree->Branch("fit_plus_ssd_lx",                  &out_fit_plus_ssd_lx);
+//  tree->Branch("fit_plus_ssd_ly",                  &out_fit_plus_ssd_ly);
+//  tree->Branch("fit_plus_gtr100_lx",               &out_fit_plus_gtr100_lx);
+//  tree->Branch("fit_plus_gtr100_ly",               &out_fit_plus_gtr100_ly);
+//  tree->Branch("fit_plus_gtr200_lx",               &out_fit_plus_gtr200_lx);
+//  tree->Branch("fit_plus_gtr200_ly",               &out_fit_plus_gtr200_ly);
+//  tree->Branch("fit_plus_gtr300_lx",               &out_fit_plus_gtr300_lx);
+//  tree->Branch("fit_plus_gtr300_ly",               &out_fit_plus_gtr300_ly);
+//  tree->Branch("fit_plus_hbd_lx",                  &out_fit_plus_hbd_lx);
+//  tree->Branch("fit_plus_hbd_ly",                  &out_fit_plus_hbd_ly);
+//  tree->Branch("fit_plus_lg_c_lx",                 &out_fit_plus_lg_c_lx);
+//  tree->Branch("fit_plus_lg_c_ly",                 &out_fit_plus_lg_c_ly);
+//  tree->Branch("fit_plus_lg_b_lx",                 &out_fit_plus_lg_b_lx);
+//  tree->Branch("fit_plus_lg_b_ly",                 &out_fit_plus_lg_b_ly);
+//  tree->Branch("fit_plus_lg_a_lx",                 &out_fit_plus_lg_a_lx);
+//  tree->Branch("fit_plus_lg_a_ly",                 &out_fit_plus_lg_a_ly);
+//  tree->Branch("fit_plus_tgt_minus_x",             &out_fit_plus_tgt_minus_x);
+//  tree->Branch("fit_plus_tgt_minus_y",             &out_fit_plus_tgt_minus_y);
+//  tree->Branch("fit_plus_tgt_zero_x",              &out_fit_plus_tgt_zero_x);
+//  tree->Branch("fit_plus_tgt_zero_y",              &out_fit_plus_tgt_zero_y);
+//  tree->Branch("fit_plus_tgt_plus_x",              &out_fit_plus_tgt_plus_x);
+//  tree->Branch("fit_plus_tgt_plus_y",              &out_fit_plus_tgt_plus_y);
+//  tree->Branch("fit_minus_ssd_lx",                 &out_fit_minus_ssd_lx);
+//  tree->Branch("fit_minus_ssd_ly",                 &out_fit_minus_ssd_ly);
+//  tree->Branch("fit_minus_gtr100_lx",              &out_fit_minus_gtr100_lx);
+//  tree->Branch("fit_minus_gtr100_ly",              &out_fit_minus_gtr100_ly);
+//  tree->Branch("fit_minus_gtr200_lx",              &out_fit_minus_gtr200_lx);
+//  tree->Branch("fit_minus_gtr200_ly",              &out_fit_minus_gtr200_ly);
+//  tree->Branch("fit_minus_gtr300_lx",              &out_fit_minus_gtr300_lx);
+//  tree->Branch("fit_minus_gtr300_ly",              &out_fit_minus_gtr300_ly);
+//  tree->Branch("fit_minus_hbd_lx",                 &out_fit_minus_hbd_lx);
+//  tree->Branch("fit_minus_hbd_ly",                 &out_fit_minus_hbd_ly);
+//  tree->Branch("fit_minus_lg_c_lx",                &out_fit_minus_lg_c_lx);
+//  tree->Branch("fit_minus_lg_c_ly",                &out_fit_minus_lg_c_ly);
+//  tree->Branch("fit_minus_lg_b_lx",                &out_fit_minus_lg_b_lx);
+//  tree->Branch("fit_minus_lg_b_ly",                &out_fit_minus_lg_b_ly);
+//  tree->Branch("fit_minus_lg_a_lx",                &out_fit_minus_lg_a_lx);
+//  tree->Branch("fit_minus_lg_a_ly",                &out_fit_minus_lg_a_ly);
+//  tree->Branch("fit_minus_tgt_minus_x",            &out_fit_minus_tgt_minus_x);
+//  tree->Branch("fit_minus_tgt_minus_y",            &out_fit_minus_tgt_minus_y);
+//  tree->Branch("fit_minus_tgt_zero_x",             &out_fit_minus_tgt_zero_x);
+//  tree->Branch("fit_minus_tgt_zero_y",             &out_fit_minus_tgt_zero_y);
+//  tree->Branch("fit_minus_tgt_plus_x",             &out_fit_minus_tgt_plus_x);
+//  tree->Branch("fit_minus_tgt_plus_y",             &out_fit_minus_tgt_plus_y);
+//  tree->Branch("res_plus_ssd_lx",                  &out_res_plus_ssd_lx);
+////  tree->Branch("res_plus_ssd_ly",                  &out_res_plus_ssd_ly);
+//  tree->Branch("res_plus_gtr100_lx",               &out_res_plus_gtr100_lx);
+//  tree->Branch("res_plus_gtr100_ly",               &out_res_plus_gtr100_ly);
+//  tree->Branch("res_plus_gtr200_lx",               &out_res_plus_gtr200_lx);
+//  tree->Branch("res_plus_gtr200_ly",               &out_res_plus_gtr200_ly);
+//  tree->Branch("res_plus_gtr300_lx",               &out_res_plus_gtr300_lx);
+//  tree->Branch("res_plus_gtr300_ly",               &out_res_plus_gtr300_ly);
+//  tree->Branch("res_minus_ssd_lx",                 &out_res_minus_ssd_lx);
+////  tree->Branch("res_minus_ssd_ly",                 &out_res_minus_ssd_ly);
+//  tree->Branch("res_minus_gtr100_lx",              &out_res_minus_gtr100_lx);
+//  tree->Branch("res_minus_gtr100_ly",              &out_res_minus_gtr100_ly);
+//  tree->Branch("res_minus_gtr200_lx",              &out_res_minus_gtr200_lx);
+//  tree->Branch("res_minus_gtr200_ly",              &out_res_minus_gtr200_ly);
+//  tree->Branch("res_minus_gtr300_lx",              &out_res_minus_gtr300_lx);
+//  tree->Branch("res_minus_gtr300_ly",              &out_res_minus_gtr300_ly);
+  em_fit_parent_mom_x.clear();
+  em_fit_parent_mom_y.clear();
+  em_fit_parent_mom_z.clear();
+  em_fit_parent_tgt_minus_x.clear();
+  em_fit_parent_tgt_minus_y.clear();
+  em_fit_parent_tgt_minus_flight_path.clear();
+  em_fit_parent_tgt_zero_x.clear();
+  em_fit_parent_tgt_zero_y.clear();
+  em_fit_parent_tgt_zero_flight_path.clear();
+  em_fit_parent_tgt_plus_x.clear();
+  em_fit_parent_tgt_plus_y.clear();
+  em_fit_parent_tgt_plus_flight_path.clear();
+  em_fit_parent_best_tgt_id.clear();
+  em_fit_parent_good_tgt_id_set.clear();
+  em_fit_parent_good_tgt_ids.clear();
+//  tree->Branch("proj_plus_n_hbds",                 &out_proj_plus_n_hbds);
+//  tree->Branch("proj_plus_hbd_id",                 &out_proj_plus_hbd_id);
+//  tree->Branch("proj_plus_hbd_lx",                 &out_proj_plus_hbd_lx);
+//  tree->Branch("proj_plus_hbd_ly",                 &out_proj_plus_hbd_ly);
+//  tree->Branch("proj_plus_hbd_resx",               &out_proj_plus_hbd_resx);
+//  tree->Branch("proj_plus_hbd_resy",               &out_proj_plus_hbd_resy);
+//  tree->Branch("proj_plus_hbd_adc",                &out_proj_plus_hbd_adc);
+//  tree->Branch("proj_plus_hbd_size",               &out_proj_plus_hbd_size);
+//  tree->Branch("proj_plus_hbd_eprob",              &out_proj_plus_hbd_eprob);
+//  tree->Branch("proj_minus_n_hbds",                &out_proj_minus_n_hbds);
+//  tree->Branch("proj_minus_hbd_id",                &out_proj_minus_hbd_id);
+//  tree->Branch("proj_minus_hbd_lx",                &out_proj_minus_hbd_lx);
+//  tree->Branch("proj_minus_hbd_ly",                &out_proj_minus_hbd_ly);
+//  tree->Branch("proj_minus_hbd_resx",              &out_proj_minus_hbd_resx);
+//  tree->Branch("proj_minus_hbd_resy",              &out_proj_minus_hbd_resy);
+//  tree->Branch("proj_minus_hbd_adc",               &out_proj_minus_hbd_adc);
+//  tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
+//  tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
+  return;
+}
+
+void track_analyzer_220715::PairFitEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
+  cerr << "### NOT IMPLEMENTED ###" << endl;
+  return;
+}
+
+void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
+  array<Hep3Vector,        2> init_poss;
+  array<Hep3Vector,        2> init_moms;
+  array<E16ANA_StepTrack*, 2> tracks;
+  
+  fChain->GetEntry(plus_entry_index);
+  em_plus_run_id.emplace_back(run_id);
+  em_plus_event_id.emplace_back(event_id);
+  em_plus_n_cands.emplace_back(n_cands);
+  em_plus_track_id.emplace_back(track_id->at(plus_track_index));
+  em_plus_chi2.emplace_back(chi_square->at(plus_track_index));
+  em_plus_ssd_mid.emplace_back(rk_fit_ssd_mid->at(plus_track_index));
+  em_plus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(plus_track_index));
+  em_plus_gtr200_mid.emplace_back(rk_fit_gtr200_mid->at(plus_track_index));
+  em_plus_gtr300_mid.emplace_back(rk_fit_gtr300_mid->at(plus_track_index));
+  em_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(plus_track_index));
+  em_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(plus_track_index));
+  em_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(plus_track_index));
+  em_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(plus_track_index));
+  init_poss[0] = Hep3Vector(rk_fit_init_pos_gx->at(plus_track_index) * 0.1, rk_fit_init_pos_gy->at(plus_track_index) * 0.1,
+                            rk_fit_init_pos_gz->at(plus_track_index) * 0.1);
+  init_moms[0] = Hep3Vector(rk_fit_init_mom_gx->at(plus_track_index), rk_fit_init_mom_gy->at(plus_track_index), rk_fit_init_mom_gz->at(plus_track_index));
+  tracks[0] = new E16ANA_StepTrack(bfield_map, init_poss[0], init_moms[0], 1., kStepTrackSizeCm, kStepTrackArraySize);
+  
+  fChain->GetEntry(minus_entry_index);
+  em_minus_run_id.emplace_back(run_id);
+  em_minus_event_id.emplace_back(event_id);
+  em_minus_n_cands.emplace_back(n_cands);
+  em_minus_track_id.emplace_back(track_id->at(minus_track_index));
+  em_minus_chi2.emplace_back(chi_square->at(minus_track_index));
+  em_minus_ssd_mid.emplace_back(rk_fit_ssd_mid->at(minus_track_index));
+  em_minus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(minus_track_index));
+  em_minus_gtr200_mid.emplace_back(rk_fit_gtr200_mid->at(minus_track_index));
+  em_minus_gtr300_mid.emplace_back(rk_fit_gtr300_mid->at(minus_track_index));
+  em_minus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(minus_track_index));
+  em_minus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(minus_track_index));
+  em_minus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(minus_track_index));
+  em_minus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(minus_track_index));
+  init_poss[1] = Hep3Vector(rk_fit_init_pos_gx->at(minus_track_index) * 0.1, rk_fit_init_pos_gy->at(minus_track_index) * 0.1,
+                            rk_fit_init_pos_gz->at(minus_track_index) * 0.1);
+  init_moms[1] = Hep3Vector(rk_fit_init_mom_gx->at(minus_track_index), rk_fit_init_mom_gy->at(minus_track_index), rk_fit_init_mom_gz->at(minus_track_index));
+  tracks[1] = new E16ANA_StepTrack(bfield_map, init_poss[1], init_moms[1], -1., kStepTrackSizeCm, kStepTrackArraySize);
+  
+  auto dist_cm       = double();
+  auto hep_vtx       = Hep3Vector();
+  auto hep_plus_mom  = Hep3Vector();
+  auto hep_minus_mom = Hep3Vector();
+  auto flag = tracks[0]->Cross(*tracks[1], &dist_cm, &hep_vtx, &hep_plus_mom, &hep_minus_mom);
+
+  em_flag.emplace_back(flag);
+  em_distance.emplace_back(dist_cm * 10.);
+  em_vtx_x.emplace_back(hep_vtx.x() * 10.);
+  em_vtx_y.emplace_back(hep_vtx.y() * 10.);
+  em_vtx_z.emplace_back(hep_vtx.z() * 10.);
+  auto pmom = TVector3(hep_plus_mom.x(),  hep_plus_mom.y(),  hep_plus_mom.z());
+  auto mmom = TVector3(hep_minus_mom.x(), hep_minus_mom.y(), hep_minus_mom.z());
+  em_plus_mom.emplace_back(pmom.Mag());
+  em_plus_mom_x.emplace_back(pmom.X());
+  em_plus_mom_y.emplace_back(pmom.Y());
+  em_plus_mom_z.emplace_back(pmom.Z());
+  em_plus_mom_theta.emplace_back(pmom.Theta());
+  em_plus_mom_phi.emplace_back(pmom.Phi());
+  em_minus_mom.emplace_back(mmom.Mag());
+  em_minus_mom_x.emplace_back(mmom.X());
+  em_minus_mom_y.emplace_back(mmom.Y());
+  em_minus_mom_z.emplace_back(mmom.Z());
+  em_minus_mom_theta.emplace_back(mmom.Theta());
+  em_minus_mom_phi.emplace_back(mmom.Phi());
+  em_mom_angle.emplace_back(pmom.Angle(mmom));
+  em_ee_mass.emplace_back(CalcMass(kEE,   pmom, mmom));
+  em_pipi_mass.emplace_back(CalcMass(kPiPi, pmom, mmom));
+  em_pip_mass.emplace_back(CalcMass(kPiP,  pmom, mmom));
+  em_kk_mass.emplace_back(CalcMass(kKK,   pmom, mmom));
+  for (auto& track : tracks) {
+    delete track;
+  }
+  return;
+}
+
+void track_analyzer_220715::DirIDsEM() {
+  auto n = em_plus_run_id.size();
+  em_dir_id.resize(n);
+  for (int i = 0; i < n; ++i) {
+    em_dir_id[i] = DirID(em_plus_gtr300_mid[i], em_minus_gtr300_mid[n]);
+  }
+  return;
+}
+
+void track_analyzer_220715::ParentInfoEM() {
+  auto n = em_plus_run_id.size();
+  em_fit_parent_mom_x.resize(n);
+  em_fit_parent_mom_y.resize(n);
+  em_fit_parent_mom_z.resize(n);
+  em_fit_parent_tgt_minus_x.resize(n);
+  em_fit_parent_tgt_minus_y.resize(n);
+  em_fit_parent_tgt_minus_flight_path.resize(n);
+  em_fit_parent_tgt_zero_x.resize(n);
+  em_fit_parent_tgt_zero_y.resize(n);
+  em_fit_parent_tgt_zero_flight_path.resize(n);
+  em_fit_parent_tgt_plus_x.resize(n);
+  em_fit_parent_tgt_plus_y.resize(n);
+  em_fit_parent_tgt_plus_flight_path.resize(n);
+  em_fit_parent_best_tgt_id.resize(n);
+  em_fit_parent_good_tgt_id_set.resize(n);
+  em_fit_parent_good_tgt_ids.resize(n);
+  for (int i = 0; i < n; ++i) {
+    auto vtx = TVector3(em_vtx_x[i], em_vtx_y[i], em_vtx_z[i]);
+    array<TVector3, 2> moms;
+    moms[0] = TVector3(em_plus_mom_x[i],  em_plus_mom_y[i],  em_plus_mom_z[i]);
+    moms[1] = TVector3(em_minus_mom_x[i], em_minus_mom_y[i], em_minus_mom_z[i]);
+    
+    TVector3 parent_mom;
+    array<TVector3, kNumTgts> tgt_poss;
+    array<double,   kNumTgts> flight_paths;
+    ParentInfo(vtx, moms, &parent_mom, &tgt_poss, &flight_paths, &em_fit_parent_best_tgt_id[n], &em_fit_parent_good_tgt_id_set[n], &em_fit_parent_good_tgt_ids[n]);
+    em_fit_parent_mom_x[i] = parent_mom.X();
+    em_fit_parent_mom_y[i] = parent_mom.Y();
+    em_fit_parent_mom_z[i] = parent_mom.Z();
+    em_fit_parent_tgt_minus_x[i] = tgt_poss[0].X();
+    em_fit_parent_tgt_minus_y[i] = tgt_poss[0].Y();
+    em_fit_parent_tgt_zero_x[i]  = tgt_poss[1].X();
+    em_fit_parent_tgt_zero_y[i]  = tgt_poss[1].Y();
+    em_fit_parent_tgt_plus_x[i]  = tgt_poss[2].X();
+    em_fit_parent_tgt_plus_y[i]  = tgt_poss[2].Y();
+    em_fit_parent_tgt_minus_flight_path[i] = flight_paths[0];
+    em_fit_parent_tgt_zero_flight_path[i]  = flight_paths[1];
+    em_fit_parent_tgt_plus_flight_path[i]  = flight_paths[2];
+  }
+  return;
+}
+
+void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
+  for (const auto& i : plus_entry.track_indexs) {
+    for (const auto& pentry : past_minus_entries) {
+      for (const auto& j : pentry.track_indexs) {
+        if (kAnalyzeFlag == kAnalyzePairFit) {
+          PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+        } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+          NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+        }
+      }
+    }
+  }
+  for (const auto& i : minus_entry.track_indexs) {
+    for (const auto& pentry : past_plus_entries) {
+      for (const auto& j : pentry.track_indexs) {
+        if (kAnalyzeFlag == kAnalyzePairFit) {
+          PairFitEM(pentry.entry_index, j, minus_entry.entry_index, i);
+        } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+          NearestPointEM(pentry.entry_index, j, minus_entry.entry_index, i);
+        }
+      }
+    }
+  }
+  DirIDsEM();
+  ParentInfoEM();
+  return;
+}
+
+void track_analyzer_220715::UpdatePastEntries(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
+  if (plus_entry.track_indexs.size() != 0) {
+    while (past_plus_entries.size() > kMaxPastEntries) {
+      past_plus_entries.erase(past_plus_entries.begin());
+    }
+    past_plus_entries.emplace_back(plus_entry);
+  }
+  if (minus_entry.track_indexs.size() != 0) {
+    while (past_minus_entries.size() > kMaxPastEntries) {
+      past_minus_entries.erase(past_minus_entries.begin());
+    }
+    past_minus_entries.emplace_back(minus_entry);
+  }
+  return;
+}
+
+void track_analyzer_220715::AnalyzeEM(int entry_index) {
+  if (out_n_pairs == 0) {
+    return;
+  }
+  EntryInfo plus_entry;
+  EntryInfo minus_entry;
+  FillEntryInfo(entry_index, &plus_entry, &minus_entry);
+  ClearEMBranches();
+  EventMixing(plus_entry, minus_entry);
+  UpdatePastEntries(plus_entry, minus_entry);
+  fChain->GetEntry(entry_index);
+  return;
+}
+
 void track_analyzer_220715::Loop(const TString& out_name) {
 //   In a ROOT session, you can do:
 //      root> .L track_analyzer_220715.C
@@ -1467,7 +2168,11 @@ void track_analyzer_220715::Loop(const TString& out_name) {
   Long64_t nbytes = 0, nb = 0;
   auto file = TFile(out_name, "recreate");
   auto tree = TTree("tree", "tree");
+  auto tree_em = TTree("tree_em", "tree_em");
   MakeBranches(&tree);
+  if (kExecuteEventMixing) {
+    MakeEMBranches(&tree_em);
+  }
   for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
     cout << jentry << " / " << nentries << endl;
     Long64_t ientry = LoadTree(jentry);
@@ -1482,6 +2187,10 @@ void track_analyzer_220715::Loop(const TString& out_name) {
     ClearAndResizeBranches();
     Analyze();
     tree.Fill();
+    if (kExecuteEventMixing) {
+      AnalyzeEM(jentry);
+      tree_em.Fill();
+    }
   }
   file.Write();
 }

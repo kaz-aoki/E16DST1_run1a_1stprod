@@ -119,6 +119,10 @@ constexpr double kMaxGoodTgtYDiff  = 2.;
 constexpr int kTypicalLGBlocks[3] = {0, 10, 20};
 constexpr int kProjectionMaxSteps = 2000;
 
+// EventMixing
+constexpr bool kExecuteEventMixing = true;
+constexpr int  kMaxPastEntries     = 10;
+
 }; // track_analyzer_220715_parameter
 
 #endif // TRACK_ANALYZER_220715_PARAMETER_HH
