@@ -225,6 +225,13 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   return;
 }
 
+void track_analyzer_220715::ClearUsedClusterIDs() {
+  for (auto& ids : used_cluster_ids) {
+    ids.clear();
+  }
+  return;
+}
+
 void track_analyzer_220715::SetHBDs() {
   for (auto& hbd : hbd_indexs) {
     hbd.clear();
@@ -1468,9 +1475,7 @@ void track_analyzer_220715::Loop(const TString& out_name) {
     nb = fChain->GetEntry(jentry);
     nbytes += nb;
 //    if (Cut(ientry) < 0) continue;
-    for (auto& ids : used_cluster_ids) {
-      ids.clear();
-    }
+    ClearUsedClusterIDs();
     SetHBDs();
     SetTracks();
     SetPairs();

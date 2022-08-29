@@ -1420,6 +1420,7 @@ public :
    virtual void     Show(Long64_t entry = -1);
  private:
   void MakeBranches(TTree* tree);
+  void ClearUsedClusterIDs();
   void SetHBDs();
   bool HasAssociatedHBD(int mid, const TVector3& track_pos, std::vector<int>* _associated_hbd_indexs);
   bool HasAssociatedHBD(int n);
