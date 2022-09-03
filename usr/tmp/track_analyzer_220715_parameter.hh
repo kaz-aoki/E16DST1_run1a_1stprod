@@ -31,7 +31,6 @@ enum {
   kPiP,
   kKK
 };
-
 constexpr int    kNumModules           = 9; // 101 - 109
 constexpr int    kNumTrackingDetectors = 7; // SSD, GTR100x, GTR100y, GTR200x, GTR200y, GTR300x, GTR300y
 constexpr double kTargetZ[kNumTgts]    = {-20., 0., 20.};
@@ -120,7 +119,7 @@ constexpr int kTypicalLGBlocks[3] = {0, 10, 20};
 constexpr int kProjectionMaxSteps = 2000;
 
 // EventMixing
-constexpr bool kExecuteEventMixing = true;
+constexpr bool kExecuteEventMixing = false;
 constexpr int  kMaxPastEntries     = 10;
 
 }; // track_analyzer_220715_parameter

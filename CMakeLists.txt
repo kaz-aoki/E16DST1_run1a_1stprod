@@ -565,6 +565,14 @@ target_link_libraries(tmp_check_n_events_220811
 #  E16DST_DST1
 #)
 #
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(tmp_check_acceptance_220902 usr/tmp/tmp_check_acceptance_220902.cc)
+
+target_link_libraries(tmp_check_acceptance_220902
+  E16DST_DST1
+  E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

@@ -578,7 +578,7 @@ Hep3Vector& crossMom){
   }
 
   prevdiff = 0;
-  for(j=0;i<arraySize;j++){//follow the second array from the initPoint
+  for(j=0;j<arraySize;j++){//follow the second array from the initPoint
     double diff = pointData2[j].x()- ix;
     if( diff * prevdiff < 0 ) {//cross
       pointA=pointData2[j-1];      pointB=pointData2[j];

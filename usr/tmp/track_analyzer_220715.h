@@ -1427,7 +1427,7 @@ public :
   void MakeEMBranches(TTree* tree);
   void ClearUsedClusterIDs();
   void SetHBDs();
-  bool HasAssociatedHBD(int mid, const TVector3& track_pos, std::vector<int>* _associated_hbd_indexs);
+  bool HasAssociatedHBD(int mid, const TVector3& track_pos, double* min_res, std::vector<int>* _associated_hbd_indexs);
   bool HasAssociatedHBD(int n);
   bool HasUsedCluster(const std::array<int, track_analyzer_220715_parameter::kNumTrackingDetectors>& cids);
   bool IsGoodTrack(int n);
@@ -1449,11 +1449,13 @@ public :
 //  int BestTargetID(int n);
 //  void ParentInfo(int n);
   int BestTargetID(double vtx_z, const std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>& tgt_poss,
-                   std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
+                   std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths,
+                   double* best_tgt_r, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
+  TVector3 Xo0Pos(const TVector3& pos, const TVector3& mom);
   void ParentInfo(const TVector3& vtx, const std::array<TVector3, 2>& moms, TVector3* parent_mom,
                   std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>* tgt_poss,
                   std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths,
-                  int* best_tgt_id, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
+                  int* best_tgt_id, double* best_tgt_r, int* good_tgt_id_set, std::vector<double>* good_tgt_ids, TVector3* x0_pos);
   void ParentInfo(int n);
   void AssociatedHBDAndLG(int n);
   void FillCommonBranches();
@@ -1475,6 +1477,8 @@ public :
   // Tree branch
   int out_n_pairs;
 // single fit info. chi2, ...
+  std::vector<double> out_plus_rough_fit_init_z;
+  std::vector<double> out_minus_rough_fit_init_z;
   // Hit
   std::vector<int>    out_plus_track_id;
   std::vector<int>    out_hit_plus_ssd_id;
@@ -1665,10 +1669,14 @@ public :
   std::vector<double>              out_fit_parent_tgt_plus_y;
   std::vector<double>              out_fit_parent_tgt_plus_flight_path;
   std::vector<int>                 out_fit_parent_best_tgt_id;
+  std::vector<double>              out_fit_parent_best_tgt_r;
   std::vector<int>                 out_fit_parent_good_tgt_id_set;
   std::vector<std::vector<double>> out_fit_parent_good_tgt_ids;
-  // Projected HBD
+  std::vector<double>              out_fit_parent_x0_y;
+  std::vector<double>              out_fit_parent_x0_z;
+  // HBD Projection
   std::vector<double>              out_proj_plus_n_hbds;
+  std::vector<double>              out_proj_plus_hbd_min_res;
   std::vector<std::vector<double>> out_proj_plus_hbd_id;
   std::vector<std::vector<double>> out_proj_plus_hbd_lx;
   std::vector<std::vector<double>> out_proj_plus_hbd_ly;
@@ -1678,6 +1686,7 @@ public :
   std::vector<std::vector<double>> out_proj_plus_hbd_size;
   std::vector<std::vector<double>> out_proj_plus_hbd_eprob;
   std::vector<double>              out_proj_minus_n_hbds;
+  std::vector<double>              out_proj_minus_hbd_min_res;
   std::vector<std::vector<double>> out_proj_minus_hbd_id;
   std::vector<std::vector<double>> out_proj_minus_hbd_lx;
   std::vector<std::vector<double>> out_proj_minus_hbd_ly;
@@ -1686,7 +1695,7 @@ public :
   std::vector<std::vector<double>> out_proj_minus_hbd_adc;
   std::vector<std::vector<double>> out_proj_minus_hbd_size;
   std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
-  // Projected LG
+  // LG Projection
   // Event Mixing 
   std::vector<int> em_plus_run_id;
   std::vector<int> em_plus_event_id;
@@ -1889,8 +1898,11 @@ public :
   std::vector<double>              em_fit_parent_tgt_plus_y;
   std::vector<double>              em_fit_parent_tgt_plus_flight_path;
   std::vector<int>                 em_fit_parent_best_tgt_id;
+  std::vector<double>              em_fit_parent_best_tgt_r;
   std::vector<int>                 em_fit_parent_good_tgt_id_set;
   std::vector<std::vector<double>> em_fit_parent_good_tgt_ids;
+  std::vector<double>              em_fit_parent_x0_y;
+  std::vector<double>              em_fit_parent_x0_z;
 //  // Projected HBD
 //  std::vector<double>              out_proj_plus_n_hbds;
 //  std::vector<std::vector<double>> out_proj_plus_hbd_id;
