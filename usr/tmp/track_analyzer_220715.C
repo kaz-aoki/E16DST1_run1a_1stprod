@@ -1672,6 +1672,356 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   return;
 }
 
+//void track_analyzer_220715::ClearEMBranches() {
+//  em_plus_run_id.clear();
+//  em_plus_event_id.clear();
+//  em_plus_n_cands.clear();
+////  std::vector<int> em_plus_n_pairs;
+//  em_plus_track_id.clear();
+//  em_minus_run_id.clear();
+//  em_minus_event_id.clear();
+//  em_minus_n_cands.clear();
+////  std::vector<int> em_minus_n_pairs;
+//  em_minus_track_id.clear();
+////// single fit info. chi2, ...
+////  // Hit
+////  std::vector<int>    out_plus_track_id;
+////  std::vector<int>    out_hit_plus_ssd_id;
+////  std::vector<double> out_hit_plus_ssd_lx;
+////  std::vector<double> out_hit_plus_ssd_t;
+////  std::vector<double> out_hit_plus_ssd_adc;
+////  std::vector<int>    out_hit_plus_ssd_size;
+////  std::vector<int>    out_hit_plus_gtr100_xid;
+////  std::vector<int>    out_hit_plus_gtr100_yid;
+////  std::vector<double> out_hit_plus_gtr100_lx;
+////  std::vector<double> out_hit_plus_gtr100_ly;
+////  std::vector<double> out_hit_plus_gtr100_xt;
+////  std::vector<double> out_hit_plus_gtr100_yt;
+////  std::vector<double> out_hit_plus_gtr100_xadc;
+////  std::vector<double> out_hit_plus_gtr100_yadc;
+////  std::vector<int>    out_hit_plus_gtr100_xsize;
+////  std::vector<int>    out_hit_plus_gtr100_ysize;
+////  std::vector<int>    out_hit_plus_gtr200_xid;
+////  std::vector<int>    out_hit_plus_gtr200_yid;
+////  std::vector<double> out_hit_plus_gtr200_lx;
+////  std::vector<double> out_hit_plus_gtr200_ly;
+////  std::vector<double> out_hit_plus_gtr200_xt;
+////  std::vector<double> out_hit_plus_gtr200_yt;
+////  std::vector<double> out_hit_plus_gtr200_xadc;
+////  std::vector<double> out_hit_plus_gtr200_yadc;
+////  std::vector<int>    out_hit_plus_gtr200_xsize;
+////  std::vector<int>    out_hit_plus_gtr200_ysize;
+////  std::vector<int>    out_hit_plus_gtr300_xid;
+////  std::vector<int>    out_hit_plus_gtr300_yid;
+////  std::vector<double> out_hit_plus_gtr300_lx;
+////  std::vector<double> out_hit_plus_gtr300_ly;
+////  std::vector<double> out_hit_plus_gtr300_xt;
+////  std::vector<double> out_hit_plus_gtr300_yt;
+////  std::vector<double> out_hit_plus_gtr300_xadc;
+////  std::vector<double> out_hit_plus_gtr300_yadc;
+////  std::vector<int>    out_hit_plus_gtr300_xsize;
+////  std::vector<int>    out_hit_plus_gtr300_ysize;
+////  std::vector<int>    out_minus_track_id;
+////  std::vector<int>    out_hit_minus_ssd_id;
+////  std::vector<double> out_hit_minus_ssd_lx;
+////  std::vector<double> out_hit_minus_ssd_t;
+////  std::vector<double> out_hit_minus_ssd_adc;
+////  std::vector<int>    out_hit_minus_ssd_size;
+////  std::vector<int>    out_hit_minus_gtr100_xid;
+////  std::vector<int>    out_hit_minus_gtr100_yid;
+////  std::vector<double> out_hit_minus_gtr100_lx;
+////  std::vector<double> out_hit_minus_gtr100_ly;
+////  std::vector<double> out_hit_minus_gtr100_xt;
+////  std::vector<double> out_hit_minus_gtr100_yt;
+////  std::vector<double> out_hit_minus_gtr100_xadc;
+////  std::vector<double> out_hit_minus_gtr100_yadc;
+////  std::vector<int>    out_hit_minus_gtr100_xsize;
+////  std::vector<int>    out_hit_minus_gtr100_ysize;
+////  std::vector<int>    out_hit_minus_gtr200_xid;
+////  std::vector<int>    out_hit_minus_gtr200_yid;
+////  std::vector<double> out_hit_minus_gtr200_lx;
+////  std::vector<double> out_hit_minus_gtr200_ly;
+////  std::vector<double> out_hit_minus_gtr200_xt;
+////  std::vector<double> out_hit_minus_gtr200_yt;
+////  std::vector<double> out_hit_minus_gtr200_xadc;
+////  std::vector<double> out_hit_minus_gtr200_yadc;
+////  std::vector<int>    out_hit_minus_gtr200_xsize;
+////  std::vector<int>    out_hit_minus_gtr200_ysize;
+////  std::vector<int>    out_hit_minus_gtr300_xid;
+////  std::vector<int>    out_hit_minus_gtr300_yid;
+////  std::vector<double> out_hit_minus_gtr300_lx;
+////  std::vector<double> out_hit_minus_gtr300_ly;
+////  std::vector<double> out_hit_minus_gtr300_xt;
+////  std::vector<double> out_hit_minus_gtr300_yt;
+////  std::vector<double> out_hit_minus_gtr300_xadc;
+////  std::vector<double> out_hit_minus_gtr300_yadc;
+////  std::vector<int>    out_hit_minus_gtr300_xsize;
+////  std::vector<int>    out_hit_minus_gtr300_ysize;
+//  // Fit
+//  em_chi2.clear();
+//  em_plus_chi2.clear();
+//  em_minus_chi2.clear();
+//  em_flag.clear();
+//  em_distance.clear();
+//  em_dir_id.clear();
+//  em_vtx_x.clear();
+//  em_vtx_y.clear();
+//  em_vtx_z.clear();
+//  em_plus_mom.clear();
+//  em_plus_mom_x.clear();
+//  em_plus_mom_y.clear();
+//  em_plus_mom_z.clear();
+//  em_plus_mom_theta.clear();
+//  em_plus_mom_phi.clear();
+//  em_minus_mom.clear();
+//  em_minus_mom_x.clear();
+//  em_minus_mom_y.clear();
+//  em_minus_mom_z.clear();
+//  em_minus_mom_theta.clear();
+//  em_minus_mom_phi.clear();
+//  em_mom_angle.clear();
+//  em_ee_mass.clear();
+//  em_pipi_mass.clear();
+//  em_pip_mass.clear();
+//  em_kk_mass.clear();
+//  em_simple_best_tgt_id.clear();
+//  em_simple_best_tgt_r.clear();
+//  em_ee_mass_at_best_tgt.clear();
+//  em_pipi_mass_at_best_tgt.clear();
+//  em_pip_mass_at_best_tgt.clear();
+//  em_kk_mass_at_best_tgt.clear();
+//  em_plus_ssd_mid.clear();
+//  em_plus_gtr100_mid.clear();
+//  em_plus_gtr200_mid.clear();
+//  em_plus_gtr300_mid.clear();
+//  em_plus_hbd_mid.clear();
+//  em_plus_lg_c_mid.clear();
+//  em_plus_lg_b_mid.clear();
+//  em_plus_lg_a_mid.clear();
+//  em_minus_ssd_mid.clear();
+//  em_minus_gtr100_mid.clear();
+//  em_minus_gtr200_mid.clear();
+//  em_minus_gtr300_mid.clear();
+//  em_minus_hbd_mid.clear();
+//  em_minus_lg_c_mid.clear();
+//  em_minus_lg_b_mid.clear();
+//  em_minus_lg_a_mid.clear();
+////  std::vector<double> out_fit_plus_ssd_lx;
+////  std::vector<double> out_fit_plus_ssd_ly;
+////  std::vector<double> out_fit_plus_gtr100_lx;
+////  std::vector<double> out_fit_plus_gtr100_ly;
+////  std::vector<double> out_fit_plus_gtr200_lx;
+////  std::vector<double> out_fit_plus_gtr200_ly;
+////  std::vector<double> out_fit_plus_gtr300_lx;
+////  std::vector<double> out_fit_plus_gtr300_ly;
+////  std::vector<double> out_fit_plus_hbd_lx;
+////  std::vector<double> out_fit_plus_hbd_ly;
+////  std::vector<double> out_fit_plus_lg_c_lx;
+////  std::vector<double> out_fit_plus_lg_c_ly;
+////  std::vector<double> out_fit_plus_lg_b_lx;
+////  std::vector<double> out_fit_plus_lg_b_ly;
+////  std::vector<double> out_fit_plus_lg_a_lx;
+////  std::vector<double> out_fit_plus_lg_a_ly;
+//  em_fit_plus_tgt_minus_x.clear();
+//  em_fit_plus_tgt_minus_y.clear();
+//  em_fit_plus_tgt_zero_x.clear();
+//  em_fit_plus_tgt_zero_y.clear();
+//  em_fit_plus_tgt_plus_x.clear();
+//  em_fit_plus_tgt_plus_y.clear();
+////  std::vector<double> out_fit_minus_ssd_lx;
+////  std::vector<double> out_fit_minus_ssd_ly;
+////  std::vector<double> out_fit_minus_gtr100_lx;
+////  std::vector<double> out_fit_minus_gtr100_ly;
+////  std::vector<double> out_fit_minus_gtr200_lx;
+////  std::vector<double> out_fit_minus_gtr200_ly;
+////  std::vector<double> out_fit_minus_gtr300_lx;
+////  std::vector<double> out_fit_minus_gtr300_ly;
+////  std::vector<double> out_fit_minus_hbd_lx;
+////  std::vector<double> out_fit_minus_hbd_ly;
+////  std::vector<double> out_fit_minus_lg_c_lx;
+////  std::vector<double> out_fit_minus_lg_c_ly;
+////  std::vector<double> out_fit_minus_lg_b_lx;
+////  std::vector<double> out_fit_minus_lg_b_ly;
+////  std::vector<double> out_fit_minus_lg_a_lx;
+////  std::vector<double> out_fit_minus_lg_a_ly;
+//  em_fit_minus_tgt_minus_x.clear();
+//  em_fit_minus_tgt_minus_y.clear();
+//  em_fit_minus_tgt_zero_x.clear();
+//  em_fit_minus_tgt_zero_y.clear();
+//  em_fit_minus_tgt_plus_x.clear();
+//  em_fit_minus_tgt_plus_y.clear();
+//  em_fit_plus_ssd_mom_lx.clear();
+//  em_fit_plus_ssd_mom_ly.clear();
+//  em_fit_plus_ssd_mom_lz.clear();
+//  em_fit_plus_ssd_mom_gx.clear();
+//  em_fit_plus_ssd_mom_gy.clear();
+//  em_fit_plus_ssd_mom_gz.clear();
+//  em_fit_plus_gtr100_mom_lx.clear();
+//  em_fit_plus_gtr100_mom_ly.clear();
+//  em_fit_plus_gtr100_mom_lz.clear();
+//  em_fit_plus_gtr100_mom_gx.clear();
+//  em_fit_plus_gtr100_mom_gy.clear();
+//  em_fit_plus_gtr100_mom_gz.clear();
+//  em_fit_plus_gtr200_mom_lx.clear();
+//  em_fit_plus_gtr200_mom_ly.clear();
+//  em_fit_plus_gtr200_mom_lz.clear();
+//  em_fit_plus_gtr200_mom_gx.clear();
+//  em_fit_plus_gtr200_mom_gy.clear();
+//  em_fit_plus_gtr200_mom_gz.clear();
+//  em_fit_plus_gtr300_mom_lx.clear();
+//  em_fit_plus_gtr300_mom_ly.clear();
+//  em_fit_plus_gtr300_mom_lz.clear();
+//  em_fit_plus_gtr300_mom_gx.clear();
+//  em_fit_plus_gtr300_mom_gy.clear();
+//  em_fit_plus_gtr300_mom_gz.clear();
+//  em_fit_plus_hbd_mom_lx.clear();
+//  em_fit_plus_hbd_mom_ly.clear();
+//  em_fit_plus_hbd_mom_lz.clear();
+//  em_fit_plus_hbd_mom_gx.clear();
+//  em_fit_plus_hbd_mom_gy.clear();
+//  em_fit_plus_hbd_mom_gz.clear();
+//  em_fit_plus_lg_c_mom_lx.clear();
+//  em_fit_plus_lg_c_mom_ly.clear();
+//  em_fit_plus_lg_c_mom_lz.clear();
+//  em_fit_plus_lg_c_mom_gx.clear();
+//  em_fit_plus_lg_c_mom_gy.clear();
+//  em_fit_plus_lg_c_mom_gz.clear();
+//  em_fit_plus_lg_b_mom_lx.clear();
+//  em_fit_plus_lg_b_mom_ly.clear();
+//  em_fit_plus_lg_b_mom_lz.clear();
+//  em_fit_plus_lg_b_mom_gx.clear();
+//  em_fit_plus_lg_b_mom_gy.clear();
+//  em_fit_plus_lg_b_mom_gz.clear();
+//  em_fit_plus_lg_a_mom_lx.clear();
+//  em_fit_plus_lg_a_mom_ly.clear();
+//  em_fit_plus_lg_a_mom_lz.clear();
+//  em_fit_plus_lg_a_mom_gx.clear();
+//  em_fit_plus_lg_a_mom_gy.clear();
+//  em_fit_plus_lg_a_mom_gz.clear();
+//  em_fit_plus_tgt_minus_mom_x.clear();
+//  em_fit_plus_tgt_minus_mom_y.clear();
+//  em_fit_plus_tgt_minus_mom_z.clear();
+//  em_fit_plus_tgt_zero_mom_x.clear();
+//  em_fit_plus_tgt_zero_mom_y.clear();
+//  em_fit_plus_tgt_zero_mom_z.clear();
+//  em_fit_plus_tgt_plus_mom_x.clear();
+//  em_fit_plus_tgt_plus_mom_y.clear();
+//  em_fit_plus_tgt_plus_mom_z.clear();
+//  em_fit_minus_ssd_mom_lx.clear();
+//  em_fit_minus_ssd_mom_ly.clear();
+//  em_fit_minus_ssd_mom_lz.clear();
+//  em_fit_minus_ssd_mom_gx.clear();
+//  em_fit_minus_ssd_mom_gy.clear();
+//  em_fit_minus_ssd_mom_gz.clear();
+//  em_fit_minus_gtr100_mom_lx.clear();
+//  em_fit_minus_gtr100_mom_ly.clear();
+//  em_fit_minus_gtr100_mom_lz.clear();
+//  em_fit_minus_gtr100_mom_gx.clear();
+//  em_fit_minus_gtr100_mom_gy.clear();
+//  em_fit_minus_gtr100_mom_gz.clear();
+//  em_fit_minus_gtr200_mom_lx.clear();
+//  em_fit_minus_gtr200_mom_ly.clear();
+//  em_fit_minus_gtr200_mom_lz.clear();
+//  em_fit_minus_gtr200_mom_gx.clear();
+//  em_fit_minus_gtr200_mom_gy.clear();
+//  em_fit_minus_gtr200_mom_gz.clear();
+//  em_fit_minus_gtr300_mom_lx.clear();
+//  em_fit_minus_gtr300_mom_ly.clear();
+//  em_fit_minus_gtr300_mom_lz.clear();
+//  em_fit_minus_gtr300_mom_gx.clear();
+//  em_fit_minus_gtr300_mom_gy.clear();
+//  em_fit_minus_gtr300_mom_gz.clear();
+//  em_fit_minus_hbd_mom_lx.clear();
+//  em_fit_minus_hbd_mom_ly.clear();
+//  em_fit_minus_hbd_mom_lz.clear();
+//  em_fit_minus_hbd_mom_gx.clear();
+//  em_fit_minus_hbd_mom_gy.clear();
+//  em_fit_minus_hbd_mom_gz.clear();
+//  em_fit_minus_lg_c_mom_lx.clear();
+//  em_fit_minus_lg_c_mom_ly.clear();
+//  em_fit_minus_lg_c_mom_lz.clear();
+//  em_fit_minus_lg_c_mom_gx.clear();
+//  em_fit_minus_lg_c_mom_gy.clear();
+//  em_fit_minus_lg_c_mom_gz.clear();
+//  em_fit_minus_lg_b_mom_lx.clear();
+//  em_fit_minus_lg_b_mom_ly.clear();
+//  em_fit_minus_lg_b_mom_lz.clear();
+//  em_fit_minus_lg_b_mom_gx.clear();
+//  em_fit_minus_lg_b_mom_gy.clear();
+//  em_fit_minus_lg_b_mom_gz.clear();
+//  em_fit_minus_lg_a_mom_lx.clear();
+//  em_fit_minus_lg_a_mom_ly.clear();
+//  em_fit_minus_lg_a_mom_lz.clear();
+//  em_fit_minus_lg_a_mom_gx.clear();
+//  em_fit_minus_lg_a_mom_gy.clear();
+//  em_fit_minus_lg_a_mom_gz.clear();
+//  em_fit_minus_tgt_minus_mom_x.clear();
+//  em_fit_minus_tgt_minus_mom_y.clear();
+//  em_fit_minus_tgt_minus_mom_z.clear();
+//  em_fit_minus_tgt_zero_mom_x.clear();
+//  em_fit_minus_tgt_zero_mom_y.clear();
+//  em_fit_minus_tgt_zero_mom_z.clear();
+//  em_fit_minus_tgt_plus_mom_x.clear();
+//  em_fit_minus_tgt_plus_mom_y.clear();
+//  em_fit_minus_tgt_plus_mom_z.clear();
+////// gpos...
+////  std::vector<double> out_res_plus_ssd_lx;
+//////  std::vector<double> out_res_plus_ssd_ly;
+////  std::vector<double> out_res_plus_gtr100_lx;
+////  std::vector<double> out_res_plus_gtr100_ly;
+////  std::vector<double> out_res_plus_gtr200_lx;
+////  std::vector<double> out_res_plus_gtr200_ly;
+////  std::vector<double> out_res_plus_gtr300_lx;
+////  std::vector<double> out_res_plus_gtr300_ly;
+////  std::vector<double> out_res_minus_ssd_lx;
+//////  std::vector<double> out_res_minus_ssd_ly;
+////  std::vector<double> out_res_minus_gtr100_lx;
+////  std::vector<double> out_res_minus_gtr100_ly;
+////  std::vector<double> out_res_minus_gtr200_lx;
+////  std::vector<double> out_res_minus_gtr200_ly;
+////  std::vector<double> out_res_minus_gtr300_lx;
+////  std::vector<double> out_res_minus_gtr300_ly;
+//  em_fit_parent_mom_x.clear();
+//  em_fit_parent_mom_y.clear();
+//  em_fit_parent_mom_z.clear();
+//  em_fit_parent_tgt_minus_x.clear();
+//  em_fit_parent_tgt_minus_y.clear();
+//  em_fit_parent_tgt_minus_flight_path.clear();
+//  em_fit_parent_tgt_zero_x.clear();
+//  em_fit_parent_tgt_zero_y.clear();
+//  em_fit_parent_tgt_zero_flight_path.clear();
+//  em_fit_parent_tgt_plus_x.clear();
+//  em_fit_parent_tgt_plus_y.clear();
+//  em_fit_parent_tgt_plus_flight_path.clear();
+//  em_fit_parent_best_tgt_id.clear();
+//  em_fit_parent_best_tgt_r.clear();
+//  em_fit_parent_good_tgt_id_set.clear();
+//  em_fit_parent_good_tgt_ids.clear();
+//  em_fit_parent_x0_y.clear();
+//  em_fit_parent_x0_z.clear();
+////  // Projected HBD
+////  std::vector<double>              out_proj_plus_n_hbds;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_id;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_lx;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_ly;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_resx;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_resy;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_adc;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_size;
+////  std::vector<std::vector<double>> out_proj_plus_hbd_eprob;
+////  std::vector<double>              out_proj_minus_n_hbds;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_id;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_lx;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_ly;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_resx;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_resy;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_adc;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_size;
+////  std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
+////  // Projected LG
+//  return;
+//}
+
 double track_analyzer_220715::CalcMass(int flag, const TVector3& pmom, const TVector3& mmom) {
   double mass2[2];
   if (flag == kEE) {
@@ -3444,17 +3794,18 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
       }
     }
   }
-  for (const auto& i : minus_entry.track_indexs) {
-    for (const auto& pentry : past_plus_entries) {
-      for (const auto& j : pentry.track_indexs) {
-        if (kAnalyzeFlag == kAnalyzePairFit) {
-          PairFitEM(pentry.entry_index, j, minus_entry.entry_index, i);
-        } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
-          NearestPointEM(pentry.entry_index, j, minus_entry.entry_index, i);
-        }
-      }
-    }
-  }
+// Delete current_minus_track x past_plus_track pair to reduce process time
+//  for (const auto& i : minus_entry.track_indexs) {
+//    for (const auto& pentry : past_plus_entries) {
+//      for (const auto& j : pentry.track_indexs) {
+//        if (kAnalyzeFlag == kAnalyzePairFit) {
+//          PairFitEM(pentry.entry_index, j, minus_entry.entry_index, i);
+//        } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+//          NearestPointEM(pentry.entry_index, j, minus_entry.entry_index, i);
+//        }
+//      }
+//    }
+//  }
   DirIDsEM();
   ParentInfoEM();
   SimpleAnalysisEM();
@@ -3462,12 +3813,13 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
 }
 
 void track_analyzer_220715::UpdatePastEntries(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
-  if (plus_entry.track_indexs.size() != 0) {
-    while (past_plus_entries.size() > kMaxPastEntries) {
-      past_plus_entries.erase(past_plus_entries.begin());
-    }
-    past_plus_entries.emplace_back(plus_entry);
-  }
+// Delete current_minus_track x past_plus_track pair to reduce process time
+//  if (plus_entry.track_indexs.size() != 0) {
+//    while (past_plus_entries.size() > kMaxPastEntries) {
+//      past_plus_entries.erase(past_plus_entries.begin());
+//    }
+//    past_plus_entries.emplace_back(plus_entry);
+//  }
   if (minus_entry.track_indexs.size() != 0) {
     while (past_minus_entries.size() > kMaxPastEntries) {
       past_minus_entries.erase(past_minus_entries.begin());
@@ -3478,9 +3830,6 @@ void track_analyzer_220715::UpdatePastEntries(const EntryInfo& plus_entry, const
 }
 
 void track_analyzer_220715::AnalyzeEM(int entry_index) {
-  if (out_n_pairs == 0) {
-    return;
-  }
   EntryInfo plus_entry;
   EntryInfo minus_entry;
   FillEntryInfo(entry_index, &plus_entry, &minus_entry);
@@ -3488,6 +3837,7 @@ void track_analyzer_220715::AnalyzeEM(int entry_index) {
   EventMixing(plus_entry, minus_entry);
   UpdatePastEntries(plus_entry, minus_entry);
   fChain->GetEntry(entry_index);
+cerr << past_plus_entries.size() << " " << past_minus_entries.size() << endl;
   return;
 }
 
@@ -3538,6 +3888,9 @@ void track_analyzer_220715::Loop(const TString& out_name) {
     SetTracks();
     SetPairs();
     ClearAndResizeBranches();
+    if (kExecuteEventMixing) {
+      ClearEMBranches();
+    }
     Analyze();
     tree.Fill();
     if (kExecuteEventMixing) {
