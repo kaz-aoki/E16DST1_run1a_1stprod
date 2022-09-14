@@ -3670,7 +3670,7 @@ void track_analyzer_220715::DirIDsEM() {
   auto n = em_plus_run_id.size();
   em_dir_id.resize(n);
   for (int i = 0; i < n; ++i) {
-    em_dir_id[i] = DirID(em_plus_gtr300_mid[i], em_minus_gtr300_mid[n]);
+    em_dir_id[i] = DirID(em_plus_gtr300_mid[i], em_minus_gtr300_mid[i]);
   }
   return;
 }

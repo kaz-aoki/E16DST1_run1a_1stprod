@@ -13,7 +13,7 @@ enum {
 constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr bool kForgiveSameCharge = false; // for vertex search
 // Event mixing
-constexpr bool kExecuteEventMixing = true;
+constexpr bool kExecuteEventMixing = false;
 constexpr int  kMaxPastEntries     = 1;
 //
 constexpr double kErrorNum = -10000.;
@@ -79,7 +79,7 @@ enum {
   kHBDDuplicationCut
 };
 constexpr bool   kUseChi2Cut = true;
-constexpr double kMaxChi2    = 50.;
+constexpr double kMaxChi2    = 20.;
 constexpr bool   kUseMinMomCut = false;
 constexpr double kMinMom       = 0.5;
 constexpr bool   kUseMaxMomCut = false;
