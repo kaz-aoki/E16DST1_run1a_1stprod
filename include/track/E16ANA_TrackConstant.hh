@@ -95,7 +95,8 @@ constexpr int kNumFullModulesWidth = 11;
 constexpr int kNumFullModulesHeight = 3;
 constexpr int kNumFullModules = kNumFullModulesWidth * kNumFullModulesHeight;
 constexpr std::array<int, kNumModules> kModuleIDs = {101, 102, 103, 104, 106, 107, 108, 109};
-constexpr std::array<double, kNumTargets> kTargetZ = {-20., 0., 20.};
+//constexpr std::array<double, kNumTargets> kTargetZ = {-20., 0., 20.};
+constexpr std::array<double, kNumTargets> kTargetZ = {-40., 0., 40.};
 constexpr std::array<int, kNumFullModules> kModuleID2013To2020 = {{10, 110, 210, 9, 109, 209, 8, 108, 208, 7, 107, 207,
                                                                     6, 106, 206, 5, 105, 205, 4, 104, 204, 3, 103, 203,
                                                                     2, 102, 202, 1, 101, 201, 0, 100, 200}};
