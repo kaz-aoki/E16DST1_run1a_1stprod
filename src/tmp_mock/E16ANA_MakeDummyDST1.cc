@@ -340,7 +340,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   merged_size.clear();
   size_sum = kGTRxClusterSize;
   mid = mock_gtr100.ModuleID();
-  x[0]    = mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0];
+  x[0]    = mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[0];
   size[0] = kGTRxClusterSize;
   t[0] = gtr100_t[0];
   auto& gtr100x_clusters = record->GTR().ClusterPtrs(mid, 0, 0);
@@ -357,7 +357,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
       clst->SetIsMerged(true);
     }
   }
-  x_size = (mock_gtr100.Xsmear(kGTRXYSigma[0][0]) - E16DST_DST1Constant::kGTRLorentzAngle[0]) * kGTRxClusterSize;
+  x_size = (mock_gtr100.Xsmear(kGTRXYSigma[0][0]) - E16DST_DST1Constant::kGTRLorentzLengthV2[0]) * kGTRxClusterSize;
   t_size = gtr100_t[0] * kGTRxClusterSize;
   for (int i = 0; i < merged_x.size(); ++i) {
     x_size += merged_x[i] * merged_size[i];
@@ -431,7 +431,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   merged_size.clear();
   size_sum = kGTRxClusterSize;
   mid = mock_gtr200.ModuleID();
-  x[0]    = mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1];
+  x[0]    = mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[1];
   size[0] = kGTRxClusterSize;
   t[1] = gtr200_t[0];
   auto& gtr200x_clusters = record->GTR().ClusterPtrs(mid, 1, 0);
@@ -448,7 +448,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
       clst->SetIsMerged(true);
     }
   }
-  x_size = (mock_gtr200.Xsmear(kGTRXYSigma[1][0]) - E16DST_DST1Constant::kGTRLorentzAngle[1]) * kGTRxClusterSize;
+  x_size = (mock_gtr200.Xsmear(kGTRXYSigma[1][0]) - E16DST_DST1Constant::kGTRLorentzLengthV2[1]) * kGTRxClusterSize;
   t_size = gtr200_t[0] * kGTRxClusterSize;
   for (int i = 0; i < merged_x.size(); ++i) {
     x_size += merged_x[i] * merged_size[i];
@@ -515,7 +515,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   merged_size.clear();
   size_sum = kGTRxClusterSize;
   mid = mock_gtr300.ModuleID();
-  x[0]    = mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2];
+  x[0]    = mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[2];
   size[0] = kGTRxClusterSize;
   t[0] = gtr300_t[0];
   auto& gtr300x_clusters = record->GTR().ClusterPtrs(mid, 2, 0);
@@ -532,7 +532,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
       clst->SetIsMerged(true);
     }
   }
-  x_size = (mock_gtr300.Xsmear(kGTRXYSigma[2][0]) - E16DST_DST1Constant::kGTRLorentzAngle[2]) * kGTRxClusterSize;
+  x_size = (mock_gtr300.Xsmear(kGTRXYSigma[2][0]) - E16DST_DST1Constant::kGTRLorentzLengthV2[2]) * kGTRxClusterSize;
   t_size = gtr300_t[0] * kGTRxClusterSize;
   for (int i = 0; i < merged_x.size(); ++i) {
     x_size += merged_x[i] * merged_size[i];
@@ -665,12 +665,12 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mock_gtr100.ModuleID());
 #ifndef GEOM_VER0
-  gtr100x.SetTdcPos(mock_gtr100.Xsmear(kGTRXYSigma[0][0]) - E16DST_DST1Constant::kGTRLorentzAngle[0]);
+  gtr100x.SetTdcPos(mock_gtr100.Xsmear(kGTRXYSigma[0][0]) - E16DST_DST1Constant::kGTRLorentzLengthV2[0]);
 #else // GEOM_VER0
   if (IsAType(mock_gtr100.ModuleID())) {
-    gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
+    gtr100x.SetTdcPos(mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[0]);
   } else {
-    gtr100x.SetTdcPos(-1. * mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzAngle[0]);
+    gtr100x.SetTdcPos(-1. * mock_gtr100.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[0]);
   }
 #endif // GEOM_VER0
   gtr100x.SetTiming(gtr100_t[0]);
@@ -699,12 +699,12 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mock_gtr200.ModuleID());
 #ifndef GEOM_VER0
-  gtr200x.SetTdcPos(mock_gtr200.Xsmear(kGTRXYSigma[1][0]) - E16DST_DST1Constant::kGTRLorentzAngle[1]);
+  gtr200x.SetTdcPos(mock_gtr200.Xsmear(kGTRXYSigma[1][0]) - E16DST_DST1Constant::kGTRLorentzLengthV2[1]);
 #else
   if (IsAType(mock_gtr200.ModuleID())) {
-    gtr200x.SetTdcPos(-1. * mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
+    gtr200x.SetTdcPos(-1. * mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[1]);
   } else {
-    gtr200x.SetTdcPos(mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzAngle[1]);
+    gtr200x.SetTdcPos(mock_gtr200.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[1]);
   }
 #endif
   gtr200x.SetTiming(gtr200_t[0]);
@@ -725,12 +725,12 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mock_gtr300.ModuleID());
 #ifndef GEOM_VER0
-  gtr300x.SetTdcPos(mock_gtr300.Xsmear(kGTRXYSigma[2][0]) - E16DST_DST1Constant::kGTRLorentzAngle[2]);
+  gtr300x.SetTdcPos(mock_gtr300.Xsmear(kGTRXYSigma[2][0]) - E16DST_DST1Constant::kGTRLorentzLengthV2[2]);
 #else
   if (IsAType(mock_gtr300.ModuleID())) {
-    gtr300x.SetTdcPos(-1. * mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
+    gtr300x.SetTdcPos(-1. * mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[2]);
   } else {
-    gtr300x.SetTdcPos(mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzAngle[2]);
+    gtr300x.SetTdcPos(mock_gtr300.X() - E16DST_DST1Constant::kGTRLorentzLengthV2[2]);
   }
 #endif
   gtr300x.SetTiming(gtr300_t[0]);

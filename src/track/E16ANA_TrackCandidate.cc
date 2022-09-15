@@ -1,6 +1,7 @@
 #include "E16ANA_TrackCandidate.hh"
 
 using namespace std;
+using namespace E16DST_DST1Constant;
 using namespace E16ANA_TrackConstant;
 using namespace E16ANA_TrackParameter;
 #ifdef TRACK_EFF_CHECK
@@ -187,16 +188,16 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
       TVector3 lc1 = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()),c.LayerOrder() - 1)->GetLPos(TVector3(x1,0,z1));
       double  thet = atan((lc1.X()-lc0.X())/(lc1.Z()-lc0.Z()));
       int lid      = c.LayerOrder()-1;
-      double  tthe = tan(thet - kGTRLorentzAngleA[lid]);
+      double  tthe = tan(thet - kGTRLorentzAngleV2[lid]);
       c.SetTheta(tthe);
       double sumx =0;
       int nhit = c.NumCls();
       for(int j=0;j<nhit;j++){
-        double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleA[lid]);//106
+        double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleV2[lid]);//106
         sumx  += c.CPos(j)  - (tthe*lz);
       }
       double intc  = sumx/nhit;
-      double ltdc2 = intc+tthe*centtdc*drift_v*cos(kGTRLorentzAngleA[lid])+kGTRLorentzAngle[lid];
+      double ltdc2 = intc+tthe*centtdc*drift_v*cos(kGTRLorentzAngleV2[lid])+kGTRLorentzLengthV2[lid];
       TVector3 lc(ltdc2,c.LocalPos().Y(),c.LocalPos().Z());
       cluster_pairs[l].SetT(geometry,l,c.ModuleID(), lc);
       auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));

@@ -267,8 +267,8 @@ class E16ANA_TrackCandidate {
 //  static constexpr int kProjectionMaxSteps = 2000;
   static constexpr double drift_v  = 8e-3;
   static constexpr double centtdc = 328;
-  static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
-  static constexpr double kGTRLorentzAngleA[3]  = {0.313, -0.233, -0.129};
+//  static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
+//  static constexpr double kGTRLorentzAngleA[3]  = {0.313, -0.233, -0.129};
   // parameter
 //  static inline const TVector3 kSigma = {800.0e-3, 5000.0e-3, 0.};
 //  static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}}; // -> parameter
