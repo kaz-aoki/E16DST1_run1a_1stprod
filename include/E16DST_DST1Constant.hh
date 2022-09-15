@@ -61,8 +61,8 @@ constexpr int kReserve = 1024;
 
 // tmp
 const double kGTRDetectPlaneOffset  = 3. * 0.5 + 2.2 * 3.; // 8.1
-//const double kGTRLorentzLengthV2[3] = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35}; // tmp
-const double kGTRLorentzLengthV2[3] = {1.5 * 7.5 * 0.35, 1.5 * -5.5 * 0.35, 1.5 * -3. * 0.35}; // tmp
+const double kGTRLorentzLengthV2[3] = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35}; // tmp
+//const double kGTRLorentzLengthV2[3] = {1.5 * 7.5 * 0.35, 1.5 * -5.5 * 0.35, 1.5 * -3. * 0.35}; // test
 const double kGTRLorentzAngleV2[3]  = {TMath::ATan(kGTRLorentzLengthV2[0] / kGTRDetectPlaneOffset),
                                        TMath::ATan(kGTRLorentzLengthV2[1] / kGTRDetectPlaneOffset),
                                        TMath::ATan(kGTRLorentzLengthV2[2] / kGTRDetectPlaneOffset)}; // {0.313, -0.233, -0.129}; // tmp
