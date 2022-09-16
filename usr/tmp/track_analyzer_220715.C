@@ -356,9 +356,12 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("res_minus_gtr200_ly",              &out_res_minus_gtr200_ly);
   tree->Branch("res_minus_gtr300_lx",              &out_res_minus_gtr300_lx);
   tree->Branch("res_minus_gtr300_ly",              &out_res_minus_gtr300_ly);
+  tree->Branch("fit_parent_mom",                   &out_fit_parent_mom);
   tree->Branch("fit_parent_mom_x",                 &out_fit_parent_mom_x);
   tree->Branch("fit_parent_mom_y",                 &out_fit_parent_mom_y);
   tree->Branch("fit_parent_mom_z",                 &out_fit_parent_mom_z);
+  tree->Branch("fit_parent_mom_theta",             &out_fit_parent_mom_theta);
+  tree->Branch("fit_parent_mom_phi",               &out_fit_parent_mom_phi);
   tree->Branch("fit_parent_tgt_minus_x",           &out_fit_parent_tgt_minus_x);
   tree->Branch("fit_parent_tgt_minus_y",           &out_fit_parent_tgt_minus_y);
   tree->Branch("fit_parent_tgt_minus_flight_path", &out_fit_parent_tgt_minus_flight_path);
@@ -700,9 +703,12 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
 //  tree->Branch("res_minus_gtr200_ly",              &out_res_minus_gtr200_ly);
 //  tree->Branch("res_minus_gtr300_lx",              &out_res_minus_gtr300_lx);
 //  tree->Branch("res_minus_gtr300_ly",              &out_res_minus_gtr300_ly);
+  tree->Branch("fit_parent_mom",                   &em_fit_parent_mom);
   tree->Branch("fit_parent_mom_x",                 &em_fit_parent_mom_x);
   tree->Branch("fit_parent_mom_y",                 &em_fit_parent_mom_y);
   tree->Branch("fit_parent_mom_z",                 &em_fit_parent_mom_z);
+  tree->Branch("fit_parent_mom_theta",             &em_fit_parent_mom_theta);
+  tree->Branch("fit_parent_mom_phi",               &em_fit_parent_mom_phi);
   tree->Branch("fit_parent_tgt_minus_x",           &em_fit_parent_tgt_minus_x);
   tree->Branch("fit_parent_tgt_minus_y",           &em_fit_parent_tgt_minus_y);
   tree->Branch("fit_parent_tgt_minus_flight_path", &em_fit_parent_tgt_minus_flight_path);
@@ -1293,9 +1299,12 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_res_minus_gtr200_ly.clear();
   out_res_minus_gtr300_lx.clear();
   out_res_minus_gtr300_ly.clear();
+  out_fit_parent_mom.clear();
   out_fit_parent_mom_x.clear();
   out_fit_parent_mom_y.clear();
   out_fit_parent_mom_z.clear();
+  out_fit_parent_mom_theta.clear();
+  out_fit_parent_mom_phi.clear();
   out_fit_parent_tgt_minus_x.clear();
   out_fit_parent_tgt_minus_y.clear();
   out_fit_parent_tgt_minus_flight_path.clear();
@@ -1633,9 +1642,12 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_res_minus_gtr200_ly.resize(out_n_pairs);
   out_res_minus_gtr300_lx.resize(out_n_pairs);
   out_res_minus_gtr300_ly.resize(out_n_pairs);
+  out_fit_parent_mom.resize(out_n_pairs);
   out_fit_parent_mom_x.resize(out_n_pairs);
   out_fit_parent_mom_y.resize(out_n_pairs);
   out_fit_parent_mom_z.resize(out_n_pairs);
+  out_fit_parent_mom_theta.resize(out_n_pairs);
+  out_fit_parent_mom_phi.resize(out_n_pairs);
   out_fit_parent_tgt_minus_x.resize(out_n_pairs);
   out_fit_parent_tgt_minus_y.resize(out_n_pairs);
   out_fit_parent_tgt_minus_flight_path.resize(out_n_pairs);
@@ -2650,9 +2662,12 @@ void track_analyzer_220715::ParentInfo(int n) {
   TVector3 x0_pos;
   ParentInfo(vtx, moms, &parent_mom, &tgt_poss, &flight_paths, &out_fit_parent_best_tgt_id[n], &out_fit_parent_best_tgt_r[n],
              &out_fit_parent_good_tgt_id_set[n], &out_fit_parent_good_tgt_ids[n], &x0_pos);
-  out_fit_parent_mom_x[n] = parent_mom.X();
-  out_fit_parent_mom_y[n] = parent_mom.Y();
-  out_fit_parent_mom_z[n] = parent_mom.Z();
+  out_fit_parent_mom[n]       = parent_mom.Mag();
+  out_fit_parent_mom_x[n]     = parent_mom.X();
+  out_fit_parent_mom_y[n]     = parent_mom.Y();
+  out_fit_parent_mom_z[n]     = parent_mom.Z();
+  out_fit_parent_mom_theta[n] = parent_mom.Theta();
+  out_fit_parent_mom_phi[n]   = parent_mom.Phi();
   out_fit_parent_tgt_minus_x[n] = tgt_poss[0].X();
   out_fit_parent_tgt_minus_y[n] = tgt_poss[0].Y();
   out_fit_parent_tgt_zero_x[n]  = tgt_poss[1].X();
@@ -3512,9 +3527,12 @@ void track_analyzer_220715::ClearEMBranches() {
   em_fit_minus_tgt_plus_mom_x.clear();
   em_fit_minus_tgt_plus_mom_y.clear();
   em_fit_minus_tgt_plus_mom_z.clear();
+  em_fit_parent_mom.clear();
   em_fit_parent_mom_x.clear();
   em_fit_parent_mom_y.clear();
   em_fit_parent_mom_z.clear();
+  em_fit_parent_mom_theta.clear();
+  em_fit_parent_mom_phi.clear();
   em_fit_parent_tgt_minus_x.clear();
   em_fit_parent_tgt_minus_y.clear();
   em_fit_parent_tgt_minus_flight_path.clear();
@@ -3677,9 +3695,12 @@ void track_analyzer_220715::DirIDsEM() {
 
 void track_analyzer_220715::ParentInfoEM() {
   auto n = em_plus_run_id.size();
+  em_fit_parent_mom.resize(n);
   em_fit_parent_mom_x.resize(n);
   em_fit_parent_mom_y.resize(n);
   em_fit_parent_mom_z.resize(n);
+  em_fit_parent_mom_theta.resize(n);
+  em_fit_parent_mom_phi.resize(n);
   em_fit_parent_tgt_minus_x.resize(n);
   em_fit_parent_tgt_minus_y.resize(n);
   em_fit_parent_tgt_minus_flight_path.resize(n);
@@ -3706,9 +3727,12 @@ void track_analyzer_220715::ParentInfoEM() {
     TVector3 x0_pos;
     ParentInfo(vtx, moms, &parent_mom, &tgt_poss, &flight_paths, &em_fit_parent_best_tgt_id[i], &em_fit_parent_best_tgt_r[i],
                &em_fit_parent_good_tgt_id_set[i], &em_fit_parent_good_tgt_ids[i], &x0_pos);
-    em_fit_parent_mom_x[i] = parent_mom.X();
-    em_fit_parent_mom_y[i] = parent_mom.Y();
-    em_fit_parent_mom_z[i] = parent_mom.Z();
+    em_fit_parent_mom[i]       = parent_mom.Mag();
+    em_fit_parent_mom_x[i]     = parent_mom.X();
+    em_fit_parent_mom_y[i]     = parent_mom.Y();
+    em_fit_parent_mom_z[i]     = parent_mom.Z();
+    em_fit_parent_mom_theta[i] = parent_mom.Theta();
+    em_fit_parent_mom_phi[i]   = parent_mom.Phi();
     em_fit_parent_tgt_minus_x[i] = tgt_poss[0].X();
     em_fit_parent_tgt_minus_y[i] = tgt_poss[0].Y();
     em_fit_parent_tgt_zero_x[i]  = tgt_poss[1].X();

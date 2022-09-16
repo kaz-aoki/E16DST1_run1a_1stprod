@@ -49,12 +49,9 @@ namespace E16ANA_TrackParameter {
 
 // electron
 constexpr bool kVtxZFixFlag = false; // 220607
-//constexpr double kInitXRange[2] = {-40., 40.}; // 220607
-//constexpr double kInitYRange[2] = {-40., 40.}; // 220607
-//constexpr double kInitZRange[2] = {-40., 40.}; // 220607
-constexpr double kInitXRange[2] = {-60., 60.}; // 220607
-constexpr double kInitYRange[2] = {-60., 60.}; // 220607
-constexpr double kInitZRange[2] = {-60., 60.}; // 220607
+constexpr double kInitXRange[2] = {-40., 40.}; // 220607
+constexpr double kInitYRange[2] = {-40., 40.}; // 220607
+constexpr double kInitZRange[2] = {-40., 40.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.265, 0.626, 0.},

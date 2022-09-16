@@ -1800,9 +1800,12 @@ public :
   std::vector<double> out_res_minus_gtr200_ly;
   std::vector<double> out_res_minus_gtr300_lx;
   std::vector<double> out_res_minus_gtr300_ly;
+  std::vector<double>              out_fit_parent_mom;
   std::vector<double>              out_fit_parent_mom_x;
   std::vector<double>              out_fit_parent_mom_y;
   std::vector<double>              out_fit_parent_mom_z;
+  std::vector<double>              out_fit_parent_mom_theta;
+  std::vector<double>              out_fit_parent_mom_phi;
   std::vector<double>              out_fit_parent_tgt_minus_x;
   std::vector<double>              out_fit_parent_tgt_minus_y;
   std::vector<double>              out_fit_parent_tgt_minus_flight_path;
@@ -2149,9 +2152,12 @@ public :
 //  std::vector<double> out_res_minus_gtr200_ly;
 //  std::vector<double> out_res_minus_gtr300_lx;
 //  std::vector<double> out_res_minus_gtr300_ly;
+  std::vector<double>              em_fit_parent_mom;
   std::vector<double>              em_fit_parent_mom_x;
   std::vector<double>              em_fit_parent_mom_y;
   std::vector<double>              em_fit_parent_mom_z;
+  std::vector<double>              em_fit_parent_mom_theta;
+  std::vector<double>              em_fit_parent_mom_phi;
   std::vector<double>              em_fit_parent_tgt_minus_x;
   std::vector<double>              em_fit_parent_tgt_minus_y;
   std::vector<double>              em_fit_parent_tgt_minus_flight_path;
