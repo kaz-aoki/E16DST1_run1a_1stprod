@@ -116,13 +116,13 @@ int check_lorentz_effect_220918::ModuleID2020To2013(int m) {
 
 double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lparam1, double lparam2) {
   constexpr int track_id = 0;
-  auto init_pos = TVector3(0.,                       rk_proj_x0_gy->at(n),     rk_proj_x0_gz->at(n));
+  auto init_pos = TVector3(0., 0., rk_proj_x0_gz->at(n));
   auto init_mom = TVector3(rk_proj_x0_mom_gx->at(n), rk_proj_x0_mom_gy->at(n), rk_proj_x0_mom_gz->at(n));
   array<int, 4> mids = {ModuleID2020To2013(rk_fit_ssd_mid->at(n)),
                         ModuleID2020To2013(rk_fit_gtr100_mid->at(n)),
                         ModuleID2020To2013(rk_fit_gtr200_mid->at(n)),
                         ModuleID2020To2013(rk_fit_gtr300_mid->at(n))};
-  array<TVector3, 4> poss = {TVector3(rk_hit_ssd_x->at(n),                0.,                      0.),
+  array<TVector3, 4> poss = {TVector3(rk_hit_ssd_x->at(n), 0., 0.),
                              TVector3(rk_hit_gtr100_tx2->at(n) + lparam1, rk_hit_gtr100_ty->at(n), 0.),
                              TVector3(rk_hit_gtr200_tx2->at(n) + lparam1, rk_hit_gtr200_ty->at(n), 0.),
                              TVector3(rk_hit_gtr300_tx2->at(n) + lparam2, rk_hit_gtr300_ty->at(n), 0.)};
@@ -134,8 +134,8 @@ double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lp
   fitter->SetCharge(track_id, rk_charge->at(n));
   fitter->AddHit(track_id, 0, geometry->SSD(mids[0], 0), poss[0], kSSDSigma);
   fitter->AddHit(track_id, 1, geometry->GTR(mids[1], 0), poss[1], kGTRSigma[0]);
-  fitter->AddHit(track_id, 2, geometry->GTR(mids[2], 1), poss[1], kGTRSigma[1]);
-  fitter->AddHit(track_id, 3, geometry->GTR(mids[3], 2), poss[2], kGTRSigma[2]);
+  fitter->AddHit(track_id, 2, geometry->GTR(mids[2], 1), poss[2], kGTRSigma[1]);
+  fitter->AddHit(track_id, 3, geometry->GTR(mids[3], 2), poss[3], kGTRSigma[2]);
   auto chisq = fitter->Fit(kFixVertexXY[kFitWoTarget], kFixPy, kFixVertexZ[kFitWoTarget], kMinuitStrategy, kMaxMinuitFunctionCalls,
                            kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
   return chisq;
@@ -270,12 +270,12 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
             lorentz_param1[id] = lparam1;
             lorentz_id2[id] = i2;
             lorentz_param2[id] = lparam2;
-            chi2_wo_tgt[id] =  FitWoTarget(i, lparam0, lparam1, lparam2);
+            chi2_wo_tgt[id] = FitWoTarget(i, lparam0, lparam1, lparam2);
             auto vtx = fitter->GetFitVertex();
             tgt_x[id] = vtx.X();
             tgt_y[id] = vtx.Y();
             tgt_z[id] = vtx.Z();
-            chi2_wo_ssd[id] =  FitWoSSD(i, tid, lparam0, lparam1, lparam2);
+            chi2_wo_ssd[id] = FitWoSSD(i, tid, lparam0, lparam1, lparam2);
             vtx = fitter->GetFitVertex();
             auto mom = fitter->GetFitMomentum(0);
             auto proj_ssdx = ProjectionSSDX(i, vtx, mom);
