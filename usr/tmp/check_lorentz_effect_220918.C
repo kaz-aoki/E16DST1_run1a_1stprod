@@ -26,10 +26,11 @@ void check_lorentz_effect_220918::Clear() {
   lorentz_param1.clear();
   lorentz_id2.clear();
   lorentz_param2.clear();
-  chi2.clear();
+  chi2_wo_tgt.clear();
   tgt_x.clear();
   tgt_y.clear();
   tgt_z.clear();
+  chi2_wo_ssd.clear();
   ssd_xres.clear();
   lorentz_id0.resize(kNumDivides3);
   lorentz_param0.resize(kNumDivides3);
@@ -37,10 +38,11 @@ void check_lorentz_effect_220918::Clear() {
   lorentz_param1.resize(kNumDivides3);
   lorentz_id2.resize(kNumDivides3);
   lorentz_param2.resize(kNumDivides3);
-  chi2.resize(kNumDivides3);
+  chi2_wo_tgt.resize(kNumDivides3);
   tgt_x.resize(kNumDivides3);
   tgt_y.resize(kNumDivides3);
   tgt_z.resize(kNumDivides3);
+  chi2_wo_ssd.resize(kNumDivides3);
   ssd_xres.resize(kNumDivides3);
   return;
 }
@@ -112,7 +114,47 @@ int check_lorentz_effect_220918::ModuleID2020To2013(int m) {
   return kModuleID2020To2013[m - 100];
 }
 
-double check_lorentz_effect_220918::Fit(int n, int tid, double lparam0, double lparam1, double lparam2) {
+double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lparam1, double lparam2) {
+  constexpr int track_id = 0;
+  auto init_pos = TVector3(0.,                       rk_proj_x0_gy->at(n),     rk_proj_x0_gz->at(n));
+  auto init_mom = TVector3(rk_proj_x0_mom_gx->at(n), rk_proj_x0_mom_gy->at(n), rk_proj_x0_mom_gz->at(n));
+  array<int, 4> mids = {ModuleID2020To2013(rk_fit_ssd_mid->at(n)),
+                        ModuleID2020To2013(rk_fit_gtr100_mid->at(n)),
+                        ModuleID2020To2013(rk_fit_gtr200_mid->at(n)),
+                        ModuleID2020To2013(rk_fit_gtr300_mid->at(n))};
+  array<TVector3, 4> poss = {TVector3(rk_hit_ssd_x->at(n),                0.,                      0.),
+                             TVector3(rk_hit_gtr100_tx2->at(n) + lparam1, rk_hit_gtr100_ty->at(n), 0.),
+                             TVector3(rk_hit_gtr200_tx2->at(n) + lparam1, rk_hit_gtr200_ty->at(n), 0.),
+                             TVector3(rk_hit_gtr300_tx2->at(n) + lparam2, rk_hit_gtr300_ty->at(n), 0.)};
+  fitter->Clear();
+  fitter->SetRungeKuttaStepSize(kStepSize);
+  fitter->SetMaxSteps(kMaxSteps);
+  fitter->SetInitialVertex(init_pos, TVector3(0., 0., 0.));
+  fitter->SetInitialMomentum(track_id, init_mom);
+  fitter->SetCharge(track_id, rk_charge->at(n));
+  fitter->AddHit(track_id, 0, geometry->SSD(mids[0], 0), poss[0], kSSDSigma);
+  fitter->AddHit(track_id, 1, geometry->GTR(mids[1], 0), poss[1], kGTRSigma[0]);
+  fitter->AddHit(track_id, 2, geometry->GTR(mids[2], 1), poss[1], kGTRSigma[1]);
+  fitter->AddHit(track_id, 3, geometry->GTR(mids[3], 2), poss[2], kGTRSigma[2]);
+  auto chisq = fitter->Fit(kFixVertexXY[kFitWoTarget], kFixPy, kFixVertexZ[kFitWoTarget], kMinuitStrategy, kMaxMinuitFunctionCalls,
+                           kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
+  return chisq;
+}
+
+//TVector3 check_lorentz_effect_220918::ProjectionX0Pos(int n, const TVector3& vtx, const TVector3& mom) {
+//  auto x0_pos = TVector3(-10000., -10000., -10000.);
+//  Hep3Vector cross_pos;
+//  Hep3Vector cross_mom;
+//  Hep3Vector init_pos(vtx.X() * 0.1, vtx.Y() * 0.1, vtx.Z() * 0.1);
+//  Hep3Vector init_mom(mom.X(),       mom.Y(),       mom.Z());
+//  E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, rk_charge->at(n), kStepTrackStepSizeCm, kStepTrackArraySize);
+//  if (step_track.CrossXconstPlane(0., cross_pos, cross_mom) != -1) {
+//    x0_pos.SetXYZ(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
+//  }
+//  return x0_pos;
+//}
+
+double check_lorentz_effect_220918::FitWoSSD(int n, int tid, double lparam0, double lparam1, double lparam2) {
   double z;
   if (tid == kTargetMinus) {
     z = -20.;
@@ -138,7 +180,7 @@ double check_lorentz_effect_220918::Fit(int n, int tid, double lparam0, double l
   fitter->AddHit(0, 0, geometry->GTR(ModuleID2020To2013(rk_fit_gtr100_mid->at(n)), 0), gtr_pos[0], kGTRSigma[0]);
   fitter->AddHit(0, 1, geometry->GTR(ModuleID2020To2013(rk_fit_gtr200_mid->at(n)), 1), gtr_pos[1], kGTRSigma[1]);
   fitter->AddHit(0, 2, geometry->GTR(ModuleID2020To2013(rk_fit_gtr300_mid->at(n)), 2), gtr_pos[2], kGTRSigma[2]);
-  auto chisq = fitter->Fit(kFixVertexXY, kFixPy, kFixVertexZ, kMinuitStrategy, kMaxMinuitFunctionCalls,
+  auto chisq = fitter->Fit(kFixVertexXY[kFitWoSSD], kFixPy, kFixVertexZ[kFitWoSSD], kMinuitStrategy, kMaxMinuitFunctionCalls,
                            kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
   return chisq;
 }
@@ -174,10 +216,11 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
   tree.Branch("lorentz_param1", &lorentz_param1);
   tree.Branch("lorentz_id2",    &lorentz_id2);
   tree.Branch("lorentz_param2", &lorentz_param2);
-  tree.Branch("chi2",           &chi2);
+  tree.Branch("chi2_wo_tgt",    &chi2_wo_tgt);
   tree.Branch("tgt_x",          &tgt_x);
   tree.Branch("tgt_y",          &tgt_y);
   tree.Branch("tgt_z",          &tgt_z);
+  tree.Branch("chi2_wo_ssd",    &chi2_wo_ssd);
   tree.Branch("ssd_xres",       &ssd_xres);
 
 //  array<array<TH1*, kNumTargets>, kNumDivides> h_chi2;
@@ -227,11 +270,13 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
             lorentz_param1[id] = lparam1;
             lorentz_id2[id] = i2;
             lorentz_param2[id] = lparam2;
-            chi2[id] =  Fit(i, tid, lparam0, lparam1, lparam2);
+            chi2_wo_tgt[id] =  FitWoTarget(i, lparam0, lparam1, lparam2);
             auto vtx = fitter->GetFitVertex();
             tgt_x[id] = vtx.X();
             tgt_y[id] = vtx.Y();
             tgt_z[id] = vtx.Z();
+            chi2_wo_ssd[id] =  FitWoSSD(i, tid, lparam0, lparam1, lparam2);
+            vtx = fitter->GetFitVertex();
             auto mom = fitter->GetFitMomentum(0);
             auto proj_ssdx = ProjectionSSDX(i, vtx, mom);
             ssd_xres[id] = proj_ssdx - ssdx;

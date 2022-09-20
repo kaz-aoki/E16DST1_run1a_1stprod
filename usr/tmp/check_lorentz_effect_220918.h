@@ -1421,7 +1421,9 @@ public :
   int TargetID(int n);
   void FillPreValues(int n, int tid);
   int ModuleID2020To2013(int m);
-  double Fit(int n, int tid, double lparam0, double lparam1, double lparam2);
+  double FitWoTarget(int n, double lparam0, double lparam1, double lparam2);
+  TVector3 ProjectionX0Pos(int n, const TVector3& vtx, const TVector3& mom);
+  double FitWoSSD(int n, int tid, double lparam0, double lparam1, double lparam2);
   double ProjectionSSDX(int n, const TVector3& vtx, const TVector3& mom);
   int    out_track_id;
   int    tgt_id;
@@ -1434,10 +1436,11 @@ public :
   std::vector<double> lorentz_param1;
   std::vector<int>    lorentz_id2;
   std::vector<double> lorentz_param2;
-  std::vector<double> chi2;
+  std::vector<double> chi2_wo_tgt;
   std::vector<double> tgt_x;
   std::vector<double> tgt_y;
   std::vector<double> tgt_z;
+  std::vector<double> chi2_wo_ssd;
   std::vector<double> ssd_xres;
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;

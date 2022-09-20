@@ -11,6 +11,10 @@ enum {
   kTargetPlus,
   kNumTargets
 };
+enum {
+  kFitWoTarget,
+  kFitWoSSD
+};
 constexpr int kModuleID2020To2013[11] = {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1};
 constexpr double kMaxChi2 = 10.;
 constexpr double kMaxHBDXResidual = 25.;
@@ -21,17 +25,20 @@ constexpr int    kNumDivides3 = kNumDivides2 * kNumDivides;
 constexpr double kLorentzRegion[2] = {-1., 1.};
 constexpr double kLorentzOffset[3] = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
 const     TVector3 kInitPosError = {0.2, 0.2, 0.};
+const     TVector3 kSSDSigma = TVector3(0.067, 0., 0.);
 const     TVector3 kGTRSigma[3] = {TVector3(0.265, 0.626, 0.), TVector3(0.252, 0.542, 0.), TVector3(0.262, 0.518, 0.)};
 constexpr double   kStepSize = 5.;
 constexpr int      kMaxSteps = 80.;
-constexpr bool     kFixVertexXY = true;
-constexpr bool     kFixPy       = false;
-constexpr bool     kFixVertexZ  = true;
-constexpr int      kMinuitStrategy = 0;
+constexpr bool     kFixVertexXY[2]         = {true, true};
+constexpr bool     kFixPy                  = false;
+constexpr bool     kFixVertexZ[2]          = {false, true};
+constexpr int      kMinuitStrategy         = 0;
 constexpr int      kMaxMinuitFunctionCalls = 1.0e3;
 constexpr double   kInitXRange[2] = {-50., 50.};
 constexpr double   kInitYRange[2] = {-50., 50.};
 constexpr double   kInitZRange[2] = {-50., 50.};
+//constexpr double   kStepTrackStepSize  = 0.1;
+//constexpr int      kStepTrackArraySize = 1000;
 
 }; // check_lorentz_effect_220918_parameter
 
