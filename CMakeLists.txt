@@ -574,5 +574,15 @@ target_link_libraries(tmp_check_acceptance_220902
 )
 
 #_______________________________________________________________________________
+add_executable(check_lorentz_effect_220918_wrapper
+  usr/tmp/check_lorentz_effect_220918_wrapper.cc
+  usr/tmp/check_lorentz_effect_220918.C
+)
+
+target_link_libraries(check_lorentz_effect_220918_wrapper
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
