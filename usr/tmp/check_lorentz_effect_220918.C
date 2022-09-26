@@ -51,21 +51,45 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
   if (rk_proj_x0_mom_gy->at(n) == 0.) {
     return false;
   }
-  if (rk_charge->at(n) != 1.) {
+// 106 plus only
+//  if (rk_charge->at(n) != 1) {
+//    return false;
+//  }
+//  if (rk_fit_ssd_mid->at(n) != 106) {
+//    return false;
+//  }
+//  if (rk_fit_gtr100_mid->at(n) != 106) {
+//    return false;
+//  }
+//  if (rk_fit_gtr200_mid->at(n) != 106) {
+//    return false;
+//  }
+//  if (rk_fit_gtr300_mid->at(n) != 106) {
+//    return false;
+//  }
+// 104 or 106
+  bool is_selected_module = false;
+  if (rk_fit_ssd_mid->at(n) == 104) {
+    if (rk_fit_gtr100_mid->at(n) == 104) {
+      if (rk_fit_gtr200_mid->at(n) == 104) {
+        if (rk_fit_gtr300_mid->at(n) == 104) {
+          is_selected_module = true;
+        }
+      }
+    }
+  } else if (rk_fit_ssd_mid->at(n) == 106) {
+    if (rk_fit_gtr100_mid->at(n) == 106) {
+      if (rk_fit_gtr200_mid->at(n) == 106) {
+        if (rk_fit_gtr300_mid->at(n) == 106) {
+          is_selected_module = true;
+        }
+      }
+    }
+  }
+  if (!is_selected_module) {
     return false;
   }
-  if (rk_fit_ssd_mid->at(n) != 106) {
-    return false;
-  }
-  if (rk_fit_gtr100_mid->at(n) != 106) {
-    return false;
-  }
-  if (rk_fit_gtr200_mid->at(n) != 106) {
-    return false;
-  }
-  if (rk_fit_gtr300_mid->at(n) != 106) {
-    return false;
-  }
+//
   bool has_hbd = false;
   auto ref = TVector3(rk_fit_hbd_x->at(n), rk_fit_hbd_y->at(n), 0.);
   for (int i = 0; i < rk_proj_n_hbd->at(n); ++i) {
@@ -104,6 +128,8 @@ int check_lorentz_effect_220918::TargetID(int n) {
 void check_lorentz_effect_220918::FillPreValues(int n, int tid) {
   out_track_id = track_id->at(n);
   tgt_id = tid;
+  module_id = rk_fit_gtr300_mid->at(n);
+  charge = rk_charge->at(n);
   pre_chi2 = chi_square->at(n);
   pre_x0_y = rk_proj_x0_gy->at(n);
   pre_x0_z = rk_proj_x0_gz->at(n);
@@ -123,7 +149,7 @@ double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lp
                         ModuleID2020To2013(rk_fit_gtr200_mid->at(n)),
                         ModuleID2020To2013(rk_fit_gtr300_mid->at(n))};
   array<TVector3, 4> poss = {TVector3(rk_hit_ssd_x->at(n), 0., 0.),
-                             TVector3(rk_hit_gtr100_tx2->at(n) + lparam1, rk_hit_gtr100_ty->at(n), 0.),
+                             TVector3(rk_hit_gtr100_tx2->at(n) + lparam0, rk_hit_gtr100_ty->at(n), 0.),
                              TVector3(rk_hit_gtr200_tx2->at(n) + lparam1, rk_hit_gtr200_ty->at(n), 0.),
                              TVector3(rk_hit_gtr300_tx2->at(n) + lparam2, rk_hit_gtr300_ty->at(n), 0.)};
   fitter->Clear();
@@ -132,10 +158,13 @@ double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lp
   fitter->SetInitialVertex(init_pos, TVector3(0., 0., 0.));
   fitter->SetInitialMomentum(track_id, init_mom);
   fitter->SetCharge(track_id, rk_charge->at(n));
-  fitter->AddHit(track_id, 0, geometry->SSD(mids[0], 0), poss[0], kSSDSigma);
-  fitter->AddHit(track_id, 1, geometry->GTR(mids[1], 0), poss[1], kGTRSigma[0]);
-  fitter->AddHit(track_id, 2, geometry->GTR(mids[2], 1), poss[2], kGTRSigma[1]);
-  fitter->AddHit(track_id, 3, geometry->GTR(mids[3], 2), poss[3], kGTRSigma[2]);
+  for (int i = 0; i < 4; ++i) {
+    if (i == 0) {
+      fitter->AddHit(track_id, i, geometry->SSD(mids[i]), poss[i], kSSDSigma);
+    } else {
+      fitter->AddHit(track_id, i, geometry->GTR(mids[i], i - 1), poss[i], kGTRSigma[i - 1]);
+    }
+  }
   auto chisq = fitter->Fit(kFixVertexXY[kFitWoTarget], kFixPy, kFixVertexZ[kFitWoTarget], kMinuitStrategy, kMaxMinuitFunctionCalls,
                            kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
   return chisq;
@@ -207,6 +236,8 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
   tree.Branch("event_id",       &event_id,     "event_id/I");
   tree.Branch("track_id",       &out_track_id, "track_id/I");
   tree.Branch("tgt_id",         &tgt_id,       "tgt_id/I");
+  tree.Branch("module_id",      &module_id,    "module_id/I");
+  tree.Branch("charge",         &charge,       "charge/I");
   tree.Branch("pre_chi2",       &pre_chi2,     "pre_chi2/D");
   tree.Branch("pre_x0_y",       &pre_x0_y,     "pre_x0_y/D");
   tree.Branch("pre_x0_z",       &pre_x0_z,     "pre_x0_z/D");
@@ -243,7 +274,6 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
     if (jentry % 100 == 0) {
       cout << jentry << " / " << nentries << endl;
     }
-    Clear();
     for (int i = 0; i < n_cands; ++i) {
       if (chi_square->at(i) > kMaxChi2) {
         break;
@@ -255,14 +285,15 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
       if (tid == kNumTargets) {
         continue;
       }
+      Clear();
       FillPreValues(i, tid);
       auto ssdx = rk_hit_ssd_x->at(i);
       for (int i0 = 0; i0 < kNumDivides; ++i0) {
-        double lparam0 = kLorentzOffset[0] * (-1. + 2. * i0 / (kNumDivides - 1.));
+        double lparam0 = kLorentzOffset[0] * (kParamOffset + kParamRange * i0 / (kNumDivides - 1.));
         for (int i1 = 0; i1 < kNumDivides; ++i1) {
-          double lparam1 = kLorentzOffset[1] * (-1. + 2. * i1 / (kNumDivides - 1.));
+          double lparam1 = kLorentzOffset[1] * (kParamOffset + kParamRange * i1 / (kNumDivides - 1.));
           for (int i2 = 0; i2 < kNumDivides; ++i2) {
-            double lparam2 = kLorentzOffset[2] * (-1. + 2. * i2 / (kNumDivides - 1.));
+            double lparam2 = kLorentzOffset[2] * (kParamOffset + kParamRange * i2 / (kNumDivides - 1.));
             int id = i0 * kNumDivides2 + i1 * kNumDivides + i2;
             lorentz_id0[id] = i0;
             lorentz_param0[id] = lparam0;

@@ -98,8 +98,8 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 }
 
 // other
-constexpr bool kExecutePairFit = true;
-constexpr bool kReqHBDAssociation = true;
+constexpr bool kExecutePairFit = false;
+constexpr bool kReqHBDAssociation = false;
 constexpr double kHBDRadius = 1200.;
 constexpr double kMaxHBDRoughXRes = 180.;
 constexpr double kMaxHBDRoughYRes = 22.5; // HBD y residual 3 sigma = 3 x 5.6 mm, 99 % threshold of residual between rough fit and RK fit = 15 mm

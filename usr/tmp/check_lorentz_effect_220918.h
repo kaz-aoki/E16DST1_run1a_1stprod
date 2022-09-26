@@ -1427,6 +1427,8 @@ public :
   double ProjectionSSDX(int n, const TVector3& vtx, const TVector3& mom);
   int    out_track_id;
   int    tgt_id;
+  int    module_id;
+  int    charge;
   double pre_chi2;
   double pre_x0_y;
   double pre_x0_z;
