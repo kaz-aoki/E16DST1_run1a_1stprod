@@ -90,24 +90,24 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
     return false;
   }
 //
-  bool has_hbd = false;
-  auto ref = TVector3(rk_fit_hbd_x->at(n), rk_fit_hbd_y->at(n), 0.);
-  for (int i = 0; i < rk_proj_n_hbd->at(n); ++i) {
-    if (rk_proj_hbd_cprob->at(n)[i] < 0.5) {
-      continue;
-    }
-    if (fabs(rk_proj_hbd_x->at(n)[i] - ref.X()) > kMaxHBDXResidual) {
-      continue;
-    }
-    if (fabs(rk_proj_hbd_y->at(n)[i] - ref.Y()) > kMaxHBDYResidual) {
-      continue;
-    }
-    has_hbd = true;
-    break;
-  }
-  if (!has_hbd) {
-    return false;
-  }
+//  bool has_hbd = false;
+//  auto ref = TVector3(rk_fit_hbd_x->at(n), rk_fit_hbd_y->at(n), 0.);
+//  for (int i = 0; i < rk_proj_n_hbd->at(n); ++i) {
+//    if (rk_proj_hbd_cprob->at(n)[i] < 0.5) {
+//      continue;
+//    }
+//    if (fabs(rk_proj_hbd_x->at(n)[i] - ref.X()) > kMaxHBDXResidual) {
+//      continue;
+//    }
+//    if (fabs(rk_proj_hbd_y->at(n)[i] - ref.Y()) > kMaxHBDYResidual) {
+//      continue;
+//    }
+//    has_hbd = true;
+//    break;
+//  }
+//  if (!has_hbd) {
+//    return false;
+//  }
   return true;
 }
 
