@@ -52,62 +52,62 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
     return false;
   }
 // 106 plus only
-//  if (rk_charge->at(n) != 1) {
-//    return false;
-//  }
-//  if (rk_fit_ssd_mid->at(n) != 106) {
-//    return false;
-//  }
-//  if (rk_fit_gtr100_mid->at(n) != 106) {
-//    return false;
-//  }
-//  if (rk_fit_gtr200_mid->at(n) != 106) {
-//    return false;
-//  }
-//  if (rk_fit_gtr300_mid->at(n) != 106) {
-//    return false;
-//  }
-// 104 or 106
-  bool is_selected_module = false;
-  if (rk_fit_ssd_mid->at(n) == 104) {
-    if (rk_fit_gtr100_mid->at(n) == 104) {
-      if (rk_fit_gtr200_mid->at(n) == 104) {
-        if (rk_fit_gtr300_mid->at(n) == 104) {
-          is_selected_module = true;
-        }
-      }
-    }
-  } else if (rk_fit_ssd_mid->at(n) == 106) {
-    if (rk_fit_gtr100_mid->at(n) == 106) {
-      if (rk_fit_gtr200_mid->at(n) == 106) {
-        if (rk_fit_gtr300_mid->at(n) == 106) {
-          is_selected_module = true;
-        }
-      }
-    }
-  }
-  if (!is_selected_module) {
+  if (rk_charge->at(n) != 1) {
     return false;
   }
-//
-//  bool has_hbd = false;
-//  auto ref = TVector3(rk_fit_hbd_x->at(n), rk_fit_hbd_y->at(n), 0.);
-//  for (int i = 0; i < rk_proj_n_hbd->at(n); ++i) {
-//    if (rk_proj_hbd_cprob->at(n)[i] < 0.5) {
-//      continue;
+  if (rk_fit_ssd_mid->at(n) != 106) {
+    return false;
+  }
+  if (rk_fit_gtr100_mid->at(n) != 106) {
+    return false;
+  }
+  if (rk_fit_gtr200_mid->at(n) != 106) {
+    return false;
+  }
+  if (rk_fit_gtr300_mid->at(n) != 106) {
+    return false;
+  }
+//// 104 or 106
+//  bool is_selected_module = false;
+//  if (rk_fit_ssd_mid->at(n) == 104) {
+//    if (rk_fit_gtr100_mid->at(n) == 104) {
+//      if (rk_fit_gtr200_mid->at(n) == 104) {
+//        if (rk_fit_gtr300_mid->at(n) == 104) {
+//          is_selected_module = true;
+//        }
+//      }
 //    }
-//    if (fabs(rk_proj_hbd_x->at(n)[i] - ref.X()) > kMaxHBDXResidual) {
-//      continue;
+//  } else if (rk_fit_ssd_mid->at(n) == 106) {
+//    if (rk_fit_gtr100_mid->at(n) == 106) {
+//      if (rk_fit_gtr200_mid->at(n) == 106) {
+//        if (rk_fit_gtr300_mid->at(n) == 106) {
+//          is_selected_module = true;
+//        }
+//      }
 //    }
-//    if (fabs(rk_proj_hbd_y->at(n)[i] - ref.Y()) > kMaxHBDYResidual) {
-//      continue;
-//    }
-//    has_hbd = true;
-//    break;
 //  }
-//  if (!has_hbd) {
+//  if (!is_selected_module) {
 //    return false;
 //  }
+//
+  bool has_hbd = false;
+  auto ref = TVector3(rk_fit_hbd_x->at(n), rk_fit_hbd_y->at(n), 0.);
+  for (int i = 0; i < rk_proj_n_hbd->at(n); ++i) {
+    if (rk_proj_hbd_cprob->at(n)[i] < 0.5) {
+      continue;
+    }
+    if (fabs(rk_proj_hbd_x->at(n)[i] - ref.X()) > kMaxHBDXResidual) {
+      continue;
+    }
+    if (fabs(rk_proj_hbd_y->at(n)[i] - ref.Y()) > kMaxHBDYResidual) {
+      continue;
+    }
+    has_hbd = true;
+    break;
+  }
+  if (!has_hbd) {
+    return false;
+  }
   return true;
 }
 
@@ -289,11 +289,11 @@ void check_lorentz_effect_220918::Loop(const TString& out_name) {
       FillPreValues(i, tid);
       auto ssdx = rk_hit_ssd_x->at(i);
       for (int i0 = 0; i0 < kNumDivides; ++i0) {
-        double lparam0 = kLorentzOffset[0] * (kParamOffset + kParamRange * i0 / (kNumDivides - 1.));
+        double lparam0 = kLorentzOffset[0] * (kParamOffset[0] + kParamRange[0] * i0 / (kNumDivides - 1.));
         for (int i1 = 0; i1 < kNumDivides; ++i1) {
-          double lparam1 = kLorentzOffset[1] * (kParamOffset + kParamRange * i1 / (kNumDivides - 1.));
+          double lparam1 = kLorentzOffset[1] * (kParamOffset[1] + kParamRange[1] * i1 / (kNumDivides - 1.));
           for (int i2 = 0; i2 < kNumDivides; ++i2) {
-            double lparam2 = kLorentzOffset[2] * (kParamOffset + kParamRange * i2 / (kNumDivides - 1.));
+            double lparam2 = kLorentzOffset[2] * (kParamOffset[2] + kParamRange[2] * i2 / (kNumDivides - 1.));
             int id = i0 * kNumDivides2 + i1 * kNumDivides + i2;
             lorentz_id0[id] = i0;
             lorentz_param0[id] = lparam0;
