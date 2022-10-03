@@ -113,14 +113,10 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
 
 int check_lorentz_effect_220918::TargetID(int n) {
   auto z = rk_proj_x0_gz->at(n);
-  if (z < -25.) {
-    return kNumTargets;
-  } else if (z < -5.) {
-    return kTargetMinus;
-  } else if (z < 15.) {
-    return kTargetZero;
-  } else if (z < 35.) {
-    return kTargetPlus;
+  for (int i = 0; i < kNumTargets; ++i) {
+    if (z > kTargetZRange[i][0] && z < kTargetZRange[i][1]) {
+      return i;
+    }
   }
   return kNumTargets;
 }
@@ -169,19 +165,6 @@ double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lp
                            kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
   return chisq;
 }
-
-//TVector3 check_lorentz_effect_220918::ProjectionX0Pos(int n, const TVector3& vtx, const TVector3& mom) {
-//  auto x0_pos = TVector3(-10000., -10000., -10000.);
-//  Hep3Vector cross_pos;
-//  Hep3Vector cross_mom;
-//  Hep3Vector init_pos(vtx.X() * 0.1, vtx.Y() * 0.1, vtx.Z() * 0.1);
-//  Hep3Vector init_mom(mom.X(),       mom.Y(),       mom.Z());
-//  E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, rk_charge->at(n), kStepTrackStepSizeCm, kStepTrackArraySize);
-//  if (step_track.CrossXconstPlane(0., cross_pos, cross_mom) != -1) {
-//    x0_pos.SetXYZ(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
-//  }
-//  return x0_pos;
-//}
 
 double check_lorentz_effect_220918::FitWoSSD(int n, int tid, double lparam0, double lparam1, double lparam2) {
   double z;
