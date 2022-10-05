@@ -1418,6 +1418,7 @@ public :
  private:
   void Clear();
   bool IsGoodTrack(int n);
+  int ChargeID(int n);
   int TargetID(int n);
   void FillPreValues(int n, int tid);
   int ModuleID2020To2013(int m);

@@ -51,10 +51,11 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
   if (rk_proj_x0_mom_gy->at(n) == 0.) {
     return false;
   }
-// 106 plus only
-  if (rk_charge->at(n) != 1) {
-    return false;
-  }
+//// plus only
+//  if (rk_charge->at(n) != 1) {
+//    return false;
+//  }
+// 106 only
   if (rk_fit_ssd_mid->at(n) != 106) {
     return false;
   }
@@ -111,10 +112,19 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
   return true;
 }
 
+int check_lorentz_effect_220918::ChargeID(int n) {
+  auto c = rk_charge->at(n);
+  if (c == 1) {
+    return kChargePlus;
+  }
+  return kChargeMinus;
+}
+
 int check_lorentz_effect_220918::TargetID(int n) {
+  auto cid = ChargeID(n);
   auto z = rk_proj_x0_gz->at(n);
   for (int i = 0; i < kNumTargets; ++i) {
-    if (z > kTargetZRange[i][0] && z < kTargetZRange[i][1]) {
+    if (z > kTargetZRange[cid][i][0] && z < kTargetZRange[cid][i][1]) {
       return i;
     }
   }

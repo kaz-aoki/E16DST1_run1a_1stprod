@@ -4,10 +4,18 @@
 //#define KS
 //#define ONE_TRACK
 #define REVERSE_MAGFIELD
+//#define DRIFT_1800
+#define DRIFT_1500
+//#define DRIFT_1200
 
 #include <array>
 
 namespace check_lorentz_effect_220918_parameter {
+
+enum {
+  kChargePlus,
+  kChargeMinus
+};
 
 enum {
   kTargetMinus,
@@ -30,7 +38,16 @@ constexpr double kTargetZRange[3][2] = {{-25., -5.}, {-5., 15.}, {15., 35.}}; //
 constexpr double kTargetZRange[3][2] = {{-20., 0.}, {0., 15.}, {20., 30.}}; // 30322 (1 track)
 #endif
 #ifdef REVERSE_MAGFIELD
+#ifdef DRIFT_1800
 constexpr double kTargetZRange[3][2] = {{-30., -15.}, {-10., 5.}, {10., 25.}}; // 30464 (reverse magfield mesh: 1800 V)
+#endif
+#ifdef DRIFT_1500
+constexpr double kTargetZRange[2][3][2] = {{{-30., -15.}, {-10., 5.}, {10., 25.}},
+                                           {{-30., -10.}, {-10., 10.}, {10., 30.}}}; // charge, target, min/max
+#endif
+#ifdef DRIFT_1200
+constexpr double kTargetZRange[2][3][2] = {{{-30., -10.}, {-10., 10.}, {10., 30.}}; // charge, target, min/max
+#endif
 #endif
 constexpr int    kNumDivides = 5;
 constexpr int    kNumDivides2 = kNumDivides  * kNumDivides;
