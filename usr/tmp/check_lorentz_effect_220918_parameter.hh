@@ -1,11 +1,13 @@
 #ifndef CHECK_LORENTZ_EFFECT_220918_PARAMETER_HH
 #define CHECK_LORENTZ_EFFECT_220918_PARAMETER_HH
 
+//#define TMP
+#define VECTOR_MESON
 //#define KS
 //#define ONE_TRACK
-#define REVERSE_MAGFIELD
+//#define REVERSE_MAGFIELD
 //#define DRIFT_1800
-#define DRIFT_1500
+//#define DRIFT_1500
 //#define DRIFT_1200
 
 #include <array>
@@ -29,8 +31,22 @@ enum {
 };
 constexpr int kModuleID2020To2013[11] = {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1};
 constexpr double kMaxChi2 = 10.;
+#ifndef VECTOR_MESON
+constexpr bool   kHBDForward = true;
+#else
+constexpr bool   kHBDForward = false;
+#endif
 constexpr double kMaxHBDXResidual = 25.;
 constexpr double kMaxHBDYResidual = 25.;
+constexpr double kTargetZ[kNumTargets] = {-20., 0., 20.};
+#ifdef TMP
+constexpr double kTargetZRange[2][3][2] = {{{-30., -10.}, {-10., 10.}, {10., 30.}},
+                                           {{-30., -10.}, {-10., 10.}, {10., 30.}}};
+#endif
+#ifdef VECTOR_MESON
+constexpr double kTargetZRange[2][3][2] = {{{-25., -5.}, {-5., 15.}, {15., 30.}},
+                                           {{-20., 0.}, {0., 15.}, {20., 35.}}};
+#endif
 #ifdef KS
 constexpr double kTargetZRange[3][2] = {{-25., -5.}, {-5., 15.}, {15., 35.}}; // Ks run
 #endif
@@ -39,7 +55,8 @@ constexpr double kTargetZRange[3][2] = {{-20., 0.}, {0., 15.}, {20., 30.}}; // 3
 #endif
 #ifdef REVERSE_MAGFIELD
 #ifdef DRIFT_1800
-constexpr double kTargetZRange[3][2] = {{-30., -15.}, {-10., 5.}, {10., 25.}}; // 30464 (reverse magfield mesh: 1800 V)
+constexpr double kTargetZRange[2][3][2] = {{{-30., -15.}, {-10., 5.}, {10., 25.}},
+                                           {{-30., -10.}, {-10., 5.}, {10., 25.}}}; // 30464 (reverse magfield mesh: 1800 V)
 #endif
 #ifdef DRIFT_1500
 constexpr double kTargetZRange[2][3][2] = {{{-30., -15.}, {-10., 5.}, {10., 25.}},

@@ -94,7 +94,7 @@ bool check_lorentz_effect_220918::IsGoodTrack(int n) {
   bool has_hbd = false;
   auto ref = TVector3(rk_fit_hbd_x->at(n), rk_fit_hbd_y->at(n), 0.);
   for (int i = 0; i < rk_proj_n_hbd->at(n); ++i) {
-    if (rk_proj_hbd_cprob->at(n)[i] < 0.5) {
+    if ((kHBDForward && rk_proj_hbd_cprob->at(n)[i] < 0.5) || (!kHBDForward && rk_proj_hbd_eprob->at(n)[i] < 0.5)) {
       continue;
     }
     if (fabs(rk_proj_hbd_x->at(n)[i] - ref.X()) > kMaxHBDXResidual) {
@@ -177,15 +177,7 @@ double check_lorentz_effect_220918::FitWoTarget(int n, double lparam0, double lp
 }
 
 double check_lorentz_effect_220918::FitWoSSD(int n, int tid, double lparam0, double lparam1, double lparam2) {
-  double z;
-  if (tid == kTargetMinus) {
-    z = -20.;
-  } else if (tid == kTargetZero) {
-    z = 0.;
-  } else {
-    z = 20.;
-  }
-  auto init_pos = TVector3(0., 0., z);
+  auto init_pos = TVector3(0., 0., kTargetZ[tid]);
   auto init_mom = TVector3(rk_proj_x0_mom_gx->at(n), rk_proj_x0_mom_gy->at(n), rk_proj_x0_mom_gz->at(n));
   array<int, 3> gtr_mid = {ModuleID2020To2013(rk_fit_gtr100_mid->at(n)),
                            ModuleID2020To2013(rk_fit_gtr200_mid->at(n)),
