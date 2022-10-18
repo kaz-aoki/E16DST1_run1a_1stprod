@@ -2205,7 +2205,11 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    vector<double> out_track_gtr300x_adc;
    vector<double> out_track_gtr300y_t;
    vector<double> out_track_gtr300y_adc;
-   vector<double> out_track_w_trg_bias;
+   vector<bool> out_track_w_trg_bias;
+   vector<bool> out_track_w_trg_gtr;
+   vector<bool> out_track_w_trg_hbd;
+   vector<int>  out_track_w_trg_lg;
+   vector<bool> out_track_w_trg_trk;
    vector<int> out_track_hbd_mid;
    vector<double> out_track_hbd_lx;
    vector<double> out_track_hbd_ly;
@@ -2340,6 +2344,10 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    tree->Branch("track_gtr300y_t", &out_track_gtr300y_t);
    tree->Branch("track_gtr300y_adc", &out_track_gtr300y_adc);
    tree->Branch("track_w_trg_bias", &out_track_w_trg_bias);
+   tree->Branch("track_w_trg_gtr", &out_track_w_trg_gtr);
+   tree->Branch("track_w_trg_hbd", &out_track_w_trg_hbd);
+   tree->Branch("track_w_trg_lg", &out_track_w_trg_lg);
+   tree->Branch("track_w_trg_trk", &out_track_w_trg_trk);
    tree->Branch("track_hbd_mid", &out_track_hbd_mid);
    tree->Branch("track_hbd_lx", &out_track_hbd_lx);
    tree->Branch("track_hbd_ly", &out_track_hbd_ly);
@@ -2497,6 +2505,10 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
       out_track_gtr300y_t.clear();
       out_track_gtr300y_adc.clear();
       out_track_w_trg_bias.clear();
+      out_track_w_trg_gtr.clear();
+      out_track_w_trg_hbd.clear();
+      out_track_w_trg_lg.clear();
+      out_track_w_trg_trk.clear();
       out_track_hbd_mid.clear();
       out_track_hbd_lx.clear();
       out_track_hbd_ly.clear();
@@ -2653,12 +2665,12 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	double tgtth = 5.;
 	int tgtid = -10000;
 	double tgtdist = -10000.;
-	if(runoption==0){
-	  tgtdist = CutOfTrackTGT(ientry,itrack,tgtth);// for the production in 220418(etc)
-	}
-	else{
+	// if(runoption==0){
+	//   tgtdist = CutOfTrackTGT(ientry,itrack,tgtth);// for the production in 220418(etc)
+	// }
+	// else{
 	  tgtdist = CutOfTrackTGT(ientry,itrack,tgtid);//220725 for the production in 220707
-	}
+	// }
 	if( tgtdist<0 || tgtdist>100 ) continue;//220725 for the production in 220707
 
 	out_track_id.push_back(track_id->at(itrack));
@@ -2696,9 +2708,18 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
         int blockchx = (trk_lg_lx)-(track_position_block_lx);
         int blockchy = (trk_lg_ly/fabs(trk_lg_ly))*(fabs(trk_lg_ly)+track_position_block_ly);
         int blockch = LocaltoCh(blockchx,blockchy);
+	bool wtrggtr = false;
+	bool wtrghbd = false;
+	int  wtrglg = -10000;
+	bool wtrgtrk = false;
+	bool trg_bias = wTrgBias(ientry,itrack,trk_lg_mid,blockch,TrigAWmin,TrigAWmax,TrigTW,wtrggtr,wtrghbd,wtrglg,wtrgtrk);
 	// double trg_bias = wTrgBias_Pair(ientry,itrack,trk_lg_mid,blockch,TrigAWmin,TrigAWmax,TrigTW);//220808
-	double trg_bias = wTrgBias_Single(ientry,itrack,trk_lg_mid,blockch);//220808
+	// double trg_bias = wTrgBias_Single(ientry,itrack,trk_lg_mid,blockch);//220808
 	out_track_w_trg_bias.push_back(trg_bias);
+	out_track_w_trg_gtr.push_back(wtrggtr);
+	out_track_w_trg_hbd.push_back(wtrghbd);
+	out_track_w_trg_lg.push_back(wtrglg);
+	out_track_w_trg_trk.push_back(wtrgtrk);
 	out_track_lg_blockch.push_back(blockch);
 	/////////
 	out_track_hbd_mid.push_back(trk_hbd_mid);
@@ -3648,8 +3669,8 @@ void SingleTrackAnalyzerForRes::MkTreeWYass(int runoption, int maxevent, char* o
 	    out_track_select_gtr200y_res.push_back(gy_res_min[1]);//
 	    out_track_select_gtr300y_res.push_back(gy_res_min[2]);//
 	    out_track_select_gtr_chisq.push_back(gy_chisq);//
-	    double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid);
-	    out_track_w_trg_bias.push_back(trg_bias);
+	    // double trg_bias = CalcTrgBias(ientry,itrack,trk_lg_mid);//220825
+	    // out_track_w_trg_bias.push_back(trg_bias);
 	    out_track_hbd_mid.push_back(trk_hbd_mid);
 	    out_track_hbd_lx.push_back(trk_hbd_lx);
 	    out_track_hbd_ly.push_back(trk_hbd_ly);

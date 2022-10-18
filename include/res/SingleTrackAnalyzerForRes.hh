@@ -1140,9 +1140,10 @@ public :
    virtual Int_t    CutOfTrackForHBDADC(Long64_t entry, Int_t elem);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
    virtual Int_t    CalcAngleOnLGPlane(Long64_t entry, Int_t elem, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double trk_momy, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly);
-   virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid);
-   virtual Double_t    wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch);
-   virtual Double_t    wTrgBias_Pair(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int TrigAWmin, int TrigAWmax, int TrigTW);
+   // virtual Double_t    CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid);
+   // virtual Double_t    wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch);
+   // virtual Double_t    wTrgBias_Pair(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int TrigAWmin, int TrigAWmax, int TrigTW);
+   virtual bool     wTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int TrigAWmin, int TrigAWmax, int TrigTW, bool& wtrggtr, bool& wtrghbd, int& wtrglg, bool& wtrgtrk);
    // virtual void    wTrgBias_Pair(vector<double>& track_w_trg_bias, const vector<int>& track_lg_mid, const vector<int>& track_lg_blockch);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
@@ -3069,21 +3070,25 @@ Int_t SingleTrackAnalyzerForRes::CutOfTrackForResidualHBD(Long64_t entry, Int_t 
 {
   trk_lx = -10000;
   trk_ly = -10000;
-  trk_mom = -10000;
-  trk_momx = -10000;
-  trk_momy = -10000;
-  trk_momz = -10000;
-  double trk_mom_tmp;
-  double trk_momx_tmp;
-  double trk_momy_tmp;
-  double trk_momz_tmp;
-  if( CutOfTrack(entry,elem,trk_mom_tmp,trk_momx_tmp,trk_momy_tmp,trk_momz_tmp)<0 ){
-    return -1;
-  }
-  trk_mom = trk_mom_tmp;
-  trk_momx = trk_momx_tmp;
-  trk_momy = trk_momy_tmp;
-  trk_momz = trk_momz_tmp;
+  // trk_mom = -10000;
+  // trk_momx = -10000;
+  // trk_momy = -10000;
+  // trk_momz = -10000;
+  // double trk_mom_tmp;
+  // double trk_momx_tmp;
+  // double trk_momy_tmp;
+  // double trk_momz_tmp;
+  // if( CutOfTrack(entry,elem,trk_mom_tmp,trk_momx_tmp,trk_momy_tmp,trk_momz_tmp)<0 ){
+  //   return -1;
+  // }
+  // trk_mom = trk_mom_tmp;
+  // trk_momx = trk_momx_tmp;
+  // trk_momy = trk_momy_tmp;
+  // trk_momz = trk_momz_tmp;
+  trk_momx = rk_fit_init_mom_gx->at(elem);
+  trk_momy = rk_fit_init_mom_gy->at(elem);
+  trk_momz = rk_fit_init_mom_gz->at(elem);
+  trk_mom = sqrt(trk_momx*trk_momx+trk_momy*trk_momy+trk_momz*trk_momz);
   if( fabs(rk_fit_hbd_x->at(elem))>300 || fabs(rk_fit_hbd_y->at(elem))>300 || fabs(rk_fit_hbd_x->at(elem))<6.6 || fabs(rk_fit_hbd_y->at(elem))<6.6 ){
     return -2;
   }
@@ -3128,30 +3133,30 @@ Int_t SingleTrackAnalyzerForRes::CutOfTrackForHBDADC(Long64_t entry, Int_t elem)
 
 }
 
-Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid)
-{
-  double wbias=-10000.;
-  for(int i=0;i<n_trg_tracks;i++){
-    if( fabs(trg_track_lg_t->at(i))>11 ) continue;
-    if(trk_lg_mid==trg_track_lg_mid->at(i)){
-	wbias=trg_track_lg_t->at(i);
-    }
-  }
-  return wbias;
-}
+// Double_t SingleTrackAnalyzerForRes::CalcTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid)
+// {
+//   double wbias=-10000.;
+//   for(int i=0;i<n_trg_tracks;i++){
+//     if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+//     if(trk_lg_mid==trg_track_lg_mid->at(i)){
+// 	wbias=trg_track_lg_t->at(i);
+//     }
+//   }
+//   return wbias;
+// }
 
-Double_t SingleTrackAnalyzerForRes::wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch)
-{
-  double wbias=-10000.;
-  for(int i=0;i<n_trg_tracks;i++){
-    if( fabs(trg_track_lg_t->at(i))>11 ) continue;
-    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
-      wbias=trg_track_lg_t->at(i);
-      break;
-    }
-  }
-  return wbias;
-}
+// Double_t SingleTrackAnalyzerForRes::wTrgBias_Single(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch)
+// {
+//   double wbias=-10000.;
+//   for(int i=0;i<n_trg_tracks;i++){
+//     if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+//     if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
+//       wbias=trg_track_lg_t->at(i);
+//       break;
+//     }
+//   }
+//   return wbias;
+// }
 
 int GTRTrgCid(double ly)
 {
@@ -3165,8 +3170,80 @@ int HBDTrgCid(double lx, double ly)
   return (int)cidx+((int)cidy*10);
 }
 
-Double_t SingleTrackAnalyzerForRes::wTrgBias_Pair(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int awmin, int awmax, int tw)
+// Double_t SingleTrackAnalyzerForRes::wTrgBias_Pair(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int awmin, int awmax, int tw)
+// {
+//   int gtrmid=-10000;
+//   int gtrcid=-10000;
+//   if(rk_fit_gtr300_y==0){
+//     gtrmid = rk_fit_gtr300_mid->at(elem);
+//     gtrcid = GTRTrgCid(rk_fit_gtr300_gy->at(elem));
+//   }
+//   else{
+//     gtrmid = rk_fit_gtr300_mid->at(elem);
+//     gtrcid = GTRTrgCid(rk_fit_gtr300_y->at(elem));
+//   }
+//   int hbdmid = rk_fit_hbd_mid->at(elem);
+//   int hbdcid = HBDTrgCid(rk_fit_hbd_x->at(elem),rk_fit_hbd_y->at(elem));
+
+//   vector<bool> trgwbias(n_trg_tracks, false);
+//   for(int i=0;i<n_trg_tracks;i++){
+//     for(int j=i+1;j<n_trg_tracks;j++){
+//       int d1x = (trg_track_lg_mid->at(i)-100)*7+(trg_track_lg_cid->at(i))%10;
+//       int d1y = (trg_track_lg_cid->at(i))/10;
+//       int d2x = (trg_track_lg_mid->at(j)-100)*7+(trg_track_lg_cid->at(j))%10;
+//       int d2y = (trg_track_lg_cid->at(j))/10;
+//       int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+//       if( (trg_track_lg_t->at(i)==0||trg_track_lg_t->at(j)==0) && 
+// 	  fabs(trg_track_lg_t->at(i)-trg_track_lg_t->at(j))<tw &&
+// 	  dist>awmin && dist<awmax ){
+// 	trgwbias.at(i)=true;
+// 	trgwbias.at(j)=true;
+//       }
+//     }
+//   }
+
+//   double wbias=-10000.;
+//   for(int i=0;i<n_trg_tracks;i++){
+//     // if( fabs(trg_track_lg_t->at(i))>11 ) continue;
+//     bool gtrflag = false;
+//     for(int j=0;j<trg_track_n_gtr_hits->at(i);j++){
+//       if(trg_track_gtr_is_t_match->at(i).at(j)==0) continue;
+//       if(trg_track_gtr_mid->at(i).at(j)==gtrmid&&trg_track_gtr_cid->at(i).at(j)==gtrcid){
+//       	gtrflag = true;
+// 	break;
+//       }
+//     }
+//     bool hbdflag = false;
+//     for(int j=0;j<trg_track_n_hbd_hits->at(i);j++){
+//       if(trg_track_hbd_is_t_match->at(i).at(j)==0) continue;
+//       if(trg_track_hbd_mid->at(i).at(j)==hbdmid&&trg_track_hbd_cid->at(i).at(j)==hbdcid){
+//       	hbdflag = true;
+// 	break;
+//       }
+//     }
+//     if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
+//       wbias=-9000;
+//     }
+//     if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag ){
+//       wbias=-8000;
+//     }
+//     if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag && gtrflag ){
+//       wbias=-7000;
+//     }
+//     if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag && gtrflag && trgwbias.at(i) ){
+//       wbias=trg_track_lg_t->at(i);
+//       break;
+//     }
+//   }
+
+//   return wbias;
+// }
+
+bool SingleTrackAnalyzerForRes::wTrgBias(Long64_t entry, Int_t elem, double trk_lg_mid, int blockch, int awmin, int awmax, int tw, bool& wtrggtr, bool& wtrghbd, int& wtrglg, bool& wtrgtrk)
 {
+  bool wtrg = false;
+
+  //calc trig_tile in GTR & HBD
   int gtrmid=-10000;
   int gtrcid=-10000;
   if(rk_fit_gtr300_y==0){
@@ -3180,6 +3257,8 @@ Double_t SingleTrackAnalyzerForRes::wTrgBias_Pair(Long64_t entry, Int_t elem, do
   int hbdmid = rk_fit_hbd_mid->at(elem);
   int hbdcid = HBDTrgCid(rk_fit_hbd_x->at(elem),rk_fit_hbd_y->at(elem));
 
+
+  //calc wtrg pair
   vector<bool> trgwbias(n_trg_tracks, false);
   for(int i=0;i<n_trg_tracks;i++){
     for(int j=i+1;j<n_trg_tracks;j++){
@@ -3197,41 +3276,43 @@ Double_t SingleTrackAnalyzerForRes::wTrgBias_Pair(Long64_t entry, Int_t elem, do
     }
   }
 
-  double wbias=-10000.;
-  for(int i=0;i<n_trg_tracks;i++){
-    // if( fabs(trg_track_lg_t->at(i))>11 ) continue;
-    bool gtrflag = false;
-    for(int j=0;j<trg_track_n_gtr_hits->at(i);j++){
-      if(trg_track_gtr_is_t_match->at(i).at(j)==0) continue;
-      if(trg_track_gtr_mid->at(i).at(j)==gtrmid&&trg_track_gtr_cid->at(i).at(j)==gtrcid){
-      	gtrflag = true;
-	break;
-      }
-    }
-    bool hbdflag = false;
-    for(int j=0;j<trg_track_n_hbd_hits->at(i);j++){
-      if(trg_track_hbd_is_t_match->at(i).at(j)==0) continue;
-      if(trg_track_hbd_mid->at(i).at(j)==hbdmid&&trg_track_hbd_cid->at(i).at(j)==hbdcid){
-      	hbdflag = true;
-	break;
-      }
-    }
-    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
-      wbias=-9000;
-    }
-    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag ){
-      wbias=-8000;
-    }
-    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag && gtrflag ){
-      wbias=-7000;
-    }
-    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) && hbdflag && gtrflag && trgwbias.at(i) ){
-      wbias=trg_track_lg_t->at(i);
-      break;
-    }
-  }
 
-  return wbias;
+  //calc all bias
+  for(int i=0;i<n_trg_tracks;i++){
+    //LG
+    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
+      wtrglg = trg_track_lg_t->at(i);
+      //HBD
+      for(int j=0;j<trg_track_n_hbd_hits->at(i);j++){
+	if(trg_track_hbd_is_t_match->at(i).at(j)==0) continue;
+	if(trg_track_hbd_mid->at(i).at(j)==hbdmid&&trg_track_hbd_cid->at(i).at(j)==hbdcid){
+	  wtrghbd = true;
+	  break;
+	}
+      }
+      //GTR
+      for(int j=0;j<trg_track_n_gtr_hits->at(i);j++){
+	if(trg_track_gtr_is_t_match->at(i).at(j)==0) continue;
+	if(trg_track_gtr_mid->at(i).at(j)==gtrmid&&trg_track_gtr_cid->at(i).at(j)==gtrcid){
+	  wtrggtr = true;
+	  break;
+	}
+      }
+      //TRACK
+      if( trgwbias.at(i) ){
+	wtrgtrk = true;
+      }
+      //
+      if( wtrghbd && wtrggtr && wtrgtrk ){
+	wtrg = true;
+	break;
+      }
+    }// wtrglg
+
+  }//trg track loop
+
+  return wtrg;
+
 }
 
 // void SingleTrackAnalyzerForRes::wTrgBias_Pair(vector<double>& track_w_trg_bias, const vector<int>& v_mid, const vector<int>& v_cid)

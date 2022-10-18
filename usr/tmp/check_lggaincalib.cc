@@ -29,7 +29,8 @@ int main(int argc, char* argv[]) {
 
   if(argc==5){
     if(runtype==0){
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root03a/trackselection_prod220212_chisq30.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root03a/trackselection_prod220212_chisq30.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v45/*.root");
     }
     else if(runtype==1){
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/lsf/*.root");//vmeson; production new

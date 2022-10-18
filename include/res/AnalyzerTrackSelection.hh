@@ -68,8 +68,20 @@ public :
      }
    };
 
-  //morino220531
-  double relg[5][6][7]={
+   struct lgcls{
+     std::vector<int> cids;
+     std::vector<double> resxs;
+     std::vector<double> resys;
+     std::vector<double> adcs;
+     std::vector<double> tdcs;
+     double adcsum;
+     double timediff;
+     double cogx;
+     double cogy;
+   };
+
+  double relg[3][5][6][7]={
+    {//morino220531
     {//103
     {1.,1.,1.,1.,1.,1.,1.},
     {1.,1.,1.,1.,1.,1.,1.},
@@ -118,10 +130,9 @@ public :
     {1.,1.,1.,1.,1.,1.,1.},
     {1.,1.,1.,1.,1.,1.,1.},
     }
-  };
+    },
 
-  //morino220822
-  double relg_ene[5][6][7]={
+    {//morino220822
     {//103
     {0.0060,0.0070,0.0110,0.0130,0.0135,0.0150,0.0090},
     {0.0090,0.0130,0.0145,0.0175,0.0170,0.0190,0.0154},
@@ -162,8 +173,51 @@ public :
     {0.0155,0.0140,0.0145,0.0181,0.0120,0.0130,0.0115},
     {0.0110,0.0110,0.0110,0.0100,0.0055,0.0045,0.0090},
     }
-  };
+    },
 
+    {//morino220905
+    {//103
+    {0.0088,0.0090,0.0087,0.0103,0.0088,0.0077,0.0090},
+    {0.0123,0.0150,0.0135,0.0165,0.0093,0.0090,0.0154},
+    {0.0155,0.0175,0.0135,0.0175,0.0060,0.0075,0.0134},
+    {0.0137,0.0174,0.0207,0.0165,0.0062,0.0076,0.0131},
+    {0.0107,0.0133,0.0155,0.0143,0.0087,0.0097,0.0144},
+    {0.0074,0.0078,0.0083,0.0106,0.0085,0.0081,0.0090},
+    },
+    {//104
+    {0.0100,0.0076,0.0072,0.0074,0.0074,0.0069,0.0090},
+    {0.0142,0.0123,0.0127,0.0119,0.0122,0.0112,0.0154},
+    {0.0217,0.0177,0.0160,0.0146,0.0210,0.0256,0.0178},
+    {0.0212,0.0185,0.0162,0.0138,0.0205,0.0243,0.0185},
+    {0.0134,0.0129,0.0128,0.0114,0.0110,0.0106,0.0146},
+    {0.0095,0.0077,0.0070,0.0067,0.0076,0.0076,0.0090},
+    },
+    {//
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    },
+    {//106
+    {0.0078,0.0083,0.0071,0.0069,0.0068,0.0088,0.0090},
+    {0.0125,0.0125,0.0112,0.0113,0.0106,0.0133,0.0154},
+    {0.0162,0.0223,0.0209,0.0202,0.0210,0.0196,0.0225},
+    {0.0180,0.0200,0.0215,0.0209,0.0195,0.0196,0.0200},
+    {0.0116,0.0112,0.0114,0.0117,0.0098,0.0133,0.0154},
+    {0.0087,0.0076,0.0070,0.0072,0.0066,0.0080,0.0090},
+    },
+    {//107
+    {0.0062,0.0060,0.0089,0.0080,0.0077,0.0070,0.0090},
+    {0.0078,0.0062,0.0088,0.0094,0.0121,0.0113,0.0164},
+    {0.0127,0.0140,0.0181,0.0193,0.0187,0.0148,0.0094},
+    {0.0120,0.0088,0.0140,0.0240,0.0208,0.0174,0.0091},
+    {0.0094,0.0063,0.0101,0.0134,0.0107,0.0096,0.0164},
+    {0.0071,0.0067,0.0072,0.0072,0.0074,0.0075,0.0090},
+    }
+    }
+  };
 
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -206,7 +260,11 @@ public :
    vector<double>  *track_gtr300x_adc;
    vector<double>  *track_gtr300y_t;
    vector<double>  *track_gtr300y_adc;
-   vector<double>  *track_w_trg_bias;
+   vector<bool>    *track_w_trg_bias;
+   vector<bool>    *track_w_trg_gtr;
+   vector<bool>    *track_w_trg_hbd;
+   vector<int>     *track_w_trg_lg;
+   vector<bool>    *track_w_trg_trk;
    vector<double>  *track_select_hbd_resx;
    vector<double>  *track_select_hbd_adc;
    vector<int>     *track_select_gtr_nass;
@@ -226,6 +284,7 @@ public :
    vector<int>     *track_lg_mid;
    vector<double>  *track_lg_lx;
    vector<double>  *track_lg_ly;
+   vector<int>     *track_lg_blockch;
    vector<double>  *track_lg_nearx;
    vector<double>  *track_lg_neary;
    vector<int>     *track_lg_multiplicity;
@@ -310,6 +369,10 @@ public :
    TBranch        *b_track_gtr300y_t;   //!
    TBranch        *b_track_gtr300y_adc;   //!
    TBranch        *b_track_w_trg_bias;   //!
+   TBranch        *b_track_w_trg_gtr;   //!
+   TBranch        *b_track_w_trg_hbd;   //!
+   TBranch        *b_track_w_trg_lg;   //!
+   TBranch        *b_track_w_trg_trk;   //!
    TBranch        *b_track_select_hbd_resx;   //!
    TBranch        *b_track_select_hbd_adc;   //!
    TBranch        *b_track_select_gtr_nass;   //!
@@ -329,6 +392,7 @@ public :
    TBranch        *b_track_lg_mid;   //!
    TBranch        *b_track_lg_lx;   //!
    TBranch        *b_track_lg_ly;   //!
+   TBranch        *b_track_lg_blockch;   //!
    TBranch        *b_track_lg_nearx;   //!
    TBranch        *b_track_lg_neary;   //!
    TBranch        *b_track_lg_multiplicity;   //!
@@ -382,14 +446,17 @@ public :
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    SelectGoodTrack(Long64_t entry, std::vector<int>& goodtracks, double* hbd_voriginx, double* hbd_voriginy, double* hbd_vsigmax, double* hbd_vsigmay);
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack, std::vector<int>& goodtracks);
-   // virtual Int_t    CutOfTrack(Long64_t entry, int itrack, int runoption );
+   virtual Int_t    CutOfTrack(Long64_t entry, int itrack, int runoption );
    virtual Int_t    CutOfTrack(Long64_t entry, int itrack );
    virtual Int_t    IsGoodTrack(Long64_t entry, int itrack, std::vector<trackset> &tracksets);
    virtual Int_t    IsGoodTrackWHBD(Long64_t entry, int itrack, std::vector<trackset> &tracksets, double hbdadc);
+   virtual Int_t    RunPurpose(int run_id);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual double   CalcADCNearHit(std::vector<hitset>& lgnear, double ssdt);
+   virtual double   CalcADCNearHit(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
+   virtual double   CalcADCNearHitV2(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
+   virtual double   CalcADCNearHitV3(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
    virtual double   CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    virtual double   CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    virtual void     Loop();
@@ -488,6 +555,10 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_gtr300y_t = 0;
    track_gtr300y_adc = 0;
    track_w_trg_bias = 0;
+   track_w_trg_gtr = 0;
+   track_w_trg_hbd = 0;
+   track_w_trg_lg = 0;
+   track_w_trg_trk = 0;
    track_select_hbd_resx = 0;
    track_select_hbd_adc = 0;
    track_select_gtr_nass = 0;
@@ -507,6 +578,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_lg_mid = 0;
    track_lg_lx = 0;
    track_lg_ly = 0;
+   track_lg_blockch = 0;
    track_lg_nearx = 0;
    track_lg_neary = 0;
    track_lg_multiplicity = 0;
@@ -595,6 +667,10 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_gtr300y_t", &track_gtr300y_t, &b_track_gtr300y_t);
    fChain->SetBranchAddress("track_gtr300y_adc", &track_gtr300y_adc, &b_track_gtr300y_adc);
    fChain->SetBranchAddress("track_w_trg_bias", &track_w_trg_bias, &b_track_w_trg_bias);
+   fChain->SetBranchAddress("track_w_trg_gtr", &track_w_trg_gtr, &b_track_w_trg_gtr);
+   fChain->SetBranchAddress("track_w_trg_hbd", &track_w_trg_hbd, &b_track_w_trg_hbd);
+   fChain->SetBranchAddress("track_w_trg_lg", &track_w_trg_lg, &b_track_w_trg_lg);
+   fChain->SetBranchAddress("track_w_trg_trk", &track_w_trg_trk, &b_track_w_trg_trk);
    fChain->SetBranchAddress("track_select_hbd_resx", &track_select_hbd_resx, &b_track_select_hbd_resx);
    fChain->SetBranchAddress("track_select_hbd_adc", &track_select_hbd_adc, &b_track_select_hbd_adc);
    fChain->SetBranchAddress("track_select_gtr_nass", &track_select_gtr_nass, &b_track_select_gtr_nass);
@@ -614,6 +690,7 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_lg_mid", &track_lg_mid, &b_track_lg_mid);
    fChain->SetBranchAddress("track_lg_lx", &track_lg_lx, &b_track_lg_lx);
    fChain->SetBranchAddress("track_lg_ly", &track_lg_ly, &b_track_lg_ly);
+   fChain->SetBranchAddress("track_lg_blockch", &track_lg_blockch, &b_track_lg_blockch);
    fChain->SetBranchAddress("track_lg_nearx", &track_lg_nearx, &b_track_lg_nearx);
    fChain->SetBranchAddress("track_lg_neary", &track_lg_neary, &b_track_lg_neary);
    fChain->SetBranchAddress("track_lg_multiplicity", &track_lg_multiplicity, &b_track_lg_multiplicity);
@@ -774,35 +851,45 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, std::vector
   }
   return -1;
 }
-Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
+Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runoption)
 {
   // int trk_mid = track_hbd_mid->at(itrack);
   // double rxt = track_hbd_nearx->at(itrack)-hbd_voriginx[(trk_mid-103+2)%5];
   // double ryt = track_hbd_neary->at(itrack)-hbd_voriginy[(trk_mid-103+2)%5];
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
-  if(chi_square->at(itrack)>30.) {return -1;}
+  if(runoption==1&&chi_square->at(itrack)>20.) {return -1;}
+  if(runoption==3&&chi_square->at(itrack)>5.) {return -1;}
+  if(runoption==0&&chi_square->at(itrack)>5.) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   if (track_mom->at(itrack) > 2.) {return -1;}
-  // if (track_mom->at(itrack) > 2.4) {return -1;}
-  // if (track_mom->at(itrack) > 0.6) {return -1;}
+  // if (track_mom->at(itrack) < 1.6) {return -1;}
+  // if (track_mom->at(itrack) > 0.8) {return -1;}
   // if (track_mom->at(itrack) < 0.4) {return -1;}
   // if (rk_charge->at(itrack) != -1) {return -1;}
   // if (rk_charge->at(itrack)==1) {return -1;}
   // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
-  // if (track_tgt_dist->at(itrack)>30) {return -1;}
+  if (track_tgt_dist->at(itrack)>20) {return -1;}
   // if (track_tgt_id->at(itrack)==0) {return -1;}
   // if (track_tgt_id->at(itrack)==2) {return -1;}
 
+  // if ( track_ssd_t->at(itrack)<40 || track_ssd_t->at(itrack)>55 ) {return -1;}
   // if(run_id>20980) {return -1;}
   // if(chi_square->at(itrack)>5.) {return -1;}
   // if(is_selected->at(itrack)==0) {return -1;}
   // if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
+  // if(track_w_trg_bias->at(itrack)) {return -1;}
   else{
     return 1;
   }
+}
+Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
+{
+  int runoption = 1;
+  return CutOfTrack(entry,itrack,runoption);
+
 }
 Int_t AnalyzerTrackSelection::IsGoodTrack(Long64_t entry, int itrack, std::vector<trackset> &tracksets)
 {
@@ -977,4 +1064,38 @@ Int_t AnalyzerTrackSelection::IsGoodTrackWHBD(Long64_t entry, int itrack, std::v
 //   int runoption = 0;
 //   return CutOfTrack(entry,itrack,runoption);
 // }
+Int_t AnalyzerTrackSelection::RunPurpose(int run_id)
+{
+  if( run_id==20908 || run_id==20909 || run_id==20914 || run_id==20921 || run_id==20924 || run_id==20927 )
+    {//IM3, 5e9
+      return 50;
+    }
+  else if( run_id==20928 || run_id==20930 || (run_id>=20932&&run_id<=20939) || run_id==20947 )
+    {//106, 5e9
+      return 56;
+    }
+  else if( run_id==20912 || run_id==20913 || (run_id>=20941&&run_id<=20946) || run_id==20915 || run_id==20916 || run_id==20929 )
+    {//107, 5e9
+      return 57;
+    }
+  else if( run_id==20987 || run_id==20989 )
+    {//IM3, 1e9
+      return 10;
+    }
+  else if( (run_id>=20996&&run_id<=20998) || (run_id>=21000&&run_id<=21010) )
+    {//104,106,108, 1e9
+      return 15;
+    }
+  else if( run_id==20990 || run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
+    {//106, 1e9
+      return 16;
+    }
+  else if( run_id==20992 || run_id==20993 )
+    {//107, 1e9
+      return 17;
+    }
+  else{
+    return -1;
+  }
+}
 #endif // #ifdef AnalyzerTrackSelection_cxx
