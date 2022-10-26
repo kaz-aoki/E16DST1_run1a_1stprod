@@ -204,6 +204,8 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("fit_plus_tgt_zero_y",              &out_fit_plus_tgt_zero_y);
   tree->Branch("fit_plus_tgt_plus_x",              &out_fit_plus_tgt_plus_x);
   tree->Branch("fit_plus_tgt_plus_y",              &out_fit_plus_tgt_plus_y);
+  tree->Branch("fit_plus_x0_y",                    &out_fit_plus_x0_y);
+  tree->Branch("fit_plus_x0_z",                    &out_fit_plus_x0_z);
   tree->Branch("fit_minus_ssd_lx",                 &out_fit_minus_ssd_lx);
   tree->Branch("fit_minus_ssd_ly",                 &out_fit_minus_ssd_ly);
   tree->Branch("fit_minus_gtr100_lx",              &out_fit_minus_gtr100_lx);
@@ -226,6 +228,8 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("fit_minus_tgt_zero_y",             &out_fit_minus_tgt_zero_y);
   tree->Branch("fit_minus_tgt_plus_x",             &out_fit_minus_tgt_plus_x);
   tree->Branch("fit_minus_tgt_plus_y",             &out_fit_minus_tgt_plus_y);
+  tree->Branch("fit_minus_x0_y",                   &out_fit_minus_x0_y);
+  tree->Branch("fit_minus_x0_z",                   &out_fit_minus_x0_z);
   tree->Branch("fit_plus_ssd_mom_lx",              &out_fit_plus_ssd_mom_lx);
   tree->Branch("fit_plus_ssd_mom_ly",              &out_fit_plus_ssd_mom_ly);
   tree->Branch("fit_plus_ssd_mom_lz",              &out_fit_plus_ssd_mom_lz);
@@ -545,12 +549,14 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
 //  tree->Branch("fit_plus_lg_b_ly",                 &out_fit_plus_lg_b_ly);
 //  tree->Branch("fit_plus_lg_a_lx",                 &out_fit_plus_lg_a_lx);
 //  tree->Branch("fit_plus_lg_a_ly",                 &out_fit_plus_lg_a_ly);
-  tree->Branch("fit_plus_tgt_minus_x",             &out_fit_plus_tgt_minus_x);
-  tree->Branch("fit_plus_tgt_minus_y",             &out_fit_plus_tgt_minus_y);
-  tree->Branch("fit_plus_tgt_zero_x",              &out_fit_plus_tgt_zero_x);
-  tree->Branch("fit_plus_tgt_zero_y",              &out_fit_plus_tgt_zero_y);
-  tree->Branch("fit_plus_tgt_plus_x",              &out_fit_plus_tgt_plus_x);
-  tree->Branch("fit_plus_tgt_plus_y",              &out_fit_plus_tgt_plus_y);
+  tree->Branch("fit_plus_tgt_minus_x",             &em_fit_plus_tgt_minus_x);
+  tree->Branch("fit_plus_tgt_minus_y",             &em_fit_plus_tgt_minus_y);
+  tree->Branch("fit_plus_tgt_zero_x",              &em_fit_plus_tgt_zero_x);
+  tree->Branch("fit_plus_tgt_zero_y",              &em_fit_plus_tgt_zero_y);
+  tree->Branch("fit_plus_tgt_plus_x",              &em_fit_plus_tgt_plus_x);
+  tree->Branch("fit_plus_tgt_plus_y",              &em_fit_plus_tgt_plus_y);
+  tree->Branch("fit_plus_x0_y",                    &em_fit_plus_x0_y);
+  tree->Branch("fit_plus_x0_z",                    &em_fit_plus_x0_z);
 //  tree->Branch("fit_minus_ssd_lx",                 &out_fit_minus_ssd_lx);
 //  tree->Branch("fit_minus_ssd_ly",                 &out_fit_minus_ssd_ly);
 //  tree->Branch("fit_minus_gtr100_lx",              &out_fit_minus_gtr100_lx);
@@ -573,6 +579,8 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
   tree->Branch("fit_minus_tgt_zero_y",             &em_fit_minus_tgt_zero_y);
   tree->Branch("fit_minus_tgt_plus_x",             &em_fit_minus_tgt_plus_x);
   tree->Branch("fit_minus_tgt_plus_y",             &em_fit_minus_tgt_plus_y);
+  tree->Branch("fit_minus_x0_y",                   &em_fit_minus_x0_y);
+  tree->Branch("fit_minus_x0_z",                   &em_fit_minus_x0_z);
   tree->Branch("fit_plus_ssd_mom_lx",              &em_fit_plus_ssd_mom_lx);
   tree->Branch("fit_plus_ssd_mom_ly",              &em_fit_plus_ssd_mom_ly);
   tree->Branch("fit_plus_ssd_mom_lz",              &em_fit_plus_ssd_mom_lz);
@@ -1147,6 +1155,8 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_fit_plus_tgt_zero_y.clear();
   out_fit_plus_tgt_plus_x.clear();
   out_fit_plus_tgt_plus_y.clear();
+  out_fit_plus_x0_y.clear();
+  out_fit_plus_x0_z.clear();
   out_fit_minus_ssd_lx.clear();
   out_fit_minus_ssd_ly.clear();
   out_fit_minus_gtr100_lx.clear();
@@ -1169,6 +1179,8 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_fit_minus_tgt_zero_y.clear();
   out_fit_minus_tgt_plus_x.clear();
   out_fit_minus_tgt_plus_y.clear();
+  out_fit_minus_x0_y.clear();
+  out_fit_minus_x0_z.clear();
   out_fit_plus_ssd_mom_lx.clear();
   out_fit_plus_ssd_mom_ly.clear();
   out_fit_plus_ssd_mom_lz.clear();
@@ -1490,6 +1502,8 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_fit_plus_tgt_zero_y.resize(out_n_pairs);
   out_fit_plus_tgt_plus_x.resize(out_n_pairs);
   out_fit_plus_tgt_plus_y.resize(out_n_pairs);
+  out_fit_plus_x0_y.resize(out_n_pairs);
+  out_fit_plus_x0_z.resize(out_n_pairs);
   out_fit_minus_ssd_lx.resize(out_n_pairs);
   out_fit_minus_ssd_ly.resize(out_n_pairs);
   out_fit_minus_gtr100_lx.resize(out_n_pairs);
@@ -1512,6 +1526,8 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_fit_minus_tgt_zero_y.resize(out_n_pairs);
   out_fit_minus_tgt_plus_x.resize(out_n_pairs);
   out_fit_minus_tgt_plus_y.resize(out_n_pairs);
+  out_fit_minus_x0_y.resize(out_n_pairs);
+  out_fit_minus_x0_z.resize(out_n_pairs);
   out_fit_plus_ssd_mom_lx.resize(out_n_pairs);
   out_fit_plus_ssd_mom_ly.resize(out_n_pairs);
   out_fit_plus_ssd_mom_lz.resize(out_n_pairs);
@@ -2974,6 +2990,8 @@ void track_analyzer_220715::FillCommonBranches() {
       out_fit_plus_tgt_zero_y[i]       = rk_proj_tgt1_gy->at(i0);
       out_fit_plus_tgt_plus_x[i]       = rk_proj_tgt2_gx->at(i0);
       out_fit_plus_tgt_plus_y[i]       = rk_proj_tgt2_gy->at(i0);
+      out_fit_plus_x0_y[i]             = rk_proj_x0_gy->at(i0);
+      out_fit_plus_x0_z[i]             = rk_proj_x0_gz->at(i0);
       out_fit_minus_hbd_lx[i]          = rk_fit_hbd_x->at(i1);
       out_fit_minus_hbd_ly[i]          = rk_fit_hbd_y->at(i1);
       out_fit_minus_lg_c_lx[i]         = rk_fit_lg_c_x->at(i1);
@@ -2988,6 +3006,8 @@ void track_analyzer_220715::FillCommonBranches() {
       out_fit_minus_tgt_zero_y[i]      = rk_proj_tgt1_gy->at(i1);
       out_fit_minus_tgt_plus_x[i]      = rk_proj_tgt2_gx->at(i1);
       out_fit_minus_tgt_plus_y[i]      = rk_proj_tgt2_gy->at(i1);
+      out_fit_minus_x0_y[i]            = rk_proj_x0_gy->at(i1);
+      out_fit_minus_x0_z[i]            = rk_proj_x0_gz->at(i1);
       out_fit_plus_ssd_mom_lx[i]       = rk_fit_ssd_mom_x->at(i0);
       out_fit_plus_ssd_mom_ly[i]       = rk_fit_ssd_mom_y->at(i0);
       out_fit_plus_ssd_mom_lz[i]       = rk_fit_ssd_mom_z->at(i0);
@@ -3407,12 +3427,16 @@ void track_analyzer_220715::ClearEMBranches() {
   em_fit_plus_tgt_zero_y.clear();
   em_fit_plus_tgt_plus_x.clear();
   em_fit_plus_tgt_plus_y.clear();
+  em_fit_plus_x0_y.clear();
+  em_fit_plus_x0_z.clear();
   em_fit_minus_tgt_minus_x.clear();
   em_fit_minus_tgt_minus_y.clear();
   em_fit_minus_tgt_zero_x.clear();
   em_fit_minus_tgt_zero_y.clear();
   em_fit_minus_tgt_plus_x.clear();
   em_fit_minus_tgt_plus_y.clear();
+  em_fit_minus_x0_y.clear();
+  em_fit_minus_x0_z.clear();
   em_fit_plus_ssd_mom_lx.clear();
   em_fit_plus_ssd_mom_ly.clear();
   em_fit_plus_ssd_mom_lz.clear();
@@ -3599,6 +3623,8 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_fit_plus_tgt_zero_y.emplace_back(rk_proj_tgt1_gy->at(plus_track_index));
   em_fit_plus_tgt_plus_x.emplace_back(rk_proj_tgt2_gx->at(plus_track_index));
   em_fit_plus_tgt_plus_y.emplace_back(rk_proj_tgt2_gy->at(plus_track_index));
+  em_fit_plus_x0_y.emplace_back(rk_proj_x0_gy->at(plus_track_index));
+  em_fit_plus_x0_z.emplace_back(rk_proj_x0_gz->at(plus_track_index));
   // momentum in detectors mus be implemented
   em_fit_plus_tgt_minus_mom_x.emplace_back(rk_proj_tgt0_mom_gx->at(plus_track_index));
   em_fit_plus_tgt_minus_mom_y.emplace_back(rk_proj_tgt0_mom_gy->at(plus_track_index));
@@ -3634,6 +3660,8 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_fit_minus_tgt_zero_y.emplace_back(rk_proj_tgt1_gy->at(minus_track_index));
   em_fit_minus_tgt_plus_x.emplace_back(rk_proj_tgt2_gx->at(minus_track_index));
   em_fit_minus_tgt_plus_y.emplace_back(rk_proj_tgt2_gy->at(minus_track_index));
+  em_fit_minus_x0_y.emplace_back(rk_proj_x0_gy->at(minus_track_index));
+  em_fit_minus_x0_z.emplace_back(rk_proj_x0_gz->at(minus_track_index));
   em_fit_minus_tgt_minus_mom_x.emplace_back(rk_proj_tgt0_mom_gx->at(minus_track_index));
   em_fit_minus_tgt_minus_mom_y.emplace_back(rk_proj_tgt0_mom_gy->at(minus_track_index));
   em_fit_minus_tgt_minus_mom_z.emplace_back(rk_proj_tgt0_mom_gz->at(minus_track_index));

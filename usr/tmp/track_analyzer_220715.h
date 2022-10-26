@@ -1647,6 +1647,8 @@ public :
   std::vector<double> out_fit_plus_tgt_zero_y;
   std::vector<double> out_fit_plus_tgt_plus_x;
   std::vector<double> out_fit_plus_tgt_plus_y;
+  std::vector<double> out_fit_plus_x0_y;
+  std::vector<double> out_fit_plus_x0_z;
   std::vector<double> out_fit_minus_ssd_lx;
   std::vector<double> out_fit_minus_ssd_ly;
   std::vector<double> out_fit_minus_gtr100_lx;
@@ -1669,6 +1671,8 @@ public :
   std::vector<double> out_fit_minus_tgt_zero_y;
   std::vector<double> out_fit_minus_tgt_plus_x;
   std::vector<double> out_fit_minus_tgt_plus_y;
+  std::vector<double> out_fit_minus_x0_y;
+  std::vector<double> out_fit_minus_x0_z;
   std::vector<double> out_fit_plus_ssd_mom_lx;
   std::vector<double> out_fit_plus_ssd_mom_ly;
   std::vector<double> out_fit_plus_ssd_mom_lz;
@@ -1999,6 +2003,8 @@ public :
   std::vector<double> em_fit_plus_tgt_zero_y;
   std::vector<double> em_fit_plus_tgt_plus_x;
   std::vector<double> em_fit_plus_tgt_plus_y;
+  std::vector<double> em_fit_plus_x0_y;
+  std::vector<double> em_fit_plus_x0_z;
 //  std::vector<double> out_fit_minus_ssd_lx;
 //  std::vector<double> out_fit_minus_ssd_ly;
 //  std::vector<double> out_fit_minus_gtr100_lx;
@@ -2021,6 +2027,8 @@ public :
   std::vector<double> em_fit_minus_tgt_zero_y;
   std::vector<double> em_fit_minus_tgt_plus_x;
   std::vector<double> em_fit_minus_tgt_plus_y;
+  std::vector<double> em_fit_minus_x0_y;
+  std::vector<double> em_fit_minus_x0_z;
   std::vector<double> em_fit_plus_ssd_mom_lx;
   std::vector<double> em_fit_plus_ssd_mom_ly;
   std::vector<double> em_fit_plus_ssd_mom_lz;

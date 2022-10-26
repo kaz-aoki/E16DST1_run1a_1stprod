@@ -62,9 +62,9 @@ constexpr int kReserve = 1024;
 // tmp
 const double kGTRDetectPlaneOffset  = 3. * 0.5 + 2.2 * 3.; // 8.1
 //const double kGTRLorentzLengthV2[3] = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35}; // tmp
-const double kGTRLorentzLengthV2[3] = {3.18, -2.4, -1.15}; // 1800 V, GTR module ID: 106. Morino param
+//const double kGTRLorentzLengthV2[3] = {3.18, -2.4, -1.15}; // 1800 V, GTR module ID: 106. Morino param
 //const double kGTRLorentzLengthV2[3] = {7.5 * 0.35 * 1.28, -5.5 * 0.35 * 1.5, -3. * 0.35 * 1.45}; // 1800 V, 106. Ichikawa param
-//const double kGTRLorentzLengthV2[3] = {7.5 * 0.35 * 1.11, -5.5 * 0.35 * 1.17, -3. * 0.35 * 1.09}; // 1500 V, 106. Morino param modified by Ichikawa param
+const double kGTRLorentzLengthV2[3] = {7.5 * 0.35 * 1.11, -5.5 * 0.35 * 1.17, -3. * 0.35 * 1.09}; // 1500 V, 106. Morino param modified by Ichikawa param
 const double kGTRLorentzAngleV2[3]  = {TMath::ATan(kGTRLorentzLengthV2[0] / kGTRDetectPlaneOffset),
                                        TMath::ATan(kGTRLorentzLengthV2[1] / kGTRDetectPlaneOffset),
                                        TMath::ATan(kGTRLorentzLengthV2[2] / kGTRDetectPlaneOffset)}; // {0.313, -0.233, -0.129}; // tmp
