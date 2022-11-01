@@ -1680,6 +1680,7 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_fit_parent_x0_y.resize(out_n_pairs);
   out_fit_parent_x0_z.resize(out_n_pairs);
   out_proj_plus_n_hbds.resize(out_n_pairs);
+  out_proj_plus_hbd_min_res.resize(out_n_pairs);
   out_proj_plus_hbd_id.resize(out_n_pairs);
   out_proj_plus_hbd_lx.resize(out_n_pairs);
   out_proj_plus_hbd_ly.resize(out_n_pairs);
@@ -1689,6 +1690,7 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_proj_plus_hbd_size.resize(out_n_pairs);
   out_proj_plus_hbd_eprob.resize(out_n_pairs);
   out_proj_minus_n_hbds.resize(out_n_pairs);
+  out_proj_minus_hbd_min_res.resize(out_n_pairs);
   out_proj_minus_hbd_id.resize(out_n_pairs);
   out_proj_minus_hbd_lx.resize(out_n_pairs);
   out_proj_minus_hbd_ly.resize(out_n_pairs);
