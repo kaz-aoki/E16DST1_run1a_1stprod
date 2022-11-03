@@ -2529,7 +2529,7 @@ void track_analyzer_220715::ProjectionTargets(int n) {
           }
         }
       } else {
-        if (t == kChargeMinus) {
+        if (t == kChargePlus) {
           if (i == kTgtMinus) {
             out_fit_plus_tgt_minus_x[n] = cross_pos.x() * 10.;
             out_fit_plus_tgt_minus_y[n] = cross_pos.y() * 10.;
