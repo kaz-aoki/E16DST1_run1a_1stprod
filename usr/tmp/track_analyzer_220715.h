@@ -1463,6 +1463,7 @@ public :
   void AssociatedHBD(int n);
   int SimpleBestTargetID(int n, double* r);
   void SimpleAnalysis(int n);
+  void TmpProjectionX0(int n);
   void FillCommonBranches();
   void Analyze();
   void FillEntryInfo(int entry_index, track_analyzer_220715::EntryInfo* plus_entry, track_analyzer_220715::EntryInfo* minus_entry);
@@ -1869,6 +1870,18 @@ public :
   std::vector<std::vector<double>> out_proj_minus_hbd_size;
   std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
   // LG Projection
+std::vector<int>                 out_tmp_fit_plus_x0_flag;
+std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_y;
+std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_z;
+std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_x;
+std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_y;
+std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_z;
+std::vector<int>                 out_tmp_fit_minus_x0_flag;
+std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_y;
+std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_z;
+std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_x;
+std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_y;
+std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_z;
   // Event Mixing 
   std::vector<int> em_plus_run_id;
   std::vector<int> em_plus_event_id;
