@@ -10,7 +10,7 @@ enum {
   kAnalyzePairFit,
   kAnalyzeNearestPoint
 };
-constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = false;
@@ -120,7 +120,7 @@ constexpr int      kStrategy     = 0;
 constexpr int      kMaxFuncCalls = 1.0e4;
 constexpr double   kVtxXRange[2] = {-60., 60.};
 constexpr double   kVtxYRange[2] = {-60., 60.};
-constexpr double   kVtxZRange[2] = {-30., 60.};
+constexpr double   kVtxZRange[2] = {-150., 150.};
 
 // StepTrack parameter
 constexpr double kStepTrackSizeCm    = 0.1;
