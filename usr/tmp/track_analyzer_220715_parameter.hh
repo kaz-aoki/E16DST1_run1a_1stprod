@@ -10,7 +10,7 @@ enum {
   kAnalyzePairFit,
   kAnalyzeNearestPoint
 };
-constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
+constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = false;

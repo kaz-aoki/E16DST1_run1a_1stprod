@@ -1495,8 +1495,18 @@ public :
   // Tree branch
   int out_n_pairs;
 // single fit info. chi2, ...
-  std::vector<double> out_plus_rough_fit_init_z;
-  std::vector<double> out_minus_rough_fit_init_z;
+  std::vector<double> out_plus_rough_fit_init_pos_x;
+  std::vector<double> out_plus_rough_fit_init_pos_y;
+  std::vector<double> out_plus_rough_fit_init_pos_z;
+  std::vector<double> out_plus_rough_fit_init_mom_x;
+  std::vector<double> out_plus_rough_fit_init_mom_y;
+  std::vector<double> out_plus_rough_fit_init_mom_z;
+  std::vector<double> out_minus_rough_fit_init_pos_x;
+  std::vector<double> out_minus_rough_fit_init_pos_y;
+  std::vector<double> out_minus_rough_fit_init_pos_z;
+  std::vector<double> out_minus_rough_fit_init_mom_x;
+  std::vector<double> out_minus_rough_fit_init_mom_y;
+  std::vector<double> out_minus_rough_fit_init_mom_z;
   // Hit
   std::vector<int>    out_plus_track_id;
   std::vector<int>    out_plus_charge_id;
