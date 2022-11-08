@@ -134,6 +134,7 @@ public:
 
   int CrossZconstPlane(double iz, Hep3Vector& crossPoint,  Hep3Vector& crossMom);
   int CrossXconstPlane(double ix, Hep3Vector& crossPoint,  Hep3Vector& crossMom);
+  int CrossXconstPlane(double ix, std::vector<Hep3Vector>* crossPoint,  std::vector<Hep3Vector>* crossMom);
 
   int FcnCalledCount(){return fcnCalledCount;};
 

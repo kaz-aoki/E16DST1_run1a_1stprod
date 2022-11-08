@@ -603,6 +603,57 @@ Hep3Vector& crossMom){
 
 }
 
+int E16ANA_StepTrack::CrossXconstPlane(double ix, vector<Hep3Vector>* crossPoint, vector<Hep3Vector>* crossMom){
+  crossPoint->clear();
+  crossMom->clear();
+
+  int i=0,j=0;
+  double prevdiff = 0;
+  Hep3Vector pointA, pointB;
+
+  double diff = initPoint.x() - ix;
+  if( fabs(diff) < std::numeric_limits<double>::epsilon() ){
+    return 0;
+  }
+  for(i=0;i<arraySize;i++){ //follow the first array from the initPoint
+    double diff = pointData1[i].x()- ix;
+    if( diff * prevdiff < 0 ) {//cross
+      pointA=pointData1[i-1];      pointB=pointData1[i];
+      double ratio = fabs (diff / (pointB.x()-pointA.x()) );
+      double step = i- ratio;
+      crossPoint->emplace_back(ArrayGet(step, pointData1, pointData2));
+      crossMom->emplace_back(ArrayGet(step, momData1, momData2));
+      prevdiff = diff;
+    }
+    else{
+      prevdiff = diff;
+    }
+  }//for i
+
+  prevdiff = 0;
+  for(j=0;j<arraySize;j++){//follow the second array from the initPoint
+    double diff = pointData2[j].x()- ix;
+    if( diff * prevdiff < 0 ) {//cross
+      pointA=pointData2[j-1];      pointB=pointData2[j];
+      double ratio = fabs( diff / (pointB.x()-pointA.x()) );
+      double step = (j-ratio)* -1;
+      crossPoint->emplace_back(ArrayGet(step, pointData1, pointData2));
+      crossMom->emplace_back(ArrayGet(step, momData1, momData2));
+      prevdiff = diff;
+    }
+    else{
+      prevdiff = diff;
+    }
+  }//for j
+
+  if(i<arraySize||j<arraySize){ return 1; }
+  else{
+    return -1;
+  }
+
+
+}
+
 
 
 //------------------------------------------------------------
