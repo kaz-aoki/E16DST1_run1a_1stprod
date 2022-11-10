@@ -424,12 +424,14 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
   tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
 tree->Branch("tmp_fit_plus_x0_flag",               &out_tmp_fit_plus_x0_flag);
+tree->Branch("tmp_fit_plus_x0_n_cross",            &out_tmp_fit_plus_x0_n_cross);
 tree->Branch("tmp_fit_plus_x0_pos_y",              &out_tmp_fit_plus_x0_pos_y);
 tree->Branch("tmp_fit_plus_x0_pos_z",              &out_tmp_fit_plus_x0_pos_z);
 tree->Branch("tmp_fit_plus_x0_mom_x",              &out_tmp_fit_plus_x0_mom_x);
 tree->Branch("tmp_fit_plus_x0_mom_y",              &out_tmp_fit_plus_x0_mom_y);
 tree->Branch("tmp_fit_plus_x0_mom_z",              &out_tmp_fit_plus_x0_mom_z);
 tree->Branch("tmp_fit_minus_x0_flag",              &out_tmp_fit_minus_x0_flag);
+tree->Branch("tmp_fit_minus_x0_n_cross",           &out_tmp_fit_minus_x0_n_cross);
 tree->Branch("tmp_fit_minus_x0_pos_y",             &out_tmp_fit_minus_x0_pos_y);
 tree->Branch("tmp_fit_minus_x0_pos_z",             &out_tmp_fit_minus_x0_pos_z);
 tree->Branch("tmp_fit_minus_x0_mom_x",             &out_tmp_fit_minus_x0_mom_x);
@@ -1409,12 +1411,14 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_proj_minus_hbd_size.clear();
   out_proj_minus_hbd_eprob.clear();
 out_tmp_fit_plus_x0_flag.clear();
+out_tmp_fit_plus_x0_n_cross.clear();
 out_tmp_fit_plus_x0_pos_y.clear();
 out_tmp_fit_plus_x0_pos_z.clear();
 out_tmp_fit_plus_x0_mom_x.clear();
 out_tmp_fit_plus_x0_mom_y.clear();
 out_tmp_fit_plus_x0_mom_z.clear();
 out_tmp_fit_minus_x0_flag.clear();
+out_tmp_fit_minus_x0_n_cross.clear();
 out_tmp_fit_minus_x0_pos_y.clear();
 out_tmp_fit_minus_x0_pos_z.clear();
 out_tmp_fit_minus_x0_mom_x.clear();
@@ -1790,12 +1794,14 @@ out_tmp_fit_minus_x0_mom_z.clear();
   out_proj_minus_hbd_size.resize(out_n_pairs);
   out_proj_minus_hbd_eprob.resize(out_n_pairs);
 out_tmp_fit_plus_x0_flag.resize(out_n_pairs);
+out_tmp_fit_plus_x0_n_cross.resize(out_n_pairs);
 out_tmp_fit_plus_x0_pos_y.resize(out_n_pairs);
 out_tmp_fit_plus_x0_pos_z.resize(out_n_pairs);
 out_tmp_fit_plus_x0_mom_x.resize(out_n_pairs);
 out_tmp_fit_plus_x0_mom_y.resize(out_n_pairs);
 out_tmp_fit_plus_x0_mom_z.resize(out_n_pairs);
 out_tmp_fit_minus_x0_flag.resize(out_n_pairs);
+out_tmp_fit_minus_x0_n_cross.resize(out_n_pairs);
 out_tmp_fit_minus_x0_pos_y.resize(out_n_pairs);
 out_tmp_fit_minus_x0_pos_z.resize(out_n_pairs);
 out_tmp_fit_minus_x0_mom_x.resize(out_n_pairs);
@@ -3009,7 +3015,8 @@ void track_analyzer_220715::TmpProjectionX0(int n) {
     auto flag = step_track.CrossXconstPlane(0., &cross_pos, &cross_mom);
     auto n_points = cross_pos.size();
     if (c == kChargePlus) {
-      out_tmp_fit_plus_x0_flag[n] = flag;
+      out_tmp_fit_plus_x0_flag[n]     = flag;
+      out_tmp_fit_plus_x0_n_cross[n] = n_points;
       out_tmp_fit_plus_x0_pos_y[n].resize(n_points);
       out_tmp_fit_plus_x0_pos_z[n].resize(n_points);
       out_tmp_fit_plus_x0_mom_x[n].resize(n_points);
@@ -3023,7 +3030,9 @@ void track_analyzer_220715::TmpProjectionX0(int n) {
         out_tmp_fit_plus_x0_mom_z[n][i] = cross_mom[i].z();
       }
     } else {
-      out_tmp_fit_minus_x0_flag[n] = flag;
+      out_tmp_fit_minus_x0_flag[n]    = flag;
+      out_tmp_fit_minus_x0_n_cross[n] = n_points;
+      out_tmp_fit_plus_x0_pos_y[n].resize(n_points);
       out_tmp_fit_minus_x0_pos_y[n].resize(n_points);
       out_tmp_fit_minus_x0_pos_z[n].resize(n_points);
       out_tmp_fit_minus_x0_mom_x[n].resize(n_points);

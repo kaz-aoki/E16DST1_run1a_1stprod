@@ -1871,12 +1871,14 @@ public :
   std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
   // LG Projection
 std::vector<int>                 out_tmp_fit_plus_x0_flag;
+std::vector<int>                 out_tmp_fit_plus_x0_n_cross;
 std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_y;
 std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_z;
 std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_x;
 std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_y;
 std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_z;
 std::vector<int>                 out_tmp_fit_minus_x0_flag;
+std::vector<int>                 out_tmp_fit_minus_x0_n_cross;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_y;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_z;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_x;
