@@ -1461,6 +1461,7 @@ public :
                   int* best_tgt_id, double* best_tgt_r, int* good_tgt_id_set, std::vector<double>* good_tgt_ids, TVector3* x0_pos);
   void ParentInfo(int n);
   void AssociatedHBD(int n);
+  void AddPairOrders();
   int SimpleBestTargetID(int n, double* r);
   void SimpleAnalysis(int n);
   void TmpProjectionX0(int n);
@@ -1495,6 +1496,7 @@ public :
   std::vector<EntryInfo> past_minus_entries;
   // Tree branch
   int out_n_pairs;
+  std::vector<int> out_pair_order;
 // single fit info. chi2, ...
   std::vector<double> out_plus_rough_fit_init_pos_x;
   std::vector<double> out_plus_rough_fit_init_pos_y;

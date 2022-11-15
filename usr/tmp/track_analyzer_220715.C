@@ -54,6 +54,7 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("trg_lg_hit_gz",                    &trg_lg_hit_gz);
   tree->Branch("trg_lg_hit_t",                     &trg_lg_hit_t);
   tree->Branch("n_pairs",                          &out_n_pairs,        "n_pairs/I");
+  tree->Branch("pair_order",                       &out_pair_order);
   tree->Branch("plus_rough_fit_init_pos_x",        &out_plus_rough_fit_init_pos_x);
   tree->Branch("plus_rough_fit_init_pos_y",        &out_plus_rough_fit_init_pos_y);
   tree->Branch("plus_rough_fit_init_pos_z",        &out_plus_rough_fit_init_pos_z);
@@ -1041,6 +1042,7 @@ void track_analyzer_220715::SetPairs() {
 
 void track_analyzer_220715::ClearAndResizeBranches() {
   out_n_pairs = good_pair_indexs.size();
+  out_pair_order.clear();
   out_plus_rough_fit_init_pos_x.clear();
   out_plus_rough_fit_init_pos_y.clear();
   out_plus_rough_fit_init_pos_z.clear();
@@ -1424,6 +1426,7 @@ out_tmp_fit_minus_x0_pos_z.clear();
 out_tmp_fit_minus_x0_mom_x.clear();
 out_tmp_fit_minus_x0_mom_y.clear();
 out_tmp_fit_minus_x0_mom_z.clear();
+  out_pair_order.resize(out_n_pairs);
   out_plus_rough_fit_init_pos_x.resize(out_n_pairs);
   out_plus_rough_fit_init_pos_y.resize(out_n_pairs);
   out_plus_rough_fit_init_pos_z.resize(out_n_pairs);
@@ -2995,6 +2998,24 @@ void track_analyzer_220715::SimpleAnalysis(int n) {
   return;
 }
 
+void track_analyzer_220715::AddPairOrders() {
+  vector<pair<double, int>> tmp_params(out_n_pairs);
+  if (kAnalyzeFlag == kAnalyzePairFit) {
+    for (int i = 0; i < out_n_pairs; ++i) {
+      tmp_params[i] = make_pair(out_chi2[i], i);
+    }
+  } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+    for (int i = 0; i < out_n_pairs; ++i) {
+      tmp_params[i] = make_pair(out_distance[i], i);
+    }
+  }
+  sort(tmp_params.begin(), tmp_params.end());
+  for (int i = 0; i < out_n_pairs; ++i) {
+    out_pair_order[i] = tmp_params[i].second;
+  }
+  return;
+}
+
 void track_analyzer_220715::TmpProjectionX0(int n) {
   vector<Hep3Vector> cross_pos;
   vector<Hep3Vector> cross_mom;
@@ -3015,7 +3036,7 @@ void track_analyzer_220715::TmpProjectionX0(int n) {
     auto flag = step_track.CrossXconstPlane(0., &cross_pos, &cross_mom);
     auto n_points = cross_pos.size();
     if (c == kChargePlus) {
-      out_tmp_fit_plus_x0_flag[n]     = flag;
+      out_tmp_fit_plus_x0_flag[n]    = flag;
       out_tmp_fit_plus_x0_n_cross[n] = n_points;
       out_tmp_fit_plus_x0_pos_y[n].resize(n_points);
       out_tmp_fit_plus_x0_pos_z[n].resize(n_points);
@@ -3401,6 +3422,7 @@ void track_analyzer_220715::FillCommonBranches() {
     SimpleAnalysis(i);
 TmpProjectionX0(i);
   }
+  AddPairOrders();
   return;
 }
 
@@ -4034,7 +4056,7 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
       }
     }
   }
-// Delete current_minus_track x past_plus_track pair to reduce process time
+// Delete current_minus_track and past_plus_track pair to reduce process time
 //  for (const auto& i : minus_entry.track_indexs) {
 //    for (const auto& pentry : past_plus_entries) {
 //      for (const auto& j : pentry.track_indexs) {
