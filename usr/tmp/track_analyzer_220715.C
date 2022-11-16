@@ -522,6 +522,7 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
 //  tree->Branch("hit_minus_gtr300_yadc",            &out_hit_minus_gtr300_yadc);
 //  tree->Branch("hit_minus_gtr300_xsize",           &out_hit_minus_gtr300_xsize);
 //  tree->Branch("hit_minus_gtr300_ysize",           &out_hit_minus_gtr300_ysize);
+  tree->Branch("n_pairs",                          &em_n_pairs);
   tree->Branch("chi2",                             &em_chi2);
   tree->Branch("plus_chi2",                        &em_plus_chi2);
   tree->Branch("minus_chi2",                       &em_minus_chi2);
@@ -3535,6 +3536,7 @@ void track_analyzer_220715::ClearEMBranches() {
 //  tree->Branch("hit_minus_gtr300_yadc",            &out_hit_minus_gtr300_yadc);
 //  tree->Branch("hit_minus_gtr300_xsize",           &out_hit_minus_gtr300_xsize);
 //  tree->Branch("hit_minus_gtr300_ysize",           &out_hit_minus_gtr300_ysize);
+  em_n_pairs.clear();
   em_chi2.clear();
   em_plus_chi2.clear();
   em_minus_chi2.clear();
@@ -4045,6 +4047,7 @@ void track_analyzer_220715::SimpleAnalysisEM() {
 }
 
 void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
+  int past_n_pairs = 0;
   for (const auto& i : plus_entry.track_indexs) {
     for (const auto& pentry : past_minus_entries) {
       for (const auto& j : pentry.track_indexs) {
@@ -4053,7 +4056,13 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
         } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
           NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
         }
+//        FillCommonBranchesEM();
       }
+auto n = em_plus_run_id.size() - past_n_pairs;
+for (int i = 0; i < n; ++i) {
+  em_n_pairs.emplace_back(n); // need to replace to FillCommonBranchesEM()
+}
+past_n_pairs += n;
     }
   }
 // Delete current_minus_track and past_plus_track pair to reduce process time

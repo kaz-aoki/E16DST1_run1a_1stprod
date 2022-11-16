@@ -1897,6 +1897,7 @@ std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_z;
   std::vector<int> em_minus_n_cands;
 //  std::vector<int> em_minus_n_pairs;
   std::vector<int> em_minus_track_id;
+  std::vector<int> em_n_pairs;
 //// single fit info. chi2, ...
 //  // Hit
 //  std::vector<int>    out_plus_track_id;
