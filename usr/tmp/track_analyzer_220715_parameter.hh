@@ -14,7 +14,7 @@ enum {
 constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
-constexpr bool kExecuteEventMixing = true;
+constexpr bool kExecuteEventMixing = false;
 constexpr int  kMaxPastEntries     = 1;
 //
 constexpr double kErrorNum = -10000.;

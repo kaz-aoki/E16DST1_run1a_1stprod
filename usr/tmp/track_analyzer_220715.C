@@ -3217,6 +3217,9 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
   out_tmp_dynamic_distance[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_dynamic_mom_angle[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_dynamic_pipi_mass[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
+  
+  array<array<array<TVector3, 2>, 2 * kTmpNumProjectionZHalf>, kTmpNumZMethods> poss;
+  array<array<array<TVector3, 2>, 2 * kTmpNumProjectionZHalf>, kTmpNumZMethods> moms;
   for (int c = 0; c < kNumCharges; ++c) {
     Hep3Vector init_pos;
     Hep3Vector init_mom;
@@ -3257,15 +3260,20 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
     auto z0 = out_vtx_z[n];
     for (int m = 0; m < kTmpNumZMethods; ++m) { // method. 0 : static z, 1 : dynamic z
       for (int zid = 0; zid < 2 * kTmpNumProjectionZHalf; ++zid) {
-        double z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
+        double z;
+        if (zid < kTmpNumProjectionZHalf) {
+          z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
+        } else {
+          z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf + 1);
+        }
         if (m == kTmpZDynamic) {
           z += z0;
         }
         auto flag = step_track.CrossZconstPlane(z * 0.1, cross_pos, cross_mom);
-        TVector3 pos;
-        TVector3 mom;
-        pos = TVector3(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
-        mom = TVector3(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
+        auto pos = TVector3(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
+        auto mom = TVector3(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
+        poss[m][zid][c] = pos;
+        moms[m][zid][c] = mom;
         if (c == kChargePlus) {
           if (m == kTmpZStatic) {
             out_tmp_plus_static_flag[n][zid] = flag;
@@ -3312,6 +3320,14 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
           }
         }
       }
+    }
+    for (int z = 0; z < 2 * kTmpNumProjectionZHalf; ++z) {
+      out_tmp_static_distance[n][z]   = (poss[kTmpZStatic][z][kChargePlus] - poss[kTmpZStatic][z][kChargeMinus]).Mag();
+      out_tmp_static_mom_angle[n][z]  = moms[kTmpZStatic][z][kChargePlus].Angle(moms[kTmpZStatic][z][kChargeMinus]);
+      out_tmp_static_pipi_mass[n][z]  = CalcMass(kPiPi, moms[kTmpZStatic][z][kChargePlus], moms[kTmpZStatic][z][kChargeMinus]);
+      out_tmp_dynamic_distance[n][z]  = (poss[kTmpZDynamic][z][kChargePlus] - poss[kTmpZDynamic][z][kChargeMinus]).Mag();
+      out_tmp_dynamic_mom_angle[n][z] = moms[kTmpZDynamic][z][kChargePlus].Angle(moms[kTmpZDynamic][z][kChargeMinus]);
+      out_tmp_dynamic_pipi_mass[n][z] = CalcMass(kPiPi, moms[kTmpZDynamic][z][kChargePlus], moms[kTmpZDynamic][z][kChargeMinus]);
     }
   }
   return;
