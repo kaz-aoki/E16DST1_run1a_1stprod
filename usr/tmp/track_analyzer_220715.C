@@ -3232,11 +3232,11 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
       }
     } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
       if (c == kChargePlus) {
-        init_pos.set(out_plus_single_fit_init_pos_x[n], out_plus_single_fit_init_pos_y[n], out_plus_single_fit_init_pos_z[n]);
-        init_mom.set(out_plus_single_fit_init_mom_x[n], out_plus_single_fit_init_mom_y[n], out_plus_single_fit_init_mom_z[n]);
+        init_pos.set(out_plus_single_fit_init_pos_x[n] * 0.1, out_plus_single_fit_init_pos_y[n] * 0.1, out_plus_single_fit_init_pos_z[n] * 0.1);
+        init_mom.set(out_plus_single_fit_init_mom_x[n],       out_plus_single_fit_init_mom_y[n],       out_plus_single_fit_init_mom_z[n]);
       } else {
-        init_pos.set(out_minus_single_fit_init_pos_x[n], out_minus_single_fit_init_pos_y[n], out_minus_single_fit_init_pos_z[n]);
-        init_mom.set(out_minus_single_fit_init_mom_x[n], out_minus_single_fit_init_mom_y[n], out_minus_single_fit_init_mom_z[n]);
+        init_pos.set(out_minus_single_fit_init_pos_x[n] * 0.1, out_minus_single_fit_init_pos_y[n] * 0.1, out_minus_single_fit_init_pos_z[n] * 0.1);
+        init_mom.set(out_minus_single_fit_init_mom_x[n],       out_minus_single_fit_init_mom_y[n],       out_minus_single_fit_init_mom_z[n]);
       }
     } else {
       cerr << "unimplemented function: TmpProjectionSomeZ()" << endl;
@@ -3260,10 +3260,8 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
     auto z0 = out_vtx_z[n];
     for (int m = 0; m < kTmpNumZMethods; ++m) { // method. 0 : static z, 1 : dynamic z
       for (int zid = 0; zid < 2 * kTmpNumProjectionZHalf; ++zid) {
-        double z;
-        if (zid < kTmpNumProjectionZHalf) {
-          z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
-        } else {
+        double z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
+        if (zid >= kTmpNumProjectionZHalf) {
           z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf + 1);
         }
         if (m == kTmpZDynamic) {
