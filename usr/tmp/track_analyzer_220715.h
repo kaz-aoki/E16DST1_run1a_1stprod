@@ -1465,6 +1465,7 @@ public :
   int SimpleBestTargetID(int n, double* r);
   void SimpleAnalysis(int n);
   void TmpProjectionX0(int n);
+  void TmpProjectionSomeZ(int n);
   void FillCommonBranches();
   void Analyze();
   void FillEntryInfo(int entry_index, track_analyzer_220715::EntryInfo* plus_entry, track_analyzer_220715::EntryInfo* minus_entry);
@@ -1872,6 +1873,8 @@ public :
   std::vector<std::vector<double>> out_proj_minus_hbd_size;
   std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
   // LG Projection
+// tmp
+// check of E16ANA_StepTrack function
 std::vector<int>                 out_tmp_fit_plus_x0_flag;
 std::vector<int>                 out_tmp_fit_plus_x0_n_cross;
 std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_y;
@@ -1886,6 +1889,41 @@ std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_z;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_x;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_y;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_z;
+// check vertex
+std::vector<std::vector<double>> out_tmp_plus_static_flag;
+std::vector<std::vector<double>> out_tmp_plus_static_pos_x;
+std::vector<std::vector<double>> out_tmp_plus_static_pos_y;
+std::vector<std::vector<double>> out_tmp_plus_static_pos_z;
+std::vector<std::vector<double>> out_tmp_plus_static_mom_x;
+std::vector<std::vector<double>> out_tmp_plus_static_mom_y;
+std::vector<std::vector<double>> out_tmp_plus_static_mom_z;
+std::vector<std::vector<double>> out_tmp_minus_static_flag;
+std::vector<std::vector<double>> out_tmp_minus_static_pos_x;
+std::vector<std::vector<double>> out_tmp_minus_static_pos_y;
+std::vector<std::vector<double>> out_tmp_minus_static_pos_z;
+std::vector<std::vector<double>> out_tmp_minus_static_mom_x;
+std::vector<std::vector<double>> out_tmp_minus_static_mom_y;
+std::vector<std::vector<double>> out_tmp_minus_static_mom_z;
+std::vector<std::vector<double>> out_tmp_static_distance;
+std::vector<std::vector<double>> out_tmp_static_mom_angle;
+std::vector<std::vector<double>> out_tmp_static_pipi_mass;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_flag;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_x;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_y;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_z;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_mom_x;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_mom_y;
+std::vector<std::vector<double>> out_tmp_plus_dynamic_mom_z;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_flag;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_pos_x;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_pos_y;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_pos_z;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_x;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_y;
+std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_z;
+std::vector<std::vector<double>> out_tmp_dynamic_distance;
+std::vector<std::vector<double>> out_tmp_dynamic_mom_angle;
+std::vector<std::vector<double>> out_tmp_dynamic_pipi_mass;
   // Event Mixing 
   std::vector<int> em_plus_run_id;
   std::vector<int> em_plus_event_id;

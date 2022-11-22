@@ -146,6 +146,15 @@ constexpr double kMaxGoodTgtYDiff  = 2.;
 constexpr int kTypicalLGBlocks[3] = {0, 10, 20};
 constexpr int kProjectionMaxSteps = 2000;
 
+// Tmp
+enum {
+  kTmpZStatic,
+  kTmpZDynamic,
+  kTmpNumZMethods
+};
+constexpr int kTmpNumProjectionZHalf = 4;
+constexpr double kTmpProjectionZWidth = 15.;
+
 }; // track_analyzer_220715_parameter
 
 #endif // TRACK_ANALYZER_220715_PARAMETER_HH
