@@ -474,6 +474,25 @@ tree->Branch("tmp_minus_dynamic_mom_z",            &out_tmp_minus_dynamic_mom_z)
 tree->Branch("tmp_dynamic_distance",               &out_tmp_dynamic_distance);
 tree->Branch("tmp_dynamic_mom_angle",              &out_tmp_dynamic_mom_angle);
 tree->Branch("tmp_dynamic_pipi_mass",              &out_tmp_dynamic_pipi_mass);
+#ifdef TMP_ZX_NEAREST
+tree->Branch("tmp_zx_flag",        &out_tmp_zx_flag);
+tree->Branch("tmp_zx_distance",    &out_tmp_zx_distance);
+tree->Branch("tmp_zx_vtx_x",       &out_tmp_zx_vtx_x);
+tree->Branch("tmp_zx_vtx_y",       &out_tmp_zx_vtx_y);
+tree->Branch("tmp_zx_vtx_z",       &out_tmp_zx_vtx_z);
+tree->Branch("tmp_zx_plus_pos_x",  &out_tmp_zx_plus_pos_x);
+tree->Branch("tmp_zx_plus_pos_y",  &out_tmp_zx_plus_pos_y);
+tree->Branch("tmp_zx_plus_pos_z",  &out_tmp_zx_plus_pos_z);
+tree->Branch("tmp_zx_minus_pos_x", &out_tmp_zx_minus_pos_x);
+tree->Branch("tmp_zx_minus_pos_y", &out_tmp_zx_minus_pos_y);
+tree->Branch("tmp_zx_minus_pos_z", &out_tmp_zx_minus_pos_z);
+tree->Branch("tmp_zx_plus_mom_x",  &out_tmp_zx_plus_mom_x);
+tree->Branch("tmp_zx_plus_mom_y",  &out_tmp_zx_plus_mom_y);
+tree->Branch("tmp_zx_plus_mom_z",  &out_tmp_zx_plus_mom_z);
+tree->Branch("tmp_zx_minus_mom_x", &out_tmp_zx_minus_mom_x);
+tree->Branch("tmp_zx_minus_mom_y", &out_tmp_zx_minus_mom_y);
+tree->Branch("tmp_zx_minus_mom_z", &out_tmp_zx_minus_mom_z);
+#endif // TMP_ZX_NEAREST
   return;
 }
 
@@ -1498,6 +1517,26 @@ out_tmp_minus_dynamic_mom_z.clear();
 out_tmp_dynamic_distance.clear();
 out_tmp_dynamic_mom_angle.clear();
 out_tmp_dynamic_pipi_mass.clear();
+#ifdef TMP_ZX_NEAREST
+out_tmp_zx_flag.clear();
+out_tmp_zx_distance.clear();
+out_tmp_zx_vtx_x.clear();
+out_tmp_zx_vtx_y.clear();
+out_tmp_zx_vtx_z.clear();
+out_tmp_zx_plus_pos_x.clear();
+out_tmp_zx_plus_pos_y.clear();
+out_tmp_zx_plus_pos_z.clear();
+out_tmp_zx_minus_pos_x.clear();
+out_tmp_zx_minus_pos_y.clear();
+out_tmp_zx_minus_pos_z.clear();
+out_tmp_zx_plus_mom_x.clear();
+out_tmp_zx_plus_mom_y.clear();
+out_tmp_zx_plus_mom_z.clear();
+out_tmp_zx_minus_mom_x.clear();
+out_tmp_zx_minus_mom_y.clear();
+out_tmp_zx_minus_mom_z.clear();
+out_tmp_zx_pipi_mass.clear();
+#endif // TMP_ZX_NEAREST
   out_pair_order.resize(out_n_pairs);
   out_plus_rough_fit_init_pos_x.resize(out_n_pairs);
   out_plus_rough_fit_init_pos_y.resize(out_n_pairs);
@@ -1917,6 +1956,26 @@ out_tmp_minus_dynamic_mom_z.resize(out_n_pairs);
 out_tmp_dynamic_distance.resize(out_n_pairs);
 out_tmp_dynamic_mom_angle.resize(out_n_pairs);
 out_tmp_dynamic_pipi_mass.resize(out_n_pairs);
+#ifdef TMP_ZX_NEAREST
+out_tmp_zx_flag.resize(out_n_pairs);
+out_tmp_zx_distance.resize(out_n_pairs);
+out_tmp_zx_vtx_x.resize(out_n_pairs);
+out_tmp_zx_vtx_y.resize(out_n_pairs);
+out_tmp_zx_vtx_z.resize(out_n_pairs);
+out_tmp_zx_plus_pos_x.resize(out_n_pairs);
+out_tmp_zx_plus_pos_y.resize(out_n_pairs);
+out_tmp_zx_plus_pos_z.resize(out_n_pairs);
+out_tmp_zx_minus_pos_x.resize(out_n_pairs);
+out_tmp_zx_minus_pos_y.resize(out_n_pairs);
+out_tmp_zx_minus_pos_z.resize(out_n_pairs);
+out_tmp_zx_plus_mom_x.resize(out_n_pairs);
+out_tmp_zx_plus_mom_y.resize(out_n_pairs);
+out_tmp_zx_plus_mom_z.resize(out_n_pairs);
+out_tmp_zx_minus_mom_x.resize(out_n_pairs);
+out_tmp_zx_minus_mom_y.resize(out_n_pairs);
+out_tmp_zx_minus_mom_z.resize(out_n_pairs);
+out_tmp_zx_pipi_mass.resize(out_n_pairs);
+#endif // TMP_ZX_NEAREST
   return;
 }
 
@@ -2418,7 +2477,9 @@ void track_analyzer_220715::PairFit(int n) {
   return;
 }
 
-void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx, const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom) {
+void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx,
+                                                      const Hep3Vector& hep_plus_pos, const Hep3Vector& hep_minus_pos,
+                                                      const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom) {
   out_plus_chi2[n]            = chi_square->at(good_pair_indexs[n][0]);
   out_minus_chi2[n]           = chi_square->at(good_pair_indexs[n][1]);
   out_flag[n]                 = flag;
@@ -2430,6 +2491,14 @@ void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double di
   out_vtx_x[n]                = hep_vtx.x()       * 10.;
   out_vtx_y[n]                = hep_vtx.y()       * 10.;
   out_vtx_z[n]                = hep_vtx.z()       * 10.;
+  auto ppos = TVector3(hep_plus_pos.x()  * 10., hep_plus_pos.y()  * 10., hep_plus_pos.z()  * 10.);
+  auto mpos = TVector3(hep_minus_pos.x() * 10., hep_minus_pos.y() * 10., hep_minus_pos.z() * 10.);
+  out_plus_pos_x[n]  = ppos.X();
+  out_plus_pos_y[n]  = ppos.Y();
+  out_plus_pos_z[n]  = ppos.Z();
+  out_minus_pos_x[n] = mpos.X();
+  out_minus_pos_y[n] = mpos.Y();
+  out_minus_pos_z[n] = mpos.Z();
   auto pmom = TVector3(hep_plus_mom.x(),  hep_plus_mom.y(),  hep_plus_mom.z());
   auto mmom = TVector3(hep_minus_mom.x(), hep_minus_mom.y(), hep_minus_mom.z());
   out_plus_mom[n]        = pmom.Mag();
@@ -2476,10 +2545,67 @@ void track_analyzer_220715::NearestPoint(int n) {
   }
   auto dist_cm       = double();
   auto hep_vtx       = Hep3Vector();
+  auto hep_plus_pos  = Hep3Vector();
+  auto hep_minus_pos = Hep3Vector();
   auto hep_plus_mom  = Hep3Vector();
   auto hep_minus_mom = Hep3Vector();
-  auto flag = tracks[0]->Cross(*tracks[1], &dist_cm, &hep_vtx, &hep_plus_mom, &hep_minus_mom);
-  FillBranchesFromStepTrack(n, flag, dist_cm, hep_vtx, hep_plus_mom, hep_minus_mom);
+  auto flag = tracks[0]->Cross(*tracks[1], &dist_cm, &hep_vtx, &hep_plus_pos, &hep_minus_pos, &hep_plus_mom, &hep_minus_mom);
+  FillBranchesFromStepTrack(n, flag, dist_cm, hep_vtx, hep_plus_pos, hep_minus_pos, hep_plus_mom, hep_minus_mom);
+#ifdef TMP_ZX_NEAREST
+  flag = tracks[0]->CrossXZ(*tracks[1], &dist_cm, &hep_vtx, &hep_plus_pos, &hep_minus_pos, &hep_plus_mom, &hep_minus_mom);
+  out_tmp_zx_flag[n] = flag;
+  if (flag == -1) {
+    out_tmp_zx_distance[n]    = kErrorNum;
+    out_tmp_zx_vtx_x[n]       = kErrorNum;
+    out_tmp_zx_vtx_y[n]       = kErrorNum;
+    out_tmp_zx_vtx_z[n]       = kErrorNum;
+    out_tmp_zx_plus_pos_x[n]  = kErrorNum;
+    out_tmp_zx_plus_pos_y[n]  = kErrorNum;
+    out_tmp_zx_plus_pos_z[n]  = kErrorNum;
+    out_tmp_zx_minus_pos_x[n] = kErrorNum;
+    out_tmp_zx_minus_pos_y[n] = kErrorNum;
+    out_tmp_zx_minus_pos_z[n] = kErrorNum;
+    out_tmp_zx_plus_mom_x[n]  = kErrorNum;
+    out_tmp_zx_plus_mom_y[n]  = kErrorNum;
+    out_tmp_zx_plus_mom_z[n]  = kErrorNum;
+    out_tmp_zx_minus_mom_x[n] = kErrorNum;
+    out_tmp_zx_minus_mom_y[n] = kErrorNum;
+    out_tmp_zx_minus_mom_z[n] = kErrorNum;
+    out_tmp_zx_pipi_mass[n]   = kErrorNum;
+  } else {
+    out_tmp_zx_distance[n] = dist_cm * 10.;
+    out_tmp_zx_vtx_x[n] = hep_vtx.x() * 10.;
+    out_tmp_zx_vtx_y[n] = hep_vtx.y() * 10.;
+    out_tmp_zx_vtx_z[n] = hep_vtx.z() * 10.;
+    auto ppos = TVector3(hep_plus_pos.x()  * 10., hep_plus_pos.y()  * 10., hep_plus_pos.z()  * 10.);
+    auto mpos = TVector3(hep_minus_pos.x() * 10., hep_minus_pos.y() * 10., hep_minus_pos.z() * 10.);
+    out_tmp_zx_plus_pos_x[n]  = ppos.X();
+    out_tmp_zx_plus_pos_y[n]  = ppos.Y();
+    out_tmp_zx_plus_pos_z[n]  = ppos.Z();
+    out_tmp_zx_minus_pos_x[n] = mpos.X();
+    out_tmp_zx_minus_pos_y[n] = mpos.Y();
+    out_tmp_zx_minus_pos_z[n] = mpos.Z();
+    auto pmom = TVector3(hep_plus_mom.x(),  hep_plus_mom.y(),  hep_plus_mom.z());
+    auto mmom = TVector3(hep_minus_mom.x(), hep_minus_mom.y(), hep_minus_mom.z());
+//    out_tmp_zx_plus_mom[n]        = pmom.Mag();
+    out_tmp_zx_plus_mom_x[n]      = pmom.X();
+    out_tmp_zx_plus_mom_y[n]      = pmom.Y();
+    out_tmp_zx_plus_mom_z[n]      = pmom.Z();
+//    out_tmp_zx_plus_mom_theta[n]  = pmom.Theta();
+//    out_tmp_zx_plus_mom_phi[n]    = pmom.Phi();
+//    out_tmp_zx_minus_mom[n]       = mmom.Mag();
+    out_tmp_zx_minus_mom_x[n]     = mmom.X();
+    out_tmp_zx_minus_mom_y[n]     = mmom.Y();
+    out_tmp_zx_minus_mom_z[n]     = mmom.Z();
+//    out_tmp_zx_minus_mom_theta[n] = mmom.Theta();
+//    out_tmp_zx_minus_mom_phi[n]   = mmom.Phi();
+//    out_tmp_zx_mom_angle[n]       = pmom.Angle(mmom);
+//    out_tmp_zx_ee_mass[n]         = CalcMass(kEE,   pmom, mmom);
+    out_tmp_zx_pipi_mass[n]       = CalcMass(kPiPi, pmom, mmom);
+//    out_tmp_zx_pip_mass[n]        = CalcMass(kPiP,  pmom, mmom);
+//    out_tmp_zx_kk_mass[n]         = CalcMass(kKK,   pmom, mmom);
+  }
+#endif // TMP_ZX_NEAREST
   for (auto& track : tracks) {
     delete track;
   }

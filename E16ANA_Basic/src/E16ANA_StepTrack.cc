@@ -331,6 +331,52 @@ int E16ANA_StepTrack::Cross(E16ANA_StepTrack& st, double* distance,
   return flag;
 }
 
+int E16ANA_StepTrack::CrossXZ(E16ANA_StepTrack& st, double* distance,
+		     double* step1, double* step2) {
+
+  crossSt1 = this;
+  crossSt2 = & st;
+
+  double param[2],error[2];//parameter answer and error.
+
+#if 1
+  double upLimit[2] = { (double)crossSt1->CurrentSize1(), 
+			(double)crossSt2->CurrentSize1() };
+  double lowLimit[2]= { (double)-(crossSt1->CurrentSize2()),
+			(double)-(crossSt2->CurrentSize2()) };
+  //parameter lower/upper limit.
+
+  double minuitStepSize[2]    = { 0.1, 0.1};
+    //parameter search step used by minuit
+    //if track step is 1cm, 0.1 means 1mm.
+
+#else
+  double upLimit[2] = { 10,10 };
+
+  double lowLimit[2]= { (double)-(crossSt1->CurrentSize2()),
+			(double)-(crossSt2->CurrentSize2()) };
+
+  double minuitStepSize[2]    = { 0.1, 0.1};
+#endif
+
+
+  int flag=MinuitDistanceXZ(minuitStepSize, lowLimit, upLimit, 
+			  distance, param, error);
+  //cerr<<" in cross: distance  "<<flag<<" "<<*distance<<" "<<param[0]<<" "<<param[1]<<endl;
+
+#if 0
+  int flag2=MinuitDistanceXZ(minuitStepSize, lowLimit, upLimit, 
+			     distance, param, error);
+
+  cerr<<" in cross: distanceXZ  "<<flag2<<" "<<*distance<<" "<<param[0]<<" "<<param[1]<<endl;
+#endif
+
+  *step1=param[0];
+  *step2=param[1];
+  
+  return flag;
+}
+
 int E16ANA_StepTrack::fcnCalledCount=0;
 int E16ANA_StepTrack::XZdistanceFlag=0;
 

@@ -1,6 +1,8 @@
 #ifndef TRACK_ANALYZER_220715_PARAMETER_HH
 #define TRACK_ANALYZER_220715_PARAMETER_HH
 
+#define TMP_ZX_NEAREST
+
 #include "TVector3.h"
 
 namespace track_analyzer_220715_parameter {

@@ -1443,7 +1443,8 @@ public :
   int ModuleID2013(int m);
   int ChargeID(int c);
   void PairFit(int n);
-  void FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx, const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom);
+  void FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx,
+                                 const Hep3Vector& hep_plus_pos, const Hep3Vector& hep_minus_pos, const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom);
   void NearestPoint(int n);
   int DirID(int mid0, int mid1);
   int ModuleID2013_27(int m);
@@ -1612,6 +1613,12 @@ public :
   std::vector<double> out_vtx_x;
   std::vector<double> out_vtx_y;
   std::vector<double> out_vtx_z;
+  std::vector<double> out_plus_pos_x; // only nearest point
+  std::vector<double> out_plus_pos_y;
+  std::vector<double> out_plus_pos_z;
+  std::vector<double> out_minus_pos_x;
+  std::vector<double> out_minus_pos_y;
+  std::vector<double> out_minus_pos_z;
   std::vector<double> out_plus_mom;
   std::vector<double> out_plus_mom_x;
   std::vector<double> out_plus_mom_y;
@@ -1924,6 +1931,27 @@ std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_z;
 std::vector<std::vector<double>> out_tmp_dynamic_distance;
 std::vector<std::vector<double>> out_tmp_dynamic_mom_angle;
 std::vector<std::vector<double>> out_tmp_dynamic_pipi_mass;
+#ifdef TMP_ZX_NEAREST
+// nearest point at zx plane
+std::vector<double> out_tmp_zx_flag;
+std::vector<double> out_tmp_zx_distance;
+std::vector<double> out_tmp_zx_vtx_x;
+std::vector<double> out_tmp_zx_vtx_y;
+std::vector<double> out_tmp_zx_vtx_z;
+std::vector<double> out_tmp_zx_plus_pos_x;
+std::vector<double> out_tmp_zx_plus_pos_y;
+std::vector<double> out_tmp_zx_plus_pos_z;
+std::vector<double> out_tmp_zx_minus_pos_x;
+std::vector<double> out_tmp_zx_minus_pos_y;
+std::vector<double> out_tmp_zx_minus_pos_z;
+std::vector<double> out_tmp_zx_plus_mom_x;
+std::vector<double> out_tmp_zx_plus_mom_y;
+std::vector<double> out_tmp_zx_plus_mom_z;
+std::vector<double> out_tmp_zx_minus_mom_x;
+std::vector<double> out_tmp_zx_minus_mom_y;
+std::vector<double> out_tmp_zx_minus_mom_z;
+std::vector<double> out_tmp_zx_pipi_mass;
+#endif // TMP_ZX_NEAREST
   // Event Mixing 
   std::vector<int> em_plus_run_id;
   std::vector<int> em_plus_event_id;
