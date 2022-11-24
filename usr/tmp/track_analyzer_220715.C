@@ -445,6 +445,7 @@ tree->Branch("tmp_fit_minus_x0_pos_z",             &out_tmp_fit_minus_x0_pos_z);
 tree->Branch("tmp_fit_minus_x0_mom_x",             &out_tmp_fit_minus_x0_mom_x);
 tree->Branch("tmp_fit_minus_x0_mom_y",             &out_tmp_fit_minus_x0_mom_y);
 tree->Branch("tmp_fit_minus_x0_mom_z",             &out_tmp_fit_minus_x0_mom_z);
+#ifdef TMP_SOME_Z
 // tmp check vertex
 tree->Branch("tmp_plus_static_flag",               &out_tmp_plus_static_flag);
 tree->Branch("tmp_plus_static_pos_x",              &out_tmp_plus_static_pos_x);
@@ -463,6 +464,10 @@ tree->Branch("tmp_minus_static_mom_z",             &out_tmp_minus_static_mom_z);
 tree->Branch("tmp_static_distance",                &out_tmp_static_distance);
 tree->Branch("tmp_static_mom_angle",               &out_tmp_static_mom_angle);
 tree->Branch("tmp_static_pipi_mass",               &out_tmp_static_pipi_mass);
+tree->Branch("tmp_dynamic_chi2",                   &out_tmp_dynamic_chi2);
+tree->Branch("tmp_dynamic_vtx_x",                  &out_tmp_dynamic_vtx_x);
+tree->Branch("tmp_dynamic_vtx_y",                  &out_tmp_dynamic_vtx_y);
+tree->Branch("tmp_dynamic_vtx_z",                  &out_tmp_dynamic_vtx_z);
 tree->Branch("tmp_plus_dynamic_flag",              &out_tmp_plus_dynamic_flag);
 tree->Branch("tmp_plus_dynamic_pos_x",             &out_tmp_plus_dynamic_pos_x);
 tree->Branch("tmp_plus_dynamic_pos_y",             &out_tmp_plus_dynamic_pos_y);
@@ -480,6 +485,7 @@ tree->Branch("tmp_minus_dynamic_mom_z",            &out_tmp_minus_dynamic_mom_z)
 tree->Branch("tmp_dynamic_distance",               &out_tmp_dynamic_distance);
 tree->Branch("tmp_dynamic_mom_angle",              &out_tmp_dynamic_mom_angle);
 tree->Branch("tmp_dynamic_pipi_mass",              &out_tmp_dynamic_pipi_mass);
+#endif // TMP_SOME_Z
 #ifdef TMP_ZX_NEAREST
 tree->Branch("tmp_zx_flag",        &out_tmp_zx_flag);
 tree->Branch("tmp_zx_distance",    &out_tmp_zx_distance);
@@ -1494,7 +1500,7 @@ out_tmp_fit_minus_x0_pos_z.clear();
 out_tmp_fit_minus_x0_mom_x.clear();
 out_tmp_fit_minus_x0_mom_y.clear();
 out_tmp_fit_minus_x0_mom_z.clear();
-//
+#ifdef TMP_SOME_Z
 out_tmp_plus_static_flag.clear();
 out_tmp_plus_static_pos_x.clear();
 out_tmp_plus_static_pos_y.clear();
@@ -1512,6 +1518,10 @@ out_tmp_minus_static_mom_z.clear();
 out_tmp_static_distance.clear();
 out_tmp_static_mom_angle.clear();
 out_tmp_static_pipi_mass.clear();
+out_tmp_dynamic_chi2.clear();
+out_tmp_dynamic_vtx_x.clear();
+out_tmp_dynamic_vtx_y.clear();
+out_tmp_dynamic_vtx_z.clear();
 out_tmp_plus_dynamic_flag.clear();
 out_tmp_plus_dynamic_pos_x.clear();
 out_tmp_plus_dynamic_pos_y.clear();
@@ -1529,6 +1539,7 @@ out_tmp_minus_dynamic_mom_z.clear();
 out_tmp_dynamic_distance.clear();
 out_tmp_dynamic_mom_angle.clear();
 out_tmp_dynamic_pipi_mass.clear();
+#endif // TMP_SOME_Z
 #ifdef TMP_ZX_NEAREST
 out_tmp_zx_flag.clear();
 out_tmp_zx_distance.clear();
@@ -1939,7 +1950,7 @@ out_tmp_fit_minus_x0_pos_z.resize(out_n_pairs);
 out_tmp_fit_minus_x0_mom_x.resize(out_n_pairs);
 out_tmp_fit_minus_x0_mom_y.resize(out_n_pairs);
 out_tmp_fit_minus_x0_mom_z.resize(out_n_pairs);
-//
+#ifdef TMP_SOME_Z
 out_tmp_plus_static_flag.resize(out_n_pairs);
 out_tmp_plus_static_pos_x.resize(out_n_pairs);
 out_tmp_plus_static_pos_y.resize(out_n_pairs);
@@ -1957,6 +1968,10 @@ out_tmp_minus_static_mom_z.resize(out_n_pairs);
 out_tmp_static_distance.resize(out_n_pairs);
 out_tmp_static_mom_angle.resize(out_n_pairs);
 out_tmp_static_pipi_mass.resize(out_n_pairs);
+out_tmp_dynamic_chi2.resize(out_n_pairs);
+out_tmp_dynamic_vtx_x.resize(out_n_pairs);
+out_tmp_dynamic_vtx_y.resize(out_n_pairs);
+out_tmp_dynamic_vtx_z.resize(out_n_pairs);
 out_tmp_plus_dynamic_flag.resize(out_n_pairs);
 out_tmp_plus_dynamic_pos_x.resize(out_n_pairs);
 out_tmp_plus_dynamic_pos_y.resize(out_n_pairs);
@@ -1974,6 +1989,7 @@ out_tmp_minus_dynamic_mom_z.resize(out_n_pairs);
 out_tmp_dynamic_distance.resize(out_n_pairs);
 out_tmp_dynamic_mom_angle.resize(out_n_pairs);
 out_tmp_dynamic_pipi_mass.resize(out_n_pairs);
+#endif // TMP_SOME_Z
 #ifdef TMP_ZX_NEAREST
 out_tmp_zx_flag.resize(out_n_pairs);
 out_tmp_zx_distance.resize(out_n_pairs);
@@ -3322,6 +3338,7 @@ void track_analyzer_220715::TmpProjectionX0(int n) {
   return;
 }
 
+#ifdef TMP_SOME_Z
 void track_analyzer_220715::TmpProjectionSomeZ(int n) {
   if (kForgiveSameCharge) {
     cerr << "TmpProjectionSomeZ() don't take care of same charge pair" << endl;
@@ -3344,6 +3361,10 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
   out_tmp_static_distance[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_static_mom_angle[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_static_pipi_mass[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
+  out_tmp_dynamic_chi2[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
+  out_tmp_dynamic_vtx_x[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
+  out_tmp_dynamic_vtx_y[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
+  out_tmp_dynamic_vtx_z[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_plus_dynamic_flag[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_plus_dynamic_pos_x[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
   out_tmp_plus_dynamic_pos_y[n].assign(2 * kTmpNumProjectionZHalf, kErrorNum);
@@ -3364,116 +3385,196 @@ void track_analyzer_220715::TmpProjectionSomeZ(int n) {
   
   array<array<array<TVector3, 2>, 2 * kTmpNumProjectionZHalf>, kTmpNumZMethods> poss;
   array<array<array<TVector3, 2>, 2 * kTmpNumProjectionZHalf>, kTmpNumZMethods> moms;
-  for (int c = 0; c < kNumCharges; ++c) {
-    Hep3Vector init_pos;
-    Hep3Vector init_mom;
-    if (kAnalyzeFlag == kAnalyzePairFit) {
-      init_pos.set(out_vtx_x[n] * 0.1, out_vtx_y[n] * 0.1, out_vtx_z[n] * 0.1);
-      if (c == kChargePlus) {
-        init_mom.set(out_plus_mom_x[n], out_plus_mom_y[n], out_plus_mom_z[n]);
-      } else {
-        init_mom.set(out_minus_mom_x[n], out_minus_mom_y[n], out_minus_mom_z[n]);
-      }
-    } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
-      if (c == kChargePlus) {
-        init_pos.set(out_plus_single_fit_init_pos_x[n] * 0.1, out_plus_single_fit_init_pos_y[n] * 0.1, out_plus_single_fit_init_pos_z[n] * 0.1);
-        init_mom.set(out_plus_single_fit_init_mom_x[n],       out_plus_single_fit_init_mom_y[n],       out_plus_single_fit_init_mom_z[n]);
-      } else {
-        init_pos.set(out_minus_single_fit_init_pos_x[n] * 0.1, out_minus_single_fit_init_pos_y[n] * 0.1, out_minus_single_fit_init_pos_z[n] * 0.1);
-        init_mom.set(out_minus_single_fit_init_mom_x[n],       out_minus_single_fit_init_mom_y[n],       out_minus_single_fit_init_mom_z[n]);
-      }
-    } else {
-      cerr << "unimplemented function: TmpProjectionSomeZ()" << endl;
-      return;
-    }
-    
-    double charge = 1.;
-    if (c == kChargeMinus) {
-      charge = -1.;
-    }
-//    if (kForgiveSameCharge) {
-//      if (ChargeID(rk_charge->at(i)) == kChargePlus) {
-//        charge = 1.;
-//      } else {
-//        charge = -1.;
-//      }
-//    }
-    E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, charge, kStepTrackSizeCm, kStepTrackArraySize);
-    Hep3Vector cross_pos;
-    Hep3Vector cross_mom;
+  if (kAnalyzeFlag == kAnalyzePairFit) {
     auto z0 = out_vtx_z[n];
-    for (int m = 0; m < kTmpNumZMethods; ++m) { // method. 0 : static z, 1 : dynamic z
-      for (int zid = 0; zid < 2 * kTmpNumProjectionZHalf; ++zid) {
-        double z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
-        if (zid >= kTmpNumProjectionZHalf) {
-          z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf + 1);
-        }
-        if (m == kTmpZDynamic) {
-          z += z0;
-        }
-        auto flag = step_track.CrossZconstPlane(z * 0.1, cross_pos, cross_mom);
-        auto pos = TVector3(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
-        auto mom = TVector3(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
-        poss[m][zid][c] = pos;
-        moms[m][zid][c] = mom;
+    for (int zid = 0; zid < 2 * kTmpNumProjectionZHalf; ++zid) {
+      fitter->Clear();
+      double z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
+      if (zid >= kTmpNumProjectionZHalf) {
+        z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf + 1);
+      }
+      z += z0;
+      fitter->SetInitialVertex(TVector3(0., 0., z), kVertexSigma);
+      for (int c = 0; c < 2; ++c) {
         if (c == kChargePlus) {
-          if (m == kTmpZStatic) {
-            out_tmp_plus_static_flag[n][zid] = flag;
-            if (flag != -1) {
-              out_tmp_plus_static_pos_x[n][zid] = pos.X();
-              out_tmp_plus_static_pos_y[n][zid] = pos.Y();
-              out_tmp_plus_static_pos_z[n][zid] = pos.Z();
-              out_tmp_plus_static_mom_x[n][zid] = mom.X();
-              out_tmp_plus_static_mom_y[n][zid] = mom.Y();
-              out_tmp_plus_static_mom_z[n][zid] = mom.Z();
-            }
-          } else {
-            out_tmp_plus_dynamic_flag[n][zid] = flag;
-            if (flag != -1) {
-              out_tmp_plus_dynamic_pos_x[n][zid] = pos.X();
-              out_tmp_plus_dynamic_pos_y[n][zid] = pos.Y();
-              out_tmp_plus_dynamic_pos_z[n][zid] = pos.Z();
-              out_tmp_plus_dynamic_mom_x[n][zid] = mom.X();
-              out_tmp_plus_dynamic_mom_y[n][zid] = mom.Y();
-              out_tmp_plus_dynamic_mom_z[n][zid] = mom.Z();
-            }
-          }
+          fitter->SetCharge(c, 1.);
+          fitter->SetInitialMomentum(c, TVector3(out_plus_mom_x[n], out_plus_mom_y[n], out_plus_mom_z[n]));
+          fitter->AddHit(c, 0, geometry->SSD(ModuleID2013(out_plus_ssd_mid[n])), TVector3(out_hit_plus_ssd_lx[n], 0., 0.), kSSDSigma);
+          fitter->AddHit(c, 1, geometry->GTR(ModuleID2013(out_plus_gtr100_mid[n]), 0), TVector3(out_hit_plus_gtr100_lx[n], out_hit_plus_gtr100_ly[n], 0.),
+                         kGTR100Sigma);
+          fitter->AddHit(c, 2, geometry->GTR(ModuleID2013(out_plus_gtr200_mid[n]), 1), TVector3(out_hit_plus_gtr200_lx[n], out_hit_plus_gtr200_ly[n], 0.),
+                         kGTR200Sigma);
+          fitter->AddHit(c, 3, geometry->GTR(ModuleID2013(out_plus_gtr300_mid[n]), 2), TVector3(out_hit_plus_gtr300_lx[n], out_hit_plus_gtr300_ly[n], 0.),
+                         kGTR300Sigma);
         } else {
-          if (m == kTmpZStatic) {
-            out_tmp_minus_static_flag[n][zid] = flag;
-            if (flag != -1) {
-              out_tmp_minus_static_pos_x[n][zid] = pos.X();
-              out_tmp_minus_static_pos_y[n][zid] = pos.Y();
-              out_tmp_minus_static_pos_z[n][zid] = pos.Z();
-              out_tmp_minus_static_mom_x[n][zid] = mom.X();
-              out_tmp_minus_static_mom_y[n][zid] = mom.Y();
-              out_tmp_minus_static_mom_z[n][zid] = mom.Z();
+          fitter->SetCharge(c, -1.);
+          fitter->SetInitialMomentum(c, TVector3(out_minus_mom_x[n], out_minus_mom_y[n], out_minus_mom_z[n]));
+          fitter->AddHit(c, 0, geometry->SSD(ModuleID2013(out_minus_ssd_mid[n])), TVector3(out_hit_minus_ssd_lx[n], 0., 0.), kSSDSigma);
+          fitter->AddHit(c, 1, geometry->GTR(ModuleID2013(out_minus_gtr100_mid[n]), 0), TVector3(out_hit_minus_gtr100_lx[n], out_hit_minus_gtr100_ly[n], 0.),
+                         kGTR100Sigma);
+          fitter->AddHit(c, 2, geometry->GTR(ModuleID2013(out_minus_gtr200_mid[n]), 1), TVector3(out_hit_minus_gtr200_lx[n], out_hit_minus_gtr200_ly[n], 0.),
+                         kGTR200Sigma);
+          fitter->AddHit(c, 3, geometry->GTR(ModuleID2013(out_minus_gtr300_mid[n]), 2), TVector3(out_hit_minus_gtr300_lx[n], out_hit_minus_gtr300_ly[n], 0.),
+                         kGTR300Sigma);
+        }
+      }
+      fitter->SetRungeKuttaStepSize(kStepSize);
+      fitter->SetMaxSteps(kMaxSteps);
+      bool fix_vtx_z = true;
+      double vtx_z_range[2] = {-10000., 10000.};
+      auto chi2 = fitter->Fit(kFixVtxXY, kFixPy, fix_vtx_z, kStrategy, kMaxFuncCalls,
+                              kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], vtx_z_range[0], vtx_z_range[1]);
+      auto vtx = fitter->GetFitVertex();
+      array<TVector3, 2> moms;
+//      array<array<TVector3, 4>, 2> lposs;
+//      array<array<TVector3, 4>, 2> lmoms;
+//      array<array<TVector3, 4>, 2> gposs;
+//      array<array<TVector3, 4>, 2> gmoms;
+      for (int t = 0; t < 2; ++t) {
+        moms[t] = fitter->GetFitMomentum(t);
+//        for (int l = 0; l < 4; ++l) {
+//          vector<int>      tmp_mids;
+//          vector<TVector3> tmp_lposs;
+//          vector<TVector3> tmp_lmoms;
+//          fitter->GetFitLPos(t, l, tmp_mids, tmp_lposs);
+//          auto mid = tmp_mids[0];
+//          lposs[t][l] = tmp_lposs[0];
+//          fitter->GetFitLMom(t, l, tmp_mids, tmp_lmoms);
+//          lmoms[t][l] = tmp_lmoms[0];
+//          if (l == 0) {
+//            gposs[t][l] = geometry->SSD(mid)->GetGPos(lposs[t][l]);
+//            gmoms[t][l] = geometry->SSD(mid)->GetGMom(lmoms[t][l]);
+//          } else {
+//            gposs[t][l] = geometry->GTR(mid, l - 1)->GetGPos(lposs[t][l]);
+//            gmoms[t][l] = geometry->GTR(mid, l - 1)->GetGMom(lposs[t][l]);
+//          }
+//        }
+      }
+      out_tmp_dynamic_chi2[n][zid]        = chi2;
+      out_tmp_dynamic_vtx_x[n][zid]       = vtx.X();
+      out_tmp_dynamic_vtx_y[n][zid]       = vtx.Y();
+      out_tmp_dynamic_vtx_z[n][zid]       = vtx.Z();
+      out_tmp_plus_dynamic_mom_x[n][zid]  = moms[0].X();
+      out_tmp_plus_dynamic_mom_y[n][zid]  = moms[0].Y();
+      out_tmp_plus_dynamic_mom_z[n][zid]  = moms[0].Z();
+      out_tmp_minus_dynamic_mom_x[n][zid] = moms[1].X();
+      out_tmp_minus_dynamic_mom_y[n][zid] = moms[1].Y();
+      out_tmp_minus_dynamic_mom_z[n][zid] = moms[1].Z();
+      out_tmp_dynamic_pipi_mass[n][zid]   = CalcMass(kPiPi, moms[0], moms[1]);
+    }
+  } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+    for (int c = 0; c < kNumCharges; ++c) {
+      Hep3Vector init_pos;
+      Hep3Vector init_mom;
+      if (kAnalyzeFlag == kAnalyzePairFit) {
+        init_pos.set(out_vtx_x[n] * 0.1, out_vtx_y[n] * 0.1, out_vtx_z[n] * 0.1);
+        if (c == kChargePlus) {
+          init_mom.set(out_plus_mom_x[n], out_plus_mom_y[n], out_plus_mom_z[n]);
+        } else {
+          init_mom.set(out_minus_mom_x[n], out_minus_mom_y[n], out_minus_mom_z[n]);
+        }
+      } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+        if (c == kChargePlus) {
+          init_pos.set(out_plus_single_fit_init_pos_x[n] * 0.1, out_plus_single_fit_init_pos_y[n] * 0.1, out_plus_single_fit_init_pos_z[n] * 0.1);
+          init_mom.set(out_plus_single_fit_init_mom_x[n],       out_plus_single_fit_init_mom_y[n],       out_plus_single_fit_init_mom_z[n]);
+        } else {
+          init_pos.set(out_minus_single_fit_init_pos_x[n] * 0.1, out_minus_single_fit_init_pos_y[n] * 0.1, out_minus_single_fit_init_pos_z[n] * 0.1);
+          init_mom.set(out_minus_single_fit_init_mom_x[n],       out_minus_single_fit_init_mom_y[n],       out_minus_single_fit_init_mom_z[n]);
+        }
+      } else {
+        cerr << "unimplemented function: TmpProjectionSomeZ()" << endl;
+        return;
+      }
+      
+      double charge = 1.;
+      if (c == kChargeMinus) {
+        charge = -1.;
+      }
+//      if (kForgiveSameCharge) {
+//        if (ChargeID(rk_charge->at(i)) == kChargePlus) {
+//          charge = 1.;
+//        } else {
+//          charge = -1.;
+//        }
+//      }
+      E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, charge, kStepTrackSizeCm, kStepTrackArraySize);
+      Hep3Vector cross_pos;
+      Hep3Vector cross_mom;
+      auto z0 = out_vtx_z[n];
+      for (int m = 0; m < kTmpNumZMethods; ++m) { // method. 0 : static z, 1 : dynamic z
+        for (int zid = 0; zid < 2 * kTmpNumProjectionZHalf; ++zid) {
+          double z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf);
+          if (zid >= kTmpNumProjectionZHalf) {
+            z = kTmpProjectionZWidth * (zid - kTmpNumProjectionZHalf + 1);
+          }
+          if (m == kTmpZDynamic) {
+            z += z0;
+          }
+          auto flag = step_track.CrossZconstPlane(z * 0.1, cross_pos, cross_mom);
+          auto pos = TVector3(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
+          auto mom = TVector3(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
+          poss[m][zid][c] = pos;
+          moms[m][zid][c] = mom;
+          if (c == kChargePlus) {
+            if (m == kTmpZStatic) {
+              out_tmp_plus_static_flag[n][zid] = flag;
+              if (flag != -1) {
+                out_tmp_plus_static_pos_x[n][zid] = pos.X();
+                out_tmp_plus_static_pos_y[n][zid] = pos.Y();
+                out_tmp_plus_static_pos_z[n][zid] = pos.Z();
+                out_tmp_plus_static_mom_x[n][zid] = mom.X();
+                out_tmp_plus_static_mom_y[n][zid] = mom.Y();
+                out_tmp_plus_static_mom_z[n][zid] = mom.Z();
+              }
+            } else {
+              out_tmp_plus_dynamic_flag[n][zid] = flag;
+              if (flag != -1) {
+                out_tmp_plus_dynamic_pos_x[n][zid] = pos.X();
+                out_tmp_plus_dynamic_pos_y[n][zid] = pos.Y();
+                out_tmp_plus_dynamic_pos_z[n][zid] = pos.Z();
+                out_tmp_plus_dynamic_mom_x[n][zid] = mom.X();
+                out_tmp_plus_dynamic_mom_y[n][zid] = mom.Y();
+                out_tmp_plus_dynamic_mom_z[n][zid] = mom.Z();
+              }
             }
           } else {
-            out_tmp_minus_dynamic_flag[n][zid] = flag;
-            if (flag != -1) {
-              out_tmp_minus_dynamic_pos_x[n][zid] = pos.X();
-              out_tmp_minus_dynamic_pos_y[n][zid] = pos.Y();
-              out_tmp_minus_dynamic_pos_z[n][zid] = pos.Z();
-              out_tmp_minus_dynamic_mom_x[n][zid] = mom.X();
-              out_tmp_minus_dynamic_mom_y[n][zid] = mom.Y();
-              out_tmp_minus_dynamic_mom_z[n][zid] = mom.Z();
+            if (m == kTmpZStatic) {
+              out_tmp_minus_static_flag[n][zid] = flag;
+              if (flag != -1) {
+                out_tmp_minus_static_pos_x[n][zid] = pos.X();
+                out_tmp_minus_static_pos_y[n][zid] = pos.Y();
+                out_tmp_minus_static_pos_z[n][zid] = pos.Z();
+                out_tmp_minus_static_mom_x[n][zid] = mom.X();
+                out_tmp_minus_static_mom_y[n][zid] = mom.Y();
+                out_tmp_minus_static_mom_z[n][zid] = mom.Z();
+              }
+            } else {
+              out_tmp_minus_dynamic_flag[n][zid] = flag;
+              if (flag != -1) {
+                out_tmp_minus_dynamic_pos_x[n][zid] = pos.X();
+                out_tmp_minus_dynamic_pos_y[n][zid] = pos.Y();
+                out_tmp_minus_dynamic_pos_z[n][zid] = pos.Z();
+                out_tmp_minus_dynamic_mom_x[n][zid] = mom.X();
+                out_tmp_minus_dynamic_mom_y[n][zid] = mom.Y();
+                out_tmp_minus_dynamic_mom_z[n][zid] = mom.Z();
+              }
             }
           }
         }
       }
-    }
-    for (int z = 0; z < 2 * kTmpNumProjectionZHalf; ++z) {
-      out_tmp_static_distance[n][z]   = (poss[kTmpZStatic][z][kChargePlus] - poss[kTmpZStatic][z][kChargeMinus]).Mag();
-      out_tmp_static_mom_angle[n][z]  = moms[kTmpZStatic][z][kChargePlus].Angle(moms[kTmpZStatic][z][kChargeMinus]);
-      out_tmp_static_pipi_mass[n][z]  = CalcMass(kPiPi, moms[kTmpZStatic][z][kChargePlus], moms[kTmpZStatic][z][kChargeMinus]);
-      out_tmp_dynamic_distance[n][z]  = (poss[kTmpZDynamic][z][kChargePlus] - poss[kTmpZDynamic][z][kChargeMinus]).Mag();
-      out_tmp_dynamic_mom_angle[n][z] = moms[kTmpZDynamic][z][kChargePlus].Angle(moms[kTmpZDynamic][z][kChargeMinus]);
-      out_tmp_dynamic_pipi_mass[n][z] = CalcMass(kPiPi, moms[kTmpZDynamic][z][kChargePlus], moms[kTmpZDynamic][z][kChargeMinus]);
+      for (int z = 0; z < 2 * kTmpNumProjectionZHalf; ++z) {
+        out_tmp_static_distance[n][z]   = (poss[kTmpZStatic][z][kChargePlus] - poss[kTmpZStatic][z][kChargeMinus]).Mag();
+        out_tmp_static_mom_angle[n][z]  = moms[kTmpZStatic][z][kChargePlus].Angle(moms[kTmpZStatic][z][kChargeMinus]);
+        out_tmp_static_pipi_mass[n][z]  = CalcMass(kPiPi, moms[kTmpZStatic][z][kChargePlus], moms[kTmpZStatic][z][kChargeMinus]);
+        out_tmp_dynamic_distance[n][z]  = (poss[kTmpZDynamic][z][kChargePlus] - poss[kTmpZDynamic][z][kChargeMinus]).Mag();
+        out_tmp_dynamic_mom_angle[n][z] = moms[kTmpZDynamic][z][kChargePlus].Angle(moms[kTmpZDynamic][z][kChargeMinus]);
+        out_tmp_dynamic_pipi_mass[n][z] = CalcMass(kPiPi, moms[kTmpZDynamic][z][kChargePlus], moms[kTmpZDynamic][z][kChargeMinus]);
+      }
     }
   }
   return;
 }
+#endif // TMP_SOME_Z
 
 void track_analyzer_220715::FillCommonBranches() {
   for (int i = 0; i < out_n_pairs; ++i) {
@@ -3825,7 +3926,9 @@ void track_analyzer_220715::FillCommonBranches() {
     }
     SimpleAnalysis(i);
 TmpProjectionX0(i);
+#ifdef TMP_SOME_Z
 TmpProjectionSomeZ(i);
+#endif // TMP_SOME_Z
   }
   AddPairOrders();
   return;

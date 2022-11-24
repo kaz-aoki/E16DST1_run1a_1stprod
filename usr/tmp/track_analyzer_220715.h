@@ -1466,7 +1466,9 @@ public :
   int SimpleBestTargetID(int n, double* r);
   void SimpleAnalysis(int n);
   void TmpProjectionX0(int n);
+#ifdef TMP_SOME_Z
   void TmpProjectionSomeZ(int n);
+#endif // TMP_SOME_Z
   void FillCommonBranches();
   void Analyze();
   void FillEntryInfo(int entry_index, track_analyzer_220715::EntryInfo* plus_entry, track_analyzer_220715::EntryInfo* minus_entry);
@@ -1896,6 +1898,7 @@ std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_z;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_x;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_y;
 std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_z;
+#ifdef TMP_SOME_Z
 // check vertex
 std::vector<std::vector<double>> out_tmp_plus_static_flag;
 std::vector<std::vector<double>> out_tmp_plus_static_pos_x;
@@ -1914,6 +1917,10 @@ std::vector<std::vector<double>> out_tmp_minus_static_mom_z;
 std::vector<std::vector<double>> out_tmp_static_distance;
 std::vector<std::vector<double>> out_tmp_static_mom_angle;
 std::vector<std::vector<double>> out_tmp_static_pipi_mass;
+std::vector<std::vector<double>> out_tmp_dynamic_chi2;
+std::vector<std::vector<double>> out_tmp_dynamic_vtx_x;
+std::vector<std::vector<double>> out_tmp_dynamic_vtx_y;
+std::vector<std::vector<double>> out_tmp_dynamic_vtx_z;
 std::vector<std::vector<double>> out_tmp_plus_dynamic_flag;
 std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_x;
 std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_y;
@@ -1931,6 +1938,7 @@ std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_z;
 std::vector<std::vector<double>> out_tmp_dynamic_distance;
 std::vector<std::vector<double>> out_tmp_dynamic_mom_angle;
 std::vector<std::vector<double>> out_tmp_dynamic_pipi_mass;
+#endif // TMP_SOME_Z
 #ifdef TMP_ZX_NEAREST
 // nearest point at zx plane
 std::vector<double> out_tmp_zx_flag;
