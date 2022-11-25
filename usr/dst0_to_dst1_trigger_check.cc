@@ -39,12 +39,14 @@ constexpr bool kSelectEvent   = false;
 
 #ifdef TRACK_EFF_CHECK
 enum {
-  kReadMockOK,
-  kReadMockNG,
+  kReadMockAlive,
+  kReadMockDead,
   kReadMockError
 };
 
-int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[], E16ANA_TrackCheckFile* check_file) {
+#ifdef MOCK_VECTOR_MESON
+int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
+                            E16ANA_TrackCheckFile* check_file) {
   bool is_dead = false;
   for (int i = 0; i < 2; ++i) {
     if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
@@ -56,24 +58,72 @@ int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackO
       return kReadMockError;
     }
     mock_tracks[i] = mock_data->Track();
-//    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]);
     auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
     check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
     if (is_dead_track) {
       is_dead = true;
     }
   }
-#ifndef REMOVE_DEAD_REGION_CUT
-  if (!is_dead) {
-    return kReadMockOK;
-  } else {
-    return kReadMockNG;
+  if (is_dead) {
+    return kReadMockDead;
   }
-  return kReadMockError;
-#else // REMOVE_DEAD_REGION_CUT
-  return kReadMockOK;
-#endif // REMOVE_DEAD_REGION_CUT
+  return kReadMockAlive;
 }
+#endif // MOCK_VECTOR_MESON
+
+#ifdef MOCK_KS
+enum {
+  kKs,
+  kPiPlus,
+  kPiMinus,
+  kNumParticles
+};
+int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
+                            E16ANA_TrackCheckFile* check_file) {
+  bool is_dead = false;
+  array<int, kNumParticles> charges;
+  for (int i = 0; i < 3; ++i) {
+    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+      cerr << "mock data finished at " << endl;
+      return kReadMockError;
+    }
+    auto& track = mock_data->Track();
+    charges[i] = track.Charge();
+    if (i == 0) {
+      if (charges[i] != 0) {
+        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+        return kReadMockError;
+      }
+      check_file->AddSimTrack(false, track);
+    } else {
+      if (charges[i] == 0) {
+        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+        return kReadMockError;
+      }
+      if (i == 2) {
+        if (charges[1] == charges[2]) {
+          cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+          return kReadMockError;
+        }
+      }
+      if (charges[i] == 1) {
+        mock_tracks[0] = track;
+      } else {
+        mock_tracks[1] = track;
+      }
+      auto is_dead_track = data_merger.IsDeadRegion(track) || data_merger.IsDiscriDeadRegion(track);
+      check_file->AddSimTrack(is_dead_track, track);
+      if (is_dead_track) {
+        is_dead = true;
+      }
+    }
+  }
+  if (is_dead) {
+    return kReadMockDead;
+  }
+  return kReadMockAlive;
+}
+#endif // MOCK_KS
 #endif // TRACK_EFF_CHECK
 
 int main(int argc, char* argv[]) {
@@ -317,16 +367,19 @@ int main(int argc, char* argv[]) {
       E16ANA_MockTrack mock_tracks[2];
       while (true) {
         mock_read_flag = ReadAndAddMockTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
-        if (mock_read_flag != kReadMockNG) {
-          break;
+#ifndef REMOVE_DEAD_REGION_CUT
+        if (mock_read_flag == kReadMockDead) {
+          continue;
         }
+#endif // REMOVE_DEAD_REGION_CUT
+        break;
       }
       if (mock_read_flag == kReadMockError) {
         break;
       }
       data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
       data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
-#endif // ifdef MERGE_TRACK_PAIR
+#endif // MERGE_TRACK_PAIR
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();

@@ -504,6 +504,7 @@ tree->Branch("tmp_zx_plus_mom_z",  &out_tmp_zx_plus_mom_z);
 tree->Branch("tmp_zx_minus_mom_x", &out_tmp_zx_minus_mom_x);
 tree->Branch("tmp_zx_minus_mom_y", &out_tmp_zx_minus_mom_y);
 tree->Branch("tmp_zx_minus_mom_z", &out_tmp_zx_minus_mom_z);
+tree->Branch("tmp_zx_pipi_mass",   &out_tmp_zx_pipi_mass);
 #endif // TMP_ZX_NEAREST
   return;
 }
