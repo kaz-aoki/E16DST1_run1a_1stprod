@@ -18,6 +18,7 @@
 
 // Header file for the classes stored in the TTree if any.
 #include "TVector3.h"
+#include "TH2.h"
 
 class tmp_fit_mock_pair_from_dst1_drawer_220620 {
 public :
@@ -100,6 +101,12 @@ public :
    TVector3        *pair_fit_minus_gtr200_lpos;
    TVector3        *pair_fit_minus_gtr300_lpos;
    Double_t        pair_fit_mass;
+   Int_t           wo_fit_flag;
+   Double_t        wo_fit_distance;
+   TVector3        *wo_fit_vtx;
+   TVector3        *wo_fit_plus_init_mom;
+   TVector3        *wo_fit_minus_init_mom;
+   Double_t        wo_fit_mass;
 
    // List of branches
    TBranch        *b_run_id;   //!
@@ -175,6 +182,12 @@ public :
    TBranch        *b_pair_fit_minus_gtr200_lpos;   //!
    TBranch        *b_pair_fit_minus_gtr300_lpos;   //!
    TBranch        *b_pair_fit_mass;   //!
+   TBranch        *b_wo_fit_flag;   //!
+   TBranch        *b_wo_fit_distance;   //!
+   TBranch        *b_wo_fit_vtx;   //!
+   TBranch        *b_wo_fit_plus_init_mom;   //!
+   TBranch        *b_wo_fit_minus_init_mom;   //!
+   TBranch        *b_wo_fit_mass;   //!
 
    tmp_fit_mock_pair_from_dst1_drawer_220620(TTree *tree=0);
    virtual ~tmp_fit_mock_pair_from_dst1_drawer_220620();
@@ -186,7 +199,11 @@ public :
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  private:
+  int DirID();
   void Draw(const TString& name, std::array<std::array<TH1F, 2>, 4>* hists, TCanvas* canvas);
+  void Draw(const TString& name, std::array<std::array<TH1F*, 3>, 5>* hists, TCanvas* canvas);
+  void Draw(const TString& name, std::array<std::array<TH2F*, 3>, 5>* hists, TCanvas* canvas);
+  void Draw(const TString& name, std::array<std::array<TH1F*, 2>, 5>* hists, TCanvas* canvas);
 };
 
 #endif
@@ -297,6 +314,9 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Init(TTree *tree)
    pair_fit_minus_gtr100_lpos = 0;
    pair_fit_minus_gtr200_lpos = 0;
    pair_fit_minus_gtr300_lpos = 0;
+   wo_fit_vtx = 0;
+   wo_fit_plus_init_mom = 0;
+   wo_fit_minus_init_mom = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -376,6 +396,12 @@ void tmp_fit_mock_pair_from_dst1_drawer_220620::Init(TTree *tree)
    fChain->SetBranchAddress("pair_fit_minus_gtr200_lpos", &pair_fit_minus_gtr200_lpos, &b_pair_fit_minus_gtr200_lpos);
    fChain->SetBranchAddress("pair_fit_minus_gtr300_lpos", &pair_fit_minus_gtr300_lpos, &b_pair_fit_minus_gtr300_lpos);
    fChain->SetBranchAddress("pair_fit_mass", &pair_fit_mass, &b_pair_fit_mass);
+   fChain->SetBranchAddress("wo_fit_flag", &wo_fit_flag, &b_wo_fit_flag);
+   fChain->SetBranchAddress("wo_fit_distance", &wo_fit_distance, &b_wo_fit_distance);
+   fChain->SetBranchAddress("wo_fit_vtx", &wo_fit_vtx, &b_wo_fit_vtx);
+   fChain->SetBranchAddress("wo_fit_plus_init_mom", &wo_fit_plus_init_mom, &b_wo_fit_plus_init_mom);
+   fChain->SetBranchAddress("wo_fit_minus_init_mom", &wo_fit_minus_init_mom, &b_wo_fit_minus_init_mom);
+   fChain->SetBranchAddress("wo_fit_mass", &wo_fit_mass, &b_wo_fit_mass);
    Notify();
 }
 

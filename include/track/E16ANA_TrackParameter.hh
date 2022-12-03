@@ -49,9 +49,12 @@ namespace E16ANA_TrackParameter {
 
 // electron
 constexpr bool kVtxZFixFlag = false; // 220607
-constexpr double kInitXRange[2] = {-40., 40.}; // 220607
-constexpr double kInitYRange[2] = {-40., 40.}; // 220607
-constexpr double kInitZRange[2] = {-40., 40.}; // 220607
+//constexpr double kInitXRange[2] = {-40., 40.}; // 220607
+//constexpr double kInitYRange[2] = {-40., 40.}; // 220607
+//constexpr double kInitZRange[2] = {-40., 40.}; // 220607
+constexpr double kInitXRange[2] = {-150., 150.}; // 220607
+constexpr double kInitYRange[2] = {-150., 150.}; // 220607
+constexpr double kInitZRange[2] = {-150., 150.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.265, 0.626, 0.},
@@ -99,7 +102,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 
 // other
 constexpr bool kExecutePairFit = false;
-constexpr bool kReqHBDAssociation = true;
+constexpr bool kReqHBDAssociation = false;
 constexpr double kHBDRadius = 1200.;
 constexpr double kMaxHBDRoughXRes = 180.;
 constexpr double kMaxHBDRoughYRes = 22.5; // HBD y residual 3 sigma = 3 x 5.6 mm, 99 % threshold of residual between rough fit and RK fit = 15 mm

@@ -268,7 +268,17 @@ int main(int argc, char* argv[]) {
 
   int n_event = 0;
   int n_physics_event = 0;
+#ifndef REMOVE_REAL_HIT
   while (dst0->ReadAnEvent()) {
+#else // REMOVE_REAL_HIT
+  while (true) {
+    dst0->ReadAnEvent();
+    if (dst0->EventType() == E16DST_DST0EventType::Physics) {
+      break;
+    }
+  }
+  while (true) {
+#endif // REMOVE_REAL_HIT
     record.Clear();
     if (event_end != -1 && n_physics_event > event_end) {
       break;

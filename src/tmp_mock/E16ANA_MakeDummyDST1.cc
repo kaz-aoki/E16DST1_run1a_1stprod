@@ -1,6 +1,5 @@
 #ifdef TRACK_EFF_CHECK
 
-//#define WO_LAYER_EFF
 //#define GEOM_VER0
 #define MERGE_CLUSTERS
 

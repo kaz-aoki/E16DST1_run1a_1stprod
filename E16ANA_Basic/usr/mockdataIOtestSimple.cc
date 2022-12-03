@@ -94,6 +94,7 @@ void ReadAndDumpData(int nEvent,  E16ANA_MockTrackOutputData& mockdata){
       return;
     }
 
+    std::cout << "track: " << i << std::endl;
     mockdata.Track().Dump();
     
   }//i
