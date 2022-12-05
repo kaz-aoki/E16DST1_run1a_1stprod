@@ -149,7 +149,10 @@ double ExpectedE(double p){
 //   return adc1+adc2;
 // }
 
-double AnalyzerTrackSelection::CalcADCNearHit(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster){
+double AnalyzerTrackSelection::CalcADCNearHit(int condition, std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster){
+
+  if(condition==0){//return maxadc
+
   sort(lgnear.begin(),lgnear.end());
   double maxadc=-10000.;
   double adc=lgnear.at(0).adc;
@@ -203,10 +206,16 @@ double AnalyzerTrackSelection::CalcADCNearHit(std::vector<hitset>& lgnear, doubl
   double adcsum = 0;
   double cogx = 0;
   double cogy = 0;
+  double maxadc_incls = -10000.;
+  int maxadcch = -10000;
   for(int i=0;i<nadc;i++){
     adcsum += lgcluster.adcs.at(i);
     cogx += lgcluster.resxs.at(i)*lgcluster.adcs.at(i);
     cogy += lgcluster.resys.at(i)*lgcluster.adcs.at(i);
+    if(lgcluster.adcs.at(i) > maxadc_incls){
+      maxadc_incls = lgcluster.adcs.at(i);
+      maxadcch = lgcluster.cids.at(i);
+    }
   }
   cogx = cogx/adcsum;
   cogy = cogy/adcsum;
@@ -215,13 +224,14 @@ double AnalyzerTrackSelection::CalcADCNearHit(std::vector<hitset>& lgnear, doubl
   lgcluster.timediff = timediff;
   lgcluster.cogx = cogx;
   lgcluster.cogy = cogy;
+  lgcluster.maxadcch = maxadcch;
 
   // std::cout<<(maxadc-lgcluster.adcsum)<<std::endl;
 
   return maxadc;
-}
 
-double AnalyzerTrackSelection::CalcADCNearHitV2(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster){
+  }
+  else if(condition==1){//return maxadc w/ SSD timing cut
 
   sort(lgnear.begin(),lgnear.end());
   double maxadc=-10000.;
@@ -277,10 +287,16 @@ double AnalyzerTrackSelection::CalcADCNearHitV2(std::vector<hitset>& lgnear, dou
     double adcsum = 0;
     double cogx = 0;
     double cogy = 0;
+    double maxadc_incls = -10000.;
+    int maxadcch = -10000;
     for(int i=0;i<nadc;i++){
       adcsum += lgcluster.adcs.at(i);
       cogx += lgcluster.resxs.at(i)*lgcluster.adcs.at(i);
       cogy += lgcluster.resys.at(i)*lgcluster.adcs.at(i);
+      if(lgcluster.adcs.at(i) > maxadc_incls){
+	maxadc_incls = lgcluster.adcs.at(i);
+	maxadcch = lgcluster.cids.at(i);
+      }
     }
     cogx = cogx/adcsum;
     cogy = cogy/adcsum;
@@ -289,14 +305,16 @@ double AnalyzerTrackSelection::CalcADCNearHitV2(std::vector<hitset>& lgnear, dou
     lgcluster.timediff = timediff;
     lgcluster.cogx = cogx;
     lgcluster.cogy = cogy;
+    lgcluster.maxadcch = maxadcch;
   }
 
   // std::cout<<(maxadc-lgcluster.adcsum)<<std::endl;
 
   return maxadc;
-}
 
-double AnalyzerTrackSelection::CalcADCNearHitV3(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster){
+  }
+  else if(condition==2){//return adc around SSD timing
+
   sort(lgnear.begin(),lgnear.end());
   double mintdcdiff=10000.;
   double tdc=lgnear.at(0).tdc;
@@ -351,10 +369,16 @@ double AnalyzerTrackSelection::CalcADCNearHitV3(std::vector<hitset>& lgnear, dou
     double adcsum = 0;
     double cogx = 0;
     double cogy = 0;
+    double maxadc_incls = -10000.;
+    int maxadcch = -10000;
     for(int i=0;i<nadc;i++){
       adcsum += lgcluster.adcs.at(i);
       cogx += lgcluster.resxs.at(i)*lgcluster.adcs.at(i);
       cogy += lgcluster.resys.at(i)*lgcluster.adcs.at(i);
+      if(lgcluster.adcs.at(i) > maxadc_incls){
+	maxadc_incls = lgcluster.adcs.at(i);
+	maxadcch = lgcluster.cids.at(i);
+      }
     }
     cogx = cogx/adcsum;
     cogy = cogy/adcsum;
@@ -363,32 +387,39 @@ double AnalyzerTrackSelection::CalcADCNearHitV3(std::vector<hitset>& lgnear, dou
     lgcluster.timediff = timediff;
     lgcluster.cogx = cogx;
     lgcluster.cogy = cogy;
+    lgcluster.maxadcch = maxadcch;
     maxadc = adcsum;
   }
   // std::cout<<(maxadc-lgcluster.adcsum)<<std::endl;
 
   return maxadc;
+
+  }
+  else{
+    return -10000.;
+  }
+
 }
 
-double AnalyzerTrackSelection::CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt){
-  double adc=-10000.;
-  for(int i=0;i<lgnear.size();i++){
-    if(adc<lgnear.at(i).adc){
-      adc = lgnear.at(i).adc;
-    }
-  }
-  return adc;
-}
+// double AnalyzerTrackSelection::CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt){
+//   double adc=-10000.;
+//   for(int i=0;i<lgnear.size();i++){
+//     if(adc<lgnear.at(i).adc){
+//       adc = lgnear.at(i).adc;
+//     }
+//   }
+//   return adc;
+// }
 
-double AnalyzerTrackSelection::CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt){
-  double adc=0;
-  for(int i=0;i<lgnear.size();i++){
-    if(fabs(lgnear.at(i).tdc-(ssdt+51.))<11.){
-      adc += lgnear.at(i).adc;
-    }
-  }
-  return adc;
-}
+// double AnalyzerTrackSelection::CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt){
+//   double adc=0;
+//   for(int i=0;i<lgnear.size();i++){
+//     if(fabs(lgnear.at(i).tdc-(ssdt+51.))<11.){
+//       adc += lgnear.at(i).adc;
+//     }
+//   }
+//   return adc;
+// }
 
 bool IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid){
 
@@ -2617,21 +2648,28 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TFile *fouthist = new TFile(out_root_name,"recreate");
    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
    // std::ofstream evspout[5];
+   // std::ofstream evspdout[5];
    // for(int i=0;i<5;i++){
    //   std::string mod = to_string(i+103);
-   //   std::string evspoutname = "evsp" + mod + ".txt";
+   //   // std::string evspoutname = "evsp" + mod + ".txt";
+   //   std::string evspoutname = "tsvsl" + mod + ".txt";
+   //   std::string evspdoutname = "tsvsld" + mod + ".txt";
    //   evspout[i].open(evspoutname);
+   //   evspdout[i].open(evspdoutname);
    // }
 
    int bene = 0;
-   double enepar[4] = {1.,40.,80.,198.};
-   int ienepar[4] = {1,40,80,200};
+   double enepar[4] = {1.,40.,80.,1.};
+   int ienepar[4] = {1,40,80,1};
+   // double enepar[4] = {1.,40.,80.,198.};
+   // int ienepar[4] = {1,40,80,200};
 
    bool gaincalib = false;
    bool fwdonly = false;
    bool hbdass_in_dst1 = false;
    bool new_cluster_method = true;//221006
-   bool w_calib_pos_dep = false;//ashikaga masters thesis paramter
+   bool w_calib_pos_dep = true;//ashikaga masters thesis parameter
+   int w_ssd_timing_match = 0;// 0: not required, 1: required but return maxadc, 2: required
    int searchx = 100;//for lg cluster
    int searchy = 100;//for lg cluster
    // int searchx = 100;//for lg cluster
@@ -2755,6 +2793,10 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    }
    TH2F* hbdhitmap[5];
    TH1F* trkmom[5];
+   TH1F* hbdadcwot[5];
+   TH1F* hbdadcwotd[5];
+   TH1F* hbdadcwt[5];
+   TH1F* hbdadcwtd[5];
    TH1F* hexp[5];
    TH1F* hadc[5];
    TH1F* hadcd[5];
@@ -2762,10 +2804,14 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH2F* hevspd[5];
    TH2F* hevspr[5];
    TH2F* hevsprd[5];
+   TH2F* hevspe[5][42];
+   TH2F* hevsped[5][42];
    TH2F* heovpvsp[5];
    TH2F* heovpvspd[5];
    TH1F* hedivp[4][5];
    TH1F* hedivpd[4][5];
+   TH1F* hedivpe[5][42];
+   TH1F* hedivped[5][42];
    TH1F* hassp[4][5];
    TH1F* hasspd[4][5];
    TH1F* hasse[4][5];
@@ -2778,6 +2824,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH2F* hhitmapcd[4][5];//clutser
    TH2F* htsvslc[5];//clutser
    TH2F* htsvslcd[5];//clutser
+   TH1F* htsslc[5];//clutser
+   TH1F* htsslcd[5];//clutser
    TH1F* htdiffc[5];//clutser
    TH1F* htdiffcd[5];//clutser
    TH1F* hcogxc[5];//clutser
@@ -2786,6 +2834,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH1F* hcogycd[5];//clutser
    TH1F* hcogxcl[5][4];//clutser
    TH1F* hcogycl[5][4];//clutser
+   TH2F* hthvsp[5];
+   TH2F* hthvspd[5];
+   TH1F* htheta[5][3];
    TH2F* hevsprd_hmix[5];//+HBDmix
    TH2F* heovpvspd_hmix[5];//+HBDmix
    TH1F* hedivpd_hmix[4][5];//+HBDmix
@@ -2799,15 +2850,25 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    for(int i=0;i<5;i++){
      hbdhitmap[i] = new TH2F(Form("hbdhitmap%d",i),Form("HBDhitmap_mod%d_Fore",103+i),50,-300,300,50,-300,300);
      trkmom[i] = new TH1F(Form("trkmom%d",i),Form("Track_mom_w/HBDHit_mod%d",103+i),50,0,5);
+     hbdadcwot[i] = new TH1F(Form("hbdadcwot%d",i),Form("HBDadc_TrackAss_wotrg_mod%d_Fore",103+i),100,0,20);
+     hbdadcwotd[i] = new TH1F(Form("hbdadcwotd%d",i),Form("HBDadc_TrackAss_wotrg_mod%d_Mix",103+i),100,0,20);
+     hbdadcwt[i] = new TH1F(Form("hbdadcwt%d",i),Form("HBDadc_TrackAss_wtrg_mod%d_Fore",103+i),100,0,20);
+     hbdadcwtd[i] = new TH1F(Form("hbdadcwtd%d",i),Form("HBDadc_TrackAss_wtrg_mod%d_Mix",103+i),100,0,20);
      hexp[i] = new TH1F(Form("hexp%d",i),Form("expected_LG_AdcSum/Mom_TrackAss_mod%d",103+i),32,0,800/ienepar[bene]);
      hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_AdcSum_Fore_TrackAss_mod%d",103+i),128,0,800/ienepar[bene]);
      hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_AdcSum_Mix_TrackAss_mod%d",103+i),128,0,800/ienepar[bene]);
-     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAss_mod%d",103+i),100,0,6,100,0,600/ienepar[bene]);
-     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d",103+i),100,0,6,100,0,600/ienepar[bene]);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAss_mod%d",103+i),25,0,1.5,40,0,240/ienepar[bene]);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d",103+i),25,0,1.5,40,0,240/ienepar[bene]);
      hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAss_mod%d",103+i),25,0,3,50,0,600/ienepar[bene]);
      hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d",103+i),25,0,3,50,0,600/ienepar[bene]);
      // hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAss_mod%d",103+i),50,0,3,100,0,600/ienepar[bene]);
      // hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d",103+i),50,0,3,100,0,600/ienepar[bene]);
+     for(int j=0;j<42;j++){
+       hevspe[i][j] = new TH2F(Form("hevspe%d%d",i,j),Form("LG_AdcSumVsMom_Fore_TrackAss_mod%d_blk%d",103+i,(int)j/7*10+j%7),25,0,3,50,0,600/ienepar[bene]);
+       hevsped[i][j] = new TH2F(Form("hevsped%d%d",i,j),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d_blk%d",103+i,(int)j/7*10+j%7),25,0,3,50,0,600/ienepar[bene]);
+       hedivpe[i][j] = new TH1F(Form("hedivpe%d%d",i,j),Form("LG_AdcSum/Mom_Fore_TrackAss_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),16,0,800/ienepar[bene]);
+       hedivped[i][j] = new TH1F(Form("hedivped%d%d",i,j),Form("LG_AdcSum/Mom_Mix_TrackAss_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),16,0,800/ienepar[bene]);
+     }
      heovpvsp[i] = new TH2F(Form("heovpvsp%d",i),Form("LG_E/pVsMom_Fore_TrackAss_mod%d",103+i),25,0,3,50,0,600/ienepar[bene]);
      heovpvspd[i] = new TH2F(Form("heovpovspd%d",i),Form("LG_E/pVsMom_Mix_TrackAss_mod%d",103+i),25,0,3,50,0,600/ienepar[bene]);
      for(int j=0;j<4;j++){
@@ -2815,14 +2876,14 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        hedivpd[j][i] = new TH1F(Form("hedivpd%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
        hassp[j][i] = new TH1F(Form("hassp%d%d",j,i),Form("Mom_Fore_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hasspd[j][i] = new TH1F(Form("hasspd%d%d",j,i),Form("Mom_Mix_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
-       hasse[j][i] = new TH1F(Form("hasse%d%d",j,i),Form("AdcSum_Fore_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),128,0,800/ienepar[bene]);
-       hassed[j][i] = new TH1F(Form("hassed%d%d",j,i),Form("AdcSum_Mix_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),128,0,800/ienepar[bene]);
+       hasse[j][i] = new TH1F(Form("hasse%d%d",j,i),Form("AdcSum_Fore_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),128,0,400/ienepar[bene]);
+       hassed[j][i] = new TH1F(Form("hassed%d%d",j,i),Form("AdcSum_Mix_TrackAss_%1.0fmV_mod%d",lgthr[j],103+i),128,0,400/ienepar[bene]);
 
        hesubp[j][i] = new TH1F(Form("hesubp%d%d",j,i),Form("LG_AdcSum-%1.0f*Mom_Fore_TrackAss_mod%d",lgcon[j],103+i),16,-200,200);
        hesubpd[j][i] = new TH1F(Form("hesubpd%d%d",j,i),Form("LG_AdcSum-%1.0f*Mom_Mix_TrackAss_mod%d",lgcon[j],103+i),16,-200,200);
        hedivpd_hmix[j][i] = new TH1F(Form("hedivpd_hmix%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAss_%1.0fmV_mod%d_hmix",lgthr[j],103+i),32,0,800/ienepar[bene]);
        hasspd_hmix[j][i] = new TH1F(Form("hasspd_hmix%d%d",j,i),Form("Mom_Mix_TrackAss_%1.0fmV_mod%d_hmix",lgthr[j],103+i),50,0,5);
-       hassed_hmix[j][i] = new TH1F(Form("hassed_hmix%d%d",j,i),Form("AdcSum_Mix_TrackAss_%1.0fmV_mod%d_hmix",lgthr[j],103+i),128,0,800/ienepar[bene]);
+       hassed_hmix[j][i] = new TH1F(Form("hassed_hmix%d%d",j,i),Form("AdcSum_Mix_TrackAss_%1.0fmV_mod%d_hmix",lgthr[j],103+i),128,0,400/ienepar[bene]);
      }
      hnlghitwtc[i] = new TH1F(Form("hnlghitwtc%d",i),Form("N_LGHits_TrackAss_inCluster_Fore_mod%d",103+i),10,0,10);
      hnlghitwtcd[i] = new TH1F(Form("hnlghitwtcd%d",i),Form("N_LGHits_TrackAss_inCluster_Mix_mod%d",103+i),10,0,10);
@@ -2833,16 +2894,22 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      }
      htsvslc[i] = new TH2F(Form("htsvslc%d",i),Form("Timing_SSDvsLG_TrackAss_inCluster_Fore_mod%d",103+i),50,50,150,50,-10,90);
      htsvslcd[i] = new TH2F(Form("htsvslcd%d",i),Form("Timing_SSDvsLG_TrackAss_inCluster_Mix_mod%d",103+i),50,50,150,50,-10,90);
+     htsslc[i] = new TH1F(Form("htsslc%d",i),Form("Timing_SSD-LG_TrackAss_inCluster_Fore_mod%d",103+i),100,-100,100);
+     htsslcd[i] = new TH1F(Form("htsslcd%d",i),Form("Timing_SSD-LG_TrackAss_inCluster_Mix_mod%d",103+i),100,-100,100);
      htdiffc[i] = new TH1F(Form("htdiffc%d",i),Form("MaxTimeDifference_TrackAss_inCluster_Fore_mod%d",103+i),100,0,20);
      htdiffcd[i] = new TH1F(Form("htdiffcd%d",i),Form("MaxTimeDifference_TrackAss_inCluster_Mix_mod%d",103+i),100,0,20);
      hcogxc[i] = new TH1F(Form("hcogxc%d",i),Form("COGx_residual_TrackAss_inCluster_Fore_mod%d",103+i),100,-150,150);
      hcogxcd[i] = new TH1F(Form("hcogxcd%d",i),Form("COGx_residual_TrackAss_inCluster_Mix_mod%d",103+i),100,-150,150);
      hcogyc[i] = new TH1F(Form("hcogyc%d",i),Form("COGy_residual_TrackAss_inCluster_Fore_mod%d",103+i),100,-150,150);
      hcogycd[i] = new TH1F(Form("hcogycd%d",i),Form("COGy_residual_TrackAss_inCluster_Mix_mod%d",103+i),100,-150,150);
-
      for(int j=0;j<4;j++){
        hcogxcl[i][j] = new TH1F(Form("hcogxcl%d%d",i,j),Form("COGx_residual_TrackAss_inCluster_mod%d_l%d",103+i,j),100,-150,150);
        hcogycl[i][j] = new TH1F(Form("hcogycl%d%d",i,j),Form("COGy_residual_TrackAss_inCluster_mod%d_l%d",103+i,j),100,-150,150);
+     }
+     hthvsp[i] = new TH2F(Form("hthvsp%d",i),Form("theta(deg)_vs_mom_TrackAss_Fore_mod%d",103+i),50,0,5,80,-40,40);
+     hthvspd[i] = new TH2F(Form("hthvspd%d",i),Form("theta(deg)_vs_mom_TrackAss_Mix_mod%d",103+i),50,0,5,80,-40,40);
+     for(int j=0;j<3;j++){
+       htheta[i][j] = new TH1F(Form("htheta%d%d",i,j),Form("theta(deg)_TrackAss_Fore_mod%d_over%dGeV/c",103+i,j),40,-40,40);
      }
      hevsprd_hmix[i] = new TH2F(Form("hevsprd_hmix%d",i),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d_hmix",103+i),25,0,3,50,0,600/ienepar[bene]);
      // hevsprd_hmix[i] = new TH2F(Form("hevsprd_hmix%d",i),Form("LG_AdcSumVsMom_Mix_TrackAss_mod%d_hmix",103+i),50,0,3,100,0,600/ienepar[bene]);
@@ -2939,7 +3006,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        bool ly1234 = false;
        if( fabs(track_lg_ly->at(itrack))<160.7 ){ly23=true;}
        if( fabs(track_lg_ly->at(itrack))<281.0 ){ly1234=true;}
-       // if( !ly1234 ) continue;
+       if( (bene==1||bene==2)&&gaincalib&&!ly1234 ) continue;
 
        //Search near HBD mix hit
        resx_min = 10000.;
@@ -3005,6 +3072,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 
        //HBD Fill
        int nhbdc = 0;
+       double hbdmaxadc=-10000.;
        for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){// hbdcluster loop
 	 double resx = track_hbd_allhit_resx->at(itrack).at(ihbd);
 	 double resy = track_hbd_allhit_resy->at(itrack).at(ihbd);
@@ -3033,6 +3101,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 if( fabs(rxs)<widthx[hmide][0] && fabs(rys)<widthy[hmide][0] ){
 	   ht[0][itype][hmide]->Fill(track_hbd_allhit_ftime->at(itrack).at(ihbd));
 	   ht[0][itype][2]->Fill(track_hbd_allhit_ftime->at(itrack).at(ihbd));
+	   if(hbdmaxadc < track_hbd_allhit_adc->at(itrack).at(ihbd)){
+	     hbdmaxadc = track_hbd_allhit_adc->at(itrack).at(ihbd);
+	   }
 	 }
 	 nhbdc++;
        }// hbdcluster loop
@@ -3041,11 +3112,20 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        if(itype==eptype){
 	 hbdhitmap[hmide]->Fill(track_hbd_lx->at(itrack),track_hbd_ly->at(itrack));
 	 hbdhitmap[2]->Fill(track_hbd_lx->at(itrack),track_hbd_ly->at(itrack));
+	 if(track_w_trg_hbd->at(itrack)&&track_w_trg_gtr->at(itrack)&&track_w_trg_lg->at(itrack)>-1000){
+	   hbdadcwt[hmide]->Fill(hbdmaxadc);
+	   hbdadcwt[2]->Fill(hbdmaxadc);
+	 }
+	 else{
+	   hbdadcwot[hmide]->Fill(hbdmaxadc);
+	   hbdadcwot[2]->Fill(hbdmaxadc);
+	 }
        }
 
        if(hbdmixhits[hmide][itype].size()!=0){//calc mix
 	 for(int ihbd=0;ihbd<hbdmixhits[hmide][itype].size();ihbd++){
 	   int nhbdc_dum = 0;
+	   double hbdmaxadc_dum=-10000.;
 	   for(int jhbd=0;jhbd<hbdmixhits[hmide][itype].at(ihbd).size();jhbd++){
 	     double tmpresx = hbdmixhits[hmide][itype].at(ihbd).at(jhbd).lx-track_hbd_lx->at(itrack);
 	     double tmpresy = hbdmixhits[hmide][itype].at(ihbd).at(jhbd).ly-track_hbd_ly->at(itrack);
@@ -3072,11 +3152,24 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     if( fabs(tmprxs)<widthx[hmide][0] && fabs(tmprys)<widthy[hmide][0] ){
 	       htd[0][itype][hmide]->Fill(hbdmixhits[hmide][itype].at(ihbd).at(jhbd).tdc);
 	       htd[0][itype][2]->Fill(hbdmixhits[hmide][itype].at(ihbd).at(jhbd).tdc);
+	       if(hbdmaxadc_dum < hbdmixhits[hmide][itype].at(ihbd).at(jhbd).adc){
+		 hbdmaxadc_dum = hbdmixhits[hmide][itype].at(ihbd).at(jhbd).adc;
+	       }
 	     }
 	     nhbdc_dum++;
 	   }
 	   hnd[hmide][0][itype]->Fill(nhbdc_dum);
 	   hnd[2][0][itype]->Fill(nhbdc_dum);
+	   if(itype==eptype){
+	     if(track_w_trg_hbd->at(itrack)&&track_w_trg_gtr->at(itrack)&&track_w_trg_lg->at(itrack)>-1000){
+	       hbdadcwtd[hmide]->Fill(hbdmaxadc_dum);
+	       hbdadcwtd[2]->Fill(hbdmaxadc_dum);
+	     }
+	     else{
+	       hbdadcwotd[hmide]->Fill(hbdmaxadc_dum);
+	       hbdadcwotd[2]->Fill(hbdmaxadc_dum);
+	     }
+	   }
 	 }
        }//calc mix
 
@@ -3150,7 +3243,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 if(lgnear.size()>0){
 	   hexp[lmide]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
 	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
-	   adcsum=CalcADCNearHitV3(lgnear,track_ssd_t->at(itrack),lgcluster);
+	   adcsum=CalcADCNearHit(w_ssd_timing_match,lgnear,track_ssd_t->at(itrack),lgcluster);
 	   if(w_calib_pos_dep){
 	     double calib_x;
 	     double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),calib_x);
@@ -3179,11 +3272,16 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 //     }//hit loop
 	 //   }//cls loop
 	 // }//select 4d-isolate-cluster
+	 // if(lgnear.size()!=1){adcsum=-10000.;}//select 4d-isolate-cluster
 	 hnlghitwtc[lmide]->Fill(lgcluster.cids.size());
 	 hnlghitwtc[2]->Fill(lgcluster.cids.size());
 	 for(int ict=0;ict<lgcluster.cids.size();ict++){
 	   htsvslc[lmide]->Fill(lgcluster.tdcs.at(ict),track_ssd_t->at(itrack));
 	   htsvslc[2]->Fill(lgcluster.tdcs.at(ict),track_ssd_t->at(itrack));
+	   // evspout[lmide]<<lgcluster.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
+	   // evspout[2]<<lgcluster.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
+	   htsslc[lmide]->Fill( track_ssd_t->at(itrack) - (lgcluster.tdcs.at(ict)-51.) );
+	   htsslc[2]->Fill( track_ssd_t->at(itrack) - (lgcluster.tdcs.at(ict)-51.) );
 	 }
 	 if(lgcluster.cids.size()>1){
 	   htdiffc[lmide]->Fill(lgcluster.timediff);
@@ -3220,6 +3318,20 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	       hcogycl[2][3]->Fill(lgcluster.cogy);
 	     }
 	   }
+	   hthvsp[lmide]->Fill(track_mom->at(itrack),track_angle_lx->at(itrack)*180./acos(-1));
+	   hthvsp[2]->Fill(track_mom->at(itrack),track_angle_lx->at(itrack)*180./acos(-1));
+	   if(track_mom->at(itrack)>2.){
+	     htheta[lmide][2]->Fill(track_angle_lx->at(itrack)*180./acos(-1));
+	     htheta[2][2]->Fill(track_angle_lx->at(itrack)*180./acos(-1));
+	   }
+	   else if(track_mom->at(itrack)>1.){
+	     htheta[lmide][1]->Fill(track_angle_lx->at(itrack)*180./acos(-1));
+	     htheta[2][1]->Fill(track_angle_lx->at(itrack)*180./acos(-1));
+	   }
+	   else{
+	     htheta[lmide][0]->Fill(track_angle_lx->at(itrack)*180./acos(-1));
+	     htheta[2][0]->Fill(track_angle_lx->at(itrack)*180./acos(-1));
+	   }
 	 }
 	 for(int ilc=0;ilc<lgcluster.cids.size();ilc++){
 	   hhitmapc[0][lmide]->Fill((double)((lgcluster.cids.at(ilc))%10),(double)((lgcluster.cids.at(ilc))/10));
@@ -3237,11 +3349,14 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     hhitmapc[2][2]->Fill((double)((lgcluster.cids.at(ilc))%10),(double)((lgcluster.cids.at(ilc))/10));
 	   }
 	 }
-	 hevsp[lmide]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
-	 hevsp[2]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	 int maxcid = lgcluster.maxadcch;
+	 int maxcidel = ((int)maxcid/10)*7 + (int)maxcid%10;
 	 if(adcsum>0){
+	   hevsp[lmide]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	   hevsp[2]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
 	   hevspr[lmide]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
 	   hevspr[2]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
+	   hevspe[lmide][maxcidel]->Fill(track_mom->at(itrack),adcsum/enepar[bene]);
 	   // evspout[lmide]<<track_mom->at(itrack)<<" "<<adcsum/enepar[bene]<<std::endl;
 	   // evspout[2]<<track_mom->at(itrack)<<" "<<adcsum/enepar[bene]<<std::endl;
 	   heovpvsp[lmide]->Fill(track_mom->at(itrack),adcsum/enepar[bene]/track_mom->at(itrack));
@@ -3271,6 +3386,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     hesubp[j][lmide]->Fill(adcsum-lgcon[j]*track_mom->at(itrack));
 	     hesubp[j][2]->Fill(adcsum-lgcon[j]*track_mom->at(itrack));
 	   }
+	 }
+	 if(adcsum>lgthr[0]){
+	   hedivpe[lmide][maxcidel]->Fill(adcsum/enepar[bene]/track_mom->at(itrack));
 	 }
        }
 
@@ -3336,7 +3454,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   hnd[2][1][itype]->Fill(nlgh_dum);
 	   if(itype==eptype){
 	     if(lgneard.size()>0){
-	       adcsumd=CalcADCNearHitV3(lgneard,track_ssd_t->at(itrack),lgclusterd);
+	       adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);
 	       if(w_calib_pos_dep){
 		 double calib_x;
 		 double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),calib_x);
@@ -3348,6 +3466,10 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     for(int ict=0;ict<lgclusterd.cids.size();ict++){
 	       htsvslcd[lmide]->Fill(lgclusterd.tdcs.at(ict),track_ssd_t->at(itrack));
 	       htsvslcd[2]->Fill(lgclusterd.tdcs.at(ict),track_ssd_t->at(itrack));
+	       // evspdout[lmide]<<lgclusterd.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
+	       // evspdout[2]<<lgclusterd.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
+	       htsslcd[lmide]->Fill( track_ssd_t->at(itrack) - (lgclusterd.tdcs.at(ict)-51.) );
+	       htsslcd[2]->Fill( track_ssd_t->at(itrack) - (lgclusterd.tdcs.at(ict)-51.) );
 	     }
 	     if(lgclusterd.cids.size()>1){
 	       htdiffcd[lmide]->Fill(lgclusterd.timediff);
@@ -3356,6 +3478,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	       hcogxcd[2]->Fill(lgclusterd.cogx);
 	       hcogycd[lmide]->Fill(lgclusterd.cogy);
 	       hcogycd[2]->Fill(lgclusterd.cogy);
+	       hthvspd[lmide]->Fill(track_mom->at(itrack),track_angle_lx->at(itrack)*180./acos(-1));
+	       hthvspd[2]->Fill(track_mom->at(itrack),track_angle_lx->at(itrack)*180./acos(-1));
 	     }
 	     for(int ilc=0;ilc<lgclusterd.cids.size();ilc++){
 	       hhitmapcd[0][lmide]->Fill((double)((lgclusterd.cids.at(ilc))%10),(double)((lgclusterd.cids.at(ilc))/10));
@@ -3373,11 +3497,14 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 		 hhitmapcd[2][2]->Fill((double)((lgclusterd.cids.at(ilc))%10),(double)((lgclusterd.cids.at(ilc))/10));
 	       }
 	     }
-	     hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
-	     hevspd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	     int maxcid = lgclusterd.maxadcch;
+	     int maxcidel = ((int)maxcid/10)*7 + (int)maxcid%10;
 	     if(adcsumd>0){
+	       hevspd[lmide]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	       hevspd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
 	       hevsprd[lmide]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
 	       hevsprd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
+	       hevsped[lmide][maxcidel]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]);
 	       heovpvspd[lmide]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]/track_mom->at(itrack));
 	       heovpvspd[2]->Fill(track_mom->at(itrack),adcsumd/enepar[bene]/track_mom->at(itrack));
 	       hadcd[lmide]->Fill(adcsumd/enepar[bene]);
@@ -3405,6 +3532,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 		 hesubpd[j][lmide]->Fill(adcsumd-lgcon[j]*track_mom->at(itrack));
 		 hesubpd[j][2]->Fill(adcsumd-lgcon[j]*track_mom->at(itrack));
 	       }
+	     }
+	     if(adcsumd>lgthr[0]){
+	       hedivped[lmide][maxcidel]->Fill(adcsumd/enepar[bene]/track_mom->at(itrack));
 	     }
 	   }
 	 }//lghit loop
@@ -3515,7 +3645,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 }
        }
        if(lgneard.size()>0){
-	 adcsumd=CalcADCNearHitV3(lgneard,track_ssd_t->at(itrack),lgclusterd);
+	 adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);
 	 if(w_calib_pos_dep){
 	   double calib_x;
 	   double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),calib_x);
@@ -3677,6 +3807,18 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      heovpvspsub[i]->SetName(Form("heovpvspsub%d",(i+3)%5));
      heovpvspsub[i]->SetTitle(Form("LG_E/pVsMom_Fore-Mix_TrackAss_mod%d",103+((i+3)%5)));
    }
+   TH1F* htsslcsub[4];
+   TCanvas* ctsslc = new TCanvas("ctsslc","ctsslc",700,500);
+   TCanvas* ctsslcsub = new TCanvas("ctsslcsub","ctsslcsub",700,500);
+   DC1DForeMixFM("tsslc",ctsslc,ctsslcsub,htsslc,htsslcd,htsslcsub,mixevent);
+   TH1F* hbdadcwotsub[4];
+   TCanvas* chbdadcwot = new TCanvas("chbdadcwot","chbdadcwot",700,500);
+   TCanvas* chbdadcwotsub = new TCanvas("chbdadcwotsub","chbdadcwotsub",700,500);
+   DC1DForeMixFM("hbdadcwot",chbdadcwot,chbdadcwotsub,hbdadcwot,hbdadcwotd,hbdadcwotsub,mixevent);
+   TH1F* hbdadcwtsub[4];
+   TCanvas* chbdadcwt = new TCanvas("chbdadcwt","chbdadcwt",700,500);
+   TCanvas* chbdadcwtsub = new TCanvas("chbdadcwtsub","chbdadcwtsub",700,500);
+   DC1DForeMixFM("hbdadcwt",chbdadcwt,chbdadcwtsub,hbdadcwt,hbdadcwtd,hbdadcwtsub,mixevent);
    // TH1F* hadcsub[4];
    // TCanvas* cadc = new TCanvas("cadc","cadc",700,500);
    // TCanvas* cadcsub = new TCanvas("cadcsub","cadcsub",700,500);
@@ -3749,6 +3891,49 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      for(int i=0;i<4;i++){
        hhitmapcsub[j][i]->SetName(Form("hhitmapcsub%d%d",j,(i+3)%5));
        hhitmapcsub[j][i]->SetTitle(Form("LGhitmap_mod%d_E/pcut%d_Fore-Mix",103+((i+3)%5),j));
+     }
+   }
+   TH2F* hthvspsub[5];
+   TCanvas* cthvsp = new TCanvas("cthvsp","cthvsp",700,500);
+   TCanvas* cthvspd = new TCanvas("cthvspd","cthvspd",700,500);
+   TCanvas* cthvspsub = new TCanvas("cthvspsub","cthvspsub",700,500);
+   DC2DForeMixFM(cthvsp,cthvspd,cthvspsub,hthvsp,hthvspd,hthvspsub,mixevent);
+   for(int i=0;i<4;i++){
+     hthvspsub[i]->SetName(Form("hthvspsub%d",(i+3)%5));
+     hthvspsub[i]->SetTitle(Form("theta(deg)_vs_mom_TrackAss_mod%d_Fore-Mix",103+((i+3)%5)));
+   }
+   TCanvas* ctheta = new TCanvas("ctheta","ctheta",700,500);
+   ctheta->Divide(2,2);
+   for(int i=0;i<4;i++){
+     ctheta->cd(i+1);
+     htheta[(i+3)%5][0]->SetLineColor(1);
+     htheta[(i+3)%5][0]->Draw("hist");
+     htheta[(i+3)%5][1]->SetLineColor(2);
+     htheta[(i+3)%5][1]->Draw("hist sames");
+     htheta[(i+3)%5][2]->SetLineColor(4);
+     htheta[(i+3)%5][2]->Draw("hist sames");
+   }
+
+   TCanvas* cevspe[4];
+   TCanvas* cevsped[4];
+   TCanvas* cedivpe[4];
+   for(int i=0;i<4;i++){
+     cevspe[i] = new TCanvas(Form("cevspe%d",i),Form("cevspe%d",i),700,500);
+     cevsped[i] = new TCanvas(Form("cevsped%d",i),Form("cevsped%d",i),700,500);
+     cedivpe[i] = new TCanvas(Form("cedivpe%d",i),Form("cedivpe%d",i),700,500);
+     cevspe[i]->Divide(7,6);
+     cevsped[i]->Divide(7,6);
+     cedivpe[i]->Divide(7,6);
+     for(int j=0;j<42;j++){
+       cevspe[i]->cd(j+1);
+       hevspe[(i+3)%5][41-j]->Draw("colz");
+       cevsped[i]->cd(j+1);
+       hevsped[(i+3)%5][41-j]->Draw("colz");
+       cedivpe[i]->cd(j+1);
+       hedivpe[(i+3)%5][41-j]->Draw("hist");
+       hedivped[(i+3)%5][41-j]->SetLineColor(2);
+       hedivped[(i+3)%5][41-j]->Scale(1./(double)mixevent);
+       hedivped[(i+3)%5][41-j]->Draw("hist sames");
      }
    }
 
@@ -4183,18 +4368,32 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    ceff->SaveAs(outfile,"pdf");
    ceff2->SaveAs(outfile,"pdf");
    chbdhitmap->SaveAs(outfile,"pdf");
-   for(int i=0;i<4;i++){
-     // chitmapc[i]->SaveAs(outfile,"pdf");
-     // chitmapcd[i]->SaveAs(outfile,"pdf");
+   for(int i=0;i<1;i++){
+     chitmapc[i]->SaveAs(outfile,"pdf");
+     chitmapcd[i]->SaveAs(outfile,"pdf");
      chitmapcsub[i]->SaveAs(outfile,"pdf");
    }
+   for(int i=0;i<4;i++){
+     cevspe[i]->SaveAs(outfile,"pdf");
+     cedivpe[i]->SaveAs(outfile,"pdf");
+   }
+   // chbdadcwot->SaveAs(outfile,"pdf");
+   // chbdadcwotsub->SaveAs(outfile,"pdf");
+   // chbdadcwt->SaveAs(outfile,"pdf");
+   // chbdadcwtsub->SaveAs(outfile,"pdf");
    cnlghitwtc->SaveAs(outfile,"pdf");
    cnlghitwtcd->SaveAs(outfile,"pdf");
    ctsvslc->SaveAs(outfile,"pdf");
    ctsvslcd->SaveAs(outfile,"pdf");
+   ctsslc->SaveAs(outfile,"pdf");
+   ctsslcsub->SaveAs(outfile,"pdf");
    ctdiffc->SaveAs(outfile,"pdf");
    ccogxc->SaveAs(outfile,"pdf");
    ccogyc->SaveAs(outfile,"pdf");
+   cthvsp->SaveAs(outfile,"pdf");
+   cthvspd->SaveAs(outfile,"pdf");
+   cthvspsub->SaveAs(outfile,"pdf");
+   ctheta->SaveAs(outfile,"pdf");
    // for(int i=0;i<4;i++){
    //   ccogxcl[i]->SaveAs(outfile,"pdf");
    //   ccogycl[i]->SaveAs(outfile,"pdf");
@@ -4282,6 +4481,7 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
    int bene = 1;// 0 or 1
    bool gaincalib = true;
    bool leftonly = true;
+   int w_ssd_timing_match = 0;
    int searchx = 100;//for lg cluster
    int searchy = 60;//for lg cluster
    int mixevent = 50;
@@ -4660,7 +4860,7 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
        if(itype==eptype){
 	 hnlghitwt[lmide]->Fill(lgnear.size());
 	 hnlghitwt[2]->Fill(lgnear.size());
-	 if(lgnear.size()>0){adcsum=CalcADCNearHit(lgnear,track_ssd_t->at(itrack),lgcluster);}
+	 if(lgnear.size()>0){adcsum=CalcADCNearHit(w_ssd_timing_match,lgnear,track_ssd_t->at(itrack),lgcluster);}
 	 hmom[lmide]->Fill(track_mom->at(itrack));
 	 hexrej1[lmide]->Fill(track_lg_pi_eff1->at(itrack));
 	 hexrej2[lmide]->Fill(track_lg_pi_eff2->at(itrack));
@@ -4735,7 +4935,7 @@ void AnalyzerTrackSelection::DrawForLGRejection(int runoption, int maxevent, cha
 	   if(itype==eptype){
 	     hnlghitwtd[lmide]->Fill(lgneard.size());
 	     hnlghitwtd[2]->Fill(lgneard.size());
-	     if(lgneard.size()>0){adcsumd=CalcADCNearHit(lgneard,track_ssd_t->at(itrack),lgclusterd);}
+	     if(lgneard.size()>0){adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);}
 	     hmomd[lmide]->Fill(track_mom->at(itrack));
 	     hexrej1d[lmide]->Fill(track_lg_pi_eff1->at(itrack));
 	     hexrej2d[lmide]->Fill(track_lg_pi_eff2->at(itrack));

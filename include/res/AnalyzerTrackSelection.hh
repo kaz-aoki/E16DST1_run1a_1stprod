@@ -78,9 +78,10 @@ public :
      double timediff;
      double cogx;
      double cogy;
+     int maxadcch;
    };
 
-  double relg[3][5][6][7]={
+  double relg[4][5][6][7]={
     {//morino220531
     {//103
     {1.,1.,1.,1.,1.,1.,1.},
@@ -216,7 +217,51 @@ public :
     {0.0094,0.0063,0.0101,0.0134,0.0107,0.0096,0.0164},
     {0.0071,0.0067,0.0072,0.0072,0.0074,0.0075,0.0090},
     }
+    },
+
+    {//nakasuga, sim
+    {//103
+      {0.826598,0.851196,0.875794,0.900391,0.924989,0.949587,0.974185,},
+      {0.826598,0.851196,0.875794,0.900391,0.924989,0.949587,0.974185,},
+      {0.826598,0.851196,0.875794,0.900391,0.924989,0.949587,0.974185,},
+      {0.826598,0.851196,0.875794,0.900391,0.924989,0.949587,0.974185,},
+      {0.826598,0.851196,0.875794,0.900391,0.924989,0.949587,0.974185,},
+      {0.826598,0.851196,0.875794,0.900391,0.924989,0.949587,0.974185,},
+    },
+    {//104
+      {0.98885,1.04373,1.0986,1.15348,1.20836,1.26323,1.31811,},
+      {0.98885,1.04373,1.0986,1.15348,1.20836,1.26323,1.31811,},
+      {0.98885,1.04373,1.0986,1.15348,1.20836,1.26323,1.31811,},
+      {0.98885,1.04373,1.0986,1.15348,1.20836,1.26323,1.31811,},
+      {0.98885,1.04373,1.0986,1.15348,1.20836,1.26323,1.31811,},
+      {0.98885,1.04373,1.0986,1.15348,1.20836,1.26323,1.31811,},
+    },
+    {//
+      {1.,1.,1.,1.,1.,1.,1.},
+      {1.,1.,1.,1.,1.,1.,1.},
+      {1.,1.,1.,1.,1.,1.,1.},
+      {1.,1.,1.,1.,1.,1.,1.},
+      {1.,1.,1.,1.,1.,1.,1.},
+      {1.,1.,1.,1.,1.,1.,1.},
+    },
+    {//106
+      {1.28353,1.22499,1.16645,1.10791,1.04937,0.99083,0.932289,},
+      {1.28353,1.22499,1.16645,1.10791,1.04937,0.99083,0.932289,},
+      {1.28353,1.22499,1.16645,1.10791,1.04937,0.99083,0.932289,},
+      {1.28353,1.22499,1.16645,1.10791,1.04937,0.99083,0.932289,},
+      {1.28353,1.22499,1.16645,1.10791,1.04937,0.99083,0.932289,},
+      {1.28353,1.22499,1.16645,1.10791,1.04937,0.99083,0.932289,},
+    },
+    {//107
+      {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
+      {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
+      {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
+      {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
+      {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
+      {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
     }
+    }
+
   };
 
 
@@ -454,11 +499,9 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual double   CalcADCNearHit(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
-   virtual double   CalcADCNearHitV2(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
-   virtual double   CalcADCNearHitV3(std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
-   virtual double   CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt);
-   virtual double   CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt);
+   virtual double   CalcADCNearHit(int condition, std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
+   // virtual double   CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt);
+   // virtual double   CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    virtual void     Loop();
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
@@ -859,12 +902,13 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
   if(runoption==1&&chi_square->at(itrack)>20.) {return -1;}
-  if(runoption==3&&chi_square->at(itrack)>5.) {return -1;}
-  if(runoption==0&&chi_square->at(itrack)>5.) {return -1;}
+  if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}
+  if(runoption==0&&chi_square->at(itrack)>10.) {return -1;}
+  // if(track_w_trg_hbd->at(itrack)&&track_w_trg_gtr->at(itrack)&&track_w_trg_lg->at(itrack)>-1000) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
-  if (track_mom->at(itrack) > 2.) {return -1;}
+  // if (track_mom->at(itrack) > 3.) {return -1;}
   // if (track_mom->at(itrack) < 1.6) {return -1;}
   // if (track_mom->at(itrack) > 0.8) {return -1;}
   // if (track_mom->at(itrack) < 0.4) {return -1;}
@@ -1095,6 +1139,7 @@ Int_t AnalyzerTrackSelection::RunPurpose(int run_id)
       return 17;
     }
   else{
+    std::cout<<"This RunNumber is not categorized"<<std::endl;
     return -1;
   }
 }
