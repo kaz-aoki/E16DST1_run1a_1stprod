@@ -27,14 +27,14 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-#add_definitions(-DTRACK_EFF_CHECK)
-#add_definitions(-DMERGE_TRACK_PAIR)
-##add_definitions(-DMOCK_VECTOR_MESON)
-#add_definitions(-DMOCK_KS)
-#add_definitions(-DREMOVE_REAL_HIT)
-##add_definitions(-DREMOVE_DEAD_REGION_CUT)
-##add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
-#add_definitions(-DWO_LAYER_EFF)
+add_definitions(-DTRACK_EFF_CHECK)
+add_definitions(-DMERGE_TRACK_PAIR)
+#add_definitions(-DMOCK_VECTOR_MESON)
+add_definitions(-DMOCK_KS)
+add_definitions(-DREMOVE_REAL_HIT)
+#add_definitions(-DREMOVE_DEAD_REGION_CUT)
+#add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
+add_definitions(-DWO_LAYER_EFF)
 
 #add_definitions(-DWO_TRACK_FIT)
 
