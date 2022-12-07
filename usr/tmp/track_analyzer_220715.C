@@ -2515,14 +2515,16 @@ void track_analyzer_220715::PairFit(int n) {
 void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx,
                                                       const Hep3Vector& hep_plus_pos, const Hep3Vector& hep_minus_pos,
                                                       const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom) {
-  out_plus_chi2[n]            = chi_square->at(good_pair_indexs[n][0]);
-  out_minus_chi2[n]           = chi_square->at(good_pair_indexs[n][1]);
+  auto ptid = good_pair_indexs[n][0];
+  auto mtid = good_pair_indexs[n][1];
+  out_plus_chi2[n]            = chi_square->at(ptid);
+  out_minus_chi2[n]           = chi_square->at(mtid);
   out_flag[n]                 = flag;
   out_distance[n]             = dist_cm           * 10.;
-  out_plus_nearest_tgt_id[n]  = nearest_tgt_ids[good_pair_indexs[n][0]];
-  out_plus_nearest_radius[n]  = nearest_radius[good_pair_indexs[n][0]];
-  out_minus_nearest_tgt_id[n] = nearest_tgt_ids[good_pair_indexs[n][1]];
-  out_minus_nearest_radius[n] = nearest_radius[good_pair_indexs[n][1]];
+  out_plus_nearest_tgt_id[n]  = nearest_tgt_ids[ptid];
+  out_plus_nearest_radius[n]  = nearest_radius[ptid];
+  out_minus_nearest_tgt_id[n] = nearest_tgt_ids[mtid];
+  out_minus_nearest_radius[n] = nearest_radius[mtid];
   out_vtx_x[n]                = hep_vtx.x()       * 10.;
   out_vtx_y[n]                = hep_vtx.y()       * 10.;
   out_vtx_z[n]                = hep_vtx.z()       * 10.;
@@ -2553,6 +2555,56 @@ void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double di
   out_pipi_mass[n]       = CalcMass(kPiPi, pmom, mmom);
   out_pip_mass[n]        = CalcMass(kPiP,  pmom, mmom);
   out_kk_mass[n]         = CalcMass(kKK,   pmom, mmom);
+
+  out_fit_plus_ssd_lx[n]    = rk_fit_ssd_x->at(ptid);
+  out_fit_plus_ssd_ly[n]    = rk_fit_ssd_y->at(ptid);
+  out_fit_plus_gtr100_lx[n] = rk_fit_gtr100_x->at(ptid);
+  out_fit_plus_gtr100_ly[n] = rk_fit_gtr100_y->at(ptid);
+  out_fit_plus_gtr200_lx[n] = rk_fit_gtr200_x->at(ptid);
+  out_fit_plus_gtr200_ly[n] = rk_fit_gtr200_y->at(ptid);
+  out_fit_plus_gtr300_lx[n] = rk_fit_gtr300_x->at(ptid);
+  out_fit_plus_gtr300_ly[n] = rk_fit_gtr300_y->at(ptid);
+  out_fit_plus_hbd_lx[n]    = rk_fit_hbd_x->at(ptid);
+  out_fit_plus_hbd_ly[n]    = rk_fit_hbd_y->at(ptid);
+  out_fit_plus_lg_c_lx[n]   = rk_fit_lg_c_x->at(ptid);
+  out_fit_plus_lg_c_ly[n]   = rk_fit_lg_c_y->at(ptid);
+  out_fit_plus_lg_b_lx[n]   = rk_fit_lg_b_x->at(ptid);
+  out_fit_plus_lg_b_ly[n]   = rk_fit_lg_b_y->at(ptid);
+  out_fit_plus_lg_a_lx[n]   = rk_fit_lg_a_x->at(ptid);
+  out_fit_plus_lg_a_ly[n]   = rk_fit_lg_a_y->at(ptid);
+  out_fit_minus_ssd_lx[n]    = rk_fit_ssd_x->at(mtid);
+  out_fit_minus_ssd_ly[n]    = rk_fit_ssd_y->at(mtid);
+  out_fit_minus_gtr100_lx[n] = rk_fit_gtr100_x->at(mtid);
+  out_fit_minus_gtr100_ly[n] = rk_fit_gtr100_y->at(mtid);
+  out_fit_minus_gtr200_lx[n] = rk_fit_gtr200_x->at(mtid);
+  out_fit_minus_gtr200_ly[n] = rk_fit_gtr200_y->at(mtid);
+  out_fit_minus_gtr300_lx[n] = rk_fit_gtr300_x->at(mtid);
+  out_fit_minus_gtr300_ly[n] = rk_fit_gtr300_y->at(mtid);
+  out_fit_minus_hbd_lx[n]    = rk_fit_hbd_x->at(mtid);
+  out_fit_minus_hbd_ly[n]    = rk_fit_hbd_y->at(mtid);
+  out_fit_minus_lg_c_lx[n]   = rk_fit_lg_c_x->at(mtid);
+  out_fit_minus_lg_c_ly[n]   = rk_fit_lg_c_y->at(mtid);
+  out_fit_minus_lg_b_lx[n]   = rk_fit_lg_b_x->at(mtid);
+  out_fit_minus_lg_b_ly[n]   = rk_fit_lg_b_y->at(mtid);
+  out_fit_minus_lg_a_lx[n]   = rk_fit_lg_a_x->at(mtid);
+  out_fit_minus_lg_a_ly[n]   = rk_fit_lg_a_y->at(mtid);
+  
+//  FillTVector3(n, lmoms[0][0], &out_fit_plus_ssd_mom_lx,     &out_fit_plus_ssd_mom_ly,     &out_fit_plus_ssd_mom_lz);
+//  FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
+//  FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
+//  FillTVector3(n, lmoms[0][3], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
+//  FillTVector3(n, lmoms[1][0], &out_fit_minus_ssd_mom_lx,    &out_fit_minus_ssd_mom_ly,    &out_fit_minus_ssd_mom_lz);
+//  FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
+//  FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
+//  FillTVector3(n, lmoms[1][3], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
+//  FillTVector3(n, gmoms[0][0], &out_fit_plus_ssd_mom_gx,     &out_fit_plus_ssd_mom_gy,     &out_fit_plus_ssd_mom_gz);
+//  FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
+//  FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
+//  FillTVector3(n, gmoms[0][3], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
+//  FillTVector3(n, gmoms[1][0], &out_fit_minus_ssd_mom_gx,    &out_fit_minus_ssd_mom_gy,    &out_fit_minus_ssd_mom_gz);
+//  FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
+//  FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
+//  FillTVector3(n, gmoms[1][3], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
   return;
 }
 
