@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-#set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
-set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
+set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -g -lMinuit -lSpectrum")
-set(CMAKE_EXE_LINKER_FLAGS "-pg")
-set(CMAKE_SHARED_LINKER_FLAGS "-pg")
+#set(CMAKE_EXE_LINKER_FLAGS "-pg")
+#set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../build)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../install)
