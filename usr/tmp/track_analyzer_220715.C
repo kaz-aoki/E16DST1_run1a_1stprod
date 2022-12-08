@@ -4119,7 +4119,7 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_hit_minus_gtr200_lx.emplace_back(rk_hit_gtr200_tx2->at(minus_track_index));
   em_hit_minus_gtr200_ly.emplace_back(rk_hit_gtr200_ty->at(minus_track_index));
   em_hit_minus_gtr300_lx.emplace_back(rk_hit_gtr300_tx2->at(minus_track_index));
-  em_hit_plus_gtr300_ly.emplace_back(rk_hit_gtr300_ty->at(minus_track_index));
+  em_hit_minus_gtr300_ly.emplace_back(rk_hit_gtr300_ty->at(minus_track_index));
   em_fit_minus_ssd_lx.emplace_back(rk_fit_ssd_x->at(minus_track_index));
   em_fit_minus_ssd_ly.emplace_back(rk_fit_ssd_y->at(minus_track_index));
   em_fit_minus_gtr100_lx.emplace_back(rk_fit_gtr100_x->at(minus_track_index));
