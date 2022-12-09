@@ -515,6 +515,7 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
   tree->Branch("plus_n_cands",                     &em_plus_n_cands);
 //  tree->Branch("plus_n_pairs",                     &em_plus_n_pairs);
   tree->Branch("plus_track_id",                    &em_plus_track_id);
+  tree->Branch("plus_charge_id",                   &em_plus_charge_id);
   tree->Branch("hit_plus_ssd_id",                  &em_hit_plus_ssd_id);
   tree->Branch("hit_plus_ssd_lx",                  &em_hit_plus_ssd_lx);
 //  tree->Branch("hit_plus_ssd_t",                   &em_hit_plus_ssd_t);
@@ -555,6 +556,7 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
   tree->Branch("minus_n_cands",                    &em_minus_n_cands);
 //  tree->Branch("minus_n_pairs",                    &em_minus_n_pairs);
   tree->Branch("minus_track_id",                   &em_minus_track_id);
+  tree->Branch("minus_charge_id",                  &em_minus_charge_id);
   tree->Branch("hit_minus_ssd_id",                 &em_hit_minus_ssd_id);
   tree->Branch("hit_minus_ssd_lx",                 &em_hit_minus_ssd_lx);
 //  tree->Branch("hit_minus_ssd_t",                  &em_hit_minus_ssd_t);
@@ -3671,6 +3673,7 @@ void track_analyzer_220715::ClearEMBranches() {
   em_plus_n_cands.clear();
 //  em_plus_n_pairs.clear();
   em_plus_track_id.clear();
+  em_plus_charge_id.clear();
   em_hit_plus_ssd_id.clear();
   em_hit_plus_ssd_lx.clear();
 //  em_hit_plus_ssd_t.clear();
@@ -3711,6 +3714,7 @@ void track_analyzer_220715::ClearEMBranches() {
   em_minus_n_cands.clear();
 //  em_minus_n_pairs.clear();
   em_minus_track_id.clear();
+  em_minus_charge_id.clear();
   em_hit_minus_ssd_id.clear();
   em_hit_minus_ssd_lx.clear();
 //  em_hit_minus_ssd_t.clear();
@@ -4030,6 +4034,7 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_plus_event_id.emplace_back(event_id);
   em_plus_n_cands.emplace_back(n_cands);
   em_plus_track_id.emplace_back(track_id->at(plus_track_index));
+  em_plus_charge_id.emplace_back(ChargeID(rk_charge->at(plus_track_index)));
   em_plus_chi2.emplace_back(chi_square->at(plus_track_index));
   em_plus_ssd_mid.emplace_back(rk_fit_ssd_mid->at(plus_track_index));
   em_plus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(plus_track_index));
@@ -4097,6 +4102,7 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_minus_event_id.emplace_back(event_id);
   em_minus_n_cands.emplace_back(n_cands);
   em_minus_track_id.emplace_back(track_id->at(minus_track_index));
+  em_minus_charge_id.emplace_back(ChargeID(rk_charge->at(minus_track_index)));
   em_minus_chi2.emplace_back(chi_square->at(minus_track_index));
   em_minus_ssd_mid.emplace_back(rk_fit_ssd_mid->at(minus_track_index));
   em_minus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(minus_track_index));
