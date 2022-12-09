@@ -590,7 +590,7 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
 //  tree->Branch("hit_minus_gtr300_yadc",            &em_hit_minus_gtr300_yadc);
 //  tree->Branch("hit_minus_gtr300_xsize",           &em_hit_minus_gtr300_xsize);
 //  tree->Branch("hit_minus_gtr300_ysize",           &em_hit_minus_gtr300_ysize);
-  tree->Branch("n_pairs",                          &em_n_pairs);
+  tree->Branch("n_pairs2",                         &em_n_pairs);
   tree->Branch("chi2",                             &em_chi2);
   tree->Branch("plus_chi2",                        &em_plus_chi2);
   tree->Branch("minus_chi2",                       &em_minus_chi2);
