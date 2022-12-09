@@ -1973,8 +1973,8 @@ std::vector<double> out_tmp_zx_pipi_mass;
   std::vector<int> em_minus_track_id;
   std::vector<int> em_n_pairs;
 //// single fit info. chi2, ...
-  std::vector<int> em_plus_track_id;
   std::vector<int> em_plus_charge_id;
+  std::vector<int> em_minus_charge_id;
 //  // Hit
 //  std::vector<int>    em_plus_track_id;
   std::vector<int>    em_hit_plus_ssd_id;
