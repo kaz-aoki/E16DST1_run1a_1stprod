@@ -4324,35 +4324,78 @@ void track_analyzer_220715::SimpleAnalysisEM() {
 
 void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
   int past_n_pairs = 0;
-  for (const auto& i : plus_entry.track_indexs) {
-    for (const auto& pentry : past_minus_entries) {
-      for (const auto& j : pentry.track_indexs) {
-        if (kAnalyzeFlag == kAnalyzePairFit) {
-          PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
-        } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
-          NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+  if (!kForgiveSameCharge) {
+    for (const auto& i : plus_entry.track_indexs) {
+      for (const auto& pentry : past_minus_entries) {
+        for (const auto& j : pentry.track_indexs) {
+          if (kAnalyzeFlag == kAnalyzePairFit) {
+            PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          }
+  //        FillCommonBranchesEM();
         }
-//        FillCommonBranchesEM();
-      }
+// Delete current_minus_track and past_plus_track pair to reduce process time
+//    for (const auto& i : minus_entry.track_indexs) {
+//      for (const auto& pentry : past_plus_entries) {
+//        for (const auto& j : pentry.track_indexs) {
+//          if (kAnalyzeFlag == kAnalyzePairFit) {
+//            PairFitEM(pentry.entry_index, j, minus_entry.entry_index, i);
+//          } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+//            NearestPointEM(pentry.entry_index, j, minus_entry.entry_index, i);
+//          }
+//        }
+//      }
+//    }
 auto n = em_plus_run_id.size() - past_n_pairs;
 for (int i = 0; i < n; ++i) {
   em_n_pairs.emplace_back(n); // need to replace to FillCommonBranchesEM()
 }
 past_n_pairs += n;
+      }
+    }
+  } else {
+    for (const auto& i : plus_entry.track_indexs) {
+      for (const auto& pentry : past_minus_entries) {
+        for (const auto& j : pentry.track_indexs) {
+          if (kAnalyzeFlag == kAnalyzePairFit) {
+            PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          }
+        }
+      }
+      for (const auto& pentry : past_plus_entries) {
+        for (const auto& j : pentry.track_indexs) {
+          if (kAnalyzeFlag == kAnalyzePairFit) {
+            PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          }
+        }
+      }
+    }
+    for (const auto& i : minus_entry.track_indexs) {
+      for (const auto& pentry : past_minus_entries) {
+        for (const auto& j : pentry.track_indexs) {
+          if (kAnalyzeFlag == kAnalyzePairFit) {
+            PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          }
+        }
+      }
+      for (const auto& pentry : past_plus_entries) {
+        for (const auto& j : pentry.track_indexs) {
+          if (kAnalyzeFlag == kAnalyzePairFit) {
+            PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
+            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+          }
+        }
+      }
     }
   }
-// Delete current_minus_track and past_plus_track pair to reduce process time
-//  for (const auto& i : minus_entry.track_indexs) {
-//    for (const auto& pentry : past_plus_entries) {
-//      for (const auto& j : pentry.track_indexs) {
-//        if (kAnalyzeFlag == kAnalyzePairFit) {
-//          PairFitEM(pentry.entry_index, j, minus_entry.entry_index, i);
-//        } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
-//          NearestPointEM(pentry.entry_index, j, minus_entry.entry_index, i);
-//        }
-//      }
-//    }
-//  }
   DirIDsEM();
   ParentInfoEM();
   SimpleAnalysisEM();
@@ -4361,12 +4404,14 @@ past_n_pairs += n;
 
 void track_analyzer_220715::UpdatePastEntries(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
 // Delete current_minus_track x past_plus_track pair to reduce process time
-//  if (plus_entry.track_indexs.size() != 0) {
-//    while (past_plus_entries.size() > kMaxPastEntries) {
-//      past_plus_entries.erase(past_plus_entries.begin());
-//    }
-//    past_plus_entries.emplace_back(plus_entry);
-//  }
+  if (kForgiveSameCharge) {
+    if (plus_entry.track_indexs.size() != 0) {
+      while (past_plus_entries.size() > kMaxPastEntries) {
+        past_plus_entries.erase(past_plus_entries.begin());
+      }
+      past_plus_entries.emplace_back(plus_entry);
+    }
+  }
   if (minus_entry.track_indexs.size() != 0) {
     while (past_minus_entries.size() > kMaxPastEntries) {
       past_minus_entries.erase(past_minus_entries.begin());
