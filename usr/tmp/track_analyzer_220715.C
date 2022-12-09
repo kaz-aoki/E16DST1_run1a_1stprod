@@ -4095,8 +4095,13 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   init_poss[0] = Hep3Vector(rk_fit_init_pos_gx->at(plus_track_index) * 0.1, rk_fit_init_pos_gy->at(plus_track_index) * 0.1,
                             rk_fit_init_pos_gz->at(plus_track_index) * 0.1);
   init_moms[0] = Hep3Vector(rk_fit_init_mom_gx->at(plus_track_index), rk_fit_init_mom_gy->at(plus_track_index), rk_fit_init_mom_gz->at(plus_track_index));
-  tracks[0] = new E16ANA_StepTrack(bfield_map, init_poss[0], init_moms[0], 1., kStepTrackSizeCm, kStepTrackArraySize);
-  
+  double pcid = 1.;
+  if (kForgiveSameCharge) {
+    if (ChargeID(rk_charge->at(plus_track_index)) == kChargeMinus) {
+      pcid = -1.;
+    }
+  }
+  tracks[0] = new E16ANA_StepTrack(bfield_map, init_poss[0], init_moms[0], pcid, kStepTrackSizeCm, kStepTrackArraySize);
   fChain->GetEntry(minus_entry_index);
   em_minus_run_id.emplace_back(run_id);
   em_minus_event_id.emplace_back(event_id);
@@ -4162,7 +4167,13 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   init_poss[1] = Hep3Vector(rk_fit_init_pos_gx->at(minus_track_index) * 0.1, rk_fit_init_pos_gy->at(minus_track_index) * 0.1,
                             rk_fit_init_pos_gz->at(minus_track_index) * 0.1);
   init_moms[1] = Hep3Vector(rk_fit_init_mom_gx->at(minus_track_index), rk_fit_init_mom_gy->at(minus_track_index), rk_fit_init_mom_gz->at(minus_track_index));
-  tracks[1] = new E16ANA_StepTrack(bfield_map, init_poss[1], init_moms[1], -1., kStepTrackSizeCm, kStepTrackArraySize);
+  double mcid = -1.;
+  if (kForgiveSameCharge) {
+    if (ChargeID(rk_charge->at(minus_track_index)) == kChargePlus) {
+      mcid = 1.;
+    }
+  }
+  tracks[1] = new E16ANA_StepTrack(bfield_map, init_poss[1], init_moms[1], mcid, kStepTrackSizeCm, kStepTrackArraySize);
   
   auto dist_cm       = double();
   auto hep_vtx       = Hep3Vector();
