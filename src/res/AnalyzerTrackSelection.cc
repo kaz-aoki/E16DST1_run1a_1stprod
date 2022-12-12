@@ -518,13 +518,13 @@ double CalibFunction(double x){
 
 }
 
-double CalcCalibPar(double proj_y, int blockch, double& dist){
+double AnalyzerTrackSelection::CalcCalibPar(double proj_y, int blockch, double& dist){
 
-  double bpos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4};
-  double bpos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
-  double bpos_cut_r[6] = {1455.4, 1614.4, 1765.4, 1765.4, 1614.4, 1455.4};
-  double bpos_cut_y[6] = {-246.4, -138.9,   -6.5,    6.5,  138.9,  246.4};
-  double plane_r[6]    = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
+  // double bpos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4}; -> move to header file
+  // double bpos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
+  // double bpos_cut_r[6] = {1455.4, 1614.4, 1765.4, 1765.4, 1614.4, 1455.4};
+  // double bpos_cut_y[6] = {-246.4, -138.9,   -6.5,    6.5,  138.9,  246.4};
+  // double plane_r[6]    = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
 
   int bly = blockch/10;
   TVector2 bpos_pmt(bpos_pmt_r[bly],bpos_pmt_y[bly]);
@@ -533,6 +533,49 @@ double CalcCalibPar(double proj_y, int blockch, double& dist){
   TVector2 cs = CalcCrossPoint(bpos_pmt,bpos_cut,proj);
   dist = sqrt( (cs.X()-bpos_pmt.X())*(cs.X()-bpos_pmt.X()) + (cs.Y()-bpos_pmt.Y())*(cs.Y()-bpos_pmt.Y()) );
   return 1./CalibFunction(dist);
+}
+
+double CalibFunction(double bx, double by){
+
+  TF1 *fc = new TF1("fc","[0]+ ( -39.56E-4*x*x + 41.71E-6*fabs(x)*x*x + 1E-8*x*x*x*x )*[1]",-65.,65.);
+  fc->FixParameter(0,1.857 -1.143*by*0.01);
+  fc->FixParameter(1,0.2755-0.334*by*0.01);
+
+  return fc->Eval(bx);
+
+}
+
+double AnalyzerTrackSelection::CalcCalibPar(double lx, double ly, double theta_lx, int blockch){
+
+  double block_pitch_x = 124.;
+
+  // local coordinate (in module) --> block coordinale
+  // y
+  int chy = blockch/10;
+  TVector2 bpos_pmt(bpos_pmt_r[chy],bpos_pmt_y[chy]);
+  TVector2 bpos_cut(bpos_cut_r[chy],bpos_cut_y[chy]);
+  TVector2 proj(plane_r[chy],ly);
+  TVector2 cs = CalcCrossPoint(bpos_pmt,bpos_cut,proj);
+  double by = sqrt( (cs.X()-bpos_pmt.X())*(cs.X()-bpos_pmt.X()) + (cs.Y()-bpos_pmt.Y())*(cs.Y()-bpos_pmt.Y()) );
+  // x
+  double lxd = lx + 135./2.*tan(theta_lx);
+  int chx;
+  double bx;
+  if(chy==2||chy==3){
+    chx = (int)((lxd-3.5*block_pitch_x)/block_pitch_x);
+    if(chx<0||chx>6) return -10000.;
+    bx = lxd - ((double)chx-3.)*block_pitch_x;
+  }
+  else{
+    chx = (int)((lxd-3.*block_pitch_x)/block_pitch_x);
+    if(chx<0||chx>5) return -10000.;
+    bx = lxd - ((double)chx-2.5)*block_pitch_x;
+  }
+  bx = bx*cos(theta_lx);
+  bx = (-theta_lx/fabs(theta_lx))*bx;
+  bx = bx/cos(theta_lx);
+
+  return 1./CalibFunction(bx, by);
 }
 
 void AnalyzerTrackSelection::Loop()

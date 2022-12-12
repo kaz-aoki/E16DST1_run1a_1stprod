@@ -33,6 +33,14 @@ private :
    // double hbd_vsigmax[4]={25.,25.,25.,25.};
    // double hbd_vsigmay[4]={25.,25.,25.,25.};
 
+   double bpos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4};
+   double bpos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
+   // double bpos_cut_r[6] = {1455.4, 1614.4, 1765.4, 1765.4, 1614.4, 1455.4};
+   // double bpos_cut_y[6] = {-246.4, -138.9,   -6.5,    6.5,  138.9,  246.4};
+   double bpos_cut_r[6] = {1451.7, 1610.7, 1761.4, 1761.4, 1610.7, 1451.7};
+   double bpos_cut_y[6] = {-245.8, -138.6,   -6.5,    6.5,  138.6,  245.8};
+   double plane_r[6]    = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
+
 public :
    struct hitset{
      int mid;
@@ -502,6 +510,8 @@ public :
    virtual double   CalcADCNearHit(int condition, std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster);
    // virtual double   CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    // virtual double   CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt);
+   virtual double   CalcCalibPar(double proj_y, int blockch, double& dist);
+   virtual double   CalcCalibPar(double lx, double ly, double theta_lx, int blockch);
    virtual void     Loop();
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
@@ -907,6 +917,7 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   // if(track_w_trg_hbd->at(itrack)&&track_w_trg_gtr->at(itrack)&&track_w_trg_lg->at(itrack)>-1000) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
+  // if(track_position_block_ly->at(itrack)<0) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   // if (track_mom->at(itrack) > 3.) {return -1;}
   // if (track_mom->at(itrack) < 1.6) {return -1;}
