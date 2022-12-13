@@ -19,7 +19,7 @@ constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = true;
 constexpr int  kMaxPastEntries     = 1;
-constexpr bool kMixOneTrackEvent   = false;
+constexpr bool kMixOneTrackEvent   = true;
 //
 constexpr double kErrorNum = -10000.;
 
