@@ -53,6 +53,7 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("trg_lg_hit_gy",                    &trg_lg_hit_gy);
   tree->Branch("trg_lg_hit_gz",                    &trg_lg_hit_gz);
   tree->Branch("trg_lg_hit_t",                     &trg_lg_hit_t);
+  tree->Branch("n_tracks",                         &out_n_tracks,       "n_tracks/I");
   tree->Branch("n_pairs",                          &out_n_pairs,        "n_pairs/I");
   tree->Branch("pair_order",                       &out_pair_order);
   tree->Branch("plus_rough_fit_init_pos_x",        &out_plus_rough_fit_init_pos_x);
@@ -510,10 +511,12 @@ tree->Branch("tmp_zx_pipi_mass",   &out_tmp_zx_pipi_mass);
 }
 
 void track_analyzer_220715::MakeEMBranches(TTree* tree) {
+  tree->Branch("n_pairs",                          &em_n_pairs);
   tree->Branch("plus_run_id",                      &em_plus_run_id);
   tree->Branch("plus_event_id",                    &em_plus_event_id);
   tree->Branch("plus_n_cands",                     &em_plus_n_cands);
-//  tree->Branch("plus_n_pairs",                     &em_plus_n_pairs);
+  tree->Branch("plus_n_tracks",                    &em_plus_n_tracks);
+  tree->Branch("plus_n_pairs",                     &em_plus_n_pairs);
   tree->Branch("plus_track_id",                    &em_plus_track_id);
   tree->Branch("plus_charge_id",                   &em_plus_charge_id);
   tree->Branch("hit_plus_ssd_id",                  &em_hit_plus_ssd_id);
@@ -554,7 +557,8 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
   tree->Branch("minus_run_id",                     &em_minus_run_id);
   tree->Branch("minus_event_id",                   &em_minus_event_id);
   tree->Branch("minus_n_cands",                    &em_minus_n_cands);
-//  tree->Branch("minus_n_pairs",                    &em_minus_n_pairs);
+  tree->Branch("minus_n_tracks",                   &em_minus_n_tracks);
+  tree->Branch("minus_n_pairs",                    &em_minus_n_pairs);
   tree->Branch("minus_track_id",                   &em_minus_track_id);
   tree->Branch("minus_charge_id",                  &em_minus_charge_id);
   tree->Branch("hit_minus_ssd_id",                 &em_hit_minus_ssd_id);
@@ -592,7 +596,7 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
 //  tree->Branch("hit_minus_gtr300_yadc",            &em_hit_minus_gtr300_yadc);
 //  tree->Branch("hit_minus_gtr300_xsize",           &em_hit_minus_gtr300_xsize);
 //  tree->Branch("hit_minus_gtr300_ysize",           &em_hit_minus_gtr300_ysize);
-  tree->Branch("n_pairs2",                         &em_n_pairs);
+//  tree->Branch("n_pairs2",                         &em_n_pairs);
   tree->Branch("chi2",                             &em_chi2);
   tree->Branch("plus_chi2",                        &em_plus_chi2);
   tree->Branch("minus_chi2",                       &em_minus_chi2);
@@ -1112,7 +1116,8 @@ void track_analyzer_220715::SetPairs() {
 }
 
 void track_analyzer_220715::ClearAndResizeBranches() {
-  out_n_pairs = good_pair_indexs.size();
+  out_n_tracks = good_track_indexs.size();
+  out_n_pairs  = good_pair_indexs.size();
   out_pair_order.clear();
   out_plus_rough_fit_init_pos_x.clear();
   out_plus_rough_fit_init_pos_y.clear();
@@ -3657,6 +3662,8 @@ cout << "Number of pairs: " << good_pair_indexs.size() << endl;
 void track_analyzer_220715::FillEntryInfo(int entry_index, EntryInfo* plus_entry, EntryInfo* minus_entry) {
   plus_entry->entry_index  = entry_index;
   minus_entry->entry_index = entry_index;
+  plus_entry->n_pairs  = good_pair_indexs.size();
+  minus_entry->n_pairs = good_pair_indexs.size();
   for (const auto& i : good_track_indexs) {
     if (rk_charge->at(i) == 1) {
       plus_entry->track_indexs.emplace_back(i);
@@ -3668,10 +3675,12 @@ void track_analyzer_220715::FillEntryInfo(int entry_index, EntryInfo* plus_entry
 }
 
 void track_analyzer_220715::ClearEMBranches() {
+  em_n_pairs.clear();
   em_plus_run_id.clear();
   em_plus_event_id.clear();
   em_plus_n_cands.clear();
-//  em_plus_n_pairs.clear();
+  em_plus_n_tracks.clear();
+  em_plus_n_pairs.clear();
   em_plus_track_id.clear();
   em_plus_charge_id.clear();
   em_hit_plus_ssd_id.clear();
@@ -3712,7 +3721,8 @@ void track_analyzer_220715::ClearEMBranches() {
   em_minus_run_id.clear();
   em_minus_event_id.clear();
   em_minus_n_cands.clear();
-//  em_minus_n_pairs.clear();
+  em_minus_n_tracks.clear();
+  em_minus_n_pairs.clear();
   em_minus_track_id.clear();
   em_minus_charge_id.clear();
   em_hit_minus_ssd_id.clear();
@@ -3750,7 +3760,7 @@ void track_analyzer_220715::ClearEMBranches() {
 //  em_hit_minus_gtr300_yadc.clear();
 //  em_hit_minus_gtr300_xsize.clear();
 //  em_hit_minus_gtr300_ysize.clear();
-  em_n_pairs.clear();
+//  em_n_pairs.clear();
   em_chi2.clear();
   em_plus_chi2.clear();
   em_minus_chi2.clear();
@@ -4033,6 +4043,7 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_plus_run_id.emplace_back(run_id);
   em_plus_event_id.emplace_back(event_id);
   em_plus_n_cands.emplace_back(n_cands);
+//  em_plus_n_pairs.emplace_back(n_pairs);
   em_plus_track_id.emplace_back(track_id->at(plus_track_index));
   em_plus_charge_id.emplace_back(ChargeID(rk_charge->at(plus_track_index)));
   em_plus_chi2.emplace_back(chi_square->at(plus_track_index));
@@ -4106,6 +4117,7 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_minus_run_id.emplace_back(run_id);
   em_minus_event_id.emplace_back(event_id);
   em_minus_n_cands.emplace_back(n_cands);
+//  em_minus_n_pairs.emplace_back(n_pairs);
   em_minus_track_id.emplace_back(track_id->at(minus_track_index));
   em_minus_charge_id.emplace_back(ChargeID(rk_charge->at(minus_track_index)));
   em_minus_chi2.emplace_back(chi_square->at(minus_track_index));
@@ -4334,11 +4346,20 @@ void track_analyzer_220715::SimpleAnalysisEM() {
 }
 
 void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
-  int past_n_pairs = 0;
+//  int past_n_pairs = 0;
+  auto n_current_tracks = good_track_indexs.size();
+  auto n_current_pairs  = good_pair_indexs.size();
   if (!kForgiveSameCharge) {
     for (const auto& i : plus_entry.track_indexs) {
       for (const auto& pentry : past_minus_entries) {
+        auto n_past_tracks = pentry.track_indexs.size();
+        auto n_past_pairs  = pentry.n_pairs;
         for (const auto& j : pentry.track_indexs) {
+          em_n_pairs.emplace_back(plus_entry.track_indexs.size() * n_past_tracks);
+          em_plus_n_tracks.emplace_back(n_current_tracks);
+          em_minus_n_tracks.emplace_back(n_past_tracks);
+          em_plus_n_pairs.emplace_back(n_current_pairs);
+          em_minus_n_pairs.emplace_back(n_past_pairs);
           if (kAnalyzeFlag == kAnalyzePairFit) {
             PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
           } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
@@ -4358,17 +4379,24 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
 //        }
 //      }
 //    }
-auto n = em_plus_run_id.size() - past_n_pairs;
-for (int i = 0; i < n; ++i) {
-  em_n_pairs.emplace_back(n); // need to replace to FillCommonBranchesEM()
-}
-past_n_pairs += n;
+//auto n = em_plus_run_id.size() - past_n_pairs;
+//for (int i = 0; i < n; ++i) {
+//  em_n_pairs.emplace_back(n); // need to replace to FillCommonBranchesEM()
+//}
+//past_n_pairs += n;
       }
     }
   } else {
     for (const auto& i : plus_entry.track_indexs) {
       for (const auto& pentry : past_minus_entries) {
+        auto n_past_tracks = pentry.track_indexs.size();
+        auto n_past_pairs  = pentry.n_pairs;
         for (const auto& j : pentry.track_indexs) {
+          em_n_pairs.emplace_back(plus_entry.track_indexs.size() * n_past_tracks);
+          em_plus_n_tracks.emplace_back(n_current_tracks);
+          em_minus_n_tracks.emplace_back(n_past_tracks);
+          em_plus_n_pairs.emplace_back(n_current_pairs);
+          em_minus_n_pairs.emplace_back(n_past_pairs);
           if (kAnalyzeFlag == kAnalyzePairFit) {
             PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
           } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
@@ -4377,7 +4405,14 @@ past_n_pairs += n;
         }
       }
       for (const auto& pentry : past_plus_entries) {
+        auto n_past_tracks = pentry.track_indexs.size();
+        auto n_past_pairs  = pentry.n_pairs;
         for (const auto& j : pentry.track_indexs) {
+          em_n_pairs.emplace_back(plus_entry.track_indexs.size() * n_past_tracks);
+          em_plus_n_tracks.emplace_back(n_current_tracks);
+          em_minus_n_tracks.emplace_back(n_past_tracks);
+          em_plus_n_pairs.emplace_back(n_current_pairs);
+          em_minus_n_pairs.emplace_back(n_past_pairs);
           if (kAnalyzeFlag == kAnalyzePairFit) {
             PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
           } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
@@ -4388,20 +4423,34 @@ past_n_pairs += n;
     }
     for (const auto& i : minus_entry.track_indexs) {
       for (const auto& pentry : past_minus_entries) {
+        auto n_past_tracks = pentry.track_indexs.size();
+        auto n_past_pairs  = pentry.n_pairs;
         for (const auto& j : pentry.track_indexs) {
+          em_n_pairs.emplace_back(minus_entry.track_indexs.size() * n_past_tracks);
+          em_plus_n_tracks.emplace_back(n_current_tracks);
+          em_minus_n_tracks.emplace_back(n_past_tracks);
+          em_plus_n_pairs.emplace_back(n_current_pairs);
+          em_minus_n_pairs.emplace_back(n_past_pairs);
           if (kAnalyzeFlag == kAnalyzePairFit) {
             PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
           } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
-            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+            NearestPointEM(minus_entry.entry_index, i, pentry.entry_index, j);
           }
         }
       }
       for (const auto& pentry : past_plus_entries) {
+        auto n_past_tracks = pentry.track_indexs.size();
+        auto n_past_pairs  = pentry.n_pairs;
         for (const auto& j : pentry.track_indexs) {
+          em_n_pairs.emplace_back(minus_entry.track_indexs.size() * n_past_tracks);
+          em_plus_n_tracks.emplace_back(n_current_tracks);
+          em_minus_n_tracks.emplace_back(n_past_tracks);
+          em_plus_n_pairs.emplace_back(n_current_pairs);
+          em_minus_n_pairs.emplace_back(n_past_pairs);
           if (kAnalyzeFlag == kAnalyzePairFit) {
             PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
           } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
-            NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
+            NearestPointEM(minus_entry.entry_index, i, pentry.entry_index, j);
           }
         }
       }
@@ -4415,6 +4464,19 @@ past_n_pairs += n;
 
 void track_analyzer_220715::UpdatePastEntries(const EntryInfo& plus_entry, const EntryInfo& minus_entry) {
 // Delete current_minus_track x past_plus_track pair to reduce process time
+  if (!kMixOneTrackEvent) {
+    auto nplus  = plus_entry.track_indexs.size();
+    auto nminus = minus_entry.track_indexs.size();
+    if (!kForgiveSameCharge) {
+      if (nplus == 0 || nminus == 0) {
+        return;
+      }
+    } else {
+      if (nplus + nminus == 0) {
+        return;
+      }
+    }
+  }
   if (kForgiveSameCharge) {
     if (plus_entry.track_indexs.size() != 0) {
       while (past_plus_entries.size() > kMaxPastEntries) {

@@ -1421,6 +1421,7 @@ public :
  private:
   struct EntryInfo {
     int entry_index;
+    int n_pairs;
     std::vector<int> track_indexs;
   };
   void MakeBranches(TTree* tree);
@@ -1499,6 +1500,7 @@ public :
   std::vector<EntryInfo> past_plus_entries;
   std::vector<EntryInfo> past_minus_entries;
   // Tree branch
+  int out_n_tracks;
   int out_n_pairs;
   std::vector<int> out_pair_order;
 // single fit info. chi2, ...
@@ -1960,18 +1962,21 @@ std::vector<double> out_tmp_zx_minus_mom_y;
 std::vector<double> out_tmp_zx_minus_mom_z;
 std::vector<double> out_tmp_zx_pipi_mass;
 #endif // TMP_ZX_NEAREST
-  // Event Mixing 
+  // Event Mixing
+  std::vector<int> em_n_pairs;
   std::vector<int> em_plus_run_id;
   std::vector<int> em_plus_event_id;
   std::vector<int> em_plus_n_cands;
-//  std::vector<int> em_plus_n_pairs;
+  std::vector<int> em_plus_n_tracks;
+  std::vector<int> em_plus_n_pairs;
   std::vector<int> em_plus_track_id;
   std::vector<int> em_minus_run_id;
   std::vector<int> em_minus_event_id;
   std::vector<int> em_minus_n_cands;
-//  std::vector<int> em_minus_n_pairs;
+  std::vector<int> em_minus_n_tracks;
+  std::vector<int> em_minus_n_pairs;
   std::vector<int> em_minus_track_id;
-  std::vector<int> em_n_pairs;
+//  std::vector<int> em_n_pairs;
 //// single fit info. chi2, ...
   std::vector<int> em_plus_charge_id;
   std::vector<int> em_minus_charge_id;

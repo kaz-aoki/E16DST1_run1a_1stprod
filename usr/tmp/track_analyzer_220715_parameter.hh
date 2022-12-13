@@ -15,10 +15,11 @@ enum {
 };
 constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 //constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
-constexpr bool kForgiveSameCharge = true; // default false. for vertex search
+constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = true;
 constexpr int  kMaxPastEntries     = 1;
+constexpr bool kMixOneTrackEvent   = false;
 //
 constexpr double kErrorNum = -10000.;
 
@@ -79,8 +80,7 @@ enum {
 enum {
   kNoClusterDuplicationCut,
   kSSDAndGTRDuplicationCut,
-  kSameChargeSSDAndGTRDuplicationCut,
-  kHBDDuplicationCut
+  kSameChargeSSDAndGTRDuplicationCut
 };
 constexpr bool   kUseChi2Cut = true;
 constexpr double kMaxChi2    = 200.;
@@ -103,6 +103,7 @@ constexpr double kMinLGADC       = 10.;
 constexpr double kMinLGTime      = -1000.;
 constexpr double kMaxLGTime      = 1000.;
 constexpr int    kUseClulsterDuplicationCut = kSSDAndGTRDuplicationCut;
+//constexpr bool   kUseHBDDuplicationCut = true;
 
 // Pair selection
 constexpr bool   kUseSSDTimeDiffCut = false;

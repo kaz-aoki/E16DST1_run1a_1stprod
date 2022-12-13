@@ -107,6 +107,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
   TVector3 minus_gtr200_lpos;
   TVector3 minus_gtr300_lpos;
   // mock
+  TVector3 mock_parent_vtx;
+  TVector3 mock_parent_mom;
   TVector3 mock_vtx;
   TVector3 mock_plus_init_mom;
   TVector3 mock_plus_ssd_lpos;
@@ -214,6 +216,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
   out_tree.Branch("minus_gtr200_lpos",         &minus_gtr200_lpos);
   out_tree.Branch("minus_gtr300_lpos",         &minus_gtr300_lpos);
   // mock
+  out_tree.Branch("mock_parent_vtx",        &mock_parent_vtx);
+  out_tree.Branch("mock_parent_mom",        &mock_parent_mom);
   out_tree.Branch("mock_vtx",               &mock_vtx);
   out_tree.Branch("mock_plus_init_mom",     &mock_plus_init_mom);
   out_tree.Branch("mock_plus_ssd_lpos",     &mock_plus_ssd_lpos);
@@ -389,6 +393,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
     }
     // mock
     auto mock_id = mock_n_tracks - 2;
+    mock_parent_vtx        = TVector3(mock_init_pos_x->at(mock_id - 1),    mock_init_pos_y->at(mock_id - 1),    mock_init_pos_z->at(mock_id - 1));
+    mock_parent_mom        = TVector3(mock_init_mom_x->at(mock_id - 1),    mock_init_mom_y->at(mock_id - 1),    mock_init_mom_z->at(mock_id - 1));
     mock_vtx               = TVector3(mock_init_pos_x->at(mock_id),        mock_init_pos_y->at(mock_id),        mock_init_pos_z->at(mock_id));
     mock_plus_init_mom     = TVector3(mock_init_mom_x->at(mock_id),        mock_init_mom_y->at(mock_id),        mock_init_mom_z->at(mock_id));
     mock_plus_ssd_lpos     = TVector3(mock_ssd_lpos_x->at(mock_id),        mock_ssd_lpos_y->at(mock_id),        mock_ssd_lpos_z->at(mock_id));
