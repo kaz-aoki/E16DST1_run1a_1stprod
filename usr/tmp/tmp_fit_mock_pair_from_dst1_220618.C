@@ -115,11 +115,19 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
   TVector3 mock_plus_gtr100_lpos;
   TVector3 mock_plus_gtr200_lpos;
   TVector3 mock_plus_gtr300_lpos;
+  TVector3 mock_plus_ssd_lmom;
+  TVector3 mock_plus_gtr100_lmom;
+  TVector3 mock_plus_gtr200_lmom;
+  TVector3 mock_plus_gtr300_lmom;
   TVector3 mock_minus_init_mom;
   TVector3 mock_minus_ssd_lpos;
   TVector3 mock_minus_gtr100_lpos;
   TVector3 mock_minus_gtr200_lpos;
   TVector3 mock_minus_gtr300_lpos;
+  TVector3 mock_minus_ssd_lmom;
+  TVector3 mock_minus_gtr100_lmom;
+  TVector3 mock_minus_gtr200_lmom;
+  TVector3 mock_minus_gtr300_lmom;
   double mock_mass;
   // rough fit
   TVector3 rough_fit_plus_init_pos;
@@ -224,11 +232,19 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
   out_tree.Branch("mock_plus_gtr100_lpos",  &mock_plus_gtr100_lpos);
   out_tree.Branch("mock_plus_gtr200_lpos",  &mock_plus_gtr200_lpos);
   out_tree.Branch("mock_plus_gtr300_lpos",  &mock_plus_gtr300_lpos);
+  out_tree.Branch("mock_plus_ssd_lmom",     &mock_plus_ssd_lmom);
+  out_tree.Branch("mock_plus_gtr100_lmom",  &mock_plus_gtr100_lmom);
+  out_tree.Branch("mock_plus_gtr200_lmom",  &mock_plus_gtr200_lmom);
+  out_tree.Branch("mock_plus_gtr300_lmom",  &mock_plus_gtr300_lmom);
   out_tree.Branch("mock_minus_init_mom",    &mock_minus_init_mom);
   out_tree.Branch("mock_minus_ssd_lpos",    &mock_minus_ssd_lpos);
   out_tree.Branch("mock_minus_gtr100_lpos", &mock_minus_gtr100_lpos);
   out_tree.Branch("mock_minus_gtr200_lpos", &mock_minus_gtr200_lpos);
   out_tree.Branch("mock_minus_gtr300_lpos", &mock_minus_gtr300_lpos);
+  out_tree.Branch("mock_minus_ssd_lmom",    &mock_minus_ssd_lmom);
+  out_tree.Branch("mock_minus_gtr100_lmom", &mock_minus_gtr100_lmom);
+  out_tree.Branch("mock_minus_gtr200_lmom", &mock_minus_gtr200_lmom);
+  out_tree.Branch("mock_minus_gtr300_lmom", &mock_minus_gtr300_lmom);
   out_tree.Branch("mock_mass",              &mock_mass, "mock_mass/D");
   // rough fit
   out_tree.Branch("rough_fit_plus_init_pos",  &rough_fit_plus_init_pos);
@@ -401,11 +417,19 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
     mock_plus_gtr100_lpos  = TVector3(mock_gtr100_lpos_x->at(mock_id),     mock_gtr100_lpos_y->at(mock_id),     mock_gtr100_lpos_z->at(mock_id));
     mock_plus_gtr200_lpos  = TVector3(mock_gtr200_lpos_x->at(mock_id),     mock_gtr200_lpos_y->at(mock_id),     mock_gtr200_lpos_z->at(mock_id));
     mock_plus_gtr300_lpos  = TVector3(mock_gtr300_lpos_x->at(mock_id),     mock_gtr300_lpos_y->at(mock_id),     mock_gtr300_lpos_z->at(mock_id));
+    mock_plus_ssd_lmom     = TVector3(mock_ssd_lmom_x->at(mock_id),        mock_ssd_lmom_y->at(mock_id),        mock_ssd_lmom_z->at(mock_id));
+    mock_plus_gtr100_lmom  = TVector3(mock_gtr100_lmom_x->at(mock_id),     mock_gtr100_lmom_y->at(mock_id),     mock_gtr100_lmom_z->at(mock_id));
+    mock_plus_gtr200_lmom  = TVector3(mock_gtr200_lmom_x->at(mock_id),     mock_gtr200_lmom_y->at(mock_id),     mock_gtr200_lmom_z->at(mock_id));
+    mock_plus_gtr300_lmom  = TVector3(mock_gtr300_lmom_x->at(mock_id),     mock_gtr300_lmom_y->at(mock_id),     mock_gtr300_lmom_z->at(mock_id));
     mock_minus_init_mom    = TVector3(mock_init_mom_x->at(mock_id + 1),    mock_init_mom_y->at(mock_id + 1),    mock_init_mom_z->at(mock_id + 1));
     mock_minus_ssd_lpos    = TVector3(mock_ssd_lpos_x->at(mock_id + 1),    mock_ssd_lpos_y->at(mock_id + 1),    mock_ssd_lpos_z->at(mock_id + 1));
     mock_minus_gtr100_lpos = TVector3(mock_gtr100_lpos_x->at(mock_id + 1), mock_gtr100_lpos_y->at(mock_id + 1), mock_gtr100_lpos_z->at(mock_id + 1));
     mock_minus_gtr200_lpos = TVector3(mock_gtr200_lpos_x->at(mock_id + 1), mock_gtr200_lpos_y->at(mock_id + 1), mock_gtr200_lpos_z->at(mock_id + 1));
     mock_minus_gtr300_lpos = TVector3(mock_gtr300_lpos_x->at(mock_id + 1), mock_gtr300_lpos_y->at(mock_id + 1), mock_gtr300_lpos_z->at(mock_id + 1));
+    mock_minus_ssd_lmom    = TVector3(mock_ssd_lmom_x->at(mock_id + 1),    mock_ssd_lmom_y->at(mock_id + 1),    mock_ssd_lmom_z->at(mock_id + 1));
+    mock_minus_gtr100_lmom = TVector3(mock_gtr100_lmom_x->at(mock_id + 1), mock_gtr100_lmom_y->at(mock_id + 1), mock_gtr100_lmom_z->at(mock_id + 1));
+    mock_minus_gtr200_lmom = TVector3(mock_gtr200_lmom_x->at(mock_id + 1), mock_gtr200_lmom_y->at(mock_id + 1), mock_gtr200_lmom_z->at(mock_id + 1));
+    mock_minus_gtr300_lmom = TVector3(mock_gtr300_lmom_x->at(mock_id + 1), mock_gtr300_lmom_y->at(mock_id + 1), mock_gtr300_lmom_z->at(mock_id + 1));
     // single fit
     for (int t = 0; t < 2; ++t) {
       sfitter.Clear();

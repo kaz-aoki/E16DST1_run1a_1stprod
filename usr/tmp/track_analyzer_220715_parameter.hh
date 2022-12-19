@@ -15,7 +15,7 @@ enum {
 };
 constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 //constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
-constexpr bool kForgiveSameCharge = true; // default false. for vertex search
+constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = true;
 constexpr int  kMaxPastEntries     = 1;
@@ -83,7 +83,8 @@ enum {
   kSameChargeSSDAndGTRDuplicationCut
 };
 constexpr bool   kUseChi2Cut = true;
-constexpr double kMaxChi2    = 200.;
+//constexpr double kMaxChi2    = 200.;
+constexpr double kMaxChi2    = 100.;
 constexpr bool   kUseMinMomCut = false;
 constexpr double kMinMom       = 0.5;
 constexpr bool   kUseMaxMomCut = false;
@@ -91,8 +92,10 @@ constexpr double kMaxMom       = 3.;
 constexpr bool   kUsePosAtTargetCut = false;
 constexpr double kMaxRadiusAtTarget = 5.;
 constexpr bool   kUseHBDAssociationCut = true;
-constexpr double kMaxHBDXResidual      = 25.;
-constexpr double kMaxHBDYResidual      = 25.;
+//constexpr double kMaxHBDXResidual      = 25.;
+//constexpr double kMaxHBDYResidual      = 25.;
+constexpr double kMaxHBDXResidual      = 40.;
+constexpr double kMaxHBDYResidual      = 40.;
 constexpr double kMinHBDADC            = 7.;
 constexpr double kMinHBDSize           = 1.5;
 constexpr int    kHBDSelection         = kNotUseHBDProb;
