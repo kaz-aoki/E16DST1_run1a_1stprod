@@ -2063,13 +2063,24 @@ void track_analyzer_220715::FillTVector3(int n, const TVector3& tvec, vector<dou
 void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   auto vtx       = fitter->GetFitVertex();
   array<TVector3, 2> moms;
+#ifndef PAIR_FIT_WO_SSD
   array<array<TVector3, 4>, 2> lposs;
   array<array<TVector3, 4>, 2> lmoms;
   array<array<TVector3, 4>, 2> gposs;
   array<array<TVector3, 4>, 2> gmoms;
+#else // PAIR_FIT_WO_SSD
+  array<array<TVector3, 3>, 2> lposs;
+  array<array<TVector3, 3>, 2> lmoms;
+  array<array<TVector3, 3>, 2> gposs;
+  array<array<TVector3, 3>, 2> gmoms;
+#endif // PAIR_FIT_WO_SSD
   for (int t = 0; t < 2; ++t) {
     moms[t] = fitter->GetFitMomentum(t);
+#ifndef PAIR_FIT_WO_SSD
     for (int l = 0; l < 4; ++l) {
+#else // PAIR_FIT_WO_SSD
+    for (int l = 0; l < 3; ++l) {
+#endif // PAIR_FIT_WO_SSD
       vector<int>      tmp_mids;
       vector<TVector3> tmp_lposs;
       vector<TVector3> tmp_lmoms;
@@ -2102,6 +2113,7 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   FillTVector3(n, vtx,         &out_vtx_x,               &out_vtx_y,               &out_vtx_z);
   FillTVector3(n, moms[0],     &out_plus_mom_x,          &out_plus_mom_y,          &out_plus_mom_z);
   FillTVector3(n, moms[1],     &out_minus_mom_x,         &out_minus_mom_y,         &out_minus_mom_z);
+#ifndef PAIR_FIT_WO_SSD
   FillTVector3(n, lposs[0][0], &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
   FillTVector3(n, lposs[0][1], &out_fit_plus_gtr100_lx,  &out_fit_plus_gtr100_ly);
   FillTVector3(n, lposs[0][2], &out_fit_plus_gtr200_lx,  &out_fit_plus_gtr200_ly);
@@ -2126,6 +2138,26 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
   FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
   FillTVector3(n, gmoms[1][3], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
+#else // PAIR_FIT_WO_SSD
+  FillTVector3(n, lposs[0][0], &out_fit_plus_gtr100_lx,  &out_fit_plus_gtr100_ly);
+  FillTVector3(n, lposs[0][1], &out_fit_plus_gtr200_lx,  &out_fit_plus_gtr200_ly);
+  FillTVector3(n, lposs[0][2], &out_fit_plus_gtr300_lx,  &out_fit_plus_gtr300_ly);
+  FillTVector3(n, lposs[1][0], &out_fit_minus_gtr100_lx, &out_fit_minus_gtr100_ly);
+  FillTVector3(n, lposs[1][1], &out_fit_minus_gtr200_lx, &out_fit_minus_gtr200_ly);
+  FillTVector3(n, lposs[1][2], &out_fit_minus_gtr300_lx, &out_fit_minus_gtr300_ly);
+  FillTVector3(n, lmoms[0][0], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
+  FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
+  FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
+  FillTVector3(n, lmoms[1][0], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
+  FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
+  FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
+  FillTVector3(n, gmoms[0][0], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
+  FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
+  FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
+  FillTVector3(n, gmoms[1][0], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
+  FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
+  FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
+#endif // PAIR_FIT_WO_SSD
   return;
 }
 
@@ -2156,10 +2188,16 @@ void track_analyzer_220715::PairFit(int n) {
       fitter->SetCharge(tid, ChargeID(rk_charge->at(i)));
     }
     fitter->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i)));
+#ifndef PAIR_FIT_WO_SSD
     fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
     fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
     fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
     fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+#else // PAIR_FIT_WO_SSD
+    fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+#endif // PAIR_FIT_WO_SSD
   }
   fitter->SetRungeKuttaStepSize(kStepSize);
   fitter->SetMaxSteps(kMaxSteps);
