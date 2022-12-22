@@ -3,7 +3,7 @@
 
 //#define TMP_SOME_Z
 //#define TMP_ZX_NEAREST
-#define PAIR_FIT_WO_SSD
+//#define PAIR_FIT_WO_SSD
 
 #include "TVector3.h"
 
@@ -14,11 +14,11 @@ enum {
   kAnalyzePairFit,
   kAnalyzeNearestPoint
 };
-constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
-//constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+//constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
+constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
-constexpr bool kExecuteEventMixing = false;
+constexpr bool kExecuteEventMixing = true;
 constexpr int  kMaxPastEntries     = 1;
 constexpr bool kMixOneTrackEvent   = true;
 //
