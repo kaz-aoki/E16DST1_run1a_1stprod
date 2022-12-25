@@ -567,8 +567,27 @@ public:
     E16ANA_SSDAnalyzer *SSD_Sensor(uint16_t module_id, uint16_t layer_id){
         return ssd_analyzer_map[OnlineGTR::IDs(module_id, layer_id).value64];
     };
+	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+                           int mid,
+                           E16ANA_GeometryV2 *geom_v2
+                           );
+    virtual void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+                        ){};
+    virtual void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
+                            int mid,
+                            E16ANA_GeometryV2 *geom_v2
+						  	 ){};
     double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
+//    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
     void FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2);
     std::vector<long double> CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *ssd_hit,
                       E16ANA_GTRAnalyzedStripHit *gtr_xhits0,
@@ -595,6 +614,19 @@ protected:
 	double timing_window_100 = 25.0;
 	double timing_window_200 = 40.0;
 	double timing_window_300 = 40.0;
+	int n_tgt;
+	int pm_wire = 0;
+	double wire_x1 = 0;
+	double wire_z1 = 0;
+	double wire_x2 = 0;
+	double wire_z2 = 0;
+	double tgt_x1 = 0;
+	double tgt_z1 = 0;
+	double tgt_x2 = 0;
+	double tgt_z2 = 0;
+	double tgt_x3 = 0;
+	double tgt_z3 = 0;
+
 };
 
 
@@ -617,7 +649,7 @@ private :
 
 class StraightTrackAnalyzerOfTargets : public StraightTrackAnalyzerV0 {
 public :
-	StraightTrackAnalyzerOfTargets(double x1, double z1, double x2, double z2, double x3, double z3);
+	StraightTrackAnalyzerOfTargets(int nt, double x1, double z1, double x2, double z2, double x3, double z3);
 	~StraightTrackAnalyzerOfTargets();
     void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
@@ -627,11 +659,11 @@ public :
                         E16ANA_GeometryV2 *geom_v2
                         );
 
-	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
-						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
-                           int mid,
-                           E16ANA_GeometryV2 *geom_v2
-                           );
+//	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+//						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+//                           int mid,
+//                           E16ANA_GeometryV2 *geom_v2
+//                           );
     void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
@@ -639,20 +671,21 @@ public :
                             int mid,
                             E16ANA_GeometryV2 *geom_v2
                             );
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+//    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
  
 private :
-	double tgt_x1;
-	double tgt_z1;
-	double tgt_x2;
-	double tgt_z2;
-	double tgt_x3;
-	double tgt_z3;
+//	int n_tgt;
+//	double tgt_x1;
+//	double tgt_z1;
+//	double tgt_x2;
+//	double tgt_z2;
+//	double tgt_x3;
+//	double tgt_z3;
 };
 
 class StraightTrackAnalyzerOfWireV1 : public StraightTrackAnalyzerV0 { //track selection only by GTR
 public : 
-    StraightTrackAnalyzerOfWireV1(double x1, double z1, double x2, double z2);
+    StraightTrackAnalyzerOfWireV1(int ntgt, int _pm_wire, double x1, double z1, double x2, double z2);
     ~StraightTrackAnalyzerOfWireV1();
     void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
@@ -661,12 +694,12 @@ public :
                         int mid,
                         E16ANA_GeometryV2 *geom_v2
                         );
-    void OneModuleAnalyze2(
-							E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
-							E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
-                            int mid,
-                            E16ANA_GeometryV2 *geom_v2
-                            );
+//    void OneModuleAnalyze2(
+//							E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+//							E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+//                            int mid,
+//                            E16ANA_GeometryV2 *geom_v2
+//                            );
     void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
@@ -676,92 +709,97 @@ public :
                             );
  
     std::vector<double> CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate> trk2); 
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
+//    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+//    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
 
     void Make2DCrossPoint(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands,  E16ANA_GeometryV2 *geom);
 
 private : 
-	double wire_x1;
-	double wire_z1;
-	double wire_x2;
-	double wire_z2;
+//    int n_tgt;
+//	int pm_wire;// wire minus : -1, wire plus : 1 based on beamline group coordinate, which is same with run summary
+//	double wire_x1;
+//	double wire_z1;
+//	double wire_x2;
+//	double wire_z2;
 };
 
 
 class StraightTrackAnalyzerOfTargetswoGTR300 : public StraightTrackAnalyzerV0 {
 public :
-	StraightTrackAnalyzerOfTargetswoGTR300(double x1, double z1, double x2, double z2, double x3, double z3);
+	StraightTrackAnalyzerOfTargetswoGTR300(int ntgt, double x1, double z1, double x2, double z2, double x3, double z3);
 	~StraightTrackAnalyzerOfTargetswoGTR300();
     void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
-//					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
                         int mid,
                         E16ANA_GeometryV2 *geom_v2
                         );
 
-	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
-						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
-                           int mid,
-                           E16ANA_GeometryV2 *geom_v2
-                           );
+//	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+//						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+//                           int mid,
+//                           E16ANA_GeometryV2 *geom_v2
+//                           );
     void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
-  //                          std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
                             int mid,
                             E16ANA_GeometryV2 *geom_v2
                             );
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+//    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
  
     void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk);
 private :
-	double tgt_x1;
-	double tgt_z1;
-	double tgt_x2;
-	double tgt_z2;
-	double tgt_x3;
-	double tgt_z3;
+//    int n_tgt;
+//	double tgt_x1;
+//	double tgt_z1;
+//	double tgt_x2;
+//	double tgt_z2;
+//	double tgt_x3;
+//	double tgt_z3;
 };
 
 class StraightTrackAnalyzerOfWireV1woGTR300 : public StraightTrackAnalyzerV0 { //track selection only by GTR
 public : 
-    StraightTrackAnalyzerOfWireV1woGTR300(double x1, double z1, double x2, double z2);
+    StraightTrackAnalyzerOfWireV1woGTR300(int ntgt, int _pm_wire, double x1, double z1, double x2, double z2);
     ~StraightTrackAnalyzerOfWireV1woGTR300();
     void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
-//					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
                         int mid,
                         E16ANA_GeometryV2 *geom_v2
                         );
-    void OneModuleAnalyze2(
-							E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
-							E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
-                            int mid,
-                            E16ANA_GeometryV2 *geom_v2
-                            );
+//    void OneModuleAnalyze2(
+//							E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+//							E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+//                            int mid,
+//                            E16ANA_GeometryV2 *geom_v2
+//                            );
     void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
-  //                          std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
+                            std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2,
                             int mid,
                             E16ANA_GeometryV2 *geom_v2
                             );
  
     std::vector<double> CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate> trk2); 
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
-    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
+//    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+ //   double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
 
     void Make2DCrossPoint(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands,  E16ANA_GeometryV2 *geom);
 
     void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk);
 private : 
-	double wire_x1;
-	double wire_z1;
-	double wire_x2;
-	double wire_z2;
+//    int n_tgt;
+//	int pm_wire;// wire minus : -1, wire plus : 1 based on beamline group coordinate, which is same with run summary
+//	double wire_x1;
+//	double wire_z1;
+//	double wire_x2;
+//	double wire_z2;
 };
 
 

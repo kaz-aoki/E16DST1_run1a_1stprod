@@ -13,7 +13,8 @@
 #include "E16ANA_RundependentName.hh"
 using namespace std;
 
-StraightTrackAnalyzerOfTargets::StraightTrackAnalyzerOfTargets(double x1, double z1, double x2, double z2, double x3, double z3){
+StraightTrackAnalyzerOfTargets::StraightTrackAnalyzerOfTargets(int _n_tgt, double x1, double z1, double x2, double z2, double x3, double z3){
+    n_tgt  = _n_tgt; 
 	tgt_x1 = x1;
 	tgt_z1 = z1;
 	tgt_x2 = x2;
@@ -27,15 +28,38 @@ StraightTrackAnalyzerOfWire::StraightTrackAnalyzerOfWire(){
 }
 StraightTrackAnalyzerOfWire::~StraightTrackAnalyzerOfWire(){
 }
-StraightTrackAnalyzerOfWireV1::StraightTrackAnalyzerOfWireV1(double x1, double z1, double x2, double z2){
+StraightTrackAnalyzerOfWireV1::StraightTrackAnalyzerOfWireV1(int _n_tgt, int pm,  double x1, double z1, double x2, double z2){
+    n_tgt = _n_tgt;
+    pm_wire = pm;
 	wire_x1 = x1;
 	wire_z1 = z1;
 	wire_x2 = x2;
 	wire_z2 = z2;	
 }
-StraightTrackAnalyzerOfWireV1::~StraightTrackAnalyzerOfWireV1(){
+StraightTrackAnalyzerOfWireV1::~StraightTrackAnalyzerOfWireV1(){}
+StraightTrackAnalyzerOfTargetswoGTR300::StraightTrackAnalyzerOfTargetswoGTR300(int ntgt, double x1, double z1, double x2, double z2, double x3, double z3){
+    n_tgt = ntgt;
+	tgt_x1 = x1;
+	tgt_z1 = z1;
+	tgt_x2 = x2;
+	tgt_z2 = z2;	
+	tgt_x3 = x3;
+	tgt_z3 = z3;	
+}
+StraightTrackAnalyzerOfTargetswoGTR300::~StraightTrackAnalyzerOfTargetswoGTR300(){
 }
 
+
+StraightTrackAnalyzerOfWireV1woGTR300::StraightTrackAnalyzerOfWireV1woGTR300(int ntgt, int pm, double x1, double z1, double x2, double z2){
+    n_tgt = ntgt;
+    pm_wire = pm;
+	wire_x1 = x1;
+	wire_z1 = z1;
+	wire_x2 = x2;
+	wire_z2 = z2;	
+}
+StraightTrackAnalyzerOfWireV1woGTR300::~StraightTrackAnalyzerOfWireV1woGTR300(){
+}
 void StraightTrackAnalyzerV0::Clear(){
     xz_trk_cands.clear();
     cross_points.clear();
@@ -45,8 +69,7 @@ void StraightTrackAnalyzerV0::Clear(){
     xz_trks_evesel.clear();
     xz_trks_evesel.shrink_to_fit();
 }
-
-void StraightTrackAnalyzerOfTargets::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerV0::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
 	XZStraightAnalyzeOnlyGTR2(ssd1->ClusterPtrs(mid, 0, 0),
 							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
 							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
@@ -66,26 +89,6 @@ void StraightTrackAnalyzerOfTargets::OneModuleAnalyze2(E16DST_DST1Detector<E16DS
 	
 	
 }
-
-void StraightTrackAnalyzerOfWireV1::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
-    XZStraightAnalyzeOnlyGTR2(ssd1->ClusterPtrs(mid, 0, 0),
-							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
-							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
-							  gtr1->ClusterPtrs(mid, 2, 0), //GTR300 X 
-							  mid, 
-							  geom_v2);
-    YRStraightAnalyze2(gtr1->ClusterPtrs(mid, 0, 1), //GTR100 Y
-					   gtr1->ClusterPtrs(mid, 0, 2), //GTR100 Yb
-					   gtr1->ClusterPtrs(mid, 1, 1), //GTR200
-					   gtr1->ClusterPtrs(mid, 2, 1), //GTR300
-					   mid,
-					   geom_v2);
-//	MatchingXYHitsAfterLinearFit(
-//		this->GetXZTrackCandidates(),
-//		this->GetYTrackCandidates()
-//	);		
-}
-
 
 void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
     std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
@@ -300,129 +303,135 @@ void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::share
 }
 
 std::vector<long double> StraightTrackAnalyzerOfWire::CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *hs, E16ANA_GTRAnalyzedStripHit *h0, E16ANA_GTRAnalyzedStripHit *h1, E16ANA_GTRAnalyzedStripHit *h2, E16ANA_GeometryV2 *geom_v2, double phi, int kawama_module, int except){
-    if(except < 0 || except > 3){
-        std::cout << " except value is invalid !" << std::endl;
-    }
-    std::vector<G4ThreeVector> l_hitpos;
-    std::vector<G4ThreeVector> g_hitpos;
-    std::vector<G4ThreeVector> rot_pos;
-    std::vector<G4ThreeVector> l_ssd_hitpos;
-    std::vector<G4ThreeVector> g_ssd_hitpos;
-    std::vector<G4ThreeVector> rot_ssd_pos;
-    std::vector<TVector2> v_fit_samples ;
-    l_hitpos.clear();
-    g_hitpos.clear();
-    rot_pos.clear();
-    v_fit_samples.clear();
-    G4ThreeVector g_wirepos1 = G4ThreeVector(-20, 0, -40);
-    G4ThreeVector g_wirepos2 = G4ThreeVector(-20, 0, 40);
-    G4ThreeVector rot_wirepos1 = G4ThreeVector(g_wirepos1.rotateY(phi));
-    G4ThreeVector rot_wirepos2 = G4ThreeVector(g_wirepos2.rotateY(phi));
-    TVector2 tv_rotwire1 = TVector2(rot_wirepos1.x(), rot_wirepos1.z());
-    TVector2 tv_rotwire2 = TVector2(rot_wirepos2.x(), rot_wirepos2.z());
-    if(except == 3){//ssd
-       std::vector<double> sigma_x = {1.5, 1.5, 1.5};
-       std::vector<double> sigma_x2 = {0.1, 0.1, 0.2, 0.1};//gtr0,1,2, wire
-//       std::vector<reference_wrapper<E16ANA_GTRAnalyzedStripHit>>hits;
-       std::vector<E16ANA_GTRAnalyzedStripHit *>hits;
-       hits.clear();
-       hits.push_back(h0);
-       hits.push_back(h1);
-       hits.push_back(h2);
-       l_ssd_hitpos.push_back(G4ThreeVector(hs->CogHit(), 0, 0));
-       g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
-       rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(phi)));
-       TVector2 rot_ssd = TVector2(rot_ssd_pos[0].x(), rot_ssd_pos[0].z());
-       l_ssd_hitpos.clear();
-       g_ssd_hitpos.clear();
-       rot_ssd_pos.clear();
-       for(int l = 0; l <3; l++){
-           l_hitpos.push_back(G4ThreeVector(hits[l]->CogHit(), 0, 0));
-           g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-           rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
-           v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
-       }
-       std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
-   	double cross_beam = ReconstructTgtPosBeforeVertex(v_results1[1], v_results1[2], phi, kawama_module, geom_v2);
-        if(fabs(cross_beam + 40) <  20){
-            v_fit_samples.push_back(tv_rotwire1);
-            std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
-//            std::cout << "chi2 = " << v_results2[0] << std::endl;
-                double residual_s = (rot_ssd.Y() - (v_results2[1] + v_results2[2]*rot_ssd.X()));
-//                std::cout <<"residu_s al ssd = " << rot_ssd.Y() - (v_results2[1] + v_results2[2]*rot_ssd.X()) << std::endl;
-                
-       	        double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);
-                v_results2.clear();
-                std::vector <long double> &&v_out = {v_results2[0], residual_s, tgt_z};
-                return v_out;
-        }
-        else if(fabs(cross_beam - 40) <  20){
-            v_fit_samples.push_back(tv_rotwire2);
-            std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
-//            std::cout << "chi2 = " << v_results2[0] << std::endl;
-            double residual_s = (rot_ssd.Y() - (v_results2[1] + v_results2[2]*rot_ssd.X()));
-//            std::cout <<"residual ssd = " << residual_s << std::endl;
-   	        double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);
-            v_results2.clear();
-            std::vector <long double> &&v_out = {v_results2[0], residual_s, tgt_z};
-            return v_out;
-        }
-    }
-    else{//except == 0,1,2
-       std::vector<double> sigma_x = {1.5, 1.5, 1.5};
-       std::vector<double> sigma_x2 = {0.1, 0.1, 0.05, 0.1};//gtr?,?, ssd, wire
-       std::vector<E16ANA_GTRAnalyzedStripHit *>hits;
-       hits.clear();
-       hits.push_back(h0);
-       hits.push_back(h1);
-       hits.push_back(h2);
-       l_ssd_hitpos.clear();
-       g_ssd_hitpos.clear();
-       rot_ssd_pos.clear();
-       l_ssd_hitpos.push_back(G4ThreeVector(hs->CogHit(), 0, 0));
-       g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
-       rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(phi)));
-       TVector2 rot_ssd = TVector2(rot_ssd_pos[0].x(), rot_ssd_pos[0].z());
-       for(int l = 0; l <3; l++){
-           l_hitpos.push_back(G4ThreeVector(hits[l]->CogHit(), 0, 0));
-//           std::cout << "hits cog = " << hits[l].get().CogHit() << std::endl;
-           g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-//           std::cout << "g hit pos y = " << g_hitpos[l].z() << std::endl;
-           rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
-//           std::cout << "rot pos z = " << rot_pos[l].z() << std::endl;
-       }
-       for(int l=0; l < 3; l++){
-           if(except == l ) continue;
-           v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
-       }
-       v_fit_samples.push_back(rot_ssd);
-       std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
-   	   double cross_beam = ReconstructTgtPosBeforeVertex(v_results1[1], v_results1[2], phi, kawama_module, geom_v2);
-       if(cross_beam < 0){
-           v_fit_samples.push_back(tv_rotwire1);
-           std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
-//           std::cout << "chi2 = " << v_results2[0] << std::endl;
-           double residual_g = (rot_pos[except].z() - (v_results2[1] + v_results2[2]*rot_pos[except].x()));
-           std::cout <<"residual gtr = " << residual_g << std::endl;
-//           std::cout << "rot pos X = " << rot_pos[except].x() << std::endl;
-//           std::cout << "v results 2[1]  = " << v_results2[1] << std::endl;
-//           std::cout << "a + bx  = " << v_results2[1] + v_results2[2] * rot_pos[except].x() << std::endl;
-   	       double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);
-           v_results2.clear();
-           std::vector <long double> &&v_out = {v_results2[0], residual_g, tgt_z};
-           return v_out;
-       }
-       else if(cross_beam >= 0){
-           v_fit_samples.push_back(tv_rotwire2);
-           std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
-           double residual_g = rot_pos[except].z() - (v_results2[1] + v_results2[2]*rot_pos[except].x()) ;
-           std::cout <<"residual gtr = " << residual_g << std::endl;
-   	       double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);
-           v_results2.clear();
-           std::vector <long double> &&v_out = {v_results2[0], residual_g, tgt_z};
-           return v_out;
-       }
-    }
+//    if(except < 0 || except > 3){
+//        std::cout << " except value is invalid !" << std::endl;
+//    }
+//    std::vector<G4ThreeVector> l_hitpos;
+//    std::vector<G4ThreeVector> g_hitpos;
+//    std::vector<G4ThreeVector> rot_pos;
+//    std::vector<G4ThreeVector> l_ssd_hitpos;
+//    std::vector<G4ThreeVector> g_ssd_hitpos;
+//    std::vector<G4ThreeVector> rot_ssd_pos;
+//    std::vector<TVector2> v_fit_samples ;
+//    l_hitpos.clear();
+//    g_hitpos.clear();
+//    rot_pos.clear();
+//    v_fit_samples.clear();
+//    G4ThreeVector g_wirepos1 = G4ThreeVector(-20, 0, -40);
+//    G4ThreeVector g_wirepos2 = G4ThreeVector(-20, 0, 40);
+//    G4ThreeVector rot_wirepos1 = G4ThreeVector(g_wirepos1.rotateY(phi));
+//    G4ThreeVector rot_wirepos2 = G4ThreeVector(g_wirepos2.rotateY(phi));
+//    TVector2 tv_rotwire1 = TVector2(rot_wirepos1.x(), rot_wirepos1.z());
+//    TVector2 tv_rotwire2 = TVector2(rot_wirepos2.x(), rot_wirepos2.z());
+//    if(except == 3){//ssd
+//       std::vector<double> sigma_x = {1.5, 1.5, 1.5};
+//       std::vector<double> sigma_x2 = {0.1, 0.1, 0.2, 0.1};//gtr0,1,2, wire
+////       std::vector<reference_wrapper<E16ANA_GTRAnalyzedStripHit>>hits;
+//       std::vector<E16ANA_GTRAnalyzedStripHit *>hits;
+//       hits.clear();
+//       hits.push_back(h0);
+//       hits.push_back(h1);
+//       hits.push_back(h2);
+//       l_ssd_hitpos.push_back(G4ThreeVector(hs->CogHit(), 0, 0));
+//       g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
+//       rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(phi)));
+//       TVector2 rot_ssd = TVector2(rot_ssd_pos[0].x(), rot_ssd_pos[0].z());
+//       l_ssd_hitpos.clear();
+//       g_ssd_hitpos.clear();
+//       rot_ssd_pos.clear();
+//       for(int l = 0; l <3; l++){
+//           l_hitpos.push_back(G4ThreeVector(hits[l]->CogHit(), 0, 0));
+//           g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
+//           rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
+//           v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
+//       }
+//       std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
+//   	double cross_beam = ReconstructTgtPosBeforeVertex(v_results1[1], v_results1[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
+//
+//        if(fabs(cross_beam + 40) <  20){
+//            v_fit_samples.push_back(tv_rotwire1);
+//            std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
+////            std::cout << "chi2 = " << v_results2[0] << std::endl;
+//                double residual_s = (rot_ssd.Y() - (v_results2[1] + v_results2[2]*rot_ssd.X()));
+////                std::cout <<"residu_s al ssd = " << rot_ssd.Y() - (v_results2[1] + v_results2[2]*rot_ssd.X()) << std::endl;
+//                
+//       	        double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
+//
+//                v_results2.clear();
+//                std::vector <long double> &&v_out = {v_results2[0], residual_s, tgt_z};
+//                return v_out;
+//        }
+//        else if(fabs(cross_beam - 40) <  20){
+//            v_fit_samples.push_back(tv_rotwire2);
+//            std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
+////            std::cout << "chi2 = " << v_results2[0] << std::endl;
+//            double residual_s = (rot_ssd.Y() - (v_results2[1] + v_results2[2]*rot_ssd.X()));
+////            std::cout <<"residual ssd = " << residual_s << std::endl;
+//   	        double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
+//
+//            v_results2.clear();
+//            std::vector <long double> &&v_out = {v_results2[0], residual_s, tgt_z};
+//            return v_out;
+//        }
+//    }
+//    else{//except == 0,1,2
+//       std::vector<double> sigma_x = {1.5, 1.5, 1.5};
+//       std::vector<double> sigma_x2 = {0.1, 0.1, 0.05, 0.1};//gtr?,?, ssd, wire
+//       std::vector<E16ANA_GTRAnalyzedStripHit *>hits;
+//       hits.clear();
+//       hits.push_back(h0);
+//       hits.push_back(h1);
+//       hits.push_back(h2);
+//       l_ssd_hitpos.clear();
+//       g_ssd_hitpos.clear();
+//       rot_ssd_pos.clear();
+//       l_ssd_hitpos.push_back(G4ThreeVector(hs->CogHit(), 0, 0));
+//       g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
+//       rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(phi)));
+//       TVector2 rot_ssd = TVector2(rot_ssd_pos[0].x(), rot_ssd_pos[0].z());
+//       for(int l = 0; l <3; l++){
+//           l_hitpos.push_back(G4ThreeVector(hits[l]->CogHit(), 0, 0));
+////           std::cout << "hits cog = " << hits[l].get().CogHit() << std::endl;
+//           g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
+////           std::cout << "g hit pos y = " << g_hitpos[l].z() << std::endl;
+//           rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
+////           std::cout << "rot pos z = " << rot_pos[l].z() << std::endl;
+//       }
+//       for(int l=0; l < 3; l++){
+//           if(except == l ) continue;
+//           v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].z()));
+//       }
+//       v_fit_samples.push_back(rot_ssd);
+//       std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
+//   	   double cross_beam = ReconstructTgtPosBeforeVertex(v_results1[1], v_results1[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
+//
+//       if(cross_beam < 0){
+//           v_fit_samples.push_back(tv_rotwire1);
+//           std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
+////           std::cout << "chi2 = " << v_results2[0] << std::endl;
+//           double residual_g = (rot_pos[except].z() - (v_results2[1] + v_results2[2]*rot_pos[except].x()));
+//           std::cout <<"residual gtr = " << residual_g << std::endl;
+////           std::cout << "rot pos X = " << rot_pos[except].x() << std::endl;
+////           std::cout << "v results 2[1]  = " << v_results2[1] << std::endl;
+////           std::cout << "a + bx  = " << v_results2[1] + v_results2[2] * rot_pos[except].x() << std::endl;
+//   	       double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
+//
+//           v_results2.clear();
+//           std::vector <long double> &&v_out = {v_results2[0], residual_g, tgt_z};
+//           return v_out;
+//       }
+//       else if(cross_beam >= 0){
+//           v_fit_samples.push_back(tv_rotwire2);
+//           std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x2);
+//           double residual_g = rot_pos[except].z() - (v_results2[1] + v_results2[2]*rot_pos[except].x()) ;
+//           std::cout <<"residual gtr = " << residual_g << std::endl;
+//   	       double tgt_z = ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
+//
+//           v_results2.clear();
+//           std::vector <long double> &&v_out = {v_results2[0], residual_g, tgt_z};
+//           return v_out;
+//       }
+//    }
 }
 
 void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
@@ -1411,58 +1420,7 @@ std::vector<long double> StraightTrackAnalyzerV0::LeastSquareMethod(std::vector<
 
 }
 
-double StraightTrackAnalyzerV0::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2){//a+bx
-    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
-	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
-	double r100  = sqrt(r100_2);
-	double zpos_x200mm = b*(r100) + a;
-
-    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
-	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
-	double r300  = sqrt(r300_2);
-    double zpos_x600mm = b*r300 + a;
-	
-	
-    TVector2 ref_pt0(r100, zpos_x200mm);
-    TVector2 ref_pt1(r300, zpos_x600mm);
-	TVector2 ref_pt2(3000, b*3000 + a);
-    TVector2 pt0 = ref_pt0.Rotate(phi);
-    TVector2 pt1 = ref_pt1.Rotate(phi);
-	TVector2 pt2 = ref_pt2.Rotate(phi);
-    double tgt_z = (pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = 0
-    ref_pt0.Clear();
-    ref_pt1.Clear();
-    pt0.Clear();
-    pt1.Clear();
-    return tgt_z;
-}
-
-
-double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2){//a+bx
-    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
-	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
-	double r100  = sqrt(r100_2);
-	double zpos_x200mm = b*(r100) + a;
-
-    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
-	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
-	double r300  = sqrt(r300_2);
-    double zpos_x600mm = b*r300 + a;
-    TVector2 ref_pt0(r100, zpos_x200mm);
-    TVector2 ref_pt1(r300, zpos_x600mm);
-	TVector2 ref_pt2(3000, b*3000 + a);
-    TVector2 pt0 = ref_pt0.Rotate(phi);
-    TVector2 pt1 = ref_pt1.Rotate(phi);
-	TVector2 pt2 = ref_pt2.Rotate(phi);
-    double tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
-    ref_pt0.Clear();
-    ref_pt1.Clear();
-    pt0.Clear();
-    pt1.Clear();
-    return tgt_z;
-}
-
-double StraightTrackAnalyzerOfTargets::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
+double StraightTrackAnalyzerV0::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
     G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
 	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
 	double r100  = sqrt(r100_2);
@@ -1478,95 +1436,19 @@ double StraightTrackAnalyzerOfTargets::ReconstructTgtPosBeforeVertex(double a, d
     TVector2 pt0 = ref_pt0.Rotate(rphi);
     TVector2 pt1 = ref_pt1.Rotate(rphi);
 	TVector2 pt2 = ref_pt2.Rotate(rphi);
-    double tgt_z = (pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = 0
-    trk->SetPt0OnTrack(pt0);
+	double tgt_z;
+	if(n_tgt == 3){
+    	tgt_z = (pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = 0
+    }
+	else if(n_tgt == 2 && pm_wire == -1){
+    	tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
+    }
+	else if(n_tgt == 2 && pm_wire == 1){
+    	tgt_z = (pt1.Y()-pt0.Y())*(wire_x2)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
+    }
+	trk->SetPt0OnTrack(pt0);
     trk->SetPt1OnTrack(pt1);
     trk->SetPt2OnTrack(pt2);	
-    ref_pt0.Clear();
-    ref_pt1.Clear();
-    pt0.Clear();
-    pt1.Clear();
-    return tgt_z;
-}
-
-double StraightTrackAnalyzerOfTargetswoGTR300::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
-    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
-	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
-	double r100  = sqrt(r100_2);
-	double zpos_x200mm = b*(r100) + a;
-    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
-	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
-	double r300  = sqrt(r300_2);
-    double zpos_x600mm = b*r300 + a;
-    TVector2 ref_pt0(zpos_x200mm, r100);
-    TVector2 ref_pt1(zpos_x600mm, r300);
-	TVector2 ref_pt2(b*3000 + a, 3000);
-	double rphi = phi - 1.570796;
-    TVector2 pt0 = ref_pt0.Rotate(rphi);
-    TVector2 pt1 = ref_pt1.Rotate(rphi);
-	TVector2 pt2 = ref_pt2.Rotate(rphi);
-    double tgt_z = (pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = 0
-    trk->SetPt0OnTrack(pt0);
-    trk->SetPt1OnTrack(pt1);
-    trk->SetPt2OnTrack(pt2);	
-    ref_pt0.Clear();
-    ref_pt1.Clear();
-    pt0.Clear();
-    pt1.Clear();
-    return tgt_z;
-}
-
-//morino ver
-double StraightTrackAnalyzerOfWireV1woGTR300::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx1
-    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
-	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
-	double r100  = sqrt(r100_2);
-	double zpos_x200mm = b*(r100) + a;
-    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
-	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
-	double r300  = sqrt(r300_2);
-    double zpos_x600mm = b*r300 + a;
-    TVector2 ref_pt0(zpos_x200mm, r100);
-    TVector2 ref_pt1(zpos_x600mm, r300);
-	TVector2 ref_pt2(b*3000 + a, 3000);
-	double rphi = phi - 1.570796;
-    TVector2 pt0 = ref_pt0.Rotate(rphi);
-    TVector2 pt1 = ref_pt1.Rotate(rphi);
-	TVector2 pt2 = ref_pt2.Rotate(rphi);
-    trk->SetPt0OnTrack(pt0);
-    trk->SetPt1OnTrack(pt1);
-    trk->SetPt2OnTrack(pt2);
-    double tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
-    ref_pt0.Clear();
-    ref_pt1.Clear();
-    pt0.Clear();
-    pt1.Clear();
-    return tgt_z;
-}
-
-
-
-//morino ver
-double StraightTrackAnalyzerOfWireV1::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
-    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
-	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
-	double r100  = sqrt(r100_2);
-	double zpos_x200mm = b*(r100) + a;
-    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
-	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
-	double r300  = sqrt(r300_2);
-    double zpos_x600mm = b*r300 + a;
-    TVector2 ref_pt0(zpos_x200mm, r100);
-    TVector2 ref_pt1(zpos_x600mm, r300);
-	TVector2 ref_pt2(b*3000 + a, 3000);
-	double rphi = phi - 1.570796;
-    TVector2 pt0 = ref_pt0.Rotate(rphi);
-    TVector2 pt1 = ref_pt1.Rotate(rphi);
-	TVector2 pt2 = ref_pt2.Rotate(rphi);
-    trk->SetPt0OnTrack(pt0);
-    trk->SetPt1OnTrack(pt1);
-    trk->SetPt2OnTrack(pt2);
-    double tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
     ref_pt0.Clear();
     ref_pt1.Clear();
     pt0.Clear();
@@ -1653,78 +1535,7 @@ std::vector<double> StraightTrackAnalyzerOfWireV1::CalcCrossPoint2D(std::shared_
 
 
 
-
-
-
-
-
-//---------------------------------------------------------
-////--------------------------------------------
-//
-
-StraightTrackAnalyzerOfTargetswoGTR300::StraightTrackAnalyzerOfTargetswoGTR300(double x1, double z1, double x2, double z2, double x3, double z3){
-	tgt_x1 = x1;
-	tgt_z1 = z1;
-	tgt_x2 = x2;
-	tgt_z2 = z2;	
-	tgt_x3 = x3;
-	tgt_z3 = z3;	
-}
-StraightTrackAnalyzerOfTargetswoGTR300::~StraightTrackAnalyzerOfTargetswoGTR300(){
-}
-
-
-StraightTrackAnalyzerOfWireV1woGTR300::StraightTrackAnalyzerOfWireV1woGTR300(double x1, double z1, double x2, double z2){
-	wire_x1 = x1;
-	wire_z1 = z1;
-	wire_x2 = x2;
-	wire_z2 = z2;	
-}
-StraightTrackAnalyzerOfWireV1woGTR300::~StraightTrackAnalyzerOfWireV1woGTR300(){
-}
-
-void StraightTrackAnalyzerOfTargetswoGTR300::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
-	XZStraightAnalyzeOnlyGTR2(ssd1->ClusterPtrs(mid, 0, 0),
-							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
-							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
-//							  gtr1->ClusterPtrs(mid, 2, 0), //GTR300 X 
-							  mid, 
-							  geom_v2);
-    YRStraightAnalyze2(gtr1->ClusterPtrs(mid, 0, 1), //GTR100 Y
-					   gtr1->ClusterPtrs(mid, 0, 2), //GTR100 Yb
-					   gtr1->ClusterPtrs(mid, 1, 1), //GTR200
-//					   gtr1->ClusterPtrs(mid, 2, 1), //GTR300
-					   mid,
-					   geom_v2);
-//	MatchingXYHitsAfterLinearFit(
-//		this->GetXZTrackCandidates(),
-//		this->GetYTrackCandidates()
-//	);		
-	
-	
-}
-
-void StraightTrackAnalyzerOfWireV1woGTR300::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
-    XZStraightAnalyzeOnlyGTR2(ssd1->ClusterPtrs(mid, 0, 0),
-							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
-							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
-//							  gtr1->ClusterPtrs(mid, 2, 0), //GTR300 X 
-							  mid, 
-							  geom_v2);
-    YRStraightAnalyze2(gtr1->ClusterPtrs(mid, 0, 1), //GTR100 Y
-					   gtr1->ClusterPtrs(mid, 0, 2), //GTR100 Yb
-					   gtr1->ClusterPtrs(mid, 1, 1), //GTR200
-//					   gtr1->ClusterPtrs(mid, 2, 1), //GTR300
-					   mid,
-					   geom_v2);
-	MatchingXYHitsAfterLinearFit(
-		this->GetXZTrackCandidates(),
-		this->GetYTrackCandidates()
-	);		
-}
-
-
-void StraightTrackAnalyzerOfTargetswoGTR300::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerOfTargetswoGTR300::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2,  int mid, E16ANA_GeometryV2 *geom_v2){
     std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
     std::vector<TVector2> v_fit_samples, v_fit_samples2;
     std::vector<double> sigma_x = {0.3, 0.3, 5};
@@ -1824,10 +1635,12 @@ void StraightTrackAnalyzerOfTargetswoGTR300::XZStraightAnalyzeOnlyGTR2(std::vect
 
 
 
-void StraightTrackAnalyzerOfWireV1woGTR300::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerOfWireV1woGTR300::XZStraightAnalyzeOnlyGTR2(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2 ,int mid, E16ANA_GeometryV2 *geom_v2){
     std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
     std::vector<TVector2> v_fit_samples ;
+    std::vector<double> sigma_x0 = {0.3, 0.3, 0.3};//gtr1, gtr2, tgt
     std::vector<double> sigma_x = {0.3, 0.3, 0.3, 0.1};//gtr1, gtr2, tgt, ssd
+	
 //    std::vector<double> sigma_x = {0.3, 0.3};
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
@@ -1857,8 +1670,7 @@ void StraightTrackAnalyzerOfWireV1woGTR300::XZStraightAnalyzeOnlyGTR2(std::vecto
 				g_hitpos.push_back(G4ThreeVector(wirepos[w]));
 				rot_pos.push_back(G4ThreeVector(g_hitpos[2].rotateY(rphi)));
                 v_fit_samples.push_back(TVector2(rot_pos[2].z(), rot_pos[2].x()));
-
-                std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
+                std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x0);//return chi2, a, b (a+bx)
                 if(v_results1[0] < th_chi2_first){
 					double min = 9999;
 					double min2 = 9999;
@@ -1886,7 +1698,9 @@ void StraightTrackAnalyzerOfWireV1woGTR300::XZStraightAnalyzeOnlyGTR2(std::vecto
 						l_ssd_hitpos.push_back(G4ThreeVector(hssd->CogPos(), 0, 0));
 						g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
 						rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(rphi)));
+						
 
+						v_fit_samples.push_back(TVector2(rot_ssd_pos[0].z(), rot_ssd_pos[0].x()));
 //---- ssd should be added ----------  //////
 
 						std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, sigma_x);//wo SSD
@@ -1954,7 +1768,7 @@ void StraightTrackAnalyzerOfWireV1woGTR300::XZStraightAnalyzeOnlyGTR2(std::vecto
 //	gtr_xhits2.shrink_to_fit();
 }
 
-void StraightTrackAnalyzerOfTargetswoGTR300::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerOfTargetswoGTR300::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
     double rphi = phi - 1.570796;
@@ -2164,7 +1978,7 @@ void StraightTrackAnalyzerOfTargetswoGTR300::YRStraightAnalyze2(std::vector<E16D
 
 
 
-void StraightTrackAnalyzerOfWireV1woGTR300::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerOfWireV1woGTR300::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
     double rphi = phi - 1.570796;
