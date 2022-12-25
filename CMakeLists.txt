@@ -27,10 +27,14 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-add_definitions(-DTRACK_EFF_CHECK)
-add_definitions(-DMERGE_TRACK_PAIR)
-#add_definitions(-DSIM_DST1_GEOM_CHECK)
-#add_definitions(-DMOM_RECONSTRUCT_CHECK)
+#add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DMERGE_TRACK_PAIR)
+#add_definitions(-DREMOVE_REAL_HIT)
+#add_definitions(-DREMOVE_DEAD_REGION_CUT)
+#add_definitions(-DWO_POS_SMEAR)
+#add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
+
+#add_definitions(-DWO_TRACK_FIT)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
@@ -52,8 +56,9 @@ include_directories(
 
   E16DST
   E16ANA_Basic/include
-  include/tmp
+  include/tmp_ichikawa
   include/tmp_mock
+  include/tmp_murakami
 )
 
 link_directories(
@@ -173,7 +178,7 @@ target_link_libraries(E16DST_DST1
 
 #_______________________________________________________________________________
 add_library(E16ANA_Track
-  src/tmp/E16ANA_TrackAnalyzerFromTreeV2.cc
+  src/tmp_ichikawa/E16ANA_TrackAnalyzerFromTreeV2.cc
 )
 
 target_link_libraries(E16ANA_Track
@@ -294,28 +299,28 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-#add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
-#
-#target_link_libraries(DrawForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
+add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+
+target_link_libraries(DrawForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
-#add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
-#
-#target_link_libraries(MkTreeForTrackSelection
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
-#_______________________________________________________________________________
+add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+
+target_link_libraries(MkTreeForTrackSelection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+##_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
 #target_link_libraries(lg_check_standalone
@@ -325,6 +330,7 @@ target_link_libraries(dst0_to_dst1_strack_check
 #       E16DST
 #       E16ANA
 #)
+#
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
@@ -341,7 +347,6 @@ target_link_libraries(gtr_deadch_check
 	E16DST
 	E16DST_DST1
 )
-#_______________________________________________________________________________
 
 #_______________________________________________________________________________
 add_executable(run_CalcASDEffUsingStraightTrack usr/run_CalcASDEffUsingStraightTrack.cc)
@@ -350,8 +355,8 @@ target_link_libraries(run_CalcASDEffUsingStraightTrack
 	E16DST
 	E16DST_DST1
 )
+
 ##_______________________________________________________________________________
-#_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
 #
 #target_link_libraries(run_GTRResidualCalc
@@ -366,6 +371,7 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST
 	E16DST_DST1
 )
+
 #_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
@@ -411,14 +417,14 @@ add_executable(tmp_track_analyzer_one_file usr/tmp_track_analyzer_one_file.cc)
 target_link_libraries(tmp_track_analyzer_one_file
 	E16ANA_Track
 )
-#_______________________________________________________________________________
 
-add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
-
-target_link_libraries(run_GTRResidualCalc
-	E16DST
-	E16DST_DST1
-)
+##_______________________________________________________________________________
+#add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
+#
+#target_link_libraries(run_GTRResidualCalc
+#	E16DST
+#	E16DST_DST1
+#)
 #
 ##_______________________________________________________________________________
 #add_executable(tmp_track_analyzer usr/tmp_track_analyzer.cc)
@@ -483,6 +489,65 @@ target_link_libraries(tmp_draw_dead_region
 	E16ANA_Basic
   E16DST_DST1
   E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
+add_executable(calc_ssd_rate usr/tmp/calc_ssd_rate.cc)
+
+target_link_libraries(calc_ssd_rate
+	E16ANA_Basic
+  E16DST
+)
+
+##_______________________________________________________________________________
+#add_executable(tmp_fit_mock_pair_220616_wrapper
+#  usr/tmp/tmp_fit_mock_pair_220616_wrapper.cc
+#  usr/tmp/tmp_fit_mock_pair_220616.C
+#)
+#
+#target_link_libraries(tmp_fit_mock_pair_220616_wrapper
+#	E16ANA_Basic
+#)
+#
+#_______________________________________________________________________________
+add_executable(tmp_fit_mock_pair_from_dst1_220618_wrapper
+  usr/tmp/tmp_fit_mock_pair_from_dst1_220618_wrapper.cc
+  usr/tmp/tmp_fit_mock_pair_from_dst1_220618.C
+)
+
+target_link_libraries(tmp_fit_mock_pair_from_dst1_220618_wrapper
+	E16ANA_Basic
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper
+  usr/tmp/tmp_fit_mock_pair_from_dst1_drawer_220620_wrapper.cc
+  usr/tmp/tmp_fit_mock_pair_from_dst1_drawer_220620.C
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_check_pos_smear_220627_wrapper
+  usr/tmp/tmp_check_pos_smear_220627_wrapper.cc
+  usr/tmp/tmp_check_pos_smear_220627.C
+)
+
+#_______________________________________________________________________________
+add_executable(track_analyzer_220715_wrapper
+  usr/tmp/track_analyzer_220715_wrapper.cc
+  usr/tmp/track_analyzer_220715.C
+)
+
+target_link_libraries(track_analyzer_220715_wrapper
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_check_n_events_220811
+  usr/tmp/tmp_check_n_events_220811.cc
+)
+
+target_link_libraries(tmp_check_n_events_220811
+  E16DST
 )
 
 #_______________________________________________________________________________

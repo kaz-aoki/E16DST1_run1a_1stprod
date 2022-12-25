@@ -6,6 +6,7 @@
 
 #include "E16ANA_GTRChannelManager.h"
 #include "E16ANA_MakeDummyDST1.hh"
+#include "E16ANA_TriggerConstant.hh"
 
 #include <random>
 
@@ -13,12 +14,74 @@
 
 using namespace std;
 using namespace E16ANA_MakeDummyDST1Parameter;
+using namespace E16ANA_TriggerConstant;
 
 bool E16ANA_MakeDummyDST1::IsSSDDeadRegion(int mid, const TVector3& pos) {
   if (mid < 102 || mid > 108) {
     return true;
   }
   if (mid == kSSDDeadModuleID && pos.X() > kSSDDeadX[0] && pos.X() < kSSDDeadX[1]) {
+    return true;
+  }
+  return false;
+}
+
+int E16ANA_MakeDummyDST1::GTRYToASDCh(double y) {
+  constexpr double kGTRASDSize = kGTR300ModuleSize / kNumGTRASDs;
+  return int{(y + kGTR300ModuleSize / 2.) / kGTRASDSize};
+}
+
+bool E16ANA_MakeDummyDST1::IsGTRASDDeadRegion(int mid, const TVector3& pos) {
+  auto ch = GTRYToASDCh(pos.Y());
+  return !gtr_asd_dead_ch->IsOK(mid, ch);
+}
+
+int E16ANA_MakeDummyDST1::HBDPosToASDCh(const TVector3& pos) {
+  constexpr double kHBDASDXSize = kHBDModuleSize[0] / kNumHBDTriggerChannelOneAxis;
+  constexpr double kHBDASDYSize = kHBDModuleSize[1] / kNumHBDTriggerChannelOneAxis;
+  int xid = int{(pos.X() + kHBDModuleSize[0] / 2.) / kHBDASDXSize};
+  int yid = int{(pos.Y() + kHBDModuleSize[1] / 2.) / kHBDASDYSize};
+  return 10 * yid + xid;
+}
+
+bool E16ANA_MakeDummyDST1::IsHBDASDDeadRegion(int mid, const TVector3& pos) {
+  if (mid < 103 || mid == 105) {
+    return true;
+  }
+  auto ch = HBDPosToASDCh(pos);
+  return !hbd_dead_ch->IsOKTile(mid, ch);
+}
+
+bool E16ANA_MakeDummyDST1::IsLGDiscriDeadRegion(int mid, const TVector3& pos) {
+  if (mid < 102 || mid == 105 || mid > 108) {
+    return true;
+  }
+  return false;
+}
+
+bool E16ANA_MakeDummyDST1::IsDiscriDeadRegion(E16ANA_MockTrack& track) {
+  const auto& ssd_mid    = track.SSD().ModuleID();
+  const auto& gtr100_mid = track.GTR1().ModuleID();
+  const auto& gtr200_mid = track.GTR2().ModuleID();
+  const auto& gtr300_mid = track.GTR3().ModuleID();
+  const auto& hbd_mid    = track.HBDback().ModuleID();
+  const auto& lg_mid     = track.LGVD().ModuleID();
+  const auto& ssd_pos    = track.SSD().XTV();
+  const auto& gtr100_pos = track.GTR1().XTV();
+  const auto& gtr200_pos = track.GTR2().XTV();
+  const auto& gtr300_pos = track.GTR3().XTV();
+  const auto& hbd_pos    = track.HBDback().XTV();
+  const auto& lg_pos     = track.LGVD().XTV();
+  
+  if (IsGTRASDDeadRegion(gtr300_mid, gtr300_pos)) {
+cout << "GTR-ASD dead" << endl;
+    return true;
+  }
+  if (IsHBDASDDeadRegion(hbd_mid, hbd_pos)) {
+cout << "HBD-ASD dead" << endl;
+    return true;
+  }
+  if (IsLGDiscriDeadRegion(lg_mid, lg_pos)) {
     return true;
   }
   return false;
@@ -244,7 +307,7 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   double x[2]    = {mock_ssd.X(), -10000.};
   int    size[2] = {kSSDClusterSize, -1};
   float  t[2]    = {ssd_t[0], -10000.};
-  auto& ssd_clusters = record->SSD().ClusterPtrs(mid, -1, -1);
+  auto& ssd_clusters = record->SSD().ClusterPtrs(mid, 0, 0);
   for (int i = 0; i < ssd_clusters.size(); ++i) {
     auto clst = ssd_clusters[i];
     x[1] = clst->LocalX();

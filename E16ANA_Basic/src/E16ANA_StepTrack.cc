@@ -262,7 +262,9 @@ Hep3Vector E16ANA_StepTrack::ArrayGet(int    step,
 
 Hep3Vector E16ANA_StepTrack::ArrayGet(double step,
 			     Hep3Vector* array1,Hep3Vector* array2) {
-  if( step>arraySize ) { return errorVector;}
+//  if( step>arraySize ) { return errorVector;}
+  if( fabs(step)>=arraySize-1. ) { return errorVector;}
+  if( !isfinite(step) ) { return errorVector;}
 
   Hep3Vector* array;  double step2;// usually >0
   if( step >= 0 ) {    step2=  step ; array=array1;  }

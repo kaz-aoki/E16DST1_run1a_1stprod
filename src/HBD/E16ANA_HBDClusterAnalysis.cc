@@ -229,7 +229,7 @@ void E16ANA_HBDClusterAnalysis::CalcLocalPositionWADCWeight(hbd_cluster &cluster
   for(int i=0; i<id.size(); i++){
     double buf[3];
     E16ANA_HBDGeometry::GetPadLocalCOG(cluster.module_id, id.at(i), buf);
-    for(int j=0; j<3; j++){
+    for(int j=0; j<2; j++){
       lpos[j] += buf[j]*cluster.adc.at(i)/sadc;
     }
   }
@@ -247,7 +247,7 @@ void E16ANA_HBDClusterAnalysis::CalcLocalPositionWPEWeight(hbd_cluster &cluster)
   for(int i=0; i<id.size(); i++){
     double buf[3];
     E16ANA_HBDGeometry::GetPadLocalCOG(cluster.module_id, id.at(i), buf);
-    for(int j=0; j<3; j++){
+    for(int j=0; j<2; j++){
       lpos[j] += buf[j]*cluster.pe.at(i)/spe;
     }
   }

@@ -2484,8 +2484,10 @@ void E16ANA_TrackAnalyzerFromTree::FillTreeWoRefit(const int track_indexs_index_
   out_plus_track_id.emplace_back(track_id->at(track_index_pair[1]));
   out_minus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[0]));
   out_plus_pre_init_gz.emplace_back(rk_fit_init_pos_gz->at(track_index_pair[1]));
-  out_minus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[0]));
-  out_plus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[1]));
+//  out_minus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[0]));
+//  out_plus_chi_square.emplace_back(CalcSingleTrackChiSquareWoTarget(track_index_pair[1]));
+  out_minus_chi_square.emplace_back(track_index_pair[0]);
+  out_plus_chi_square.emplace_back(track_index_pair[1]);
   out_chi_square.emplace_back(out_minus_chi_square.back() + out_plus_chi_square.back());
 
   // vertex
