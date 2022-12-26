@@ -301,18 +301,25 @@ public :
    vector<double>  *track_position_block_ly;
    vector<double>  *track_ssd_t;
    vector<double>  *track_ssd_adc;
+   vector<int>     *track_ssd_multiplicity;
    vector<double>  *track_gtr100x_t;
    vector<double>  *track_gtr100x_adc;
+   vector<int>     *track_gtr100x_multiplicity;
    vector<double>  *track_gtr100y_t;
    vector<double>  *track_gtr100y_adc;
+   vector<int>     *track_gtr100y_multiplicity;
    vector<double>  *track_gtr200x_t;
    vector<double>  *track_gtr200x_adc;
+   vector<int>     *track_gtr200x_multiplicity;
    vector<double>  *track_gtr200y_t;
    vector<double>  *track_gtr200y_adc;
+   vector<int>     *track_gtr200y_multiplicity;
    vector<double>  *track_gtr300x_t;
    vector<double>  *track_gtr300x_adc;
+   vector<int>     *track_gtr300x_multiplicity;
    vector<double>  *track_gtr300y_t;
    vector<double>  *track_gtr300y_adc;
+   vector<int>     *track_gtr300y_multiplicity;
    vector<bool>    *track_w_trg_bias;
    vector<bool>    *track_w_trg_gtr;
    vector<bool>    *track_w_trg_hbd;
@@ -409,18 +416,25 @@ public :
    TBranch        *b_track_position_block_ly;   //!
    TBranch        *b_track_ssd_t;   //!
    TBranch        *b_track_ssd_adc;   //!
+   TBranch        *b_track_ssd_multiplicity;   //!
    TBranch        *b_track_gtr100x_t;   //!
    TBranch        *b_track_gtr100x_adc;   //!
+   TBranch        *b_track_gtr100x_multiplicity;   //!
    TBranch        *b_track_gtr100y_t;   //!
    TBranch        *b_track_gtr100y_adc;   //!
+   TBranch        *b_track_gtr100y_multiplicity;   //!
    TBranch        *b_track_gtr200x_t;   //!
    TBranch        *b_track_gtr200x_adc;   //!
+   TBranch        *b_track_gtr200x_multiplicity;   //!
    TBranch        *b_track_gtr200y_t;   //!
    TBranch        *b_track_gtr200y_adc;   //!
+   TBranch        *b_track_gtr200y_multiplicity;   //!
    TBranch        *b_track_gtr300x_t;   //!
    TBranch        *b_track_gtr300x_adc;   //!
+   TBranch        *b_track_gtr300x_multiplicity;   //!
    TBranch        *b_track_gtr300y_t;   //!
    TBranch        *b_track_gtr300y_adc;   //!
+   TBranch        *b_track_gtr300y_multiplicity;   //!
    TBranch        *b_track_w_trg_bias;   //!
    TBranch        *b_track_w_trg_gtr;   //!
    TBranch        *b_track_w_trg_hbd;   //!
@@ -511,7 +525,7 @@ public :
    // virtual double   CalcMaxADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    // virtual double   CalcSumADCNearHit(std::vector<hitset>& lgnear, double ssdt);
    virtual double   CalcCalibPar(double proj_y, int blockch, double& dist);
-   virtual double   CalcCalibPar(double lx, double ly, double theta_lx, int blockch);
+  virtual double   CalcCalibPar(double lx, double ly, double theta_lx, int blockch, double& tbx, double& tby);
    virtual void     Loop();
    virtual void     DrawForResidualHBD(int runtype, int maxevent, char* out_file_name);
    virtual void     DrawForTrackSelection(int runtype, int maxevent, char* out_file_name);
@@ -595,18 +609,25 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    track_position_block_ly = 0;
    track_ssd_t = 0;
    track_ssd_adc = 0;
+   track_ssd_multiplicity = 0;
    track_gtr100x_t = 0;
    track_gtr100x_adc = 0;
+   track_gtr100x_multiplicity = 0;
    track_gtr100y_t = 0;
    track_gtr100y_adc = 0;
+   track_gtr100y_multiplicity = 0;
    track_gtr200x_t = 0;
    track_gtr200x_adc = 0;
+   track_gtr200x_multiplicity = 0;
    track_gtr200y_t = 0;
    track_gtr200y_adc = 0;
+   track_gtr200y_multiplicity = 0;
    track_gtr300x_t = 0;
    track_gtr300x_adc = 0;
+   track_gtr300x_multiplicity = 0;
    track_gtr300y_t = 0;
    track_gtr300y_adc = 0;
+   track_gtr300y_multiplicity = 0;
    track_w_trg_bias = 0;
    track_w_trg_gtr = 0;
    track_w_trg_hbd = 0;
@@ -707,18 +728,25 @@ void AnalyzerTrackSelection::Init(TTree *tree)
    fChain->SetBranchAddress("track_position_block_ly", &track_position_block_ly, &b_track_position_block_ly);
    fChain->SetBranchAddress("track_ssd_t", &track_ssd_t, &b_track_ssd_t);
    fChain->SetBranchAddress("track_ssd_adc", &track_ssd_adc, &b_track_ssd_adc);
+   fChain->SetBranchAddress("track_ssd_multiplicity", &track_ssd_multiplicity, &b_track_ssd_multiplicity);
    fChain->SetBranchAddress("track_gtr100x_t", &track_gtr100x_t, &b_track_gtr100x_t);
    fChain->SetBranchAddress("track_gtr100x_adc", &track_gtr100x_adc, &b_track_gtr100x_adc);
+   fChain->SetBranchAddress("track_gtr100x_multiplicity", &track_gtr100x_multiplicity, &b_track_gtr100x_multiplicity);
    fChain->SetBranchAddress("track_gtr100y_t", &track_gtr100y_t, &b_track_gtr100y_t);
    fChain->SetBranchAddress("track_gtr100y_adc", &track_gtr100y_adc, &b_track_gtr100y_adc);
+   fChain->SetBranchAddress("track_gtr100y_multiplicity", &track_gtr100y_multiplicity, &b_track_gtr100y_multiplicity);
    fChain->SetBranchAddress("track_gtr200x_t", &track_gtr200x_t, &b_track_gtr200x_t);
    fChain->SetBranchAddress("track_gtr200x_adc", &track_gtr200x_adc, &b_track_gtr200x_adc);
+   fChain->SetBranchAddress("track_gtr200x_multiplicity", &track_gtr200x_multiplicity, &b_track_gtr200x_multiplicity);
    fChain->SetBranchAddress("track_gtr200y_t", &track_gtr200y_t, &b_track_gtr200y_t);
    fChain->SetBranchAddress("track_gtr200y_adc", &track_gtr200y_adc, &b_track_gtr200y_adc);
+   fChain->SetBranchAddress("track_gtr200y_multiplicity", &track_gtr200y_multiplicity, &b_track_gtr200y_multiplicity);
    fChain->SetBranchAddress("track_gtr300x_t", &track_gtr300x_t, &b_track_gtr300x_t);
    fChain->SetBranchAddress("track_gtr300x_adc", &track_gtr300x_adc, &b_track_gtr300x_adc);
+   fChain->SetBranchAddress("track_gtr300x_multiplicity", &track_gtr300x_multiplicity, &b_track_gtr300x_multiplicity);
    fChain->SetBranchAddress("track_gtr300y_t", &track_gtr300y_t, &b_track_gtr300y_t);
    fChain->SetBranchAddress("track_gtr300y_adc", &track_gtr300y_adc, &b_track_gtr300y_adc);
+   fChain->SetBranchAddress("track_gtr300y_multiplicity", &track_gtr300y_multiplicity, &b_track_gtr300y_multiplicity);
    fChain->SetBranchAddress("track_w_trg_bias", &track_w_trg_bias, &b_track_w_trg_bias);
    fChain->SetBranchAddress("track_w_trg_gtr", &track_w_trg_gtr, &b_track_w_trg_gtr);
    fChain->SetBranchAddress("track_w_trg_hbd", &track_w_trg_hbd, &b_track_w_trg_hbd);
@@ -912,12 +940,22 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
   if(runoption==1&&chi_square->at(itrack)>20.) {return -1;}
-  if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}
+  if(runoption==3&&chi_square->at(itrack)>2.) {return -1;}
   if(runoption==0&&chi_square->at(itrack)>10.) {return -1;}
   // if(track_w_trg_hbd->at(itrack)&&track_w_trg_gtr->at(itrack)&&track_w_trg_lg->at(itrack)>-1000) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_position_block_ly->at(itrack)<0) {return -1;}
+  // if(run_id<30294||run_id>30298) {return -1;}//setAB
+  // if(run_id<30299||run_id>30299) {return -1;}//setC
+  // if(run_id<30300||run_id>30302) {return -1;}//setD
+  // if(run_id<30303||run_id>30306) {return -1;}//setEF
+  // if(run_id<30314||run_id>30317) {return -1;}//setG
+  // if(run_id!=30302&&(run_id<30294||run_id>30297)) {return -1;}//setH
+  // if(run_id!=30302&&(run_id<30294||run_id>30297)&&(run_id<30314||run_id>30317)) {return -1;}//setGH
+  // if(run_id>=30303&&run_id<=30306) {return -1;}//w/o setEF
+  int thr[7] = {10, 15, 20, 25, 10, 15, 20};
+  if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   // if (track_mom->at(itrack) > 3.) {return -1;}
   // if (track_mom->at(itrack) < 1.6) {return -1;}

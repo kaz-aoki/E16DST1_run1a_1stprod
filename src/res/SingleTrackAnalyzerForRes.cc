@@ -2193,18 +2193,25 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    vector<double> out_track_position_block_ly;
    vector<double> out_track_ssd_t;
    vector<double> out_track_ssd_adc;
+   vector<int> out_track_ssd_multiplicity;
    vector<double> out_track_gtr100x_t;
    vector<double> out_track_gtr100x_adc;
+   vector<int> out_track_gtr100x_multiplicity;
    vector<double> out_track_gtr100y_t;
    vector<double> out_track_gtr100y_adc;
+   vector<int> out_track_gtr100y_multiplicity;
    vector<double> out_track_gtr200x_t;
    vector<double> out_track_gtr200x_adc;
+   vector<int> out_track_gtr200x_multiplicity;
    vector<double> out_track_gtr200y_t;
    vector<double> out_track_gtr200y_adc;
+   vector<int> out_track_gtr200y_multiplicity;
    vector<double> out_track_gtr300x_t;
    vector<double> out_track_gtr300x_adc;
+   vector<int> out_track_gtr300x_multiplicity;
    vector<double> out_track_gtr300y_t;
    vector<double> out_track_gtr300y_adc;
+   vector<int> out_track_gtr300y_multiplicity;
    vector<bool> out_track_w_trg_bias;
    vector<bool> out_track_w_trg_gtr;
    vector<bool> out_track_w_trg_hbd;
@@ -2331,18 +2338,25 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
    tree->Branch("track_position_block_ly", &out_track_position_block_ly);
    tree->Branch("track_ssd_t", &out_track_ssd_t);
    tree->Branch("track_ssd_adc", &out_track_ssd_adc);
+   tree->Branch("track_ssd_multiplicity", &out_track_ssd_multiplicity);
    tree->Branch("track_gtr100x_t", &out_track_gtr100x_t);
    tree->Branch("track_gtr100x_adc", &out_track_gtr100x_adc);
+   tree->Branch("track_gtr100x_multiplicity", &out_track_gtr100x_multiplicity);
    tree->Branch("track_gtr100y_t", &out_track_gtr100y_t);
    tree->Branch("track_gtr100y_adc", &out_track_gtr100y_adc);
+   tree->Branch("track_gtr100y_multiplicity", &out_track_gtr100y_multiplicity);
    tree->Branch("track_gtr200x_t", &out_track_gtr200x_t);
    tree->Branch("track_gtr200x_adc", &out_track_gtr200x_adc);
+   tree->Branch("track_gtr200x_multiplicity", &out_track_gtr200x_multiplicity);
    tree->Branch("track_gtr200y_t", &out_track_gtr200y_t);
    tree->Branch("track_gtr200y_adc", &out_track_gtr200y_adc);
+   tree->Branch("track_gtr200y_multiplicity", &out_track_gtr200y_multiplicity);
    tree->Branch("track_gtr300x_t", &out_track_gtr300x_t);
    tree->Branch("track_gtr300x_adc", &out_track_gtr300x_adc);
+   tree->Branch("track_gtr300x_multiplicity", &out_track_gtr300x_multiplicity);
    tree->Branch("track_gtr300y_t", &out_track_gtr300y_t);
    tree->Branch("track_gtr300y_adc", &out_track_gtr300y_adc);
+   tree->Branch("track_gtr300y_multiplicity", &out_track_gtr300y_multiplicity);
    tree->Branch("track_w_trg_bias", &out_track_w_trg_bias);
    tree->Branch("track_w_trg_gtr", &out_track_w_trg_gtr);
    tree->Branch("track_w_trg_hbd", &out_track_w_trg_hbd);
@@ -2492,18 +2506,25 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
       out_track_position_block_ly.clear();
       out_track_ssd_t.clear();
       out_track_ssd_adc.clear();
+      out_track_ssd_multiplicity.clear();
       out_track_gtr100x_t.clear();
       out_track_gtr100x_adc.clear();
+      out_track_gtr100x_multiplicity.clear();
       out_track_gtr100y_t.clear();
       out_track_gtr100y_adc.clear();
+      out_track_gtr100y_multiplicity.clear();
       out_track_gtr200x_t.clear();
       out_track_gtr200x_adc.clear();
+      out_track_gtr200x_multiplicity.clear();
       out_track_gtr200y_t.clear();
       out_track_gtr200y_adc.clear();
+      out_track_gtr200y_multiplicity.clear();
       out_track_gtr300x_t.clear();
       out_track_gtr300x_adc.clear();
+      out_track_gtr300x_multiplicity.clear();
       out_track_gtr300y_t.clear();
       out_track_gtr300y_adc.clear();
+      out_track_gtr300y_multiplicity.clear();
       out_track_w_trg_bias.clear();
       out_track_w_trg_gtr.clear();
       out_track_w_trg_hbd.clear();
@@ -2635,7 +2656,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	if (hbd_track_module!=-1&&trk_hbd_mid!=hbd_track_module) continue;
 	if (track_charge!=0&&rk_charge->at(itrack)==-track_charge) continue;
 	double trk_momxz = sqrt(trk_momx*trk_momx+trk_momz*trk_momz);//220213
-	int hbdise = 0;
+	int hbdise = 5;
 	int lgise = 0;
 	// if ( runoption==0 && trk_momxz<1.0 ) continue;//220213
 	// if ( runoption==0 && (rk_hit_ssd_t->at(itrack)<40||rk_hit_ssd_t->at(itrack)>55) ) continue;//220213
@@ -2673,6 +2694,55 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	// }
 	if( tgtdist<0 || tgtdist>100 ) continue;//220725 for the production in 220707
 
+	//SSD&GTR loop
+	int midtmp, nssd, ngtr100x, ngtr100y, ngtr200x, ngtr200y, ngtr300x, ngtr300y;
+	midtmp = rk_fit_ssd_mid->at(itrack);
+	nssd=0;
+	for(int igtr=0;igtr<n_ssd_clusters;igtr++){
+	  if(ssd_cluster_mid->at(igtr)!=midtmp) continue;
+	  nssd++;
+	}
+	midtmp = rk_fit_gtr100_mid->at(itrack);
+	ngtr100x=0;
+	for(int igtr=0;igtr<n_gtr100x_clusters;igtr++){
+	  if(gtr100x_cluster_adc->at(igtr)<100) continue;
+	  if(gtr100x_cluster_mid->at(igtr)!=midtmp) continue;
+	  ngtr100x++;
+	}
+	ngtr100y=0;
+	for(int igtr=0;igtr<n_gtr100y_clusters;igtr++){
+	  if(gtr100y_cluster_adc->at(igtr)<50) continue;
+	  if(gtr100y_cluster_mid->at(igtr)!=midtmp) continue;
+	  ngtr100y++;
+	}
+	midtmp = rk_fit_gtr200_mid->at(itrack);
+	ngtr200x=0;
+	for(int igtr=0;igtr<n_gtr200x_clusters;igtr++){
+	  if(gtr200x_cluster_adc->at(igtr)<100) continue;
+	  if(gtr200x_cluster_mid->at(igtr)!=midtmp) continue;
+	  ngtr200x++;
+	}
+	ngtr200y=0;
+	for(int igtr=0;igtr<n_gtr200y_clusters;igtr++){
+	  if(gtr200y_cluster_adc->at(igtr)<50) continue;
+	  if(gtr200y_cluster_mid->at(igtr)!=midtmp) continue;
+	  ngtr200y++;
+	}
+	midtmp = rk_fit_gtr300_mid->at(itrack);
+	ngtr300x=0;
+	for(int igtr=0;igtr<n_gtr300x_clusters;igtr++){
+	  if(gtr300x_cluster_adc->at(igtr)<100) continue;
+	  if(gtr300x_cluster_mid->at(igtr)!=midtmp) continue;
+	  ngtr300x++;
+	}
+	ngtr300y=0;
+	for(int igtr=0;igtr<n_gtr300y_clusters;igtr++){
+	  if(gtr300y_cluster_adc->at(igtr)<50) continue;
+	  if(gtr300y_cluster_mid->at(igtr)!=midtmp) continue;
+	  ngtr300y++;
+	}
+
+
 	out_track_id.push_back(track_id->at(itrack));
 	out_chi_square.push_back(chi_square->at(itrack));
 	out_rk_charge.push_back(rk_charge->at(itrack));
@@ -2692,18 +2762,25 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 	out_track_ssd_t.push_back(rk_hit_ssd_t->at(itrack));
 	// out_track_ssd_t.push_back(rk_hit_ssd_t->at(itrack)-trigger_fine_time);
 	out_track_ssd_adc.push_back(rk_hit_ssd_adc->at(itrack));
+	out_track_ssd_multiplicity.push_back(nssd);
 	out_track_gtr100x_t.push_back(rk_hit_gtr100_xt->at(itrack));
 	out_track_gtr100x_adc.push_back(rk_hit_gtr100_xadc->at(itrack));
+	out_track_gtr100x_multiplicity.push_back(ngtr100x);
 	out_track_gtr100y_t.push_back(rk_hit_gtr100_yt->at(itrack));
 	out_track_gtr100y_adc.push_back(rk_hit_gtr100_yadc->at(itrack));
+	out_track_gtr100y_multiplicity.push_back(ngtr100y);
 	out_track_gtr200x_t.push_back(rk_hit_gtr200_xt->at(itrack));
 	out_track_gtr200x_adc.push_back(rk_hit_gtr200_xadc->at(itrack));
+	out_track_gtr200x_multiplicity.push_back(ngtr200x);
 	out_track_gtr200y_t.push_back(rk_hit_gtr200_yt->at(itrack));
 	out_track_gtr200y_adc.push_back(rk_hit_gtr200_yadc->at(itrack));
+	out_track_gtr200y_multiplicity.push_back(ngtr200y);
 	out_track_gtr300x_t.push_back(rk_hit_gtr300_xt->at(itrack));
 	out_track_gtr300x_adc.push_back(rk_hit_gtr300_xadc->at(itrack));
+	out_track_gtr300x_multiplicity.push_back(ngtr300x);
 	out_track_gtr300y_t.push_back(rk_hit_gtr300_yt->at(itrack));
 	out_track_gtr300y_adc.push_back(rk_hit_gtr300_yadc->at(itrack));
+	out_track_gtr300y_multiplicity.push_back(ngtr300y);
 	/////////
         int blockchx = (trk_lg_lx)-(track_position_block_lx);
         int blockchy = (trk_lg_ly/fabs(trk_lg_ly))*(fabs(trk_lg_ly)+track_position_block_ly);

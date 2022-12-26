@@ -13,6 +13,7 @@
 #include <TGraphErrors.h>
 #include <TPaveStats.h>
 #include <TRandom.h>
+#include <TGraph2D.h>
 
 #include <TH1.h>
 #include <stdio.h>
@@ -151,6 +152,9 @@ double ExpectedE(double p){
 
 double AnalyzerTrackSelection::CalcADCNearHit(int condition, std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster){
 
+  double ssdoffset = 51.;
+  double ssdregion = 6.;
+
   if(condition==0){//return maxadc
 
   sort(lgnear.begin(),lgnear.end());
@@ -256,7 +260,7 @@ double AnalyzerTrackSelection::CalcADCNearHit(int condition, std::vector<hitset>
       tmp.tdcs.push_back(lgnear.at(i).tdc);
     }
     else{
-      if(adc>maxadc&&fabs(ssdt+51.-tmp.tdcs.at(0))<11.){
+      if(adc>maxadc&&fabs(ssdt+ssdoffset-tmp.tdcs.at(0))<ssdregion){
 	maxadc=adc;
 	lgclss.clear();
 	lgclss.push_back(tmp);
@@ -274,7 +278,7 @@ double AnalyzerTrackSelection::CalcADCNearHit(int condition, std::vector<hitset>
       tmp.tdcs.push_back(lgnear.at(i).tdc);
     }
   }
-  if(adc>maxadc&&fabs(ssdt+51.-tmp.tdcs.at(0))<11.){
+  if(adc>maxadc&&fabs(ssdt+ssdoffset-tmp.tdcs.at(0))<ssdregion){
     maxadc=adc;
     lgclss.clear();
     lgclss.push_back(tmp);
@@ -337,8 +341,8 @@ double AnalyzerTrackSelection::CalcADCNearHit(int condition, std::vector<hitset>
       tmp.tdcs.push_back(lgnear.at(i).tdc);
     }
     else{
-      if( fabs(ssdt+51.-tdc)<mintdcdiff && fabs(ssdt+51.-tmp.tdcs.at(0))<11. ){
-	mintdcdiff=fabs(ssdt+51.-tdc);
+      if( fabs(ssdt+ssdoffset-tdc)<mintdcdiff && fabs(ssdt+ssdoffset-tmp.tdcs.at(0))<ssdregion ){
+	mintdcdiff=fabs(ssdt+ssdoffset-tdc);
 	lgclss.clear();
 	lgclss.push_back(tmp);
       }
@@ -355,8 +359,8 @@ double AnalyzerTrackSelection::CalcADCNearHit(int condition, std::vector<hitset>
       tmp.tdcs.push_back(lgnear.at(i).tdc);
     }
   }
-  if( fabs(ssdt+51.-tdc)<mintdcdiff && fabs(ssdt+51.-tmp.tdcs.at(0))<11. ){
-    mintdcdiff=fabs(ssdt+51.-tdc);
+  if( fabs(ssdt+ssdoffset-tdc)<mintdcdiff && fabs(ssdt+ssdoffset-tmp.tdcs.at(0))<ssdregion ){
+    mintdcdiff=fabs(ssdt+ssdoffset-tdc);
     lgclss.clear();
     lgclss.push_back(tmp);
   }
@@ -442,7 +446,7 @@ bool IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid){
 
 void CalcClusterCand(E16ANA_GeometryV2& geometry, std::vector<int>& trk_ass_cids, int blockch, double position_block_lx, double position_block_ly, double angle_lx){
 
-  double r_moliere = 28.;//mm
+  double r_moliere = 14.;//mm
   double block_depth = 135.;//mm
 
   trk_ass_cids.push_back(blockch);
@@ -545,9 +549,10 @@ double CalibFunction(double bx, double by){
 
 }
 
-double AnalyzerTrackSelection::CalcCalibPar(double lx, double ly, double theta_lx, int blockch){
+double AnalyzerTrackSelection::CalcCalibPar(double lx, double ly, double theta_lx, int blockch, double &tbx, double& tby){
 
   double block_pitch_x = 124.;
+  tbx = 0; tby = 0;
 
   // local coordinate (in module) --> block coordinale
   // y
@@ -557,23 +562,27 @@ double AnalyzerTrackSelection::CalcCalibPar(double lx, double ly, double theta_l
   TVector2 proj(plane_r[chy],ly);
   TVector2 cs = CalcCrossPoint(bpos_pmt,bpos_cut,proj);
   double by = sqrt( (cs.X()-bpos_pmt.X())*(cs.X()-bpos_pmt.X()) + (cs.Y()-bpos_pmt.Y())*(cs.Y()-bpos_pmt.Y()) );
+  tby = by;
+  if(by>75.){return 1.;}
+  if(by<10.){return -10000.;}
   // x
   double lxd = lx + 135./2.*tan(theta_lx);
   int chx;
   double bx;
   if(chy==2||chy==3){
-    chx = (int)((lxd-3.5*block_pitch_x)/block_pitch_x);
-    if(chx<0||chx>6) return -10000.;
+    chx = (int)((lxd-(-4.5*block_pitch_x))/block_pitch_x) - 1;
+    if(chx<0||chx>6){std::cout<<"out of region"<<std::endl;return -10000.;}
     bx = lxd - ((double)chx-3.)*block_pitch_x;
   }
   else{
-    chx = (int)((lxd-3.*block_pitch_x)/block_pitch_x);
-    if(chx<0||chx>5) return -10000.;
+    chx = (int)((lxd-(-4.*block_pitch_x))/block_pitch_x) - 1;
+    if(chx<0||chx>5){std::cout<<"out of region"<<std::endl;return -10000.;}
     bx = lxd - ((double)chx-2.5)*block_pitch_x;
   }
   bx = bx*cos(theta_lx);
   bx = (-theta_lx/fabs(theta_lx))*bx;
   bx = bx/cos(theta_lx);
+  tbx = bx;
 
   return 1./CalibFunction(bx, by);
 }
@@ -2700,6 +2709,10 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    //   evspout[i].open(evspoutname);
    //   evspdout[i].open(evspdoutname);
    // }
+   TGraph2D *g = new TGraph2D();
+   g->SetName("g");
+   g->SetTitle("g");
+   int ig = 0;
 
    int bene = 0;
    double enepar[4] = {1.,40.,80.,1.};
@@ -2711,7 +2724,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    bool fwdonly = false;
    bool hbdass_in_dst1 = false;
    bool new_cluster_method = true;//221006
-   bool w_calib_pos_dep = true;//ashikaga masters thesis parameter
+   bool w_calib_pos_dep = true;//calib parameter w/ position dependence
    int w_ssd_timing_match = 0;// 0: not required, 1: required but return maxadc, 2: required
    int searchx = 100;//for lg cluster
    int searchy = 100;//for lg cluster
@@ -2861,6 +2874,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH1F* hassed[4][5];
    TH1F* hesubp[4][5];
    TH1F* hesubpd[4][5];
+   TH1F* hnclscand[5];//221215
    TH1F* hnlghitwtc[5];//clutser
    TH1F* hnlghitwtcd[5];//clutser
    TH2F* hhitmapc[4][5];//clutser
@@ -2928,6 +2942,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        hasspd_hmix[j][i] = new TH1F(Form("hasspd_hmix%d%d",j,i),Form("Mom_Mix_TrackAss_%1.0fmV_mod%d_hmix",lgthr[j],103+i),50,0,5);
        hassed_hmix[j][i] = new TH1F(Form("hassed_hmix%d%d",j,i),Form("AdcSum_Mix_TrackAss_%1.0fmV_mod%d_hmix",lgthr[j],103+i),128,0,400/ienepar[bene]);
      }
+     hnclscand[i] = new TH1F(Form("hnclscand%d",i),Form("N_ClusterCands_TrackAss_Fore_mod%d",103+i),10,0,10);
      hnlghitwtc[i] = new TH1F(Form("hnlghitwtc%d",i),Form("N_LGHits_TrackAss_inCluster_Fore_mod%d",103+i),10,0,10);
      hnlghitwtcd[i] = new TH1F(Form("hnlghitwtcd%d",i),Form("N_LGHits_TrackAss_inCluster_Mix_mod%d",103+i),10,0,10);
      for(int j=0;j<4;j++){
@@ -3223,6 +3238,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        double adcsum = 0;
        std::vector<int> trk_ass_cids(0);
        CalcClusterCand(*geometry, trk_ass_cids, track_lg_blockch->at(itrack), track_position_block_lx->at(itrack), track_position_block_ly->at(itrack), track_angle_lx->at(itrack));//
+       hnclscand[lmide]->Fill(trk_ass_cids.size());
+       hnclscand[2]->Fill(trk_ass_cids.size());
        for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){//lgfore
 	 double resx = track_lg_allhit_resx->at(itrack).at(ilg);
 	 double resy = track_lg_allhit_resy->at(itrack).at(ilg);
@@ -3288,11 +3305,15 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
 	   adcsum=CalcADCNearHit(w_ssd_timing_match,lgnear,track_ssd_t->at(itrack),lgcluster);
 	   if(w_calib_pos_dep){
-	     double calib_x;
-	     double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),calib_x);
+	     double tbx, tby;
+	     double calib_pos_dep = CalcCalibPar(track_lg_lx->at(itrack),track_lg_ly->at(itrack),track_angle_lx->at(itrack),track_lg_blockch->at(itrack),tbx, tby);
+	     // double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),tbx);
+	     g->SetPoint(ig,tbx,tby,1./calib_pos_dep);
+	     ig++;
 	     adcsum=adcsum*calib_pos_dep;
 	   }
 	 }
+	 // std::cout<<trk_ass_cids.size()<<" "<<lgnear.size()<<" "<<lgcluster.cids.size()<<std::endl;
 	 // if(lgcluster.cids.size()>0){//select 4d-isolate-cluster
 	 //   for(int ict=0;ict<lgcluster.cids.size();ict++){//cls loop
 	 //     for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){//hit loop
@@ -3499,8 +3520,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	     if(lgneard.size()>0){
 	       adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);
 	       if(w_calib_pos_dep){
-		 double calib_x;
-		 double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),calib_x);
+		 double tbx, tby;
+		 double calib_pos_dep = CalcCalibPar(track_lg_lx->at(itrack),track_lg_ly->at(itrack),track_angle_lx->at(itrack),track_lg_blockch->at(itrack),tbx,tby);
+		 // double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),tbx);
 		 adcsumd=adcsumd*calib_pos_dep;
 	       }
 	     }
@@ -3690,8 +3712,9 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        if(lgneard.size()>0){
 	 adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);
 	 if(w_calib_pos_dep){
-	   double calib_x;
-	   double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),calib_x);
+	   double tbx, tby;
+	   double calib_pos_dep = CalcCalibPar(track_lg_lx->at(itrack),track_lg_ly->at(itrack),track_angle_lx->at(itrack),track_lg_blockch->at(itrack),tbx,tby);
+	   // double calib_pos_dep = CalcCalibPar(track_lg_ly->at(itrack),track_lg_blockch->at(itrack),tbx);
 	   adcsumd=adcsumd*calib_pos_dep;
 	 }
        }
@@ -4313,34 +4336,34 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/ALL: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][1][1],ntrack[(i+3)%5][3],(double)vasub2d[2][i][1][1]/(double)ntrack[(i+3)%5][3],sqrt((double)vasub2d[2][i][1][1])/(double)ntrack[(i+3)%5][3]),"");
      leff2[i]->Draw();
    }
-   // if(hbdclthr==1){
-   //   std::ofstream psum("purity_wocsa.txt",ios::app);
-   //   psum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
-   //   }
-   //   psum<<std::endl;
-   //   std::ofstream esum("lgeff_wocsa.txt",ios::app);
-   //   esum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
-   //   }
-   //   esum<<std::endl;
-   // }
-   // if(hbdclthr==2){
-   //   std::ofstream psum("purity_wcsa.txt",ios::app);
-   //   psum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
-   //   }
-   //   psum<<std::endl;
-   //   std::ofstream esum("lgeff_wcsa.txt",ios::app);
-   //   esum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
-   //   }
-   //   esum<<std::endl;
-   // }
+   if(hbdclthr==1){
+     std::ofstream psum("purity_wocsa.txt",ios::app);
+     psum<<hbdthr<<" ";
+     for(int i=0;i<4;i++){
+       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
+     }
+     psum<<std::endl;
+     std::ofstream esum("lgeff_wocsa.txt",ios::app);
+     esum<<hbdthr<<" ";
+     for(int i=0;i<4;i++){
+       esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
+     }
+     esum<<std::endl;
+   }
+   if(hbdclthr==2){
+     std::ofstream psum("purity_wcsa.txt",ios::app);
+     psum<<hbdthr<<" ";
+     for(int i=0;i<4;i++){
+       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
+     }
+     psum<<std::endl;
+     std::ofstream esum("lgeff_wcsa.txt",ios::app);
+     esum<<hbdthr<<" ";
+     for(int i=0;i<4;i++){
+       esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
+     }
+     esum<<std::endl;
+   }
    // Efficiency Summary   
 
    //draw residual HBD-LG mix
@@ -4508,6 +4531,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    cdef->SaveAs(outfile+"]","pdf");
 
    // outtext.close();
+   g->Write();
    fouthist->Write();
    fouthist->Close();
    delete geometry;
