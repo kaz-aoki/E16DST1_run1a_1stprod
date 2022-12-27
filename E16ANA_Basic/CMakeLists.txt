@@ -57,3 +57,11 @@ add_executable(mockdataIOtestSimple
 target_link_libraries(mockdataIOtestSimple
   E16ANA_Basic
 )
+#________________________________________________
+add_executable(FMfieldDump
+  usr/FMfieldDump.cc
+)
+
+target_link_libraries(FMfieldDump
+  E16ANA_Basic
+)

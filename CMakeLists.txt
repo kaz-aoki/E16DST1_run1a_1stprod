@@ -586,5 +586,23 @@ target_link_libraries(check_lorentz_effect_220918_wrapper
 )
 
 #_______________________________________________________________________________
+add_executable(tmp_list_n_events
+  usr/tmp/tmp_list_n_events.cc
+)
+
+target_link_libraries(tmp_list_n_events
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(draw_field_diff_221227
+  usr/tmp/draw_field_diff_221227.cc
+)
+
+target_link_libraries(draw_field_diff_221227
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
