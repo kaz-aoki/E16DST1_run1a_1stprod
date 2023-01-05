@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   hbd_dead_ch.ReadDeadChannelData(run_id);
   auto lg_dead_ch = E16ANA_LGDeadChannel();
   lg_dead_ch.ReadDeadChannelData();
-  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
+  auto data_merger = E16ANA_MakeDummyDST1(0, gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
                                           &hbd_dead_ch, &lg_dead_ch);
   
   array<array<double, 4>, 2> n_events; // 0: all, 1: waveform dead, 2: waveform alive, discri. dead 3: alive

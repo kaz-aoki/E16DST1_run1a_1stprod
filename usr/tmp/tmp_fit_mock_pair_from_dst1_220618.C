@@ -49,30 +49,7 @@ double tmp_fit_mock_pair_from_dst1_220618::CalcMass(int flag, const TVector3& mo
   return sqrt(mass2[0] + mass2[1] + 2. * (e0 * e1 - p0p1));
 }
 
-void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int max_events, const TString& out_name) {
-//   In a ROOT session, you can do:
-//      root> .L tmp_fit_mock_pair_from_dst1_220618.C
-//      root> tmp_fit_mock_pair_from_dst1_220618 t
-//      root> t.GetEntry(12); // Fill t data members with entry number 12
-//      root> t.Show();       // Show values of entry 12
-//      root> t.Show(16);     // Read and show values of entry 16
-//      root> t.Loop();       // Loop on all entries
-//
-
-//     This is the loop skeleton where:
-//    jentry is the global entry number in the chain
-//    ientry is the entry number in the current Tree
-//  Note that the argument to GetEntry must be:
-//    jentry for TChain::GetEntry
-//    ientry for TTree::GetEntry and TBranch::GetEntry
-//
-//       To read only selected branches, Insert statements like:
-// METHOD1:
-//    fChain->SetBranchStatus("*",0);  // disable all branches
-//    fChain->SetBranchStatus("branchname",1);  // activate branchname
-// METHOD2: replace line
-//    fChain->GetEntry(jentry);       //read all branches
-//by  b_branchname->GetEntry(ientry); //read only this branch
+void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, double vtx_z_coef, int max_events, const TString& out_name) {
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntries();
   Long64_t nbytes = 0, nb = 0;
@@ -191,6 +168,7 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
   int      fit_flag;
   double   fit_mass;
   // pair fit
+//  double   pair_fit_vtx_z_coef;
   double   pair_fit_chi2;
   TVector3 pair_fit_vtx;
   TVector3 pair_fit_plus_init_mom;
@@ -316,7 +294,8 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
   out_tree.Branch("fit_flag",                  &fit_flag,     "fit_flag/I");
   out_tree.Branch("fit_mass",                  &fit_mass,     "fit_mass/D");
   // pair fit
-  out_tree.Branch("pair_fit_chi2",              &pair_fit_chi2, "pair_fit_chi2/D");
+  out_tree.Branch("pair_fit_vtx_z_coef",        &vtx_z_coef,          "pair_fit_vtx_z_coef/D");
+  out_tree.Branch("pair_fit_chi2",              &pair_fit_chi2,       "pair_fit_chi2/D");
   out_tree.Branch("pair_fit_vtx",               &pair_fit_vtx);
   out_tree.Branch("pair_fit_plus_init_mom",     &pair_fit_plus_init_mom);
   out_tree.Branch("pair_fit_plus_ssd_lpos",     &pair_fit_plus_ssd_lpos);
@@ -554,7 +533,11 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
     fit_minus_vtx_mom.SetXYZ(fit_hep_minus_vtx_mom.x(), fit_hep_minus_vtx_mom.y(), fit_hep_minus_vtx_mom.z());
     // pair fit
     fitter.Clear();
-    fitter.SetInitialVertex(kInitVertex[vtx_z_flag], kVertexSigma);
+    if (vtx_z_coef == 0.) {
+      fitter.SetInitialVertex(kInitVertex[vtx_z_flag], kVertexSigma);
+    } else {
+      fitter.SetInitialVertex(TVector3(0., 0., mock_vtx.Z() * vtx_z_coef), kVertexSigma);
+    }
     fitter.SetCharge(0, 1.);
 #ifndef FROM_MOCK
     fitter.SetInitialMomentum(0, pre_fit_plus_init_mom);
@@ -595,8 +578,13 @@ void tmp_fit_mock_pair_from_dst1_220618::Loop(int vtx_z_flag, int mass_flag, int
 #endif
     fitter.SetRungeKuttaStepSize(kStepSize);
     fitter.SetMaxSteps(kMaxSteps);
-    pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ[vtx_z_flag], kStrategy, kMaxFuncCalls,
-                                         kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+    if (vtx_z_coef == 0.) {
+      pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, kFixVtxZ[vtx_z_flag], kStrategy, kMaxFuncCalls,
+                                           kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+    } else {
+      pair_fit_chi2           = fitter.Fit(kFixVtxXY, kFixPy, true, kStrategy, kMaxFuncCalls,
+                                           kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+    }
     pair_fit_vtx            = fitter.GetFitVertex();
     pair_fit_plus_init_mom  = fitter.GetFitMomentum(0);
     pair_fit_minus_init_mom = fitter.GetFitMomentum(1);

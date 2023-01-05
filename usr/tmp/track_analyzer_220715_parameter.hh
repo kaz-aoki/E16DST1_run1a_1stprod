@@ -18,7 +18,7 @@ enum {
 constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
-constexpr bool kExecuteEventMixing = false;
+constexpr bool kExecuteEventMixing = true;
 constexpr int  kMaxPastEntries     = 1;
 constexpr bool kMixOneTrackEvent   = true;
 //
@@ -106,7 +106,7 @@ constexpr int    kHBDSelection         = kNotUseHBDProb;
 constexpr double kMinLGADC       = 10.;
 constexpr double kMinLGTime      = -1000.;
 constexpr double kMaxLGTime      = 1000.;
-constexpr int    kUseClulsterDuplicationCut = kNoClusterDuplicationCut;
+constexpr int    kUseClulsterDuplicationCut = kSSDAndGTRDuplicationCut;
 //constexpr bool   kUseHBDDuplicationCut = true;
 
 // Pair selection

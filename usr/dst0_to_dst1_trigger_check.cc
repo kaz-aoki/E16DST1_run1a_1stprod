@@ -131,8 +131,9 @@ int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
 #else
-  if (argc != 7) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout]" << endl;
+  if (argc != 8) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [smear flag]" << endl;
+    cerr << "smear flag 0: no smear, 1: design smear, 2: TDR2105 smear, 3: other" << endl;
 #endif
     return -1;
   }
@@ -143,6 +144,11 @@ int main(int argc, char* argv[]) {
   auto event_end     = stoi(argv[5]);
 #ifdef TRACK_EFF_CHECK
   auto mock_data_name = argv[6];
+  auto smear_flag     = stoi(argv[7]);
+  if (smear_flag < 0 || smear_flag > 3) {
+    cerr << "Invalid smear flag: " << smear_flag << endl;
+    return -1;
+  }
 #endif
 //  bpo::variables_map vm;
 //  string in_file_name;
@@ -254,8 +260,8 @@ int main(int argc, char* argv[]) {
   hbd_dead_ch.ReadDeadChannelData(run_id);
   auto lg_dead_ch = E16ANA_LGDeadChannel();
   lg_dead_ch.ReadDeadChannelData();
-  auto data_merger = E16ANA_MakeDummyDST1(gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
-                                          &hbd_dead_ch, &lg_dead_ch);
+  auto data_merger = E16ANA_MakeDummyDST1(smear_flag, gtr_analyzers, gtr_stat.ASDDeadChannel(),
+                                          gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(), &hbd_dead_ch, &lg_dead_ch);
 
 #endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
