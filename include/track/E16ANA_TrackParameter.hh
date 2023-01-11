@@ -66,12 +66,21 @@ const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const TVector3 kInitPosError = {2., 2., 0.};
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
+#ifndef TRACK_FIND_WO_TARGET
 constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.1, 0.1, 0.1}; // 220413 for statistics check
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
                                             1. / (kXSigma[3] * kXSigma[3]),
                                             1. / (kXSigma[4] * kXSigma[4])};
+#else // TRACK_FIND_WO_TARGET
+//constexpr const std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kXSigma = {0.025, 0.1, 0.1, 0.1};
+constexpr const std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kXSigma = {0.25, 1., 1., 1.};
+constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
+                                            1. / (kXSigma[1] * kXSigma[1]),
+                                            1. / (kXSigma[2] * kXSigma[2]),
+                                            1. / (kXSigma[3] * kXSigma[3])};
+#endif // TRACK_FIND_WO_TARGET
 constexpr std::array<double, 3> kYSigma = {1., 1., 1.}; // y rough fit
 constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[1] * kYSigma[1]),
@@ -86,11 +95,23 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 2
 //constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 100.}; // Ozawa modification 220620-2 Ozawa's final value?
 ////constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 130.}; // Ozawa modification 220620-3
 constexpr double kGTRPeakSumThresholdY = 50.;
+#ifdef TRACK_FIND_WO_TARGET
+constexpr std::array<double, 2> kXCurveCorrWindow = {0.2, 1.};
+#endif // TRACK_FIND_WO_TARGET
+#ifdef TRACK_FIND_WO_TARGET
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 20.}; // x, y // 220413 for statistics check, 220418 for production
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {25., 0., 0.001};
 //constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.01}; // 220413 for statistics check
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
+#else // TRACK_FIND_WO_TARGET
+// constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {10., 10.}; // x, y
+// constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {1., 0.1, 0.002};
+// constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {40., 0.}; // coef[1] not used.
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {10., 10.}; // x, y
+constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {1., 0.1, 0.002};
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {40., 0.}; // coef[1] not used.
+#endif // TRACK_FIND_WO_TARGET
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
@@ -103,8 +124,13 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 // other
 constexpr bool kExecutePairFit = false;
 constexpr bool kReqHBDAssociation = true;
-constexpr double kHBDRadius = 1200.;
+//constexpr double kHBDRadius = 1200.;
+constexpr double kHBDRadius = 1196.;
+#ifndef TRACK_FIND_WO_TARGET
 constexpr double kMaxHBDRoughXRes = 180.;
+#else // TRACK_FIND_WO_TARGET
+constexpr double kMaxHBDRoughXRes = 80.;
+#endif // TRACK_FIND_WO_TARGET
 constexpr double kMaxHBDRoughYRes = 22.5; // HBD y residual 3 sigma = 3 x 5.6 mm, 99 % threshold of residual between rough fit and RK fit = 15 mm
 constexpr double kMinHBDADCForRK = 2.;
 

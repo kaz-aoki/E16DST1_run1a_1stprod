@@ -27,12 +27,14 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
+add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
+
 #add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DMERGE_TRACK_PAIR)
 ##add_definitions(-DMOCK_VECTOR_MESON)
 #add_definitions(-DMOCK_KS)
 #add_definitions(-DREMOVE_REAL_HIT)
-##add_definitions(-DREMOVE_DEAD_REGION_CUT)
+#add_definitions(-DREMOVE_DEAD_REGION_CUT)
 ##add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
 #add_definitions(-DWO_LAYER_EFF)
 
@@ -600,6 +602,17 @@ add_executable(draw_field_diff_221227
 )
 
 target_link_libraries(draw_field_diff_221227
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(tmp_check_track_finding_230106
+  usr/tmp/tmp_check_track_finding_230106_wrapper.cc
+  usr/tmp/tmp_check_track_finding_230106.C
+)
+
+target_link_libraries(tmp_check_track_finding_230106
   E16ANA_Basic
 )
 
