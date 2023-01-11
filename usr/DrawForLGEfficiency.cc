@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     if(runtype==0){
       // in_chain->Add("./out/root03a/trackselection_chisq30_fflag01.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root03a/trackselection_prod220212_chisq30.root");
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v52/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v58/*.root");
     }
     else if(runtype==1){
       // in_chain->Add("./out/root/trackselection_5e9*.root");
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_22032501.root");//gas
       //*******
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v36/*.root");//vmeson; production new
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v55/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/lsf/*.root");
     }
     else if(runtype==2){
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_1e9FM*.root");

@@ -2695,6 +2695,12 @@ void AnalyzerTrackSelection::DrawForTrackSelection(int runoption, int maxevent, 
 void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, char* out_file_name, char* out_root_name, double hbdthr, int hbdclthr)
 {
 
+   std::ofstream wfout[5];
+   for(int i=0;i<5;i++){
+     std::string mod = to_string(i+103);
+     std::string wfoutname = "wf" + mod + ".txt";
+     wfout[i].open(wfoutname);
+   }
    if (fChain == 0) return;
 
    TFile *fouthist = new TFile(out_root_name,"recreate");
@@ -2725,6 +2731,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    bool hbdass_in_dst1 = false;
    bool new_cluster_method = true;//221006
    bool w_calib_pos_dep = true;//calib parameter w/ position dependence
+   if(runoption==0){w_calib_pos_dep=false;}
    int w_ssd_timing_match = 0;// 0: not required, 1: required but return maxadc, 2: required
    int searchx = 100;//for lg cluster
    int searchy = 100;//for lg cluster
@@ -3100,6 +3107,18 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        btrktype[0]=IsGoodTrack(ientry,itrack,tracksets[0]);
        if(HBDhit){
 	 btrktype[1]=IsGoodTrack(ientry,itrack,tracksets[1]);
+	 //
+	 if(btrktype[1]>=0){
+	   wfout[lmide]<<run_id<<" "<<event_id<<" "<<track_lg_mid->at(itrack)<<" "<<track_lg_blockch->at(itrack)<<" "<<track_position_block_lx->at(itrack)<<" "<<track_position_block_ly->at(itrack)<<" "<<track_angle_lx->at(itrack)<<" "<<track_angle_ly->at(itrack)<<" "<<track_mom->at(itrack)<<" "<<track_ssd_t->at(itrack)+ssdoffset<<" "<<rk_charge->at(itrack);
+	   std::vector<int> tmp_cids(0);
+	   CalcClusterCand(*geometry, tmp_cids, track_lg_blockch->at(itrack), track_position_block_lx->at(itrack), track_position_block_ly->at(itrack), track_angle_lx->at(itrack));
+	   wfout[lmide]<<" "<<tmp_cids.size();
+	   for(int icc=0;icc<tmp_cids.size();icc++){
+	     wfout[lmide]<<" "<<tmp_cids.at(icc);
+	   }
+	   wfout[lmide]<<std::endl;
+	 }
+	 //
        }
        if(LGhit){
 	 btrktype[2]=IsGoodTrack(ientry,itrack,tracksets[2]);
@@ -4336,34 +4355,34 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      leff2[i]->AddEntry((TObject*)0,Form("TrkPurity w/ALL: %d/%d=%1.3f +/- %1.3f",vasub2d[2][i][1][1],ntrack[(i+3)%5][3],(double)vasub2d[2][i][1][1]/(double)ntrack[(i+3)%5][3],sqrt((double)vasub2d[2][i][1][1])/(double)ntrack[(i+3)%5][3]),"");
      leff2[i]->Draw();
    }
-   if(hbdclthr==1){
-     std::ofstream psum("purity_wocsa.txt",ios::app);
-     psum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
-     }
-     psum<<std::endl;
-     std::ofstream esum("lgeff_wocsa.txt",ios::app);
-     esum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
-     }
-     esum<<std::endl;
-   }
-   if(hbdclthr==2){
-     std::ofstream psum("purity_wcsa.txt",ios::app);
-     psum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
-     }
-     psum<<std::endl;
-     std::ofstream esum("lgeff_wcsa.txt",ios::app);
-     esum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
-     }
-     esum<<std::endl;
-   }
+   // if(hbdclthr==1){
+   //   std::ofstream psum("purity_wocsa.txt",ios::app);
+   //   psum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
+   //   }
+   //   psum<<std::endl;
+   //   std::ofstream esum("lgeff_wocsa.txt",ios::app);
+   //   esum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
+   //   }
+   //   esum<<std::endl;
+   // }
+   // if(hbdclthr==2){
+   //   std::ofstream psum("purity_wcsa.txt",ios::app);
+   //   psum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" ";
+   //   }
+   //   psum<<std::endl;
+   //   std::ofstream esum("lgeff_wcsa.txt",ios::app);
+   //   esum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" ";
+   //   }
+   //   esum<<std::endl;
+   // }
    // Efficiency Summary   
 
    //draw residual HBD-LG mix
@@ -4530,7 +4549,6 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 
    cdef->SaveAs(outfile+"]","pdf");
 
-   // outtext.close();
    g->Write();
    fouthist->Write();
    fouthist->Close();

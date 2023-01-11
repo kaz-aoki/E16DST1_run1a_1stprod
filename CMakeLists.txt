@@ -432,6 +432,13 @@ target_link_libraries(check_lggaincalib
 )
 
 #_______________________________________________________________________________
+add_executable(check_lgwf_wtrack usr/tmp/check_lgwf_wtrack.cc)
+
+target_link_libraries(check_lgwf_wtrack
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(LGHitADC usr/tmp/LGHitADC.cc)
 
 target_link_libraries(LGHitADC
