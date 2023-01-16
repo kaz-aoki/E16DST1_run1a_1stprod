@@ -372,6 +372,15 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST_DST1
 )
 
+#--------------------------------------------------------------------------------
+add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
+
+target_link_libraries(make_gtr_apv_status_file
+	E16DST
+	E16DST_DST1
+)
+
+
 #_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
