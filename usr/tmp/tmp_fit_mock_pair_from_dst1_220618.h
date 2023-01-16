@@ -16,6 +16,8 @@
 // Header file for the classes stored in the TTree if any.
 #include "vector"
 
+#include "E16ANA_MagneticFieldMap.hh"
+
 class tmp_fit_mock_pair_from_dst1_220618 {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -1926,6 +1928,7 @@ public :
     kPiPiMass
   };
   TVector3 SmearPosition(int layer_id, int module_id, const TVector3& pos);
+  int CalcZ0Track(int charge, const TVector3& init_pos, const TVector3& init_mom, E16ANA_MagneticFieldMap& bfield_map, TVector3* z0_pos, TVector3* z0_mom);
   double CalcMass(int flag, const TVector3& mom0, const TVector3& mom1);
 };
 

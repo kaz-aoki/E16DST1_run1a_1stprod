@@ -153,10 +153,12 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   for (auto& fit_result : fit_results) {
     fit_result.set_flag = 0;
   }
+#ifndef TRACK_FIND_WO_TARGET
 //  if (!CalcRoughMomentum()) {
   if (!CalcRoughMomentumV2()) {
     std::cerr << "Cannot calculate rough momentum" << std::endl;
   }
+#endif // TRACK_FIND_WO_TARGET
   int tid = 0; // only 1 track is fitted by the fitter
   single_track->Clear();
 //  single_track->SetInitialVertex(init_pos, kInitPosError);
@@ -754,14 +756,31 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
 }
 
 #else // TRACK_FIND_WO_TARGET
-bool E16ANA_TrackCandidates::IsCurveCorrelation(const array<TVector3, kNumTrackingLayers>& pos_set, array<double, 2>* dists) {
+int E16ANA_TrackCandidates::ModuleSetType(const OneAxisClusterSet& cluster_set) {
+  int t = 0;
+  if (cluster_set.ssd_cluster->ModuleId() % 2 == 1) {
+    t += 1;
+  }
+  if (cluster_set.gtr_clusters[0]->ModuleId() % 2 == 0) {
+    t += 2;
+  }
+  if (cluster_set.gtr_clusters[1]->ModuleId() % 2 == 0) {
+    t += 1;
+  }
+  if (cluster_set.gtr_clusters[2]->ModuleId() % 2 == 1) {
+    t += 1;
+  }
+  return t;
+}
+
+bool E16ANA_TrackCandidates::IsCurveCorrelation(int module_set_type, const array<TVector3, kNumTrackingLayers>& pos_set, array<double, 2>* dists) {
   for (int i = 0; i < 2; ++i) {
     double coef1 = (pos_set[2 + i].X() - pos_set[i].X()) / (pos_set[2 + i].Z() - pos_set[i].Z());
     double coef0 = pos_set[i].X() - coef1 * pos_set[i].Z();
     (*dists)[i]  = fabs(coef1 * pos_set[1 + i].Z() + coef0 - pos_set[1 + i].X()) / sqrt(coef1 * coef1 + 1.);
   }
   double dist_ratio = (*dists)[0] / (*dists)[1];
-  if (dist_ratio < kXCurveCorrWindow[0] || dist_ratio > kXCurveCorrWindow[1]) {
+  if (dist_ratio < kXCurveCorrWindow[module_set_type][0] || dist_ratio > kXCurveCorrWindow[module_set_type][1]) {
     return false;
   }
   return true;
@@ -845,7 +864,9 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(double rot_cos, double rot_sin,
 }
 
 void E16ANA_TrackCandidates::CalcRoughZXMomentum(double xcoef2, const array<TVector3, 4>& pos_set, double* mom, TVector3* mom_zx) {
-  constexpr double kBy = 1.3; 
+//  constexpr double kBy = 1.3; 
+  constexpr double kBy = 1.13; 
+  constexpr double kXMomOffset = 0.015;
   double cogz = 0.;
   double cogx = 0.;
   for (int i = 0; i < 4; ++i) {
@@ -881,17 +902,30 @@ void E16ANA_TrackCandidates::CalcRoughZXMomentum(double xcoef2, const array<TVec
   *mom = 0.3 * (r  * 0.001) * kBy;
   double sin = (pos_set[0].X() - (cx + cogx)) / r;
   double cos = (pos_set[0].Z() - (cz + cogz)) / r;
+//  if (xcoef2 > 0.) {
+//    mom_zx->SetXYZ(cos * (*mom), 0., -1. * sin * (*mom));
+//  } else {
+//    mom_zx->SetXYZ(-1. * cos * (*mom), 0., sin * (*mom));
+//  }
   if (xcoef2 > 0.) {
-    mom_zx->SetXYZ(cos * (*mom), 0., -1. * sin * (*mom));
+    if (cos > 0.) {
+      mom_zx->SetXYZ(cos * (*mom) - kXMomOffset, 0., -1. * sin * (*mom));
+    } else {
+      mom_zx->SetXYZ(cos * (*mom) + kXMomOffset, 0., -1. * sin * (*mom));
+    }
   } else {
-    mom_zx->SetXYZ(-1. * cos * (*mom), 0., sin * (*mom));
+    if (cos < 0.) {
+      mom_zx->SetXYZ(-1. * cos * (*mom) - kXMomOffset, 0., sin * (*mom));
+    } else {
+      mom_zx->SetXYZ(-1. * cos * (*mom) + kXMomOffset, 0., sin * (*mom));
+    }
   }
   return;
 }
 
 bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
-  if (!IsCurveCorrelation(pos_set, &(cluster_set->dists))) {
+  if (!IsCurveCorrelation(ModuleSetType(*cluster_set), pos_set, &(cluster_set->dists))) {
   #ifdef TRACK_EFF_CHECK
     for (int i = 0; i < 2; ++i) {
       if (is_sim_xcluster[i][0] && is_sim_xcluster[i][1] && is_sim_xcluster[i][2] && is_sim_xcluster[i][3]) {
@@ -922,7 +956,9 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
 
 // HBD check
   if (chi2_cand < kRoughFitChiSquareThreshold[0] &&
-      fabs(coefs[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coefs[2]) < kRoughXFitCoefficientThreshold[2]) {
+      fabs(coefs[0]) < kRoughXFitCoefficientThreshold[0] &&
+      fabs(coefs[1]) < kRoughXFitCoefficientThreshold[1] &&
+      fabs(coefs[2]) < kRoughXFitCoefficientThreshold[2]) {
     if (!kReqHBDAssociation || HasXAssociatedHBD(rot_cos, rot_sin, *cluster_set, coefs,
                                                  &(cluster_set->hbd_indexs), &(cluster_set->hbd_ids), &(cluster_set->hbd_ress))) {
       cluster_set->charge     = coefs[2] > 0 ? 1 : -1;
@@ -943,6 +979,9 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
       }
       if (fabs(coefs[0]) >= kRoughXFitCoefficientThreshold[0]) {
         x_fit_reject_point[i] += Pow2(kRejTgt0XCoef0);
+      }
+      if (fabs(coefs[1]) >= kRoughXFitCoefficientThreshold[1]) {
+        x_fit_reject_point[i] += Pow2(kRejTgt0XCoef1);
       }
       if (fabs(coefs[2]) >= kRoughXFitCoefficientThreshold[2]) {
         x_fit_reject_point[i] += Pow2(kRejTgt0XCoef2);
@@ -1286,9 +1325,11 @@ E16INFO("number of y candidates: %d", n_y_cands);
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
       tmp_cand.SetYChiSquare(y_cand.chi_square);
+#ifdef TRACK_FIND_WO_TARGET
       for (int i = 0; i < 2; ++i) {
         tmp_cand.SetXDist(i, x_cand.dists[i]);
       }
+#endif // TRACK_FIND_WO_TARGET
       for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
         tmp_cand.SetXCoef(i, x_cand.coefs[i]);
       }

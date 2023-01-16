@@ -3011,10 +3011,20 @@ class E16ANA_TrackCheckFile {
         rk_proj_lg_fflag[i][j]  = lghit->FitFlag();
       }
 #ifdef TRACK_EFF_CHECK
-      is_sim_track[i] = rk_hit_ssd_id[i]     >= 10000 &&
-                        rk_hit_gtr100_xid[i] >= 10000 && rk_hit_gtr100_yid[i] >= 10000 &&
-                        rk_hit_gtr200_xid[i] >= 10000 && rk_hit_gtr200_yid[i] >= 10000 &&
-                        rk_hit_gtr300_xid[i] >= 10000 && rk_hit_gtr300_yid[i] >= 10000;
+      std::array<int, 7> cids = {rk_hit_ssd_id[i] / 10000,
+                                 rk_hit_gtr100_xid[i] / 10000, rk_hit_gtr100_yid[i] / 10000,
+                                 rk_hit_gtr200_xid[i] / 10000, rk_hit_gtr200_yid[i] / 10000,
+                                 rk_hit_gtr300_xid[i] / 10000, rk_hit_gtr300_yid[i] / 10000};
+      is_sim_track[i] = false;
+      if (cids[0] != 0) {
+        is_sim_track[i] = true;
+        for (const auto& cid : cids) {
+          if (cid != cids[0]) {
+            is_sim_track[i] = false;
+            break;
+          }
+        }
+      }
 #endif // TRACK_EFF_CHECK
 //      rk_proj_hbd0_id[i] = -10000;
 //      rk_proj_hbd0_mid[i] = -10000;
