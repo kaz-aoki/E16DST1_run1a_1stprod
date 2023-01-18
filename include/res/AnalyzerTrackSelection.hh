@@ -957,8 +957,10 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   // if(run_id!=30302&&(run_id<30294||run_id>30297)) {return -1;}//setH
   // if(run_id!=30302&&(run_id<30294||run_id>30297)&&(run_id<30314||run_id>30317)) {return -1;}//setGH
   // if(run_id>=30303&&run_id<=30306) {return -1;}//w/o setEF
-  int thr[7] = {10, 15, 20, 25, 10, 15, 20};
-  // if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
+  // int thr[7] = {10, 15, 20, 25, 10, 15, 20};//EID
+  int thr[7] = {10, 15, 20, 25, 10, 15, 20};//Ks
+  if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
+  // if (track_ssd_adc->at(itrack)>150) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   // if (track_mom->at(itrack) > 3.) {return -1;}
   // if (track_mom->at(itrack) < 1.6) {return -1;}
