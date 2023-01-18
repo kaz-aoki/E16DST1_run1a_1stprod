@@ -21,6 +21,7 @@ TVector3 E16ANA_TrackCandidate::InitPosError() { return kInitPosError; }
 int E16ANA_TrackCandidate::TrackingMaxSteps() { return kTrackingMaxSteps; }
 int E16ANA_TrackCandidate::ProjectionMaxSteps() { return kProjectionMaxSteps; }
 
+#ifndef TRACK_FIND_WO_TARGET
 TVector3 E16ANA_TrackCandidate::CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1) {
   TVector3 rough_mom;
   TVector3 u0 = ConformalTransformation(gxz0);
@@ -135,19 +136,20 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
   }
   double py = p * the;
 //  init_mom.SetXYZ(p*cos0, py, p*sin0);
-constexpr double mom_range = 3.;
-auto tmp_mom = TVector3(p * cos0, py, p * sin0);
-for (int i = 0; i < 3; ++i) {
-  if (tmp_mom(i) > mom_range) {
-    tmp_mom(i) = 3.;
-  } else if (tmp_mom(i) < -1. * mom_range) {
-    tmp_mom(i) = -3.;
+  constexpr double mom_range = 3.;
+  auto tmp_mom = TVector3(p * cos0, py, p * sin0);
+  for (int i = 0; i < 3; ++i) {
+    if (tmp_mom(i) > mom_range) {
+      tmp_mom(i) = 3.;
+    } else if (tmp_mom(i) < -1. * mom_range) {
+      tmp_mom(i) = -3.;
+    }
   }
-}
-init_mom.SetXYZ(tmp_mom.X(), tmp_mom.Y(), tmp_mom.Z());
+  init_mom.SetXYZ(tmp_mom.X(), tmp_mom.Y(), tmp_mom.Z());
   init_circ.SetXYZ(x0, y0, r);
   return true;
 }
+#endif // TRACK_FIND_WO_TARGET
 
 void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   for (auto& fit_result : fit_results) {
@@ -168,40 +170,60 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   single_track->SetInitialVertex(init_pos, kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
-  for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
-    if (l != E16ANA_TrackConstant::kSSD) {
-      auto& c      = cluster_pairs[l];
+  for (int l = kGTR100; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+    auto& c      = cluster_pairs[l];
 #ifdef TRACK_EFF_CHECK
-      auto cid = c.Cluster(0)->ClusterId();
-      if (cid >= kMockClusterID) {
-        cluster_pairs[l].SetT(geometry, l, c.ModuleID(), c.LocalPos());
-        continue;
-      }
-#endif // TRACK_EFF_CHECK
-      double phi   = atan2(c.GlobalPos().Z()-init_circ.Y(),c.GlobalPos().X()-init_circ.X());
-      double x0    = init_circ.X()+init_circ.Z()*cos(phi);
-      double z0    = init_circ.Y()+init_circ.Z()*sin(phi);
-      double x1    = x0-sin(phi);
-      double z1    = z0+cos(phi);
-      TVector3 lc0 = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()),c.LayerOrder() - 1)->GetLPos(TVector3(x0,0,z0));
-      TVector3 lc1 = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()),c.LayerOrder() - 1)->GetLPos(TVector3(x1,0,z1));
-      double  thet = atan((lc1.X()-lc0.X())/(lc1.Z()-lc0.Z()));
-      int lid      = c.LayerOrder()-1;
-      double  tthe = tan(thet - kGTRLorentzAngleV2[lid]);
-      c.SetTheta(tthe);
-      double sumx =0;
-      int nhit = c.NumCls();
-      for(int j=0;j<nhit;j++){
-        double lz = c.CTiming(j)*drift_v*cos(kGTRLorentzAngleV2[lid]);//106
-        sumx  += c.CPos(j)  - (tthe*lz);
-      }
-      double intc  = sumx/nhit;
-      double ltdc2 = intc+tthe*centtdc*drift_v*cos(kGTRLorentzAngleV2[lid])+kGTRLorentzLengthV2[lid];
-      TVector3 lc(ltdc2,c.LocalPos().Y(),c.LocalPos().Z());
-      cluster_pairs[l].SetT(geometry,l,c.ModuleID(), lc);
-      auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
-      //printf("l:%d,  nhit:%d,  the1:%f, the2:%f,  x1:%f,  x2:%f, time:%f  \n",l,nhit,xclst->TanTheta(),tthe,c.LocalPos().X(),ltdc2,xclst->Timing());
+    auto cid = c.Cluster(0)->ClusterId();
+    if (cid >= kMockClusterID) {
+      cluster_pairs[l].SetT(geometry, l, c.ModuleID(), c.LocalPos());
+      continue;
     }
+#endif // TRACK_EFF_CHECK
+#ifndef TRACK_FIND_WO_TARGET
+    double phi   = atan2(c.GlobalPos().Z()-init_circ.Y(),c.GlobalPos().X()-init_circ.X());
+    double x0    = init_circ.X()+init_circ.Z()*cos(phi);
+    double z0    = init_circ.Y()+init_circ.Z()*sin(phi);
+    double x1    = x0-sin(phi);
+    double z1    = z0+cos(phi);
+    TVector3 lc0 = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()),c.LayerOrder() - 1)->GetLPos(TVector3(x0,0,z0));
+    TVector3 lc1 = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()),c.LayerOrder() - 1)->GetLPos(TVector3(x1,0,z1));
+    double  thet = atan((lc1.X()-lc0.X())/(lc1.Z()-lc0.Z()));
+    int lid      = c.LayerOrder()-1;
+    double  tthe = tan(thet) - tan(kGTRDriftLorentzAngle[lid]);
+    c.SetTheta(tthe);
+    double sumx =0;
+    int nhit = c.NumCls();
+    for(int j=0;j<nhit;j++){
+      double lz = c.CTiming(j)*kGTRDriftVelocity*cos(kGTRDriftLorentzAngle[lid]);//106
+      sumx  += c.CPos(j)  - (tthe*lz);
+    }
+    double intc  = sumx/nhit;
+    double ltdc2 = intc+tthe*kGTRTDCCenter[l - 1]*kGTRDriftVelocity*cos(kGTRDriftLorentzAngle[lid])+kGTRGEMLorentzLength[lid];
+    TVector3 lc(ltdc2,c.LocalPos().Y(),c.LocalPos().Z());
+    cluster_pairs[l].SetT(geometry,l,c.ModuleID(), lc);
+#else // TRACK_FIND_WO_TARGET
+    auto g_angle = atan2(c.GlobalPos().X() - circ_center.X(), c.GlobalPos().Z() - circ_center.Z());
+    auto gpos0   = TVector3(circ_center.X() + sin(g_angle) * radius, 0., circ_center.Z() + cos(g_angle) * radius);
+    auto gpos1   = TVector3(gpos0.X() - sin(g_angle), 0., gpos0.Z() + cos(g_angle));
+    auto mid2013 = ModuleID2020To2013(c.ModuleID());
+    auto lpos0   = geometry->GTR(mid2013, l - 1)->GetLPos(gpos0);
+    auto lpos1   = geometry->GTR(mid2013, l - 1)->GetLPos(gpos1);
+    auto l_angle = atan((lpos1.X() - lpos0.X()) / (lpos1.Z() - lpos0.Z()));
+    double x_diff_order = tan(l_angle) - kGTRDriftLorentzTangent[l - 1];
+    c.SetTheta(x_diff_order);
+    double sumx = 0.;
+    auto n_hits = c.NumCls();
+    for (int i = 0; i < n_hits; ++i) {
+      double local_z = c.CTiming(i) * kGTRDriftVelocity * kGTRDriftLorentzCosine[l - 1];
+      sumx += c.CPos(i) - x_diff_order * local_z;
+    }
+    double xmean = sumx / n_hits;
+    double newx = xmean + x_diff_order * kGTRTDCCenter[l - 1] * kGTRDriftVelocity * kGTRDriftLorentzCosine[l - 1] + kGTRGEMLorentzLength[l - 1];
+    auto newlpos = TVector3(newx, c.LocalPos().Y(), c.LocalPos().Z());
+    cluster_pairs[l].SetT(geometry, l, c.ModuleID(), newlpos);
+#endif // TRACK_FIND_WO_TARGET
+//    auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
+//    printf("l:%d,  nhit:%d,  the1:%f, the2:%f,  x1:%f,  x2:%f, time:%f  \n",l,nhit,xclst->TanTheta(),tthe,c.LocalPos().X(),ltdc2,xclst->Timing());
   }
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
@@ -863,7 +885,8 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(double rot_cos, double rot_sin,
   return has_hbd;
 }
 
-void E16ANA_TrackCandidates::CalcRoughZXMomentum(double xcoef2, const array<TVector3, 4>& pos_set, double* mom, TVector3* mom_zx) {
+void E16ANA_TrackCandidates::CalcRoughZXMomentum(double xcoef2, const array<TVector3, 4>& pos_set,
+                                                 double* radius, TVector3* circ_center, double* mom, TVector3* mom_zx) {
 //  constexpr double kBy = 1.3; 
   constexpr double kBy = 1.13; 
   constexpr double kXMomOffset = 0.015;
@@ -902,6 +925,8 @@ void E16ANA_TrackCandidates::CalcRoughZXMomentum(double xcoef2, const array<TVec
   *mom = 0.3 * (r  * 0.001) * kBy;
   double sin = (pos_set[0].X() - (cx + cogx)) / r;
   double cos = (pos_set[0].Z() - (cz + cogz)) / r;
+  *radius = r;
+  circ_center->SetXYZ(cx + cogx, 0., cz + cogz);
 //  if (xcoef2 > 0.) {
 //    mom_zx->SetXYZ(cos * (*mom), 0., -1. * sin * (*mom));
 //  } else {
@@ -964,7 +989,7 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
       cluster_set->charge     = coefs[2] > 0 ? 1 : -1;
       cluster_set->chi_square = chi2_cand;
       cluster_set->xy = pos_set[E16ANA_TrackConstant::kSSD].X();
-      CalcRoughZXMomentum(coefs[2], pos_set, &(cluster_set->mom), &(cluster_set->mom_axis));
+      CalcRoughZXMomentum(coefs[2], pos_set, &(cluster_set->radius), &(cluster_set->circ_center), &(cluster_set->mom), &(cluster_set->mom_axis));
       for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
         cluster_set->coefs[i] = coefs[i];
       }
@@ -1318,6 +1343,8 @@ E16INFO("number of y candidates: %d", n_y_cands);
       tmp_cand.SetInitY(CalcRoughYPosition(x_cand.ssd_cluster->ModuleId(), y_cand.coefs));
       tmp_cand.SetInitZ(ssd_gpos.Z());
       tmp_cand.SetTargetID(1);
+      tmp_cand.SetRadius(x_cand.radius);
+      tmp_cand.SetCircleCenter(x_cand.circ_center);
       tmp_cand.SetInitMomX(x_cand.mom_axis.X());
       tmp_cand.SetInitMomY(CalcRoughYMomentum(x_cand.mom, y_cand.coefs[1]));
       tmp_cand.SetInitMomZ(x_cand.mom_axis.Z());

@@ -152,9 +152,13 @@ class E16ANA_TrackCandidate {
   void SetInitY(double _y) { init_pos.SetY(_y); }
   void SetInitZ(double _z) { init_pos.SetZ(_z); }
   void SetTargetID(int _target_id) { target_id = _target_id; }
+#ifdef TRACK_FIND_WO_TARGET
   void SetInitMomX(double _x) { init_mom.SetX(_x); }
   void SetInitMomY(double _y) { init_mom.SetY(_y); }
   void SetInitMomZ(double _z) { init_mom.SetZ(_z); }
+  void SetRadius(double _radius) { radius = _radius; }
+  void SetCircleCenter(const TVector3& _circ_center) { circ_center = _circ_center; }
+#endif // TRACK_FIND_WO_TARGET
   void SetSigma(int layer_index, TVector3 _sigma) { sigma[layer_index] = _sigma; }
   void SetDefaultSigma();
   void SetPosAtX0(TVector3 _pos) { pos_at_x0 = _pos; }
@@ -175,6 +179,10 @@ class E16ANA_TrackCandidate {
   int Charge() { return charge; }
   TVector3 InitPos() { return init_pos; }
   TVector3 InitMom() { return init_mom; }
+#ifdef TRACK_FIND_WO_TARGET
+  double Radius() { return radius; }
+  TVector3 CircleCenter() { return circ_center; }
+#endif // TRACK_FIND_WO_TARGET
   TVector3 Sigma(int n) { return sigma[n]; }
   TVector3 FitInitPos() { return init_pos_fit; }
   TVector3 FitInitMom() { return init_mom_fit; }
@@ -271,8 +279,8 @@ class E16ANA_TrackCandidate {
 //  static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
 //  static constexpr int kProjectionMaxSteps = 2000;
-  static constexpr double drift_v = 8e-3;
-  static constexpr double centtdc = 328;
+//  static constexpr double drift_v = 8e-3;
+//  static constexpr double centtdc = 328;
 //  static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
 //  static constexpr double kGTRLorentzAngleA[3]  = {0.313, -0.233, -0.129};
   // parameter
@@ -297,6 +305,12 @@ class E16ANA_TrackCandidate {
     this->charge = rhs.charge;
     this->init_pos = rhs.init_pos;
     this->init_mom = rhs.init_mom;
+#ifndef TRACK_FIND_WO_TARGET
+    this->init_circ = rhs.init_circ;
+#else // TRACK_FIND_WO_TARGET
+    this->radius = rhs.radius;
+    this->circ_center = rhs.circ_center;
+#endif // TRACK_FIND_WO_TARGET
     this->sigma = rhs.sigma;
 #ifdef TRACK_FIND_WO_TARGET
     this->x_dist = rhs.x_dist;
@@ -343,9 +357,11 @@ class E16ANA_TrackCandidate {
     }
     return diff;
   }
+#ifndef TRACK_FIND_WO_TARGET
   static TVector3 CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1);
   bool CalcRoughMomentum();
   bool CalcRoughMomentumV2();
+#endif // TRACK_FIND_WO_TARGET
   void AddTrackHit(E16ANA_MultiTrack* single_track);
   void Projection(E16ANA_MultiTrack* fitter);
   void UpdateFitResult(E16ANA_MultiTrack* fitter);
@@ -364,7 +380,12 @@ class E16ANA_TrackCandidate {
   int charge;
   TVector3 init_pos;
   TVector3 init_mom;
+#ifndef TRACK_FIND_WO_TARGET
   TVector3 init_circ;
+#else // TRACK_FIND_WO_TARGET
+  double radius;
+  TVector3 circ_center;
+#endif // TRACK_FIND_WO_TARGET
   std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> sigma;
   // raugh fit chi square (tmp?)
 #ifdef TRACK_FIND_WO_TARGET
@@ -562,6 +583,8 @@ class E16ANA_TrackCandidates {
     int target_id; // only x
     double xy; // init pos x and y
 #ifdef TRACK_FIND_WO_TARGET
+    double radius;
+    TVector3 circ_center;
     double mom; // only x
     TVector3 mom_axis; // init mom
 #endif // TRACK_FIND_WO_TARGET
@@ -717,7 +740,8 @@ class E16ANA_TrackCandidates {
                             std::array<double, 5>* mz, std::array<double, kNumRoughFitDegree[0]>* mzx, std::array<double, kNumRoughFitDegree[0]>* coefs);
   bool HasXAssociatedHBD(double rot_cos, double rot_sin, const OneAxisClusterSet& cluster_set, const std::array<double, kNumRoughFitDegree[0]>& coefs,
                          std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
-  void CalcRoughZXMomentum(double xcoef2, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set, double* mom, TVector3* mom_zx);
+  void CalcRoughZXMomentum(double xcoef2, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set,
+                           double* radius, TVector3* circ_center, double* mom, TVector3* mom_zx);
   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
   double CalcRoughYPosition(int ssd_mid, const std::array<double, kNumRoughFitDegree[0]>& y_coefs) {

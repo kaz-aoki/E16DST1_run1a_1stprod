@@ -59,15 +59,22 @@ constexpr int kReserve = 1024;
 //constexpr int kHeaderSize            = 1024;
 //constexpr int kNumDetectorComponents = 16; // must be even number
 
-// tmp
-const double kGTRDetectPlaneOffset  = 3. * 0.5 + 2.2 * 3.; // 8.1
-//const double kGTRLorentzLengthV2[3] = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35}; // tmp. old param
-//const double kGTRLorentzLengthV2[3] = {3.18, -2.4, -1.15}; // 1800 V, GTR module ID: 106. Morino param
-//const double kGTRLorentzLengthV2[3] = {7.5 * 0.35 * 1.28, -5.5 * 0.35 * 1.5, -3. * 0.35 * 1.45}; // 1800 V, 106. Ichikawa param
-const double kGTRLorentzLengthV2[3] = {7.5 * 0.35 * 1.11, -5.5 * 0.35 * 1.17, -3. * 0.35 * 1.09}; // 1500 V, 106. Morino param modified by Ichikawa param
-const double kGTRLorentzAngleV2[3]  = {TMath::ATan(kGTRLorentzLengthV2[0] / kGTRDetectPlaneOffset),
-                                       TMath::ATan(kGTRLorentzLengthV2[1] / kGTRDetectPlaneOffset),
-                                       TMath::ATan(kGTRLorentzLengthV2[2] / kGTRDetectPlaneOffset)}; // {0.313, -0.233, -0.129}; // tmp
+// GTR Lorentz angle correction
+constexpr double kGTRDetectPlaneOffset      = 3. * 0.5 + 2.2 * 3.; // 8.1
+//constexpr double kGTRGEMLorentzLength[3]    = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35}; // tmp. old param
+//constexpr double kGTRGEMLorentzLength[3]    = {3.18, -2.4, -1.15}; // 1800 V, GTR module ID: 106. Morino param
+//constexpr double kGTRGEMLorentzLength[3]    = {7.5 * 0.35 * 1.28, -5.5 * 0.35 * 1.5, -3. * 0.35 * 1.45}; // 1800 V, 106. Ichikawa param
+//constexpr double kGTRGEMLorentzLength[3]    = {7.5 * 0.35 * 1.11, -5.5 * 0.35 * 1.17, -3. * 0.35 * 1.09}; // 1500 V, 106. Morino param modified by Ichikawa param. same as later column
+constexpr double kGTRGEMLorentzLength[3]    = {3.18 * 0.91, -2.4 * 0.94, -1.15}; // 1800 V, GTR module ID: 106. Morino param modified by Ichikawa study
+//constexpr double kGTRLorentzAngle[3]      = {TMath::ATan(kGTRLorentzLength[0] / kGTRDetectPlaneOffset),
+//                                           TMath::ATan(kGTRLorentzLength[1] / kGTRDetectPlaneOffset),
+//                                           TMath::ATan(kGTRLorentzLength[2] / kGTRDetectPlaneOffset)}; // {0.313, -0.233, -0.129}; // tmp
+//constexpr double kGTRDriftLorentzAngle[3]   = {0.35, -0.75, -0.14}; // 1,800 V, GTR Module ID: 106. Morino parameter
+constexpr double kGTRDriftLorentzAngle[3]   = {0.35 * 0.91, -0.75 * 0.94, -0.14}; // 1,800 V, GTR Module ID: 106. Morino parameter. modified by Ichikawa study
+constexpr double kGTRDriftLorentzCosine[3]  = {std::cos(kGTRDriftLorentzAngle[0]), std::cos(kGTRDriftLorentzAngle[1]), std::cos(kGTRDriftLorentzAngle[2])};
+constexpr double kGTRDriftLorentzTangent[3] = {std::tan(kGTRDriftLorentzAngle[0]), std::tan(kGTRDriftLorentzAngle[1]), std::tan(kGTRDriftLorentzAngle[2])};
+constexpr double kGTRDriftVelocity = 8e-3;
+constexpr double kGTRTDCCenter[3] = {328, 328., 428.};
 
 }; // namespace E16DST_DST1Constant
 
