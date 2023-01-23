@@ -170,7 +170,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   single_track->SetInitialVertex(init_pos, kInitPosError);
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
-  for (int l = kGTR100; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+  for (int l = E16ANA_TrackConstant::kGTR100; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c      = cluster_pairs[l];
 #ifdef TRACK_EFF_CHECK
     auto cid = c.Cluster(0)->ClusterId();
@@ -504,12 +504,12 @@ bool E16ANA_TrackCandidates::IsCurveCorrelation(double tgt_z, const std::array<T
 //  return true;
 //}
 
-void E16ANA_TrackCandidates::CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos) {
+void E16ANA_TrackCandidates::CalcRotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos) {
   (*lotated_pos)[0] = {0., 0., 0.};
-  (*lotated_pos)[1] = Lotate(rot_cos, rot_sin, tgt_z, pos[0]);
-  (*lotated_pos)[2] = Lotate(rot_cos, rot_sin, tgt_z, pos[1]);
-  (*lotated_pos)[3] = Lotate(rot_cos, rot_sin, tgt_z, pos[2]);
-  (*lotated_pos)[4] = Lotate(rot_cos, rot_sin, tgt_z, pos[3]);
+  (*lotated_pos)[1] = Rotate(rot_cos, rot_sin, tgt_z, pos[0]);
+  (*lotated_pos)[2] = Rotate(rot_cos, rot_sin, tgt_z, pos[1]);
+  (*lotated_pos)[3] = Rotate(rot_cos, rot_sin, tgt_z, pos[2]);
+  (*lotated_pos)[4] = Rotate(rot_cos, rot_sin, tgt_z, pos[3]);
 }
 
 void E16ANA_TrackCandidates::CalcInverseMatrix(const array<double, 5>& mz, array<array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>* matrix) {
@@ -630,7 +630,7 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(int tgt_id, double prev_chi2, One
   auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kSSD].X(), pos_set[E16ANA_TrackConstant::kSSD].Z() - tgt_z); // ozawa v8
   auto rot_cos = std::cos(rot_phi);
   auto rot_sin = std::sin(rot_phi);
-  CalcLotatedPos(pos_set, tgt_z, rot_cos, rot_sin, &lotated_pos);
+  CalcRotatedPos(pos_set, tgt_z, rot_cos, rot_sin, &lotated_pos);
 
   std::array<double, 5> zz;
   std::array<double, kNumRoughFitDegree[0]> zx;
@@ -808,11 +808,11 @@ bool E16ANA_TrackCandidates::IsCurveCorrelation(int module_set_type, const array
   return true;
 }
 
-void E16ANA_TrackCandidates::CalcLotatedPos(const array<TVector3, kNumTrackingLayers>& pos, double rot_cos, double rot_sin,
+void E16ANA_TrackCandidates::CalcRotatedPos(const array<TVector3, kNumTrackingLayers>& pos, double rot_cos, double rot_sin,
                                             array<TVector3, kNumTrackingLayers>* lotated_pos) {
   (*lotated_pos)[0] = TVector3(0., 0., 0.);
   for (int i = 1; i < 4; ++i) {
-    (*lotated_pos)[i] = Lotate(rot_cos, rot_sin, pos[0], pos[i]);
+    (*lotated_pos)[i] = Rotate(rot_cos, rot_sin, pos[0], pos[i]);
   }
   return;
 }
@@ -861,14 +861,14 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(double rot_cos, double rot_sin,
   hbd_indexs->clear();
   hbd_ids->clear();
   hbd_ress->clear();
-  auto lotate_gtr300 = Lotate(rot_cos, rot_sin, cluster_set.global_poss[E16ANA_TrackConstant::kSSD], cluster_set.global_poss[E16ANA_TrackConstant::kGTR300]);
+  auto lotate_gtr300 = Rotate(rot_cos, rot_sin, cluster_set.global_poss[E16ANA_TrackConstant::kSSD], cluster_set.global_poss[E16ANA_TrackConstant::kGTR300]);
   auto n_hbds = record->HBD().NumClusters();
   for (int i = 0; i < n_hbds; ++i) {
     auto& hbd = record->HBD().Cluster(i);
     if (hbd.PeakSum() < kMinHBDADCForRK) {
       continue;
     }
-    auto lotate_hbd = Lotate(rot_cos, rot_sin, cluster_set.global_poss[E16ANA_TrackConstant::kSSD], hbd.GlobalPos(*geometry));
+    auto lotate_hbd = Rotate(rot_cos, rot_sin, cluster_set.global_poss[E16ANA_TrackConstant::kSSD], hbd.GlobalPos(*geometry));
     double z = lotate_hbd.Z();
     double x = coefs[2] * z * z + coefs[1] * z + coefs[0];
     array<double, 2> tan_coefs;
@@ -965,7 +965,7 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set) {
                             pos_set[E16ANA_TrackConstant::kGTR100].Z() - pos_set[E16ANA_TrackConstant::kSSD].Z());
   auto rot_cos = std::cos(rot_phi);
   auto rot_sin = std::sin(rot_phi);
-  CalcLotatedPos(pos_set, rot_cos, rot_sin, &lotated_pos);
+  CalcRotatedPos(pos_set, rot_cos, rot_sin, &lotated_pos);
 
   std::array<double, 5> mz;
   std::array<double, kNumRoughFitDegree[0]> mzx;

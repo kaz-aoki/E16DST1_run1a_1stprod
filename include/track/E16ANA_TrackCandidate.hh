@@ -665,12 +665,12 @@ class E16ANA_TrackCandidates {
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
 #ifndef TRACK_FIND_WO_TARGET
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
-  static TVector3 Lotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
+  static TVector3 Rotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
     auto z = rot_sin * pos.X() + rot_cos * (pos.Z() - offset);
     return TVector3(x, 0, z);
   }
-  static void CalcLotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos);
+  static void CalcRotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos);
   static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, 5>* zz, std::array<double, kNumRoughFitDegree[0]>* zx) {
     auto x = lotated_pos.X();
     auto z = lotated_pos.Z();
@@ -707,12 +707,12 @@ class E16ANA_TrackCandidates {
 #else // TRACK_FIND_WO_TARGET
   int ModuleSetType(const OneAxisClusterSet& cluster_set);
   static bool IsCurveCorrelation(int module_set_type, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set, std::array<double, 2>* dists);
-  static TVector3 Lotate(double rot_cos, double rot_sin, const TVector3& offset_pos, const TVector3& pos) {
+  static TVector3 Rotate(double rot_cos, double rot_sin, const TVector3& offset_pos, const TVector3& pos) {
     auto z =       rot_cos * (pos.Z() - offset_pos.Z()) + rot_sin * (pos.X() - offset_pos.X());
     auto x = -1. * rot_sin * (pos.Z() - offset_pos.Z()) + rot_cos * (pos.X() - offset_pos.X());
     return TVector3(x, 0, z);
   }
-  void CalcLotatedPos(const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double rot_cos, double rot_sin,
+  void CalcRotatedPos(const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double rot_cos, double rot_sin,
                       std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>* lotated_pos);
   static void AddMatrixElement(double w, const TVector3 lotated_pos, std::array<double, 5>* mz, std::array<double, kNumRoughFitDegree[0]>* mzx) { // the difinition of zx is reversed
     auto z = lotated_pos.Z();
