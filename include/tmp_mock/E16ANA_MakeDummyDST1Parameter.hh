@@ -45,19 +45,19 @@ constexpr double kLGTime = 100.;
 // parameter
 //constexpr double kGTRDriftSigma = 0.265;
 
-#ifndef WO_POS_SMEAR
 //constexpr double kSSDXSigma = 0.1; // current analysis
 //constexpr double kGTRXYSigma[3][2] = {{0.3, 1.}, {0.3, 1.}, {0.3, 1.}};
 //constexpr double kSSDXSigma = 0.067; // TDR2206
 //constexpr double kGTRXYSigma[3][2] = {{0.265, 0.626}, {0.252, 0.542}, {0.262, 0.518}};
-constexpr double kSSDXSigma = 0.03; // Nakai's simulation
-constexpr double kGTRXYSigma[3][2] = {{0.1, 0.3}, {0.1, 0.3}, {0.1, 0.3}};
-//constexpr double kSSDXSigma = 0.; // w/o smear
+//constexpr double kSSDXSigma = 0.03; // Nakai's simulation
+//constexpr double kGTRXYSigma[3][2] = {{0.1, 0.3}, {0.1, 0.3}, {0.1, 0.3}};
+//constexpr double kSSDXSigma = 0.;
 //constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
-#else
-constexpr double kSSDXSigma = 0.;
-constexpr double kGTRXYSigma[3][2] = {{0., 0.}, {0., 0.}, {0., 0.}};
-#endif
+constexpr double kSSDXSigma[4] = {0., 0.03, 0.067, 0.}; // no smear, design smear, TDR2206 smear, other
+constexpr double kGTRXYSigma[4][3][2] = {{{0.,    0.},    {0.,    0.},    {0.,    0.}},
+                                         {{0.1,   0.3},   {0.1,   0.3},   {0.1,   0.3}},
+                                         {{0.265, 0.626}, {0.252, 0.542}, {0.262, 0.518}},
+                                         {{0.,    0.},    {0.,    0.},    {0.,    0.}}};
 
 constexpr double kSSDTimeMean    =  45.;
 constexpr double kSSDTimeSigma   =   5.;

@@ -32,7 +32,11 @@ class E16ANA_TrackCheckFile {
     t_param->Branch("tracking_max_steps", &tracking_max_steps, "tracking_max_steps/I");
     t_param->Branch("projection_max_steps", &projection_max_steps, "projection_max_steps/I");
     t_param->Branch("gtr_time_difference_threshold", gtr_time_difference_threshold, "projection_max_steps[3]/I");
+#ifndef TRACK_FIND_WO_TARGET
     t_param->Branch("x_sigma", x_sigma, "x_sigma[5]/D");
+#else // TRACK_FIND_WO_TARGET
+    t_param->Branch("x_sigma", x_sigma, "x_sigma[4]/D");
+#endif // TRACK_FIND_WO_TARGET
     t_param->Branch("y_sigma", y_sigma, "y_sigma[3]/D");
     t_param->Branch("min_hits_in_x_cluster", &min_hits_in_x_cluster, "min_hits_in_x_cluster/I");
     t_param->Branch("gtr_y_diff_threshold", &gtr_y_diff_threshold, "gtr_y_diff_threshold/D");
@@ -506,6 +510,10 @@ class E16ANA_TrackCheckFile {
     tree->Branch("is_cluster_used", &is_cluster_used);
     tree->Branch("is_selected", &is_selected);
     tree->Branch("x_rough_fit_chi_square", &x_rough_fit_chi_square);
+#ifdef TRACK_FIND_WO_TARGET
+    tree->Branch("x_rough_fit_dist0", &x_rough_fit_dist0);
+    tree->Branch("x_rough_fit_dist1", &x_rough_fit_dist1);
+#endif // TRACK_FIND_WO_TARGET
     tree->Branch("x_rough_fit_coef0", &x_rough_fit_coef0);
     tree->Branch("x_rough_fit_coef1", &x_rough_fit_coef1);
     tree->Branch("x_rough_fit_coef2", &x_rough_fit_coef2);
@@ -905,7 +913,11 @@ class E16ANA_TrackCheckFile {
     for (int i = 0; i < 3; ++i) {
       gtr_time_difference_threshold[i] = cands.GTRTimeDiffThreshold(i);
     }
+#ifndef TRACK_FIND_WO_TARGET
     for (int i = 0; i < 5; ++i) {
+#else // TRACK_FIND_WO_TARGET
+    for (int i = 0; i < 4; ++i) {
+#endif // TRACK_FIND_WO_TARGET
       x_sigma[i] = cands.XSigma(i);
     }
     for (int i = 0; i < 3; ++i) {
@@ -2188,6 +2200,10 @@ class E16ANA_TrackCheckFile {
     is_cluster_used.resize(n_cands);
     is_selected.resize(n_cands);
     x_rough_fit_chi_square.resize(n_cands);
+#ifdef TRACK_FIND_WO_TARGET
+    x_rough_fit_dist0.resize(n_cands);
+    x_rough_fit_dist1.resize(n_cands);
+#endif // TRACK_FIND_WO_TARGET
     x_rough_fit_coef0.resize(n_cands);
     x_rough_fit_coef1.resize(n_cands);
     x_rough_fit_coef2.resize(n_cands);
@@ -2610,6 +2626,10 @@ class E16ANA_TrackCheckFile {
       n_steps[i] = cand.NumSteps();
       n_calls[i] = cand.NumCalls();
       x_rough_fit_chi_square[i] = cand.XChiSquare();
+#ifdef TRACK_FIND_WO_TARGET
+      x_rough_fit_dist0[i] = cand.XDist(0);
+      x_rough_fit_dist1[i] = cand.XDist(1);
+#endif // TRACK_FIND_WO_TARGET
       x_rough_fit_coef0[i] = cand.XCoef(0);
       x_rough_fit_coef1[i] = cand.XCoef(1);
       x_rough_fit_coef2[i] = cand.XCoef(2);
@@ -2991,10 +3011,20 @@ class E16ANA_TrackCheckFile {
         rk_proj_lg_fflag[i][j]  = lghit->FitFlag();
       }
 #ifdef TRACK_EFF_CHECK
-      is_sim_track[i] = rk_hit_ssd_id[i]     >= 10000 &&
-                        rk_hit_gtr100_xid[i] >= 10000 && rk_hit_gtr100_yid[i] >= 10000 &&
-                        rk_hit_gtr200_xid[i] >= 10000 && rk_hit_gtr200_yid[i] >= 10000 &&
-                        rk_hit_gtr300_xid[i] >= 10000 && rk_hit_gtr300_yid[i] >= 10000;
+      std::array<int, 7> cids = {rk_hit_ssd_id[i] / 10000,
+                                 rk_hit_gtr100_xid[i] / 10000, rk_hit_gtr100_yid[i] / 10000,
+                                 rk_hit_gtr200_xid[i] / 10000, rk_hit_gtr200_yid[i] / 10000,
+                                 rk_hit_gtr300_xid[i] / 10000, rk_hit_gtr300_yid[i] / 10000};
+      is_sim_track[i] = false;
+      if (cids[0] != 0) {
+        is_sim_track[i] = true;
+        for (const auto& cid : cids) {
+          if (cid != cids[0]) {
+            is_sim_track[i] = false;
+            break;
+          }
+        }
+      }
 #endif // TRACK_EFF_CHECK
 //      rk_proj_hbd0_id[i] = -10000;
 //      rk_proj_hbd0_mid[i] = -10000;
@@ -3372,7 +3402,11 @@ class E16ANA_TrackCheckFile {
   int tracking_max_steps;
   int projection_max_steps;
   int gtr_time_difference_threshold[3];
+#ifndef TRACK_FIND_WO_TARGET
   double x_sigma[5];
+#else // TRACK_FIND_WO_TARGET
+  double x_sigma[4];
+#endif // TRACK_FIND_WO_TARGET
   double y_sigma[3];
   int min_hits_in_x_cluster;
   double gtr_y_diff_threshold;
@@ -3841,6 +3875,10 @@ class E16ANA_TrackCheckFile {
   std::vector<bool> is_cluster_used;
   std::vector<bool> is_selected;
   std::vector<double> x_rough_fit_chi_square;
+#ifdef TRACK_FIND_WO_TARGET
+  std::vector<double> x_rough_fit_dist0;
+  std::vector<double> x_rough_fit_dist1;
+#endif // TRACK_FIND_WO_TARGET
   std::vector<double> x_rough_fit_coef0;
   std::vector<double> x_rough_fit_coef1;
   std::vector<double> x_rough_fit_coef2;

@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-#set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
-set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
+set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -g -lMinuit -lSpectrum")
-set(CMAKE_EXE_LINKER_FLAGS "-pg")
-set(CMAKE_SHARED_LINKER_FLAGS "-pg")
+#set(CMAKE_EXE_LINKER_FLAGS "-pg")
+#set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../build)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../install)
@@ -27,12 +27,16 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
+add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
+
 #add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DMERGE_TRACK_PAIR)
+##add_definitions(-DMOCK_VECTOR_MESON)
+#add_definitions(-DMOCK_KS)
 #add_definitions(-DREMOVE_REAL_HIT)
 #add_definitions(-DREMOVE_DEAD_REGION_CUT)
-#add_definitions(-DWO_POS_SMEAR)
-#add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
+##add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
+#add_definitions(-DWO_LAYER_EFF)
 
 #add_definitions(-DWO_TRACK_FIT)
 
@@ -372,15 +376,15 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST_DST1
 )
 
-#--------------------------------------------------------------------------------
-add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
-
-target_link_libraries(make_gtr_apv_status_file
-	E16DST
-	E16DST_DST1
-)
-
-
+##--------------------------------------------------------------------------------
+#add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
+#
+#target_link_libraries(make_gtr_apv_status_file
+#	E16DST
+#	E16DST_DST1
+#)
+#
+#
 #_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
@@ -492,7 +496,7 @@ target_link_libraries(check_position_resolution
 )
 
 #_______________________________________________________________________________
-add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
+add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc) # need to modify if you want to use it, because of GTRDeadChannel class update
 
 target_link_libraries(tmp_draw_dead_region
 	E16ANA_Basic
@@ -574,6 +578,53 @@ target_link_libraries(tmp_check_n_events_220811
 #  E16DST_DST1
 #)
 #
-##_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(tmp_check_acceptance_220902 usr/tmp/tmp_check_acceptance_220902.cc)
+
+target_link_libraries(tmp_check_acceptance_220902
+  E16DST_DST1
+  E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
+add_executable(check_lorentz_effect_220918_wrapper
+  usr/tmp/check_lorentz_effect_220918_wrapper.cc
+  usr/tmp/check_lorentz_effect_220918.C
+)
+
+target_link_libraries(check_lorentz_effect_220918_wrapper
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(tmp_list_n_events
+  usr/tmp/tmp_list_n_events.cc
+)
+
+target_link_libraries(tmp_list_n_events
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(draw_field_diff_221227
+  usr/tmp/draw_field_diff_221227.cc
+)
+
+target_link_libraries(draw_field_diff_221227
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
+#_______________________________________________________________________________
+add_executable(tmp_check_track_finding_230106
+  usr/tmp/tmp_check_track_finding_230106_wrapper.cc
+  usr/tmp/tmp_check_track_finding_230106.C
+)
+
+target_link_libraries(tmp_check_track_finding_230106
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

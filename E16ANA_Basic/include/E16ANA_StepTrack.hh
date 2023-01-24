@@ -132,8 +132,37 @@ public:
     return flag;
   }
 
+  int Cross(E16ANA_StepTrack& st, double* distance, Hep3Vector* point,
+	       Hep3Vector* pos1, Hep3Vector* pos2, Hep3Vector* mom1, Hep3Vector* mom2) {
+    double step1,step2;
+    int flag=Cross(st,distance,&step1,&step2);
+    //    std::cout << "Cross:flag="<<flag<<std::endl;
+    *pos1  =Point(step1);
+    *pos2  =st.Point(step2);
+    *point =0.5*( *pos1 + *pos2 );
+    *mom1  =    Momentum(step1);
+    *mom2  = st.Momentum(step2);
+    return flag;
+  }
+  
+  int CrossXZ(E16ANA_StepTrack& st, double* distance,double* step1, double* step2);
+  int CrossXZ(E16ANA_StepTrack& st, double* distance, Hep3Vector* point,
+	       Hep3Vector* pos1, Hep3Vector* pos2, Hep3Vector* mom1, Hep3Vector* mom2) {
+    double step1,step2;
+    int flag=CrossXZ(st,distance,&step1,&step2);
+    //    std::cout << "Cross:flag="<<flag<<std::endl;
+    *pos1  =Point(step1);
+    *pos2  =st.Point(step2);
+    *point =0.5*( *pos1 + *pos2 );
+    *mom1  =    Momentum(step1);
+    *mom2  = st.Momentum(step2);
+    return flag;
+  }
+  
+
   int CrossZconstPlane(double iz, Hep3Vector& crossPoint,  Hep3Vector& crossMom);
   int CrossXconstPlane(double ix, Hep3Vector& crossPoint,  Hep3Vector& crossMom);
+  int CrossXconstPlane(double ix, std::vector<Hep3Vector>* crossPoint,  std::vector<Hep3Vector>* crossMom);
 
   int FcnCalledCount(){return fcnCalledCount;};
 

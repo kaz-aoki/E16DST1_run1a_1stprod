@@ -1,6 +1,8 @@
 #include <iostream>
-#include <TFile.h>
-#include <TTree.h>
+#include "TChain.h"
+#include "TFile.h"
+#include "TString.h"
+#include "TTree.h"
 
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_WaveformFitter.hh"
@@ -18,19 +20,22 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-  if (argc != 3) {
-    cerr << "./bin [input.root] [output.root]" << endl;
+  if (argc != 3 && argc != 4) {
+    cerr << "./bin input.root output.root" << endl;
+    cerr << "./bin input_path (include /) output.root xxx" << endl;
     return -1;
   }
-  auto in_file_name  = argv[1];
-  auto out_file_name = argv[2];
+  auto in_name  = static_cast<TString>(argv[1]);
+  auto out_name = static_cast<TString>(argv[2]);
   
-  FILE* fp = fopen(in_file_name, "r");
-  if (!fp) {
-    cerr << "could not open file : " << in_file_name << endl;
-    return -1;
+  if (argc == 3) {
+    FILE* fp = fopen(in_name, "r");
+    if (!fp) {
+      cerr << "could not open file : " << in_name << endl;
+      return -1;
+    }
+    fclose(fp);
   }
-  fclose(fp);
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
@@ -39,15 +44,21 @@ int main(int argc, char* argv[]) {
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   E16ANA_MultiTrack fitter(bfield_map, geometry, 2);
   E16ANA_MultiTrack proj_fitter(bfield_map, geometry, 1);
-
-  auto in_file = new TFile(in_file_name);
-  auto in_tree = dynamic_cast<TTree*>(in_file->Get("tree"));
-  auto analyzer = track_analyzer_220715(in_tree, geometry, bfield_map, &fitter, &proj_fitter);
-  analyzer.Loop(out_file_name);
+  
+  if (argc == 3) {
+    auto in_file = TFile(in_name);
+    auto in_tree = dynamic_cast<TTree*>(in_file.Get("tree"));
+    auto analyzer = track_analyzer_220715(in_tree, geometry, bfield_map, &fitter, &proj_fitter);
+    analyzer.Loop(out_name);
+    delete in_tree;
+  } else {
+    auto in_chain = TChain("tree");
+    in_chain.Add(in_name + "*");
+    auto analyzer = track_analyzer_220715(&in_chain, geometry, bfield_map, &fitter, &proj_fitter);
+    analyzer.Loop(out_name);
+  }
 
   delete geometry;
   delete bfield_map;
-  delete in_tree;
-  delete in_file;
   return 0;
 }

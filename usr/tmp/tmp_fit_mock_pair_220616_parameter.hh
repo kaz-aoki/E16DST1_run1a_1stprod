@@ -18,20 +18,20 @@ enum {
 };
 const TVector3 kInitVertex[4] = {TVector3(0., 0., 0.), TVector3(0., 0., -20.), TVector3(0., 0., 0.), TVector3(0., 0., 20.)};
 //const TVector3 kVertexSigma = TVector3(3., 3., 0.);
-const TVector3 kVertexSigma = TVector3(1.5, 1.5, 0.); // simlation value
-//const TVector3 kVertexSigma = TVector3(0., 0., 0.); // for comparing
+//const TVector3 kVertexSigma = TVector3(1.5, 1.5, 0.); // simlation value
+const TVector3 kVertexSigma = TVector3(0., 0., 0.); // for comparing
 //const TVector3 kSSDSigma    = TVector3(0.1, 0., 0.); // for comparing
 //const TVector3 kGTR100Sigma = TVector3(0.3, 1., 0.); // for comparing
 //const TVector3 kGTR200Sigma = TVector3(0.3, 1., 0.); // for comparing
 //const TVector3 kGTR300Sigma = TVector3(0.3, 1., 0.); // for comparing
-//const TVector3 kSSDSigma    = TVector3(0.067, 0.,    0.); // TDR2106
-//const TVector3 kGTR100Sigma = TVector3(0.265, 0.626, 0.);
-//const TVector3 kGTR200Sigma = TVector3(0.252, 0.542, 0.);
-//const TVector3 kGTR300Sigma = TVector3(0.262, 0.518, 0.);
-const TVector3 kSSDSigma    = TVector3(0.03, 0.,  0.); // Nakai simulation
-const TVector3 kGTR100Sigma = TVector3(0.1,  0.3, 0.);
-const TVector3 kGTR200Sigma = TVector3(0.1,  0.3, 0.);
-const TVector3 kGTR300Sigma = TVector3(0.1,  0.3, 0.);
+const TVector3 kSSDSigma    = TVector3(0.067, 0.,    0.); // TDR2106
+const TVector3 kGTR100Sigma = TVector3(0.265, 0.626, 0.);
+const TVector3 kGTR200Sigma = TVector3(0.252, 0.542, 0.);
+const TVector3 kGTR300Sigma = TVector3(0.262, 0.518, 0.);
+//const TVector3 kSSDSigma    = TVector3(0.03, 0.,  0.); // Nakai simulation
+//const TVector3 kGTR100Sigma = TVector3(0.1,  0.3, 0.);
+//const TVector3 kGTR200Sigma = TVector3(0.1,  0.3, 0.);
+//const TVector3 kGTR300Sigma = TVector3(0.1,  0.3, 0.);
 //const TVector3 kSSDSigma    = TVector3(0., 0., 0.);
 //const TVector3 kGTR100Sigma = TVector3(0., 0., 0.);
 //const TVector3 kGTR200Sigma = TVector3(0., 0., 0.);
@@ -52,11 +52,17 @@ constexpr double kMaxFuncCalls = 1.0e3; // current DST1
 //constexpr double kVtxXRange[2] = {-10., 10.};
 //constexpr double kVtxYRange[2] = {-10., 10.};
 //constexpr double kVtxZRange[2] = {-30., 30.};
-constexpr double kVtxXRange[2] = {-40., 40.};
-constexpr double kVtxYRange[2] = {-40., 40.};
-constexpr double kVtxZRange[2] = {-40., 40.};
+constexpr double kVtxXRange[2] = {-150., 150.};
+constexpr double kVtxYRange[2] = {-150., 150.};
+constexpr double kVtxZRange[2] = {-150., 150.};
 constexpr double kStepTrackSizeCm    = 0.1;
 constexpr double kStepTrackArraySize = 1000.;
+
+// tmp for check of geometry effect
+const TVector3 kTmpPostionSmear[4] = {TVector3(0., 0., 0.),
+                                      TVector3(0., 0., 0.),
+                                      TVector3(0., 0., 0.),
+                                      TVector3(0., 0., 0.)};
 
 }; // namespace tmp_fit_mock_pair_220616_parameter
 

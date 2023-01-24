@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {
-    cerr << "./bin input_header output.pdf" << endl;
+    cerr << "./bin input_header output_header" << endl;
     return -1;
   }
   auto in_name  = static_cast<TString>(argv[1]);
