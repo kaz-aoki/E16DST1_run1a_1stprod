@@ -71,10 +71,12 @@ int main(int argc, char* argv[]) {
 //<<<<<<< HEAD
 
   TH2D *h_deadch_map[10][3];
+  TH2D *h_deadch_map_ch[10][3];
   TH2D *h_gem_deadch_map[10][3];
   for(int m = 100; m < 110; m++){
   	for(int l = 0; l < 3; l++){
-		h_deadch_map[m-100][l] = new TH2D(Form("h_deadch_map_m%d_l%d", m, l ), Form("h_deadch_map_m%d_l%d", m, l ), 288 * (l +1), (l+1)*(-50), (l+1)*50, 72 * (l+1), (l+1)*(-50), (l+1)*50);
+		h_deadch_map[m-100][l] = new TH2D(Form("h_deadch_map_m%d_l%d", m, l ), Form("h_deadch_map_m%d_l%d", m, l ), 288 * (l +1), (l+1)*(-50.4), (l+1)*50.4, 72 * (l+1), (l+1)*(-50), (l+1)*50);
+		h_deadch_map_ch[m-100][l] = new TH2D(Form("h_deadch_map_ch_m%d_l%d", m, l ), Form("h_deadch_map_ch_m%d_l%d", m, l ), 288 * (l +1), -0.5, (l+1)*288 + 0.5, 72 * (l+1), -0.5 , (l+1)*72);
 		h_gem_deadch_map[m-100][l] = new TH2D(Form("h_gem_deadch_map_m%d_l%d", m, l ), Form("h_gem_deadch_map_m%d_l%d", m, l ), 288 * (l +1), (l+1)*(-50), (l+1)*50, 72 * (l+1), (l+1)*(-50), (l+1)*50);
 	}
   }
@@ -91,11 +93,11 @@ int main(int argc, char* argv[]) {
 	   for(int strip_id = 0; strip_id < n_strips; strip_id++){
                     double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
                     double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
-					if(mid == 107 && lid ==0){
-					std::cout << "sid   = " << strip_id << std::endl;
-					std::cout << "ped   = " << ped << std::endl;
-					std::cout << "sigma = " << sigma << std::endl;
-					}
+//					if(mid == 107 && lid ==0){
+//					std::cout << "sid   = " << strip_id << std::endl;
+//					std::cout << "ped   = " << ped << std::endl;
+//					std::cout << "sigma = " << sigma << std::endl;
+//					}
                     analyzer->SetPedestal(strip_id, ped);
                     analyzer->SetPedestalSigma(strip_id, sigma);
                 }
@@ -111,85 +113,132 @@ int main(int argc, char* argv[]) {
 //  }
 //  std::cout << "Is X GEM OK  == " << gtr_status->GEMDeadArea300()->IsXOK(106, 13.2) << std::endl;//GEM  
 
-	int n_xs = 0;//n strips
-	int n_ys = 0;
-	auto gtr1_dead = gtr_status->GEMDeadArea100();
-	auto gtr2_dead = gtr_status->GEMDeadArea200();
-	auto gtr3_dead = gtr_status->GEMDeadArea300();
-  for(int m=100; m < 110; m++){
-	for(int l=0; l<3; l++){
-  	if(l ==0) {n_xs = 288; n_ys = 72 ;}
-  	else if(l ==1) {n_xs = 576; n_ys = 144 ;}
-  	else if(l ==2) {n_xs = 864; n_ys = 216 ;}
-	for(int i = 0; i < n_ys; i++){
-		double ly = -50*(l+1) + (double)1.4*i ;
-    	for(int j = 0; j < n_xs; j++){
-		double lx = -50 *(l+1) + 0.35*j;
- 	
- 	    int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch(l,lx, ly);//(gtr_size, local_pos[mm])
- 	 	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch(l, lx);//(gtr_size, local_pos[mm])
-		bool x =gtr_analyzers->Chamber(m, l)->GetStripX()->IsBadStrip(apv_ch_x);
-		bool y; 
-  		if(l == 0 &&  lx < 0) y =static_cast<E16ANA_GTR100Analyzer *> (gtr_analyzers->Chamber(m, l))->GetStripYb()->IsBadStrip(apv_ch_y);
-  	    else  { y =gtr_analyzers->Chamber(m, l)->GetStripY()->IsBadStrip(apv_ch_y);}
-		int flag = 0;
-		if(x == 0 && y == 0){flag = 1;}
-		else {flag = 0;}
-		if(flag !=1){
-		}
-		if(flag) {h_deadch_map[m-100][l]->Fill(lx, ly);}
-		if(l == 0 ){
-			if(gtr1_dead->IsXOK(m, lx) && gtr1_dead->IsYOK(m, ly)){
-				h_gem_deadch_map[m-100][l]->Fill(lx, ly);
+	int n_xs[3] = {288,576,864};//n strips
+	int n_ys[3] = {72 ,144,216};
+	double lx, ly;
+	for(int m=101; m<110; m++){
+		for(int l =0; l<3;l++){
+			for(int i=0; i<n_xs[l];i++){
+				lx = -0.35*(n_xs[l]/2 - 1) - 0.175 + 0.35*i;
+				for(int j=0; j< n_ys[l]; j++){
+					ly = -1.4*(n_ys[l]/2 - 1) -0.7 + (double)1.4*(j) ;
+//					if(m == 101 && l == 2 ){
+//					if(j == 20){
+//					std::cout << "lx " << lx << " ly " << ly << std::endl;
+//					std::cout << "apv x ch  = " << E16ANA_GTRChannelManager::ConvLocalXToAPVch(l, lx) << std::endl;
+//					std::cout << "apv y ch  = " << E16ANA_GTRChannelManager::ConvLocalYToAPVch(l, lx, ly) << std::endl;
+//					if(m == 103 && l == 0 ){
+//						std::cout << "module = " << m << " " << l << " " << std::endl;
+//						std::cout << "gtr status = " << gtr_status-> GTRStatus(m, l, lx, ly ) << std::endl;
+//					}}
+					if(gtr_status->GTRStatus(m, l, lx, ly) == 0){
+						h_deadch_map[m-100][l]->Fill(lx, ly);
+// if you want to use lx[mm], ly[mm], they have to be converted like bellow
+// 	    int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch(l,lx, ly);//(gtr_size, local_pos[mm])
+// 	 	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch(l, lx);//(gtr_size, local_pos[mm])
+					}
+//}
+				}
 			}
 		}
-		else if(l == 1 ){
-			if(gtr2_dead->IsXOK(m, lx) && gtr2_dead->IsYOK(m, ly)){
-				h_gem_deadch_map[m-100][l]->Fill(lx, ly);
-			}
-		}
-		else if(l == 2 ){
-			if(gtr3_dead->IsXOK(m, lx) && gtr3_dead->IsYOK(m, ly)){
-				h_gem_deadch_map[m-100][l]->Fill(lx, ly);
-			}
-		}
-  		}
 	}
-	}
-	}
-
+//  for(int m=100; m < 110; m++){
+//	for(int l=0; l<3; l++){
+//  	if(l ==0) {n_xs = 288; n_ys = 72 ;}
+//  	else if(l ==1) {n_xs = 576; n_ys = 144 ;}
+//  	else if(l ==2) {n_xs = 864; n_ys = 216 ;}
+//	for(int i = 0; i < n_ys; i++){
+//		double ly = -50*(l+1) + (double)1.4*i ;
+//    	for(int j = 0; j < n_xs; j++){
+//		double lx = -50 *(l+1) + 0.35*j;
+// 	
+// 	    int apv_ch_y = E16ANA_GTRChannelManager::ConvLocalYToAPVch(l,lx, ly);//(gtr_size, local_pos[mm])
+// 	 	int apv_ch_x = E16ANA_GTRChannelManager::ConvLocalXToAPVch(l, lx);//(gtr_size, local_pos[mm])
+//		bool x =gtr_analyzers->Chamber(m, l)->GetStripX()->IsBadStrip(apv_ch_x);
+//		bool y; 
+//  		if(l == 0 &&  lx < 0) y =static_cast<E16ANA_GTR100Analyzer *> (gtr_analyzers->Chamber(m, l))->GetStripYb()->IsBadStrip(apv_ch_y);
+//  	    else  { y =gtr_analyzers->Chamber(m, l)->GetStripY()->IsBadStrip(apv_ch_y);}
+//		int flag = 0;
+//		if(x == 0 && y == 0){flag = 1;}
+//		else {flag = 0;}
+//		if(flag !=1){
+//		}
+//		if(flag) {h_deadch_map[m-100][l]->Fill(lx, ly);}
+//		if(l == 0 ){
+//			if(gtr1_dead->IsXOK(m, lx) && gtr1_dead->IsYOK(m, ly)){
+//				h_gem_deadch_map[m-100][l]->Fill(lx, ly);
+//			}
+//		}
+//		else if(l == 1 ){
+//			if(gtr2_dead->IsXOK(m, lx) && gtr2_dead->IsYOK(m, ly)){
+//				h_gem_deadch_map[m-100][l]->Fill(lx, ly);
+//			}
+//		}
+//		else if(l == 2 ){
+//			if(gtr3_dead->IsXOK(m, lx) && gtr3_dead->IsYOK(m, ly)){
+//				h_gem_deadch_map[m-100][l]->Fill(lx, ly);
+//			}
+//		}
+//  		}
+//	}
+//	}
+//	}
+//
 
 	TCanvas *c0  = new TCanvas("c0", "c0", 1024, 768);
 	TString pdf_name;
-	pdf_name.Form("gtrdeadch.pdf");
+	pdf_name.Form("gtrdeadch_run%d.pdf", run_id);
 	c0->SaveAs(pdf_name + "[", "pdf");
-   
-    TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);	
-	c1->Divide(3,4);
-	for(int m=101; m<110;  m++){
-		c1->cd(m-100);
-	    h_deadch_map[m-100][0]->SetStats(0);
-	    h_deadch_map[m-100][0]->Draw("colz");
+
+    TCanvas *c11 = new TCanvas("c11", "c11", 1024, 768);	
+    c11->Divide(8,3);
+	int cnt = 1;
+    for(int m=101; m<110;  m++){
+		if(m == 105) continue;
+//		for(int l=0; l < 3 ;l++){
+      		c11->cd(25-cnt);
+	   		h_deadch_map[m-100][0]->SetStats(0);
+    	    h_deadch_map[m-100][0]->Draw("colz");
+      		c11->cd(17-cnt);
+	   		h_deadch_map[m-100][1]->SetStats(0);
+    	    h_deadch_map[m-100][1]->Draw("colz");
+      		c11->cd(9-cnt);
+	   		h_deadch_map[m-100][2]->SetStats(0);
+    	    h_deadch_map[m-100][2]->Draw("colz");
+			cnt++;
+ //		}
 	}
-	c1->SaveAs(pdf_name, "pdf");	
+  	c11->SaveAs(pdf_name, "pdf");	
+ 
+
 	
-     TCanvas *c2 = new TCanvas("c2", "c2", 1024, 768);	
-	c2->Divide(3,4);
-	for(int m=101; m<110;  m++){
-		c2->cd(m-100);
-	    h_deadch_map[m-100][1]->SetStats(0);
-	    h_deadch_map[m-100][1]->Draw("colz");
-	}
-	c2->SaveAs(pdf_name, "pdf");	
-	    TCanvas *c3 = new TCanvas("c3", "c3", 1024, 768);	
-	c3->Divide(3,4);
-	for(int m=101; m<110;  m++){
-		c3->cd(m-100);
-	    h_deadch_map[m-100][2]->SetStats(0);
-	    h_deadch_map[m-100][2]->Draw("colz");
-	}
-	std::cout << "here "  << std::endl;
-	c3->SaveAs(pdf_name, "pdf");	
+
+//    TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);	
+//	c1->Divide(3,4);
+//	for(int m=101; m<110;  m++){
+//		c1->cd(m-100);
+//	    h_deadch_map[m-100][0]->SetStats(0);
+//	    h_deadch_map[m-100][0]->Draw("colz");
+//	}
+//	c1->SaveAs(pdf_name, "pdf");	
+//	
+//     TCanvas *c2 = new TCanvas("c2", "c2", 1024, 768);	
+//	c2->Divide(3,4);
+//	for(int m=101; m<110;  m++){
+//		c2->cd(m-100);
+//	    h_deadch_map[m-100][1]->SetStats(0);
+//	    h_deadch_map[m-100][1]->Draw("colz");
+//	}
+//	c2->SaveAs(pdf_name, "pdf");	
+//	    TCanvas *c3 = new TCanvas("c3", "c3", 1024, 768);	
+//	c3->Divide(3,4);
+//	for(int m=101; m<110;  m++){
+//		c3->cd(m-100);
+//	    h_deadch_map[m-100][2]->SetStats(0);
+//	    h_deadch_map[m-100][2]->Draw("colz");
+//	}
+//	std::cout << "here "  << std::endl;
+//	c3->SaveAs(pdf_name, "pdf");	
 	
 	TCanvas *c4[3];	
 	for(int i = 0; i < 3; i++){

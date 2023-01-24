@@ -33,7 +33,7 @@ int E16DST_DST1StraightTrackFactory3DwoGTR300(E16DST_DST0PhysicsEvent *event0, E
 	        double z2 = targets.Info(1).Position().z();
         	double x3 = targets.Info(2).Position().x();
 	        double z3 = targets.Info(2).Position().z();
-			straight_analyzer = new StraightTrackAnalyzerOfTargetswoGTR300(x1 ,z1, x2, z2, x3, z3);//track selected only by GTR
+			straight_analyzer = new StraightTrackAnalyzerOfTargetswoGTR300(targets.NoT(), x1 ,z1, x2, z2, x3, z3);//track selected only by GTR
 	    }
 		else{
 			std::cerr << "### This is not Three targets run ###" << std::endl;
@@ -47,7 +47,6 @@ int E16DST_DST1StraightTrackFactory3DwoGTR300(E16DST_DST0PhysicsEvent *event0, E
   	for(int mid = 100; mid< 110; mid++){
  		straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
 	}
-	straight_analyzer->MatchingXYHitsAfterLinearFit(straight_analyzer->GetXZTrackCandidates(), straight_analyzer->GetYTrackCandidates());
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
 	st_tracks.reserve(trks_size);

@@ -46,6 +46,7 @@ const std::array<int, 3> nstrips_y = {72, 144, 216};
 constexpr int n_gtr_layers = 3;
 constexpr int n_gtr_modules = 8;
 constexpr int n_gtr_asd_chs = 24;
+constexpr int n_gtr_axes = 2;
 constexpr int gtr_module_ids[n_gtr_modules] = {101, 102, 103, 104, 106, 107, 108, 109};
 constexpr int nstrips_100x = 288;
 constexpr int nstrips_100y = 72;
