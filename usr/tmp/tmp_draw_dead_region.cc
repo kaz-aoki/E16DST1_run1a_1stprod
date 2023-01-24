@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
   int current_ids_index = 0;
   auto n_selected_events = event_select.NumSelectedEventIDs();
   E16ANA_GTRcalibPedestal gtrped;
-  gtrped.ReadCalibData( calib.CurrentRunID() );
+  gtrped.ReadCalibData(run_id);
   E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
   gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
   auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
@@ -95,24 +95,26 @@ int main(int argc, char* argv[]) {
       auto gtr_analyzer2 = gtr_analyzers->Chamber(mid, lid);
       int n_strips = gtr_analyzer2->GetNumberOfStrips();
       for(int strip_id = 0; strip_id < n_strips; ++strip_id) {
-        double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
-        double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
+        auto ped   = gtrped.GetPedestal(mid, lid, strip_id).Value();
+        auto sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
         gtr_analyzer2->SetPedestal(strip_id, ped);
         gtr_analyzer2->SetPedestalSigma(strip_id, sigma);
       }
     }
   }
   auto gtr_stat = E16ANA_GTRStatus(run_id);
-  
+auto gtr_ch_manager = E16ANA_GTRChannelManager();
+
   auto hbd_dead_ch = E16ANA_HBDDeadChannel();
   hbd_dead_ch.ReadDeadChannelData(run_id);
   auto lg_dead_ch = E16ANA_LGDeadChannel();
   lg_dead_ch.ReadDeadChannelData();
-  auto data_merger = E16ANA_MakeDummyDST1(0, gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
-                                          &hbd_dead_ch, &lg_dead_ch);
-  auto gtr100_stat = gtr_stat.GEMDeadArea100();
-  auto gtr200_stat = gtr_stat.GEMDeadArea200();
-  auto gtr300_stat = gtr_stat.GEMDeadArea300();
+//  auto data_merger = E16ANA_MakeDummyDST1(0, gtr_analyzers, gtr_stat.ASDDeadChannel(), gtr_stat.GEMDeadArea100(), gtr_stat.GEMDeadArea200(), gtr_stat.GEMDeadArea300(),
+//                                          &hbd_dead_ch, &lg_dead_ch);
+  auto data_merger = E16ANA_MakeDummyDST1(0, gtr_analyzers, &gtr_stat, gtr_stat.ASDDeadChannel(), &hbd_dead_ch, &lg_dead_ch);
+//  auto gtr100_stat = gtr_stat.GEMDeadArea100();
+//  auto gtr200_stat = gtr_stat.GEMDeadArea200();
+//  auto gtr300_stat = gtr_stat.GEMDeadArea300();
   
 //  constexpr int kNumBins    = 200;
 //  constexpr int kNumLayers  = 5; // SSD, GTR100, GTR200, GTR300, HBD
@@ -148,10 +150,6 @@ int main(int argc, char* argv[]) {
 //          if (!is_apv_x_dead) {
 //            h_apv[l][m][0].Fill(1);
 //          }
-
-
-
-
   array<array<TH2I*, 9>, 4> h_gem;
   array<array<TH2I*, 9>, 4> h_apv;
   array<array<TH2I*, 9>, 4> h_dead;
@@ -172,35 +170,35 @@ int main(int argc, char* argv[]) {
       auto mid = 101 + j;
       for (int k = 0; k < kNumBins; ++k) {
         double x = k * range[i] / kNumBins * 2. - range[i];
-        int apv_x_ch;
-        bool is_apv_x_dead;
+//        int apv_x_ch;
+//        bool is_apv_x_dead;
         if (i < 3) {
-          apv_x_ch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(i, x);
-          is_apv_x_dead = gtr_analyzers->Chamber(mid, i)->GetStripX()->IsBadStrip(apv_x_ch);
+//          apv_x_ch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(i, x);
+//          is_apv_x_dead = gtr_analyzers->Chamber(mid, i)->GetStripX()->IsBadStrip(apv_x_ch);
         }
         for (int l = 0; l < kNumBins; ++l) {
           double y = l * range[i] / 100 - range[i];
-          int apv_y_ch;
-          bool is_apv_y_dead;
-          if (i < 3) {
-            apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(i, x, y);
-            if (i == 0 && x < 0) {
-              is_apv_y_dead = static_cast<E16ANA_GTR100Analyzer*>(gtr_analyzers->Chamber(mid, i))->GetStripYb()->IsBadStrip(apv_y_ch);
-            } else {
-              is_apv_y_dead = gtr_analyzers->Chamber(mid, i)->GetStripY()->IsBadStrip(apv_y_ch);
-            }
-          }
+//          int apv_y_ch;
+//          bool is_apv_y_dead;
+//          if (i < 3) {
+//            apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(i, x, y);
+//            if (i == 0 && x < 0) {
+//              is_apv_y_dead = static_cast<E16ANA_GTR100Analyzer*>(gtr_analyzers->Chamber(mid, i))->GetStripYb()->IsBadStrip(apv_y_ch);
+//            } else {
+//              is_apv_y_dead = gtr_analyzers->Chamber(mid, i)->GetStripY()->IsBadStrip(apv_y_ch);
+//            }
+//          }
           if (i == 0) {
-            if (gtr100_stat->IsXOK(mid, x) && gtr100_stat->IsYOK(mid, y)) {
-              h_gem[i][j]->Fill(x, y, 1);
-            } else {
-              h_gem[i][j]->Fill(x, y, -1);
-            }
-            if (!is_apv_x_dead && !is_apv_y_dead) {
-              h_apv[i][j]->Fill(x, y, 1);
-            } else {
-              h_apv[i][j]->Fill(x, y, -1);
-            }
+//            if (gtr100_stat->IsXOK(mid, x) && gtr100_stat->IsYOK(mid, y)) {
+//              h_gem[i][j]->Fill(x, y, 1);
+//            } else {
+//              h_gem[i][j]->Fill(x, y, -1);
+//            }
+//            if (!is_apv_x_dead && !is_apv_y_dead) {
+//              h_apv[i][j]->Fill(x, y, 1);
+//            } else {
+//              h_apv[i][j]->Fill(x, y, -1);
+//            }
 //            if (gtr100_stat->IsXOK(mid, x) && gtr100_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
             if (!data_merger.IsGTRDeadRegion(0, mid, TVector3(x, y, 0.))) {
               h_dead[i][j]->Fill(x, y, 1);
@@ -208,16 +206,16 @@ int main(int argc, char* argv[]) {
               h_dead[i][j]->Fill(x, y, -1);
             }
           } else if (i == 1) {
-            if (gtr200_stat->IsXOK(mid, x) && gtr200_stat->IsYOK(mid, y)) {
-              h_gem[i][j]->Fill(x, y, 1);
-            } else {
-              h_gem[i][j]->Fill(x, y, -1);
-            }
-            if (!is_apv_x_dead && !is_apv_y_dead) {
-              h_apv[i][j]->Fill(x, y, 1);
-            } else {
-              h_apv[i][j]->Fill(x, y, -1);
-            }
+//            if (gtr200_stat->IsXOK(mid, x) && gtr200_stat->IsYOK(mid, y)) {
+//              h_gem[i][j]->Fill(x, y, 1);
+//            } else {
+//              h_gem[i][j]->Fill(x, y, -1);
+//            }
+//            if (!is_apv_x_dead && !is_apv_y_dead) {
+//              h_apv[i][j]->Fill(x, y, 1);
+//            } else {
+//              h_apv[i][j]->Fill(x, y, -1);
+//            }
 //            if (gtr200_stat->IsXOK(mid, x) && gtr200_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
             if (!data_merger.IsGTRDeadRegion(1, mid, TVector3(x, y, 0.))) {
               h_dead[i][j]->Fill(x, y, 1);
@@ -225,19 +223,19 @@ int main(int argc, char* argv[]) {
               h_dead[i][j]->Fill(x, y, -1);
             }
           } else if (i == 2) {
-            if (gtr300_stat->IsXOK(mid, x) && gtr300_stat->IsYOK(mid, y)) {
-              h_gem[i][j]->Fill(x, y, 1);
-            } else {
-              h_gem[i][j]->Fill(x, y, -1);
-            }
-            if (!is_apv_x_dead && !is_apv_y_dead) {
-              h_apv[i][j]->Fill(x, y, 1);
-            } else {
-//if (mid == 107 && k == 100 && y > -70. && y < -50.) {
-//  cout << y << " " << apv_y_ch << endl;
-//}
-              h_apv[i][j]->Fill(x, y, -1);
-            }
+//            if (gtr300_stat->IsXOK(mid, x) && gtr300_stat->IsYOK(mid, y)) {
+//              h_gem[i][j]->Fill(x, y, 1);
+//            } else {
+//              h_gem[i][j]->Fill(x, y, -1);
+//            }
+//            if (!is_apv_x_dead && !is_apv_y_dead) {
+//              h_apv[i][j]->Fill(x, y, 1);
+//            } else {
+////if (mid == 107 && k == 100 && y > -70. && y < -50.) {
+////  cout << y << " " << apv_y_ch << endl;
+////}
+//              h_apv[i][j]->Fill(x, y, -1);
+//            }
 //            if (gtr300_stat->IsXOK(mid, x) && gtr300_stat->IsYOK(mid, y) && !is_apv_x_dead && !is_apv_y_dead) {
             if (!data_merger.IsGTRDeadRegion(2, mid, TVector3(x, y, 0.))) {
               h_dead[i][j]->Fill(x, y, 1);

@@ -376,15 +376,15 @@ target_link_libraries(run_StraightTrackAnalyzer
 	E16DST_DST1
 )
 
-#--------------------------------------------------------------------------------
-add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
-
-target_link_libraries(make_gtr_apv_status_file
-	E16DST
-	E16DST_DST1
-)
-
-
+##--------------------------------------------------------------------------------
+#add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
+#
+#target_link_libraries(make_gtr_apv_status_file
+#	E16DST
+#	E16DST_DST1
+#)
+#
+#
 #_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
 #
@@ -496,7 +496,7 @@ target_link_libraries(check_position_resolution
 )
 
 #_______________________________________________________________________________
-add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc)
+add_executable(tmp_draw_dead_region usr/tmp/tmp_draw_dead_region.cc) # need to modify if you want to use it, because of GTRDeadChannel class update
 
 target_link_libraries(tmp_draw_dead_region
 	E16ANA_Basic

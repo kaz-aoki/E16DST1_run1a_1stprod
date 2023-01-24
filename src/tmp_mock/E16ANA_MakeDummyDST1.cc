@@ -87,33 +87,39 @@ cout << "HBD-ASD dead" << endl;
 }
 
 bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos) {
-  auto apv_x_ch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(lid, pos.X());
-  auto is_apv_x_dead = gtr_analyzers->Chamber(mid, lid)->GetStripX()->IsBadStrip(apv_x_ch);
-  if (is_apv_x_dead) {
-    return true;
-  }
-  auto apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(lid, pos.X(), pos.Y());
-  bool is_apv_y_dead;
-  if (lid == kGTR100 && pos.X() < 0) {
-    is_apv_y_dead = static_cast<E16ANA_GTR100Analyzer*>(gtr_analyzers->Chamber(mid, lid))->GetStripYb()->IsBadStrip(apv_y_ch);
-  } else {
-    is_apv_y_dead = gtr_analyzers->Chamber(mid, lid)->GetStripY()->IsBadStrip(apv_y_ch);
-  }
-  if (is_apv_y_dead) {
-    return true;
-  }
-  if (lid == kGTR100) {
-    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
-      return false;
-    }
-  } else if (kGTR200) {
-    if (gtr200_dead_area->IsXOK(mid, pos.X()) && gtr200_dead_area->IsYOK(mid, pos.Y())) {
-      return false;
-    }
-  } else if (kGTR300) {
-    if (gtr300_dead_area->IsXOK(mid, pos.X()) && gtr300_dead_area->IsYOK(mid, pos.Y())) {
-      return false;
-    }
+//  auto apv_x_ch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(lid, pos.X());
+//  auto is_apv_x_dead = gtr_analyzers->Chamber(mid, lid)->GetStripX()->IsBadStrip(apv_x_ch);
+//  if (is_apv_x_dead) {
+//    return true;
+//  }
+//  auto apv_y_ch = E16ANA_GTRChannelManager::ConvLocalYToAPVch(lid, pos.X(), pos.Y());
+//  bool is_apv_y_dead;
+//  if (lid == kGTR100 && pos.X() < 0) {
+//    is_apv_y_dead = static_cast<E16ANA_GTR100Analyzer*>(gtr_analyzers->Chamber(mid, lid))->GetStripYb()->IsBadStrip(apv_y_ch);
+//  } else {
+//    is_apv_y_dead = gtr_analyzers->Chamber(mid, lid)->GetStripY()->IsBadStrip(apv_y_ch);
+//  }
+//  if (is_apv_y_dead) {
+//    return true;
+//  }
+//  if (lid == kGTR100) {
+//    if (gtr100_dead_area->IsXOK(mid, pos.X()) && gtr100_dead_area->IsYOK(mid, pos.Y())) {
+//      return false;
+//    }
+//  } else if (kGTR200) {
+//    if (gtr200_dead_area->IsXOK(mid, pos.X()) && gtr200_dead_area->IsYOK(mid, pos.Y())) {
+//      return false;
+//    }
+//  } else if (kGTR300) {
+//    if (gtr300_dead_area->IsXOK(mid, pos.X()) && gtr300_dead_area->IsYOK(mid, pos.Y())) {
+//      return false;
+//    }
+//  }
+//  return true;
+  auto flag = gtr_stat->GTRStatus(mid, lid, pos.X(), pos.Y());
+//  if (flag == E16ANA_GTRStatus::ok_flag) {
+  if (flag == 0) {
+    return false;
   }
   return true;
 }
