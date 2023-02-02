@@ -1807,6 +1807,11 @@ E16INFO("number of y candidates: %d", n_y_cands);
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
       tmp_cand.SetYChiSquare(y_cand.chi_square);
+#ifdef TRACK_FIND_WO_TARGET
+      for (int i = 0; i < 2; ++i) {
+        tmp_cand.SetXDist(i, x_cand.dists[i]);
+      }
+#endif // TRACK_FIND_WO_TARGET
       for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
         tmp_cand.SetXCoef(i, x_cand.coefs[i]);
       }
