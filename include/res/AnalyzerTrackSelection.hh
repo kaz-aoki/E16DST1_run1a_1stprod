@@ -945,7 +945,6 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   if(runoption==3&&chi_square->at(itrack)>2.) {return -1;}
   // if(runoption==0&&chi_square->at(itrack)>10.) {return -1;}
   if(runoption==0&&chi_square->at(itrack)>2.) {return -1;}
-  // if(track_w_trg_hbd->at(itrack)&&track_w_trg_gtr->at(itrack)&&track_w_trg_lg->at(itrack)>-1000) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
   // if(fabs(track_position_block_ly->at(itrack))>30) {return -1;}
   // if(track_position_block_ly->at(itrack)<0) {return -1;}
@@ -957,14 +956,14 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   // if(run_id!=30302&&(run_id<30294||run_id>30297)) {return -1;}//setH
   // if(run_id!=30302&&(run_id<30294||run_id>30297)&&(run_id<30314||run_id>30317)) {return -1;}//setGH
   // if(run_id>=30303&&run_id<=30306) {return -1;}//w/o setEF
-  // int thr[7] = {10, 15, 20, 25, 10, 15, 20};//EID
-  int thr[7] = {10, 15, 20, 25, 10, 15, 20};//Ks
-  if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
-  // if (track_ssd_adc->at(itrack)>150) {return -1;}
+  // if( RunPurpose(run_id)%10==6&&track_hbd_mid->at(itrack)==106 || RunPurpose(run_id)%10==7&&track_hbd_mid->at(itrack)==107 || RunPurpose(run_id)==15&&(track_hbd_mid->at(itrack)==104||track_hbd_mid->at(itrack)==106) ) {return -1;}
+  int thr[7] = {10, 15, 20, 25, 10, 15, 20};
+  // int thr[7] = {10, 15, 20, 25, 1000, 1000, 1000};
+  // if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
+  if (runoption==0&&track_ssd_adc->at(itrack)>150) {return -1;}
+  // if (runoption==3&&track_ssd_adc->at(itrack)>420) {return -1;}
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
-  // if (track_mom->at(itrack) > 3.) {return -1;}
-  // if (track_mom->at(itrack) < 1.6) {return -1;}
-  // if (track_mom->at(itrack) > 0.8) {return -1;}
+  // if (track_mom->at(itrack) > 2.) {return -1;}
   // if (track_mom->at(itrack) < 0.4) {return -1;}
   // if (rk_charge->at(itrack) != -1) {return -1;}
   // if (rk_charge->at(itrack)==1) {return -1;}
@@ -978,8 +977,6 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack, int runopti
   // if(run_id>20980) {return -1;}
   // if(chi_square->at(itrack)>5.) {return -1;}
   // if(is_selected->at(itrack)==0) {return -1;}
-  // if(track_w_trg_bias->at(itrack)>-1000) {return -1;}
-  // if(track_w_trg_bias->at(itrack)) {return -1;}
   else{
     return 1;
   }
@@ -988,7 +985,6 @@ Int_t AnalyzerTrackSelection::CutOfTrack(Long64_t entry, int itrack)
 {
   int runoption = 1;
   return CutOfTrack(entry,itrack,runoption);
-
 }
 Int_t AnalyzerTrackSelection::IsGoodTrack(Long64_t entry, int itrack, std::vector<trackset> &tracksets)
 {
