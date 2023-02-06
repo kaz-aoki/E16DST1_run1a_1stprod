@@ -14,15 +14,16 @@ enum {
   kAnalyzePairFit,
   kAnalyzeNearestPoint
 };
-//constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
-constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
+//constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = true;
 constexpr int  kMaxPastEntries     = 1;
 constexpr bool kMixOneTrackEvent   = true;
 //
-constexpr double kErrorNum = -10000.;
+constexpr double   kErrorNum = -10000.;
+const     TVector3 kErrorVector = {kErrorNum, kErrorNum, kErrorNum};
 
 // Constsant
 enum {
@@ -127,9 +128,12 @@ constexpr bool     kFixPy        = false;
 constexpr bool     kFixVtxZ      = false;
 constexpr int      kStrategy     = 0;
 constexpr int      kMaxFuncCalls = 1.0e4;
-constexpr double   kVtxXRange[2] = {-150., 150.};
-constexpr double   kVtxYRange[2] = {-150., 150.};
-constexpr double   kVtxZRange[2] = {-150., 150.};
+//constexpr double   kVtxXRange[2] = {-150., 150.};
+//constexpr double   kVtxYRange[2] = {-150., 150.};
+//constexpr double   kVtxZRange[2] = {-150., 150.};
+constexpr double   kVtxXRange[2] = {-300., 300.};
+constexpr double   kVtxYRange[2] = {-300., 300.};
+constexpr double   kVtxZRange[2] = {-300., 300.};
 
 // StepTrack parameter
 constexpr double kStepTrackSizeCm    = 0.1;
