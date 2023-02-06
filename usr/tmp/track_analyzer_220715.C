@@ -2060,10 +2060,9 @@ void track_analyzer_220715::FillTVector3(int n, const TVector3& tvec, vector<dou
   return;
 }
 
-#ifdef PAIR_FIT_WO_SSD
-void track_analyzer_220715::ProjectionSSD(int mid, double charge, const TVector3& init_pos, const TVector3& init_mom,
+void track_analyzer_220715::ProjectionSSD(int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
                                           TVector3* ssd_lpos, TVector3* ssd_gpos, TVector3* ssd_lmom, TVector3* ssd_gmom) {
-  auto mid2013 = ModuleID2013(mid);
+  auto mid2013 = ModuleID2013(module_id);
   int tid = 0; // track ID
   int lid = 0; // layer ID
   int hid = 0; // hit ID
@@ -2085,7 +2084,31 @@ void track_analyzer_220715::ProjectionSSD(int mid, double charge, const TVector3
   *ssd_gmom = geometry->SSD(mid2013)->GetGMom(*ssd_lmom);
   return;
 }
-#endif // PAIR_FIT_WO_SSD
+
+void track_analyzer_220715::ProjectionGTR(int layer_id, int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                                          TVector3* gtr_lpos, TVector3* gtr_gpos, TVector3* gtr_lmom, TVector3* gtr_gmom) {
+  auto mid2013 = ModuleID2013(module_id);
+  int tid = 0; // track ID
+  int lid = 0; // layer ID
+  int hid = 0; // hit ID
+  TVector3 lpos(0., 0., 0.); // dummy hit
+  TVector3 lsigma(0., 0., 0.); // dummy hit
+  std::vector<int> mids;
+  std::vector<TVector3> lposs;
+  std::vector<TVector3> lmoms;
+  proj_fitter->Clear();
+  auto tmp_geom = geometry->GTR(mid2013, layer_id);
+  proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+  proj_fitter->SetMaxSteps(kProjectionMaxSteps);
+  proj_fitter->RungeKuttaTracking(tid, init_pos, init_mom, charge);
+  proj_fitter->GetFitLPos(tid, lid, mids, lposs);
+  proj_fitter->GetFitLMom(tid, lid, mids, lmoms);
+  *gtr_lpos = lposs[hid];
+  *gtr_lmom = lmoms[hid];
+  *gtr_gpos = geometry->GTR(mid2013, layer_id)->GetGPos(*gtr_lpos);
+  *gtr_gmom = geometry->GTR(mid2013, layer_id)->GetGMom(*gtr_lmom);
+  return;
+}
 
 void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   auto vtx       = fitter->GetFitVertex();
@@ -2096,18 +2119,26 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   array<array<TVector3, 4>, 2> gmoms;
   for (int t = 0; t < 2; ++t) {
     moms[t] = fitter->GetFitMomentum(t);
-#ifndef PAIR_FIT_WO_SSD
+    int ll = 0;
     for (int l = 0; l < 4; ++l) {
-#else // PAIR_FIT_WO_SSD
-    for (int l = 0; l < 3; ++l) {
-#endif // PAIR_FIT_WO_SSD
+      if (kFitFlag == kFitWoSSD && l == 0) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR100 && l == 1) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR200 && l == 2) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR300 && l == 3) {
+        continue;
+      }
       vector<int>      tmp_mids;
       vector<TVector3> tmp_lposs;
       vector<TVector3> tmp_lmoms;
-      fitter->GetFitLPos(t, l, tmp_mids, tmp_lposs);
-      fitter->GetFitLMom(t, l, tmp_mids, tmp_lmoms);
+      fitter->GetFitLPos(t, ll, tmp_mids, tmp_lposs);
+      fitter->GetFitLMom(t, ll, tmp_mids, tmp_lmoms);
       auto mid = tmp_mids[0];
-#ifndef PAIR_FIT_WO_SSD
       lposs[t][l] = tmp_lposs[0];
       lmoms[t][l] = tmp_lmoms[0];
       if (l == 0) {
@@ -2117,12 +2148,7 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
         gposs[t][l] = geometry->GTR(mid, l - 1)->GetGPos(lposs[t][l]);
         gmoms[t][l] = geometry->GTR(mid, l - 1)->GetGMom(lposs[t][l]);
       }
-#else // PAIR_FIT_WO_SSD
-      lposs[t][l + 1] = tmp_lposs[0];
-      lmoms[t][l + 1] = tmp_lmoms[0];
-      gposs[t][l + 1] = geometry->GTR(mid, l)->GetGPos(lposs[t][l + 1]);
-      gmoms[t][l + 1] = geometry->GTR(mid, l)->GetGMom(lposs[t][l + 1]);
-#endif // PAIR_FIT_WO_SSD
+      ++ll;
     }
   }
   out_chi2[n]            = chi2;
@@ -2137,56 +2163,125 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   out_pipi_mass[n]       = CalcMass(kPiPi, moms[0], moms[1]);
   out_pip_mass[n]        = CalcMass(kPiP,  moms[0], moms[1]);
   out_kk_mass[n]         = CalcMass(kKK,   moms[0], moms[1]);
-  FillTVector3(n, vtx,         &out_vtx_x,                   &out_vtx_y,                   &out_vtx_z);
-  FillTVector3(n, moms[0],     &out_plus_mom_x,              &out_plus_mom_y,              &out_plus_mom_z);
-  FillTVector3(n, moms[1],     &out_minus_mom_x,             &out_minus_mom_y,             &out_minus_mom_z);
-#ifndef PAIR_FIT_WO_SSD
-  FillTVector3(n, lposs[0][0], &out_fit_plus_ssd_lx,         &out_fit_plus_ssd_ly);
-  FillTVector3(n, lposs[1][0], &out_fit_minus_ssd_lx,        &out_fit_minus_ssd_ly);
-  FillTVector3(n, lmoms[0][0], &out_fit_plus_ssd_mom_lx,     &out_fit_plus_ssd_mom_ly,     &out_fit_plus_ssd_mom_lz);
-  FillTVector3(n, lmoms[1][0], &out_fit_minus_ssd_mom_lx,    &out_fit_minus_ssd_mom_ly,    &out_fit_minus_ssd_mom_lz);
-  FillTVector3(n, gmoms[0][0], &out_fit_plus_ssd_mom_gx,     &out_fit_plus_ssd_mom_gy,     &out_fit_plus_ssd_mom_gz);
-  FillTVector3(n, gmoms[1][0], &out_fit_minus_ssd_mom_gx,    &out_fit_minus_ssd_mom_gy,    &out_fit_minus_ssd_mom_gz);
-#else // PAIR_FIT_WO_SSD
-  for (int c = 0; c < 2; ++c) {
-    TVector3 lpos;
-    TVector3 gpos;
-    TVector3 lmom;
-    TVector3 gmom;
-    double charge = 1.;
-    if (c == 1) {
-      charge = -1.;
-    }
-    ProjectionSSD(rk_fit_ssd_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
-    if (c == 0) {
-      FillTVector3(n, lpos, &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
-      FillTVector3(n, lmom, &out_fit_plus_ssd_mom_lx, &out_fit_plus_ssd_mom_ly, &out_fit_plus_ssd_mom_lz);
-      FillTVector3(n, gmom, &out_fit_plus_ssd_mom_gx, &out_fit_plus_ssd_mom_gy, &out_fit_plus_ssd_mom_gz);
-    } else {
-      FillTVector3(n, lpos, &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
-      FillTVector3(n, lmom, &out_fit_plus_ssd_mom_lx, &out_fit_plus_ssd_mom_ly, &out_fit_plus_ssd_mom_lz);
-      FillTVector3(n, gmom, &out_fit_plus_ssd_mom_gx, &out_fit_plus_ssd_mom_gy, &out_fit_plus_ssd_mom_gz);
+  FillTVector3(n, vtx,     &out_vtx_x,       &out_vtx_y,       &out_vtx_z);
+  FillTVector3(n, moms[0], &out_plus_mom_x,  &out_plus_mom_y,  &out_plus_mom_z);
+  FillTVector3(n, moms[1], &out_minus_mom_x, &out_minus_mom_y, &out_minus_mom_z);
+  if (kFitFlag != kFitWoSSD) {
+    FillTVector3(n, lposs[0][0], &out_fit_plus_ssd_lx,      &out_fit_plus_ssd_ly);
+    FillTVector3(n, lposs[1][0], &out_fit_minus_ssd_lx,     &out_fit_minus_ssd_ly);
+    FillTVector3(n, lmoms[0][0], &out_fit_plus_ssd_mom_lx,  &out_fit_plus_ssd_mom_ly,  &out_fit_plus_ssd_mom_lz);
+    FillTVector3(n, lmoms[1][0], &out_fit_minus_ssd_mom_lx, &out_fit_minus_ssd_mom_ly, &out_fit_minus_ssd_mom_lz);
+    FillTVector3(n, gmoms[0][0], &out_fit_plus_ssd_mom_gx,  &out_fit_plus_ssd_mom_gy,  &out_fit_plus_ssd_mom_gz);
+    FillTVector3(n, gmoms[1][0], &out_fit_minus_ssd_mom_gx, &out_fit_minus_ssd_mom_gy, &out_fit_minus_ssd_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionSSD(rk_fit_ssd_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
+        FillTVector3(n, lmom, &out_fit_plus_ssd_mom_lx, &out_fit_plus_ssd_mom_ly, &out_fit_plus_ssd_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_ssd_mom_gx, &out_fit_plus_ssd_mom_gy, &out_fit_plus_ssd_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
+        FillTVector3(n, lmom, &out_fit_plus_ssd_mom_lx, &out_fit_plus_ssd_mom_ly, &out_fit_plus_ssd_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_ssd_mom_gx, &out_fit_plus_ssd_mom_gy, &out_fit_plus_ssd_mom_gz);
+      }
     }
   }
-#endif // PAIR_FIT_WO_SSD
-  FillTVector3(n, lposs[0][1], &out_fit_plus_gtr100_lx,      &out_fit_plus_gtr100_ly);
-  FillTVector3(n, lposs[0][2], &out_fit_plus_gtr200_lx,      &out_fit_plus_gtr200_ly);
-  FillTVector3(n, lposs[0][3], &out_fit_plus_gtr300_lx,      &out_fit_plus_gtr300_ly);
-  FillTVector3(n, lposs[1][1], &out_fit_minus_gtr100_lx,     &out_fit_minus_gtr100_ly);
-  FillTVector3(n, lposs[1][2], &out_fit_minus_gtr200_lx,     &out_fit_minus_gtr200_ly);
-  FillTVector3(n, lposs[1][3], &out_fit_minus_gtr300_lx,     &out_fit_minus_gtr300_ly);
-  FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
-  FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
-  FillTVector3(n, lmoms[0][3], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
-  FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
-  FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
-  FillTVector3(n, lmoms[1][3], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
-  FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
-  FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
-  FillTVector3(n, gmoms[0][3], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
-  FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
-  FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
-  FillTVector3(n, gmoms[1][3], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
+  if (kFitFlag != kFitWoGTR100) {
+    FillTVector3(n, lposs[0][1], &out_fit_plus_gtr100_lx,      &out_fit_plus_gtr100_ly);
+    FillTVector3(n, lposs[1][1], &out_fit_minus_gtr100_lx,     &out_fit_minus_gtr100_ly);
+    FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
+    FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
+    FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
+    FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionGTR(0, rk_fit_gtr100_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_gtr100_lx,     &out_fit_plus_gtr100_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr100_mom_lx, &out_fit_plus_gtr100_mom_ly, &out_fit_plus_gtr100_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr100_mom_gx, &out_fit_plus_gtr100_mom_gy, &out_fit_plus_gtr100_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_gtr100_lx,     &out_fit_plus_gtr100_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr100_mom_lx, &out_fit_plus_gtr100_mom_ly, &out_fit_plus_gtr100_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr100_mom_gx, &out_fit_plus_gtr100_mom_gy, &out_fit_plus_gtr100_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR200) {
+    FillTVector3(n, lposs[0][2], &out_fit_plus_gtr200_lx,      &out_fit_plus_gtr200_ly);
+    FillTVector3(n, lposs[1][2], &out_fit_minus_gtr200_lx,     &out_fit_minus_gtr200_ly);
+    FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
+    FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
+    FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
+    FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionGTR(1, rk_fit_gtr200_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_gtr200_lx,     &out_fit_plus_gtr200_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr200_mom_lx, &out_fit_plus_gtr200_mom_ly, &out_fit_plus_gtr200_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr200_mom_gx, &out_fit_plus_gtr200_mom_gy, &out_fit_plus_gtr200_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_gtr200_lx,     &out_fit_plus_gtr200_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr200_mom_lx, &out_fit_plus_gtr200_mom_ly, &out_fit_plus_gtr200_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr200_mom_gx, &out_fit_plus_gtr200_mom_gy, &out_fit_plus_gtr200_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR300) {
+    FillTVector3(n, lposs[0][3], &out_fit_plus_gtr300_lx,      &out_fit_plus_gtr300_ly);
+    FillTVector3(n, lposs[1][3], &out_fit_minus_gtr300_lx,     &out_fit_minus_gtr300_ly);
+    FillTVector3(n, lmoms[0][3], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
+    FillTVector3(n, lmoms[1][3], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
+    FillTVector3(n, gmoms[0][3], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
+    FillTVector3(n, gmoms[1][3], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionGTR(2, rk_fit_gtr300_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_gtr300_lx,     &out_fit_plus_gtr300_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr300_mom_lx, &out_fit_plus_gtr300_mom_ly, &out_fit_plus_gtr300_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr300_mom_gx, &out_fit_plus_gtr300_mom_gy, &out_fit_plus_gtr300_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_gtr300_lx,     &out_fit_plus_gtr300_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr300_mom_lx, &out_fit_plus_gtr300_mom_ly, &out_fit_plus_gtr300_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr300_mom_gx, &out_fit_plus_gtr300_mom_gy, &out_fit_plus_gtr300_mom_gz);
+      }
+    }
+  }
   return;
 }
 
@@ -2217,16 +2312,28 @@ void track_analyzer_220715::PairFit(int n) {
       fitter->SetCharge(tid, ChargeID(rk_charge->at(i)));
     }
     fitter->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i)));
-#ifndef PAIR_FIT_WO_SSD
-    fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
-    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
-    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
-    fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
-#else // PAIR_FIT_WO_SSD
-    fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
-    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
-    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
-#endif // PAIR_FIT_WO_SSD
+    if (kFitFlag == kFitAllLayers) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoSSD) {
+      fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR100) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR200) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR300) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+    }
   }
   fitter->SetRungeKuttaStepSize(kStepSize);
   fitter->SetMaxSteps(kMaxSteps);
@@ -4174,18 +4281,26 @@ void track_analyzer_220715::FillBranchesFromPairFitEM(double chi2) {
   array<array<TVector3, 4>, 2> gmoms;
   for (int t = 0; t < 2; ++t) {
     moms[t] = fitter->GetFitMomentum(t);
-#ifndef PAIR_FIT_WO_SSD
+    int ll = 0;
     for (int l = 0; l < 4; ++l) {
-#else // PAIR_FIT_WO_SSD
-    for (int l = 0; l < 3; ++l) {
-#endif // PAIR_FIT_WO_SSD
+      if (kFitFlag == kFitWoSSD && l == 0) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR100 && l == 1) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR200 && l == 2) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR300 && l == 3) {
+        continue;
+      }
       vector<int>      tmp_mids;
       vector<TVector3> tmp_lposs;
       vector<TVector3> tmp_lmoms;
-      fitter->GetFitLPos(t, l, tmp_mids, tmp_lposs);
-      fitter->GetFitLMom(t, l, tmp_mids, tmp_lmoms);
+      fitter->GetFitLPos(t, ll, tmp_mids, tmp_lposs);
+      fitter->GetFitLMom(t, ll, tmp_mids, tmp_lmoms);
       auto mid = tmp_mids[0];
-#ifndef PAIR_FIT_WO_SSD
       lposs[t][l] = tmp_lposs[0];
       lmoms[t][l] = tmp_lmoms[0];
       if (l == 0) {
@@ -4195,12 +4310,7 @@ void track_analyzer_220715::FillBranchesFromPairFitEM(double chi2) {
         gposs[t][l] = geometry->GTR(mid, l - 1)->GetGPos(lposs[t][l]);
         gmoms[t][l] = geometry->GTR(mid, l - 1)->GetGMom(lposs[t][l]);
       }
-#else // PAIR_FIT_WO_SSD
-      lposs[t][l + 1] = tmp_lposs[0];
-      lmoms[t][l + 1] = tmp_lmoms[0];
-      gposs[t][l + 1] = geometry->GTR(mid, l)->GetGPos(lposs[t][l + 1]);
-      gmoms[t][l + 1] = geometry->GTR(mid, l)->GetGMom(lposs[t][l + 1]);
-#endif // PAIR_FIT_WO_SSD
+      ++ll;
     }
   }
   em_chi2.emplace_back(chi2);
@@ -4215,57 +4325,129 @@ void track_analyzer_220715::FillBranchesFromPairFitEM(double chi2) {
   em_pipi_mass.emplace_back(CalcMass(kPiPi, moms[0], moms[1]));
   em_pip_mass.emplace_back(CalcMass(kPiP,  moms[0], moms[1]));
   em_kk_mass.emplace_back(CalcMass(kKK,   moms[0], moms[1]));
-  EmplaceTVector3(vtx,         &em_vtx_x,                   &em_vtx_y,                   &em_vtx_z);
-  EmplaceTVector3(moms[0],     &em_plus_mom_x,              &em_plus_mom_y,              &em_plus_mom_z);
-  EmplaceTVector3(moms[1],     &em_minus_mom_x,             &em_minus_mom_y,             &em_minus_mom_z);
-#ifndef PAIR_FIT_WO_SSD
-  EmplaceTVector3(lposs[0][0], &em_fit_plus_ssd_lx,         &em_fit_plus_ssd_ly);
-  EmplaceTVector3(lposs[1][0], &em_fit_minus_ssd_lx,        &em_fit_minus_ssd_ly);
-  EmplaceTVector3(lmoms[0][0], &em_fit_plus_ssd_mom_lx,     &em_fit_plus_ssd_mom_ly,     &em_fit_plus_ssd_mom_lz);
-  EmplaceTVector3(lmoms[1][0], &em_fit_minus_ssd_mom_lx,    &em_fit_minus_ssd_mom_ly,    &em_fit_minus_ssd_mom_lz);
-  EmplaceTVector3(gmoms[0][0], &em_fit_plus_ssd_mom_gx,     &em_fit_plus_ssd_mom_gy,     &em_fit_plus_ssd_mom_gz);
-  EmplaceTVector3(gmoms[1][0], &em_fit_minus_ssd_mom_gx,    &em_fit_minus_ssd_mom_gy,    &em_fit_minus_ssd_mom_gz);
-#else // PAIR_FIT_WO_SSD
-  for (int c = 0; c < 2; ++c) {
-    TVector3 lpos;
-    TVector3 gpos;
-    TVector3 lmom;
-    TVector3 gmom;
-    double charge = 1.;
-    if (c == 1) {
-      charge = -1.;
-    }
-    if (c == 0) {
-      ProjectionSSD(em_plus_ssd_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
-      EmplaceTVector3(lpos, &em_fit_plus_ssd_lx,     &em_fit_plus_ssd_ly);
-      EmplaceTVector3(lmom, &em_fit_plus_ssd_mom_lx, &em_fit_plus_ssd_mom_ly, &em_fit_plus_ssd_mom_lz);
-      EmplaceTVector3(gmom, &em_fit_plus_ssd_mom_gx, &em_fit_plus_ssd_mom_gy, &em_fit_plus_ssd_mom_gz);
-    } else {
-      ProjectionSSD(em_minus_ssd_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
-      EmplaceTVector3(lpos, &em_fit_plus_ssd_lx,     &em_fit_plus_ssd_ly);
-      EmplaceTVector3(lmom, &em_fit_plus_ssd_mom_lx, &em_fit_plus_ssd_mom_ly, &em_fit_plus_ssd_mom_lz);
-      EmplaceTVector3(gmom, &em_fit_plus_ssd_mom_gx, &em_fit_plus_ssd_mom_gy, &em_fit_plus_ssd_mom_gz);
+  EmplaceTVector3(vtx,     &em_vtx_x,       &em_vtx_y,       &em_vtx_z);
+  EmplaceTVector3(moms[0], &em_plus_mom_x,  &em_plus_mom_y,  &em_plus_mom_z);
+  EmplaceTVector3(moms[1], &em_minus_mom_x, &em_minus_mom_y, &em_minus_mom_z);
+  if (kFitFlag != kFitWoSSD) {
+    EmplaceTVector3(lposs[0][0], &em_fit_plus_ssd_lx,      &em_fit_plus_ssd_ly);
+    EmplaceTVector3(lposs[1][0], &em_fit_minus_ssd_lx,     &em_fit_minus_ssd_ly);
+    EmplaceTVector3(lmoms[0][0], &em_fit_plus_ssd_mom_lx,  &em_fit_plus_ssd_mom_ly,  &em_fit_plus_ssd_mom_lz);
+    EmplaceTVector3(lmoms[1][0], &em_fit_minus_ssd_mom_lx, &em_fit_minus_ssd_mom_ly, &em_fit_minus_ssd_mom_lz);
+    EmplaceTVector3(gmoms[0][0], &em_fit_plus_ssd_mom_gx,  &em_fit_plus_ssd_mom_gy,  &em_fit_plus_ssd_mom_gz);
+    EmplaceTVector3(gmoms[1][0], &em_fit_minus_ssd_mom_gx, &em_fit_minus_ssd_mom_gy, &em_fit_minus_ssd_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionSSD(em_plus_ssd_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_ssd_lx,     &em_fit_plus_ssd_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_ssd_mom_lx, &em_fit_plus_ssd_mom_ly, &em_fit_plus_ssd_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_ssd_mom_gx, &em_fit_plus_ssd_mom_gy, &em_fit_plus_ssd_mom_gz);
+      } else {
+        ProjectionSSD(em_minus_ssd_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_minus_ssd_lx,     &em_fit_minus_ssd_ly);
+        EmplaceTVector3(lmom, &em_fit_minus_ssd_mom_lx, &em_fit_minus_ssd_mom_ly, &em_fit_minus_ssd_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_minus_ssd_mom_gx, &em_fit_minus_ssd_mom_gy, &em_fit_minus_ssd_mom_gz);
+      }
     }
   }
-#endif // PAIR_FIT_WO_SSD
-  EmplaceTVector3(lposs[0][1], &em_fit_plus_gtr100_lx,      &em_fit_plus_gtr100_ly);
-  EmplaceTVector3(lposs[0][2], &em_fit_plus_gtr200_lx,      &em_fit_plus_gtr200_ly);
-  EmplaceTVector3(lposs[0][3], &em_fit_plus_gtr300_lx,      &em_fit_plus_gtr300_ly);
-  EmplaceTVector3(lposs[1][1], &em_fit_minus_gtr100_lx,     &em_fit_minus_gtr100_ly);
-  EmplaceTVector3(lposs[1][2], &em_fit_minus_gtr200_lx,     &em_fit_minus_gtr200_ly);
-  EmplaceTVector3(lposs[1][3], &em_fit_minus_gtr300_lx,     &em_fit_minus_gtr300_ly);
-  EmplaceTVector3(lmoms[0][1], &em_fit_plus_gtr100_mom_lx,  &em_fit_plus_gtr100_mom_ly,  &em_fit_plus_gtr100_mom_lz);
-  EmplaceTVector3(lmoms[0][2], &em_fit_plus_gtr200_mom_lx,  &em_fit_plus_gtr200_mom_ly,  &em_fit_plus_gtr200_mom_lz);
-  EmplaceTVector3(lmoms[0][3], &em_fit_plus_gtr300_mom_lx,  &em_fit_plus_gtr300_mom_ly,  &em_fit_plus_gtr300_mom_lz);
-  EmplaceTVector3(lmoms[1][1], &em_fit_minus_gtr100_mom_lx, &em_fit_minus_gtr100_mom_ly, &em_fit_minus_gtr100_mom_lz);
-  EmplaceTVector3(lmoms[1][2], &em_fit_minus_gtr200_mom_lx, &em_fit_minus_gtr200_mom_ly, &em_fit_minus_gtr200_mom_lz);
-  EmplaceTVector3(lmoms[1][3], &em_fit_minus_gtr300_mom_lx, &em_fit_minus_gtr300_mom_ly, &em_fit_minus_gtr300_mom_lz);
-  EmplaceTVector3(gmoms[0][1], &em_fit_plus_gtr100_mom_gx,  &em_fit_plus_gtr100_mom_gy,  &em_fit_plus_gtr100_mom_gz);
-  EmplaceTVector3(gmoms[0][2], &em_fit_plus_gtr200_mom_gx,  &em_fit_plus_gtr200_mom_gy,  &em_fit_plus_gtr200_mom_gz);
-  EmplaceTVector3(gmoms[0][3], &em_fit_plus_gtr300_mom_gx,  &em_fit_plus_gtr300_mom_gy,  &em_fit_plus_gtr300_mom_gz);
-  EmplaceTVector3(gmoms[1][1], &em_fit_minus_gtr100_mom_gx, &em_fit_minus_gtr100_mom_gy, &em_fit_minus_gtr100_mom_gz);
-  EmplaceTVector3(gmoms[1][2], &em_fit_minus_gtr200_mom_gx, &em_fit_minus_gtr200_mom_gy, &em_fit_minus_gtr200_mom_gz);
-  EmplaceTVector3(gmoms[1][3], &em_fit_minus_gtr300_mom_gx, &em_fit_minus_gtr300_mom_gy, &em_fit_minus_gtr300_mom_gz);
+  if (kFitFlag != kFitWoGTR100) {
+    EmplaceTVector3(lposs[0][1], &em_fit_plus_gtr100_lx,      &em_fit_plus_gtr100_ly);
+    EmplaceTVector3(lposs[1][1], &em_fit_minus_gtr100_lx,     &em_fit_minus_gtr100_ly);
+    EmplaceTVector3(lmoms[0][1], &em_fit_plus_gtr100_mom_lx,  &em_fit_plus_gtr100_mom_ly,  &em_fit_plus_gtr100_mom_lz);
+    EmplaceTVector3(lmoms[1][1], &em_fit_minus_gtr100_mom_lx, &em_fit_minus_gtr100_mom_ly, &em_fit_minus_gtr100_mom_lz);
+    EmplaceTVector3(gmoms[0][1], &em_fit_plus_gtr100_mom_gx,  &em_fit_plus_gtr100_mom_gy,  &em_fit_plus_gtr100_mom_gz);
+    EmplaceTVector3(gmoms[1][1], &em_fit_minus_gtr100_mom_gx, &em_fit_minus_gtr100_mom_gy, &em_fit_minus_gtr100_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionGTR(0, em_plus_gtr100_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr100_lx,     &em_fit_plus_gtr100_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr100_mom_lx, &em_fit_plus_gtr100_mom_ly, &em_fit_plus_gtr100_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr100_mom_gx, &em_fit_plus_gtr100_mom_gy, &em_fit_plus_gtr100_mom_gz);
+      } else {
+        ProjectionGTR(0, em_minus_gtr100_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr100_lx,     &em_fit_plus_gtr100_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr100_mom_lx, &em_fit_plus_gtr100_mom_ly, &em_fit_plus_gtr100_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr100_mom_gx, &em_fit_plus_gtr100_mom_gy, &em_fit_plus_gtr100_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR200) {
+    EmplaceTVector3(lposs[0][2], &em_fit_plus_gtr200_lx,      &em_fit_plus_gtr200_ly);
+    EmplaceTVector3(lposs[1][2], &em_fit_minus_gtr200_lx,     &em_fit_minus_gtr200_ly);
+    EmplaceTVector3(lmoms[0][2], &em_fit_plus_gtr200_mom_lx,  &em_fit_plus_gtr200_mom_ly,  &em_fit_plus_gtr200_mom_lz);
+    EmplaceTVector3(lmoms[1][2], &em_fit_minus_gtr200_mom_lx, &em_fit_minus_gtr200_mom_ly, &em_fit_minus_gtr200_mom_lz);
+    EmplaceTVector3(gmoms[0][2], &em_fit_plus_gtr200_mom_gx,  &em_fit_plus_gtr200_mom_gy,  &em_fit_plus_gtr200_mom_gz);
+    EmplaceTVector3(gmoms[1][2], &em_fit_minus_gtr200_mom_gx, &em_fit_minus_gtr200_mom_gy, &em_fit_minus_gtr200_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionGTR(1, em_plus_gtr200_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr200_lx,     &em_fit_plus_gtr200_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr200_mom_lx, &em_fit_plus_gtr200_mom_ly, &em_fit_plus_gtr200_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr200_mom_gx, &em_fit_plus_gtr200_mom_gy, &em_fit_plus_gtr200_mom_gz);
+      } else {
+        ProjectionGTR(1, em_minus_gtr200_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr200_lx,     &em_fit_plus_gtr200_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr200_mom_lx, &em_fit_plus_gtr200_mom_ly, &em_fit_plus_gtr200_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr200_mom_gx, &em_fit_plus_gtr200_mom_gy, &em_fit_plus_gtr200_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR300) {
+    EmplaceTVector3(lposs[0][3], &em_fit_plus_gtr300_lx,      &em_fit_plus_gtr300_ly);
+    EmplaceTVector3(lposs[1][3], &em_fit_minus_gtr300_lx,     &em_fit_minus_gtr300_ly);
+    EmplaceTVector3(lmoms[0][3], &em_fit_plus_gtr300_mom_lx,  &em_fit_plus_gtr300_mom_ly,  &em_fit_plus_gtr300_mom_lz);
+    EmplaceTVector3(lmoms[1][3], &em_fit_minus_gtr300_mom_lx, &em_fit_minus_gtr300_mom_ly, &em_fit_minus_gtr300_mom_lz);
+    EmplaceTVector3(gmoms[0][3], &em_fit_plus_gtr300_mom_gx,  &em_fit_plus_gtr300_mom_gy,  &em_fit_plus_gtr300_mom_gz);
+    EmplaceTVector3(gmoms[1][3], &em_fit_minus_gtr300_mom_gx, &em_fit_minus_gtr300_mom_gy, &em_fit_minus_gtr300_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionGTR(2, em_plus_gtr300_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr300_lx,     &em_fit_plus_gtr300_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr300_mom_lx, &em_fit_plus_gtr300_mom_ly, &em_fit_plus_gtr300_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr300_mom_gx, &em_fit_plus_gtr300_mom_gy, &em_fit_plus_gtr300_mom_gz);
+      } else {
+        ProjectionGTR(2, em_minus_gtr300_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr300_lx,     &em_fit_plus_gtr300_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr300_mom_lx, &em_fit_plus_gtr300_mom_ly, &em_fit_plus_gtr300_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr300_mom_gx, &em_fit_plus_gtr300_mom_gy, &em_fit_plus_gtr300_mom_gz);
+      }
+    }
+  }
   em_res_plus_ssd_lx.emplace_back(em_fit_plus_ssd_lx.back()         - em_hit_plus_ssd_lx.back());
   em_res_plus_gtr100_lx.emplace_back(em_fit_plus_gtr100_lx.back()   - em_hit_plus_gtr100_lx.back());
   em_res_plus_gtr100_ly.emplace_back(em_fit_plus_gtr100_ly.back()   - em_hit_plus_gtr100_ly.back());
@@ -4309,16 +4491,28 @@ void track_analyzer_220715::PairFitEM(int plus_entry_index, int plus_track_index
       return;
     }
     fitter->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i)));
-#ifndef PAIR_FIT_WO_SSD
-    fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
-    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
-    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
-    fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
-#else // PAIR_FIT_WO_SSD
-    fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
-    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
-    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
-#endif // PAIR_FIT_WO_SSD
+    if (kFitFlag == kFitAllLayers) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoSSD) {
+      fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR100) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR200) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR300) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+    }
   }
   fitter->SetRungeKuttaStepSize(kStepSize);
   fitter->SetMaxSteps(kMaxSteps);
@@ -4465,14 +4659,14 @@ void track_analyzer_220715::ProjectionTargetsEM() {
       EmplaceTVector3(poss[kTgtMinus], &em_fit_plus_tgt_minus_x,     &em_fit_plus_tgt_minus_y);
       EmplaceTVector3(poss[kTgtZero],  &em_fit_plus_tgt_zero_x,      &em_fit_plus_tgt_zero_y);
       EmplaceTVector3(poss[kTgtPlus],  &em_fit_plus_tgt_plus_x,      &em_fit_plus_tgt_plus_y);
-      EmplaceTVector3(poss[kTgtMinus], &em_fit_plus_tgt_minus_mom_x, &em_fit_plus_tgt_minus_mom_y, &em_fit_plus_tgt_plus_mom_x);
+      EmplaceTVector3(poss[kTgtMinus], &em_fit_plus_tgt_minus_mom_x, &em_fit_plus_tgt_minus_mom_y, &em_fit_plus_tgt_minus_mom_z);
       EmplaceTVector3(poss[kTgtZero],  &em_fit_plus_tgt_zero_mom_x,  &em_fit_plus_tgt_zero_mom_y,  &em_fit_plus_tgt_zero_mom_z);
       EmplaceTVector3(poss[kTgtPlus],  &em_fit_plus_tgt_plus_mom_x,  &em_fit_plus_tgt_plus_mom_y,  &em_fit_plus_tgt_plus_mom_z);
     } else {
       EmplaceTVector3(poss[kTgtMinus], &em_fit_minus_tgt_minus_x,     &em_fit_minus_tgt_minus_y);
       EmplaceTVector3(poss[kTgtZero],  &em_fit_minus_tgt_zero_x,      &em_fit_minus_tgt_zero_y);
       EmplaceTVector3(poss[kTgtPlus],  &em_fit_minus_tgt_plus_x,      &em_fit_minus_tgt_plus_y);
-      EmplaceTVector3(poss[kTgtMinus], &em_fit_minus_tgt_minus_mom_x, &em_fit_minus_tgt_minus_mom_y, &em_fit_minus_tgt_plus_mom_x);
+      EmplaceTVector3(poss[kTgtMinus], &em_fit_minus_tgt_minus_mom_x, &em_fit_minus_tgt_minus_mom_y, &em_fit_minus_tgt_minus_mom_z);
       EmplaceTVector3(poss[kTgtZero],  &em_fit_minus_tgt_zero_mom_x,  &em_fit_minus_tgt_zero_mom_y,  &em_fit_minus_tgt_zero_mom_z);
       EmplaceTVector3(poss[kTgtPlus],  &em_fit_minus_tgt_plus_mom_x,  &em_fit_minus_tgt_plus_mom_y,  &em_fit_minus_tgt_plus_mom_z);
     }

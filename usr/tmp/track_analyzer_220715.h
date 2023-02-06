@@ -1440,10 +1440,10 @@ public :
   double CalcMass(int flag, const TVector3& pmom, const TVector3& mmom);
   void FillTVector3(int n, const TVector3& tvec, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
   void FillTVector3(int n, const TVector3& tvec, std::vector<double>* x, std::vector<double>* y);
-#ifdef PAIR_FIT_WO_SSD
-  void ProjectionSSD(int mid, double charge, const TVector3& init_pos, const TVector3& init_mom,
+  void ProjectionSSD(int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
                      TVector3* ssd_lpos, TVector3* ssd_gpos, TVector3* ssd_lmom, TVector3* ssd_gmom);
-#endif // PAIR_FIT_WO_SSD
+  void ProjectionGTR(int layer_id, int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                     TVector3* ssd_lpos, TVector3* ssd_gpos, TVector3* ssd_lmom, TVector3* ssd_gmom);
   void FillBranchesFromPairFit(int n, double chi2);
   int ModuleID2013(int m);
   int ChargeID(int c);
