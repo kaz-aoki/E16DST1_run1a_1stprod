@@ -30,7 +30,7 @@ endif()
 add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 
 add_definitions(-DTRACK_EFF_CHECK)
-add_definitions(-DREMOVE_REAL_HIT)
+#add_definitions(-DREMOVE_REAL_HIT)
 add_definitions(-DWO_LAYER_EFF) # remove timing correlation cut between GTR x and y (for mock data)
 #add_definitions(-DSIM_DST1_GEOM_CHECK) # tmp. print position for check
 
@@ -636,6 +636,16 @@ add_executable(tmp_make_tfile_from_mock_data_230131
 )
 
 target_link_libraries(tmp_make_tfile_from_mock_data_230131
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
+add_executable(refit_track_230207
+  usr/tmp/refit_track_230207_wrapper.cc
+  usr/tmp/refit_track_230207.C
+)
+
+target_link_libraries(refit_track_230207
   E16ANA_Basic
 )
 

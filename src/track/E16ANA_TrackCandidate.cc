@@ -239,6 +239,21 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 //cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     }
   }
+#ifdef DEBUG_230209
+if (track_id == 6) {
+  for (int l = 0; l < 4; ++l) {
+    auto& c = cluster_pairs[l];
+    cerr << ModuleID2020To2013(c.ModuleID()) << endl;
+    if (l == 0) {
+      c.LocalPos().Print();
+    } else {
+      c.LocalPosT().Print();
+    }
+  }
+  init_pos.Print();
+  init_mom.Print();
+}
+#endif // DEBUG_230209
   return;
 }
 
@@ -429,6 +444,12 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
       fit_results[l].SetC(lcx);
     }
   }
+#ifdef DEBUG_230209
+if (track_id == 6) {
+  init_pos_fit.Print();
+  init_mom_fit.Print();
+}
+#endif // DEBUG_230209
   Projection(fitter);
   return;
 }
@@ -442,6 +463,11 @@ double E16ANA_TrackCandidate::Fit(E16ANA_MultiTrack* fitter, bool vertex_xy_fix_
 //  chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
   chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls,
                       kInitXRange[0], kInitXRange[1], kInitYRange[0], kInitYRange[1], kInitZRange[0], kInitZRange[1]);
+#ifdef DEBUG_230209
+if (track_id == 6) {
+  cerr << "chi: " << chisq << endl;
+}
+#endif // DEBUG_230209
   UpdateFitResult(fitter);
 //E16INFO("vtx (set): (%lf, %lf, %lf)", vtx.X(), vtx.Y(), vtx.Z());
 //E16INFO("vtx (fit): (%lf, %lf, %lf)", vtx_fit.X(), vtx_fit.Y(), vtx_fit.Z());

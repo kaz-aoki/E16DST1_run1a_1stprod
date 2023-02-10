@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
     cerr << "Invalid smear flag: " << smear_flag << endl;
     return -1;
   }
-  if (dead_region_flag != 0 && smear_flag != 1) {
+  if (dead_region_flag != 0 && dead_region_flag != 1) {
     cerr << "Invalid dead region flag: " << smear_flag << endl;
     return -1;
   }
