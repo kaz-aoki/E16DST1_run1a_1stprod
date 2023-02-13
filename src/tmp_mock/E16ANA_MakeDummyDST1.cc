@@ -125,29 +125,35 @@ bool E16ANA_MakeDummyDST1::IsGTRDeadRegion(int lid, int mid, const TVector3& pos
 }
 
 bool E16ANA_MakeDummyDST1::IsHBDDeadRegion(int mid, const TVector3& pos) {
-//  if (mid == 103) {
-//    if (pos.X() > 0 && pos.Y() < 0) {
-//      return true;
-//    }
-//  } else if (mid == 104) {
-//    if (pos.X() < 0 && pos.Y() > 0) {
-//      return true;
-//    }
-//  } else if (mid == 106) {
-//    if (pos.X() < 0 && pos.Y() < 0) {
-//      return true;
-//    }
-//  } else if (mid == 107) {
-//    if (pos.X() > 0 || pos.Y() > 0) {
-//      return true;
-//    }
-//  } else {
+////  if (mid == 103) {
+////    if (pos.X() > 0 && pos.Y() < 0) {
+////      return true;
+////    }
+////  } else if (mid == 104) {
+////    if (pos.X() < 0 && pos.Y() > 0) {
+////      return true;
+////    }
+////  } else if (mid == 106) {
+////    if (pos.X() < 0 && pos.Y() < 0) {
+////      return true;
+////    }
+////  } else if (mid == 107) {
+////    if (pos.X() > 0 || pos.Y() > 0) {
+////      return true;
+////    }
+////  } else {
+////    return true;
+////  }
+////  return false;
+//  if (mid < 103 || mid > 107) {
 //    return true;
 //  }
-//  return false;
-  if (mid < 103 || mid > 107) {
-    return true;
-  }
+//  double cog[2] = {pos.X(), pos.Y()};
+//  auto status = hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
+//  if (status == 0) {
+//    return false;
+//  }
+//  return true;
   double cog[2] = {pos.X(), pos.Y()};
   auto status = hbd_dead_ch->StatusWLocalCoordinate(mid, cog);
   if (status == 0) {

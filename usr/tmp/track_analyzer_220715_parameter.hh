@@ -21,9 +21,9 @@ enum {
   kFitWoGTR300,
   kFitAllLayers,
 };
-constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
-//constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
-constexpr int  kFitFlag           = kFitWoSSD;
+//constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
+constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+constexpr int  kFitFlag           = kFitAllLayers;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 constexpr bool kExecuteEventMixing = true;

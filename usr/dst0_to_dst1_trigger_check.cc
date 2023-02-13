@@ -326,9 +326,9 @@ int main(int argc, char* argv[]) {
       auto& gtr_hits0         = event0->GTR();
       auto& hbd_hits0         = event0->HBD();
       auto& lg_hits0          = event0->LG();
-      auto& trigger_gtr_hits0 = event0->TriggerGTR();
-      auto& trigger_hbd_hits0 = event0->TriggerHBD();
-      auto& trigger_lg_hits0  = event0->TriggerLG();
+//      auto& trigger_gtr_hits0 = event0->TriggerGTR();
+//      auto& trigger_hbd_hits0 = event0->TriggerHBD();
+//      auto& trigger_lg_hits0  = event0->TriggerLG();
       auto event_id = event0->EventID();
       if (kSelectEvent) {
         bool is_selected_event = false;

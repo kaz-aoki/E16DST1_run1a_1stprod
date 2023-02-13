@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.14.7)
 
 project(E16DST1)
 
-set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -g -lMinuit -lSpectrum")
+set(CMAKE_CXX_FLAGS "-O0 -g -Wall -lMinuit -lSpectrum")
 #set(CMAKE_EXE_LINKER_FLAGS "-pg")
 #set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
@@ -32,7 +33,7 @@ add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DREMOVE_REAL_HIT)
 add_definitions(-DWO_LAYER_EFF) # remove timing correlation cut between GTR x and y (for mock data)
-#add_definitions(-DSIM_DST1_GEOM_CHECK) # tmp. print position for check
+##add_definitions(-DSIM_DST1_GEOM_CHECK) # tmp. print position for check
 
 #add_definitions(-DWO_TRACK_FIT)
 
