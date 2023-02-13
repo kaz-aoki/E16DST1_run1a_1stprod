@@ -836,6 +836,12 @@ class E16DST_DST1Trigger {
   ~E16DST_DST1Trigger() {}
   void Clear() {
     valid_flag = E16DST_DST1Constant::kInvalidValue;
+    for (auto& ptrs : hit_ptrs) {
+      ptrs.clear();
+    }
+    for (auto& ptrs : cluster_ptrs) {
+      ptrs.clear();
+    }
     gtr_hits.clear();
     gtr_clusters.clear();
     hbd_hits.clear();
