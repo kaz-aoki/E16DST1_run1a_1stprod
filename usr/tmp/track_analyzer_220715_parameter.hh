@@ -115,7 +115,7 @@ constexpr int    kHBDSelection         = kNotUseHBDProb;
 constexpr double kMinLGADC       = 10.;
 constexpr double kMinLGTime      = -1000.;
 constexpr double kMaxLGTime      = 1000.;
-constexpr int    kUseClulsterDuplicationCut = kSSDAndGTRDuplicationCut;
+constexpr int    kUseClulsterDuplicationCut = kNoClusterDuplicationCut;
 //constexpr bool   kUseHBDDuplicationCut = true;
 
 // Pair selection
