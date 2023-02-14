@@ -270,9 +270,9 @@ int E16ANA_MakeDummyDST1::GTRClusterSize(int type, E16ANA_MockHit& hit) {
 
 #ifdef MERGE_CLUSTERS
 bool E16ANA_MakeDummyDST1::IsOverlap(int detector_id, const double x[], const int size[], const float t[]) {
-  if (fabs(t[0] - t[1]) > kMaxTimeDiff[detector_id]) {
-    return false;
-  }
+//  if (fabs(t[0] - t[1]) > kMaxTimeDiff[detector_id]) {
+//    return false;
+//  }
   if (x[0] < x[1]) {
     if (x[0] + 0.5 * size[0] * kStripSize[detector_id] > x[1] - 0.5 * size[1] * kStripSize[detector_id]) {
 cout << "Overlap " << detector_id << endl;
