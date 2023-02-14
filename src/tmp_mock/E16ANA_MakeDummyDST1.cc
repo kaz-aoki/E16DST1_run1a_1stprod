@@ -288,6 +288,10 @@ cout << "Overlap " << detector_id << endl;
 }
 
 void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_MockTrack& track, E16DST_DST1PhysicsRecord* record) {
+  record->SSD().UpdatePtrs();
+  record->GTR().UpdatePtrs();
+  record->HBD().UpdatePtrs();
+  record->LG().UpdatePtrs();
   int cid_offset = kMockClusterID * (1 + cluster_id_offset);
   auto ssd     = E16DST_DST1SSDCluster();
   auto gtr100x = E16DST_DST1GTRCluster();
