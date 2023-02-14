@@ -247,9 +247,14 @@ array<double, 2> E16ANA_MakeDummyDST1::DistributeTiming(int detector_id, double 
 //    return {rnd.Gaus(time, kGTRXYTimeSigma), rnd.Gaus(time, kGTRXYTimeSigma)};
 //  }
 //  return {-10000., -10000.};
-#else
+#else // WO_LAYER_EFF
+  if (detector_id == kSSD) {
+    return {kSSDTimeMean, kSSDTimeMean};
+  } else if (detector_id == kGTR) {
+    return {kGTRTimeMean, kGTRTimeMean};
+  }
   return {0., 0.};
-#endif
+#endif // WO_LAYER_EFF
 }
 
 int E16ANA_MakeDummyDST1::GTRClusterSize(int type, E16ANA_MockHit& hit) {
@@ -270,9 +275,9 @@ int E16ANA_MakeDummyDST1::GTRClusterSize(int type, E16ANA_MockHit& hit) {
 
 #ifdef MERGE_CLUSTERS
 bool E16ANA_MakeDummyDST1::IsOverlap(int detector_id, const double x[], const int size[], const float t[]) {
-//  if (fabs(t[0] - t[1]) > kMaxTimeDiff[detector_id]) {
-//    return false;
-//  }
+  if (fabs(t[0] - t[1]) > kMaxTimeDiff[detector_id]) {
+    return false;
+  }
   if (x[0] < x[1]) {
     if (x[0] + 0.5 * size[0] * kStripSize[detector_id] > x[1] - 0.5 * size[1] * kStripSize[detector_id]) {
 cout << "Overlap " << detector_id << endl;
@@ -381,15 +386,16 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   x_size /= size_sum;
   t_size /= size_sum;
   
-  gtr100x.SetTdcPos(x_size);
-  gtr100x.SetTiming(t_size);
-
   gtr100x.SetClusterId(cid_offset + kGTR100x);
   gtr100x.SetLayerId(0);
   gtr100x.SetType(0);
   gtr100x.SetModuleId(mid);
   gtr100x.SetTdcPos(x_size);
+#ifndef WO_LAYER_EFF
   gtr100x.SetTiming(t_size);
+#else // WO_LAYER_EFF
+  gtr100x.SetTiming(t[0]);
+#endif //  WO_LAYER_EFF
   gtr100x.SetPeakSum(kGTRADC);
   gtr100x.SetNumHits(3);
   // GTR100y
@@ -430,14 +436,16 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   x_size /= size_sum;
   t_size /= size_sum;
   
-  gtr100y.SetTdcPos(x_size);
-  gtr100y.SetTiming(t_size);
   gtr100y.SetClusterId(cid_offset + kGTR100y);
   gtr100y.SetLayerId(0);
   gtr100y.SetType(type);
   gtr100y.SetModuleId(mid);
   gtr100y.SetTdcPos(x_size);
+#ifndef WO_LAYER_EFF
   gtr100y.SetTiming(t_size);
+#else // WO_LAYER_EFF
+  gtr100y.SetTiming(t[0]);
+#endif //  WO_LAYER_EFF
   gtr100y.SetPeakSum(kGTRADC);
   gtr100y.SetNumHits(1);
   // GTR200x
@@ -472,15 +480,16 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   x_size /= size_sum;
   t_size /= size_sum;
   
-  gtr200x.SetTdcPos(x_size);
-  gtr200x.SetTiming(t_size);
-
   gtr200x.SetClusterId(cid_offset + kGTR200x);
   gtr200x.SetLayerId(1);
   gtr200x.SetType(0);
   gtr200x.SetModuleId(mid);
   gtr200x.SetTdcPos(x_size);
+#ifndef WO_LAYER_EFF
   gtr200x.SetTiming(t_size);
+#else // WO_LAYER_EFF
+  gtr200x.SetTiming(t[0]);
+#endif //  WO_LAYER_EFF
   gtr200x.SetPeakSum(kGTRADC);
   gtr200x.SetNumHits(3);
   // GTR200y
@@ -515,14 +524,16 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   x_size /= size_sum;
   t_size /= size_sum;
   
-  gtr200y.SetTdcPos(x_size);
-  gtr200y.SetTiming(t_size);
   gtr200y.SetClusterId(cid_offset + kGTR200y);
   gtr200y.SetLayerId(1);
   gtr200y.SetType(1);
   gtr200y.SetModuleId(mid);
   gtr200y.SetTdcPos(x_size);
+#ifndef WO_LAYER_EFF
   gtr200y.SetTiming(t_size);
+#else // WO_LAYER_EFF
+  gtr200y.SetTiming(t[0]);
+#endif //  WO_LAYER_EFF
   gtr200y.SetPeakSum(kGTRADC);
   // GTR300x
   merged_x.clear();
@@ -556,15 +567,16 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   x_size /= size_sum;
   t_size /= size_sum;
   
-  gtr300x.SetTdcPos(x_size);
-  gtr300x.SetTiming(t_size);
-
   gtr300x.SetClusterId(cid_offset + kGTR300x);
   gtr300x.SetLayerId(2);
   gtr300x.SetType(0);
   gtr300x.SetModuleId(mid);
   gtr300x.SetTdcPos(x_size);
+#ifndef WO_LAYER_EFF
   gtr300x.SetTiming(t_size);
+#else // WO_LAYER_EFF
+  gtr300x.SetTiming(t[0]);
+#endif //  WO_LAYER_EFF
   gtr300x.SetPeakSum(kGTRADC);
   gtr300x.SetNumHits(3);
   // GTR300y
@@ -599,14 +611,16 @@ void E16ANA_MakeDummyDST1::MergeMockToRealData(int cluster_id_offset, E16ANA_Moc
   x_size /= size_sum;
   t_size /= size_sum;
   
-  gtr300y.SetTdcPos(x_size);
-  gtr300y.SetTiming(t_size);
   gtr300y.SetClusterId(cid_offset + kGTR300y);
   gtr300y.SetLayerId(2);
   gtr300y.SetType(1);
   gtr300y.SetModuleId(mid);
   gtr300y.SetTdcPos(x_size);
+#ifndef WO_LAYER_EFF
   gtr300y.SetTiming(t_size);
+#else // WO_LAYER_EFF
+  gtr300y.SetTiming(t[0]);
+#endif //  WO_LAYER_EFF
   gtr300y.SetPeakSum(kGTRADC);
   gtr300y.SetNumHits(1);
   // HBD
