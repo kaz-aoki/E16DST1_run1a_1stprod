@@ -1124,7 +1124,7 @@ bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, c
 }
 
 #ifdef TRACK_FIND_WO_TARGET
-TVector3 BackInitPos(const TVector3& pos, const TVector3& mom) {
+TVector3 E16ANA_TrackCandidates::BackInitPos(const TVector3& pos, const TVector3& mom) {
   auto coef = kInitPosBackRadius / mom.Mag();
   return TVector3(pos.X() - coef * mom.X(), pos.Y() - coef * mom.Y(), pos.Z() - coef * mom.Z());
 }
