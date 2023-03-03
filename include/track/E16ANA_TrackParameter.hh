@@ -48,8 +48,8 @@ namespace E16ANA_TrackParameter {
 //}
 
 // electron
-//constexpr bool kVtxZFixFlag = false; // 220607
-constexpr bool kVtxZFixFlag = true;
+constexpr bool kVtxZFixFlag = false; // 220607
+//constexpr bool kVtxZFixFlag = true;
 //constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 //constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 //constexpr double kInitZRange[2] = {-40., 40.}; // 220607
@@ -129,7 +129,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 
 // other
 constexpr bool kExecutePairFit = false;
-constexpr bool kReqHBDAssociation = true;
+constexpr bool kReqHBDAssociation = false;
 //constexpr double kHBDRadius = 1200.;
 constexpr double kHBDRadius = 1196.;
 #ifndef TRACK_FIND_WO_TARGET
