@@ -2321,25 +2321,25 @@ std::vector<double> out_tmp_zx_pipi_mass;
   std::vector<std::vector<double>> em_fit_parent_good_tgt_ids;
   std::vector<double>              em_fit_parent_x0_y;
   std::vector<double>              em_fit_parent_x0_z;
-//  // Projected HBD
-//  std::vector<double>              out_proj_plus_n_hbds;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_id;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_lx;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_ly;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_resx;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_resy;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_adc;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_size;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_eprob;
-//  std::vector<double>              out_proj_minus_n_hbds;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_id;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_lx;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_ly;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_resx;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_resy;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_adc;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_size;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
+  // Projected HBD
+  std::vector<double>              em_proj_plus_n_hbds;
+  std::vector<std::vector<double>> em_proj_plus_hbd_id;
+  std::vector<std::vector<double>> em_proj_plus_hbd_lx;
+  std::vector<std::vector<double>> em_proj_plus_hbd_ly;
+  std::vector<std::vector<double>> em_proj_plus_hbd_resx;
+  std::vector<std::vector<double>> em_proj_plus_hbd_resy;
+  std::vector<std::vector<double>> em_proj_plus_hbd_adc;
+  std::vector<std::vector<double>> em_proj_plus_hbd_size;
+  std::vector<std::vector<double>> em_proj_plus_hbd_eprob;
+  std::vector<double>              em_proj_minus_n_hbds;
+  std::vector<std::vector<double>> em_proj_minus_hbd_id;
+  std::vector<std::vector<double>> em_proj_minus_hbd_lx;
+  std::vector<std::vector<double>> em_proj_minus_hbd_ly;
+  std::vector<std::vector<double>> em_proj_minus_hbd_resx;
+  std::vector<std::vector<double>> em_proj_minus_hbd_resy;
+  std::vector<std::vector<double>> em_proj_minus_hbd_adc;
+  std::vector<std::vector<double>> em_proj_minus_hbd_size;
+  std::vector<std::vector<double>> em_proj_minus_hbd_eprob;
 //  // Projected LG
 };
 

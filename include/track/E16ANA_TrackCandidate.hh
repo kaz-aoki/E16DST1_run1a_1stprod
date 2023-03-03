@@ -761,6 +761,9 @@ class E16ANA_TrackCandidates {
 //    return false;
 //  }
   bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand, std::vector<bool>* hbd_y_oks);
+#ifdef TRACK_FIND_WO_TARGET
+  TVector3 BackInitPos(const TVector3& pos, const TVector3& mom);
+#endif // TRACK_FIND_WO_TARGET
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();

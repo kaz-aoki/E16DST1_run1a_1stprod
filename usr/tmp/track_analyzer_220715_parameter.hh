@@ -21,8 +21,8 @@ enum {
   kFitWoGTR300,
   kFitAllLayers,
 };
-constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
-//constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+//constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
+constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr int  kFitFlag           = kFitAllLayers;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
@@ -106,8 +106,8 @@ constexpr double kMaxHBDXResidual      = 25.;
 constexpr double kMaxHBDYResidual      = 25.;
 //constexpr double kMaxHBDXResidual      = 40.;
 //constexpr double kMaxHBDYResidual      = 40.;
-constexpr double kMinHBDADC            = 7.;
-constexpr double kMinHBDSize           = 1.5;
+constexpr double kMinHBDADC            = 2.;
+constexpr double kMinHBDSize           = 0.5;
 constexpr int    kHBDSelection         = kNotUseHBDProb;
 //constexpr bool   kUseLGAssociationCut
 //constexpr double kMaxLGXResidual = 

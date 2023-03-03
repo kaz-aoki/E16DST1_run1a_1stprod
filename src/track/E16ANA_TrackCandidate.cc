@@ -1123,6 +1123,13 @@ bool E16ANA_TrackCandidates::HasAssociatedHBD(const OneAxisClusterSet& x_cand, c
   return has_hbd;
 }
 
+#ifdef TRACK_FIND_WO_TARGET
+TVector3 BackInitPos(const TVector3& pos, const TVector3& mom) {
+  auto coef = kInitPosBackRadius / mom.Mag();
+  return TVector3(pos.X() - coef * mom.X(), pos.Y() - coef * mom.Y(), pos.Z() - coef * mom.Z());
+}
+#endif // TRACK_FIND_WO_TARGET
+
 #ifndef TRACK_EFF_CHECK
 void E16ANA_TrackCandidates::SearchTrackCandidates() {
   track_candidates.clear();
@@ -1364,16 +1371,19 @@ E16INFO("number of y candidates: %d", n_y_cands);
       tmp_cand.SetInitZ(kTargetZ[x_cand.target_id]);
       tmp_cand.SetTargetID(x_cand.target_id);
 #else // TRACK_FIND_WO_TARGET
-      auto ssd_gpos = x_cand.ssd_cluster->GlobalPos(*geometry);
-      tmp_cand.SetInitX(ssd_gpos.X());
-      tmp_cand.SetInitY(CalcRoughYPosition(x_cand.ssd_cluster->ModuleId(), y_cand.coefs));
-      tmp_cand.SetInitZ(ssd_gpos.Z());
       tmp_cand.SetTargetID(1);
       tmp_cand.SetRadius(x_cand.radius);
       tmp_cand.SetCircleCenter(x_cand.circ_center);
-      tmp_cand.SetInitMomX(x_cand.mom_axis.X());
-      tmp_cand.SetInitMomY(CalcRoughYMomentum(x_cand.mom, y_cand.coefs[1]));
-      tmp_cand.SetInitMomZ(x_cand.mom_axis.Z());
+      auto ssd_gpos = x_cand.ssd_cluster->GlobalPos(*geometry);
+      auto pre_init_pos = TVector3(ssd_gpos.X(), CalcRoughYPosition(x_cand.ssd_cluster->ModuleId(), y_cand.coefs), ssd_gpos.Z());
+      auto init_mom = TVector3(x_cand.mom_axis.X(), CalcRoughYMomentum(x_cand.mom, y_cand.coefs[1]), x_cand.mom_axis.Z());
+      auto init_pos = BackInitPos(pre_init_pos, init_mom);
+      tmp_cand.SetInitX(init_pos.X());
+      tmp_cand.SetInitY(init_pos.Y());
+      tmp_cand.SetInitZ(init_pos.Z());
+      tmp_cand.SetInitMomX(init_mom.X());
+      tmp_cand.SetInitMomY(init_mom.Y());
+      tmp_cand.SetInitMomZ(init_mom.Z());
 #endif // TRACK_FIND_WO_TARGET
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
@@ -1821,14 +1831,19 @@ E16INFO("number of y candidates: %d", n_y_cands);
       tmp_cand.SetInitZ(kTargetZ[x_cand.target_id]);
       tmp_cand.SetTargetID(x_cand.target_id);
 #else // TRACK_FIND_WO_TARGET
-      auto ssd_gpos = x_cand.ssd_cluster->GlobalPos(*geometry);
-      tmp_cand.SetInitX(ssd_gpos.X());
-      tmp_cand.SetInitY(CalcRoughYPosition(x_cand.ssd_cluster->ModuleId(), y_cand.coefs));
-      tmp_cand.SetInitZ(ssd_gpos.Z());
       tmp_cand.SetTargetID(1);
-      tmp_cand.SetInitMomX(x_cand.mom_axis.X());
-      tmp_cand.SetInitMomY(CalcRoughYMomentum(x_cand.mom, y_cand.coefs[1]));
-      tmp_cand.SetInitMomZ(x_cand.mom_axis.Z());
+      tmp_cand.SetRadius(x_cand.radius);
+      tmp_cand.SetCircleCenter(x_cand.circ_center);
+      auto ssd_gpos = x_cand.ssd_cluster->GlobalPos(*geometry);
+      auto pre_init_pos = TVector3(ssd_gpos.X(), CalcRoughYPosition(x_cand.ssd_cluster->ModuleId(), y_cand.coefs), ssd_gpos.Z());
+      auto init_mom = TVector3(x_cand.mom_axis.X(), CalcRoughYMomentum(x_cand.mom, y_cand.coefs[1]), x_cand.mom_axis.Z());
+      auto init_pos = BackInitPos(pre_init_pos, init_mom);
+      tmp_cand.SetInitX(init_pos.X());
+      tmp_cand.SetInitY(init_pos.Y());
+      tmp_cand.SetInitZ(init_pos.Z():
+      tmp_cand.SetInitMomX(init_mom.X());
+      tmp_cand.SetInitMomY(init_mom.Y());
+      tmp_cand.SetInitMomZ(init_mom.Z());
 #endif // TRACK_FIND_WO_TARGET
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
