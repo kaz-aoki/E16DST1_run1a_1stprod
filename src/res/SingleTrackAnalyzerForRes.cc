@@ -2280,7 +2280,7 @@ void SingleTrackAnalyzerForRes::MkTreeForTrackSelection(int runoption, int maxev
 
    tree->Branch("run_id",&out_run_id,"run_id/I");
    tree->Branch("event_id",&out_event_id,"event_id/I");
-   tree->Branch("spill_id",&out_run_id,"spill_id/I");
+   tree->Branch("spill_id",&out_spill_id,"spill_id/I");
    // tree->Branch("n_hbd_clusters",&out_n_hbd_clusters,"n_hbd_clusters/I");
    // tree->Branch("hbd_cluster_id", &out_hbd_cluster_id);
    // tree->Branch("hbd_cluster_mid", &out_hbd_cluster_mid);

@@ -130,6 +130,8 @@ add_library(E16DST_DST1
   src/res/AnalyzerResidualHBD.cc
   src/res/AnalyzerTrackSelection.cc
   src/res/SingleTrackAnalyzerForRes.cc
+  src/res/GainCalibwoTrack.cc
+  src/res/RootGainCalibwoTrack.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   
 	src/E16DST_DST1.cc
@@ -442,6 +444,13 @@ target_link_libraries(check_lgwf_wtrack
 add_executable(LGHitADC usr/tmp/LGHitADC.cc)
 
 target_link_libraries(LGHitADC
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(LGMakeTreewoTrack usr/tmp/LGMakeTreewoTrack.cc)
+
+target_link_libraries(LGMakeTreewoTrack
   E16DST_DST1
 )
 

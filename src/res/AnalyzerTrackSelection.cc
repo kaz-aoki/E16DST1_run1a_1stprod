@@ -456,7 +456,7 @@ bool IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid){
 
 void CalcClusterCand(E16ANA_GeometryV2& geometry, std::vector<int>& trk_ass_cids, int blockch, double position_block_lx, double position_block_ly, double angle_lx){
 
-  double r_moliere = 0.;//mm
+  double r_moliere = 14.;//mm
   double block_depth = 135.;//mm
 
   trk_ass_cids.push_back(blockch);
@@ -2755,6 +2755,7 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    double lgresthr = 50.;
    if(runoption==0){lgresthr = 10.;}
    if(runoption==3){lgresthr = 10.;}
+   // if(runoption==1){lgresthr = 10.;}
    double lgcon[4] = {240.,250.,260.,270.};
    // double hbdthr = 7.;
    // if(runoption==3){hbdthr = 4.;}
@@ -2774,8 +2775,11 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    const int ntrktype=6;
    char trktype[ntrktype][20] = {"w/o_HBD&LG_kgs","w/HBD_kgs","w/LG_kgs","w/HBDLG_kgs","w/HBD_kh","w/HBDf&m_kh"};
    int eptype = 4;
-   // int roughbin[ndet] = {200,50};//bin;
-   int roughbin[ndet] = {400,100};//bin;
+   int roughbin[ndet] = {200,50};
+   if(runoption==0){
+     roughbin[0] = 400;
+     roughbin[1] = 100;
+   }
    double originx[5][ndet];
    double originy[5][ndet];
    double widthx[5][ndet];
@@ -2832,7 +2836,13 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      widthx[4][0]=25.;
      originy[4][0]=- 0.6;
      widthy[4][0]=20.;
+     for(int i=0;i<5;i++){
+       widthx[i][0] = 20.;
+       widthy[i][0] = 15.;
+       // originx[i][0] += 20.;
+     }
    }
+
    int ex_2d[ndet] = {50,200};
    double fitregion[ndet] = {30,100};// half width
    int tbinw[ndet] = {800,200};
@@ -2955,6 +2965,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
    TH1F* trkmom[6];
    TH1F* hmomwlg[6];
    TH1F* hmomwolg[6];
+   TH1F* hmomwtrg[6];
+   TH1F* hmomwotrg[6];
    TH1I* hresxtrg[6];
    TH1I* hresytrg[6];
    TH2F* hbdadcvsmom[5];
@@ -2963,12 +2975,16 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
      trkmom[i] = new TH1F(Form("trkmom%d",i),Form("mom_w/HBDHit_mod%d",103+i),50,0,5);
      hmomwlg[i] = new TH1F(Form("hmomwlg%d",i),Form("mom_w/LGHit_mod%d",103+i),50,0,5);
      hmomwolg[i] = new TH1F(Form("hmomwolg%d",i),Form("mom_w/oLGHit_mod%d",103+i),50,0,5);
+     hmomwtrg[i] = new TH1F(Form("hmomwtrg%d",i),Form("mom_w/TrgBias_mod%d",103+i),50,0,5);
+     hmomwotrg[i] = new TH1F(Form("hmomwotrg%d",i),Form("mom_w/oTrgBias_mod%d",103+i),50,0,5);
      hresxtrg[i] = new TH1I(Form("hresxtrg%d",i),Form("Residualx_bw_HBD&LG_trg_mod%d",103+i),15,-7.5,7.5);
      hresytrg[i] = new TH1I(Form("hresytrg%d",i),Form("Residualy_bw_HBD&LG_trg_mod%d",103+i),15,-7.5,7.5);
      if(i==2){
        trkmom[i]->SetTitle("mom_w/HBDHit_modR");
        hmomwlg[i]->SetTitle("mom_w/LGHit_modR");
        hmomwolg[i]->SetTitle("mom_w/oLGHit_modR");
+       hmomwtrg[i]->SetTitle("mom_w/TrgBias_modR");
+       hmomwotrg[i]->SetTitle("mom_w/oTrgBias_modR");
        hresxtrg[i]->SetTitle("Residualx_bw_HBD&LG_trg_modR");
        hresytrg[i]->SetTitle("Residualy_bw_HBD&LG_trg_modR");
      }
@@ -2976,6 +2992,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
        trkmom[i]->SetTitle("mom_w/HBDHit_modL");
        hmomwlg[i]->SetTitle("mom_w/LGHit_modL");
        hmomwolg[i]->SetTitle("mom_w/oLGHit_modL");
+       hmomwtrg[i]->SetTitle("mom_w/TrgBias_modL");
+       hmomwotrg[i]->SetTitle("mom_w/oTrgBias_modL");
        hresxtrg[i]->SetTitle("Residualx_bw_HBD&LG_trg_modL");
        hresytrg[i]->SetTitle("Residualy_bw_HBD&LG_trg_modL");
      }
@@ -3431,13 +3449,15 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   int cidtmp = trk_ass_cids.at(ia);
 	   int eltmp = (cidtmp/10)*7 + cidtmp%10;
 	   bool bcls = false;
+	   double adctmp = 0.;
 	   for(int ib=0;ib<lgcluster.cids.size();ib++){
-	     if(lgcluster.cids.at(ib)==cidtmp){bcls=true;break;}
+	     if(lgcluster.cids.at(ib)==cidtmp){bcls=true;adctmp=lgcluster.adcs.at(ib);break;}
 	   }
 	   if(!bcls){
 	     heffe[lmide][eltmp]->Fill(0);
 	     heffem[lmide][eltmp%7]->Fill(0);
-	     if(track_w_trg_bias->at(itrack)){
+	     if( runoption==0&&IsInTrgRun(run_id,itrack) ){
+	     // if(track_w_trg_bias->at(itrack)){
 	     // if(track_w_trg_trk->at(itrack)){
 	       heffemvstrg[lmide][eltmp%7]->Fill(0.,1.);
 	     }
@@ -3448,7 +3468,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   else{
 	     heffe[lmide][eltmp]->Fill(1);
 	     heffem[lmide][eltmp%7]->Fill(1);
-	     if(track_w_trg_bias->at(itrack)){
+	     if( runoption==0&&IsInTrgRun(run_id,itrack) ){
+	     // if(track_w_trg_bias->at(itrack)){
 	     // if(track_w_trg_trk->at(itrack)){
 	       heffemvstrg[lmide][eltmp%7]->Fill(1.,1.);
 	     }
@@ -3469,6 +3490,16 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	   hmomwlg[lmide]->Fill(track_mom->at(itrack));
 	   if(lmide==0||lmide==1){hmomwlg[2]->Fill(track_mom->at(itrack));}
 	   if(lmide==3||lmide==4){hmomwlg[5]->Fill(track_mom->at(itrack));}
+	 }
+	 if(runoption==0&&!IsInTrgRun(run_id,itrack)){
+	   hmomwotrg[lmide]->Fill(track_mom->at(itrack));
+	   if(lmide==0||lmide==1){hmomwotrg[2]->Fill(track_mom->at(itrack));}
+	   if(lmide==3||lmide==4){hmomwotrg[5]->Fill(track_mom->at(itrack));}
+	 }
+	 else{
+	   hmomwtrg[lmide]->Fill(track_mom->at(itrack));
+	   if(lmide==0||lmide==1){hmomwtrg[2]->Fill(track_mom->at(itrack));}
+	   if(lmide==3||lmide==4){hmomwtrg[5]->Fill(track_mom->at(itrack));}
 	 }
 	 int lgtrgcid = track_lg_blockch->at(itrack);
 	 int hbdtrgcid = HbdTrgCid(track_hbd_lx->at(itrack),track_hbd_ly->at(itrack));
@@ -4442,7 +4473,8 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 	 lasub2d[2][i][k][l]->Draw();
 	 effxtrkp[i][k][l] = (double)vasub2d[2][i][k][l]/(double)ntrack[(i+3)%5][l];
 	 casub2d[i][k][l]->cd(4)->DrawFrame(-ex_2d[k],-ex_2d[k],ex_2d[k],ex_2d[k]);
-	 hasub2dcopy[i][k][l]->Draw("colz sames");
+	 // hasub2dcopy[i][k][l]->Draw("colz sames");//230205
+	 hasub2d[i][k][l]->Draw("colz sames");
        }
      }
    }
@@ -4605,46 +4637,46 @@ void AnalyzerTrackSelection::DrawForLGEfficiency(int runoption, int maxevent, ch
 
      leff2[i]->Draw();
    }
-   if(hbdclthr==1){
-     std::ofstream psum("purity_wocsa.txt",ios::app);
-     psum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
-     }
-     psum<<std::endl;
-     std::ofstream esum("lgeff_wocsa.txt",ios::app);
-     esum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
-     }
-     esum<<std::endl;
-     std::ofstream pbsum("purity_wohbd_wocsa.txt",ios::app);
-     pbsum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       pbsum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1][1]*(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][0]<<" ";
-     }
-     pbsum<<std::endl;
-     std::ofstream hesum("hbdeff_wocsa.txt",ios::app);
-     hesum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       hesum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][1][0]<<" ";
-     }
-     hesum<<std::endl;
-   }
-   if(hbdclthr==2){
-     std::ofstream psum("purity_wcsa.txt",ios::app);
-     psum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
-     }
-     psum<<std::endl;
-     std::ofstream esum("lgeff_wcsa.txt",ios::app);
-     esum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
-     }
-     esum<<std::endl;
-   }
+   // if(hbdclthr==1){
+   //   std::ofstream psum("purity_wocsa.txt",ios::app);
+   //   psum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
+   //   }
+   //   psum<<std::endl;
+   //   std::ofstream esum("lgeff_wocsa.txt",ios::app);
+   //   esum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
+   //   }
+   //   esum<<std::endl;
+   //   std::ofstream pbsum("purity_wohbd_wocsa.txt",ios::app);
+   //   pbsum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     pbsum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1][1]*(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][0]<<" ";
+   //   }
+   //   pbsum<<std::endl;
+   //   std::ofstream hesum("hbdeff_wocsa.txt",ios::app);
+   //   hesum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     hesum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][1][0]<<" ";
+   //   }
+   //   hesum<<std::endl;
+   // }
+   // if(hbdclthr==2){
+   //   std::ofstream psum("purity_wcsa.txt",ios::app);
+   //   psum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
+   //   }
+   //   psum<<std::endl;
+   //   std::ofstream esum("lgeff_wcsa.txt",ios::app);
+   //   esum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
+   //   }
+   //   esum<<std::endl;
+   // }
    // Efficiency Summary   
 
    //draw residual HBD-LG mix
