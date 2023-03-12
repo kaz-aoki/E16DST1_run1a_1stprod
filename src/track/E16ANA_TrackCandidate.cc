@@ -1134,8 +1134,19 @@ TVector3 E16ANA_TrackCandidates::BackInitPos(const TVector3& pos, const TVector3
 void E16ANA_TrackCandidates::SearchTrackCandidates() {
   track_candidates.clear();
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
+#ifndef DST1_EVENT_MIX
   auto& ssd = record->SSD();
+#else // DST1_EVENT_MIX
+#ifndef MIX_SSD
+  auto& ssd = record->SSD();
+#else // MIX_SSD
+  auto& ssd = prev_record->SSD();
+#endif // MIX_SSD
+#endif // DST1_EVENT_MIX
   auto& gtr = record->GTR();
+#ifdef DST1_EVENT_MIX
+  auto& prev_gtr = prev_record->GTR();
+#endif // DST1_EVENT_MIX
 E16INFO("number of SSD clusters: %d", ssd.NumClusters());
 E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
@@ -1155,22 +1166,39 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
         continue;
       }
       auto& gtr100x_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsX);
+#ifdef DST1_EVENT_MIX
+      auto& prev_gtr100x_cluster_ptrs = prev_gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsX);
+#endif // DST1_EVENT_MIX
       for (const auto& gtr200_module_id : E16ANA_TrackConstant::kModuleIDs) {
 //        if (abs(gtr200_module_id - ssd_module_id) > 1) {
         if (is_l != IsLModule(gtr200_module_id)) {
           continue;
         }
         auto& gtr200x_cluster_ptrs = gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsX);
+#ifdef DST1_EVENT_MIX
+        auto& prev_gtr200x_cluster_ptrs = prev_gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsX);
+#endif // DST1_EVENT_MIX
         for (const auto& gtr300_module_id : E16ANA_TrackConstant::kModuleIDs) {
 //          if (abs(gtr300_module_id - ssd_module_id) > 1) {
           if (is_l != IsLModule(gtr300_module_id)) {
             continue;
           }
           auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
+#ifdef DST1_EVENT_MIX
+          auto& prev_gtr300x_cluster_ptrs = prev_gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
+#endif // DST1_EVENT_MIX
           for (const auto& ssd_cluster : ssd_cluster_ptrs) {
             cluster_set->ssd_cluster = ssd_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
+#ifndef DST1_EVENT_MIX
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR100
+            for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
+#else // MIX_GTR100
+            for (const auto& gtr100x_cluster : prev_gtr100x_cluster_ptrs) {
+#endif // MIX_GTR100
+#endif // DST1_EVENT_MIX
               if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100 - 1]) {
                 continue;
               }
@@ -1184,7 +1212,15 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
 	      //     cluster_set->global_poss[E16ANA_TrackConstant::kGTR100].Y(),testg.Y(),
 	      //     cluster_set->global_poss[E16ANA_TrackConstant::kGTR100].Z(),testg.Z());
 
+#ifndef DST1_EVENT_MIX
               for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR200
+              for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
+#else // MIX_GTR200
+              for (const auto& gtr200x_cluster : prev_gtr200x_cluster_ptrs) {
+#endif // MIX_GTR200
+#endif // DST1_EVENT_MIX
                 if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200 - 1]) {
                   continue;
                 }
@@ -1193,7 +1229,15 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 }
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
                 cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPosT(*geometry);
+#ifndef DST1_EVENT_MIX
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR300
+                for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
+#else // MIX_GTR300
+                for (const auto& gtr300x_cluster : prev_gtr300x_cluster_ptrs) {
+#endif // MIX_GTR300
+#endif // DST1_EVENT_MIX
                   if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300 - 1]) {
                     continue;
                   }
@@ -1241,12 +1285,18 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
     }
     auto is_l = IsLModule(gtr300_module_id);
     auto& gtr300y_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsY);
+#ifdef DST1_EVENT_MIX
+    auto& prev_gtr300y_cluster_ptrs = prev_gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsY);
+#endif // DST1_EVENT_MIX
     for (const auto& gtr200_module_id : E16ANA_TrackConstant::kModuleIDs) {
 //      if (abs(gtr200_module_id - gtr300_module_id) > 1) {
       if (is_l != IsLModule(gtr200_module_id)) {
         continue;
       }
       auto& gtr200y_cluster_ptrs = gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsY);
+#ifdef DST1_EVENT_MIX
+      auto& prev_gtr200y_cluster_ptrs = prev_gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsY);
+#endif // DST1_EVENT_MIX
       for (const auto& gtr100_module_id : E16ANA_TrackConstant::kModuleIDs) {
 //        if (abs(gtr100_module_id - gtr300_module_id) > 1) {
         if (is_l != IsLModule(gtr100_module_id)) {
@@ -1254,19 +1304,47 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
         }
         auto& gtr100y_cluster_ptrs  = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsY);
         auto& gtr100yb_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsYb);
+#ifdef DST1_EVENT_MIX
+        auto& prev_gtr100y_cluster_ptrs  = prev_gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsY);
+        auto& prev_gtr100yb_cluster_ptrs = prev_gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsYb);
+#endif // DST1_EVENT_MIX
+#ifndef DST1_EVENT_MIX
         for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR300
+        for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
+#else // MIX_GTR300
+        for (const auto& gtr300y_cluster : prev_gtr300y_cluster_ptrs) {
+#endif // MIX_GTR300
+#endif // DST1_EVENT_MIX
           if (gtr300y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
             continue;
           }
           cluster_set->gtr_clusters[2] = gtr300y_cluster;
           cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPosT(*geometry);
+#ifndef  DST1_EVENT_MIX
           for (const auto& gtr200y_cluster : gtr200y_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR300
+          for (const auto& gtr200y_cluster : gtr200y_cluster_ptrs) {
+#else // MIX_GTR300
+          for (const auto& gtr200y_cluster : prev_gtr200y_cluster_ptrs) {
+#endif // MIX_GTR300
+#endif // DST1_EVENT_MIX
             if (gtr200y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
               continue;
             }
             cluster_set->gtr_clusters[1] = gtr200y_cluster;
             cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200y_cluster->GlobalPosT(*geometry);
+#ifndef  DST1_EVENT_MIX
             for (const auto& gtr100y_cluster : gtr100y_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR300
+            for (const auto& gtr100y_cluster : gtr100y_cluster_ptrs) {
+#else // MIX_GTR300
+            for (const auto& gtr100y_cluster : prev_gtr100y_cluster_ptrs) {
+#endif // MIX_GTR300
+#endif // DST1_EVENT_MIX
               if (gtr100y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
                 continue;
               }
@@ -1276,7 +1354,15 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                 cluster_sets[1].emplace_back(*cluster_set);
               }
             }
+#ifndef  DST1_EVENT_MIX
             for (const auto& gtr100yb_cluster : gtr100yb_cluster_ptrs) {
+#else // DST1_EVENT_MIX
+#ifndef MIX_GTR300
+            for (const auto& gtr100yb_cluster : gtr100yb_cluster_ptrs) {
+#else // MIX_GTR300
+            for (const auto& gtr100yb_cluster : prev_gtr100yb_cluster_ptrs) {
+#endif // MIX_GTR300
+#endif // DST1_EVENT_MIX
               if (gtr100yb_cluster->PeakSum() < kGTRPeakSumThresholdY) {
                 continue;
               }

@@ -1629,6 +1629,14 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()      { return lg; }
   E16DST_DST1Trigger&                                            Trigger() { return trigger; }
   E16DST_DST1Tracks&                                             Tracks()  { return tracks; }
+  void UpdatePtrs() {
+    ssd.UpdatePtrs();
+    gtr.UpdatePtrs();
+    hbd.UpdatePtrs();
+    lg.UpdatePtrs();
+    trigger.UpdatePtrs();
+    return;
+  }
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
  private:

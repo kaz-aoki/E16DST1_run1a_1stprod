@@ -293,6 +293,10 @@ int main(int argc, char* argv[]) {
   }
   E16DST_DST1PhysicsRecord record;
   E16DST_DST1PhysicsRecord record_for_another_hbd_cluster;
+#ifdef DST1_EVENT_MIX
+  E16DST_DST1PhysicsRecord prev_record;
+#endif // DST1_EVENT_MIX
+
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -428,7 +432,16 @@ int main(int argc, char* argv[]) {
       record.Trigger().UpdatePtrs();
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
+#ifndef DST1_EVENT_MIX
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
+#else // DST1_EVENT_MIX
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &prev_record, &check_file);
+      E16DST_DST1SSDFactory(ssd_hits0, &prev_record.SSD());
+      prev_record.SSD().AddHitAndClusterIds();
+      E16DST_DST1GTRFactory(gtr_hits0, &prev_record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
+      prev_record.GTR().AddHitAndClusterIds();
+      prev_record.UpdatePtrs();
+#endif // DST1_EVENT_MIX
 
 //// Check begin
 //      auto event_id = event0->EventID();

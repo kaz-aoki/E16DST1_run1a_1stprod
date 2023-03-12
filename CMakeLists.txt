@@ -30,12 +30,20 @@ endif()
 
 add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 
+#add_definitions(-DWO_TRACK_FIT)
+
+# embedding
 #add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DREMOVE_REAL_HIT)
 #add_definitions(-DWO_LAYER_EFF) # remove timing correlation cut between GTR x and y (for mock data)
 ##add_definitions(-DSIM_DST1_GEOM_CHECK) # tmp. print position for check
 
-#add_definitions(-DWO_TRACK_FIT)
+# event mixing
+add_definitions(-DDST1_EVENT_MIX)
+#add_definitions(-DMIX_SSD)
+add_definitions(-DMIX_GTR100)
+#add_definitions(-DMIX_GTR200)
+#add_definitions(-DMIX_GTR300)
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}

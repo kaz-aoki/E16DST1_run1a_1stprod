@@ -489,11 +489,19 @@ class E16ANA_TrackCandidates {
     }
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter,
+#ifndef DST1_EVENT_MIX
                          bool _is_electron_run, E16DST_DST1PhysicsRecord* _record)
+#else // DST1_EVENT_MIX
+                         bool _is_electron_run, E16DST_DST1PhysicsRecord* _record, E16DST_DST1PhysicsRecord* _prev_record)
+#endif // DST1_EVENT_MIX
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
         is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false),
         vertex_z_fix_flag(E16ANA_TrackParameter::kVtxZFixFlag),
+#ifndef DST1_EVENT_MIX
         record(_record) {
+#else // DST1_EVENT_MIX
+        record(_record), prev_record(_prev_record) {
+#endif // DST1_EVENT_MIX
     track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -787,6 +795,9 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
+#ifdef DST1_EVENT_MIX
+  E16DST_DST1PhysicsRecord* prev_record;
+#endif // DST1_EVENT_MIX
   int n_x_cands;
   int n_y_cands;
   std::vector<E16ANA_TrackCandidate> track_candidates;
