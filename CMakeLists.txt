@@ -455,6 +455,13 @@ target_link_libraries(LGMakeTreewoTrack
 )
 
 #_______________________________________________________________________________
+add_executable(LGResidualwoTrack usr/tmp/LGResidualwoTrack.cc)
+
+target_link_libraries(LGResidualwoTrack
+  E16DST_DST1
+)
+
+#_______________________________________________________________________________
 #add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
 #
 #target_link_libraries(draw_dead_channel_map

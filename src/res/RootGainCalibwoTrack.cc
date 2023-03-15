@@ -113,7 +113,7 @@ void RootGainCalibwoTrack::Loop()
 
 }
 
-void RootGainCalibwoTrack::Residual(){
+void RootGainCalibwoTrack::Residual(char* out_file_name, int maxevent){
 
    if (fChain == 0) return;
 
@@ -124,11 +124,17 @@ void RootGainCalibwoTrack::Residual(){
      c[j] = new TCanvas(Form("c%d",j),Form("c%d",j),1000,700);
      c[j]->Divide(2,2);
    }
-   TH1F* hresx[4];
-   TH1F* hresy[4];
-   for(int i=0;i<4;i++){
-     hresx[i] = new TH1F(Form("hresx%d",i),Form("resx_%d",mid[i]),15,-7.5,7.5);
-     hresy[i] = new TH1F(Form("hresy%d",i),Form("resy_%d",mid[i]),15,-7.5,7.5);
+   TH1F* hresx[2][4];
+   TH1F* hresy[2][4];
+   TH1F* hresxd[2][4];
+   TH1F* hresyd[2][4];
+   for(int j=0;j<2;j++){
+     for(int i=0;i<4;i++){
+       hresx[j][i] = new TH1F(Form("hresx%d%d",j,i),Form("resx_%d",mid[i]),15,-7.5,7.5);
+       hresy[j][i] = new TH1F(Form("hresy%d%d",j,i),Form("resy_%d",mid[i]),15,-7.5,7.5);
+       hresxd[j][i] = new TH1F(Form("hresxd%d%d",j,i),Form("resx_mix_%d",mid[i]),15,-7.5,7.5);
+       hresyd[j][i] = new TH1F(Form("hresyd%d%d",j,i),Form("resy_mix_%d",mid[i]),15,-7.5,7.5);
+     }
    }
 
    //loop
@@ -136,16 +142,21 @@ void RootGainCalibwoTrack::Residual(){
    std::vector<int> lgly[4];
    std::vector<int> trklx[4];
    std::vector<int> trkly[4];
+   std::vector<int> pre_lglx[4];
+   std::vector<int> pre_lgly[4];
    int pre_eventid = -10000;
    Long64_t nentries = fChain->GetEntriesFast();
    std::cout<<"nentries: "<<nentries<<std::endl;
    Long64_t nbytes = 0, nb = 0;
+
+   int nevent = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
      Long64_t ientry = LoadTree(jentry);
      if (ientry < 0) break;
      nb = fChain->GetEntry(jentry);   nbytes += nb;
 
      if(ientry%100000==0){std::cout<<"loop: "<<ientry<<std::endl;}
+     if(maxevent!=-1&&nevent>maxevent) break;
 
      if(lg_mid==102||lg_mid==108) continue;
      int midel = (lg_mid-103+2)%5;
@@ -162,10 +173,32 @@ void RootGainCalibwoTrack::Residual(){
        for(int imod=0;imod<4;imod++){
 	 for(int itrk=0;itrk<trklx[imod].size();itrk++){
 	   for(int ilg=0;ilg<lglx[imod].size();ilg++){
-	     hresx[imod]->Fill(lglx[imod].at(ilg)-trklx[imod].at(itrk));
-	     hresy[imod]->Fill(lgly[imod].at(ilg)-trkly[imod].at(itrk));
+	     hresx[0][imod]->Fill(lglx[imod].at(ilg)-trklx[imod].at(itrk));
+	     hresy[0][imod]->Fill(lgly[imod].at(ilg)-trkly[imod].at(itrk));
+	     if( lgly[imod].at(ilg)==trkly[imod].at(itrk) ){
+	       hresx[1][imod]->Fill(lglx[imod].at(ilg)-trklx[imod].at(itrk));
+	     }
+	     if( lglx[imod].at(ilg)==trklx[imod].at(itrk) ){
+	       hresy[1][imod]->Fill(lgly[imod].at(ilg)-trkly[imod].at(itrk));
+	     }
+	   }
+	   if(pre_lglx[imod].size()!=0){
+	     for(int ilg=0;ilg<pre_lglx[imod].size();ilg++){
+	       hresxd[0][imod]->Fill(pre_lglx[imod].at(ilg)-trklx[imod].at(itrk));
+	       hresyd[0][imod]->Fill(pre_lgly[imod].at(ilg)-trkly[imod].at(itrk));
+	       if( pre_lgly[imod].at(ilg)==trkly[imod].at(itrk) ){
+		 hresxd[1][imod]->Fill(pre_lglx[imod].at(ilg)-trklx[imod].at(itrk));
+	       }
+	       if( pre_lglx[imod].at(ilg)==trklx[imod].at(itrk) ){
+		 hresyd[1][imod]->Fill(pre_lgly[imod].at(ilg)-trkly[imod].at(itrk));
+	       }
+	     }
 	   }
 	 }
+	 pre_lglx[imod].resize(lglx[imod].size());
+	 copy( lglx[imod].begin(), lglx[imod].end(), pre_lglx[imod].begin() );
+	 pre_lgly[imod].resize(lgly[imod].size());
+	 copy( lgly[imod].begin(), lgly[imod].end(), pre_lgly[imod].begin() );
 	 lglx[imod].clear();
 	 lgly[imod].clear();
 	 trklx[imod].clear();
@@ -175,17 +208,36 @@ void RootGainCalibwoTrack::Residual(){
 
      pre_eventid = event_id;
 
+     nevent++;
+
    }//loop
 
    //Draw
+   for(int i=0;i<4;i++){
+     c[i]->cd(1);
+     hresx[0][i]->Draw();
+     hresxd[0][i]->SetLineColor(6);
+     hresxd[0][i]->Draw("sames");
+     c[i]->cd(2);
+     hresy[0][i]->Draw();
+     hresyd[0][i]->SetLineColor(6);
+     hresyd[0][i]->Draw("sames");
+     c[i]->cd(3);
+     hresx[1][i]->Draw();
+     hresxd[1][i]->SetLineColor(6);
+     hresxd[1][i]->Draw("sames");
+     c[i]->cd(4);
+     hresy[1][i]->Draw();
+     hresyd[1][i]->SetLineColor(6);
+     hresyd[1][i]->Draw("sames");
+   }
 
-   // TString fout = "block.pdf";
-   // c[0][0]->SaveAs(fout+"[","pdf");
-   // for(int k=0;k<3;k++){
-   //   for(int j=0;j<4;j++){
-   //     c[k][j]->SaveAs(fout,"pdf");
-   //   }
-   // }
-   // c[2][3]->SaveAs(fout+"]","pdf");
+   TString fout = Form("%s", out_file_name);
+   c[0]->SaveAs(fout+"[","pdf");
+   for(int j=0;j<4;j++){
+     c[j]->SaveAs(fout,"pdf");
+   }
+   c[3]->SaveAs(fout+"]","pdf");
 
 }
+

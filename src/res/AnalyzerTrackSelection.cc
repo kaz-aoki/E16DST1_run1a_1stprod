@@ -6379,3 +6379,76 @@ void AnalyzerTrackSelection::GainCalib(int runoption, int maxevent, char* out_fi
    fout->Close();
 
 }
+
+// void AnalyzerTrackSelection::MomEachBlock(int runoption, int maxevent, char* out_file_name, char* out_root_name)
+// {
+
+//    if (fChain == 0) return;
+
+//    TFile *fout = new TFile(out_root_name,"recreate");
+//    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+
+//    int mid[4] = {103,104,106,107};
+//    int cid[42];
+//    for(int i=0;i<7;i++){
+//      for(int j=0;j<6;j++){
+//        cid[i+j*7] = i+j*10;
+//      }
+//    }
+//    TH1F* hmom[5][4][42];
+//    for(int k=0;k<5;k++){
+//      for(int i=0;i<4;i++){
+//        for(int j=0;j<42;j++){
+// 	 hmom[k][i][j] = new TH1F(Form("h%d%d%d",k,i,j),Form("lgadc_%d_%d-%d",k,mid[i],cid[j]),25,0,5);
+//        }
+//      }
+//    }
+
+//    Long64_t n_entries = fChain->GetEntries();
+//    Long64_t nentries = fChain->GetEntriesFast();
+//    Long64_t nbytes = 0, nb = 0;
+
+//    int nevent=0;
+//    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+//      Long64_t ientry = LoadTree(jentry);
+//      if (ientry < 0) break;
+//      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+//      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+//      if( maxevent!=-1&&nevent>maxevent ){break;}
+
+//      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
+
+//        if (CutOfTrack(ientry,itrack) < 0) continue;
+//        // int runp = RunPurpose(run_id);
+//        // if( (int)runp/10!=1 ) continue;
+
+//        int lgmid = track_lg_mid->at(itrack);
+//        int lgcid = track_lg_blockch->at(itrack);
+//        TVector3 linearpos[5];//SSD, GTR100, GTR200, GTR300, HBD
+//        int linearmid[5];
+//        for(int il=0;il<5;il++){
+// 	 // GainCalibwoTrack::CalcCrossPoint(geometry,lgmid,lgcid,il,linearmid[il],linearpos[il]);
+//        }
+//        TVector3 realpos[5];//SSD, GTR100, GTR200, GTR300, HBD
+//        int realmid[5];
+
+//      }//track loop
+
+//      nevent++;
+
+//    }//event loop
+
+
+//    //Draw canvas
+//    TString outfile = Form("%s",out_file_name);
+
+//    TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+//    cdef->SaveAs(outfile+"[","pdf");
+//    cdef->SaveAs(outfile+"]","pdf");
+
+//    fout->Write();
+//    fout->Close();
+//    delete geometry;
+
+// }

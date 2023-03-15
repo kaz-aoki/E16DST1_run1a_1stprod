@@ -203,7 +203,7 @@ public :
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
-   virtual void     Residual();
+   virtual void     Residual(char* out_file_name, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -411,7 +411,7 @@ Int_t RootGainCalibwoTrack::TrackSelection(Long64_t entry)
   if( n_hbds==0 ){return -1;}
   // if( (lg_mid-105)<0 && lg_rightside_adc>-100 ){return -1;}
   // if( (lg_mid-105)>0 && lg_leftside_adc>-100 ){return -1;}
-  if( n_gtr300xs<0 || n_gtr300ys<0 ){return -1;}
+  // if( n_gtr300xs==0 || n_gtr300ys==0 ){return -1;}
   else{return 1;}
 }
 #endif // #ifdef RootGainCalibwoTrack_cxx

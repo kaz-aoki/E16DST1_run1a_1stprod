@@ -534,6 +534,7 @@ public :
    virtual void     DrawForLGEfficiency(int runtype, int maxevent, char* out_file_name, char* out_root_name, double hbdthr, int hbdclthr);
    virtual void     DrawForLGRejection(int runtype, int maxevent, char* out_file_name, char* out_root_name, int hbdoptype);
    virtual void     GainCalib(int runtype, int maxevent, char* out_file_name, char* out_root_name);
+   virtual void     MomEachBlock(int runoption, int maxevent, char* out_file_name, char* out_root_name);
    // virtual void     MkMixingHist(int runoption, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);

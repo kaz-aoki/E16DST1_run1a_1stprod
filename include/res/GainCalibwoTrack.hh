@@ -1454,9 +1454,10 @@ public :
    virtual void     LeftSideHit(int ilg, double& outadc, double& outt);
    virtual void     RightSideHit(int ilg, double& outadc, double& outt);
    virtual void     CalcCrossPoint(E16ANA_GeometryV2* geometry, int mid, int cid, TVector3& hbd_center);
-   virtual void     CalcCrossPoint(E16ANA_GeometryV2* geometry, int mid, int cid, int otherlid, int& othermid, TVector3& lcross);
+   static  void     CalcCrossPoint(E16ANA_GeometryV2* geometry, int mid, int cid, int otherlid, int& othermid, TVector3& lcross);
    virtual void     OtherClsLoop(int lid, int xory, int othermid, double lcross, int& nassocs, nearcls& nc, std::vector<double>& outadc, std::vector<double>& outt, std::vector<double>& outlp);
    virtual bool     wTrgBias(Long64_t entry, int lgmid, int lgcid, int awmin, int awmax, int tw, int& wtrglg, bool& wtrgtrk);
+   virtual Double_t CutAroundTarget(Long64_t entry, Int_t elem, int& tgtid);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
@@ -3137,6 +3138,34 @@ bool GainCalibwoTrack::wTrgBias(Long64_t entry, int lgmid, int lgcid, int awmin,
 
   return wtrg;
 
+}
+Double_t GainCalibwoTrack::CutAroundTarget(Long64_t entry, Int_t elem, int& tgtid)
+{
+  double x0 = rk_proj_tgt0_gx->at(elem);
+  double y0 = rk_proj_tgt0_gy->at(elem);
+  double x1 = rk_proj_tgt1_gx->at(elem);
+  double y1 = rk_proj_tgt1_gy->at(elem);
+  double x2 = rk_proj_tgt2_gx->at(elem);
+  double y2 = rk_proj_tgt2_gy->at(elem);
+
+  double r0 = x0*x0+y0*y0;
+  double r1 = x1*x1+y1*y1;
+  double r2 = x2*x2+y2*y2;
+  if(r0<r1&&r0<r2){
+    tgtid = 0;
+    return r0;
+  }
+  else if(r1<r0&&r1<r2){
+    tgtid = 1;
+    return r1;
+  }
+  else if(r2<r0&&r2<r1){
+    tgtid = 2;
+    return r2;
+  }
+  else{
+    return -1;
+  }
 }
 
 #endif // #ifdef GainCalibwoTrack_cxx

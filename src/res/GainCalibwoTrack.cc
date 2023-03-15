@@ -278,6 +278,16 @@ void GainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_file_name
    if(!TrigIsAWmax){TrigAWmax=10000;}
    std::cout<<"Trig:"<<run_id<<" "<<TrigAWmin<<" "<<TrigAWmax<<" "<<TrigTW<<std::endl;
 
+   int active_mid[4] = {103,104,106,107};
+   int active_cid[38];
+   for(int i=0;i<6;i++){
+     for(int j=0;j<6;j++){
+       active_cid[i*6+j] = i*10+j;
+     }
+   }
+   active_cid[36] = 26;
+   active_cid[37] = 36;
+
    int nevent=0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
       Long64_t ientry = LoadTree(jentry);
@@ -304,9 +314,12 @@ void GainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_file_name
       }
       if(invalid_run) break;
 
+      std::unordered_map<int, int> wlghit;
       for(int ilg=0;ilg<n_lg_hits;ilg++){//lg hit loop
 
 	if(lg_hit_fflag->at(ilg)>=2) continue;
+	int key = lg_hit_mid->at(ilg)*100 + lg_hit_cid->at(ilg);
+	wlghit[key] = 1;
 	int midtmp = lg_hit_mid->at(ilg)-102;
 	int mid = lg_hit_mid->at(ilg);
 	int cid = lg_hit_cid->at(ilg);
@@ -450,6 +463,145 @@ void GainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_file_name
 
       }//lg hit loop
 
+      //w/o lg hit
+      for(int imod=0;imod<4;imod++){
+	for(int ich=0;ich<38;ich++){
+
+	  int tmid = active_mid[imod];
+	  int tcid = active_cid[ich];
+	  int key = tmid*100+tcid;
+	  if(wlghit[key]==1){
+	    continue;
+	  }
+	  out_run_id = run_id;
+	  out_event_id = event_id;
+	  out_spill_id = spill_id;
+	  out_run_purpose = run_purpose;
+	  out_lg_mid = tmid;
+	  out_lg_cid = tcid;
+	  out_lg_adc = -10000.;
+	  out_lg_t = -10000.;
+	  out_lg_multi_ev = -10000.;
+	  out_lg_multi_mod = -10000.;
+	  out_lg_leftside_adc = -10000.;
+	  out_lg_leftside_t = -10000.;
+	  out_lg_rightside_adc = -10000.;
+	  out_lg_rightside_t = -10000.;
+	  out_lg_trg_hit = -10000.;
+	  out_lg_trg_trk = -10000.;
+	  out_lg_trg_run = -10000.;
+
+	  //hits in other detectors
+	  out_hbd_adc.clear();
+	  out_hbd_t.clear();
+	  out_hbd_lx.clear();
+	  out_hbd_ly.clear();
+	  out_ssd_adc.clear();
+	  out_ssd_t.clear();
+	  out_ssd_lx.clear();
+	  out_gtr100x_adc.clear();
+	  out_gtr100x_t.clear();
+	  out_gtr100x_lx.clear();
+	  out_gtr200x_adc.clear();
+	  out_gtr200x_t.clear();
+	  out_gtr200x_lx.clear();
+	  out_gtr300x_adc.clear();
+	  out_gtr300x_t.clear();
+	  out_gtr300x_lx.clear();
+	  out_gtr100y_adc.clear();
+	  out_gtr100y_t.clear();
+	  out_gtr100y_ly.clear();
+	  out_gtr200y_adc.clear();
+	  out_gtr200y_t.clear();
+	  out_gtr200y_ly.clear();
+	  out_gtr300y_adc.clear();
+	  out_gtr300y_t.clear();
+	  out_gtr300y_ly.clear();
+
+	  TVector3 lcross[5];//SSD, GTR100, GTR200, GTR300, HBD
+	  int othermid[5];
+	  for(int il=0;il<5;il++){
+	    CalcCrossPoint(geometry,tmid,tcid,il,othermid[il],lcross[il]);
+	  }
+	  out_ssd_cx = lcross[0].X();
+	  out_gtr100x_cx = lcross[1].X();
+	  out_gtr100y_cy = lcross[1].Y();
+	  out_gtr200x_cx = lcross[2].X();
+	  out_gtr200y_cy = lcross[2].Y();
+	  out_gtr300x_cx = lcross[3].X();
+	  out_gtr300y_cy = lcross[3].Y();
+	  out_hbd_cx = lcross[4].X();
+	  out_hbd_cy = lcross[4].Y();
+
+	  int n_hbds_assoc = 0;
+	  nearcls nch;
+	  nch.nearclsInit();
+	  for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){
+	    if( hbd_cluster_mid->at(ihbd)!=othermid[4] ) continue;
+	    TVector3 hbd_hit(hbd_cluster_x->at(ihbd), hbd_cluster_y->at(ihbd), 0.);
+	    double dist = (hbd_hit-lcross[4]).Perp();
+	    if(dist<search_d[4]){
+	      out_hbd_adc.push_back(hbd_cluster_adc->at(ihbd));
+	      out_hbd_t.push_back(hbd_cluster_t->at(ihbd));
+	      out_hbd_lx.push_back(hbd_cluster_x->at(ihbd));
+	      out_hbd_ly.push_back(hbd_cluster_y->at(ihbd));
+	      n_hbds_assoc++;
+	    }
+	    if(dist<nch.dist){
+	      nch.nearclsSet(hbd_cluster_adc->at(ihbd), hbd_cluster_t->at(ihbd), hbd_cluster_x->at(ihbd), hbd_cluster_y->at(ihbd), dist);
+	    }
+	  }
+	  if(n_hbds_assoc==0){continue;}
+	  // std::cout<<event_id<<" "<<tmid<<" "<<tcid<<std::endl;
+	  out_n_hbds = n_hbds_assoc;
+	  out_hbd_nearest_adc = nch.adc;
+	  out_hbd_nearest_t = nch.t;
+	  out_hbd_nearest_lx = nch.lx;
+	  out_hbd_nearest_ly = nch.ly;
+
+	  int n_assoc[4][2] = {0};//SSD, GTR100, GTR200, GTR300
+	  nearcls nc[4][2];
+	  OtherClsLoop(0, 0, othermid[0], lcross[0].X(), n_assoc[0][0], nc[0][0], out_ssd_adc, out_ssd_t, out_ssd_lx);
+	  out_n_ssds = n_assoc[0][0];
+	  out_ssd_nearest_adc = nc[0][0].adc;
+	  out_ssd_nearest_t = nc[0][0].t;
+	  out_ssd_nearest_lx = nc[0][0].lx;
+	  OtherClsLoop(1, 0, othermid[1], lcross[1].X(), n_assoc[1][0], nc[1][0], out_gtr100x_adc, out_gtr100x_t, out_gtr100x_lx);
+	  out_n_gtr100xs = n_assoc[1][0];
+	  out_gtr100x_nearest_adc = nc[1][0].adc;
+	  out_gtr100x_nearest_t = nc[1][0].t;
+	  out_gtr100x_nearest_lx = nc[1][0].lx;
+	  OtherClsLoop(1, 1, othermid[1], lcross[1].Y(), n_assoc[1][1], nc[1][1], out_gtr100y_adc, out_gtr100y_t, out_gtr100y_ly);
+	  out_n_gtr100ys = n_assoc[1][1];
+	  out_gtr100y_nearest_adc = nc[1][1].adc;
+	  out_gtr100y_nearest_t = nc[1][1].t;
+	  out_gtr100y_nearest_ly = nc[1][1].ly;
+	  OtherClsLoop(2, 0, othermid[2], lcross[2].X(), n_assoc[2][0], nc[2][0], out_gtr200x_adc, out_gtr200x_t, out_gtr200x_lx);
+	  out_n_gtr200xs = n_assoc[2][0];
+	  out_gtr200x_nearest_adc = nc[2][0].adc;
+	  out_gtr200x_nearest_t = nc[2][0].t;
+	  out_gtr200x_nearest_lx = nc[2][0].lx;
+	  OtherClsLoop(2, 1, othermid[2], lcross[2].Y(), n_assoc[2][1], nc[2][1], out_gtr200y_adc, out_gtr200y_t, out_gtr200y_ly);
+	  out_n_gtr200ys = n_assoc[2][1];
+	  out_gtr200y_nearest_adc = nc[2][1].adc;
+	  out_gtr200y_nearest_t = nc[2][1].t;
+	  out_gtr200y_nearest_ly = nc[2][1].ly;
+	  OtherClsLoop(3, 0, othermid[3], lcross[3].X(), n_assoc[3][0], nc[3][0], out_gtr300x_adc, out_gtr300x_t, out_gtr300x_lx);
+	  out_n_gtr300xs = n_assoc[3][0];
+	  out_gtr300x_nearest_adc = nc[3][0].adc;
+	  out_gtr300x_nearest_t = nc[3][0].t;
+	  out_gtr300x_nearest_lx = nc[3][0].lx;
+	  OtherClsLoop(3, 1, othermid[3], lcross[3].Y(), n_assoc[3][1], nc[3][1], out_gtr300y_adc, out_gtr300y_t, out_gtr300y_ly);
+	  out_n_gtr300ys = n_assoc[3][1];
+	  out_gtr300y_nearest_adc = nc[3][1].adc;
+	  out_gtr300y_nearest_t = nc[3][1].t;
+	  out_gtr300y_nearest_ly = nc[3][1].ly;
+
+	  tree->Fill();
+
+	}//cid loop
+      }//mid loop
+
       nevent++;
 
    }//event loop
@@ -458,3 +610,101 @@ void GainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_file_name
    fout->Close();
 
 }
+
+// void GainCalibwoTrack::MomentumEachBlock()
+// {
+//    if (fChain == 0) return;
+
+//    TFile* frout = new TFile("momentum.root","recreate");
+
+//    int mid[4] = {103,104,106,107};
+//    int cid[42];
+//    for(int i=0;i<7;i++){
+//      for(int j=0;j<6;j++){
+//        cid[i+j*7] = i+j*10;
+//      }
+//    }
+//    TH1F* hmom[5][4][42];
+//    for(int k=0;k<5;k++){
+//      for(int i=0;i<4;i++){
+//        for(int j=0;j<42;j++){
+// 	 hmom[k][i][j] = new TH1F(Form("h%d%d%d",k,i,j),Form("lgadc_%d_%d-%d",k,mid[i],cid[j]),25,0,5);
+//        }
+//      }
+//    }
+
+//    E16ANA_HBDDeadChannel hbddch;
+//    std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
+//    if(runoption==0){
+//      hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
+//    }
+//    hbddch.ReadFile(hbd_deadch_file.c_str());
+
+//    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+//    E16ANA_GeometryV2::SetGlobalPointer(geometry);
+//    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+//    bfield_map->Initialize_binary();
+//    E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+//    E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
+
+//    Long64_t n_entries = fChain->GetEntries();
+//    Long64_t nentries = fChain->GetEntriesFast();
+//    Long64_t nbytes = 0, nb = 0;
+
+//    fChain->GetEntry(0);
+//    auto& calib = E16ANA_CalibDBManager::Instance();
+//    calib.SetRunID(run_id);
+//    auto trigger_param = new E16ANA_TriggerCalibParam();
+//    trigger_param->ReadConstantData(calib.CurrentRunID());
+//    bool TrigIsAWmax = trigger_param->IsMaximumWidth();
+//    int TrigAWmax = trigger_param->MaximumWidth();
+//    int TrigAWmin = trigger_param->MinimumWidth();
+//    int TrigTW = trigger_param->TimeWidth();
+//    if(!TrigIsAWmax){TrigAWmax=10000;}
+//    std::cout<<"Trig:"<<run_id<<" "<<TrigAWmin<<" "<<TrigAWmax<<" "<<TrigTW<<std::endl;
+
+//    int nevent=0;
+//    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+//       Long64_t ientry = LoadTree(jentry);
+//       if (ientry < 0) break;
+//       nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+//       int run_purpose = AnalyzerTrackSelection::RunPurpose(run_id);
+//       if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+//       if( maxevent!=-1&&nevent>maxevent ){break;}
+
+//       int ntracks = track_id->size();
+//       for(int itrack=0;itrack<ntracks;itrack++){//track loop
+
+// 	//cut condition for tracks
+// 	if( chi_square->at(itrack)>2 ) continue;
+
+// 	double trk_lg_lx = -10000;
+// 	double trk_lg_ly = -10000;
+// 	int ytype = -10000;
+//       	int trk_lg_mid = CutOfTrackForResidualLG(ientry,itrack,trk_lg_lx,trk_lg_ly,ytype);
+//         int blockchx = (trk_lg_lx)-(track_position_block_lx);
+//         int blockchy = (trk_lg_ly/fabs(trk_lg_ly))*(fabs(trk_lg_ly)+track_position_block_ly);
+//         int blockch = LocaltoCh(blockchx,blockchy);
+
+//       	if (trk_lg_mid < 0) continue;
+// 	int tgtid = -10000;
+// 	double tgtdist = -10000.;
+// 	tgtdist = CutAroundTarget(ientry,itrack,tgtid);
+// 	if( tgtdist<0 || tgtdist>5 ) continue;
+
+// 	double trk_momx = rk_fit_init_mom_gx->at(itrack);
+// 	double trk_momy = rk_fit_init_mom_gy->at(itrack);
+// 	double trk_momz = rk_fit_init_mom_gz->at(itrack);
+// 	double trk_mom  = sqrt(trk_momx*trk_momx+trk_momy*trk_momy+trk_momz*trk_momz);
+
+//       }
+
+//       nevent++;
+
+//    }//event loop
+
+//    fout->Write();
+//    fout->Close();
+
+// }
