@@ -1,27 +1,23 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Fri Jul 15 13:58:32 2022 by ROOT version 6.18/04
+// Fri Jan  6 11:53:12 2023 by ROOT version 6.18/04
 // from TTree tree/tree
-// found on file: /work22/ichikawa/lsf_file/22070700-v2/root/run030717_0_000_ev0-999.root
+// found on file: /ccj/w/data06a/E16/user/ichikawa/embedding/ks/mock_dst1/FGT111-000_nosmear.root
 //////////////////////////////////////////////////////////
 
-#ifndef track_analyzer_220715_h
-#define track_analyzer_220715_h
+#ifndef tmp_check_track_finding_230106_h
+#define tmp_check_track_finding_230106_h
 
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TVector3.h>
+#include <TH1.h>
 
 // Header file for the classes stored in the TTree if any.
 #include "vector"
 
-#include "E16ANA_GeometryV2.hh"
-#include "E16ANA_MagneticFieldMap.hh"
-#include "E16ANA_MultiTrack.hh"
-#include "E16ANA_StepTrack.hh"
-#include "track_analyzer_220715_parameter.hh"
-
-class track_analyzer_220715 {
+class tmp_check_track_finding_230106 {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -35,6 +31,7 @@ public :
    ULong64_t       timestamp_in_spill;
    Int_t           trigger_fine_time;
    Int_t           n_fill;
+   Bool_t          cluster_merged;
    Int_t           n_ssd_hits;
    std::vector<int>     *ssd_hit_id;
    std::vector<int>     *ssd_hit_mid;
@@ -117,6 +114,14 @@ public :
    std::vector<double>  *hbd_hit_gz;
    std::vector<double>  *hbd_hit_t;
    std::vector<float>   *hbd_hit_adc;
+   std::vector<bool>    *ssd_cluster_is_merged;
+   std::vector<bool>    *gtr100x_cluster_is_merged;
+   std::vector<bool>    *gtr200x_cluster_is_merged;
+   std::vector<bool>    *gtr300x_cluster_is_merged;
+   std::vector<bool>    *gtr100y_cluster_is_merged;
+   std::vector<bool>    *gtr100yb_cluster_is_merged;
+   std::vector<bool>    *gtr200y_cluster_is_merged;
+   std::vector<bool>    *gtr300y_cluster_is_merged;
    Int_t           n_ssd_clusters;
    std::vector<int>     *ssd_cluster_id;
    std::vector<int>     *ssd_cluster_mid;
@@ -333,12 +338,107 @@ public :
    std::vector<double>  *trg_track_lg_x;
    std::vector<double>  *trg_track_lg_y;
    std::vector<float>   *trg_track_lg_t;
+   Int_t           mock_n_tracks;
+   std::vector<bool>    *mock_is_dead;
+   std::vector<int>     *mock_pid;
+   std::vector<int>     *mock_charge;
+   std::vector<double>  *mock_init_pos_x;
+   std::vector<double>  *mock_init_pos_y;
+   std::vector<double>  *mock_init_pos_z;
+   std::vector<double>  *mock_init_mom_x;
+   std::vector<double>  *mock_init_mom_y;
+   std::vector<double>  *mock_init_mom_z;
+   std::vector<int>     *mock_ssd_mid;
+   std::vector<double>  *mock_ssd_lpos_x;
+   std::vector<double>  *mock_ssd_lpos_y;
+   std::vector<double>  *mock_ssd_lpos_z;
+   std::vector<double>  *mock_ssd_gpos_x;
+   std::vector<double>  *mock_ssd_gpos_y;
+   std::vector<double>  *mock_ssd_gpos_z;
+   std::vector<double>  *mock_ssd_lmom_x;
+   std::vector<double>  *mock_ssd_lmom_y;
+   std::vector<double>  *mock_ssd_lmom_z;
+   std::vector<double>  *mock_ssd_gmom_x;
+   std::vector<double>  *mock_ssd_gmom_y;
+   std::vector<double>  *mock_ssd_gmom_z;
+   std::vector<int>     *mock_gtr100_mid;
+   std::vector<double>  *mock_gtr100_lpos_x;
+   std::vector<double>  *mock_gtr100_lpos_y;
+   std::vector<double>  *mock_gtr100_lpos_z;
+   std::vector<double>  *mock_gtr100_gpos_x;
+   std::vector<double>  *mock_gtr100_gpos_y;
+   std::vector<double>  *mock_gtr100_gpos_z;
+   std::vector<double>  *mock_gtr100_lmom_x;
+   std::vector<double>  *mock_gtr100_lmom_y;
+   std::vector<double>  *mock_gtr100_lmom_z;
+   std::vector<double>  *mock_gtr100_gmom_x;
+   std::vector<double>  *mock_gtr100_gmom_y;
+   std::vector<double>  *mock_gtr100_gmom_z;
+   std::vector<int>     *mock_gtr200_mid;
+   std::vector<double>  *mock_gtr200_lpos_x;
+   std::vector<double>  *mock_gtr200_lpos_y;
+   std::vector<double>  *mock_gtr200_lpos_z;
+   std::vector<double>  *mock_gtr200_gpos_x;
+   std::vector<double>  *mock_gtr200_gpos_y;
+   std::vector<double>  *mock_gtr200_gpos_z;
+   std::vector<double>  *mock_gtr200_lmom_x;
+   std::vector<double>  *mock_gtr200_lmom_y;
+   std::vector<double>  *mock_gtr200_lmom_z;
+   std::vector<double>  *mock_gtr200_gmom_x;
+   std::vector<double>  *mock_gtr200_gmom_y;
+   std::vector<double>  *mock_gtr200_gmom_z;
+   std::vector<int>     *mock_gtr300_mid;
+   std::vector<double>  *mock_gtr300_lpos_x;
+   std::vector<double>  *mock_gtr300_lpos_y;
+   std::vector<double>  *mock_gtr300_lpos_z;
+   std::vector<double>  *mock_gtr300_gpos_x;
+   std::vector<double>  *mock_gtr300_gpos_y;
+   std::vector<double>  *mock_gtr300_gpos_z;
+   std::vector<double>  *mock_gtr300_lmom_x;
+   std::vector<double>  *mock_gtr300_lmom_y;
+   std::vector<double>  *mock_gtr300_lmom_z;
+   std::vector<double>  *mock_gtr300_gmom_x;
+   std::vector<double>  *mock_gtr300_gmom_y;
+   std::vector<double>  *mock_gtr300_gmom_z;
+   std::vector<int>     *mock_hbd_mid;
+   std::vector<double>  *mock_hbd_lpos_x;
+   std::vector<double>  *mock_hbd_lpos_y;
+   std::vector<double>  *mock_hbd_lpos_z;
+   std::vector<double>  *mock_hbd_gpos_x;
+   std::vector<double>  *mock_hbd_gpos_y;
+   std::vector<double>  *mock_hbd_gpos_z;
+   std::vector<double>  *mock_hbd_lmom_x;
+   std::vector<double>  *mock_hbd_lmom_y;
+   std::vector<double>  *mock_hbd_lmom_z;
+   std::vector<double>  *mock_hbd_gmom_x;
+   std::vector<double>  *mock_hbd_gmom_y;
+   std::vector<double>  *mock_hbd_gmom_z;
+   std::vector<int>     *mock_lgvd_mid;
+   std::vector<double>  *mock_lgvd_lpos_x;
+   std::vector<double>  *mock_lgvd_lpos_y;
+   std::vector<double>  *mock_lgvd_lpos_z;
+   std::vector<double>  *mock_lgvd_gpos_x;
+   std::vector<double>  *mock_lgvd_gpos_y;
+   std::vector<double>  *mock_lgvd_gpos_z;
+   std::vector<double>  *mock_lgvd_lmom_x;
+   std::vector<double>  *mock_lgvd_lmom_y;
+   std::vector<double>  *mock_lgvd_lmom_z;
+   std::vector<double>  *mock_lgvd_gmom_x;
+   std::vector<double>  *mock_lgvd_gmom_y;
+   std::vector<double>  *mock_lgvd_gmom_z;
    Int_t           n_x_cands;
    Int_t           n_y_cands;
    Int_t           n_cands;
    Int_t           n_selected;
    Int_t           n_pairs;
    Int_t           n_refit_pairs;
+   std::vector<unsigned int> *x_search_reject_point;
+   std::vector<unsigned int> *x_fit_reject_point;
+   std::vector<unsigned int> *y_reject_point;
+   std::vector<unsigned int> *xy_reject_point;
+   std::vector<unsigned int> *reject_point;
+   std::vector<bool>    *sim_track_detected;
+   std::vector<bool>    *is_sim_track;
    std::vector<int>     *track_id;
    std::vector<bool>    *has_e_hbd_cluster;
    std::vector<bool>    *has_e_lg_hit;
@@ -543,6 +643,18 @@ public :
    std::vector<double>  *rk_fit_lg_a_mom_gx;
    std::vector<double>  *rk_fit_lg_a_mom_gy;
    std::vector<double>  *rk_fit_lg_a_mom_gz;
+   std::vector<int>     *rk_fit_lgvd_mid;
+   std::vector<double>  *rk_fit_lgvd_x;
+   std::vector<double>  *rk_fit_lgvd_y;
+   std::vector<double>  *rk_fit_lgvd_gx;
+   std::vector<double>  *rk_fit_lgvd_gy;
+   std::vector<double>  *rk_fit_lgvd_gz;
+   std::vector<double>  *rk_fit_lgvd_mom_x;
+   std::vector<double>  *rk_fit_lgvd_mom_y;
+   std::vector<double>  *rk_fit_lgvd_mom_z;
+   std::vector<double>  *rk_fit_lgvd_mom_gx;
+   std::vector<double>  *rk_fit_lgvd_mom_gy;
+   std::vector<double>  *rk_fit_lgvd_mom_gz;
    std::vector<double>  *rk_res_init_pos_gx;
    std::vector<double>  *rk_res_init_pos_gy;
    std::vector<double>  *rk_res_init_pos_gz;
@@ -725,6 +837,7 @@ public :
    TBranch        *b_timestamp_in_spill;   //!
    TBranch        *b_trigger_fine_time;   //!
    TBranch        *b_n_fill;   //!
+   TBranch        *b_cluster_merged;   //!
    TBranch        *b_n_ssd_hits;   //!
    TBranch        *b_ssd_hit_id;   //!
    TBranch        *b_ssd_hit_mid;   //!
@@ -807,6 +920,14 @@ public :
    TBranch        *b_hbd_hit_gz;   //!
    TBranch        *b_hbd_hit_t;   //!
    TBranch        *b_hbd_hit_adc;   //!
+   TBranch        *b_ssd_cluster_is_merged;   //!
+   TBranch        *b_gtr100x_cluster_is_merged;   //!
+   TBranch        *b_gtr200x_cluster_is_merged;   //!
+   TBranch        *b_gtr300x_cluster_is_merged;   //!
+   TBranch        *b_gtr100y_cluster_is_merged;   //!
+   TBranch        *b_gtr100yb_cluster_is_merged;   //!
+   TBranch        *b_gtr200y_cluster_is_merged;   //!
+   TBranch        *b_gtr300y_cluster_is_merged;   //!
    TBranch        *b_n_ssd_clusters;   //!
    TBranch        *b_ssd_cluster_id;   //!
    TBranch        *b_ssd_cluster_mid;   //!
@@ -1023,12 +1144,107 @@ public :
    TBranch        *b_trg_track_lg_x;   //!
    TBranch        *b_trg_track_lg_y;   //!
    TBranch        *b_trg_track_lg_t;   //!
+   TBranch        *b_mock_n_tracks;   //!
+   TBranch        *b_mock_is_dead;   //!
+   TBranch        *b_mock_pid;   //!
+   TBranch        *b_mock_charge;   //!
+   TBranch        *b_mock_init_pos_x;   //!
+   TBranch        *b_mock_init_pos_y;   //!
+   TBranch        *b_mock_init_pos_z;   //!
+   TBranch        *b_mock_init_mom_x;   //!
+   TBranch        *b_mock_init_mom_y;   //!
+   TBranch        *b_mock_init_mom_z;   //!
+   TBranch        *b_mock_ssd_mid;   //!
+   TBranch        *b_mock_ssd_lpos_x;   //!
+   TBranch        *b_mock_ssd_lpos_y;   //!
+   TBranch        *b_mock_ssd_lpos_z;   //!
+   TBranch        *b_mock_ssd_gpos_x;   //!
+   TBranch        *b_mock_ssd_gpos_y;   //!
+   TBranch        *b_mock_ssd_gpos_z;   //!
+   TBranch        *b_mock_ssd_lmom_x;   //!
+   TBranch        *b_mock_ssd_lmom_y;   //!
+   TBranch        *b_mock_ssd_lmom_z;   //!
+   TBranch        *b_mock_ssd_gmom_x;   //!
+   TBranch        *b_mock_ssd_gmom_y;   //!
+   TBranch        *b_mock_ssd_gmom_z;   //!
+   TBranch        *b_mock_gtr100_mid;   //!
+   TBranch        *b_mock_gtr100_lpos_x;   //!
+   TBranch        *b_mock_gtr100_lpos_y;   //!
+   TBranch        *b_mock_gtr100_lpos_z;   //!
+   TBranch        *b_mock_gtr100_gpos_x;   //!
+   TBranch        *b_mock_gtr100_gpos_y;   //!
+   TBranch        *b_mock_gtr100_gpos_z;   //!
+   TBranch        *b_mock_gtr100_lmom_x;   //!
+   TBranch        *b_mock_gtr100_lmom_y;   //!
+   TBranch        *b_mock_gtr100_lmom_z;   //!
+   TBranch        *b_mock_gtr100_gmom_x;   //!
+   TBranch        *b_mock_gtr100_gmom_y;   //!
+   TBranch        *b_mock_gtr100_gmom_z;   //!
+   TBranch        *b_mock_gtr200_mid;   //!
+   TBranch        *b_mock_gtr200_lpos_x;   //!
+   TBranch        *b_mock_gtr200_lpos_y;   //!
+   TBranch        *b_mock_gtr200_lpos_z;   //!
+   TBranch        *b_mock_gtr200_gpos_x;   //!
+   TBranch        *b_mock_gtr200_gpos_y;   //!
+   TBranch        *b_mock_gtr200_gpos_z;   //!
+   TBranch        *b_mock_gtr200_lmom_x;   //!
+   TBranch        *b_mock_gtr200_lmom_y;   //!
+   TBranch        *b_mock_gtr200_lmom_z;   //!
+   TBranch        *b_mock_gtr200_gmom_x;   //!
+   TBranch        *b_mock_gtr200_gmom_y;   //!
+   TBranch        *b_mock_gtr200_gmom_z;   //!
+   TBranch        *b_mock_gtr300_mid;   //!
+   TBranch        *b_mock_gtr300_lpos_x;   //!
+   TBranch        *b_mock_gtr300_lpos_y;   //!
+   TBranch        *b_mock_gtr300_lpos_z;   //!
+   TBranch        *b_mock_gtr300_gpos_x;   //!
+   TBranch        *b_mock_gtr300_gpos_y;   //!
+   TBranch        *b_mock_gtr300_gpos_z;   //!
+   TBranch        *b_mock_gtr300_lmom_x;   //!
+   TBranch        *b_mock_gtr300_lmom_y;   //!
+   TBranch        *b_mock_gtr300_lmom_z;   //!
+   TBranch        *b_mock_gtr300_gmom_x;   //!
+   TBranch        *b_mock_gtr300_gmom_y;   //!
+   TBranch        *b_mock_gtr300_gmom_z;   //!
+   TBranch        *b_mock_hbd_mid;   //!
+   TBranch        *b_mock_hbd_lpos_x;   //!
+   TBranch        *b_mock_hbd_lpos_y;   //!
+   TBranch        *b_mock_hbd_lpos_z;   //!
+   TBranch        *b_mock_hbd_gpos_x;   //!
+   TBranch        *b_mock_hbd_gpos_y;   //!
+   TBranch        *b_mock_hbd_gpos_z;   //!
+   TBranch        *b_mock_hbd_lmom_x;   //!
+   TBranch        *b_mock_hbd_lmom_y;   //!
+   TBranch        *b_mock_hbd_lmom_z;   //!
+   TBranch        *b_mock_hbd_gmom_x;   //!
+   TBranch        *b_mock_hbd_gmom_y;   //!
+   TBranch        *b_mock_hbd_gmom_z;   //!
+   TBranch        *b_mock_lgvd_mid;   //!
+   TBranch        *b_mock_lgvd_lpos_x;   //!
+   TBranch        *b_mock_lgvd_lpos_y;   //!
+   TBranch        *b_mock_lgvd_lpos_z;   //!
+   TBranch        *b_mock_lgvd_gpos_x;   //!
+   TBranch        *b_mock_lgvd_gpos_y;   //!
+   TBranch        *b_mock_lgvd_gpos_z;   //!
+   TBranch        *b_mock_lgvd_lmom_x;   //!
+   TBranch        *b_mock_lgvd_lmom_y;   //!
+   TBranch        *b_mock_lgvd_lmom_z;   //!
+   TBranch        *b_mock_lgvd_gmom_x;   //!
+   TBranch        *b_mock_lgvd_gmom_y;   //!
+   TBranch        *b_mock_lgvd_gmom_z;   //!
    TBranch        *b_n_x_cands;   //!
    TBranch        *b_n_y_cands;   //!
    TBranch        *b_n_cands;   //!
    TBranch        *b_n_selected;   //!
    TBranch        *b_n_pairs;   //!
    TBranch        *b_n_refit_pairs;   //!
+   TBranch        *b_x_search_reject_point;   //!
+   TBranch        *b_x_fit_reject_point;   //!
+   TBranch        *b_y_reject_point;   //!
+   TBranch        *b_xy_reject_point;   //!
+   TBranch        *b_reject_point;   //!
+   TBranch        *b_sim_track_detected;   //!
+   TBranch        *b_is_sim_track;   //!
    TBranch        *b_track_id;   //!
    TBranch        *b_has_e_hbd_cluster;   //!
    TBranch        *b_has_e_lg_hit;   //!
@@ -1233,6 +1449,18 @@ public :
    TBranch        *b_rk_fit_lg_a_mom_gx;   //!
    TBranch        *b_rk_fit_lg_a_mom_gy;   //!
    TBranch        *b_rk_fit_lg_a_mom_gz;   //!
+   TBranch        *b_rk_fit_lgvd_mid;   //!
+   TBranch        *b_rk_fit_lgvd_x;   //!
+   TBranch        *b_rk_fit_lgvd_y;   //!
+   TBranch        *b_rk_fit_lgvd_gx;   //!
+   TBranch        *b_rk_fit_lgvd_gy;   //!
+   TBranch        *b_rk_fit_lgvd_gz;   //!
+   TBranch        *b_rk_fit_lgvd_mom_x;   //!
+   TBranch        *b_rk_fit_lgvd_mom_y;   //!
+   TBranch        *b_rk_fit_lgvd_mom_z;   //!
+   TBranch        *b_rk_fit_lgvd_mom_gx;   //!
+   TBranch        *b_rk_fit_lgvd_mom_gy;   //!
+   TBranch        *b_rk_fit_lgvd_mom_gz;   //!
    TBranch        *b_rk_res_init_pos_gx;   //!
    TBranch        *b_rk_res_init_pos_gy;   //!
    TBranch        *b_rk_res_init_pos_gz;   //!
@@ -1408,934 +1636,67 @@ public :
    TBranch        *b_rk_pair_plus_gtr300_res_refit_z;   //!
    TBranch        *b_rk_pair_mass_refit;   //!
 
-   track_analyzer_220715(TTree *tree = 0, E16ANA_GeometryV2* _geometry = nullptr, E16ANA_MagneticFieldMap* _bfield_map = nullptr,
-                         E16ANA_MultiTrack* _fitter = nullptr, E16ANA_MultiTrack* _proj_fitter = nullptr);
-   virtual ~track_analyzer_220715();
+   tmp_check_track_finding_230106(TTree *tree=0);
+   virtual ~tmp_check_track_finding_230106();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(const TString& out_name);
+   virtual void     Loop(double smear_coef, const TString& out_name);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  private:
-  struct EntryInfo {
-    int entry_index;
-    int n_pairs;
-    std::vector<int> track_indexs;
-  };
-  void MakeBranches(TTree* tree);
-  void MakeEMBranches(TTree* tree);
-  void ClearUsedClusterIDs();
-  void SetHBDs();
-  double NearestRadius(int n);
-  bool HasAssociatedHBD(int mid, const TVector3& track_pos, double* min_res, std::vector<int>* _associated_hbd_indexs);
-  bool HasAssociatedHBD(int n);
-  bool HasUsedCluster(const std::array<int, track_analyzer_220715_parameter::kNumTrackingDetectors>& cids);
-  bool IsGoodTrack(int n);
-  void SetTracks();
-  bool IsGoodPair(int n, int m);
-  void SetPairs();
-  void ClearAndResizeBranches();
-  double CalcMass(int flag, const TVector3& pmom, const TVector3& mmom);
-  void FillTVector3(int n, const TVector3& tvec, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
-  void FillTVector3(int n, const TVector3& tvec, std::vector<double>* x, std::vector<double>* y);
-  void FillBranchesFromPairFit(int n, double chi2);
-  int ModuleID2013(int m);
-  int ChargeID(int c);
-  void PairFit(int n);
-  void FillBranchesFromStepTrack(int n, int flag, double dist_cm, const Hep3Vector& hep_vtx,
-                                 const Hep3Vector& hep_plus_pos, const Hep3Vector& hep_minus_pos, const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom);
-  void NearestPoint(int n);
-  int DirID(int mid0, int mid1);
-  int ModuleID2013_27(int m);
-  void ProjectionHBDAndLG(int n);
-  void ProjectionTargets(int n);
-//  int BestTargetID(int n);
-//  void ParentInfo(int n);
-  int BestTargetID(double vtx_z, const std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>& tgt_poss,
-                   std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths,
-                   double* best_tgt_r, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
-  TVector3 Xo0Pos(const TVector3& pos, const TVector3& mom);
-  void ParentInfo(const TVector3& vtx, const std::array<TVector3, 2>& moms, TVector3* parent_mom,
-                  std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>* tgt_poss,
-                  std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths,
-                  int* best_tgt_id, double* best_tgt_r, int* good_tgt_id_set, std::vector<double>* good_tgt_ids, TVector3* x0_pos);
-  void ParentInfo(int n);
-  void AssociatedHBD(int n);
-  void AddPairOrders();
-  int SimpleBestTargetID(int n, double* r);
-  void SimpleAnalysis(int n);
-  void TmpProjectionX0(int n);
-#ifdef TMP_SOME_Z
-  void TmpProjectionSomeZ(int n);
-#endif // TMP_SOME_Z
-  void FillCommonBranches();
-  void Analyze();
-  void FillEntryInfo(int entry_index, track_analyzer_220715::EntryInfo* plus_entry, track_analyzer_220715::EntryInfo* minus_entry);
-  void ClearEMBranches();
-  void PairFitEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index);
-  void NearestPointEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index);
-  void DirIDsEM();
-  void ParentInfoEM();
-  void EventMixing(const track_analyzer_220715::EntryInfo& plus_entry, const track_analyzer_220715::EntryInfo& minus_entry);
-  int SimpleBestTargetIDEM(int n, double* r);
-  void SimpleAnalysisEM();
-  void UpdatePastEntries(const track_analyzer_220715::EntryInfo& plus_entry, const track_analyzer_220715::EntryInfo& minus_entry);
-  void AnalyzeEM(int entry_index);
-  // Analyze class
-  E16ANA_GeometryV2*       geometry;
-  E16ANA_MagneticFieldMap* bfield_map;
-  E16ANA_MultiTrack*       fitter;
-  E16ANA_MultiTrack*       proj_fitter;
-  //
-  std::array<std::vector<int>, track_analyzer_220715_parameter::kNumModules> hbd_indexs;
-//  std::array<std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes>, track_analyzer_220715_parameter::kNumModules> lg_indexs;
-  std::vector<int> good_track_indexs;
-  std::vector<std::array<int, 2>> good_pair_indexs;
-  std::vector<std::vector<int>> associated_hbd_indexs;
-  std::vector<int>    nearest_tgt_ids;
-  std::vector<double> nearest_radius;
-  std::array<std::vector<int>, track_analyzer_220715_parameter::kNumTrackingDetectors> used_cluster_ids;
-  std::vector<EntryInfo> past_plus_entries;
-  std::vector<EntryInfo> past_minus_entries;
-  // Tree branch
-  int out_n_tracks;
-  int out_n_pairs;
-  std::vector<int> out_pair_order;
-// single fit info. chi2, ...
-  std::vector<double> out_plus_rough_fit_init_pos_x;
-  std::vector<double> out_plus_rough_fit_init_pos_y;
-  std::vector<double> out_plus_rough_fit_init_pos_z;
-  std::vector<double> out_plus_rough_fit_init_mom_x;
-  std::vector<double> out_plus_rough_fit_init_mom_y;
-  std::vector<double> out_plus_rough_fit_init_mom_z;
-  std::vector<double> out_minus_rough_fit_init_pos_x;
-  std::vector<double> out_minus_rough_fit_init_pos_y;
-  std::vector<double> out_minus_rough_fit_init_pos_z;
-  std::vector<double> out_minus_rough_fit_init_mom_x;
-  std::vector<double> out_minus_rough_fit_init_mom_y;
-  std::vector<double> out_minus_rough_fit_init_mom_z;
-  std::vector<double> out_plus_single_fit_init_pos_x;
-  std::vector<double> out_plus_single_fit_init_pos_y;
-  std::vector<double> out_plus_single_fit_init_pos_z;
-  std::vector<double> out_plus_single_fit_init_mom_x;
-  std::vector<double> out_plus_single_fit_init_mom_y;
-  std::vector<double> out_plus_single_fit_init_mom_z;
-  std::vector<double> out_minus_single_fit_init_pos_x;
-  std::vector<double> out_minus_single_fit_init_pos_y;
-  std::vector<double> out_minus_single_fit_init_pos_z;
-  std::vector<double> out_minus_single_fit_init_mom_x;
-  std::vector<double> out_minus_single_fit_init_mom_y;
-  std::vector<double> out_minus_single_fit_init_mom_z;
-  // Hit
-  std::vector<int>    out_plus_track_id;
-  std::vector<int>    out_plus_charge_id;
-  std::vector<int>    out_hit_plus_ssd_id;
-  std::vector<double> out_hit_plus_ssd_lx;
-  std::vector<double> out_hit_plus_ssd_t;
-  std::vector<double> out_hit_plus_ssd_adc;
-  std::vector<int>    out_hit_plus_ssd_size;
-  std::vector<int>    out_hit_plus_gtr100_xid;
-  std::vector<int>    out_hit_plus_gtr100_yid;
-  std::vector<double> out_hit_plus_gtr100_lx;
-  std::vector<double> out_hit_plus_gtr100_ly;
-  std::vector<double> out_hit_plus_gtr100_xt;
-  std::vector<double> out_hit_plus_gtr100_yt;
-  std::vector<double> out_hit_plus_gtr100_xadc;
-  std::vector<double> out_hit_plus_gtr100_yadc;
-  std::vector<int>    out_hit_plus_gtr100_xsize;
-  std::vector<int>    out_hit_plus_gtr100_ysize;
-  std::vector<int>    out_hit_plus_gtr200_xid;
-  std::vector<int>    out_hit_plus_gtr200_yid;
-  std::vector<double> out_hit_plus_gtr200_lx;
-  std::vector<double> out_hit_plus_gtr200_ly;
-  std::vector<double> out_hit_plus_gtr200_xt;
-  std::vector<double> out_hit_plus_gtr200_yt;
-  std::vector<double> out_hit_plus_gtr200_xadc;
-  std::vector<double> out_hit_plus_gtr200_yadc;
-  std::vector<int>    out_hit_plus_gtr200_xsize;
-  std::vector<int>    out_hit_plus_gtr200_ysize;
-  std::vector<int>    out_hit_plus_gtr300_xid;
-  std::vector<int>    out_hit_plus_gtr300_yid;
-  std::vector<double> out_hit_plus_gtr300_lx;
-  std::vector<double> out_hit_plus_gtr300_ly;
-  std::vector<double> out_hit_plus_gtr300_xt;
-  std::vector<double> out_hit_plus_gtr300_yt;
-  std::vector<double> out_hit_plus_gtr300_xadc;
-  std::vector<double> out_hit_plus_gtr300_yadc;
-  std::vector<int>    out_hit_plus_gtr300_xsize;
-  std::vector<int>    out_hit_plus_gtr300_ysize;
-  std::vector<int>    out_minus_track_id;
-  std::vector<int>    out_minus_charge_id;
-  std::vector<int>    out_hit_minus_ssd_id;
-  std::vector<double> out_hit_minus_ssd_lx;
-  std::vector<double> out_hit_minus_ssd_t;
-  std::vector<double> out_hit_minus_ssd_adc;
-  std::vector<int>    out_hit_minus_ssd_size;
-  std::vector<int>    out_hit_minus_gtr100_xid;
-  std::vector<int>    out_hit_minus_gtr100_yid;
-  std::vector<double> out_hit_minus_gtr100_lx;
-  std::vector<double> out_hit_minus_gtr100_ly;
-  std::vector<double> out_hit_minus_gtr100_xt;
-  std::vector<double> out_hit_minus_gtr100_yt;
-  std::vector<double> out_hit_minus_gtr100_xadc;
-  std::vector<double> out_hit_minus_gtr100_yadc;
-  std::vector<int>    out_hit_minus_gtr100_xsize;
-  std::vector<int>    out_hit_minus_gtr100_ysize;
-  std::vector<int>    out_hit_minus_gtr200_xid;
-  std::vector<int>    out_hit_minus_gtr200_yid;
-  std::vector<double> out_hit_minus_gtr200_lx;
-  std::vector<double> out_hit_minus_gtr200_ly;
-  std::vector<double> out_hit_minus_gtr200_xt;
-  std::vector<double> out_hit_minus_gtr200_yt;
-  std::vector<double> out_hit_minus_gtr200_xadc;
-  std::vector<double> out_hit_minus_gtr200_yadc;
-  std::vector<int>    out_hit_minus_gtr200_xsize;
-  std::vector<int>    out_hit_minus_gtr200_ysize;
-  std::vector<int>    out_hit_minus_gtr300_xid;
-  std::vector<int>    out_hit_minus_gtr300_yid;
-  std::vector<double> out_hit_minus_gtr300_lx;
-  std::vector<double> out_hit_minus_gtr300_ly;
-  std::vector<double> out_hit_minus_gtr300_xt;
-  std::vector<double> out_hit_minus_gtr300_yt;
-  std::vector<double> out_hit_minus_gtr300_xadc;
-  std::vector<double> out_hit_minus_gtr300_yadc;
-  std::vector<int>    out_hit_minus_gtr300_xsize;
-  std::vector<int>    out_hit_minus_gtr300_ysize;
-  // Fit
-  std::vector<double> out_chi2;
-  std::vector<double> out_plus_chi2;
-  std::vector<double> out_minus_chi2;
-  std::vector<int>    out_flag;
-  std::vector<double> out_distance;
-  std::vector<int>    out_plus_nearest_tgt_id; // must be update for pair fit
-  std::vector<double> out_plus_nearest_radius; // must be update for pair fit
-  std::vector<int>    out_minus_nearest_tgt_id; // must be update for pair fit
-  std::vector<double> out_minus_nearest_radius; // must be update for pair fit
-  std::vector<int>    out_dir_id;
-  std::vector<double> out_vtx_x;
-  std::vector<double> out_vtx_y;
-  std::vector<double> out_vtx_z;
-  std::vector<double> out_plus_pos_x; // only nearest point
-  std::vector<double> out_plus_pos_y;
-  std::vector<double> out_plus_pos_z;
-  std::vector<double> out_minus_pos_x;
-  std::vector<double> out_minus_pos_y;
-  std::vector<double> out_minus_pos_z;
-  std::vector<double> out_plus_mom;
-  std::vector<double> out_plus_mom_x;
-  std::vector<double> out_plus_mom_y;
-  std::vector<double> out_plus_mom_z;
-  std::vector<double> out_plus_mom_theta;
-  std::vector<double> out_plus_mom_phi;
-  std::vector<double> out_minus_mom;
-  std::vector<double> out_minus_mom_x;
-  std::vector<double> out_minus_mom_y;
-  std::vector<double> out_minus_mom_z;
-  std::vector<double> out_minus_mom_theta;
-  std::vector<double> out_minus_mom_phi;
-  std::vector<double> out_mom_angle;
-  std::vector<double> out_ee_mass;
-  std::vector<double> out_pipi_mass;
-  std::vector<double> out_pip_mass;
-  std::vector<double> out_kk_mass;
-  std::vector<int>    out_simple_best_tgt_id;
-  std::vector<double> out_simple_best_tgt_r;
-  std::vector<double> out_ee_mass_at_best_tgt;
-  std::vector<double> out_pipi_mass_at_best_tgt;
-  std::vector<double> out_pip_mass_at_best_tgt;
-  std::vector<double> out_kk_mass_at_best_tgt;
-  std::vector<int>    out_plus_ssd_mid;
-  std::vector<int>    out_plus_gtr100_mid;
-  std::vector<int>    out_plus_gtr200_mid;
-  std::vector<int>    out_plus_gtr300_mid;
-  std::vector<int>    out_plus_hbd_mid;
-  std::vector<int>    out_plus_lg_c_mid;
-  std::vector<int>    out_plus_lg_b_mid;
-  std::vector<int>    out_plus_lg_a_mid;
-  std::vector<int>    out_minus_ssd_mid;
-  std::vector<int>    out_minus_gtr100_mid;
-  std::vector<int>    out_minus_gtr200_mid;
-  std::vector<int>    out_minus_gtr300_mid;
-  std::vector<int>    out_minus_hbd_mid;
-  std::vector<int>    out_minus_lg_c_mid;
-  std::vector<int>    out_minus_lg_b_mid;
-  std::vector<int>    out_minus_lg_a_mid;
-  std::vector<double> out_fit_plus_ssd_lx;
-  std::vector<double> out_fit_plus_ssd_ly;
-  std::vector<double> out_fit_plus_gtr100_lx;
-  std::vector<double> out_fit_plus_gtr100_ly;
-  std::vector<double> out_fit_plus_gtr200_lx;
-  std::vector<double> out_fit_plus_gtr200_ly;
-  std::vector<double> out_fit_plus_gtr300_lx;
-  std::vector<double> out_fit_plus_gtr300_ly;
-  std::vector<double> out_fit_plus_hbd_lx;
-  std::vector<double> out_fit_plus_hbd_ly;
-  std::vector<double> out_fit_plus_lg_c_lx;
-  std::vector<double> out_fit_plus_lg_c_ly;
-  std::vector<double> out_fit_plus_lg_b_lx;
-  std::vector<double> out_fit_plus_lg_b_ly;
-  std::vector<double> out_fit_plus_lg_a_lx;
-  std::vector<double> out_fit_plus_lg_a_ly;
-  std::vector<double> out_fit_plus_tgt_minus_x;
-  std::vector<double> out_fit_plus_tgt_minus_y;
-  std::vector<double> out_fit_plus_tgt_zero_x;
-  std::vector<double> out_fit_plus_tgt_zero_y;
-  std::vector<double> out_fit_plus_tgt_plus_x;
-  std::vector<double> out_fit_plus_tgt_plus_y;
-  std::vector<double> out_fit_plus_x0_y;
-  std::vector<double> out_fit_plus_x0_z;
-  std::vector<double> out_fit_minus_ssd_lx;
-  std::vector<double> out_fit_minus_ssd_ly;
-  std::vector<double> out_fit_minus_gtr100_lx;
-  std::vector<double> out_fit_minus_gtr100_ly;
-  std::vector<double> out_fit_minus_gtr200_lx;
-  std::vector<double> out_fit_minus_gtr200_ly;
-  std::vector<double> out_fit_minus_gtr300_lx;
-  std::vector<double> out_fit_minus_gtr300_ly;
-  std::vector<double> out_fit_minus_hbd_lx;
-  std::vector<double> out_fit_minus_hbd_ly;
-  std::vector<double> out_fit_minus_lg_c_lx;
-  std::vector<double> out_fit_minus_lg_c_ly;
-  std::vector<double> out_fit_minus_lg_b_lx;
-  std::vector<double> out_fit_minus_lg_b_ly;
-  std::vector<double> out_fit_minus_lg_a_lx;
-  std::vector<double> out_fit_minus_lg_a_ly;
-  std::vector<double> out_fit_minus_tgt_minus_x;
-  std::vector<double> out_fit_minus_tgt_minus_y;
-  std::vector<double> out_fit_minus_tgt_zero_x;
-  std::vector<double> out_fit_minus_tgt_zero_y;
-  std::vector<double> out_fit_minus_tgt_plus_x;
-  std::vector<double> out_fit_minus_tgt_plus_y;
-  std::vector<double> out_fit_minus_x0_y;
-  std::vector<double> out_fit_minus_x0_z;
-  std::vector<double> out_fit_plus_ssd_mom_lx;
-  std::vector<double> out_fit_plus_ssd_mom_ly;
-  std::vector<double> out_fit_plus_ssd_mom_lz;
-  std::vector<double> out_fit_plus_ssd_mom_gx;
-  std::vector<double> out_fit_plus_ssd_mom_gy;
-  std::vector<double> out_fit_plus_ssd_mom_gz;
-  std::vector<double> out_fit_plus_gtr100_mom_lx;
-  std::vector<double> out_fit_plus_gtr100_mom_ly;
-  std::vector<double> out_fit_plus_gtr100_mom_lz;
-  std::vector<double> out_fit_plus_gtr100_mom_gx;
-  std::vector<double> out_fit_plus_gtr100_mom_gy;
-  std::vector<double> out_fit_plus_gtr100_mom_gz;
-  std::vector<double> out_fit_plus_gtr200_mom_lx;
-  std::vector<double> out_fit_plus_gtr200_mom_ly;
-  std::vector<double> out_fit_plus_gtr200_mom_lz;
-  std::vector<double> out_fit_plus_gtr200_mom_gx;
-  std::vector<double> out_fit_plus_gtr200_mom_gy;
-  std::vector<double> out_fit_plus_gtr200_mom_gz;
-  std::vector<double> out_fit_plus_gtr300_mom_lx;
-  std::vector<double> out_fit_plus_gtr300_mom_ly;
-  std::vector<double> out_fit_plus_gtr300_mom_lz;
-  std::vector<double> out_fit_plus_gtr300_mom_gx;
-  std::vector<double> out_fit_plus_gtr300_mom_gy;
-  std::vector<double> out_fit_plus_gtr300_mom_gz;
-  std::vector<double> out_fit_plus_hbd_mom_lx;
-  std::vector<double> out_fit_plus_hbd_mom_ly;
-  std::vector<double> out_fit_plus_hbd_mom_lz;
-  std::vector<double> out_fit_plus_hbd_mom_gx;
-  std::vector<double> out_fit_plus_hbd_mom_gy;
-  std::vector<double> out_fit_plus_hbd_mom_gz;
-  std::vector<double> out_fit_plus_lg_c_mom_lx;
-  std::vector<double> out_fit_plus_lg_c_mom_ly;
-  std::vector<double> out_fit_plus_lg_c_mom_lz;
-  std::vector<double> out_fit_plus_lg_c_mom_gx;
-  std::vector<double> out_fit_plus_lg_c_mom_gy;
-  std::vector<double> out_fit_plus_lg_c_mom_gz;
-  std::vector<double> out_fit_plus_lg_b_mom_lx;
-  std::vector<double> out_fit_plus_lg_b_mom_ly;
-  std::vector<double> out_fit_plus_lg_b_mom_lz;
-  std::vector<double> out_fit_plus_lg_b_mom_gx;
-  std::vector<double> out_fit_plus_lg_b_mom_gy;
-  std::vector<double> out_fit_plus_lg_b_mom_gz;
-  std::vector<double> out_fit_plus_lg_a_mom_lx;
-  std::vector<double> out_fit_plus_lg_a_mom_ly;
-  std::vector<double> out_fit_plus_lg_a_mom_lz;
-  std::vector<double> out_fit_plus_lg_a_mom_gx;
-  std::vector<double> out_fit_plus_lg_a_mom_gy;
-  std::vector<double> out_fit_plus_lg_a_mom_gz;
-  std::vector<double> out_fit_plus_tgt_minus_mom_x;
-  std::vector<double> out_fit_plus_tgt_minus_mom_y;
-  std::vector<double> out_fit_plus_tgt_minus_mom_z;
-  std::vector<double> out_fit_plus_tgt_zero_mom_x;
-  std::vector<double> out_fit_plus_tgt_zero_mom_y;
-  std::vector<double> out_fit_plus_tgt_zero_mom_z;
-  std::vector<double> out_fit_plus_tgt_plus_mom_x;
-  std::vector<double> out_fit_plus_tgt_plus_mom_y;
-  std::vector<double> out_fit_plus_tgt_plus_mom_z;
-  std::vector<double> out_fit_minus_ssd_mom_lx;
-  std::vector<double> out_fit_minus_ssd_mom_ly;
-  std::vector<double> out_fit_minus_ssd_mom_lz;
-  std::vector<double> out_fit_minus_ssd_mom_gx;
-  std::vector<double> out_fit_minus_ssd_mom_gy;
-  std::vector<double> out_fit_minus_ssd_mom_gz;
-  std::vector<double> out_fit_minus_gtr100_mom_lx;
-  std::vector<double> out_fit_minus_gtr100_mom_ly;
-  std::vector<double> out_fit_minus_gtr100_mom_lz;
-  std::vector<double> out_fit_minus_gtr100_mom_gx;
-  std::vector<double> out_fit_minus_gtr100_mom_gy;
-  std::vector<double> out_fit_minus_gtr100_mom_gz;
-  std::vector<double> out_fit_minus_gtr200_mom_lx;
-  std::vector<double> out_fit_minus_gtr200_mom_ly;
-  std::vector<double> out_fit_minus_gtr200_mom_lz;
-  std::vector<double> out_fit_minus_gtr200_mom_gx;
-  std::vector<double> out_fit_minus_gtr200_mom_gy;
-  std::vector<double> out_fit_minus_gtr200_mom_gz;
-  std::vector<double> out_fit_minus_gtr300_mom_lx;
-  std::vector<double> out_fit_minus_gtr300_mom_ly;
-  std::vector<double> out_fit_minus_gtr300_mom_lz;
-  std::vector<double> out_fit_minus_gtr300_mom_gx;
-  std::vector<double> out_fit_minus_gtr300_mom_gy;
-  std::vector<double> out_fit_minus_gtr300_mom_gz;
-  std::vector<double> out_fit_minus_hbd_mom_lx;
-  std::vector<double> out_fit_minus_hbd_mom_ly;
-  std::vector<double> out_fit_minus_hbd_mom_lz;
-  std::vector<double> out_fit_minus_hbd_mom_gx;
-  std::vector<double> out_fit_minus_hbd_mom_gy;
-  std::vector<double> out_fit_minus_hbd_mom_gz;
-  std::vector<double> out_fit_minus_lg_c_mom_lx;
-  std::vector<double> out_fit_minus_lg_c_mom_ly;
-  std::vector<double> out_fit_minus_lg_c_mom_lz;
-  std::vector<double> out_fit_minus_lg_c_mom_gx;
-  std::vector<double> out_fit_minus_lg_c_mom_gy;
-  std::vector<double> out_fit_minus_lg_c_mom_gz;
-  std::vector<double> out_fit_minus_lg_b_mom_lx;
-  std::vector<double> out_fit_minus_lg_b_mom_ly;
-  std::vector<double> out_fit_minus_lg_b_mom_lz;
-  std::vector<double> out_fit_minus_lg_b_mom_gx;
-  std::vector<double> out_fit_minus_lg_b_mom_gy;
-  std::vector<double> out_fit_minus_lg_b_mom_gz;
-  std::vector<double> out_fit_minus_lg_a_mom_lx;
-  std::vector<double> out_fit_minus_lg_a_mom_ly;
-  std::vector<double> out_fit_minus_lg_a_mom_lz;
-  std::vector<double> out_fit_minus_lg_a_mom_gx;
-  std::vector<double> out_fit_minus_lg_a_mom_gy;
-  std::vector<double> out_fit_minus_lg_a_mom_gz;
-  std::vector<double> out_fit_minus_tgt_minus_mom_x;
-  std::vector<double> out_fit_minus_tgt_minus_mom_y;
-  std::vector<double> out_fit_minus_tgt_minus_mom_z;
-  std::vector<double> out_fit_minus_tgt_zero_mom_x;
-  std::vector<double> out_fit_minus_tgt_zero_mom_y;
-  std::vector<double> out_fit_minus_tgt_zero_mom_z;
-  std::vector<double> out_fit_minus_tgt_plus_mom_x;
-  std::vector<double> out_fit_minus_tgt_plus_mom_y;
-  std::vector<double> out_fit_minus_tgt_plus_mom_z;
-// gpos...
-  std::vector<double> out_res_plus_ssd_lx;
-//  std::vector<double> out_res_plus_ssd_ly;
-  std::vector<double> out_res_plus_gtr100_lx;
-  std::vector<double> out_res_plus_gtr100_ly;
-  std::vector<double> out_res_plus_gtr200_lx;
-  std::vector<double> out_res_plus_gtr200_ly;
-  std::vector<double> out_res_plus_gtr300_lx;
-  std::vector<double> out_res_plus_gtr300_ly;
-  std::vector<double> out_res_minus_ssd_lx;
-//  std::vector<double> out_res_minus_ssd_ly;
-  std::vector<double> out_res_minus_gtr100_lx;
-  std::vector<double> out_res_minus_gtr100_ly;
-  std::vector<double> out_res_minus_gtr200_lx;
-  std::vector<double> out_res_minus_gtr200_ly;
-  std::vector<double> out_res_minus_gtr300_lx;
-  std::vector<double> out_res_minus_gtr300_ly;
-  std::vector<double>              out_fit_parent_mom;
-  std::vector<double>              out_fit_parent_mom_x;
-  std::vector<double>              out_fit_parent_mom_y;
-  std::vector<double>              out_fit_parent_mom_z;
-  std::vector<double>              out_fit_parent_mom_theta;
-  std::vector<double>              out_fit_parent_mom_phi;
-  std::vector<double>              out_fit_parent_tgt_minus_x;
-  std::vector<double>              out_fit_parent_tgt_minus_y;
-  std::vector<double>              out_fit_parent_tgt_minus_flight_path;
-  std::vector<double>              out_fit_parent_tgt_zero_x;
-  std::vector<double>              out_fit_parent_tgt_zero_y;
-  std::vector<double>              out_fit_parent_tgt_zero_flight_path;
-  std::vector<double>              out_fit_parent_tgt_plus_x;
-  std::vector<double>              out_fit_parent_tgt_plus_y;
-  std::vector<double>              out_fit_parent_tgt_plus_flight_path;
-  std::vector<int>                 out_fit_parent_best_tgt_id;
-  std::vector<double>              out_fit_parent_best_tgt_r;
-  std::vector<int>                 out_fit_parent_good_tgt_id_set;
-  std::vector<std::vector<double>> out_fit_parent_good_tgt_ids;
-  std::vector<double>              out_fit_parent_x0_y;
-  std::vector<double>              out_fit_parent_x0_z;
-  // HBD Projection
-  std::vector<double>              out_proj_plus_n_hbds;
-  std::vector<double>              out_proj_plus_hbd_min_res;
-  std::vector<std::vector<double>> out_proj_plus_hbd_id;
-  std::vector<std::vector<double>> out_proj_plus_hbd_lx;
-  std::vector<std::vector<double>> out_proj_plus_hbd_ly;
-  std::vector<std::vector<double>> out_proj_plus_hbd_resx;
-  std::vector<std::vector<double>> out_proj_plus_hbd_resy;
-  std::vector<std::vector<double>> out_proj_plus_hbd_adc;
-  std::vector<std::vector<double>> out_proj_plus_hbd_size;
-  std::vector<std::vector<double>> out_proj_plus_hbd_eprob;
-  std::vector<double>              out_proj_minus_n_hbds;
-  std::vector<double>              out_proj_minus_hbd_min_res;
-  std::vector<std::vector<double>> out_proj_minus_hbd_id;
-  std::vector<std::vector<double>> out_proj_minus_hbd_lx;
-  std::vector<std::vector<double>> out_proj_minus_hbd_ly;
-  std::vector<std::vector<double>> out_proj_minus_hbd_resx;
-  std::vector<std::vector<double>> out_proj_minus_hbd_resy;
-  std::vector<std::vector<double>> out_proj_minus_hbd_adc;
-  std::vector<std::vector<double>> out_proj_minus_hbd_size;
-  std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
-  // LG Projection
-// tmp
-// check of E16ANA_StepTrack function
-std::vector<int>                 out_tmp_fit_plus_x0_flag;
-std::vector<int>                 out_tmp_fit_plus_x0_n_cross;
-std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_y;
-std::vector<std::vector<double>> out_tmp_fit_plus_x0_pos_z;
-std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_x;
-std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_y;
-std::vector<std::vector<double>> out_tmp_fit_plus_x0_mom_z;
-std::vector<int>                 out_tmp_fit_minus_x0_flag;
-std::vector<int>                 out_tmp_fit_minus_x0_n_cross;
-std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_y;
-std::vector<std::vector<double>> out_tmp_fit_minus_x0_pos_z;
-std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_x;
-std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_y;
-std::vector<std::vector<double>> out_tmp_fit_minus_x0_mom_z;
-#ifdef TMP_SOME_Z
-// check vertex
-std::vector<std::vector<double>> out_tmp_plus_static_flag;
-std::vector<std::vector<double>> out_tmp_plus_static_pos_x;
-std::vector<std::vector<double>> out_tmp_plus_static_pos_y;
-std::vector<std::vector<double>> out_tmp_plus_static_pos_z;
-std::vector<std::vector<double>> out_tmp_plus_static_mom_x;
-std::vector<std::vector<double>> out_tmp_plus_static_mom_y;
-std::vector<std::vector<double>> out_tmp_plus_static_mom_z;
-std::vector<std::vector<double>> out_tmp_minus_static_flag;
-std::vector<std::vector<double>> out_tmp_minus_static_pos_x;
-std::vector<std::vector<double>> out_tmp_minus_static_pos_y;
-std::vector<std::vector<double>> out_tmp_minus_static_pos_z;
-std::vector<std::vector<double>> out_tmp_minus_static_mom_x;
-std::vector<std::vector<double>> out_tmp_minus_static_mom_y;
-std::vector<std::vector<double>> out_tmp_minus_static_mom_z;
-std::vector<std::vector<double>> out_tmp_static_distance;
-std::vector<std::vector<double>> out_tmp_static_mom_angle;
-std::vector<std::vector<double>> out_tmp_static_pipi_mass;
-std::vector<std::vector<double>> out_tmp_dynamic_chi2;
-std::vector<std::vector<double>> out_tmp_dynamic_vtx_x;
-std::vector<std::vector<double>> out_tmp_dynamic_vtx_y;
-std::vector<std::vector<double>> out_tmp_dynamic_vtx_z;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_flag;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_x;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_y;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_pos_z;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_mom_x;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_mom_y;
-std::vector<std::vector<double>> out_tmp_plus_dynamic_mom_z;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_flag;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_pos_x;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_pos_y;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_pos_z;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_x;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_y;
-std::vector<std::vector<double>> out_tmp_minus_dynamic_mom_z;
-std::vector<std::vector<double>> out_tmp_dynamic_distance;
-std::vector<std::vector<double>> out_tmp_dynamic_mom_angle;
-std::vector<std::vector<double>> out_tmp_dynamic_pipi_mass;
-#endif // TMP_SOME_Z
-#ifdef TMP_ZX_NEAREST
-// nearest point at zx plane
-std::vector<double> out_tmp_zx_flag;
-std::vector<double> out_tmp_zx_distance;
-std::vector<double> out_tmp_zx_vtx_x;
-std::vector<double> out_tmp_zx_vtx_y;
-std::vector<double> out_tmp_zx_vtx_z;
-std::vector<double> out_tmp_zx_plus_pos_x;
-std::vector<double> out_tmp_zx_plus_pos_y;
-std::vector<double> out_tmp_zx_plus_pos_z;
-std::vector<double> out_tmp_zx_minus_pos_x;
-std::vector<double> out_tmp_zx_minus_pos_y;
-std::vector<double> out_tmp_zx_minus_pos_z;
-std::vector<double> out_tmp_zx_plus_mom_x;
-std::vector<double> out_tmp_zx_plus_mom_y;
-std::vector<double> out_tmp_zx_plus_mom_z;
-std::vector<double> out_tmp_zx_minus_mom_x;
-std::vector<double> out_tmp_zx_minus_mom_y;
-std::vector<double> out_tmp_zx_minus_mom_z;
-std::vector<double> out_tmp_zx_pipi_mass;
-#endif // TMP_ZX_NEAREST
-  // Event Mixing
-  std::vector<int> em_n_pairs;
-  std::vector<int> em_plus_run_id;
-  std::vector<int> em_plus_event_id;
-  std::vector<int> em_plus_n_cands;
-  std::vector<int> em_plus_n_tracks;
-  std::vector<int> em_plus_n_pairs;
-  std::vector<int> em_plus_track_id;
-  std::vector<int> em_minus_run_id;
-  std::vector<int> em_minus_event_id;
-  std::vector<int> em_minus_n_cands;
-  std::vector<int> em_minus_n_tracks;
-  std::vector<int> em_minus_n_pairs;
-  std::vector<int> em_minus_track_id;
-//  std::vector<int> em_n_pairs;
-//// single fit info. chi2, ...
-  std::vector<int> em_plus_charge_id;
-  std::vector<int> em_minus_charge_id;
-//  // Hit
-//  std::vector<int>    em_plus_track_id;
-  std::vector<int>    em_hit_plus_ssd_id;
-  std::vector<double> em_hit_plus_ssd_lx;
-//  std::vector<double> em_hit_plus_ssd_t;
-//  std::vector<double> em_hit_plus_ssd_adc;
-//  std::vector<int>    em_hit_plus_ssd_size;
-  std::vector<int>    em_hit_plus_gtr100_xid;
-  std::vector<int>    em_hit_plus_gtr100_yid;
-  std::vector<double> em_hit_plus_gtr100_lx;
-  std::vector<double> em_hit_plus_gtr100_ly;
-//  std::vector<double> em_hit_plus_gtr100_xt;
-//  std::vector<double> em_hit_plus_gtr100_yt;
-//  std::vector<double> em_hit_plus_gtr100_xadc;
-//  std::vector<double> em_hit_plus_gtr100_yadc;
-//  std::vector<int>    em_hit_plus_gtr100_xsize;
-//  std::vector<int>    em_hit_plus_gtr100_ysize;
-  std::vector<int>    em_hit_plus_gtr200_xid;
-  std::vector<int>    em_hit_plus_gtr200_yid;
-  std::vector<double> em_hit_plus_gtr200_lx;
-  std::vector<double> em_hit_plus_gtr200_ly;
-//  std::vector<double> em_hit_plus_gtr200_xt;
-//  std::vector<double> em_hit_plus_gtr200_yt;
-//  std::vector<double> em_hit_plus_gtr200_xadc;
-//  std::vector<double> em_hit_plus_gtr200_yadc;
-//  std::vector<int>    em_hit_plus_gtr200_xsize;
-//  std::vector<int>    em_hit_plus_gtr200_ysize;
-  std::vector<int>    em_hit_plus_gtr300_xid;
-  std::vector<int>    em_hit_plus_gtr300_yid;
-  std::vector<double> em_hit_plus_gtr300_lx;
-  std::vector<double> em_hit_plus_gtr300_ly;
-//  std::vector<double> em_hit_plus_gtr300_xt;
-//  std::vector<double> em_hit_plus_gtr300_yt;
-//  std::vector<double> em_hit_plus_gtr300_xadc;
-//  std::vector<double> em_hit_plus_gtr300_yadc;
-//  std::vector<int>    em_hit_plus_gtr300_xsize;
-//  std::vector<int>    em_hit_plus_gtr300_ysize;
-//  std::vector<int>    em_minus_track_id;
-  std::vector<int>    em_hit_minus_ssd_id;
-  std::vector<double> em_hit_minus_ssd_lx;
-//  std::vector<double> em_hit_minus_ssd_t;
-//  std::vector<double> em_hit_minus_ssd_adc;
-//  std::vector<int>    em_hit_minus_ssd_size;
-  std::vector<int>    em_hit_minus_gtr100_xid;
-  std::vector<int>    em_hit_minus_gtr100_yid;
-  std::vector<double> em_hit_minus_gtr100_lx;
-  std::vector<double> em_hit_minus_gtr100_ly;
-//  std::vector<double> em_hit_minus_gtr100_xt;
-//  std::vector<double> em_hit_minus_gtr100_yt;
-//  std::vector<double> em_hit_minus_gtr100_xadc;
-//  std::vector<double> em_hit_minus_gtr100_yadc;
-//  std::vector<int>    em_hit_minus_gtr100_xsize;
-//  std::vector<int>    em_hit_minus_gtr100_ysize;
-  std::vector<int>    em_hit_minus_gtr200_xid;
-  std::vector<int>    em_hit_minus_gtr200_yid;
-  std::vector<double> em_hit_minus_gtr200_lx;
-  std::vector<double> em_hit_minus_gtr200_ly;
-//  std::vector<double> em_hit_minus_gtr200_xt;
-//  std::vector<double> em_hit_minus_gtr200_yt;
-//  std::vector<double> em_hit_minus_gtr200_xadc;
-//  std::vector<double> em_hit_minus_gtr200_yadc;
-//  std::vector<int>    em_hit_minus_gtr200_xsize;
-//  std::vector<int>    em_hit_minus_gtr200_ysize;
-  std::vector<int>    em_hit_minus_gtr300_xid;
-  std::vector<int>    em_hit_minus_gtr300_yid;
-  std::vector<double> em_hit_minus_gtr300_lx;
-  std::vector<double> em_hit_minus_gtr300_ly;
-//  std::vector<double> em_hit_minus_gtr300_xt;
-//  std::vector<double> em_hit_minus_gtr300_yt;
-//  std::vector<double> em_hit_minus_gtr300_xadc;
-//  std::vector<double> em_hit_minus_gtr300_yadc;
-//  std::vector<int>    em_hit_minus_gtr300_xsize;
-//  std::vector<int>    em_hit_minus_gtr300_ysize;
-  // Fit
-  std::vector<double> em_chi2;
-  std::vector<double> em_plus_chi2;
-  std::vector<double> em_minus_chi2;
-  std::vector<int>    em_flag;
-  std::vector<double> em_distance;
-  std::vector<int>    em_dir_id;
-  std::vector<double> em_vtx_x;
-  std::vector<double> em_vtx_y;
-  std::vector<double> em_vtx_z;
-  std::vector<double> em_plus_mom;
-  std::vector<double> em_plus_mom_x;
-  std::vector<double> em_plus_mom_y;
-  std::vector<double> em_plus_mom_z;
-  std::vector<double> em_plus_mom_theta;
-  std::vector<double> em_plus_mom_phi;
-  std::vector<double> em_minus_mom;
-  std::vector<double> em_minus_mom_x;
-  std::vector<double> em_minus_mom_y;
-  std::vector<double> em_minus_mom_z;
-  std::vector<double> em_minus_mom_theta;
-  std::vector<double> em_minus_mom_phi;
-  std::vector<double> em_mom_angle;
-  std::vector<double> em_ee_mass;
-  std::vector<double> em_pipi_mass;
-  std::vector<double> em_pip_mass;
-  std::vector<double> em_kk_mass;
-  std::vector<int>    em_simple_best_tgt_id;
-  std::vector<double> em_simple_best_tgt_r;
-  std::vector<double> em_ee_mass_at_best_tgt;
-  std::vector<double> em_pipi_mass_at_best_tgt;
-  std::vector<double> em_pip_mass_at_best_tgt;
-  std::vector<double> em_kk_mass_at_best_tgt;
-  std::vector<int>    em_plus_ssd_mid;
-  std::vector<int>    em_plus_gtr100_mid;
-  std::vector<int>    em_plus_gtr200_mid;
-  std::vector<int>    em_plus_gtr300_mid;
-  std::vector<int>    em_plus_hbd_mid;
-  std::vector<int>    em_plus_lg_c_mid;
-  std::vector<int>    em_plus_lg_b_mid;
-  std::vector<int>    em_plus_lg_a_mid;
-  std::vector<int>    em_minus_ssd_mid;
-  std::vector<int>    em_minus_gtr100_mid;
-  std::vector<int>    em_minus_gtr200_mid;
-  std::vector<int>    em_minus_gtr300_mid;
-  std::vector<int>    em_minus_hbd_mid;
-  std::vector<int>    em_minus_lg_c_mid;
-  std::vector<int>    em_minus_lg_b_mid;
-  std::vector<int>    em_minus_lg_a_mid;
-  std::vector<double> em_fit_plus_ssd_lx;
-  std::vector<double> em_fit_plus_ssd_ly;
-  std::vector<double> em_fit_plus_gtr100_lx;
-  std::vector<double> em_fit_plus_gtr100_ly;
-  std::vector<double> em_fit_plus_gtr200_lx;
-  std::vector<double> em_fit_plus_gtr200_ly;
-  std::vector<double> em_fit_plus_gtr300_lx;
-  std::vector<double> em_fit_plus_gtr300_ly;
-  std::vector<double> em_fit_plus_hbd_lx;
-  std::vector<double> em_fit_plus_hbd_ly;
-  std::vector<double> em_fit_plus_lg_c_lx;
-  std::vector<double> em_fit_plus_lg_c_ly;
-  std::vector<double> em_fit_plus_lg_b_lx;
-  std::vector<double> em_fit_plus_lg_b_ly;
-  std::vector<double> em_fit_plus_lg_a_lx;
-  std::vector<double> em_fit_plus_lg_a_ly;
-  std::vector<double> em_fit_plus_tgt_minus_x;
-  std::vector<double> em_fit_plus_tgt_minus_y;
-  std::vector<double> em_fit_plus_tgt_zero_x;
-  std::vector<double> em_fit_plus_tgt_zero_y;
-  std::vector<double> em_fit_plus_tgt_plus_x;
-  std::vector<double> em_fit_plus_tgt_plus_y;
-  std::vector<double> em_fit_plus_x0_y;
-  std::vector<double> em_fit_plus_x0_z;
-  std::vector<double> em_fit_minus_ssd_lx;
-  std::vector<double> em_fit_minus_ssd_ly;
-  std::vector<double> em_fit_minus_gtr100_lx;
-  std::vector<double> em_fit_minus_gtr100_ly;
-  std::vector<double> em_fit_minus_gtr200_lx;
-  std::vector<double> em_fit_minus_gtr200_ly;
-  std::vector<double> em_fit_minus_gtr300_lx;
-  std::vector<double> em_fit_minus_gtr300_ly;
-  std::vector<double> em_fit_minus_hbd_lx;
-  std::vector<double> em_fit_minus_hbd_ly;
-  std::vector<double> em_fit_minus_lg_c_lx;
-  std::vector<double> em_fit_minus_lg_c_ly;
-  std::vector<double> em_fit_minus_lg_b_lx;
-  std::vector<double> em_fit_minus_lg_b_ly;
-  std::vector<double> em_fit_minus_lg_a_lx;
-  std::vector<double> em_fit_minus_lg_a_ly;
-  std::vector<double> em_fit_minus_tgt_minus_x;
-  std::vector<double> em_fit_minus_tgt_minus_y;
-  std::vector<double> em_fit_minus_tgt_zero_x;
-  std::vector<double> em_fit_minus_tgt_zero_y;
-  std::vector<double> em_fit_minus_tgt_plus_x;
-  std::vector<double> em_fit_minus_tgt_plus_y;
-  std::vector<double> em_fit_minus_x0_y;
-  std::vector<double> em_fit_minus_x0_z;
-  std::vector<double> em_fit_plus_ssd_mom_lx;
-  std::vector<double> em_fit_plus_ssd_mom_ly;
-  std::vector<double> em_fit_plus_ssd_mom_lz;
-  std::vector<double> em_fit_plus_ssd_mom_gx;
-  std::vector<double> em_fit_plus_ssd_mom_gy;
-  std::vector<double> em_fit_plus_ssd_mom_gz;
-  std::vector<double> em_fit_plus_gtr100_mom_lx;
-  std::vector<double> em_fit_plus_gtr100_mom_ly;
-  std::vector<double> em_fit_plus_gtr100_mom_lz;
-  std::vector<double> em_fit_plus_gtr100_mom_gx;
-  std::vector<double> em_fit_plus_gtr100_mom_gy;
-  std::vector<double> em_fit_plus_gtr100_mom_gz;
-  std::vector<double> em_fit_plus_gtr200_mom_lx;
-  std::vector<double> em_fit_plus_gtr200_mom_ly;
-  std::vector<double> em_fit_plus_gtr200_mom_lz;
-  std::vector<double> em_fit_plus_gtr200_mom_gx;
-  std::vector<double> em_fit_plus_gtr200_mom_gy;
-  std::vector<double> em_fit_plus_gtr200_mom_gz;
-  std::vector<double> em_fit_plus_gtr300_mom_lx;
-  std::vector<double> em_fit_plus_gtr300_mom_ly;
-  std::vector<double> em_fit_plus_gtr300_mom_lz;
-  std::vector<double> em_fit_plus_gtr300_mom_gx;
-  std::vector<double> em_fit_plus_gtr300_mom_gy;
-  std::vector<double> em_fit_plus_gtr300_mom_gz;
-  std::vector<double> em_fit_plus_hbd_mom_lx;
-  std::vector<double> em_fit_plus_hbd_mom_ly;
-  std::vector<double> em_fit_plus_hbd_mom_lz;
-  std::vector<double> em_fit_plus_hbd_mom_gx;
-  std::vector<double> em_fit_plus_hbd_mom_gy;
-  std::vector<double> em_fit_plus_hbd_mom_gz;
-  std::vector<double> em_fit_plus_lg_c_mom_lx;
-  std::vector<double> em_fit_plus_lg_c_mom_ly;
-  std::vector<double> em_fit_plus_lg_c_mom_lz;
-  std::vector<double> em_fit_plus_lg_c_mom_gx;
-  std::vector<double> em_fit_plus_lg_c_mom_gy;
-  std::vector<double> em_fit_plus_lg_c_mom_gz;
-  std::vector<double> em_fit_plus_lg_b_mom_lx;
-  std::vector<double> em_fit_plus_lg_b_mom_ly;
-  std::vector<double> em_fit_plus_lg_b_mom_lz;
-  std::vector<double> em_fit_plus_lg_b_mom_gx;
-  std::vector<double> em_fit_plus_lg_b_mom_gy;
-  std::vector<double> em_fit_plus_lg_b_mom_gz;
-  std::vector<double> em_fit_plus_lg_a_mom_lx;
-  std::vector<double> em_fit_plus_lg_a_mom_ly;
-  std::vector<double> em_fit_plus_lg_a_mom_lz;
-  std::vector<double> em_fit_plus_lg_a_mom_gx;
-  std::vector<double> em_fit_plus_lg_a_mom_gy;
-  std::vector<double> em_fit_plus_lg_a_mom_gz;
-  std::vector<double> em_fit_plus_tgt_minus_mom_x;
-  std::vector<double> em_fit_plus_tgt_minus_mom_y;
-  std::vector<double> em_fit_plus_tgt_minus_mom_z;
-  std::vector<double> em_fit_plus_tgt_zero_mom_x;
-  std::vector<double> em_fit_plus_tgt_zero_mom_y;
-  std::vector<double> em_fit_plus_tgt_zero_mom_z;
-  std::vector<double> em_fit_plus_tgt_plus_mom_x;
-  std::vector<double> em_fit_plus_tgt_plus_mom_y;
-  std::vector<double> em_fit_plus_tgt_plus_mom_z;
-  std::vector<double> em_fit_minus_ssd_mom_lx;
-  std::vector<double> em_fit_minus_ssd_mom_ly;
-  std::vector<double> em_fit_minus_ssd_mom_lz;
-  std::vector<double> em_fit_minus_ssd_mom_gx;
-  std::vector<double> em_fit_minus_ssd_mom_gy;
-  std::vector<double> em_fit_minus_ssd_mom_gz;
-  std::vector<double> em_fit_minus_gtr100_mom_lx;
-  std::vector<double> em_fit_minus_gtr100_mom_ly;
-  std::vector<double> em_fit_minus_gtr100_mom_lz;
-  std::vector<double> em_fit_minus_gtr100_mom_gx;
-  std::vector<double> em_fit_minus_gtr100_mom_gy;
-  std::vector<double> em_fit_minus_gtr100_mom_gz;
-  std::vector<double> em_fit_minus_gtr200_mom_lx;
-  std::vector<double> em_fit_minus_gtr200_mom_ly;
-  std::vector<double> em_fit_minus_gtr200_mom_lz;
-  std::vector<double> em_fit_minus_gtr200_mom_gx;
-  std::vector<double> em_fit_minus_gtr200_mom_gy;
-  std::vector<double> em_fit_minus_gtr200_mom_gz;
-  std::vector<double> em_fit_minus_gtr300_mom_lx;
-  std::vector<double> em_fit_minus_gtr300_mom_ly;
-  std::vector<double> em_fit_minus_gtr300_mom_lz;
-  std::vector<double> em_fit_minus_gtr300_mom_gx;
-  std::vector<double> em_fit_minus_gtr300_mom_gy;
-  std::vector<double> em_fit_minus_gtr300_mom_gz;
-  std::vector<double> em_fit_minus_hbd_mom_lx;
-  std::vector<double> em_fit_minus_hbd_mom_ly;
-  std::vector<double> em_fit_minus_hbd_mom_lz;
-  std::vector<double> em_fit_minus_hbd_mom_gx;
-  std::vector<double> em_fit_minus_hbd_mom_gy;
-  std::vector<double> em_fit_minus_hbd_mom_gz;
-  std::vector<double> em_fit_minus_lg_c_mom_lx;
-  std::vector<double> em_fit_minus_lg_c_mom_ly;
-  std::vector<double> em_fit_minus_lg_c_mom_lz;
-  std::vector<double> em_fit_minus_lg_c_mom_gx;
-  std::vector<double> em_fit_minus_lg_c_mom_gy;
-  std::vector<double> em_fit_minus_lg_c_mom_gz;
-  std::vector<double> em_fit_minus_lg_b_mom_lx;
-  std::vector<double> em_fit_minus_lg_b_mom_ly;
-  std::vector<double> em_fit_minus_lg_b_mom_lz;
-  std::vector<double> em_fit_minus_lg_b_mom_gx;
-  std::vector<double> em_fit_minus_lg_b_mom_gy;
-  std::vector<double> em_fit_minus_lg_b_mom_gz;
-  std::vector<double> em_fit_minus_lg_a_mom_lx;
-  std::vector<double> em_fit_minus_lg_a_mom_ly;
-  std::vector<double> em_fit_minus_lg_a_mom_lz;
-  std::vector<double> em_fit_minus_lg_a_mom_gx;
-  std::vector<double> em_fit_minus_lg_a_mom_gy;
-  std::vector<double> em_fit_minus_lg_a_mom_gz;
-  std::vector<double> em_fit_minus_tgt_minus_mom_x;
-  std::vector<double> em_fit_minus_tgt_minus_mom_y;
-  std::vector<double> em_fit_minus_tgt_minus_mom_z;
-  std::vector<double> em_fit_minus_tgt_zero_mom_x;
-  std::vector<double> em_fit_minus_tgt_zero_mom_y;
-  std::vector<double> em_fit_minus_tgt_zero_mom_z;
-  std::vector<double> em_fit_minus_tgt_plus_mom_x;
-  std::vector<double> em_fit_minus_tgt_plus_mom_y;
-  std::vector<double> em_fit_minus_tgt_plus_mom_z;
-// gpos...
-  std::vector<double> em_res_plus_ssd_lx;
-//  std::vector<double> em_res_plus_ssd_ly;
-  std::vector<double> em_res_plus_gtr100_lx;
-  std::vector<double> em_res_plus_gtr100_ly;
-  std::vector<double> em_res_plus_gtr200_lx;
-  std::vector<double> em_res_plus_gtr200_ly;
-  std::vector<double> em_res_plus_gtr300_lx;
-  std::vector<double> em_res_plus_gtr300_ly;
-  std::vector<double> em_res_minus_ssd_lx;
-//  std::vector<double> em_res_minus_ssd_ly;
-  std::vector<double> em_res_minus_gtr100_lx;
-  std::vector<double> em_res_minus_gtr100_ly;
-  std::vector<double> em_res_minus_gtr200_lx;
-  std::vector<double> em_res_minus_gtr200_ly;
-  std::vector<double> em_res_minus_gtr300_lx;
-  std::vector<double> em_res_minus_gtr300_ly;
-  std::vector<double>              em_fit_parent_mom;
-  std::vector<double>              em_fit_parent_mom_x;
-  std::vector<double>              em_fit_parent_mom_y;
-  std::vector<double>              em_fit_parent_mom_z;
-  std::vector<double>              em_fit_parent_mom_theta;
-  std::vector<double>              em_fit_parent_mom_phi;
-  std::vector<double>              em_fit_parent_tgt_minus_x;
-  std::vector<double>              em_fit_parent_tgt_minus_y;
-  std::vector<double>              em_fit_parent_tgt_minus_flight_path;
-  std::vector<double>              em_fit_parent_tgt_zero_x;
-  std::vector<double>              em_fit_parent_tgt_zero_y;
-  std::vector<double>              em_fit_parent_tgt_zero_flight_path;
-  std::vector<double>              em_fit_parent_tgt_plus_x;
-  std::vector<double>              em_fit_parent_tgt_plus_y;
-  std::vector<double>              em_fit_parent_tgt_plus_flight_path;
-  std::vector<int>                 em_fit_parent_best_tgt_id;
-  std::vector<double>              em_fit_parent_best_tgt_r;
-  std::vector<int>                 em_fit_parent_good_tgt_id_set;
-  std::vector<std::vector<double>> em_fit_parent_good_tgt_ids;
-  std::vector<double>              em_fit_parent_x0_y;
-  std::vector<double>              em_fit_parent_x0_z;
-//  // Projected HBD
-//  std::vector<double>              out_proj_plus_n_hbds;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_id;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_lx;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_ly;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_resx;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_resy;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_adc;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_size;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_eprob;
-//  std::vector<double>              out_proj_minus_n_hbds;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_id;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_lx;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_ly;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_resx;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_resy;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_adc;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_size;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
-//  // Projected LG
+  const std::string kGeometryFile = "/ccj/u/E16/database/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat";
+  const std::array<std::array<double, 2>, 5> kSmearSigma = {{{0.067, 0.}, {0.265, 0.626}, {0.252, 0.542}, {0.262, 0.518}, {30., 30.}}};
+//  const std::array<double, 4> kXWeight = {1. / 0.05 * 0.05, 1. / 0.1 * 0.1, 1. / 0.1 * 0.1, 1. / 0.1 * 0.1};
+//  const std::array<double, 4> kXWeight = {1. / 0.025 / 0.025, 1. / 0.1 / 0.1, 1. / 0.1 / 0.1, 1. / 0.1 / 0.1};
+  const std::array<double, 4> kXWeight = {1. / 0.25 / 0.25, 1. / 1. / 1., 1. / 1. / 1., 1. / 1. / 1.};
+  const std::array<double, 3> kYWeight = {1., 1., 1.};
+  const std::array<double, 2> kSSDRoughRadius = {125.8, 148.6}; // type-A, B
+  const int kNumXDistHistBins = 100;
+  const std::array<int, 3> kNumXCoefHistBins = {100, 100, 100};
+  const std::array<int, 2> kNumYCoefHistBins = {100, 100};
+  const std::array<int, 2> kNumChiHistBins   = {100, 100};
+  const std::array<double, 2> kXDistHistRange = {0., 1.5};
+  const std::array<std::array<double, 2>, 3> kXCoefHistRange = {{{-0.1, 0.1}, {-0.2, 0.2}, {-0.02, 0.02}}};
+  const std::array<std::array<double, 2>, 2> kYCoefHistRange = {{{-40., 40.}, {-0.3, 0.3}}};
+  const std::array<std::array<double, 2>, 2> kChiHistRange   = {{{0., 10.}, {0., 1.}}};
+  const std::array<std::array<double, 2>, 6> kXCurveCorrWindow = {{{0.2, 0.4}, {0.3, 0.5}, {0.4, 0.6}, {0.6, 0.75}, {0.7, 1.05}, {0.9, 1.3}}};
+  const std::array<double, 2> kRoughFitChiSquareThreshold = {10., 10.}; // x, y
+  const std::array<double, 3> kRoughXFitCoefficientThreshold = {0.1, 0.1, 0.002};
+  const std::array<double, 2> kRoughYFitCoefficientThreshold = {40., 0.}; // coef[1] not used.
+  int ModuleID2020To2013(int module_id);
+  double SmearPosition(double pos, int layer_id, int axis_id, double smear_coef);
+  int ModuleSetType(const std::vector<int>& mids);
+  void IsCurveCorrelation(const std::array<TVector3, 4>& pos_set, double* dist0, double* dist1);
+  TVector3 Lotate(double rot_cos, double rot_sin, const TVector3& offset_pos, const TVector3& pos);
+  void CalcLotatedPos(const std::array<TVector3, 4>& pos, double rot_cos, double rot_sin, std::array<TVector3, 4>* lotated_pos);
+  void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, 5>* mz, std::array<double, 3>* mzx);
+  void CalcInverseMatrix(const std::array<double, 5>& mz, std::array<std::array<double, 3>, 3>* matrix);
+  void CalcCoefficients(const std::array<double, 3>& mzx, const std::array<std::array<double, 3>, 3>& matrix, std::array<double, 3>* coef);
+  void CalcQuadCurve(const std::array<TVector3, 4>& lotated_pos, std::array<double, 5>* mz, std::array<double, 3>* mzx, std::array<double, 3>* coef);
+  void IsXTrackCandidate(const std::array<TVector3, 4>& pos_set, std::array<double, 3>* coefs, double* chi2, double* init_pos_x);
+  double CalcHBDDistance0(const std::array<TVector3, 4>& pos_set, const TVector3& hbd_pos);
+  double CalcHBDDistance1(const std::array<TVector3, 4>& pos_set, const TVector3& hbd_pos, const std::array<double, 3>& coefs);
+  double CalcHBDDistance2(const std::array<TVector3, 4>& pos_set, const TVector3& hbd_pos, const std::array<double, 3>& coefs);
+  double CalcHBDDistance3(const std::array<TVector3, 4>& pos_set, const TVector3& hbd_pos, const std::array<double, 3>& coefs);
+  void IsYTrackCandidate(int ssd_mid, const std::array<TVector3, 4>& pos_set, std::array<double, 2>* coefs, double* chi2, double* init_pos_y, double* ssd_pos_y);
+  TVector3 CalcRoughMomentum(double xcoef2, double ycoef1, const std::array<TVector3, 4>& pos_set);
+  void SearchThreshold(double efficiency, TH1F& hist, std::array<double, 2>* thresholds);
+  double SearchThreshold(bool is_symmetry, double efficiency, TH1F& hist);
 };
 
 #endif
 
-#ifdef track_analyzer_220715_cxx
-track_analyzer_220715::track_analyzer_220715(TTree *tree, E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter,
-                                             E16ANA_MultiTrack* _proj_fitter) : fChain(0), geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), proj_fitter(_proj_fitter)
+#ifdef tmp_check_track_finding_230106_cxx
+tmp_check_track_finding_230106::tmp_check_track_finding_230106(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/work22/ichikawa/lsf_file/22070700-v2/root/run030717_0_000_ev0-999.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/ccj/w/data06a/E16/user/ichikawa/embedding/ks/mock_dst1/FGT111-000_nosmear.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("/work22/ichikawa/lsf_file/22070700-v2/root/run030717_0_000_ev0-999.root");
+         f = new TFile("/ccj/w/data06a/E16/user/ichikawa/embedding/ks/mock_dst1/FGT111-000_nosmear.root");
       }
       f->GetObject("tree",tree);
 
@@ -2343,19 +1704,19 @@ track_analyzer_220715::track_analyzer_220715(TTree *tree, E16ANA_GeometryV2* _ge
    Init(tree);
 }
 
-track_analyzer_220715::~track_analyzer_220715()
+tmp_check_track_finding_230106::~tmp_check_track_finding_230106()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t track_analyzer_220715::GetEntry(Long64_t entry)
+Int_t tmp_check_track_finding_230106::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t track_analyzer_220715::LoadTree(Long64_t entry)
+Long64_t tmp_check_track_finding_230106::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -2368,7 +1729,7 @@ Long64_t track_analyzer_220715::LoadTree(Long64_t entry)
    return centry;
 }
 
-void track_analyzer_220715::Init(TTree *tree)
+void tmp_check_track_finding_230106::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -2452,6 +1813,14 @@ void track_analyzer_220715::Init(TTree *tree)
    hbd_hit_gz = 0;
    hbd_hit_t = 0;
    hbd_hit_adc = 0;
+   ssd_cluster_is_merged = 0;
+   gtr100x_cluster_is_merged = 0;
+   gtr200x_cluster_is_merged = 0;
+   gtr300x_cluster_is_merged = 0;
+   gtr100y_cluster_is_merged = 0;
+   gtr100yb_cluster_is_merged = 0;
+   gtr200y_cluster_is_merged = 0;
+   gtr300y_cluster_is_merged = 0;
    ssd_cluster_id = 0;
    ssd_cluster_mid = 0;
    ssd_cluster_x = 0;
@@ -2652,6 +2021,100 @@ void track_analyzer_220715::Init(TTree *tree)
    trg_track_lg_x = 0;
    trg_track_lg_y = 0;
    trg_track_lg_t = 0;
+   mock_is_dead = 0;
+   mock_pid = 0;
+   mock_charge = 0;
+   mock_init_pos_x = 0;
+   mock_init_pos_y = 0;
+   mock_init_pos_z = 0;
+   mock_init_mom_x = 0;
+   mock_init_mom_y = 0;
+   mock_init_mom_z = 0;
+   mock_ssd_mid = 0;
+   mock_ssd_lpos_x = 0;
+   mock_ssd_lpos_y = 0;
+   mock_ssd_lpos_z = 0;
+   mock_ssd_gpos_x = 0;
+   mock_ssd_gpos_y = 0;
+   mock_ssd_gpos_z = 0;
+   mock_ssd_lmom_x = 0;
+   mock_ssd_lmom_y = 0;
+   mock_ssd_lmom_z = 0;
+   mock_ssd_gmom_x = 0;
+   mock_ssd_gmom_y = 0;
+   mock_ssd_gmom_z = 0;
+   mock_gtr100_mid = 0;
+   mock_gtr100_lpos_x = 0;
+   mock_gtr100_lpos_y = 0;
+   mock_gtr100_lpos_z = 0;
+   mock_gtr100_gpos_x = 0;
+   mock_gtr100_gpos_y = 0;
+   mock_gtr100_gpos_z = 0;
+   mock_gtr100_lmom_x = 0;
+   mock_gtr100_lmom_y = 0;
+   mock_gtr100_lmom_z = 0;
+   mock_gtr100_gmom_x = 0;
+   mock_gtr100_gmom_y = 0;
+   mock_gtr100_gmom_z = 0;
+   mock_gtr200_mid = 0;
+   mock_gtr200_lpos_x = 0;
+   mock_gtr200_lpos_y = 0;
+   mock_gtr200_lpos_z = 0;
+   mock_gtr200_gpos_x = 0;
+   mock_gtr200_gpos_y = 0;
+   mock_gtr200_gpos_z = 0;
+   mock_gtr200_lmom_x = 0;
+   mock_gtr200_lmom_y = 0;
+   mock_gtr200_lmom_z = 0;
+   mock_gtr200_gmom_x = 0;
+   mock_gtr200_gmom_y = 0;
+   mock_gtr200_gmom_z = 0;
+   mock_gtr300_mid = 0;
+   mock_gtr300_lpos_x = 0;
+   mock_gtr300_lpos_y = 0;
+   mock_gtr300_lpos_z = 0;
+   mock_gtr300_gpos_x = 0;
+   mock_gtr300_gpos_y = 0;
+   mock_gtr300_gpos_z = 0;
+   mock_gtr300_lmom_x = 0;
+   mock_gtr300_lmom_y = 0;
+   mock_gtr300_lmom_z = 0;
+   mock_gtr300_gmom_x = 0;
+   mock_gtr300_gmom_y = 0;
+   mock_gtr300_gmom_z = 0;
+   mock_hbd_mid = 0;
+   mock_hbd_lpos_x = 0;
+   mock_hbd_lpos_y = 0;
+   mock_hbd_lpos_z = 0;
+   mock_hbd_gpos_x = 0;
+   mock_hbd_gpos_y = 0;
+   mock_hbd_gpos_z = 0;
+   mock_hbd_lmom_x = 0;
+   mock_hbd_lmom_y = 0;
+   mock_hbd_lmom_z = 0;
+   mock_hbd_gmom_x = 0;
+   mock_hbd_gmom_y = 0;
+   mock_hbd_gmom_z = 0;
+   mock_lgvd_mid = 0;
+   mock_lgvd_lpos_x = 0;
+   mock_lgvd_lpos_y = 0;
+   mock_lgvd_lpos_z = 0;
+   mock_lgvd_gpos_x = 0;
+   mock_lgvd_gpos_y = 0;
+   mock_lgvd_gpos_z = 0;
+   mock_lgvd_lmom_x = 0;
+   mock_lgvd_lmom_y = 0;
+   mock_lgvd_lmom_z = 0;
+   mock_lgvd_gmom_x = 0;
+   mock_lgvd_gmom_y = 0;
+   mock_lgvd_gmom_z = 0;
+   x_search_reject_point = 0;
+   x_fit_reject_point = 0;
+   y_reject_point = 0;
+   xy_reject_point = 0;
+   reject_point = 0;
+   sim_track_detected = 0;
+   is_sim_track = 0;
    track_id = 0;
    has_e_hbd_cluster = 0;
    has_e_lg_hit = 0;
@@ -2856,6 +2319,18 @@ void track_analyzer_220715::Init(TTree *tree)
    rk_fit_lg_a_mom_gx = 0;
    rk_fit_lg_a_mom_gy = 0;
    rk_fit_lg_a_mom_gz = 0;
+   rk_fit_lgvd_mid = 0;
+   rk_fit_lgvd_x = 0;
+   rk_fit_lgvd_y = 0;
+   rk_fit_lgvd_gx = 0;
+   rk_fit_lgvd_gy = 0;
+   rk_fit_lgvd_gz = 0;
+   rk_fit_lgvd_mom_x = 0;
+   rk_fit_lgvd_mom_y = 0;
+   rk_fit_lgvd_mom_z = 0;
+   rk_fit_lgvd_mom_gx = 0;
+   rk_fit_lgvd_mom_gy = 0;
+   rk_fit_lgvd_mom_gz = 0;
    rk_res_init_pos_gx = 0;
    rk_res_init_pos_gy = 0;
    rk_res_init_pos_gz = 0;
@@ -3042,6 +2517,7 @@ void track_analyzer_220715::Init(TTree *tree)
    fChain->SetBranchAddress("timestamp_in_spill", &timestamp_in_spill, &b_timestamp_in_spill);
    fChain->SetBranchAddress("trigger_fine_time", &trigger_fine_time, &b_trigger_fine_time);
    fChain->SetBranchAddress("n_fill", &n_fill, &b_n_fill);
+   fChain->SetBranchAddress("cluster_merged", &cluster_merged, &b_cluster_merged);
    fChain->SetBranchAddress("n_ssd_hits", &n_ssd_hits, &b_n_ssd_hits);
    fChain->SetBranchAddress("ssd_hit_id", &ssd_hit_id, &b_ssd_hit_id);
    fChain->SetBranchAddress("ssd_hit_mid", &ssd_hit_mid, &b_ssd_hit_mid);
@@ -3124,6 +2600,14 @@ void track_analyzer_220715::Init(TTree *tree)
    fChain->SetBranchAddress("hbd_hit_gz", &hbd_hit_gz, &b_hbd_hit_gz);
    fChain->SetBranchAddress("hbd_hit_t", &hbd_hit_t, &b_hbd_hit_t);
    fChain->SetBranchAddress("hbd_hit_adc", &hbd_hit_adc, &b_hbd_hit_adc);
+   fChain->SetBranchAddress("ssd_cluster_is_merged", &ssd_cluster_is_merged, &b_ssd_cluster_is_merged);
+   fChain->SetBranchAddress("gtr100x_cluster_is_merged", &gtr100x_cluster_is_merged, &b_gtr100x_cluster_is_merged);
+   fChain->SetBranchAddress("gtr200x_cluster_is_merged", &gtr200x_cluster_is_merged, &b_gtr200x_cluster_is_merged);
+   fChain->SetBranchAddress("gtr300x_cluster_is_merged", &gtr300x_cluster_is_merged, &b_gtr300x_cluster_is_merged);
+   fChain->SetBranchAddress("gtr100y_cluster_is_merged", &gtr100y_cluster_is_merged, &b_gtr100y_cluster_is_merged);
+   fChain->SetBranchAddress("gtr100yb_cluster_is_merged", &gtr100yb_cluster_is_merged, &b_gtr100yb_cluster_is_merged);
+   fChain->SetBranchAddress("gtr200y_cluster_is_merged", &gtr200y_cluster_is_merged, &b_gtr200y_cluster_is_merged);
+   fChain->SetBranchAddress("gtr300y_cluster_is_merged", &gtr300y_cluster_is_merged, &b_gtr300y_cluster_is_merged);
    fChain->SetBranchAddress("n_ssd_clusters", &n_ssd_clusters, &b_n_ssd_clusters);
    fChain->SetBranchAddress("ssd_cluster_id", &ssd_cluster_id, &b_ssd_cluster_id);
    fChain->SetBranchAddress("ssd_cluster_mid", &ssd_cluster_mid, &b_ssd_cluster_mid);
@@ -3340,12 +2824,107 @@ void track_analyzer_220715::Init(TTree *tree)
    fChain->SetBranchAddress("trg_track_lg_x", &trg_track_lg_x, &b_trg_track_lg_x);
    fChain->SetBranchAddress("trg_track_lg_y", &trg_track_lg_y, &b_trg_track_lg_y);
    fChain->SetBranchAddress("trg_track_lg_t", &trg_track_lg_t, &b_trg_track_lg_t);
+   fChain->SetBranchAddress("mock_n_tracks", &mock_n_tracks, &b_mock_n_tracks);
+   fChain->SetBranchAddress("mock_is_dead", &mock_is_dead, &b_mock_is_dead);
+   fChain->SetBranchAddress("mock_pid", &mock_pid, &b_mock_pid);
+   fChain->SetBranchAddress("mock_charge", &mock_charge, &b_mock_charge);
+   fChain->SetBranchAddress("mock_init_pos_x", &mock_init_pos_x, &b_mock_init_pos_x);
+   fChain->SetBranchAddress("mock_init_pos_y", &mock_init_pos_y, &b_mock_init_pos_y);
+   fChain->SetBranchAddress("mock_init_pos_z", &mock_init_pos_z, &b_mock_init_pos_z);
+   fChain->SetBranchAddress("mock_init_mom_x", &mock_init_mom_x, &b_mock_init_mom_x);
+   fChain->SetBranchAddress("mock_init_mom_y", &mock_init_mom_y, &b_mock_init_mom_y);
+   fChain->SetBranchAddress("mock_init_mom_z", &mock_init_mom_z, &b_mock_init_mom_z);
+   fChain->SetBranchAddress("mock_ssd_mid", &mock_ssd_mid, &b_mock_ssd_mid);
+   fChain->SetBranchAddress("mock_ssd_lpos_x", &mock_ssd_lpos_x, &b_mock_ssd_lpos_x);
+   fChain->SetBranchAddress("mock_ssd_lpos_y", &mock_ssd_lpos_y, &b_mock_ssd_lpos_y);
+   fChain->SetBranchAddress("mock_ssd_lpos_z", &mock_ssd_lpos_z, &b_mock_ssd_lpos_z);
+   fChain->SetBranchAddress("mock_ssd_gpos_x", &mock_ssd_gpos_x, &b_mock_ssd_gpos_x);
+   fChain->SetBranchAddress("mock_ssd_gpos_y", &mock_ssd_gpos_y, &b_mock_ssd_gpos_y);
+   fChain->SetBranchAddress("mock_ssd_gpos_z", &mock_ssd_gpos_z, &b_mock_ssd_gpos_z);
+   fChain->SetBranchAddress("mock_ssd_lmom_x", &mock_ssd_lmom_x, &b_mock_ssd_lmom_x);
+   fChain->SetBranchAddress("mock_ssd_lmom_y", &mock_ssd_lmom_y, &b_mock_ssd_lmom_y);
+   fChain->SetBranchAddress("mock_ssd_lmom_z", &mock_ssd_lmom_z, &b_mock_ssd_lmom_z);
+   fChain->SetBranchAddress("mock_ssd_gmom_x", &mock_ssd_gmom_x, &b_mock_ssd_gmom_x);
+   fChain->SetBranchAddress("mock_ssd_gmom_y", &mock_ssd_gmom_y, &b_mock_ssd_gmom_y);
+   fChain->SetBranchAddress("mock_ssd_gmom_z", &mock_ssd_gmom_z, &b_mock_ssd_gmom_z);
+   fChain->SetBranchAddress("mock_gtr100_mid", &mock_gtr100_mid, &b_mock_gtr100_mid);
+   fChain->SetBranchAddress("mock_gtr100_lpos_x", &mock_gtr100_lpos_x, &b_mock_gtr100_lpos_x);
+   fChain->SetBranchAddress("mock_gtr100_lpos_y", &mock_gtr100_lpos_y, &b_mock_gtr100_lpos_y);
+   fChain->SetBranchAddress("mock_gtr100_lpos_z", &mock_gtr100_lpos_z, &b_mock_gtr100_lpos_z);
+   fChain->SetBranchAddress("mock_gtr100_gpos_x", &mock_gtr100_gpos_x, &b_mock_gtr100_gpos_x);
+   fChain->SetBranchAddress("mock_gtr100_gpos_y", &mock_gtr100_gpos_y, &b_mock_gtr100_gpos_y);
+   fChain->SetBranchAddress("mock_gtr100_gpos_z", &mock_gtr100_gpos_z, &b_mock_gtr100_gpos_z);
+   fChain->SetBranchAddress("mock_gtr100_lmom_x", &mock_gtr100_lmom_x, &b_mock_gtr100_lmom_x);
+   fChain->SetBranchAddress("mock_gtr100_lmom_y", &mock_gtr100_lmom_y, &b_mock_gtr100_lmom_y);
+   fChain->SetBranchAddress("mock_gtr100_lmom_z", &mock_gtr100_lmom_z, &b_mock_gtr100_lmom_z);
+   fChain->SetBranchAddress("mock_gtr100_gmom_x", &mock_gtr100_gmom_x, &b_mock_gtr100_gmom_x);
+   fChain->SetBranchAddress("mock_gtr100_gmom_y", &mock_gtr100_gmom_y, &b_mock_gtr100_gmom_y);
+   fChain->SetBranchAddress("mock_gtr100_gmom_z", &mock_gtr100_gmom_z, &b_mock_gtr100_gmom_z);
+   fChain->SetBranchAddress("mock_gtr200_mid", &mock_gtr200_mid, &b_mock_gtr200_mid);
+   fChain->SetBranchAddress("mock_gtr200_lpos_x", &mock_gtr200_lpos_x, &b_mock_gtr200_lpos_x);
+   fChain->SetBranchAddress("mock_gtr200_lpos_y", &mock_gtr200_lpos_y, &b_mock_gtr200_lpos_y);
+   fChain->SetBranchAddress("mock_gtr200_lpos_z", &mock_gtr200_lpos_z, &b_mock_gtr200_lpos_z);
+   fChain->SetBranchAddress("mock_gtr200_gpos_x", &mock_gtr200_gpos_x, &b_mock_gtr200_gpos_x);
+   fChain->SetBranchAddress("mock_gtr200_gpos_y", &mock_gtr200_gpos_y, &b_mock_gtr200_gpos_y);
+   fChain->SetBranchAddress("mock_gtr200_gpos_z", &mock_gtr200_gpos_z, &b_mock_gtr200_gpos_z);
+   fChain->SetBranchAddress("mock_gtr200_lmom_x", &mock_gtr200_lmom_x, &b_mock_gtr200_lmom_x);
+   fChain->SetBranchAddress("mock_gtr200_lmom_y", &mock_gtr200_lmom_y, &b_mock_gtr200_lmom_y);
+   fChain->SetBranchAddress("mock_gtr200_lmom_z", &mock_gtr200_lmom_z, &b_mock_gtr200_lmom_z);
+   fChain->SetBranchAddress("mock_gtr200_gmom_x", &mock_gtr200_gmom_x, &b_mock_gtr200_gmom_x);
+   fChain->SetBranchAddress("mock_gtr200_gmom_y", &mock_gtr200_gmom_y, &b_mock_gtr200_gmom_y);
+   fChain->SetBranchAddress("mock_gtr200_gmom_z", &mock_gtr200_gmom_z, &b_mock_gtr200_gmom_z);
+   fChain->SetBranchAddress("mock_gtr300_mid", &mock_gtr300_mid, &b_mock_gtr300_mid);
+   fChain->SetBranchAddress("mock_gtr300_lpos_x", &mock_gtr300_lpos_x, &b_mock_gtr300_lpos_x);
+   fChain->SetBranchAddress("mock_gtr300_lpos_y", &mock_gtr300_lpos_y, &b_mock_gtr300_lpos_y);
+   fChain->SetBranchAddress("mock_gtr300_lpos_z", &mock_gtr300_lpos_z, &b_mock_gtr300_lpos_z);
+   fChain->SetBranchAddress("mock_gtr300_gpos_x", &mock_gtr300_gpos_x, &b_mock_gtr300_gpos_x);
+   fChain->SetBranchAddress("mock_gtr300_gpos_y", &mock_gtr300_gpos_y, &b_mock_gtr300_gpos_y);
+   fChain->SetBranchAddress("mock_gtr300_gpos_z", &mock_gtr300_gpos_z, &b_mock_gtr300_gpos_z);
+   fChain->SetBranchAddress("mock_gtr300_lmom_x", &mock_gtr300_lmom_x, &b_mock_gtr300_lmom_x);
+   fChain->SetBranchAddress("mock_gtr300_lmom_y", &mock_gtr300_lmom_y, &b_mock_gtr300_lmom_y);
+   fChain->SetBranchAddress("mock_gtr300_lmom_z", &mock_gtr300_lmom_z, &b_mock_gtr300_lmom_z);
+   fChain->SetBranchAddress("mock_gtr300_gmom_x", &mock_gtr300_gmom_x, &b_mock_gtr300_gmom_x);
+   fChain->SetBranchAddress("mock_gtr300_gmom_y", &mock_gtr300_gmom_y, &b_mock_gtr300_gmom_y);
+   fChain->SetBranchAddress("mock_gtr300_gmom_z", &mock_gtr300_gmom_z, &b_mock_gtr300_gmom_z);
+   fChain->SetBranchAddress("mock_hbd_mid", &mock_hbd_mid, &b_mock_hbd_mid);
+   fChain->SetBranchAddress("mock_hbd_lpos_x", &mock_hbd_lpos_x, &b_mock_hbd_lpos_x);
+   fChain->SetBranchAddress("mock_hbd_lpos_y", &mock_hbd_lpos_y, &b_mock_hbd_lpos_y);
+   fChain->SetBranchAddress("mock_hbd_lpos_z", &mock_hbd_lpos_z, &b_mock_hbd_lpos_z);
+   fChain->SetBranchAddress("mock_hbd_gpos_x", &mock_hbd_gpos_x, &b_mock_hbd_gpos_x);
+   fChain->SetBranchAddress("mock_hbd_gpos_y", &mock_hbd_gpos_y, &b_mock_hbd_gpos_y);
+   fChain->SetBranchAddress("mock_hbd_gpos_z", &mock_hbd_gpos_z, &b_mock_hbd_gpos_z);
+   fChain->SetBranchAddress("mock_hbd_lmom_x", &mock_hbd_lmom_x, &b_mock_hbd_lmom_x);
+   fChain->SetBranchAddress("mock_hbd_lmom_y", &mock_hbd_lmom_y, &b_mock_hbd_lmom_y);
+   fChain->SetBranchAddress("mock_hbd_lmom_z", &mock_hbd_lmom_z, &b_mock_hbd_lmom_z);
+   fChain->SetBranchAddress("mock_hbd_gmom_x", &mock_hbd_gmom_x, &b_mock_hbd_gmom_x);
+   fChain->SetBranchAddress("mock_hbd_gmom_y", &mock_hbd_gmom_y, &b_mock_hbd_gmom_y);
+   fChain->SetBranchAddress("mock_hbd_gmom_z", &mock_hbd_gmom_z, &b_mock_hbd_gmom_z);
+   fChain->SetBranchAddress("mock_lgvd_mid", &mock_lgvd_mid, &b_mock_lgvd_mid);
+   fChain->SetBranchAddress("mock_lgvd_lpos_x", &mock_lgvd_lpos_x, &b_mock_lgvd_lpos_x);
+   fChain->SetBranchAddress("mock_lgvd_lpos_y", &mock_lgvd_lpos_y, &b_mock_lgvd_lpos_y);
+   fChain->SetBranchAddress("mock_lgvd_lpos_z", &mock_lgvd_lpos_z, &b_mock_lgvd_lpos_z);
+   fChain->SetBranchAddress("mock_lgvd_gpos_x", &mock_lgvd_gpos_x, &b_mock_lgvd_gpos_x);
+   fChain->SetBranchAddress("mock_lgvd_gpos_y", &mock_lgvd_gpos_y, &b_mock_lgvd_gpos_y);
+   fChain->SetBranchAddress("mock_lgvd_gpos_z", &mock_lgvd_gpos_z, &b_mock_lgvd_gpos_z);
+   fChain->SetBranchAddress("mock_lgvd_lmom_x", &mock_lgvd_lmom_x, &b_mock_lgvd_lmom_x);
+   fChain->SetBranchAddress("mock_lgvd_lmom_y", &mock_lgvd_lmom_y, &b_mock_lgvd_lmom_y);
+   fChain->SetBranchAddress("mock_lgvd_lmom_z", &mock_lgvd_lmom_z, &b_mock_lgvd_lmom_z);
+   fChain->SetBranchAddress("mock_lgvd_gmom_x", &mock_lgvd_gmom_x, &b_mock_lgvd_gmom_x);
+   fChain->SetBranchAddress("mock_lgvd_gmom_y", &mock_lgvd_gmom_y, &b_mock_lgvd_gmom_y);
+   fChain->SetBranchAddress("mock_lgvd_gmom_z", &mock_lgvd_gmom_z, &b_mock_lgvd_gmom_z);
    fChain->SetBranchAddress("n_x_cands", &n_x_cands, &b_n_x_cands);
    fChain->SetBranchAddress("n_y_cands", &n_y_cands, &b_n_y_cands);
    fChain->SetBranchAddress("n_cands", &n_cands, &b_n_cands);
    fChain->SetBranchAddress("n_selected", &n_selected, &b_n_selected);
    fChain->SetBranchAddress("n_pairs", &n_pairs, &b_n_pairs);
    fChain->SetBranchAddress("n_refit_pairs", &n_refit_pairs, &b_n_refit_pairs);
+   fChain->SetBranchAddress("x_search_reject_point", &x_search_reject_point, &b_x_search_reject_point);
+   fChain->SetBranchAddress("x_fit_reject_point", &x_fit_reject_point, &b_x_fit_reject_point);
+   fChain->SetBranchAddress("y_reject_point", &y_reject_point, &b_y_reject_point);
+   fChain->SetBranchAddress("xy_reject_point", &xy_reject_point, &b_xy_reject_point);
+   fChain->SetBranchAddress("reject_point", &reject_point, &b_reject_point);
+   fChain->SetBranchAddress("sim_track_detected", &sim_track_detected, &b_sim_track_detected);
+   fChain->SetBranchAddress("is_sim_track", &is_sim_track, &b_is_sim_track);
    fChain->SetBranchAddress("track_id", &track_id, &b_track_id);
    fChain->SetBranchAddress("has_e_hbd_cluster", &has_e_hbd_cluster, &b_has_e_hbd_cluster);
    fChain->SetBranchAddress("has_e_lg_hit", &has_e_lg_hit, &b_has_e_lg_hit);
@@ -3550,6 +3129,18 @@ void track_analyzer_220715::Init(TTree *tree)
    fChain->SetBranchAddress("rk_fit_lg_a_mom_gx", &rk_fit_lg_a_mom_gx, &b_rk_fit_lg_a_mom_gx);
    fChain->SetBranchAddress("rk_fit_lg_a_mom_gy", &rk_fit_lg_a_mom_gy, &b_rk_fit_lg_a_mom_gy);
    fChain->SetBranchAddress("rk_fit_lg_a_mom_gz", &rk_fit_lg_a_mom_gz, &b_rk_fit_lg_a_mom_gz);
+   fChain->SetBranchAddress("rk_fit_lgvd_mid", &rk_fit_lgvd_mid, &b_rk_fit_lgvd_mid);
+   fChain->SetBranchAddress("rk_fit_lgvd_x", &rk_fit_lgvd_x, &b_rk_fit_lgvd_x);
+   fChain->SetBranchAddress("rk_fit_lgvd_y", &rk_fit_lgvd_y, &b_rk_fit_lgvd_y);
+   fChain->SetBranchAddress("rk_fit_lgvd_gx", &rk_fit_lgvd_gx, &b_rk_fit_lgvd_gx);
+   fChain->SetBranchAddress("rk_fit_lgvd_gy", &rk_fit_lgvd_gy, &b_rk_fit_lgvd_gy);
+   fChain->SetBranchAddress("rk_fit_lgvd_gz", &rk_fit_lgvd_gz, &b_rk_fit_lgvd_gz);
+   fChain->SetBranchAddress("rk_fit_lgvd_mom_x", &rk_fit_lgvd_mom_x, &b_rk_fit_lgvd_mom_x);
+   fChain->SetBranchAddress("rk_fit_lgvd_mom_y", &rk_fit_lgvd_mom_y, &b_rk_fit_lgvd_mom_y);
+   fChain->SetBranchAddress("rk_fit_lgvd_mom_z", &rk_fit_lgvd_mom_z, &b_rk_fit_lgvd_mom_z);
+   fChain->SetBranchAddress("rk_fit_lgvd_mom_gx", &rk_fit_lgvd_mom_gx, &b_rk_fit_lgvd_mom_gx);
+   fChain->SetBranchAddress("rk_fit_lgvd_mom_gy", &rk_fit_lgvd_mom_gy, &b_rk_fit_lgvd_mom_gy);
+   fChain->SetBranchAddress("rk_fit_lgvd_mom_gz", &rk_fit_lgvd_mom_gz, &b_rk_fit_lgvd_mom_gz);
    fChain->SetBranchAddress("rk_res_init_pos_gx", &rk_res_init_pos_gx, &b_rk_res_init_pos_gx);
    fChain->SetBranchAddress("rk_res_init_pos_gy", &rk_res_init_pos_gy, &b_rk_res_init_pos_gy);
    fChain->SetBranchAddress("rk_res_init_pos_gz", &rk_res_init_pos_gz, &b_rk_res_init_pos_gz);
@@ -3727,7 +3318,7 @@ void track_analyzer_220715::Init(TTree *tree)
    Notify();
 }
 
-Bool_t track_analyzer_220715::Notify()
+Bool_t tmp_check_track_finding_230106::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -3738,18 +3329,18 @@ Bool_t track_analyzer_220715::Notify()
    return kTRUE;
 }
 
-void track_analyzer_220715::Show(Long64_t entry)
+void tmp_check_track_finding_230106::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t track_analyzer_220715::Cut(Long64_t entry)
+Int_t tmp_check_track_finding_230106::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-#endif // #ifdef track_analyzer_220715_cxx
+#endif // #ifdef tmp_check_track_finding_230106_cxx
