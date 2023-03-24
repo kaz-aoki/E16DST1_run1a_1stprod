@@ -39,7 +39,8 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-	include/res
+	include/nakasuga
+#	include/res
 	include/trigger
 	include/straight_track
 	include/track
@@ -127,11 +128,15 @@ add_library(E16DST_DST1
   src/HBD/E16ANA_HBDGeometry.cc
   src/HBD/E16ANA_HBDTH2Hex.cc
   src/HBD/E16ANA_WaveformFitterCRRC.cc
-  src/res/AnalyzerResidualHBD.cc
-  src/res/AnalyzerTrackSelection.cc
-  src/res/SingleTrackAnalyzerForRes.cc
-  src/res/GainCalibwoTrack.cc
-  src/res/RootGainCalibwoTrack.cc
+  src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
+  src/nakasuga/E16ANA_EIDEfficiency.cc
+  src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
+  src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
+#  src/res/AnalyzerResidualHBD.cc
+#  src/res/AnalyzerTrackSelection.cc
+#  src/res/SingleTrackAnalyzerForRes.cc
+#  src/res/GainCalibwoTrack.cc
+#  src/res/RootGainCalibwoTrack.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   
 	src/E16DST_DST1.cc
@@ -265,9 +270,9 @@ target_link_libraries(dst0_to_dst1_strack_check
 )
 
 #_______________________________________________________________________________
-add_executable(DrawForTrackSelection usr/DrawForTrackSelection.cc)
+add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/EIDana_MakeTree_EIDEfficiency.cc)
 
-target_link_libraries(DrawForTrackSelection
+target_link_libraries(EIDana_MakeTree_EIDEfficiency
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -276,9 +281,9 @@ target_link_libraries(DrawForTrackSelection
 )
 
 #_______________________________________________________________________________
-add_executable(DrawForLGEfficiency usr/DrawForLGEfficiency.cc)
+add_executable(EIDana_MakeTree_EIDEfficiency_woY usr/tmp/EIDana_MakeTree_EIDEfficiency_woY.cc)
 
-target_link_libraries(DrawForLGEfficiency
+target_link_libraries(EIDana_MakeTree_EIDEfficiency_woY
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -287,9 +292,9 @@ target_link_libraries(DrawForLGEfficiency
 )
 
 #_______________________________________________________________________________
-add_executable(DrawForLGRejection usr/DrawForLGRejection.cc)
+add_executable(EIDana_WaveformEfficiency usr/tmp/EIDana_WaveformEfficiency.cc)
 
-target_link_libraries(DrawForLGRejection
+target_link_libraries(EIDana_WaveformEfficiency
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -298,9 +303,9 @@ target_link_libraries(DrawForLGRejection
 )
 
 #_______________________________________________________________________________
-add_executable(MkTreeForTrackSelection usr/MkTreeForTrackSelection.cc)
+add_executable(EIDana_LGHitADC usr/tmp/EIDana_LGHitADC.cc)
 
-target_link_libraries(MkTreeForTrackSelection
+target_link_libraries(EIDana_LGHitADC
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -309,9 +314,9 @@ target_link_libraries(MkTreeForTrackSelection
 )
 
 #_______________________________________________________________________________
-add_executable(MkTreeWYass usr/MkTreeWYass.cc)
+add_executable(EIDana_ResidualandEfficiency usr/tmp/EIDana_ResidualandEfficiency.cc)
 
-target_link_libraries(MkTreeWYass
+target_link_libraries(EIDana_ResidualandEfficiency
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -320,9 +325,75 @@ target_link_libraries(MkTreeWYass
 )
 
 #_______________________________________________________________________________
-add_executable(CalcLGWFefficiency usr/CalcLGWFefficiency.cc)
+add_executable(EIDana_LGGainCalibwTrack usr/tmp/EIDana_LGGainCalibwTrack.cc)
 
-target_link_libraries(CalcLGWFefficiency
+target_link_libraries(EIDana_LGGainCalibwTrack
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_MakeTree_LGGainCalibwoTrack usr/tmp/EIDana_MakeTree_LGGainCalibwoTrack.cc)
+
+target_link_libraries(EIDana_MakeTree_LGGainCalibwoTrack
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_LGGainCalibwoTrack_ResidualforLGmix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforLGmix.cc)
+
+target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforLGmix
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRymix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforGTRymix.cc)
+
+target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRymix
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_LGGainCalibwoTrack_Momentum usr/tmp/EIDana_LGGainCalibwoTrack_Momentum.cc)
+
+target_link_libraries(EIDana_LGGainCalibwoTrack_Momentum
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_LGGainCalibwoTrack_LGADCLGmix usr/tmp/EIDana_LGGainCalibwoTrack_LGADCLGmix.cc)
+
+target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCLGmix
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_LGGainCalibwoTrack_LGADCGTRymix usr/tmp/EIDana_LGGainCalibwoTrack_LGADCGTRymix.cc)
+
+target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCGTRymix
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -419,47 +490,12 @@ target_link_libraries(check_position_resolution
   E16DST_DST1
 )
 
-#_______________________________________________________________________________
-add_executable(check_gaindrop usr/tmp/check_gaindrop.cc)
+#### #_______________________________________________________________________________
+#### add_executable(LGResidualwoTrack usr/tmp/LGResidualwoTrack.cc)
 
-target_link_libraries(check_gaindrop
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(check_lggaincalib usr/tmp/check_lggaincalib.cc)
-
-target_link_libraries(check_lggaincalib
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(check_lgwf_wtrack usr/tmp/check_lgwf_wtrack.cc)
-
-target_link_libraries(check_lgwf_wtrack
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(LGHitADC usr/tmp/LGHitADC.cc)
-
-target_link_libraries(LGHitADC
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(LGMakeTreewoTrack usr/tmp/LGMakeTreewoTrack.cc)
-
-target_link_libraries(LGMakeTreewoTrack
-  E16DST_DST1
-)
-
-#_______________________________________________________________________________
-add_executable(LGResidualwoTrack usr/tmp/LGResidualwoTrack.cc)
-
-target_link_libraries(LGResidualwoTrack
-  E16DST_DST1
-)
+#### target_link_libraries(LGResidualwoTrack
+####   E16DST_DST1
+#### )
 
 #_______________________________________________________________________________
 #add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
