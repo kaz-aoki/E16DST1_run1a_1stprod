@@ -54,6 +54,7 @@ constexpr int nstrips_200x = 576;
 constexpr int nstrips_200y = 144;
 constexpr int nstrips_300x = 864;
 constexpr int nstrips_300y = 216;
+constexpr int n_gtr_samples = 24;
 
 // data
 constexpr int kReserve = 1024;

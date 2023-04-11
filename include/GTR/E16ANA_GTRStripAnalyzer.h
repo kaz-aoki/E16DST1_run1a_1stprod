@@ -53,7 +53,7 @@ private:
    std::vector<int> strip_id;
    std::vector<double> strip_pos;
    std::vector<double> strip_tot;
-
+   std::vector<std::array<double, n_sampling>> strip_fadc;
 public:
    E16ANA_GTRAnalyzedStripHit() { SetInvalid(); };
    ~E16ANA_GTRAnalyzedStripHit(){};
@@ -96,6 +96,12 @@ public:
       strip_tot.clear();
       strip_charge.clear();
       strip_timing.clear();
+      strip_fadc.clear();
+//	  for(int i=0; i < strip_fadc.size(); i++){
+//	   	 for(int j=0; j < n_sampling; j++){
+//      	    strip_fadc[i][j] = -11111;
+//	     }
+//	  }
    };
    void AddWaveForm(double *wf)
    {
@@ -129,13 +135,25 @@ public:
    bool IsYb() { return type == is_yb; }
    int Type() { return type; }
 
-   void PushBackStrip(int id, double pos, double charge, double t, double tot = 0.0)
+   void PushBackStrip(int id, double pos, double charge, double t, double tot = 0.0, double *fadc = nullptr)
    {
       strip_id.push_back(id);
       strip_pos.push_back(pos);
       strip_charge.push_back(charge);
       strip_timing.push_back(t);
       strip_tot.push_back(tot);
+	  if (fadc != nullptr){
+         std::array<double, n_sampling> a_fadc;
+		 std::copy_n(fadc, n_sampling, a_fadc.begin());
+	     strip_fadc.push_back(a_fadc);
+	  } else {
+         strip_fadc.emplace_back();
+      }
+//	  std::array<double, n_sampling> a_fadc; 
+//	  for(int i=0; i < n_sampling; i++){
+//	     a_fadc[i] = fadc[i];
+//	  }
+//      strip_fadc.push_back(a_fadc);
    };
 
    int MaxStripId() { return gem_max_strip; };
@@ -159,7 +177,8 @@ public:
    double            CTiming(int i) { return ctiming[i]; }
    double            CPos(int i)    { return cpos[i]; }
    int               NumCls() { return ctiming.size(); }
-
+   std::array<double, n_sampling> &StripFadc(int i){return strip_fadc[i];}
+//   double StripFadc(int i, int j){return strip_fadc[i][j];}
 
    enum {
       kInvalidValue = -1000000,
@@ -229,6 +248,9 @@ public:
    }
 
    bool IsBadStrip(int strip_id);
+//   std::vector<double> Fadc(int strip_id){return fadc[strip_id];}
+
+
 protected:
    // Analysis parameters
    double drift_velocity;

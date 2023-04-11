@@ -28,8 +28,30 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-
-
+void SetHitInfoToBranch(std::vector<E16DST_DST1GTRHit> &hits, E16DST_DST1GTRCluster* cluster, vector<vector<double>> &fadc, vector<int> &sid , 
+						vector<double> &tot, vector<double> &htime, vector<double> &ph){
+	std::vector<float> wave_form;
+	std::vector<double> d_wave_form; 
+    int cl_size = cluster->HitOrders().size();
+	wave_form.clear();
+	d_wave_form.clear();
+    sid.clear();
+    tot.clear();
+	htime.clear();
+	ph.clear();
+    fadc.clear();
+    for(const int hit_ord : cluster->HitOrders()){ 
+	    E16DST_DST1GTRHit &h = hits[hit_ord];
+        wave_form = h.WaveForm();
+        d_wave_form.resize(wave_form.size());//depends on n_sampling
+        std::transform(wave_form.begin(), wave_form.end(), d_wave_form.begin(), [](const float &f){return static_cast<double>(f);});
+        fadc.push_back(d_wave_form);
+        sid.push_back(h.ChannelId());
+        tot.push_back(h.Tot());
+        htime.push_back(h.Timing());
+        ph.push_back(h.PeakHeight());
+	 }
+}
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
@@ -165,6 +187,38 @@ int main(int argc, char* argv[]) {
   vector<Double_t> positions_200x;
   vector<Double_t> positions_300x;
 
+  vector<Double_t> asd_hits;
+  vector<vector<Double_t>> fadc_100x;
+  vector<vector<Double_t>> fadc_200x;
+  vector<vector<Double_t>> fadc_300x;
+  vector<vector<Double_t>> fadc_100y;
+  vector<vector<Double_t>> fadc_200y;
+  vector<vector<Double_t>> fadc_300y;
+  vector<Double_t> htime_100x;//hit timing for each strip
+  vector<Double_t> htime_200x;
+  vector<Double_t> htime_300x;
+  vector<Double_t> htime_100y;
+  vector<Double_t> htime_200y;
+  vector<Double_t> htime_300y;
+  vector<Double_t> tot_100x;
+  vector<Double_t> tot_200x;
+  vector<Double_t> tot_300x;
+  vector<Double_t> tot_100y;
+  vector<Double_t> tot_200y;
+  vector<Double_t> tot_300y;
+  vector<Double_t> ph_100x;//peak height
+  vector<Double_t> ph_200x;
+  vector<Double_t> ph_300x;
+  vector<Double_t> ph_100y;
+  vector<Double_t> ph_200y;
+  vector<Double_t> ph_300y;
+  vector<Int_t> sid_100x;
+  vector<Int_t> sid_200x;
+  vector<Int_t> sid_300x;
+  vector<Int_t> sid_100y;
+  vector<Int_t> sid_200y;
+  vector<Int_t> sid_300y;
+
 
   //	std::vector<TVector3> two_points_on_track;
   tree->Branch("event_id", &event_id, "event_id/I");
@@ -282,6 +336,39 @@ int main(int argc, char* argv[]) {
   tree->Branch("positions_100x", &positions_100x );
   tree->Branch("positions_200x", &positions_200x );
   tree->Branch("positions_300x", &positions_300x );
+
+  tree->Branch("asd_hits", &asd_hits);
+  
+  tree->Branch("fadc_100x", &fadc_100x);
+  tree->Branch("fadc_200x", &fadc_200x);
+  tree->Branch("fadc_300x", &fadc_300x);
+  tree->Branch("fadc_100y", &fadc_100y);
+  tree->Branch("fadc_200y", &fadc_200y);
+  tree->Branch("fadc_300y", &fadc_300y);
+  tree->Branch("sid_100x", &sid_100x);
+  tree->Branch("sid_200x", &sid_200x);
+  tree->Branch("sid_300x", &sid_300x);
+  tree->Branch("sid_100y", &sid_100y);
+  tree->Branch("sid_200y", &sid_200y);
+  tree->Branch("sid_300y", &sid_300y);
+  tree->Branch("tot_100x", &tot_100x);
+  tree->Branch("tot_200x", &tot_200x);
+  tree->Branch("tot_300x", &tot_300x);
+  tree->Branch("tot_100y", &tot_100y);
+  tree->Branch("tot_200y", &tot_200y);
+  tree->Branch("tot_300y", &tot_300y);
+  tree->Branch("htime_100x", &htime_100x);
+  tree->Branch("htime_200x", &htime_200x);
+  tree->Branch("htime_300x", &htime_300x);
+  tree->Branch("htime_100y", &htime_100y);
+  tree->Branch("htime_200y", &htime_200y);
+  tree->Branch("htime_300y", &htime_300y);
+  tree->Branch("ph_100x", &ph_100x);
+  tree->Branch("ph_200x", &ph_200x);
+  tree->Branch("ph_300x", &ph_300x);
+  tree->Branch("ph_100y", &ph_100y);
+  tree->Branch("ph_200y", &ph_200y);
+  tree->Branch("ph_300y", &ph_300y);
 
 
 
@@ -446,12 +533,12 @@ int main(int argc, char* argv[]) {
 		distance_fromtgt_y = -1000;
         distance_fromtgt_y  = t->DistanceYTrackAndTgt();
 		residual_ssdx = t->ResidualSSD();
-//		residual_100x = t->Residual100();
-//		residual_200x = t->Residual200();
-//		residual_300x = t->Residual300();
-//		residual_100y = t->Residual100();
-//		residual_200y =	t->Residual200();
-////		residual_300y = t->Residual300();
+//		residual_100x = t->Residual100X();
+//		residual_200x = t->Residual200X();
+//		residual_300x = t->Residual300X();
+//		residual_100y = t->Residual100Y();
+//		residual_200y =	t->Residual200Y();
+//		residual_300y = t->Residual300Y();
 //		fitresidual_ssdx = t->FitResidualSSD();
 		fitresidual_100x = t->FitResidual100X();
 		fitresidual_200x = t->FitResidual200X();
@@ -476,11 +563,29 @@ int main(int argc, char* argv[]) {
 		positions_100x.clear();
 		positions_200x.clear();
 		positions_300x.clear();
+        
+//       fadc_100x.clear();
+//       fadc_200x.clear();
+//       fadc_300x.clear();
+//       fadc_100y.clear();
+//       fadc_200y.clear();
+//       fadc_300y.clear();
+//
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR100XCluster(), fadc_100x, sid_100x, tot_100x, htime_100x, ph_100x);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR200XCluster(), fadc_200x, sid_200x, tot_200x, htime_200x, ph_200x);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR300XCluster(), fadc_300x, sid_300x, tot_300x, htime_300x, ph_300x);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR100YCluster(), fadc_100y, sid_100y, tot_100y, htime_100y, ph_100y);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR200YCluster(), fadc_200y, sid_200y, tot_200y, htime_200y, ph_200y);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR300YCluster(), fadc_300y, sid_300y, tot_300y, htime_300y, ph_300y);
+ 
 
 		hasMatchedASDHit = 0; //initialized 
 		hit_tile = (int)((t->GTR300YCluster()->CogPos()+150.0)/12.5);
+		asd_hits.clear();
+		asd_hits.resize(noh_trg);
 		for(int j=0; j<noh_trg; j++){
 			E16DST_DST0TriggerHit &trg = event0->TriggerGTR().Hit(j);
+			asd_hits[j] = trg.ChannelID();
 			if(hit_tile == trg.ChannelID()){
 				hasMatchedASDHit = 1;
 			}

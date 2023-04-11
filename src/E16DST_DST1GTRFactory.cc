@@ -66,10 +66,14 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
     }
     for(auto &a : gtr_analyzers->analyzer_map){
-//        a.second->AnalyzeV0();
-        a.second->AnalyzeV1();
+        a.second->AnalyzeV0();
+//        a.second->AnalyzeV1();
     }
+       
+	
+    
 
+// calculation of hit and cluster size 
     int dst1_clusters_size = 0;
     int dst1_hits_size = 0;
     for(int mid=100; mid<110; mid++){
@@ -94,6 +98,8 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     }
     dst1_hits.resize(dst1_hits_size);
     dst1_clusters.resize(dst1_clusters_size);
+
+//
     int cl_id = 0;// cluster id 
     int h_id = 0;// hit id
     for(int mid=100; mid < 110 ; mid++){
@@ -132,6 +138,14 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTot(anahit.StripTimeOverThreshold(j));
                         h.SetType(t);
                         h.SetLocalX(E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
+						std::vector<float> fadc;
+            //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
+						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
+							fadc.push_back((anahit.StripFadc(j))[k]);
+			//				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
+                        }
+						h.SetWaveForm(fadc);
+						fadc.clear();
                         //t_hit_indexs[t].push_back(indexs[t]);
                         hit_orders.push_back(h_id);
                         h_id++;
