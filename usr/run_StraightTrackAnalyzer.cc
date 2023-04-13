@@ -84,6 +84,7 @@ int main(int argc, char* argv[]) {
 //  TFile *f = new TFile("./dst1_test/output.root", "recreate");
   TTree *tree = new TTree("tree", "tree");
   Int_t event_id;
+  Int_t run_id;
   Int_t mod_id;
   Int_t hitid_ssdx;
   Int_t hitid_100x;
@@ -221,6 +222,7 @@ int main(int argc, char* argv[]) {
 
 
   //	std::vector<TVector3> two_points_on_track;
+  tree->Branch("run_id", &run_id, "run_id/I");
   tree->Branch("event_id", &event_id, "event_id/I");
   tree->Branch("mod_id", &mod_id, "mod_id/I");
   tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
@@ -376,10 +378,10 @@ int main(int argc, char* argv[]) {
 
   //auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
+  auto in_run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
   auto& calib = E16ANA_CalibDBManager::Instance();
-  calib.SetRunID(run_id);
+  calib.SetRunID(in_run_id);
 //  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
 //  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
 //  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
@@ -466,6 +468,7 @@ int main(int argc, char* argv[]) {
 	}
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
+        run_id   = in_run_id;
 		event_id = t->EventID();
 		mod_id = t->ModuleID();	
 		trkid_x    = t->XTrackID();

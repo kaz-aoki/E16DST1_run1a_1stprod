@@ -359,14 +359,16 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 
   double LocalX() {
     if (IsX()) {
-      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return center_of_gravity;
     } else {
       return center_of_gravity;
     }
   }
   double LocalXT() {
     if (IsX()) {
-      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return tdchit;
     } else {
       return tdchit;
     }
