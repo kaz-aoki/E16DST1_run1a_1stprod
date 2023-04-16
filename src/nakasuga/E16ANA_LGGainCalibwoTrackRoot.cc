@@ -210,7 +210,7 @@ void E16ANA_LGGainCalibwoTrackRoot::ResidualforLGmix(char* out_file_name, int ma
 
 void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRymix(int lid, char* out_file_name, int maxevent)
 {
-   if( lid<0 || lid>2 ) return;
+   if( InvalidGTRlid(lid) ) return;
 
    if (fChain == 0) return;
 
@@ -222,8 +222,6 @@ void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRymix(int lid, char* out_file_n
    TH1F* hresy[2][6];
    TH1F* hresxd[2][6];
    TH1F* hresyd[2][6];
-   int detresmax[3] = { 150, 300, 400};
-   int detresmin[3] = {-150,-300,-400};
    for(int j=0;j<2;j++){
      for(int i=0;i<6;i++){
        hresx[j][i] = new TH1F(Form("hresx%d%d",j,i),Form("resx_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
@@ -265,7 +263,7 @@ void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRymix(int lid, char* out_file_n
        double cx, cy;
        std::vector<double> lxs;
        std::vector<double> lys;
-       SetAllCls(ientry,lid,cx,cy,lxs,lys);
+       SetGTRTrackandClsXY(ientry,lid,cx,cy,lxs,lys);
        trklxs[midel].push_back(cx);
        trklys[midel].push_back(cy);
        gtrlxs[midel].resize( lxs.size() );
@@ -277,42 +275,42 @@ void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRymix(int lid, char* out_file_n
        //calc residual
        for(int imod=0;imod<6;imod++){
 	 for(int itrk=0;itrk<trklxs[imod].size();itrk++){
-	   int trklx = trklxs[imod].at(itrk);
-	   int trkly = trklys[imod].at(itrk);
-	   for(int igtr=0;igtr<gtrlxs[imod].size();igtr++){
-	     int gtrlx = gtrlxs[imod].at(igtr);
-	     hresx[0][imod]->Fill( gtrlx - trklx );
-	   }
+	   double trklx = trklxs[imod].at(itrk);
+	   double trkly = trklys[imod].at(itrk);
 	   for(int igtr=0;igtr<gtrlys[imod].size();igtr++){
-	     int gtrly = gtrlys[imod].at(igtr);
+	     double gtrly = gtrlys[imod].at(igtr);
 	     hresy[0][imod]->Fill( gtrly - trkly );
 	   }
-	   if(pre_gtrlxs[imod].size()!=0){//mix
-	     for(int igtrm=0;igtrm<pre_gtrlxs[imod].size();igtrm++){
-	       for(int igtr=0;igtr<pre_gtrlxs[imod].at(igtrm).size();igtr++){
-		 int gtrlx = pre_gtrlxs[imod].at(igtrm).at(igtr);
-		 hresxd[0][imod]->Fill( gtrlx - trklx );
-	       }
-	     }
-	   }//mix
+	   for(int igtr=0;igtr<gtrlxs[imod].size();igtr++){
+	     double gtrlx = gtrlxs[imod].at(igtr);
+	     hresx[0][imod]->Fill( gtrlx - trklx );
+	   }
 	   if(pre_gtrlys[imod].size()!=0){//mix
 	     for(int igtrm=0;igtrm<pre_gtrlys[imod].size();igtrm++){
 	       for(int igtr=0;igtr<pre_gtrlys[imod].at(igtrm).size();igtr++){
-		 int gtrly = pre_gtrlys[imod].at(igtrm).at(igtr);
+		 double gtrly = pre_gtrlys[imod].at(igtrm).at(igtr);
 		 hresyd[0][imod]->Fill( gtrly - trkly );
+	       }
+	     }
+	   }//mix
+	   if(pre_gtrlxs[imod].size()!=0){//mix
+	     for(int igtrm=0;igtrm<pre_gtrlxs[imod].size();igtrm++){
+	       for(int igtr=0;igtr<pre_gtrlxs[imod].at(igtrm).size();igtr++){
+		 double gtrlx = pre_gtrlxs[imod].at(igtrm).at(igtr);
+		 hresxd[0][imod]->Fill( gtrlx - trklx );
 	       }
 	     }
 	   }//mix
 	 }// track loop
 
 	 if( trackexist[imod] ){
-	   pre_gtrlxs[imod].push_back( gtrlxs[imod] );
-	   if( pre_gtrlxs[imod].size()>mixevent ){
-	     pre_gtrlxs[imod].erase(pre_gtrlxs[imod].begin());
-	   }
 	   pre_gtrlys[imod].push_back( gtrlys[imod] );
 	   if( pre_gtrlys[imod].size()>mixevent ){
 	     pre_gtrlys[imod].erase(pre_gtrlys[imod].begin());
+	   }
+	   pre_gtrlxs[imod].push_back( gtrlxs[imod] );
+	   if( pre_gtrlxs[imod].size()>mixevent ){
+	     pre_gtrlxs[imod].erase(pre_gtrlxs[imod].begin());
 	   }
 	 }
 	 trackexist[imod] = false;
@@ -328,7 +326,7 @@ void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRymix(int lid, char* out_file_n
        double cx, cy;
        std::vector<double> lxs;
        std::vector<double> lys;
-       SetAllCls(ientry,lid,cx,cy,lxs,lys);
+       SetGTRTrackandClsXY(ientry,lid,cx,cy,lxs,lys);
        trklxs[midel].push_back(cx);
        trklys[midel].push_back(cy);
        gtrlxs[midel].resize( lxs.size() );
@@ -351,7 +349,471 @@ void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRymix(int lid, char* out_file_n
    TLine* lx2[6];
    TLine* ly1[6];
    TLine* ly2[6];
-   int linex[3] = {30,40,40};
+   for(int j=0;j<6;j++){
+     c[j] = new TCanvas(Form("c%d",j),Form("c%d",j),1000,700);
+     c[j]->Divide(2,2);
+   }
+   for(int i=0;i<6;i++){
+     c[i]->cd(1);
+     hresx[0][i]->Draw();
+     hresxd[0][i]->SetLineColor(6);
+     hresxd[0][i]->Scale(1./(double)mixevent);
+     hresxd[0][i]->Draw("hist sames");
+     c[i]->cd(2);
+     hresy[0][i]->Draw();
+     hresyd[0][i]->SetLineColor(6);
+     hresyd[0][i]->Scale(1./(double)mixevent);
+     hresyd[0][i]->Draw("hist sames");
+     c[i]->cd(3)->SetGridx();
+     hresxsub[i] = (TH1F*)hresx[0][i]->Clone();
+     hresxsub[i]->Add(hresxd[0][i],-1);
+     hresxsub[i]->Draw("hist");
+     gPad->Update();
+     lx1[i] = new TLine(-linex[lid],gPad->GetUymin(),-linex[lid],gPad->GetUymax());
+     lx2[i] = new TLine( linex[lid],gPad->GetUymin(), linex[lid],gPad->GetUymax());
+     lx1[i]->SetLineColor(2);
+     lx2[i]->SetLineColor(2);
+     lx1[i]->Draw("same");
+     lx2[i]->Draw("same");
+     c[i]->cd(4)->SetGridx();
+     hresysub[i] = (TH1F*)hresy[0][i]->Clone();
+     hresysub[i]->Add(hresyd[0][i],-1);
+     hresysub[i]->Draw("hist");
+     gPad->Update();
+     ly1[i] = new TLine(-10,gPad->GetUymin(),-10,gPad->GetUymax());
+     ly2[i] = new TLine( 10,gPad->GetUymin(), 10,gPad->GetUymax());
+     ly1[i]->SetLineColor(2);
+     ly2[i]->SetLineColor(2);
+     ly1[i]->Draw("same");
+     ly2[i]->Draw("same");
+   }
+
+   TString fout = Form("%s", out_file_name);
+   TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+   cdef->SaveAs(fout+"[","pdf");
+   for(int j=0;j<6;j++){
+     c[j]->SaveAs(fout,"pdf");
+   }
+   cdef->SaveAs(fout+"]","pdf");
+}
+
+// void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRxmix(int lid, char* out_file_name, int maxevent)
+// {
+//    if( InvalidGTRlid(lid) ) return;
+
+//    if (fChain == 0) return;
+
+//    int mixevent = 50;
+
+//    //hist
+//    int mid[6] = {106,107,108,102,103,104};
+//    TH1F* hresx[2][6];
+//    TH1F* hresy[2][6];
+//    TH1F* hresxd[2][6];
+//    TH1F* hresyd[2][6];
+//    for(int j=0;j<2;j++){
+//      for(int i=0;i<6;i++){
+//        hresx[j][i] = new TH1F(Form("hresx%d%d",j,i),Form("resx_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+//        hresy[j][i] = new TH1F(Form("hresy%d%d",j,i),Form("resy_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+//        hresxd[j][i] = new TH1F(Form("hresxd%d%d",j,i),Form("resx_mix_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+//        hresyd[j][i] = new TH1F(Form("hresyd%d%d",j,i),Form("resy_mix_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+//      }
+//    }
+
+//    //loop
+//    std::vector<double> trklxs[6];// @ GTR plane
+//    std::vector<std::vector<double>> trkascyps[6];
+//    std::vector<std::vector<double>> trkascyadcs[6];
+//    std::vector<std::vector<double>> trkascyts[6];
+//    std::vector<double> gtrxps[6];
+//    std::vector<double> gtrxadcs[6];
+//    std::vector<double> gtrxts[6];
+//    bool trackexist[6] = {false, false, false, false, false, false};
+//    std::vector<std::vector<double>> pre_gtrxps[6];
+//    std::vector<std::vector<double>> pre_gtrxadcs[6];
+//    std::vector<std::vector<double>> pre_gtrxts[6];
+//    int pre_eventid = -10000;
+//    Long64_t nentries = fChain->GetEntriesFast();
+//    std::cout<<"nentries: "<<nentries<<std::endl;
+//    Long64_t nbytes = 0, nb = 0;
+
+//    int nevent = 0;
+//    for (Long64_t jentry=0; jentry<nentries;jentry++) {
+//      Long64_t ientry = LoadTree(jentry);
+//      if (ientry < 0) break;
+//      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+//      if(ientry%100000==0){std::cout<<"loop: "<<ientry<<std::endl;}
+//      if(maxevent!=-1&&nevent>maxevent) break;
+
+//      // if(lg_mid==102||lg_mid==108) continue;
+//      int midel = (gtr_mid-102+3)%7;
+
+//      if(TrackSelection(ientry)<0) continue;
+
+//      if(event_id==pre_eventid){
+//        trackexist[midel] = true;
+//        double cx;
+//        std::vector<double> ascyps;
+//        std::vector<double> ascyadcs;
+//        std::vector<double> ascyts;
+//        std::vector<double> xps;
+//        std::vector<double> xadcs;
+//        std::vector<double> xts;
+//        SetGTRTrackandClsMatch(ientry,lid,cx,ascyps,ascyadcs,ascyts,xps,xadcs,xts);
+//        trklxs[midel].push_back(cx);
+//        trkascyps[midel].push_back(ascyps);
+//        trkascyadcs[midel].push_back(ascyadcs);
+//        trkascyts[midel].push_back(ascyts);
+//        gtrxps[midel].resize( xps.size() );
+//        copy( xps.begin(), xps.end(), gtrxps[midel].begin() );
+//        gtrxadcs[midel].resize( xadcs.size() );
+//        copy( xadcs.begin(), xadcs.end(), gtrxadcs[midel].begin() );
+//        gtrxts[midel].resize( xts.size() );
+//        copy( xts.begin(), xts.end(), gtrxts[midel].begin() );
+//      }
+//      else{
+//        //calc residual
+//        for(int imod=0;imod<6;imod++){
+// 	 for(int itrk=0;itrk<trklxs[imod].size();itrk++){
+// 	   double trklx = trklxs[imod].at(itrk);
+// 	   for(int iascy=0;iascy<trkascyps[imod].at(itrk).size();iascy++){
+// 	     double yadc = trkascyadcs[imod].at(itrk).at(iascy);
+// 	     double yt = trkascyts[imod].at(itrk).at(iascy);
+// 	     for(int igtr=0;igtr<gtrxps[imod].size();igtr++){
+// 	       double gtrlx = gtrxps[imod].at(igtr);
+// 	       double xadc = gtrxadcs[imod].at(igtr);
+// 	       double xt = gtrxts[imod].at(igtr);
+// 	       if( GTRTimeMatching(lid,xt,yt) && GTRADCMatching(lid,xadc,yadc) ){
+// 		 hresx[0][imod]->Fill( gtrlx - trklx );
+// 	       }
+// 	     }
+// 	     if(pre_gtrxps[imod].size()!=0){//mix
+// 	       for(int igtrm=0;igtrm<pre_gtrxps[imod].size();igtrm++){
+// 		 for(int igtr=0;igtr<pre_gtrxps[imod].at(igtrm).size();igtr++){
+// 		   double gtrlx = pre_gtrxps[imod].at(igtrm).at(igtr);
+// 		   double xadc = pre_gtrxadcs[imod].at(igtrm).at(igtr);
+// 		   double xt = pre_gtrxts[imod].at(igtrm).at(igtr);
+// 		   if( GTRTimeMatching(lid,xt,yt) && GTRADCMatching(lid,xadc,yadc) ){
+// 		     hresxd[0][imod]->Fill( gtrlx - trklx );
+// 		   }
+// 		 }
+// 	       }
+// 	     }//mix
+// 	   }
+// 	 }// track loop
+
+// 	 if( trackexist[imod] ){
+// 	   pre_gtrxps[imod].push_back( gtrxps[imod] );
+// 	   pre_gtrxadcs[imod].push_back( gtrxadcs[imod] );
+// 	   pre_gtrxts[imod].push_back( gtrxts[imod] );
+// 	   if( pre_gtrxps[imod].size()>mixevent ){
+// 	     pre_gtrxps[imod].erase(pre_gtrxps[imod].begin());
+// 	     pre_gtrxadcs[imod].erase(pre_gtrxadcs[imod].begin());
+// 	     pre_gtrxts[imod].erase(pre_gtrxts[imod].begin());
+// 	   }
+// 	 }
+// 	 trackexist[imod] = false;
+// 	 trklxs[imod].clear();
+// 	 trkascyps[imod].clear();
+// 	 trkascyadcs[imod].clear();
+// 	 trkascyts[imod].clear();
+// 	 gtrxps[imod].clear();
+// 	 gtrxadcs[imod].clear();
+// 	 gtrxts[imod].clear();
+//        }
+//        //calc residual
+
+//        trackexist[midel] = true;
+//        double cx;
+//        std::vector<double> ascyps;
+//        std::vector<double> ascyadcs;
+//        std::vector<double> ascyts;
+//        std::vector<double> xps;
+//        std::vector<double> xadcs;
+//        std::vector<double> xts;
+//        SetGTRTrackandClsMatch(ientry,lid,cx,ascyps,ascyadcs,ascyts,xps,xadcs,xts);
+//        trklxs[midel].push_back(cx);
+//        trkascyps[midel].push_back(ascyps);
+//        trkascyadcs[midel].push_back(ascyadcs);
+//        trkascyts[midel].push_back(ascyts);
+//        gtrxps[midel].resize( xps.size() );
+//        copy( xps.begin(), xps.end(), gtrxps[midel].begin() );
+//        gtrxadcs[midel].resize( xadcs.size() );
+//        copy( xadcs.begin(), xadcs.end(), gtrxadcs[midel].begin() );
+//        gtrxts[midel].resize( xts.size() );
+//        copy( xts.begin(), xts.end(), gtrxts[midel].begin() );
+//      }
+
+//      pre_eventid = event_id;
+
+//      nevent++;
+
+//    }//event loop
+
+//    //Draw
+//    TCanvas* c[6];
+//    TH1F* hresxsub[6];
+//    TH1F* hresysub[6];
+//    TLine* lx1[6];
+//    TLine* lx2[6];
+//    TLine* ly1[6];
+//    TLine* ly2[6];
+//    for(int j=0;j<6;j++){
+//      c[j] = new TCanvas(Form("c%d",j),Form("c%d",j),1000,700);
+//      c[j]->Divide(2,2);
+//    }
+//    for(int i=0;i<6;i++){
+//      c[i]->cd(1);
+//      hresx[0][i]->Draw();
+//      hresxd[0][i]->SetLineColor(6);
+//      hresxd[0][i]->Scale(1./(double)mixevent);
+//      hresxd[0][i]->Draw("hist sames");
+//      c[i]->cd(2);
+//      hresy[0][i]->Draw();
+//      hresyd[0][i]->SetLineColor(6);
+//      hresyd[0][i]->Scale(1./(double)mixevent);
+//      hresyd[0][i]->Draw("hist sames");
+//      c[i]->cd(3)->SetGridx();
+//      hresxsub[i] = (TH1F*)hresx[0][i]->Clone();
+//      hresxsub[i]->Add(hresxd[0][i],-1);
+//      hresxsub[i]->Draw("hist");
+//      gPad->Update();
+//      lx1[i] = new TLine(-linex[lid],gPad->GetUymin(),-linex[lid],gPad->GetUymax());
+//      lx2[i] = new TLine( linex[lid],gPad->GetUymin(), linex[lid],gPad->GetUymax());
+//      lx1[i]->SetLineColor(2);
+//      lx2[i]->SetLineColor(2);
+//      lx1[i]->Draw("same");
+//      lx2[i]->Draw("same");
+//      c[i]->cd(4)->SetGridx();
+//      hresysub[i] = (TH1F*)hresy[0][i]->Clone();
+//      hresysub[i]->Add(hresyd[0][i],-1);
+//      hresysub[i]->Draw("hist");
+//      gPad->Update();
+//      ly1[i] = new TLine(-10,gPad->GetUymin(),-10,gPad->GetUymax());
+//      ly2[i] = new TLine( 10,gPad->GetUymin(), 10,gPad->GetUymax());
+//      ly1[i]->SetLineColor(2);
+//      ly2[i]->SetLineColor(2);
+//      ly1[i]->Draw("same");
+//      ly2[i]->Draw("same");
+//    }
+
+//    TString fout = Form("%s", out_file_name);
+//    TCanvas* cdef = new TCanvas("cdef","cdef",700,500);
+//    cdef->SaveAs(fout+"[","pdf");
+//    for(int j=0;j<6;j++){
+//      c[j]->SaveAs(fout,"pdf");
+//    }
+//    cdef->SaveAs(fout+"]","pdf");
+// }
+
+void E16ANA_LGGainCalibwoTrackRoot::ResidualforGTRxmix(int lid, char* out_file_name, int maxevent)
+{
+   if( InvalidGTRlid(lid) ) return;
+
+   if (fChain == 0) return;
+
+   int mixevent = 50;
+
+   //hist
+   int mid[6] = {106,107,108,102,103,104};
+   TH1F* hresx[2][6];
+   TH1F* hresy[2][6];
+   TH1F* hresxd[2][6];
+   TH1F* hresyd[2][6];
+   for(int j=0;j<2;j++){
+     for(int i=0;i<6;i++){
+       hresx[j][i] = new TH1F(Form("hresx%d%d",j,i),Form("resx_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+       hresy[j][i] = new TH1F(Form("hresy%d%d",j,i),Form("resy_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+       hresxd[j][i] = new TH1F(Form("hresxd%d%d",j,i),Form("resx_mix_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+       hresyd[j][i] = new TH1F(Form("hresyd%d%d",j,i),Form("resy_mix_%d",mid[i]),100,detresmin[lid],detresmax[lid]);
+     }
+   }
+
+   //loop
+   std::vector<double> trklxs[6];// @ GTR plane
+   std::vector<double> trklys[6];
+   std::vector<std::vector<double>> trkascyps[6];
+   std::vector<std::vector<double>> trkascyadcs[6];
+   std::vector<std::vector<double>> trkascyts[6];
+   std::vector<double> gtrxps[6];
+   std::vector<double> gtrxadcs[6];
+   std::vector<double> gtrxts[6];
+   std::vector<double> gtryps[6];//230324
+   std::vector<double> gtryadcs[6];//230324
+   std::vector<double> gtryts[6];//230324
+   bool trackexist[6] = {false, false, false, false, false, false};
+   std::vector<std::vector<double>> pre_gtrxps[6];
+   std::vector<std::vector<double>> pre_gtrxadcs[6];
+   std::vector<std::vector<double>> pre_gtrxts[6];
+   std::vector<std::vector<double>> pre_gtryps[6];//230324
+   std::vector<std::vector<double>> pre_gtryadcs[6];//230324
+   std::vector<std::vector<double>> pre_gtryts[6];//230324
+   int pre_eventid = -10000;
+   Long64_t nentries = fChain->GetEntriesFast();
+   std::cout<<"nentries: "<<nentries<<std::endl;
+   Long64_t nbytes = 0, nb = 0;
+
+   int nevent = 0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+     Long64_t ientry = LoadTree(jentry);
+     if (ientry < 0) break;
+     nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+     if(ientry%100000==0){std::cout<<"loop: "<<ientry<<std::endl;}
+     if(maxevent!=-1&&nevent>maxevent) break;
+
+     // if(lg_mid==102||lg_mid==108) continue;
+     int midel = (gtr_mid-102+3)%7;
+
+     if(TrackSelection(ientry)<0) continue;
+
+     if(event_id==pre_eventid){
+       trackexist[midel] = true;
+       double cx, cy;
+       std::vector<double> ascyps;
+       std::vector<double> ascyadcs;
+       std::vector<double> ascyts;
+       std::vector<double> xps;
+       std::vector<double> xadcs;
+       std::vector<double> xts;
+       std::vector<double> yps;
+       std::vector<double> yadcs;
+       std::vector<double> yts;
+       SetGTRTrackandClsMatch(ientry,lid,cx,cy,ascyps,ascyadcs,ascyts,xps,xadcs,xts,yps,yadcs,yts);
+       trklxs[midel].push_back(cx);
+       trklys[midel].push_back(cy);
+       trkascyps[midel].push_back(ascyps);
+       trkascyadcs[midel].push_back(ascyadcs);
+       trkascyts[midel].push_back(ascyts);
+       gtrxps[midel].resize( xps.size() );
+       copy( xps.begin(), xps.end(), gtrxps[midel].begin() );
+       gtrxadcs[midel].resize( xadcs.size() );
+       copy( xadcs.begin(), xadcs.end(), gtrxadcs[midel].begin() );
+       gtrxts[midel].resize( xts.size() );
+       copy( xts.begin(), xts.end(), gtrxts[midel].begin() );
+       gtryps[midel].resize( yps.size() );
+       copy( yps.begin(), yps.end(), gtryps[midel].begin() );
+       gtryadcs[midel].resize( yadcs.size() );
+       copy( yadcs.begin(), yadcs.end(), gtryadcs[midel].begin() );
+       gtryts[midel].resize( yts.size() );
+       copy( yts.begin(), yts.end(), gtryts[midel].begin() );
+     }
+     else{
+       //calc residual
+       for(int imod=0;imod<6;imod++){
+	 for(int itrk=0;itrk<trklxs[imod].size();itrk++){
+	   double trklx = trklxs[imod].at(itrk);
+	   double trkly = trklys[imod].at(itrk);
+	   for(int iascy=0;iascy<trkascyps[imod].at(itrk).size();iascy++){
+	     double yadc = trkascyadcs[imod].at(itrk).at(iascy);
+	     double yt = trkascyts[imod].at(itrk).at(iascy);
+	     for(int igtr=0;igtr<gtrxps[imod].size();igtr++){
+	       double gtrlx = gtrxps[imod].at(igtr);
+	       double xadc = gtrxadcs[imod].at(igtr);
+	       double xt = gtrxts[imod].at(igtr);
+	       if( GTRTimeMatching(lid,xt,yt) && GTRADCMatching(lid,xadc,yadc) ){
+		 hresx[0][imod]->Fill( gtrlx - trklx );
+	       }
+	     }
+	   }
+	   if(pre_gtryps[imod].size()!=0){//mix
+	     for(int igtrm=0;igtrm<pre_gtryps[imod].size();igtrm++){
+	       for(int igtry=0;igtry<pre_gtryps[imod].at(igtrm).size();igtry++){
+		 double gtrly = pre_gtryps[imod].at(igtrm).at(igtry);
+		 double yadc = pre_gtryadcs[imod].at(igtrm).at(igtry);
+		 double yt = pre_gtryts[imod].at(igtrm).at(igtry);
+		 if( fabs(gtrly-trkly)>10 ) continue;
+		 for(int igtrx=0;igtrx<pre_gtrxps[imod].at(igtrm).size();igtrx++){
+		   double gtrlx = pre_gtrxps[imod].at(igtrm).at(igtrx);
+		   double xadc = pre_gtrxadcs[imod].at(igtrm).at(igtrx);
+		   double xt = pre_gtrxts[imod].at(igtrm).at(igtrx);
+		   if( GTRTimeMatching(lid,xt,yt) && GTRADCMatching(lid,xadc,yadc) ){
+		     hresxd[0][imod]->Fill( gtrlx - trklx );
+		   }
+		 }
+	       }
+	     }
+	   }//mix
+
+	 }// track loop
+
+	 if( trackexist[imod] ){
+	   pre_gtrxps[imod].push_back( gtrxps[imod] );
+	   pre_gtrxadcs[imod].push_back( gtrxadcs[imod] );
+	   pre_gtrxts[imod].push_back( gtrxts[imod] );
+	   pre_gtryps[imod].push_back( gtryps[imod] );
+	   pre_gtryadcs[imod].push_back( gtryadcs[imod] );
+	   pre_gtryts[imod].push_back( gtryts[imod] );
+	   if( pre_gtrxps[imod].size()>mixevent ){
+	     pre_gtrxps[imod].erase(pre_gtrxps[imod].begin());
+	     pre_gtrxadcs[imod].erase(pre_gtrxadcs[imod].begin());
+	     pre_gtrxts[imod].erase(pre_gtrxts[imod].begin());
+	     pre_gtryps[imod].erase(pre_gtryps[imod].begin());
+	     pre_gtryadcs[imod].erase(pre_gtryadcs[imod].begin());
+	     pre_gtryts[imod].erase(pre_gtryts[imod].begin());
+	   }
+	 }
+	 trackexist[imod] = false;
+	 trklxs[imod].clear();
+	 trklys[imod].clear();
+	 trkascyps[imod].clear();
+	 trkascyadcs[imod].clear();
+	 trkascyts[imod].clear();
+	 gtrxps[imod].clear();
+	 gtrxadcs[imod].clear();
+	 gtrxts[imod].clear();
+	 gtryps[imod].clear();
+	 gtryadcs[imod].clear();
+	 gtryts[imod].clear();
+       }
+       //calc residual
+
+       trackexist[midel] = true;
+       double cx, cy;
+       std::vector<double> ascyps;
+       std::vector<double> ascyadcs;
+       std::vector<double> ascyts;
+       std::vector<double> xps;
+       std::vector<double> xadcs;
+       std::vector<double> xts;
+       std::vector<double> yps;
+       std::vector<double> yadcs;
+       std::vector<double> yts;
+       SetGTRTrackandClsMatch(ientry,lid,cx,cy,ascyps,ascyadcs,ascyts,xps,xadcs,xts,yps,yadcs,yts);
+       trklxs[midel].push_back(cx);
+       trklys[midel].push_back(cy);
+       trkascyps[midel].push_back(ascyps);
+       trkascyadcs[midel].push_back(ascyadcs);
+       trkascyts[midel].push_back(ascyts);
+       gtrxps[midel].resize( xps.size() );
+       copy( xps.begin(), xps.end(), gtrxps[midel].begin() );
+       gtrxadcs[midel].resize( xadcs.size() );
+       copy( xadcs.begin(), xadcs.end(), gtrxadcs[midel].begin() );
+       gtrxts[midel].resize( xts.size() );
+       copy( xts.begin(), xts.end(), gtrxts[midel].begin() );
+       gtryps[midel].resize( yps.size() );
+       copy( yps.begin(), yps.end(), gtryps[midel].begin() );
+       gtryadcs[midel].resize( yadcs.size() );
+       copy( yadcs.begin(), yadcs.end(), gtryadcs[midel].begin() );
+       gtryts[midel].resize( yts.size() );
+       copy( yts.begin(), yts.end(), gtryts[midel].begin() );
+     }
+
+     pre_eventid = event_id;
+
+     nevent++;
+
+   }//event loop
+
+   //Draw
+   TCanvas* c[6];
+   TH1F* hresxsub[6];
+   TH1F* hresysub[6];
+   TLine* lx1[6];
+   TLine* lx2[6];
+   TLine* ly1[6];
+   TLine* ly2[6];
    for(int j=0;j<6;j++){
      c[j] = new TCanvas(Form("c%d",j),Form("c%d",j),1000,700);
      c[j]->Divide(2,2);
@@ -609,7 +1071,7 @@ void E16ANA_LGGainCalibwoTrackRoot::LGADCGTRymix(int lid, char* out_file_name, i
        gtrmids[mideltrk].push_back(gtr_mid);
        double cy;
        std::vector<double> lys;
-       SetAllCls(ientry,lid,cy,lys);
+       SetGTRTrackandClsY(ientry,lid,cy,lys);
        gtrcys[mideltrk].push_back(cy);
        gtrlys[midelgtr].resize( lys.size() );
        copy( lys.begin(), lys.end(), gtrlys[midelgtr].begin() );
@@ -663,7 +1125,7 @@ void E16ANA_LGGainCalibwoTrackRoot::LGADCGTRymix(int lid, char* out_file_name, i
        gtrmids[mideltrk].push_back(gtr_mid);
        double cy;
        std::vector<double> lys;
-       SetAllCls(ientry,lid,cy,lys);
+       SetGTRTrackandClsY(ientry,lid,cy,lys);
        gtrcys[mideltrk].push_back(cy);
        gtrlys[midelgtr].resize( lys.size() );
        copy( lys.begin(), lys.end(), gtrlys[midelgtr].begin() );

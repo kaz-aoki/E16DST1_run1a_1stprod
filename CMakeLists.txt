@@ -132,6 +132,7 @@ add_library(E16DST_DST1
   src/nakasuga/E16ANA_EIDEfficiency.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
+  src/nakasuga/E16ANA_Massw2Gamma.cc
 #  src/res/AnalyzerResidualHBD.cc
 #  src/res/AnalyzerTrackSelection.cc
 #  src/res/SingleTrackAnalyzerForRes.cc
@@ -361,6 +362,17 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforLGmix
 add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRymix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforGTRymix.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRymix
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRxmix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforGTRxmix.cc)
+
+target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRxmix
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic

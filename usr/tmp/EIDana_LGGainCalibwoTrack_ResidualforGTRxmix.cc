@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
   }
 
   E16ANA_LGGainCalibwoTrackRoot* t = new E16ANA_LGGainCalibwoTrackRoot(in_chain);
-  t->ResidualforGTRymix(lid, out_file_name, maxevent);
+  t->ResidualforGTRxmix(lid, out_file_name, maxevent);
   
   delete in_chain;
   return 0;

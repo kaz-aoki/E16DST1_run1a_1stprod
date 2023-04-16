@@ -1418,6 +1418,7 @@ public :
    virtual ~E16ANA_EIDSingleTrackAnalyzer();
    virtual Int_t    Cut(Long64_t entry);
    static  int      LocaltoCh(double lx, double ly);
+   static  bool     IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid);
    static  int      KsRunPurpose(int run_id);
    static  bool     IsInTrgRun(int run_id, int mid);
    virtual int      TrackInHBDAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly);
@@ -2873,6 +2874,23 @@ int E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(double lx, double ly){
   int y_ch = (ly+400)/130;
   int x_ch = (lx+500)/120-1;
   return y_ch*10 + x_ch;
+}
+bool E16ANA_EIDSingleTrackAnalyzer::IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid){
+  // std::cout<<"cid:"<<cid<<" cent:"<<cent_cid<<" ";
+  TVector3 gpos = {-10000.,-10000.,-10000.};
+  TVector3 lpos = {-10000.,-10000.,-10000.};
+  gpos = geometry.LG( 0, cid )->GetDetectorCenter();
+  lpos = geometry.LGVD( 0 )->GetLPos(gpos);
+  TVector3 gposc = {-10000.,-10000.,-10000.};
+  TVector3 lposc = {-10000.,-10000.,-10000.};
+  gposc = geometry.LG( 0, cent_cid )->GetDetectorCenter();
+  lposc = geometry.LGVD( 0 )->GetLPos(gposc);
+  if( fabs(lpos.X()-lposc.X())<150 && fabs(lpos.Y()-lposc.Y())<170 ){
+    // std::cout<<"o"<<std::endl;
+    return true;
+  }
+  // std::cout<<"x"<<std::endl;
+  return false;
 }
 int E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(int run_id)
 {

@@ -27,15 +27,15 @@ int main(int argc, char* argv[]) {
   auto in_chain = new TChain("tree", "tree");
 
   if(argc==3){
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020908.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020909.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020914.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020921.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020924.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020927.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020987.root");
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*run020989.root");
-    // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v3/*.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020908.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020909.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020914.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020921.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020924.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020927.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020987.root");
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*run020989.root");
+    // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/wotrack/v6/*.root");
   }
   else if(argc==4){
     in_chain->Add(Form("%s*.root",in_file_prefix));

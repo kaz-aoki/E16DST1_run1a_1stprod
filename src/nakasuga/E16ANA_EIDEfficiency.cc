@@ -398,25 +398,6 @@ double E16ANA_EIDEfficiency::CalcADCNearHit(int condition, std::vector<hitset>& 
 
 }
 
-bool IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid){
-
-  // std::cout<<"cid:"<<cid<<" cent:"<<cent_cid<<" ";
-  TVector3 gpos = {-10000.,-10000.,-10000.};
-  TVector3 lpos = {-10000.,-10000.,-10000.};
-  gpos = geometry.LG( 0, cid )->GetDetectorCenter();
-  lpos = geometry.LGVD( 0 )->GetLPos(gpos);
-  TVector3 gposc = {-10000.,-10000.,-10000.};
-  TVector3 lposc = {-10000.,-10000.,-10000.};
-  gposc = geometry.LG( 0, cent_cid )->GetDetectorCenter();
-  lposc = geometry.LGVD( 0 )->GetLPos(gposc);
-  if( fabs(lpos.X()-lposc.X())<150 && fabs(lpos.Y()-lposc.Y())<170 ){
-    // std::cout<<"o"<<std::endl;
-    return true;
-  }
-  // std::cout<<"x"<<std::endl;
-  return false;
-}
-
 void CalcClusterCand(E16ANA_GeometryV2& geometry, std::vector<int>& trk_ass_cids, int blockch, double position_block_lx, double position_block_ly, double angle_lx){
 
   double r_moliere = 14.;//mm
@@ -1425,7 +1406,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 // 	   break;
 	 // 	 }
 	 //       }
-	 //       if(!hitincls&&fabs(lgcluster.tdcs.at(ict)-tmptdc)<10&&IsNeighborBlock(*geometry,cid,lgcluster.cids.at(ict))){
+	 //       if(!hitincls&&fabs(lgcluster.tdcs.at(ict)-tmptdc)<10&&E16ANA_EIDSingleTrackAnalyzer::IsNeighborBlock(*geometry,cid,lgcluster.cids.at(ict))){
 	 // 	 adcsum=-10000.;
 	 // 	 break;
 	 //       }

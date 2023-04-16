@@ -29,547 +29,6 @@
 #include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
 
-// // void E16ANA_LGGainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_file_name)
-// {
-//    if (fChain == 0) return;
-
-//    TFile* fout = new TFile(out_file_name,"recreate");
-//    TTree* tree = new TTree("tree","tree");
-
-//    Int_t           out_run_id;
-//    Int_t           out_event_id;
-//    Int_t           out_spill_id;
-//    Int_t           out_run_purpose;
-//    int    out_lg_mid;
-//    int    out_lg_cid;
-//    double out_lg_adc;
-//    double out_lg_t;
-//    double out_lg_leftside_adc;
-//    double out_lg_leftside_t;
-//    double out_lg_rightside_adc;
-//    double out_lg_rightside_t;
-//    int    out_lg_trg_hit;
-//    bool    out_lg_trg_trk;
-//    bool   out_lg_trg_run;
-//    int    out_lg_multi_ev;
-//    int    out_lg_multi_mod;
-//    int    out_n_hbds;
-//    double out_hbd_cx;
-//    double out_hbd_cy;
-//    double out_hbd_nearest_adc;
-//    double out_hbd_nearest_t;
-//    double out_hbd_nearest_lx;
-//    double out_hbd_nearest_ly;
-//    vector<double> out_hbd_adc;
-//    vector<double> out_hbd_t;
-//    vector<double> out_hbd_lx;
-//    vector<double> out_hbd_ly;
-//    int    out_n_ssds;
-//    double out_ssd_cx;
-//    double out_ssd_nearest_adc;
-//    double out_ssd_nearest_t;
-//    double out_ssd_nearest_lx;
-//    vector<double> out_ssd_adc;
-//    vector<double> out_ssd_t;
-//    vector<double> out_ssd_lx;
-//    int    out_n_gtr100xs;
-//    double out_gtr100x_cx;
-//    double out_gtr100x_nearest_adc;
-//    double out_gtr100x_nearest_t;
-//    double out_gtr100x_nearest_lx;
-//    vector<double> out_gtr100x_adc;
-//    vector<double> out_gtr100x_t;
-//    vector<double> out_gtr100x_lx;
-//    int    out_n_gtr200xs;
-//    double out_gtr200x_cx;
-//    double out_gtr200x_nearest_adc;
-//    double out_gtr200x_nearest_t;
-//    double out_gtr200x_nearest_lx;
-//    vector<double> out_gtr200x_adc;
-//    vector<double> out_gtr200x_t;
-//    vector<double> out_gtr200x_lx;
-//    int    out_n_gtr300xs;
-//    double out_gtr300x_cx;
-//    double out_gtr300x_nearest_adc;
-//    double out_gtr300x_nearest_t;
-//    double out_gtr300x_nearest_lx;
-//    vector<double> out_gtr300x_adc;
-//    vector<double> out_gtr300x_t;
-//    vector<double> out_gtr300x_lx;
-//    int    out_n_gtr100ys;
-//    double out_gtr100y_cy;
-//    double out_gtr100y_nearest_adc;
-//    double out_gtr100y_nearest_t;
-//    double out_gtr100y_nearest_ly;
-//    vector<double> out_gtr100y_adc;
-//    vector<double> out_gtr100y_t;
-//    vector<double> out_gtr100y_ly;
-//    int    out_n_gtr200ys;
-//    double out_gtr200y_cy;
-//    double out_gtr200y_nearest_adc;
-//    double out_gtr200y_nearest_t;
-//    double out_gtr200y_nearest_ly;
-//    vector<double> out_gtr200y_adc;
-//    vector<double> out_gtr200y_t;
-//    vector<double> out_gtr200y_ly;
-//    int    out_n_gtr300ys;
-//    double out_gtr300y_cy;
-//    double out_gtr300y_nearest_adc;
-//    double out_gtr300y_nearest_t;
-//    double out_gtr300y_nearest_ly;
-//    vector<double> out_gtr300y_adc;
-//    vector<double> out_gtr300y_t;
-//    vector<double> out_gtr300y_ly;
-
-//    tree->Branch("run_id",&out_run_id,"run_id/I");
-//    tree->Branch("event_id",&out_event_id,"event_id/I");
-//    tree->Branch("spill_id",&out_spill_id,"spill_id/I");
-//    tree->Branch("run_purpose",&out_run_purpose,"run_purpose/I");
-//    tree->Branch("lg_mid",&out_lg_mid,"lg_mid/I");
-//    tree->Branch("lg_cid",&out_lg_cid,"lg_cid/I");
-//    tree->Branch("lg_adc",&out_lg_adc,"lg_adc/D");
-//    tree->Branch("lg_t",&out_lg_t,"lg_t/D");
-//    tree->Branch("lg_leftside_adc",&out_lg_leftside_adc,"lg_leftside_adc/D");
-//    tree->Branch("lg_leftside_t",&out_lg_leftside_t,"lg_leftside_t/D");
-//    tree->Branch("lg_rightside_adc",&out_lg_rightside_adc,"lg_rightside_adc/D");
-//    tree->Branch("lg_rightside_t",&out_lg_rightside_t,"lg_rightside_t/D");
-//    tree->Branch("lg_trg_hit",&out_lg_trg_hit,"lg_trg_hit/I");
-//    tree->Branch("lg_trg_trk",&out_lg_trg_trk,"lg_trg_trk/O");
-//    tree->Branch("lg_trg_run",&out_lg_trg_run,"lg_trg_run/O");
-//    tree->Branch("lg_multi_ev",&out_lg_multi_ev,"lg_multi_ev/I");
-//    tree->Branch("lg_multi_mod",&out_lg_multi_mod,"lg_multi_mod/I");
-//    tree->Branch("n_hbds",&out_n_hbds,"n_hbds/I");
-//    tree->Branch("hbd_cx", &out_hbd_cx, "out_hbd_cx/D");
-//    tree->Branch("hbd_cy", &out_hbd_cy, "out_hbd_cy/D");
-//    tree->Branch("hbd_nearest_adc", &out_hbd_nearest_adc, "out_hbd_nearest_adc/D");
-//    tree->Branch("hbd_nearest_t", &out_hbd_nearest_t, "out_hbd_nearest_t/D");
-//    tree->Branch("hbd_nearest_lx", &out_hbd_nearest_lx, "out_hbd_nearest_lx/D");
-//    tree->Branch("hbd_nearest_ly", &out_hbd_nearest_ly, "out_hbd_nearest_ly/D");
-//    tree->Branch("hbd_adc", &out_hbd_adc);
-//    tree->Branch("hbd_t", &out_hbd_t);
-//    tree->Branch("hbd_lx", &out_hbd_lx);
-//    tree->Branch("hbd_ly", &out_hbd_ly);
-//    tree->Branch("n_ssds",&out_n_ssds,"n_ssds/I");
-//    tree->Branch("ssd_cx", &out_ssd_cx, "out_ssd_cx/D");
-//    tree->Branch("ssd_nearest_adc", &out_ssd_nearest_adc, "out_ssd_nearest_adc/D");
-//    tree->Branch("ssd_nearest_t", &out_ssd_nearest_t, "out_ssd_nearest_t/D");
-//    tree->Branch("ssd_nearest_lx", &out_ssd_nearest_lx, "out_ssd_nearest_lx/D");
-//    tree->Branch("ssd_adc", &out_ssd_adc);
-//    tree->Branch("ssd_t", &out_ssd_t);
-//    tree->Branch("ssd_lx", &out_ssd_lx);
-//    tree->Branch("n_gtr100xs",&out_n_gtr100xs,"n_gtr100xs/I");
-//    tree->Branch("gtr100x_cx", &out_gtr100x_cx, "out_gtr100x_cx/D");
-//    tree->Branch("gtr100x_nearest_adc", &out_gtr100x_nearest_adc, "out_gtr100x_nearest_adc/D");
-//    tree->Branch("gtr100x_nearest_t", &out_gtr100x_nearest_t, "out_gtr100x_nearest_t/D");
-//    tree->Branch("gtr100x_nearest_lx", &out_gtr100x_nearest_lx, "out_gtr100x_nearest_lx/D");
-//    tree->Branch("gtr100x_adc", &out_gtr100x_adc);
-//    tree->Branch("gtr100x_t", &out_gtr100x_t);
-//    tree->Branch("gtr100x_lx", &out_gtr100x_lx);
-//    tree->Branch("n_gtr200xs",&out_n_gtr200xs,"n_gtr200xs/I");
-//    tree->Branch("gtr200x_cx", &out_gtr200x_cx, "out_gtr200x_cx/D");
-//    tree->Branch("gtr200x_nearest_adc", &out_gtr200x_nearest_adc, "out_gtr200x_nearest_adc/D");
-//    tree->Branch("gtr200x_nearest_t", &out_gtr200x_nearest_t, "out_gtr200x_nearest_t/D");
-//    tree->Branch("gtr200x_nearest_lx", &out_gtr200x_nearest_lx, "out_gtr200x_nearest_lx/D");
-//    tree->Branch("gtr200x_adc", &out_gtr200x_adc);
-//    tree->Branch("gtr200x_t", &out_gtr200x_t);
-//    tree->Branch("gtr200x_lx", &out_gtr200x_lx);
-//    tree->Branch("n_gtr300xs",&out_n_gtr300xs,"n_gtr300xs/I");
-//    tree->Branch("gtr300x_cx", &out_gtr300x_cx, "out_gtr300x_cx/D");
-//    tree->Branch("gtr300x_nearest_adc", &out_gtr300x_nearest_adc, "out_gtr300x_nearest_adc/D");
-//    tree->Branch("gtr300x_nearest_t", &out_gtr300x_nearest_t, "out_gtr300x_nearest_t/D");
-//    tree->Branch("gtr300x_nearest_lx", &out_gtr300x_nearest_lx, "out_gtr300x_nearest_lx/D");
-//    tree->Branch("gtr300x_adc", &out_gtr300x_adc);
-//    tree->Branch("gtr300x_t", &out_gtr300x_t);
-//    tree->Branch("gtr300x_lx", &out_gtr300x_lx);
-//    tree->Branch("n_gtr100ys",&out_n_gtr100ys,"n_gtr100ys/I");
-//    tree->Branch("gtr100y_cy", &out_gtr100y_cy, "out_gtr100y_cy/D");
-//    tree->Branch("gtr100y_nearest_adc", &out_gtr100y_nearest_adc, "out_gtr100y_nearest_adc/D");
-//    tree->Branch("gtr100y_nearest_t", &out_gtr100y_nearest_t, "out_gtr100y_nearest_t/D");
-//    tree->Branch("gtr100y_nearest_ly", &out_gtr100y_nearest_ly, "out_gtr100y_nearest_ly/D");
-//    tree->Branch("gtr100y_adc", &out_gtr100y_adc);
-//    tree->Branch("gtr100y_t", &out_gtr100y_t);
-//    tree->Branch("gtr100y_ly", &out_gtr100y_ly);
-//    tree->Branch("n_gtr200ys",&out_n_gtr200ys,"n_gtr200ys/I");
-//    tree->Branch("gtr200y_cy", &out_gtr200y_cy, "out_gtr200y_cy/D");
-//    tree->Branch("gtr200y_nearest_adc", &out_gtr200y_nearest_adc, "out_gtr200y_nearest_adc/D");
-//    tree->Branch("gtr200y_nearest_t", &out_gtr200y_nearest_t, "out_gtr200y_nearest_t/D");
-//    tree->Branch("gtr200y_nearest_ly", &out_gtr200y_nearest_ly, "out_gtr200y_nearest_ly/D");
-//    tree->Branch("gtr200y_adc", &out_gtr200y_adc);
-//    tree->Branch("gtr200y_t", &out_gtr200y_t);
-//    tree->Branch("gtr200y_ly", &out_gtr200y_ly);
-//    tree->Branch("n_gtr300ys",&out_n_gtr300ys,"n_gtr300ys/I");
-//    tree->Branch("gtr300y_cy", &out_gtr300y_cy, "out_gtr300y_cy/D");
-//    tree->Branch("gtr300y_nearest_adc", &out_gtr300y_nearest_adc, "out_gtr300y_nearest_adc/D");
-//    tree->Branch("gtr300y_nearest_t", &out_gtr300y_nearest_t, "out_gtr300y_nearest_t/D");
-//    tree->Branch("gtr300y_nearest_ly", &out_gtr300y_nearest_ly, "out_gtr300y_nearest_ly/D");
-//    tree->Branch("gtr300y_adc", &out_gtr300y_adc);
-//    tree->Branch("gtr300y_t", &out_gtr300y_t);
-//    tree->Branch("gtr300y_ly", &out_gtr300y_ly);
-
-
-//    E16ANA_HBDDeadChannel hbddch;
-//    std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
-//    if(runoption==0){
-//      hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
-//    }
-//    hbddch.ReadFile(hbd_deadch_file.c_str());
-
-//    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-//    E16ANA_GeometryV2::SetGlobalPointer(geometry);
-//    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-//    bfield_map->Initialize_binary();
-//    E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
-//    E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
-
-//    Long64_t n_entries = fChain->GetEntries();
-//    Long64_t nentries = fChain->GetEntriesFast();
-//    Long64_t nbytes = 0, nb = 0;
-
-//    fChain->GetEntry(0);
-//    auto& calib = E16ANA_CalibDBManager::Instance();
-//    calib.SetRunID(run_id);
-//    auto trigger_param = new E16ANA_TriggerCalibParam();
-//    trigger_param->ReadConstantData(calib.CurrentRunID());
-//    bool TrigIsAWmax = trigger_param->IsMaximumWidth();
-//    int TrigAWmax = trigger_param->MaximumWidth();
-//    int TrigAWmin = trigger_param->MinimumWidth();
-//    int TrigTW = trigger_param->TimeWidth();
-//    if(!TrigIsAWmax){TrigAWmax=10000;}
-//    std::cout<<"Trig:"<<run_id<<" "<<TrigAWmin<<" "<<TrigAWmax<<" "<<TrigTW<<std::endl;
-
-//    int active_mid[4] = {103,104,106,107};
-//    int active_cid[38];
-//    for(int i=0;i<6;i++){
-//      for(int j=0;j<6;j++){
-//        active_cid[i*6+j] = i*10+j;
-//      }
-//    }
-//    active_cid[36] = 26;
-//    active_cid[37] = 36;
-
-//    int nevent=0;
-//    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
-//       Long64_t ientry = LoadTree(jentry);
-//       if (ientry < 0) break;
-//       nb = fChain->GetEntry(jentry);   nbytes += nb;
-
-//       int run_purpose = KsRunPurpose(run_id);
-//       if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
-//       if( maxevent!=-1&&nevent>maxevent ){break;}
-
-//       int multiplicity[7]={0};//102,103,104,all,106,107,108
-//       bool invalid_run = false;
-//       for(int ilg=0;ilg<n_lg_hits;ilg++){
-// 	if(lg_hit_fflag->at(ilg)>=2) continue;
-// 	multiplicity[3]++;
-// 	int midtmp = lg_hit_mid->at(ilg)-102;
-// 	if(midtmp>=0&&midtmp<=6){
-// 	  multiplicity[midtmp]++;
-// 	}
-// 	else{
-// 	  std::cout<<"invalid module id"<<std::endl;
-// 	  invalid_run = true;
-// 	}
-//       }
-//       if(invalid_run) break;
-
-//       std::unordered_map<int, int> wlghit;
-//       for(int ilg=0;ilg<n_lg_hits;ilg++){//lg hit loop
-
-// 	if(lg_hit_fflag->at(ilg)>=2) continue;
-// 	int key = lg_hit_mid->at(ilg)*100 + lg_hit_cid->at(ilg);
-// 	wlghit[key] = 1;
-// 	int midtmp = lg_hit_mid->at(ilg)-102;
-// 	int mid = lg_hit_mid->at(ilg);
-// 	int cid = lg_hit_cid->at(ilg);
-// 	out_run_id = run_id;
-// 	out_event_id = event_id;
-// 	out_spill_id = spill_id;
-// 	out_run_purpose = run_purpose;
-// 	out_lg_mid = lg_hit_mid->at(ilg);
-// 	out_lg_cid = lg_hit_cid->at(ilg);
-// 	out_lg_adc = lg_hit_adc->at(ilg);
-// 	out_lg_t = lg_hit_t->at(ilg);
-// 	out_lg_multi_ev = multiplicity[3];
-// 	out_lg_multi_mod = multiplicity[midtmp];
-
-// 	//Side-hit Search
-// 	out_lg_leftside_adc = -10000.;
-// 	out_lg_leftside_t = -10000.;
-// 	LeftSideHit(ilg,out_lg_leftside_adc,out_lg_leftside_t);
-// 	out_lg_rightside_adc = -10000.;
-// 	out_lg_rightside_t = -10000.;
-// 	RightSideHit(ilg,out_lg_rightside_adc,out_lg_rightside_t);
-
-// 	//Trg ana
-// 	int  wtrghit = -10000;
-// 	bool wtrgtrk = false;
-// 	bool trg_bias = wTrgBias(ientry,mid,cid,TrigAWmin,TrigAWmax,TrigTW,wtrghit,wtrgtrk);
-// 	bool wtrgrun = IsInTrgRun(run_id,mid);
-// 	out_lg_trg_hit = wtrghit;
-// 	out_lg_trg_trk = wtrgtrk;
-// 	out_lg_trg_run = wtrgrun;
-
-// 	//hits in other detectors
-// 	out_hbd_adc.clear();
-// 	out_hbd_t.clear();
-// 	out_hbd_lx.clear();
-// 	out_hbd_ly.clear();
-// 	out_ssd_adc.clear();
-// 	out_ssd_t.clear();
-// 	out_ssd_lx.clear();
-// 	out_gtr100x_adc.clear();
-// 	out_gtr100x_t.clear();
-// 	out_gtr100x_lx.clear();
-// 	out_gtr200x_adc.clear();
-// 	out_gtr200x_t.clear();
-// 	out_gtr200x_lx.clear();
-// 	out_gtr300x_adc.clear();
-// 	out_gtr300x_t.clear();
-// 	out_gtr300x_lx.clear();
-// 	out_gtr100y_adc.clear();
-// 	out_gtr100y_t.clear();
-// 	out_gtr100y_ly.clear();
-// 	out_gtr200y_adc.clear();
-// 	out_gtr200y_t.clear();
-// 	out_gtr200y_ly.clear();
-// 	out_gtr300y_adc.clear();
-// 	out_gtr300y_t.clear();
-// 	out_gtr300y_ly.clear();
-
-// 	TVector3 lcross[5];//SSD, GTR100, GTR200, GTR300, HBD
-// 	int othermid[5];
-// 	for(int il=0;il<5;il++){
-// 	  CalcCrossPoint(geometry,mid,cid,il,othermid[il],lcross[il]);
-// 	}
-// 	out_ssd_cx = lcross[0].X();
-// 	out_gtr100x_cx = lcross[1].X();
-// 	out_gtr100y_cy = lcross[1].Y();
-// 	out_gtr200x_cx = lcross[2].X();
-// 	out_gtr200y_cy = lcross[2].Y();
-// 	out_gtr300x_cx = lcross[3].X();
-// 	out_gtr300y_cy = lcross[3].Y();
-// 	out_hbd_cx = lcross[4].X();
-// 	out_hbd_cy = lcross[4].Y();
-
-// 	int n_hbds_assoc = 0;
-// 	nearcls nch;
-// 	nch.nearclsInit();
-// 	for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){
-// 	  if( hbd_cluster_mid->at(ihbd)!=othermid[4] ) continue;
-// 	  TVector3 hbd_hit(hbd_cluster_x->at(ihbd), hbd_cluster_y->at(ihbd), 0.);
-// 	  double dist = (hbd_hit-lcross[4]).Perp();
-// 	  if(dist<search_d[4]){
-// 	    out_hbd_adc.push_back(hbd_cluster_adc->at(ihbd));
-// 	    out_hbd_t.push_back(hbd_cluster_t->at(ihbd));
-// 	    out_hbd_lx.push_back(hbd_cluster_x->at(ihbd));
-// 	    out_hbd_ly.push_back(hbd_cluster_y->at(ihbd));
-// 	    n_hbds_assoc++;
-// 	  }
-// 	  if(dist<nch.dist){
-// 	    nch.nearclsSet(hbd_cluster_adc->at(ihbd), hbd_cluster_t->at(ihbd), hbd_cluster_x->at(ihbd), hbd_cluster_y->at(ihbd), dist);
-// 	  }
-// 	}
-// 	out_n_hbds = n_hbds_assoc;
-// 	out_hbd_nearest_adc = nch.adc;
-// 	out_hbd_nearest_t = nch.t;
-// 	out_hbd_nearest_lx = nch.lx;
-// 	out_hbd_nearest_ly = nch.ly;
-
-// 	int n_assoc[4][2] = {0};//SSD, GTR100, GTR200, GTR300
-// 	nearcls nc[4][2];
-// 	OtherClsLoop(0, 0, othermid[0], lcross[0].X(), n_assoc[0][0], nc[0][0], out_ssd_adc, out_ssd_t, out_ssd_lx);
-// 	out_n_ssds = n_assoc[0][0];
-// 	out_ssd_nearest_adc = nc[0][0].adc;
-// 	out_ssd_nearest_t = nc[0][0].t;
-// 	out_ssd_nearest_lx = nc[0][0].lx;
-// 	OtherClsLoop(1, 0, othermid[1], lcross[1].X(), n_assoc[1][0], nc[1][0], out_gtr100x_adc, out_gtr100x_t, out_gtr100x_lx);
-// 	out_n_gtr100xs = n_assoc[1][0];
-// 	out_gtr100x_nearest_adc = nc[1][0].adc;
-// 	out_gtr100x_nearest_t = nc[1][0].t;
-// 	out_gtr100x_nearest_lx = nc[1][0].lx;
-// 	OtherClsLoop(1, 1, othermid[1], lcross[1].Y(), n_assoc[1][1], nc[1][1], out_gtr100y_adc, out_gtr100y_t, out_gtr100y_ly);
-// 	out_n_gtr100ys = n_assoc[1][1];
-// 	out_gtr100y_nearest_adc = nc[1][1].adc;
-// 	out_gtr100y_nearest_t = nc[1][1].t;
-// 	out_gtr100y_nearest_ly = nc[1][1].ly;
-// 	OtherClsLoop(2, 0, othermid[2], lcross[2].X(), n_assoc[2][0], nc[2][0], out_gtr200x_adc, out_gtr200x_t, out_gtr200x_lx);
-// 	out_n_gtr200xs = n_assoc[2][0];
-// 	out_gtr200x_nearest_adc = nc[2][0].adc;
-// 	out_gtr200x_nearest_t = nc[2][0].t;
-// 	out_gtr200x_nearest_lx = nc[2][0].lx;
-// 	OtherClsLoop(2, 1, othermid[2], lcross[2].Y(), n_assoc[2][1], nc[2][1], out_gtr200y_adc, out_gtr200y_t, out_gtr200y_ly);
-// 	out_n_gtr200ys = n_assoc[2][1];
-// 	out_gtr200y_nearest_adc = nc[2][1].adc;
-// 	out_gtr200y_nearest_t = nc[2][1].t;
-// 	out_gtr200y_nearest_ly = nc[2][1].ly;
-// 	OtherClsLoop(3, 0, othermid[3], lcross[3].X(), n_assoc[3][0], nc[3][0], out_gtr300x_adc, out_gtr300x_t, out_gtr300x_lx);
-// 	out_n_gtr300xs = n_assoc[3][0];
-// 	out_gtr300x_nearest_adc = nc[3][0].adc;
-// 	out_gtr300x_nearest_t = nc[3][0].t;
-// 	out_gtr300x_nearest_lx = nc[3][0].lx;
-// 	OtherClsLoop(3, 1, othermid[3], lcross[3].Y(), n_assoc[3][1], nc[3][1], out_gtr300y_adc, out_gtr300y_t, out_gtr300y_ly);
-// 	out_n_gtr300ys = n_assoc[3][1];
-// 	out_gtr300y_nearest_adc = nc[3][1].adc;
-// 	out_gtr300y_nearest_t = nc[3][1].t;
-// 	out_gtr300y_nearest_ly = nc[3][1].ly;
-
-//       	// double cog[2] = {trk_hbd_lx,trk_hbd_ly};
-//       	// int hbd_padid = E16ANA_HBDGeometry::GetPadIDWLocalCoordinate(trk_hbd_mid,cog);
-//       	// if( hbddch.Status(trk_hbd_mid,hbd_padid) != 0 ) continue;
-
-// 	tree->Fill();
-
-//       }//lg hit loop
-
-//       //w/o lg hit
-//       for(int imod=0;imod<4;imod++){
-// 	for(int ich=0;ich<38;ich++){
-
-// 	  int tmid = active_mid[imod];
-// 	  int tcid = active_cid[ich];
-// 	  int key = tmid*100+tcid;
-// 	  if(wlghit[key]==1){
-// 	    continue;
-// 	  }
-// 	  out_run_id = run_id;
-// 	  out_event_id = event_id;
-// 	  out_spill_id = spill_id;
-// 	  out_run_purpose = run_purpose;
-// 	  out_lg_mid = tmid;
-// 	  out_lg_cid = tcid;
-// 	  out_lg_adc = -10000.;
-// 	  out_lg_t = -10000.;
-// 	  out_lg_multi_ev = -10000.;
-// 	  out_lg_multi_mod = -10000.;
-// 	  out_lg_leftside_adc = -10000.;
-// 	  out_lg_leftside_t = -10000.;
-// 	  out_lg_rightside_adc = -10000.;
-// 	  out_lg_rightside_t = -10000.;
-// 	  out_lg_trg_hit = -10000.;
-// 	  out_lg_trg_trk = -10000.;
-// 	  out_lg_trg_run = -10000.;
-
-// 	  //hits in other detectors
-// 	  out_hbd_adc.clear();
-// 	  out_hbd_t.clear();
-// 	  out_hbd_lx.clear();
-// 	  out_hbd_ly.clear();
-// 	  out_ssd_adc.clear();
-// 	  out_ssd_t.clear();
-// 	  out_ssd_lx.clear();
-// 	  out_gtr100x_adc.clear();
-// 	  out_gtr100x_t.clear();
-// 	  out_gtr100x_lx.clear();
-// 	  out_gtr200x_adc.clear();
-// 	  out_gtr200x_t.clear();
-// 	  out_gtr200x_lx.clear();
-// 	  out_gtr300x_adc.clear();
-// 	  out_gtr300x_t.clear();
-// 	  out_gtr300x_lx.clear();
-// 	  out_gtr100y_adc.clear();
-// 	  out_gtr100y_t.clear();
-// 	  out_gtr100y_ly.clear();
-// 	  out_gtr200y_adc.clear();
-// 	  out_gtr200y_t.clear();
-// 	  out_gtr200y_ly.clear();
-// 	  out_gtr300y_adc.clear();
-// 	  out_gtr300y_t.clear();
-// 	  out_gtr300y_ly.clear();
-
-// 	  TVector3 lcross[5];//SSD, GTR100, GTR200, GTR300, HBD
-// 	  int othermid[5];
-// 	  for(int il=0;il<5;il++){
-// 	    CalcCrossPoint(geometry,tmid,tcid,il,othermid[il],lcross[il]);
-// 	  }
-// 	  out_ssd_cx = lcross[0].X();
-// 	  out_gtr100x_cx = lcross[1].X();
-// 	  out_gtr100y_cy = lcross[1].Y();
-// 	  out_gtr200x_cx = lcross[2].X();
-// 	  out_gtr200y_cy = lcross[2].Y();
-// 	  out_gtr300x_cx = lcross[3].X();
-// 	  out_gtr300y_cy = lcross[3].Y();
-// 	  out_hbd_cx = lcross[4].X();
-// 	  out_hbd_cy = lcross[4].Y();
-
-// 	  int n_hbds_assoc = 0;
-// 	  nearcls nch;
-// 	  nch.nearclsInit();
-// 	  for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){
-// 	    if( hbd_cluster_mid->at(ihbd)!=othermid[4] ) continue;
-// 	    TVector3 hbd_hit(hbd_cluster_x->at(ihbd), hbd_cluster_y->at(ihbd), 0.);
-// 	    double dist = (hbd_hit-lcross[4]).Perp();
-// 	    if(dist<search_d[4]){
-// 	      out_hbd_adc.push_back(hbd_cluster_adc->at(ihbd));
-// 	      out_hbd_t.push_back(hbd_cluster_t->at(ihbd));
-// 	      out_hbd_lx.push_back(hbd_cluster_x->at(ihbd));
-// 	      out_hbd_ly.push_back(hbd_cluster_y->at(ihbd));
-// 	      n_hbds_assoc++;
-// 	    }
-// 	    if(dist<nch.dist){
-// 	      nch.nearclsSet(hbd_cluster_adc->at(ihbd), hbd_cluster_t->at(ihbd), hbd_cluster_x->at(ihbd), hbd_cluster_y->at(ihbd), dist);
-// 	    }
-// 	  }
-// 	  if(n_hbds_assoc==0){continue;}
-// 	  // std::cout<<event_id<<" "<<tmid<<" "<<tcid<<std::endl;
-// 	  out_n_hbds = n_hbds_assoc;
-// 	  out_hbd_nearest_adc = nch.adc;
-// 	  out_hbd_nearest_t = nch.t;
-// 	  out_hbd_nearest_lx = nch.lx;
-// 	  out_hbd_nearest_ly = nch.ly;
-
-// 	  int n_assoc[4][2] = {0};//SSD, GTR100, GTR200, GTR300
-// 	  nearcls nc[4][2];
-// 	  OtherClsLoop(0, 0, othermid[0], lcross[0].X(), n_assoc[0][0], nc[0][0], out_ssd_adc, out_ssd_t, out_ssd_lx);
-// 	  out_n_ssds = n_assoc[0][0];
-// 	  out_ssd_nearest_adc = nc[0][0].adc;
-// 	  out_ssd_nearest_t = nc[0][0].t;
-// 	  out_ssd_nearest_lx = nc[0][0].lx;
-// 	  OtherClsLoop(1, 0, othermid[1], lcross[1].X(), n_assoc[1][0], nc[1][0], out_gtr100x_adc, out_gtr100x_t, out_gtr100x_lx);
-// 	  out_n_gtr100xs = n_assoc[1][0];
-// 	  out_gtr100x_nearest_adc = nc[1][0].adc;
-// 	  out_gtr100x_nearest_t = nc[1][0].t;
-// 	  out_gtr100x_nearest_lx = nc[1][0].lx;
-// 	  OtherClsLoop(1, 1, othermid[1], lcross[1].Y(), n_assoc[1][1], nc[1][1], out_gtr100y_adc, out_gtr100y_t, out_gtr100y_ly);
-// 	  out_n_gtr100ys = n_assoc[1][1];
-// 	  out_gtr100y_nearest_adc = nc[1][1].adc;
-// 	  out_gtr100y_nearest_t = nc[1][1].t;
-// 	  out_gtr100y_nearest_ly = nc[1][1].ly;
-// 	  OtherClsLoop(2, 0, othermid[2], lcross[2].X(), n_assoc[2][0], nc[2][0], out_gtr200x_adc, out_gtr200x_t, out_gtr200x_lx);
-// 	  out_n_gtr200xs = n_assoc[2][0];
-// 	  out_gtr200x_nearest_adc = nc[2][0].adc;
-// 	  out_gtr200x_nearest_t = nc[2][0].t;
-// 	  out_gtr200x_nearest_lx = nc[2][0].lx;
-// 	  OtherClsLoop(2, 1, othermid[2], lcross[2].Y(), n_assoc[2][1], nc[2][1], out_gtr200y_adc, out_gtr200y_t, out_gtr200y_ly);
-// 	  out_n_gtr200ys = n_assoc[2][1];
-// 	  out_gtr200y_nearest_adc = nc[2][1].adc;
-// 	  out_gtr200y_nearest_t = nc[2][1].t;
-// 	  out_gtr200y_nearest_ly = nc[2][1].ly;
-// 	  OtherClsLoop(3, 0, othermid[3], lcross[3].X(), n_assoc[3][0], nc[3][0], out_gtr300x_adc, out_gtr300x_t, out_gtr300x_lx);
-// 	  out_n_gtr300xs = n_assoc[3][0];
-// 	  out_gtr300x_nearest_adc = nc[3][0].adc;
-// 	  out_gtr300x_nearest_t = nc[3][0].t;
-// 	  out_gtr300x_nearest_lx = nc[3][0].lx;
-// 	  OtherClsLoop(3, 1, othermid[3], lcross[3].Y(), n_assoc[3][1], nc[3][1], out_gtr300y_adc, out_gtr300y_t, out_gtr300y_ly);
-// 	  out_n_gtr300ys = n_assoc[3][1];
-// 	  out_gtr300y_nearest_adc = nc[3][1].adc;
-// 	  out_gtr300y_nearest_t = nc[3][1].t;
-// 	  out_gtr300y_nearest_ly = nc[3][1].ly;
-
-// 	  tree->Fill();
-
-// 	}//cid loop
-//       }//mid loop
-
-//       nevent++;
-
-//    }//event loop
-
-//    fout->Write();
-//    fout->Close();
-
-// }
-
 void E16ANA_LGGainCalibwoTrack::MomentumEachBlock(char* out_pdf_file, char* out_root_file, int maxevent)
 {
    if (fChain == 0) return;
@@ -940,19 +399,36 @@ void E16ANA_LGGainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_
    int out_n_lg_cids;// for residual
    vector<int> out_lg_cids;// for residual
    vector<double> out_lg_adcs;
+   int out_ssd_mid;;// for residual
+   int out_n_ssd_lxs;;// for residual
+   vector<double> out_ssd_lxs;// for residual
+   vector<double> out_ssd_adcs;// for residual
+   vector<double> out_ssd_ts;// for residual
    int out_gtr_mid;;// for residual
    int out_n_gtr300x_lxs;;// for residual
    vector<double> out_gtr300x_lxs;// for residual
+   vector<double> out_gtr300x_adcs;// for residual
+   vector<double> out_gtr300x_ts;// for residual
    int out_n_gtr300y_lys;;// for residual
    vector<double> out_gtr300y_lys;// for residual
+   vector<double> out_gtr300y_adcs;// for residual
+   vector<double> out_gtr300y_ts;// for residual
    int out_n_gtr200x_lxs;;// for residual
    vector<double> out_gtr200x_lxs;// for residual
+   vector<double> out_gtr200x_adcs;// for residual
+   vector<double> out_gtr200x_ts;// for residual
    int out_n_gtr200y_lys;;// for residual
    vector<double> out_gtr200y_lys;// for residual
+   vector<double> out_gtr200y_adcs;// for residual
+   vector<double> out_gtr200y_ts;// for residual
    int out_n_gtr100x_lxs;;// for residual
    vector<double> out_gtr100x_lxs;// for residual
+   vector<double> out_gtr100x_adcs;// for residual
+   vector<double> out_gtr100x_ts;// for residual
    int out_n_gtr100y_lys;;// for residual
    vector<double> out_gtr100y_lys;// for residual
+   vector<double> out_gtr100y_adcs;// for residual
+   vector<double> out_gtr100y_ts;// for residual
 
    tree->Branch("run_id",&out_run_id,"run_id/I");
    tree->Branch("event_id",&out_event_id,"event_id/I");
@@ -1041,19 +517,36 @@ void E16ANA_LGGainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_
    tree->Branch("n_lg_cids", &out_n_lg_cids, "n_lg_cids/I");
    tree->Branch("lg_cids", &out_lg_cids);
    tree->Branch("lg_adcs", &out_lg_adcs);
+   tree->Branch("ssd_mid", &out_ssd_mid, "ssd_mid/I");
+   tree->Branch("n_ssd_lxs", &out_n_ssd_lxs, "n_ssd_lxs/I");
+   tree->Branch("ssd_lxs", &out_ssd_lxs);
+   tree->Branch("ssd_adcs", &out_ssd_adcs);
+   tree->Branch("ssd_ts", &out_ssd_ts);
    tree->Branch("gtr_mid", &out_gtr_mid, "gtr_mid/I");
    tree->Branch("n_gtr300x_lxs", &out_n_gtr300x_lxs, "n_gtr300x_lxs/I");
    tree->Branch("gtr300x_lxs", &out_gtr300x_lxs);
+   tree->Branch("gtr300x_adcs", &out_gtr300x_adcs);
+   tree->Branch("gtr300x_ts", &out_gtr300x_ts);
    tree->Branch("n_gtr300y_lys", &out_n_gtr300y_lys, "n_gtr300y_lys/I");
    tree->Branch("gtr300y_lys", &out_gtr300y_lys);
+   tree->Branch("gtr300y_adcs", &out_gtr300y_adcs);
+   tree->Branch("gtr300y_ts", &out_gtr300y_ts);
    tree->Branch("n_gtr200x_lxs", &out_n_gtr200x_lxs, "n_gtr200x_lxs/I");
    tree->Branch("gtr200x_lxs", &out_gtr200x_lxs);
+   tree->Branch("gtr200x_adcs", &out_gtr200x_adcs);
+   tree->Branch("gtr200x_ts", &out_gtr200x_ts);
    tree->Branch("n_gtr200y_lys", &out_n_gtr200y_lys, "n_gtr200y_lys/I");
    tree->Branch("gtr200y_lys", &out_gtr200y_lys);
+   tree->Branch("gtr200y_adcs", &out_gtr200y_adcs);
+   tree->Branch("gtr200y_ts", &out_gtr200y_ts);
    tree->Branch("n_gtr100x_lxs", &out_n_gtr100x_lxs, "n_gtr100x_lxs/I");
    tree->Branch("gtr100x_lxs", &out_gtr100x_lxs);
+   tree->Branch("gtr100x_adcs", &out_gtr100x_adcs);
+   tree->Branch("gtr100x_ts", &out_gtr100x_ts);
    tree->Branch("n_gtr100y_lys", &out_n_gtr100y_lys, "n_gtr100y_lys/I");
    tree->Branch("gtr100y_lys", &out_gtr100y_lys);
+   tree->Branch("gtr100y_adcs", &out_gtr100y_adcs);
+   tree->Branch("gtr100y_ts", &out_gtr100y_ts);
 
 
    E16ANA_HBDDeadChannel hbddch;
@@ -1146,41 +639,75 @@ void E16ANA_LGGainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_
 	lg_adcs_tmp[midlg].push_back(lg_hit_adc->at(ilg));
       }
 
-      std::vector<int> gtr300xs_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> ssds_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> ssd_adcs_tmp[9];
+      std::vector<double> ssd_ts_tmp[9];
+      for(int issd=0;issd<n_ssd_clusters;issd++){
+	//cut condition is not needed
+	int midssd = ssd_cluster_mid->at(issd)-101;
+	ssds_tmp[midssd].push_back( ssd_cluster_x->at(issd) );
+	ssd_adcs_tmp[midssd].push_back( ssd_cluster_adc->at(issd) );
+	ssd_ts_tmp[midssd].push_back( ssd_cluster_t->at(issd) );
+      }
+      std::vector<double> gtr300xs_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> gtr300x_adcs_tmp[9];
+      std::vector<double> gtr300x_ts_tmp[9];
       for(int igtr=0;igtr<n_gtr300x_clusters;igtr++){
 	if( gtr300x_cluster_adc->at(igtr)<100 ) continue;
 	int midgtr = gtr300x_cluster_mid->at(igtr)-101;
 	gtr300xs_tmp[midgtr].push_back( gtr300x_cluster_x->at(igtr) );
+	gtr300x_adcs_tmp[midgtr].push_back( gtr300x_cluster_adc->at(igtr) );
+	gtr300x_ts_tmp[midgtr].push_back( gtr300x_cluster_t->at(igtr) );
       }
-      std::vector<int> gtr300ys_tmp[9];
+      std::vector<double> gtr300ys_tmp[9];
+      std::vector<double> gtr300y_adcs_tmp[9];
+      std::vector<double> gtr300y_ts_tmp[9];
       for(int igtr=0;igtr<n_gtr300y_clusters;igtr++){
 	if( gtr300y_cluster_adc->at(igtr)<50 ) continue;
 	int midgtr = gtr300y_cluster_mid->at(igtr)-101;
 	gtr300ys_tmp[midgtr].push_back( gtr300y_cluster_y->at(igtr) );
+	gtr300y_adcs_tmp[midgtr].push_back( gtr300y_cluster_adc->at(igtr) );
+	gtr300y_ts_tmp[midgtr].push_back( gtr300y_cluster_t->at(igtr) );
       }
-      std::vector<int> gtr200xs_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> gtr200xs_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> gtr200x_adcs_tmp[9];
+      std::vector<double> gtr200x_ts_tmp[9];
       for(int igtr=0;igtr<n_gtr200x_clusters;igtr++){
 	if( gtr200x_cluster_adc->at(igtr)<100 ) continue;
 	int midgtr = gtr200x_cluster_mid->at(igtr)-101;
 	gtr200xs_tmp[midgtr].push_back( gtr200x_cluster_x->at(igtr) );
+	gtr200x_adcs_tmp[midgtr].push_back( gtr200x_cluster_adc->at(igtr) );
+	gtr200x_ts_tmp[midgtr].push_back( gtr200x_cluster_t->at(igtr) );
       }
-      std::vector<int> gtr200ys_tmp[9];
+      std::vector<double> gtr200ys_tmp[9];
+      std::vector<double> gtr200y_adcs_tmp[9];
+      std::vector<double> gtr200y_ts_tmp[9];
       for(int igtr=0;igtr<n_gtr200y_clusters;igtr++){
 	if( gtr200y_cluster_adc->at(igtr)<50 ) continue;
 	int midgtr = gtr200y_cluster_mid->at(igtr)-101;
 	gtr200ys_tmp[midgtr].push_back( gtr200y_cluster_y->at(igtr) );
+	gtr200y_adcs_tmp[midgtr].push_back( gtr200y_cluster_adc->at(igtr) );
+	gtr200y_ts_tmp[midgtr].push_back( gtr200y_cluster_t->at(igtr) );
       }
-      std::vector<int> gtr100xs_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> gtr100xs_tmp[9];//101,102,103,104,xx,106,107,108,109
+      std::vector<double> gtr100x_adcs_tmp[9];
+      std::vector<double> gtr100x_ts_tmp[9];
       for(int igtr=0;igtr<n_gtr100x_clusters;igtr++){
 	if( gtr100x_cluster_adc->at(igtr)<100 ) continue;
 	int midgtr = gtr100x_cluster_mid->at(igtr)-101;
 	gtr100xs_tmp[midgtr].push_back( gtr100x_cluster_x->at(igtr) );
+	gtr100x_adcs_tmp[midgtr].push_back( gtr100x_cluster_adc->at(igtr) );
+	gtr100x_ts_tmp[midgtr].push_back( gtr100x_cluster_t->at(igtr) );
       }
-      std::vector<int> gtr100ys_tmp[9];
+      std::vector<double> gtr100ys_tmp[9];
+      std::vector<double> gtr100y_adcs_tmp[9];
+      std::vector<double> gtr100y_ts_tmp[9];
       for(int igtr=0;igtr<n_gtr100y_clusters;igtr++){
 	if( gtr100y_cluster_adc->at(igtr)<50 ) continue;
 	int midgtr = gtr100y_cluster_mid->at(igtr)-101;
 	gtr100ys_tmp[midgtr].push_back( gtr100y_cluster_y->at(igtr) );
+	gtr100y_adcs_tmp[midgtr].push_back( gtr100y_cluster_adc->at(igtr) );
+	gtr100y_ts_tmp[midgtr].push_back( gtr100y_cluster_t->at(igtr) );
       }
 
       //w/ HBD hit
@@ -1355,30 +882,65 @@ void E16ANA_LGGainCalibwoTrack::MakeTree(int runoption, int maxevent, char* out_
 	  //for residual
 	  int midlg = tmid-102;
 	  out_n_lg_cids = lg_cids_tmp[midlg].size();
-	  out_lg_cids.resize( out_n_lg_cids );
+	  out_lg_cids.resize( lg_cids_tmp[midlg].size() );
 	  copy( lg_cids_tmp[midlg].begin(), lg_cids_tmp[midlg].end(), out_lg_cids.begin() );
-	  out_lg_adcs.resize( out_n_lg_cids );
+	  out_lg_adcs.resize( lg_adcs_tmp[midlg].size() );
 	  copy( lg_adcs_tmp[midlg].begin(), lg_adcs_tmp[midlg].end(), out_lg_adcs.begin() );
+	  int midssd = othermid[0]-101;
+	  out_ssd_mid = othermid[0];
+	  out_n_ssd_lxs = ssds_tmp[midssd].size();
+	  out_ssd_lxs.resize( ssds_tmp[midssd].size() );
+	  copy( ssds_tmp[midssd].begin(), ssds_tmp[midssd].end(), out_ssd_lxs.begin() );
+	  out_ssd_adcs.resize( ssd_adcs_tmp[midssd].size() );
+	  copy( ssd_adcs_tmp[midssd].begin(), ssd_adcs_tmp[midssd].end(), out_ssd_adcs.begin());
+	  out_ssd_ts.resize( ssd_ts_tmp[midssd].size() );
+	  copy( ssd_ts_tmp[midssd].begin(), ssd_ts_tmp[midssd].end(), out_ssd_ts.begin() );
 	  int midgtr = othermid[3]-101;
 	  out_gtr_mid = othermid[3];
 	  out_n_gtr300x_lxs = gtr300xs_tmp[midgtr].size();
-	  out_gtr300x_lxs.resize( out_n_gtr300x_lxs );
+	  out_gtr300x_lxs.resize( gtr300xs_tmp[midgtr].size() );
 	  copy( gtr300xs_tmp[midgtr].begin(), gtr300xs_tmp[midgtr].end(), out_gtr300x_lxs.begin() );
+	  out_gtr300x_adcs.resize( gtr300x_adcs_tmp[midgtr].size() );
+	  copy( gtr300x_adcs_tmp[midgtr].begin(), gtr300x_adcs_tmp[midgtr].end(), out_gtr300x_adcs.begin());
+	  out_gtr300x_ts.resize( gtr300x_ts_tmp[midgtr].size() );
+	  copy( gtr300x_ts_tmp[midgtr].begin(), gtr300x_ts_tmp[midgtr].end(), out_gtr300x_ts.begin() );
 	  out_n_gtr300y_lys = gtr300ys_tmp[midgtr].size();
-	  out_gtr300y_lys.resize( out_n_gtr300y_lys );
+	  out_gtr300y_lys.resize( gtr300ys_tmp[midgtr].size() );
 	  copy( gtr300ys_tmp[midgtr].begin(), gtr300ys_tmp[midgtr].end(), out_gtr300y_lys.begin() );
+	  out_gtr300y_adcs.resize( gtr300y_adcs_tmp[midgtr].size() );
+	  copy( gtr300y_adcs_tmp[midgtr].begin(), gtr300y_adcs_tmp[midgtr].end(), out_gtr300y_adcs.begin() );
+	  out_gtr300y_ts.resize( gtr300y_ts_tmp[midgtr].size() );
+	  copy( gtr300y_ts_tmp[midgtr].begin(), gtr300y_ts_tmp[midgtr].end(), out_gtr300y_ts.begin() );
+
 	  out_n_gtr200x_lxs = gtr200xs_tmp[midgtr].size();
-	  out_gtr200x_lxs.resize( out_n_gtr200x_lxs );
+	  out_gtr200x_lxs.resize( gtr200xs_tmp[midgtr].size() );
 	  copy( gtr200xs_tmp[midgtr].begin(), gtr200xs_tmp[midgtr].end(), out_gtr200x_lxs.begin() );
+	  out_gtr200x_adcs.resize( gtr200x_adcs_tmp[midgtr].size() );
+	  copy( gtr200x_adcs_tmp[midgtr].begin(), gtr200x_adcs_tmp[midgtr].end(), out_gtr200x_adcs.begin());
+	  out_gtr200x_ts.resize( gtr200x_ts_tmp[midgtr].size() );
+	  copy( gtr200x_ts_tmp[midgtr].begin(), gtr200x_ts_tmp[midgtr].end(), out_gtr200x_ts.begin() );
 	  out_n_gtr200y_lys = gtr200ys_tmp[midgtr].size();
-	  out_gtr200y_lys.resize( out_n_gtr200y_lys );
+	  out_gtr200y_lys.resize( gtr200ys_tmp[midgtr].size() );
 	  copy( gtr200ys_tmp[midgtr].begin(), gtr200ys_tmp[midgtr].end(), out_gtr200y_lys.begin() );
+	  out_gtr200y_adcs.resize( gtr200y_adcs_tmp[midgtr].size() );
+	  copy( gtr200y_adcs_tmp[midgtr].begin(), gtr200y_adcs_tmp[midgtr].end(), out_gtr200y_adcs.begin() );
+	  out_gtr200y_ts.resize( gtr200y_ts_tmp[midgtr].size() );
+	  copy( gtr200y_ts_tmp[midgtr].begin(), gtr200y_ts_tmp[midgtr].end(), out_gtr200y_ts.begin() );
+
 	  out_n_gtr100x_lxs = gtr100xs_tmp[midgtr].size();
-	  out_gtr100x_lxs.resize( out_n_gtr100x_lxs );
+	  out_gtr100x_lxs.resize( gtr100xs_tmp[midgtr].size() );
 	  copy( gtr100xs_tmp[midgtr].begin(), gtr100xs_tmp[midgtr].end(), out_gtr100x_lxs.begin() );
+	  out_gtr100x_adcs.resize( gtr100x_adcs_tmp[midgtr].size() );
+	  copy( gtr100x_adcs_tmp[midgtr].begin(), gtr100x_adcs_tmp[midgtr].end(), out_gtr100x_adcs.begin());
+	  out_gtr100x_ts.resize( gtr100x_ts_tmp[midgtr].size() );
+	  copy( gtr100x_ts_tmp[midgtr].begin(), gtr100x_ts_tmp[midgtr].end(), out_gtr100x_ts.begin() );
 	  out_n_gtr100y_lys = gtr100ys_tmp[midgtr].size();
-	  out_gtr100y_lys.resize( out_n_gtr100y_lys );
+	  out_gtr100y_lys.resize( gtr100ys_tmp[midgtr].size() );
 	  copy( gtr100ys_tmp[midgtr].begin(), gtr100ys_tmp[midgtr].end(), out_gtr100y_lys.begin() );
+	  out_gtr100y_adcs.resize( gtr100y_adcs_tmp[midgtr].size() );
+	  copy( gtr100y_adcs_tmp[midgtr].begin(), gtr100y_adcs_tmp[midgtr].end(), out_gtr100y_adcs.begin() );
+	  out_gtr100y_ts.resize( gtr100y_ts_tmp[midgtr].size() );
+	  copy( gtr100y_ts_tmp[midgtr].begin(), gtr100y_ts_tmp[midgtr].end(), out_gtr100y_ts.begin() );
 
 	  tree->Fill();
 
