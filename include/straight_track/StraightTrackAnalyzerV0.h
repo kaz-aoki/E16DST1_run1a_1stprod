@@ -506,10 +506,12 @@ public:
     int GetLGChannelID(){
         return lg_channel_id;
     }
+	void SetTrackID (int i ){trk_id = i;}
 	void SetXTrackID(int i ){xtrk_id = i;}
 	void SetYTrackID(int i ){ytrk_id = i;}
 	int XTrackID(){return xtrk_id;}
 	int YTrackID(){return ytrk_id;}
+	int TrackID(){return trk_id;}
 	void SetFitPtOnGTR100(TVector3 v){fitpt_ongtr100 = v;}
 	void SetFitPtOnGTR200(TVector3 v){fitpt_ongtr200 = v;}
 	void SetFitPtOnGTR300(TVector3 v){fitpt_ongtr300 = v;}
@@ -524,6 +526,7 @@ public:
 
 private:
 	int tgt_id;
+    int trk_id;
 	int xtrk_id;
 	int ytrk_id;
 	double distance_ytrk_tgt;

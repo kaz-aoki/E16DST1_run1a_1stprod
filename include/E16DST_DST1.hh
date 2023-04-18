@@ -992,6 +992,8 @@ public:
    int16_t EventID(){return event_id;}
    void SetModuleID(int m){ module_id = m;}
    int16_t ModuleID(){return module_id;}
+   void SetTrackID(int16_t id){trk_id = id;}
+   int16_t TrackID(){return trk_id;}
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
    int16_t XTrackID(){return xtrk_id;}
@@ -1099,6 +1101,7 @@ public:
 private:
    int16_t event_id;
    int module_id;
+   int16_t trk_id;
    int16_t xtrk_id;
    int16_t ytrk_id;
    int16_t ssdxhit_id; 

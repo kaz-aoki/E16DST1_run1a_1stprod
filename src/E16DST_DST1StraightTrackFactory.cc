@@ -55,6 +55,7 @@ int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
 		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
 		trk->SetEventID(event0->EventID());
+        trk->SetTrackID(i);
 		trk->SetModuleID(tx->ModuleID());
 		trk->SetXTrackID(t->XTrackID());
 		trk->SetYTrackID(t->YTrackID());
