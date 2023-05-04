@@ -977,7 +977,9 @@ public:
 //        initial_pos_at_wire_yz(E16DST_DST1Constant::kInvalidVector),
 //        initial_mom(E16DST_DST1Constant::kInvalidVector),
 //        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue})
-         {}
+         {
+	SetInvalid();
+}
   ~E16DST_DST1StraightTrack3D() {}
   void Clear(){
 //    wire_x                 = E16DST_DST1Constant::kInvalidValue;
@@ -988,6 +990,9 @@ public:
 //    lg_indexes.clear();
     }
 //
+   void SetInvalid(){
+		xclusterssd = nullptr;	
+	}
    void SetEventID(int e){ event_id = e;}
    int16_t EventID(){return event_id;}
    void SetModuleID(int m){ module_id = m;}

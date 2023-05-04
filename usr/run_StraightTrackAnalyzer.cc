@@ -480,39 +480,42 @@ int main(int argc, char* argv[]) {
 		hitid_100y = t->GTR100XHitID();
 		hitid_200y = t->GTR200XHitID();
 		hitid_300y = t->GTR300XHitID();
-		cluster_size_ssd   = t->SSDCluster()->NumHits();
+		if(t->SSDCluster() != nullptr){
+			cluster_size_ssd   = t->SSDCluster()->NumHits();
+			lxssd    = t->SSDCluster()->CogPos();
+			g_xssd   = t->SSDCluster()->GlobalPos(*geom).X();
+			g_zssd   = t->SSDCluster()->GlobalPos(*geom).Z();
+			clc_xssd = t->SSDCluster()->PeakSum();
+			timing_xssd = t->SSDCluster()->Timing();
+			residual_ssdx = t->ResidualSSD();
+		}
 		cluster_size_g100x = t->GTR100XCluster()->NumHits();
 		cluster_size_g200x = t->GTR200XCluster()->NumHits();
 		cluster_size_g300x = t->GTR300XCluster()->NumHits();
 		cluster_size_g100x = t->GTR100YCluster()->NumHits();
 		cluster_size_g200x = t->GTR200YCluster()->NumHits();
 		cluster_size_g300x = t->GTR300YCluster()->NumHits();
-		lxssd    = t->SSDCluster()->CogPos();
 		lx100    = t->GTR100XCluster()->CogPos();
 		lx200    = t->GTR200XCluster()->CogPos();
 		lx300    = t->GTR300XCluster()->CogPos();
 		ly100    = t->GTR100YCluster()->CogPos();//local y
 		ly200    = t->GTR200YCluster()->CogPos();//local y
 		ly300    = t->GTR300YCluster()->CogPos();//local y
-		g_xssd   = t->SSDCluster()->GlobalPos(*geom).X();
 		g_x100   = t->GTR100XCluster()->GlobalPos(*geom).X();
 		g_x200   = t->GTR200XCluster()->GlobalPos(*geom).X();
 		g_x300   = t->GTR300XCluster()->GlobalPos(*geom).X();
 		g_y100   = t->GTR100YCluster()->GlobalPos(*geom).Y();
 		g_y200   = t->GTR200YCluster()->GlobalPos(*geom).Y();
 		g_y300   = t->GTR300YCluster()->GlobalPos(*geom).Y();
-		g_zssd   = t->SSDCluster()->GlobalPos(*geom).Z();
 		g_z100   = t->GTR100XCluster()->GlobalPos(*geom).Z();
 		g_z200   = t->GTR200XCluster()->GlobalPos(*geom).Z();
 		g_z300   = t->GTR300XCluster()->GlobalPos(*geom).Z();
-		clc_xssd = t->SSDCluster()->PeakSum();
 		clc_x100 = t->GTR100XCluster()->PeakSum();
 		clc_x200 = t->GTR200XCluster()->PeakSum();
 		clc_x300 = t->GTR300XCluster()->PeakSum();
 		clc_y100 = t->GTR100YCluster()->PeakSum();
 		clc_y200 = t->GTR200YCluster()->PeakSum();
 		clc_y300 = t->GTR300YCluster()->PeakSum();
-		timing_xssd = t->SSDCluster()->Timing();
 		timing_x100 = t->GTR100XCluster()->Timing();
 		timing_x200 = t->GTR200XCluster()->Timing();
 		timing_x300 = t->GTR300XCluster()->Timing();
@@ -535,7 +538,6 @@ int main(int argc, char* argv[]) {
 		}
 		distance_fromtgt_y = -1000;
         distance_fromtgt_y  = t->DistanceYTrackAndTgt();
-		residual_ssdx = t->ResidualSSD();
 //		residual_100x = t->Residual100X();
 //		residual_200x = t->Residual200X();
 //		residual_300x = t->Residual300X();
@@ -585,12 +587,13 @@ int main(int argc, char* argv[]) {
 		hasMatchedASDHit = 0; //initialized 
 		hit_tile = (int)((t->GTR300YCluster()->CogPos()+150.0)/12.5);
 		asd_hits.clear();
-		asd_hits.resize(noh_trg);
 		for(int j=0; j<noh_trg; j++){
 			E16DST_DST0TriggerHit &trg = event0->TriggerGTR().Hit(j);
-			asd_hits[j] = trg.ChannelID();
-			if(hit_tile == trg.ChannelID()){
-				hasMatchedASDHit = 1;
+			if(trg.ModuleID() == t->ModuleID()){
+				asd_hits.push_back(trg.ChannelID());
+				if(hit_tile == trg.ChannelID()){
+					hasMatchedASDHit = 1;
+				}
 			}
 		}
 		for(int l=1; l< 4 ; l++){

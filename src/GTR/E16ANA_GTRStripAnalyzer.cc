@@ -282,7 +282,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
             peak_count = j;
          }
       }
-      if (fadc_peak[ch] < gem_threshold) {
+      if (fadc_peak[ch] < gem_threshold && fadc_peak[ch] > 4000) {
          fadc_peak[ch] = -255.0;
          peak_count = -1;
       } else {
@@ -317,10 +317,10 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 	 //std::cout << fadc_tot[ch] << ", " << tot_start << ", " << tot_end << 
 	 //  std::endl;
 // 230207 changed for a test, originally Morino Update was used
-         if (fadc_tot[ch] < gem_tot_threshold ) { // Original
+//         if (fadc_tot[ch] < gem_tot_threshold ) { // Original
          //if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0 ) {
-//	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 
-//	 && fadc_tot[ch] > 0 ) { // Morino Updates
+//	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > 0 ) { // Morino Updates
+	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > gem_tot_threshold ) { // murakami
 	 //if (fabs(fadc_tot[ch]) < gem_tot_threshold) { // Morino
             fadc_peak[ch] = -255.0;
             fadc_tdc[ch] = -1000.0;
@@ -335,22 +335,22 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 //		std::cout << "peak count is -1 " << std::endl;
       }
 //230207 comment out for a test
-//      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
-//	  fadc_peak_time[ch] > peak_time_max || 
-//	  fadc_peak_time[ch] < peak_time_min ||
-//	  (fadc_peak_time[ch] - fadc_tdc[ch]) > rise_time_max ||
-//	  (fadc_peak_time[ch] - fadc_tdc[ch]) < rise_time_min 
-//	  ) {
-//         fadc_tdc[ch] = -1000.0;
-//         fadc_peak_time[ch] = -1000.0;
-//	 fadc_peak_tdc[ch]  = -1000.0;
-//      }
+      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
+	  fadc_peak_time[ch] > peak_time_max || 
+	  fadc_peak_time[ch] < peak_time_min ||
+	  (fadc_peak_time[ch] - fadc_tdc[ch]) > rise_time_max ||
+	  (fadc_peak_time[ch] - fadc_tdc[ch]) < rise_time_min 
+	  ) {
+         fadc_tdc[ch] = -1000.0;
+         fadc_peak_time[ch] = -1000.0;
+	 fadc_peak_tdc[ch]  = -1000.0;
+      }
 //	std::cout << "fadc_tdc :" << fadc_tdc[ch] << std::endl;
 
-//      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
-//         fadc_tdc[ch] = -1000.0;
-//         fadc_peak_time[ch] = -1000.0;
-//      }
+      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
+         fadc_tdc[ch] = -1000.0;
+         fadc_peak_time[ch] = -1000.0;
+      }
    }
 }
 

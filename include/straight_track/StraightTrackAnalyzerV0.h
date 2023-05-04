@@ -27,6 +27,7 @@ const double th_chi2_first = 100;//chisquare threshold
 const double th_chi2_second = 100;//chisquare threshold 
 const double th_chi2_third = 100;//chisquare threshold 
 const double th_chi2_y = 100;//chisquare threshold 
+const double th_chi2_wossd = 30;
 const int min_ip_gap = 100;// this should be caluculated precisely
 const double Agtr[] = {1.295, 0.882, 0.469, 0, -0.469, -0.882, -1.295};
 
@@ -72,7 +73,7 @@ enum {
 class E16ANA_XZTrackCandidate {
 public:
     E16ANA_XZTrackCandidate() {
-//        SetInvalid();
+        SetInvalid();
     };
     ~E16ANA_XZTrackCandidate() {};
     void SetModuleID(int m){
@@ -82,6 +83,7 @@ public:
         module_id = -100;
         chi2 = kInvalidValue;
         tgt_z = kInvalidValue;
+		xclusterssd = nullptr;
     }
     void SetXHit100(E16DST_DST1GTRCluster *xhit){xcluster100 = xhit;}
     void SetXHit200(E16DST_DST1GTRCluster *xhit){xcluster200 = xhit;}
@@ -210,6 +212,9 @@ public:
             return (lhs->distance < rhs->distance);
         }
     };
+
+
+
 
 private:
     int module_id;
@@ -522,6 +527,24 @@ public:
 	TVector3 FitPtOnGTR300(){return fitpt_ongtr300;}
 	void SetTgtID(int id){tgt_id = id;}
 	int TgtID(){return tgt_id;}
+    double SumTimingDiff(){return 
+	 fabs(xz_track->GetXCluster100()->Timing() - y_track->GetYCluster100()->Timing())
+	+fabs(xz_track->GetXCluster200()->Timing() - y_track->GetYCluster200()->Timing())
+	+fabs(xz_track->GetXCluster300()->Timing() - y_track->GetYCluster300()->Timing())
+	 ;}
+
+    static bool CompareTimingDifference(std::shared_ptr<E16ANA_XYZStraightTrack> lhs, std::shared_ptr<E16ANA_XYZStraightTrack> rhs){return (lhs->SumTimingDiff() < rhs->SumTimingDiff());}
+    struct CompareTimingDifferenceFunctor
+    :public std::binary_function<std::shared_ptr<E16ANA_XYZStraightTrack>, std::shared_ptr<E16ANA_XYZStraightTrack>, bool>
+    {
+        bool operator()( std::shared_ptr<E16ANA_XYZStraightTrack> lhs, std::shared_ptr<E16ANA_XYZStraightTrack> rhs)
+        {
+            return (lhs->SumTimingDiff() < rhs->SumTimingDiff());
+        }
+    };
+
+
+
 
 
 private:
@@ -530,6 +553,7 @@ private:
 	int xtrk_id;
 	int ytrk_id;
 	double distance_ytrk_tgt;
+	double sum_time_diff;
     int xz_track_used_times;//how many pairs can be made with Y track
     std::shared_ptr<E16ANA_XZTrackCandidate> xz_track;
     std::shared_ptr<E16ANA_YTrackCandidate> y_track;
@@ -575,13 +599,26 @@ public:
                            int mid,
                            E16ANA_GeometryV2 *geom_v2
                            );
-    virtual void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+   	void OneModuleAnalyze2woSSD(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
+                           int mid,
+                           E16ANA_GeometryV2 *geom_v2
+                           );
+    virtual void XZStraightAnalyzeSSDGTR( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+                        ){}; 
+   virtual void XZStraightAnalyzewoSSD(
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
                         int mid,
                         E16ANA_GeometryV2 *geom_v2
                         ){};
+ 
     virtual void YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b,
                             std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1,
@@ -654,7 +691,7 @@ class StraightTrackAnalyzerOfTargets : public StraightTrackAnalyzerV0 {
 public :
 	StraightTrackAnalyzerOfTargets(int nt, double x1, double z1, double x2, double z2, double x3, double z3);
 	~StraightTrackAnalyzerOfTargets();
-    void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+    void XZStraightAnalyzeSSDGTR( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
@@ -662,6 +699,13 @@ public :
                         E16ANA_GeometryV2 *geom_v2
                         );
 
+    void XZStraightAnalyzewoSSD(
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
+					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
+                        int mid,
+                        E16ANA_GeometryV2 *geom_v2
+	);
 //	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
 //						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
 //                           int mid,
@@ -690,7 +734,7 @@ class StraightTrackAnalyzerOfWireV1 : public StraightTrackAnalyzerV0 { //track s
 public : 
     StraightTrackAnalyzerOfWireV1(int ntgt, int _pm_wire, double x1, double z1, double x2, double z2);
     ~StraightTrackAnalyzerOfWireV1();
-    void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+    void XZStraightAnalyzeSSDGTR( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
@@ -731,7 +775,7 @@ class StraightTrackAnalyzerOfTargetswoGTR300 : public StraightTrackAnalyzerV0 {
 public :
 	StraightTrackAnalyzerOfTargetswoGTR300(int ntgt, double x1, double z1, double x2, double z2, double x3, double z3);
 	~StraightTrackAnalyzerOfTargetswoGTR300();
-    void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+    void XZStraightAnalyzeSSDGTR( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
@@ -768,7 +812,7 @@ class StraightTrackAnalyzerOfWireV1woGTR300 : public StraightTrackAnalyzerV0 { /
 public : 
     StraightTrackAnalyzerOfWireV1woGTR300(int ntgt, int _pm_wire, double x1, double z1, double x2, double z2);
     ~StraightTrackAnalyzerOfWireV1woGTR300();
-    void XZStraightAnalyzeOnlyGTR2( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
+    void XZStraightAnalyzeSSDGTR( std::vector<E16DST_DST1SSDCluster*> &ssd_hits,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits0,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits1,
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
