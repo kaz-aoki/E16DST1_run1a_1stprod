@@ -155,6 +155,7 @@ add_library(E16DST_DST1
   src/res/AnalyzerTrackSelection.cc
   src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
+  src/straight_track/E16ANA_StraightTrackNameSpace.cc
 #  src/straight_track/StraightTrackAnalyzerForASDEffwithWireV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
@@ -163,14 +164,15 @@ add_library(E16DST_DST1
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
   src/E16DST_DST1GTRFactory.cc
+  src/E16DST_DST1GTRFactory_Ex100.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc
   src/E16DST_DST1StraightTrackFactory.cc
-  src/E16DST_DST1StraightTrackFactorywoGTR300.cc
+#  src/E16DST_DST1StraightTrackFactorywoGTR300.cc
 	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
-  src/E16DST_DST1WireTrackFactorywoGTR300.cc
+ # src/E16DST_DST1WireTrackFactorywoGTR300.cc
 
 	src/E16DST_DST1TrackFactory.cc
 )
