@@ -1,7 +1,8 @@
 #include "E16ANA_StraightTrackNameSpace.hh"
 
 namespace E16ANA_StraightTrackNameSpace {
-     std::vector<double>  kXSigma = {0.3, 0.3, 0.3};
+     std::vector<double>  kXSigmaGTR = {0.3, 0.3, 0.3};
+     double  kXSigmaSSD = 0.1;
      std::vector<double>  kYSigma = {0.3, 1, 1};
 	// std::vector<double> kYsigma = {0.5, 0.5, 0.5};
 	  double kFitChi2ThresholdX = 250.;

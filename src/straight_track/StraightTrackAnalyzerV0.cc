@@ -12,6 +12,8 @@
 #include "E16ANA_TargetInfo.hh"
 #include "E16ANA_RundependentName.hh"
 #include "E16ANA_StraightTrackNameSpace.hh"
+#include "E16ANA_StraightTrack.hh"
+
 
 using namespace std;
 using namespace E16ANA_StraightTrackNameSpace;
@@ -112,6 +114,8 @@ void StraightTrackAnalyzerV0::OneModuleAnalyze2woSSD(E16DST_DST1Detector<E16DST_
 	);		
 }
 
+
+
 void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
     std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
     std::vector<TVector2> v_fit_samples ;
@@ -142,9 +146,9 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_D
                 std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, kXSigma);//return chi2, a, b (a+bx)
 					if(v_results1[0] < kFitChi2ThresholdX){
                         std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
-						trk->SetResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results1[2]+v_results1[1]));
-						trk->SetResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results1[2]+v_results1[1]));
-						trk->SetResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results1[2]+v_results1[1]));
+						trk->SetFitResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results1[2]+v_results1[1]));
+						trk->SetFitResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results1[2]+v_results1[1]));
+						trk->SetFitResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results1[2]+v_results1[1]));
 						trk->SetFitA(v_results1[1]);
 						trk->SetFitB(v_results1[2]);
 						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].z()*v_results1[2]+v_results1[1],0,rot_pos[0].z());//nakasuga
@@ -187,11 +191,127 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_D
 	gtr_xhits2.shrink_to_fit();
 }
 
+//void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
+//    std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
+//    std::vector<TVector2> v_fit_samples ;
+////    std::vector<double> sigma_x = {0.3, 0.3, 0.3};
+//	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
+//    double phi = GetGTRModulePhi(geom_v2, mid);
+//	double rphi = 0;
+//	if(101<mid&&mid<109) rphi = Agtr[mid-102];
+//    int index = 0;
+//    for(int i=0; i < (int)gtr_xhits0.size(); i++){
+//        for(int j=0; j < (int)gtr_xhits1.size(); j++){
+//            for(int k=0; k < (int)gtr_xhits2.size(); k++){
+//                std::vector<E16DST_DST1GTRCluster*> hits;
+//                hits.clear();
+//                hits.push_back(gtr_xhits0[i]);
+//                hits.push_back(gtr_xhits1[j]);
+//                hits.push_back(gtr_xhits2[k]);
+//				if(hits[0]->PeakSum()  < kGTRPeakSumThresholdX[0]) continue;
+//				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdX[1]) continue;
+//				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdX[2]) continue;
+//                l_hitpos.clear();
+//                g_hitpos.clear();
+//                rot_pos.clear();
+//                v_fit_samples.clear();
+//                for(int l = 0; l <3; l++){
+//                    l_hitpos.push_back(G4ThreeVector(hits[l]->CogPos(), 0, 0));
+//                    g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
+//                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
+//                    v_fit_samples.push_back(TVector2(rot_pos[l].z(), rot_pos[l].x()));
+//                }
+//                std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, kXSigma);//return chi2, a, b (a+bx)
+//                if(v_results1[0] < kFitChi2ThresholdX){
+//					double min = 9999;
+//					double min2 = 9999;
+//					int id_m = 0;
+//					for(int m=0; m<(int)ssd_xhits.size(); m++){
+//						E16DST_DST1SSDCluster* hssd1 = ssd_xhits[m];
+//						G4ThreeVector ref = G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(G4ThreeVector(hssd1->CogPos(),0, 0)));
+//						G4ThreeVector ref2 = ref.rotateY(rphi);
+//						double resx = fabs(ref2.x() - (ref2.z() * v_results1[2] + v_results1[1]));
+//						if(resx < min){
+//							id_m = m;
+//							min2 = min;
+//							min = resx;
+//						}
+//						else if(resx < min2){		
+//							min2 = resx;
+//						}
+//					}
+//					for(int m = id_m; m<id_m+1; m++){
+//						if(ssd_xhits.size() == 0 )continue;
+//						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
+//						l_ssd_hitpos.clear();	
+//						g_ssd_hitpos.clear();	
+//						rot_ssd_pos.clear();
+//						l_ssd_hitpos.push_back(G4ThreeVector(hssd->CogPos(), 0, 0));
+//						g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
+//						rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(rphi)));
+//						std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, kXSigma);//wo SSD
+//						if(v_results2[0] < kFitChi2ThresholdX){
+//                        std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
+// 						trk->SetResidualSSD2(min2);	
+//						trk->SetResidualSSD(rot_ssd_pos[0].x() - (rot_ssd_pos[0].z()*v_results2[2] + v_results2[1]));
+//						trk->SetResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results2[2]+v_results2[1]));
+//						trk->SetResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results2[2]+v_results2[1]));
+//						trk->SetResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results2[2]+v_results2[1]));
+//						trk->SetFitA(v_results2[1]);
+//						trk->SetFitB(v_results2[2]);
+//						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].z()*v_results2[2]+v_results2[1],0,rot_pos[0].z());//nakasuga
+//						G4ThreeVector glb_origin0 = rot_pt0.rotateY(-rphi);
+//						trk->SetFitPtOnGTR100(TVector2(glb_origin0.x(), glb_origin0.z()));
+//					
+//						G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].z()*v_results2[2]+v_results2[1], 0, rot_pos[1].z());//nakasuga
+//						G4ThreeVector glb_origin1 = rot_pt1.rotateY(-rphi);
+//						trk->SetFitPtOnGTR200(TVector2(glb_origin1.x(), glb_origin1.z()));
+//						G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].z()*v_results2[2]+v_results2[1], 0, rot_pos[2].z());//nakasuga
+//						G4ThreeVector glb_origin2 = rot_pt2.rotateY(-rphi);
+//						trk->SetFitPtOnGTR300(TVector2(glb_origin2.x(), glb_origin2.z()));
+//	
+////						trk->SetFitPointOn100(TVector2());
+//						trk->SetFitResSSD(TVector2(rot_ssd_pos[0].z()*v_results2[2] + v_results2[1], rot_ssd_pos[0].z()));
+//						trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results2[2] + v_results2[1], rot_pos[0].z()));
+//						trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results2[2] + v_results2[1], rot_pos[1].z()));
+//						trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results2[2] + v_results2[1], rot_pos[2].z()));
+//						trk->SetIDSSDHit(m);
+//                        trk->SetID100Hit(i);
+//	           	        trk->SetID200Hit(j);
+//            	        trk->SetID300Hit(k);
+//    	            	trk->SetModuleID(mid);
+//	                    trk->SetChi2(v_results2[0]);
+//		                trk->SetTgtZ(ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2, trk));
+//                    	trk->SetXHit100(hits[0]);
+//        	            trk->SetXHit200(hits[1]);
+//    	        	    trk->SetXHit300(hits[2]);
+//    	        	    trk->SetXHitSSD(hssd);
+//                        trk->SetTrackID(index);
+//                        xz_trk_cands.push_back(trk);
+//                        index++;
+//						}
+//						v_results2.clear();
+//					}
+//				}
+//                v_results1.clear();
+//            }
+//        }
+//    }
+//	ssd_xhits.clear();
+//	gtr_xhits0.clear();
+//	gtr_xhits1.clear();
+//	gtr_xhits2.clear();
+//	ssd_xhits.shrink_to_fit();
+//	gtr_xhits0.shrink_to_fit();
+//	gtr_xhits1.shrink_to_fit();
+//	gtr_xhits2.shrink_to_fit();
+//}
+//	
+
 
 void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
-    std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
+//    G4ThreeVector l_hitpos, g_hitpos, rot_pos, l_ssd_hitpos, g_ssd_hitpos, rot_ssd_pos;
     std::vector<TVector2> v_fit_samples ;
-//    std::vector<double> sigma_x = {0.3, 0.3, 0.3};
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
 	double rphi = 0;
@@ -200,26 +320,22 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_
     for(int i=0; i < (int)gtr_xhits0.size(); i++){
         for(int j=0; j < (int)gtr_xhits1.size(); j++){
             for(int k=0; k < (int)gtr_xhits2.size(); k++){
-                std::vector<E16DST_DST1GTRCluster*> hits;
+				fitter->Clear();
+	            std::vector<E16DST_DST1GTRCluster*> hits;
                 hits.clear();
                 hits.push_back(gtr_xhits0[i]);
                 hits.push_back(gtr_xhits1[j]);
                 hits.push_back(gtr_xhits2[k]);
+				//just remain fake hit
 				if(hits[0]->PeakSum()  < kGTRPeakSumThresholdX[0]) continue;
 				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdX[1]) continue;
 				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdX[2]) continue;
-                l_hitpos.clear();
-                g_hitpos.clear();
-                rot_pos.clear();
-                v_fit_samples.clear();
                 for(int l = 0; l <3; l++){
-                    l_hitpos.push_back(G4ThreeVector(hits[l]->CogPos(), 0, 0));
-                    g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
-                    v_fit_samples.push_back(TVector2(rot_pos[l].z(), rot_pos[l].x()));
-                }
-                std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, kXSigma);//return chi2, a, b (a+bx)
-                if(v_results1[0] < kFitChi2ThresholdX){
+                  G4ThreeVector l_hitpos = G4ThreeVector(hits[l]->CogPos(), 0, 0);
+				  fitter->AddHit(l_hitpos, kXSigmaGTR[l] , mid, l+1, 0, geom_v2->GTR(kawama_module, l), rphi);
+              	}	
+				fitter->Fit();
+                if(fitter->Chi2() < kFitChi2ThresholdX){
 					double min = 9999;
 					double min2 = 9999;
 					int id_m = 0;
@@ -227,7 +343,7 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_
 						E16DST_DST1SSDCluster* hssd1 = ssd_xhits[m];
 						G4ThreeVector ref = G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(G4ThreeVector(hssd1->CogPos(),0, 0)));
 						G4ThreeVector ref2 = ref.rotateY(rphi);
-						double resx = fabs(ref2.x() - (ref2.z() * v_results1[2] + v_results1[1]));
+						double resx = fabs(ref2.x() - (ref2.z() * fitter->FitB() + fitter->FitA()));
 						if(resx < min){
 							id_m = m;
 							min2 = min;
@@ -240,57 +356,56 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_
 					for(int m = id_m; m<id_m+1; m++){
 						if(ssd_xhits.size() == 0 )continue;
 						E16DST_DST1SSDCluster* hssd = ssd_xhits[m];
-						l_ssd_hitpos.clear();	
-						g_ssd_hitpos.clear();	
-						rot_ssd_pos.clear();
-						l_ssd_hitpos.push_back(G4ThreeVector(hssd->CogPos(), 0, 0));
-						g_ssd_hitpos.push_back(G4ThreeVector(geom_v2->SSD(kawama_module, 0)->GetGPos(l_ssd_hitpos[0])));
-						rot_ssd_pos.push_back(G4ThreeVector(g_ssd_hitpos[0].rotateY(rphi)));
-						std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, kXSigma);//wo SSD
-						if(v_results2[0] < kFitChi2ThresholdX){
+						G4ThreeVector ssd_lpos = G4ThreeVector(ssd_xhits[m]->CogPos(), 0, 0);
+						fitter->AddHit(ssd_lpos, kXSigmaSSD, mid,0,  0, geom_v2->SSD(kawama_module, 0), rphi);
+						fitter->Fit();
+
+						if(fitter->Chi2() < kFitChi2ThresholdX){
                         std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
- 						trk->SetResidualSSD2(min2);	
-						trk->SetResidualSSD(rot_ssd_pos[0].x() - (rot_ssd_pos[0].z()*v_results2[2] + v_results2[1]));
-						trk->SetResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results2[2]+v_results2[1]));
-						trk->SetResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results2[2]+v_results2[1]));
-						trk->SetResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results2[2]+v_results2[1]));
-						trk->SetFitA(v_results2[1]);
-						trk->SetFitB(v_results2[2]);
-						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].z()*v_results2[2]+v_results2[1],0,rot_pos[0].z());//nakasuga
-						G4ThreeVector glb_origin0 = rot_pt0.rotateY(-rphi);
-						trk->SetFitPtOnGTR100(TVector2(glb_origin0.x(), glb_origin0.z()));
+ //						trk->SetResidualSSD2(min2);	
+						trk->SetFitResidualSSD(fitter->FitResidual(0));
+						trk->SetFitResidual100(fitter->FitResidual(1));
+						trk->SetFitResidual200(fitter->FitResidual(2));
+						trk->SetFitResidual300(fitter->FitResidual(3));
+						trk->SetFitA(fitter->FitA());
+						trk->SetFitB(fitter->FitB());
+//						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].z()*fitter->FitB()+fitter->FitA(),0,rot_pos[0].z());//nakasuga
+//						G4ThreeVector glb_origin0 = rot_pt0.rotateY(-rphi);
+						trk->SetFitPtOnGTR100(TVector2(fitter->FitGPos(1).x(), fitter->FitGPos(1).z()));
+						trk->SetFitPtOnGTR200(TVector2(fitter->FitGPos(2).x(), fitter->FitGPos(2).z()));
+						trk->SetFitPtOnGTR300(TVector2(fitter->FitGPos(3).x(), fitter->FitGPos(3).z()));
 					
-						G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].z()*v_results2[2]+v_results2[1], 0, rot_pos[1].z());//nakasuga
-						G4ThreeVector glb_origin1 = rot_pt1.rotateY(-rphi);
-						trk->SetFitPtOnGTR200(TVector2(glb_origin1.x(), glb_origin1.z()));
-						G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].z()*v_results2[2]+v_results2[1], 0, rot_pos[2].z());//nakasuga
-						G4ThreeVector glb_origin2 = rot_pt2.rotateY(-rphi);
-						trk->SetFitPtOnGTR300(TVector2(glb_origin2.x(), glb_origin2.z()));
+//						G4ThreeVector rot_pt1 = G4ThreeVector(rot_pos[1].z()*v_results2[2]+v_results2[1], 0, rot_pos[1].z());//nakasuga
+//						G4ThreeVector glb_origin1 = rot_pt1.rotateY(-rphi);
+//						trk->SetFitPtOnGTR200(TVector2(glb_origin1.x(), glb_origin1.z()));
+//						G4ThreeVector rot_pt2 = G4ThreeVector(rot_pos[2].z()*v_results2[2]+v_results2[1], 0, rot_pos[2].z());//nakasuga
+//						G4ThreeVector glb_origin2 = rot_pt2.rotateY(-rphi);
+//						trk->SetFitPtOnGTR300(TVector2(glb_origin2.x(), glb_origin2.z()));
 	
 //						trk->SetFitPointOn100(TVector2());
-						trk->SetFitResSSD(TVector2(rot_ssd_pos[0].z()*v_results2[2] + v_results2[1], rot_ssd_pos[0].z()));
-						trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results2[2] + v_results2[1], rot_pos[0].z()));
-						trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results2[2] + v_results2[1], rot_pos[1].z()));
-						trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results2[2] + v_results2[1], rot_pos[2].z()));
+//						trk->SetFitResSSD(TVector2(rot_ssd_pos[0].z()*v_results2[2] + v_results2[1], rot_ssd_pos[0].z()));
+//						trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results2[2] + v_results2[1], rot_pos[0].z()));
+//						trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results2[2] + v_results2[1], rot_pos[1].z()));
+//						trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results2[2] + v_results2[1], rot_pos[2].z()));
 						trk->SetIDSSDHit(m);
                         trk->SetID100Hit(i);
 	           	        trk->SetID200Hit(j);
             	        trk->SetID300Hit(k);
     	            	trk->SetModuleID(mid);
-	                    trk->SetChi2(v_results2[0]);
-		                trk->SetTgtZ(ReconstructTgtPosBeforeVertex(v_results2[1], v_results2[2], phi, kawama_module, geom_v2, trk));
-                    	trk->SetXHit100(hits[0]);
-        	            trk->SetXHit200(hits[1]);
-    	        	    trk->SetXHit300(hits[2]);
+	                    trk->SetChi2(fitter->Chi2());
+		                trk->SetTgtZ(ReconstructTgtPosBeforeVertex(fitter->FitA(), fitter->FitB(), phi, kawama_module, geom_v2, trk));
+                    	trk->SetXHit100(gtr_xhits0[i]);
+        	            trk->SetXHit200(gtr_xhits1[j]);
+    	        	    trk->SetXHit300(gtr_xhits2[k]);
     	        	    trk->SetXHitSSD(hssd);
                         trk->SetTrackID(index);
                         xz_trk_cands.push_back(trk);
                         index++;
 						}
-						v_results2.clear();
+//						v_results2.clear();
 					}
 				}
-                v_results1.clear();
+//                v_results1.clear();
             }
         }
     }
@@ -368,7 +483,7 @@ void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::share
         std::vector<long double> &&v_out3 = CalcChamberResidual(t->GetXHitSSD(), t->GetXHit100(), t->GetXHit200(), t->GetXHit300(), geom_v2,  phi, kawama_module, 3);// ssd
 //        if(v_out != nullptr){
 	        trk->SetChi2ExSSD(v_out3[0]); 
-            trk->SetResidualSSD(v_out3[1]);
+            trk->SetFitResidualSSD(v_out3[1]);
 //            std::cout << "residual = " << v_out3[1] << std::endl;
 //            trk->SetTgtZ(v_out3[2]);
 //        }
@@ -376,7 +491,7 @@ void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::share
         std::vector<long double> &&v_out0 = CalcChamberResidual(t->GetXHitSSD(), t->GetXHit100(), t->GetXHit200(), t->GetXHit300(), geom_v2, phi, kawama_module, 0);// gtr0
 //        if(v_out0 != nullptr){
 	        trk->SetChi2Ex100(v_out0[0]);
-            trk->SetResidual100(v_out0[1]);
+            trk->SetFitResidual100(v_out0[1]);
 //            trk->SetTgtZ(v_out0[2]);
 //        }
         v_out0.clear();
@@ -385,7 +500,7 @@ void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::share
 //        if(v_out1 != nullptr){
 //	        trk->SetChi2(v_out1[0]);
 	        trk->SetChi2Ex200(v_out1[0]);
-            trk->SetResidual200(v_out1[1]);
+            trk->SetFitResidual200(v_out1[1]);
             trk->SetTgtZ(v_out1[2]);
 //        }
         v_out1.clear();
@@ -394,7 +509,7 @@ void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::share
 //        if(v_out2 != nullptr){
 //	        trk->SetChi2(v_out2[0]);
 	        trk->SetChi2Ex300(v_out2[0]);
-            trk->SetResidual300(v_out2[1]);
+            trk->SetFitResidual300(v_out2[1]);
 //            trk->SetTgtZ(v_out2[2]);
 //        }
         v_out2.clear();
@@ -504,6 +619,8 @@ std::vector<long double> StraightTrackAnalyzerOfWire::CalcChamberResidual(E16ANA
 //       }
 //       v_fit_samples.push_back(rot_ssd);
 //       std::vector<long double> &&v_results1 = LeastSquareMethod(v_fit_samples, sigma_x);//return chi2, a, b (a+bx)
+//
+//      				fitter->Fit();
 //   	   double cross_beam = ReconstructTgtPosBeforeVertex(v_results1[1], v_results1[2], phi, kawama_module, geom_v2);//220603 phi should be rphi if you want to use Reconst~. Original
 //
 //       if(cross_beam < 0){
@@ -593,11 +710,11 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_D
 						std::vector<long double> &&v_results2 = LeastSquareMethod(v_fit_samples, kXSigma);//wo SSD
 						if(v_results2[0] < kFitChi2ThresholdX){
                         std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
- 						trk->SetResidualSSD2(min2);	
-						trk->SetResidualSSD(rot_ssd_pos[0].x() - (rot_ssd_pos[0].z()*v_results2[2] + v_results2[1]));
-						trk->SetResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results2[2]+v_results2[1]));
-						trk->SetResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results2[2]+v_results2[1]));
-						trk->SetResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results2[2]+v_results2[1]));
+// 						trk->SetResidualSSD2(min2);	
+						trk->SetFitResidualSSD(rot_ssd_pos[0].x() - (rot_ssd_pos[0].z()*v_results2[2] + v_results2[1]));
+						trk->SetFitResidual100(rot_pos[0].x() - (rot_pos[0].z()*v_results2[2]+v_results2[1]));
+						trk->SetFitResidual200(rot_pos[1].x() - (rot_pos[1].z()*v_results2[2]+v_results2[1]));
+						trk->SetFitResidual300(rot_pos[2].x() - (rot_pos[2].z()*v_results2[2]+v_results2[1]));
 						trk->SetFitA(v_results2[1]);
 						trk->SetFitB(v_results2[2]);
 						G4ThreeVector rot_pt0 = G4ThreeVector(rot_pos[0].z()*v_results2[2]+v_results2[1],0,rot_pos[0].z());//nakasuga
@@ -1517,7 +1634,6 @@ std::vector<long double> StraightTrackAnalyzerV0::LeastSquareMethod(std::vector<
 		lst_sq_results.push_back(tv_v_pos[i].Y()- a-(b*tv_v_pos[i].X()));
 	}
 	return lst_sq_results;
-
 }
 
 double StraightTrackAnalyzerV0::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx

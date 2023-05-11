@@ -156,6 +156,7 @@ add_library(E16DST_DST1
   src/res/SingleTrackAnalyzerForRes.cc
   src/straight_track/StraightTrackAnalyzerV0.cc
   src/straight_track/E16ANA_StraightTrackNameSpace.cc
+  src/straight_track/E16ANA_StraightTrack.cc
 #  src/straight_track/StraightTrackAnalyzerForASDEffwithWireV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
