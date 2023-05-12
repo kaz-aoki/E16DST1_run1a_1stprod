@@ -26,6 +26,8 @@ using namespace std;
 class E16ANA_Massw2Gamma : public E16ANA_EIDSingleTrackAnalyzer {
 private :
 
+  double mvtoe = 0.005;
+
 public :
 
   E16ANA_Massw2Gamma(TTree *tree=0);
@@ -53,6 +55,7 @@ bool E16ANA_Massw2Gamma::InvalidLGhit(Long64_t entry, int ilg)
 {
   if( lg_hit_fflag->at(ilg)>=2 ){return true;}
   else if( lg_hit_adc->at(ilg)<30. ){return true;}
+  // else if( lg_hit_mid->at(ilg)!=104 && lg_hit_mid->at(ilg)!=106 ){return true;}
   else{return false;}
 }
 

@@ -36,6 +36,15 @@ void E16ANA_Massw2Gamma::MakeHist(int runoption, int maxevent, char* out_file_na
    TFile* fout = new TFile(out_file_name,"recreate");
    // TTree* tree = new TTree("tree","tree");
 
+   TH1F* hm[4];
+   TH1F* hmm[4];
+   // TH1F* hmd[4];
+   for(int i=0;i<4;i++){
+     hm[i] = new TH1F(Form("hm%d",i),Form("IM%d",i),100,0,1.5);
+     hmm[i] = new TH1F(Form("hmm%d",i),Form("IM_mix%d",i),100,0,1.5);
+     // hmd[i] = new TH1F(Form("hmd%d",i),Form("hmd%d",i),100,-0.2,0.2);
+   }
+
    E16ANA_HBDDeadChannel hbddch;
    std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
    if(runoption==0){
@@ -96,8 +105,39 @@ void E16ANA_Massw2Gamma::MakeHist(int runoption, int maxevent, char* out_file_na
 	  if( fabs( lg_hit_t->at(i1) - lg_hit_t->at(i2) ) > 4. ) continue;
 	  if( lg_hit_mid->at(i1)==lg_hit_mid->at(i2) && IsNeighborBlock(*geometry, cid1, cid2) ) continue;
 
+	  TVector3 g1[4];
+	  TVector3 g2[4];
+	  g1[0].SetXYZ(lg_hit_gx->at(i1), lg_hit_gy->at(i1), lg_hit_gz->at(i1)+260);// maku (-260)
+	  g2[0].SetXYZ(lg_hit_gx->at(i2), lg_hit_gy->at(i2), lg_hit_gz->at(i2)+260);
+	  g1[1].SetXYZ(lg_hit_gx->at(i1), lg_hit_gy->at(i1), lg_hit_gz->at(i1)+20);// tgt0 (-20)
+	  g2[1].SetXYZ(lg_hit_gx->at(i2), lg_hit_gy->at(i2), lg_hit_gz->at(i2)+20);
+	  g1[2].SetXYZ(lg_hit_gx->at(i1), lg_hit_gy->at(i1), lg_hit_gz->at(i1));// tgt1 (0)
+	  g2[2].SetXYZ(lg_hit_gx->at(i2), lg_hit_gy->at(i2), lg_hit_gz->at(i2));
+	  g1[3].SetXYZ(lg_hit_gx->at(i1), lg_hit_gy->at(i1), lg_hit_gz->at(i1)-20);// tgt2 (+20)
+	  g2[3].SetXYZ(lg_hit_gx->at(i2), lg_hit_gy->at(i2), lg_hit_gz->at(i2)-20);
+
+	  double e1 = lg_hit_adc->at(i1)*mvtoe;
+	  double e2 = lg_hit_adc->at(i2)*mvtoe;
+	  double e12 = e1+e2;
+	  TVector3 p1[4];
+	  TVector3 p2[4];
+	  TVector3 p12[4];
+	  double im[4];
+	  for(int i=0;i<4;i++){
+	    p1[i].SetXYZ(g1[i].X()/g1[i].Mag()*e1, g1[i].Y()/g1[i].Mag()*e1, g1[i].Z()/g1[i].Mag()*e1);
+	    p2[i].SetXYZ(g2[i].X()/g2[i].Mag()*e1, g2[i].Y()/g2[i].Mag()*e1, g2[i].Z()/g2[i].Mag()*e1);
+	    p12[i] = p1[i]+p2[i];
+	    im[i] = sqrt( e12*e12 - p12[i].Mag2() );
+	    hm[i]->Fill(im[i]);
+	  }
+	  // for(int i=0;i<4;i++){
+	  //   hmd[i]->Fill(im[i]-im[2]);
+	  // }
+
 	}
       }
+
+      nevent++;
 
    }//event loop
 

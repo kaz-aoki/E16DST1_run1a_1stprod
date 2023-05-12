@@ -414,6 +414,17 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCGTRymix
 )
 
 #_______________________________________________________________________________
+add_executable(Massw2Gamma usr/tmp/Massw2Gamma.cc)
+
+target_link_libraries(Massw2Gamma
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
 #add_executable(lg_check_standalone usr/lg_check_standalone.cc)
 #
 #target_link_libraries(lg_check_standalone
