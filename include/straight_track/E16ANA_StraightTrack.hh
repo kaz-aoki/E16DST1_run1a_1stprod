@@ -30,22 +30,38 @@ public:
 	E16ANA_StraightTrackFit();
 	~E16ANA_StraightTrackFit();
 	void Clear();
-	void AddHit(G4ThreeVector &lpos, double sigma, int mid,int lid, int axis, const E16ANA_DetectorGeometry *geom, double rphi);//axis 0 = x, lid{0,1,2,3} = {ssd,gtr1, gtr2, gtr3}
+	void AddHit(G4ThreeVector &lpos, double sigma, int mid,int lid, const E16ANA_DetectorGeometry *geom, double rphi); //lid{0,1,2,3} = {ssd,gtr1, gtr2, gtr3}
 
-	void Fit();
+	void AddTgt(G4ThreeVector &gpos_tgt, double sigma);
+	virtual void Fit() = 0;
 	std::vector<long double> LeastSquareMethod(std::vector<TVector2> &tv, std::vector<double> sigmas);
 	
 	double Chi2(){return chi2;}
 	double FitA(){return fit_a;}
 	double FitB(){return fit_b;}
-	double FitResidual(int lid);
-	G4ThreeVector FitGPos(int lid);
+	inline double FitResidual(int lid){
+		for(int i = 0; i < Hits.size(); i++){
+			if(Hits[i]->layer == lid){
+				return Hits[i]->residual;
+			}
+		}
+	};
+    inline G4ThreeVector &FitGPos(int lid){
+		for(int i = 0; i < Hits.size(); i++){
+			if(Hits[i]->layer == lid){
+				return Hits[i]->fit_gpos;
+			}
+		}
+	};
 
-private:
+
+protected:
 //	std::vector<TVector2> fit_samples
 	double chi2;
 	double fit_a;//a+bx
 	double fit_b;//\a+bx
+	G4ThreeVector gpos_tgt;
+	double tgt_sigma;
 
 	struct Hit_t {
 		G4ThreeVector lpos;
@@ -69,7 +85,23 @@ private:
 	std::vector<Hit_t*> Hits;
 };
 
+class E16ANA_StraightTrackFitX: public E16ANA_StraightTrackFit {
+public:
+	E16ANA_StraightTrackFitX(){
+	};
+	~E16ANA_StraightTrackFitX(){
+	};
+	void Fit();
+};
 
+class E16ANA_StraightTrackFitY: public E16ANA_StraightTrackFit {
+public:
+	E16ANA_StraightTrackFitY(){
+	};
+	~E16ANA_StraightTrackFitY(){
+	};
+	void Fit();
+};
 
 class E16ANA_XZTrackCandidate {
 public:

@@ -78,7 +78,8 @@ class StraightTrackAnalyzerV0 {
 public:
    // std::unique_ptr<AnalyzerMap> ana_maps;
     StraightTrackAnalyzerV0(){
-		fitter = new E16ANA_StraightTrackFit();	
+		fitter_x = new E16ANA_StraightTrackFitX();	
+		fitter_y = new E16ANA_StraightTrackFitY();	
 	}
     virtual ~StraightTrackAnalyzerV0(){}
 //    void MatchingXYZandLeaveTargetTrack(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, 
@@ -173,7 +174,8 @@ protected:
 	double tgt_x3 = 0;
 	double tgt_z3 = 0;
 	
-	E16ANA_StraightTrackFit *fitter;
+	E16ANA_StraightTrackFit *fitter_x;
+	E16ANA_StraightTrackFit *fitter_y;
 
 };
 

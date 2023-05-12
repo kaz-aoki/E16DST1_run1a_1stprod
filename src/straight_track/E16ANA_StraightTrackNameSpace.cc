@@ -2,12 +2,15 @@
 
 namespace E16ANA_StraightTrackNameSpace {
      std::vector<double>  kXSigmaGTR = {0.3, 0.3, 0.3};
+     std::vector<double>  kYSigmaGTR = {0.6, 0.6, 0.6};
      double  kXSigmaSSD = 0.1;
-     std::vector<double>  kYSigma = {0.3, 1, 1};
+     double  kXSigmaTGT = 99999999;
+     double  kYSigmaTGT = 99999999;
 	// std::vector<double> kYsigma = {0.5, 0.5, 0.5};
-	  double kFitChi2ThresholdX = 250.;
-	  double kFitChi2ThresholdY = 250.;
-	  std::array<double, 3> kGTRPeakSumThresholdX = {50000, 80, 80};
+	  double kFitChi2ThresholdX = 50.;
+	  double kFitChi2ThresholdY = 50.;
+//	  std::array<double, 3> kGTRPeakSumThresholdX = {50000, 80, 80};
+	  std::array<double, 3> kGTRPeakSumThresholdX = {80, 80, 80};
 		double E16ANA_GTRLocalX(double lorentz_angle_calib_param, int layer_id, int type, int channel_id) {
 	  double strip_pitch;
 	  double position_start;

@@ -34,7 +34,8 @@ int E16DST_DST1GTRFactory_Ex100(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hit
     auto& dst1_hits = gtr1->Hits();
     auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;
-	int n_fake_cl = 20;
+	int n_fake_cl_x = 20;
+	int n_fake_cl_y = 10;
 	static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
 		E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
@@ -96,7 +97,7 @@ int E16DST_DST1GTRFactory_Ex100(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hit
     }
     dst1_hits.resize(dst1_hits_size);
     //dst1_clusters.resize(dst1_clusters_size);
-    dst1_clusters.resize(dst1_clusters_size+(n_fake_cl*2)*6);
+    dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*6);
     //dst1_clusters.resize(dst1_clusters_size+61);
     int cl_id = 0;// cluster id 
     int h_id = 0;// hit id
@@ -220,7 +221,7 @@ int E16DST_DST1GTRFactory_Ex100(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hit
 	cl_id++;
       }
 
-    for(int k=0; k < 20 ; k++){
+    for(int k=0; k < 10 ; k++){
 	E16DST_DST1GTRCluster &cl = dst1_clusters[cl_id];
 	double lx =  -48+5*k;
 	cl.SetInvalid();
@@ -242,6 +243,6 @@ int E16DST_DST1GTRFactory_Ex100(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hit
       }
     }
     
-    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl*2)*6);
+    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*6);
     //return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size);
 }

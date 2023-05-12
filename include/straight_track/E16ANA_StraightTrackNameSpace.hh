@@ -9,8 +9,10 @@ namespace E16ANA_StraightTrackNameSpace{
 	//constexpr std::vector<double> kXsigma = {0.3, 0.3, 0.3};
 	//constexpr std::vector<double> kYsigma = {0.5, 0.5, 0.5};
 	 extern std::vector<double> kXSigmaGTR ;
-	 extern std::vector<double> kXSigmaSSD ;
-	 extern std::vector<double> kYSigma ;
+	 extern std::vector<double> kYSigmaGTR ;
+	 extern double kXSigmaSSD ;
+	 extern double kXSigmaTGT ;
+	 extern double kYSigmaTGT ;
 	extern double kFitChi2ThresholdX ;
 	extern double kFitChi2ThresholdY ;
 	extern std::array<double, 3> kGTRPeakSumThresholdX;

@@ -465,7 +465,6 @@ int main(int argc, char* argv[]) {
   
   int n_event = 0;
   int n_physics_event = 0;
-  std::cout << "here " << std::endl;
   while (dst0->ReadAnEvent()) {
     if (max_event != -1 && n_event >= max_event) {
       break;

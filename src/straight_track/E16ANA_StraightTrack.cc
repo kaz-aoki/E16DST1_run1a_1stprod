@@ -16,31 +16,36 @@ void E16ANA_StraightTrackFit::Clear(){
 	Hits.clear();
 }
 
-void E16ANA_StraightTrackFit::AddHit(G4ThreeVector &lpos, double sigma, int mid, int lid, int axis, const E16ANA_DetectorGeometry *geom, double rphi){
+void E16ANA_StraightTrackFit::AddHit(G4ThreeVector &lpos, double sigma, int mid, int lid, const E16ANA_DetectorGeometry *geom, double rphi){
 	Hit_t *h = new Hit_t(lid, lpos, sigma, geom, rphi);
 	Hits.push_back(h);
-//	G4ThreeVector lpos = (lpos, 0, 0);	
-//	G4ThreeVector gpos = G4ThreeVector(geom->GetGPos(lpos));	
-//	G4ThreeVector rpos = G4ThreeVector(gpos.rotateY(rphi));
-//	fit_samples.push_back(TVector2(rpos.z(), rpos.x()));
+}
+void E16ANA_StraightTrackFit::AddTgt(G4ThreeVector &_gpos_tgt, double sigma){
+		gpos_tgt  = _gpos_tgt;
+		tgt_sigma = sigma;
 }
 
-void E16ANA_StraightTrackFit::Fit(){
+void E16ANA_StraightTrackFitX::Fit(){//FOR X STRIP
 	std::vector<TVector2> fit_samples;
 	std::vector<double> sigmas;
 	fit_samples.clear();
 	sigmas.clear();
+//fill hit information
+	double rphi = -9999;
 	for(int i = 0; i < Hits.size(); i++){
 		Hit_t *h = Hits[i];
-//		std::cout << "rphi =  " << h->rphi << std::endl;
-//		std::cout << "lpos = " << h->lpos.x() << ", " << h->lpos.y()<< ", " << h->lpos.z() << std::endl; 
 		G4ThreeVector gpos = G4ThreeVector(h->geom->GetGPos(h->lpos));	
 		G4ThreeVector rpos = G4ThreeVector(gpos.rotateY(h->rphi));	
 		h->rot_pos = rpos;
-//		std::cout << "layer  = " << h->layer << std::endl;
+		rphi = h->rphi;
 		fit_samples.push_back(TVector2(rpos.z(), rpos.x()));
 		sigmas.push_back(h->sigma);
 	}
+//fill tgt information 
+		G4ThreeVector rpos_tgt = G4ThreeVector(gpos_tgt.rotateY(rphi));	
+		fit_samples.push_back(TVector2(rpos_tgt.z(), rpos_tgt.x()));
+		sigmas.push_back(tgt_sigma);
+
 	std::vector<long double> &&results = LeastSquareMethod(fit_samples, sigmas);//return chi2, a, b
 	chi2 = results[0];
 	fit_a = results[1];
@@ -48,31 +53,62 @@ void E16ANA_StraightTrackFit::Fit(){
 	for(int i = 0; i < Hits.size(); i++){
 		Hit_t *h = Hits[i];
 		h->residual = (h->rot_pos.x() - (h->rot_pos.z() * fit_b + fit_a));
+		G4ThreeVector fit_rot = G4ThreeVector(h->rot_pos.z() * fit_b + fit_a, 0, h->rot_pos.z());
+		h->fit_gpos = G4ThreeVector(fit_rot.rotateY(-(h->rphi)));
 	}
 	results.clear();
 }
 
-double E16ANA_StraightTrackFit::FitResidual(int lid){
+void E16ANA_StraightTrackFitY::Fit(){//FOR Y STRIP
+	std::vector<TVector2> fit_samples;
+	std::vector<double> sigmas;
+	fit_samples.clear();
+	sigmas.clear();
+//Fill Hit information
+	double rphi = -9999;
 	for(int i = 0; i < Hits.size(); i++){
-		if(Hits[i]->layer == lid){
-//		std::cout << "chi2  = " << chi2 << std::endl;
-//		std::cout << "fit a  = " << fit_a << std::endl;
-//		std::cout << "fit b  = " << fit_b << std::endl;
-//		std::cout << "rpos x = " << Hits[i]->rot_pos.x() << std::endl;
-//		std::cout << "rpos z = " << Hits[i]->rot_pos.z() << std::endl;
-//		std::cout << "hits residual "<<  Hits[i]->residual << std::endl;
-			return Hits[i]->residual;
-		}
+		Hit_t *h = Hits[i];
+		G4ThreeVector gpos = G4ThreeVector(h->geom->GetGPos(h->lpos));	
+		G4ThreeVector rpos = G4ThreeVector(gpos.rotateY(h->rphi));	
+		h->rot_pos = rpos;
+		rphi = h->rphi;
+		fit_samples.push_back(TVector2(rpos.z(), rpos.y()));
+		sigmas.push_back(h->sigma);
 	}
+//Fill Target information 
+	G4ThreeVector rpos_tgt = G4ThreeVector(gpos_tgt.rotateY(rphi));	
+	fit_samples.push_back(TVector2(rpos_tgt.z(), rpos_tgt.y()));
+	sigmas.push_back(tgt_sigma);
+
+	std::vector<long double> &&results = LeastSquareMethod(fit_samples, sigmas);//return chi2, a, b
+	chi2 = results[0];
+	fit_a = results[1];
+	fit_b = results[2];	
+	for(int i = 0; i < Hits.size(); i++){
+		Hit_t *h = Hits[i];
+		h->residual = (h->rot_pos.y() - (h->rot_pos.z() * fit_b + fit_a));
+		G4ThreeVector fit_rot = G4ThreeVector(0, h->rot_pos.z() * fit_b + fit_a, h->rot_pos.z());
+		h->fit_gpos = G4ThreeVector(fit_rot.rotateY(-(h->rphi)));
+	}
+	results.clear();
 }
 
-G4ThreeVector E16ANA_StraightTrackFit::FitGPos(int lid){
-	for(int i = 0; i < Hits.size() ; i++){
-		if(Hits[i] -> layer == lid){
-			return Hits[i]->fit_gpos;
-		}
-	}
-}
+//double E16ANA_StraightTrackFit::FitResidual(int lid){
+//	for(int i = 0; i < Hits.size(); i++){
+//		if(Hits[i]->layer == lid){
+//			return Hits[i]->residual;
+//		}
+//	}
+//}
+//
+//G4ThreeVector E16ANA_StraightTrackFit::FitGPos(int lid){
+//	for(int i = 0; i < Hits.size() ; i++){
+//		if(Hits[i]->layer == lid){
+//			return Hits[i]->fit_gpos;
+//		}
+//	}
+//}
+
 std::vector<long double> E16ANA_StraightTrackFit::LeastSquareMethod(std::vector<TVector2> &tv_v_pos, std::vector<double> sigma_x){
 	int v_size = tv_v_pos.size();
 	int v_sig_size = sigma_x.size();
