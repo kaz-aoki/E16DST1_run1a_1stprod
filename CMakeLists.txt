@@ -165,7 +165,7 @@ add_library(E16DST_DST1
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
   src/E16DST_DST1GTRFactory.cc
-  src/E16DST_DST1GTRFactory_Ex100.cc
+  src/E16DST_DST1GTRFactory_ExOneGTR.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1HBDFactory.cc
   src/E16DST_DST1LGFactory.cc

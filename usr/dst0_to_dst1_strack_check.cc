@@ -388,7 +388,7 @@ int main(int argc, char* argv[]) {
       record->Trigger().UpdatePtrs();
 
       std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
-      E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+//      E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
       record->SSD().UpdatePtrs();
 
       //std::cout<<"**"<<event0->EventID()<<"****"<<std::endl;

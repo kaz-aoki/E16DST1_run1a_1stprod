@@ -45,7 +45,7 @@ int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
     straight_analyzer->Clear();
   	for(int mid = 100; mid< 110; mid++){
 		if(removed_layer == 0){//without ssd
- 		straight_analyzer->OneModuleAnalyze2woSSD(ssd1, gtr1, mid, geom);
+ 			straight_analyzer->OneModuleAnalyze2woSSD(ssd1, gtr1, mid, geom);
  		}
 		else { //with all (-1), or without one layer GTR (1,2, 3)
  			straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);

@@ -150,6 +150,7 @@ public:
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZSelectedTrack(){return xz_trk_selected;};
     std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &GetCrossPoints(){return cross_points;}
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZTracksEveSel(){return xz_trks_evesel;}
+	bool IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> x, std::shared_ptr<E16ANA_YTrackCandidate> y);
 
 protected:
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trk_cands;
@@ -158,9 +159,12 @@ protected:
     std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> xyz_st_trk;
     std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> cross_points;
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trks_evesel;
-	double timing_window_100 = 25.0;
+	double timing_window_100 = 40.0;
 	double timing_window_200 = 40.0;
-	double timing_window_300 = 40.0;
+	double timing_window_300 = 80.0;
+	double clc_window_100 = 4000.0;
+	double clc_window_200 = 4000.0;
+	double clc_window_300 = 4000.0;
 	int n_tgt;
 	int pm_wire = 0;
 	double wire_x1 = 0;
@@ -168,12 +172,18 @@ protected:
 	double wire_x2 = 0;
 	double wire_z2 = 0;
 	double tgt_x1 = 0;
-	double tgt_z1 = 0;
+	double tgt_z1 = -20;
 	double tgt_x2 = 0;
 	double tgt_z2 = 0;
 	double tgt_x3 = 0;
-	double tgt_z3 = 0;
+	double tgt_z3 = 20;
 	
+	double timing_offset0 = 0;
+	double timing_offset1 = 0;
+	double timing_offset2 = 0;
+	double clc_offset0 = 100;
+	double clc_offset1 = 100;
+	double clc_offset2 = 100;
 	E16ANA_StraightTrackFit *fitter_x;
 	E16ANA_StraightTrackFit *fitter_y;
 

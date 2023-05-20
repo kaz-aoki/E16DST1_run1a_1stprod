@@ -16,6 +16,7 @@ namespace E16ANA_StraightTrackNameSpace{
 	extern double kFitChi2ThresholdX ;
 	extern double kFitChi2ThresholdY ;
 	extern std::array<double, 3> kGTRPeakSumThresholdX;
+	extern std::array<double, 3> kGTRPeakSumThresholdY;
 	extern double E16ANA_GTRLocalX(double lorentz_angle_calib_param, int layer_id, int type, int channel_id);
 	const double Agtr[] = {1.295, 0.882, 0.469, 0, -0.469, -0.882, -1.295};
 

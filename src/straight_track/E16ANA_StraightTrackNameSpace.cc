@@ -1,16 +1,28 @@
 #include "E16ANA_StraightTrackNameSpace.hh"
 
 namespace E16ANA_StraightTrackNameSpace {
+     double  kXSigmaSSD = 0.1;
      std::vector<double>  kXSigmaGTR = {0.3, 0.3, 0.3};
      std::vector<double>  kYSigmaGTR = {0.6, 0.6, 0.6};
-     double  kXSigmaSSD = 0.1;
-     double  kXSigmaTGT = 99999999;
-     double  kYSigmaTGT = 99999999;
+     double  kXSigmaTGT = 2.0;
+     double  kYSigmaTGT = 4.0;
+//     double  kXSigmaTGT = 1.5;
+//     double  kYSigmaTGT = 1.5;
 	// std::vector<double> kYsigma = {0.5, 0.5, 0.5};
 	  double kFitChi2ThresholdX = 50.;
-	  double kFitChi2ThresholdY = 50.;
+	  double kFitChi2ThresholdY = 100.;
+//	  double kFitChi2ThresholdX = 250.;
+//	  double kFitChi2ThresholdY = 250.;
+//	  std::array<double, 3> kGTRPeakSumThresholdX = { 80,  80, 50000};
+//	  std::array<double, 3> kGTRPeakSumThresholdY = { 100, 100,50000};
+//	  std::array<double, 3> kGTRPeakSumThresholdX = { 80,  50000, 80};
+//	  std::array<double, 3> kGTRPeakSumThresholdY = { 100, 50000, 100};
 //	  std::array<double, 3> kGTRPeakSumThresholdX = {50000, 80, 80};
+//	  std::array<double, 3> kGTRPeakSumThresholdY = {50000, 100, 100};
+//	  std::array<double, 3> kGTRPeakSumThresholdX = {100, 100, 100};
+//	  std::array<double, 3> kGTRPeakSumThresholdY = {100, 100, 100};
 	  std::array<double, 3> kGTRPeakSumThresholdX = {80, 80, 80};
+	  std::array<double, 3> kGTRPeakSumThresholdY = {100, 100, 100};
 		double E16ANA_GTRLocalX(double lorentz_angle_calib_param, int layer_id, int type, int channel_id) {
 	  double strip_pitch;
 	  double position_start;

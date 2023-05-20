@@ -60,7 +60,7 @@ protected:
 	double chi2;
 	double fit_a;//a+bx
 	double fit_b;//\a+bx
-	G4ThreeVector gpos_tgt;
+	G4ThreeVector gpos_tgt = G4ThreeVector(kInvalidValue, kInvalidValue, kInvalidValue);
 	double tgt_sigma;
 
 	struct Hit_t {
@@ -188,6 +188,8 @@ public:
     int IDSSDHit() const{return idssdhit;}
     int TrackID() {return track_id;}
     double Distance() {        return distance;    }
+	void SetWhichTgt(int i){ which_tgt = i;}
+	int  WhichTgt(){return which_tgt;}
     E16DST_DST1SSDCluster *GetXClusterSSD(){
         return xclusterssd;
     }
@@ -263,6 +265,7 @@ private:
     double chi2_ex_300;
     double tgt_z;
     double distance; //nearest target
+	int which_tgt; //0...up, 1..middle, 2..down
 	double fit_a;
 	double fit_b;
 //    std::vector<TVector2> v_fit_samples;
@@ -417,6 +420,8 @@ public:
 	int ID100Hit() const{		return id100hit;	}
 	int ID200Hit() const{		return id200hit;	}
 	int ID300Hit() const{		return id300hit;	}
+	void SetWhichTgt(int i){ which_tgt = i;}
+	int  WhichTgt(){return which_tgt;}
 //	int IDSSDHit() const{
 //		return idssdhit;
 //	}
@@ -450,6 +455,7 @@ private:
 	int id100hit;
 	int id200hit;
 	int id300hit;
+	int which_tgt;
 	double chi2;
 //	double tgt_pos;
     double distance_uptgt;
@@ -561,9 +567,9 @@ public:
 	void SetTgtID(int id){tgt_id = id;}
 	int TgtID(){return tgt_id;}
     double SumTimingDiff(){return 
-	 fabs(xz_track->GetXCluster100()->Timing() - y_track->GetYCluster100()->Timing())
-	+fabs(xz_track->GetXCluster200()->Timing() - y_track->GetYCluster200()->Timing())
-	+fabs(xz_track->GetXCluster300()->Timing() - y_track->GetYCluster300()->Timing())
+	 fabs(xz_track->GetXCluster100()->Timing() - y_track->GetYCluster100()->Timing() - timing_offset0)
+	+fabs(xz_track->GetXCluster200()->Timing() - y_track->GetYCluster200()->Timing() - timing_offset1)
+	+fabs(xz_track->GetXCluster300()->Timing() - y_track->GetYCluster300()->Timing() - timing_offset2)
 	 ;}
 
     static bool CompareTimingDifference(std::shared_ptr<E16ANA_XYZStraightTrack> lhs, std::shared_ptr<E16ANA_XYZStraightTrack> rhs){return (lhs->SumTimingDiff() < rhs->SumTimingDiff());}
@@ -599,6 +605,14 @@ private:
     TVector3 lg_cross_pos;
     int lg_mod_id;
     int lg_channel_id;
+	double timing_offset0 = 0;
+	double timing_offset1 = 0;
+	double timing_offset2 = 0;
+	double clc_offset0 = 0;
+	double clc_offset1 = 0;
+	double clc_offset2 = 0;
+	
+
 };
 
 

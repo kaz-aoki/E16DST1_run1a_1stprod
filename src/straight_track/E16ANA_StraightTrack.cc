@@ -42,10 +42,11 @@ void E16ANA_StraightTrackFitX::Fit(){//FOR X STRIP
 		sigmas.push_back(h->sigma);
 	}
 //fill tgt information 
+		if(gpos_tgt.z() != kInvalidValue){
 		G4ThreeVector rpos_tgt = G4ThreeVector(gpos_tgt.rotateY(rphi));	
 		fit_samples.push_back(TVector2(rpos_tgt.z(), rpos_tgt.x()));
 		sigmas.push_back(tgt_sigma);
-
+		}
 	std::vector<long double> &&results = LeastSquareMethod(fit_samples, sigmas);//return chi2, a, b
 	chi2 = results[0];
 	fit_a = results[1];
@@ -76,9 +77,11 @@ void E16ANA_StraightTrackFitY::Fit(){//FOR Y STRIP
 		sigmas.push_back(h->sigma);
 	}
 //Fill Target information 
+		if(gpos_tgt.z() != kInvalidValue){
 	G4ThreeVector rpos_tgt = G4ThreeVector(gpos_tgt.rotateY(rphi));	
 	fit_samples.push_back(TVector2(rpos_tgt.z(), rpos_tgt.y()));
 	sigmas.push_back(tgt_sigma);
+	}
 
 	std::vector<long double> &&results = LeastSquareMethod(fit_samples, sigmas);//return chi2, a, b
 	chi2 = results[0];
