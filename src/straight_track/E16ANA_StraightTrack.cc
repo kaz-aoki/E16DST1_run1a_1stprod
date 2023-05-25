@@ -42,7 +42,7 @@ void E16ANA_StraightTrackFitX::Fit(){//FOR X STRIP
 		sigmas.push_back(h->sigma);
 	}
 //fill tgt information 
-		if(gpos_tgt.z() != kInvalidValue){
+	if(gpos_tgt.z() != kInvalidValue){
 		G4ThreeVector rpos_tgt = G4ThreeVector(gpos_tgt.rotateY(rphi));	
 		fit_samples.push_back(TVector2(rpos_tgt.z(), rpos_tgt.x()));
 		sigmas.push_back(tgt_sigma);

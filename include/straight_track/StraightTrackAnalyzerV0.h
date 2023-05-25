@@ -150,7 +150,7 @@ public:
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZSelectedTrack(){return xz_trk_selected;};
     std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> &GetCrossPoints(){return cross_points;}
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &GetXZTracksEveSel(){return xz_trks_evesel;}
-	bool IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> x, std::shared_ptr<E16ANA_YTrackCandidate> y);
+	virtual bool IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> x, std::shared_ptr<E16ANA_YTrackCandidate> y){};
 
 protected:
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trk_cands;
@@ -190,22 +190,12 @@ protected:
 };
 
 
-class StraightTrackAnalyzerOfWire : public StraightTrackAnalyzerV0 {
-public :
-    StraightTrackAnalyzerOfWire();
-    ~StraightTrackAnalyzerOfWire();
-    void FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2);
-    std::vector<long double> CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *ssd_hit,
-                      E16ANA_GTRAnalyzedStripHit *gtr_xhits0,
-                      E16ANA_GTRAnalyzedStripHit *gtr_xhits1,
-                      E16ANA_GTRAnalyzedStripHit *gtr_xhits2,
-                      E16ANA_GeometryV2 *geom_v2, 
-                      double phi,
-                      int kawama_module,
-                      int except);
-    
-private :
-};
+//class StraightTrackAnalyzerOfWire : public StraightTrackAnalyzerV0 {
+//public :
+//    StraightTrackAnalyzerOfWire();
+//    ~StraightTrackAnalyzerOfWire();
+//private :
+//};
 
 class StraightTrackAnalyzerOfTargets : public StraightTrackAnalyzerV0 {
 public :
@@ -225,7 +215,8 @@ public :
 					 	std::vector<E16DST_DST1GTRCluster*> &gtr_hits2,
                         int mid,
                         E16ANA_GeometryV2 *geom_v2
-	);
+	); 
+	bool IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> x, std::shared_ptr<E16ANA_YTrackCandidate> y);
 //	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
 //						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
 //                           int mid,
@@ -280,6 +271,21 @@ public :
 //    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
 
     void Make2DCrossPoint(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands,  E16ANA_GeometryV2 *geom);
+
+	bool IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> x, std::shared_ptr<E16ANA_YTrackCandidate> y);
+
+    void FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2);
+    std::vector<long double> CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *ssd_hit,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits0,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits1,
+                      E16ANA_GTRAnalyzedStripHit *gtr_xhits2,
+                      E16ANA_GeometryV2 *geom_v2, 
+                      double phi,
+                      int kawama_module,
+                      int except);
+    
+
+
 
 private : 
 //    int n_tgt;

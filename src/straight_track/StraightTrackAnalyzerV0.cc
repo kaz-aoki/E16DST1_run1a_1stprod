@@ -29,10 +29,6 @@ StraightTrackAnalyzerOfTargets::StraightTrackAnalyzerOfTargets(int _n_tgt, doubl
 }
 StraightTrackAnalyzerOfTargets::~StraightTrackAnalyzerOfTargets(){
 }
-StraightTrackAnalyzerOfWire::StraightTrackAnalyzerOfWire(){
-}
-StraightTrackAnalyzerOfWire::~StraightTrackAnalyzerOfWire(){
-}
 StraightTrackAnalyzerOfWireV1::StraightTrackAnalyzerOfWireV1(int _n_tgt, int pm,  double x1, double z1, double x2, double z2){
     n_tgt = _n_tgt;
     pm_wire = pm;
@@ -359,7 +355,11 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_D
 							double dis1 = (rot_w1.Y()*fitter_x->FitB()-(rot_w1.X()) + fitter_x->FitA())/sqrt(1+fitter_x->FitB()*fitter_x->FitB());
 							double dis2 = (rot_w2.Y()*fitter_x->FitB()-(rot_w2.X()) + fitter_x->FitA())/sqrt(1+fitter_x->FitB()*fitter_x->FitB());
 							trk->SetDistance(dis1);
-							if(fabs(dis2)< fabs(dis1)) trk->SetDistance(dis2);
+							trk->SetWhichTgt(0);
+							if(fabs(dis2)< fabs(dis1)) {
+								trk->SetDistance(dis2);
+								trk->SetWhichTgt(1);
+							}
 	                    	trk->SetXHit100(gtr_xhits0[i]);
 	        	            trk->SetXHit200(gtr_xhits1[j]);
 	    	        	    trk->SetXHit300(gtr_xhits2[k]);
@@ -580,7 +580,7 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_D
 
 
 
-void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerOfWireV1::FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2){
     std::vector<int> v_s,v_0,v_1,v_2;
     v_s.clear();
     v_0.clear();
@@ -676,7 +676,7 @@ void StraightTrackAnalyzerOfWire::FittingAfterTrackChoice(std::vector<std::share
     }
 }
 
-std::vector<long double> StraightTrackAnalyzerOfWire::CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *hs, E16ANA_GTRAnalyzedStripHit *h0, E16ANA_GTRAnalyzedStripHit *h1, E16ANA_GTRAnalyzedStripHit *h2, E16ANA_GeometryV2 *geom_v2, double phi, int kawama_module, int except){
+std::vector<long double> StraightTrackAnalyzerOfWireV1::CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *hs, E16ANA_GTRAnalyzedStripHit *h0, E16ANA_GTRAnalyzedStripHit *h1, E16ANA_GTRAnalyzedStripHit *h2, E16ANA_GeometryV2 *geom_v2, double phi, int kawama_module, int except){
 //    if(except < 0 || except > 3){
 //        std::cout << " except value is invalid !" << std::endl;
 //    }
@@ -1406,11 +1406,13 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
 					double dis1 = (rot_w1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//upstream
 					double dis2 = (rot_w2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//downstream
 					trk->SetDistanceUpstreamWire(dis1);	
+					trk->SetWhichTgt(0);
 //					trk->SetTgtPos(wire_z1);
-//					if(fabs(dis2)<fabs(dis1) ){
+					if(fabs(dis2)<fabs(dis1) ){
 						trk->SetDistanceDownstreamWire(dis2);
+						trk->SetWhichTgt(1);
 //						trk->SetTgtPos(wire_z2);
-//					}
+					}
 //					trk->SetTgtPos(v_results[1]);
 //                    std::cout << "v_results = " << v_results[1] << std::endl;
 					double a = v_results[1];
@@ -1794,10 +1796,49 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
 //
 
 
-bool StraightTrackAnalyzerV0::IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> xtrk, std::shared_ptr<E16ANA_YTrackCandidate> ytrk){
+bool StraightTrackAnalyzerOfTargets::IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> xtrk, std::shared_ptr<E16ANA_YTrackCandidate> ytrk){
 	bool flag = 0;
 //	std::cout << "which tgt y " << ytrk->WhichTgt() << std::endl;
 //	if(xtrk->WhichTgt() != ytrk->WhichTgt()) return 0;//target match //only effective in wire run
+	double timing_x0 = xtrk->GetXCluster100()->Timing();
+    double timing_x1 = xtrk->GetXCluster200()->Timing();
+    double timing_x2 = xtrk->GetXCluster300()->Timing();
+    double timing_y0 = ytrk->GetYCluster100()->Timing();
+    double timing_y1 = ytrk->GetYCluster200()->Timing();
+    double timing_y2 = ytrk->GetYCluster300()->Timing();
+    double clc_x0 = xtrk->GetXCluster100()->PeakSum();
+    double clc_x1 = xtrk->GetXCluster200()->PeakSum();
+    double clc_x2 = xtrk->GetXCluster300()->PeakSum();
+    double clc_y0 = ytrk->GetYCluster100()->PeakSum();
+    double clc_y1 = ytrk->GetYCluster200()->PeakSum();
+    double clc_y2 = ytrk->GetYCluster300()->PeakSum();
+	if(fabs(timing_x0 - timing_y0 - timing_offset0) < timing_window_100){
+//	std::cout << "timing 100   ok" << std::endl;
+//		std::cout  << fabs(timing_x1 - timing_y1 - timing_offset1)  << std::endl;
+		if(fabs(timing_x1 - timing_y1 - timing_offset1) < timing_window_200){
+//	std::cout << "timing 200   ok" << std::endl;
+			if(fabs(timing_x2 - timing_y2 - timing_offset2) < timing_window_300){
+//	std::cout << "timing 300   ok" << std::endl;
+				if(fabs(clc_x0 - clc_y0 - clc_offset0) < clc_window_100){
+//	std::cout << "clc 100   ok" << std::endl;
+
+					if(fabs(clc_x1 - clc_y1 - clc_offset1) < clc_window_200){
+//	std::cout << "clc 200   ok" << std::endl;
+						if(fabs(clc_x2 - clc_y2 - clc_offset2) < clc_window_300){
+//	std::cout << "clc 300   ok" << std::endl;
+							flag = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return flag;	
+}
+
+bool StraightTrackAnalyzerOfWireV1::IsMatchedXandYTrack(std::shared_ptr<E16ANA_XZTrackCandidate> xtrk, std::shared_ptr<E16ANA_YTrackCandidate> ytrk){
+	bool flag = 0;
+	if(xtrk->WhichTgt() != ytrk->WhichTgt()) return 0;//target match //only effective in wire run
 	double timing_x0 = xtrk->GetXCluster100()->Timing();
     double timing_x1 = xtrk->GetXCluster200()->Timing();
     double timing_x2 = xtrk->GetXCluster300()->Timing();
