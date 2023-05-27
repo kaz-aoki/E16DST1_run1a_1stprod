@@ -9,6 +9,7 @@ GTRCheckHist::GTRCheckHist(){
   }
     for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
+            h_hit_timing_x[m-100][l] = new TH1D(Form("hit_timing_x%d_%d",m, l), Form("hit_timing_x%d_%d",m, l),100, -50, 800);
             h_cl_ncluster_x[m-100][l] = new TH1D(Form("cl_ncluster_x%d_%d",m, l), Form("cl_ncluster_x%d_%d",m, l),200, -0.5 ,199.5);
             h_cl_ncluster_y[m-100][l] = new TH1D(Form("cl_ncluster_y%d_%d",m, l), Form("cl_ncluster_y%d_%d",m, l),200, -0.5,199.5);
             h_cl_ncluster_yb[m-100][l] = new TH1D(Form("cl_ncluster_yb%d_%d",m, l), Form("cl_ncluster_yb%d_%d",m, l),200, -0.5, 199.5);
@@ -69,6 +70,7 @@ for(int m=100; m < 110; m++){
 }
 
 void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1){
+	std::vector<E16DST_DST1GTRHit>     &hits     = gtr1->Hits();
 	std::vector<E16DST_DST1GTRCluster> &clusters = gtr1->Clusters();
 	
 	int nclusterx[10][3] = {0};	
@@ -77,6 +79,14 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 	int nclusterx_modall[3] = {0};	
 	int nclustery_modall[3] = {0};	
 	int nclusteryb_modall[3] = {0};	
+
+	for(int i=0; i < hits.size(); i++){
+		E16DST_DST1GTRHit &h = hits[i];
+		if(h.Type() == 0){
+			h_hit_timing_x[h.ModuleId() -100 ][h.LayerId()]->Fill(h.Timing());
+		}
+	}
+	
 
     for(int i=0; i < clusters.size(); i++){
         E16DST_DST1GTRCluster &cl = clusters[i];
@@ -95,6 +105,7 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
             h_cl_max_peak_ch_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.MaxPeakCh());
             h_cl_tdcpos_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TdcPos());
             h_cl_tan_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TanTheta());
+			
 		}
         else if(cl.Type() == 1){
 	  nclustery[cl.ModuleId()-100][cl.LayerId()]++;

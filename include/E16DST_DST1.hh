@@ -237,7 +237,9 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
       : layer_id(E16DST_DST1Constant::kInvalidValue),
         type(E16DST_DST1Constant::kInvalidValue),
         peak_height(E16DST_DST1Constant::kInvalidValue),
-        tot(E16DST_DST1Constant::kInvalidValue) {}
+        tot(E16DST_DST1Constant::kInvalidValue) {
+		wave_form.resize(E16DST_DST1Constant::n_gtr_samples);		
+	}
   ~E16DST_DST1GTRHit() {}
   void SetInvalid() override {
     SetBaseInvalid();
@@ -272,6 +274,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   void             SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
   void             SetCTiming(float t) { ctiming.push_back(t); }
   void             SetCPos(float t)    { cpos.push_back(t); }
+  void             SetWaveForm(std::vector<float> t) {wave_form = t;}
   float            Timing2() { return timing2; }
   float            TdcPos() { return tdchit; }
   float            TdcPos2() { return tdchit2; }
@@ -280,6 +283,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   int              NumCls() { return ctiming.size(); }
   float            CTiming(int i) { return ctiming[i]; }
   float            CPos(int i)    { return cpos[i]; }
+  std::vector<float> &WaveForm() {return wave_form;}
  private:
   int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
@@ -294,6 +298,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   float   tanthe2;//angle method2
   std::vector<float>           ctiming; //cluster timing
   std::vector<float>           cpos; 
+  std::vector<float> wave_form;
  };
 
 class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
@@ -354,14 +359,16 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 
   double LocalX() {
     if (IsX()) {
-      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return center_of_gravity;
     } else {
       return center_of_gravity;
     }
   }
   double LocalXT() {
     if (IsX()) {
-      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return tdchit;
     } else {
       return tdchit;
     }
@@ -970,7 +977,9 @@ public:
 //        initial_pos_at_wire_yz(E16DST_DST1Constant::kInvalidVector),
 //        initial_mom(E16DST_DST1Constant::kInvalidVector),
 //        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue})
-         {}
+         {
+	SetInvalid();
+}
   ~E16DST_DST1StraightTrack3D() {}
   void Clear(){
 //    wire_x                 = E16DST_DST1Constant::kInvalidValue;
@@ -981,10 +990,15 @@ public:
 //    lg_indexes.clear();
     }
 //
+   void SetInvalid(){
+		xclusterssd = nullptr;	
+	}
    void SetEventID(int e){ event_id = e;}
    int16_t EventID(){return event_id;}
    void SetModuleID(int m){ module_id = m;}
    int16_t ModuleID(){return module_id;}
+   void SetTrackID(int16_t id){trk_id = id;}
+   int16_t TrackID(){return trk_id;}
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
    int16_t XTrackID(){return xtrk_id;}
@@ -1092,6 +1106,7 @@ public:
 private:
    int16_t event_id;
    int module_id;
+   int16_t trk_id;
    int16_t xtrk_id;
    int16_t ytrk_id;
    int16_t ssdxhit_id; 

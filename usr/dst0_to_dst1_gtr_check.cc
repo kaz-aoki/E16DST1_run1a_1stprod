@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
 	record->GTR().UpdatePtrs();
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
-      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.size() << std::endl;
+//      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.size() << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
 //      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
 //      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   event1->LGHits(),  event1->LGClusters());
@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
   TCanvas *c1 = new TCanvas("c1", "c1", 1024, 768);
   TString pdf_name;
 //  pdf_name.Form("/ccj/w/data06a/E16/user/nakasuga/output/gtr/dst1check/pdf/gtrtest%06d.pdf",run_id);
-  pdf_name.Form("gtrtest.pdf");
+  pdf_name.Form("c_gtr_check_run%d.pdf", run_id);
   c1->SaveAs(pdf_name + "[", "pdf");
 
 
@@ -314,6 +314,21 @@ int main(int argc, char* argv[]) {
     c_cl_charge_yb[m-102]->SaveAs(pdf_name, "pdf");
   }
   
+  TCanvas *c_hit_timing_x[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_hit_timing_x[m-102] = new TCanvas(Form("ctx%d", m-102) , Form("ctx%d", m-102), 1024, 768);
+    c_hit_timing_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_timing_x[m-102]->cd(l+1);
+        gtrhist->h_hit_timing_x[m-100][l]->Draw();
+    }
+    c_hit_timing_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+ 
+
+
   TCanvas *c_cl_timing_x[10]; 
   //= new TCanvas("cl timing ", 100,0,100);
   for(int m=102; m < 109 ; m++){

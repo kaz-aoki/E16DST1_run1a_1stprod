@@ -45,7 +45,7 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    // gem_t0_min = 100.0;
    // gem_t0_max = 450.0;
    gem_tr = 75.0;
-   threshold_fraction = 0.5;\
+   threshold_fraction = 0.5;
    cluster_minimum_gap = 2;
    cluster_delta_tdc = 10000.0;
    rise_time_min = -10000.0;
