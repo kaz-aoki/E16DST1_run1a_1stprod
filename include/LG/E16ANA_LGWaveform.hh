@@ -81,7 +81,7 @@ public:
   //other
   double celltons(double _cell){return _cell/E16ANA_LGConstant::kTimeScale;}
   double nstocell(double _ns){return _ns*E16ANA_LGConstant::kTimeScale;}
-
+  static void RemoveSpike(double* dat); // for waveform w/o wftype-correction
 
   //old method
   void Peak(double* dat, double* peak, int* peakx, double* timing);

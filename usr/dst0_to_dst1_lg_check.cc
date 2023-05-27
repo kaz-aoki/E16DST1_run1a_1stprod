@@ -49,7 +49,8 @@ int main(int argc, char* argv[]) {
   bool sl, sr, im3, spikeflag, dst1flag, trg, trgwtrk;
   double gpos[3];
   double lpos[3];
-  double waveform[200];
+  // double waveform_raw[E16DST_Constant::NSamplesLG];
+  double waveform[E16DST_Constant::NSamplesLG];
 
   tree->Branch("Run",&run,"Run/I");
   tree->Branch("Event",&event,"Event/I");
@@ -75,7 +76,8 @@ int main(int argc, char* argv[]) {
   tree->Branch("Gpos",gpos,"Gpos[3]/D");
   tree->Branch("Lpos",lpos,"Lpos[3]/D");
 #ifdef WF_ON
-  tree->Branch("Waveform",waveform,"Waveform[200]/D");
+  // tree->Branch("Waveform_raw",waveform_raw,Form("Waveform_raw[%d]/D",E16DST_Constant::NSamplesLG));
+  tree->Branch("Waveform",waveform,Form("Waveform[%d]/D",E16DST_Constant::NSamplesLG));
 #endif
   tree->Branch("TrgTiming",&trg_lg_hit_t,"TrgTiming/F");
   tree->Branch("Trg",&trg,"Trg/O");
@@ -258,17 +260,20 @@ int main(int argc, char* argv[]) {
 	double t0 = lgbasic.GetT0(module,block);
 	int status = lgdead.Status(module,block);
 
-	double wf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+	// double wf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
 	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
 	  int ph = hit0.Waveform()[cell];
-	  wf[cell] = ph*wftype;
-	  if(cell>=0&&cell<200){
-	    waveform[cell] = ph*wftype;
-	  }
+	  // wf[cell] = ph*wftype;
+	  // waveform_raw[cell] = ph*wftype;
+	  waveform[cell] = ph;
+	}
+	E16ANA_LGWaveform::RemoveSpike(waveform);
+	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+	  waveform[cell] = waveform[cell]*wftype;
 	}
 
 	E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
-	lgwf->SimpleMethod(wf); // 700 event/sec @1e10
+	lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
 
 	timing = lgwf->GetTiming();
 	peakheight = lgwf->GetPeak();

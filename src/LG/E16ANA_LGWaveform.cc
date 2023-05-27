@@ -1270,6 +1270,38 @@ int E16ANA_LGWaveform::PeakSearch(double* dat, double t0, double* mwf, double* p
 
 }
 
+void E16ANA_LGWaveform::RemoveSpike(double* dat){
+
+  //spike search
+  std::vector<int> spike_end;
+  std::vector<double> adc;
+  for( int cell=5; cell<E16DST_Constant::NSamplesLG; cell++){
+    adc.push_back(dat[cell]);
+    if(adc.size()>5){
+      adc.erase(adc.begin());
+    }
+    if(adc.size()==5){
+      int val[4];
+      for(int j=0;j<4;j++){
+	val[j] = adc.at(j+1) - adc.at(j);
+      }
+      if(val[0]>=14&&val[0]<=22&&val[1]>=14&&val[1]<=22&&val[2]>=14&&val[2]<=22&&val[3]>=-60&&val[3]<=-45){
+	spike_end.push_back(cell);
+      }
+    }
+  }
+
+  //modify waveform
+  for( int isp=0; isp<spike_end.size(); isp++){
+    double fval = dat[spike_end[isp]];
+    double ival = dat[spike_end[isp]-4];
+    double diff = (fval-ival)/4.;
+    dat[spike_end[isp]-3] = ival+1*diff;
+    dat[spike_end[isp]-2] = ival+2*diff;
+    dat[spike_end[isp]-1] = ival+3*diff;
+  }
+
+}
 
 // void E16ANA_LGWaveform::AllFit(){
 
