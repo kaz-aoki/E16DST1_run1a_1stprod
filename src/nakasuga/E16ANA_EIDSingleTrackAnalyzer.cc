@@ -208,6 +208,9 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
    Int_t           out_run_id;
    Int_t           out_event_id;
    Int_t           out_spill_id;
+   Int_t out_lg_event_multiplicity;
+   Int_t out_trg_event_multiplicity; // +/- 30 ns around 0 in trg_t
+   double out_single_ratio;
    Int_t out_n_tracks;
    vector<int> out_track_id;
    vector<double> out_chi_square;
@@ -315,6 +318,9 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
    tree->Branch("run_id",&out_run_id,"run_id/I");
    tree->Branch("event_id",&out_event_id,"event_id/I");
    tree->Branch("spill_id",&out_spill_id,"spill_id/I");
+   tree->Branch("lg_event_multiplicity",&out_lg_event_multiplicity,"lg_event_multiplicity/I");
+   tree->Branch("trg_event_multiplicity",&out_trg_event_multiplicity,"trg_event_multiplicity/I");
+   tree->Branch("single_ratio",&out_single_ratio,"single_ratio/D");
    tree->Branch("n_tracks",&out_n_tracks,"n_tracks/I");
    tree->Branch("track_id", &out_track_id);
    tree->Branch("chi_square", &out_chi_square);
@@ -1100,6 +1106,23 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
 	out_run_id = run_id;
 	out_event_id = event_id;
 	out_spill_id = spill_id;
+	int nlgev = 0;
+	for(int i=0;i<n_lg_hits;i++){
+	  if( lg_hit_fflag->at(i)==2 ) continue;
+	  nlgev++;
+	}
+	out_lg_event_multiplicity = nlgev;
+	int ntrgev = 0;
+	TH1F* htrgev = new TH1F("htrgev","htrgev",20,-50,50);
+	for(int i=0;i<n_trg_lg_hits;i++){
+	  if( trg_lg_hit_t->at(i)<-30 || trg_lg_hit_t->at(i)>30 ) continue;
+	  ntrgev++;
+	  htrgev->Fill(trg_lg_hit_t->at(i));
+	}
+	out_trg_event_multiplicity = ntrgev;
+	int maxbin = htrgev->GetMaximumBin();
+	out_single_ratio = ( htrgev->GetBinContent(maxbin-1) + htrgev->GetBinContent(maxbin) + htrgev->GetBinContent(maxbin+1) ) / ((double)htrgev->Integral());
+	delete htrgev;
 
 	tree->Fill();
       }

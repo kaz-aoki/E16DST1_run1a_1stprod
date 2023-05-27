@@ -28,13 +28,29 @@ private :
 
   double mvtoe = 0.005;
 
+  struct hitset{
+    int id;
+    int mid;
+    int cid;
+    double x;
+    double y;
+    double z;
+    double gx;
+    double gy;
+    double gz;
+    float adc;
+    float t;
+  };
+
+
 public :
 
   E16ANA_Massw2Gamma(TTree *tree=0);
   virtual ~E16ANA_Massw2Gamma();
   virtual void     MakeHist(int runoption, int maxevent, char* out_file_name);
   virtual bool     InvalidLGhit(Long64_t entry, int ilg);
-  // virtual bool     InvalidLGPair(Long64_t entry, int ilg1, int ilg2);
+  virtual void     SetHit(Long64_t entry, int ilg, hitset &hit);
+  virtual bool     InvalidLGPair(E16ANA_GeometryV2& geometry, Long64_t entry, hitset &hit0, hitset &hit1);
 
 };
 
@@ -59,11 +75,26 @@ bool E16ANA_Massw2Gamma::InvalidLGhit(Long64_t entry, int ilg)
   else{return false;}
 }
 
-// bool E16ANA_Massw2Gamma::InvalidLGPair(Long64_t entry, int ilg1, int ilg2)
-// {
-//   if( fabs( lg_hit_t->at(ilg1) - lg_hit_t->at(ilg2) ) > 4. ){return true;}
-//   else if( lg_hit_mid->at(ilg1)==lg_hit_mid->at(ilg2) && IsNeighborBlock(lg_hit_cid->at(ilg1),lg_hit_cid->at(ilg2)) ){return true;}
-//   else{return false;}
-// }
+void E16ANA_Massw2Gamma::SetHit(Long64_t entry, int ilg, hitset &hit)
+{
+  hit.id = lg_hit_id->at(ilg);
+  hit.mid = lg_hit_mid->at(ilg);
+  hit.cid = lg_hit_cid->at(ilg);
+  hit.x = lg_hit_x->at(ilg);
+  hit.y = lg_hit_y->at(ilg);
+  hit.z = lg_hit_z->at(ilg);
+  hit.gx = lg_hit_gx->at(ilg);
+  hit.gy = lg_hit_gy->at(ilg);
+  hit.gz = lg_hit_gz->at(ilg);
+  hit.adc = lg_hit_adc->at(ilg);
+  hit.t = lg_hit_t->at(ilg);
+}
+
+bool E16ANA_Massw2Gamma::InvalidLGPair(E16ANA_GeometryV2& geometry, Long64_t entry, hitset &hit0, hitset &hit1)
+{
+  if( fabs( hit0.t - hit1.t ) > 4. ){return true;}
+  else if( hit0.mid==hit1.mid && IsNeighborBlock(geometry, hit0.cid, hit1.cid) ){return true;}
+  else{return false;}
+}
 
 #endif // #ifdef E16ANA_Massw2Gamma_cxx
