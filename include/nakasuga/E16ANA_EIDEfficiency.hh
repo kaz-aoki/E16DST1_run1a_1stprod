@@ -282,6 +282,9 @@ public :
    Int_t           run_id;
    Int_t           event_id;
    Int_t           spill_id;
+   Int_t           lg_event_multiplicity;
+   Int_t           trg_event_multiplicity;
+   Double_t        single_ratio;
    Int_t           n_tracks;
    vector<int>     *track_id;
    vector<double>  *chi_square;
@@ -397,6 +400,9 @@ public :
    TBranch        *b_run_id;   //!
    TBranch        *b_event_id;   //!
    TBranch        *b_spill_id;   //!
+   TBranch        *b_lg_event_multiplicity;   //!
+   TBranch        *b_trg_event_multiplicity;   //!
+   TBranch        *b_single_ratio;   //!
    TBranch        *b_n_tracks;   //!
    TBranch        *b_track_id;   //!
    TBranch        *b_chi_square;   //!
@@ -695,6 +701,9 @@ void E16ANA_EIDEfficiency::Init(TTree *tree)
    fChain->SetBranchAddress("run_id", &run_id, &b_run_id);
    fChain->SetBranchAddress("event_id", &event_id, &b_event_id);
    fChain->SetBranchAddress("spill_id", &spill_id, &b_spill_id);
+   fChain->SetBranchAddress("lg_event_multiplicity", &lg_event_multiplicity, &b_lg_event_multiplicity);
+   fChain->SetBranchAddress("trg_event_multiplicity", &trg_event_multiplicity, &b_trg_event_multiplicity);
+   fChain->SetBranchAddress("single_ratio", &single_ratio, &b_single_ratio);
    fChain->SetBranchAddress("n_tracks", &n_tracks, &b_n_tracks);
    fChain->SetBranchAddress("track_id", &track_id, &b_track_id);
    fChain->SetBranchAddress("chi_square", &chi_square, &b_chi_square);

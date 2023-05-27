@@ -958,6 +958,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      hcogxcd_hmix[i] = new TH1F(Form("hcogxcd_hmix%d",i),Form("COGx_residual_TrackAssoc_inCluster_Mix_mod%d_hmix",103+i),100,-150,150);
      hcogycd_hmix[i] = new TH1F(Form("hcogycd_hmix%d",i),Form("COGy_residual_TrackAssoc_inCluster_Mix_mod%d_hmix",103+i),100,-150,150);
    }
+   TH1F* hlgmulti = new TH1F("hlgmulti","lg_event_multiplicity",100,0,100);
+   TH1F* htrgmulti = new TH1F("htrgmulti","lg_trg_event_multiplicity",100,0,100);
+   TH1F* hsingle = new TH1F("hsingle","single_ratio",60,0,1.2);
+
 
    //for mixing
    std::vector<std::vector<hitset>> hbdmixhits[5][ntrktype];
@@ -987,6 +991,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      std::vector<trackset> tracksets[ntrktype];//kill dup
      std::vector<trackset> tracksets_hmix;//kill dup
 
+     int ntrk_acc = 0;
      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
        if (TrackSelection(ientry,itrack,runoption) < 0) continue;
@@ -1846,7 +1851,15 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        }
        //trktype_hmix
 
+       ntrk_acc++;
+
      }//track loop
+
+     if(ntrk_acc>0){
+       hlgmulti->Fill(lg_event_multiplicity);
+       htrgmulti->Fill(trg_event_multiplicity);
+       hsingle->Fill(single_ratio);
+     }
 
      for(int it=0;it<ntrktype;it++){
        for(int im=0;im<5;im++){
@@ -2514,32 +2527,32 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 
      leff2[i]->Draw();
    }
-   // if(hbdclthr==1){
-   //   std::ofstream psum("purity_wocsa.txt",ios::app);
-   //   psum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
-   //   }
-   //   psum<<std::endl;
-   //   std::ofstream esum("lgeff_wocsa.txt",ios::app);
-   //   esum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
-   //   }
-   //   esum<<std::endl;
-   //   std::ofstream pbsum("purity_wohbd_wocsa.txt",ios::app);
-   //   pbsum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     pbsum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1][1]*(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][0]<<" ";
-   //   }
-   //   pbsum<<std::endl;
-   //   std::ofstream hesum("hbdeff_wocsa.txt",ios::app);
-   //   hesum<<hbdthr<<" ";
-   //   for(int i=0;i<4;i++){
-   //     hesum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][1][0]<<" ";
-   //   }
-   //   hesum<<std::endl;
-   // }
+   if(hbdclthr==1){
+     std::ofstream psum("purity_wocsa.txt",ios::app);
+     psum<<hbdthr<<" ";
+     for(int i=0;i<4;i++){
+       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
+     }
+     psum<<std::endl;
+     // std::ofstream esum("lgeff_wocsa.txt",ios::app);
+     // esum<<hbdthr<<" ";
+     // for(int i=0;i<4;i++){
+     //   esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
+     // }
+     // esum<<std::endl;
+     std::ofstream pbsum("purity_wohbd_wocsa.txt",ios::app);
+     pbsum<<hbdthr<<" ";
+     for(int i=0;i<4;i++){
+       pbsum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1][1]*(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][0]<<" ";
+     }
+     pbsum<<std::endl;
+     // std::ofstream hesum("hbdeff_wocsa.txt",ios::app);
+     // hesum<<hbdthr<<" ";
+     // for(int i=0;i<4;i++){
+     //   hesum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][1][0]<<" ";
+     // }
+     // hesum<<std::endl;
+   }
    // if(hbdclthr==2){
    //   std::ofstream psum("purity_wcsa.txt",ios::app);
    //   psum<<hbdthr<<" ";
