@@ -127,6 +127,8 @@ int main(int argc, char* argv[]) {
 //    return -1;
 //   }
 
+  std::ofstream tableout("./table.txt");
+
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -292,6 +294,34 @@ int main(int argc, char* argv[]) {
 
 	delete lgwf;
 
+	TVector3 tlpos(0.,0.,0.);
+	if(block>=0&&block<10){
+	  tlpos.SetY(-143.1);
+	  tlpos.SetZ(32.0);
+	}
+	else if(block>=10&&block<20){
+	  tlpos.SetY(-135.0);
+	  tlpos.SetZ(43.9);
+	}
+	else if(block>=20&&block<30){
+	  tlpos.SetY(-142.3);
+	  tlpos.SetZ(53.5);
+	}
+	else if(block>=30&&block<40){
+	  tlpos.SetY(142.3);
+	  tlpos.SetZ(53.5);
+	}
+	else if(block>=40&&block<50){
+	  tlpos.SetY(135.0);
+	  tlpos.SetZ(43.9);
+	}
+	else if(block>=50&&block<60){
+	  tlpos.SetY(143.1);
+	  tlpos.SetZ(32.0);
+	}
+	int valmod = E16DST_DST1Constant::kModuleId2020To2013[module/100][module%100+1];
+	TVector3 tgpos = geometry->LG(valmod,block)->GetGPos(tlpos);
+	tableout<<module<<" "<<block<<" "<<tgpos.X()<<" "<<tgpos.Y()<<" "<<tgpos.Z()<<std::endl;
       }
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
