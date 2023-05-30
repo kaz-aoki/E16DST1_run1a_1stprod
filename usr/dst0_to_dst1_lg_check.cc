@@ -22,7 +22,7 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-#define WF_ON
+// #define WF_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
@@ -87,17 +87,16 @@ int main(int argc, char* argv[]) {
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
   E16ANA_TriggerCalibParam trigger_param;
-  // trigger_param.ReadConstantData(calib.CurrentRunID());
-  // bool TrigIsAWmax = trigger_param.IsMaximumWidth();
-  // int TrigAWmax = trigger_param.MaximumWidth();
-  // int TrigAWmin = trigger_param.MinimumWidth();
-  // int TrigTW = trigger_param.TimeWidth();
-  // if(!TrigIsAWmax){TrigAWmax=10000;}
-  bool TrigIsAWmax = false;
-  int TrigAWmax = -10000;
-  int TrigAWmin = -10000;
-  int TrigTW = -10000;
-
+  trigger_param.ReadConstantData(calib.CurrentRunID());
+  bool TrigIsAWmax = trigger_param.IsMaximumWidth();
+  int TrigAWmax = trigger_param.MaximumWidth();
+  int TrigAWmin = trigger_param.MinimumWidth();
+  int TrigTW = trigger_param.TimeWidth();
+  if(!TrigIsAWmax){TrigAWmax=10000;}
+  // bool TrigIsAWmax = false;
+  // int TrigAWmax = -10000;
+  // int TrigAWmin = -10000;
+  // int TrigTW = -10000;
 
   E16ANA_GTRcalibPedestal gtrped;
   gtrped.ReadCalibData( calib.CurrentRunID() );
@@ -126,8 +125,6 @@ int main(int argc, char* argv[]) {
 //    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
 //    return -1;
 //   }
-
-  std::ofstream tableout("./table.txt");
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -289,39 +286,12 @@ int main(int argc, char* argv[]) {
 	dst1flag = dst1hitflag[module-100][block];
 	trg = dst1trghitflag[module-100][block];
 	trgwtrk = dst1trgtrkhitflag[module-100][block];
+	trg_lg_hit_t = dst1trghitt[module-100][block];
 
 	tree->Fill();
 
 	delete lgwf;
 
-	TVector3 tlpos(0.,0.,0.);
-	if(block>=0&&block<10){
-	  tlpos.SetY(-143.1);
-	  tlpos.SetZ(32.0);
-	}
-	else if(block>=10&&block<20){
-	  tlpos.SetY(-135.0);
-	  tlpos.SetZ(43.9);
-	}
-	else if(block>=20&&block<30){
-	  tlpos.SetY(-142.3);
-	  tlpos.SetZ(53.5);
-	}
-	else if(block>=30&&block<40){
-	  tlpos.SetY(142.3);
-	  tlpos.SetZ(53.5);
-	}
-	else if(block>=40&&block<50){
-	  tlpos.SetY(135.0);
-	  tlpos.SetZ(43.9);
-	}
-	else if(block>=50&&block<60){
-	  tlpos.SetY(143.1);
-	  tlpos.SetZ(32.0);
-	}
-	int valmod = E16DST_DST1Constant::kModuleId2020To2013[module/100][module%100+1];
-	TVector3 tgpos = geometry->LG(valmod,block)->GetGPos(tlpos);
-	tableout<<module<<" "<<block<<" "<<tgpos.X()<<" "<<tgpos.Y()<<" "<<tgpos.Z()<<std::endl;
       }
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
