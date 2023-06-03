@@ -248,13 +248,17 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot         = E16DST_DST1Constant::kInvalidValue;
     local_x     = E16DST_DST1Constant::kInvalidValue;
-    ctiming.clear();
-    cpos.clear();
+    tot_ed      = E16DST_DST1Constant::kInvalidValue;
+    tot_st      = E16DST_DST1Constant::kInvalidValue;
+    peakt       = E16DST_DST1Constant::kInvalidValue;
+//    ctiming.clear();
+ //   cpos.clear();
   }
 
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
+  void SetPeakt(float _pt){peakt = _pt;;}
   void SetTot(float _tot) { tot = _tot; }
   void SetLocalX(double _local_x) { local_x = _local_x; }
   int16_t LayerId() override { return layer_id; }
@@ -267,22 +271,56 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   double LocalX() { return local_x; }
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
-  void             SetTiming2(float _timing) { timing2 = _timing; }
+//  void             SetTiming2(float _timing) { timing2 = _timing; }
   void             SetTdcPos(float _tdchit) { tdchit = _tdchit; }
   void             SetTanTheta(float _tanthe) { tanthe = _tanthe; }
   void             SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
   void             SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
-  void             SetCTiming(float t) { ctiming.push_back(t); }
-  void             SetCPos(float t)    { cpos.push_back(t); }
+//  void             SetCTiming(float t) { ctiming.push_back(t); }
+//  void             SetCTiming2(float t) { ctiming2.push_back(t); }
+//  void             SetCTiming3(float t) { ctiming3.push_back(t); }
+//  void             SetCTiming4(float t) { ctiming4.push_back(t); }
+//  void             SetCTiming5(float t) { ctiming5.push_back(t); }
+//  void             SetCPos(float t)    { cpos.push_back(t); }
+//  void             SetCPos2(float t)    { cpos2.push_back(t); }
+//  void             SetCPos3(float t)    { cpos3.push_back(t); }
+//  void             SetCPos4(float t)    { cpos4.push_back(t); }
+//  void             SetCPos5(float t)    { cpos5.push_back(t); }
   void             SetWaveForm(std::vector<float> t) {wave_form = t;}
   float            Timing2() { return timing2; }
   float            TdcPos() { return tdchit; }
   float            TdcPos2() { return tdchit2; }
   float            TanTheta() { return tanthe; }
   float            TanTheta2() { return tanthe2; }
-  int              NumCls() { return ctiming.size(); }
-  float            CTiming(int i) { return ctiming[i]; }
-  float            CPos(int i)    { return cpos[i]; }
+//  int              NumCls() { return ctiming.size(); }
+//  int              NumCls2() { return ctiming2.size(); }
+//  int              NumCls3() { return ctiming3.size(); }
+//  int              NumCls4() { return ctiming4.size(); }
+//  int              NumCls5() { return ctiming5.size(); }
+//  float            CTiming(int i) { return ctiming[i]; }
+//  float            CTiming2(int i) { return ctiming2[i]; }
+//  float            CTiming3(int i) { return ctiming3[i]; }
+//  float            CTiming4(int i) { return ctiming4[i]; }
+//  float            CTiming5(int i) { return ctiming5[i]; }
+//  float            CPos(int i)    { return cpos[i]; }
+//  float            CPos2(int i)    { return cpos2[i]; }
+//  float            CPos3(int i)    { return cpos3[i]; }
+//  float            CPos4(int i)    { return cpos4[i]; }
+//  float            CPos5(int i)    { return cpos5[i]; }
+//  float            CAdc1(int i)    { return cadc1[i]; }
+//  float            CAdc2(int i)    { return cadc2[i]; }
+//  float            CAdc3(int i)    { return cadc3[i]; }
+//  float            CAdc4(int i)    { return cadc4[i]; }
+//  float            CAdc5(int i)    { return cadc5[i]; }
+//  float            Mtot() {return mtot;}
+//  float            Riset() {return riset;}
+  void             SetTotStart(double t ){tot_st = t;}
+  void             SetTotEnd(double t ){tot_ed = t;}
+  float            TotStart() {return tot_st;}
+  float            TotEnd() {return tot_ed;}
+  float            Peakt()  {return peakt;}
+//  void             SetRiset(float t){riset = t;}
+//  void             SetMtot(float t){mtot = t;}
   std::vector<float> &WaveForm() {return wave_form;}
  private:
   int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
@@ -290,14 +328,20 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   int16_t type;
   float   peak_height;
   float   tot;
+  float   tot_st;
+  float   tot_ed;
   double  local_x;
+  float   peakt;
   float   timing2; // fastest timing
+  float   timing3; // 
+  float   timing4; // 
   float   tdchit; // timing method1
   float   tdchit2; // timing method2
   float   tanthe;//angle method1
   float   tanthe2;//angle method2
-  std::vector<float>           ctiming; //cluster timing
-  std::vector<float>           cpos; 
+//  float   riset;
+//  // float   mtot;
+  
   std::vector<float> wave_form;
  };
 
@@ -318,12 +362,29 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
     timing2         = E16DST_DST1Constant::kInvalidValue;
+    timing3         = E16DST_DST1Constant::kInvalidValue;
+    timing4         = E16DST_DST1Constant::kInvalidValue;
     tdchit          = E16DST_DST1Constant::kInvalidValue;
     tdchit2         = E16DST_DST1Constant::kInvalidValue;
     tanthe          = E16DST_DST1Constant::kInvalidValue;
     tanthe2         = E16DST_DST1Constant::kInvalidValue;
+    maxriset         = E16DST_DST1Constant::kInvalidValue;
+    maxtot         = E16DST_DST1Constant::kInvalidValue;
     ctiming.clear();
+    ctiming2.clear();
+    ctiming3.clear();
+    ctiming4.clear();
+    ctiming5.clear();
     cpos.clear();
+    cpos2.clear();
+    cpos3.clear();
+    cpos4.clear();
+    cpos5.clear();
+	cadc1.clear();
+	cadc2.clear();
+	cadc3.clear();
+	cadc4.clear();
+	cadc5.clear();
   }
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetType(int16_t _type) { type = _type; }
@@ -340,20 +401,58 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   //float TanTheta() { return tan_incident_angle; }
   //double LocalX() { return center_of_gravity; }; // 211127 nakasuga
   void                          SetTiming2(float _timing) { timing2 = _timing; }
+  void                          SetTiming3(float _timing) { timing3 = _timing; }
+  void                          SetTiming4(float _timing) { timing4 = _timing; }
   void                          SetTdcPos(float _tdchit) { tdchit = _tdchit; }
   void                          SetTanTheta(float _tanthe) { tanthe = _tanthe; }
   void                          SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
   void                          SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
   float                         Timing2() { return timing2; }
+  float                         Timing3() { return timing3; }
+  float                         Timing4() { return timing4; }
   float                         TdcPos() { return tdchit; }
   float                         TdcPos2() { return tdchit2; }
   float                         TanTheta() { return tanthe; }
   float                         TanTheta2() { return tanthe2; }
   void                          SetCTiming(float t) { ctiming.push_back(t); }
+  void                          SetCTiming2(float t) { ctiming2.push_back(t); }
+  void                          SetCTiming3(float t) { ctiming3.push_back(t); }
+  void                          SetCTiming4(float t) { ctiming4.push_back(t); }
+  void                          SetCTiming5(float t) { ctiming5.push_back(t); }
   void                          SetCPos(float t)    { cpos.push_back(t); }
+  void                          SetCPos2(float t)    { cpos2.push_back(t); }
+  void                          SetCPos3(float t)    { cpos3.push_back(t); }
+  void                          SetCPos4(float t)    { cpos4.push_back(t); }
+  void                          SetCPos5(float t)    { cpos5.push_back(t); }
+  void                          SetCAdc1(float a)    { cadc1.push_back(a); }
+  void                          SetCAdc2(float a)    { cadc2.push_back(a); }
+  void                          SetCAdc3(float a)    { cadc3.push_back(a); }
+  void                          SetCAdc4(float a)    { cadc4.push_back(a); }
+  void                          SetCAdc5(float a)    { cadc5.push_back(a); }
   int                           NumCls() { return ctiming.size(); }
+  int                           NumCls2() { return ctiming2.size(); }
+  int                           NumCls3() { return ctiming3.size(); }
+  int                           NumCls4() { return ctiming4.size(); }
+  int                           NumCls5() { return ctiming5.size(); }
   float                         CTiming(int i) { return ctiming[i]; }
+  float                         CTiming2(int i) { return ctiming2[i]; }
+  float                         CTiming3(int i) { return ctiming3[i]; }
+  float                         CTiming4(int i) { return ctiming4[i]; }
+  float                         CTiming5(int i) { return ctiming5[i]; }
   float                         CPos(int i)    { return cpos[i]; }
+  float                         CPos2(int i)    { return cpos2[i]; }
+  float                         CPos3(int i)    { return cpos3[i]; }
+  float                         CPos4(int i)    { return cpos4[i]; }
+  float                         CPos5(int i)    { return cpos5[i]; }
+  float                         CAdc1(int i)    { return cadc1[i]; }
+  float                         CAdc2(int i)    { return cadc2[i]; }
+  float                         CAdc3(int i)    { return cadc3[i]; }
+  float                         CAdc4(int i)    { return cadc4[i]; }
+  float                         CAdc5(int i)    { return cadc5[i]; }
+  float            MaxRiset() {return maxriset;}
+  void             SetMaxRiset(float t){maxriset = t;}
+  float            MaxTot() {return maxtot;}
+  void             SetMaxTot(float t){maxtot = t;}
   
 
 
@@ -397,13 +496,32 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double tdc_pos;           // mm
   float tan_incident_angle;    // radian
   float                        timing2;
+  float                        timing3;
+  float                        timing4;
+  float                        timing5;
   float                        tdchit; // 50% of peak
   float                        tdchit2; // 50% of peak
   float                        tanthe;
   float                        tanthe2;
   float                        peak_sum;
-  std::vector<float>           ctiming;
+  float                        maxriset;
+  float                        maxtot;
+  std::vector<float>           ctiming; //cluster timing
+  std::vector<float>           ctiming2; //cluster timing
+  std::vector<float>           ctiming3; //cluster timing
+  std::vector<float>           ctiming4; //cluster timing
+  std::vector<float>           ctiming5; //cluster timing
   std::vector<float>           cpos; 
+  std::vector<float>           cpos2; 
+  std::vector<float>           cpos3; 
+  std::vector<float>           cpos4; 
+  std::vector<float>           cpos5; 
+  std::vector<float>           cadc1; 
+  std::vector<float>           cadc2; 
+  std::vector<float>           cadc3; 
+  std::vector<float>           cadc4; 
+  std::vector<float>           cadc5; 
+
 };
 
 class E16DST_DST1HBDHit : public E16DST_DST1Hit {

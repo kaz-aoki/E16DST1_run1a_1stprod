@@ -23,14 +23,14 @@
 
 #include <E16ANA_StraightTrack.hh>
 
-const int gtrmaxhit = 20;
-const double th_chi2 = 100;//chisquare threshold 
-const double th_chi2_first = 100;//chisquare threshold 
-const double th_chi2_second = 100;//chisquare threshold 
-const double th_chi2_third = 100;//chisquare threshold 
-const double th_chi2_y = 100;//chisquare threshold 
-const double th_chi2_wossd = 30;
-const int min_ip_gap = 100;// this should be caluculated precisely
+//const int gtrmaxhit = 20;
+//const double th_chi2 = 100;//chisquare threshold 
+//const double th_chi2_first = 100;//chisquare threshold 
+//const double th_chi2_second = 100;//chisquare threshold 
+//const double th_chi2_third = 100;//chisquare threshold 
+//const double th_chi2_y = 100;//chisquare threshold 
+//const double th_chi2_wossd = 30;
+//const int min_ip_gap = 100;// this should be caluculated precisely
 //const double Agtr[] = {1.295, 0.882, 0.469, 0, -0.469, -0.882, -1.295};
 
 
@@ -90,7 +90,7 @@ public:
     double GetGTRModulePhi(E16ANA_GeometryV2 *geom, int module_id);
     std::vector<long double> LeastSquareMethod(std::vector<TVector2> &tv_v_pos, std::vector<double> sigma_x);
     std::vector<double> CalcCrossPoint2D(std::shared_ptr<E16ANA_XZTrackCandidate> trk1, std::shared_ptr<E16ANA_XZTrackCandidate> trk2); 
-    void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk);
+    virtual void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk){};
 
     void Clear();
     OnlineGTR::HashMap<E16ANA_GTRAnalyzer2*> gtr_analyzer_map;
@@ -134,6 +134,7 @@ public:
                             E16ANA_GeometryV2 *geom_v2
 						  	 ){};
     double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
 //    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2);// a+bx
     void FittingAfterTrackChoice(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trks, E16ANA_GeometryV2 *geom_v2);
     std::vector<long double> CalcChamberResidual(E16ANA_SSDAnalyzedStripHit *ssd_hit,
@@ -159,12 +160,12 @@ protected:
     std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>> xyz_st_trk;
     std::vector<std::shared_ptr<E16ANA_XZCrossPoint>> cross_points;
     std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> xz_trks_evesel;
-	double timing_window_100 = 40.0;
-	double timing_window_200 = 40.0;
-	double timing_window_300 = 80.0;
-	double clc_window_100 = 4000.0;
-	double clc_window_200 = 4000.0;
-	double clc_window_300 = 4000.0;
+//	double timing_window_100 = 60.0;
+//	double timing_window_200 = 60.0;
+//	double timing_window_300 = 60.0;
+//	double clc_window_100 = 4000.0;
+//	double clc_window_200 = 4000.0;
+//	double clc_window_300 = 4000.0;
 	int n_tgt;
 	int pm_wire = 0;
 	double wire_x1 = 0;
@@ -230,6 +231,7 @@ public :
                             E16ANA_GeometryV2 *geom_v2
                             );
 //    double ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk);// a+bx
+    void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk);
  
 private :
 //	int n_tgt;
@@ -283,7 +285,8 @@ public :
                       double phi,
                       int kawama_module,
                       int except);
-    
+     
+    void MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk);
 
 
 

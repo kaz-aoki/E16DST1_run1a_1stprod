@@ -142,15 +142,24 @@ int main(int argc, char* argv[]) {
   Int_t hasMatchedASDHit;
   Double_t g_xssd;
   Double_t g_zssd;
-  Double_t g_x100;
-  Double_t g_y100;
-  Double_t g_z100;
-  Double_t g_x200;
-  Double_t g_y200;
-  Double_t g_z200;
-  Double_t g_x300;
-  Double_t g_y300;
-  Double_t g_z300;
+  Double_t gc_x100;
+  Double_t gc_y100;
+  Double_t gc_z100;
+  Double_t gc_x200;
+  Double_t gc_y200;
+  Double_t gc_z200;
+  Double_t gc_x300;
+  Double_t gc_y300;
+  Double_t gc_z300;
+  Double_t gt_x100;
+  Double_t gt_y100;
+  Double_t gt_z100;
+  Double_t gt_x200;
+  Double_t gt_y200;
+  Double_t gt_z200;
+  Double_t gt_x300;
+  Double_t gt_y300;
+  Double_t gt_z300;
   Double_t lxssd;//local pos1
   Double_t lx100;//local pos1
   Double_t ly100;
@@ -172,6 +181,30 @@ int main(int argc, char* argv[]) {
   Double_t timing_y100;
   Double_t timing_y200;
   Double_t timing_y300;
+  Double_t timing2_x100;
+  Double_t timing2_x200;
+  Double_t timing2_x300;
+  Double_t timing2_y100;
+  Double_t timing2_y200;
+  Double_t timing2_y300;
+  Double_t timing3_x100;
+  Double_t timing3_x200;
+  Double_t timing3_x300;
+  Double_t timing3_y100;
+  Double_t timing3_y200;
+  Double_t timing3_y300;
+  Double_t timing4_x100;
+  Double_t timing4_x200;
+  Double_t timing4_x300;
+  Double_t timing4_y100;
+  Double_t timing4_y200;
+  Double_t timing4_y300;
+  Double_t timing5_x100;
+  Double_t timing5_x200;
+  Double_t timing5_x300;
+  Double_t timing5_y100;
+  Double_t timing5_y200;
+  Double_t timing5_y300;
   Double_t residual_ssdx;
   Double_t residual_100x;
   Double_t residual_200x;
@@ -290,15 +323,24 @@ int main(int argc, char* argv[]) {
   tree->Branch("hitid_300y", &hitid_300y, "hitid_300y/I");
   tree->Branch("g_xssd", &g_xssd, "g_xssd/D");
   tree->Branch("g_zssd", &g_zssd, "g_zssd/D");
-  tree->Branch("g_x100", &g_x100, "g_x100/D");
-  tree->Branch("g_y100", &g_y100, "g_y100/D");
-  tree->Branch("g_z100", &g_z100, "g_z100/D");
-  tree->Branch("g_x200", &g_x200, "g_x200/D");
-  tree->Branch("g_y200", &g_y200, "g_y200/D");
-  tree->Branch("g_z200", &g_z200, "g_z200/D");
-  tree->Branch("g_x300", &g_x300, "g_x300/D");
-  tree->Branch("g_y300", &g_y300, "g_y300/D");
-  tree->Branch("g_z300", &g_z300, "g_z300/D");
+  tree->Branch("gc_x100", &gc_x100, "gc_x100/D");
+  tree->Branch("gc_y100", &gc_y100, "gc_y100/D");
+  tree->Branch("gc_z100", &gc_z100, "gc_z100/D");
+  tree->Branch("gc_x200", &gc_x200, "gc_x200/D");
+  tree->Branch("gc_y200", &gc_y200, "gc_y200/D");
+  tree->Branch("gc_z200", &gc_z200, "gc_z200/D");
+  tree->Branch("gc_x300", &gc_x300, "gc_x300/D");
+  tree->Branch("gc_y300", &gc_y300, "gc_y300/D");
+  tree->Branch("gc_z300", &gc_z300, "gc_z300/D");
+  tree->Branch("gt_x100", &gt_x100, "gt_x100/D");
+  tree->Branch("gt_y100", &gt_y100, "gt_y100/D");
+  tree->Branch("gt_z100", &gt_z100, "gt_z100/D");
+  tree->Branch("gt_x200", &gt_x200, "gt_x200/D");
+  tree->Branch("gt_y200", &gt_y200, "gt_y200/D");
+  tree->Branch("gt_z200", &gt_z200, "gt_z200/D");
+  tree->Branch("gt_x300", &gt_x300, "gt_x300/D");
+  tree->Branch("gt_y300", &gt_y300, "gt_y300/D");
+  tree->Branch("gt_z300", &gt_z300, "gt_z300/D");
   tree->Branch("lxssd", &lxssd, "lxssd/D");
   tree->Branch("lx100", &lx100, "lx100/D");
   tree->Branch("ly100", &ly100, "ly100/D");
@@ -320,6 +362,30 @@ int main(int argc, char* argv[]) {
   tree->Branch("timing_y100", &timing_y100, "timing_y100/D");
   tree->Branch("timing_y200", &timing_y200, "timing_y200/D");
   tree->Branch("timing_y300", &timing_y300, "timing_y300/D");
+  tree->Branch("timing2_x100", &timing2_x100, "timing2_x100/D");
+  tree->Branch("timing2_x200", &timing2_x200, "timing2_x200/D");
+  tree->Branch("timing2_x300", &timing2_x300, "timing2_x300/D");
+  tree->Branch("timing2_y100", &timing2_y100, "timing2_y100/D");
+  tree->Branch("timing2_y200", &timing2_y200, "timing2_y200/D");
+  tree->Branch("timing2_y300", &timing2_y300, "timing2_y300/D");
+  tree->Branch("timing3_x100", &timing3_x100, "timing3_x100/D");
+  tree->Branch("timing3_x200", &timing3_x200, "timing3_x200/D");
+  tree->Branch("timing3_x300", &timing3_x300, "timing3_x300/D");
+  tree->Branch("timing3_y100", &timing3_y100, "timing3_y100/D");
+  tree->Branch("timing3_y200", &timing3_y200, "timing3_y200/D");
+  tree->Branch("timing3_y300", &timing3_y300, "timing3_y300/D");
+  tree->Branch("timing4_x100", &timing4_x100, "timing4_x100/D");
+  tree->Branch("timing4_x200", &timing4_x200, "timing4_x200/D");
+  tree->Branch("timing4_x300", &timing4_x300, "timing4_x300/D");
+  tree->Branch("timing4_y100", &timing4_y100, "timing4_y100/D");
+  tree->Branch("timing4_y200", &timing4_y200, "timing4_y200/D");
+  tree->Branch("timing4_y300", &timing4_y300, "timing4_y300/D");
+  tree->Branch("timing5_x100", &timing5_x100, "timing5_x100/D");
+  tree->Branch("timing5_x200", &timing5_x200, "timing5_x200/D");
+  tree->Branch("timing5_x300", &timing5_x300, "timing5_x300/D");
+  tree->Branch("timing5_y100", &timing5_y100, "timing5_y100/D");
+  tree->Branch("timing5_y200", &timing5_y200, "timing5_y200/D");
+  tree->Branch("timing5_y300", &timing5_y300, "timing5_y300/D");
   tree->Branch("residual_100x", &residual_100x, "residual_100x/D");
   tree->Branch("residual_200x", &residual_200x, "residual_200x/D");
   tree->Branch("residual_300x", &residual_300x, "residual_300x/D");
@@ -468,12 +534,12 @@ int main(int argc, char* argv[]) {
 //  gtr_status->ASDDeadChannel()->ReadDeadChannelData( calib.CurrentRunID());
   for (int m=101; m< 110; m++){
 	for(int ch=0; ch < 24; ch++){
- 		std::cout << "GEM Status : module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->GEMDeadArea300()->IsYOK(m, ch) << std::endl;
+// 		std::cout << "GEM Status : module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->GEMDeadArea300()->IsYOK(m, ch) << std::endl;
 	}
   }
-  std::cout << "Is X GEM OK  == " << gtr_status->GEMDeadArea300()->IsXOK(106, 13.2) << std::endl;//GEM  
+//  std::cout << "Is X GEM OK  == " << gtr_status->GEMDeadArea300()->IsXOK(106, 13.2) << std::endl;//GEM  
   int apvch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12);//(gtr_size, local_pos[mm])
-  std::cout << "apv ch convorotor returns   == " << E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12) << std::endl;//
+//  std::cout << "apv ch convorotor returns   == " << E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12) << std::endl;//
   
   
   int n_event = 0;
@@ -566,15 +632,25 @@ int main(int argc, char* argv[]) {
 		ly100    = t->GTR100YCluster()->CogPos();//local y
 		ly200    = t->GTR200YCluster()->CogPos();//local y
 		ly300    = t->GTR300YCluster()->CogPos();//local y
-		g_x100   = t->GTR100XCluster()->GlobalPos(*geom).X();
-		g_x200   = t->GTR200XCluster()->GlobalPos(*geom).X();
-		g_x300   = t->GTR300XCluster()->GlobalPos(*geom).X();
-		g_y100   = t->GTR100YCluster()->GlobalPos(*geom).Y();
-		g_y200   = t->GTR200YCluster()->GlobalPos(*geom).Y();
-		g_y300   = t->GTR300YCluster()->GlobalPos(*geom).Y();
-		g_z100   = t->GTR100XCluster()->GlobalPos(*geom).Z();
-		g_z200   = t->GTR200XCluster()->GlobalPos(*geom).Z();
-		g_z300   = t->GTR300XCluster()->GlobalPos(*geom).Z();
+		gc_x100   = t->GTR100XCluster()->GlobalPos(*geom).X();
+		gc_x200   = t->GTR200XCluster()->GlobalPos(*geom).X();
+		gc_x300   = t->GTR300XCluster()->GlobalPos(*geom).X();
+		gc_y100   = t->GTR100YCluster()->GlobalPos(*geom).Y();
+		gc_y200   = t->GTR200YCluster()->GlobalPos(*geom).Y();
+		gc_y300   = t->GTR300YCluster()->GlobalPos(*geom).Y();
+		gc_z100   = t->GTR100XCluster()->GlobalPos(*geom).Z();
+		gc_z200   = t->GTR200XCluster()->GlobalPos(*geom).Z();
+		gc_z300   = t->GTR300XCluster()->GlobalPos(*geom).Z();
+		gt_x100   = t->GTR100XCluster()->GlobalPosT(*geom).X();
+		gt_x200   = t->GTR200XCluster()->GlobalPosT(*geom).X();
+		gt_x300   = t->GTR300XCluster()->GlobalPosT(*geom).X();
+		gt_y100   = t->GTR100YCluster()->GlobalPosT(*geom).Y();
+		gt_y200   = t->GTR200YCluster()->GlobalPosT(*geom).Y();
+		gt_y300   = t->GTR300YCluster()->GlobalPosT(*geom).Y();
+		gt_z100   = t->GTR100XCluster()->GlobalPosT(*geom).Z();
+		gt_z200   = t->GTR200XCluster()->GlobalPosT(*geom).Z();
+		gt_z300   = t->GTR300XCluster()->GlobalPosT(*geom).Z();
+//		std::cout << "cog z 100 " << gc_z100 << std::endl;
 		clc_x100 = t->GTR100XCluster()->PeakSum();
 		clc_x200 = t->GTR200XCluster()->PeakSum();
 		clc_x300 = t->GTR300XCluster()->PeakSum();
@@ -587,6 +663,30 @@ int main(int argc, char* argv[]) {
 		timing_y100 = t->GTR100YCluster()->Timing();
 		timing_y200 = t->GTR200YCluster()->Timing();
 		timing_y300 = t->GTR300YCluster()->Timing();
+		timing2_x100 = t->GTR100XCluster()->Timing2();
+		timing2_x200 = t->GTR200XCluster()->Timing2();
+		timing2_x300 = t->GTR300XCluster()->Timing2();
+		timing2_y100 = t->GTR100YCluster()->Timing2();
+		timing2_y200 = t->GTR200YCluster()->Timing2();
+		timing2_y300 = t->GTR300YCluster()->Timing2();
+		timing3_x100 = t->GTR100XCluster()->Timing3();
+		timing3_x200 = t->GTR200XCluster()->Timing3();
+		timing3_x300 = t->GTR300XCluster()->Timing3();
+		timing3_y100 = t->GTR100YCluster()->Timing3();
+		timing3_y200 = t->GTR200YCluster()->Timing3();
+		timing3_y300 = t->GTR300YCluster()->Timing3();
+		timing4_x100 = t->GTR100XCluster()->Timing4();
+		timing4_x200 = t->GTR200XCluster()->Timing4();
+		timing4_x300 = t->GTR300XCluster()->Timing4();
+		timing4_y100 = t->GTR100YCluster()->Timing4();
+		timing4_y200 = t->GTR200YCluster()->Timing4();
+		timing4_y300 = t->GTR300YCluster()->Timing4();
+//		timing5_x100 = t->GTR100XCluster()->Timing5();
+//		timing5_x200 = t->GTR200XCluster()->Timing5();
+//		timing5_x300 = t->GTR300XCluster()->Timing5();
+//		timing5_y100 = t->GTR100YCluster()->Timing5();
+//		timing5_y200 = t->GTR200YCluster()->Timing5();
+//		timing5_y300 = t->GTR300YCluster()->Timing5();
 		chi2_x = t->Chi2X();
 		chi2_y = t->Chi2Y();
 		tgt_z  = t->TgtPosZ();

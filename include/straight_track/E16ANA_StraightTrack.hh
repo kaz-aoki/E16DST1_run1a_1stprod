@@ -391,6 +391,8 @@ public:
 	void SetFitRes200(TVector2 res){fit_res200 = res;}
 	void SetFitRes300(TVector2 res){fit_res300 = res;}
 	void SetFitResSSD(TVector2 res){fit_resssd = res;}
+	void SetTgtPosY(double d){tgtpos_y = d;}
+	double TgtPosY(){return tgtpos_y;}
 	TVector2 GetFitRes100(){return fit_res100;}
 	TVector2 GetFitRes200(){return fit_res200;}
 	TVector2 GetFitRes300(){return fit_res300;}
@@ -466,6 +468,7 @@ private:
 //	double distance;
 	double fit_a;
 	double fit_b;
+    double tgtpos_y;
 	std::vector<TVector2> v_fit_samples;
 	E16DST_DST1GTRCluster *yhit100;
 	E16DST_DST1GTRCluster *yhit200;

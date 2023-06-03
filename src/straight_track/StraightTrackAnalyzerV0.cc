@@ -301,7 +301,8 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_D
 				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdX[1]) continue;
 				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdX[2]) continue;
                 for(int l = 0; l <3; l++){
-                  G4ThreeVector l_hitpos = G4ThreeVector(hits[l]->CogPos(), 0, 0);
+//                  G4ThreeVector l_hitpos = G4ThreeVector(hits[l]->CogPos(), 0, 0);
+                  G4ThreeVector l_hitpos = G4ThreeVector(hits[l]->TdcPos(), 0, 0);
 				  fitter_x->AddHit(l_hitpos, kXSigmaGTR[l] , mid, l+1,  geom_v2->GTR(kawama_module, l), rphi);
               	}	
 				fitter_x->Fit();
@@ -331,6 +332,12 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_D
 						fitter_x->Fit();
 						if(fitter_x->Chi2() < kFitChi2ThresholdX){
 	                        std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
+							double tgt_z = ReconstructTgtPosBeforeVertex(fitter_x->FitA(), fitter_x->FitB(), phi, kawama_module, geom_v2);
+							//remove not close to wires
+							if     (tgt_z  < -45 ){ continue;}
+							else if(tgt_z  >  45) { continue;}
+							else if(-35 <   tgt_z  &&  tgt_z  < 35) { continue;}
+						
 	 //						trk->SetResidualSSD2(min2);	
 							trk->SetFitResidualSSD(fitter_x->FitResidual(0));
 							trk->SetFitResidual100(fitter_x->FitResidual(1));
@@ -936,8 +943,7 @@ std::vector<long double> StraightTrackAnalyzerOfWireV1::CalcChamberResidual(E16A
 //	gtr_xhits2.shrink_to_fit();
 //}
 
-void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
-	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
+void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){ int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
     double rphi = phi - 1.570796;
 //	std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos;
@@ -961,7 +967,8 @@ void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1G
 				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdY[1]) continue;
 				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdY[2]) continue;
                 for(int l = 0; l <3; l++){
-                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->CogPos(), 0);
+//                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->CogPos(), 0);
+                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->TdcPos(), 0);
 				  fitter_y->AddHit(l_hitpos, kYSigmaGTR[l] , mid, l+1, geom_v2->GTR(kawama_module, l), rphi);
               	}	
 				G4ThreeVector gpos_tgt1 = G4ThreeVector(0,-3,-20);
@@ -1046,7 +1053,8 @@ void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1G
 				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdY[1]) continue;
 				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdY[2]) continue;
                 for(int l = 0; l <3; l++){
-                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->CogPos(), 0);
+//                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->CogPos(), 0);
+                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->TdcPos(), 0);
 				  fitter_y->AddHit(l_hitpos, kYSigmaGTR[l] , mid, l+1, geom_v2->GTR(kawama_module, l), rphi);
               	}	
 				G4ThreeVector gpos_tgt1 = G4ThreeVector(0,-3,-20);
@@ -1158,196 +1166,6 @@ void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1G
 }
 
 
-
-//void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
-//	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
-//    double phi = GetGTRModulePhi(geom_v2, mid);
-//    double rphi = phi - 1.570796;
-//	std::vector<TVector2> v_fit_samples; 
-//	std::vector<G4ThreeVector> l_hitpos, g_hitpos, rot_pos;
-//    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
-//	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
-//	double r100  = sqrt(r100_2);
-//    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
-//	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
-//	double r300  = sqrt(r300_2);
-//    double r3000 = r300 * 10;
-//	for(int i = 0; i<(int)gtr_yhits0.size(); i++){
-//		for(int j = 0; j<(int)gtr_yhits1.size(); j++){
-//			for(int k = 0; k<(int)gtr_yhits2.size(); k++){
-//                std::vector<E16DST_DST1GTRCluster*> hits;
-//                hits.clear();
-//                hits.push_back(gtr_yhits0[i]);
-//                hits.push_back(gtr_yhits1[j]);
-//                hits.push_back(gtr_yhits2[k]);
-//                l_hitpos.clear();
-//                g_hitpos.clear();
-//                rot_pos.clear();
-//                v_fit_samples.clear();
-//                for(int l = 0; l <3; l++){
-//                    l_hitpos.push_back(G4ThreeVector(0, hits[l]->CogPos(), 0));
-//                    g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-//                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
-//                    v_fit_samples.push_back(TVector2(rot_pos[l].z(), rot_pos[l].y()));
-//                }
-//				std::vector<long double> &&v_results = LeastSquareMethod(v_fit_samples, kYSigma );//return chi2, a,b (a+bx)
-//				if(v_results[0] < kFitChi2ThresholdY){
-//                    std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
-//					trk->SetModuleID(mid);
-//                    trk->SetChi2(v_results[0]);
-//					trk->SetResidual100(rot_pos[0].y() - (rot_pos[0].z()*v_results[2]+v_results[1]));
-//					trk->SetResidual200(rot_pos[1].y() - (rot_pos[1].z()*v_results[2]+v_results[1]));
-//					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
-//					trk->SetFitA(v_results[1]);
-//					trk->SetFitB(v_results[2]);
-//
-//					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
-//					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
-//					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
-//					double a = v_results[1];
-//					double b = v_results[2];
-//					double zpos_x_at100 = b*(r100) + a;
-//    				double zpos_x_at300 = b*r300 + a;
-//                    double zpos_x_at3000 = b*r3000 + a;
-//				    TVector2 ref_pt0(r100, zpos_x_at100);
-//				    TVector2 ref_pt1(r300, zpos_x_at300);
-//				    TVector2 ref_pt2(r3000, zpos_x_at3000);
-//				    trk->SetPt0OnTrack(ref_pt0);
-//				    trk->SetPt1OnTrack(ref_pt1);
-//				    trk->SetPt2OnTrack(ref_pt2);
-//					trk->SetYHit100(hits[0]);
-//					trk->SetYHit200(hits[1]);
-//					trk->SetYHit300(hits[2]);
-//                    trk->SetID100Hit(i);
-//                    trk->SetID200Hit(j);
-//                    trk->SetID300Hit(k);
-//
-//					TVector2 tgt1(tgt_x1, tgt_z1);
-//					TVector2 tgt2(tgt_x2, tgt_z2);
-//					TVector2 tgt3(tgt_x3, tgt_z3);
-//					TVector2 rot_tgt1 = tgt1.Rotate(-rphi);
-//					TVector2 rot_tgt2 = tgt2.Rotate(-rphi);
-//					TVector2 rot_tgt3 = tgt3.Rotate(-rphi);
-//					double dis1 = (rot_tgt1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//upstream
-//					double dis2 = (rot_tgt2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//middle
-//					double dis3 = (rot_tgt3.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//downstream
-//					trk->SetDistanceUpstreamTgt(dis1);	
-//					trk->SetDistanceMiddleTgt(dis2);	
-//					trk->SetDistanceDownstreamTgt(dis3);	
-//                    y_trk_cands.push_back(trk);
-////					trk->SetResidual100(v_results2[3]);
-////					trk->SetResidual200(v_results2[4]);
-////					trk->SetResidual300(v_results2[5]);
-//						//	std::cout << xz_trk_cand[index].Chi2() << std::endl;		
-//				}
-//				v_results.clear();
-//                //std::cout << "v_results after clear= " << v_results[1] << std::endl;
-//			}
-//        }
-//    }
-//	for(int i = 0; i<(int)gtr_yhits0b.size(); i++){
-//		for(int j = 0; j<(int)gtr_yhits1.size(); j++){
-//            for(int k =0; k<(int)gtr_yhits2.size(); k++){
-//                std::vector<E16DST_DST1GTRCluster*> hits;
-//                hits.clear();
-//                hits.push_back(gtr_yhits0b[i]);
-//                hits.push_back(gtr_yhits1[j]);
-//                hits.push_back(gtr_yhits2[k]);
-//                l_hitpos.clear();
-//                g_hitpos.clear();
-//                rot_pos.clear();
-//                v_fit_samples.clear();
-//                for(int l = 0; l <3; l++){
-//                    l_hitpos.push_back(G4ThreeVector(0, hits[l]->CogPos(), 0));
-//                    g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-//                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
-//                    v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].y()));
-//                }
-//				std::vector<long double> &&v_results = LeastSquareMethod(v_fit_samples, kYSigma );//return chi2, a,b (a+bx)
-//            //    std::cout << "v result" << v_results[1] << std::endl;
-//				if(v_results[0] < kFitChi2ThresholdY){
-//                    std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
-//    				trk->SetInvalid();
-//					trk->SetModuleID(mid);
-////					y_trk_cand[index].SetChi2(v_results[0]);
-//                    trk->SetChi2(v_results[0]);
-////					trk->SetTgtPos(v_results[1]);
-//					trk->SetResidual100(rot_pos[0].y() - (rot_pos[0].z()*v_results[2]+v_results[1]));
-//					trk->SetResidual200(rot_pos[1].y() - (rot_pos[1].z()*v_results[2]+v_results[1]));
-//					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
-//					trk->SetFitA(v_results[1]);
-//					trk->SetFitB(v_results[2]);
-//					trk->SetFitRes100(TVector2(rot_pos[0].x()*v_results[2]+v_results[1], rot_pos[0].x()));//nakasuga
-//					trk->SetFitRes200(TVector2(rot_pos[1].x()*v_results[2]+v_results[1], rot_pos[1].x()));//nakasuga
-//					trk->SetFitRes300(TVector2(rot_pos[2].x()*v_results[2]+v_results[1], rot_pos[2].x()));//nakasuga
-//					TVector2 tgt1(tgt_x1, tgt_z1);
-//					TVector2 tgt2(tgt_x2, tgt_z2);
-//					TVector2 tgt3(tgt_x3, tgt_z3);
-//					TVector2 rot_tgt1 = tgt1.Rotate(-rphi);
-//					TVector2 rot_tgt2 = tgt2.Rotate(-rphi);
-//					TVector2 rot_tgt3 = tgt3.Rotate(-rphi);
-//					double dis1 = (rot_tgt1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//upstream
-//					double dis2 = (rot_tgt2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//middle
-//					double dis3 = (rot_tgt3.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//downstream
-//					trk->SetDistanceUpstreamTgt(dis1);	
-//					trk->SetDistanceMiddleTgt(dis2);	
-//					trk->SetDistanceDownstreamTgt(dis3);	
-//
-//
-//
-//					double a = v_results[1];
-//					double b = v_results[2];
-//					double zpos_x_at100 = b*(r100) + a;
-//    				double zpos_x_at300 = b*r300 + a;
-//                    double zpos_x_at3000 = b*r3000 + a;
-//				    TVector2 ref_pt0(r100, zpos_x_at100);
-//				    TVector2 ref_pt1(r300, zpos_x_at300);
-//				    TVector2 ref_pt2(r3000, zpos_x_at3000);
-//				    trk->SetPt0OnTrack(ref_pt0);
-//				    trk->SetPt1OnTrack(ref_pt1);
-//				    trk->SetPt2OnTrack(ref_pt2);
-//					trk->SetYHit100(hits[0]);
-//					trk->SetYHit200(hits[1]);
-//					trk->SetYHit300(hits[2]);
-//                    trk->SetID100Hit(i);
-//                    trk->SetID200Hit(j);
-//                    trk->SetID300Hit(k);
-//                    y_trk_cands.push_back(trk);
-//
-//                }
-//				v_results.clear();
-//            }
-//		}
-//	}
-///*
-//	bool i_table[yhits0.size()] = {};
-//	bool j_table[yhits1.size()] = {};
-//	bool k_table[yhits2.size()] = {};
-//	//bool l_tab[ssd_hits.size()] = {};
-//	std::fill_n(i_table, yhits0.size(), 0);
-//	std::fill_n(j_table, yhits1.size(), 0);
-//	std::fill_n(k_table, yhits2.size(), 0);
-//	//std::fill_n(l_tab, ssd_hits.size(), 0);
-//    //sort by chi2, and if the hits are overlaped, the track is erased 
-//    std::sort(y_trk_cand.begin(), y_trk_cand.end(), E16ANA_YTrackCandidate::CompareTrackFunctor());
-//	std::vector<E16ANA_YTrackCandidate>::const_iterator iter = y_trk_cand.begin();
-//    while(iter != y_trk_cand.end()){
-//		if(i_table[(*iter).ID100Hit()] == 0 && j_table[(*iter).ID200Hit()] == 0 && k_table[(*iter).ID300Hit()] == 0 ){
-//            i_table[(*iter).ID100Hit()] = 1;
-//			j_table[(*iter).ID200Hit()] = 1; 
-//			k_table[(*iter).ID300Hit()] = 1; 
-//            ++iter;
-//        }
-//        else{
-//            iter = y_trk_cand.erase(iter);
-// //           std::cout << "a duplicated track Y is erased !" << std::endl;
-//        }
-//    }
-//*/
-//}
-//
-
-
 void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits0b, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_yhits2, int mid, E16ANA_GeometryV2 *geom_v2){
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
@@ -1365,72 +1183,64 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
 	for(int i = 0; i<(int)gtr_yhits0.size(); i++){
 		for(int j = 0; j<(int)gtr_yhits1.size(); j++){
 			for(int k = 0; k<(int)gtr_yhits2.size(); k++){
-                std::vector<E16DST_DST1GTRCluster*> hits;
+                fitter_y->Clear();
+				std::vector<E16DST_DST1GTRCluster*> hits;
                 hits.clear();
                 hits.push_back(gtr_yhits0[i]);
                 hits.push_back(gtr_yhits1[j]);
                 hits.push_back(gtr_yhits2[k]);
-                l_hitpos.clear();
-                g_hitpos.clear();
-                rot_pos.clear();
-                v_fit_samples.clear();
+				if(hits[0]->PeakSum()  < kGTRPeakSumThresholdY[0]) continue;
+				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdY[1]) continue;
+				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdY[2]) continue;
                 for(int l = 0; l <3; l++){
-                    l_hitpos.push_back(G4ThreeVector(0, hits[l]->CogPos(), 0));
-                    g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(rphi)));
-                    //v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].y()));
-                    v_fit_samples.push_back(TVector2(rot_pos[l].z(), rot_pos[l].y()));
-                }
-  //              std::cout << "v fir sample = " << v_fit_samples[2].Y() << std::endl;
-				std::vector<long double> &&v_results = LeastSquareMethod(v_fit_samples, kYSigmaGTR );//return chi2, a,b (a+bx)
-//                std::cout << "v result" << v_results[1] << std::endl;
-				if(v_results[0] < kFitChi2ThresholdY){
-                    std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
-//    				trk->SetInvalid();
-					trk->SetModuleID(mid);
-//					y_trk_cand[index].SetChi2(v_results[0]);
-                    trk->SetChi2(v_results[0]);
-					trk->SetResidual100(rot_pos[0].y() - (rot_pos[0].z()*v_results[2]+v_results[1]));
-					trk->SetResidual200(rot_pos[1].y() - (rot_pos[1].z()*v_results[2]+v_results[1]));
-					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
-					trk->SetFitA(v_results[1]);
-					trk->SetFitB(v_results[2]);
-
-					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
-					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
-					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
+//                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->CogPos(), 0);
+                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->TdcPos(), 0);
+				  fitter_y->AddHit(l_hitpos, kYSigmaGTR[l] , mid, l+1, geom_v2->GTR(kawama_module, l), rphi);
+              	}	
+				fitter_y->Fit();	
+				if(fitter_y->Chi2() > kFitChi2ThresholdY) continue;
+                std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
 					TVector2 w1(wire_x1, wire_z1);
 					TVector2 w2(wire_x2, wire_z2);
 					TVector2 rot_w1 = w1.Rotate(-rphi);
 					TVector2 rot_w2 = w2.Rotate(-rphi);
-					double dis1 = (rot_w1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//upstream
-					double dis2 = (rot_w2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//downstream
+					double a = fitter_y->FitA();
+					double b = fitter_y->FitB();
+					double dis1 = (rot_w1.Y()*b + a)/sqrt(1+b*b);//upstream
+					double dis2 = (rot_w2.Y()*b + a)/sqrt(1+b*b);//downstream
 					trk->SetDistanceUpstreamWire(dis1);	
-					trk->SetWhichTgt(0);
-//					trk->SetTgtPos(wire_z1);
 					if(fabs(dis2)<fabs(dis1) ){
 						trk->SetDistanceDownstreamWire(dis2);
 						trk->SetWhichTgt(1);
 //						trk->SetTgtPos(wire_z2);
 					}
-//					trk->SetTgtPos(v_results[1]);
-//                    std::cout << "v_results = " << v_results[1] << std::endl;
-					double a = v_results[1];
-					double b = v_results[2];
+					if(fabs(dis1) < fabs(dis2)){
+						trk->SetTgtPosY(rot_w1.Y() * b + a);
+					}
+					else {
+						trk->SetTgtPosY(rot_w2.Y() * b + a);
+					}
+					if(fabs(trk->TgtPosY()) > 7) continue;
+					trk->SetWhichTgt(0);
+					trk->SetModuleID(mid);
+                    trk->SetChi2(fitter_y->Chi2());
+					trk->SetResidual100(fitter_y->FitResidual(1));
+					trk->SetResidual200(fitter_y->FitResidual(2));
+					trk->SetResidual300(fitter_y->FitResidual(3));
+					trk->SetFitA(fitter_y->FitA());
+					trk->SetFitB(fitter_y->FitB());
+//					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
+//					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
+//					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
 					double zpos_x_at100 = b*(r100) + a;
     				double zpos_x_at300 = b*r300 + a;
                     double zpos_x_at3000 = b*r3000 + a;
-//					std::cout << "z pos , r" << zpos_x_at300 << "  : " << r300 << std::endl;
-//					std::cout << "local y" << hy2.CogHit() << "  : " << r300 << std::endl;
 				    TVector2 ref_pt0(r100, zpos_x_at100);
 				    TVector2 ref_pt1(r300, zpos_x_at300);
 				    TVector2 ref_pt2(r3000, zpos_x_at3000);
 				    trk->SetPt0OnTrack(ref_pt0);
 				    trk->SetPt1OnTrack(ref_pt1);
 				    trk->SetPt2OnTrack(ref_pt2);
-//                    trk.SetXIntercept(-v_results[1]/v_results[2]);
-//					std::cout << "tgt  = " << v_results[1] << std::endl;
-//					std::cout << "hy2 bef = " << &hy2 << std::endl;
 					trk->SetYHit100(hits[0]);
 					trk->SetYHit200(hits[1]);
 					trk->SetYHit300(hits[2]);
@@ -1438,89 +1248,71 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
                     trk->SetID200Hit(j);
                     trk->SetID300Hit(k);
                     y_trk_cands.push_back(trk);
-  			//	std::cout << "target height " << v_results[1] << std::endl;
-//					trk->SetResidual100(v_results2[3]);
-//					trk->SetResidual200(v_results2[4]);
-//					trk->SetResidual300(v_results2[5]);
-						//	std::cout << xz_trk_cand[index].Chi2() << std::endl;		
-				}
-				v_results.clear();
-                //std::cout << "v_results after clear= " << v_results[1] << std::endl;
 			}
         }
     }
+
 	for(int i = 0; i<(int)gtr_yhits0b.size(); i++){
 		for(int j = 0; j<(int)gtr_yhits1.size(); j++){
             for(int k =0; k<(int)gtr_yhits2.size(); k++){
-                std::vector<E16DST_DST1GTRCluster*> hits;
+				fitter_y->Clear();
+				std::vector<E16DST_DST1GTRCluster*> hits;
                 hits.clear();
                 hits.push_back(gtr_yhits0b[i]);
                 hits.push_back(gtr_yhits1[j]);
                 hits.push_back(gtr_yhits2[k]);
-                l_hitpos.clear();
-                g_hitpos.clear();
-                rot_pos.clear();
-                v_fit_samples.clear();
+				if(hits[0]->PeakSum()  < kGTRPeakSumThresholdY[0]) continue;
+				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdY[1]) continue;
+				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdY[2]) continue;
                 for(int l = 0; l <3; l++){
-                    l_hitpos.push_back(G4ThreeVector(0, hits[l]->CogPos(), 0));
-                    g_hitpos.push_back(G4ThreeVector(geom_v2->GTR(kawama_module, l)->GetGPos(l_hitpos[l])));
-                    rot_pos.push_back(G4ThreeVector(g_hitpos[l].rotateY(phi)));
-                    v_fit_samples.push_back(TVector2(rot_pos[l].x(), rot_pos[l].y()));
-                }
-				std::vector<long double> &&v_results = LeastSquareMethod(v_fit_samples, kYSigmaGTR );//return chi2, a,b (a+bx)
-            //    std::cout << "v result" << v_results[1] << std::endl;
-				if(v_results[0] < kFitChi2ThresholdY){
-                    std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
-    				trk->SetInvalid();
-					trk->SetModuleID(mid);
-//					y_trk_cand[index].SetChi2(v_results[0]);
-                    trk->SetChi2(v_results[0]);
-//					trk->SetTgtPos(v_results[1]);
-					trk->SetResidual100(rot_pos[0].y() - (rot_pos[0].z()*v_results[2]+v_results[1]));
-					trk->SetResidual200(rot_pos[1].y() - (rot_pos[1].z()*v_results[2]+v_results[1]));
-					trk->SetResidual300(rot_pos[2].y() - (rot_pos[2].z()*v_results[2]+v_results[1]));
-					trk->SetFitA(v_results[1]);
-					trk->SetFitB(v_results[2]);
-
-					//trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));//comment out by nakasuga
-					trk->SetFitRes100(TVector2(rot_pos[0].x()*v_results[2]+v_results[1], rot_pos[0].x()));//nakasuga
-					//trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));//comment out by nakasuga
-					trk->SetFitRes200(TVector2(rot_pos[1].x()*v_results[2]+v_results[1], rot_pos[1].x()));//nakasuga
-					//trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));//comment out by nakasuga
-					trk->SetFitRes300(TVector2(rot_pos[2].x()*v_results[2]+v_results[1], rot_pos[2].x()));//nakasuga
+//                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->CogPos(), 0);
+                  G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->TdcPos(), 0);
+				  fitter_y->AddHit(l_hitpos, kYSigmaGTR[l] , mid, l+1, geom_v2->GTR(kawama_module, l), rphi);
+              	}	
+				fitter_y->Fit();	
+				if(fitter_y->Chi2() > kFitChi2ThresholdY) continue;
+                std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
 					TVector2 w1(wire_x1, wire_z1);
 					TVector2 w2(wire_x2, wire_z2);
 					TVector2 rot_w1 = w1.Rotate(-rphi);
 					TVector2 rot_w2 = w2.Rotate(-rphi);
-					double dis1 = (rot_w1.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//upstream
-					double dis2 = (rot_w2.Y()*v_results[2] + v_results[1])/sqrt(1+v_results[2]*v_results[2]);//downstream
+					double a = fitter_y->FitA();
+					double b = fitter_y->FitB();
+					double dis1 = (rot_w1.Y()*b + a)/sqrt(1+b*b);//upstream
+					double dis2 = (rot_w2.Y()*b + a)/sqrt(1+b*b);//downstream
 					trk->SetDistanceUpstreamWire(dis1);	
-//					trk->SetTgtPos(wire_z1);
-//					if(fabs(dis2)<fabs(dis1) ){
+					if(fabs(dis2)<fabs(dis1) ){
 						trk->SetDistanceDownstreamWire(dis2);
+						trk->SetWhichTgt(1);
 //						trk->SetTgtPos(wire_z2);
-//					}
-//					trk->SetTgtPos(v_results[1]);
-
-
-
-
-					double a = v_results[1];
-					double b = v_results[2];
+					}
+					if(fabs(dis1) < fabs(dis2)){
+						trk->SetTgtPosY(rot_w1.Y() * b + a);
+					}
+					else {
+						trk->SetTgtPosY(rot_w2.Y() * b + a);
+					}
+					if(fabs(trk->TgtPosY()) > 7) continue;
+					trk->SetWhichTgt(0);
+					trk->SetModuleID(mid);
+                    trk->SetChi2(fitter_y->Chi2());
+					trk->SetResidual100(fitter_y->FitResidual(1));
+					trk->SetResidual200(fitter_y->FitResidual(2));
+					trk->SetResidual300(fitter_y->FitResidual(3));
+					trk->SetFitA(fitter_y->FitA());
+					trk->SetFitB(fitter_y->FitB());
+//					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
+//					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
+//					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
 					double zpos_x_at100 = b*(r100) + a;
     				double zpos_x_at300 = b*r300 + a;
                     double zpos_x_at3000 = b*r3000 + a;
-//					std::cout << "z pos , r" << zpos_x_at300 << "  : " << r300 << std::endl;
-//					std::cout << "local y" << hy2.CogHit() << "  : " << r300 << std::endl;
 				    TVector2 ref_pt0(r100, zpos_x_at100);
 				    TVector2 ref_pt1(r300, zpos_x_at300);
 				    TVector2 ref_pt2(r3000, zpos_x_at3000);
 				    trk->SetPt0OnTrack(ref_pt0);
 				    trk->SetPt1OnTrack(ref_pt1);
 				    trk->SetPt2OnTrack(ref_pt2);
-//                    trk.SetXIntercept(-v_results[1]/v_results[2]);
-//					std::cout << "tgt  = " << v_results[1] << std::endl;
-//					std::cout << "hy2 bef = " << &hy2 << std::endl;
 					trk->SetYHit100(hits[0]);
 					trk->SetYHit200(hits[1]);
 					trk->SetYHit300(hits[2]);
@@ -1529,8 +1321,6 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
                     trk->SetID300Hit(k);
                     y_trk_cands.push_back(trk);
 
-                }
-				v_results.clear();
             }
 		}
 	}
@@ -1812,19 +1602,19 @@ bool StraightTrackAnalyzerOfTargets::IsMatchedXandYTrack(std::shared_ptr<E16ANA_
     double clc_y0 = ytrk->GetYCluster100()->PeakSum();
     double clc_y1 = ytrk->GetYCluster200()->PeakSum();
     double clc_y2 = ytrk->GetYCluster300()->PeakSum();
-	if(fabs(timing_x0 - timing_y0 - timing_offset0) < timing_window_100){
+	if(fabs(timing_x0 - timing_y0 - timing_offset0) < kTimingWindow100){
 //	std::cout << "timing 100   ok" << std::endl;
 //		std::cout  << fabs(timing_x1 - timing_y1 - timing_offset1)  << std::endl;
-		if(fabs(timing_x1 - timing_y1 - timing_offset1) < timing_window_200){
+		if(fabs(timing_x1 - timing_y1 - timing_offset1) < kTimingWindow200){
 //	std::cout << "timing 200   ok" << std::endl;
-			if(fabs(timing_x2 - timing_y2 - timing_offset2) < timing_window_300){
+			if(fabs(timing_x2 - timing_y2 - timing_offset2) < kTimingWindow300){
 //	std::cout << "timing 300   ok" << std::endl;
-				if(fabs(clc_x0 - clc_y0 - clc_offset0) < clc_window_100){
+				if(fabs(clc_x0 - clc_y0 - clc_offset0) < kClusterChargeWindow100){
 //	std::cout << "clc 100   ok" << std::endl;
 
-					if(fabs(clc_x1 - clc_y1 - clc_offset1) < clc_window_200){
+					if(fabs(clc_x1 - clc_y1 - clc_offset1) < kClusterChargeWindow200){
 //	std::cout << "clc 200   ok" << std::endl;
-						if(fabs(clc_x2 - clc_y2 - clc_offset2) < clc_window_300){
+						if(fabs(clc_x2 - clc_y2 - clc_offset2) < kClusterChargeWindow300){
 //	std::cout << "clc 300   ok" << std::endl;
 							flag = 1;
 						}
@@ -1851,19 +1641,19 @@ bool StraightTrackAnalyzerOfWireV1::IsMatchedXandYTrack(std::shared_ptr<E16ANA_X
     double clc_y0 = ytrk->GetYCluster100()->PeakSum();
     double clc_y1 = ytrk->GetYCluster200()->PeakSum();
     double clc_y2 = ytrk->GetYCluster300()->PeakSum();
-	if(fabs(timing_x0 - timing_y0 - timing_offset0) < timing_window_100){
+	if(fabs(timing_x0 - timing_y0 - timing_offset0) < kTimingWindow100){
 //	std::cout << "timing 100   ok" << std::endl;
 //		std::cout  << fabs(timing_x1 - timing_y1 - timing_offset1)  << std::endl;
-		if(fabs(timing_x1 - timing_y1 - timing_offset1) < timing_window_200){
+		if(fabs(timing_x1 - timing_y1 - timing_offset1) < kTimingWindow200){
 //	std::cout << "timing 200   ok" << std::endl;
-			if(fabs(timing_x2 - timing_y2 - timing_offset2) < timing_window_300){
+			if(fabs(timing_x2 - timing_y2 - timing_offset2) < kTimingWindow300){
 //	std::cout << "timing 300   ok" << std::endl;
-				if(fabs(clc_x0 - clc_y0 - clc_offset0) < clc_window_100){
+				if(fabs(clc_x0 - clc_y0 - clc_offset0) < kClusterChargeWindow100){
 //	std::cout << "clc 100   ok" << std::endl;
 
-					if(fabs(clc_x1 - clc_y1 - clc_offset1) < clc_window_200){
+					if(fabs(clc_x1 - clc_y1 - clc_offset1) < kClusterChargeWindow200){
 //	std::cout << "clc 200   ok" << std::endl;
-						if(fabs(clc_x2 - clc_y2 - clc_offset2) < clc_window_300){
+						if(fabs(clc_x2 - clc_y2 - clc_offset2) < kClusterChargeWindow300){
 //	std::cout << "clc 300   ok" << std::endl;
 							flag = 1;
 						}
@@ -1875,16 +1665,14 @@ bool StraightTrackAnalyzerOfWireV1::IsMatchedXandYTrack(std::shared_ptr<E16ANA_X
 	return flag;	
 }
 
-void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk_cands){
+
+void StraightTrackAnalyzerOfWireV1::MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk_cands){
     int index = 0;
 	int cnt = 0;
 	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator  itery = y_trk_cands.begin();
 	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iterx = xz_trk_cands.begin();
-//	std::cout << "x track size " << xz_trk_cands.size() << std::endl;
-//	std::cout << "y track size " << y_trk_cands.size() << std::endl;
 
-// Before Matching x and y hits, delete duplicated 
-//---------- delete x hit not associated with y hit -----------------//
+//---------- Delete x hits not associated with y hit -----------------//
 	while(iterx != xz_trk_cands.end()){
 		bool hasMatched = 0;
 		while(itery != y_trk_cands.end()){
@@ -1904,7 +1692,7 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
 	}
 //	std::cout << "After Require associated hits ONLY X (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
 
-//---------- delete y hit not associated with x hit -----------------//
+//---------- Delete y hit not associated with x hit -----------------//
 	while(itery != y_trk_cands.end()){
 		bool hasMatched = 0;
 		while(iterx != xz_trk_cands.end()){
@@ -1980,8 +1768,8 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
  //           std::cout << "a duplicated track Y is erased !" << std::endl;
         }
     }
-//	std::cout << "After deleting duplicated points  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
-
+////	std::cout << "After deleting duplicated points  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
+//
 
 //	std::cout << "size x " << xz_trk_cands.size() << std::endl;
 //	std::cout << "size y " << y_trk_cands.size() << std::endl;
@@ -2040,6 +1828,173 @@ void StraightTrackAnalyzerV0::MatchingXYHitsAfterLinearFit(std::vector<std::shar
 //           std::cout << "a duplicated XYZ track is erased !" << std::endl;
       }
   }
+}
+
+void StraightTrackAnalyzerOfTargets::MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk_cands){
+    int index = 0;
+	int cnt = 0;
+	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator  itery = y_trk_cands.begin();
+	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iterx = xz_trk_cands.begin();
+//	std::cout << "x track size " << xz_trk_cands.size() << std::endl;
+//	std::cout << "y track size " << y_trk_cands.size() << std::endl;
+
+// Before Matching x and y hits, delete duplicated 
+//---------- delete x hit not associated with y hit -----------------//
+	while(iterx != xz_trk_cands.end()){
+		bool hasMatched = 0;
+		while(itery != y_trk_cands.end()){
+			if(IsMatchedXandYTrack((*iterx), (*itery))){
+				hasMatched = 1;
+			}
+			++itery;
+		}
+		itery = y_trk_cands.begin();
+		cnt++;
+		if(hasMatched == true){
+			++iterx;
+		}
+		else {
+			iterx = xz_trk_cands.erase(iterx);	
+		}
+	}
+//	std::cout << "After Require associated hits ONLY X (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
+
+//---------- delete y hit not associated with x hit -----------------//
+	while(itery != y_trk_cands.end()){
+		bool hasMatched = 0;
+		while(iterx != xz_trk_cands.end()){
+			if(IsMatchedXandYTrack((*iterx), (*itery))){
+				hasMatched = 1;
+			}
+			++iterx;
+		}
+		iterx = xz_trk_cands.begin();
+		if(hasMatched == true){
+			++itery;
+		}
+		else {
+			itery = y_trk_cands.erase(itery);	
+		}
+	}
+//	std::cout << "After Require associated hits  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
+
+
+//--delete  duplicated hits
+////sort by chi2, and if the hits are overlaped, the track are deleted 
+//	int max = 1000;
+//	#define lengthof(x)(sizeof(x) / sizeof(*(x)))
+//	bool i_table[10][max] = {{}};
+//	bool j_table[10][max] = {{}};
+//	bool k_table[10][max] = {{}};
+//	std::fill((bool*)i_table, (bool*)(i_table + lengthof(i_table)), 0);
+//	std::fill((bool*)j_table, (bool*)(j_table + lengthof(j_table)), 0);
+//	std::fill((bool*)k_table, (bool*)(k_table + lengthof(k_table)), 0);
+////	std::fill_n(i_table[10], i_table[10], 0);
+////	std::fill_n(j_table[10], j_table[10], 0);
+////	std::fill_n(k_table[10], k_table[10], 0);
+//    std::sort(xz_trk_cands.begin(), xz_trk_cands.end(), E16ANA_XZTrackCandidate::CompareTrackFunctor());
+//	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iter = xz_trk_cands.begin();
+//    while(iter != xz_trk_cands.end()){
+//		int m = (*iter)->ModuleID()-100;
+//		if( i_table[m][(*iter)->ID100Hit()] == 0 && j_table[m][(*iter)->ID200Hit()] == 0 && k_table[m][(*iter)->ID300Hit()] == 0 ){
+//            i_table[m][(*iter)->ID100Hit()] = 1;
+//			j_table[m][(*iter)->ID200Hit()] = 1; 
+//			k_table[m][(*iter)->ID300Hit()] = 1; 
+//            ++iter;
+//        }
+//        else{
+//            iter = xz_trk_cands.erase(iter);
+//
+//  //          std::cout << "a duplicated track X is erased !" << std::endl;
+//        }
+//    }
+//
+////---- for Y
+////	int max = 10000;
+//	bool iy_table[10][max] = {{}};
+//	bool jy_table[10][max] = {{}};
+//	bool ky_table[10][max] = {{}};
+//	std::fill((bool*)iy_table, (bool*)(iy_table + lengthof(iy_table)), 0);
+//	std::fill((bool*)jy_table, (bool*)(jy_table + lengthof(jy_table)), 0);
+//	std::fill((bool*)ky_table, (bool*)(ky_table + lengthof(ky_table)), 0);
+////	std::fill_n(i_table[10], i_table[10], 0);
+////	std::fill_n(j_table[10], j_table[10], 0);
+////	std::fill_n(k_table[10], k_table[10], 0);
+//    std::sort(y_trk_cands.begin(), y_trk_cands.end(), E16ANA_YTrackCandidate::CompareTrackFunctor());
+//	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator iter2 = y_trk_cands.begin();
+//    while(iter2 != y_trk_cands.end()){
+//		int m = (*iter2)->ModuleID()-100;
+//		if( iy_table[m][(*iter2)->ID100Hit()] == 0 && jy_table[m][(*iter2)->ID200Hit()] == 0 && ky_table[m][(*iter2)->ID300Hit()] == 0 ){
+//            iy_table[m][(*iter2)->ID100Hit()] = 1;
+//			jy_table[m][(*iter2)->ID200Hit()] = 1; 
+//			ky_table[m][(*iter2)->ID300Hit()] = 1; 
+//            ++iter2;
+//        }
+//        else{
+//            iter2 = y_trk_cands.erase(iter2);
+// //           std::cout << "a duplicated track Y is erased !" << std::endl;
+//        }
+//    }
+////	std::cout << "After deleting duplicated points  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
+//
+
+//	std::cout << "size x " << xz_trk_cands.size() << std::endl;
+//	std::cout << "size y " << y_trk_cands.size() << std::endl;
+
+//---- matching by which target, timing, adc -----------------///////
+    for(int i = 0; i<xz_trk_cands.size(); i++){
+        std::shared_ptr<E16ANA_XZTrackCandidate> xz_trk = xz_trk_cands[i];
+        	for(int j=0; j<y_trk_cands.size(); j++){
+            	std::shared_ptr<E16ANA_YTrackCandidate> y_trk =y_trk_cands[j];
+	        	    if(IsMatchedXandYTrack(xz_trk, y_trk)){//module, target, timing, adc matching
+	                    std::shared_ptr<E16ANA_XYZStraightTrack> trk = std::make_shared<E16ANA_XYZStraightTrack>();
+    	                trk->SetXZTrack(xz_trk);
+        	            trk->SetYTrack(y_trk);
+						trk->SetXTrackID(i);
+						trk->SetYTrackID(j);
+//						if(which_tgt == 0 ){
+//							trk->SetDistanceYTrackAndTgt(y_track->DistanceFromUpstreamTgt());
+//						}
+//						else if(which_tgt == 1 ){
+//							trk->SetDistanceYTrackAndTgt(y_track->DistanceFromMiddleTgt());
+//						}
+//						else if(which_tgt == 2 ){
+//							trk->SetDistanceYTrackAndTgt(y_track->DistanceFromDownstreamTgt());
+//						}
+//						else if(which_tgt == -1 ){
+//							trk->SetDistanceYTrackAndTgt(-1000);
+//						}
+	//					TVector3 pt0 = TVector3(xz_track->Pt0OnTrack().X(), y_track->Pt0OnTrack().Y(), xz_track->Pt0OnTrack().Y());
+//						TVector3 pt2 = TVector3(xz_track->Pt2OnTrack().X(), y_track->Pt2OnTrack().Y(), xz_track->Pt2OnTrack().Y());
+//						trk->SetTwoPointsOnTrack(pt0, pt2);
+						trk->SetFitPtOnGTR100(TVector3(xz_trk->FitPtOnGTR100().X(), y_trk->GetFitRes100().X(), xz_trk->FitPtOnGTR100().Y()));
+						trk->SetFitPtOnGTR200(TVector3(xz_trk->FitPtOnGTR200().X(), y_trk->GetFitRes200().X(), xz_trk->FitPtOnGTR200().Y()));
+						trk->SetFitPtOnGTR300(TVector3(xz_trk->FitPtOnGTR300().X(), y_trk->GetFitRes300().X(), xz_trk->FitPtOnGTR300().Y()));
+	                    xyz_st_trk.push_back(trk);
+//						SetPointsOn3DTrack(xz_track, y_track);
+//						std::cout << "trk id(x, y) = " << j<<", " <<i << std::endl; 
+            	        index++;
+					}
+            }
+    }
+//    bool xz_table[xz_trk_cands.size()] = {};
+//	bool yr_table[y_trk_cands.size()] = {};
+//	std::fill_n(xz_table, xz_trk_cands.size(), 0);
+//	std::fill_n(yr_table, y_trk_cands.size(), 0);
+//	std::sort(xyz_st_trk.begin(), xyz_st_trk.end(), E16ANA_XYZStraightTrack::CompareTimingDifferenceFunctor());
+//  //sort by chi2, and if the hits are overlaped, the track is erased 
+//  std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>>::const_iterator iter3d = xyz_st_trk.begin();
+//  while(iter3d != xyz_st_trk.end()){
+//  	if( xz_table[(*iter3d)->XTrackID()] == 0 && yr_table[(*iter3d)->YTrackID()] == 0 ){
+//        xz_table[(*iter3d)->XTrackID()] = 1;
+//    	yr_table[(*iter3d)->YTrackID()] = 1; 
+//          ++iter3d;
+//      }
+//      else{
+//           iter3d = xyz_st_trk.erase(iter3d);
+////           std::cout << "a duplicated XYZ track is erased !" << std::endl;
+//      }
+//  }
 }
 
 
@@ -2273,6 +2228,41 @@ std::vector<long double> StraightTrackAnalyzerV0::LeastSquareMethod(std::vector<
 	}
 	return lst_sq_results;
 }
+
+double StraightTrackAnalyzerV0::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2){//a+bx
+    G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));
+	double r100_2 = pos_100.x()*pos_100.x() + pos_100.y()*pos_100.y() + pos_100.z()*pos_100.z();
+	double r100  = sqrt(r100_2);
+	double zpos_x200mm = b*(r100) + a;
+    G4ThreeVector pos_300 = ((geom_v2->GTR(kawama_module, 2)->GetGPos(G4ThreeVector(0,0,0))));
+	double r300_2 = pos_300.x()*pos_300.x() + pos_300.y()*pos_300.y() + pos_300.z()*pos_300.z();
+	double r300  = sqrt(r300_2);
+    double zpos_x600mm = b*r300 + a;
+    TVector2 ref_pt0(zpos_x200mm, r100);
+    TVector2 ref_pt1(zpos_x600mm, r300);
+	TVector2 ref_pt2(b*3000 + a, 3000);
+	double rphi = phi - 1.570796;
+    TVector2 pt0 = ref_pt0.Rotate(rphi);
+    TVector2 pt1 = ref_pt1.Rotate(rphi);
+	TVector2 pt2 = ref_pt2.Rotate(rphi);
+	double tgt_z;
+	if(n_tgt == 3){
+    	tgt_z = (pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());//x = 0
+    }
+	else if(n_tgt == 2 && pm_wire == -1){
+    	tgt_z = (pt1.Y()-pt0.Y())*(wire_x1)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
+    }
+	else if(n_tgt == 2 && pm_wire == 1){
+    	tgt_z = (pt1.Y()-pt0.Y())*(wire_x2)/(pt1.X()-pt0.X())  +(pt0.X()*pt1.Y()-pt0.Y()*pt1.X())/(pt0.X()-pt1.X());
+    }
+    ref_pt0.Clear();
+    ref_pt1.Clear();
+    pt0.Clear();
+    pt1.Clear();
+    return tgt_z;
+}
+
+
 
 double StraightTrackAnalyzerV0::ReconstructTgtPosBeforeVertex(double a, double b, double phi, int kawama_module, E16ANA_GeometryV2 *geom_v2, std::shared_ptr<E16ANA_XZTrackCandidate> trk ){//a+bx
     G4ThreeVector pos_100 = ((geom_v2->GTR(kawama_module, 0)->GetGPos(G4ThreeVector(0,0,0))));

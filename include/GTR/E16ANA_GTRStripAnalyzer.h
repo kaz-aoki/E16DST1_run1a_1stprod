@@ -34,12 +34,29 @@ private:
    double tan_incident_angle;    // radian
    double timing;                // ns
    double timing2;                // ns
+   double timing3;                // ns
+   double timing4;                // ns
    double tdchit; // 50% of peak
    double tdchit2; // 50% of peak
    double tanthe;
    double tanthe2;
+   double maxtot;
+   double maxriset;
    std::vector<float>           ctiming;
+   std::vector<float>           ctiming2;
+   std::vector<float>           ctiming3;
+   std::vector<float>           ctiming4;
+   std::vector<float>           ctiming5;
    std::vector<float>           cpos;
+   std::vector<float>           cpos2;
+   std::vector<float>           cpos3;
+   std::vector<float>           cpos4;
+   std::vector<float>           cpos5;
+   std::vector<float>           cadc1;
+   std::vector<float>           cadc2;
+   std::vector<float>           cadc3;
+   std::vector<float>           cadc4;
+   std::vector<float>           cadc5;
 
    int layerID;                  // 0-2
    int moduleID;                 // 0-32
@@ -53,6 +70,9 @@ private:
    std::vector<int> strip_id;
    std::vector<double> strip_pos;
    std::vector<double> strip_tot;
+   std::vector<double> strip_st;
+   std::vector<double> strip_ed;
+   std::vector<double> strip_peakt;
    std::vector<std::array<double, n_sampling>> strip_fadc;
 public:
    E16ANA_GTRAnalyzedStripHit() { SetInvalid(); };
@@ -89,13 +109,34 @@ public:
       tdchit2 = kInvalidValue;
       tanthe  = kInvalidValue;
       tanthe2 = kInvalidValue;
+      maxtot  = kInvalidValue;
+	  maxriset= kInvalidValue;
+	  timing3 = kInvalidValue;
+	  timing4 = kInvalidValue;
+
+	  cadc1.clear();
+	  cadc2.clear();
+	  cadc3.clear();
+	  cadc4.clear();
+	  cadc5.clear();
       cpos.clear();
       ctiming.clear();
+      cpos2.clear();
+      ctiming2.clear();
+      cpos3.clear();
+      ctiming3.clear();
+      cpos4.clear();
+      ctiming4.clear();
+      cpos5.clear();
+      ctiming5.clear();
       strip_id.clear();
       strip_pos.clear();
       strip_tot.clear();
       strip_charge.clear();
       strip_timing.clear();
+      strip_st.clear();
+	  strip_ed.clear();
+	  strip_peakt.clear();
       strip_fadc.clear();
 //	  for(int i=0; i < strip_fadc.size(); i++){
 //	   	 for(int j=0; j < n_sampling; j++){
@@ -121,6 +162,25 @@ public:
    void SetTanTheta2(double _tanthe2) { tanthe2 = _tanthe2; }
    void SetCTiming(double t) { ctiming.push_back(t); }
    void SetCPos(double t)    { cpos.push_back(t); }
+   void SetRiset(double t) {maxriset = t;}
+   void SetMtot(double t) {maxtot = t;}
+   void SetTiming3(double t) { timing3 = t; }
+   void SetTiming4(double t) { timing4 = t; }
+   void SetCTiming2(double t) { ctiming2.push_back(t); }
+   void SetCPos2(double t)    { cpos2.push_back(t); }
+   void SetCTiming3(double t) { ctiming3.push_back(t); }
+   void SetCPos3(double t)    { cpos3.push_back(t); }
+   void SetCTiming4(double t) { ctiming4.push_back(t); }
+   void SetCPos4(double t)    { cpos4.push_back(t); }
+   void SetCTiming5(double t) { ctiming5.push_back(t); }
+   void SetCPos5(double t)    { cpos5.push_back(t); }
+
+   void SetCAdc1(double t)   { cadc1.push_back(t); }
+   void SetCAdc2(double t)   { cadc2.push_back(t); }
+   void SetCAdc3(double t)   { cadc3.push_back(t); }
+   void SetCAdc4(double t)   { cadc4.push_back(t); }
+   void SetCAdc5(double t)   { cadc5.push_back(t); }
+
    
 
    void SetLayerAndModuleIDandType(int id1, int id2, int itype)
@@ -135,13 +195,16 @@ public:
    bool IsYb() { return type == is_yb; }
    int Type() { return type; }
 
-   void PushBackStrip(int id, double pos, double charge, double t, double tot = 0.0, double *fadc = nullptr)
+   void PushBackStrip(int id, double pos, double charge, double t, double tot , double pt, double st, double ed, double *fadc = nullptr)
    {
       strip_id.push_back(id);
       strip_pos.push_back(pos);
       strip_charge.push_back(charge);
       strip_timing.push_back(t);
       strip_tot.push_back(tot);
+      strip_peakt.push_back(pt);
+      strip_st.push_back(st);
+      strip_ed.push_back(ed);
 	  if (fadc != nullptr){
          std::array<double, n_sampling> a_fadc;
 		 std::copy_n(fadc, n_sampling, a_fadc.begin());
@@ -170,13 +233,36 @@ public:
    double StripPos(int i) { return strip_pos[i]; };
    double StripCharge(int i) { return strip_charge[i]; };
    double StripTiming(int i) { return strip_timing[i]; };
+   double StripPeakt(int i) {return strip_peakt[i];};
+   double StripTotEd(int i) {return strip_ed[i];};
+   double StripTotSt(int i) {return strip_st[i];};
    double StripTimeOverThreshold(int i) { return strip_tot[i]; };
    double Timing2() { return timing2; }
+   double Timing3() { return timing3; }
+   double Timing4() { return timing4; }
    double TdcHit2() { return tdchit2; }
    double TanTheta2() { return tanthe2; }
-   double            CTiming(int i) { return ctiming[i]; }
+   double            CTiming(int i) { return  ctiming[i]; }
+   double            CTiming2(int i) { return ctiming2[i]; }
+   double            CTiming3(int i) { return ctiming3[i]; }
+   double            CTiming4(int i) { return ctiming4[i]; }
+   double            CTiming5(int i) { return ctiming5[i]; }
    double            CPos(int i)    { return cpos[i]; }
+   double            CPos2(int i)    { return cpos2[i]; }
+   double            CPos3(int i)    { return cpos3[i]; }
+   double            CPos4(int i)    { return cpos4[i]; }
+   double            CPos5(int i)    { return cpos5[i]; }
+   double            CAdc1(int i)    {return cadc1[i];}
+   double            CAdc2(int i)    {return cadc2[i];}
+   double            CAdc3(int i)    {return cadc3[i];}
+   double            CAdc4(int i)    {return cadc4[i];}
+   double            CAdc5(int i)    {return cadc5[i];}
    int               NumCls() { return ctiming.size(); }
+   int               NumCls2() { return ctiming2.size(); }
+   int               NumCls3() { return ctiming3.size(); }
+   int               NumCls4() { return ctiming4.size(); }
+   double MaxTot() {return maxtot;}
+   double MaxRiset() {return maxriset;}
    std::array<double, n_sampling> &StripFadc(int i){return strip_fadc[i];}
 //   double StripFadc(int i, int j){return strip_fadc[i][j];}
 
@@ -281,8 +367,11 @@ protected:
    double *fadc_peak;
    double *fadc_peak_time;
    double *fadc_peak_tdc;
+   double *fadc_peak_st;
+   double *fadc_peak_ed;
    double *fadc_tdc;
    double *fadc_tot;
+   double *fadc_rise;
 
    double bad_pedestal_threshold;
    double bad_pedestal_sigma_threshold;
@@ -353,6 +442,7 @@ protected:
    void CalcCenterOfGravity(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit);
    void CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
    void CalcTdcHit12(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
+   void CalcTdcHit12V2(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
 
    void
    CalcTdcHit2(const std::vector<int> &strip_ids, double tan_theta, E16ANA_GTRAnalyzedStripHit &hit); // fixed method
@@ -360,6 +450,13 @@ protected:
                                std::vector<double> &time_array, std::vector<double> &peak_array);
    void SetArraysForTdcMethods2(const std::vector<int> &strip_ids, std::vector<double> &x_array,
 				std::vector<double> &time_array, std::vector<double> &peak_array);
+   void SetArraysForTdcMethods3(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+				std::vector<double> &time_array, std::vector<double> &peak_array, 
+				std::vector<double> &xcent, std::vector<double> &xtime, 
+				std::vector<double> &adc1, std::vector<double> &adc2, 
+				std::vector<double> &adc3, std::vector<double> &adc4, std::vector<double> &adc5, double &time4);
+   void SetArraysForTdcMethods4(const std::vector<int> &strip_ids, std::vector<double> &x_array, std::vector<double> &x_array2, 
+				std::vector<double> &time_array, std::vector<double> &time_array2);
 
    // void CalcTdcHit3(bool fix_flag, const std::vector<double> &x, const std::vector<double> &z, const
    // std::vector<double> &peak, E16ANA_GTRAnalyzedStripHit &hit, int hitID);

@@ -9,8 +9,14 @@ namespace E16ANA_StraightTrackNameSpace {
 //     double  kXSigmaTGT = 1.5;
 //     double  kYSigmaTGT = 1.5;
 	// std::vector<double> kYsigma = {0.5, 0.5, 0.5};
-	  double kFitChi2ThresholdX = 50.;
-	  double kFitChi2ThresholdY = 100.;
+	 double kFitChi2ThresholdX = 20.;
+	 double kFitChi2ThresholdY = 20.;
+     double kTimingWindow100 = 40.;
+     double kTimingWindow200 = 60.;
+     double kTimingWindow300 = 60.;
+     double kClusterChargeWindow100 = 4000.;
+     double kClusterChargeWindow200 = 4000.;
+     double kClusterChargeWindow300 = 4000.;
 //	  double kFitChi2ThresholdX = 250.;
 //	  double kFitChi2ThresholdY = 250.;
 //	  std::array<double, 3> kGTRPeakSumThresholdX = { 80,  80, 50000};
