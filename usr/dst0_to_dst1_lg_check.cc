@@ -23,6 +23,8 @@ using namespace std;
 // namespace  bpo = boost::program_options;
 
 // #define WF_ON
+#define LED_ON
+// #define TRG_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
@@ -83,9 +85,17 @@ int main(int argc, char* argv[]) {
   tree->Branch("Trg",&trg,"Trg/O");
   tree->Branch("TrgwTRK",&trgwtrk,"TrgwTRK/O");
 
+  int ledmid[8] = {104,104,103,103,102,102,106,107};
+  int ledcid[8] = {  5,  2,  5,  2,  5,  2,  0,  0};
+  TH1F* hled[8];
+  for(int i=0;i<8;i++){
+    hled[i] = new TH1F(Form("hled%d",i),Form("%d-%d",ledmid[i],ledcid[i]),1500,0,1500);
+  }
+
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
+#ifdef TRG_ON
   E16ANA_TriggerCalibParam trigger_param;
   trigger_param.ReadConstantData(calib.CurrentRunID());
   bool TrigIsAWmax = trigger_param.IsMaximumWidth();
@@ -93,13 +103,16 @@ int main(int argc, char* argv[]) {
   int TrigAWmin = trigger_param.MinimumWidth();
   int TrigTW = trigger_param.TimeWidth();
   if(!TrigIsAWmax){TrigAWmax=10000;}
-  // bool TrigIsAWmax = false;
-  // int TrigAWmax = -10000;
-  // int TrigAWmin = -10000;
-  // int TrigTW = -10000;
+  std::cout<<TrigIsAWmax<<" "<<TrigAWmax<<" "<<TrigAWmin<<" "<<TrigTW<<std::endl;
+#else
+  bool TrigIsAWmax = false;
+  int TrigAWmax = -10000;
+  int TrigAWmin = -10000;
+  int TrigTW = -10000;
+#endif
 
-  E16ANA_GTRcalibPedestal gtrped;
-  gtrped.ReadCalibData( calib.CurrentRunID() );
+  // E16ANA_GTRcalibPedestal gtrped;
+  // gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
   E16ANA_LGDeadChannel lgdead;
   lgbasic.SetMap();
@@ -117,14 +130,14 @@ int main(int argc, char* argv[]) {
   }
   E16DST_DST1PhysicsRecord record;
 
-//  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
-//  gtr_pedestal->Read(argv[5]);
-//  auto dst1 = new E16DST_DST1();
-//  auto dst1 = new E16DST_DST0();
-//  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
-//    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
-//    return -1;
-//   }
+  // E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
+  // gtr_pedestal->Read(argv[5]);
+  // auto dst1 = new E16DST_DST1();
+  // auto dst1 = new E16DST_DST0();
+  // if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
+  //   std::cerr << "Cannot open output file: " << out_file_name << std::endl;
+  //   return -1;
+  // }
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -150,9 +163,11 @@ int main(int argc, char* argv[]) {
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
+#ifdef TRG_ON
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
+#endif
 
 //// Check begin
 //// LG
@@ -290,6 +305,13 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
+#ifdef LED_ON
+	for(int iled=0;iled<8;iled++){
+	  if(module==ledmid[iled]&&block==ledcid[iled]){
+	    hled[iled]->Fill(peakheight);
+	  }
+	}
+#endif
 	delete lgwf;
 
       }
