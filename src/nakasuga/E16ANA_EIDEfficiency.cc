@@ -847,8 +847,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    TH1F* hmomwotrg[6];
    TH1I* hresxtrg[6];
    TH1I* hresytrg[6];
-   TH2F* hbdadcvsmom[5];
-   TH2F* ssdadcvsmom[5];
+   TH2F* hbdadcvsmom[6];
+   TH2F* ssdadcvsmom[6][3];
+   TH2F* ssdadcvsmom_pil[6][3];
+   TH2F* ssdadcvsmom_pl[6][3];
    for(int i=0;i<6;i++){
      trkmom[i] = new TH1F(Form("trkmom%d",i),Form("mom_w/HBDHit_mod%d",103+i),50,0,5);
      hmomwlg[i] = new TH1F(Form("hmomwlg%d",i),Form("mom_w/LGHit_mod%d",103+i),50,0,5);
@@ -857,6 +859,13 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      hmomwotrg[i] = new TH1F(Form("hmomwotrg%d",i),Form("mom_w/oTrgBias_mod%d",103+i),50,0,5);
      hresxtrg[i] = new TH1I(Form("hresxtrg%d",i),Form("Residualx_bw_HBD&LG_trg_mod%d",103+i),15,-7.5,7.5);
      hresytrg[i] = new TH1I(Form("hresytrg%d",i),Form("Residualy_bw_HBD&LG_trg_mod%d",103+i),15,-7.5,7.5);
+     hbdadcvsmom[i] = new TH2F(Form("hbdadcvsmom%d",i),Form("mom_vs_HBDadc_mod%d",103+i),50,0,5,100,0,4000);
+     for(int j=0;j<3;j++){
+       int jd = j+((j+2)/3);
+       ssdadcvsmom[i][j] = new TH2F(Form("ssdadcvsmom%d%d",i,j),Form("mom_vs_SSDadc_%s_mod%d",opt[jd],103+i),60,0,3,100,0,1000);
+       ssdadcvsmom_pil[i][j] = new TH2F(Form("ssdadcvsmom_pil%d%d",i,j),Form("mom_vs_SSDadc_%s_PiLike_mod%d",opt[jd],103+i),60,0,3,100,0,1000);
+       ssdadcvsmom_pl[i][j] = new TH2F(Form("ssdadcvsmom_pl%d%d",i,j),Form("mom_vs_SSDadc_%s_Protonlike_mod%d",opt[jd],103+i),60,0,3,100,0,1000);
+     }
      if(i==2){
        trkmom[i]->SetTitle("mom_w/HBDHit_modR");
        hmomwlg[i]->SetTitle("mom_w/LGHit_modR");
@@ -865,6 +874,13 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        hmomwotrg[i]->SetTitle("mom_w/oTrgBias_modR");
        hresxtrg[i]->SetTitle("Residualx_bw_HBD&LG_trg_modR");
        hresytrg[i]->SetTitle("Residualy_bw_HBD&LG_trg_modR");
+       hbdadcvsmom[i]->SetTitle("mom_vs_HBDadc_modR");
+       for(int j=0;j<3;j++){
+	 int jd = j+((j+2)/3);
+	 ssdadcvsmom[i][j]->SetTitle(Form("mom_vs_SSDadc_%s_modR",opt[jd]));
+	 ssdadcvsmom_pil[i][j]->SetTitle(Form("mom_vs_SSDadc_%s_PiLike_modR",opt[jd]));
+	 ssdadcvsmom_pl[i][j]->SetTitle(Form("mom_vs_SSDadc_%s_ProtonLike_modR",opt[jd]));
+       }
      }
      if(i==5){
        trkmom[i]->SetTitle("mom_w/HBDHit_modL");
@@ -874,13 +890,17 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        hmomwotrg[i]->SetTitle("mom_w/oTrgBias_modL");
        hresxtrg[i]->SetTitle("Residualx_bw_HBD&LG_trg_modL");
        hresytrg[i]->SetTitle("Residualy_bw_HBD&LG_trg_modL");
+       hbdadcvsmom[i]->SetTitle("mom_vs_HBDadc_modL");
+       for(int j=0;j<3;j++){
+	 int jd = j+((j+2)/3);
+	 ssdadcvsmom[i][j]->SetTitle(Form("mom_vs_SSDadc_%s_modL",opt[jd]));
+	 ssdadcvsmom_pil[i][j]->SetTitle(Form("mom_vs_SSDadc_%s_PiLike_modL",opt[jd]));
+	 ssdadcvsmom_pl[i][j]->SetTitle(Form("mom_vs_SSDadc_%s_ProtonLike_modL",opt[jd]));
+       }
      }
    }
    for(int i=0;i<5;i++){
      hbdhitmap[i] = new TH2F(Form("hbdhitmap%d",i),Form("HBDhitmap_mod%d_Fore",103+i),50,-300,300,50,-300,300);
-     hbdadcvsmom[i] = new TH2F(Form("hbdadcvsmom%d",i),Form("mom_vs_HBDadc_mod%d",103+i),50,0,5,100,0,4000);
-     int sc = 2;if(runoption==0){sc = 1;}
-     ssdadcvsmom[i] = new TH2F(Form("ssdadcvsmom%d",i),Form("mom_vs_SSDadc_mod%d",103+i),50,0,5,100,0,1000*2);
      hbdadcwot[i] = new TH1F(Form("hbdadcwot%d",i),Form("HBDadc_TrackAssoc_wotrg_mod%d_Fore",103+i),100,0,20);
      hbdadcwotd[i] = new TH1F(Form("hbdadcwotd%d",i),Form("HBDadc_TrackAssoc_wotrg_mod%d_Mix",103+i),100,0,20);
      hbdadcwt[i] = new TH1F(Form("hbdadcwt%d",i),Form("HBDadc_TrackAssoc_wtrg_mod%d_Fore",103+i),100,0,20);
@@ -1179,11 +1199,23 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   hbdadcwot[hmide]->Fill(hbdmaxadc);
 	   hbdadcwot[2]->Fill(hbdmaxadc);
 	 }
+	 hbdadcvsmom[hmide]->Fill(track_mom->at(itrack),hbdmaxadc);
+	 if(lmide==0||lmide==1){hbdadcvsmom[2]->Fill(track_mom->at(itrack),hbdmaxadc);}
+	 if(lmide==3||lmide==4){hbdadcvsmom[5]->Fill(track_mom->at(itrack),hbdmaxadc);}
+	 ssdadcvsmom[hmide][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	 if(lmide==0||lmide==1){ssdadcvsmom[2][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	 if(lmide==3||lmide==4){ssdadcvsmom[5][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	 if(rk_charge->at(itrack)==1){
+	   ssdadcvsmom[hmide][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	   if(lmide==0||lmide==1){ssdadcvsmom[2][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   if(lmide==3||lmide==4){ssdadcvsmom[5][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	 }
+	 if(rk_charge->at(itrack)==-1){
+	   ssdadcvsmom[hmide][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	   if(lmide==0||lmide==1){ssdadcvsmom[2][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   if(lmide==3||lmide==4){ssdadcvsmom[5][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	 }
        }
-       hbdadcvsmom[hmide]->Fill(track_mom->at(itrack),hbdmaxadc);
-       hbdadcvsmom[2]->Fill(track_mom->at(itrack),hbdmaxadc);
-       ssdadcvsmom[hmide]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
-       ssdadcvsmom[2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
 
        if(hbdmixhits[hmide][itype].size()!=0){//calc mix
 	 for(int ihbd=0;ihbd<hbdmixhits[hmide][itype].size();ihbd++){
@@ -1326,6 +1358,36 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 trkmom[lmide]->Fill(track_mom->at(itrack));
 	 if(lmide==0||lmide==1){trkmom[2]->Fill(track_mom->at(itrack));}
 	 if(lmide==3||lmide==4){trkmom[5]->Fill(track_mom->at(itrack));}
+	 if(adcsum>25&&adcsum<50){
+	   ssdadcvsmom_pil[hmide][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	   if(lmide==0||lmide==1){ssdadcvsmom_pil[2][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   if(lmide==3||lmide==4){ssdadcvsmom_pil[5][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   if(rk_charge->at(itrack)==1){
+	     ssdadcvsmom_pil[hmide][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	     if(lmide==0||lmide==1){ssdadcvsmom_pil[2][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	     if(lmide==3||lmide==4){ssdadcvsmom_pil[5][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   }
+	   if(rk_charge->at(itrack)==-1){
+	     ssdadcvsmom_pil[hmide][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	     if(lmide==0||lmide==1){ssdadcvsmom_pil[2][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	     if(lmide==3||lmide==4){ssdadcvsmom_pil[5][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   }
+	 }
+	 if(adcsum<15){
+	   ssdadcvsmom_pl[hmide][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	   if(lmide==0||lmide==1){ssdadcvsmom_pl[2][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   if(lmide==3||lmide==4){ssdadcvsmom_pl[5][0]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   if(rk_charge->at(itrack)==1){
+	     ssdadcvsmom_pl[hmide][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	     if(lmide==0||lmide==1){ssdadcvsmom_pl[2][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	     if(lmide==3||lmide==4){ssdadcvsmom_pl[5][1]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   }
+	   if(rk_charge->at(itrack)==-1){
+	     ssdadcvsmom_pl[hmide][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));
+	     if(lmide==0||lmide==1){ssdadcvsmom_pl[2][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	     if(lmide==3||lmide==4){ssdadcvsmom_pl[5][2]->Fill(track_mom->at(itrack),track_ssd_adc->at(itrack));}
+	   }
+	 }
 	 bool bclstrk = false;
 	 for(int ia=0;ia<trk_ass_cids.size();ia++){
 	   int cidtmp = trk_ass_cids.at(ia);
@@ -2527,32 +2589,32 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 
      leff2[i]->Draw();
    }
-   if(hbdclthr==1){
-     std::ofstream psum("purity_wocsa.txt",ios::app);
-     psum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
-     }
-     psum<<std::endl;
-     // std::ofstream esum("lgeff_wocsa.txt",ios::app);
-     // esum<<hbdthr<<" ";
-     // for(int i=0;i<4;i++){
-     //   esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
-     // }
-     // esum<<std::endl;
-     std::ofstream pbsum("purity_wohbd_wocsa.txt",ios::app);
-     pbsum<<hbdthr<<" ";
-     for(int i=0;i<4;i++){
-       pbsum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1][1]*(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][0]<<" ";
-     }
-     pbsum<<std::endl;
-     // std::ofstream hesum("hbdeff_wocsa.txt",ios::app);
-     // hesum<<hbdthr<<" ";
-     // for(int i=0;i<4;i++){
-     //   hesum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][1][0]<<" ";
-     // }
-     // hesum<<std::endl;
-   }
+   // if(hbdclthr==1){
+   //   std::ofstream psum("purity_wocsa.txt",ios::app);
+   //   psum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     psum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][1]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][1]<<" ";
+   //   }
+   //   psum<<std::endl;
+   //   std::ofstream esum("lgeff_wocsa.txt",ios::app);
+   //   esum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     esum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][0][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][0][0]<<" ";
+   //   }
+   //   esum<<std::endl;
+   //   std::ofstream pbsum("purity_wohbd_wocsa.txt",ios::app);
+   //   pbsum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     pbsum<<(double)vasub2d[2][i][0][0]/(double)ntrack[(i+3)%5][0]/(double)vasub2d[2][i][1][1]*(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][0][0])/(double)ntrack[(i+3)%5][0]<<" ";
+   //   }
+   //   pbsum<<std::endl;
+   //   std::ofstream hesum("hbdeff_wocsa.txt",ios::app);
+   //   hesum<<hbdthr<<" ";
+   //   for(int i=0;i<4;i++){
+   //     hesum<<(double)vasub2d[2][i][1][1]/(double)vasub2d[2][i][1][0]<<" "<<sqrt((double)vasub2d[2][i][1][1])/(double)vasub2d[2][i][1][0]<<" ";
+   //   }
+   //   hesum<<std::endl;
+   // }
    // if(hbdclthr==2){
    //   std::ofstream psum("purity_wcsa.txt",ios::app);
    //   psum<<hbdthr<<" ";
