@@ -22,9 +22,9 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-// #define WF_ON
-#define LED_ON
-// #define TRG_ON
+#define WF_ON
+// #define LED_ON
+#define TRG_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
@@ -47,8 +47,8 @@ int main(int argc, char* argv[]) {
 
   uint16_t module, block;
   float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
-  int run, event, multi, trgmulti, peaktime;
-  bool sl, sr, im3, spikeflag, dst1flag, trg, trgwtrk;
+  int run, event, spill, multi, trgmulti, peaktime;
+  bool sl, sr, sl2, sr2, im3, im2, spikeflag, dst1flag, trg, trgwtrk;
   double gpos[3];
   double lpos[3];
   // double waveform_raw[E16DST_Constant::NSamplesLG];
@@ -56,11 +56,15 @@ int main(int argc, char* argv[]) {
 
   tree->Branch("Run",&run,"Run/I");
   tree->Branch("Event",&event,"Event/I");
+  tree->Branch("Spill",&spill,"Spill/I");
   tree->Branch("Multi",&multi,"Multi/I");
   tree->Branch("TrgMulti",&trgmulti,"TrgMulti/I");
   tree->Branch("SL",&sl,"SL/O");
   tree->Branch("SR",&sr,"SR/O");
+  tree->Branch("SL2",&sl2,"SL2/O");
+  tree->Branch("SR2",&sr2,"SR2/O");
   tree->Branch("IM3",&im3,"IM3/O");
+  tree->Branch("IM2",&im2,"IM2/O");
 
   tree->Branch("Module",&module,"Module/s");
   tree->Branch("Block",&block,"Block/s");
@@ -85,13 +89,14 @@ int main(int argc, char* argv[]) {
   tree->Branch("Trg",&trg,"Trg/O");
   tree->Branch("TrgwTRK",&trgwtrk,"TrgwTRK/O");
 
+#ifdef LED_ON
   int ledmid[8] = {104,104,103,103,102,102,106,107};
   int ledcid[8] = {  5,  2,  5,  2,  5,  2,  0,  0};
   TH1F* hled[8];
   for(int i=0;i<8;i++){
     hled[i] = new TH1F(Form("hled%d",i),Form("%d-%d",ledmid[i],ledcid[i]),1500,0,1500);
   }
-
+#endif
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -158,6 +163,7 @@ int main(int argc, char* argv[]) {
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
       auto& trigger_lg_hits0  = event0->TriggerLG();
+      // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
 
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
@@ -175,27 +181,19 @@ int main(int argc, char* argv[]) {
 //run
       run = run_id;
       event = event0->EventID();
+      spill = event0->SpillID();
       int slflag = event0->UT3().NIMFlag(0);
       int srflag = event0->UT3().NIMFlag(1);
+      int sl2flag = event0->UT3().NIMFlag(0);//to be updated!!!!
+      int sr2flag = event0->UT3().NIMFlag(1);//to be updated!!!!
       int im3flag = event0->UT3().NIMFlag(6);
-      if(slflag==0){
-	sl = false;
-      }
-      else{
-	sl = true;
-      }
-      if(srflag==0){
-	sr = false;
-      }
-      else{
-	sr = true;
-      }
-      if(im3flag==0){
-	im3 = false;
-      }
-      else{
-	im3 = true;
-      }
+      int im2flag = event0->UT3().NIMFlag(6);//to be updated!!!!
+      if(slflag==0 ){sl  = false;} else{sl  = true;}
+      if(srflag==0 ){sr  = false;} else{sr  = true;}
+      if(sl2flag==0){sl2 = false;} else{sl2 = true;}
+      if(sr2flag==0){sr2 = false;} else{sr2 = true;}
+      if(im3flag==0){im3 = false;} else{im3 = true;}
+      if(im2flag==0){im2 = false;} else{im2 = true;}
 
       int n_dst1hits = 0;
       int n_dst1trghits = 0;
