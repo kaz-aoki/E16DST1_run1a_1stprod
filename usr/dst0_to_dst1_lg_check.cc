@@ -17,37 +17,34 @@
 #include "E16ANA_LGConstant.hh"
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
+#include "E16ANA_LGCheckHist.hh"
 #include "E16DST_Constant.hh"
 
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-#define WF_ON
-// #define LED_ON
+// #define WF_ON
 #define TRG_ON
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 7) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [hist.pdf] [wf.pdf] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
-//  bpo::variables_map vm;
-//  string in_file_name;
-//  string out_file_name;
-//  int run_num;
-
+  auto out_pdf_name = argv[3];
+  auto out_wf_pdf_name = argv[4];
+  auto run_id        = stoi(argv[5]);
+  auto max_event     = stoi(argv[6]);
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
 
   uint16_t module, block;
   float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
-  int run, event, spill, multi, trgmulti, peaktime;
+  int run, event, spill, multi, trgmulti, peaktime, ip;
   bool sl, sr, sl2, sr2, im3, im2, spikeflag, dst1flag, trg, trgwtrk;
   double gpos[3];
   double lpos[3];
@@ -68,6 +65,7 @@ int main(int argc, char* argv[]) {
 
   tree->Branch("Module",&module,"Module/s");
   tree->Branch("Block",&block,"Block/s");
+  tree->Branch("IP",&ip,"IP/I");
   tree->Branch("PeakHeight",&peakheight,"PeakHeight/F");
   tree->Branch("PeakTime",&peaktime,"PeakTime/I");
   tree->Branch("Timing",&timing,"timing/F");
@@ -88,15 +86,6 @@ int main(int argc, char* argv[]) {
   tree->Branch("TrgTiming",&trg_lg_hit_t,"TrgTiming/F");
   tree->Branch("Trg",&trg,"Trg/O");
   tree->Branch("TrgwTRK",&trgwtrk,"TrgwTRK/O");
-
-#ifdef LED_ON
-  int ledmid[8] = {104,104,103,103,102,102,106,107};
-  int ledcid[8] = {  5,  2,  5,  2,  5,  2,  0,  0};
-  TH1F* hled[8];
-  for(int i=0;i<8;i++){
-    hled[i] = new TH1F(Form("hled%d",i),Form("%d-%d",ledmid[i],ledcid[i]),1500,0,1500);
-  }
-#endif
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -143,6 +132,8 @@ int main(int argc, char* argv[]) {
   //   std::cerr << "Cannot open output file: " << out_file_name << std::endl;
   //   return -1;
   // }
+
+  auto *lghists = new E16ANA_LGCheckHist();
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -284,6 +275,8 @@ int main(int argc, char* argv[]) {
 	  waveform[cell] = waveform[cell]*wftype;
 	}
 
+	ip = spec->IP;
+
 	E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
 	lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
 
@@ -295,6 +288,7 @@ int main(int argc, char* argv[]) {
 	integral = lgwf->GetIntegral();
 	falltime = lgwf->GetFalltime();
 	spikeflag = lgwf->GetSpikeFlag();
+	calibtiming = 100.+timing-(lgbasic.GetT0(module,block));
 
 	dst1flag = dst1hitflag[module-100][block];
 	trg = dst1trghitflag[module-100][block];
@@ -303,13 +297,16 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
-#ifdef LED_ON
-	for(int iled=0;iled<8;iled++){
-	  if(module==ledmid[iled]&&block==ledcid[iled]){
-	    hled[iled]->Fill(peakheight);
-	  }
+	// if(trg){
+	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
+	// }
+	if(trg&&trg_lg_hit_t!=0){
+	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	}
-#endif
+	if(trg_lg_hit_t==0){
+	  lghists->SetWaveform(module,block,waveform);
+	}
+
 	delete lgwf;
 
       }
@@ -330,6 +327,18 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+  TString pdfout = Form("%s",out_pdf_name);
+  TCanvas* c = new TCanvas("c","c",1400,700);
+  c->SaveAs(pdfout+"[","pdf");
+  lghists->Draw(pdfout,c);
+  lghists->Draw2D(pdfout,c);
+  lghists->DrawEach(pdfout,c);
+  lghists->DrawEachTimeCorrelation(pdfout,c);
+  c->SaveAs(pdfout+"]","pdf");
+
+  TString wfpdfout = Form("%s",out_wf_pdf_name);
+  lghists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();

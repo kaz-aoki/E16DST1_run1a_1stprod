@@ -31,8 +31,8 @@ include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-#  /opt/E16/include/Geant4 # evb
-  /ccj/u/E16/include/Geant4 # ccj
+  /opt/E16/include/Geant4 # evb
+#  /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
 	include/GTR
@@ -52,8 +52,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-#  /opt/E16/lib64-gcc8/clhep # evb
-  /ccj/u/E16/lib64 #ccj
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
@@ -94,6 +94,8 @@ add_library(E16ANA
   src/LG/E16ANA_LGWaveform.cc
   src/LG/E16ANA_LGDeadChannel.cc
   src/LG/E16ANA_LGClustering.cc
+  src/LG/E16ANA_LGOnlineAnalyzer.cc
+  src/LG/E16ANA_LGCheckHist.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -417,6 +419,39 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCGTRymix
 add_executable(Massw2Gamma usr/tmp/Massw2Gamma.cc)
 
 target_link_libraries(Massw2Gamma
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_MakeHVTable usr/tmp/LG_MakeHVTable.cc)
+
+target_link_libraries(LG_MakeHVTable
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_LEDcheck usr/tmp/LG_LEDcheck.cc)
+
+target_link_libraries(LG_LEDcheck
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_MakePDF usr/tmp/LG_MakePDF.cc)
+
+target_link_libraries(LG_MakePDF
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic

@@ -2,6 +2,7 @@
 #include "E16ANA_LGOnlineAnalyzer.hh"
 #include "E16ANA_EIDSingleTrackAnalyzer.hh"
 #include "E16ANA_LGBasic.hh"
+#include "E16ANA_LGCheckHist.hh"
 #include <TH2.h>
 #include <TF1.h>
 #include <TStyle.h>
@@ -143,6 +144,7 @@ void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1
 
   int ledmid[8] = {104,104,103,103,102,102,106,107};
   int ledcid[8] = {  5,  2,  5,  2,  5,  2,  0,  0};
+  int maxbin[8] = {300,150,400,500,500,1000,200,600};
   for(int i=0;i<8;i++){
     auto spec = lgbasic.GetSpec(ledmid[i],ledcid[i]);
     int ip = spec->IP;
@@ -155,7 +157,7 @@ void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1
       wf_type = 900;
     }
     h[i] = new TH1F(Form("h%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),1500,0,1500);
-    hs[i] = new TH1F(Form("hs%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),1500,0,1500);
+    hs[i] = new TH1F(Form("hs%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),maxbin[i],0,maxbin[i]);
   }
 
   Long64_t n_entries = fChain->GetEntries();
@@ -181,6 +183,49 @@ void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1
       }
     }
   }
+
+}
+
+void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
+{
+  if (fChain == 0) return;
+
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(run_id);
+  E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
+
+  auto *lghists = new E16ANA_LGCheckHist();
+
+  Long64_t n_entries = fChain->GetEntries();
+  Long64_t nentries = fChain->GetEntriesFast();
+  Long64_t nbytes = 0, nb = 0;
+
+  int nevent=0;
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+    if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+    if( maxevent!=-1&&nevent>maxevent ){break;}
+    nevent++;
+
+    if(Trg){
+      lghists->Fill(Module,Block,PeakHeight,PeakTime,Timing,Baseline,BaselineRms,Integral,Dst1Flag);
+    }
+
+  }
+
+  TString pdfout = Form("%s",outfile);
+  TCanvas* c = new TCanvas("c","c",1400,700);
+  c->SaveAs(pdfout+"[","pdf");
+  lghists->Draw(pdfout,c);
+  lghists->Draw2D(pdfout,c);
+  lghists->DrawEach(pdfout,c);
+  c->SaveAs(pdfout+"]","pdf");
+
+  // lghists->MakeT0CalibFile();
 
 }
 

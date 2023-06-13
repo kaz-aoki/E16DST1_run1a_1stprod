@@ -112,6 +112,7 @@ public :
    virtual void     ScaleHVValue(int FMstate, double gain, double oldhv, double& newhv);
    virtual void     DrawPDF(TString& f, TH1F** h);
    virtual void     LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], int maxevent);
+   virtual void     MakePDF(int run_id, char* outfile, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
