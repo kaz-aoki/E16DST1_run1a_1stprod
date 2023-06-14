@@ -303,8 +303,8 @@ int main(int argc, char* argv[]) {
 	if(trg&&trg_lg_hit_t!=0){
 	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	}
-	// if(trg_lg_hit_t==0){
-	if(dst1flag){
+	if(trg_lg_hit_t==0){
+	// if(dst1flag&&peakheight>15.){
 	  lghists->SetWaveform(module,block,waveform);
 	}
 

@@ -26,7 +26,9 @@ using namespace std;
 class E16ANA_Massw2Gamma : public E16ANA_EIDSingleTrackAnalyzer {
 private :
 
-  double mvtoe = 0.005;
+  const double mvtoe = 0.005;
+
+public :
 
   struct hitset{
     int id;
@@ -40,10 +42,20 @@ private :
     double gz;
     float adc;
     float t;
+    void init(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t){
+      id = _id;
+      mid = _mid;
+      cid = _cid;
+      x = _x;
+      y = _y;
+      z = _z;
+      gx = _gx;
+      gy = _gy;
+      gz = _gz;
+      adc = _adc;
+      t = _t;
+    }
   };
-
-
-public :
 
   E16ANA_Massw2Gamma(TTree *tree=0);
   virtual ~E16ANA_Massw2Gamma();
