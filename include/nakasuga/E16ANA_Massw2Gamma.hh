@@ -94,6 +94,7 @@ bool E16ANA_Massw2Gamma::InvalidLGPair(E16ANA_GeometryV2& geometry, Long64_t ent
 {
   if( fabs( hit0.t - hit1.t ) > 4. ){return true;}
   else if( hit0.mid==hit1.mid && IsNeighborBlock(geometry, hit0.cid, hit1.cid) ){return true;}
+  // else if( hit0.mid!=hit1.mid ){return true;}
   else{return false;}
 }
 

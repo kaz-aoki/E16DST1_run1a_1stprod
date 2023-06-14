@@ -173,12 +173,16 @@ void E16ANA_Massw2Gamma::MakeHist(int runoption, int maxevent, char* out_file_na
 	int index = hit[0].mid - 101;
 	hits[index].push_back(hit[0]);
 
+	// int jpair = 0;
+	// for(ihit[1]=ihit[0]+1; ihit[1]<n_lg_hits; ihit[1]++){
+	//   if( InvalidLGhit(ientry, ihit[1]) ) continue;
+	//   jpair++;
+	// }
+	// if(jpair>15) continue;
 	for(ihit[1]=ihit[0]+1; ihit[1]<n_lg_hits; ihit[1]++){
 	  if( InvalidLGhit(ientry, ihit[1]) ) continue;
 	  SetHit(ientry, ihit[1], hit[1]);
 
-	  // if( fabs( hit[0].t - hit[1].t ) > 4. ) continue;
-	  // if( hit[0].mid==hit[1].mid && IsNeighborBlock(*geometry, hit[0].cid, hit[1].cid) ) continue;
 	  if( InvalidLGPair(*geometry, ientry, hit[0], hit[1]) ) continue;
 
 	  //calc im
