@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 
   for(int irun=0;irun<n_runs;irun++){
     auto in_chain = new TChain("tree", "tree");
-    in_chain->Add(Form("/e16/w/data102z1/calibdata/LG/20230426/root/run%06d.root",inrunid.at(irun)));
+    in_chain->Add(Form("/e16/w/data101z1/calibdata/LG/230615/root/run%06d.root",inrunid.at(irun)));
     E16ANA_LGOnlineAnalyzer* t = new E16ANA_LGOnlineAnalyzer(in_chain);
     TH1F* th[8];
     TH1F* ths[8];
