@@ -137,7 +137,7 @@ void E16ANA_LGWaveform::SimpleMethod(double* _wf){
 
 // }
 
-void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
+void E16ANA_LGWaveform::FitMethod(int someorall, double* _wf, double t0){
 
   SimpleMethod(_wf);
   SetT0(t0);
@@ -147,7 +147,12 @@ void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
   //  if(spikeflag==false){
     CalcWaveforms();
     PeakSearch();
-    Fit();
+    if(someorall==0){
+      Fit();
+    }
+    else{
+      AllFit();
+    }
   }
   else{
     fitOK = 0;
@@ -1303,44 +1308,41 @@ void E16ANA_LGWaveform::RemoveSpike(double* dat){
 
 }
 
-// void E16ANA_LGWaveform::AllFit(){
+void E16ANA_LGWaveform::AllFit(){
 
-//   CalcOffset();
-//   if(nps_short==1){
-//     nps_fit = FitTmpl1(pxs_fit, ps_fit);
-//     npeaks = nps_fit;
-//   }
-//   else if(nps_short==2){
-//     nps_fit = FitTmpl2(pxs_fit, ps_fit);
-//     npeaks = nps_fit;
-//   }
-//   else if(nps_short==3){
-//     nps_fit = FitTmpl3(pxs_fit, ps_fit);
-//     npeaks = nps_fit;
-//   }
-//   else if(nps_short==0){
-//     fitOK = 0;
-//     nps_fit = nps_short;
-//     npeaks = 1;
-//     peakxs[0] = peakx;
-//     peaks[0] = peak;
-//     //    DrawWf();
-//     n_fit0++;
-//   }
-//   else{
-//     fitOK = 0;
-//     nps_fit = nps_short;
-//     npeaks = 1;
-//     peakxs[0] = peakx;
-//     peaks[0] = peak;
-//     n_fit4++;
-//   }
+  CalcOffset();
+  if(nps_short==1){
+    nps_fit = FitTmpl1(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==2){
+    nps_fit = FitTmpl2(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==3){
+    nps_fit = FitTmpl3(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==0){
+    fitOK = 0;
+  }
+  else{
+    fitOK = 0;
+  }
 
-//   if(nps_fit==0&&npeaks==0){
-//     npeaks = 1;
-//   }
+  if(fitOK==0){
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    timings[0] = timing+100.-t0;
+  }
 
-// }
+  if(fitOK==2){
+    npeaks = nps_short;
+  }
+
+}
 
 // void E16ANA_LGWaveform::CalcPeaks(){
 

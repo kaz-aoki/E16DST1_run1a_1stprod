@@ -111,6 +111,7 @@ int main(int argc, char* argv[]) {
       auto& trigger_lg_hits0  = event0->TriggerLG();
       // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
+      auto spill_id = event0->SpillID();
 
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
@@ -136,6 +137,21 @@ int main(int argc, char* argv[]) {
 	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), lghit0.FitFlag());
 	if( analyzer->Hit0isInvalid() ) continue;
 
+	//Cut
+	// int iasc = 0;
+      	// for(int it=0; it<n_lghits; it++){
+	//   auto& lghit1 = lg_hits1[it];
+	//   auto lpos1 = lghit1.LocalPos(*geometry);
+	//   auto gpos1 = lghit1.GlobalPos(*geometry);
+	//   analyzer->ClearHit1();
+	//   analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), lghit0.FitFlag());
+	//   if( analyzer->Hit1isInvalid() ) continue;
+	//   if( analyzer->HitsareInvalid() ) continue;
+	//   iasc++;
+      	// }
+	// if(iasc>15) continue;
+	//Cut
+
       	for(ihit[1]=ihit[0]+1; ihit[1]<n_lghits; ihit[1]++){
 	  auto& lghit1 = lg_hits1[ihit[1]];
 	  auto lpos1 = lghit1.LocalPos(*geometry);
@@ -144,12 +160,15 @@ int main(int argc, char* argv[]) {
 	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), lghit0.FitFlag());
 	  if( analyzer->Hit1isInvalid() ) continue;
 	  if( analyzer->HitsareInvalid() ) continue;
-
+	  analyzer->ClearBranch();
+	  analyzer->SetBranchIds(run_id,event_id,spill_id);
+	  analyzer->FillHit0();
+	  analyzer->FillHit1();
       	  //calc im
 	  analyzer->FillForeHist();
-
       	  //calc mix im
 	  analyzer->FillMixHist();
+	  analyzer->FillTree();
       	}
       }
 

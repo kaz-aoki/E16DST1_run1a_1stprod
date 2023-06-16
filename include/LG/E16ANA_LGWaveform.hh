@@ -46,7 +46,7 @@ public:
   int GetHitFlag(){return hitflag;}
 
   //fitting method
-  void FitMethod(double* _wf, double t0);
+  void FitMethod(int someorall, double* _wf, double t0);// 0: only requied wf are fitted (default), 1: all wf are fitted
   void SetT0(double _t0){t0 = _t0;}
   void CalcWaveforms();
   //void CalcPeaks();

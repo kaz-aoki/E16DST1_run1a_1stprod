@@ -52,7 +52,10 @@ public :
   bool IsNeighborBlock(hitset& _hit0, hitset& _hit1);
   void FillForeHist();
   void FillMixHist();
-  void FillHist(int type, hitset& _hit0, hitset& _hit1);
+  void FillHist(int ifm, hitset& _hit0, hitset& _hit1);
+  void FillHit0();
+  void FillHit1();
+  void FillHit(int type, hitset hit);
   void ClearMixEvent();
   void ClearMixAll();
   void PushBackMixHit(hitset& hit);
@@ -62,6 +65,9 @@ public :
   void SetRootFile(char* fin_name);
   void DeleteRootFile();
   void SetHists();
+  void ClearBranch();
+  void SetBranchIds(int _run_id, int _event_id, int _spill_id);
+  void FillTree();
 
 private :
 
@@ -87,19 +93,46 @@ private :
   TH1F* hdist[2][4];
   TH2F* hpzpx[2][4];
   TH1F* hm[2][4];
-  TH1F* hpm[2][4][2];
-  TH1F* hpxm[2][4][2];
-  TH1F* hpym[2][4][2];
-  TH1F* hpzm[2][4][2];
-  TH1F* hptm[2][4][2];
-  TH1F* hppm[2][4][2];
-  TH1F* hpsm[2][4];
-  TH1F* hpsxm[2][4];
-  TH1F* hpsym[2][4];
-  TH1F* hpszm[2][4];
-  TH1F* hdistm[2][4];
-  TH2F* hpzpxm[2][4];
-  TH1F* hmm[2][4];
+
+  TH1F* hmid[2];
+  TH1F* hcid[2];
+  TH1F* hx[2];
+  TH1F* hy[2];
+  TH1F* hz[2];
+  TH1F* hgx[2];
+  TH1F* hgy[2];
+  TH1F* hgz[2];
+  TH1F* hadc[2];
+  TH1F* ht[2];
+  TH1F* hfflag[2];
+
+  TTree* tree;
+  int run_id;
+  int event_id;
+  int spill_id;
+  double brp[2][2];
+  double brpx[2][2];
+  double brpy[2][2];
+  double brpz[2][2];
+  double brpt[2][2];
+  double brpp[2][2];
+  double brps[2];
+  double brpsx[2];
+  double brpsy[2];
+  double brpsz[2];
+  double brdist[2];
+  double brm[2];
+  int brmid[2];
+  int brcid[2];
+  double brx[2];
+  double bry[2];
+  double brz[2];
+  double brgx[2];
+  double brgy[2];
+  double brgz[2];
+  double bradc[2];
+  double brt[2];
+  int brfflag[2];
 
   TFile* fin;
 
