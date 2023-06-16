@@ -128,6 +128,31 @@ int main(int argc, char* argv[]) {
 
       auto& lg_hits1 = record.LG().Hits();
       int n_lghits = lg_hits1.size();
+
+      //Cut
+      int ipair = 0;
+      for(int i=0; i<n_lghits; i++){
+	auto& lghit0 = lg_hits1[i];
+	auto lpos0 = lghit0.LocalPos(*geometry);
+	auto gpos0 = lghit0.GlobalPos(*geometry);
+	analyzer->ClearHit0();
+	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), lghit0.FitFlag());
+	if( analyzer->Hit0isInvalid() ) continue;
+	for(int j=0; j<n_lghits; j++){
+	  auto& lghit1 = lg_hits1[j];
+	  auto lpos1 = lghit1.LocalPos(*geometry);
+	  auto gpos1 = lghit1.GlobalPos(*geometry);
+	  analyzer->ClearHit1();
+	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), lghit0.FitFlag());
+	  if( analyzer->Hit1isInvalid() ) continue;
+	  if( analyzer->HitsareInvalid() ) continue;
+	  ipair++;
+	}
+      }
+      // std::cout<<ipair<<std::endl;
+      if(ipair>15) continue;
+      //Cut
+
       int ihit[2] = {0, 0};
       for(ihit[0]=0; ihit[0]<n_lghits; ihit[0]++){
 	auto& lghit0 = lg_hits1[ihit[0]];
@@ -136,21 +161,6 @@ int main(int argc, char* argv[]) {
 	analyzer->ClearHit0();
 	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), lghit0.FitFlag());
 	if( analyzer->Hit0isInvalid() ) continue;
-
-	//Cut
-	// int iasc = 0;
-      	// for(int it=0; it<n_lghits; it++){
-	//   auto& lghit1 = lg_hits1[it];
-	//   auto lpos1 = lghit1.LocalPos(*geometry);
-	//   auto gpos1 = lghit1.GlobalPos(*geometry);
-	//   analyzer->ClearHit1();
-	//   analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), lghit0.FitFlag());
-	//   if( analyzer->Hit1isInvalid() ) continue;
-	//   if( analyzer->HitsareInvalid() ) continue;
-	//   iasc++;
-      	// }
-	// if(iasc>15) continue;
-	//Cut
 
       	for(ihit[1]=ihit[0]+1; ihit[1]<n_lghits; ihit[1]++){
 	  auto& lghit1 = lg_hits1[ihit[1]];
