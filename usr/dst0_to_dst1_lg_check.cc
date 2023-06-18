@@ -23,7 +23,7 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-// #define WF_ON
+#define WF_ON
 #define TRG_ON
 
 int main(int argc, char* argv[]) {
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
       // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
 
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/ fit
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
 #ifdef TRG_ON
@@ -297,14 +297,15 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
-	// if(trg){
+	// if(peakheight>25&&peakheight<180){
+	// if(dst1flag){
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
 	// }
 	if(trg&&trg_lg_hit_t!=0){
 	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	}
-	if(trg_lg_hit_t==0){
-	// if(dst1flag&&peakheight>15.){
+	// if(trg_lg_hit_t==0){
+	if(dst1flag&&peakheight>30.){
 	  lghists->SetWaveform(module,block,waveform);
 	}
 
