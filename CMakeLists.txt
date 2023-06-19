@@ -33,6 +33,17 @@ message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost_LIBRARIES:    ${Boost_LIBRARIES}")
 
+cmake_host_system_information(RESULT _host_name QUERY HOSTNAME)
+message("-- Building host is ${_host_name}")
+if(${_host_name} MATCHES "^e16")
+   message("-- E16SYS_DIR will be set for e16 servers.")
+   set(E16SYS_DIR /opt/E16)
+elseif(${_host_name} MATCHES "^ccj")
+   message("-- E16SYS_DIR will be set for ccj servers.")
+   set(E16SYS_DIR /ccj/u/E16)
+endif()
+message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
+
 add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 
 #add_definitions(-DTRACK_EFF_CHECK)
@@ -50,10 +61,8 @@ include_directories(
   ${ROOT_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-  /opt/E16/include
-  /opt/E16/include/Geant4 # evb
-#  /ccj/u/E16/include
-#  /ccj/u/E16/include/Geant4 # ccj
+  ${E16SYS_DIR}/include
+  ${E16SYS_DIR}/include/Geant4
   include
   include/SSD
 	include/GTR
@@ -74,8 +83,7 @@ include_directories(
 
 link_directories(
   ${Boost_LIBRARY_DIRS}
-  /opt/E16/lib64-gcc8/clhep # evb
-#  /ccj/u/E16/lib64 #ccj
+  ${E16SYS_DIR}/lib64-gcc8/clhep
 )
 
 link_libraries(
