@@ -27,6 +27,12 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
+find_package(Boost)
+find_package(Boost COMPONENTS iostreams; thread;)
+message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+message(STATUS "Boost_LIBRARIES:    ${Boost_LIBRARIES}")
+
 add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 
 #add_definitions(-DTRACK_EFF_CHECK)
@@ -41,12 +47,13 @@ add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 #add_definitions(-DWO_TRACK_FIT)
 
 include_directories(
-	${ROOT_INCLUDE_DIRS}
-#	${Boost_INCLUDE_DIRS}
+  ${ROOT_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-#  /opt/E16/include/Geant4 # evb
-  /ccj/u/E16/include
-  /ccj/u/E16/include/Geant4 # ccj
+  /opt/E16/include
+  /opt/E16/include/Geant4 # evb
+#  /ccj/u/E16/include
+#  /ccj/u/E16/include/Geant4 # ccj
   include
   include/SSD
 	include/GTR
@@ -66,14 +73,14 @@ include_directories(
 )
 
 link_directories(
-#  ${Boost_LIBRARY_DIRS}
-#  /opt/E16/lib64-gcc8/clhep # evb
-  /ccj/u/E16/lib64 #ccj
+  ${Boost_LIBRARY_DIRS}
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
   ${ROOT_LIBRARIES}
-#	${Boost_LIBRARIES}
+  ${Boost_LIBRARIES}
 #	${Boost_PROGRAM_OPTIONS_LIBRARIES}
   libG4clhep.so
   libHepPDT.so
