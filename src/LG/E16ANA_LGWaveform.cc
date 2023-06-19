@@ -209,41 +209,41 @@ void E16ANA_LGWaveform::CalcPeak(){
 
 }
 
-// void E16ANA_LGWaveform::CalcTiming(){
-
-//   for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){
-//     int cell = peakx - i;
-//     double peakhalf = peak/2.;
-//     if(cell<0||cell>E16DST_Constant::NSamplesLG){
-//       timing=E16DST_DST1Constant::kInvalidValue;
-//       break;
-//     }
-//     if(wf[cell]>peak){
-//       timing=E16DST_DST1Constant::kInvalidValue;
-//       break;
-//     }
-//     if((cell!=peakx)&&wf[cell]<peakhalf){
-//       timing=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
-//       if(cell==(peakx-1)){//remove the event like spike noise
-// 	spikeflag = true;
-// 	// timing=-10000;
-//       }
-//       break;
-//     }
-//     else{
-//       timing=peakx/E16ANA_LGConstant::kTimeScale;
-//     }
-//   }
-
-// }
-
 void E16ANA_LGWaveform::CalcTiming(){
-  double ttiming;
-  bool tspikeflag;
-  CalcTiming(peak,peakx,ttiming,tspikeflag);
-  timing = ttiming;
-  spikeflag = tspikeflag;
+
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){
+    int cell = peakx - i;
+    double peakhalf = peak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      timing=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(wf[cell]>peak){
+      timing=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if((cell!=peakx)&&wf[cell]<peakhalf){
+      timing=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
+      if(cell==(peakx-1)){//remove the event like spike noise
+	spikeflag = true;
+	// timing=-10000;
+      }
+      break;
+    }
+    else{
+      timing=peakx/E16ANA_LGConstant::kTimeScale;
+    }
+  }
+
 }
+
+// void E16ANA_LGWaveform::CalcTiming(){
+//   double ttiming;
+//   bool tspikeflag;
+//   CalcTiming(peak,peakx,ttiming,tspikeflag);
+//   timing = ttiming;
+//   spikeflag = tspikeflag;
+// }
 
 void E16ANA_LGWaveform::CalcTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
 

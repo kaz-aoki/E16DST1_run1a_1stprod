@@ -23,7 +23,7 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-#define WF_ON
+// #define WF_ON
 #define TRG_ON
 
 int main(int argc, char* argv[]) {
@@ -299,6 +299,7 @@ int main(int argc, char* argv[]) {
 
 	// if(peakheight>25&&peakheight<180){
 	// if(dst1flag){
+	// if(trg_lg_hit_t==0){//thr check
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
 	// }
 	if(trg&&trg_lg_hit_t!=0){

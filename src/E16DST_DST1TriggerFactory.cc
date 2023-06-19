@@ -17,6 +17,7 @@ int E16ANA_TriggerTime(E16ANA_TriggerCalibParam& trigger_param, int detector, ui
   } else if (int{tdc} - int{trigger_tdc} < -10000) {
     offset = 0x40000;
   }
+  // std::cerr<<tdc<<" "<<trigger_tdc<<" "<<delay<<" "<<trigger_delay<<std::endl;
   return int{tdc} - int{trigger_tdc} - E16ANA_TriggerConstant::kMRGDelayOrderNs * (delay - trigger_delay) + offset;
 }
 

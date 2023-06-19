@@ -211,7 +211,7 @@ void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
     if( maxevent!=-1&&nevent>maxevent ){break;}
     nevent++;
 
-    if(Trg){
+    if(PeakHeight>40){
       lghists->Fill(Module,Block,PeakHeight,PeakTime,Timing,Baseline,BaselineRms,Integral,Dst1Flag);
     }
 
@@ -225,7 +225,7 @@ void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
   lghists->DrawEach(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  // lghists->MakeT0CalibFile();
+  lghists->MakeT0CalibFile();
 
 }
 
