@@ -229,9 +229,10 @@ void E16ANA_LGOnlineAnalyzer::Show(Long64_t entry)
 }
 Int_t E16ANA_LGOnlineAnalyzer::CutData(Long64_t entry)
 {
-  if( PeakHeight<25 && PeakHeight>180 ){return -1;}
-  else if( PeakTime<90 && PeakTime>110 ){return -1;}
-  else if( fabs(TrgTiming)>15 ){return -1;}// 20mV thr
+  if( PeakHeight<25 || PeakHeight>180 ){return -1;}
+  // else if( PeakTime<90 && PeakTime>110 ){return -1;}
+  else if( TrgTiming<3120 || TrgTiming>3150 ){return -1;}
+  // else if( fabs(TrgTiming)>15 ){return -1;}// 20mV thr
   // else if( Trg ){return -1;}// 200mV thr
   else{return 1;}
 }

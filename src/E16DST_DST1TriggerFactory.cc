@@ -9,6 +9,13 @@
 #include "E16ANA_TriggerCoincidenceMap.hh"
 
 int E16ANA_TriggerTime(E16ANA_TriggerCalibParam& trigger_param, int detector, uint32_t trigger_tdc, uint32_t tdc) {
+#ifdef TMP_NIM_TRIGGER
+  if (!(trigger_tdc < tdc)) {
+    return trigger_tdc - tdc;
+  } else {
+    return trigger_tdc + 0x40000 - tdc;
+  }
+#else // TMP_NIM_TRIGGER
   auto delay         = trigger_param.MrgDelay(detector - E16DST_DST1Constant::kNumTriggerOffset);
   auto trigger_delay = trigger_param.MrgDelay(E16DST_DST1Constant::kLG - E16DST_DST1Constant::kNumTriggerOffset);
   int offset = 0;
@@ -19,6 +26,7 @@ int E16ANA_TriggerTime(E16ANA_TriggerCalibParam& trigger_param, int detector, ui
   }
   // std::cerr<<tdc<<" "<<trigger_tdc<<" "<<delay<<" "<<trigger_delay<<std::endl;
   return int{tdc} - int{trigger_tdc} - E16ANA_TriggerConstant::kMRGDelayOrderNs * (delay - trigger_delay) + offset;
+#endif // TMP_NIM_TRIGGER
 }
 
 bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector, E16DST_DST1TriggerHit* hit1) {
@@ -114,7 +122,11 @@ int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_
   return n_coincidence_hits;
 }
 
+#ifdef TMP_NIM_TRIGGER
+int E16DST_DST1TriggerFactory(uint64_t time_stamp, E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
+#else // TMP_NIM_TRIGGER
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
+#endif // TMP_NIM_TRIGGER
   bool is_mag_field = true; // tmp
   auto gtr_coincidence_window = E16ANA_TriggerConstant::kMRGTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kGTR - E16DST_DST1Constant::kNumTriggerOffset);
   auto hbd_coincidence_window = E16ANA_TriggerConstant::kMRGTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kHBD - E16DST_DST1Constant::kNumTriggerOffset);
@@ -123,10 +135,17 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   static auto* coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   trigger->Clear();
 
+#ifdef TMP_NIM_TRIGGER
+  uint32_t trigger_tdc = (8 * time_stamp) % 0x40000;
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR, &trigger->GTRHits(), &trigger->GTRClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD, &trigger->HBDHits(), &trigger->HBDClusters());
+  E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,  &trigger->LGHits(),  &trigger->LGClusters());
+#else // TMP_NIM_TRIGGER
   auto trigger_tdc = ut3.TriggerTime();
   E16ANA_TriggerHitAndClusterFactory(trigger_param, gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR, &trigger->GTRHits(), &trigger->GTRClusters());
   E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD, &trigger->HBDHits(), &trigger->HBDClusters());
   E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,  &trigger->LGHits(),  &trigger->LGClusters());
+#endif // TMP_NIM_TRIGGER
   auto max_track =ut3.NumberOfTracks();
   trigger->Tracks().resize(max_track);
   for (int n_track = 0; n_track < max_track; ++n_track) {

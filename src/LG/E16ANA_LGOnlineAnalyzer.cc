@@ -121,10 +121,10 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
     // }
     else{
       double newhvval;
-      // double ph = h[hvch]->GetMean();
-      // TuneHVValue(FMstate, ph, thvval, newhvval);
-      double gain = 2.;
-      ScaleHVValue(FMstate, gain, thvval, newhvval);
+      double ph = h[hvch]->GetMean();
+      TuneHVValue(FMstate, ph, thvval, newhvval);
+      // double gain = 2.;
+      // ScaleHVValue(FMstate, gain, thvval, newhvval);
       fout <<"u"<< thvch <<" "<< tname <<" "<< newhvval <<" "<< tlimit <<" "<< tid <<std::endl;
     }
   }
@@ -211,7 +211,9 @@ void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
     if( maxevent!=-1&&nevent>maxevent ){break;}
     nevent++;
 
-    if(PeakHeight>40){
+    // if(Trg){
+    // if(TrgTiming>3120&&TrgTiming<3150){
+    if(TrgTiming>3120&&TrgTiming<3150&&PeakHeight>25&&PeakHeight<180){
       lghists->Fill(Module,Block,PeakHeight,PeakTime,Timing,Baseline,BaselineRms,Integral,Dst1Flag);
     }
 

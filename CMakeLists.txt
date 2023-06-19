@@ -27,12 +27,14 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
+add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
+
 include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-#  /opt/E16/include/Geant4 # evb
-  /ccj/u/E16/include/Geant4 # ccj
+  /opt/E16/include/Geant4 # evb
+#  /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
 	include/GTR
@@ -52,8 +54,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-#  /opt/E16/lib64-gcc8/clhep # evb
-  /ccj/u/E16/lib64 #ccj
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
@@ -170,68 +172,68 @@ target_link_libraries(E16ANA_Track
   E16DST_DST1
 )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1 usr/dst0_to_dst1.cc)
 
-target_link_libraries(dst0_to_dst1
-	E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1
+# 	E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_ssd_check usr/dst0_to_dst1_ssd_check.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_ssd_check usr/dst0_to_dst1_ssd_check.cc)
 
-target_link_libraries(dst0_to_dst1_ssd_check
-	E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_ssd_check
+# 	E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
 
-target_link_libraries(dst0_to_dst1_gtr_check
-	E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_gtr_check
+# 	E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
 
-target_link_libraries(dst0_to_dst1_hbd_check
-	E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_hbd_check
+# 	E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_hbd_w_wf usr/dst0_to_dst1_hbd_w_wf.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_hbd_w_wf usr/dst0_to_dst1_hbd_w_wf.cc)
 
-target_link_libraries(dst0_to_dst1_hbd_w_wf
-	E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_hbd_w_wf
+# 	E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_hbd_w_wf_CRRCfit usr/dst0_to_dst1_hbd_w_wf_CRRCfit.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_hbd_w_wf_CRRCfit usr/dst0_to_dst1_hbd_w_wf_CRRCfit.cc)
 
-target_link_libraries(dst0_to_dst1_hbd_w_wf_CRRCfit
-        E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_hbd_w_wf_CRRCfit
+#         E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_hbd_220416 usr/dst0_to_dst1_hbd_220416.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_hbd_220416 usr/dst0_to_dst1_hbd_220416.cc)
 
-target_link_libraries(dst0_to_dst1_hbd_220416
-        E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_hbd_220416
+#         E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_hbd_wf_check usr/dst0_to_dst1_hbd_wf_check.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_hbd_wf_check usr/dst0_to_dst1_hbd_wf_check.cc)
 
-target_link_libraries(dst0_to_dst1_hbd_wf_check
-	E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_hbd_wf_check
+# 	E16DST_DST1
+# )
 
-#_______________________________________________________________________________
-add_executable(hbd_dead_ch_check usr/hbd_dead_ch_check.cc)
+# #_______________________________________________________________________________
+# add_executable(hbd_dead_ch_check usr/hbd_dead_ch_check.cc)
 
-target_link_libraries(hbd_dead_ch_check
-	E16DST_DST1
-)
+# target_link_libraries(hbd_dead_ch_check
+# 	E16DST_DST1
+# )
 
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
@@ -240,38 +242,38 @@ target_link_libraries(dst0_to_dst1_lg_check
 	E16DST_DST1
 )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
 
-target_link_libraries(dst0_to_dst1_all_check
-	E16DST_DST1
-#	E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+# target_link_libraries(dst0_to_dst1_all_check
+# 	E16DST_DST1
+# #	E16ANA_CalibDB
+# 	E16ANA_Basic
+# 	E16DST
+# 	E16ANA
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_all_check_hist usr/dst0_to_dst1_all_check_hist.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_all_check_hist usr/dst0_to_dst1_all_check_hist.cc)
 
-target_link_libraries(dst0_to_dst1_all_check_hist
-	E16DST_DST1
-#	E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+# target_link_libraries(dst0_to_dst1_all_check_hist
+# 	E16DST_DST1
+# #	E16ANA_CalibDB
+# 	E16ANA_Basic
+# 	E16DST
+# 	E16ANA
+# )
 
-#_______________________________________________________________________________
-add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
+# #_______________________________________________________________________________
+# add_executable(dst0_to_dst1_strack_check usr/dst0_to_dst1_strack_check.cc)
 
-target_link_libraries(dst0_to_dst1_strack_check
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+# target_link_libraries(dst0_to_dst1_strack_check
+# 	E16DST_DST1
+# #E16ANA_CalibDB
+# 	E16ANA_Basic
+# 	E16DST
+# 	E16ANA
+# )
 
 #_______________________________________________________________________________
 add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/EIDana_MakeTree_EIDEfficiency.cc)
@@ -427,27 +429,27 @@ target_link_libraries(Massw2Gamma
 	E16ANA
 )
 
-#_______________________________________________________________________________
-add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
+# #_______________________________________________________________________________
+# add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
 
-target_link_libraries(Gammaana_MakeRootPDF
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+# target_link_libraries(Gammaana_MakeRootPDF
+# 	E16DST_DST1
+# #E16ANA_CalibDB
+# 	E16ANA_Basic
+# 	E16DST
+# 	E16ANA
+# )
 
-#_______________________________________________________________________________
-add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
+# #_______________________________________________________________________________
+# add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
 
-target_link_libraries(Gammaana_MakePDF
-	E16DST_DST1
-#E16ANA_CalibDB
-	E16ANA_Basic
-	E16DST
-	E16ANA
-)
+# target_link_libraries(Gammaana_MakePDF
+# 	E16DST_DST1
+# #E16ANA_CalibDB
+# 	E16ANA_Basic
+# 	E16DST
+# 	E16ANA
+# )
 
 ##_______________________________________________________________________________
 #add_executable(Gammaana_CodeCheck usr/tmp/Gammaana_CodeCheck.cc)
@@ -504,12 +506,12 @@ target_link_libraries(LG_MakePDF
 #       E16ANA
 #)
 #_______________________________________________________________________________
-add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
+# add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
-target_link_libraries(dst0_to_dst1_trigger_check
-	E16ANA_Basic
-  E16DST_DST1
-)
+# target_link_libraries(dst0_to_dst1_trigger_check
+# 	E16ANA_Basic
+#   E16DST_DST1
+# )
 
 #_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
