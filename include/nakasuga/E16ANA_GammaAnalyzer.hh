@@ -30,19 +30,23 @@ public :
     float adc;
     float t;
     int fflag;
+    float width;
   };
 
   E16ANA_GammaAnalyzer();
   ~E16ANA_GammaAnalyzer();
+  double GetParam(){return mvtoe;};
   int ModuleToIndex(int module);
   int IndexToModule(int index);
   void ClearHits();
   void ClearHit0();
   void ClearHit1();
   void ClearHit(hitset& hit);
-  void SetHit0(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag);
-  void SetHit1(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag);
-  void SetHit(hitset& hit, int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag);
+  void SetHit0(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag, float _width);
+  void SetHit0(hitset& hit);
+  void SetHit1(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag, float _width);
+  void SetHit1(hitset& hit);
+  void SetHit(hitset& hit, int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag, float _width);
   void SetHit(hitset& hit_unset, hitset& hit_set);
   bool Hit0isInvalid();
   bool Hit1isInvalid();
@@ -105,6 +109,7 @@ private :
   TH1F* hadc[2];
   TH1F* ht[2];
   TH1F* hfflag[2];
+  TH1F* hwidth[2];
 
   TTree* tree;
   int run_id;
@@ -133,6 +138,7 @@ private :
   double bradc[2];
   double brt[2];
   int brfflag[2];
+  double brwidth[2];
 
   TFile* fin;
 

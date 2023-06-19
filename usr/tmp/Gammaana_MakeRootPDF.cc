@@ -28,6 +28,14 @@ using namespace std;
 
 #define TRG_ON
 
+// void SetHitInfo(int fitoption, E16DST_DST1LGHit& lghit, E16ANA_GammaAnalyzer::hitset& hitset, E16ANA_GeometryV2* geometry){
+//   auto lpos = lghit.LocalPos(*geometry);
+//   auto gpos = lghit.GlobalPos(*geometry);
+//   int fflag = lghit.FitFlag();
+//   if(fitoption==2) { fflag = (int)(lghit.FitChi2());}
+//   E16ANA_GammaAnalyzer::SetHit(hitset,lghit.HitId(), lghit.ModuleId(), lghit.ChannelId(), lpos.X(), lpos.Y(), lpos.Z(), gpos.X(), gpos.Y(), gpos.Z(), lghit.FitPeak(), lghit.FitTiming(), fflag, lghit.FitWidth());
+// }
+
 int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
@@ -39,6 +47,8 @@ int main(int argc, char* argv[]) {
   auto out_pdf_name = argv[3];
   auto run_id        = stoi(argv[4]);
   auto max_event     = stoi(argv[5]);
+
+  int fitoption = 2;
 
   TFile* fout = new TFile(out_file_name,"recreate");
 
@@ -113,7 +123,7 @@ int main(int argc, char* argv[]) {
       auto event_id = event0->EventID();
       auto spill_id = event0->SpillID();
 
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/ fit
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), fitoption, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
 #ifdef TRG_ON
@@ -129,45 +139,53 @@ int main(int argc, char* argv[]) {
       auto& lg_hits1 = record.LG().Hits();
       int n_lghits = lg_hits1.size();
 
-      //Cut
-      int ipair = 0;
-      for(int i=0; i<n_lghits; i++){
-	auto& lghit0 = lg_hits1[i];
-	auto lpos0 = lghit0.LocalPos(*geometry);
-	auto gpos0 = lghit0.GlobalPos(*geometry);
-	analyzer->ClearHit0();
-	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), lghit0.FitFlag());
-	if( analyzer->Hit0isInvalid() ) continue;
-	for(int j=0; j<n_lghits; j++){
-	  auto& lghit1 = lg_hits1[j];
-	  auto lpos1 = lghit1.LocalPos(*geometry);
-	  auto gpos1 = lghit1.GlobalPos(*geometry);
-	  analyzer->ClearHit1();
-	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), lghit0.FitFlag());
-	  if( analyzer->Hit1isInvalid() ) continue;
-	  if( analyzer->HitsareInvalid() ) continue;
-	  ipair++;
-	}
-      }
-      // std::cout<<ipair<<std::endl;
-      if(ipair>15) continue;
-      //Cut
+      //Event Cut
+      // int ipair = 0;
+      // for(int i=0; i<n_lghits; i++){
+      // 	auto& lghit0 = lg_hits1[i];
+      // 	auto lpos0 = lghit0.LocalPos(*geometry);
+      // 	auto gpos0 = lghit0.GlobalPos(*geometry);
+      // 	int fflag0 = lghit0.FitFlag();
+      // 	if(fitoption==2) { fflag0 = (int)(lghit0.FitChi2());}
+      // 	analyzer->ClearHit0();
+      // 	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), fflag0, lghit0.FitWidth());
+      // 	if( analyzer->Hit0isInvalid() ) continue;
+      // 	for(int j=0; j<n_lghits; j++){
+      // 	  auto& lghit1 = lg_hits1[j];
+      // 	  auto lpos1 = lghit1.LocalPos(*geometry);
+      // 	  auto gpos1 = lghit1.GlobalPos(*geometry);
+      // 	  int fflag1 = lghit1.FitFlag();
+      // 	  if(fitoption==2) { fflag1 = (int)(lghit1.FitChi2());}
+      // 	  analyzer->ClearHit1();
+      // 	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), fflag1, lghit1.FitWidth());
+      // 	  if( analyzer->Hit1isInvalid() ) continue;
+      // 	  if( analyzer->HitsareInvalid() ) continue;
+      // 	  ipair++;
+      // 	}
+      // }
+      // // std::cout<<ipair<<std::endl;
+      // if(ipair>15) continue;
+      //Event Cut
 
       int ihit[2] = {0, 0};
       for(ihit[0]=0; ihit[0]<n_lghits; ihit[0]++){
 	auto& lghit0 = lg_hits1[ihit[0]];
 	auto lpos0 = lghit0.LocalPos(*geometry);
 	auto gpos0 = lghit0.GlobalPos(*geometry);
+	int fflag0 = lghit0.FitFlag();
+	if(fitoption==2) { fflag0 = (int)(lghit0.FitChi2());}
 	analyzer->ClearHit0();
-	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), lghit0.FitFlag());
+	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), fflag0, lghit0.FitWidth());
 	if( analyzer->Hit0isInvalid() ) continue;
 
       	for(ihit[1]=ihit[0]+1; ihit[1]<n_lghits; ihit[1]++){
 	  auto& lghit1 = lg_hits1[ihit[1]];
 	  auto lpos1 = lghit1.LocalPos(*geometry);
 	  auto gpos1 = lghit1.GlobalPos(*geometry);
+	  int fflag1 = lghit1.FitFlag();
+	  if(fitoption==2) { fflag1 = (int)(lghit1.FitChi2());}
 	  analyzer->ClearHit1();
-	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), lghit0.FitFlag());
+	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), fflag1, lghit1.FitWidth());
 	  if( analyzer->Hit1isInvalid() ) continue;
 	  if( analyzer->HitsareInvalid() ) continue;
 	  analyzer->ClearBranch();
@@ -188,8 +206,10 @@ int main(int argc, char* argv[]) {
       	auto& lghit = lg_hits1[jhit];
       	auto lpos = lghit.LocalPos(*geometry);
       	auto gpos = lghit.GlobalPos(*geometry);
+	int fflag = lghit.FitFlag();
+	if(fitoption==2) { fflag = (int)(lghit.FitChi2());}
       	E16ANA_GammaAnalyzer::hitset hit;
-      	analyzer->SetHit(hit, lghit.HitId(), lghit.ModuleId(), lghit.ChannelId(), lpos.X(), lpos.Y(), lpos.Z(), gpos.X(), gpos.Y(), gpos.Z(), lghit.FitPeak(), lghit.FitTiming(), lghit.FitFlag());
+      	analyzer->SetHit(hit, lghit.HitId(), lghit.ModuleId(), lghit.ChannelId(), lpos.X(), lpos.Y(), lpos.Z(), gpos.X(), gpos.Y(), gpos.Z(), lghit.FitPeak(), lghit.FitTiming(), fflag, lghit.FitWidth());
       	if( analyzer->HitisInvalid( hit ) ) continue;
       	analyzer->PushBackMixHit( hit );
       }

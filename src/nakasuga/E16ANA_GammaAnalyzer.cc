@@ -49,6 +49,7 @@ E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
     hadc[j] = new TH1F(Form("hadc%d",j),Form("gamma%d_adc[mV]",j+1),400,0,400);
     ht[j] = new TH1F(Form("ht%d",j),Form("gamma%d_t",j+1),200,0,200);
     hfflag[j] = new TH1F(Form("hfflag%d",j),Form("gamma%d_fflag",j+1),4,0,4);
+    hwidth[j] = new TH1F(Form("hwidth%d",j),Form("gamma%d_width",j+1),50,0,50);
   }
 
   tree = new TTree("tree","tree");
@@ -113,6 +114,8 @@ E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
   tree->Branch("t2",&(brt[1]),"t2/D");
   tree->Branch("fflag1",&(brfflag[0]),"fflag1/I");
   tree->Branch("fflag2",&(brfflag[1]),"fflag2/I");
+  tree->Branch("width1",&(brwidth[0]),"width1/I");
+  tree->Branch("width2",&(brwidth[1]),"width2/I");
 }
 E16ANA_GammaAnalyzer::~E16ANA_GammaAnalyzer(){
   for(int l=0;l<2;l++){
@@ -146,6 +149,7 @@ E16ANA_GammaAnalyzer::~E16ANA_GammaAnalyzer(){
     delete hadc[j];
     delete ht[j];
     delete hfflag[j];
+    delete hwidth[j];
   }
   delete tree;
 }
@@ -179,13 +183,19 @@ void E16ANA_GammaAnalyzer::ClearHit(hitset& hit){
   hit.adc = -10000.;
   hit.t = -10000.;
 }
-void E16ANA_GammaAnalyzer::SetHit0(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag){
-  SetHit(hit0, _id, _mid, _cid, _x, _y, _z, _gx, _gy, _gz, _adc, _t, _fflag);
+void E16ANA_GammaAnalyzer::SetHit0(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag, float _width){
+  SetHit(hit0, _id, _mid, _cid, _x, _y, _z, _gx, _gy, _gz, _adc, _t, _fflag, _width);
 }
-void E16ANA_GammaAnalyzer::SetHit1(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag){
-  SetHit(hit1, _id, _mid, _cid, _x, _y, _z, _gx, _gy, _gz, _adc, _t, _fflag);
+void E16ANA_GammaAnalyzer::SetHit0(hitset& hit){
+  SetHit(hit0, hit);
 }
-void E16ANA_GammaAnalyzer::SetHit(hitset& hit, int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag){
+void E16ANA_GammaAnalyzer::SetHit1(int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag, float _width){
+  SetHit(hit1, _id, _mid, _cid, _x, _y, _z, _gx, _gy, _gz, _adc, _t, _fflag, _width);
+}
+void E16ANA_GammaAnalyzer::SetHit1(hitset& hit){
+  SetHit(hit1, hit);
+}
+void E16ANA_GammaAnalyzer::SetHit(hitset& hit, int _id, int _mid, int _cid, double _x, double _y, double _z, double _gx, double _gy, double _gz, float _adc, float _t, int _fflag, float _width){
   hit.id = _id;
   hit.mid = _mid;
   hit.cid = _cid;
@@ -198,6 +208,7 @@ void E16ANA_GammaAnalyzer::SetHit(hitset& hit, int _id, int _mid, int _cid, doub
   hit.adc = _adc;
   hit.t = _t;
   hit.fflag = _fflag;
+  hit.width = _width;
 }
 void E16ANA_GammaAnalyzer::SetHit(hitset& hit_unset, hitset& hit_set){
   hit_unset.id = hit_set.id;
@@ -212,6 +223,7 @@ void E16ANA_GammaAnalyzer::SetHit(hitset& hit_unset, hitset& hit_set){
   hit_unset.adc = hit_set.adc;
   hit_unset.t = hit_set.t;
   hit_unset.fflag = hit_set.fflag;
+  hit_unset.width = hit_set.width;
 }
 bool E16ANA_GammaAnalyzer::Hit0isInvalid(){
   return HitisInvalid(hit0);
@@ -222,6 +234,7 @@ bool E16ANA_GammaAnalyzer::Hit1isInvalid(){
 bool E16ANA_GammaAnalyzer::HitisInvalid(hitset& hit){
   if( hit.fflag>=2 ) {return true;}
   else if( hit.adc<30 ) {return true;}
+  else if( hit.width<5 || hit.width>20 ) {return true;}
   else {return false;}
 }
 bool E16ANA_GammaAnalyzer::HitsareInvalid(){
@@ -348,6 +361,7 @@ void E16ANA_GammaAnalyzer::FillHit(int type, hitset hit){
   hadc[type]->Fill(hit.adc);
   ht[type]->Fill(hit.t);
   hfflag[type]->Fill(hit.fflag);
+  hwidth[type]->Fill(hit.width);
   brmid[type] = hit.mid;
   brcid[type] = hit.cid;
   brx[type] = hit.x;
@@ -359,6 +373,7 @@ void E16ANA_GammaAnalyzer::FillHit(int type, hitset hit){
   bradc[type] = hit.adc;
   brt[type] = hit.t;
   brfflag[type] = hit.fflag;
+  brwidth[type] = hit.width;
 
 }
 void E16ANA_GammaAnalyzer::ClearMixEvent(){
@@ -425,6 +440,7 @@ void E16ANA_GammaAnalyzer::Draw(TString& fout, TCanvas* c){
   DrawTH1FCanvas(c,fout,hgy[0],hgy[1],hgz[0],hgz[1]);
   DrawTH1FCanvas(c,fout,hadc[0],hadc[1],ht[0],ht[1]);
   DrawTH1FCanvas(c,fout,hfflag[0],hfflag[1],hfflag[0],hfflag[1]);
+  DrawTH1FCanvas(c,fout,hwidth[0],hwidth[1],hwidth[0],hwidth[1]);
 }
 void E16ANA_GammaAnalyzer::SetRootFile(char* fin_name){
   fin = new TFile(Form("%s",fin_name));
@@ -464,6 +480,7 @@ void E16ANA_GammaAnalyzer::SetHists(){
     hadc[j]->Reset();
     ht[j]->Reset();
     hfflag[j]->Reset();
+    hwidth[j]->Reset();
   }
 
   for(int l=0;l<2;l++){
@@ -497,6 +514,7 @@ void E16ANA_GammaAnalyzer::SetHists(){
     hadc[j] = (TH1F*)fin->Get(Form("hadc%d",j));
     ht[j] = (TH1F*)fin->Get(Form("ht%d",j));
     hfflag[j] = (TH1F*)fin->Get(Form("hfflag%d",j));
+    hwidth[j] = (TH1F*)fin->Get(Form("hwidth%d",j));
   }
 
 }
@@ -530,6 +548,7 @@ void E16ANA_GammaAnalyzer::ClearBranch(){
     bradc[i] = -10000.;
     brt[i] = -10000.;
     brfflag[i] = -10000;
+    brwidth[i] = -10000;
   }
 }
 void E16ANA_GammaAnalyzer::SetBranchIds(int _run_id, int _event_id, int _spill_id){

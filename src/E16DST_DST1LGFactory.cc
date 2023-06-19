@@ -52,10 +52,10 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
       lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
     }
     else if(fitoption==1){
-      lgwf->FitMethod(0,waveform,t0); // 14 event/sec @1e10
+      lgwf->FitMethod(waveform,t0); // 14 event/sec @1e10
     }
     else if(fitoption==2){
-      lgwf->FitMethod(1,waveform,t0-48.); // hidden option (for 2gamma)
+      lgwf->woFitMethod(waveform,t0);
     }
     else{
       std::cout<<fitoption<<" is Invalid FitOption"<<std::endl;

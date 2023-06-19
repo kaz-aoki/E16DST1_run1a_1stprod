@@ -31,6 +31,8 @@ public:
   }
   void CalcPeak();//and peakx
   void CalcTiming();
+  void CalcTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag);
+  void CalcLateTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag);
   void CalcBaseline();//and baselinerms
   void CalcIntegral();//and falltime
   double GetPeak(){return peak;}
@@ -43,10 +45,10 @@ public:
   bool GetSpikeFlag(){return spikeflag;}
 
   // void MethodForTrack(double* _wf, double t0);
-  int GetHitFlag(){return hitflag;}
+  // int GetHitFlag(){return hitflag;}
 
   //fitting method
-  void FitMethod(int someorall, double* _wf, double t0);// 0: only requied wf are fitted (default), 1: all wf are fitted
+  void FitMethod(double* _wf, double t0);
   void SetT0(double _t0){t0 = _t0;}
   void CalcWaveforms();
   //void CalcPeaks();
@@ -83,6 +85,10 @@ public:
   double nstocell(double _ns){return _ns*E16ANA_LGConstant::kTimeScale;}
   static void RemoveSpike(double* dat); // for waveform w/o wftype-correction
 
+  void woFitMethod(double* _wf, double t0);
+  void CalcWaveform_woFit();
+  void PeakSearch_woFit();
+
   //old method
   void Peak(double* dat, double* peak, int* peakx, double* timing);
   void Baseline(double* dat, int peakx, double* baseline, double* baselinerms);
@@ -105,7 +111,7 @@ private:
   int falltime;
   bool spikeflag;
 
-  int hitflag;
+  // int hitflag;
 
   double dwf[E16DST_Constant::NSamplesLG]; //diff
   double mwf[E16DST_Constant::NSamplesLG]; //modified waveform (remove spike noise)
