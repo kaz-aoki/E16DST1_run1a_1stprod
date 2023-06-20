@@ -121,10 +121,16 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
     // }
     else{
       double newhvval;
-      double ph = h[hvch]->GetMean();
-      TuneHVValue(FMstate, ph, thvval, newhvval);
-      // double gain = 2.;
-      // ScaleHVValue(FMstate, gain, thvval, newhvval);
+// #ifdef TUNE_ON
+      // double ph = h[hvch]->GetMean();
+      // TuneHVValue(FMstate, ph, thvval, newhvval);
+      // if(hvch==111){//107-2
+      // 	newhvval = 1328.26;
+      // }
+// #else
+      double gain = 3.;
+      ScaleHVValue(FMstate, gain, thvval, newhvval);
+// #endif
       fout <<"u"<< thvch <<" "<< tname <<" "<< newhvval <<" "<< tlimit <<" "<< tid <<std::endl;
     }
   }

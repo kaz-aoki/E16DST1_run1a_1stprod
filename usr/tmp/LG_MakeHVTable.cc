@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 
    in_chain->Add(Form("%s",runfile));
 
-   std::cout<<" FM:"<<FMstate<<" | run"<<run_id<<" | prefile:"<<prefile<<" | newfile:"<<newfile_prefix<<".txt"<<std::endl;
+   std::cout<<" FM:"<<FMstate<<" | run"<<run_id<<" | runfile:"<<runfile<<" | prefile:"<<prefile<<" | newfile:"<<newfile_prefix<<".txt"<<std::endl;
 
    E16ANA_LGOnlineAnalyzer* t = new E16ANA_LGOnlineAnalyzer(in_chain);
    t->MakeHVTable(FMstate, run_id, prefile, newfile_prefix, maxevent);

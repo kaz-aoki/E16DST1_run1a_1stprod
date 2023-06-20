@@ -262,6 +262,7 @@ int E16ANA_LGOnlineAnalyzer::IDtoModule(int id)
 void E16ANA_LGOnlineAnalyzer::TuneHVValue(int FMstate, double ph, double oldhv, double& newhv)
 {
   newhv = oldhv*pow(standard_phmean/ph,1./gain_index[FMstate]);
+  std::cout<<"ph:"<<ph<<"=>"<<standard_phmean<<", HV:"<<oldhv<<"=>"<<newhv<<std::endl;
 }
 void E16ANA_LGOnlineAnalyzer::ScaleHVValue(int FMstate, double gain, double oldhv, double& newhv)
 {
