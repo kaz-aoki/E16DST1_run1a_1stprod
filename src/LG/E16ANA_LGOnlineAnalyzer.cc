@@ -227,7 +227,7 @@ void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
   lghists->DrawEach(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  lghists->MakeT0CalibFile();
+  // lghists->MakeT0CalibFile();
 
 }
 
