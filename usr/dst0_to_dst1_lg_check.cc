@@ -25,7 +25,7 @@ using namespace std;
 
 // #define WF_ON
 #define TRG_ON
-// #define LGDST1_ON
+#define LGDST1_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 7) {
@@ -311,8 +311,8 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
-	if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
-	// if(peakheight>25&&peakheight<180&&peaktime>60&&peaktime<140){//tmp, wotrg
+	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
+	if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
 	// if(trg_lg_hit_t==0){//thr check
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
