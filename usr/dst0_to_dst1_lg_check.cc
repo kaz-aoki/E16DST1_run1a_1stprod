@@ -25,6 +25,7 @@ using namespace std;
 
 // #define WF_ON
 #define TRG_ON
+// #define LGDST1_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 7) {
@@ -157,9 +158,11 @@ int main(int argc, char* argv[]) {
       // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
 
+#ifdef LGDST1_ON
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
+#endif
 #ifdef TRG_ON
 #ifdef TMP_NIM_TRIGGER
       auto time_stamp = event0->TimeStamp();
@@ -207,6 +210,7 @@ int main(int argc, char* argv[]) {
       }
 
 //dst1hit
+#ifdef LGDST1_ON
       auto& lg_hits1 = record.LG().Hits();
       int n_lghits = lg_hits1.size();
       if (lg_hits1.size() != 0) {
@@ -221,6 +225,7 @@ int main(int argc, char* argv[]) {
       	}
       }
       multi = n_dst1hits;
+#endif
 
 //dst1trghit
       int n_trg_lg_hits = record.Trigger().NumLGHits();
