@@ -116,20 +116,20 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
     if( IDtoModule(tid)==-1 ){// vacant ch
       fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
     }
-    // else if( IDtoModule(tid)>=102 && IDtoModule(tid)<=108 ){// for FMON
-    //   fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
-    // }
+    else if( IDtoModule(tid)>=102 && IDtoModule(tid)<=108 && hvch!=305 ){// for FMON, use run0c param wo 104-5
+      fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
+    }
     else{
       double newhvval;
 // #ifdef TUNE_ON
-      // double ph = h[hvch]->GetMean();
-      // TuneHVValue(FMstate, ph, thvval, newhvval);
-      // if(hvch==111){//107-2
-      // 	newhvval = 1328.26;
-      // }
+      double ph = h[hvch]->GetMean();
+      TuneHVValue(FMstate, ph, thvval, newhvval);
+      if(hvch==111){//107-2
+      	newhvval = 1328.26;
+      }
 // #else
-      double gain = 3.;
-      ScaleHVValue(FMstate, gain, thvval, newhvval);
+      // double gain = 5.;
+      // ScaleHVValue(FMstate, gain, thvval, newhvval);
 // #endif
       fout <<"u"<< thvch <<" "<< tname <<" "<< newhvval <<" "<< tlimit <<" "<< tid <<std::endl;
     }

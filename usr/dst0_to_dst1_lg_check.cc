@@ -214,8 +214,10 @@ int main(int argc, char* argv[]) {
       	  auto& lghit = lg_hits1[i];
       	  int tmod = lghit.ModuleId();
       	  int tblk = lghit.ChannelId();
-	  dst1hitflag[tmod-100][tblk] = true;
-	  n_dst1hits++;
+	  if(lghit.PeakHeight()>30){
+	    dst1hitflag[tmod-100][tblk] = true;
+	    n_dst1hits++;
+	  }
       	}
       }
       multi = n_dst1hits;
@@ -228,7 +230,9 @@ int main(int argc, char* argv[]) {
 	int tblk = trghit.ChannelId();
 	dst1trghitflag[tmod-100][tblk] = true;
 	dst1trghitt[tmod-100][tblk] = trghit.Timing();
-	n_dst1trghits++;
+	if(trghit.Timing()>3120&&trghit.Timing()<3150){
+	  n_dst1trghits++;
+	}
       }
       trgmulti = n_dst1trghits;
 
@@ -302,14 +306,14 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
-	// if(peakheight>25&&peakheight<180){
+	if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(dst1flag){
 	// if(trg_lg_hit_t==0){//thr check
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
-	// }
-	if(trg&&trg_lg_hit_t!=0){
-	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	}
+	// if(trg&&trg_lg_hit_t!=0){
+	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
+	// }
 	// if(trg_lg_hit_t==0){
 	if(dst1flag&&peakheight>30.){
 	  lghists->SetWaveform(module,block,waveform);
