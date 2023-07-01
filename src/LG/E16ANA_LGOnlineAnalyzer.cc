@@ -140,7 +140,7 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
   froot->Close();
 }
 
-void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], int maxevent)
+void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], TH1F* (&hoff)[8], TH1F* (&hsoff)[8], int maxevent)
 {
   if (fChain == 0) return;
 
@@ -163,8 +163,10 @@ void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1
     else if(wf_type>0.2&&wf_type<0.3){
       wf_type = 900;
     }
-    h[i] = new TH1F(Form("h%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),1500,0,1500);
-    hs[i] = new TH1F(Form("hs%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),maxbin[i],0,maxbin[i]);
+    h[i] = new TH1F(Form("h%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),100,0,1500);
+    hs[i] = new TH1F(Form("hs%d",i),Form("%d-%d IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),maxbin[i]/2,0,maxbin[i]);
+    hoff[i] = new TH1F(Form("hoff%d",i),Form("%d-%d beamOFF IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),100,0,1500);
+    hsoff[i] = new TH1F(Form("hsoff%d",i),Form("%d-%d beamOFF IP%d upto%1.0fmV",ledmid[i],ledcid[i],ip,wf_type),maxbin[i]/2,0,maxbin[i]);
   }
 
   Long64_t n_entries = fChain->GetEntries();
@@ -184,9 +186,21 @@ void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1
     if (CutLED(ientry) < 0) continue;
 
     for(int iled=0;iled<8;iled++){
-      if(Module==ledmid[iled]&&Block==ledcid[iled]){
-	h[iled]->Fill(PeakHeight);
-	hs[iled]->Fill(PeakHeight/scale);
+      if(Module==ledmid[iled]&&Block==ledcid[iled]&&PeakTime>=115&&PeakTime<=130){
+	// std::cout<<"***"<<TimeStampInSpill<<"***"<<std::endl;
+	if(TimeStampInSpill>3.e8/8.&&TimeStampInSpill<2.e9/8.){
+	  // std::cout<<"spillON"<<std::endl;
+	  h[iled]->Fill(PeakHeight);
+	  hs[iled]->Fill(PeakHeight/scale);
+	}
+	else if(TimeStampInSpill>3.e8){
+	  // std::cout<<"spillOFF"<<std::endl;
+	  hoff[iled]->Fill(PeakHeight);
+	  hsoff[iled]->Fill(PeakHeight/scale);
+	}
+	else{
+	  // std::cout<<"other"<<std::endl;
+	}
       }
     }
   }

@@ -42,10 +42,11 @@ int main(int argc, char* argv[]) {
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
+  // std::ofstream frun("runinfo.txt");
 
   uint16_t module, block;
   float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
-  int run, event, spill, multi, trgmulti, peaktime, ip;
+  int run, event, spill, multi, trgmulti, peaktime, ip, timestampinspill;
   bool sl, sr, sl2, sr2, im3, im2, spikeflag, dst1flag, trg, trgwtrk;
   double gpos[3];
   double lpos[3];
@@ -55,6 +56,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("Run",&run,"Run/I");
   tree->Branch("Event",&event,"Event/I");
   tree->Branch("Spill",&spill,"Spill/I");
+  tree->Branch("TimeStampInSpill",&timestampinspill,"TimeStampInSpill/I");
   tree->Branch("Multi",&multi,"Multi/I");
   tree->Branch("TrgMulti",&trgmulti,"TrgMulti/I");
   tree->Branch("SL",&sl,"SL/O");
@@ -148,6 +150,7 @@ int main(int argc, char* argv[]) {
     auto event_type = dst0->EventType();
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
+      // frun<<"Physics:"<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
       // auto& ssd_hits0         = event0->SSD();
       // auto& gtr_hits0         = event0->GTR();
       // auto& hbd_hits0         = event0->HBD();
@@ -181,6 +184,7 @@ int main(int argc, char* argv[]) {
       run = run_id;
       event = event0->EventID();
       spill = event0->SpillID();
+      timestampinspill = event0->TimeStampInSpill();
       int slflag = event0->UT3().NIMFlag(0);
       int srflag = event0->UT3().NIMFlag(1);
       int sl2flag = event0->UT3().NIMFlag(0);//to be updated!!!!
@@ -331,12 +335,15 @@ int main(int argc, char* argv[]) {
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
+      // frun<<"Scaler: "<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
 //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillStart) {
       auto event0 = dynamic_cast<E16DST_DST0SpillStartEvent*>(dst0->Event());
+      // frun<<"SpillS: "<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
 //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillEnd) {
       auto event0 = dynamic_cast<E16DST_DST0SpillEndEvent*>(dst0->Event());
+      // frun<<"SpillE: "<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
 //      dst1->WriteAnEvent(event0);
     } else {
       std::cerr << "Invalid Event Type: " << event_type << std::endl;
@@ -355,8 +362,8 @@ int main(int argc, char* argv[]) {
   lghists->DrawEachTimeCorrelation(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  TString wfpdfout = Form("%s",out_wf_pdf_name);
-  lghists->DrawWaveform(wfpdfout);
+  // TString wfpdfout = Form("%s",out_wf_pdf_name);
+  // lghists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();

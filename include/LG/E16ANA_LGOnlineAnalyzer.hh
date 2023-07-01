@@ -38,6 +38,7 @@ public :
    Int_t           Run;
    Int_t           Event;
    Int_t           Spill;
+   Int_t           TimeStampInSpill;
    Int_t           Multi;
    Int_t           TrgMulti;
    Bool_t          SL;
@@ -70,6 +71,7 @@ public :
    TBranch        *b_Run;   //!
    TBranch        *b_Event;   //!
    TBranch        *b_Spill;   //!
+   TBranch        *b_TimeStampInSpill;   //!
    TBranch        *b_Multi;   //!
    TBranch        *b_TrgMulti;   //!
    TBranch        *b_SL;   //!
@@ -111,7 +113,7 @@ public :
    virtual void     TuneHVValue(int FMstate, double ph, double oldhv, double& newhv);
    virtual void     ScaleHVValue(int FMstate, double gain, double oldhv, double& newhv);
    virtual void     DrawPDF(TString& f, TH1F** h);
-   virtual void     LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], int maxevent);
+   virtual void     LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], TH1F* (&hoff)[8], TH1F* (&hsoff)[8], int maxevent);
    virtual void     MakePDF(int run_id, char* outfile, int maxevent);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
@@ -179,6 +181,7 @@ void E16ANA_LGOnlineAnalyzer::Init(TTree *tree)
    fChain->SetBranchAddress("Run", &Run, &b_Run);
    fChain->SetBranchAddress("Event", &Event, &b_Event);
    fChain->SetBranchAddress("Spill", &Spill, &b_Spill);
+   fChain->SetBranchAddress("TimeStampInSpill", &TimeStampInSpill, &b_TimeStampInSpill);
    fChain->SetBranchAddress("Multi", &Multi, &b_Multi);
    fChain->SetBranchAddress("TrgMulti", &TrgMulti, &b_TrgMulti);
    fChain->SetBranchAddress("SL", &SL, &b_SL);
