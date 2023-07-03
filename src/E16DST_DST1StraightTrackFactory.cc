@@ -10,6 +10,7 @@
 #include "E16DST_DST1DetectorFactory.hh"
 using namespace std;
 
+
 int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> &st_tracks, E16ANA_GTRcalibPedestal &gtrped, const int removed_layer){
 	static bool isFirst = true;
 	//static StraightTrackAnalyzerOfWireV1 *straight_analyzer;

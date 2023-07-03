@@ -327,6 +327,31 @@ int main(int argc, char* argv[]) {
     c_hit_timing_x[m-102]->SaveAs(pdf_name, "pdf");
   }
  
+TCanvas *c_hit_ph_x[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_hit_ph_x[m-102] = new TCanvas(Form("hphx%d", m-102) , Form("hphx%d", m-102), 1024, 768);
+    c_hit_ph_x[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_ph_x[m-102]->cd(l+1);
+        gtrhist->h_hit_ph_x[m-100][l]->Draw();
+    }
+    c_hit_ph_x[m-102]->SaveAs(pdf_name, "pdf");
+  }
+
+TCanvas *c_hit_ph_y[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=102; m < 109 ; m++){
+    if(m == 105) continue;
+    c_hit_ph_y[m-102] = new TCanvas(Form("hphy%d", m-102) , Form("hphy%d", m-102), 1024, 768);
+    c_hit_ph_y[m-102]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_ph_y[m-102]->cd(l+1);
+        gtrhist->h_hit_ph_y[m-100][l]->Draw();
+    }
+    c_hit_ph_y[m-102]->SaveAs(pdf_name, "pdf");
+  }
 
 
   TCanvas *c_cl_timing_x[10]; 

@@ -9,6 +9,8 @@ GTRCheckHist::GTRCheckHist(){
   }
     for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
+            h_hit_ph_x[m-100][l] = new TH1D(Form("hit_ph_x%d_%d",m, l), Form("hit_ph_x%d_%d",m, l),100, 0, 3000);
+            h_hit_ph_y[m-100][l] = new TH1D(Form("hit_ph_y%d_%d",m, l), Form("hit_ph_y%d_%d",m, l),100, 0, 3000);
             h_hit_timing_x[m-100][l] = new TH1D(Form("hit_timing_x%d_%d",m, l), Form("hit_timing_x%d_%d",m, l),100, -50, 800);
             h_cl_ncluster_x[m-100][l] = new TH1D(Form("cl_ncluster_x%d_%d",m, l), Form("cl_ncluster_x%d_%d",m, l),200, -0.5 ,199.5);
             h_cl_ncluster_y[m-100][l] = new TH1D(Form("cl_ncluster_y%d_%d",m, l), Form("cl_ncluster_y%d_%d",m, l),200, -0.5,199.5);
@@ -53,6 +55,9 @@ GTRCheckHist::~GTRCheckHist(){
   }
 for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
+			delete h_hit_ph_x[m-100][l]; 
+			delete h_hit_ph_y[m-100][l]; 
+			delete h_hit_timing_x[m-100][l]; 
             delete h_cl_ncluster_x[m-100][l];
             delete h_cl_ncluster_y[m-100][l];
             delete h_cl_ncluster_yb[m-100][l];
@@ -84,6 +89,13 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 		E16DST_DST1GTRHit &h = hits[i];
 		if(h.Type() == 0){
 			h_hit_timing_x[h.ModuleId() -100 ][h.LayerId()]->Fill(h.Timing());
+			h_hit_ph_x[h.ModuleId() -100 ][h.LayerId()]->Fill(h.PeakHeight());
+		}
+		else if (h.Type() == 1){
+			h_hit_ph_y[h.ModuleId() -100 ][h.LayerId()]->Fill(h.PeakHeight());
+		}
+		else if (h.Type() == 2){
+			h_hit_ph_y[h.ModuleId() -100 ][h.LayerId()]->Fill(h.PeakHeight());
 		}
 	}
 	

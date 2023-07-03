@@ -334,9 +334,9 @@ void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_D
 	                        std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
 							double tgt_z = ReconstructTgtPosBeforeVertex(fitter_x->FitA(), fitter_x->FitB(), phi, kawama_module, geom_v2);
 							//remove not close to wires
-							if     (tgt_z  < -45 ){ continue;}
-							else if(tgt_z  >  45) { continue;}
-							else if(-35 <   tgt_z  &&  tgt_z  < 35) { continue;}
+//							if     (tgt_z  < -45 ){ continue;}
+//							else if(tgt_z  >  45) { continue;}
+//							else if(-35 <   tgt_z  &&  tgt_z  < 45) { continue;}
 						
 	 //						trk->SetResidualSSD2(min2);	
 							trk->SetFitResidualSSD(fitter_x->FitResidual(0));
@@ -1333,7 +1333,7 @@ void StraightTrackAnalyzerOfWireV1::YRStraightAnalyze2(std::vector<E16DST_DST1GT
 	std::fill_n(j_table, yhits1.size(), 0);
 	std::fill_n(k_table, yhits2.size(), 0);
 	//std::fill_n(l_tab, ssd_hits.size(), 0);
-    //sort by chi2, and if the hits are overlaped, the track is erased 
+    //sort by chi2, atd if the hits are overlaped, the track is erased 
     std::sort(y_trk_cand.begin(), y_trk_cand.end(), E16ANA_YTrackCandidate::CompareTrackFunctor());
 	std::vector<E16ANA_YTrackCandidate>::const_iterator iter = y_trk_cand.begin();
     while(iter != y_trk_cand.end()){
@@ -1712,62 +1712,62 @@ void StraightTrackAnalyzerOfWireV1::MatchingXYHitsAfterLinearFit(std::vector<std
 //	std::cout << "After Require associated hits  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
 
 
-//--delete  duplicated hits
-//sort by chi2, and if the hits are overlaped, the track are deleted 
-	int max = 1000;
-	#define lengthof(x)(sizeof(x) / sizeof(*(x)))
-	bool i_table[10][max] = {{}};
-	bool j_table[10][max] = {{}};
-	bool k_table[10][max] = {{}};
-	std::fill((bool*)i_table, (bool*)(i_table + lengthof(i_table)), 0);
-	std::fill((bool*)j_table, (bool*)(j_table + lengthof(j_table)), 0);
-	std::fill((bool*)k_table, (bool*)(k_table + lengthof(k_table)), 0);
-//	std::fill_n(i_table[10], i_table[10], 0);
-//	std::fill_n(j_table[10], j_table[10], 0);
-//	std::fill_n(k_table[10], k_table[10], 0);
-    std::sort(xz_trk_cands.begin(), xz_trk_cands.end(), E16ANA_XZTrackCandidate::CompareTrackFunctor());
-	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iter = xz_trk_cands.begin();
-    while(iter != xz_trk_cands.end()){
-		int m = (*iter)->ModuleID()-100;
-		if( i_table[m][(*iter)->ID100Hit()] == 0 && j_table[m][(*iter)->ID200Hit()] == 0 && k_table[m][(*iter)->ID300Hit()] == 0 ){
-            i_table[m][(*iter)->ID100Hit()] = 1;
-			j_table[m][(*iter)->ID200Hit()] = 1; 
-			k_table[m][(*iter)->ID300Hit()] = 1; 
-            ++iter;
-        }
-        else{
-            iter = xz_trk_cands.erase(iter);
-
-  //          std::cout << "a duplicated track X is erased !" << std::endl;
-        }
-    }
-
-//---- for Y
-//	int max = 10000;
-	bool iy_table[10][max] = {{}};
-	bool jy_table[10][max] = {{}};
-	bool ky_table[10][max] = {{}};
-	std::fill((bool*)iy_table, (bool*)(iy_table + lengthof(iy_table)), 0);
-	std::fill((bool*)jy_table, (bool*)(jy_table + lengthof(jy_table)), 0);
-	std::fill((bool*)ky_table, (bool*)(ky_table + lengthof(ky_table)), 0);
-//	std::fill_n(i_table[10], i_table[10], 0);
-//	std::fill_n(j_table[10], j_table[10], 0);
-//	std::fill_n(k_table[10], k_table[10], 0);
-    std::sort(y_trk_cands.begin(), y_trk_cands.end(), E16ANA_YTrackCandidate::CompareTrackFunctor());
-	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator iter2 = y_trk_cands.begin();
-    while(iter2 != y_trk_cands.end()){
-		int m = (*iter2)->ModuleID()-100;
-		if( iy_table[m][(*iter2)->ID100Hit()] == 0 && jy_table[m][(*iter2)->ID200Hit()] == 0 && ky_table[m][(*iter2)->ID300Hit()] == 0 ){
-            iy_table[m][(*iter2)->ID100Hit()] = 1;
-			jy_table[m][(*iter2)->ID200Hit()] = 1; 
-			ky_table[m][(*iter2)->ID300Hit()] = 1; 
-            ++iter2;
-        }
-        else{
-            iter2 = y_trk_cands.erase(iter2);
- //           std::cout << "a duplicated track Y is erased !" << std::endl;
-        }
-    }
+////--delete  duplicated hits
+////sort by chi2, and if the hits are overlaped, the track are deleted 
+//	int max = 1000;
+//	#define lengthof(x)(sizeof(x) / sizeof(*(x)))
+//	bool i_table[10][max] = {{}};
+//	bool j_table[10][max] = {{}};
+//	bool k_table[10][max] = {{}};
+//	std::fill((bool*)i_table, (bool*)(i_table + lengthof(i_table)), 0);
+//	std::fill((bool*)j_table, (bool*)(j_table + lengthof(j_table)), 0);
+//	std::fill((bool*)k_table, (bool*)(k_table + lengthof(k_table)), 0);
+////	std::fill_n(i_table[10], i_table[10], 0);
+////	std::fill_n(j_table[10], j_table[10], 0);
+////	std::fill_n(k_table[10], k_table[10], 0);
+//    std::sort(xz_trk_cands.begin(), xz_trk_cands.end(), E16ANA_XZTrackCandidate::CompareTrackFunctor());
+//	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iter = xz_trk_cands.begin();
+//    while(iter != xz_trk_cands.end()){
+//		int m = (*iter)->ModuleID()-100;
+//		if( i_table[m][(*iter)->ID100Hit()] == 0 && j_table[m][(*iter)->ID200Hit()] == 0 && k_table[m][(*iter)->ID300Hit()] == 0 ){
+//            i_table[m][(*iter)->ID100Hit()] = 1;
+//			j_table[m][(*iter)->ID200Hit()] = 1; 
+//			k_table[m][(*iter)->ID300Hit()] = 1; 
+//            ++iter;
+//        }
+//        else{
+//            iter = xz_trk_cands.erase(iter);
+//
+//  //          std::cout << "a duplicated track X is erased !" << std::endl;
+//        }
+//    }
+//
+////---- for Y
+////	int max = 10000;
+//	bool iy_table[10][max] = {{}};
+//	bool jy_table[10][max] = {{}};
+//	bool ky_table[10][max] = {{}};
+//	std::fill((bool*)iy_table, (bool*)(iy_table + lengthof(iy_table)), 0);
+//	std::fill((bool*)jy_table, (bool*)(jy_table + lengthof(jy_table)), 0);
+//	std::fill((bool*)ky_table, (bool*)(ky_table + lengthof(ky_table)), 0);
+////	std::fill_n(i_table[10], i_table[10], 0);
+////	std::fill_n(j_table[10], j_table[10], 0);
+////	std::fill_n(k_table[10], k_table[10], 0);
+//    std::sort(y_trk_cands.begin(), y_trk_cands.end(), E16ANA_YTrackCandidate::CompareTrackFunctor());
+//	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator iter2 = y_trk_cands.begin();
+//    while(iter2 != y_trk_cands.end()){
+//		int m = (*iter2)->ModuleID()-100;
+//		if( iy_table[m][(*iter2)->ID100Hit()] == 0 && jy_table[m][(*iter2)->ID200Hit()] == 0 && ky_table[m][(*iter2)->ID300Hit()] == 0 ){
+//            iy_table[m][(*iter2)->ID100Hit()] = 1;
+//			jy_table[m][(*iter2)->ID200Hit()] = 1; 
+//			ky_table[m][(*iter2)->ID300Hit()] = 1; 
+//            ++iter2;
+//        }
+//        else{
+//            iter2 = y_trk_cands.erase(iter2);
+// //           std::cout << "a duplicated track Y is erased !" << std::endl;
+//        }
+//    }
 ////	std::cout << "After deleting duplicated points  (x size, ysize) : " << xz_trk_cands.size() << ": " << y_trk_cands.size() << std::endl;
 //
 
@@ -1810,24 +1810,24 @@ void StraightTrackAnalyzerOfWireV1::MatchingXYHitsAfterLinearFit(std::vector<std
 					}
             }
     }
-    bool xz_table[xz_trk_cands.size()] = {};
-	bool yr_table[y_trk_cands.size()] = {};
-	std::fill_n(xz_table, xz_trk_cands.size(), 0);
-	std::fill_n(yr_table, y_trk_cands.size(), 0);
-	std::sort(xyz_st_trk.begin(), xyz_st_trk.end(), E16ANA_XYZStraightTrack::CompareTimingDifferenceFunctor());
-  //sort by chi2, and if the hits are overlaped, the track is erased 
-  std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>>::const_iterator iter3d = xyz_st_trk.begin();
-  while(iter3d != xyz_st_trk.end()){
-  	if( xz_table[(*iter3d)->XTrackID()] == 0 && yr_table[(*iter3d)->YTrackID()] == 0 ){
-        xz_table[(*iter3d)->XTrackID()] = 1;
-    	yr_table[(*iter3d)->YTrackID()] = 1; 
-          ++iter3d;
-      }
-      else{
-           iter3d = xyz_st_trk.erase(iter3d);
-//           std::cout << "a duplicated XYZ track is erased !" << std::endl;
-      }
-  }
+//    bool xz_table[xz_trk_cands.size()] = {};
+//	bool yr_table[y_trk_cands.size()] = {};
+//	std::fill_n(xz_table, xz_trk_cands.size(), 0);
+//	std::fill_n(yr_table, y_trk_cands.size(), 0);
+//	std::sort(xyz_st_trk.begin(), xyz_st_trk.end(), E16ANA_XYZStraightTrack::CompareTimingDifferenceFunctor());
+//  //sort by chi2, and if the hits are overlaped, the track is erased 
+//  std::vector<std::shared_ptr<E16ANA_XYZStraightTrack>>::const_iterator iter3d = xyz_st_trk.begin();
+//  while(iter3d != xyz_st_trk.end()){
+//  	if( xz_table[(*iter3d)->XTrackID()] == 0 && yr_table[(*iter3d)->YTrackID()] == 0 ){
+//        xz_table[(*iter3d)->XTrackID()] = 1;
+//    	yr_table[(*iter3d)->YTrackID()] = 1; 
+//          ++iter3d;
+//      }
+//      else{
+//           iter3d = xyz_st_trk.erase(iter3d);
+////           std::cout << "a duplicated XYZ track is erased !" << std::endl;
+//      }
+//  }
 }
 
 void StraightTrackAnalyzerOfTargets::MatchingXYHitsAfterLinearFit(std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>> &xz_trk_cands, std::vector<std::shared_ptr<E16ANA_YTrackCandidate>> &y_trk_cands){
@@ -1835,8 +1835,8 @@ void StraightTrackAnalyzerOfTargets::MatchingXYHitsAfterLinearFit(std::vector<st
 	int cnt = 0;
 	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator  itery = y_trk_cands.begin();
 	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iterx = xz_trk_cands.begin();
-//	std::cout << "x track size " << xz_trk_cands.size() << std::endl;
-//	std::cout << "y track size " << y_trk_cands.size() << std::endl;
+	std::cout << "x track size " << xz_trk_cands.size() << std::endl;
+	std::cout << "y track size " << y_trk_cands.size() << std::endl;
 
 // Before Matching x and y hits, delete duplicated 
 //---------- delete x hit not associated with y hit -----------------//
@@ -1977,6 +1977,8 @@ void StraightTrackAnalyzerOfTargets::MatchingXYHitsAfterLinearFit(std::vector<st
 					}
             }
     }
+	std::cout << "3d track size = " << xyz_st_trk.size() << std::endl; 
+	
 //    bool xz_table[xz_trk_cands.size()] = {};
 //	bool yr_table[y_trk_cands.size()] = {};
 //	std::fill_n(xz_table, xz_trk_cands.size(), 0);
