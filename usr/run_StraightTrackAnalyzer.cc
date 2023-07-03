@@ -111,18 +111,20 @@ int main(int argc, char* argv[]) {
   
 
   string in_file_name = argv[1];
-  int sink_id_pos = in_file_name.length() - 10;
-  string sink_id = in_file_name.substr(sink_id_pos, 1);
-  std::cout << "sink id = " << sink_id << std::endl;
-  int smallest_id_pos = in_file_name.length()-8;
-  string smallest_id = in_file_name.substr(smallest_id_pos, 3);
-  std::cout << "smallest  id = " << smallest_id << std::endl;
-  string runnum = argv[3];
-  string rem    = argv[5];
-  string run = "g4run0" + runnum + "exGTR" + rem;
-  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root";
+//run0c
+//  int sink_id_pos = in_file_name.length() - 10;
+//  string sink_id = in_file_name.substr(sink_id_pos, 1);
+//  std::cout << "sink id = " << sink_id << std::endl;
+//  int smallest_id_pos = in_file_name.length()-8;
+//  string smallest_id = in_file_name.substr(smallest_id_pos, 3);
+//  std::cout << "smallest  id = " << smallest_id << std::endl;
+//  string runnum = argv[3];
+//  string rem    = argv[5];
+//  string run = "g4run0" + runnum + "exGTR" + rem;
+//  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root";
+//  const char* c_out = outputfile.c_str();
 
-  const char* c_out = outputfile.c_str();
+  const char* c_out = out_file_name.c_str();
   //TFile *f = new TFile("./wire_root/output.run", "recreate");
   TFile *f = new TFile( c_out, "recreate");
  
