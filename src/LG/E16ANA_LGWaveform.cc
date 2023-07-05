@@ -237,70 +237,6 @@ void E16ANA_LGWaveform::CalcTiming(){
 
 }
 
-// void E16ANA_LGWaveform::CalcTiming(){
-//   double ttiming;
-//   bool tspikeflag;
-//   CalcTiming(peak,peakx,ttiming,tspikeflag);
-//   timing = ttiming;
-//   spikeflag = tspikeflag;
-// }
-
-void E16ANA_LGWaveform::CalcTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
-
-  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){
-    int cell = tpeakx - i;
-    double peakhalf = tpeak/2.;
-    if(cell<0||cell>E16DST_Constant::NSamplesLG){
-      ttiming=E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    if(wf[cell]>tpeak){
-      ttiming=E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    if((cell!=tpeakx)&&wf[cell]<peakhalf){
-      ttiming=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
-      if(cell==(tpeakx-1)){//remove the event like spike noise
-	tspikeflag = true;
-	// ttiming=-10000;
-      }
-      break;
-    }
-    else{
-      ttiming=tpeakx/E16ANA_LGConstant::kTimeScale;
-    }
-  }
-
-}
-
-void E16ANA_LGWaveform::CalcLateTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
-
-  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion*3;i++){
-    int cell = tpeakx + i;
-    double peakhalf = tpeak/2.;
-    if(cell<0||cell>E16DST_Constant::NSamplesLG){
-      ttiming=E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    if(wf[cell]>tpeak){
-      ttiming=E16DST_DST1Constant::kInvalidValue;
-      break;
-    }
-    if((cell!=tpeakx)&&wf[cell]<peakhalf){
-      ttiming=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell-1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
-      if(cell==(tpeakx+1)){//remove the event like spike noise
-	tspikeflag = true;
-	// ttiming=-10000;
-      }
-      break;
-    }
-    else{
-      ttiming=tpeakx/E16ANA_LGConstant::kTimeScale;
-    }
-  }
-
-}
-
 void E16ANA_LGWaveform::CalcBaseline(){
 
   double baseline_sum = 0.;
@@ -559,7 +495,7 @@ void E16ANA_LGWaveform::PeakSearch_woFit(){
     chi2s[i] = 100;
     double ttiming = -10000.;
     bool tspikeflag = false;
-    CalcTiming(peaks[i], peakxs[i], ttiming, tspikeflag);
+    CalcRiseTiming(peaks[i], peakxs[i], ttiming, tspikeflag);
     timings[i] = ttiming+100.-t0;
     chi2s[i] = 0.;
     if(tspikeflag==true){
@@ -567,7 +503,7 @@ void E16ANA_LGWaveform::PeakSearch_woFit(){
       chi2s[i] = 1000;
     }
     double tlatetiming;
-    CalcLateTiming(peaks[i], peakxs[i], tlatetiming, tspikeflag);
+    CalcFallTiming(peaks[i], peakxs[i], tlatetiming, tspikeflag);
     widths[i] = tlatetiming - ttiming;
     if(tspikeflag==true){
       widths[i] = -10000;
@@ -579,6 +515,62 @@ void E16ANA_LGWaveform::PeakSearch_woFit(){
   delete s;
 
   // return nps;
+
+}
+
+void E16ANA_LGWaveform::CalcRiseTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
+
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){
+    int cell = tpeakx - i;
+    double peakhalf = tpeak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(wf[cell]>tpeak){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if((cell!=tpeakx)&&wf[cell]<peakhalf){
+      ttiming=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
+      if(cell==(tpeakx-1)){//remove the event like spike noise
+	tspikeflag = true;
+	// ttiming=-10000;
+      }
+      break;
+    }
+    else{
+      ttiming=tpeakx/E16ANA_LGConstant::kTimeScale;
+    }
+  }
+
+}
+
+void E16ANA_LGWaveform::CalcFallTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
+
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion*3;i++){
+    int cell = tpeakx + i;
+    double peakhalf = tpeak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(wf[cell]>tpeak){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if((cell!=tpeakx)&&wf[cell]<peakhalf){
+      ttiming=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell-1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
+      if(cell==(tpeakx+1)){//remove the event like spike noise
+	tspikeflag = true;
+	// ttiming=-10000;
+      }
+      break;
+    }
+    else{
+      ttiming=tpeakx/E16ANA_LGConstant::kTimeScale;
+    }
+  }
 
 }
 

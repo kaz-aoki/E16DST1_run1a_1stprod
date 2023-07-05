@@ -54,11 +54,11 @@ int main(int argc, char* argv[]) {
     fin >> gx1 >> gy1 >> gz1 >> ene1 >> gx2 >> gy2 >> gz2 >> ene2;
 
     analyzer->ClearHit0();
-    analyzer->SetHit0(0, 0, 0, 0., 0., 0., gx1, gy1, gz1, ene1/analyzer->GetParam(), 0., 0);
+    analyzer->SetHit0(0, 0, 0, 0., 0., 0., gx1, gy1, gz1, ene1/analyzer->GetParam(), 0., 0, 10.);
     if( analyzer->Hit0isInvalid() ) continue;
 
     analyzer->ClearHit1();
-    analyzer->SetHit1(0, 0, 0, 1000., 1000., 1000., gx2, gy2, gz2, ene2/analyzer->GetParam(), 0., 0);
+    analyzer->SetHit1(0, 0, 0, 1000., 1000., 1000., gx2, gy2, gz2, ene2/analyzer->GetParam(), 0., 0, 10.);
     if( analyzer->Hit1isInvalid() ) continue;
     if( analyzer->HitsareInvalid() ) continue;
 

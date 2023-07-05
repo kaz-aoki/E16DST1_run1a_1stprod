@@ -33,7 +33,7 @@ E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
       hpsz[l][i] = new TH1F(Form("hpsz%d%d",l,i),Form("momsum_z_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
       hdist[l][i] = new TH1F(Form("hdist%d%d",l,i),Form("2gamma_distance@LG_%d_%s",decaypos[i],name[l]),100,0,5000);
       hpzpx[l][i] = new TH2F(Form("hpzpx%d%d",l,i),Form("mom_zvsx_%d_%s",decaypos[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
-      hm[l][i] = new TH1F(Form("hm%d%d",l,i),Form("IM_%d_%s",decaypos[i],name[l]),100,0,1.5);
+      hm[l][i] = new TH1F(Form("hm%d%d",l,i),Form("IM_%d_%s",decaypos[i],name[l]),100,0,1);
     }
   }
 
@@ -248,11 +248,16 @@ bool E16ANA_GammaAnalyzer::HitsareInvalid(hitset& _hit0, hitset& _hit1){
   else {return false;}
 }
 bool E16ANA_GammaAnalyzer::IsNeighborBlock(hitset& _hit0, hitset& _hit1){
-  if( fabs(_hit0.x-_hit1.x)<150 && fabs(_hit0.y-_hit1.y)<170 ){
-    return true;
-  }
+  if( fabs(_hit0.x-_hit1.x)<150 && fabs(_hit0.y-_hit1.y)<170 ){return true;}
   return false;
 }
+// bool E16ANA_GammaAnalyzer::IsNeighborBlock(hitset& _hit0, hitset& _hit1){
+//   TVector3 v0(_hit0.gx,_hit0.gy,_hit0.gz);
+//   TVector3 v1(_hit1.gx,_hit1.gy,_hit1.gz);
+//   double angle = v0.Angle(v1);
+//   if( angle*1500.<244. ){return true;}
+//   return false;
+// }
 void E16ANA_GammaAnalyzer::FillForeHist(){
   FillHist(0,hit0,hit1);
 }
@@ -431,7 +436,7 @@ void E16ANA_GammaAnalyzer::Draw(TString& fout, TCanvas* c){
     c->Clear();
     hm[0][idp]->Draw();
     hm[1][idp]->SetLineColor(2);
-    hm[1][idp]->Draw("sames");
+    hm[1][idp]->Draw("same");
     c->SaveAs(fout,"pdf");
   }
   DrawTH1FCanvas(c,fout,hmid[0],hmid[1],hcid[0],hcid[1]);

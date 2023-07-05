@@ -31,8 +31,8 @@ public:
   }
   void CalcPeak();//and peakx
   void CalcTiming();
-  void CalcTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag);
-  void CalcLateTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag);
+  void CalcRiseTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag);
+  void CalcFallTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag);
   void CalcBaseline();//and baselinerms
   void CalcIntegral();//and falltime
   double GetPeak(){return peak;}
