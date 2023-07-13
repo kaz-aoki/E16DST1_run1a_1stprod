@@ -395,6 +395,16 @@ target_link_libraries(run_StraightTrackAnalyzer
 )
 
 ##--------------------------------------------------------------------------------
+##_______________________________________________________________________________
+add_executable(run_StraightTrackAnalyzer2D usr/run_StraightTrackAnalyzer2D.cc)
+
+target_link_libraries(run_StraightTrackAnalyzer2D
+	E16DST
+	E16DST_DST1
+)
+
+##--------------------------------------------------------------------------------
+
 #add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
 #
 #target_link_libraries(make_gtr_apv_status_file

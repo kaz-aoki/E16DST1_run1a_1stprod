@@ -42,13 +42,15 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     for(int i =0; i < noh ; i++){
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
+		if(mid > 200) continue;
+		if(mid != 106) continue;
         int lid = hit.LayerID();
         int sid = hit.StripID();
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
     }
     for(auto &a : gtr_analyzers->analyzer_map){
-//        a.second->AnalyzeV0();
-        a.second->AnalyzeV1();
+        a.second->AnalyzeV0();
+//        a.second->AnalyzeV1();
     }
        
 	

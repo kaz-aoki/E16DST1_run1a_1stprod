@@ -8,6 +8,7 @@
 #include <TH1.h>
 #include <TFile.h>
 #include <TCanvas.h>
+#include <regex>
 //#include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
@@ -95,7 +96,7 @@ void SetHitInfoToBranch(std::vector<E16DST_DST1GTRHit> &hits, E16DST_DST1GTRClus
 int main(int argc, char* argv[]) {
   if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] [removed_layer (-1 = all, 0, ssd, 1,2,3 = gtr)]" << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run_num] [max physics event (all: -1)] [removed_layer (-1 = all, 0, ssd, 1,2,3 = gtr)]" << endl;
     return 1;
   }
    auto dst0 = new E16DST_DST0();
@@ -104,13 +105,13 @@ int main(int argc, char* argv[]) {
 	exit(1);
 //    return 1;
   }
-  auto out_file_name = argv[2];
+  string in_file_name = argv[1];
+  string out_file_name = argv[2];
   auto in_run_id        = stoi(argv[3]);
   auto max_event     = stoi(argv[4]);
   auto removed_layer = stoi(argv[5]);
   
 
-  string in_file_name = argv[1];
 //run0c
 //  int sink_id_pos = in_file_name.length() - 10;
 //  string sink_id = in_file_name.substr(sink_id_pos, 1);
@@ -124,8 +125,49 @@ int main(int argc, char* argv[]) {
 //  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root";
 //  const char* c_out = outputfile.c_str();
 
+//run0d
+
+
+    std::regex re_run("run(\\d+)");
+    std::regex re_sink("sink(\\d+)");
+    std::regex re_dst("_(\\d+).dst0");
+
+    std::smatch match_run;
+    std::smatch match_sink;
+    std::smatch match_dst;
+
+	std::string run_num;
+    std::string sink_id;
+    std::string smallest_id;
+	
+	if(std::regex_search(in_file_name, match_run, re_run)){
+		run_num = match_run.str(1);
+	}
+
+    if (std::regex_search(in_file_name, match_sink, re_sink)) {
+        sink_id = match_sink.str(1);
+    }
+
+    if (std::regex_search(in_file_name, match_dst, re_dst)) {
+        smallest_id = match_dst.str(1);
+    }
+
+    std::cout << "run_num: " << run_num << std::endl;
+    std::cout << "sink_id: " << sink_id << std::endl;
+    std::cout << "smallest_id: " << smallest_id << std::endl;
+  
+  string rem    = argv[5];
+  string run = "g4run" + run_num + "exGTR" + rem;
+  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root";
+
   const char* c_out = out_file_name.c_str();
-  //TFile *f = new TFile("./wire_root/output.run", "recreate");
+  
+  
+
+
+
+
+
   TFile *f = new TFile( c_out, "recreate");
  
  
@@ -562,8 +604,10 @@ int main(int argc, char* argv[]) {
     auto event_type = dst0->EventType();
     E16DST_DST0PhysicsEvent *event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
     auto& gtr_hits0 = event0->GTR();
-    auto& ssd_hits0 = event0->SSD();
-    E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
+	if(removed_layer != 0){
+    	auto& ssd_hits0 = event0->SSD();
+    	E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
+	}
 	if(removed_layer == -1 || removed_layer == 0){
     	E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
 	}
@@ -610,9 +654,9 @@ int main(int argc, char* argv[]) {
 		hitid_100x = t->GTR100XHitID();
 		hitid_200x = t->GTR200XHitID();
 		hitid_300x = t->GTR300XHitID();
-		hitid_100y = t->GTR100XHitID();
-		hitid_200y = t->GTR200XHitID();
-		hitid_300y = t->GTR300XHitID();
+		hitid_100y = t->GTR100YHitID();
+		hitid_200y = t->GTR200YHitID();
+		hitid_300y = t->GTR300YHitID();
 		if(t->SSDCluster() != nullptr){
 			cluster_size_ssd   = t->SSDCluster()->NumHits();
 			lxssd    = t->SSDCluster()->CogPos();
@@ -625,9 +669,9 @@ int main(int argc, char* argv[]) {
 		cluster_size_g100x = t->GTR100XCluster()->NumHits();
 		cluster_size_g200x = t->GTR200XCluster()->NumHits();
 		cluster_size_g300x = t->GTR300XCluster()->NumHits();
-		cluster_size_g100x = t->GTR100YCluster()->NumHits();
-		cluster_size_g200x = t->GTR200YCluster()->NumHits();
-		cluster_size_g300x = t->GTR300YCluster()->NumHits();
+		cluster_size_g100y = t->GTR100YCluster()->NumHits();
+		cluster_size_g200y = t->GTR200YCluster()->NumHits();
+		cluster_size_g300y = t->GTR300YCluster()->NumHits();
 		lx100    = t->GTR100XCluster()->CogPos();
 		lx200    = t->GTR200XCluster()->CogPos();
 		lx300    = t->GTR300XCluster()->CogPos();

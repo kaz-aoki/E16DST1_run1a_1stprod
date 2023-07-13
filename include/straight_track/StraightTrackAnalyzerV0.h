@@ -101,12 +101,12 @@ public:
     E16ANA_SSDAnalyzer *SSD_Sensor(uint16_t module_id, uint16_t layer_id){
         return ssd_analyzer_map[OnlineGTR::IDs(module_id, layer_id).value64];
     };
-	void OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+	void OneModuleAnalyze2(int dimension, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
 						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
                            int mid,
                            E16ANA_GeometryV2 *geom_v2
                            );
-   	void OneModuleAnalyze2woSSD(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
+   	void OneModuleAnalyze2woSSD(int dimension, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1,
 						   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1,
                            int mid,
                            E16ANA_GeometryV2 *geom_v2

@@ -5,12 +5,12 @@ namespace E16ANA_StraightTrackNameSpace {
      std::vector<double>  kXSigmaGTR = {0.3, 0.3, 0.3};
      std::vector<double>  kYSigmaGTR = {0.6, 0.6, 0.6};
      double  kXSigmaTGT = 2.0;
-     double  kYSigmaTGT = 4.0;
+     double  kYSigmaTGT = 10.0;
 //     double  kXSigmaTGT = 1.5;
 //     double  kYSigmaTGT = 1.5;
 	// std::vector<double> kYsigma = {0.5, 0.5, 0.5};
 	 double kFitChi2ThresholdX = 20.;
-	 double kFitChi2ThresholdY = 20.;
+	 double kFitChi2ThresholdY = 50.;
      double kTimingWindow100 = 30.;
      double kTimingWindow200 = 40.;
      double kTimingWindow300 = 40.;

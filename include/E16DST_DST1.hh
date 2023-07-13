@@ -1112,15 +1112,15 @@ public:
 		xclusterssd = nullptr;	
 	}
    void SetEventID(int e){ event_id = e;}
-   int16_t EventID(){return event_id;}
+   int EventID(){return event_id;}
    void SetModuleID(int m){ module_id = m;}
-   int16_t ModuleID(){return module_id;}
+   int ModuleID(){return module_id;}
    void SetTrackID(int16_t id){trk_id = id;}
-   int16_t TrackID(){return trk_id;}
+   int TrackID(){return trk_id;}
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
-   int16_t XTrackID(){return xtrk_id;}
-   int16_t YTrackID(){return xtrk_id;}
+   int XTrackID(){return xtrk_id;}
+   int YTrackID(){return xtrk_id;}
    void SetSSDXHitID(int16_t id){ssdxhit_id = id;}
    int16_t SSDXHitID(){return ssdxhit_id;}
    void SetGTR100XHitID(int16_t id){gtr100xhit_id = id;}
@@ -1222,18 +1222,18 @@ public:
 //   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
 //   
 private:
-   int16_t event_id;
+   int event_id;
    int module_id;
-   int16_t trk_id;
-   int16_t xtrk_id;
-   int16_t ytrk_id;
-   int16_t ssdxhit_id; 
-   int16_t gtr100xhit_id; 
-   int16_t gtr200xhit_id; 
-   int16_t gtr300xhit_id; 
-   int16_t gtr100yhit_id; 
-   int16_t gtr200yhit_id; 
-   int16_t gtr300yhit_id; 
+   int trk_id;
+   int xtrk_id;
+   int ytrk_id;
+   int ssdxhit_id; 
+   int gtr100xhit_id; 
+   int gtr200xhit_id; 
+   int gtr300xhit_id; 
+   int gtr100yhit_id; 
+   int gtr200yhit_id; 
+   int gtr300yhit_id; 
    float fit_a_x;
    float fit_b_x;
    float fit_a_y;
@@ -1301,49 +1301,82 @@ public:
     }
 //
 //
+   int EventID(){return event_id;}
    int16_t ModuleID(){return module_id;}
+   int16_t Axis(){return axis;}
    float Chi2(){return chi2;} 
    float TgtZ(){return tgt_z;} 
+   int16_t ID100Hit(){return id100hit;}
+   int16_t ID200Hit(){return id200hit;}
+   int16_t ID300Hit(){return id300hit;}
    float Distance(){return distance;} 
    float SSDResidualExSelf(){return residual_ssd_ex_self;} 
    E16DST_DST1SSDCluster* SSDCluster(){return xclusterssd ;} 
-   E16DST_DST1GTRCluster* GTR100XCluster(){return xcluster100 ;} 
-   E16DST_DST1GTRCluster* GTR200XCluster(){return xcluster200 ;} 
-   E16DST_DST1GTRCluster* GTR300XCluster(){return xcluster300 ;} 
+   E16DST_DST1GTRCluster* GTR100Cluster(){return cluster100 ;} 
+   E16DST_DST1GTRCluster* GTR200Cluster(){return cluster200 ;} 
+   E16DST_DST1GTRCluster* GTR300Cluster(){return cluster300 ;} 
    E16DST_DST1GTRCluster*  GTRXCluster(int lid){
-   	if(lid == 1) return xcluster100;
-   	if(lid == 2) return xcluster200;
-   	if(lid == 3) return xcluster300;
+   	if(lid == 1) return cluster100;
+   	if(lid == 2) return cluster200;
+   	if(lid == 3) return cluster300;
    } 
     
    TVector2 PtOnTrackGTR100(){return point_on_track_gtr100;}
    TVector2 PtOnTrackGTR300(){return point_on_track_gtr300;}
    TVector2 PtOnTrack3000mm(){return point_on_track_3000mm;}
-   void SetModuleID(float _mid){module_id = _mid;}
+   void SetEventID(int _eid){event_id = _eid;}
+   void SetTrackID(int _tid){trk_id = _tid;}
+   void SetModuleID(int _mid){module_id = _mid;}
+   void SetAxis(int16_t _a){axis = _a;}
    void SetChi2(float _chi2){chi2 = _chi2;}
    void SetTgtZ(float _tgtz){tgt_z = _tgtz;}
+   void SetID100Hit(int _i){id100hit = _i;}
+   void SetID200Hit(int _i){id200hit = _i;}
+   void SetID300Hit(int _i){id300hit = _i;}
+   void SetFitA(float fit){fit_a = fit;}
+   void SetFitB(float fit){fit_b = fit;}
+   float FitA(){return fit_a;}
+   float FitB(){return fit_b;}
+   int TrackID(){return trk_id;}
+
    void SetDistance(float _distance){distance = _distance;}
    void SetSSDResidualExSelf(float _res){residual_ssd_ex_self = _res;}
    void SetSSDCluster(E16DST_DST1SSDCluster *_cluster){xclusterssd = _cluster;}
-   void SetGTR100XCluster(E16DST_DST1GTRCluster *_cluster){xcluster100 = _cluster;}
-   void SetGTR200XCluster(E16DST_DST1GTRCluster *_cluster){xcluster200 = _cluster;}
-   void SetGTR300XCluster(E16DST_DST1GTRCluster *_cluster){xcluster300 = _cluster;}
+   void SetGTR100Cluster(E16DST_DST1GTRCluster *_cluster){cluster100 = _cluster;}
+   void SetGTR200Cluster(E16DST_DST1GTRCluster *_cluster){cluster200 = _cluster;}
+   void SetGTR300Cluster(E16DST_DST1GTRCluster *_cluster){cluster300 = _cluster;}
    void SetPtOnTrackGTR100(TVector2 _pt0){point_on_track_gtr100 = _pt0;}
    void SetPtOnTrackGTR300(TVector2 _pt0){point_on_track_gtr300 = _pt0;}
    void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
-   
+//   void SetResidualSSD(float _residualssd){residualssd =_residualssd; }
+   void SetFitResidual100(float _residual){fit_residual100 =_residual; }
+   void SetFitResidual200(float _residual){fit_residual200 =_residual; }
+   void SetFitResidual300(float _residual){fit_residual300 =_residual; }
+//   float ResidualSSD(){return residualssd;}//
+   float FitResidual100(){return fit_residual100;}
+   float FitResidual200(){return fit_residual200;}
+   float FitResidual300(){return fit_residual300;}
+
 private:
-   int16_t module_id;
-//   int16_t id100hit; 
-//   int16_t id200hit; 
-//   int16_t id300hit; 
+   int module_id;
+   int trk_id;
+   int16_t axis;
+   int event_id;
+   int id100hit; 
+   int id200hit; 
+   int id300hit; 
    float chi2;
    float tgt_z;
+   float fit_a;
+   float fit_b;
+   float fit_residual100;
+   float fit_residual200;
+   float fit_residual300;
    float distance;//from a nearest target
    E16DST_DST1SSDCluster *xclusterssd;
-   E16DST_DST1GTRCluster *xcluster100;
-   E16DST_DST1GTRCluster *xcluster200;
-   E16DST_DST1GTRCluster *xcluster300;
+   E16DST_DST1GTRCluster *cluster100;
+   E16DST_DST1GTRCluster *cluster200;
+   E16DST_DST1GTRCluster *cluster300;
    TVector2 point_on_track_gtr100;	
    TVector2 point_on_track_gtr300;	
    TVector2 point_on_track_3000mm;

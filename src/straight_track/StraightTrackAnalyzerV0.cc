@@ -72,7 +72,7 @@ void StraightTrackAnalyzerV0::Clear(){
     xz_trks_evesel.shrink_to_fit();
 }
 
-void StraightTrackAnalyzerV0::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerV0::OneModuleAnalyze2(int dimension, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
 	XZStraightAnalyzeSSDGTR(ssd1->ClusterPtrs(mid, 0, 0),
 							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
 							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
@@ -85,13 +85,15 @@ void StraightTrackAnalyzerV0::OneModuleAnalyze2(E16DST_DST1Detector<E16DST_DST1S
 					   gtr1->ClusterPtrs(mid, 2, 1), //GTR300
 					   mid,
 					   geom_v2);
+	if(dimension == 3){
 	MatchingXYHitsAfterLinearFit(
 		this->GetXZTrackCandidates(),
 		this->GetYTrackCandidates()
 	);		
+	}
 }
 
-void StraightTrackAnalyzerV0::OneModuleAnalyze2woSSD(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
+void StraightTrackAnalyzerV0::OneModuleAnalyze2woSSD(int dimension, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, int mid, E16ANA_GeometryV2 *geom_v2){
 	XZStraightAnalyzewoSSD(
 							  gtr1->ClusterPtrs(mid, 0, 0), //GTR100 X
 							  gtr1->ClusterPtrs(mid, 1, 0), //GTR200 X
@@ -104,10 +106,12 @@ void StraightTrackAnalyzerV0::OneModuleAnalyze2woSSD(E16DST_DST1Detector<E16DST_
 					   gtr1->ClusterPtrs(mid, 2, 1), //GTR300
 					   mid,
 					   geom_v2);
+	if(dimension == 3){
 	MatchingXYHitsAfterLinearFit(
 		this->GetXZTrackCandidates(),
 		this->GetYTrackCandidates()
 	);		
+	}
 }
 
 void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
@@ -222,6 +226,69 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzeSSDGTR(std::vector<E16DST_
 	gtr_xhits2.shrink_to_fit();
 }
 	
+//  ------------- tracking without Tgt POS   ------------------------------------------
+//
+//void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
+//	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
+//    double phi = GetGTRModulePhi(geom_v2, mid);
+//	double rphi = 0;
+//	if(101<mid&&mid<109) rphi = Agtr[mid-102];
+//    int index = 0;
+//    for(int i=0; i < (int)gtr_xhits0.size(); i++){
+//        for(int j=0; j < (int)gtr_xhits1.size(); j++){
+//            for(int k=0; k < (int)gtr_xhits2.size(); k++){
+//				fitter_x->Clear();
+//	            std::vector<E16DST_DST1GTRCluster*> hits;
+//                hits.clear();
+//                hits.push_back(gtr_xhits0[i]);
+//                hits.push_back(gtr_xhits1[j]);
+//                hits.push_back(gtr_xhits2[k]);
+//				//possible to remain just fake hits. 
+//				if(hits[0]->PeakSum()  < kGTRPeakSumThresholdX[0]) continue;
+//				if(hits[1]->PeakSum()  < kGTRPeakSumThresholdX[1]) continue;
+//				if(hits[2]->PeakSum()  < kGTRPeakSumThresholdX[2]) continue;
+//                for(int l = 0; l <3; l++){
+//                  G4ThreeVector l_hitpos = G4ThreeVector(hits[l]->CogPos(), 0, 0);
+//				  fitter_x->AddHit(l_hitpos, kXSigmaGTR[l] , mid, l+1,  geom_v2->GTR(kawama_module, l), rphi);
+//              	}
+//				fitter_x->Fit();
+//				if(fitter_x->Chi2() < kFitChi2ThresholdX){
+//	                std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
+//					trk->SetFitResidual100(fitter_x->FitResidual(1));
+//					trk->SetFitResidual200(fitter_x->FitResidual(2));
+//					trk->SetFitResidual300(fitter_x->FitResidual(3));
+//					trk->SetFitA(fitter_x->FitA());
+//					trk->SetFitB(fitter_x->FitB());
+//					trk->SetFitPtOnGTR100(TVector2(fitter_x->FitGPos(1).x(), fitter_x->FitGPos(1).z()));
+//					trk->SetFitPtOnGTR200(TVector2(fitter_x->FitGPos(2).x(), fitter_x->FitGPos(2).z()));
+//					trk->SetFitPtOnGTR300(TVector2(fitter_x->FitGPos(3).x(), fitter_x->FitGPos(3).z()));
+//	                trk->SetID100Hit(i);
+//		            trk->SetID200Hit(j);
+//	                trk->SetID300Hit(k);
+//	    	    	trk->SetModuleID(mid);
+//		            trk->SetChi2(fitter_x->Chi2());
+//			        trk->SetTgtZ(ReconstructTgtPosBeforeVertex(fitter_x->FitA(), fitter_x->FitB(), phi, kawama_module, geom_v2, trk));
+//	            	trk->SetXHit100(gtr_xhits0[i]);
+//	        	    trk->SetXHit200(gtr_xhits1[j]);
+//	    	        trk->SetXHit300(gtr_xhits2[k]);
+//	                trk->SetTrackID(index);
+//	                xz_trk_cands.push_back(trk);
+//	                index++;
+//				}
+//            }
+//        }
+//    }
+//	gtr_xhits0.clear();
+//	gtr_xhits1.clear();
+//	gtr_xhits2.clear();
+//	gtr_xhits0.shrink_to_fit();
+//	gtr_xhits1.shrink_to_fit();
+//	gtr_xhits2.shrink_to_fit();
+//}
+
+
+// ------------------------- tracking with tgt pos      ---------------------------------------------------------//
+
 void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
     double phi = GetGTRModulePhi(geom_v2, mid);
@@ -244,30 +311,53 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_D
                 for(int l = 0; l <3; l++){
                   G4ThreeVector l_hitpos = G4ThreeVector(hits[l]->CogPos(), 0, 0);
 				  fitter_x->AddHit(l_hitpos, kXSigmaGTR[l] , mid, l+1,  geom_v2->GTR(kawama_module, l), rphi);
-              	}	
+              	}
+// searching smallest chi2 
+				double chi2_list[3];
+				G4ThreeVector tmp_tgt[3];
+				tmp_tgt[0] = {tgt_x1, 0, tgt_z1};
+				tmp_tgt[1] = {tgt_x2, 0, tgt_z2};
+				tmp_tgt[2] = {tgt_x3, 0, tgt_z3};
+				fitter_x->AddTgt(tmp_tgt[0], kXSigmaTGT);
 				fitter_x->Fit();
+				if(fitter_x->Chi2() > 50000) continue;//time saving 
+				chi2_list[0] = fitter_x->Chi2();
+				fitter_x->AddTgt(tmp_tgt[1], kXSigmaTGT);
+				fitter_x->Fit();
+				chi2_list[1] = fitter_x->Chi2();
+				fitter_x->AddTgt(tmp_tgt[2], kXSigmaTGT);
+				fitter_x->Fit();
+				chi2_list[2] = fitter_x->Chi2();
+    			auto min_it = std::min_element(std::begin(chi2_list), std::end(chi2_list));
+         		int selected_tgt = std::distance(std::begin(chi2_list), min_it);
+				fitter_x->AddTgt(tmp_tgt[selected_tgt], kXSigmaTGT);
+				fitter_x->Fit();
+
 				if(fitter_x->Chi2() < kFitChi2ThresholdX){
-	                std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
-					trk->SetFitResidual100(fitter_x->FitResidual(1));
-					trk->SetFitResidual200(fitter_x->FitResidual(2));
-					trk->SetFitResidual300(fitter_x->FitResidual(3));
-					trk->SetFitA(fitter_x->FitA());
-					trk->SetFitB(fitter_x->FitB());
-					trk->SetFitPtOnGTR100(TVector2(fitter_x->FitGPos(1).x(), fitter_x->FitGPos(1).z()));
-					trk->SetFitPtOnGTR200(TVector2(fitter_x->FitGPos(2).x(), fitter_x->FitGPos(2).z()));
-					trk->SetFitPtOnGTR300(TVector2(fitter_x->FitGPos(3).x(), fitter_x->FitGPos(3).z()));
-	                trk->SetID100Hit(i);
-		            trk->SetID200Hit(j);
-	                trk->SetID300Hit(k);
-	    	    	trk->SetModuleID(mid);
-		            trk->SetChi2(fitter_x->Chi2());
-			        trk->SetTgtZ(ReconstructTgtPosBeforeVertex(fitter_x->FitA(), fitter_x->FitB(), phi, kawama_module, geom_v2, trk));
-	            	trk->SetXHit100(gtr_xhits0[i]);
-	        	    trk->SetXHit200(gtr_xhits1[j]);
-	    	        trk->SetXHit300(gtr_xhits2[k]);
-	                trk->SetTrackID(index);
-	                xz_trk_cands.push_back(trk);
-	                index++;
+			        double z_proj = ReconstructTgtPosBeforeVertex(fitter_x->FitA(), fitter_x->FitB(), phi, kawama_module, geom_v2);
+if(fitter_x->Chi2() < kFitChi2ThresholdX){
+	                	std::shared_ptr<E16ANA_XZTrackCandidate> trk = std::make_shared<E16ANA_XZTrackCandidate>();
+						trk->SetFitResidual100(fitter_x->FitResidual(1));
+						trk->SetFitResidual200(fitter_x->FitResidual(2));
+						trk->SetFitResidual300(fitter_x->FitResidual(3));
+						trk->SetFitA(fitter_x->FitA());
+						trk->SetFitB(fitter_x->FitB());
+						trk->SetFitPtOnGTR100(TVector2(fitter_x->FitGPos(1).x(), fitter_x->FitGPos(1).z()));
+						trk->SetFitPtOnGTR200(TVector2(fitter_x->FitGPos(2).x(), fitter_x->FitGPos(2).z()));
+						trk->SetFitPtOnGTR300(TVector2(fitter_x->FitGPos(3).x(), fitter_x->FitGPos(3).z()));
+	                	trk->SetID100Hit(i);
+		            	trk->SetID200Hit(j);
+	                	trk->SetID300Hit(k);
+	    	    		trk->SetModuleID(mid);
+		            	trk->SetChi2(fitter_x->Chi2());
+			        	trk->SetTgtZ(ReconstructTgtPosBeforeVertex(fitter_x->FitA(), fitter_x->FitB(), phi, kawama_module, geom_v2, trk));
+	            		trk->SetXHit100(gtr_xhits0[i]);
+	        	    	trk->SetXHit200(gtr_xhits1[j]);
+	    	        	trk->SetXHit300(gtr_xhits2[k]);
+	                	trk->SetTrackID(index);
+	                	xz_trk_cands.push_back(trk);
+	                	index++;
+					}
 				}
             }
         }
@@ -279,7 +369,6 @@ void StraightTrackAnalyzerOfTargets::XZStraightAnalyzewoSSD(std::vector<E16DST_D
 	gtr_xhits1.shrink_to_fit();
 	gtr_xhits2.shrink_to_fit();
 }
-
 
 void StraightTrackAnalyzerOfWireV1::XZStraightAnalyzeSSDGTR(std::vector<E16DST_DST1SSDCluster*> &ssd_xhits, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits0,std::vector<E16DST_DST1GTRCluster*> &gtr_xhits1, std::vector<E16DST_DST1GTRCluster*> &gtr_xhits2, int mid, E16ANA_GeometryV2 *geom_v2){
 	int kawama_module = E16DST_DST1Constant::kModuleId2020To2013[mid/100][mid%100];
@@ -971,37 +1060,38 @@ void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1G
                   G4ThreeVector l_hitpos = G4ThreeVector(0, hits[l]->TdcPos(), 0);
 				  fitter_y->AddHit(l_hitpos, kYSigmaGTR[l] , mid, l+1, geom_v2->GTR(kawama_module, l), rphi);
               	}	
-				G4ThreeVector gpos_tgt1 = G4ThreeVector(0,-3,-20);
-				G4ThreeVector gpos_tgt2 = G4ThreeVector(0,-3,0);
-				G4ThreeVector gpos_tgt3 = G4ThreeVector(0,-3,20);
-				fitter_y->Fit();	
-					double a = fitter_y->FitA();
-					double b = fitter_y->FitB();
-					TVector2 tgt1(tgt_x1, tgt_z1);
-					TVector2 tgt2(tgt_x2, tgt_z2);
-					TVector2 tgt3(tgt_x3, tgt_z3);
-					TVector2 rot_tgt1 = tgt1.Rotate(-rphi);
-					TVector2 rot_tgt2 = tgt2.Rotate(-rphi);
-					TVector2 rot_tgt3 = tgt3.Rotate(-rphi);
-					double dis1 = (rot_tgt1.Y()*b + a)/sqrt(1+b*b);//upstream
-					double dis2 = (rot_tgt2.Y()*b + a)/sqrt(1+b*b);//middle
-					double dis3 = (rot_tgt3.Y()*b + a)/sqrt(1+b*b);//downstream
-                    std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
+				G4ThreeVector gpos_tgt1 = G4ThreeVector(tgt_x1,0,tgt_z1);
+				G4ThreeVector gpos_tgt2 = G4ThreeVector(tgt_x2,0,tgt_z2);
+				G4ThreeVector gpos_tgt3 = G4ThreeVector(tgt_x3,0,tgt_z3);
+//					double a = fitter_y->FitA();
+//					double b = fitter_y->FitB();
+//					TVector2 tgt1(tgt_x1, tgt_z1);
+//					TVector2 tgt2(tgt_x2, tgt_z2);
+//					TVector2 tgt3(tgt_x3, tgt_z3);
+//					TVector2 rot_tgt1 = tgt1.Rotate(-rphi);
+//					TVector2 rot_tgt2 = tgt2.Rotate(-rphi);
+//					TVector2 rot_tgt3 = tgt3.Rotate(-rphi);
+//					double dis1 = (rot_tgt1.Y()*b + a)/sqrt(1+b*b);//upstream
+//					double dis2 = (rot_tgt2.Y()*b + a)/sqrt(1+b*b);//middle
+//					double dis3 = (rot_tgt3.Y()*b + a)/sqrt(1+b*b);//downstream
 //					std::cout << dis1 << ", " << dis2 << ", " << dis3 << std::endl;
-					if(std::min({dis1, dis2, dis3}) == dis1){
-//						fitter_y->AddTgt(gpos_tgt1, kYSigmaTGT);//only middle target for the test
-						trk->SetWhichTgt(0);//only middle target for the test
-					}
-					else if(std::min({dis1, dis2, dis3}) == dis2){
-//						fitter_y->AddTgt(gpos_tgt2, kYSigmaTGT);//only middle target for the test
-						trk->SetWhichTgt(1);//only middle target for the test
-					}
-					else if(std::min({dis1, dis2, dis3}) == dis3){
-//						fitter_y->AddTgt(gpos_tgt3, kYSigmaTGT);//only middle target for the test
-						trk->SetWhichTgt(2);//only middle target for the test
-					}
+//					if(std::min({dis1, dis2, dis3}) == dis1){
+////						fitter_y->AddTgt(gpos_tgt1, kYSigmaTGT);//only middle target for the test
+//						trk->SetWhichTgt(0);//only middle target for the test
+//					}
+//					else if(std::min({dis1, dis2, dis3}) == dis2){
+////						fitter_y->AddTgt(gpos_tgt2, kYSigmaTGT);//only middle target for the test
+//						trk->SetWhichTgt(1);//only middle target for the test
+//					}
+//					else if(std::min({dis1, dis2, dis3}) == dis3){
+////						fitter_y->AddTgt(gpos_tgt3, kYSigmaTGT);//only middle target for the test
+//						trk->SetWhichTgt(2);//only middle target for the test
+//					}
+
+					fitter_y->AddTgt(gpos_tgt1, kYSigmaTGT);//tmp
 					fitter_y->Fit();
 					if(fitter_y->Chi2() < kFitChi2ThresholdY){
+                    std::shared_ptr<E16ANA_YTrackCandidate> trk = std::make_shared<E16ANA_YTrackCandidate>();
 					trk->SetModuleID(mid);
                     trk->SetChi2(fitter_y->Chi2());
 					trk->SetResidual100(fitter_y->FitResidual(1));
@@ -1012,8 +1102,8 @@ void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1G
 //					trk->SetFitRes100(TVector2(rot_pos[0].z()*v_results[2]+v_results[1], rot_pos[0].z()));
 //					trk->SetFitRes200(TVector2(rot_pos[1].z()*v_results[2]+v_results[1], rot_pos[1].z()));
 //					trk->SetFitRes300(TVector2(rot_pos[2].z()*v_results[2]+v_results[1], rot_pos[2].z()));
-					a = fitter_y->FitA();
-					b = fitter_y->FitB();
+					double a = fitter_y->FitA();
+					double b = fitter_y->FitB();
 					double zpos_x_at100 = b*(r100) + a;
     				double zpos_x_at300 = b*r300 + a;
                     double zpos_x_at3000 = b*r3000 + a;
@@ -1029,9 +1119,15 @@ void StraightTrackAnalyzerOfTargets::YRStraightAnalyze2(std::vector<E16DST_DST1G
                     trk->SetID100Hit(i);
                     trk->SetID200Hit(j);
                     trk->SetID300Hit(k);
-					dis1 = (rot_tgt1.Y()*b + a)/sqrt(1+b*b);//upstream
-					dis2 = (rot_tgt2.Y()*b + a)/sqrt(1+b*b);//middle
-					dis3 = (rot_tgt3.Y()*b + a)/sqrt(1+b*b);//downstream
+					TVector2 tgt1(tgt_x1, tgt_z1);
+					TVector2 tgt2(tgt_x2, tgt_z2);
+					TVector2 tgt3(tgt_x3, tgt_z3);
+					TVector2 rot_tgt1 = tgt1.Rotate(-rphi);
+					TVector2 rot_tgt2 = tgt2.Rotate(-rphi);
+					TVector2 rot_tgt3 = tgt3.Rotate(-rphi);
+					double dis1 = (rot_tgt1.Y()*b + a)/sqrt(1+b*b);//upstream
+					double dis2 = (rot_tgt2.Y()*b + a)/sqrt(1+b*b);//middle
+					double dis3 = (rot_tgt3.Y()*b + a)/sqrt(1+b*b);//downstream
 					trk->SetDistanceUpstreamTgt(dis1);	
 					trk->SetDistanceMiddleTgt(dis2);	
 					trk->SetDistanceDownstreamTgt(dis3);	
@@ -1835,8 +1931,8 @@ void StraightTrackAnalyzerOfTargets::MatchingXYHitsAfterLinearFit(std::vector<st
 	int cnt = 0;
 	std::vector<std::shared_ptr<E16ANA_YTrackCandidate>>::const_iterator  itery = y_trk_cands.begin();
 	std::vector<std::shared_ptr<E16ANA_XZTrackCandidate>>::const_iterator iterx = xz_trk_cands.begin();
-	std::cout << "x track size " << xz_trk_cands.size() << std::endl;
-	std::cout << "y track size " << y_trk_cands.size() << std::endl;
+//	std::cout << "x track size " << xz_trk_cands.size() << std::endl;
+//	std::cout << "y track size " << y_trk_cands.size() << std::endl;
 
 // Before Matching x and y hits, delete duplicated 
 //---------- delete x hit not associated with y hit -----------------//
@@ -1977,7 +2073,7 @@ void StraightTrackAnalyzerOfTargets::MatchingXYHitsAfterLinearFit(std::vector<st
 					}
             }
     }
-	std::cout << "3d track size = " << xyz_st_trk.size() << std::endl; 
+//	std::cout << "3d track size = " << xyz_st_trk.size() << std::endl; 
 	
 //    bool xz_table[xz_trk_cands.size()] = {};
 //	bool yr_table[y_trk_cands.size()] = {};
