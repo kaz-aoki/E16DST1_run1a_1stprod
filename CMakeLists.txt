@@ -496,6 +496,17 @@ target_link_libraries(LG_MakePDF
 )
 
 #_______________________________________________________________________________
+add_executable(mom usr/tmp/mom.cc)
+
+target_link_libraries(mom
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
 add_executable(LG_CheckWaveform usr/tmp/LG_CheckWaveform.cc)
 
 target_link_libraries(LG_CheckWaveform
