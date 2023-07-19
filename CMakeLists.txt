@@ -27,14 +27,14 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-#add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
+add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-#  /opt/E16/include/Geant4 # evb
-  /ccj/u/E16/include/Geant4 # ccj
+  /opt/E16/include/Geant4 # evb
+#  /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
 	include/GTR
@@ -54,8 +54,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-#  /opt/E16/lib64-gcc8/clhep # evb
-  /ccj/u/E16/lib64 #ccj
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
@@ -440,7 +440,7 @@ target_link_libraries(Massw2Gamma
 # 	E16ANA
 # )
 
-# #_______________________________________________________________________________
+#_______________________________________________________________________________
 # add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
 
 # target_link_libraries(Gammaana_MakePDF
@@ -488,6 +488,17 @@ target_link_libraries(LG_LEDcheck
 add_executable(LG_MakePDF usr/tmp/LG_MakePDF.cc)
 
 target_link_libraries(LG_MakePDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_CheckWaveform usr/tmp/LG_CheckWaveform.cc)
+
+target_link_libraries(LG_CheckWaveform
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
