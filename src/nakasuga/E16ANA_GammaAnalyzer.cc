@@ -244,7 +244,7 @@ bool E16ANA_GammaAnalyzer::HitsareInvalid(hitset& _hit0, hitset& _hit1){
   if( fabs( _hit0.t - _hit1.t ) > 4. ) {return true;}
   else if( _hit0.mid == _hit1.mid && IsNeighborBlock(_hit0, _hit1) ) {return true;}
   // else if( _hit0.mid != _hit1.mid ) {return true;}
-  else if( fabs( _hit0.mid -  _hit1.mid ) > 1 ) {return true;}
+  // else if( fabs( _hit0.mid -  _hit1.mid ) > 1 ) {return true;}
   else {return false;}
 }
 bool E16ANA_GammaAnalyzer::IsNeighborBlock(hitset& _hit0, hitset& _hit1){
