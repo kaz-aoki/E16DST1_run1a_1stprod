@@ -17,6 +17,7 @@
 #include <TGraph2D.h>
 #include <TH1.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -251,6 +252,167 @@ void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
   // lghists->MakeT0CalibFile();
 
 }
+
+void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxevent)
+{
+  if (fChain == 0) return;
+
+  int nwfs = maxevent;
+  maxevent = maxevent*304;
+
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(run_id);
+  E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
+
+  Long64_t n_entries = fChain->GetEntries();
+  Long64_t nentries = fChain->GetEntriesFast();
+  Long64_t nbytes = 0, nb = 0;
+
+  int wfcount[8][42] = {0};
+  // double wf[8][42][nwfs][200] = {0.};
+  double**** wf = NULL;
+  wf = (double****)malloc(8*sizeof(double));
+  if(wf==NULL){std::cerr<<"err0"<<std::endl;return;}
+  for(int i=0;i<8;i++){
+    wf[i] = (double***)malloc(42*sizeof(double));
+    if(wf[i]==NULL){std::cerr<<"err1 "<<i<<std::endl;return;}
+    for(int j=0;j<42;j++){
+      wf[i][j] = (double**)malloc(nwfs*sizeof(double));
+      if(wf[i][j]==NULL){std::cerr<<"err2 "<<i<<" "<<j<<std::endl;return;}
+      for(int k=0;k<nwfs;k++){
+  	wf[i][j][k] = (double*)malloc(200*sizeof(double));
+  	if(wf[i][j][k]==NULL){std::cerr<<"err3 "<<i<<" "<<j<<" "<<k<<std::endl;return;}
+      }
+    }
+  }
+
+  int nevent=0;
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0) break;
+    nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+    if (ientry%304000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+    if( maxevent!=-1&&nevent>maxevent ){break;}
+    nevent++;
+
+    int ii = E16ANA_LGCheckHist::ModuleToIndex(Module);
+    int ij = E16ANA_LGCheckHist::BlockToIndex(Block);
+    if( wfcount[ii][ij]>=0 && wfcount[ii][ij]<nwfs ){
+      for(int cell=0;cell<200;cell++){
+    	wf[ii][ij][wfcount[ii][ij]][cell] = Waveform[cell];
+      }
+      wfcount[ii][ij]++;
+    }
+
+  }
+
+  for(int i=0;i<8;i++){
+    for(int j=0;j<42;j++){
+      std::cout<<wf[i][j][nwfs-1][100]<<" ";
+    }
+    std::cout<<std::endl;
+  }
+
+  // TGraph* gwf[8][42][nwfs];
+  TGraph**** gwf = NULL;
+  gwf = (TGraph****)malloc(8*sizeof(TGraph*));
+  if(gwf==NULL){std::cerr<<"err0"<<std::endl;return;}
+  for(int i=0;i<8;i++){
+    gwf[i] = (TGraph***)malloc(42*sizeof(TGraph*));
+    if(gwf[i]==NULL){std::cerr<<"err1 "<<i<<std::endl;return;}
+    for(int j=0;j<42;j++){
+      gwf[i][j] = (TGraph**)malloc(nwfs*sizeof(TGraph*));
+      if(gwf[i][j]==NULL){std::cerr<<"err2 "<<i<<" "<<j<<std::endl;return;}
+    }
+  }
+  double x[200];
+  for(int cell=0;cell<200;cell++){
+    x[cell] = (double)cell;
+  }
+  TString pdfout = Form("%s",outfile);
+  TCanvas* c = new TCanvas("c","c",1400,700);
+  c->SaveAs(pdfout+"[","pdf");
+  for(int i=0;i<8;i++){
+    c->Clear();
+    c->Divide(7,6);
+    int module = E16ANA_LGCheckHist::IndexToModule(i);
+    for(int j=0;j<42;j++){
+      c->cd(j+1);
+      int block = E16ANA_LGCheckHist::IndexToBlock(j);
+      if(!E16ANA_LGCheckHist::IsValidBlockId(block)) continue;
+      for(int k=0;k<nwfs;k++){
+  	auto spec = lgbasic.GetSpec(module,block);
+  	int ip = spec->IP;
+  	int drs4ch = spec->DRS4CH;
+  	gwf[i][j][k] = new TGraph(200,x,wf[i][j][k]);
+  	gwf[i][j][k]->SetTitle(Form("%d-%d %d-%d",module,block,ip,drs4ch));
+  	if(k==0){
+  	  gwf[i][j][k]->SetMaximum(1400);
+  	  gwf[i][j][k]->SetMinimum(-30);
+  	  gwf[i][j][k]->Draw("AL");
+  	}
+  	else{
+  	  gwf[i][j][k]->Draw("L");
+  	}
+      }
+    }
+    c->cd(1);
+    TLegend *leg = new TLegend(0,0,1,1);
+    leg->AddEntry((TObject*)0,Form("%d",module),"");
+    leg->Draw("sames");
+    c->SaveAs(pdfout,"pdf");
+    delete leg;
+  }
+  c->SaveAs(pdfout+"]","pdf");
+
+  free(wf);
+
+}
+
+// void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxevent)
+// {
+//   if (fChain == 0) return;
+
+//   maxevent = maxevent*304;
+
+//   auto& calib = E16ANA_CalibDBManager::Instance();
+//   calib.SetRunID(run_id);
+//   E16ANA_LGBasic lgbasic;
+//   lgbasic.SetMap();
+
+//   TFile* f = new TFile(Form("%s",outfile),"recreate");
+//   TH1F* h = new TH1F("h","h",3000,-1500,1500);
+//   TH2F* hh = new TH2F("hh","hh",3000,-1500,1500,2000,-500,1500);
+
+//   Long64_t n_entries = fChain->GetEntries();
+//   Long64_t nentries = fChain->GetEntriesFast();
+//   Long64_t nbytes = 0, nb = 0;
+
+//   int nevent=0;
+//   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+//     Long64_t ientry = LoadTree(jentry);
+//     if (ientry < 0) break;
+//     nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+//     if (ientry%304000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+//     if( maxevent!=-1&&nevent>maxevent ){break;}
+//     nevent++;
+
+//     if(Module==101&&Block==32){
+//       for(int i=1;i<200;i++){
+// 	h->Fill(Waveform[i]-Waveform[i-1]);
+// 	hh->Fill(Waveform[i]-Waveform[i-1],Waveform[i]);
+//       }
+//     }
+
+//   }
+
+//   f->Write();
+
+// }
+
 
 // void E16ANA_LGOnlineAnalyzer::MakeHVTableScale(std::string prefile, std::string newfile)
 // {

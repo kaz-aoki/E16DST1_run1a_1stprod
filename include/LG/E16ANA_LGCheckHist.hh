@@ -20,12 +20,12 @@ public :
   E16ANA_LGCheckHist();
   ~E16ANA_LGCheckHist();
 
-  bool IsValidModuleId(int module);
-  bool IsValidBlockId(int block);
-  int  ModuleToIndex(int module);
-  int  BlockToIndex(int block);
-  int  IndexToModule(int index);
-  int  IndexToBlock(int index);
+  static bool IsValidModuleId(int module);
+  static bool IsValidBlockId(int block);
+  static int  ModuleToIndex(int module);
+  static int  BlockToIndex(int block);
+  static int  IndexToModule(int index);
+  static int  IndexToBlock(int index);
   void Fill(int module, int block, double peak, int peaktime, double timing, double baseline, double baselinerms, double integral, int nhits);
   void FillPeak(int module, int block, double peak);
   void FillPeakTime(int module, int block, int peaktime);

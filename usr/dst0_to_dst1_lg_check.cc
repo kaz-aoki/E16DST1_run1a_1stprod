@@ -23,7 +23,7 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-// #define WF_ON
+#define WF_ON
 #define TRG_ON
 #define LGDST1_ON
 

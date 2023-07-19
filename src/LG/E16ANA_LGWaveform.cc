@@ -1443,6 +1443,48 @@ void E16ANA_LGWaveform::RemoveSpike(double* dat){
     dat[spike_end[isp]-1] = ival+3*diff;
   }
 
+
+  //jump cell search for DRS4 with -1L FPGA
+  int thrraw = 2060;
+  std::vector<std::vector<int>> jump_cell(0);
+  int cell = 5;
+  while( cell<E16DST_Constant::NSamplesLG-1 ){
+    if( (dat[cell]-dat[cell-1])>1700 && dat[cell]>thrraw ){
+      std::vector<int> tmp(0);
+      tmp.push_back(cell);
+      cell++;
+      while( cell<E16DST_Constant::NSamplesLG-1 ){
+	if( dat[cell]>thrraw ){
+	  tmp.push_back(cell);
+	  cell++;
+	}
+	else{
+	  jump_cell.push_back(tmp);
+	  break;
+	}
+      }
+    }
+    else{
+      cell++;
+    }
+  }
+
+  //modify waveform for DRS4 with -1L FPGA
+  for(int i=0;i<jump_cell.size();i++){
+    int size = jump_cell.at(i).size();
+    int scell = jump_cell.at(i).at(0);
+    if(size==1){
+      dat[scell] = (dat[scell-1]+dat[scell+1])/2.;
+    }
+    else{
+      double offset = dat[scell] - ( (dat[scell-1]-dat[scell-2])+dat[scell-1] );
+      for(int j=0;j<size;j++){
+	int ccell = jump_cell.at(i).at(j);
+	dat[ccell] = dat[ccell] - offset;
+      }
+    }
+  }
+
 }
 
 void E16ANA_LGWaveform::AllFit(){
