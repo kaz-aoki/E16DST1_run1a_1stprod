@@ -430,15 +430,15 @@ target_link_libraries(Massw2Gamma
 )
 
 # #_______________________________________________________________________________
-# add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
+add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
 
-# target_link_libraries(Gammaana_MakeRootPDF
-# 	E16DST_DST1
-# #E16ANA_CalibDB
-# 	E16ANA_Basic
-# 	E16DST
-# 	E16ANA
-# )
+target_link_libraries(Gammaana_MakeRootPDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 # #_______________________________________________________________________________
 # add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
@@ -488,6 +488,17 @@ target_link_libraries(LG_LEDcheck
 add_executable(LG_MakePDF usr/tmp/LG_MakePDF.cc)
 
 target_link_libraries(LG_MakePDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(mom usr/tmp/mom.cc)
+
+target_link_libraries(mom
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
