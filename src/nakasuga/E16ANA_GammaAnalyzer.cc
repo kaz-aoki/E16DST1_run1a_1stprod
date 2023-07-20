@@ -33,7 +33,7 @@ E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
       hpsz[l][i] = new TH1F(Form("hpsz%d%d",l,i),Form("momsum_z_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
       hdist[l][i] = new TH1F(Form("hdist%d%d",l,i),Form("2gamma_distance@LG_%d_%s",decaypos[i],name[l]),100,0,5000);
       hpzpx[l][i] = new TH2F(Form("hpzpx%d%d",l,i),Form("mom_zvsx_%d_%s",decaypos[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
-      hm[l][i] = new TH1F(Form("hm%d%d",l,i),Form("IM_%d_%s",decaypos[i],name[l]),100,0,1);
+      hm[l][i] = new TH1F(Form("hm%d%d",l,i),Form("IM_%d_%s",decaypos[i],name[l]),150,0,1.5);
     }
   }
 
@@ -261,39 +261,60 @@ bool E16ANA_GammaAnalyzer::IsNeighborBlock(hitset& _hit0, hitset& _hit1){
 void E16ANA_GammaAnalyzer::FillForeHist(){
   FillHist(0,hit0,hit1);
 }
+// void E16ANA_GammaAnalyzer::FillMixHist(){
+
+//   std::vector<hitset> mixhitcands(0);
+//   int ifore = gRandom->Uniform(0.5, 1.5);
+//   // int imix  = (ifore+1)%2;
+//   hitset forehit;
+//   hitset mixhit;
+//   if(ifore==0){
+//     SetHit(forehit,hit0);
+//     SetHit(mixhit,hit1);
+//   }
+//   else{
+//     SetHit(forehit,hit1);
+//     SetHit(mixhit,hit0);
+//   }
+//   int mixmid = ModuleToIndex(mixhit.mid);
+//   for(int imix1=0; imix1<allmixhits[mixmid].size(); imix1++){
+//     for(int imix2=0; imix2<allmixhits[mixmid].at(imix1).size(); imix2++){
+//       hitset tmphit = allmixhits[mixmid].at(imix1).at(imix2);
+//       if( HitsareInvalid( forehit, tmphit ) ) continue;
+//       mixhitcands.push_back(tmphit);
+//     }
+//   }
+//   if( mixhitcands.size()==0 ){return;}
+
+//   int imixhit = gRandom->Uniform(0.5, (float)mixhitcands.size()-0.5);
+//   for(int imix1=0; imix1<mixhitcands.size(); imix1++){
+//     if( imix1==imixhit ){
+//       ClearHit(mixhit);
+//       SetHit(mixhit,mixhitcands.at(imix1));
+//     }
+//   }
+//   FillHist(1,forehit,mixhit);
+
+// }
 void E16ANA_GammaAnalyzer::FillMixHist(){
 
-  std::vector<hitset> mixhitcands(0);
   int ifore = gRandom->Uniform(0.5, 1.5);
   // int imix  = (ifore+1)%2;
   hitset forehit;
-  hitset mixhit;
   if(ifore==0){
     SetHit(forehit,hit0);
-    SetHit(mixhit,hit1);
   }
   else{
     SetHit(forehit,hit1);
-    SetHit(mixhit,hit0);
   }
-  int mixmid = ModuleToIndex(mixhit.mid);
-  for(int imix1=0; imix1<allmixhits[mixmid].size(); imix1++){
-    for(int imix2=0; imix2<allmixhits[mixmid].at(imix1).size(); imix2++){
-      hitset tmphit = allmixhits[mixmid].at(imix1).at(imix2);
-      if( HitsareInvalid( forehit, tmphit ) ) continue;
-      mixhitcands.push_back(tmphit);
+  for(int imix1=0; imix1<allMixhits.size(); imix1++){
+    for(int imix2=0; imix2<allMixhits.at(imix1).size(); imix2++){
+      hitset mixhit = allMixhits.at(imix1).at(imix2);
+      if( HitisInvalid( mixhit ) ) continue;
+      if( HitsareInvalid( forehit, mixhit ) ) continue;
+      FillHist(1,forehit,mixhit);
     }
   }
-  if( mixhitcands.size()==0 ){return;}
-
-  int imixhit = gRandom->Uniform(0.5, (float)mixhitcands.size()-0.5);
-  for(int imix1=0; imix1<mixhitcands.size(); imix1++){
-    if( imix1==imixhit ){
-      ClearHit(mixhit);
-      SetHit(mixhit,mixhitcands.at(imix1));
-    }
-  }
-  FillHist(1,forehit,mixhit);
 
 }
 void E16ANA_GammaAnalyzer::FillHist(int ifm, hitset& _hit0, hitset& _hit1){
@@ -385,15 +406,18 @@ void E16ANA_GammaAnalyzer::ClearMixEvent(){
   for(int i=0;i<9;i++){
     eventmixhits[i].clear();
   }
+  eventMixhits.clear();
 }
 void E16ANA_GammaAnalyzer::ClearMixAll(){
   for(int i=0;i<9;i++){
     allmixhits[i].clear();
   }
+  allMixhits.clear();
 }
 void E16ANA_GammaAnalyzer::PushBackMixHit(hitset& hit){
   int imid = ModuleToIndex(hit.mid);
   eventmixhits[imid].push_back(hit);
+  eventMixhits.push_back(hit);
 }
 void E16ANA_GammaAnalyzer::PushBackMixEvent(){
   for(int i=0;i<9;i++){
@@ -402,6 +426,11 @@ void E16ANA_GammaAnalyzer::PushBackMixEvent(){
     if( allmixhits[i].size() > mixevent ){
       allmixhits[i].erase(allmixhits[i].begin());
     }
+  }
+  // if( eventMixhits.size()==0 ) continue;
+  allMixhits.push_back(eventMixhits);
+  if( allMixhits.size() > mixevent ){
+    allMixhits.erase(allMixhits.begin());
   }
 }
 void E16ANA_GammaAnalyzer::DrawTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, TH1F *h3, TH1F *h4){
@@ -429,14 +458,16 @@ void E16ANA_GammaAnalyzer::Draw(TString& fout, TCanvas* c){
       c->cd()->SetGrid();
       hpzpx[ifm][idp]->Draw("colz");
       c->SaveAs(fout,"pdf");
-      c->Clear();
-      hdist[ifm][idp]->Draw();
-      c->SaveAs(fout,"pdf");
     }
     c->Clear();
-    hm[0][idp]->Draw();
+    hdist[0][idp]->DrawNormalized();
+    hdist[1][idp]->SetLineColor(2);
+    hdist[1][idp]->DrawNormalized("same");
+    c->SaveAs(fout,"pdf");
+    c->Clear();
+    hm[0][idp]->DrawNormalized();
     hm[1][idp]->SetLineColor(2);
-    hm[1][idp]->Draw("same");
+    hm[1][idp]->DrawNormalized("same");
     c->SaveAs(fout,"pdf");
   }
   DrawTH1FCanvas(c,fout,hmid[0],hmid[1],hcid[0],hcid[1]);

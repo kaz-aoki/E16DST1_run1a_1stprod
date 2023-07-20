@@ -77,12 +77,14 @@ private :
 
   int decaypos[4] = {-260,-20,0,+20};
   double mvtoe = 0.005;
-  int mixevent = 100;
+  int mixevent = 10;
 
   hitset hit0;
   hitset hit1;
   std::vector<std::vector<hitset>> allmixhits[9];
   std::vector<hitset> eventmixhits[9];
+  std::vector<std::vector<hitset>> allMixhits;
+  std::vector<hitset> eventMixhits;
 
   TH1F* hp[2][4][2];
   TH1F* hpx[2][4][2];

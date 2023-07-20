@@ -441,15 +441,15 @@ target_link_libraries(Gammaana_MakeRootPDF
 )
 
 #_______________________________________________________________________________
-# add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
+add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
 
-# target_link_libraries(Gammaana_MakePDF
-# 	E16DST_DST1
-# #E16ANA_CalibDB
-# 	E16ANA_Basic
-# 	E16DST
-# 	E16ANA
-# )
+target_link_libraries(Gammaana_MakePDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 # _______________________________________________________________________________
 add_executable(Gammaana_CodeCheck usr/tmp/Gammaana_CodeCheck.cc)
