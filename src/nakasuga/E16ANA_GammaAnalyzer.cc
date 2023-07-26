@@ -446,6 +446,28 @@ void E16ANA_GammaAnalyzer::DrawTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, T
   h4->Draw();
   c->SaveAs(fout,"pdf");
 }
+double E16ANA_GammaAnalyzer::CalcMixScale(TH1F* h1, TH1F* h2){
+  double integ1 = h1->Integral(h1->FindBin(0.8),h1->FindBin(1.5));
+  double integ2 = h2->Integral(h2->FindBin(0.8),h2->FindBin(1.5));
+  return integ1/integ2;
+}
+void E16ANA_GammaAnalyzer::DrawSameTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, double scale){
+  c->Clear();
+  h1->Draw();
+  if( h2->GetEntries() != 0 ){
+    h2->SetLineColor(2);
+    h2->Scale(scale);
+    h2->Draw("hist same");
+  }
+  c->SaveAs(fout,"pdf");
+  if( h2->GetEntries() != 0 ){
+    c->Clear();
+    TH1F* hsub = (TH1F*)h1->Clone("hsub");
+    hsub->Add(h2,-1);
+    hsub->Draw("hist e");
+    c->SaveAs(fout,"pdf");
+  }
+}
 void E16ANA_GammaAnalyzer::Draw(TString& fout, TCanvas* c){
   for(int idp=0;idp<4;idp++){
     for(int ifm=0;ifm<2;ifm++){
@@ -459,16 +481,9 @@ void E16ANA_GammaAnalyzer::Draw(TString& fout, TCanvas* c){
       hpzpx[ifm][idp]->Draw("colz");
       c->SaveAs(fout,"pdf");
     }
-    c->Clear();
-    hdist[0][idp]->DrawNormalized();
-    hdist[1][idp]->SetLineColor(2);
-    hdist[1][idp]->DrawNormalized("same");
-    c->SaveAs(fout,"pdf");
-    c->Clear();
-    hm[0][idp]->DrawNormalized();
-    hm[1][idp]->SetLineColor(2);
-    hm[1][idp]->DrawNormalized("same");
-    c->SaveAs(fout,"pdf");
+    double scale = CalcMixScale(hm[0][idp],hm[1][idp]);
+    DrawSameTH1FCanvas(c,fout,hdist[0][idp],hdist[1][idp],scale);
+    DrawSameTH1FCanvas(c,fout,hm[0][idp],hm[1][idp],scale);
   }
   DrawTH1FCanvas(c,fout,hmid[0],hmid[1],hcid[0],hcid[1]);
   DrawTH1FCanvas(c,fout,hx[0],hx[1],hy[0],hy[1]);

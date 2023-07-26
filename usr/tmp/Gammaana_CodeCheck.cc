@@ -21,6 +21,7 @@
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
 #include "E16ANA_LGCheckHist.hh"
+#include "E16ANA_LGStraightProj.hh"
 #include "E16ANA_Massw2Gamma.hh"
 #include "E16ANA_GammaAnalyzer.hh"
 #include "E16DST_Constant.hh"
@@ -44,6 +45,9 @@ int main(int argc, char* argv[]) {
 
   auto *analyzer = new E16ANA_GammaAnalyzer();
 
+  E16ANA_LGStraightProj proj;
+  TVector3 initpos(0., 0., 20.);
+
   int n_event = 0;
   while (!fin.eof()) {
     if (n_event % 1000 == 0) {
@@ -53,12 +57,32 @@ int main(int argc, char* argv[]) {
     double gx1, gy1, gz1, gx2, gy2, gz2, ene1, ene2;
     fin >> gx1 >> gy1 >> gz1 >> ene1 >> gx2 >> gy2 >> gz2 >> ene2;
 
+    TVector3 initdir1(gx1,gy1,gz1);
+    proj.SetInitInfo(initpos,initdir1);
+    if( !proj.CalcCrossInfo() ) continue;
+
     analyzer->ClearHit0();
-    analyzer->SetHit0(0, 0, 0, 0., 0., 0., gx1, gy1, gz1, ene1/analyzer->GetParam(), 0., 0, 10.);
+    // analyzer->SetHit0(0, 0, 0, 0., 0., 0., gx1, gy1, gz1, ene1/analyzer->PhtoEnergy(), 0., 0, 10.);
+    double adc1 = ene1/analyzer->PhtoEnergy();
+    analyzer->SetHit0(
+      0, proj.Module(), proj.Block(), 
+      proj.LCross1_x(), proj.LCross1_y(), proj.LCross1_z(), 
+      proj.GPos_x(), proj.GPos_y(), proj.GPos_z(), 
+      adc1, 0., 0, 10.);
     if( analyzer->Hit0isInvalid() ) continue;
 
+    TVector3 initdir2(gx2,gy2,gz2);
+    proj.SetInitInfo(initpos,initdir2);
+    if( !proj.CalcCrossInfo() ) continue;
+
     analyzer->ClearHit1();
-    analyzer->SetHit1(0, 0, 0, 1000., 1000., 1000., gx2, gy2, gz2, ene2/analyzer->GetParam(), 0., 0, 10.);
+    // analyzer->SetHit1(0, 0, 0, 1000., 1000., 1000., gx2, gy2, gz2, ene2/analyzer->PhtoEnergy(), 0., 0, 10.);
+    double adc2 = ene2/analyzer->PhtoEnergy();
+    analyzer->SetHit1(
+      0, proj.Module(), proj.Block(), 
+      proj.LCross1_x(), proj.LCross1_y(), proj.LCross1_z(), 
+      proj.GPos_x(), proj.GPos_y(), proj.GPos_z(), 
+      adc2, 0., 0, 10.);
     if( analyzer->Hit1isInvalid() ) continue;
     if( analyzer->HitsareInvalid() ) continue;
 

@@ -35,7 +35,7 @@ public :
 
   E16ANA_GammaAnalyzer();
   ~E16ANA_GammaAnalyzer();
-  double GetParam(){return mvtoe;};
+  double PhtoEnergy(){return mvtoe;};
   int ModuleToIndex(int module);
   int IndexToModule(int index);
   void ClearHits();
@@ -65,6 +65,8 @@ public :
   void PushBackMixHit(hitset& hit);
   void PushBackMixEvent();
   void DrawTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, TH1F *h3, TH1F *h4);
+  void DrawSameTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, double scale);
+  double CalcMixScale(TH1F* h1, TH1F* h2);
   void Draw(TString& fout, TCanvas* c);
   void SetRootFile(char* fin_name);
   void DeleteRootFile();
@@ -76,7 +78,8 @@ public :
 private :
 
   int decaypos[4] = {-260,-20,0,+20};
-  double mvtoe = 0.005;
+  double e_etog = 1.17;
+  double mvtoe = 0.005*e_etog;
   int mixevent = 10;
 
   hitset hit0;
