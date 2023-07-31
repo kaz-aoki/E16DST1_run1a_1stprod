@@ -139,6 +139,8 @@ add_library(E16DST_DST1
   src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
   src/nakasuga/E16ANA_Massw2Gamma.cc
   src/nakasuga/E16ANA_GammaAnalyzer.cc
+  src/nakasuga/straightRoot.cc
+  src/nakasuga/E16ANA_LGStraightTrackRoot.cc
 #  src/res/AnalyzerResidualHBD.cc
 #  src/res/AnalyzerTrackSelection.cc
 #  src/res/SingleTrackAnalyzerForRes.cc
@@ -511,6 +513,28 @@ target_link_libraries(mom
 add_executable(LG_CheckWaveform usr/tmp/LG_CheckWaveform.cc)
 
 target_link_libraries(LG_CheckWaveform
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_StraightEventMatch usr/tmp/LG_StraightEventMatch.cc)
+
+target_link_libraries(LG_StraightEventMatch
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_StraightResidual usr/tmp/LG_StraightResidual.cc)
+
+target_link_libraries(LG_StraightResidual
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic

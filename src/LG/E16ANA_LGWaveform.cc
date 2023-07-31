@@ -823,7 +823,7 @@ int E16ANA_LGWaveform::FitTmpl1(double* pxs, double* ps){
     peaks[0] = v;
     peakxs[0] = m;
     widths[0] = s;
-    timings[0] = (m + tmplwidth*s)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[0] = (m + tmplwidth*s)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[0] = chi2/Ndof;
 
     // draw
@@ -853,7 +853,7 @@ int E16ANA_LGWaveform::FitTmpl1(double* pxs, double* ps){
     peaks[0] = ps_short[0] - offset;
     peakxs[0] = pxs_short[0];
     widths[0] = s;
-    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[0] = chi2/Ndof;
 
     // draw
@@ -928,7 +928,7 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     peaks[nps] = v[0];
     peakxs[nps] = m[0];
     widths[nps] = s[0];
-    timings[nps] = (m[0] + tmplwidth*s[0])*(1./E16ANA_LGConstant::kTimeScale);
+    timings[nps] = (m[0] + tmplwidth*s[0])*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[nps] = chi2/Ndof;
     nps++;
   }
@@ -939,7 +939,7 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     peaks[nps] = v[1];
     peakxs[nps] = m[1];
     widths[nps] = s[1];
-    timings[nps] = (m[1] + tmplwidth*s[1])*(1./E16ANA_LGConstant::kTimeScale);
+    timings[nps] = (m[1] + tmplwidth*s[1])*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[nps] = chi2/Ndof;
     nps++;
   }
@@ -969,14 +969,14 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     peaks[0] = ps_short[0] - offset;
     peakxs[0] = pxs_short[0];
     widths[0] = s[0];
-    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[0] = chi2/Ndof;
     pxs[1] = pxs_short[1];
     ps[1] = ps_short[1];
     peaks[1] = ps_short[1];
     peakxs[1] = pxs_short[1];
     widths[1] = s[1];
-    timings[1] = (pxs_short[1] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[1] = (pxs_short[1] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[1] = chi2/Ndof;
 
     // draw
@@ -1056,7 +1056,7 @@ int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
       peakxs[nps] = m[i];
       widths[nps] = s[i];
       //timings[nps] = m[i];
-      timings[nps] = (m[i] + tmplwidth*s[i])*(1./E16ANA_LGConstant::kTimeScale);
+      timings[nps] = (m[i] + tmplwidth*s[i])*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
       chi2s[nps] = chi2/Ndof;
       nps++;
     }
@@ -1088,7 +1088,7 @@ int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
       peaks[i] = ps_short[i] - offset;
       peakxs[i] = pxs_short[i];
       widths[i] = s[i];
-      timings[i] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+      timings[i] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
       chi2s[i] = chi2/Ndof;
     }
     //peaks[0] = peak;
