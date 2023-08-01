@@ -14,20 +14,21 @@
 
 int main(int argc, char* argv[]) {
 
-  // auto runtype = stoi(argv[1]);
-  // auto out_file_name = argv[2];
-  // auto out_root_name = argv[3];
-  // auto maxevent = stoi(argv[4]);
-  // if(argc==5){
-  //   std::cerr << "./bin [Ks:0, vmeson:1, eIDrev:3, eIDfwd:4] [out.pdf] [out.root] [maxevent]" << std::endl;
-  //   return -1;
-  // }
+  if(argc!=4){
+    std::cerr << "./bin [out.pdf] [out.root] [maxevent]" << std::endl;
+    return -1;
+  }
+  auto out_pdf_name = argv[1];
+  auto out_root_name = argv[2];
+  auto maxevent = stoi(argv[3]);
    
   auto in_chain = new TChain("tree", "tree");
-  in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/test.root");
+  in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run040277.root");
+  in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run040278.root");
+  // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run030400.root");
 
   E16ANA_LGStraightTrackRoot* t = new E16ANA_LGStraightTrackRoot(in_chain);
-  t->Residual();
+  t->Residual(out_pdf_name,out_root_name,maxevent);
   
   delete in_chain;
   return 0;

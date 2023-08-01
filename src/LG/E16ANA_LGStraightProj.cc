@@ -203,11 +203,23 @@ bool E16ANA_LGStraightProj::CalcCrossBlockForCalib(){
 }
 
 bool E16ANA_LGStraightProj::CalcCrossInfo(){
-  if( !CalcCrossModule() ){return false;}
-  if( !CalcCrossPlane() ){return false;}
-  if( !CalcCrossBlock() ){return false;}
+  if( !CalcCrossModule() ){
+    // std::cout<<"not crossed module"<<std::endl;
+    return false;
+  }
+  if( !CalcCrossPlane() ){
+    // std::cout<<"not crossed plane"<<std::endl;
+    return false;
+  }
+  if( !CalcCrossBlock() ){
+    // std::cout<<"not crossed block"<<std::endl;
+    return false;
+  }
   CalcCrossAngle();
-  if( !CalcCrossBlockForCalib() ){return false;}
+  if( !CalcCrossBlockForCalib() ){
+    // std::cout<<"not crossed calib"<<std::endl;
+    return false;
+  }
   gpos = geometry->LG(module2013, block)->GetDetectorCenter();
 
   return true;

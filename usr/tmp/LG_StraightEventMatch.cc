@@ -28,19 +28,21 @@ using namespace std;
 #define TRG_ON
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.root] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [input.root] [output.root] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
-  auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
+  auto in_st_file_name  = argv[2];
+  auto out_file_name = argv[3];
+  auto run_id        = stoi(argv[4]);
+  auto max_event     = stoi(argv[5]);
 
   //straight
   auto in_chain = new TChain("tree", "tree");
-  in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/murakami_straight/out_all_nakasuga.root");
+  // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/straightroot/murakami/out_all_nakasuga.root");
+  in_chain->Add(in_st_file_name);
   straightRoot* t = new straightRoot(in_chain);
   t->MakeMap(run_id,-1);
 

@@ -42,19 +42,17 @@ void E16ANA_LGStraightTrackRoot::Loop()
    }
 }
 
-void E16ANA_LGStraightTrackRoot::Residual()
+void E16ANA_LGStraightTrackRoot::Residual(char* out_pdf_name, char* out_root_name, int maxevent)
 {
    if (fChain == 0) return;
 
-   TFile* outfile = new TFile("hist.root","recreate");
+   TFile* outfile = new TFile(out_root_name,"recreate");
+   TString fout = Form("%s",out_pdf_name);
+   TCanvas* c = new TCanvas("c","c",1000,700);
 
-   TH1F* hresx[9];
-   TH1F* hresy[9];
-   for(int i=0;i<9;i++){
-     hresx[i] = new TH1F(Form("hresx%d",i),Form("hresx%d",i),100,-800,800);
-     hresy[i] = new TH1F(Form("hresy%d",i),Form("hresy%d",i),100,-800,800);
-   }
+   HistInit();
 
+   std::vector<std::vector<hitset>> mixevents[9];
 
    Long64_t nentries = fChain->GetEntriesFast();
 
@@ -63,24 +61,62 @@ void E16ANA_LGStraightTrackRoot::Residual()
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
-      // if (Cut(ientry) < 0) continue;
+      if( jentry%10000==0 ) {std::cout<<jentry<<std::endl;}
+      if( maxevent!=-1 && jentry>maxevent ){break;}
+      if( !EventSelection() ) continue;
 
+      //calc residual
       for(int itrack=0; itrack<n_tracks; itrack++){
-	int module = trk_mid->at(itrack);
+	int trkmid = trk_mid->at(itrack)-101;
+	if( !TrackSelection(itrack) ) continue;
+	FillTrack(itrack);
+
+	//fore
 	for(int ilg=0; ilg<n_lg_hits; ilg++){
-	  double t = lg_t->at(ilg);
-	  double adc = lg_adc->at(ilg);
-	  int mid = lg_mid->at(ilg);
-	  if( t>90 && t<110 && adc>20 && mid==module ){
-	    double resx = lg_lx->at(ilg) - trk_lx->at(itrack);
-	    double resy = lg_ly->at(ilg) - trk_ly->at(itrack);
-	    hresx[mid-101]->Fill(resx);
-	    hresy[mid-101]->Fill(resy);
+	  int lgmid = lg_mid->at(ilg)-101;
+	  if( lgmid != trkmid ) continue;
+	  if( !HitSelection(ilg) ) continue;
+	  FillResidualFore(hres, itrack, ilg);
+	}
+
+	//mix
+	for(int ilg=0; ilg<mixevents[trkmid].size(); ilg++){
+	  for(int jlg=0; jlg<mixevents[trkmid].at(ilg).size(); jlg++){
+	    hitset tmphit = mixevents[trkmid].at(ilg).at(jlg);
+	    FillResidualMix(hres, itrack, tmphit);
 	  }
 	}
+
+      }//track loop
+
+      //add mix
+      std::vector<hitset> mixhits[9];
+      int nlgs[9] = {0};
+      for(int ilg=0; ilg<n_lg_hits; ilg++){
+	int lgmid = lg_mid->at(ilg)-101;
+	hitset tmphit;
+	SetHitset(ilg,tmphit);
+	if( !HitSelection(tmphit) ) continue;
+	mixhits[lgmid].push_back(tmphit);
+	nlgs[lgmid]++;
+	nlgs[4]++;
+      }
+      for(int im=0; im<9; im++){
+	mixevents[im].push_back(mixhits[im]);
+	if( mixevents[im].size() > mixeventmax ){
+	  mixevents[im].erase( mixevents[im].begin() );
+	}
+	hn[im]->Fill(nlgs[im]);
       }
 
-   }
+   }//event loop
+
+   c->SaveAs(fout+"[","pdf");
+   DrawTrack(fout, c);
+   DrawNLGs(fout, c);
+   DrawResidual(fout, c, hres);
+   DrawAssociateHit(fout, c);
+   c->SaveAs(fout+"]","pdf");
 
    outfile->Write();
    outfile->Close();
