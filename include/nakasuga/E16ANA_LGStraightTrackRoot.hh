@@ -38,16 +38,26 @@ private :
     double lx;
     double ly;
     double adc;
+    double cadc;
     double t;
     int fflag;
   };
 
 public :
 
-   TH1F* hres[2][9][2];// x/y, mid-101, fore/mix
-   TH1F* hadc[9][2];// mid-101, fore/mix
-   TH1F* ht[9][2];// mid-101, fore/mix
+  //all hit
    TH1F* hn[9];
+   TH1F* ht[9];
+   TH1F* hadc[9];
+   TH1F* hcadc[9];
+  //associated hit
+   TH1F* hres[2][9][2];// x/y, mid-101, fore/mix
+   TH1F* han[9][2];// mid-101, fore/mix
+   TH1F* hat[9][2];
+   TH1F* haadc[9][2];
+   TH1F* hacadc[9][2];
+
+  //track
    TH2F* htrktgtyz;
    TH1F* htrktgtz;
    TH1F* htrkchx;
@@ -100,6 +110,7 @@ public :
    vector<double>  *lg_lx;
    vector<double>  *lg_ly;
    vector<double>  *lg_adc;
+   vector<double>  *lg_calibadc;
    vector<double>  *lg_t;
    vector<int>     *lg_fflag;
    Int_t           n_lg_trg_hits;
@@ -151,6 +162,7 @@ public :
    TBranch        *b_lg_lx;   //!
    TBranch        *b_lg_ly;   //!
    TBranch        *b_lg_adc;   //!
+   TBranch        *b_lg_calibadc;   //!
    TBranch        *b_lg_t;   //!
    TBranch        *b_lg_fflag;   //!
    TBranch        *b_n_lg_trg_hits;   //!
@@ -177,11 +189,13 @@ public :
    virtual void     FillResidualMix(TH1F* h[2][9][2], int itrack, hitset& lghit);
    virtual void     FillResidual(TH1F* h[2][9][2], int itrack, hitset& lghit, int fm);
    virtual void     FillTrack(int itrack);
+   virtual void     FillNotAssociateHit();
    virtual void     SetHitset(int ilg, hitset& tmphit);
    virtual void     DrawTrack(TString& fout, TCanvas* c);
-   virtual void     DrawNLGs(TString& fout, TCanvas* c);
    virtual void     DrawResidual(TString& fout, TCanvas* c, TH1F* h[2][9][2]);
+   virtual void     DrawNotAssociateHit(TString& fout, TCanvas* c);
    virtual void     DrawAssociateHit(TString& fout, TCanvas* c);
+   virtual void     DrawForeMix(TH1F* fore, TH1F* mix);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -276,6 +290,7 @@ void E16ANA_LGStraightTrackRoot::Init(TTree *tree)
    lg_lx = 0;
    lg_ly = 0;
    lg_adc = 0;
+   lg_calibadc = 0;
    lg_t = 0;
    lg_fflag = 0;
    lg_trg_mid = 0;
@@ -330,6 +345,7 @@ void E16ANA_LGStraightTrackRoot::Init(TTree *tree)
    fChain->SetBranchAddress("lg_lx", &lg_lx, &b_lg_lx);
    fChain->SetBranchAddress("lg_ly", &lg_ly, &b_lg_ly);
    fChain->SetBranchAddress("lg_adc", &lg_adc, &b_lg_adc);
+   fChain->SetBranchAddress("lg_calibadc", &lg_calibadc, &b_lg_calibadc);
    fChain->SetBranchAddress("lg_t", &lg_t, &b_lg_t);
    fChain->SetBranchAddress("lg_fflag", &lg_fflag, &b_lg_fflag);
    fChain->SetBranchAddress("n_lg_trg_hits", &n_lg_trg_hits, &b_n_lg_trg_hits);
@@ -378,7 +394,7 @@ bool E16ANA_LGStraightTrackRoot::TrackSelection(int itrack)
 bool E16ANA_LGStraightTrackRoot::HitSelection(hitset& hit)
 {
   if( hit.t<90 || hit.t>110 ){return false;}
-  if( hit.adc<20 ){return false;}
+  if( hit.cadc<15 ){return false;}
   return true;
 }
 bool E16ANA_LGStraightTrackRoot::HitSelection(int ilg)
@@ -389,21 +405,25 @@ bool E16ANA_LGStraightTrackRoot::HitSelection(int ilg)
 }
 void E16ANA_LGStraightTrackRoot::HistInit()
 {
+   char fm[2][5] = {"fore","mix"};
    for(int i=0;i<9;i++){
-     hres[0][i][0] = new TH1F(Form("hres_x%df",i),Form("hres_x%df",i+101),50,-800,800);
-     hres[1][i][0] = new TH1F(Form("hres_y%df",i),Form("hres_y%df",i+101),50,-800,800);
-     hres[0][i][1] = new TH1F(Form("hres_x%dm",i),Form("hres_x%dm",i+101),50,-800,800);
-     hres[1][i][1] = new TH1F(Form("hres_y%dm",i),Form("hres_y%dm",i+101),50,-800,800);
-     hadc[i][0] = new TH1F(Form("hadc_%df",i),Form("hadc_%df",i+101),50,0,400);
-     hadc[i][1] = new TH1F(Form("hadc_%dm",i),Form("hadc_%dm",i+101),50,0,400);
-     ht[i][0] = new TH1F(Form("ht_%df",i),Form("ht_%df",i+101),50,0,200);
-     ht[i][1] = new TH1F(Form("ht_%dm",i),Form("ht_%dm",i+101),50,0,200);
-     hn[i] = new TH1F(Form("hn_%d",i),Form("hn_%d",i+101),20,0,20);
+     hn[i] = new TH1F(Form("hn_%d",i),Form("NLGs_%d",i+101),20,0,20);
+     ht[i] = new TH1F(Form("ht_%d",i),Form("timing_%d",i+101),200,0,200);
+     hadc[i] = new TH1F(Form("hadc_%d",i),Form("adc_%d",i+101),50,0,400);
+     hcadc[i] = new TH1F(Form("hcadc_%d",i),Form("calibadc_%d",i+101),50,0,400);
+     for(int j=0;j<2;j++){
+       hres[0][i][j] = new TH1F(Form("hres_x%d%s",i,fm[j]),Form("res_x%d%s",i+101,fm[j]),50,-800,800);
+       hres[1][i][j] = new TH1F(Form("hres_y%d%s",i,fm[j]),Form("res_y%d%s",i+101,fm[j]),50,-800,800);
+       han[i][j] = new TH1F(Form("han_%d%s",i,fm[j]),Form("ascNLGs_%d%s",i+101,fm[j]),20,0,20);
+       hat[i][j] = new TH1F(Form("hat_%d%s",i,fm[j]),Form("ascTiming_%d%s",i+101,fm[j]),50,0,200);
+       haadc[i][j] = new TH1F(Form("haadc_%d%s",i,fm[j]),Form("ascAdc_%d%s",i+101,fm[j]),50,0,400);
+       hacadc[i][j] = new TH1F(Form("hacadc_%d%s",i,fm[j]),Form("ascCalibadc_%d%s",i+101,fm[j]),50,0,400);
+     }
    }
-   htrktgtyz = new TH2F("htrktgtyz","htrktgtyz",100,-50,50,100,-50,50);
-   htrktgtz = new TH1F("htrktgtz","htrktgtz",100,-50,50);
-   htrkchx = new TH1F("htrkchx","htrkchx",100,0,20);
-   htrkchy = new TH1F("htrkchy","htrkchy",100,0,20);
+   htrktgtyz = new TH2F("htrktgtyz","trk_tgtyz",100,-50,50,100,-50,50);
+   htrktgtz = new TH1F("htrktgtz","trk_tgtz",100,-50,50);
+   htrkchx = new TH1F("htrkchx","trk_chi2x",100,0,20);
+   htrkchy = new TH1F("htrkchy","trk_chi2y",100,0,20);
 
   return;
 }
@@ -427,8 +447,9 @@ void E16ANA_LGStraightTrackRoot::FillResidual(TH1F* h[2][9][2], int itrack, hits
    h[0][4][fm]->Fill(resx);
    h[1][4][fm]->Fill(resy);
    if( fabs(resx)<widthx && fabs(resy)<widthy ){
-     hadc[mid][fm]->Fill( lghit.adc );
-     ht[mid][fm]->Fill( lghit.t );
+     hat[mid][fm]->Fill( lghit.t );
+     haadc[mid][fm]->Fill( lghit.adc );
+     hacadc[mid][fm]->Fill( lghit.cadc );
    }
 }
 void E16ANA_LGStraightTrackRoot::FillTrack(int itrack)
@@ -445,6 +466,7 @@ void E16ANA_LGStraightTrackRoot::SetHitset(int ilg, hitset& tmphit)
   tmphit.lx  = lg_lx->at(ilg);
   tmphit.ly  = lg_ly->at(ilg);
   tmphit.adc = lg_adc->at(ilg);
+  tmphit.cadc = lg_calibadc->at(ilg);
   tmphit.t   = lg_t->at(ilg);
   tmphit.fflag = lg_fflag->at(ilg);
 }
@@ -462,16 +484,6 @@ void E16ANA_LGStraightTrackRoot::DrawTrack(TString& fout, TCanvas* c)
   htrkchy->Draw();
   c->SaveAs(fout,"pdf");
 }
-void E16ANA_LGStraightTrackRoot::DrawNLGs(TString& fout, TCanvas* c)
-{
-  c->Clear();
-  c->Divide(4,4);
-  for(int i=0;i<9;i++){
-    c->cd(i%5+1+8*(i/5));
-    hn[i]->Draw();
-  }
-  c->SaveAs(fout,"pdf");
-}
 void E16ANA_LGStraightTrackRoot::DrawResidual(TString& fout, TCanvas* c, TH1F* h[2][9][2])
 {
   c->Clear();
@@ -480,31 +492,71 @@ void E16ANA_LGStraightTrackRoot::DrawResidual(TString& fout, TCanvas* c, TH1F* h
     if(i==4) continue;
     for(int j=0;j<2;j++){
       c->cd(i%5+1+8*(i/5)+j*4)->SetGridx();
-      h[j][i][0]->Draw("hist");
-      h[j][i][1]->Scale(1./(double)mixeventmax);
-      h[j][i][1]->SetLineColor(6);
-      h[j][i][1]->Draw("hist sames");
+      DrawForeMix(h[j][i][0],h[j][i][1]);
     }
   }
   c->SaveAs(fout,"pdf");
 }
+void E16ANA_LGStraightTrackRoot::DrawNotAssociateHit(TString& fout, TCanvas* c)
+{
+  for(int j=0;j<2;j++){
+    c->Clear();
+    c->Divide(4,4);
+    for(int i=0;i<9;i++){
+      if(i==4) continue;
+      c->cd(i%5+1+4*(i/5));
+      if(j==0){hn[i]->Draw();}
+      else{hadc[i]->Draw();}
+      c->cd(i%5+9+4*(i/5));
+      if(j==0){ht[i]->Draw();}
+      else{hcadc[i]->Draw();}
+    }
+    c->SaveAs(fout,"pdf");
+  }
+}
 void E16ANA_LGStraightTrackRoot::DrawAssociateHit(TString& fout, TCanvas* c)
 {
-  c->Clear();
-  c->Divide(4,4);
-  for(int i=0;i<9;i++){
-    if(i==4) continue;
-    c->cd(i%5+1+4*(i/5));
-    hadc[i][0]->Draw("hist");
-    hadc[i][1]->Scale(1./(double)mixeventmax);
-    hadc[i][1]->SetLineColor(6);
-    hadc[i][1]->Draw("hist sames");
-    c->cd(i%5+9+4*(i/5));
-    ht[i][0]->Draw("hist");
-    ht[i][1]->Scale(1./(double)mixeventmax);
-    ht[i][1]->SetLineColor(6);
-    ht[i][1]->Draw("hist sames");
+  for(int j=0;j<2;j++){
+    c->Clear();
+    c->Divide(4,4);
+    for(int i=0;i<9;i++){
+      if(i==4) continue;
+      c->cd(i%5+1+4*(i/5));
+      if(j==0){DrawForeMix(han[i][0],han[i][1]);}
+      else{DrawForeMix(haadc[i][0],haadc[i][1]);}
+      c->cd(i%5+9+4*(i/5));
+      if(j==0){DrawForeMix(hat[i][0],hat[i][1]);}
+      else{DrawForeMix(hacadc[i][0],hacadc[i][1]);}
+    }
+    c->SaveAs(fout,"pdf");
   }
-  c->SaveAs(fout,"pdf");
+}
+void E16ANA_LGStraightTrackRoot::DrawForeMix(TH1F* fore, TH1F* mix)
+{
+  fore->Draw("hist");
+  mix->Scale(1./(double)mixeventmax);
+  mix->SetLineColor(6);
+  mix->Draw("hist sames");
+}
+void E16ANA_LGStraightTrackRoot::FillNotAssociateHit()
+{
+  int nlgs[9] = {0};
+  for(int ilg=0; ilg<n_lg_hits; ilg++){
+    int lgmid = lg_mid->at(ilg)-101;
+    hitset tmphit;
+    SetHitset(ilg,tmphit);
+    ht[lgmid]->Fill( tmphit.t );
+    nlgs[lgmid]++;
+    nlgs[4]++;
+    if( tmphit.adc>15 ){
+      hadc[lgmid]->Fill( tmphit.adc );
+    }
+    if( tmphit.cadc>15 ){
+      hcadc[lgmid]->Fill( tmphit.cadc );
+    }
+  }
+  for(int im=0; im<9; im++){
+    hn[im]->Fill(nlgs[im]);
+  }
 }
 #endif // #ifdef E16ANA_LGStraightTrackRoot_cxx

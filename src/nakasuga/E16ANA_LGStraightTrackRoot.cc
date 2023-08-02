@@ -89,31 +89,29 @@ void E16ANA_LGStraightTrackRoot::Residual(char* out_pdf_name, char* out_root_nam
 
       }//track loop
 
+      FillNotAssociateHit();
+
       //add mix
       std::vector<hitset> mixhits[9];
-      int nlgs[9] = {0};
       for(int ilg=0; ilg<n_lg_hits; ilg++){
 	int lgmid = lg_mid->at(ilg)-101;
 	hitset tmphit;
 	SetHitset(ilg,tmphit);
 	if( !HitSelection(tmphit) ) continue;
 	mixhits[lgmid].push_back(tmphit);
-	nlgs[lgmid]++;
-	nlgs[4]++;
       }
       for(int im=0; im<9; im++){
 	mixevents[im].push_back(mixhits[im]);
 	if( mixevents[im].size() > mixeventmax ){
 	  mixevents[im].erase( mixevents[im].begin() );
 	}
-	hn[im]->Fill(nlgs[im]);
       }
 
    }//event loop
 
    c->SaveAs(fout+"[","pdf");
+   DrawNotAssociateHit(fout, c);
    DrawTrack(fout, c);
-   DrawNLGs(fout, c);
    DrawResidual(fout, c, hres);
    DrawAssociateHit(fout, c);
    c->SaveAs(fout+"]","pdf");

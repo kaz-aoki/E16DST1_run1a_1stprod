@@ -93,6 +93,7 @@ int main(int argc, char* argv[]) {
   vector<double> out_lg_lx;
   vector<double> out_lg_ly;
   vector<double> out_lg_adc;
+  vector<double> out_lg_calibadc;
   vector<double> out_lg_t;
   vector<int> out_lg_fflag;
   int out_n_lg_trg_hits;
@@ -143,6 +144,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("lg_lx", &out_lg_lx);
   tree->Branch("lg_ly", &out_lg_ly);
   tree->Branch("lg_adc", &out_lg_adc);
+  tree->Branch("lg_calibadc", &out_lg_calibadc);
   tree->Branch("lg_t", &out_lg_t);
   tree->Branch("lg_fflag", &out_lg_fflag);
   tree->Branch("n_lg_trg_hits",&out_n_lg_trg_hits,"n_lg_trg_hits/I");
@@ -260,6 +262,7 @@ int main(int argc, char* argv[]) {
       out_lg_lx.clear();
       out_lg_ly.clear();
       out_lg_adc.clear();
+      out_lg_calibadc.clear();
       out_lg_t.clear();
       out_lg_fflag.clear();
       out_lg_trg_mid.clear();
@@ -287,6 +290,8 @@ int main(int argc, char* argv[]) {
 	    double lg_lx = lpos.X();
 	    double lg_ly = lpos.Y();
 	    double lg_adc = lghit.FitPeak();
+	    double gainparam = lgbasic.GetGain(lg_mid, lg_cid);
+	    double lg_calibadc = lghit.FitPeak()*gainparam;
 	    double lg_t = lghit.FitTiming();
 	    int lg_fflag = lghit.FitFlag();
 	    out_lg_mid.push_back(lg_mid);
@@ -294,6 +299,7 @@ int main(int argc, char* argv[]) {
 	    out_lg_lx.push_back(lg_lx);
 	    out_lg_ly.push_back(lg_ly);
 	    out_lg_adc.push_back(lg_adc);
+	    out_lg_calibadc.push_back(lg_calibadc);
 	    out_lg_t.push_back(lg_t);
 	    out_lg_fflag.push_back(lg_fflag);
 	    n_lg_hits++;
