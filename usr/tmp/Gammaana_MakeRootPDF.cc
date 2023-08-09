@@ -28,13 +28,13 @@ using namespace std;
 
 #define TRG_ON
 
-// void SetHitInfo(int fitoption, E16DST_DST1LGHit& lghit, E16ANA_GammaAnalyzer::hitset& hitset, E16ANA_GeometryV2* geometry){
-//   auto lpos = lghit.LocalPos(*geometry);
-//   auto gpos = lghit.GlobalPos(*geometry);
-//   int fflag = lghit.FitFlag();
-//   if(fitoption==2) { fflag = (int)(lghit.FitChi2());}
-//   E16ANA_GammaAnalyzer::SetHit(hitset,lghit.HitId(), lghit.ModuleId(), lghit.ChannelId(), lpos.X(), lpos.Y(), lpos.Z(), gpos.X(), gpos.Y(), gpos.Z(), lghit.FitPeak(), lghit.FitTiming(), fflag, lghit.FitWidth());
-// }
+void SetGammaHitInfo(int fitoption, E16DST_DST1LGHit& lghit, E16ANA_GammaAnalyzer* analyzer, E16ANA_GammaAnalyzer::hitset& hitset, E16ANA_GeometryV2* geometry){
+  auto lpos = lghit.LocalPos(*geometry);
+  auto gpos = lghit.GlobalPos(*geometry);
+  int fflag = lghit.FitFlag();
+  if(fitoption==2) { fflag = (int)(lghit.FitChi2());}
+  analyzer->SetHit(hitset,lghit.HitId(), lghit.ModuleId(), lghit.ChannelId(), lpos.X(), lpos.Y(), lpos.Z(), gpos.X(), gpos.Y(), gpos.Z(), lghit.FitPeak(), lghit.FitTiming(), fflag, lghit.FitWidth());
+}
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -143,49 +143,63 @@ int main(int argc, char* argv[]) {
       // int ipair = 0;
       // for(int i=0; i<n_lghits; i++){
       // 	auto& lghit0 = lg_hits1[i];
-      // 	auto lpos0 = lghit0.LocalPos(*geometry);
-      // 	auto gpos0 = lghit0.GlobalPos(*geometry);
-      // 	int fflag0 = lghit0.FitFlag();
-      // 	if(fitoption==2) { fflag0 = (int)(lghit0.FitChi2());}
+      // 	E16ANA_GammaAnalyzer::hitset gammahit0;
+      // 	SetGammaHitInfo(fitoption, lghit0, analyzer, gammahit0, geometry);
       // 	analyzer->ClearHit0();
-      // 	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), fflag0, lghit0.FitWidth());
+      // 	analyzer->SetHit0(gammahit0);
       // 	if( analyzer->Hit0isInvalid() ) continue;
       // 	for(int j=0; j<n_lghits; j++){
       // 	  auto& lghit1 = lg_hits1[j];
-      // 	  auto lpos1 = lghit1.LocalPos(*geometry);
-      // 	  auto gpos1 = lghit1.GlobalPos(*geometry);
-      // 	  int fflag1 = lghit1.FitFlag();
-      // 	  if(fitoption==2) { fflag1 = (int)(lghit1.FitChi2());}
+      // 	  E16ANA_GammaAnalyzer::hitset gammahit1;
+      // 	  SetGammaHitInfo(fitoption, lghit1, analyzer, gammahit1, geometry);
       // 	  analyzer->ClearHit1();
-      // 	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), fflag1, lghit1.FitWidth());
+      // 	  analyzer->SetHit1(gammahit1);
       // 	  if( analyzer->Hit1isInvalid() ) continue;
       // 	  if( analyzer->HitsareInvalid() ) continue;
       // 	  ipair++;
       // 	}
       // }
-      // // std::cout<<ipair<<std::endl;
       // if(ipair>15) continue;
       //Event Cut
 
+      //calc multiplicity
+      std::vector<int> hitflag;
+      analyzer->ClearEventCount();
+      for(int jhit=0; jhit<n_lghits; jhit++){
+      	auto& lghit0 = lg_hits1[jhit];
+      	E16ANA_GammaAnalyzer::hitset hit0;
+	SetGammaHitInfo(fitoption, lghit0, analyzer, hit0, geometry);
+	analyzer->IncreaseEventCount( hit0 );
+	analyzer->ClearPairCount();
+      	for(int khit=0; khit<n_lghits; khit++){
+	  if(jhit==khit) continue;
+	  auto& lghit1 = lg_hits1[khit];
+	  E16ANA_GammaAnalyzer::hitset hit1;
+	  SetGammaHitInfo(fitoption, lghit1, analyzer, hit1, geometry);
+	  analyzer->IncreasePairCount( hit0,  hit1 );
+      	}
+	analyzer->FillPairCount();
+	hitflag.push_back( analyzer->NPairCountAll() );
+      }
+      analyzer->FillEventCount();
+
+      //calc IM
       int ihit[2] = {0, 0};
       for(ihit[0]=0; ihit[0]<n_lghits; ihit[0]++){
 	auto& lghit0 = lg_hits1[ihit[0]];
-	auto lpos0 = lghit0.LocalPos(*geometry);
-	auto gpos0 = lghit0.GlobalPos(*geometry);
-	int fflag0 = lghit0.FitFlag();
-	if(fitoption==2) { fflag0 = (int)(lghit0.FitChi2());}
+	// if( hitflag.at(ihit[0])!=2 ) continue;
+      	E16ANA_GammaAnalyzer::hitset gammahit0;
+	SetGammaHitInfo(fitoption, lghit0, analyzer, gammahit0, geometry);
 	analyzer->ClearHit0();
-	analyzer->SetHit0(lghit0.HitId(), lghit0.ModuleId(), lghit0.ChannelId(), lpos0.X(), lpos0.Y(), lpos0.Z(), gpos0.X(), gpos0.Y(), gpos0.Z(), lghit0.FitPeak(), lghit0.FitTiming(), fflag0, lghit0.FitWidth());
+	analyzer->SetHit0(gammahit0);
 	if( analyzer->Hit0isInvalid() ) continue;
 
       	for(ihit[1]=ihit[0]+1; ihit[1]<n_lghits; ihit[1]++){
 	  auto& lghit1 = lg_hits1[ihit[1]];
-	  auto lpos1 = lghit1.LocalPos(*geometry);
-	  auto gpos1 = lghit1.GlobalPos(*geometry);
-	  int fflag1 = lghit1.FitFlag();
-	  if(fitoption==2) { fflag1 = (int)(lghit1.FitChi2());}
+	  E16ANA_GammaAnalyzer::hitset gammahit1;
+	  SetGammaHitInfo(fitoption, lghit1, analyzer, gammahit1, geometry);
 	  analyzer->ClearHit1();
-	  analyzer->SetHit1(lghit1.HitId(), lghit1.ModuleId(), lghit1.ChannelId(), lpos1.X(), lpos1.Y(), lpos1.Z(), gpos1.X(), gpos1.Y(), gpos1.Z(), lghit1.FitPeak(), lghit1.FitTiming(), fflag1, lghit1.FitWidth());
+	  analyzer->SetHit1(gammahit1);
 	  if( analyzer->Hit1isInvalid() ) continue;
 	  if( analyzer->HitsareInvalid() ) continue;
 	  analyzer->ClearBranch();
@@ -201,15 +215,11 @@ int main(int argc, char* argv[]) {
       }
 
       //set mixhits
-      analyzer->ClearMixEvent();
+      analyzer->ClearMixHit();
       for(int jhit=0;jhit<n_lghits;jhit++){
       	auto& lghit = lg_hits1[jhit];
-      	auto lpos = lghit.LocalPos(*geometry);
-      	auto gpos = lghit.GlobalPos(*geometry);
-	int fflag = lghit.FitFlag();
-	if(fitoption==2) { fflag = (int)(lghit.FitChi2());}
       	E16ANA_GammaAnalyzer::hitset hit;
-      	analyzer->SetHit(hit, lghit.HitId(), lghit.ModuleId(), lghit.ChannelId(), lpos.X(), lpos.Y(), lpos.Z(), gpos.X(), gpos.Y(), gpos.Z(), lghit.FitPeak(), lghit.FitTiming(), fflag, lghit.FitWidth());
+	SetGammaHitInfo(fitoption, lghit, analyzer, hit, geometry);
       	if( analyzer->HitisInvalid( hit ) ) continue;
       	analyzer->PushBackMixHit( hit );
       }

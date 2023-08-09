@@ -382,27 +382,6 @@ Int_t E16ANA_LGStraightTrackRoot::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
-bool E16ANA_LGStraightTrackRoot::EventSelection()
-{
-  return true;
-}
-bool E16ANA_LGStraightTrackRoot::TrackSelection(int itrack)
-{
-  if( trk_chi2_x->at(itrack)>3 || trk_chi2_y->at(itrack)>3 ){return false;}
-  return true;
-}
-bool E16ANA_LGStraightTrackRoot::HitSelection(hitset& hit)
-{
-  if( hit.t<90 || hit.t>110 ){return false;}
-  if( hit.cadc<15 ){return false;}
-  return true;
-}
-bool E16ANA_LGStraightTrackRoot::HitSelection(int ilg)
-{
-  hitset tmphit;
-  SetHitset(ilg, tmphit);
-  return HitSelection(tmphit);
-}
 void E16ANA_LGStraightTrackRoot::HistInit()
 {
    char fm[2][5] = {"fore","mix"};
@@ -426,6 +405,27 @@ void E16ANA_LGStraightTrackRoot::HistInit()
    htrkchy = new TH1F("htrkchy","trk_chi2y",100,0,20);
 
   return;
+}
+bool E16ANA_LGStraightTrackRoot::EventSelection()
+{
+  return true;
+}
+bool E16ANA_LGStraightTrackRoot::TrackSelection(int itrack)
+{
+  if( trk_chi2_x->at(itrack)>3 || trk_chi2_y->at(itrack)>3 ){return false;}
+  return true;
+}
+bool E16ANA_LGStraightTrackRoot::HitSelection(hitset& hit)
+{
+  if( hit.t<90 || hit.t>110 ){return false;}
+  if( hit.cadc<15 ){return false;}
+  return true;
+}
+bool E16ANA_LGStraightTrackRoot::HitSelection(int ilg)
+{
+  hitset tmphit;
+  SetHitset(ilg, tmphit);
+  return HitSelection(tmphit);
 }
 void E16ANA_LGStraightTrackRoot::FillResidualFore(TH1F* h[2][9][2], int itrack, int ilg)
 {
