@@ -49,9 +49,11 @@ int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
  			straight_analyzer->OneModuleAnalyze2woSSD(3, ssd1, gtr1, mid, geom);
  		}
 		else { //with all (-1), or without one layer GTR (1,2, 3)
+// 			straight_analyzer->OneModuleAnalyze2(3, ssd1, gtr1, mid, geom);
  			straight_analyzer->OneModuleAnalyze2(3, ssd1, gtr1, mid, geom);
 		}
 	}
+	
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
 	st_tracks.reserve(trks_size);
@@ -60,7 +62,7 @@ int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 		std::shared_ptr<E16ANA_XZTrackCandidate> tx = t->GetXZTrackCandidate();
 		std::shared_ptr<E16ANA_YTrackCandidate> ty = t->GetYTrackCandidate();
 		std::shared_ptr<E16DST_DST1StraightTrack3D> trk = std::make_shared<E16DST_DST1StraightTrack3D>();
-		std::cout << "event 0 event_ID = " << event0->EventID() << std::endl;
+//		std::cout << "event 0 event_ID = " << event0->EventID() << std::endl;
 		trk->SetEventID(event0->EventID());
         trk->SetTrackID(i);
 		trk->SetModuleID(tx->ModuleID());
@@ -106,7 +108,7 @@ int E16DST_DST1StraightTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 }
 
 
-int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack2D>> &stx_tracks, std::vector<std::shared_ptr<E16DST_DST1StraightTrack2D>> &sty_tracks, E16ANA_GTRcalibPedestal &gtrped, const int removed_layer){
+int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack2D>> &stx_tracks, std::vector<std::shared_ptr<E16DST_DST1StraightTrack2D>> &sty_tracks, std::vector<std::shared_ptr<E16DST1_DST1CrossByStraight>> &cps,E16ANA_GTRcalibPedestal &gtrped, const int removed_layer){
 	static bool isFirst = true;
 	//static StraightTrackAnalyzerOfWireV1 *straight_analyzer;
 	static StraightTrackAnalyzerOfTargets *straight_analyzer;
@@ -147,12 +149,17 @@ int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
  			straight_analyzer->OneModuleAnalyze2(2, ssd1, gtr1, mid, geom);
 		}
 	}
+	straight_analyzer->Make2DCrossPoint(straight_analyzer->GetXZTrackCandidates(), geom);
 	int trksx_size = straight_analyzer->GetXZTrackCandidates().size();
 	int trksy_size = straight_analyzer->GetYTrackCandidates().size();
+	int cp_size = straight_analyzer->GetCrossPoints().size();
 	stx_tracks.clear();
 	stx_tracks.reserve(trksx_size);
 	sty_tracks.clear();
 	sty_tracks.reserve(trksy_size);
+	cps.clear();
+	cps.reserve(cp_size);
+//	std::cout << "trksx size = " << trksx_size << std::endl;
 	for(int i=0; i<trksx_size; i++){
 		std::shared_ptr<E16ANA_XZTrackCandidate> tx = straight_analyzer->GetXZTrackCandidates()[i];
 		std::shared_ptr<E16DST_DST1StraightTrack2D> trk = std::make_shared<E16DST_DST1StraightTrack2D>();
@@ -161,11 +168,13 @@ int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 		trk->SetAxis(0);
         trk->SetTrackID(i);
 		trk->SetModuleID(tx->ModuleID());
+//		std::cout << "in fac mid == " << tx->ModuleID() << std::endl;
 		trk->SetID100Hit(tx->ID100Hit());
 		trk->SetID200Hit(tx->ID200Hit());
 		trk->SetID300Hit(tx->ID300Hit());
 		trk->SetChi2(tx->Chi2());
 		trk->SetTgtZ(tx->TgtZ());
+//		std::cout << "in fac = " << trk->TgtZ() << std::endl;
 	    trk->SetFitA(tx->GetFitA());
 	    trk->SetFitB(tx->GetFitB());
 //		trk->SetResidualSSD(tx->ResidualSSD());    // NOT participate in fit 
@@ -212,6 +221,18 @@ int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 //		st_tracks[i].SetPtOnTrackGTR300(t->Pt1OnTrack());
 //		st_tracks[i].SetPtOnTrack3000mm(t->Pt2OnTrack());
 		sty_tracks.push_back(trk);
+	}
+	for(int i=0; i < cp_size; i++){
+		std::shared_ptr<E16ANA_XZCrossPoint> icp = straight_analyzer->GetCrossPoints()[i];
+		std::shared_ptr<E16DST1_DST1CrossByStraight> ocp = std::make_shared<E16DST1_DST1CrossByStraight>();
+		ocp->SetX(icp->CoordinateX());
+		ocp->SetZ(icp->CoordinateZ());
+		ocp->SetDistance(icp->Distance());
+		ocp->SetChi2_1(icp->GetXZTrackCandidate1()->Chi2());
+		ocp->SetChi2_2(icp->GetXZTrackCandidate2()->Chi2());
+		ocp->SetMod1(icp->GetXZTrackCandidate1()->ModuleID());
+		ocp->SetMod2(icp->GetXZTrackCandidate2()->ModuleID());
+		cps.push_back(ocp);
 	}
 
 	return 0;

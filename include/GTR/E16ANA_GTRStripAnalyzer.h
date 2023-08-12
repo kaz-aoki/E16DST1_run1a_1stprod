@@ -67,12 +67,13 @@ private:
    double summed_waveform[n_sampling];
    std::vector<double> strip_charge;
    std::vector<double> strip_timing;
-   std::vector<int> strip_id;
+   std::vector<int>    strip_id;
    std::vector<double> strip_pos;
    std::vector<double> strip_tot;
    std::vector<double> strip_st;
    std::vector<double> strip_ed;
    std::vector<double> strip_peakt;
+   std::vector<double> strip_riset;
    std::vector<std::array<double, n_sampling>> strip_fadc;
 public:
    E16ANA_GTRAnalyzedStripHit() { SetInvalid(); };
@@ -138,6 +139,7 @@ public:
 	  strip_ed.clear();
 	  strip_peakt.clear();
       strip_fadc.clear();
+	  strip_riset.clear();
 //	  for(int i=0; i < strip_fadc.size(); i++){
 //	   	 for(int j=0; j < n_sampling; j++){
 //      	    strip_fadc[i][j] = -11111;
@@ -195,7 +197,7 @@ public:
    bool IsYb() { return type == is_yb; }
    int Type() { return type; }
 
-   void PushBackStrip(int id, double pos, double charge, double t, double tot , double pt, double st, double ed, double *fadc = nullptr)
+   void PushBackStrip(int id, double pos, double charge, double t, double tot , double pt, double st, double ed, double riset, double *fadc = nullptr)
    {
       strip_id.push_back(id);
       strip_pos.push_back(pos);
@@ -205,6 +207,7 @@ public:
       strip_peakt.push_back(pt);
       strip_st.push_back(st);
       strip_ed.push_back(ed);
+      strip_riset.push_back(riset);
 	  if (fadc != nullptr){
          std::array<double, n_sampling> a_fadc;
 		 std::copy_n(fadc, n_sampling, a_fadc.begin());
@@ -237,6 +240,7 @@ public:
    double StripTotEd(int i) {return strip_ed[i];};
    double StripTotSt(int i) {return strip_st[i];};
    double StripTimeOverThreshold(int i) { return strip_tot[i]; };
+   double StripRiseTiming(int i){return strip_riset[i];}
    double Timing2() { return timing2; }
    double Timing3() { return timing3; }
    double Timing4() { return timing4; }

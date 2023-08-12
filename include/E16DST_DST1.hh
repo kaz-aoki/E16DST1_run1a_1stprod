@@ -313,13 +313,13 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
 //  float            CAdc4(int i)    { return cadc4[i]; }
 //  float            CAdc5(int i)    { return cadc5[i]; }
 //  float            Mtot() {return mtot;}
-//  float            Riset() {return riset;}
+  float            Riset() {return riset;}
   void             SetTotStart(double t ){tot_st = t;}
   void             SetTotEnd(double t ){tot_ed = t;}
   float            TotStart() {return tot_st;}
   float            TotEnd() {return tot_ed;}
   float            Peakt()  {return peakt;}
-//  void             SetRiset(float t){riset = t;}
+  void             SetRiset(float t){riset = t;}
 //  void             SetMtot(float t){mtot = t;}
   std::vector<float> &WaveForm() {return wave_form;}
  private:
@@ -330,6 +330,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   float   tot;
   float   tot_st;
   float   tot_ed;
+  float   riset;
   double  local_x;
   float   peakt;
   float   timing2; // fastest timing
@@ -1478,6 +1479,36 @@ class E16DST_DST1WireTrack {
 //  std::vector<int16_t>    hbd_indexes;
 //  std::vector<int16_t>    lg_indexes;
 //};
+//
+class E16DST1_DST1CrossByStraight {
+ public:
+	E16DST1_DST1CrossByStraight(){}
+	~E16DST1_DST1CrossByStraight(){}
+	
+	void SetX(double d){x = d;}
+	void SetZ(double d){z = d;}
+	void SetDistance(double d){distance = d;}
+	void SetChi2_1(double d){chi2_1 = d;}
+	void SetChi2_2(double d){chi2_2 = d;}
+	void SetMod1(double d ){mod1 = d;}
+	void SetMod2(double d ){mod2 = d;}
+	double X(){return x;}
+	double Z(){return z;}
+	double Distance(){return distance;}
+	double Chi2_1(){return chi2_1;}
+	double Chi2_2(){return chi2_2;}
+	double Mod1(){return mod1;}
+	double Mod2(){return mod2;}
+ private:
+	double x;
+	double z;
+	double distance;
+	double chi2_1;
+	double chi2_2;
+	double mod1;
+	double mod2;
+};
+
 
 class E16DST_DST1Track {
  public:
