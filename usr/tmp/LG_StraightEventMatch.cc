@@ -17,7 +17,6 @@
 #include "E16ANA_LGConstant.hh"
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
-#include "E16ANA_LGCheckHist.hh"
 #include "E16ANA_LGStraightProj.hh"
 #include "straightRoot.hh"
 #include "E16DST_Constant.hh"
@@ -210,7 +209,7 @@ int main(int argc, char* argv[]) {
       auto& trigger_lg_hits0  = event0->TriggerLG();
       auto event_id = event0->EventID();
 
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
 #ifdef TRG_ON
@@ -309,21 +308,21 @@ int main(int argc, char* argv[]) {
       out_n_lg_hits = n_lg_hits;
 
 //// Trg
-      // int n_trg_lg_hits = record.Trigger().NumLGHits();
-      // int n_lg_trg_hits = 0;
-      // for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
-      // 	auto& trghit = record.Trigger().LGHit(itrg);
-      // 	int trg_mid = trghit.ModuleId();
-      // 	int trg_cid = trghit.ChannelId();
-      // 	double trg_t = trghit.Timing();
-      // 	// if( trg_t>3050 && trg_t<3200 ){
-      // 	  out_lg_trg_mid.push_back(trg_mid);
-      // 	  out_lg_trg_cid.push_back(trg_cid);
-      // 	  out_lg_trg_t.push_back(trg_t);
-      // 	  n_lg_trg_hits++;
-      // 	// }
-      // }
-      // out_n_lg_trg_hits = n_lg_trg_hits;
+      int n_trg_lg_hits = record.Trigger().NumLGHits();
+      int n_lg_trg_hits = 0;
+      for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
+      	auto& trghit = record.Trigger().LGHit(itrg);
+      	int trg_mid = trghit.ModuleId();
+      	int trg_cid = trghit.ChannelId();
+      	double trg_t = trghit.Timing();
+      	// if( trg_t>3050 && trg_t<3200 ){
+      	  out_lg_trg_mid.push_back(trg_mid);
+      	  out_lg_trg_cid.push_back(trg_cid);
+      	  out_lg_trg_t.push_back(trg_t);
+      	  n_lg_trg_hits++;
+      	// }
+      }
+      out_n_lg_trg_hits = n_lg_trg_hits;
 
 //// Track
       t->SetEntry(out_event_id);

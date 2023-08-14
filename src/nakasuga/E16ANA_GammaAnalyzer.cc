@@ -271,7 +271,7 @@ bool E16ANA_GammaAnalyzer::Hit1isInvalid(){
 }
 bool E16ANA_GammaAnalyzer::HitisInvalid(hitset& hit){
   if( hit.fflag>=2 ) {return true;}
-  else if( hit.adc<80 ) {return true;}
+  else if( hit.adc<50 ) {return true;}
   else if( hit.width<5 || hit.width>20 ) {return true;}
   else if( hit.mid!=104 && hit.mid!=106 ) {return true;}
   else {return false;}

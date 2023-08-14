@@ -26,9 +26,11 @@ int main(int argc, char* argv[]) {
   auto in_chain = new TChain("tree", "tree");
   if(argc==4){
     // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run0302*.root");
-    in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run0303*.root");
-    in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run0304*.root");
-    // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run04027*.root");
+    // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run0303*.root");
+    // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run0304*.root");
+    // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run04027*_fop2.root");
+    in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run040277.root");
+    in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/run0dana/mergeroot/run040278.root");
   }
   else{
     in_chain->Add(in_root_name);

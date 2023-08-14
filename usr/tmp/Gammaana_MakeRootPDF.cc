@@ -100,6 +100,15 @@ int main(int argc, char* argv[]) {
   //   return -1;
   // }
 
+  // std::ifstream fin(Form("/ccj/u/nakasuga/work/dst1ana/track/goodevent_run%06d.txt",run_id));
+  // std::vector<int> goodevent;
+  // while(!fin.eof()){
+  //   int tev;
+  //   double tmp;
+  //   fin >> tev >> tmp >> tmp >> tmp;
+  //   goodevent.push_back(tev);
+  // }
+
   int n_event = 0;
   int n_physics_event = 0;
   while (dst0->ReadAnEvent()) {
@@ -127,7 +136,12 @@ int main(int argc, char* argv[]) {
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
 #ifdef TRG_ON
+#ifdef TMP_NIM_TRIGGER
+      auto time_stamp = event0->TimeStamp();
+      E16DST_DST1TriggerFactory(time_stamp, trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+#else // TMP_NIM_TRIGGER
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+#endif // TMP_NIM_TRIGGER
       record.Trigger().AddHitAndClusterIDs();
       record.Trigger().UpdatePtrs();
 #endif
@@ -135,6 +149,15 @@ int main(int argc, char* argv[]) {
 //// Check begin
 
 //dst1_lg_hit
+
+      // int geflag = false;
+      // for(int ige=0;ige<goodevent.size();ige++){
+      // 	if( event_id==goodevent.at(ige) ){
+      // 	  geflag = true;
+      // 	  break;
+      // 	}
+      // }
+      // if(!geflag) continue;
 
       auto& lg_hits1 = record.LG().Hits();
       int n_lghits = lg_hits1.size();

@@ -391,8 +391,8 @@ void E16ANA_LGStraightTrackRoot::HistInit()
      hadc[i] = new TH1F(Form("hadc_%d",i),Form("adc_%d",i+101),50,0,400);
      hcadc[i] = new TH1F(Form("hcadc_%d",i),Form("calibadc_%d",i+101),50,0,400);
      for(int j=0;j<2;j++){
-       hres[0][i][j] = new TH1F(Form("hres_x%d%s",i,fm[j]),Form("res_x%d%s",i+101,fm[j]),50,-800,800);
-       hres[1][i][j] = new TH1F(Form("hres_y%d%s",i,fm[j]),Form("res_y%d%s",i+101,fm[j]),50,-800,800);
+       hres[0][i][j] = new TH1F(Form("hres_x%d%s",i,fm[j]),Form("res_x%d%s",i+101,fm[j]),20,-800,800);
+       hres[1][i][j] = new TH1F(Form("hres_y%d%s",i,fm[j]),Form("res_y%d%s",i+101,fm[j]),20,-800,800);
        han[i][j] = new TH1F(Form("han_%d%s",i,fm[j]),Form("ascNLGs_%d%s",i+101,fm[j]),20,0,20);
        hat[i][j] = new TH1F(Form("hat_%d%s",i,fm[j]),Form("ascTiming_%d%s",i+101,fm[j]),50,0,200);
        haadc[i][j] = new TH1F(Form("haadc_%d%s",i,fm[j]),Form("ascAdc_%d%s",i+101,fm[j]),50,0,400);
@@ -418,6 +418,7 @@ bool E16ANA_LGStraightTrackRoot::TrackSelection(int itrack)
 bool E16ANA_LGStraightTrackRoot::HitSelection(hitset& hit)
 {
   if( hit.t<90 || hit.t>110 ){return false;}
+  // if( hit.t<40 || hit.t>170 ){return false;}
   if( hit.cadc<15 ){return false;}
   return true;
 }
