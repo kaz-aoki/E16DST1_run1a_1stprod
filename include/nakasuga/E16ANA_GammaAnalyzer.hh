@@ -9,6 +9,7 @@
 #include <TH2.h>
 #include <TGraph.h>
 #include <TF1.h>
+#include <TVector3.h>
 
 #include <stdio.h>
 #include <iostream>
@@ -87,7 +88,9 @@ public :
 
 private :
 
-  int decaypos[4] = {-260,-20,0,+20};
+  char decaypos_name[8][8] = {"-260","-20","0","+20","wirelu","wireld","wireru","wirerd"};
+  TVector3 decaypos[8];// set in constructer
+
   double e_etog = 1.17;
   double mvtoe = 0.005*e_etog;
   int n_mixevent_max = 100;
@@ -99,30 +102,30 @@ private :
   std::vector<std::vector<hitset>> Mixevents;
   std::vector<hitset> Mixhits;
 
-  TH1F* hp[2][4];
-  TH1F* hpx[2][4];
-  TH1F* hpy[2][4];
-  TH1F* hpz[2][4];
-  TH1F* hpxy[2][4];
-  TH1F* hpt[2][4];
-  TH1F* hpp[2][4];
-  TH2F* hpvs[2][4];
-  TH2F* hpxvs[2][4];
-  TH2F* hpyvs[2][4];
-  TH2F* hpzvs[2][4];
-  TH2F* hpxyvs[2][4];
-  TH2F* hptvs[2][4];
-  TH2F* hppvs[2][4];
-  TH1F* hps[2][4];
-  TH1F* hpsx[2][4];
-  TH1F* hpsy[2][4];
-  TH1F* hpsz[2][4];
-  TH1F* hpsxy[2][4];
-  TH1F* heneasy[2][4];
-  TH2F* hptvsea[2][4];
-  TH1F* hdist[2][4];
-  TH2F* hpzpx[2][4];
-  TH1F* hm[2][4];
+  TH1F* hp[2][8];
+  TH1F* hpx[2][8];
+  TH1F* hpy[2][8];
+  TH1F* hpz[2][8];
+  TH1F* hpxy[2][8];
+  TH1F* hpt[2][8];
+  TH1F* hpp[2][8];
+  TH2F* hpvs[2][8];
+  TH2F* hpxvs[2][8];
+  TH2F* hpyvs[2][8];
+  TH2F* hpzvs[2][8];
+  TH2F* hpxyvs[2][8];
+  TH2F* hptvs[2][8];
+  TH2F* hppvs[2][8];
+  TH1F* hps[2][8];
+  TH1F* hpsx[2][8];
+  TH1F* hpsy[2][8];
+  TH1F* hpsz[2][8];
+  TH1F* hpsxy[2][8];
+  TH1F* heneasy[2][8];
+  TH2F* hptvsea[2][8];
+  TH1F* hdist[2][8];
+  TH2F* hpzpx[2][8];
+  TH1F* hm[2][8];
 
   TH1F* hmid[2];
   TH1F* hcid[2];

@@ -11,6 +11,15 @@
 
 E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
 
+  decaypos[0].SetXYZ(  0., 0., -260.);
+  decaypos[1].SetXYZ(  0., 0., -20.);
+  decaypos[2].SetXYZ(  0., 0.,  0.);
+  decaypos[3].SetXYZ(  0., 0.,  20.);
+  decaypos[4].SetXYZ( 25., 0., -40.);
+  decaypos[5].SetXYZ( 25., 0.,  40.);
+  decaypos[6].SetXYZ(-25., 0., -40.);
+  decaypos[7].SetXYZ(-25., 0.,  40.);
+
   gRandom->SetSeed( time(NULL) );
 
   ClearMixHit();
@@ -18,34 +27,34 @@ E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
 
   char name[2][5] = {"fore","mix"};
   for(int l=0;l<2;l++){
-    for(int i=0;i<4;i++){
+    for(int i=0;i<8;i++){
 
-      hp[l][i] = new TH1F(Form("hp%d%d",l,i),Form("mom_%d_%s",decaypos[i],name[l]),100,0,2.5);
-      hpx[l][i] = new TH1F(Form("hpx%d%d",l,i),Form("momx_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
-      hpy[l][i] = new TH1F(Form("hpy%d%d",l,i),Form("momy_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
-      hpz[l][i] = new TH1F(Form("hpz%d%d",l,i),Form("momz_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
-      hpxy[l][i] = new TH1F(Form("hpxy%d%d",l,i),Form("pT_%d_%s",decaypos[i],name[l]),100,0.,2.5);
-      hpt[l][i] = new TH1F(Form("hpt%d%d",l,i),Form("momtheta_%d_%s",decaypos[i],name[l]),100,0.,4.);
-      hpp[l][i] = new TH1F(Form("hpp%d%d",l,i),Form("momphi_%d_%s",decaypos[i],name[l]),100,-4.,4.);
+      hp[l][i] = new TH1F(Form("hp%d%d",l,i),Form("mom_%s_%s",decaypos_name[i],name[l]),100,0,2.5);
+      hpx[l][i] = new TH1F(Form("hpx%d%d",l,i),Form("momx_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5);
+      hpy[l][i] = new TH1F(Form("hpy%d%d",l,i),Form("momy_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5);
+      hpz[l][i] = new TH1F(Form("hpz%d%d",l,i),Form("momz_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5);
+      hpxy[l][i] = new TH1F(Form("hpxy%d%d",l,i),Form("pT_%s_%s",decaypos_name[i],name[l]),100,0.,2.5);
+      hpt[l][i] = new TH1F(Form("hpt%d%d",l,i),Form("momtheta_%s_%s",decaypos_name[i],name[l]),100,0.,4.);
+      hpp[l][i] = new TH1F(Form("hpp%d%d",l,i),Form("momphi_%s_%s",decaypos_name[i],name[l]),100,-4.,4.);
 
-      hpvs[l][i] = new TH2F(Form("hpvs%d%d",l,i),Form("mom1vs2_%d_%s",decaypos[i],name[l]),100,0,2.5,100,0,2.5);
-      hpxvs[l][i] = new TH2F(Form("hpxvs%d%d",l,i),Form("momx1vs2_%d_%s",decaypos[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
-      hpyvs[l][i] = new TH2F(Form("hpyvs%d%d",l,i),Form("momy1vs2_%d_%s",decaypos[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
-      hpzvs[l][i] = new TH2F(Form("hpzvs%d%d",l,i),Form("momz1vs2_%d_%s",decaypos[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
-      hpxyvs[l][i] = new TH2F(Form("hpxyvs%d%d",l,i),Form("pT1vs2_%d_%s",decaypos[i],name[l]),100,0.,2.5,100,0.,2.5);
-      hptvs[l][i] = new TH2F(Form("hptvs%d%d",l,i),Form("momtheta1vs2_%d_%s",decaypos[i],name[l]),100,0.,4.,100,0.,4.);
-      hppvs[l][i] = new TH2F(Form("hppvs%d%d",l,i),Form("momphi1vs2_%d_%s",decaypos[i],name[l]),100,-4.,4.,100,-4.,4.);
+      hpvs[l][i] = new TH2F(Form("hpvs%d%d",l,i),Form("mom1vs2_%s_%s",decaypos_name[i],name[l]),100,0,2.5,100,0,2.5);
+      hpxvs[l][i] = new TH2F(Form("hpxvs%d%d",l,i),Form("momx1vs2_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
+      hpyvs[l][i] = new TH2F(Form("hpyvs%d%d",l,i),Form("momy1vs2_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
+      hpzvs[l][i] = new TH2F(Form("hpzvs%d%d",l,i),Form("momz1vs2_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
+      hpxyvs[l][i] = new TH2F(Form("hpxyvs%d%d",l,i),Form("pT1vs2_%s_%s",decaypos_name[i],name[l]),100,0.,2.5,100,0.,2.5);
+      hptvs[l][i] = new TH2F(Form("hptvs%d%d",l,i),Form("momtheta1vs2_%s_%s",decaypos_name[i],name[l]),100,0.,4.,100,0.,4.);
+      hppvs[l][i] = new TH2F(Form("hppvs%d%d",l,i),Form("momphi1vs2_%s_%s",decaypos_name[i],name[l]),100,-4.,4.,100,-4.,4.);
 
-      hps[l][i] = new TH1F(Form("hps%d%d",l,i),Form("momsum_%d_%s",decaypos[i],name[l]),100,0,2.5);
-      hpsx[l][i] = new TH1F(Form("hpsx%d%d",l,i),Form("momsum_x_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
-      hpsy[l][i] = new TH1F(Form("hpsy%d%d",l,i),Form("momsum_y_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
-      hpsz[l][i] = new TH1F(Form("hpsz%d%d",l,i),Form("momsum_z_%d_%s",decaypos[i],name[l]),100,-2.5,2.5);
-      hpsxy[l][i] = new TH1F(Form("hpsxy%d%d",l,i),Form("parent_pT_%d_%s",decaypos[i],name[l]),100,0.,2.5);
-      heneasy[l][i] = new TH1F(Form("heneasy%d%d",l,i),Form("energy_asymmetry_%d_%s",decaypos[i],name[l]),100,0.,1.);
-      hptvsea[l][i] = new TH2F(Form("hptvsea%d%d",l,i),Form("pT_vs_energy_asymmetry_%d_%s",decaypos[i],name[l]),100,0.,1.,100,0.,2.5);
-      hdist[l][i] = new TH1F(Form("hdist%d%d",l,i),Form("2gamma_distance@LG_%d_%s",decaypos[i],name[l]),100,0,5000);
-      hpzpx[l][i] = new TH2F(Form("hpzpx%d%d",l,i),Form("mom_zvsx_%d_%s",decaypos[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
-      hm[l][i] = new TH1F(Form("hm%d%d",l,i),Form("IM_%d_%s",decaypos[i],name[l]),150,0,1.5);
+      hps[l][i] = new TH1F(Form("hps%d%d",l,i),Form("momsum_%s_%s",decaypos_name[i],name[l]),100,0,2.5);
+      hpsx[l][i] = new TH1F(Form("hpsx%d%d",l,i),Form("momsum_x_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5);
+      hpsy[l][i] = new TH1F(Form("hpsy%d%d",l,i),Form("momsum_y_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5);
+      hpsz[l][i] = new TH1F(Form("hpsz%d%d",l,i),Form("momsum_z_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5);
+      hpsxy[l][i] = new TH1F(Form("hpsxy%d%d",l,i),Form("parent_pT_%s_%s",decaypos_name[i],name[l]),100,0.,2.5);
+      heneasy[l][i] = new TH1F(Form("heneasy%d%d",l,i),Form("energy_asymmetry_%s_%s",decaypos_name[i],name[l]),100,0.,1.);
+      hptvsea[l][i] = new TH2F(Form("hptvsea%d%d",l,i),Form("pT_vs_energy_asymmetry_%s_%s",decaypos_name[i],name[l]),100,0.,1.,100,0.,2.5);
+      hdist[l][i] = new TH1F(Form("hdist%d%d",l,i),Form("2gamma_distance@LG_%s_%s",decaypos_name[i],name[l]),100,0,5000);
+      hpzpx[l][i] = new TH2F(Form("hpzpx%d%d",l,i),Form("mom_zvsx_%s_%s",decaypos_name[i],name[l]),100,-2.5,2.5,100,-2.5,2.5);
+      hm[l][i] = new TH1F(Form("hm%d%d",l,i),Form("IM_%s_%s",decaypos_name[i],name[l]),150,0,1.5);
     }
   }
 
@@ -139,7 +148,7 @@ E16ANA_GammaAnalyzer::E16ANA_GammaAnalyzer(){
 }
 E16ANA_GammaAnalyzer::~E16ANA_GammaAnalyzer(){
   for(int l=0;l<2;l++){
-    for(int i=0;i<4;i++){
+    for(int i=0;i<8;i++){
 
       delete hp[l][i];
       delete hpx[l][i];
@@ -271,9 +280,9 @@ bool E16ANA_GammaAnalyzer::Hit1isInvalid(){
 }
 bool E16ANA_GammaAnalyzer::HitisInvalid(hitset& hit){
   if( hit.fflag>=2 ) {return true;}
-  else if( hit.adc<50 ) {return true;}
+  else if( hit.adc<80 ) {return true;}
   else if( hit.width<5 || hit.width>20 ) {return true;}
-  else if( hit.mid!=104 && hit.mid!=106 ) {return true;}
+  // else if( hit.mid!=104 && hit.mid!=106 ) {return true;}
   else {return false;}
 }
 bool E16ANA_GammaAnalyzer::HitsareInvalid(){
@@ -285,9 +294,9 @@ bool E16ANA_GammaAnalyzer::HitsareInvalid(hitset& _hit0, hitset& _hit1){
   // else if( _hit0.mid != _hit1.mid ) {return true;}
   // else if( fabs( _hit0.mid -  _hit1.mid ) > 1 ) {return true;}
   // else if( fabs( _hit0.mid-105 ) != fabs( _hit1.mid-105 ) ) {return true;}
-  // else if( _hit0.mid == _hit1.mid ) {return true;}
-  else if( _hit0.mid<105 && _hit1.mid<105 ) {return true;}
-  else if( _hit0.mid>105 && _hit1.mid>105 ) {return true;}
+  else if( _hit0.mid == _hit1.mid ) {return true;}
+  // else if( _hit0.mid<105 && _hit1.mid<105 ) {return true;}
+  // else if( _hit0.mid>105 && _hit1.mid>105 ) {return true;}
   else {return false;}
 }
 bool E16ANA_GammaAnalyzer::IsNeighborBlock(hitset& _hit0, hitset& _hit1){
@@ -366,13 +375,14 @@ void E16ANA_GammaAnalyzer::FillHist(int ifm, hitset& _hit0, hitset& _hit1){
   SetHit(hit[1],_hit1);
   double ene[2] = {hit[0].adc*mvtoe, hit[1].adc*mvtoe};
   double enesum = ene[0] + ene[1];
-  TVector3 gpos[4][2];
-  TVector3 mom[4][2];
-  TVector3 momsum[4];
-  double im[4];
-  for(int idp=0;idp<4;idp++){
+  TVector3 gpos[8][2];
+  TVector3 mom[8][2];
+  TVector3 momsum[8];
+  double im[8];
+  for(int idp=0;idp<8;idp++){
     for(int ig=0;ig<2;ig++){
-      gpos[idp][ig].SetXYZ(hit[ig].gx, hit[ig].gy, hit[ig].gz - decaypos[idp]);
+      gpos[idp][ig].SetXYZ(hit[ig].gx, hit[ig].gy, hit[ig].gz);
+      gpos[idp][ig] = gpos[idp][ig] - decaypos[idp];
       mom[idp][ig].SetXYZ(gpos[idp][ig].X()/gpos[idp][ig].Mag()*ene[ig], 
                           gpos[idp][ig].Y()/gpos[idp][ig].Mag()*ene[ig], 
                           gpos[idp][ig].Z()/gpos[idp][ig].Mag()*ene[ig]);
@@ -540,7 +550,7 @@ void E16ANA_GammaAnalyzer::DrawSameTH1FCanvas(TCanvas* c, TString& fout, TH1F* h
   }
 }
 void E16ANA_GammaAnalyzer::Draw(TString& fout, TCanvas* c){
-  for(int idp=0;idp<4;idp++){
+  for(int idp=0;idp<8;idp++){
     for(int ifm=0;ifm<2;ifm++){
       DrawTH1FCanvas(c,fout,hp[ifm][idp],hpx[ifm][idp],hpy[ifm][idp],hpz[ifm][idp]);
       DrawTH1FCanvas(c,fout,hp[ifm][idp],hpxy[ifm][idp],hpt[ifm][idp],hpp[ifm][idp]);
@@ -646,7 +656,7 @@ void E16ANA_GammaAnalyzer::DeleteRootFile(){
 }
 void E16ANA_GammaAnalyzer::SetHists(){
   for(int l=0;l<2;l++){
-    for(int i=0;i<4;i++){
+    for(int i=0;i<8;i++){
 
       hp[l][i]->Reset();
       hpx[l][i]->Reset();
@@ -692,7 +702,7 @@ void E16ANA_GammaAnalyzer::SetHists(){
   }
 
   for(int l=0;l<2;l++){
-    for(int i=0;i<4;i++){
+    for(int i=0;i<8;i++){
 
       hp[l][i] = (TH1F*)fin->Get(Form("hp%d%d",l,i));
       hpx[l][i] = (TH1F*)fin->Get(Form("hpx%d%d",l,i));
