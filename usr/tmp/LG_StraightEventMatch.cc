@@ -25,6 +25,7 @@ using namespace std;
 // namespace  bpo = boost::program_options;
 
 #define TRG_ON
+// #define TRK_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -39,6 +40,7 @@ int main(int argc, char* argv[]) {
   auto max_event     = stoi(argv[5]);
 
   //straight
+#ifdef TRK_ON
   auto in_chain = new TChain("tree", "tree");
   // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/straightroot/murakami/out_all_nakasuga.root");
   in_chain->Add(in_st_file_name);
@@ -46,6 +48,7 @@ int main(int argc, char* argv[]) {
   t->MakeMap(run_id,-1);
 
   E16ANA_LGStraightProj proj;
+#endif
 
   //out root
   TFile *fout = new TFile(out_file_name,"recreate");
@@ -325,6 +328,7 @@ int main(int argc, char* argv[]) {
       out_n_lg_trg_hits = n_lg_trg_hits;
 
 //// Track
+#ifdef TRK_ON
       t->SetEntry(out_event_id);
       std::vector<TVector3> initposs;
       std::vector<TVector3> initdirs;
@@ -413,6 +417,7 @@ int main(int argc, char* argv[]) {
 	}
       }
       out_n_tracks = n_trk;
+#endif
 
       tree->Fill();
 
@@ -441,7 +446,9 @@ int main(int argc, char* argv[]) {
 
   delete geometry;
   delete dst0;
+#ifdef TRK_ON
   delete in_chain;
+#endif
 //  dst1->Close();
   return 0;
 }

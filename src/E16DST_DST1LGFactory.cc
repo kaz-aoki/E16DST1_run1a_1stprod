@@ -27,7 +27,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
   auto& hits1 = lg1->Hits();
   auto max_hit = hits0.NumberOfHits();
-  hits1.resize(max_hit*2);
+  hits1.resize(max_hit*3);
 
   int n_dst1hit = 0;
   for (int n_hit = 0; n_hit < hits0.NumberOfHits(); ++n_hit) {//dst0hit loop

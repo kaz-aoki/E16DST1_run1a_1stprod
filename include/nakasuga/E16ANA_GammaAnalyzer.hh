@@ -54,6 +54,7 @@ public :
   bool HitisInvalid(hitset& hit);
   bool HitsareInvalid();
   bool HitsareInvalid(hitset& _hit0, hitset& _hit1);
+  int  PairType(hitset& _hit0, hitset& _hit1);
   bool IsNeighborBlock(hitset& _hit0, hitset& _hit1);
   void FillForeHist();
   void FillMixHist();
@@ -70,6 +71,7 @@ public :
   void DrawSameTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, double scale);
   double CalcMixScale(TH1F* h1, TH1F* h2);
   void Draw(TString& fout, TCanvas* c);
+  void DrawShort(TString& fout, TCanvas* c);
   void ClearEventCount();
   void IncreaseEventCount(hitset& hit);
   void FillEventCount();
@@ -88,9 +90,6 @@ public :
 
 private :
 
-  char decaypos_name[8][8] = {"-260","-20","0","+20","wirelu","wireld","wireru","wirerd"};
-  TVector3 decaypos[8];// set in constructer
-
   double e_etog = 1.17;
   double mvtoe = 0.005*e_etog;
   int n_mixevent_max = 100;
@@ -102,30 +101,35 @@ private :
   std::vector<std::vector<hitset>> Mixevents;
   std::vector<hitset> Mixhits;
 
-  TH1F* hp[2][8];
-  TH1F* hpx[2][8];
-  TH1F* hpy[2][8];
-  TH1F* hpz[2][8];
-  TH1F* hpxy[2][8];
-  TH1F* hpt[2][8];
-  TH1F* hpp[2][8];
-  TH2F* hpvs[2][8];
-  TH2F* hpxvs[2][8];
-  TH2F* hpyvs[2][8];
-  TH2F* hpzvs[2][8];
-  TH2F* hpxyvs[2][8];
-  TH2F* hptvs[2][8];
-  TH2F* hppvs[2][8];
-  TH1F* hps[2][8];
-  TH1F* hpsx[2][8];
-  TH1F* hpsy[2][8];
-  TH1F* hpsz[2][8];
-  TH1F* hpsxy[2][8];
-  TH1F* heneasy[2][8];
-  TH2F* hptvsea[2][8];
-  TH1F* hdist[2][8];
-  TH2F* hpzpx[2][8];
-  TH1F* hm[2][8];
+  char decaypos_name[8][8] = {"-260","-20","0"  ,"+20","wirelu","wireld","wireru","wirerd"};
+  bool decaypos_draw[8] =    {false ,false,true ,false,false   ,false   ,false   ,false};
+  TVector3 decaypos[8];// set in constructer
+  char pair_name[3][3] = {"LL","RR","LR"};
+
+  TH1F* hp[2][8][3];
+  TH1F* hpx[2][8][3];
+  TH1F* hpy[2][8][3];
+  TH1F* hpz[2][8][3];
+  TH1F* hpxy[2][8][3];
+  TH1F* hpt[2][8][3];
+  TH1F* hpp[2][8][3];
+  TH2F* hpvs[2][8][3];
+  TH2F* hpxvs[2][8][3];
+  TH2F* hpyvs[2][8][3];
+  TH2F* hpzvs[2][8][3];
+  TH2F* hpxyvs[2][8][3];
+  TH2F* hptvs[2][8][3];
+  TH2F* hppvs[2][8][3];
+  TH1F* hps[2][8][3];
+  TH1F* hpsx[2][8][3];
+  TH1F* hpsy[2][8][3];
+  TH1F* hpsz[2][8][3];
+  TH1F* hpsxy[2][8][3];
+  TH1F* heneasy[2][8][3];
+  TH2F* hptvsea[2][8][3];
+  TH1F* hdist[2][8][3];
+  TH2F* hpzpx[2][8][3];
+  TH1F* hm[2][8][3];
 
   TH1F* hmid[2];
   TH1F* hcid[2];

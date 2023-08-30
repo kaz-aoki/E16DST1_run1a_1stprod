@@ -46,10 +46,10 @@ int main(int argc, char* argv[]) {
   auto *analyzer = new E16ANA_GammaAnalyzer();
 
   E16ANA_LGStraightProj proj;
-  // TVector3 initpos(0., 0., 0.);
+  TVector3 initpos(0., 0., 0.);
   // TVector3 initpos( 25., 0., -40.);//left up
   // TVector3 initpos( 25., 0.,  40.);//left down
-  TVector3 initpos(-25., 0., -40.);//right up
+  // TVector3 initpos(-25., 0., -40.);//right up
   // TVector3 initpos(-25., 0.,  40.);//right down
 
   int n_event = 0;

@@ -27,7 +27,7 @@ endif()
 #set(CMAKE_MODULE_PATH /home/yokkaich/work/200130/FairSoft/transport/geant4/environments/g4py/cmake/Modules)
 #find_package(Geant4 REQUIRED)
 
-#add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
+add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
 
 include_directories(
 	${ROOT_INCLUDE_DIRS}

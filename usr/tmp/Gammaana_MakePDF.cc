@@ -29,7 +29,8 @@ int main(int argc, char* argv[]) {
   TString fsout = Form("%s",out_file_name);
   TCanvas* c = new TCanvas("c","c",1000,700);
   c->SaveAs(fsout+"[","pdf");
-  analyzer->Draw(fsout,c);
+  // analyzer->Draw(fsout,c);
+  analyzer->DrawShort(fsout,c);
   c->SaveAs(fsout+"]","pdf");
 
   // fout->Write();
