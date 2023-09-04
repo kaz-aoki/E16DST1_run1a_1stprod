@@ -347,7 +347,11 @@ void E16ANA_LGCheckHist::MakeT0CalibFile(){
     for(int j=0;j<42;j++){
       int block = IndexToBlock(j);
       if(!IsValidBlockId(block)) continue;
-      double hmean = htiming[i][j]->GetMean();
+      // double hmean = htiming[i][j]->GetMean();
+      int maxbin = htiming[i][j]->GetMaximumBin();
+      int centerbin = htiming[i][j]->FindBin(100);
+      double binwidth = htiming[i][j]->GetBinWidth(100);
+      double hmean = (maxbin-centerbin)*binwidth+100.;
       htiming[i][j]->Fit(Form("ftiming%d%02d",i,j),"","",hmean-10.,hmean+10.);
       double mean = ftiming[i][j]->GetParameter(1);
       double sigma = ftiming[i][j]->GetParameter(2);

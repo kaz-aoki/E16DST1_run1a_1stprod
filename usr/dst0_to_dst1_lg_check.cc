@@ -315,7 +315,8 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
-	if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
+	if(peakheight>20&&trg_lg_hit_t>3050&&trg_lg_hit_t<3200){
+	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
 	// if(trg_lg_hit_t==0){//thr check
