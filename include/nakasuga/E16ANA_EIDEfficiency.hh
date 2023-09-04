@@ -878,6 +878,7 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // if ( track_ssd_t->at(itrack)<40 || track_ssd_t->at(itrack)>55 ) {return -1;}
   // if(run_id>20980) {return -1;}
   // if(is_selected->at(itrack)==0) {return -1;}
+  if( E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(run_id)!=17 ) {return -1;}
   else{
     return 1;
   }

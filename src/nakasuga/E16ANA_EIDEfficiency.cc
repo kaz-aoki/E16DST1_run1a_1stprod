@@ -654,10 +654,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    char trktype[ntrktype][20] = {"w/o_HBD&LG_kgs","w/HBD_kgs","w/LG_kgs","w/HBDLG_kgs","w/HBD_kh","w/HBDf&m_kh"};
    int eptype = 4;
    int roughbin[ndet] = {200,50};
-   if(runoption==0){
-     roughbin[0] = 400;
-     roughbin[1] = 100;
-   }
+   // if(runoption==0){
+   //   roughbin[0] = 400;
+   //   roughbin[1] = 100;
+   // }
    double originx[5][ndet];
    double originy[5][ndet];
    double widthx[5][ndet];
@@ -2630,6 +2630,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    //   esum<<std::endl;
    // }
    // Efficiency Summary   
+   // std::ofstream fcounts("test.txt",ios::app);
+   // for(int i=0;i<4;i++){
+   //   fcounts<<ntrack[(i+3)%5][0]<<" "<<ntrack[(i+3)%5][1]<<" "<<ntrack[(i+3)%5][2]<<" "<<vasub2d[2][i][0][0]<<" "<<vasub2d[2][i][1][0]<<std::endl;
+   // }
 
    //draw residual HBD-LG mix
    TCanvas* casubd_hmix[4][nopt][ndet];
