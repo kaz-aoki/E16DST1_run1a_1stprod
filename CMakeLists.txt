@@ -33,8 +33,8 @@ include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-  /opt/E16/include/Geant4 # evb
-#  /ccj/u/E16/include/Geant4 # ccj
+#  /opt/E16/include/Geant4 # evb
+  /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
 	include/GTR
@@ -54,8 +54,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-  /opt/E16/lib64-gcc8/clhep # evb
-#  /ccj/u/E16/lib64 #ccj
+#  /opt/E16/lib64-gcc8/clhep # evb
+  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
@@ -98,6 +98,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGClustering.cc
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
+  src/LG/E16ANA_LGStraightProj.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -138,6 +139,8 @@ add_library(E16DST_DST1
   src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
   src/nakasuga/E16ANA_Massw2Gamma.cc
   src/nakasuga/E16ANA_GammaAnalyzer.cc
+  src/nakasuga/straightRoot.cc
+  src/nakasuga/E16ANA_LGStraightTrackRoot.cc
 #  src/res/AnalyzerResidualHBD.cc
 #  src/res/AnalyzerTrackSelection.cc
 #  src/res/SingleTrackAnalyzerForRes.cc
@@ -430,26 +433,26 @@ target_link_libraries(Massw2Gamma
 )
 
 # #_______________________________________________________________________________
-# add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
+add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
 
-# target_link_libraries(Gammaana_MakeRootPDF
-# 	E16DST_DST1
-# #E16ANA_CalibDB
-# 	E16ANA_Basic
-# 	E16DST
-# 	E16ANA
-# )
+target_link_libraries(Gammaana_MakeRootPDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
-# add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
+add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
 
-# target_link_libraries(Gammaana_MakePDF
-# 	E16DST_DST1
-# #E16ANA_CalibDB
-# 	E16ANA_Basic
-# 	E16DST
-# 	E16ANA
-# )
+target_link_libraries(Gammaana_MakePDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 # _______________________________________________________________________________
 add_executable(Gammaana_CodeCheck usr/tmp/Gammaana_CodeCheck.cc)
@@ -510,6 +513,28 @@ target_link_libraries(mom
 add_executable(LG_CheckWaveform usr/tmp/LG_CheckWaveform.cc)
 
 target_link_libraries(LG_CheckWaveform
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_StraightEventMatch usr/tmp/LG_StraightEventMatch.cc)
+
+target_link_libraries(LG_StraightEventMatch
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LG_StraightResidual usr/tmp/LG_StraightResidual.cc)
+
+target_link_libraries(LG_StraightResidual
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic

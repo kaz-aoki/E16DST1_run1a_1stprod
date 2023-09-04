@@ -2152,3 +2152,52 @@ void E16ANA_EIDSingleTrackAnalyzer::LGHitADC(int maxevent, char* out_pdf_file, c
    fout->Close();
 
 }
+
+int IDchange(int ret){
+  if(ret==10){return 0;}
+  else if(ret==15){return 1;}
+  else if(ret==16){return 2;}
+  else if(ret==17){return 3;}
+  else if(ret==50){return 4;}
+  else if(ret==56){return 6;}
+  else if(ret==57){return 7;}
+}
+
+// void E16ANA_EIDSingleTrackAnalyzer::KsRunAnalysis(int maxevent, char* out_file_name)
+// {
+
+//    TH1F* hacc = new TH1F();
+
+//    Long64_t n_entries = fChain->GetEntries();
+//    Long64_t nentries = fChain->GetEntriesFast();
+//    Long64_t nbytes = 0, nb = 0;
+
+//    fChain->GetEntry(0);
+//    auto& calib = E16ANA_CalibDBManager::Instance();
+//    calib.SetRunID(run_id);
+//    auto trigger_param = new E16ANA_TriggerCalibParam();
+//    trigger_param->ReadConstantData(calib.CurrentRunID());
+//    bool TrigIsAWmax = trigger_param->IsMaximumWidth();
+//    int TrigAWmax = trigger_param->MaximumWidth();
+//    int TrigAWmin = trigger_param->MinimumWidth();
+//    int TrigTW = trigger_param->TimeWidth();
+//    if(!TrigIsAWmax){TrigAWmax=10000;}
+//    std::cout<<"Trig:"<<run_id<<" "<<TrigAWmin<<" "<<TrigAWmax<<" "<<TrigTW<<std::endl;
+
+//    int nevent=0;
+//    for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+//       Long64_t ientry = LoadTree(jentry);
+//       if (ientry < 0) break;
+//       nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+//       if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+//       if( maxevent!=-1&&nevent>maxevent ){break;}
+
+
+
+
+
+//       nevent++;
+//    }//event loop
+
+// }

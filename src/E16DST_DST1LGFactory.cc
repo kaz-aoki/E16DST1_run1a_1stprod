@@ -8,6 +8,8 @@
 #include "E16ANA_LGClustering.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
+#define REMOVE_SPIKE
+
 int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>* lg1, int fitoption, E16ANA_GeometryV2* geometry ) {
 
   static E16ANA_LGBasic lgbasic;
@@ -25,7 +27,7 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
   auto& hits1 = lg1->Hits();
   auto max_hit = hits0.NumberOfHits();
-  hits1.resize(max_hit*2);
+  hits1.resize(max_hit*3);
 
   int n_dst1hit = 0;
   for (int n_hit = 0; n_hit < hits0.NumberOfHits(); ++n_hit) {//dst0hit loop
@@ -42,10 +44,21 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
     }
 
     double waveform[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+#ifdef REMOVE_SPIKE
+    for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+      int ph = hit0.Waveform()[cell];
+      waveform[cell] = ph;
+    }
+    E16ANA_LGWaveform::RemoveSpike(waveform);
+    for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+      waveform[cell] = waveform[cell]*wftype;
+    }
+#else
     for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
       int ph = hit0.Waveform()[cell];
       waveform[cell] = ph*wftype;
     }
+#endif
 
     E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
     if(fitoption==0){

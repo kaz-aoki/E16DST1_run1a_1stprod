@@ -9,6 +9,7 @@
 #include <TH2.h>
 #include <TGraph.h>
 #include <TF1.h>
+#include <TVector3.h>
 
 #include <stdio.h>
 #include <iostream>
@@ -35,7 +36,7 @@ public :
 
   E16ANA_GammaAnalyzer();
   ~E16ANA_GammaAnalyzer();
-  double GetParam(){return mvtoe;};
+  double PhtoEnergy(){return mvtoe;};
   int ModuleToIndex(int module);
   int IndexToModule(int index);
   void ClearHits();
@@ -53,6 +54,7 @@ public :
   bool HitisInvalid(hitset& hit);
   bool HitsareInvalid();
   bool HitsareInvalid(hitset& _hit0, hitset& _hit1);
+  int  PairType(hitset& _hit0, hitset& _hit1);
   bool IsNeighborBlock(hitset& _hit0, hitset& _hit1);
   void FillForeHist();
   void FillMixHist();
@@ -60,12 +62,25 @@ public :
   void FillHit0();
   void FillHit1();
   void FillHit(int type, hitset hit);
+  void ClearMixHit();
   void ClearMixEvent();
-  void ClearMixAll();
   void PushBackMixHit(hitset& hit);
   void PushBackMixEvent();
   void DrawTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, TH1F *h3, TH1F *h4);
+  void DrawTH2FCanvas(TCanvas* c, TString& fout, TH2F* h1, TH2F* h2, TH2F *h3, TH2F *h4);
+  void DrawSameTH1FCanvas(TCanvas* c, TString& fout, TH1F* h1, TH1F* h2, double scale);
+  double CalcMixScale(TH1F* h1, TH1F* h2);
   void Draw(TString& fout, TCanvas* c);
+  void DrawShort(TString& fout, TCanvas* c);
+  void ClearEventCount();
+  void IncreaseEventCount(hitset& hit);
+  void FillEventCount();
+  void ClearPairCount();
+  void IncreasePairCount(hitset& hit0, hitset& hit1);
+  void FillPairCount();
+  int  NPairCountAll(){return npairmp[4];}
+  void DrawCountTH1FCanvas(TCanvas* c, TString& fout, TH1F* h[9]);
+  void DrawCount(TCanvas* c, TString& fout);
   void SetRootFile(char* fin_name);
   void DeleteRootFile();
   void SetHists();
@@ -75,28 +90,46 @@ public :
 
 private :
 
-  int decaypos[4] = {-260,-20,0,+20};
-  double mvtoe = 0.005;
-  int mixevent = 100;
+  double e_etog = 1.17;
+  double mvtoe = 0.005*e_etog;
+  int n_mixevent_max = 100;
 
   hitset hit0;
   hitset hit1;
-  std::vector<std::vector<hitset>> allmixhits[9];
-  std::vector<hitset> eventmixhits[9];
+  std::vector<std::vector<hitset>> mixevents[9];
+  std::vector<hitset> mixhits[9];
+  std::vector<std::vector<hitset>> Mixevents;
+  std::vector<hitset> Mixhits;
 
-  TH1F* hp[2][4][2];
-  TH1F* hpx[2][4][2];
-  TH1F* hpy[2][4][2];
-  TH1F* hpz[2][4][2];
-  TH1F* hpt[2][4][2];
-  TH1F* hpp[2][4][2];
-  TH1F* hps[2][4];
-  TH1F* hpsx[2][4];
-  TH1F* hpsy[2][4];
-  TH1F* hpsz[2][4];
-  TH1F* hdist[2][4];
-  TH2F* hpzpx[2][4];
-  TH1F* hm[2][4];
+  char decaypos_name[8][8] = {"-260","-20","0"  ,"+20","wirelu","wireld","wireru","wirerd"};
+  bool decaypos_draw[8] =    {false ,false,true ,false,false   ,false   ,false   ,false};
+  TVector3 decaypos[8];// set in constructer
+  char pair_name[3][3] = {"LL","RR","LR"};
+
+  TH1F* hp[2][8][3];
+  TH1F* hpx[2][8][3];
+  TH1F* hpy[2][8][3];
+  TH1F* hpz[2][8][3];
+  TH1F* hpxy[2][8][3];
+  TH1F* hpt[2][8][3];
+  TH1F* hpp[2][8][3];
+  TH2F* hpvs[2][8][3];
+  TH2F* hpxvs[2][8][3];
+  TH2F* hpyvs[2][8][3];
+  TH2F* hpzvs[2][8][3];
+  TH2F* hpxyvs[2][8][3];
+  TH2F* hptvs[2][8][3];
+  TH2F* hppvs[2][8][3];
+  TH1F* hps[2][8][3];
+  TH1F* hpsx[2][8][3];
+  TH1F* hpsy[2][8][3];
+  TH1F* hpsz[2][8][3];
+  TH1F* hpsxy[2][8][3];
+  TH1F* heneasy[2][8][3];
+  TH2F* hptvsea[2][8][3];
+  TH1F* hdist[2][8][3];
+  TH2F* hpzpx[2][8][3];
+  TH1F* hm[2][8][3];
 
   TH1F* hmid[2];
   TH1F* hcid[2];
@@ -110,6 +143,15 @@ private :
   TH1F* ht[2];
   TH1F* hfflag[2];
   TH1F* hwidth[2];
+
+  int neventmp[9];
+  int npairmp[9];
+  int npairmpsame[9];
+  TH1F* heventmp[9];
+  TH1F* hpairmp[9];
+  TH1F* hpairmpsame[9];
+  TH1F* hpairmpsameratio[9];
+  TH2F* hpairmpvssame[9];
 
   TTree* tree;
   int run_id;
