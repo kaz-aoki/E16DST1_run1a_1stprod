@@ -33,8 +33,8 @@ include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-#  /opt/E16/include/Geant4 # evb
-  /ccj/u/E16/include/Geant4 # ccj
+  /opt/E16/include/Geant4 # evb
+#  /ccj/u/E16/include/Geant4 # ccj
 	include
   include/SSD
 	include/GTR
@@ -54,8 +54,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-#  /opt/E16/lib64-gcc8/clhep # evb
-  /ccj/u/E16/lib64 #ccj
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
