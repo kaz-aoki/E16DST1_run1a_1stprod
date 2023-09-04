@@ -279,7 +279,7 @@ target_link_libraries(dst0_to_dst1_lg_check
 # )
 
 #_______________________________________________________________________________
-add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/EIDana_MakeTree_EIDEfficiency.cc)
+add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency.cc)
 
 target_link_libraries(EIDana_MakeTree_EIDEfficiency
 	E16DST_DST1
@@ -290,7 +290,7 @@ target_link_libraries(EIDana_MakeTree_EIDEfficiency
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_MakeTree_EIDEfficiency_woY usr/tmp/EIDana_MakeTree_EIDEfficiency_woY.cc)
+add_executable(EIDana_MakeTree_EIDEfficiency_woY usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency_woY.cc)
 
 target_link_libraries(EIDana_MakeTree_EIDEfficiency_woY
 	E16DST_DST1
@@ -301,7 +301,7 @@ target_link_libraries(EIDana_MakeTree_EIDEfficiency_woY
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_WaveformEfficiency usr/tmp/EIDana_WaveformEfficiency.cc)
+add_executable(EIDana_WaveformEfficiency usr/tmp/nakasuga/EIDana_WaveformEfficiency.cc)
 
 target_link_libraries(EIDana_WaveformEfficiency
 	E16DST_DST1
@@ -312,7 +312,7 @@ target_link_libraries(EIDana_WaveformEfficiency
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGHitADC usr/tmp/EIDana_LGHitADC.cc)
+add_executable(EIDana_LGHitADC usr/tmp/nakasuga/EIDana_LGHitADC.cc)
 
 target_link_libraries(EIDana_LGHitADC
 	E16DST_DST1
@@ -323,7 +323,7 @@ target_link_libraries(EIDana_LGHitADC
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_ResidualandEfficiency usr/tmp/EIDana_ResidualandEfficiency.cc)
+add_executable(EIDana_ResidualandEfficiency usr/tmp/nakasuga/EIDana_ResidualandEfficiency.cc)
 
 target_link_libraries(EIDana_ResidualandEfficiency
 	E16DST_DST1
@@ -334,7 +334,7 @@ target_link_libraries(EIDana_ResidualandEfficiency
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwTrack usr/tmp/EIDana_LGGainCalibwTrack.cc)
+add_executable(EIDana_LGGainCalibwTrack usr/tmp/nakasuga/EIDana_LGGainCalibwTrack.cc)
 
 target_link_libraries(EIDana_LGGainCalibwTrack
 	E16DST_DST1
@@ -345,7 +345,7 @@ target_link_libraries(EIDana_LGGainCalibwTrack
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_MakeTree_LGGainCalibwoTrack usr/tmp/EIDana_MakeTree_LGGainCalibwoTrack.cc)
+add_executable(EIDana_MakeTree_LGGainCalibwoTrack usr/tmp/nakasuga/EIDana_MakeTree_LGGainCalibwoTrack.cc)
 
 target_link_libraries(EIDana_MakeTree_LGGainCalibwoTrack
 	E16DST_DST1
@@ -356,7 +356,7 @@ target_link_libraries(EIDana_MakeTree_LGGainCalibwoTrack
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwoTrack_ResidualforLGmix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforLGmix.cc)
+add_executable(EIDana_LGGainCalibwoTrack_ResidualforLGmix usr/tmp/nakasuga/EIDana_LGGainCalibwoTrack_ResidualforLGmix.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforLGmix
 	E16DST_DST1
@@ -367,7 +367,7 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforLGmix
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRymix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforGTRymix.cc)
+add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRymix usr/tmp/nakasuga/EIDana_LGGainCalibwoTrack_ResidualforGTRymix.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRymix
 	E16DST_DST1
@@ -378,7 +378,7 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRymix
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRxmix usr/tmp/EIDana_LGGainCalibwoTrack_ResidualforGTRxmix.cc)
+add_executable(EIDana_LGGainCalibwoTrack_ResidualforGTRxmix usr/tmp/nakasuga/EIDana_LGGainCalibwoTrack_ResidualforGTRxmix.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRxmix
 	E16DST_DST1
@@ -389,7 +389,7 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_ResidualforGTRxmix
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwoTrack_Momentum usr/tmp/EIDana_LGGainCalibwoTrack_Momentum.cc)
+add_executable(EIDana_LGGainCalibwoTrack_Momentum usr/tmp/nakasuga/EIDana_LGGainCalibwoTrack_Momentum.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_Momentum
 	E16DST_DST1
@@ -400,7 +400,7 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_Momentum
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwoTrack_LGADCLGmix usr/tmp/EIDana_LGGainCalibwoTrack_LGADCLGmix.cc)
+add_executable(EIDana_LGGainCalibwoTrack_LGADCLGmix usr/tmp/nakasuga/EIDana_LGGainCalibwoTrack_LGADCLGmix.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCLGmix
 	E16DST_DST1
@@ -411,7 +411,7 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCLGmix
 )
 
 #_______________________________________________________________________________
-add_executable(EIDana_LGGainCalibwoTrack_LGADCGTRymix usr/tmp/EIDana_LGGainCalibwoTrack_LGADCGTRymix.cc)
+add_executable(EIDana_LGGainCalibwoTrack_LGADCGTRymix usr/tmp/nakasuga/EIDana_LGGainCalibwoTrack_LGADCGTRymix.cc)
 
 target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCGTRymix
 	E16DST_DST1
@@ -422,7 +422,7 @@ target_link_libraries(EIDana_LGGainCalibwoTrack_LGADCGTRymix
 )
 
 #_______________________________________________________________________________
-add_executable(Massw2Gamma usr/tmp/Massw2Gamma.cc)
+add_executable(Massw2Gamma usr/tmp/nakasuga/Massw2Gamma.cc)
 
 target_link_libraries(Massw2Gamma
 	E16DST_DST1
@@ -433,7 +433,7 @@ target_link_libraries(Massw2Gamma
 )
 
 # #_______________________________________________________________________________
-add_executable(Gammaana_MakeRootPDF usr/tmp/Gammaana_MakeRootPDF.cc)
+add_executable(Gammaana_MakeRootPDF usr/tmp/nakasuga/Gammaana_MakeRootPDF.cc)
 
 target_link_libraries(Gammaana_MakeRootPDF
 	E16DST_DST1
@@ -444,7 +444,7 @@ target_link_libraries(Gammaana_MakeRootPDF
 )
 
 #_______________________________________________________________________________
-add_executable(Gammaana_MakePDF usr/tmp/Gammaana_MakePDF.cc)
+add_executable(Gammaana_MakePDF usr/tmp/nakasuga/Gammaana_MakePDF.cc)
 
 target_link_libraries(Gammaana_MakePDF
 	E16DST_DST1
@@ -455,7 +455,7 @@ target_link_libraries(Gammaana_MakePDF
 )
 
 # _______________________________________________________________________________
-add_executable(Gammaana_CodeCheck usr/tmp/Gammaana_CodeCheck.cc)
+add_executable(Gammaana_CodeCheck usr/tmp/nakasuga/Gammaana_CodeCheck.cc)
 
 target_link_libraries(Gammaana_CodeCheck
 	E16DST_DST1
@@ -466,7 +466,7 @@ target_link_libraries(Gammaana_CodeCheck
 )
 
 #_______________________________________________________________________________
-add_executable(LG_MakeHVTable usr/tmp/LG_MakeHVTable.cc)
+add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
 
 target_link_libraries(LG_MakeHVTable
 	E16DST_DST1
@@ -477,7 +477,7 @@ target_link_libraries(LG_MakeHVTable
 )
 
 #_______________________________________________________________________________
-add_executable(LG_LEDcheck usr/tmp/LG_LEDcheck.cc)
+add_executable(LG_LEDcheck usr/tmp/nakasuga/LG_LEDcheck.cc)
 
 target_link_libraries(LG_LEDcheck
 	E16DST_DST1
@@ -488,7 +488,7 @@ target_link_libraries(LG_LEDcheck
 )
 
 #_______________________________________________________________________________
-add_executable(LG_MakePDF usr/tmp/LG_MakePDF.cc)
+add_executable(LG_MakePDF usr/tmp/nakasuga/LG_MakePDF.cc)
 
 target_link_libraries(LG_MakePDF
 	E16DST_DST1
@@ -499,7 +499,7 @@ target_link_libraries(LG_MakePDF
 )
 
 #_______________________________________________________________________________
-add_executable(mom usr/tmp/mom.cc)
+add_executable(mom usr/tmp/nakasuga/mom.cc)
 
 target_link_libraries(mom
 	E16DST_DST1
@@ -510,7 +510,7 @@ target_link_libraries(mom
 )
 
 #_______________________________________________________________________________
-add_executable(LG_CheckWaveform usr/tmp/LG_CheckWaveform.cc)
+add_executable(LG_CheckWaveform usr/tmp/nakasuga/LG_CheckWaveform.cc)
 
 target_link_libraries(LG_CheckWaveform
 	E16DST_DST1
@@ -521,7 +521,7 @@ target_link_libraries(LG_CheckWaveform
 )
 
 #_______________________________________________________________________________
-add_executable(LG_StraightEventMatch usr/tmp/LG_StraightEventMatch.cc)
+add_executable(LG_StraightEventMatch usr/tmp/nakasuga/LG_StraightEventMatch.cc)
 
 target_link_libraries(LG_StraightEventMatch
 	E16DST_DST1
@@ -532,7 +532,7 @@ target_link_libraries(LG_StraightEventMatch
 )
 
 #_______________________________________________________________________________
-add_executable(LG_StraightResidual usr/tmp/LG_StraightResidual.cc)
+add_executable(LG_StraightResidual usr/tmp/nakasuga/LG_StraightResidual.cc)
 
 target_link_libraries(LG_StraightResidual
 	E16DST_DST1
@@ -542,16 +542,6 @@ target_link_libraries(LG_StraightResidual
 	E16ANA
 )
 
-#_______________________________________________________________________________
-#add_executable(lg_check_standalone usr/lg_check_standalone.cc)
-#
-#target_link_libraries(lg_check_standalone
-#       E16DST_DST1
-##E16ANA_CalibDB
-#       E16ANA_Basic
-#       E16DST
-#       E16ANA
-#)
 #_______________________________________________________________________________
 # add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
@@ -630,13 +620,6 @@ add_executable(check_position_resolution usr/tmp/check_position_resolution.cc)
 target_link_libraries(check_position_resolution
   E16DST_DST1
 )
-
-#### #_______________________________________________________________________________
-#### add_executable(LGResidualwoTrack usr/tmp/LGResidualwoTrack.cc)
-
-#### target_link_libraries(LGResidualwoTrack
-####   E16DST_DST1
-#### )
 
 #_______________________________________________________________________________
 #add_executable(draw_dead_channel_map tmp/draw_dead_channel_map.cc)
