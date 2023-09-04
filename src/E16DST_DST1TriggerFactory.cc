@@ -54,7 +54,7 @@ bool E16ANA_TriggerIsGenerateTrigger(E16ANA_TriggerCalibParam& trigger_param, E1
   auto is_y_cut     = trigger_param.IsYCut();
   auto is_max_width = trigger_param.IsMaximumWidth();
   int pos_width = 7 * (track0.ModuleID() - track1.ModuleID()) + track0.ChannelID() / 10 - track1.ChannelID() / 10;
-
+  // development ongoing
 
 
 

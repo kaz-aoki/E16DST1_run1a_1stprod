@@ -23,6 +23,10 @@
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDCut.hh"
 #include "E16ANA_WaveformFitter.hh"
+
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_MakeDummyDST1Parameter.hh"
+#endif // TRACK_EFF_CHECK
 //#pragma pack(2)
 
 class E16DST_DST1Hit {
@@ -73,7 +77,13 @@ class E16DST_DST1Cluster {
         max_peak_height(E16DST_DST1Constant::kInvalidValue),
         timing(E16DST_DST1Constant::kInvalidValue),
         peak_sum(E16DST_DST1Constant::kInvalidValue),
+#ifndef TRACK_EFF_CHECK
         hit_orders({}) {}
+#else
+        hit_orders({}),
+        n_hits(E16DST_DST1Constant::kInvalidValue),
+        is_merged(false) {}
+#endif
 //  ~E16DST_DST1Cluster() { hit_orders.clear(); }
   ~E16DST_DST1Cluster() { std::vector<int16_t>().swap(hit_orders); }
   virtual void                  SetInvalid() { SetBaseInvalid(); }
@@ -103,7 +113,20 @@ class E16DST_DST1Cluster {
 //  int                           NumHits() { return hit_orders.NumberOfHits(); }
 //  E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
 //  int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
+#ifndef TRACK_EFF_CHECK
   int                           NumHits() { return hit_orders.size(); }
+#else
+  void                          SetNumHits(int _n_hits) { n_hits = _n_hits; }
+  int                           NumHits() {
+    if (cluster_id < E16ANA_MakeDummyDST1Parameter::kMockClusterID) {
+      return hit_orders.size();
+    } else {
+      return n_hits;
+    }
+  }
+  void                          SetIsMerged(bool _is_merged) { is_merged = _is_merged; }
+  bool                          IsMerged() { return is_merged; }
+#endif // TRACK_EFF_CHECK
   std::vector<int16_t>&         HitOrders() { return hit_orders; }
   int16_t                       HitOrder(int n) { return hit_orders[n]; }
   virtual TVector3              LocalPos() = 0;
@@ -123,6 +146,10 @@ class E16DST_DST1Cluster {
   float                        peak_sum;
 //  E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
   std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
+#ifdef TRACK_EFF_CHECK
+  int n_hits;
+  bool is_merged;
+#endif // TRACK_EFF_CHECK
 };
 
 class E16DST_DST1SSDHit : public E16DST_DST1Hit {
@@ -210,7 +237,9 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
       : layer_id(E16DST_DST1Constant::kInvalidValue),
         type(E16DST_DST1Constant::kInvalidValue),
         peak_height(E16DST_DST1Constant::kInvalidValue),
-        tot(E16DST_DST1Constant::kInvalidValue) {}
+        tot(E16DST_DST1Constant::kInvalidValue) {
+		wave_form.resize(E16DST_DST1Constant::n_gtr_samples);		
+	}
   ~E16DST_DST1GTRHit() {}
   void SetInvalid() override {
     SetBaseInvalid();
@@ -245,6 +274,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   void             SetTanTheta2(float _tanthe2) { tanthe2 = _tanthe2; }
   void             SetCTiming(float t) { ctiming.push_back(t); }
   void             SetCPos(float t)    { cpos.push_back(t); }
+  void             SetWaveForm(std::vector<float> t) {wave_form = t;}
   float            Timing2() { return timing2; }
   float            TdcPos() { return tdchit; }
   float            TdcPos2() { return tdchit2; }
@@ -253,6 +283,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   int              NumCls() { return ctiming.size(); }
   float            CTiming(int i) { return ctiming[i]; }
   float            CPos(int i)    { return cpos[i]; }
+  std::vector<float> &WaveForm() {return wave_form;}
  private:
   int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
@@ -267,6 +298,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   float   tanthe2;//angle method2
   std::vector<float>           ctiming; //cluster timing
   std::vector<float>           cpos; 
+  std::vector<float> wave_form;
  };
 
 class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
@@ -327,14 +359,16 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 
   double LocalX() {
     if (IsX()) {
-      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+//      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return center_of_gravity;
     } else {
       return center_of_gravity;
     }
   }
   double LocalXT() {
     if (IsX()) {
-      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];
+//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return tdchit;
     } else {
       return tdchit;
     }
@@ -487,7 +521,9 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   void SetFitTiming(float _fittiming) { fittiming = _fittiming; }
   void SetFitWidth(float _fitwidth) { fitwidth = _fitwidth; }
   void SetFitChi2(float _fitchi2) { fitchi2 = _fitchi2; }
-  void SetHitId(int _hitid) { hitid = _hitid; } // temporary
+#ifdef TRACK_EFF_CHECK
+  void SetLocalPos(TVector3 _local_pos) { local_pos = _local_pos; }
+#endif // TRACK_EFF_CHECK
   float PeakHeight() override { return peak_height; }
   int PeakTime() { return peak_time; }
   float Baseline() { return baseline; }
@@ -501,7 +537,6 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float FitTiming() { return fittiming; }
   float FitWidth() { return fitwidth; }
   float FitChi2() { return fitchi2; }
-  int HitId() { return hitid; } // temporary
   static float IsE(double _momentum, float _fitpeak);
   float IsE(double _momentum);
   float GetCalibTiming(E16ANA_LGBasic& lgbasic);
@@ -524,7 +559,9 @@ class E16DST_DST1LGHit : public E16DST_DST1Hit {
   float fittiming; // calibrated channel by channel
   float fitwidth;
   float fitchi2;
-  int hitid; // temporary
+#ifdef TRACK_EFF_CHECK
+  TVector3 local_pos;
+#endif // TRACK_EFF_CHECK
 };
 
 class E16DST_DST1LGCluster : public E16DST_DST1Cluster {
@@ -940,7 +977,9 @@ public:
 //        initial_pos_at_wire_yz(E16DST_DST1Constant::kInvalidVector),
 //        initial_mom(E16DST_DST1Constant::kInvalidVector),
 //        original_cluster_indexes({E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue, E16DST_DST1Constant::kInvalidValue})
-         {}
+         {
+	SetInvalid();
+}
   ~E16DST_DST1StraightTrack3D() {}
   void Clear(){
 //    wire_x                 = E16DST_DST1Constant::kInvalidValue;
@@ -951,10 +990,15 @@ public:
 //    lg_indexes.clear();
     }
 //
+   void SetInvalid(){
+		xclusterssd = nullptr;	
+	}
    void SetEventID(int e){ event_id = e;}
    int16_t EventID(){return event_id;}
    void SetModuleID(int m){ module_id = m;}
    int16_t ModuleID(){return module_id;}
+   void SetTrackID(int16_t id){trk_id = id;}
+   int16_t TrackID(){return trk_id;}
    void SetXTrackID(int16_t id){xtrk_id = id;}
    void SetYTrackID(int16_t id){ytrk_id = id;}
    int16_t XTrackID(){return xtrk_id;}
@@ -1053,6 +1097,8 @@ public:
    TVector3 FitPtOnGTR100(){return fitpt_ongtr100;}
    TVector3 FitPtOnGTR200(){return fitpt_ongtr200;}
    TVector3 FitPtOnGTR300(){return fitpt_ongtr300;}
+   void SetTgtID(int id){tgt_id = id;}
+   int16_t TgtID(){return tgt_id;}
 //   void SetPtOnTrackGTR100(TVector2 _pt0){point_on_track_gtr100 = _pt0;}
 //   void SetPtOnTrackGTR300(TVector2 _pt0){point_on_track_gtr300 = _pt0;}
 //   void SetPtOnTrack3000mm(TVector2 _pt0){point_on_track_3000mm = _pt0;}
@@ -1060,6 +1106,7 @@ public:
 private:
    int16_t event_id;
    int module_id;
+   int16_t trk_id;
    int16_t xtrk_id;
    int16_t ytrk_id;
    int16_t ssdxhit_id; 
@@ -1078,6 +1125,7 @@ private:
    float tgt_pos_z;//intercept with track
 //   float tgt_pos_y;//in cases of wire, -40 or 40 is filled. *values up to tgt pos calib file
    
+   int16_t tgt_id;
    float distance_fromtgt_xz;
    float distance_ytrk_tgt;
    float distance_fromupwire_yr;//distance  from the upstream wire on YR plane to the track

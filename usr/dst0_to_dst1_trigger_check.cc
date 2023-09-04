@@ -1,5 +1,3 @@
-//#define WO_LG_FIT // & rewrite E16DST_DST1DetectorFactory.hh
-
 #include <iostream>
 #include <TROOT.h>
 #include <TH1.h>
@@ -13,19 +11,25 @@
 #include "E16ANA_EventSelect.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_GTRLorentzAngleCalib.hh"
+#include "E16ANA_GTRStatus.h"
 #include "E16ANA_HBDCalibration.hh"
 #include "E16ANA_HBDCut.hh"
+#include "E16ANA_HBDDeadChannel.hh"
+#include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 
-#ifndef WO_LG_FIT
 #include "E16ANA_TrackCheckFile.hh"
-#else
-#include "E16ANA_TrackCheckFile_wolgfit.hh"
-#endif
+
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_GTRAnalyzerMaker.hh"
+#include "E16ANA_MakeDummyDST1.hh"
+#include "E16ANA_MockTrackOutputData.hh"
+//#include "mockdataIOtestSimple.hh"
+#endif // TRACK_EFF_CHECK
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -33,9 +37,104 @@ using namespace std;
 constexpr bool kIsElectronRun = true;
 constexpr bool kSelectEvent   = false;
 
+#ifdef TRACK_EFF_CHECK
+enum {
+  kReadMockAlive,
+  kReadMockDead,
+  kReadMockError
+};
+
+#ifdef MOCK_VECTOR_MESON
+int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
+                            E16ANA_TrackCheckFile* check_file) {
+  bool is_dead = false;
+  for (int i = 0; i < 2; ++i) {
+    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+      cerr << "mock data finished at " << endl;
+      return kReadMockError;
+    }
+    if (mock_data->TrackID() % 2 != 1 - i)  {
+      cerr << "something error occured in mock track reading: " << mock_data->TrackID() << endl;
+      return kReadMockError;
+    }
+    mock_tracks[i] = mock_data->Track();
+    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
+    check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
+    if (is_dead_track) {
+      is_dead = true;
+    }
+  }
+  if (is_dead) {
+    return kReadMockDead;
+  }
+  return kReadMockAlive;
+}
+#endif // MOCK_VECTOR_MESON
+
+#ifdef MOCK_KS
+enum {
+  kKs,
+  kPiPlus,
+  kPiMinus,
+  kNumParticles
+};
+int ReadAndAddMockTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
+                            E16ANA_TrackCheckFile* check_file) {
+  bool is_dead = false;
+  array<int, kNumParticles> charges;
+  for (int i = 0; i < 3; ++i) {
+    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+      cerr << "mock data finished at " << endl;
+      return kReadMockError;
+    }
+    auto& track = mock_data->Track();
+    charges[i] = track.Charge();
+    if (i == 0) {
+      if (charges[i] != 0) {
+        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+        return kReadMockError;
+      }
+      check_file->AddSimTrack(false, track);
+    } else {
+      if (charges[i] == 0) {
+        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+        return kReadMockError;
+      }
+      if (i == 2) {
+        if (charges[1] == charges[2]) {
+          cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+          return kReadMockError;
+        }
+      }
+      if (charges[i] == 1) {
+        mock_tracks[0] = track;
+      } else {
+        mock_tracks[1] = track;
+      }
+      auto is_dead_track = data_merger.IsDeadRegion(track) || data_merger.IsDiscriDeadRegion(track);
+      check_file->AddSimTrack(is_dead_track, track);
+      if (is_dead_track) {
+        is_dead = true;
+      }
+    }
+  }
+  if (is_dead) {
+    return kReadMockDead;
+  }
+  return kReadMockAlive;
+}
+#endif // MOCK_KS
+#endif // TRACK_EFF_CHECK
+
 int main(int argc, char* argv[]) {
+#ifndef TRACK_EFF_CHECK
   if (argc != 6) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
+#else
+  if (argc != 8) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [smear flag]" << endl;
+    cerr << "smear flag 0: no smear, 1: design smear, 2: TDR2105 smear, 3: other" << endl;
+#endif
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -43,6 +142,14 @@ int main(int argc, char* argv[]) {
   auto run_id        = stoi(argv[3]);
   auto event_start   = stoi(argv[4]);
   auto event_end     = stoi(argv[5]);
+#ifdef TRACK_EFF_CHECK
+  auto mock_data_name = argv[6];
+  auto smear_flag     = stoi(argv[7]);
+  if (smear_flag < 0 || smear_flag > 3) {
+    cerr << "Invalid smear flag: " << smear_flag << endl;
+    return -1;
+  }
+#endif
 //  bpo::variables_map vm;
 //  string in_file_name;
 //  string out_file_name;
@@ -126,6 +233,36 @@ int main(int argc, char* argv[]) {
 
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
   
+#ifdef TRACK_EFF_CHECK
+  auto mock_data = E16ANA_MockTrackOutputData();
+  if (mock_data.OpenReadFile(mock_data_name) != E16ANA_MockTrackOutputData::OK) {
+    cerr << "cannot open mock data file" << endl;
+    return -1;
+  }
+  
+  E16ANA_GTRcalibParams gtr_params;
+  gtr_params.ReadCalibData(run_id);
+  auto gtr_analyzers = new E16ANA_GTRAnalyzerMaker(gtr_params);
+  for(int mid = 100; mid <= 110; ++mid) {
+    for(int lid = 0; lid < 3; ++lid) {
+      auto gtr_analyzer2 = gtr_analyzers->Chamber(mid, lid);
+      int n_strips = gtr_analyzer2->GetNumberOfStrips();
+      for(int strip_id = 0; strip_id < n_strips; ++strip_id) {
+        double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
+        double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
+        gtr_analyzer2->SetPedestal(strip_id, ped);
+        gtr_analyzer2->SetPedestalSigma(strip_id, sigma);
+      }
+    }
+  }
+  auto gtr_stat = E16ANA_GTRStatus(run_id);
+  auto hbd_dead_ch = E16ANA_HBDDeadChannel();
+  hbd_dead_ch.ReadDeadChannelData(run_id);
+  auto lg_dead_ch = E16ANA_LGDeadChannel();
+  lg_dead_ch.ReadDeadChannelData();
+  auto data_merger = E16ANA_MakeDummyDST1(smear_flag, gtr_analyzers, &gtr_stat, gtr_stat.ASDDeadChannel(), &hbd_dead_ch, &lg_dead_ch);
+
+#endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -136,7 +273,18 @@ int main(int argc, char* argv[]) {
 
   int n_event = 0;
   int n_physics_event = 0;
+#ifndef REMOVE_REAL_HIT
   while (dst0->ReadAnEvent()) {
+#else // REMOVE_REAL_HIT
+  while (true) {
+    dst0->ReadAnEvent();
+    if (dst0->EventType() == E16DST_DST0EventType::Physics) {
+      break;
+    }
+  }
+  while (true) {
+#endif // REMOVE_REAL_HIT
+    record.Clear();
     if (event_end != -1 && n_physics_event > event_end) {
       break;
     }
@@ -184,35 +332,76 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
+#ifndef REMOVE_REAL_HIT
       E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
-      record.SSD().UpdatePtrs();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
-      record.GTR().UpdatePtrs();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
-      record.HBD().UpdatePtrs();
-#ifndef WO_LG_FIT
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
-#else
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/o fit
-#endif
       record.LG().AddHitAndClusterIds();
-      record.LG().UpdatePtrs();
       E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
-      record.Trigger().UpdatePtrs();
-//cout << event0->EventID() << endl;
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
-
 // HBD clustering w/o timing selection begin
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());
       record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
-
+#endif // REMOVE_REAL_HIT
+#ifdef TRACK_EFF_CHECK
+      record.SSD().UpdatePtrs();
+      record.GTR().UpdatePtrs();
+      record.HBD().UpdatePtrs();
+      record.LG().UpdatePtrs();
+      record.Trigger().UpdatePtrs();
+      check_file.ClearSimTrack();
+#ifndef MERGE_TRACK_PAIR
+      if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+        cerr << "mock data finished at " << n_physics_event << " events" << endl;
+        break;
+      }
+      bool is_finished = false;
+//      while (data_merger.IsDeadRegion(mock_data.Track())) {
+      while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
+        check_file.AddSimTrack(true, mock_data.Track());
+        if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+          cerr << "mock data finished at " << n_physics_event << " events" << endl;
+          is_finished = true;
+          break;
+        }
+      }
+      if (is_finished) {
+        break;
+      }
+      check_file.AddSimTrack(false, mock_data.Track());
+      data_merger.MergeMockToRealData(0, mock_data.Track(), &record);
+#else // ifdef MERGE_TRACK_PAIR
+      int mock_read_flag;
+      E16ANA_MockTrack mock_tracks[2];
+      while (true) {
+        mock_read_flag = ReadAndAddMockTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
+#ifndef REMOVE_DEAD_REGION_CUT
+        if (mock_read_flag == kReadMockDead) {
+          continue;
+        }
+#endif // REMOVE_DEAD_REGION_CUT
+        break;
+      }
+      if (mock_read_flag == kReadMockError) {
+        break;
+      }
+      data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
+      data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
+#endif // MERGE_TRACK_PAIR
+#endif // TRACK_EFF_CHECK
+      record.SSD().UpdatePtrs();
+      record.GTR().UpdatePtrs();
+      record.HBD().UpdatePtrs();
+      record.LG().UpdatePtrs();
+      record.Trigger().UpdatePtrs();
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 

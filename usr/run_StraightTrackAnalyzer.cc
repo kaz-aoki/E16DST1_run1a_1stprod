@@ -23,17 +23,79 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16ANA_GTRStatus.h"
+#include "E16ANA_GTRChannelManager.h"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
 
+void SetRemovedLayerInfoHit(std::vector<E16DST_DST1GTRHit> &hits, const int removed_layer, const int mid, vector<vector<double>> &fadc, vector<int> &sid, vector<double> &ph){//fill hit info 
+	std::vector<float> wave_form;
+	std::vector<double> d_wave_form; 
+	wave_form.clear();
+	d_wave_form.clear();
+	fadc.clear();		
+	sid.clear();
+	ph.clear();
+	int id = 0;
+	for(int i=0; i < hits.size() ; i++){
+		E16DST_DST1GTRHit &h = hits[i];
+		if(h.ModuleId() != mid) continue;//module matching 
+		if(h.LayerId() != removed_layer -1) continue;//layer matching 
+		if(h.Type() != 0) continue;//axis matching  //0 means X strip
+        wave_form = h.WaveForm();
+        d_wave_form.resize(wave_form.size());//depends on n_sampling
+        std::transform(wave_form.begin(), wave_form.end(), d_wave_form.begin(), [](const float &f){return static_cast<double>(f);});
+		fadc.push_back(d_wave_form);
+		sid.push_back(h.ChannelId());
+		ph.push_back(h.PeakHeight());
+		id++;
+	}
+}
+void SetRemovedLayerInfoCluster(std::vector<E16DST_DST1GTRCluster> &clusters, const int removed_layer, const int mid, vector<double> &charge, vector<double> &cog, vector<double> timing){//fill cluster info
+	charge.clear();
+	cog.clear();
+	timing.clear();
+	for(int i=0; i < clusters.size() ; i++){
+		E16DST_DST1GTRCluster &cl = clusters[i];
+		if(cl.ModuleId() != mid) continue;//module matching 
+		if(cl.LayerId() != (removed_layer -1)) continue;//layer matching 
+		if(cl.Type() != 0) continue;//axis matching  //0 means X strip
+//		std::cout << "cluster charge = " << cl.PeakSum() << std::endl;
+		charge.push_back(cl.PeakSum());
+		cog.push_back(cl.CogPos());
+		timing.push_back(cl.Timing());
+	}
+}
 
-
+void SetHitInfoToBranch(std::vector<E16DST_DST1GTRHit> &hits, E16DST_DST1GTRCluster* cluster, vector<vector<double>> &fadc, vector<int> &sid , 
+						vector<double> &tot, vector<double> &htime, vector<double> &ph){
+	std::vector<float> wave_form;
+	std::vector<double> d_wave_form; 
+    int cl_size = cluster->HitOrders().size();
+	wave_form.clear();
+	d_wave_form.clear();
+    sid.clear();
+    tot.clear();
+	htime.clear();
+	ph.clear();
+    fadc.clear();
+    for(const int hit_ord : cluster->HitOrders()){ 
+	    E16DST_DST1GTRHit &h = hits[hit_ord];
+        wave_form = h.WaveForm();
+        d_wave_form.resize(wave_form.size());//depends on n_sampling
+        std::transform(wave_form.begin(), wave_form.end(), d_wave_form.begin(), [](const float &f){return static_cast<double>(f);});
+        fadc.push_back(d_wave_form);
+        sid.push_back(h.ChannelId());
+        tot.push_back(h.Tot());
+        htime.push_back(h.Timing());
+        ph.push_back(h.PeakHeight());
+	 }
+}
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] [removed_layer (-1 = all, 0, ssd, 1,2,3 = gtr)]" << endl;
     return 1;
   }
    auto dst0 = new E16DST_DST0();
@@ -42,6 +104,12 @@ int main(int argc, char* argv[]) {
 	exit(1);
 //    return 1;
   }
+  auto out_file_name = argv[2];
+  auto in_run_id        = stoi(argv[3]);
+  auto max_event     = stoi(argv[4]);
+  auto removed_layer = stoi(argv[5]);
+  
+
   string in_file_name = argv[1];
   int sink_id_pos = in_file_name.length() - 10;
   string sink_id = in_file_name.substr(sink_id_pos, 1);
@@ -50,7 +118,8 @@ int main(int argc, char* argv[]) {
   string smallest_id = in_file_name.substr(smallest_id_pos, 3);
   std::cout << "smallest  id = " << smallest_id << std::endl;
   string runnum = argv[3];
-  string run = "g4run0" + runnum;
+  string rem    = argv[5];
+  string run = "g4run0" + runnum + "exGTR" + rem;
   string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root";
 
   const char* c_out = outputfile.c_str();
@@ -61,6 +130,7 @@ int main(int argc, char* argv[]) {
 //  TFile *f = new TFile("./dst1_test/output.root", "recreate");
   TTree *tree = new TTree("tree", "tree");
   Int_t event_id;
+  Int_t run_id;
   Int_t mod_id;
   Int_t hitid_ssdx;
   Int_t hitid_100x;
@@ -164,8 +234,51 @@ int main(int argc, char* argv[]) {
   vector<Double_t> positions_200x;
   vector<Double_t> positions_300x;
 
+  vector<Double_t> asd_hits;
+  vector<vector<Double_t>> fadc_100x;
+  vector<vector<Double_t>> fadc_200x;
+  vector<vector<Double_t>> fadc_300x;
+  vector<vector<Double_t>> fadc_100y;
+  vector<vector<Double_t>> fadc_200y;
+  vector<vector<Double_t>> fadc_300y;
+  vector<Double_t> htime_100x;//hit timing for each strip
+  vector<Double_t> htime_200x;
+  vector<Double_t> htime_300x;
+  vector<Double_t> htime_100y;
+  vector<Double_t> htime_200y;
+  vector<Double_t> htime_300y;
+  vector<Double_t> tot_100x;
+  vector<Double_t> tot_200x;
+  vector<Double_t> tot_300x;
+  vector<Double_t> tot_100y;
+  vector<Double_t> tot_200y;
+  vector<Double_t> tot_300y;
+  vector<Double_t> ph_100x;//peak height
+  vector<Double_t> ph_200x;
+  vector<Double_t> ph_300x;
+  vector<Double_t> ph_100y;
+  vector<Double_t> ph_200y;
+  vector<Double_t> ph_300y;
+  vector<Int_t> sid_100x;
+  vector<Int_t> sid_200x;
+  vector<Int_t> sid_300x;
+  vector<Int_t> sid_100y;
+  vector<Int_t> sid_200y;
+  vector<Int_t> sid_300y;
+
+// for removed layer ## hit  
+  vector<vector<Double_t>> fadc_rlx;
+  vector<Double_t> hph_rlx;//hit peak height 
+  vector<Int_t>    hsid_rlx;//hit strip id
+
+//for removed layer ## cluster
+  vector<Double_t> clc_rlx; //cluster charge
+  vector<Double_t> clcog_rlx;//cluster cog
+  vector<Double_t> clt_rlx; //cluster timing
+ 
 
   //	std::vector<TVector3> two_points_on_track;
+  tree->Branch("run_id", &run_id, "run_id/I");
   tree->Branch("event_id", &event_id, "event_id/I");
   tree->Branch("mod_id", &mod_id, "mod_id/I");
   tree->Branch("hitid_ssdx", &hitid_ssdx, "hitid_ssdx/I");
@@ -282,16 +395,49 @@ int main(int argc, char* argv[]) {
   tree->Branch("positions_200x", &positions_200x );
   tree->Branch("positions_300x", &positions_300x );
 
+  tree->Branch("asd_hits", &asd_hits);
+  
+  tree->Branch("fadc_100x", &fadc_100x);
+  tree->Branch("fadc_200x", &fadc_200x);
+  tree->Branch("fadc_300x", &fadc_300x);
+  tree->Branch("fadc_100y", &fadc_100y);
+  tree->Branch("fadc_200y", &fadc_200y);
+  tree->Branch("fadc_300y", &fadc_300y);
+  tree->Branch("sid_100x", &sid_100x);
+  tree->Branch("sid_200x", &sid_200x);
+  tree->Branch("sid_300x", &sid_300x);
+  tree->Branch("sid_100y", &sid_100y);
+  tree->Branch("sid_200y", &sid_200y);
+  tree->Branch("sid_300y", &sid_300y);
+  tree->Branch("tot_100x", &tot_100x);
+  tree->Branch("tot_200x", &tot_200x);
+  tree->Branch("tot_300x", &tot_300x);
+  tree->Branch("tot_100y", &tot_100y);
+  tree->Branch("tot_200y", &tot_200y);
+  tree->Branch("tot_300y", &tot_300y);
+  tree->Branch("htime_100x", &htime_100x);
+  tree->Branch("htime_200x", &htime_200x);
+  tree->Branch("htime_300x", &htime_300x);
+  tree->Branch("htime_100y", &htime_100y);
+  tree->Branch("htime_200y", &htime_200y);
+  tree->Branch("htime_300y", &htime_300y);
+  tree->Branch("ph_100x", &ph_100x);
+  tree->Branch("ph_200x", &ph_200x);
+  tree->Branch("ph_300x", &ph_300x);
+  tree->Branch("ph_100y", &ph_100y);
+  tree->Branch("ph_200y", &ph_200y);
+  tree->Branch("ph_300y", &ph_300y);
 
-
-
+  tree->Branch("hsid_rlx" , &hsid_rlx);
+  tree->Branch("hph_rlx"  , &hph_rlx);
+  tree->Branch("fadc_rlx" , &fadc_rlx);
+  tree->Branch("clc_rlx"  , &clc_rlx);//cluster charge
+  tree->Branch("clcog_rlx", &clcog_rlx);//cluster cog
+  tree->Branch("clt_rlx"  , &clt_rlx); //cluster timing
 
   //auto in_file_name  = argv[1];
-  auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
-  auto& calib = E16ANA_CalibDBManager::Instance();
-  calib.SetRunID(run_id);
+    auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(in_run_id);
 //  E16ANA_RundependentName& name = E16ANA_RundependentName::Instance();
 //  string geomName = name.ReadNameWithRunID(run_id, "geometry", "/ccj/u/E16/database/");
 //  E16ANA_GeometryV2* geom = new E16ANA_GeometryV2(geomName);
@@ -325,10 +471,13 @@ int main(int argc, char* argv[]) {
  		std::cout << "GEM Status : module = " << m << ", ch = " << ch << ", gtr_dead " <<  gtr_status->GEMDeadArea300()->IsYOK(m, ch) << std::endl;
 	}
   }
+  std::cout << "Is X GEM OK  == " << gtr_status->GEMDeadArea300()->IsXOK(106, 13.2) << std::endl;//GEM  
+  int apvch = E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12);//(gtr_size, local_pos[mm])
+  std::cout << "apv ch convorotor returns   == " << E16ANA_GTRChannelManager::ConvLocalXToAPVch(0, 12) << std::endl;//
+  
   
   int n_event = 0;
   int n_physics_event = 0;
-  std::cout << "here " << std::endl;
   while (dst0->ReadAnEvent()) {
     if (max_event != -1 && n_event >= max_event) {
       break;
@@ -347,8 +496,18 @@ int main(int argc, char* argv[]) {
     auto& gtr_hits0 = event0->GTR();
     auto& ssd_hits0 = event0->SSD();
     E16DST_DST1SSDFactory(ssd_hits0, &record->SSD());
-    E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
-    record->GTR().UpdatePtrs();
+	if(removed_layer == -1 || removed_layer == 0){
+    	E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
+	}
+	else if(removed_layer == 1 || removed_layer == 2 || removed_layer == 3){
+    	E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+    }
+	else {
+		std::cerr << "invalid removed layer ! " << std::endl;
+		return -1;
+	}
+	
+	record->GTR().UpdatePtrs();
     record->SSD().UpdatePtrs();
 
 //---test --- //	
@@ -367,13 +526,14 @@ int main(int argc, char* argv[]) {
 	
 	std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks;
 	if(targets.IsWire()){
-		E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+		E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, removed_layer);
 	}
 	else if(targets.NoT() == 3){
-		E16DST_DST1StraightTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+		E16DST_DST1StraightTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped, removed_layer);
 	}
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
+        run_id   = in_run_id;
 		event_id = t->EventID();
 		mod_id = t->ModuleID();	
 		trkid_x    = t->XTrackID();
@@ -385,39 +545,42 @@ int main(int argc, char* argv[]) {
 		hitid_100y = t->GTR100XHitID();
 		hitid_200y = t->GTR200XHitID();
 		hitid_300y = t->GTR300XHitID();
-		cluster_size_ssd   = t->SSDCluster()->NumHits();
+		if(t->SSDCluster() != nullptr){
+			cluster_size_ssd   = t->SSDCluster()->NumHits();
+			lxssd    = t->SSDCluster()->CogPos();
+			g_xssd   = t->SSDCluster()->GlobalPos(*geom).X();
+			g_zssd   = t->SSDCluster()->GlobalPos(*geom).Z();
+			clc_xssd = t->SSDCluster()->PeakSum();
+			timing_xssd = t->SSDCluster()->Timing();
+			residual_ssdx = t->ResidualSSD();
+		}
 		cluster_size_g100x = t->GTR100XCluster()->NumHits();
 		cluster_size_g200x = t->GTR200XCluster()->NumHits();
 		cluster_size_g300x = t->GTR300XCluster()->NumHits();
 		cluster_size_g100x = t->GTR100YCluster()->NumHits();
 		cluster_size_g200x = t->GTR200YCluster()->NumHits();
 		cluster_size_g300x = t->GTR300YCluster()->NumHits();
-		lxssd    = t->SSDCluster()->CogPos();
 		lx100    = t->GTR100XCluster()->CogPos();
 		lx200    = t->GTR200XCluster()->CogPos();
 		lx300    = t->GTR300XCluster()->CogPos();
 		ly100    = t->GTR100YCluster()->CogPos();//local y
 		ly200    = t->GTR200YCluster()->CogPos();//local y
 		ly300    = t->GTR300YCluster()->CogPos();//local y
-		g_xssd   = t->SSDCluster()->GlobalPos(*geom).X();
 		g_x100   = t->GTR100XCluster()->GlobalPos(*geom).X();
 		g_x200   = t->GTR200XCluster()->GlobalPos(*geom).X();
 		g_x300   = t->GTR300XCluster()->GlobalPos(*geom).X();
 		g_y100   = t->GTR100YCluster()->GlobalPos(*geom).Y();
 		g_y200   = t->GTR200YCluster()->GlobalPos(*geom).Y();
 		g_y300   = t->GTR300YCluster()->GlobalPos(*geom).Y();
-		g_zssd   = t->SSDCluster()->GlobalPos(*geom).Z();
 		g_z100   = t->GTR100XCluster()->GlobalPos(*geom).Z();
 		g_z200   = t->GTR200XCluster()->GlobalPos(*geom).Z();
 		g_z300   = t->GTR300XCluster()->GlobalPos(*geom).Z();
-		clc_xssd = t->SSDCluster()->PeakSum();
 		clc_x100 = t->GTR100XCluster()->PeakSum();
 		clc_x200 = t->GTR200XCluster()->PeakSum();
 		clc_x300 = t->GTR300XCluster()->PeakSum();
 		clc_y100 = t->GTR100YCluster()->PeakSum();
 		clc_y200 = t->GTR200YCluster()->PeakSum();
 		clc_y300 = t->GTR300YCluster()->PeakSum();
-		timing_xssd = t->SSDCluster()->Timing();
 		timing_x100 = t->GTR100XCluster()->Timing();
 		timing_x200 = t->GTR200XCluster()->Timing();
 		timing_x300 = t->GTR300XCluster()->Timing();
@@ -440,13 +603,12 @@ int main(int argc, char* argv[]) {
 		}
 		distance_fromtgt_y = -1000;
         distance_fromtgt_y  = t->DistanceYTrackAndTgt();
-		residual_ssdx = t->ResidualSSD();
-//		residual_100x = t->Residual100();
-//		residual_200x = t->Residual200();
-//		residual_300x = t->Residual300();
-//		residual_100y = t->Residual100();
-//		residual_200y =	t->Residual200();
-////		residual_300y = t->Residual300();
+//		residual_100x = t->Residual100X();
+//		residual_200x = t->Residual200X();
+//		residual_300x = t->Residual300X();
+//		residual_100y = t->Residual100Y();
+//		residual_200y =	t->Residual200Y();
+//		residual_300y = t->Residual300Y();
 //		fitresidual_ssdx = t->FitResidualSSD();
 		fitresidual_100x = t->FitResidual100X();
 		fitresidual_200x = t->FitResidual200X();
@@ -471,13 +633,44 @@ int main(int argc, char* argv[]) {
 		positions_100x.clear();
 		positions_200x.clear();
 		positions_300x.clear();
+        
+//       fadc_100x.clear();
+//       fadc_200x.clear();
+//       fadc_300x.clear();
+//       fadc_100y.clear();
+//       fadc_200y.clear();
+//       fadc_300y.clear();
+//
+
+//---------for removed layer 
+//
+		if(removed_layer != -1 || removed_layer != 0){
+			SetRemovedLayerInfoHit(record->GTR().Hits(), removed_layer,  t->ModuleID(), fadc_rlx, hsid_rlx, hph_rlx);
+			SetRemovedLayerInfoCluster(record->GTR().Clusters(), removed_layer,  t->ModuleID(), clc_rlx, clcog_rlx, clt_rlx);
+		}
+//
+//
+
+		
+
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR100XCluster(), fadc_100x, sid_100x, tot_100x, htime_100x, ph_100x);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR200XCluster(), fadc_200x, sid_200x, tot_200x, htime_200x, ph_200x);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR300XCluster(), fadc_300x, sid_300x, tot_300x, htime_300x, ph_300x);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR100YCluster(), fadc_100y, sid_100y, tot_100y, htime_100y, ph_100y);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR200YCluster(), fadc_200y, sid_200y, tot_200y, htime_200y, ph_200y);
+        SetHitInfoToBranch(record->GTR().Hits(), t->GTR300YCluster(), fadc_300y, sid_300y, tot_300y, htime_300y, ph_300y);
+ 
 
 		hasMatchedASDHit = 0; //initialized 
 		hit_tile = (int)((t->GTR300YCluster()->CogPos()+150.0)/12.5);
+		asd_hits.clear();
 		for(int j=0; j<noh_trg; j++){
 			E16DST_DST0TriggerHit &trg = event0->TriggerGTR().Hit(j);
-			if(hit_tile == trg.ChannelID()){
-				hasMatchedASDHit = 1;
+			if(trg.ModuleID() == t->ModuleID()){
+				asd_hits.push_back(trg.ChannelID());
+				if(hit_tile == trg.ChannelID()){
+					hasMatchedASDHit = 1;
+				}
 			}
 		}
 		for(int l=1; l< 4 ; l++){

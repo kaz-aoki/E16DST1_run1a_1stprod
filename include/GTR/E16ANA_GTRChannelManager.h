@@ -10,6 +10,11 @@ public:
 	static bool IsValidModuleID(const int module_id);	
 	static bool IsValidASDID(const int m, const int c);
 	static int ConvMIDE16ToK(const int m);
+	static int ConvLocalXToGEMch(const int n_gem_strip_x, const double lx_mm);
+	static int ConvLocalYToGEMch(const int n_gem_strip_y, const double ly_mm);
+	static int ConvLocalXToAPVch(const int gtr_size, const double lx_mm);
+	static int ConvLocalYToAPVch(const int gtr_size, const double lx_mm, const double ly_mm);//GetStripYb is newed dynamically, so cannot be static
+    static bool IsYa(const double lx_mm);
 private:
 	enum {
 		n_ychs = E16DST_DST1Constant::n_gtr_asd_chs

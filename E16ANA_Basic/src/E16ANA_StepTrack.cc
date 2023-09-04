@@ -262,7 +262,9 @@ Hep3Vector E16ANA_StepTrack::ArrayGet(int    step,
 
 Hep3Vector E16ANA_StepTrack::ArrayGet(double step,
 			     Hep3Vector* array1,Hep3Vector* array2) {
-  if( step>arraySize ) { return errorVector;}
+//  if( step>arraySize ) { return errorVector;}
+  if( fabs(step)>=arraySize-1. ) { return errorVector;}
+  if( !isfinite(step) ) { return errorVector;}
 
   Hep3Vector* array;  double step2;// usually >0
   if( step >= 0 ) {    step2=  step ; array=array1;  }
@@ -313,6 +315,52 @@ int E16ANA_StepTrack::Cross(E16ANA_StepTrack& st, double* distance,
 
 
   int flag=MinuitDistance(minuitStepSize, lowLimit, upLimit, 
+			  distance, param, error);
+  //cerr<<" in cross: distance  "<<flag<<" "<<*distance<<" "<<param[0]<<" "<<param[1]<<endl;
+
+#if 0
+  int flag2=MinuitDistanceXZ(minuitStepSize, lowLimit, upLimit, 
+			     distance, param, error);
+
+  cerr<<" in cross: distanceXZ  "<<flag2<<" "<<*distance<<" "<<param[0]<<" "<<param[1]<<endl;
+#endif
+
+  *step1=param[0];
+  *step2=param[1];
+  
+  return flag;
+}
+
+int E16ANA_StepTrack::CrossXZ(E16ANA_StepTrack& st, double* distance,
+		     double* step1, double* step2) {
+
+  crossSt1 = this;
+  crossSt2 = & st;
+
+  double param[2],error[2];//parameter answer and error.
+
+#if 1
+  double upLimit[2] = { (double)crossSt1->CurrentSize1(), 
+			(double)crossSt2->CurrentSize1() };
+  double lowLimit[2]= { (double)-(crossSt1->CurrentSize2()),
+			(double)-(crossSt2->CurrentSize2()) };
+  //parameter lower/upper limit.
+
+  double minuitStepSize[2]    = { 0.1, 0.1};
+    //parameter search step used by minuit
+    //if track step is 1cm, 0.1 means 1mm.
+
+#else
+  double upLimit[2] = { 10,10 };
+
+  double lowLimit[2]= { (double)-(crossSt1->CurrentSize2()),
+			(double)-(crossSt2->CurrentSize2()) };
+
+  double minuitStepSize[2]    = { 0.1, 0.1};
+#endif
+
+
+  int flag=MinuitDistanceXZ(minuitStepSize, lowLimit, upLimit, 
 			  distance, param, error);
   //cerr<<" in cross: distance  "<<flag<<" "<<*distance<<" "<<param[0]<<" "<<param[1]<<endl;
 
@@ -576,7 +624,7 @@ Hep3Vector& crossMom){
   }
 
   prevdiff = 0;
-  for(j=0;i<arraySize;j++){//follow the second array from the initPoint
+  for(j=0;j<arraySize;j++){//follow the second array from the initPoint
     double diff = pointData2[j].x()- ix;
     if( diff * prevdiff < 0 ) {//cross
       pointA=pointData2[j-1];      pointB=pointData2[j];
@@ -595,6 +643,57 @@ Hep3Vector& crossMom){
   else{
     crossPoint=errorVector;
     crossMom=errorVector;
+    return -1;
+  }
+
+
+}
+
+int E16ANA_StepTrack::CrossXconstPlane(double ix, vector<Hep3Vector>* crossPoint, vector<Hep3Vector>* crossMom){
+  crossPoint->clear();
+  crossMom->clear();
+
+  int i=0,j=0;
+  double prevdiff = 0;
+  Hep3Vector pointA, pointB;
+
+  double diff = initPoint.x() - ix;
+  if( fabs(diff) < std::numeric_limits<double>::epsilon() ){
+    return 0;
+  }
+  for(i=0;i<arraySize;i++){ //follow the first array from the initPoint
+    double diff = pointData1[i].x()- ix;
+    if( diff * prevdiff < 0 ) {//cross
+      pointA=pointData1[i-1];      pointB=pointData1[i];
+      double ratio = fabs (diff / (pointB.x()-pointA.x()) );
+      double step = i- ratio;
+      crossPoint->emplace_back(ArrayGet(step, pointData1, pointData2));
+      crossMom->emplace_back(ArrayGet(step, momData1, momData2));
+      prevdiff = diff;
+    }
+    else{
+      prevdiff = diff;
+    }
+  }//for i
+
+  prevdiff = 0;
+  for(j=0;j<arraySize;j++){//follow the second array from the initPoint
+    double diff = pointData2[j].x()- ix;
+    if( diff * prevdiff < 0 ) {//cross
+      pointA=pointData2[j-1];      pointB=pointData2[j];
+      double ratio = fabs( diff / (pointB.x()-pointA.x()) );
+      double step = (j-ratio)* -1;
+      crossPoint->emplace_back(ArrayGet(step, pointData1, pointData2));
+      crossMom->emplace_back(ArrayGet(step, momData1, momData2));
+      prevdiff = diff;
+    }
+    else{
+      prevdiff = diff;
+    }
+  }//for j
+
+  if(i<arraySize||j<arraySize){ return 1; }
+  else{
     return -1;
   }
 

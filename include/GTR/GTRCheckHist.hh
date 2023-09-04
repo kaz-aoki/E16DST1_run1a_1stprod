@@ -15,6 +15,7 @@ public:
     //void Fill(E16DST_DST0Detector<E16DST_DST1GTRHit> *hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> *clusters);
     void Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1);
     void Fill(std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks);
+	TH1D *h_hit_timing_x[10][3];
     TH1D *h_cl_ncluster_modall_x[3];
     TH1D *h_cl_ncluster_modall_y[3];
     TH1D *h_cl_ncluster_modall_yb[3];

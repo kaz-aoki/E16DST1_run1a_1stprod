@@ -48,3 +48,20 @@ add_executable(targetInfoTest
 target_link_libraries(targetInfoTest
   E16ANA_Basic
 )
+
+#________________________________________________
+add_executable(mockdataIOtestSimple
+  usr/mockdataIOtestSimple.cc
+)
+
+target_link_libraries(mockdataIOtestSimple
+  E16ANA_Basic
+)
+#________________________________________________
+add_executable(FMfieldDump
+  usr/FMfieldDump.cc
+)
+
+target_link_libraries(FMfieldDump
+  E16ANA_Basic
+)

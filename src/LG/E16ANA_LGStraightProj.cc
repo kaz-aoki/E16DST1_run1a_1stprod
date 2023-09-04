@@ -1,6 +1,6 @@
 #include "E16ANA_LGStraightProj.hh"
 #include "E16ANA_GeometryV2.hh"
-#include "E16ANA_TrackAnalyzerFromTree.hh"
+#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include <TH1.h>
 #include <TLegend.h>

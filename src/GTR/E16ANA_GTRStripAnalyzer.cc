@@ -71,8 +71,18 @@ void E16ANA_GTRStripAnalyzer::Clear()
 
 void E16ANA_GTRStripAnalyzer::SetFadc(int strip_id, int16_t *waveform)
 {
+
+  /*
+  double local_pedestal = 0.0;
+   for (int j = 0; j < 5; j++) {
+     local_pedestal += waveform[j];
+   }
+   local_pedestal /= 5.0;
+  */
+
    for (int j = 0; j < n_sampling; j++) {
-      fadc[strip_id][j] = waveform[j] - fadc_ped[strip_id];
+     fadc[strip_id][j] = waveform[j] - fadc_ped[strip_id];
+     //fadc[strip_id][j] = waveform[j] - local_pedestal;
       if( strip_id== 100 ){
 //        std::cout << "wave form j0 = " << waveform[j] << ", ped = "  <<fadc_ped[strip_id] << ", sigma = "<< fadc_ped_sigma[strip_id] <<  std::endl;
       }
@@ -168,6 +178,7 @@ int E16ANA_GTRStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
          // if(signal_gap>=min_gap || fabs(delta_tdc)>100.0){ // V1
          if (signal_gap >= min_gap) { // V0
             clustered_strip_id.push_back(std::vector<int>());
+			
          } else if (fadc_peak[i] < cluster_threshold) {
             clustered_strip_id.push_back(std::vector<int>());
          }
@@ -203,6 +214,7 @@ int E16ANA_GTRStripAnalyzer::HitClusteringV1(const int min_gap, const double del
       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
       if (fadc_peak[i] > 0.0 && fadc_peak_time[i] > 0.0) {
          double delta_tdc = fadc_tdc[i] - pre_tdc;
+//		 std::cout << "fadc tdc " << fadc_tdc[i] << std::endl;
          pre_tdc = fadc_tdc[i];
          if (signal_gap >= min_gap || fabs(delta_tdc) > delta_tdc_threshold) { // V1
             // if(signal_gap>=min_gap){ // V0
@@ -258,6 +270,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
          // for(int l=0; l<(int)fadc_valid_count.size(); l++){
          // int j= fadc_valid_count[l];
          double tdc_j = j * fadc_clock_period + fadc_t0_correction;
+//		 std::cout << "j, fadc_period, t0" << j << ", " << fadc_clock_period << ", " << fadc_t0_correction << std::endl;
          if (tdc_j > t_cutoff)
             break;
          // if(tdc_j<t_cutoff) continue;
@@ -269,12 +282,11 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
             peak_count = j;
          }
       }
-      if (fadc_peak[ch] < gem_threshold) {
+      if (fadc_peak[ch] < gem_threshold && fadc_peak[ch] > 4000) {
          fadc_peak[ch] = -255.0;
          peak_count = -1;
       } else {
-         // std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<
-         // std::endl;
+  //      std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<   std::endl;
       }
 
       if (peak_count > -1) {
@@ -302,17 +314,27 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
             }
          }
          fadc_tot[ch] = tot_end - tot_start;
-         if (fadc_tot[ch] < gem_tot_threshold) {
+	 //std::cout << fadc_tot[ch] << ", " << tot_start << ", " << tot_end << 
+	 //  std::endl;
+// 230207 changed for a test, originally Morino Update was used
+//         if (fadc_tot[ch] < gem_tot_threshold ) { // Original
+         //if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0 ) {
+//	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > 0 ) { // Morino Updates
+	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > gem_tot_threshold ) { // murakami
+	 //if (fabs(fadc_tot[ch]) < gem_tot_threshold) { // Morino
             fadc_peak[ch] = -255.0;
             fadc_tdc[ch] = -1000.0;
             fadc_peak_time[ch] = -1000.0;
 	    fadc_peak_tdc[ch]  = -1000.0;
             peak_count = -1;
+//			std::cout << "tot cut " << std::endl;
          }
-      } else {
+      } else {//peakcount == -1
          fadc_tdc[ch] = -1000.0;
          fadc_peak_time[ch] = -1000.0;
+//		std::cout << "peak count is -1 " << std::endl;
       }
+//230207 comment out for a test
       if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
 	  fadc_peak_time[ch] > peak_time_max || 
 	  fadc_peak_time[ch] < peak_time_min ||
@@ -323,11 +345,12 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
          fadc_peak_time[ch] = -1000.0;
 	 fadc_peak_tdc[ch]  = -1000.0;
       }
+//	std::cout << "fadc_tdc :" << fadc_tdc[ch] << std::endl;
 
-//      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
-//         fadc_tdc[ch] = -1000.0;
-//         fadc_peak_time[ch] = -1000.0;
-//      }
+      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
+         fadc_tdc[ch] = -1000.0;
+         fadc_peak_time[ch] = -1000.0;
+      }
    }
 }
 
@@ -354,7 +377,7 @@ void E16ANA_GTRStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
       temp_cc += fadc_peak[id];
       // temp_cog += fadc_peak[id]*id;
       temp_cog += fadc_peak[id] * GetPosition(id);
-      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id]);
+      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id], fadc[id]);
    }
    temp_cog /= temp_cc;
    // temp_cog *= strip_pitch;

@@ -9,7 +9,7 @@
 #include "E16ANA_RundependentName.hh"
 using namespace std;
 
-int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> &st_tracks, E16ANA_GTRcalibPedestal &gtrped){
+int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> *ssd1, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1, std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> &st_tracks, E16ANA_GTRcalibPedestal &gtrped, const int removed_layer){
 	static bool isFirst = true;
 	static StraightTrackAnalyzerOfWireV1 *straight_analyzer;
 	static E16ANA_GeometryV2 *geom;
@@ -28,7 +28,13 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
     	    double z1 = targets.Info(0).Position().z();
         	double x2 = targets.Info(1).Position().x();
 	        double z2 = targets.Info(1).Position().z();
-			straight_analyzer = new StraightTrackAnalyzerOfWireV1(x1 ,z1, x2, z2);//track selected only by GTR
+			if(x1 < 0){
+			straight_analyzer = new StraightTrackAnalyzerOfWireV1(2, 1, x1 ,z1, x2, z2);//track selected only by GTR : first arg is n of tgt, second is plus or minus, this is opposite with x1 sign cuz arg is based on beam coordinate
+			}
+			else if(x1 > 0){
+			straight_analyzer = new StraightTrackAnalyzerOfWireV1(2, -1, x1 ,z1, x2, z2);//track selected only by GTR : first arg is n of tgt, second is plus or minus. this is oposite with x1 sign
+
+			}
 	    }
 		else{
 			std::cerr << "### This is not wire targets run ###" << std::endl;
@@ -40,9 +46,13 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
 //--- search linear tracks on XZ and YR planes 
     straight_analyzer->Clear();
   	for(int mid = 100; mid< 110; mid++){
- 		straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
+		if(removed_layer == 0){//without SSD
+ 			straight_analyzer->OneModuleAnalyze2woSSD(ssd1, gtr1, mid, geom);
+		}
+		else	{
+ 			straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
+		}
 	}
-	straight_analyzer->MatchingXYHitsAfterLinearFit(straight_analyzer->GetXZTrackCandidates(), straight_analyzer->GetYTrackCandidates());
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
 	st_tracks.clear();
 	st_tracks.reserve(trks_size);

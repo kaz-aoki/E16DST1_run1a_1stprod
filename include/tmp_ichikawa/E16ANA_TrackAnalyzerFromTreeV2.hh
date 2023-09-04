@@ -1542,7 +1542,7 @@ class E16ANA_TrackAnalyzerFromTree {
                      std::vector<int>* cluster_indexs, std::vector<double>* lg_ts);
   bool HasTriggerLGHits(const int track_mids[], const double track_xs[], const double track_ys[], const bool track_valids[], std::vector<int>* hit_indexs);
   bool HasHBDAndLGProjection(int track_index, std::vector<double>* lg_ts);
-//  bool HasTimeCorrelationInTrack();
+  bool HasTimeCorrelationInTrack(int track_index, const std::vector<double>& lg_ts);
   bool IsGoodTrack(int track_index, std::vector<double>* lg_ts);
   double CalcSingleTrackChiSquareWoTarget(int track_index);
   bool IsGoodPionTrack(int track_index, std::vector<double>* lg_ts);
@@ -1553,7 +1553,7 @@ class E16ANA_TrackAnalyzerFromTree {
   void SelectTrack(int track_index, std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_x_cluster_ids,
                                     std::array<std::vector<int>, E16ANA_TrackConstant::kNumTrackingLayers>* used_y_cluster_ids);
   void SelectTracks();
-  void AddTracks(const int track_index_pair[], double tgt_z);
+  void AddTracks(const int track_index_pair[], int tgt_id);
   void FillTVector3ToDouble(TVector3 t_vector, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
   void ProjectionHBDAndLG(const TVector3& vertex, const TVector3& mom, double charge, int track_index,
                           TVector3 out_lposs[], TVector3 out_gposs[], TVector3 out_lmoms[], TVector3 out_gmoms[]);
@@ -1576,7 +1576,9 @@ class E16ANA_TrackAnalyzerFromTree {
                        const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& gposs,
                        const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& gmoms,
                        const std::array<std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>, 2>& lress);
-  void PairTracking(const int track_indexs_index_pair[], double tgt_z);
+  std::array<bool, 3> SelectTrackPairCandidate(int selected_track_index0, int selected_track_index1);
+//  void PairTracking(const int track_indexs_index_pair[], double tgt_z);
+  void PairTracking(const int track_indexs_index_pair[], const std::array<bool, 3>& good_target_list);
   std::vector<int> SortedTrackPairIndex();
 //  bool HasTimeCorrelationInTrackPair();
   bool IsGoodPair(const int track_index_pair);
@@ -1606,6 +1608,9 @@ class E16ANA_TrackAnalyzerFromTree {
                             const std::array<std::array<TVector3, 4>, 2>& lres);
   void MixedPionPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]);
   void AnalyzeMixedPionTrackPairs();
+  void AddMixedTracks(const int entry_index_index_pair[], const int track_index_index_pair[], double tgt_z);
+  void MixedPairTracking(const int entry_index_index_pair[], const int track_index_index_pair[]);
+  void AnalyzeMixedTrackPairs();
   int analyze_flag; // 0 : electron, 1 : pion, 2 : both
   int particle_flag; // 0 : electron, 1 : pion
   bool is_event_mix;
@@ -1657,6 +1662,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<double> out_distance;
   std::vector<double> out_minus_chi_square;
   std::vector<double> out_plus_chi_square;
+  std::vector<bool>   out_has_cluster_duplication;
   std::vector<bool> out_is_selected;
   std::vector<int> out_minus_track_id;
   std::vector<int> out_plus_track_id;
@@ -1694,6 +1700,7 @@ class E16ANA_TrackAnalyzerFromTree {
 
   std::vector<int>  out_minus_proj_n_hbd_clusters;
   std::vector<bool> out_minus_proj_has_hbd_cluster_e;
+  std::vector<std::vector<double>> out_minus_proj_hbd_cluster_id;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_res;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_res_x;
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_res_y;
@@ -1705,6 +1712,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_minus_proj_hbd_cluster_cprob;
   std::vector<int>  out_plus_proj_n_hbd_clusters;
   std::vector<bool> out_plus_proj_has_hbd_cluster_e;
+  std::vector<std::vector<double>> out_plus_proj_hbd_cluster_id;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_res;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_res_x;
   std::vector<std::vector<double>> out_plus_proj_hbd_cluster_res_y;
@@ -1717,6 +1725,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<int>  out_minus_proj_n_lg_hits;
   std::vector<bool> out_minus_proj_has_lg_hit_e;
   std::vector<bool> out_minus_proj_has_lg_hit_good_t;
+  std::vector<std::vector<double>> out_minus_proj_lg_hit_id;
   std::vector<std::vector<double>> out_minus_proj_lg_hit_type;
   std::vector<std::vector<double>> out_minus_proj_lg_hit_res;
   std::vector<std::vector<double>> out_minus_proj_lg_hit_res_x;
@@ -1727,6 +1736,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<int>  out_plus_proj_n_lg_hits;
   std::vector<bool> out_plus_proj_has_lg_hit_e;
   std::vector<bool> out_plus_proj_has_lg_hit_good_t;
+  std::vector<std::vector<double>> out_plus_proj_lg_hit_id;
   std::vector<std::vector<double>> out_plus_proj_lg_hit_type;
   std::vector<std::vector<double>> out_plus_proj_lg_hit_res;
   std::vector<std::vector<double>> out_plus_proj_lg_hit_res_x;
@@ -1737,6 +1747,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<int>  out_minus_proj_n_lg_clusters;
   std::vector<bool> out_minus_proj_has_lg_cluster_e;
   std::vector<bool> out_minus_proj_has_lg_cluster_good_t;
+  std::vector<std::vector<double>> out_minus_proj_lg_cluster_id;
   std::vector<std::vector<double>> out_minus_proj_lg_cluster_type;
   std::vector<std::vector<double>> out_minus_proj_lg_cluster_res;
   std::vector<std::vector<double>> out_minus_proj_lg_cluster_res_x;
@@ -1747,6 +1758,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<int>  out_plus_proj_n_lg_clusters;
   std::vector<bool> out_plus_proj_has_lg_cluster_e;
   std::vector<bool> out_plus_proj_has_lg_cluster_good_t;
+  std::vector<std::vector<double>> out_plus_proj_lg_cluster_id;
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_type;
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_res;
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_res_x;
@@ -1756,6 +1768,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_plus_proj_lg_cluster_ise;
   std::vector<int>  out_minus_proj_n_trg_lg_hits;
   std::vector<bool> out_minus_proj_has_trg_lg_hit_good_t;
+  std::vector<std::vector<double>> out_minus_proj_trg_lg_hit_id;
   std::vector<std::vector<double>> out_minus_proj_trg_lg_hit_type;
   std::vector<std::vector<double>> out_minus_proj_trg_lg_hit_res;
   std::vector<std::vector<double>> out_minus_proj_trg_lg_hit_res_x;
@@ -1763,6 +1776,7 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_minus_proj_trg_lg_hit_t;
   std::vector<int>  out_plus_proj_n_trg_lg_hits;
   std::vector<bool> out_plus_proj_has_trg_lg_hit_good_t;
+  std::vector<std::vector<double>> out_plus_proj_trg_lg_hit_id;
   std::vector<std::vector<double>> out_plus_proj_trg_lg_hit_type;
   std::vector<std::vector<double>> out_plus_proj_trg_lg_hit_res;
   std::vector<std::vector<double>> out_plus_proj_trg_lg_hit_res_x;
@@ -1792,7 +1806,21 @@ class E16ANA_TrackAnalyzerFromTree {
   std::vector<std::vector<double>> out_plus_proj_trg_lg_hit_z;
   std::vector<double> out_proj_lg_hit_min_t_diff;
   std::vector<double> out_proj_lg_hit_min_diff_t_mean;
-
+  
+  std::vector<int>    out_minus_ssd_hit_cid;
+  std::vector<int>    out_minus_gtr100_hit_xcid;
+  std::vector<int>    out_minus_gtr100_hit_ycid;
+  std::vector<int>    out_minus_gtr200_hit_xcid;
+  std::vector<int>    out_minus_gtr200_hit_ycid;
+  std::vector<int>    out_minus_gtr300_hit_xcid;
+  std::vector<int>    out_minus_gtr300_hit_ycid;
+  std::vector<int>    out_plus_ssd_hit_cid;
+  std::vector<int>    out_plus_gtr100_hit_xcid;
+  std::vector<int>    out_plus_gtr100_hit_ycid;
+  std::vector<int>    out_plus_gtr200_hit_xcid;
+  std::vector<int>    out_plus_gtr200_hit_ycid;
+  std::vector<int>    out_plus_gtr300_hit_xcid;
+  std::vector<int>    out_plus_gtr300_hit_ycid;
   std::vector<double> out_minus_ssd_hit_x;
   std::vector<double> out_minus_ssd_hit_y;
   std::vector<double> out_minus_ssd_hit_z;
@@ -4725,6 +4753,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("lg_cluster_tdiff",    &lg_cluster_tdiff);
   tree->Branch("lg_cluster_size",     &lg_cluster_size);
 
+  tree->Branch("has_cluster_duplication", &out_has_cluster_duplication);
   tree->Branch("is_selected", &out_is_selected);
   tree->Branch("minus_track_id", &out_minus_track_id);
   tree->Branch("plus_track_id", &out_plus_track_id);
@@ -4762,6 +4791,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
 
   tree->Branch("minus_proj_n_hbd_clusters",        &out_minus_proj_n_hbd_clusters);
   tree->Branch("minus_proj_has_hbd_cluster_e",     &out_minus_proj_has_hbd_cluster_e);
+  tree->Branch("minus_proj_hbd_cluster_id",        &out_minus_proj_hbd_cluster_id);
   tree->Branch("minus_proj_hbd_cluster_x",         &out_minus_proj_hbd_cluster_x);
   tree->Branch("minus_proj_hbd_cluster_y",         &out_minus_proj_hbd_cluster_y);
   tree->Branch("minus_proj_hbd_cluster_res",       &out_minus_proj_hbd_cluster_res);
@@ -4775,6 +4805,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("minus_proj_hbd_cluster_cprob",     &out_minus_proj_hbd_cluster_cprob);
   tree->Branch("plus_proj_n_hbd_clusters",         &out_plus_proj_n_hbd_clusters);
   tree->Branch("plus_proj_has_hbd_cluster_e",      &out_plus_proj_has_hbd_cluster_e);
+  tree->Branch("plus_proj_hbd_cluster_id",         &out_plus_proj_hbd_cluster_id);
   tree->Branch("plus_proj_hbd_cluster_x",          &out_plus_proj_hbd_cluster_x);
   tree->Branch("plus_proj_hbd_cluster_y",          &out_plus_proj_hbd_cluster_y);
   tree->Branch("plus_proj_hbd_cluster_res",        &out_plus_proj_hbd_cluster_res);
@@ -4789,6 +4820,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("minus_proj_n_lg_hits",             &out_minus_proj_n_lg_hits);
   tree->Branch("minus_proj_has_lg_hit_e",          &out_minus_proj_has_lg_hit_e);
   tree->Branch("minus_proj_has_lg_hit_good_t",     &out_minus_proj_has_lg_hit_good_t);
+  tree->Branch("minus_proj_lg_hit_id",             &out_minus_proj_lg_hit_id);
   tree->Branch("minus_proj_lg_hit_x",              &out_minus_proj_lg_hit_x);
   tree->Branch("minus_proj_lg_hit_y",              &out_minus_proj_lg_hit_y);
   tree->Branch("minus_proj_lg_hit_z",              &out_minus_proj_lg_hit_z);
@@ -4802,6 +4834,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("plus_proj_n_lg_hits",              &out_plus_proj_n_lg_hits);
   tree->Branch("plus_proj_has_lg_hit_e",           &out_plus_proj_has_lg_hit_e);
   tree->Branch("plus_proj_has_lg_hit_good_t",      &out_plus_proj_has_lg_hit_good_t);
+  tree->Branch("plus_proj_lg_hit_id",              &out_plus_proj_lg_hit_id);
   tree->Branch("plus_proj_lg_hit_x",               &out_plus_proj_lg_hit_x);
   tree->Branch("plus_proj_lg_hit_y",               &out_plus_proj_lg_hit_y);
   tree->Branch("plus_proj_lg_hit_z",               &out_plus_proj_lg_hit_z);
@@ -4815,6 +4848,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("minus_proj_n_lg_clusters",         &out_minus_proj_n_lg_clusters);
   tree->Branch("minus_proj_has_lg_cluster_e",      &out_minus_proj_has_lg_cluster_e);
   tree->Branch("minus_proj_has_lg_cluster_good_t", &out_minus_proj_has_lg_cluster_good_t);
+  tree->Branch("minus_proj_lg_cluster_id",         &out_minus_proj_lg_cluster_id);
   tree->Branch("minus_proj_lg_cluster_x",          &out_minus_proj_lg_cluster_x);
   tree->Branch("minus_proj_lg_cluster_y",          &out_minus_proj_lg_cluster_y);
   tree->Branch("minus_proj_lg_cluster_z",          &out_minus_proj_lg_cluster_z);
@@ -4828,6 +4862,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("plus_proj_n_lg_clusters",          &out_plus_proj_n_lg_clusters);
   tree->Branch("plus_proj_has_lg_cluster_e",       &out_plus_proj_has_lg_cluster_e);
   tree->Branch("plus_proj_has_lg_cluster_good_t",  &out_plus_proj_has_lg_cluster_good_t);
+  tree->Branch("plus_proj_lg_cluster_id",          &out_plus_proj_lg_cluster_id);
   tree->Branch("plus_proj_lg_cluster_x",           &out_plus_proj_lg_cluster_x);
   tree->Branch("plus_proj_lg_cluster_y",           &out_plus_proj_lg_cluster_y);
   tree->Branch("plus_proj_lg_cluster_z",           &out_plus_proj_lg_cluster_z);
@@ -4840,6 +4875,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("plus_proj_lg_cluster_ise",         &out_plus_proj_lg_cluster_ise);
   tree->Branch("minus_proj_n_trg_lg_hits",         &out_minus_proj_n_trg_lg_hits);
   tree->Branch("minus_proj_has_trg_lg_hit_good_t", &out_minus_proj_has_trg_lg_hit_good_t);
+  tree->Branch("minus_proj_trg_lg_hit_id",         &out_minus_proj_trg_lg_hit_id);
   tree->Branch("minus_proj_trg_lg_hit_x",          &out_minus_proj_trg_lg_hit_x);
   tree->Branch("minus_proj_trg_lg_hit_y",          &out_minus_proj_trg_lg_hit_y);
   tree->Branch("minus_proj_trg_lg_hit_z",          &out_minus_proj_trg_lg_hit_z);
@@ -4850,6 +4886,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("minus_proj_trg_lg_hit_t",          &out_minus_proj_trg_lg_hit_t);
   tree->Branch("plus_proj_n_trg_lg_hits",          &out_plus_proj_n_trg_lg_hits);
   tree->Branch("plus_proj_has_trg_lg_hit_good_t",  &out_plus_proj_has_trg_lg_hit_good_t);
+  tree->Branch("plus_proj_trg_lg_hit_id",          &out_plus_proj_trg_lg_hit_id);
   tree->Branch("plus_proj_trg_lg_hit_x",           &out_plus_proj_trg_lg_hit_x);
   tree->Branch("plus_proj_trg_lg_hit_y",           &out_plus_proj_trg_lg_hit_y);
   tree->Branch("plus_proj_trg_lg_hit_z",           &out_plus_proj_trg_lg_hit_z);
@@ -4861,6 +4898,20 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTree(TTree* tree) {
   tree->Branch("proj_lg_hit_min_t_diff",           &out_proj_lg_hit_min_t_diff);
   tree->Branch("proj_lg_hit_min_diff_t_mean",      &out_proj_lg_hit_min_diff_t_mean);
 
+  tree->Branch("minus_ssd_hit_cid",       &out_minus_ssd_hit_cid);
+  tree->Branch("minus_gtr100_hit_xcid",   &out_minus_gtr100_hit_xcid);
+  tree->Branch("minus_gtr100_hit_ycid",   &out_minus_gtr100_hit_ycid);
+  tree->Branch("minus_gtr200_hit_xcid",   &out_minus_gtr200_hit_xcid);
+  tree->Branch("minus_gtr200_hit_ycid",   &out_minus_gtr200_hit_ycid);
+  tree->Branch("minus_gtr300_hit_xcid",   &out_minus_gtr300_hit_xcid);
+  tree->Branch("minus_gtr300_hit_ycid",   &out_minus_gtr300_hit_ycid);
+  tree->Branch("plus_ssd_hit_cid",        &out_plus_ssd_hit_cid);
+  tree->Branch("plus_gtr100_hit_xcid",    &out_plus_gtr100_hit_xcid);
+  tree->Branch("plus_gtr100_hit_ycid",    &out_plus_gtr100_hit_ycid);
+  tree->Branch("plus_gtr200_hit_xcid",    &out_plus_gtr200_hit_xcid);
+  tree->Branch("plus_gtr200_hit_ycid",    &out_plus_gtr200_hit_ycid);
+  tree->Branch("plus_gtr300_hit_xcid",    &out_plus_gtr300_hit_xcid);
+  tree->Branch("plus_gtr300_hit_ycid",    &out_plus_gtr300_hit_ycid);
   tree->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
   tree->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);
   tree->Branch("minus_ssd_hit_z",         &out_minus_ssd_hit_z);
@@ -5271,6 +5322,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
 
   tree->Branch("minus_proj_n_hbd_clusters",        &out_minus_proj_n_hbd_clusters);
   tree->Branch("minus_proj_has_hbd_cluster_e",     &out_minus_proj_has_hbd_cluster_e);
+  tree->Branch("minus_proj_hbd_cluster_id",        &out_minus_proj_hbd_cluster_id);
   tree->Branch("minus_proj_hbd_cluster_x",         &out_minus_proj_hbd_cluster_x);
   tree->Branch("minus_proj_hbd_cluster_y",         &out_minus_proj_hbd_cluster_y);
   tree->Branch("minus_proj_hbd_cluster_res",       &out_minus_proj_hbd_cluster_res);
@@ -5284,6 +5336,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("minus_proj_hbd_cluster_cprob",     &out_minus_proj_hbd_cluster_cprob);
   tree->Branch("plus_proj_n_hbd_clusters",         &out_plus_proj_n_hbd_clusters);
   tree->Branch("plus_proj_has_hbd_cluster_e",      &out_plus_proj_has_hbd_cluster_e);
+  tree->Branch("plus_proj_hbd_cluster_id",         &out_plus_proj_hbd_cluster_id);
   tree->Branch("plus_proj_hbd_cluster_x",          &out_plus_proj_hbd_cluster_x);
   tree->Branch("plus_proj_hbd_cluster_y",          &out_plus_proj_hbd_cluster_y);
   tree->Branch("plus_proj_hbd_cluster_res",        &out_plus_proj_hbd_cluster_res);
@@ -5298,6 +5351,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("minus_proj_n_lg_hits",             &out_minus_proj_n_lg_hits);
   tree->Branch("minus_proj_has_lg_hit_e",          &out_minus_proj_has_lg_hit_e);
   tree->Branch("minus_proj_has_lg_hit_good_t",     &out_minus_proj_has_lg_hit_good_t);
+  tree->Branch("minus_proj_lg_hit_id",             &out_minus_proj_lg_hit_id);
   tree->Branch("minus_proj_lg_hit_x",              &out_minus_proj_lg_hit_x);
   tree->Branch("minus_proj_lg_hit_y",              &out_minus_proj_lg_hit_y);
   tree->Branch("minus_proj_lg_hit_z",              &out_minus_proj_lg_hit_z);
@@ -5311,6 +5365,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("plus_proj_n_lg_hits",              &out_plus_proj_n_lg_hits);
   tree->Branch("plus_proj_has_lg_hit_e",           &out_plus_proj_has_lg_hit_e);
   tree->Branch("plus_proj_has_lg_hit_good_t",      &out_plus_proj_has_lg_hit_good_t);
+  tree->Branch("plus_proj_lg_hit_id",              &out_plus_proj_lg_hit_id);
   tree->Branch("plus_proj_lg_hit_x",               &out_plus_proj_lg_hit_x);
   tree->Branch("plus_proj_lg_hit_y",               &out_plus_proj_lg_hit_y);
   tree->Branch("plus_proj_lg_hit_z",               &out_plus_proj_lg_hit_z);
@@ -5324,6 +5379,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("minus_proj_n_lg_clusters",         &out_minus_proj_n_lg_clusters);
   tree->Branch("minus_proj_has_lg_cluster_e",      &out_minus_proj_has_lg_cluster_e);
   tree->Branch("minus_proj_has_lg_cluster_good_t", &out_minus_proj_has_lg_cluster_good_t);
+  tree->Branch("minus_proj_lg_cluster_id",         &out_minus_proj_lg_cluster_id);
   tree->Branch("minus_proj_lg_cluster_x",          &out_minus_proj_lg_cluster_x);
   tree->Branch("minus_proj_lg_cluster_y",          &out_minus_proj_lg_cluster_y);
   tree->Branch("minus_proj_lg_cluster_z",          &out_minus_proj_lg_cluster_z);
@@ -5337,6 +5393,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("plus_proj_n_lg_clusters",          &out_plus_proj_n_lg_clusters);
   tree->Branch("plus_proj_has_lg_cluster_e",       &out_plus_proj_has_lg_cluster_e);
   tree->Branch("plus_proj_has_lg_cluster_good_t",  &out_plus_proj_has_lg_cluster_good_t);
+  tree->Branch("plus_proj_lg_cluster_id",          &out_plus_proj_lg_cluster_id);
   tree->Branch("plus_proj_lg_cluster_x",           &out_plus_proj_lg_cluster_x);
   tree->Branch("plus_proj_lg_cluster_y",           &out_plus_proj_lg_cluster_y);
   tree->Branch("plus_proj_lg_cluster_z",           &out_plus_proj_lg_cluster_z);
@@ -5349,6 +5406,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("plus_proj_lg_cluster_ise",         &out_plus_proj_lg_cluster_ise);
   tree->Branch("minus_proj_n_trg_lg_hits",         &out_minus_proj_n_trg_lg_hits);
   tree->Branch("minus_proj_has_trg_lg_hit_good_t", &out_minus_proj_has_trg_lg_hit_good_t);
+  tree->Branch("minus_proj_trg_lg_hit_id",         &out_minus_proj_trg_lg_hit_id);
   tree->Branch("minus_proj_trg_lg_hit_x",          &out_minus_proj_trg_lg_hit_x);
   tree->Branch("minus_proj_trg_lg_hit_y",          &out_minus_proj_trg_lg_hit_y);
   tree->Branch("minus_proj_trg_lg_hit_z",          &out_minus_proj_trg_lg_hit_z);
@@ -5359,6 +5417,7 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("minus_proj_trg_lg_hit_t",          &out_minus_proj_trg_lg_hit_t);
   tree->Branch("plus_proj_n_trg_lg_hits",          &out_plus_proj_n_trg_lg_hits);
   tree->Branch("plus_proj_has_trg_lg_hit_good_t",  &out_plus_proj_has_trg_lg_hit_good_t);
+  tree->Branch("plus_proj_trg_lg_hit_id",          &out_plus_proj_trg_lg_hit_id);
   tree->Branch("plus_proj_trg_lg_hit_x",           &out_plus_proj_trg_lg_hit_x);
   tree->Branch("plus_proj_trg_lg_hit_y",           &out_plus_proj_trg_lg_hit_y);
   tree->Branch("plus_proj_trg_lg_hit_z",           &out_plus_proj_trg_lg_hit_z);
@@ -5370,6 +5429,20 @@ void E16ANA_TrackAnalyzerFromTree::InitOutTreeWoRefit(TTree* tree) {
   tree->Branch("proj_lg_hit_min_t_diff",           &out_proj_lg_hit_min_t_diff);
   tree->Branch("proj_lg_hit_min_diff_t_mean",      &out_proj_lg_hit_min_diff_t_mean);
 
+  tree->Branch("minus_ssd_hit_cid",       &out_minus_ssd_hit_cid);
+  tree->Branch("minus_gtr100_hit_xcid",   &out_minus_gtr100_hit_xcid);
+  tree->Branch("minus_gtr100_hit_ycid",   &out_minus_gtr100_hit_ycid);
+  tree->Branch("minus_gtr200_hit_xcid",   &out_minus_gtr200_hit_xcid);
+  tree->Branch("minus_gtr200_hit_ycid",   &out_minus_gtr200_hit_ycid);
+  tree->Branch("minus_gtr300_hit_xcid",   &out_minus_gtr300_hit_xcid);
+  tree->Branch("minus_gtr300_hit_ycid",   &out_minus_gtr300_hit_ycid);
+  tree->Branch("plus_ssd_hit_cid",        &out_plus_ssd_hit_cid);
+  tree->Branch("plus_gtr100_hit_xcid",    &out_plus_gtr100_hit_xcid);
+  tree->Branch("plus_gtr100_hit_ycid",    &out_plus_gtr100_hit_ycid);
+  tree->Branch("plus_gtr200_hit_xcid",    &out_plus_gtr200_hit_xcid);
+  tree->Branch("plus_gtr200_hit_ycid",    &out_plus_gtr200_hit_ycid);
+  tree->Branch("plus_gtr300_hit_xcid",    &out_plus_gtr300_hit_xcid);
+  tree->Branch("plus_gtr300_hit_ycid",    &out_plus_gtr300_hit_ycid);
   tree->Branch("minus_ssd_hit_x",         &out_minus_ssd_hit_x);
   tree->Branch("minus_ssd_hit_y",         &out_minus_ssd_hit_y);
   tree->Branch("minus_ssd_hit_z",         &out_minus_ssd_hit_z);

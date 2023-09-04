@@ -15,8 +15,74 @@ enum {
   kLG0 = 5,
   kLG1 = 6,
   kLG2 = 7,
+#ifndef TRACK_EFF_CHECK
   kNumDetectorLayers = 8
+#else
+  kLGVD = 8,
+  kNumDetectorLayers = 9
+#endif
 };
+
+#ifdef TRACK_EFF_CHECK
+enum { // x search
+  kRej100xADC,
+  kRej100xSize,
+  kRej200xADC,
+  kRej200xSize,
+  kRej300xADC,
+  kRej300xSize,
+  kRejXFit,
+  kNumXSearchRejectPoints
+};
+enum { // x fit
+  kRejTgt0Curve,
+  kRejTgt1Curve,
+  kRejTgt2Curve,
+  kRejTgt0XChi2,
+  kRejTgt1XChi2,
+  kRejTgt2XChi2,
+  kRejTgt0XCoef0,
+  kRejTgt1XCoef0,
+  kRejTgt2XCoef0,
+  kRejTgt0XCoef1,
+  kRejTgt1XCoef1,
+  kRejTgt2XCoef1,
+  kRejTgt0XCoef2,
+  kRejTgt1XCoef2,
+  kRejTgt2XCoef2,
+};
+enum { // y search & fit
+  kRej300yADC,
+  kRej200yADC,
+  kRej100yADC,
+  kRejYSubtract,
+  kRejYChi2,
+  kRejYCoef0,
+  kNumYSearchRejectPoints
+};
+enum { // x - y match
+//  kRej100YYb,
+  kRej100XYModule,
+  kRej200XYModule,
+  kRej300XYModule,
+  kRej100XYTime,
+  kRej200XYTime,
+  kRej300XYTime,
+  kRej100XYADC,
+  kRej200XYADC,
+  kRej300XYADC,
+  kNumXYMatchRejectPoints
+};
+enum { // total
+  kRejXSearch,
+  kTotalRejXFit,
+  kRejYSearch,
+  kRejYCand,
+//  kTotalRej100YYb,
+  kRejXYMatch,
+  kNumRejectPoints
+};
+#endif // TRACK_EFF_CHECK
 
 const std::array<std::string, kNumDetectorLayers> kDetectorName = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG c-type", "LG b-type", "LG a-type"};
 
@@ -33,6 +99,7 @@ constexpr int kNumFullModulesHeight = 3;
 constexpr int kNumFullModules = kNumFullModulesWidth * kNumFullModulesHeight;
 constexpr std::array<int, kNumModules> kModuleIDs = {101, 102, 103, 104, 106, 107, 108, 109};
 constexpr std::array<double, kNumTargets> kTargetZ = {-20., 0., 20.};
+constexpr std::array<double, 2> kSSDRoughRadius = {125.8, 148.6}; // type-a/b
 constexpr std::array<int, kNumFullModules> kModuleID2013To2020 = {{10, 110, 210, 9, 109, 209, 8, 108, 208, 7, 107, 207,
                                                                     6, 106, 206, 5, 105, 205, 4, 104, 204, 3, 103, 203,
                                                                     2, 102, 202, 1, 101, 201, 0, 100, 200}};

@@ -17,9 +17,8 @@ public:
   ~E16ANA_HBDTH2Hex();
   Int_t Fill(Double_t x, Double_t y, Double_t weight) override;
   int Fill(const int pad_id, const double weight);
-  int FindBin(const double x, const double y);// bin number - 1 = pad id
-  void DrawWLocalCoordinate(char *option);
-  // x, y should be local coordinate
+  int FindBin(const double x, const double y);// bin number - 1 = pad id, x, y should be local coordinate
+  void DrawWLocalCoordinate(char *option);//DO NOT USE with other histgrams together 
   
 private:
   void SetHBDHexBin();

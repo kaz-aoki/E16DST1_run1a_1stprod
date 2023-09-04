@@ -28,7 +28,8 @@ public:
   double GetTriggerTileGain(const int module_id, const int pad_id);
   double GetTriggerTileThresholdmV(const int module_id, const int tile_id);
   double GetTriggerTileThreshold(const int module_id, const int tile_id);
-  bool GetGainCalibrationStatus(){return gain_calibration_status;};
+  double GetTriggerTileNoise(const int module_id, const int tile_id);
+  bool GetGainCalibrationStatus(){return gain_calibration_status;};//true: high(normal), false: low(default)
   E16ANA_HBDDeadChannel *GetDeadChannel(){return hbd_dead;};
   
 private:
@@ -45,6 +46,10 @@ private:
   double trg_threshold[n_modules][n_tiles];
   bool gain_calibration_status;
   E16ANA_HBDDeadChannel *hbd_dead;
+  double trg_asd_offset_mV;
+  double trg_asd_noise_mV;
+  double trg_asd_mV_to_fc;
+  double apv_fc_to_adc;
 };
 
 #endif // E16ANA_HBDCalibration_h

@@ -39,6 +39,8 @@ class E16ANA_HBDChannelManager {
   static bool IsValidID(const int module_id, const int pad_id);
   static int ConvMIDE16ToK(const int module_id);
   static int ConvMIDKToE16(const int module_id);
+  static int ConvGIDE16ToK(const int GEM_id);
+  static int ConvGIDKToE16(const int GEM_id);
   static int ConvTIDE16ToK(const int tile_id);
   static int ConvTIDKToE16(const int tile_id);
   

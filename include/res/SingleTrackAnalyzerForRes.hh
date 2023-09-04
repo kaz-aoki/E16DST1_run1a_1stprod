@@ -16,7 +16,7 @@
 #include <iostream>
 using namespace std;
 #include "E16ANA_CalibDBManager.hh"
-#include "E16ANA_TrackAnalyzerFromTree.hh"
+#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16ANA_HBDGeometry.hh"
 #include "E16ANA_HBDDeadChannel.hh"
