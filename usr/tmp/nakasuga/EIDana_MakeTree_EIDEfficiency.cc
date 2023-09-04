@@ -1,4 +1,4 @@
-#include "SingleTrackAnalyzerForRes.hh"
+#include "E16ANA_EIDSingleTrackAnalyzer.hh"
 #include "E16ANA_LGClustering.hh"
 #include <TH2.h>
 #include <TStyle.h>
@@ -79,8 +79,8 @@ int main(int argc, char* argv[]) {
   }
 
 
-  SingleTrackAnalyzerForRes* t = new SingleTrackAnalyzerForRes(in_chain);
-  t->MkTreeForTrackSelection(runtype,maxevent,out_file_name,hbd_track_module,track_charge,max_chi_square);
+  E16ANA_EIDSingleTrackAnalyzer* t = new E16ANA_EIDSingleTrackAnalyzer(in_chain);
+  t->MakeTree_EIDEfficiency(runtype,maxevent,out_file_name,hbd_track_module,track_charge,max_chi_square);
   
   delete in_chain;
   return 0;

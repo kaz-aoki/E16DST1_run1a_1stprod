@@ -41,7 +41,7 @@ E16ANA_LGWaveform::E16ANA_LGWaveform()
       baselinerms(E16DST_DST1Constant::kInvalidValue),
       integral(E16DST_DST1Constant::kInvalidValue),
       falltime(E16DST_DST1Constant::kInvalidValue),
-      hitflag(E16DST_DST1Constant::kInvalidValue),
+      // hitflag(E16DST_DST1Constant::kInvalidValue),
       offset(E16DST_DST1Constant::kInvalidValue),
       pxmin(E16DST_DST1Constant::kInvalidValue),
       pxmax(E16DST_DST1Constant::kInvalidValue),
@@ -148,6 +148,7 @@ void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
     CalcWaveforms();
     PeakSearch();
     Fit();
+    // AllFit();
   }
   else{
     fitOK = 0;
@@ -176,6 +177,23 @@ void E16ANA_LGWaveform::FitMethod(double* _wf, double t0){
 //   thistime = PrintTime("end Fit", thistime);
 
 // }
+
+void E16ANA_LGWaveform::woFitMethod(double* _wf, double t0){
+
+  SimpleMethod(_wf);
+  SetT0(t0);
+
+  if(peak>15){
+    CalcWaveform_woFit();
+    PeakSearch_woFit();
+  }
+  else{
+    fitOK = 0;
+    nps_fit = 0;
+    npeaks = 0;
+  }
+
+}
 
 void E16ANA_LGWaveform::CalcPeak(){
 
@@ -284,6 +302,28 @@ void E16ANA_LGWaveform::CalcWaveforms(){
     if( cell>1&&cell<(E16DST_Constant::NSamplesLG-1) ){
       if((wf[cell-1]+wf[cell+1])/2.*1.5<wf[cell] || (wf[cell-1]+wf[cell+1])/2.*0.5>wf[cell] ){//remove spike
 	mwf[cell]=(wf[cell-2]+wf[cell+2])/2.;
+      }
+    }
+    hwf->SetBinContent(cell,mwf[cell]);
+  }
+
+}
+
+void E16ANA_LGWaveform::CalcWaveform_woFit(){
+
+  for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+    wf[cell] = wf[cell] - baseline;
+  }
+
+  hwf = new TH1F("hwf","hwf",200,0.5,200.5);
+
+  for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+    if(cell==0){ dwf[cell] = wf[cell]; }
+    else{ dwf[cell] = wf[cell] - wf[cell-1]; }
+    mwf[cell] = wf[cell];
+    if( cell>1&&cell<(E16DST_Constant::NSamplesLG-1) ){
+      if((wf[cell-1]+wf[cell+1])/2.*2<wf[cell] || (wf[cell-1]+wf[cell+1])/2.*0.3>wf[cell] ){//remove spike
+	mwf[cell]=(wf[cell-1]+wf[cell+1])/2.;
       }
     }
     hwf->SetBinContent(cell,mwf[cell]);
@@ -429,6 +469,108 @@ int E16ANA_LGWaveform::PeakSearchShort(double* pxs, double* ps){
   }
 
   return nps;
+
+}
+
+void E16ANA_LGWaveform::PeakSearch_woFit(){
+
+  //N peaks search
+  TSpectrum* s = new TSpectrum(30);
+  //int nps = s->Search(hwf, 2, "new", 0.1);
+  int tnps = s->Search(hwf, 3, "nodraw", 0.1);
+  int nps = 0;
+  for(int i=0; i<tnps; i++){
+    if(s->GetPositionY()[i]>15){
+      pxs_full[nps] = s->GetPositionX()[i];
+      ps_full[nps] = s->GetPositionY()[i];
+      nps++;
+    }
+  }
+
+  nps_full = nps;
+  npeaks = nps;
+  for(int i=0;i<nps;i++){
+    peaks[i] = ps_full[i];
+    peakxs[i] = pxs_full[i];
+    chi2s[i] = 100;
+    double ttiming = -10000.;
+    bool tspikeflag = false;
+    CalcRiseTiming(peaks[i], peakxs[i], ttiming, tspikeflag);
+    timings[i] = ttiming+100.-t0;
+    chi2s[i] = 0.;
+    if(tspikeflag==true){
+      timings[i] = -10000;
+      chi2s[i] = 1000;
+    }
+    double tlatetiming;
+    CalcFallTiming(peaks[i], peakxs[i], tlatetiming, tspikeflag);
+    widths[i] = tlatetiming - ttiming;
+    if(tspikeflag==true){
+      widths[i] = -10000;
+      chi2s[i] = 1000;
+    }
+  }
+
+  delete hwf;
+  delete s;
+
+  // return nps;
+
+}
+
+void E16ANA_LGWaveform::CalcRiseTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
+
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion;i++){
+    int cell = tpeakx - i;
+    double peakhalf = tpeak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(wf[cell]>tpeak){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if((cell!=tpeakx)&&wf[cell]<peakhalf){
+      ttiming=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell+1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
+      if(cell==(tpeakx-1)){//remove the event like spike noise
+	tspikeflag = true;
+	// ttiming=-10000;
+      }
+      break;
+    }
+    else{
+      ttiming=tpeakx/E16ANA_LGConstant::kTimeScale;
+    }
+  }
+
+}
+
+void E16ANA_LGWaveform::CalcFallTiming(double tpeak, int tpeakx, double& ttiming, bool& tspikeflag){
+
+  for(int i=0;i<E16ANA_LGConstant::kTimingSearchRegion*3;i++){
+    int cell = tpeakx + i;
+    double peakhalf = tpeak/2.;
+    if(cell<0||cell>E16DST_Constant::NSamplesLG){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if(wf[cell]>tpeak){
+      ttiming=E16DST_DST1Constant::kInvalidValue;
+      break;
+    }
+    if((cell!=tpeakx)&&wf[cell]<peakhalf){
+      ttiming=(peakhalf-wf[cell])*(1./E16ANA_LGConstant::kTimeScale)/(wf[cell-1]-wf[cell])+cell*(1./E16ANA_LGConstant::kTimeScale);
+      if(cell==(tpeakx+1)){//remove the event like spike noise
+	tspikeflag = true;
+	// ttiming=-10000;
+      }
+      break;
+    }
+    else{
+      ttiming=tpeakx/E16ANA_LGConstant::kTimeScale;
+    }
+  }
 
 }
 
@@ -681,7 +823,7 @@ int E16ANA_LGWaveform::FitTmpl1(double* pxs, double* ps){
     peaks[0] = v;
     peakxs[0] = m;
     widths[0] = s;
-    timings[0] = (m + tmplwidth*s)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[0] = (m + tmplwidth*s)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[0] = chi2/Ndof;
 
     // draw
@@ -711,7 +853,7 @@ int E16ANA_LGWaveform::FitTmpl1(double* pxs, double* ps){
     peaks[0] = ps_short[0] - offset;
     peakxs[0] = pxs_short[0];
     widths[0] = s;
-    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[0] = chi2/Ndof;
 
     // draw
@@ -786,7 +928,7 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     peaks[nps] = v[0];
     peakxs[nps] = m[0];
     widths[nps] = s[0];
-    timings[nps] = (m[0] + tmplwidth*s[0])*(1./E16ANA_LGConstant::kTimeScale);
+    timings[nps] = (m[0] + tmplwidth*s[0])*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[nps] = chi2/Ndof;
     nps++;
   }
@@ -797,7 +939,7 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     peaks[nps] = v[1];
     peakxs[nps] = m[1];
     widths[nps] = s[1];
-    timings[nps] = (m[1] + tmplwidth*s[1])*(1./E16ANA_LGConstant::kTimeScale);
+    timings[nps] = (m[1] + tmplwidth*s[1])*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[nps] = chi2/Ndof;
     nps++;
   }
@@ -827,14 +969,14 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     peaks[0] = ps_short[0] - offset;
     peakxs[0] = pxs_short[0];
     widths[0] = s[0];
-    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[0] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[0] = chi2/Ndof;
     pxs[1] = pxs_short[1];
     ps[1] = ps_short[1];
     peaks[1] = ps_short[1];
     peakxs[1] = pxs_short[1];
     widths[1] = s[1];
-    timings[1] = (pxs_short[1] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+    timings[1] = (pxs_short[1] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
     chi2s[1] = chi2/Ndof;
 
     // draw
@@ -914,7 +1056,7 @@ int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
       peakxs[nps] = m[i];
       widths[nps] = s[i];
       //timings[nps] = m[i];
-      timings[nps] = (m[i] + tmplwidth*s[i])*(1./E16ANA_LGConstant::kTimeScale);
+      timings[nps] = (m[i] + tmplwidth*s[i])*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
       chi2s[nps] = chi2/Ndof;
       nps++;
     }
@@ -946,7 +1088,7 @@ int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
       peaks[i] = ps_short[i] - offset;
       peakxs[i] = pxs_short[i];
       widths[i] = s[i];
-      timings[i] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale);
+      timings[i] = (pxs_short[0] + tmplwidth)*(1./E16ANA_LGConstant::kTimeScale) +100.-t0;
       chi2s[i] = chi2/Ndof;
     }
     //peaks[0] = peak;
@@ -1270,45 +1412,116 @@ int E16ANA_LGWaveform::PeakSearch(double* dat, double t0, double* mwf, double* p
 
 }
 
+void E16ANA_LGWaveform::RemoveSpike(double* dat){
 
-// void E16ANA_LGWaveform::AllFit(){
+  //spike search
+  std::vector<int> spike_end;
+  std::vector<double> adc;
+  for( int cell=5; cell<E16DST_Constant::NSamplesLG; cell++){
+    adc.push_back(dat[cell]);
+    if(adc.size()>5){
+      adc.erase(adc.begin());
+    }
+    if(adc.size()==5){
+      int val[4];
+      for(int j=0;j<4;j++){
+	val[j] = adc.at(j+1) - adc.at(j);
+      }
+      if(val[0]>=14&&val[0]<=22&&val[1]>=14&&val[1]<=22&&val[2]>=14&&val[2]<=22&&val[3]>=-60&&val[3]<=-45){
+	spike_end.push_back(cell);
+      }
+    }
+  }
 
-//   CalcOffset();
-//   if(nps_short==1){
-//     nps_fit = FitTmpl1(pxs_fit, ps_fit);
-//     npeaks = nps_fit;
-//   }
-//   else if(nps_short==2){
-//     nps_fit = FitTmpl2(pxs_fit, ps_fit);
-//     npeaks = nps_fit;
-//   }
-//   else if(nps_short==3){
-//     nps_fit = FitTmpl3(pxs_fit, ps_fit);
-//     npeaks = nps_fit;
-//   }
-//   else if(nps_short==0){
-//     fitOK = 0;
-//     nps_fit = nps_short;
-//     npeaks = 1;
-//     peakxs[0] = peakx;
-//     peaks[0] = peak;
-//     //    DrawWf();
-//     n_fit0++;
-//   }
-//   else{
-//     fitOK = 0;
-//     nps_fit = nps_short;
-//     npeaks = 1;
-//     peakxs[0] = peakx;
-//     peaks[0] = peak;
-//     n_fit4++;
-//   }
+  //modify waveform
+  for( int isp=0; isp<spike_end.size(); isp++){
+    double fval = dat[spike_end[isp]];
+    double ival = dat[spike_end[isp]-4];
+    double diff = (fval-ival)/4.;
+    dat[spike_end[isp]-3] = ival+1*diff;
+    dat[spike_end[isp]-2] = ival+2*diff;
+    dat[spike_end[isp]-1] = ival+3*diff;
+  }
 
-//   if(nps_fit==0&&npeaks==0){
-//     npeaks = 1;
-//   }
 
-// }
+  //jump cell search for DRS4 with -1L FPGA
+  int thrraw = 2060;
+  std::vector<std::vector<int>> jump_cell(0);
+  int cell = 5;
+  while( cell<E16DST_Constant::NSamplesLG-1 ){
+    if( (dat[cell]-dat[cell-1])>1700 && dat[cell]>thrraw ){
+      std::vector<int> tmp(0);
+      tmp.push_back(cell);
+      cell++;
+      while( cell<E16DST_Constant::NSamplesLG-1 ){
+	if( dat[cell]>thrraw ){
+	  tmp.push_back(cell);
+	  cell++;
+	}
+	else{
+	  jump_cell.push_back(tmp);
+	  break;
+	}
+      }
+    }
+    else{
+      cell++;
+    }
+  }
+
+  //modify waveform for DRS4 with -1L FPGA
+  for(int i=0;i<jump_cell.size();i++){
+    int size = jump_cell.at(i).size();
+    int scell = jump_cell.at(i).at(0);
+    if(size==1){
+      dat[scell] = (dat[scell-1]+dat[scell+1])/2.;
+    }
+    else{
+      double offset = dat[scell] - ( (dat[scell-1]-dat[scell-2])+dat[scell-1] );
+      for(int j=0;j<size;j++){
+	int ccell = jump_cell.at(i).at(j);
+	dat[ccell] = dat[ccell] - offset;
+      }
+    }
+  }
+
+}
+
+void E16ANA_LGWaveform::AllFit(){
+
+  CalcOffset();
+  if(nps_short==1){
+    nps_fit = FitTmpl1(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==2){
+    nps_fit = FitTmpl2(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==3){
+    nps_fit = FitTmpl3(pxs_fit, ps_fit);
+    npeaks = nps_fit;
+  }
+  else if(nps_short==0){
+    fitOK = 0;
+  }
+  else{
+    fitOK = 0;
+  }
+
+  if(fitOK==0){
+    nps_fit = nps_short;
+    npeaks = 1;
+    peakxs[0] = peakx;
+    peaks[0] = peak;
+    timings[0] = timing+100.-t0;
+  }
+
+  if(fitOK==2){
+    npeaks = nps_short;
+  }
+
+}
 
 // void E16ANA_LGWaveform::CalcPeaks(){
 

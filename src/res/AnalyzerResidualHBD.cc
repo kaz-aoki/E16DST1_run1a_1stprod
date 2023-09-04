@@ -29,7 +29,7 @@ double AnalyzerResidualHBD::Get2DHistSquareIntegral(TH2F* h2d, TH2F* h2dcopy, do
   int ey = y1+1;
   for(int i=sx;i<ex;i++){
     for(int j=sy;j<ey;j++){
-      if(i>=x0&&i<x1&&j>=y0&&j<=y1){
+      if(i>=x0&&i<=x1&&j>=y0&&j<=y1){
   	double content = h2d->GetBinContent(i,j);
   	h2dcopy->SetBinContent(i,j,content);
       }

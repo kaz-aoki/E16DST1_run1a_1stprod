@@ -1,4 +1,4 @@
-#include "SingleTrackAnalyzerForRes.hh"
+#include "E16ANA_EIDSingleTrackAnalyzer.hh"
 #include "E16ANA_LGClustering.hh"
 #include <TH2.h>
 #include <TStyle.h>
@@ -36,23 +36,16 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b220212-0/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b220212-1/*.root");
 
-      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
-      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032401-v1/root_finished/*.root");//5e9ks+1e9ks
+      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22032400-v1/root_finished/*.root");
 
-      in_chain->Add("/ccj/w/data03z/E16/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
-      in_chain->Add("/ccj/w/data03z/E16/ichikawa/lsf_file/22032400-v1/root_finished/*.root");//5e9ks+1e9ks
-
-      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22072100-v1/root_finished/*.root");//5e9ks+1e9ks
-      // in_chain->Add("/ccj/w/data06a/E16/user/ichikawa/lsf_file/22072101-v1/root_finished/*.root");//5e9ks+1e9ks
-
-      // in_chain->Add("/work22/ichikawa/lsf_file/22041000-v1/root_finished/*.root");//1e9ks
+      //morino
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/had030322.root");//fwd
 
     }
     else if(runtype==1){
       //    in_chain->Add("./root/calib/*.root");
       //    in_chain->Add("./root/single/run0307*.root");
-      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/single220131/run0307*.root");
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/single220707/run030743*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/single220131/run0307*.root");
     }
     else if(runtype==2){
       in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/minusmag/*.root");
@@ -70,17 +63,22 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("./root/calib220216/run03030*.root");
       // in_chain->Add("./root/calib220216/run03031*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/1e10etc220331/run0307*.root");
-      in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run03029*.root");
-      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/single220707/run030734_0_000_ev1*.root");
+      //morino
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/x3run03029*.root");//rev
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/x3run03030*.root");//rev
+      in_chain->Add("/ccj/w/data03a/E16/user/ymorino/2204_box6_EID/x3run03031*.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030294.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030295.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030296.root");//rev
+      // in_chain->Add("/ccj/w/data06a/E16/user/ymorino/2204/job/x3run030302.root");//rev
     }
   }
   else if(argc==8){
     in_chain->Add(Form("%s*.root",in_file_prefix));
   }
 
-
-  SingleTrackAnalyzerForRes* t = new SingleTrackAnalyzerForRes(in_chain);
-  t->MkTreeForTrackSelection(runtype,maxevent,out_file_name,hbd_track_module,track_charge,max_chi_square);
+  E16ANA_EIDSingleTrackAnalyzer* t = new E16ANA_EIDSingleTrackAnalyzer(in_chain);
+  t->MakeTree_EIDEfficiency_woY(runtype,maxevent,out_file_name,hbd_track_module,track_charge,max_chi_square);
   
   delete in_chain;
   return 0;
