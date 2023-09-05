@@ -73,7 +73,7 @@ include_directories(
 	include/HBD
 	include/LG
 	include/nakasuga
-	include/res
+#	include/res
 	include/trigger
 	include/straight_track
 	include/track

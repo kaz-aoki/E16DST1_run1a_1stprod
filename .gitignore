@@ -1,1 +1,16 @@
 tmp/*
+
+# nakasuga, 230905 untracked
+# usr/CalcLGWFefficiency.cc
+# usr/DrawForLGEfficiency.cc
+# usr/DrawForLGRejection.cc
+# usr/DrawForTrackSelection.cc
+# usr/MkTreeForTrackSelection.cc
+# usr/MkTreeWYass.cc
+usr/tmp/nakasuga/check_gaindrop.cc
+# usr/tmp/nakasuga/check_lggaincalib.cc
+# usr/tmp/nakasuga/check_lgpmtmag.cc
+# usr/tmp/nakasuga/check_lgwaveform.cc
+# usr/tmp/nakasuga/check_lgwf_wtrack.cc
+# include/res/*
+# src/res/*
