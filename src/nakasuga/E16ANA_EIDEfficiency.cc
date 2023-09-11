@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include "TROOT.h"
 
+#define LGWFHit // <=> LGTrgHit
+
 double CalcBinomialError(int all, int hit){
   double value = (double)hit/(double)all;
   double rerr = 1./sqrt((double)hit);
@@ -1051,7 +1053,11 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 double resy = track_lg_allhit_resy->at(itrack).at(ilg)-originy[lmide][1];
 	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
+#ifdef LGWFHit
 	 if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+#else
+	 if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<-10.||tmptdc>10.) continue;//230906
+#endif
 	 if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
 	   resx_min=resx;
 	   resy_min=resy;
@@ -1289,7 +1295,11 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
 	 if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10]*enepar[bene];}
 	 if(gaincalib){tmpadc = tmpadc*gain;}
+#ifdef LGWFHit
 	 if(tmpadc<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+#else
+	 if(tmpadc<lgresthr||tmptdc<-10.||tmptdc>10.) continue;//230906
+#endif
 	 haresx[lmide][0][1][itype]->Fill(resx);
 	 haresx[2][0][1][itype]->Fill(resx);
 	 haresy[lmide][0][1][itype]->Fill(resy);

@@ -28,7 +28,7 @@ endif()
 #find_package(Geant4 REQUIRED)
 
 
-#add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
+add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
 
 find_package(Boost)
 find_package(Boost COMPONENTS iostreams; thread;)
@@ -174,6 +174,7 @@ add_library(E16DST_DST1
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
   src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
+  src/nakasuga/E16ANA_EIDSingleTrackAnalyzerV2.cc
   src/nakasuga/E16ANA_EIDEfficiency.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
