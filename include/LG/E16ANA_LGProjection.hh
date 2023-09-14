@@ -2,7 +2,6 @@
 #define E16ANA_LGProjection_h
 
 #include "E16ANA_GeometryV2.hh"
-#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -17,49 +16,62 @@
 #include <iostream>
 
 class E16ANA_LGProjection{
-private :
+protected :
 
-  //constant
-  double kStepSize    = 5.;
-  int    kMaxSteps    = 1000;
+  //******* constant
 
-  //init info
-  TVector3 initvtx;
-  TVector3 initmom;
-  double initcharge;
+  const double PI = acos(-1.);
+  // plane a, b, c
+  int planeblock[3] = {20, 10, 0};
+  double xregion[3] = {433.,372.,372.};
+  double yregion_in[3] = {6.5,  137.7,243.2};
+  double yregion_out[3] = {160.7,281.0,388.7};
+  double pmtangle[3]={4.9*PI/180., 9.6*PI/180., 14.0*PI/180.};
+  // (strict) PMT position @ RY plane
+  double pos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4};
+  double pos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
+  double pos_cut_r[6] = {1451.7, 1610.7, 1761.4, 1761.4, 1610.7, 1451.7};
+  double pos_cut_y[6] = {-245.8, -138.6,   -6.5,    6.5,  138.6,  245.8};
+  double plane_r[6]   = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
 
-  //cross info
-  int module;
-  int module2013;
-  bool is_crossed;
-  TVector3 lcross0;//LGVD local @LGVD plane
-  TVector3 lcross1;//LGVD local @each LG plane (a,b,c)
-  TVector3 lcross2;//LG local defined by E16ANA_Geometry
-  TVector3 lcross3;//(LG local) for calib
-  int plane;//0: a, 1: b, 2: c
-  int block_x;
-  int block_y;
-  int block;
-  double angle_x;
-  double angle_y;
-  bool calib_is_valid;
-  TVector3 gcross1;
-  TVector3 lmom1;
-  TVector3 gmom1;
+
+  //******* result
+
+  // //init info
+  // TVector3 initpos;
+  // TVector3 initdir;
+
+  // //cross info
+  // int module;
+  // int module2013;
+  // bool is_crossed;
+  // TVector3 lcross0;//LGVD local @LGVD plane
+  // TVector3 lcross1;//LGVD local @each LG plane (a,b,c)
+  // TVector3 lcross2;//LG local defined by E16ANA_Geometry
+  // TVector3 lcross3;//(LG local) for calib
+  // int plane;//0: a, 1: b, 2: c
+  // int block_x;
+  // int block_y;
+  // int block;
+  // double angle_x;
+  // double angle_y;
+  // bool calib_is_valid;
+  // TVector3 gpos;
 
   E16ANA_GeometryV2* geometry;
-  E16ANA_MagneticFieldMap3D* bfield_map;
-  E16ANA_MultiTrack* fitter;
+
 
 public :
   E16ANA_LGProjection();
   ~E16ANA_LGProjection();
 
-  void ClearInitInfo();
-  void ClearCrossInfo();
-  void SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge);
-  void CalcCrossPos();
-  // void CalcCrossBlock();
+  // void ClearInitInfo();
+  // void ClearCrossInfo();
+  // void SetInitInfo(TVector3& _initpos, TVector3& _initdir);
+  // bool CalcCrossModule();
+  // bool CalcCrossPlane();
+  bool IsInAcceptance(int plane, TVector3& lcross, int& out_block_y);
+  // bool CalcCrossBlock();
   // void CalcCrossAngle();
   // bool CalcCrossBlockForCalib();
   // bool CalcCrossInfo();
@@ -91,10 +103,10 @@ public :
   // double Angle_x(){return angle_x;}
   // double Angle_y(){return angle_y;}
   // bool Calib_is_valid(){return calib_is_valid;}
-  // TVector3 GCross1(){return gcross1;}
-  // double GCross1_x(){return gcross1.X();}
-  // double GCross1_y(){return gcross1.Y();}
-  // double GCross1_z(){return gcross2.Z();}
+  // TVector3 GPos(){return gpos;}
+  // double GPos_x(){return gpos.X();}
+  // double GPos_y(){return gpos.Y();}
+  // double GPos_z(){return gpos.Z();}
 
 };
 #endif

@@ -146,25 +146,25 @@ bool E16ANA_LGStraightProj::CalcCrossPlane(){
   return is_crossed;
 
 }
-bool E16ANA_LGStraightProj::IsInAcceptance(int j, TVector3& v, int& out_block_y){
-  if( fabs(v.Y()) > yregion_in[j] && fabs(v.Y()) < yregion_out[j] ){
-    if( fabs(v.X()) < xregion[j] ){
-      if( v.Y()>0 ){
-	out_block_y = j+3;
-      }
-      else{
-	out_block_y = 2-j;
-      }
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
-  else{
-    return false;
-  }
-}
+// bool E16ANA_LGStraightProj::IsInAcceptance(int j, TVector3& v, int& out_block_y){
+//   if( fabs(v.Y()) > yregion_in[j] && fabs(v.Y()) < yregion_out[j] ){
+//     if( fabs(v.X()) < xregion[j] ){
+//       if( v.Y()>0 ){
+// 	out_block_y = j+3;
+//       }
+//       else{
+// 	out_block_y = 2-j;
+//       }
+//       return true;
+//     }
+//     else{
+//       return false;
+//     }
+//   }
+//   else{
+//     return false;
+//   }
+// }
 
 bool E16ANA_LGStraightProj::CalcCrossBlock(){
 
