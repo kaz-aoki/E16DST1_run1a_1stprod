@@ -16,23 +16,41 @@
 #include <iostream>
 
 class E16ANA_LGStraightProj{
+public :
+
+  //******* constant
+
+  static constexpr double PI = acos(-1.);
+  // plane a, b, c
+  static constexpr int planeblock[3] = {20, 10, 0};
+  static constexpr double xregion[3] = {433.,372.,372.};
+  static constexpr double yregion_in[3] = {6.5,  137.7,243.2};
+  static constexpr double yregion_out[3] = {160.7,281.0,388.7};
+  static constexpr double pmtangle[3]={4.9*PI/180., 9.6*PI/180., 14.0*PI/180.};
+  // (strict) PMT position @ RY plane
+  static constexpr double pos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4};
+  static constexpr double pos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
+  static constexpr double pos_cut_r[6] = {1451.7, 1610.7, 1761.4, 1761.4, 1610.7, 1451.7};
+  static constexpr double pos_cut_y[6] = {-245.8, -138.6,   -6.5,    6.5,  138.6,  245.8};
+  static constexpr double plane_r[6]   = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
+
 private :
 
   //******* constant
 
-  const double PI = acos(-1.);
-  // plane a, b, c
-  int planeblock[3] = {20, 10, 0};
-  double xregion[3] = {433.,372.,372.};
-  double yregion_in[3] = {6.5,  137.7,243.2};
-  double yregion_out[3] = {160.7,281.0,388.7};
-  double pmtangle[3]={4.9*PI/180., 9.6*PI/180., 14.0*PI/180.};
-  // (strict) PMT position @ RY plane
-  double pos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4};
-  double pos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
-  double pos_cut_r[6] = {1451.7, 1610.7, 1761.4, 1761.4, 1610.7, 1451.7};
-  double pos_cut_y[6] = {-245.8, -138.6,   -6.5,    6.5,  138.6,  245.8};
-  double plane_r[6]   = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
+  // const double PI = acos(-1.);
+  // // plane a, b, c
+  // int planeblock[3] = {20, 10, 0};
+  // double xregion[3] = {433.,372.,372.};
+  // double yregion_in[3] = {6.5,  137.7,243.2};
+  // double yregion_out[3] = {160.7,281.0,388.7};
+  // double pmtangle[3]={4.9*PI/180., 9.6*PI/180., 14.0*PI/180.};
+  // // (strict) PMT position @ RY plane
+  // double pos_pmt_r[6] = {1417.4, 1587.0, 1748.2, 1748.2, 1587.0, 1417.4};
+  // double pos_pmt_y[6] = {-363.6, -278.6, -159.9,  159.9,  278.6,  363.6};
+  // double pos_cut_r[6] = {1451.7, 1610.7, 1761.4, 1761.4, 1610.7, 1451.7};
+  // double pos_cut_y[6] = {-245.8, -138.6,   -6.5,    6.5,  138.6,  245.8};
+  // double plane_r[6]   = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
 
 
   //******* result
@@ -68,9 +86,9 @@ public :
   void ClearInitInfo();
   void ClearCrossInfo();
   void SetInitInfo(TVector3& _initpos, TVector3& _initdir);
-  void SetCrossInfo();
   bool CalcCrossModule();
   bool CalcCrossPlane();
+  static bool IsInAcceptance(int plane, TVector3& lcross, int& out_block_y);
   bool CalcCrossBlock();
   void CalcCrossAngle();
   bool CalcCrossBlockForCalib();

@@ -133,6 +133,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
   src/LG/E16ANA_LGStraightProj.cc
+  src/LG/E16ANA_LGProjection.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc

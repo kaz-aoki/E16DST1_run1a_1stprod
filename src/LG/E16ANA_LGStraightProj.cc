@@ -81,6 +81,44 @@ bool E16ANA_LGStraightProj::CalcCrossModule(){
   return is_crossed;
 }
 
+// bool E16ANA_LGStraightProj::CalcCrossPlane(){
+
+//   TVector3 p0 = initpos;
+//   TVector3 p1 = initpos + initdir*2000;
+
+//   for(int i=0;i<3;i++){
+//     int j = 2-i;
+//     TVector3 v0;
+//     bool tis_crossed = geometry->LG(module2013,planeblock[j])->IsCrossed(p0,p1,v0);
+//     TVector3 v1 = geometry->LG(module2013, planeblock[j])->GetGPos(v0);
+//     TVector3 v2 = geometry->LGVD(module2013)->GetLPos(v1);
+//     if( fabs(v2.Y()) > yregion_in[j] && fabs(v2.Y()) < yregion_out[j] ){
+//       if( fabs(v2.X()) < xregion[j] ){
+// 	plane = j;
+// 	lcross1 = v2;
+// 	if( v2.Y()>0 ){
+// 	  block_y = j+3;
+// 	}
+// 	else{
+// 	  block_y = 2-j;
+// 	}
+// 	break;
+//       }
+//       else{
+// 	is_crossed = false;
+// 	return is_crossed;
+//       }
+//       break;
+//     }
+//     if( i==2 ){
+//       is_crossed = false;
+//       return is_crossed;
+//     }
+//   }
+
+//   return is_crossed;
+
+// }
 bool E16ANA_LGStraightProj::CalcCrossPlane(){
 
   TVector3 p0 = initpos;
@@ -92,22 +130,11 @@ bool E16ANA_LGStraightProj::CalcCrossPlane(){
     bool tis_crossed = geometry->LG(module2013,planeblock[j])->IsCrossed(p0,p1,v0);
     TVector3 v1 = geometry->LG(module2013, planeblock[j])->GetGPos(v0);
     TVector3 v2 = geometry->LGVD(module2013)->GetLPos(v1);
-    if( fabs(v2.Y()) > yregion_in[j] && fabs(v2.Y()) < yregion_out[j] ){
-      if( fabs(v2.X()) < xregion[j] ){
-	plane = j;
-	lcross1 = v2;
-	if( v2.Y()>0 ){
-	  block_y = j+3;
-	}
-	else{
-	  block_y = 2-j;
-	}
-	break;
-      }
-      else{
-	is_crossed = false;
-	return is_crossed;
-      }
+    int out_block_y;
+    if( IsInAcceptance(j,v2,out_block_y) ){
+      plane = j;
+      lcross1 = v2;
+      block_y = out_block_y;
       break;
     }
     if( i==2 ){
@@ -118,6 +145,25 @@ bool E16ANA_LGStraightProj::CalcCrossPlane(){
 
   return is_crossed;
 
+}
+bool E16ANA_LGStraightProj::IsInAcceptance(int j, TVector3& v, int& out_block_y){
+  if( fabs(v.Y()) > yregion_in[j] && fabs(v.Y()) < yregion_out[j] ){
+    if( fabs(v.X()) < xregion[j] ){
+      if( v.Y()>0 ){
+	out_block_y = j+3;
+      }
+      else{
+	out_block_y = 2-j;
+      }
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  else{
+    return false;
+  }
 }
 
 bool E16ANA_LGStraightProj::CalcCrossBlock(){
