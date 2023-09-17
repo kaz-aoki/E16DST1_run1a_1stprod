@@ -2,6 +2,7 @@
 #define E16ANA_LGProjection_h
 
 #include "E16ANA_GeometryV2.hh"
+#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -34,49 +35,65 @@ protected :
   double pos_cut_y[6] = {-245.8, -138.6,   -6.5,    6.5,  138.6,  245.8};
   double plane_r[6]   = {1436.4, 1600.7, 1756.8, 1756.8, 1600.7, 1436.4};
 
+  E16ANA_GeometryV2* geometry;
+  E16ANA_MagneticFieldMap3D* bfield_map;
+  E16ANA_MultiTrack* fitter;
+
+private :
+
+  //constant
+  double kStepSize    = 5.;
+  int    kMaxSteps    = 1000;
 
   //******* result
 
-  // //init info
-  // TVector3 initpos;
-  // TVector3 initdir;
+  //init info
+  TVector3 initvtx;
+  TVector3 initmom;
+  double initcharge;
 
-  // //cross info
-  // int module;
-  // int module2013;
-  // bool is_crossed;
-  // TVector3 lcross0;//LGVD local @LGVD plane
-  // TVector3 lcross1;//LGVD local @each LG plane (a,b,c)
-  // TVector3 lcross2;//LG local defined by E16ANA_Geometry
-  // TVector3 lcross3;//(LG local) for calib
-  // int plane;//0: a, 1: b, 2: c
-  // int block_x;
-  // int block_y;
-  // int block;
-  // double angle_x;
-  // double angle_y;
-  // bool calib_is_valid;
-  // TVector3 gpos;
-
-  E16ANA_GeometryV2* geometry;
+  //cross info
+  int module;
+  int module2013;
+  bool is_crossed;
+  TVector3 lcross0;//LGVD local @LGVD plane
+  TVector3 lcross1;//LGVD local @each LG plane (a,b,c)
+  TVector3 lcross2;//LG local defined by E16ANA_Geometry
+  TVector3 lcross3;//(LG local) for calib
+  int plane;//0: a, 1: b, 2: c
+  int block_x;
+  int block_y;
+  int block;
+  double angle_x;
+  double angle_y;
+  bool calib_is_valid;
+  TVector3 gcross1;
+  TVector3 lmom1;
+  TVector3 gmom1;
 
 
 public :
   E16ANA_LGProjection();
   ~E16ANA_LGProjection();
 
-  // void ClearInitInfo();
-  // void ClearCrossInfo();
-  // void SetInitInfo(TVector3& _initpos, TVector3& _initdir);
-  // bool CalcCrossModule();
-  // bool CalcCrossPlane();
+  //common function
   bool IsInAcceptance(int plane, TVector3& lcross, int& out_block_y);
-  // bool CalcCrossBlock();
-  // void CalcCrossAngle();
-  // bool CalcCrossBlockForCalib();
-  // bool CalcCrossInfo();
-  // double CalibFunction();
-  // double CalibParameter();
+  void LposToBlock(int in_module2013, int in_block_y, TVector3& in_v, int& out_block_x, TVector3& out_v);
+  void LmomToAngle(int in_block_y, int in_plane, TVector3& in_v, double& out_angle_x, double& out_angle_y);
+  TVector2 RYPlaneCrossPoint(TVector2& a, TVector2& b, TVector2& p);
+  bool LposToCalibpos(int in_block_y, TVector3& in_v1, double in_angle_x, TVector3& in_v2, TVector3& out_v);
+  double CalcCalibFunction(bool in_calib_is_valid, double in_x, double in_y);
+
+  //overrided
+  void ClearInitInfo();//overrided
+  void ClearCrossInfo();//overrided
+  void SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge);
+  void CalcCrossPos();
+  void CalcCrossAngle();//overrided
+  void CalcCrossBlockForCalib();//overrided
+  bool CalcCrossInfo();//overrided
+  double CalibFunction();//overrided
+  double CalibParameter();//overrided
   // int Module(){return module;}
   // int Module2013(){return module2013;}
   // bool Is_crossed(){return is_crossed;}
@@ -103,10 +120,10 @@ public :
   // double Angle_x(){return angle_x;}
   // double Angle_y(){return angle_y;}
   // bool Calib_is_valid(){return calib_is_valid;}
-  // TVector3 GPos(){return gpos;}
-  // double GPos_x(){return gpos.X();}
-  // double GPos_y(){return gpos.Y();}
-  // double GPos_z(){return gpos.Z();}
+  // TVector3 GCross1(){return gcross1;}
+  // double GCross1_x(){return gcross1.X();}
+  // double GCross1_y(){return gcross1.Y();}
+  // double GCross1_z(){return gcross2.Z();}
 
 };
 #endif

@@ -25,7 +25,7 @@ using namespace std;
 // namespace  bpo = boost::program_options;
 
 #define TRG_ON
-// #define TRK_ON
+#define TRK_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {

@@ -15,8 +15,8 @@ E16ANA_LGStraightProj::E16ANA_LGStraightProj(){
   ClearInitInfo();
   ClearCrossInfo();
 
-  geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  // // E16ANA_GeometryV2::SetGlobalPointer(geometry);
 
 }
 E16ANA_LGStraightProj::~E16ANA_LGStraightProj(){
@@ -146,65 +146,68 @@ bool E16ANA_LGStraightProj::CalcCrossPlane(){
   return is_crossed;
 
 }
-// bool E16ANA_LGStraightProj::IsInAcceptance(int j, TVector3& v, int& out_block_y){
-//   if( fabs(v.Y()) > yregion_in[j] && fabs(v.Y()) < yregion_out[j] ){
-//     if( fabs(v.X()) < xregion[j] ){
-//       if( v.Y()>0 ){
-// 	out_block_y = j+3;
-//       }
-//       else{
-// 	out_block_y = 2-j;
-//       }
-//       return true;
+
+// bool E16ANA_LGStraightProj::CalcCrossBlock(){
+
+//   double lxtmp = 10000.;
+//   if( block_y>=0 && block_y<=5 ){
+//     int xmax = 6;
+//     if( block_y==2 || block_y==3 ){
+//       xmax = 7;
 //     }
-//     else{
-//       return false;
+//     for(int i=0;i<xmax;i++){
+//       int blocktmp = block_y*10+i;
+//       TVector3 v0 = geometry->LGVD(module2013)->GetGPos(lcross1);
+//       TVector3 v1 = geometry->LG(module2013, blocktmp)->GetLPos(v0);
+//       if( fabs(v1.X()) < fabs(lxtmp) ){
+// 	lxtmp = v1.X();
+// 	lcross2 = v1;
+// 	block_x = i;
+// 	block = blocktmp;
+//       }
 //     }
 //   }
 //   else{
-//     return false;
+//     is_crossed = false;
 //   }
-// }
 
+//   return is_crossed;
+
+// }
 bool E16ANA_LGStraightProj::CalcCrossBlock(){
 
-  double lxtmp = 10000.;
-  if( block_y>=0 && block_y<=5 ){
-    int xmax = 6;
-    if( block_y==2 || block_y==3 ){
-      xmax = 7;
-    }
-    for(int i=0;i<xmax;i++){
-      int blocktmp = block_y*10+i;
-      TVector3 v0 = geometry->LGVD(module2013)->GetGPos(lcross1);
-      TVector3 v1 = geometry->LG(module2013, blocktmp)->GetLPos(v0);
-      if( fabs(v1.X()) < fabs(lxtmp) ){
-	lxtmp = v1.X();
-	lcross2 = v1;
-	block_x = i;
-	block = blocktmp;
-      }
-    }
-  }
-  else{
-    is_crossed = false;
-  }
+  int out_block_x = -10000;
+  TVector3 out_v(-10000.,-10000.,-10000.);
+  LposToBlock(module2013, block_y, lcross1, out_block_x, out_v);
+  lcross2 = out_v;
+  block_x = out_block_x;
+  block = block_y*10+block_x;
 
   return is_crossed;
 
 }
 
+// void E16ANA_LGStraightProj::CalcCrossAngle(){
+
+//   TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
+//   TVector3 v1 = geometry->LG(module2013, block)->GetLPos(v0+initdir);
+//   angle_x = atan( v1.X()/v1.Z() );
+//   if(block_y>=3){
+//     angle_y = atan( v1.Y()/v1.Z() ) - pmtangle[plane];
+//   }
+//   else{
+//     angle_y = -atan( v1.Y()/v1.Z() ) - pmtangle[plane];
+//   }
+
+// }
 void E16ANA_LGStraightProj::CalcCrossAngle(){
 
   TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
   TVector3 v1 = geometry->LG(module2013, block)->GetLPos(v0+initdir);
-  angle_x = atan( v1.X()/v1.Z() );
-  if(block_y>=3){
-    angle_y = atan( v1.Y()/v1.Z() ) - pmtangle[plane];
-  }
-  else{
-    angle_y = -atan( v1.Y()/v1.Z() ) - pmtangle[plane];
-  }
+  double out_angle_x, out_angle_y;
+  LmomToAngle(block_y, plane, v1, out_angle_x, out_angle_y);
+  angle_x = out_angle_x;
+  angle_y = out_angle_y;
 
 }
 
@@ -217,34 +220,40 @@ TVector2 RYPlaneCrossPoint(TVector2 a, TVector2 b, TVector2 p){
   return cr;
 }
 
+// bool E16ANA_LGStraightProj::CalcCrossBlockForCalib(){
+
+//   // local-x info and local-y info are needed for calibration of position dependence.
+
+//   // local-y: calc distance between a projection-point and a pmt-plane
+//   // consider grobal R-Y plane
+//   // including approximation as target pos ~ O
+//   TVector2 pos_pmt( pos_pmt_r[block_y], pos_pmt_y[block_y] );
+//   TVector2 pos_cut( pos_cut_r[block_y], pos_cut_y[block_y] );
+//   TVector2 pos_proj( plane_r[block_y], lcross1.Y() );
+//   TVector2 cs = RYPlaneCrossPoint(pos_pmt,pos_cut,pos_proj);
+//   TVector2 vec_y = cs - pos_pmt;
+//   double lcross3_y = vec_y.Mod();
+
+//   calib_is_valid = true;
+//   if( lcross3_y<10. ){
+//     calib_is_valid = false;
+//   }
+
+//   // local-x: calc distance between a track and a CENTER OF SOLID BLOCK.
+//   // consider local X-Z plane
+//   double lcross3_x = lcross2.X() + 135./2.*tan(angle_x);
+//   lcross3_x = lcross3_x*cos(angle_x);
+//   lcross3_x = (-angle_x/fabs(angle_x))*lcross3_x;
+//   lcross3_x = lcross3_x/cos(angle_x);
+
+//   lcross3.SetXYZ(lcross3_x, lcross3_y, 0.);
+
+//   return calib_is_valid;
+// }
 bool E16ANA_LGStraightProj::CalcCrossBlockForCalib(){
-
-  // local-x info and local-y info are needed for calibration of position dependence.
-
-  // local-y: calc distance between a projection-point and a pmt-plane
-  // consider grobal R-Y plane
-  // including approximation as target pos ~ O
-  TVector2 pos_pmt( pos_pmt_r[block_y], pos_pmt_y[block_y] );
-  TVector2 pos_cut( pos_cut_r[block_y], pos_cut_y[block_y] );
-  TVector2 pos_proj( plane_r[block_y], lcross1.Y() );
-  TVector2 cs = RYPlaneCrossPoint(pos_pmt,pos_cut,pos_proj);
-  TVector2 vec_y = cs - pos_pmt;
-  double lcross3_y = vec_y.Mod();
-
-  calib_is_valid = true;
-  if( lcross3_y<10. ){
-    calib_is_valid = false;
-  }
-
-  // local-x: calc distance between a track and a CENTER OF SOLID BLOCK.
-  // consider local X-Z plane
-  double lcross3_x = lcross2.X() + 135./2.*tan(angle_x);
-  lcross3_x = lcross3_x*cos(angle_x);
-  lcross3_x = (-angle_x/fabs(angle_x))*lcross3_x;
-  lcross3_x = lcross3_x/cos(angle_x);
-
-  lcross3.SetXYZ(lcross3_x, lcross3_y, 0.);
-
+  TVector3 out_v(-10000.,-10000.,-10000.);
+  calib_is_valid = LposToCalibpos(block_y, lcross1, angle_x, lcross2, out_v);
+  lcross3 = out_v;
   return calib_is_valid;
 }
 
@@ -271,30 +280,31 @@ bool E16ANA_LGStraightProj::CalcCrossInfo(){
   return true;
 }
 
+// double E16ANA_LGStraightProj::CalibFunction(){
+
+//   double by = lcross3.Y();
+//   TF1 *fc = new TF1("fc","[0]+ ( -39.56E-4*x*x + 41.71E-6*fabs(x)*x*x + 1E-8*x*x*x*x )*[1]",-65.,65.);
+//   fc->FixParameter(0,1.857 -1.143*by*0.01);
+//   fc->FixParameter(1,0.2755-0.334*by*0.01);
+
+//   if( !calib_is_valid ){
+//     delete fc;
+//     return -0.0001;
+//   }
+//   else if( lcross3.Y()<75. ){
+//     double ret = fc->Eval(lcross3.X());
+//     delete fc;
+//     return ret;
+//   }
+//   else{
+//     delete fc;
+//     return 1.;
+//   }
+// }
+
 double E16ANA_LGStraightProj::CalibFunction(){
-
-  double by = lcross3.Y();
-  TF1 *fc = new TF1("fc","[0]+ ( -39.56E-4*x*x + 41.71E-6*fabs(x)*x*x + 1E-8*x*x*x*x )*[1]",-65.,65.);
-  fc->FixParameter(0,1.857 -1.143*by*0.01);
-  fc->FixParameter(1,0.2755-0.334*by*0.01);
-
-  if( !calib_is_valid ){
-    delete fc;
-    return -0.0001;
-  }
-  else if( lcross3.Y()<75. ){
-    double ret = fc->Eval(lcross3.X());
-    delete fc;
-    return ret;
-  }
-  else{
-    delete fc;
-    return 1.;
-  }
+  return CalcCalibFunction(calib_is_valid, lcross3.X(), lcross3.Y() );
 }
-
 double E16ANA_LGStraightProj::CalibParameter(){
-
   return 1./CalibFunction();
-
 }
