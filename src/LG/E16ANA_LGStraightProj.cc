@@ -81,6 +81,95 @@ bool E16ANA_LGStraightProj::CalcCrossModule(){
   return is_crossed;
 }
 
+bool E16ANA_LGStraightProj::CalcCrossPlane(){
+
+  TVector3 p0 = initpos;
+  TVector3 p1 = initpos + initdir*2000;
+
+  for(int i=0;i<3;i++){
+    int j = 2-i;
+    TVector3 v0;
+    bool tis_crossed = geometry->LG(module2013,planeblock[j])->IsCrossed(p0,p1,v0);
+    TVector3 v1 = geometry->LG(module2013, planeblock[j])->GetGPos(v0);
+    TVector3 v2 = geometry->LGVD(module2013)->GetLPos(v1);
+    int out_block_y;
+    if( IsInAcceptance(j,v2,out_block_y) ){
+      plane = j;
+      lcross1 = v2;
+      block_y = out_block_y;
+      break;
+    }
+    if( i==2 ){
+      is_crossed = false;
+      return is_crossed;
+    }
+  }
+
+  return is_crossed;
+
+}
+
+bool E16ANA_LGStraightProj::CalcCrossBlock(){
+
+  int out_block_x = -10000;
+  TVector3 out_v(-10000.,-10000.,-10000.);
+  LposToBlock(module2013, block_y, lcross1, out_block_x, out_v);
+  lcross2 = out_v;
+  block_x = out_block_x;
+  block = block_y*10+block_x;
+
+  return is_crossed;
+
+}
+
+void E16ANA_LGStraightProj::CalcCrossAngle(){
+
+  TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
+  TVector3 v1 = geometry->LG(module2013, block)->GetLPos(v0+initdir);
+  double out_angle_x, out_angle_y;
+  LmomToAngle(block_y, plane, v1, out_angle_x, out_angle_y);
+  angle_x = out_angle_x;
+  angle_y = out_angle_y;
+
+}
+
+bool E16ANA_LGStraightProj::CalcCrossBlockForCalib(){
+  TVector3 out_v(-10000.,-10000.,-10000.);
+  calib_is_valid = LposToCalibpos(block_y, lcross1, angle_x, lcross2, out_v);
+  lcross3 = out_v;
+  return calib_is_valid;
+}
+
+bool E16ANA_LGStraightProj::CalcCrossInfo(){
+  if( !CalcCrossModule() ){
+    // std::cout<<"not crossed module"<<std::endl;
+    return false;
+  }
+  if( !CalcCrossPlane() ){
+    // std::cout<<"not crossed plane"<<std::endl;
+    return false;
+  }
+  if( !CalcCrossBlock() ){
+    // std::cout<<"not crossed block"<<std::endl;
+    return false;
+  }
+  CalcCrossAngle();
+  if( !CalcCrossBlockForCalib() ){
+    // std::cout<<"not crossed calib"<<std::endl;
+    return false;
+  }
+  gpos = geometry->LG(module2013, block)->GetDetectorCenter();
+
+  return true;
+}
+
+double E16ANA_LGStraightProj::CalibFunction(){
+  return CalcCalibFunction(calib_is_valid, lcross3.X(), lcross3.Y() );
+}
+double E16ANA_LGStraightProj::CalibParameter(){
+  return 1./CalibFunction();
+}
+
 // bool E16ANA_LGStraightProj::CalcCrossPlane(){
 
 //   TVector3 p0 = initpos;
@@ -119,34 +208,6 @@ bool E16ANA_LGStraightProj::CalcCrossModule(){
 //   return is_crossed;
 
 // }
-bool E16ANA_LGStraightProj::CalcCrossPlane(){
-
-  TVector3 p0 = initpos;
-  TVector3 p1 = initpos + initdir*2000;
-
-  for(int i=0;i<3;i++){
-    int j = 2-i;
-    TVector3 v0;
-    bool tis_crossed = geometry->LG(module2013,planeblock[j])->IsCrossed(p0,p1,v0);
-    TVector3 v1 = geometry->LG(module2013, planeblock[j])->GetGPos(v0);
-    TVector3 v2 = geometry->LGVD(module2013)->GetLPos(v1);
-    int out_block_y;
-    if( IsInAcceptance(j,v2,out_block_y) ){
-      plane = j;
-      lcross1 = v2;
-      block_y = out_block_y;
-      break;
-    }
-    if( i==2 ){
-      is_crossed = false;
-      return is_crossed;
-    }
-  }
-
-  return is_crossed;
-
-}
-
 // bool E16ANA_LGStraightProj::CalcCrossBlock(){
 
 //   double lxtmp = 10000.;
@@ -174,19 +235,6 @@ bool E16ANA_LGStraightProj::CalcCrossPlane(){
 //   return is_crossed;
 
 // }
-bool E16ANA_LGStraightProj::CalcCrossBlock(){
-
-  int out_block_x = -10000;
-  TVector3 out_v(-10000.,-10000.,-10000.);
-  LposToBlock(module2013, block_y, lcross1, out_block_x, out_v);
-  lcross2 = out_v;
-  block_x = out_block_x;
-  block = block_y*10+block_x;
-
-  return is_crossed;
-
-}
-
 // void E16ANA_LGStraightProj::CalcCrossAngle(){
 
 //   TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
@@ -200,26 +248,14 @@ bool E16ANA_LGStraightProj::CalcCrossBlock(){
 //   }
 
 // }
-void E16ANA_LGStraightProj::CalcCrossAngle(){
+// TVector2 RYPlaneCrossPoint(TVector2 a, TVector2 b, TVector2 p){
 
-  TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
-  TVector3 v1 = geometry->LG(module2013, block)->GetLPos(v0+initdir);
-  double out_angle_x, out_angle_y;
-  LmomToAngle(block_y, plane, v1, out_angle_x, out_angle_y);
-  angle_x = out_angle_x;
-  angle_y = out_angle_y;
-
-}
-
-TVector2 RYPlaneCrossPoint(TVector2 a, TVector2 b, TVector2 p){
-
-  double s = p.Y()/p.X();
-  double q = (b.Y()-a.Y())/(b.X()-a.X());
-  double cr_r = (a.Y()-q*a.X())/(s-q);
-  TVector2 cr(cr_r,s*cr_r);
-  return cr;
-}
-
+//   double s = p.Y()/p.X();
+//   double q = (b.Y()-a.Y())/(b.X()-a.X());
+//   double cr_r = (a.Y()-q*a.X())/(s-q);
+//   TVector2 cr(cr_r,s*cr_r);
+//   return cr;
+// }
 // bool E16ANA_LGStraightProj::CalcCrossBlockForCalib(){
 
 //   // local-x info and local-y info are needed for calibration of position dependence.
@@ -250,36 +286,6 @@ TVector2 RYPlaneCrossPoint(TVector2 a, TVector2 b, TVector2 p){
 
 //   return calib_is_valid;
 // }
-bool E16ANA_LGStraightProj::CalcCrossBlockForCalib(){
-  TVector3 out_v(-10000.,-10000.,-10000.);
-  calib_is_valid = LposToCalibpos(block_y, lcross1, angle_x, lcross2, out_v);
-  lcross3 = out_v;
-  return calib_is_valid;
-}
-
-bool E16ANA_LGStraightProj::CalcCrossInfo(){
-  if( !CalcCrossModule() ){
-    // std::cout<<"not crossed module"<<std::endl;
-    return false;
-  }
-  if( !CalcCrossPlane() ){
-    // std::cout<<"not crossed plane"<<std::endl;
-    return false;
-  }
-  if( !CalcCrossBlock() ){
-    // std::cout<<"not crossed block"<<std::endl;
-    return false;
-  }
-  CalcCrossAngle();
-  if( !CalcCrossBlockForCalib() ){
-    // std::cout<<"not crossed calib"<<std::endl;
-    return false;
-  }
-  gpos = geometry->LG(module2013, block)->GetDetectorCenter();
-
-  return true;
-}
-
 // double E16ANA_LGStraightProj::CalibFunction(){
 
 //   double by = lcross3.Y();
@@ -302,9 +308,3 @@ bool E16ANA_LGStraightProj::CalcCrossInfo(){
 //   }
 // }
 
-double E16ANA_LGStraightProj::CalibFunction(){
-  return CalcCalibFunction(calib_is_valid, lcross3.X(), lcross3.Y() );
-}
-double E16ANA_LGStraightProj::CalibParameter(){
-  return 1./CalibFunction();
-}

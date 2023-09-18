@@ -10,50 +10,25 @@
 #include <iostream>
 #include <fstream>
 
-// E16ANA_LGProjection::E16ANA_LGProjection(){
+E16ANA_LGProjection::E16ANA_LGProjection(){
 
-//   // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-//   // // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+  bfield_map->Initialize_binary();
+  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
 
-//   geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-//   E16ANA_GeometryV2::SetGlobalPointer(geometry);
-//   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-//   bfield_map->Initialize_binary();
-//   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+  fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+  fitter->SetRungeKuttaStepSize(kStepSize);
+  fitter->SetMaxSteps(kMaxSteps);
 
-//   fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
-//   fitter->SetRungeKuttaStepSize(kStepSize);
-//   fitter->SetMaxSteps(kMaxSteps);
+  ClearInitInfo();
+  ClearCrossInfo();
 
-//   ClearInitInfo();
-//   ClearCrossInfo();
-
-// }
-// E16ANA_LGProjection::~E16ANA_LGProjection(){
-//   delete geometry;
-//   delete bfield_map;
-//   delete fitter;
-// }
+}
 E16ANA_LGProjection::E16ANA_LGProjection(E16ANA_GeometryV2* in_geometry, E16ANA_MagneticFieldMap3D* in_bfield_map, E16ANA_MultiTrack* in_fitter)
   : geometry(in_geometry), bfield_map(in_bfield_map), fitter(in_fitter)
 {
-
-  // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  // // E16ANA_GeometryV2::SetGlobalPointer(geometry);
-
-  // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  // E16ANA_GeometryV2::SetGlobalPointer(geometry);
-  // auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-  // bfield_map->Initialize_binary();
-  // E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
-
-  // fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
-  // fitter->SetRungeKuttaStepSize(kStepSize);
-  // fitter->SetMaxSteps(kMaxSteps);
-
-  // geometry = in_geometry;
-  // bfield_map = in_bfield_map;
-  // fitter = in_fitter;
 
   ClearInitInfo();
   ClearCrossInfo();
@@ -160,6 +135,8 @@ bool E16ANA_LGProjection::LposToCalibpos(int in_block_y, TVector3& in_v1, double
 }
 
 void E16ANA_LGProjection::ClearInitInfo(){
+  initpos.SetXYZ(-10000.,-10000.,-10000.);
+  initdir.SetXYZ(-10000.,-10000.,-10000.);
   initvtx.SetXYZ(-10000.,-10000.,-10000.);
   initmom.SetXYZ(-10000.,-10000.,-10000.);
   initcharge = -10000.;
@@ -182,6 +159,71 @@ void E16ANA_LGProjection::ClearCrossInfo(){
   gcross1.SetXYZ(-10000.,-10000.,-10000.);
   lmom1.SetXYZ(-10000.,-10000.,-10000.);
   gmom1.SetXYZ(-10000.,-10000.,-10000.);
+  gpos.SetXYZ(-10000.,-10000.,-10000.);
+}
+
+void E16ANA_LGProjection::SetInitInfo(TVector3& _initpos, TVector3& _initdir){
+  initpos = _initpos;
+  initdir = _initdir;
+  double norm = 1./initdir.Mag();
+  initdir = initdir*norm;
+  ClearCrossInfo();
+}
+
+bool E16ANA_LGProjection::CalcCrossModule(){
+
+  TVector3 p0 = initpos;
+  TVector3 p1 = initpos + initdir*2000;
+
+  double tdist = 10000.;
+  for(int i=0;i<9;i++){
+    int tmid = i+101;
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(tmid);//HBD, LG
+    auto lg_geom = geometry->LGVD(mid2013);
+    TVector3 tlcross;
+    bool tis_crossed = lg_geom->IsCrossed(p0,p1,tlcross);
+    if( tis_crossed && tlcross.Mag()<tdist ){
+      module = tmid;
+      module2013 = mid2013;
+      is_crossed = true;
+      lcross0 = tlcross;
+      tdist = tlcross.Mag();
+    }
+  }
+  if(module==105){
+    is_crossed = false;
+  }
+  // std::cout<<module<<" "<<is_crossed<<" "<<lcross0.Mag()<<std::endl;
+
+  return is_crossed;
+}
+
+bool E16ANA_LGProjection::CalcCrossPlane(){
+
+  TVector3 p0 = initpos;
+  TVector3 p1 = initpos + initdir*2000;
+
+  for(int i=0;i<3;i++){
+    int j = 2-i;
+    TVector3 v0;
+    bool tis_crossed = geometry->LG(module2013,planeblock[j])->IsCrossed(p0,p1,v0);
+    TVector3 v1 = geometry->LG(module2013, planeblock[j])->GetGPos(v0);
+    TVector3 v2 = geometry->LGVD(module2013)->GetLPos(v1);
+    int out_block_y;
+    if( IsInAcceptance(j,v2,out_block_y) ){
+      plane = j;
+      lcross1 = v2;
+      block_y = out_block_y;
+      break;
+    }
+    if( i==2 ){
+      is_crossed = false;
+      return is_crossed;
+    }
+  }
+
+  return is_crossed;
+
 }
 
 void E16ANA_LGProjection::SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge){
@@ -234,30 +276,30 @@ void E16ANA_LGProjection::CalcCrossPos(){
     }
   }
 
+}
+
+void E16ANA_LGProjection::CalcCrossBlock(){
   int out_block_x = -10000;
   TVector3 out_v(-10000.,-10000.,-10000.);
   LposToBlock(module2013, block_y, lcross1, out_block_x, out_v);
   lcross2 = out_v;
   block_x = out_block_x;
   block = block_y*10+block_x;
-
 }
 
 void E16ANA_LGProjection::CalcCrossAngle(){
-
   double out_angle_x, out_angle_y;
   LmomToAngle(block_y, plane, lmom1, out_angle_x, out_angle_y);
   angle_x = out_angle_x;
   angle_y = out_angle_y;
-
 }
 
-void E16ANA_LGProjection::CalcCrossBlockForCalib(){
+bool E16ANA_LGProjection::CalcCrossBlockForCalib(){
 
   TVector3 out_v(-10000.,-10000.,-10000.);
   calib_is_valid = LposToCalibpos(block_y, lcross1, angle_x, lcross2, out_v);
   lcross3 = out_v;
-
+  return calib_is_valid;
 }
 
 bool E16ANA_LGProjection::CalcCrossInfo(){
@@ -265,11 +307,33 @@ bool E16ANA_LGProjection::CalcCrossInfo(){
   if( !is_crossed ){
     return false;
   }
+  CalcCrossBlock();
   CalcCrossAngle();
-  CalcCrossBlockForCalib();
-  if( !calib_is_valid ){
+  if( !CalcCrossBlockForCalib() ){
     return false;
   }
+  gpos = geometry->LG(module2013, block)->GetDetectorCenter();
+
+  return true;
+}
+
+bool E16ANA_LGProjection::CalcCrossInfoStraight(){
+  if( !CalcCrossModule() ){
+    return false;
+  }
+  if( !CalcCrossPlane() ){
+    return false;
+  }
+  CalcCrossBlock();
+  TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
+  TVector3 v1 = geometry->LG(module2013, block)->GetLPos(v0+initdir);
+  lmom1 = v1;
+  CalcCrossAngle();
+  if( !CalcCrossBlockForCalib() ){
+    return false;
+  }
+  gpos = geometry->LG(module2013, block)->GetDetectorCenter();
+
   return true;
 }
 

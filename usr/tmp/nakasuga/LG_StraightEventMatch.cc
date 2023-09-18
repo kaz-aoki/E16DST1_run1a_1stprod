@@ -17,7 +17,7 @@
 #include "E16ANA_LGConstant.hh"
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
-#include "E16ANA_LGStraightProj.hh"
+#include "E16ANA_LGProjection.hh"
 #include "straightRoot.hh"
 #include "E16DST_Constant.hh"
 
@@ -25,7 +25,7 @@ using namespace std;
 // namespace  bpo = boost::program_options;
 
 #define TRG_ON
-// #define TRK_ON
+#define TRK_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -180,16 +180,17 @@ int main(int argc, char* argv[]) {
   straightRoot* t = new straightRoot(in_chain);
   t->MakeMap(run_id,-1);
 
-  E16ANA_GeometryV2::SetGlobalPointer(geometry);
-  auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-  bfield_map->Initialize_binary();
-  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
-  auto fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
-  double kStepSize    = 5.;
-  int    kMaxSteps    = 1000;
-  fitter->SetRungeKuttaStepSize(kStepSize);
-  fitter->SetMaxSteps(kMaxSteps);
-  E16ANA_LGStraightProj* proj = new E16ANA_LGStraightProj(geometry, bfield_map, fitter);
+  // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  // auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+  // bfield_map->Initialize_binary();
+  // E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+  // auto fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+  // double kStepSize    = 5.;
+  // int    kMaxSteps    = 1000;
+  // fitter->SetRungeKuttaStepSize(kStepSize);
+  // fitter->SetMaxSteps(kMaxSteps);
+  // E16ANA_LGProjection* proj = new E16ANA_LGProjection(geometry, bfield_map, fitter);
+  E16ANA_LGProjection* proj = new E16ANA_LGProjection();
 #endif
 
   // auto record = new E16DST_DST1PhysicsRecord();
@@ -390,7 +391,7 @@ int main(int argc, char* argv[]) {
 	TVector3 tinitpos = initposs.at(itrack);
 	TVector3 tinitdir = initdirs.at(itrack);
 	proj->SetInitInfo(tinitpos,tinitdir);
-	if( proj->CalcCrossInfo() ){
+	if( proj->CalcCrossInfoStraight() ){
 	  out_trk_initpos_x.push_back( tinitpos.X() );
 	  out_trk_initpos_y.push_back( tinitpos.Y() );
 	  out_trk_initpos_z.push_back( tinitpos.Z() );

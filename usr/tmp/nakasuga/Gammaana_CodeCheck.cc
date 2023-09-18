@@ -21,7 +21,7 @@
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
 #include "E16ANA_LGCheckHist.hh"
-#include "E16ANA_LGStraightProj.hh"
+#include "E16ANA_LGProjection.hh"
 #include "E16ANA_Massw2Gamma.hh"
 #include "E16ANA_GammaAnalyzer.hh"
 #include "E16DST_Constant.hh"
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
   auto *analyzer = new E16ANA_GammaAnalyzer();
 
-  E16ANA_LGStraightProj proj;
+  E16ANA_LGProjection proj;
   TVector3 initpos(0., 0., 0.);
   // TVector3 initpos( 25., 0., -40.);//left up
   // TVector3 initpos( 25., 0.,  40.);//left down
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
 
     TVector3 initdir1(gx1,gy1,gz1);
     proj.SetInitInfo(initpos,initdir1);
-    if( !proj.CalcCrossInfo() ) continue;
+    if( !proj.CalcCrossInfoStraight() ) continue;
 
     analyzer->ClearHit0();
     // analyzer->SetHit0(0, 0, 0, 0., 0., 0., gx1, gy1, gz1, ene1/analyzer->PhtoEnergy(), 0., 0, 10.);
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 
     TVector3 initdir2(gx2,gy2,gz2);
     proj.SetInitInfo(initpos,initdir2);
-    if( !proj.CalcCrossInfo() ) continue;
+    if( !proj.CalcCrossInfoStraight() ) continue;
 
     analyzer->ClearHit1();
     // analyzer->SetHit1(0, 0, 0, 1000., 1000., 1000., gx2, gy2, gz2, ene2/analyzer->PhtoEnergy(), 0., 0, 10.);

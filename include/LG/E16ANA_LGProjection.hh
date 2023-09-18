@@ -48,9 +48,11 @@ private :
   //******* result
 
   //init info
-  TVector3 initvtx;
-  TVector3 initmom;
-  double initcharge;
+  TVector3 initpos;//straight
+  TVector3 initdir;//straight
+  TVector3 initvtx;//mag
+  TVector3 initmom;//mag
+  double initcharge;//mag
 
   //cross info
   int module;
@@ -70,10 +72,11 @@ private :
   TVector3 gcross1;
   TVector3 lmom1;
   TVector3 gmom1;
+  TVector3 gpos;
 
 
 public :
-  // E16ANA_LGProjection();
+  E16ANA_LGProjection();
   E16ANA_LGProjection(E16ANA_GeometryV2* in_geometry, E16ANA_MagneticFieldMap3D* in_bfield_map, E16ANA_MultiTrack* in_fitter);
   ~E16ANA_LGProjection();
 
@@ -88,43 +91,60 @@ public :
   //overrided
   void ClearInitInfo();//overrided
   void ClearCrossInfo();//overrided
-  void SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge);
-  void CalcCrossPos();
-  void CalcCrossAngle();//overrided
-  void CalcCrossBlockForCalib();//overrided
-  bool CalcCrossInfo();//overrided
-  double CalibFunction();//overrided
-  double CalibParameter();//overrided
-  // int Module(){return module;}
-  // int Module2013(){return module2013;}
-  // bool Is_crossed(){return is_crossed;}
-  // TVector3 LCross0(){return lcross0;}
-  // double LCross0_x(){return lcross0.X();}
-  // double LCross0_y(){return lcross0.Y();}
-  // double LCross0_z(){return lcross0.Z();}
-  // TVector3 LCross1(){return lcross1;}
-  // double LCross1_x(){return lcross1.X();}
-  // double LCross1_y(){return lcross1.Y();}
-  // double LCross1_z(){return lcross1.Z();}
-  // TVector3 LCross2(){return lcross2;}
-  // double LCross2_x(){return lcross2.X();}
-  // double LCross2_y(){return lcross2.Y();}
-  // double LCross2_z(){return lcross2.Z();}
-  // TVector3 LCross3(){return lcross3;}
-  // double LCross3_x(){return lcross3.X();}
-  // double LCross3_y(){return lcross3.Y();}
-  // double LCross3_z(){return lcross3.Z();}
-  // int Plane(){return plane;};
-  // int Block_x(){return block_x;};
-  // int Block_y(){return block_y;};
-  // int Block(){return block;};
-  // double Angle_x(){return angle_x;}
-  // double Angle_y(){return angle_y;}
-  // bool Calib_is_valid(){return calib_is_valid;}
-  // TVector3 GCross1(){return gcross1;}
-  // double GCross1_x(){return gcross1.X();}
-  // double GCross1_y(){return gcross1.Y();}
-  // double GCross1_z(){return gcross2.Z();}
+  void SetInitInfo(TVector3& _initpos, TVector3& _initdir);//straight
+  void SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge);//mag
+  bool CalcCrossModule();//straight
+  bool CalcCrossPlane();//straight
+  void CalcCrossPos();//mag
+  void CalcCrossBlock();
+  void CalcCrossAngle();
+  bool CalcCrossBlockForCalib();
+  bool CalcCrossInfo();//mag
+  bool CalcCrossInfoStraight();//straight
+  double CalibFunction();
+  double CalibParameter();
+  int Module(){return module;}
+  int Module2013(){return module2013;}
+  bool Is_crossed(){return is_crossed;}
+  TVector3 LCross0(){return lcross0;}
+  double LCross0_x(){return lcross0.X();}
+  double LCross0_y(){return lcross0.Y();}
+  double LCross0_z(){return lcross0.Z();}
+  TVector3 LCross1(){return lcross1;}
+  double LCross1_x(){return lcross1.X();}
+  double LCross1_y(){return lcross1.Y();}
+  double LCross1_z(){return lcross1.Z();}
+  TVector3 LCross2(){return lcross2;}
+  double LCross2_x(){return lcross2.X();}
+  double LCross2_y(){return lcross2.Y();}
+  double LCross2_z(){return lcross2.Z();}
+  TVector3 LCross3(){return lcross3;}
+  double LCross3_x(){return lcross3.X();}
+  double LCross3_y(){return lcross3.Y();}
+  double LCross3_z(){return lcross3.Z();}
+  int Plane(){return plane;};
+  int Block_x(){return block_x;};
+  int Block_y(){return block_y;};
+  int Block(){return block;};
+  double Angle_x(){return angle_x;}
+  double Angle_y(){return angle_y;}
+  bool Calib_is_valid(){return calib_is_valid;}
+  TVector3 GCross1(){return gcross1;}
+  double GCross1_x(){return gcross1.X();}
+  double GCross1_y(){return gcross1.Y();}
+  double GCross1_z(){return gcross1.Z();}
+  TVector3 LMom1(){return lmom1;}
+  double LMom1_x(){return lmom1.X();}
+  double LMom1_y(){return lmom1.Y();}
+  double LMom1_z(){return lmom1.Z();}
+  TVector3 GMom1(){return gmom1;}
+  double GMom1_x(){return gmom1.X();}
+  double GMom1_y(){return gmom1.Y();}
+  double GMom1_z(){return gmom1.Z();}
+  TVector3 GPos(){return gpos;}
+  double GPos_x(){return gpos.X();}
+  double GPos_y(){return gpos.Y();}
+  double GPos_z(){return gpos.Z();}
 
 };
 #endif

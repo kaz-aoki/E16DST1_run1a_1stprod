@@ -132,7 +132,6 @@ add_library(E16ANA
   src/LG/E16ANA_LGClustering.cc
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
-  src/LG/E16ANA_LGStraightProj.cc
   src/LG/E16ANA_LGProjection.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
@@ -516,15 +515,15 @@ target_link_libraries(Gammaana_MakePDF
 )
 
 # _______________________________________________________________________________
-# add_executable(Gammaana_CodeCheck usr/tmp/nakasuga/Gammaana_CodeCheck.cc)
+add_executable(Gammaana_CodeCheck usr/tmp/nakasuga/Gammaana_CodeCheck.cc)
 
-# target_link_libraries(Gammaana_CodeCheck
-# 	E16DST_DST1
-# #E16ANA_CalibDB
-# 	E16ANA_Basic
-# 	E16DST
-# 	E16ANA
-# )
+target_link_libraries(Gammaana_CodeCheck
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
 
 #_______________________________________________________________________________
 add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
