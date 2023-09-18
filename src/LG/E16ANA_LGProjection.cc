@@ -10,20 +10,50 @@
 #include <iostream>
 #include <fstream>
 
-E16ANA_LGProjection::E16ANA_LGProjection(){
+// E16ANA_LGProjection::E16ANA_LGProjection(){
+
+//   // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+//   // // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+
+//   geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+//   E16ANA_GeometryV2::SetGlobalPointer(geometry);
+//   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+//   bfield_map->Initialize_binary();
+//   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+
+//   fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+//   fitter->SetRungeKuttaStepSize(kStepSize);
+//   fitter->SetMaxSteps(kMaxSteps);
+
+//   ClearInitInfo();
+//   ClearCrossInfo();
+
+// }
+// E16ANA_LGProjection::~E16ANA_LGProjection(){
+//   delete geometry;
+//   delete bfield_map;
+//   delete fitter;
+// }
+E16ANA_LGProjection::E16ANA_LGProjection(E16ANA_GeometryV2* in_geometry, E16ANA_MagneticFieldMap3D* in_bfield_map, E16ANA_MultiTrack* in_fitter)
+  : geometry(in_geometry), bfield_map(in_bfield_map), fitter(in_fitter)
+{
 
   // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   // // E16ANA_GeometryV2::SetGlobalPointer(geometry);
 
-  geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-  E16ANA_GeometryV2::SetGlobalPointer(geometry);
-  auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-  bfield_map->Initialize_binary();
-  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+  // geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  // auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+  // bfield_map->Initialize_binary();
+  // E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
 
-  fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
-  fitter->SetRungeKuttaStepSize(kStepSize);
-  fitter->SetMaxSteps(kMaxSteps);
+  // fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+  // fitter->SetRungeKuttaStepSize(kStepSize);
+  // fitter->SetMaxSteps(kMaxSteps);
+
+  // geometry = in_geometry;
+  // bfield_map = in_bfield_map;
+  // fitter = in_fitter;
 
   ClearInitInfo();
   ClearCrossInfo();

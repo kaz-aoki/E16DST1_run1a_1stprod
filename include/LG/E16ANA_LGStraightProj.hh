@@ -81,7 +81,7 @@ private :
 
 
 public :
-  E16ANA_LGStraightProj();
+  E16ANA_LGStraightProj(E16ANA_GeometryV2* in_geometry, E16ANA_MagneticFieldMap3D* in_bfield_map, E16ANA_MultiTrack* in_fitter);
   ~E16ANA_LGStraightProj();
 
   void ClearInitInfo();

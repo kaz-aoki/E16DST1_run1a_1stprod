@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 
-E16ANA_LGStraightProj::E16ANA_LGStraightProj(){
+E16ANA_LGStraightProj::E16ANA_LGStraightProj(E16ANA_GeometryV2* in_geometry, E16ANA_MagneticFieldMap3D* in_bfield_map, E16ANA_MultiTrack* in_fitter) : E16ANA_LGProjection(geometry, bfield_map, fitter){
 
   ClearInitInfo();
   ClearCrossInfo();
@@ -20,7 +20,7 @@ E16ANA_LGStraightProj::E16ANA_LGStraightProj(){
 
 }
 E16ANA_LGStraightProj::~E16ANA_LGStraightProj(){
-  delete geometry;
+  // delete geometry;
 }
 
 void E16ANA_LGStraightProj::ClearInitInfo(){
