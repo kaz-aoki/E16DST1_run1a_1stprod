@@ -83,14 +83,10 @@ public :
   //common function
   bool IsInAcceptance(int plane, TVector3& lcross, int& out_block_y);
   void LposToBlock(int in_module2013, int in_block_y, TVector3& in_v, int& out_block_x, TVector3& out_v);
-  void LmomToAngle(int in_block_y, int in_plane, TVector3& in_v, double& out_angle_x, double& out_angle_y);
-  TVector2 RYPlaneCrossPoint(TVector2& a, TVector2& b, TVector2& p);
-  bool LposToCalibpos(int in_block_y, TVector3& in_v1, double in_angle_x, TVector3& in_v2, TVector3& out_v);
-  double CalcCalibFunction(bool in_calib_is_valid, double in_x, double in_y);
 
   //overrided
-  void ClearInitInfo();//overrided
-  void ClearCrossInfo();//overrided
+  void ClearInitInfo();
+  void ClearCrossInfo();
   void SetInitInfo(TVector3& _initpos, TVector3& _initdir);//straight
   void SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge);//mag
   bool CalcCrossModule();//straight
