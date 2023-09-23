@@ -108,6 +108,7 @@ void E16ANA_LGProjection::ClearCrossInfo(){
   lmom1.SetXYZ(-10000.,-10000.,-10000.);
   gmom1.SetXYZ(-10000.,-10000.,-10000.);
   gpos.SetXYZ(-10000.,-10000.,-10000.);
+  GTRmodule = -10000;
 }
 
 void E16ANA_LGProjection::SetInitInfo(TVector3& _initpos, TVector3& _initdir){
@@ -184,12 +185,18 @@ void E16ANA_LGProjection::SetInitInfo(TVector3& _initvtx, TVector3& _initmom, do
 void E16ANA_LGProjection::CalcCrossPos(){
 
   int min_n_steps = kMaxSteps + 1;
-  for (int m = 101; m < 101 + 9; ++m) {
-    if (m == 105) {
-      continue;
+  for (int i=0; i<3; i++) {
+    int j = 2-i;
+    int mmin = 101;
+    int mmax = 109;
+    if(i!=0&&module!=-10000){
+      mmin = module-1;
+      mmax = module+1;
     }
-    for (int i=0;i<3;i++) {
-      int j = 2-i;
+    for (int m=mmin; m<=mmax; m++) {
+      if ( m==105 || m<101 || m>109 ) {
+	continue;
+      }
       auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(m);
       auto tmp_geom = geometry->LG(mid2013, planeblock[j]);
       fitter->Clear();
@@ -288,6 +295,9 @@ bool E16ANA_LGProjection::CalcCrossBlockForCalib(){
 }
 
 bool E16ANA_LGProjection::CalcCrossInfo(){
+  if( fabs(initmom.Y())/sqrt(initmom.X()*initmom.X()+initmom.Z()*initmom.Z())>0.35 ){
+    return false;
+  }
   CalcCrossPos();
   if( !is_crossed ){
     return false;
@@ -298,6 +308,8 @@ bool E16ANA_LGProjection::CalcCrossInfo(){
     return false;
   }
   gpos = geometry->LG(module2013, block)->GetDetectorCenter();
+
+  CalcCrossGTRModule();
 
   return true;
 }
@@ -344,4 +356,32 @@ double E16ANA_LGProjection::CalibFunction(){
 }
 double E16ANA_LGProjection::CalibParameter(){
   return 1./CalibFunction();
+}
+
+void E16ANA_LGProjection::CalcCrossGTRModule(){
+
+  if( module<101 && module>109 ) {return;}
+
+  int min_n_steps = kMaxSteps + 1;
+  for (int m = module-2; m <= module+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->GTR(mid2013, 2);//GTR300
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<150. && fabs(lposs[0].Y())<150. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+    	GTRmodule = m;
+      }
+    }
+  }
+
 }

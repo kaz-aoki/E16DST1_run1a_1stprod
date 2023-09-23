@@ -73,6 +73,7 @@ private :
   TVector3 lmom1;
   TVector3 gmom1;
   TVector3 gpos;
+  int GTRmodule;
 
 
 public :
@@ -99,6 +100,7 @@ public :
   bool CalcCrossInfoStraight();//straight
   double CalibFunction();
   double CalibParameter();
+  void CalcCrossGTRModule();//mag
   int Module(){return module;}
   int Module2013(){return module2013;}
   bool Is_crossed(){return is_crossed;}
@@ -141,6 +143,7 @@ public :
   double GPos_x(){return gpos.X();}
   double GPos_y(){return gpos.Y();}
   double GPos_z(){return gpos.Z();}
+  int GTRModule(){return GTRmodule;}
 
 };
 #endif
