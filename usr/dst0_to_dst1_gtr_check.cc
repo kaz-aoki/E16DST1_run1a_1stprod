@@ -90,13 +90,14 @@ int main(int argc, char* argv[]) {
 
   int n_event = 0;
   int n_physics_event = 0;
+  int print_cycle = 100;
   while (dst0->ReadAnEvent()) {
  //   if (max_event != -1 && n_physics_event >= max_event) {
     if (max_event != -1 && n_event >= max_event) {
       break;
     }
-    if (n_event % 1000 == 0) {
-      cout << "Number of event: " << n_event << endl;
+    if (n_event % print_cycle == 0) {
+      cout << "NReadEvents =  " << n_event  << ", EventID = " << dst0->Event()->EventID() << endl;
     }
     if (dst0->EventType() != E16DST_DST0EventType::Physics){
         std::cout << "Event ID = " << dst0->Event()->EventID() << " is not Physics Event, Event Type =" << dst0->Event()->EventType() << std::endl;
@@ -199,323 +200,348 @@ int main(int argc, char* argv[]) {
 
   TCanvas *c_cl_ncluster_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_ncluster_x[m-102] = new TCanvas(Form("ccn%d", m-102) , Form("ccn%d", m-102), 1024, 768);
-    c_cl_ncluster_x[m-102]->Divide(2,2);
+    c_cl_ncluster_x[m-101] = new TCanvas(Form("ccn%d", m-101) , Form("ccn%d", m-101), 1024, 768);
+    c_cl_ncluster_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_ncluster_x[m-102]->cd(l+1);
+        c_cl_ncluster_x[m-101]->cd(l+1);
         gtrhist->h_cl_ncluster_x[m-100][l]->Draw();
     }
-    c_cl_ncluster_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_ncluster_x[m-101]->SaveAs(pdf_name, "pdf");
   }
 
    TCanvas *c_cl_ncluster_y[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_ncluster_y[m-102] = new TCanvas(Form("ccny%d", m-102) , Form("ccny%d", m-102), 1024, 768);
-    c_cl_ncluster_y[m-102]->Divide(2,2);
+    c_cl_ncluster_y[m-101] = new TCanvas(Form("ccny%d", m-101) , Form("ccny%d", m-101), 1024, 768);
+    c_cl_ncluster_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_ncluster_y[m-102]->cd(l+1);
+        c_cl_ncluster_y[m-101]->cd(l+1);
         gtrhist->h_cl_ncluster_y[m-100][l]->Draw();
     }
-    c_cl_ncluster_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_ncluster_y[m-101]->SaveAs(pdf_name, "pdf");
   }
  
    TCanvas *c_cl_ncluster_yb[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_ncluster_yb[m-102] = new TCanvas(Form("ccnyb%d", m-102) , Form("ccnyb%d", m-102), 1024, 768);
-    c_cl_ncluster_yb[m-102]->Divide(2,2);
+    c_cl_ncluster_yb[m-101] = new TCanvas(Form("ccnyb%d", m-101) , Form("ccnyb%d", m-101), 1024, 768);
+    c_cl_ncluster_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_ncluster_yb[m-102]->cd(l+1);
+        c_cl_ncluster_yb[m-101]->cd(l+1);
         gtrhist->h_cl_ncluster_yb[m-100][l]->Draw();
     }
-    c_cl_ncluster_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_ncluster_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
  
   TCanvas *c_cl_numhits_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_numhits_x[m-102] = new TCanvas(Form("ccnh%d", m-102) , Form("ccnh%d", m-102), 1024, 768);
-    c_cl_numhits_x[m-102]->Divide(2,2);
+    c_cl_numhits_x[m-101] = new TCanvas(Form("ccnh%d", m-101) , Form("ccnh%d", m-101), 1024, 768);
+    c_cl_numhits_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_numhits_x[m-102]->cd(l+1);
+        c_cl_numhits_x[m-101]->cd(l+1);
         gtrhist->h_cl_numhits_x[m-100][l]->Draw();
     }
-    c_cl_numhits_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_numhits_x[m-101]->SaveAs(pdf_name, "pdf");
   }
 
    TCanvas *c_cl_numhits_y[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_numhits_y[m-102] = new TCanvas(Form("ccnhy%d", m-102) , Form("ccnhy%d", m-102), 1024, 768);
-    c_cl_numhits_y[m-102]->Divide(2,2);
+    c_cl_numhits_y[m-101] = new TCanvas(Form("ccnhy%d", m-101) , Form("ccnhy%d", m-101), 1024, 768);
+    c_cl_numhits_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_numhits_y[m-102]->cd(l+1);
+        c_cl_numhits_y[m-101]->cd(l+1);
         gtrhist->h_cl_numhits_y[m-100][l]->Draw();
     }
-    c_cl_numhits_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_numhits_y[m-101]->SaveAs(pdf_name, "pdf");
   }
  
    TCanvas *c_cl_numhits_yb[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_numhits_yb[m-102] = new TCanvas(Form("ccnhyb%d", m-102) , Form("ccnhyb%d", m-102), 1024, 768);
-    c_cl_numhits_yb[m-102]->Divide(2,2);
+    c_cl_numhits_yb[m-101] = new TCanvas(Form("ccnhyb%d", m-101) , Form("ccnhyb%d", m-101), 1024, 768);
+    c_cl_numhits_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_numhits_yb[m-102]->cd(l+1);
+        c_cl_numhits_yb[m-101]->cd(l+1);
         gtrhist->h_cl_numhits_yb[m-100][l]->Draw();
     }
-    c_cl_numhits_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_numhits_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
  
 
 
   TCanvas *c_cl_charge_x[10]; 
   //= new TCanvas("cl charge ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_charge_x[m-102] = new TCanvas(Form("ccx%d", m-102) , Form("ccx%d", m-102), 1024, 768);
-    c_cl_charge_x[m-102]->Divide(2,2);
+    c_cl_charge_x[m-101] = new TCanvas(Form("ccx%d", m-101) , Form("ccx%d", m-101), 1024, 768);
+    c_cl_charge_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_charge_x[m-102]->cd(l+1);
+        c_cl_charge_x[m-101]->cd(l+1);
         gtrhist->h_cl_charge_x[m-100][l]->Draw();
     }
-    c_cl_charge_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_charge_x[m-101]->SaveAs(pdf_name, "pdf");
   }
  
   TCanvas *c_cl_charge_y[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_charge_y[m-102] = new TCanvas(Form("ccy%d", m-102), Form("ccy%d", m-102), 1024, 768);
-    c_cl_charge_y[m-102]->Divide(2,2);
+    c_cl_charge_y[m-101] = new TCanvas(Form("ccy%d", m-101), Form("ccy%d", m-101), 1024, 768);
+    c_cl_charge_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_charge_y[m-102]->cd(l+1);
+        c_cl_charge_y[m-101]->cd(l+1);
         gtrhist->h_cl_charge_y[m-100][l]->Draw();
     }
-    c_cl_charge_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_charge_y[m-101]->SaveAs(pdf_name, "pdf");
   }
   
   TCanvas *c_cl_charge_yb[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_charge_yb[m-102] = new TCanvas(Form("ccyb%d", m-102), Form("ccyb%d", m-102), 1024, 768);
-    c_cl_charge_yb[m-102]->Divide(2,2);
+    c_cl_charge_yb[m-101] = new TCanvas(Form("ccyb%d", m-101), Form("ccyb%d", m-101), 1024, 768);
+    c_cl_charge_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_charge_yb[m-102]->cd(l+1);
+        c_cl_charge_yb[m-101]->cd(l+1);
         gtrhist->h_cl_charge_yb[m-100][l]->Draw();
     }
-    c_cl_charge_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_charge_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
   
   TCanvas *c_hit_timing_x[10]; 
   //= new TCanvas("cl timing ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_hit_timing_x[m-102] = new TCanvas(Form("ctx%d", m-102) , Form("ctx%d", m-102), 1024, 768);
-    c_hit_timing_x[m-102]->Divide(2,2);
+    c_hit_timing_x[m-101] = new TCanvas(Form("ctx%d", m-101) , Form("ctx%d", m-101), 1024, 768);
+    c_hit_timing_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_hit_timing_x[m-102]->cd(l+1);
+        c_hit_timing_x[m-101]->cd(l+1);
         gtrhist->h_hit_timing_x[m-100][l]->Draw();
     }
-    c_hit_timing_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_hit_timing_x[m-101]->SaveAs(pdf_name, "pdf");
   }
  
+TCanvas *c_hit_ph_x[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=101; m < 110 ; m++){
+    if(m == 105) continue;
+    c_hit_ph_x[m-101] = new TCanvas(Form("hphx%d", m-101) , Form("hphx%d", m-101), 1024, 768);
+    c_hit_ph_x[m-101]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_ph_x[m-101]->cd(l+1);
+        gtrhist->h_hit_ph_x[m-100][l]->Draw();
+    }
+    c_hit_ph_x[m-101]->SaveAs(pdf_name, "pdf");
+  }
+
+TCanvas *c_hit_ph_y[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=101; m < 110 ; m++){
+    if(m == 105) continue;
+    c_hit_ph_y[m-101] = new TCanvas(Form("hphy%d", m-101) , Form("hphy%d", m-101), 1024, 768);
+    c_hit_ph_y[m-101]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_ph_y[m-101]->cd(l+1);
+        gtrhist->h_hit_ph_y[m-100][l]->Draw();
+    }
+    c_hit_ph_y[m-101]->SaveAs(pdf_name, "pdf");
+  }
 
 
   TCanvas *c_cl_timing_x[10]; 
   //= new TCanvas("cl timing ", 100,0,100);
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_timing_x[m-102] = new TCanvas(Form("ctx%d", m-102) , Form("ctx%d", m-102), 1024, 768);
-    c_cl_timing_x[m-102]->Divide(2,2);
+    c_cl_timing_x[m-101] = new TCanvas(Form("ctx%d", m-101) , Form("ctx%d", m-101), 1024, 768);
+    c_cl_timing_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_timing_x[m-102]->cd(l+1);
+        c_cl_timing_x[m-101]->cd(l+1);
         gtrhist->h_cl_timing_x[m-100][l]->Draw();
     }
-    c_cl_timing_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_timing_x[m-101]->SaveAs(pdf_name, "pdf");
   }
  
   TCanvas *c_cl_timing_y[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_timing_y[m-102] = new TCanvas(Form("cty%d", m-102), Form("cty%d", m-102), 1024, 768);
-    c_cl_timing_y[m-102]->Divide(2,2);
+    c_cl_timing_y[m-101] = new TCanvas(Form("cty%d", m-101), Form("cty%d", m-101), 1024, 768);
+    c_cl_timing_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_timing_y[m-102]->cd(l+1);
+        c_cl_timing_y[m-101]->cd(l+1);
         gtrhist->h_cl_timing_y[m-100][l]->Draw();
     }
-    c_cl_timing_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_timing_y[m-101]->SaveAs(pdf_name, "pdf");
   }
   
   TCanvas *c_cl_timing_yb[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_timing_yb[m-102] = new TCanvas(Form("ctyb%d", m-102), Form("ctyb%d", m-102), 1024, 768);
-    c_cl_timing_yb[m-102]->Divide(2,2);
+    c_cl_timing_yb[m-101] = new TCanvas(Form("ctyb%d", m-101), Form("ctyb%d", m-101), 1024, 768);
+    c_cl_timing_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_timing_yb[m-102]->cd(l+1);
+        c_cl_timing_yb[m-101]->cd(l+1);
         gtrhist->h_cl_timing_yb[m-100][l]->Draw();
     }
-    c_cl_timing_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_timing_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
   
   TCanvas *c_cl_local_x[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_local_x[m-102] = new TCanvas(Form("clx%d", m-102), Form("clx%d", m-102), 1024, 768);
-    c_cl_local_x[m-102]->Divide(2,2);
+    c_cl_local_x[m-101] = new TCanvas(Form("clx%d", m-101), Form("clx%d", m-101), 1024, 768);
+    c_cl_local_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_local_x[m-102]->cd(l+1);
+        c_cl_local_x[m-101]->cd(l+1);
         gtrhist->h_cl_local_x[m-100][l]->Draw();
     }
-    c_cl_local_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_local_x[m-101]->SaveAs(pdf_name, "pdf");
   }
 
   TCanvas *c_cl_local_y[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_local_y[m-102] = new TCanvas(Form("cly%d", m-102), Form("cly%d", m-102), 1024, 768);
-    c_cl_local_y[m-102]->Divide(2,2);
+    c_cl_local_y[m-101] = new TCanvas(Form("cly%d", m-101), Form("cly%d", m-101), 1024, 768);
+    c_cl_local_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_local_y[m-102]->cd(l+1);
+        c_cl_local_y[m-101]->cd(l+1);
         gtrhist->h_cl_local_y[m-100][l]->Draw();
     }
-    c_cl_local_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_local_y[m-101]->SaveAs(pdf_name, "pdf");
   }
    TCanvas *c_cl_local_yb[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_local_yb[m-102] = new TCanvas(Form("clyb%d",m-102), Form("clyb%d", m-102), 1024, 768);
-    c_cl_local_yb[m-102]->Divide(2,2);
+    c_cl_local_yb[m-101] = new TCanvas(Form("clyb%d",m-101), Form("clyb%d", m-101), 1024, 768);
+    c_cl_local_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_local_yb[m-102]->cd(l+1);
+        c_cl_local_yb[m-101]->cd(l+1);
         gtrhist->h_cl_local_yb[m-100][l]->Draw();
     }
-    c_cl_local_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_local_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
  
   TCanvas *c_cl_max_peak_x[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_max_peak_x[m-102] = new TCanvas(Form("clmpx%d", m-102), Form("clmpx%d", m-102), 1024, 768);
-    c_cl_max_peak_x[m-102]->Divide(2,2);
+    c_cl_max_peak_x[m-101] = new TCanvas(Form("clmpx%d", m-101), Form("clmpx%d", m-101), 1024, 768);
+    c_cl_max_peak_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_max_peak_x[m-102]->cd(l+1);
+        c_cl_max_peak_x[m-101]->cd(l+1);
         gtrhist->h_cl_max_peak_x[m-100][l]->Draw();
     }
-    c_cl_max_peak_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_max_peak_x[m-101]->SaveAs(pdf_name, "pdf");
   }
   
   TCanvas *c_cl_max_peak_y[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_max_peak_y[m-102] = new TCanvas(Form("clmpy%d",m-102), Form("clmpy%d", m-102), 1024, 768);
-    c_cl_max_peak_y[m-102]->Divide(2,2);
+    c_cl_max_peak_y[m-101] = new TCanvas(Form("clmpy%d",m-101), Form("clmpy%d", m-101), 1024, 768);
+    c_cl_max_peak_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_max_peak_y[m-102]->cd(l+1);
+        c_cl_max_peak_y[m-101]->cd(l+1);
         gtrhist->h_cl_max_peak_y[m-100][l]->Draw();
     }
-    c_cl_max_peak_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_max_peak_y[m-101]->SaveAs(pdf_name, "pdf");
   }
 
   TCanvas *c_cl_max_peak_yb[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_max_peak_yb[m-102] = new TCanvas(Form("clmpyb%d", m-102), Form("clmpyb%d", m-102), 1024, 768);
-    c_cl_max_peak_yb[m-102]->Divide(2,2);
+    c_cl_max_peak_yb[m-101] = new TCanvas(Form("clmpyb%d", m-101), Form("clmpyb%d", m-101), 1024, 768);
+    c_cl_max_peak_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_max_peak_yb[m-102]->cd(l+1);
+        c_cl_max_peak_yb[m-101]->cd(l+1);
         gtrhist->h_cl_max_peak_yb[m-100][l]->Draw();
     }
-    c_cl_max_peak_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_max_peak_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
 
   TCanvas *c_cl_max_peak_ch_x[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_max_peak_ch_x[m-102] = new TCanvas(Form("clmpchx%d", m-102), Form("clmpchx%d", m-102), 1024, 768);
-    c_cl_max_peak_ch_x[m-102]->Divide(2,2);
+    c_cl_max_peak_ch_x[m-101] = new TCanvas(Form("clmpchx%d", m-101), Form("clmpchx%d", m-101), 1024, 768);
+    c_cl_max_peak_ch_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_max_peak_ch_x[m-102]->cd(l+1);
+        c_cl_max_peak_ch_x[m-101]->cd(l+1);
         gtrhist->h_cl_max_peak_ch_x[m-100][l]->Draw();
     }
-    c_cl_max_peak_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_max_peak_x[m-101]->SaveAs(pdf_name, "pdf");
   }
  
   TCanvas *c_cl_tdcpos_x[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_tdcpos_x[m-102] = new TCanvas(Form("cltdcposx%d", m-102), Form("cltdcposx%d", m-102), 1024, 768);
-    c_cl_tdcpos_x[m-102]->Divide(2,2);
+    c_cl_tdcpos_x[m-101] = new TCanvas(Form("cltdcposx%d", m-101), Form("cltdcposx%d", m-101), 1024, 768);
+    c_cl_tdcpos_x[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_tdcpos_x[m-102]->cd(l+1);
+        c_cl_tdcpos_x[m-101]->cd(l+1);
         gtrhist->h_cl_tdcpos_x[m-100][l]->Draw();
     }
-    c_cl_tdcpos_x[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_tdcpos_x[m-101]->SaveAs(pdf_name, "pdf");
   }
  
   TCanvas *c_cl_tdcpos_y[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_tdcpos_y[m-102] = new TCanvas(Form("cltdcposy%d", m-102), Form("cltdcposy%d", m-102), 1024, 768);
-    c_cl_tdcpos_y[m-102]->Divide(2,2);
+    c_cl_tdcpos_y[m-101] = new TCanvas(Form("cltdcposy%d", m-101), Form("cltdcposy%d", m-101), 1024, 768);
+    c_cl_tdcpos_y[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_tdcpos_x[m-102]->cd(l+1);
+        c_cl_tdcpos_x[m-101]->cd(l+1);
         gtrhist->h_cl_tdcpos_y[m-100][l]->Draw();
     }
-    c_cl_tdcpos_y[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_tdcpos_y[m-101]->SaveAs(pdf_name, "pdf");
   }
    TCanvas *c_cl_tdcpos_yb[10]; 
-  for(int m=102; m < 109 ; m++){
+  for(int m=101; m < 110 ; m++){
     if(m == 105) continue;
-    c_cl_tdcpos_yb[m-102] = new TCanvas(Form("cltdcposyb%d", m-102), Form("cltdcposyb%d", m-102), 1024, 768);
-    c_cl_tdcpos_yb[m-102]->Divide(2,2);
+    c_cl_tdcpos_yb[m-101] = new TCanvas(Form("cltdcposyb%d", m-101), Form("cltdcposyb%d", m-101), 1024, 768);
+    c_cl_tdcpos_yb[m-101]->Divide(2,2);
     for(int l=0; l < 3; l++){
-        c_cl_tdcpos_yb[m-102]->cd(l+1);
+        c_cl_tdcpos_yb[m-101]->cd(l+1);
         gtrhist->h_cl_tdcpos_yb[m-100][l]->Draw();
     }
-    c_cl_tdcpos_yb[m-102]->SaveAs(pdf_name, "pdf");
+    c_cl_tdcpos_yb[m-101]->SaveAs(pdf_name, "pdf");
   }
 
 //  TCanvas *c_cl_tan_x[10]; 
-//  for(int m=102; m < 109 ; m++){
+//  for(int m=101; m < 110 ; m++){
 //    if(m == 105) continue;
-//    c_cl_tan_x[m-102] = new TCanvas(Form("cltanx%d", m-102), Form("cltanx%d", m-102), 1024, 768);
-//    c_cl_tan_x[m-102]->Divide(2,2);
+//    c_cl_tan_x[m-101] = new TCanvas(Form("cltanx%d", m-101), Form("cltanx%d", m-101), 1024, 768);
+//    c_cl_tan_x[m-101]->Divide(2,2);
 //    for(int l=0; l < 3; l++){
-//        c_cl_tan_x[m-102]->cd(l+1);
+//        c_cl_tan_x[m-101]->cd(l+1);
 ////        gtrhist->h_cl_tan_x[m-100][l]->Draw();
 //    }
-//    c_cl_tan_x[m-102]->SaveAs(pdf_name, "pdf");
+//    c_cl_tan_x[m-101]->SaveAs(pdf_name, "pdf");
 //  }
 //   TCanvas *c_cl_tan_y[10]; 
-//  for(int m=102; m < 109 ; m++){
+//  for(int m=101; m < 110 ; m++){
 //    if(m == 105) continue;
-//    c_cl_tan_y[m-102] = new TCanvas(Form("cltany%d", m-102), Form("cltany%d", m-102), 1024, 768);
-//    c_cl_tan_y[m-102]->Divide(2,2);
+//    c_cl_tan_y[m-101] = new TCanvas(Form("cltany%d", m-101), Form("cltany%d", m-101), 1024, 768);
+//    c_cl_tan_y[m-101]->Divide(2,2);
 //    for(int l=0; l < 3; l++){
-//        c_cl_tan_y[m-102]->cd(l+1);
+//        c_cl_tan_y[m-101]->cd(l+1);
 // //       gtrhist->h_cl_tan_y[m-100][l]->Draw();
 //    }
-//    c_cl_tan_y[m-102]->SaveAs(pdf_name, "pdf");
+//    c_cl_tan_y[m-101]->SaveAs(pdf_name, "pdf");
 //  }
 //    TCanvas *c_cl_tan_yb[10]; 
-//  for(int m=102; m < 109 ; m++){
+//  for(int m=101; m < 110 ; m++){
 //    if(m == 105) continue;
-////    c_cl_tan_yb[m-102] = new TCanvas(Form("cltanyb%d", m-102), Form("cltanyb%d", m-102), 1024, 768);
-////    c_cl_tan_yb[m-102]->Divide(2,2);
+////    c_cl_tan_yb[m-101] = new TCanvas(Form("cltanyb%d", m-101), Form("cltanyb%d", m-101), 1024, 768);
+////    c_cl_tan_yb[m-101]->Divide(2,2);
 //    for(int l=0; l < 3; l++){
-// //       c_cl_tan_yb[m-102]->cd(l+1);
+// //       c_cl_tan_yb[m-101]->cd(l+1);
 ////        gtrhist->h_cl_tan_yb[m-100][l]->Draw();
 //    }
-//    c_cl_tan_yb[m-102]->SaveAs(pdf_name, "pdf");
+//    c_cl_tan_yb[m-101]->SaveAs(pdf_name, "pdf");
 //  }
  
 

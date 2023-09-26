@@ -64,6 +64,7 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     for(int i =0; i < noh ; i++){
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
+//		if(mid ! = 107) continue;
         int lid = hit.LayerID();
         int sid = hit.StripID();
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
@@ -85,8 +86,7 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
             v_anahits.push_back(hitsy);
             if(lid == 0){
                 std::vector<E16ANA_GTRAnalyzedStripHit> &hitsyb = static_cast<E16ANA_GTR100Analyzer *>(gtr_analyzers->Chamber(mid, 0))->GetStripYb()->GetAnalyzedHits();
-                v_anahits.push_back(hitsyb);
-            }
+                v_anahits.push_back(hitsyb); }
             for(int t=0; t < v_anahits.size(); t++){//t == 0, 1, 2 means X, Y, Yb respectively
                 dst1_clusters_size += v_anahits[t].get().size();
                 for(int i =0; i<v_anahits[t].get().size();i++){

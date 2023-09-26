@@ -3,16 +3,18 @@
 
 GTRCheckHist::GTRCheckHist(){
   for(int l=0;l<3;l++){
-    h_cl_ncluster_modall_x[l] = new TH1D(Form("cl_ncluster_modall_x_%d", l), Form("cl_ncluster_modall_x_%d", l),1000, -0.5 ,999.5);
-    h_cl_ncluster_modall_y[l] = new TH1D(Form("cl_ncluster_modall_y_%d", l), Form("cl_ncluster_modall_y_%d", l),1000, -0.5,999.5);
-    h_cl_ncluster_modall_yb[l] = new TH1D(Form("cl_ncluster_modall_yb_%d", l), Form("cl_ncluster_modall_yb_%d", l),1000, -0.5, 999.5);
+    h_cl_ncluster_modall_x[l] = new TH1D(Form("cl_ncluster_modall_x_%d", l), Form("cl_ncluster_modall_x_%d", l),100, -0.5 ,99.5);
+    h_cl_ncluster_modall_y[l] = new TH1D(Form("cl_ncluster_modall_y_%d", l), Form("cl_ncluster_modall_y_%d", l),100, -0.5 ,99.5);
+    h_cl_ncluster_modall_yb[l] = new TH1D(Form("cl_ncluster_modall_yb_%d", l), Form("cl_ncluster_modall_yb_%d", l),100, -0.5, 99.5);
   }
     for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
+            h_hit_ph_x[m-100][l] = new TH1D(Form("hit_ph_x%d_%d",m, l), Form("hit_ph_x%d_%d",m, l),100, 0, 3000);
+            h_hit_ph_y[m-100][l] = new TH1D(Form("hit_ph_y%d_%d",m, l), Form("hit_ph_y%d_%d",m, l),100, 0, 3000);
             h_hit_timing_x[m-100][l] = new TH1D(Form("hit_timing_x%d_%d",m, l), Form("hit_timing_x%d_%d",m, l),100, -50, 800);
-            h_cl_ncluster_x[m-100][l] = new TH1D(Form("cl_ncluster_x%d_%d",m, l), Form("cl_ncluster_x%d_%d",m, l),200, -0.5 ,199.5);
-            h_cl_ncluster_y[m-100][l] = new TH1D(Form("cl_ncluster_y%d_%d",m, l), Form("cl_ncluster_y%d_%d",m, l),200, -0.5,199.5);
-            h_cl_ncluster_yb[m-100][l] = new TH1D(Form("cl_ncluster_yb%d_%d",m, l), Form("cl_ncluster_yb%d_%d",m, l),200, -0.5, 199.5);
+            h_cl_ncluster_x[m-100][l] = new TH1D(Form("cl_ncluster_x%d_%d",m, l), Form("cl_ncluster_x%d_%d",m, l),30, -0.5 ,29.5);
+            h_cl_ncluster_y[m-100][l] = new TH1D(Form("cl_ncluster_y%d_%d",m, l), Form("cl_ncluster_y%d_%d",m, l),30, -0.5,29.5);
+            h_cl_ncluster_yb[m-100][l] = new TH1D(Form("cl_ncluster_yb%d_%d",m, l), Form("cl_ncluster_yb%d_%d",m, l),30, -0.5, 29.5);
             h_cl_numhits_x[m-100][l] = new TH1D(Form("cl_numhits_x%d_%d",m, l), Form("cl_numhits_x%d_%d",m, l),30, -0.5 ,29.5);
             h_cl_numhits_y[m-100][l] = new TH1D(Form("cl_numhits_y%d_%d",m, l), Form("cl_numhits_y%d_%d",m, l),30, -0.5,29.5);
             h_cl_numhits_yb[m-100][l] = new TH1D(Form("cl_numhits_yb%d_%d",m, l), Form("cl_numhits_yb%d_%d",m, l),30, -0.5, 29.5);
@@ -26,8 +28,8 @@ GTRCheckHist::GTRCheckHist(){
             h_cl_timing_y[m-100][l] = new TH1D(Form("cl_timing_y%d_%d",m, l), Form("cl_timing_y%d_%d",m, l),100, -50, 800);
             h_cl_timing_yb[m-100][l] = new TH1D(Form("cl_timing_yb%d_%d",m, l), Form("cl_timing_yb%d_%d",m, l),100,0, 800);
             
-            h_cl_max_peak_x[m-100][l] = new TH1D(Form("cl_max_peak_x%d_%d",m, l), Form("cl_max_peak_x%d_%d",m, l),100, 0,3000);
-            h_cl_max_peak_y[m-100][l] = new TH1D(Form("cl_max_peak_y%d_%d",m, l), Form("cl_max_peak_y%d_%d",m, l),100, 0,3000);
+            h_cl_max_peak_x[m-100][l] = new TH1D(Form("cl_max_peak_x%d_%d",m, l), Form("cl_max_peak_x%d_%d",m, l),100, 0,1800);
+            h_cl_max_peak_y[m-100][l] = new TH1D(Form("cl_max_peak_y%d_%d",m, l), Form("cl_max_peak_y%d_%d",m, l),100, 0,1800);
             h_cl_max_peak_yb[m-100][l] = new TH1D(Form("cl_max_peak_yb%d_%d",m, l), Form("cl_max_peak_yb%d_%d",m, l),100, 0,3000);
             h_cl_max_peak_ch_x[m-100][l] = new TH1D(Form("cl_max_peak_ch_x%d_%d",m, l), Form("cl_max_peak_ch_x%d_%d",m, l),1000, 0,1000);
             h_cl_max_peak_ch_y[m-100][l] = new TH1D(Form("cl_max_peak_ch_y%d_%d",m, l), Form("cl_max_peak_ch_y%d_%d",m, l),1000, 0,1000);
@@ -53,6 +55,9 @@ GTRCheckHist::~GTRCheckHist(){
   }
 for(int m=100; m < 110; m++){
         for(int l=0; l<3; l++){
+			delete h_hit_ph_x[m-100][l]; 
+			delete h_hit_ph_y[m-100][l]; 
+			delete h_hit_timing_x[m-100][l]; 
             delete h_cl_ncluster_x[m-100][l];
             delete h_cl_ncluster_y[m-100][l];
             delete h_cl_ncluster_yb[m-100][l];
@@ -72,6 +77,7 @@ for(int m=100; m < 110; m++){
 void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1){
 	std::vector<E16DST_DST1GTRHit>     &hits     = gtr1->Hits();
 	std::vector<E16DST_DST1GTRCluster> &clusters = gtr1->Clusters();
+//	std::cout << " clusters size  = "  << clusters.size() << std::endl;
 	
 	int nclusterx[10][3] = {0};	
 	int nclustery[10][3] = {0};	
@@ -84,17 +90,26 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
 		E16DST_DST1GTRHit &h = hits[i];
 		if(h.Type() == 0){
 			h_hit_timing_x[h.ModuleId() -100 ][h.LayerId()]->Fill(h.Timing());
+			h_hit_ph_x[h.ModuleId() -100 ][h.LayerId()]->Fill(h.PeakHeight());
+		}
+		else if (h.Type() == 1){
+			h_hit_ph_y[h.ModuleId() -100 ][h.LayerId()]->Fill(h.PeakHeight());
+		}
+		else if (h.Type() == 2){
+			h_hit_ph_y[h.ModuleId() -100 ][h.LayerId()]->Fill(h.PeakHeight());
 		}
 	}
 	
 
     for(int i=0; i < clusters.size(); i++){
         E16DST_DST1GTRCluster &cl = clusters[i];
-        if(cl.Type() == 0){
+        if(cl.Type() == 0){//x axis
 //        std::cout << "cluster id :: " << i << std::endl;
 //        std::cout << "module id :: " << cl.ModuleId() << std::endl;
 //        std::cout << "layer id :: " << cl.LayerId() << std::endl;
-//        std::cout << "cluster charge :: " << cl.PeakSum() << std::endl;
+//			if(cl.ModuleId() == 107){
+//        		std::cout << "cog,  charge :: " << cl.LocalX() << ", " << cl.PeakSum() << std::endl;
+//			}
 	  nclusterx[cl.ModuleId()-100][cl.LayerId()]++;
 	  nclusterx_modall[cl.LayerId()]++;
             h_cl_numhits_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.NumHits());
@@ -107,7 +122,7 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
             h_cl_tan_x[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.TanTheta());
 			
 		}
-        else if(cl.Type() == 1){
+        else if(cl.Type() == 1){ // yaxis
 	  nclustery[cl.ModuleId()-100][cl.LayerId()]++;
 	  nclustery_modall[cl.LayerId()]++;
             h_cl_numhits_y[cl.ModuleId()-100][cl.LayerId()]->Fill(cl.NumHits());
@@ -146,6 +161,8 @@ void GTRCheckHist::Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRClu
       h_cl_ncluster_modall_y[i]->Fill(nclustery_modall[i]);
       h_cl_ncluster_modall_yb[i]->Fill(nclusteryb_modall[i]);
     }
+	clusters.clear();
+	hits.clear();
 
 }
 

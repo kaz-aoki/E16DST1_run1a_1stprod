@@ -31,6 +31,9 @@ E16ANA_GTRStripAnalyzer::E16ANA_GTRStripAnalyzer(int _n_strips, int _n_sampling)
    fadc_tot = new double[n_strips];
    fadc_ped = new double[n_strips];
    fadc_ped_sigma = new double[n_strips];
+   fadc_peak_st = new double[n_strips];//tot start time
+   fadc_peak_ed = new double[n_strips];//tot end time
+   fadc_rise = new double[n_strips];//peak time - tot start
    gem_analyzed_hits.reserve(20);
    for (int i = 0; i < n_strips; i++) {
       fadc_ped[i] = 0.0;
@@ -56,6 +59,10 @@ E16ANA_GTRStripAnalyzer::~E16ANA_GTRStripAnalyzer()
    delete[] fadc_tot;
    delete[] fadc_ped;
    delete[] fadc_ped_sigma;
+   delete[] fadc_rise;
+   delete[] fadc_peak_st;
+   delete[] fadc_peak_ed;
+   
    // delete wf1d_fitter;
    // delete wf2d_fitter;
 }
@@ -82,6 +89,9 @@ void E16ANA_GTRStripAnalyzer::SetFadc(int strip_id, int16_t *waveform)
 
    for (int j = 0; j < n_sampling; j++) {
      fadc[strip_id][j] = waveform[j] - fadc_ped[strip_id];
+//	if(strip_id == 700 && j == 0){
+//	 std::cout  << "fadc   = " << fadc[strip_id][j] << std::endl; 
+//	}
      //fadc[strip_id][j] = waveform[j] - local_pedestal;
       if( strip_id== 100 ){
 //        std::cout << "wave form j0 = " << waveform[j] << ", ped = "  <<fadc_ped[strip_id] << ", sigma = "<< fadc_ped_sigma[strip_id] <<  std::endl;
@@ -108,13 +118,15 @@ void E16ANA_GTRStripAnalyzer::Analyze()
 
    // CalcWaveParamsPeak();
    int n_hits = HitClusteringV0();
+//   std::cout << "clusterd size = " << n_hits << std::endl;
    gem_analyzed_hits.resize(n_hits);
    // gem_analyzed_hits.resize(n_hits,E16ANA_GTRAnalyzedStripHit());
    for (int i = 0; i < n_hits; i++) {
       gem_analyzed_hits[i].SetInvalid();
       CalcCenterOfGravity(clustered_strip_id[i], gem_analyzed_hits[i]);
       //CalcTdcHit1(clustered_strip_id[i], gem_analyzed_hits[i], i);
-      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);
+      //CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);
+      CalcTdcHit12V2(clustered_strip_id[i], gem_analyzed_hits[i], i);
       // CalcTdcHit2(clustered_strip_id[i], gem_analyzed_hits[i].TanTheta(), gem_analyzed_hits[i]);
    }
 }
@@ -146,7 +158,8 @@ void E16ANA_GTRStripAnalyzer::AnalyzeV1()
       gem_analyzed_hits[i].SetInvalid();
       CalcCenterOfGravity(clustered_strip_id[i], gem_analyzed_hits[i]);
       //CalcTdcHit1(clustered_strip_id[i], gem_analyzed_hits[i], i);
-      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);
+//      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);//original
+      CalcTdcHit12V2(clustered_strip_id[i], gem_analyzed_hits[i], i);//morino ver
       // CalcTdcHit2(clustered_strip_id[i], gem_analyzed_hits[i].TanTheta(), gem_analyzed_hits[i]);
    }
 }
@@ -172,6 +185,7 @@ int E16ANA_GTRStripAnalyzer::HitClusteringV0(const int min_gap, const double clu
 
    for (int i = 0; i < n_strips; i++) {
       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
+//      std::cout << "i  = " << i << ", peak = " << fadc_peak[i] << std::endl;
       if (fadc_peak[i] > 0.0 && fadc_peak_time[i] > 0.0) {
          // double delta_tdc = fadc_tdc[i]-pre_tdc;
          // pre_tdc = fadc_tdc[i];
@@ -235,6 +249,9 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak()
       fadc_peak[i] = -255.0;
       fadc_peak_time[i] = -1000.0;
       fadc_tdc[i] = -1000.0;
+	  fadc_peak_st[i] = -1000.0;
+	  fadc_peak_ed[i] = -1000.0;
+	  
    }
 
    for (int i = 0; i < n_strips; i++) {
@@ -265,6 +282,10 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
       fadc_tot[ch] = -1000.0;
       fadc_peak_time[ch] = -1000.0;
       fadc_peak_tdc[ch]  = -1000.0;
+	  fadc_peak_st[ch]   = -1000;
+	  fadc_peak_ed[ch]   = -1000;
+	  fadc_rise[ch]   = -1000;
+	  
       peak_count = -1;
       for (int j = 0; j < n_sampling; j++) {
          // for(int l=0; l<(int)fadc_valid_count.size(); l++){
@@ -282,11 +303,12 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
             peak_count = j;
          }
       }
-      if (fadc_peak[ch] < gem_threshold && fadc_peak[ch] > 4000) {
+//	  std::cout << "ch = " << ch << ", peak   = " << fadc_peak[ch] << std::endl; 
+      if (fadc_peak[ch] < gem_threshold ||  fadc_peak[ch] > 4000) {
          fadc_peak[ch] = -255.0;
          peak_count = -1;
       } else {
-  //      std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<   std::endl;
+//        std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<   std::endl;
       }
 
       if (peak_count > -1) {
@@ -313,14 +335,18 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
                break;
             }
          }
+		 fadc_peak_st[ch] = tot_start;
+		 fadc_peak_ed[ch] = tot_end;
          fadc_tot[ch] = tot_end - tot_start;
+		 fadc_rise[ch] = fadc_peak_time[ch] - tot_start;
 	 //std::cout << fadc_tot[ch] << ", " << tot_start << ", " << tot_end << 
 	 //  std::endl;
 // 230207 changed for a test, originally Morino Update was used
 //         if (fadc_tot[ch] < gem_tot_threshold ) { // Original
          //if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0 ) {
 //	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > 0 ) { // Morino Updates
-	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > gem_tot_threshold ) { // murakami
+//	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > gem_tot_threshold ) { // murakami
+	 if (fadc_tot[ch] < gem_tot_threshold ) { // murakami
 	 //if (fabs(fadc_tot[ch]) < gem_tot_threshold) { // Morino
             fadc_peak[ch] = -255.0;
             fadc_tdc[ch] = -1000.0;
@@ -335,16 +361,16 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 //		std::cout << "peak count is -1 " << std::endl;
       }
 //230207 comment out for a test
-      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
-	  fadc_peak_time[ch] > peak_time_max || 
-	  fadc_peak_time[ch] < peak_time_min ||
-	  (fadc_peak_time[ch] - fadc_tdc[ch]) > rise_time_max ||
-	  (fadc_peak_time[ch] - fadc_tdc[ch]) < rise_time_min 
-	  ) {
-         fadc_tdc[ch] = -1000.0;
-         fadc_peak_time[ch] = -1000.0;
-	 fadc_peak_tdc[ch]  = -1000.0;
-      }
+//      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
+//	  fadc_peak_time[ch] > peak_time_max || 
+//	  fadc_peak_time[ch] < peak_time_min ||
+//	  (fadc_peak_time[ch] - fadc_tdc[ch]) > rise_time_max ||
+//	  (fadc_peak_time[ch] - fadc_tdc[ch]) < rise_time_min 
+//	  ) {
+//         fadc_tdc[ch] = -1000.0;
+//         fadc_peak_time[ch] = -1000.0;
+//	 fadc_peak_tdc[ch]  = -1000.0;
+//      }
 //	std::cout << "fadc_tdc :" << fadc_tdc[ch] << std::endl;
 
       if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
@@ -361,6 +387,8 @@ void E16ANA_GTRStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
    int temp_num_hit = 0;
    double temp_cc = 0.0;
    double temp_cog = 0.0;
+   double temp_tot = -10;
+   double temp_rise = -10;
 
    if ((int)strip_ids.size() == 0) {
       hit.SetInvalid();
@@ -372,12 +400,15 @@ void E16ANA_GTRStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
       if (fadc_peak[id] > temp_max_value) {
          temp_max_strip = id;
          temp_max_value = fadc_peak[id];
+	     temp_tot       = fadc_tot[id];
+         temp_rise      = fadc_rise[id];
       }
       temp_num_hit++;
       temp_cc += fadc_peak[id];
       // temp_cog += fadc_peak[id]*id;
       temp_cog += fadc_peak[id] * GetPosition(id);
-      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id], fadc[id]);
+//      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id], fadc[id]);//original
+      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id],  fadc_peak_time[id], fadc_peak_st[id], fadc_peak_ed[id], fadc_rise[id], fadc[id]);
    }
    temp_cog /= temp_cc;
    // temp_cog *= strip_pitch;
@@ -436,6 +467,137 @@ void E16ANA_GTRStripAnalyzer::SetArraysForTdcMethods2(const std::vector<int> &st
 
 
 }
+
+void E16ANA_GTRStripAnalyzer::SetArraysForTdcMethods4(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+                                                      std::vector<double> &x_array2,std::vector<double> &time_array,
+                                                      std::vector<double> &time_array2)
+{
+
+  for (int i = 0; i < (int)strip_ids.size(); i++) {
+    int id = strip_ids[i];
+    int it = fadc_peak_tdc[id];
+    int imax    = 1;
+    for (int j = 0; j < (int)strip_ids.size(); j++) {
+      if(i==j)    continue;
+      if(imax<0)  continue;
+      int id2     = strip_ids[j];
+      double tq   = fadc[id2][it];
+      if(tq>fadc[id][it]) imax = -1;
+    }
+    if(imax<0)  continue;
+
+    double sumq = 0;
+    double sumx = 0;
+    double sumt = 0;
+
+    for (int j = 0; j < (int)strip_ids.size(); j++) {
+      int id2   = strip_ids[j];
+      double tq = fadc[id2][it];
+      if(tq<0) tq = 0;
+      sumq += tq;
+      sumx += tq * GetPosition(id2);
+      sumt += tq * fadc_tdc[id2];;
+    }
+
+    if(sumq>0){
+      double lx = sumx/sumq;
+      double lt = sumt/sumq;
+      x_array.push_back(GetPosition(id));
+      time_array.push_back(fadc_tdc[id]);
+      x_array2.push_back(lx);
+      time_array2.push_back(lt);
+    }
+  }
+}
+
+void E16ANA_GTRStripAnalyzer::SetArraysForTdcMethods3(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+                                                      std::vector<double> &time_array, std::vector<double> &peak_array,
+                                                      std::vector<double> &xcent,std::vector<double> &xtime,
+                                                      std::vector<double> &adc1,std::vector<double> &adc2,
+                                                      std::vector<double> &adc3,std::vector<double> &adc4,
+                                                      std::vector<double> &adc5, double &tdc4){
+
+  for (int i = 0; i < (int)strip_ids.size(); i++) {
+    int id = strip_ids[i];
+    int it = fadc_peak_tdc[id];
+    double sumq = 0;
+    double sumx = 0;
+    for (int j = 0; j < (int)strip_ids.size(); j++) {
+      int id2 = strip_ids[j];
+      double tq = fadc[id2][it];
+      if(tq<0) tq = 0;
+      sumq += tq;
+      sumx += tq * GetPosition(id2);
+    }
+    if(sumq>0){
+      double lx = sumx/sumq;
+      x_array.push_back(lx);
+      time_array.push_back(fadc_tdc[id]);
+      peak_array.push_back(fadc_peak[id]);
+    }
+  }
+  double sadc[n_sampling];
+  int    peakc = -1;
+  double peakq = -9999;
+  for (int i = 0; i < n_sampling; i++) {
+    double maxq = -99999;
+    int    mid  = -10;
+    sadc[i] = 0;
+    for (int j = 0; j < (int)strip_ids.size(); j++) {
+      int id  = strip_ids[j];
+      double tq = fadc[id][i];
+      sadc[i] += tq;
+      if(tq>maxq) {
+        maxq = tq;
+        mid  = id;
+      }
+    }
+    if(sadc[i]>peakq){
+      peakq = sadc[i];
+      peakc = i;
+    }
+    if(maxq>100){
+      double lt = i * fadc_clock_period + fadc_t0_correction;
+      double lq = 0;
+      double rq = 0;
+      if(mid>0)           lq = fadc[mid-1][i];
+      if(mid<n_strips-1)  rq = fadc[mid+1][i];
+      if(lq<0) lq=0;
+      if(rq<0) rq=0;
+      double llq = 0;
+      double rrq = 0;
+      if(mid>1)           llq = fadc[mid-2][i];
+      if(mid<n_strips-2)  rrq = fadc[mid+2][i];
+      if(llq<0) llq=0;
+      if(rrq<0) rrq=0;
+
+      xcent.push_back(GetPosition(mid));
+      xtime.push_back(lt);
+      adc1.push_back(llq);
+      adc2.push_back(lq);
+      adc3.push_back(maxq);
+      adc4.push_back(rq);
+      adc5.push_back(rrq);
+    }
+  }
+
+  tdc4 = -100;
+  if(peakc>-1){
+    for (int j = peakc; j > -1; j--) {
+      if (sadc[j] < peakq * threshold_fraction) {
+        // double tdc_j = j;
+        double w_j0 =  peakq * threshold_fraction - sadc[j];
+        double w_j1 = -peakq * threshold_fraction + sadc[j+1];
+        double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
+        tdc4 = tdc_j * fadc_clock_period + fadc_t0_correction;
+        break;
+      }
+    }
+  }
+
+}
+
+
 
 
 void E16ANA_GTRStripAnalyzer::CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID)
@@ -497,7 +659,7 @@ void E16ANA_GTRStripAnalyzer::CalcTdcHit1(const std::vector<int> &strip_ids, E16
 }
 
 void E16ANA_GTRStripAnalyzer::CalcTdcHit12(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID)
-{
+{// updated to morino-ana 
   std::vector<double> x_array;
   std::vector<double> time_array;
   std::vector<double> peak_array;
@@ -553,6 +715,95 @@ void E16ANA_GTRStripAnalyzer::CalcTdcHit12(const std::vector<int> &strip_ids, E1
     hit.SetCPos(x_array[i]);
   }
 
+
+}
+
+void E16ANA_GTRStripAnalyzer::CalcTdcHit12V2(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID)
+{// updated to morino-ana 
+  std::vector<double> x_array, x_array2, x_array3, x_array4;
+  std::vector<double> time_array, time_array2, time_array3, time_array4;
+  std::vector<double> peak_array,peak_array2;
+  std::vector<double> xcent;
+  std::vector<double> xtime;
+  std::vector<double> adc1, adc2, adc3, adc4, adc5;
+  int temp_num_hit = 0;
+  double temp_cc = 0.0;
+  double temp_tdc_hit = 0.0;
+  double temp_tan_theta = 0.0;
+  double time4;
+
+  if ((int)strip_ids.size() == 0) {
+    hit.SetInvalid();
+    return;
+  }
+  //SetArraysForTdcMethods2(strip_ids, x_array, time_array, peak_array);
+  SetArraysForTdcMethods(strip_ids, x_array2, time_array2, peak_array2);
+  SetArraysForTdcMethods3(strip_ids, x_array, time_array, peak_array, xcent, xtime, adc1, adc2, adc3,adc4, adc5, time4);
+  SetArraysForTdcMethods4(strip_ids, x_array3, x_array4, time_array3, time_array4);
+  temp_num_hit = x_array.size();
+  temp_cc = 0.0;
+  double wt=0, t=0, sx=0, sy=0, st2=0, ss = 0, sxoss = 0;
+  double sx2=0, sxy=0;
+  double ftdc = 9999;
+  int nn =0;
+  double time3=0;
+  double sumq = 0;//peak sum
+  for(int i = 0; i < x_array.size(); i++){
+	sumq += peak_array[i];
+	time3 += peak_array[i] * time_array[i];
+    ss  ++;
+    sx  += time_array[i] ;
+    sy  += x_array[i] ;
+    sx2 += time_array[i] *time_array[i] ;
+    sxy += x_array[i] * time_array[i] ;
+    if(time_array[i]<ftdc){
+      ftdc = time_array[i];
+    }
+    int flag = 1;
+    for(int j = 0; j < i; j++){
+      if(fabs(x_array[i]-x_array[j])<0.005) flag=-1;
+    }
+    if(flag>0) nn++;
+  }
+  double a = sy/x_array.size();
+  double b = 0;
+  if(nn>1&&sx*sx!=ss*sx2){
+    a = (sx*sxy-sx2*sy)/(sx*sx-ss*sx2);       //seppen
+    b = (sx*sy-ss*sxy)/(sx*sx-ss*sx2); //katamuki
+  }
+  double temp_mhit = a+b*ztiming;
+  //double temp_mhit = a+b*200;
+  time3 = time3/sumq;
+  hit.SetTdcHit(temp_mhit);
+  hit.SetTanTheta(b/drift_velocity);
+  hit.SetTiming2(ftdc);
+  hit.SetTiming(sx/x_array.size());
+  hit.SetTiming3(time3);
+  hit.SetTiming4(time4);
+  for(int i=0; i < xcent.size(); i++){
+    hit.SetCTiming(xtime[i]);
+    hit.SetCPos(xcent[i]);
+    hit.SetCAdc1(adc1[i]);
+    hit.SetCAdc2(adc2[i]);
+    hit.SetCAdc3(adc3[i]);
+    hit.SetCAdc4(adc4[i]);
+    hit.SetCAdc5(adc5[i]);
+  }
+
+  for(int i = 0; i < x_array.size(); i++){
+    hit.SetCTiming2(time_array[i]);
+    hit.SetCPos2(x_array[i]);
+  }
+  for(int i = 0; i < x_array2.size(); i++){
+    hit.SetCTiming3(time_array2[i]);
+    hit.SetCPos3(x_array2[i]);
+  }
+  for(int i = 0; i < x_array3.size(); i++){
+    hit.SetCTiming4(time_array3[i]);
+    hit.SetCPos4(x_array3[i]);
+	hit.SetCTiming5(time_array4[i]);
+	hit.SetCPos5(x_array4[i]);
+  }
 
 }
 
