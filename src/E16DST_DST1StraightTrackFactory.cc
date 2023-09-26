@@ -8,6 +8,9 @@
 #include "E16ANA_TargetInfo.hh"
 #include "E16ANA_RundependentName.hh"
 #include "E16DST_DST1DetectorFactory.hh"
+#include "E16ANA_StraightTrackCandidate.hh"
+#include "E16ANA_StraightMultiTrack.hh"
+#include "E16ANA_StraightTrackCheckFile.hh"
 using namespace std;
 
 
@@ -239,3 +242,29 @@ int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 }
 
 
+int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_StraightMultiTrack* fitter, E16DST_DST1PhysicsRecord* record, E16ANA_StraightTrackCheckFile* check_file) {
+  E16ANA_StraightTrackCandidates track_candidates(&geometry, fitter, record);
+  static int n_calls;
+  static int n_cands;
+  static bool is_fill_param;
+  track_candidates.Analyze();
+
+//  track_candidates.Print(3);
+  
+//  for (auto& cand : track_candidates.TrackCandidates()) {
+//    check_file0->AddEntry(n_calls, cand);
+//  }
+//  for (auto& cand : track_candidates.SelectedTrackCandidates()) {
+//    check_file1->AddEntry(n_calls, *cand);
+//  }
+  if (!is_fill_param && track_candidates.NumTrackCandidates() != 0) {
+    check_file->AddParam(track_candidates);
+    is_fill_param = true;
+  }
+//  check_file->AddEntry(n_calls, geometry, *record, track_candidates);
+  check_file->AddEntry(n_calls, geometry, track_candidates);
+  ++n_calls;
+  n_cands += track_candidates.NumTrackCandidates();
+  std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;
+  return 0;
+}

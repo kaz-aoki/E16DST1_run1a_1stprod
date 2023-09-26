@@ -409,7 +409,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("gt_y300", &gt_y300, "gt_y300/D");
   tree->Branch("gt_z300", &gt_z300, "gt_z300/D");
   tree->Branch("lxssd", &lxssd, "lxssd/D");
-  tree->Branch("lx100", &lx100, "lx100/D");
+//  tree->Branch("lx100", &lx100, "lx100/D");
 //  tree->Branch("ly100", &ly100, "ly100/D");
 //  tree->Branch("lx200", &lx200, "lx200/D");
 //  tree->Branch("ly200", &ly200, "ly200/D");
@@ -675,99 +675,98 @@ int main(int argc, char* argv[]) {
     record->SSD().UpdatePtrs();
 
 // LG
-	auto &lg_hits0 = event0->LG();
-	E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/fit
-	record.LG().AddHitAndCLusterIds();
-	record.LG().UpdatePtrs();
-	
-// Trigger
-	auto &trigger_gtr_hits0 = event0->TriggerGTR();
-	auto &trigger_hbd_hits0 = event0->TriggerHBD();
-	auto &trigger_lg_hits0  = event0->TriggerLG();
-
-#ifdef TRG_ON
-#ifdef TMP_NIM_TRIGGER
-	auto time_stamp = event0->TimeStamp();
-	E16DST_DST1TriggerFactory(time_stamp, trigger_pram, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-#else // TMP_NIM_TRIGGER
-	E16DST_DST1TriggerFactory(trigger_pram, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-#endif // TMP_NIM_TRIGGER
-	record.Trigger().AddHitAndClusterIDs();
-	record.Trigger().UpdatePtrs();
-#endif
-
-// Check Begin
-	
-   lg_mid.clear();
-   lg_cid.clear();
-   lg_lx.clear();
-   lg_ly.clear();
-   lg_adc.clear();
-   lg_calibadc.clear();
-   lg_t.clear();
-   lg_fflag.clear();
-   lg_trg_mid.clear();
-   lg_trg_cid.clear();
-   lg_trg_t.clear();
-   lg_trg.clear();
-   lg_trg_trk.clear();
-
-
-
+//	auto &lg_hits0 = event0->LG();
+//	E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/fit
+//	record.LG().AddHitAndCLusterIds();
+//	record.LG().UpdatePtrs();
+//	
+//// Trigger
+//	auto &trigger_gtr_hits0 = event0->TriggerGTR();
+//	auto &trigger_hbd_hits0 = event0->TriggerHBD();
+//	auto &trigger_lg_hits0  = event0->TriggerLG();
+//
+//#ifdef TRG_ON
+//#ifdef TMP_NIM_TRIGGER
+//	auto time_stamp = event0->TimeStamp();
+//	E16DST_DST1TriggerFactory(time_stamp, trigger_pram, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+//#else // TMP_NIM_TRIGGER
+//	E16DST_DST1TriggerFactory(trigger_pram, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+//#endif // TMP_NIM_TRIGGER
+//	record.Trigger().AddHitAndClusterIDs();
+//	record.Trigger().UpdatePtrs();
+//#endif
+//
+//// Check Begin
+//	
+//   lg_mid.clear();
+//   lg_cid.clear();
+//   lg_lx.clear();
+//   lg_ly.clear();
+//   lg_adc.clear();
+//   lg_calibadc.clear();
+//   lg_t.clear();
+//   lg_fflag.clear();
+//   lg_trg_mid.clear();
+//   lg_trg_cid.clear();
+//   lg_trg_t.clear();
+//   lg_trg.clear();
+//   lg_trg_trk.clear();
+//
+//
+//
 
 // Run
     run_id   = in_run_id;
 	spill_id = event0->SpillID();
-	event_id = t->EventID();
 
 
 // LG
-	auto &lg_hits1 = record.LG().Hits();
-	int n_lghits   = lg_hits1.size();
-	int lgloop  =0;
-	if (lg_hit1.size() != 0){
-		for(int i=0; i < n_lghits;i++){
-		auto& lghit = lg_hits1[i];
-		if( lghit.FitFlag() < 2){
-			int hlg_mid = lghit.ModuleId();
-			int hlg_cid = lghit.ChannelId();
-			auto hlpos = lghit.LocalPos(*geometry);
-			double hlg_lx = hlpos.X();
-			double hlg_ly = hlpos.Y();
-			double hlg_adc = lghit.FitPeak();
-			double hgainparam = lgbasic.GetGain(lg_mid, lg_cid);
-			double hlg_calibadc = lghit.FitPeak()*gainparam;
-			double hlg_t = lghit.FitTiming();
-			int hlg_fflag = lghit.FitFlag();
-			lg_mid.push_back(hlg_mid);
-			lg_cid.push_back(hlg_cid);
-			lg_lx.push_back(hlg_lx);
-			lg_ly.push_back(hlg_ly);
-            lg_adc.push_back(hlg_adc);
-			lg_calibadc.push_back(hlg_calibadc);
-			lg_t.push_bask(hlg_t);
-			lg_fflag.push_back(hlg_fflag);
-			lgloop++;
-			}
-		}
-	}
-	n_lg_hits = lgloop;
-
-// TRG
-	int n_trg_lg_hits = record.Trigger().NumLGHits();
-	int trg_loop = 0;
-	for(int itrg=0; itrg<n_trg_lg_hits;itrg++){
-		auto &trghit = record.Trigger().LGHit(itrg);
-		int htrg_mid = trghit.ModuleId();
-		int htrg_cid = trghit.ChannelId();
-		double htrg_t = trghit.Timing();
-		lg_trg_mid.push_back(htrg_mid);
-		lg_trg_cid.push_back(htrg_cid);
-		lg_trg_t.push_back(htrg_t);
-		trg_loop++;
-	}
-	n_lg_trg_hits = trg_loop;
-
+//	auto &lg_hits1 = record.LG().Hits();
+//	int n_lghits   = lg_hits1.size();
+//	int lgloop  =0;
+//	if (lg_hit1.size() != 0){
+//		for(int i=0; i < n_lghits;i++){
+//		auto& lghit = lg_hits1[i];
+//		if( lghit.FitFlag() < 2){
+//			int hlg_mid = lghit.ModuleId();
+//			int hlg_cid = lghit.ChannelId();
+//			auto hlpos = lghit.LocalPos(*geometry);
+//			double hlg_lx = hlpos.X();
+//			double hlg_ly = hlpos.Y();
+//			double hlg_adc = lghit.FitPeak();
+//			double hgainparam = lgbasic.GetGain(lg_mid, lg_cid);
+//			double hlg_calibadc = lghit.FitPeak()*gainparam;
+//			double hlg_t = lghit.FitTiming();
+//			int hlg_fflag = lghit.FitFlag();
+//			lg_mid.push_back(hlg_mid);
+//			lg_cid.push_back(hlg_cid);
+//			lg_lx.push_back(hlg_lx);
+//			lg_ly.push_back(hlg_ly);
+//            lg_adc.push_back(hlg_adc);
+//			lg_calibadc.push_back(hlg_calibadc);
+//			lg_t.push_bask(hlg_t);
+//			lg_fflag.push_back(hlg_fflag);
+//			lgloop++;
+//			}
+//		}
+//	}
+//	n_lg_hits = lgloop;
+//
+//// TRG
+//	int n_trg_lg_hits = record.Trigger().NumLGHits();
+//	int trg_loop = 0;
+//	for(int itrg=0; itrg<n_trg_lg_hits;itrg++){
+//		auto &trghit = record.Trigger().LGHit(itrg);
+//		int htrg_mid = trghit.ModuleId();
+//		int htrg_cid = trghit.ChannelId();
+//		double htrg_t = trghit.Timing();
+//		lg_trg_mid.push_back(htrg_mid);
+//		lg_trg_cid.push_back(htrg_cid);
+//		lg_trg_t.push_back(htrg_t);
+//		trg_loop++;
+//	}
+//	n_lg_trg_hits = trg_loop;
+//
 //---test --- //	
 //	for(int mid=100; mid<110; mid++){
 //		for(int l=0; l<2; l++){
@@ -792,6 +791,7 @@ int main(int argc, char* argv[]) {
 	for(int i=0; i < st_tracks.size(); i++){
 		std::shared_ptr<E16DST_DST1StraightTrack3D> t = st_tracks[i];
 		mod_id = t->ModuleID();	
+	event_id = t->EventID();
 		trkid_x    = t->XTrackID();
 		trkid_y    = t->YTrackID();
 		hitid_ssdx = t->SSDXHitID();
