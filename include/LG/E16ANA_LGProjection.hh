@@ -73,7 +73,13 @@ private :
   TVector3 lmom1;
   TVector3 gmom1;
   TVector3 gpos;
-  int GTRmodule;
+  bool trgGTR;
+  int trgGTRmid;
+  int trgGTRcid;
+  bool trgHBD;
+  int trgHBDmid;
+  int trgHBDcid;
+  TVector3 HBDlcross;
 
 
 public :
@@ -100,7 +106,8 @@ public :
   bool CalcCrossInfoStraight();//straight
   double CalibFunction();
   double CalibParameter();
-  void CalcCrossGTRModule();//mag
+  void CalcCrossGTRTrigger();//mag
+  void CalcCrossHBDTrigger();//mag
   int Module(){return module;}
   int Module2013(){return module2013;}
   bool Is_crossed(){return is_crossed;}
@@ -143,7 +150,16 @@ public :
   double GPos_x(){return gpos.X();}
   double GPos_y(){return gpos.Y();}
   double GPos_z(){return gpos.Z();}
-  int GTRModule(){return GTRmodule;}
+  bool TrgGTR(){return trgGTR;}
+  int TrgGTRMid(){return trgGTRmid;}
+  int TrgGTRCid(){return trgGTRcid;}
+  bool TrgHBD(){return trgHBD;}
+  int TrgHBDMid(){return trgHBDmid;}
+  int TrgHBDCid(){return trgHBDcid;}
+  TVector3 HBDLCross(){return HBDlcross;}
+  double HBDLCross_x(){return HBDlcross.X();}
+  double HBDLCross_y(){return HBDlcross.Y();}
+  double HBDLCross_z(){return HBDlcross.Z();}
 
 };
 #endif

@@ -1417,16 +1417,12 @@ public :
    E16ANA_EIDSingleTrackAnalyzerV2(TTree *tree=0);
    virtual ~E16ANA_EIDSingleTrackAnalyzerV2();
    virtual Int_t    Cut(Long64_t entry);
-   virtual int      TriggerType(int run_id);
-   virtual int      TrackInHBDAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly);
-   virtual int      TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype);
-   virtual int      TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype, double* rk_fit_lg_y);
-   virtual double   TargetAssociation(Long64_t entry, int itrack, int& tgtid);
+   virtual int      CalcTargetId(int itrack, TVector3& initvtx, TVector3& initmom);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
-   virtual void     EIDEfficiency(int runoption, int maxevent, char* out_file_name);
+   virtual void     TrackMatchOnlineOffline(int maxevent, char* out_file_name);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -2858,179 +2854,34 @@ Int_t E16ANA_EIDSingleTrackAnalyzerV2::Cut(Long64_t entry)
 // returns -1 otherwise.
    return 1;
 }
-int E16ANA_EIDSingleTrackAnalyzerV2::TrackInHBDAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly)
-{
-  trk_lx = -10000;
-  trk_ly = -10000;
-  if( fabs(rk_fit_hbd_x->at(itrack))>300 || fabs(rk_fit_hbd_y->at(itrack))>300 || fabs(rk_fit_hbd_x->at(itrack))<6.6 || fabs(rk_fit_hbd_y->at(itrack))<6.6 ){
-    return -2;
+int E16ANA_EIDSingleTrackAnalyzerV2::CalcTargetId(int itrack, TVector3& initvtx, TVector3& initmom){
+
+  TVector3 tgt0( rk_proj_tgt0_gx->at(itrack), rk_proj_tgt0_gy->at(itrack), rk_proj_tgt0_gz->at(itrack) );
+  TVector3 tgt1( rk_proj_tgt1_gx->at(itrack), rk_proj_tgt1_gy->at(itrack), rk_proj_tgt1_gz->at(itrack) );
+  TVector3 tgt2( rk_proj_tgt2_gx->at(itrack), rk_proj_tgt2_gy->at(itrack), rk_proj_tgt2_gz->at(itrack) );
+  double p0 = tgt0.Perp();
+  double p1 = tgt1.Perp();
+  double p2 = tgt2.Perp();
+  TVector3 mom0( rk_proj_tgt0_mom_gx->at(itrack), rk_proj_tgt0_mom_gy->at(itrack), rk_proj_tgt0_mom_gz->at(itrack) );
+  TVector3 mom1( rk_proj_tgt1_mom_gx->at(itrack), rk_proj_tgt1_mom_gy->at(itrack), rk_proj_tgt1_mom_gz->at(itrack) );
+  TVector3 mom2( rk_proj_tgt2_mom_gx->at(itrack), rk_proj_tgt2_mom_gy->at(itrack), rk_proj_tgt2_mom_gz->at(itrack) );
+
+  if( p0<p1 && p0<p2 ){
+    initvtx = tgt0;
+    initmom = mom0;
+    return 0;
+  }
+  else if( p1<p0 && p1<p2 ){
+    initvtx = tgt1;
+    initmom = mom1;
+    return 1;
+  }
+  else if( p2<p0 && p2<p1 ){
+    initvtx = tgt2;
+    initmom = mom2;
+    return 2;
   }
   else{
-    trk_lx = rk_fit_hbd_x->at(itrack);
-    trk_ly = rk_fit_hbd_y->at(itrack);
-    return rk_fit_hbd_mid->at(itrack);
-  }
-
-}
-int E16ANA_EIDSingleTrackAnalyzerV2::TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype)
-{
-  double rk_fit_lg_y[3];//plane a, b, c
-  rk_fit_lg_y[0] = rk_fit_lg_a_y->at(itrack);
-  rk_fit_lg_y[1] = rk_fit_lg_b_y->at(itrack);
-  rk_fit_lg_y[2] = rk_fit_lg_c_y->at(itrack);
-
-  return TrackInLGAcceptance(entry,itrack,trk_lx,trk_ly,ytype,rk_fit_lg_y);
-}
-int E16ANA_EIDSingleTrackAnalyzerV2::TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype, double* rk_fit_lg_y)
-{
-  //  normal cut
-  double xregion[3] = {433.,372.,372.};//plane a, b, c
-  double yinner[3] = {6.5,  137.7,243.2};
-  double youter[3] = {160.7,281.0,388.7};
-  // strict cut 220209
-  // double xregion[3] = {372.,310.,310.};
-  // double yinner[3] = {26.5,  157.7,263.2};
-  // double youter[3] = {150.7,271.0,378.7};
-  // strict cut
-  // double xregion[3] = {372.,310.,310.};
-  // double yinner[3] = {86.5,207.7,303.2};
-  // double youter[3] = {160.7,281.0,388.7};
-
-  int deadchm[2]={107,107};
-  double deadchx[2]={-62,-248};
-  double deadchy[2]={-315,-83.2};
-
-  if( rk_fit_lg_c_mid->at(itrack)==deadchm[0] && fabs(rk_fit_lg_c_x->at(itrack)-(deadchx[0]))<65 && fabs(rk_fit_lg_y[2]-(deadchy[0]))<80 ){
-    return -4;
-  }
-  else if( rk_fit_lg_a_mid->at(itrack)==deadchm[1] && fabs(rk_fit_lg_a_x->at(itrack)-(deadchx[1]))<65 && fabs(rk_fit_lg_y[0]-(deadchy[1]))<80 ){
-    return -4;
-  }
-  else if(fabs(rk_fit_lg_a_x->at(itrack))>xregion[0]){
-    if(rk_fit_lg_a_x->at(itrack)>0){
-      return -10;
-    }
-    else{
-      return -20;
-    }
-  }
-  else if(fabs(rk_fit_lg_b_x->at(itrack))>xregion[1]){
-    if(rk_fit_lg_b_x->at(itrack)>0){
-      return -10;
-    }
-    else{
-      return -20;
-    }
-  }
-  else if(fabs(rk_fit_lg_c_x->at(itrack))>xregion[2]){
-    if(rk_fit_lg_c_x->at(itrack)>0){
-      return -10;
-    }
-    else{
-      return -20;
-    }
-  }
-  else if( rk_fit_lg_y[2] > -youter[2] && rk_fit_lg_y[2] < -yinner[2] ){
-    ytype = 0;
-    trk_lx = rk_fit_lg_c_x->at(itrack);
-    trk_ly = rk_fit_lg_y[2];
-    return rk_fit_lg_c_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[2] > yinner[2] && rk_fit_lg_y[2] < youter[2] ){
-    ytype = 5;
-    trk_lx = rk_fit_lg_c_x->at(itrack);
-    trk_ly = rk_fit_lg_y[2];
-    return rk_fit_lg_c_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[1] > -youter[1] && rk_fit_lg_y[1] < -yinner[1] ){
-    ytype = 1;
-    trk_lx = rk_fit_lg_b_x->at(itrack);
-    trk_ly = rk_fit_lg_y[1];
-    return rk_fit_lg_b_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[1] > yinner[1] && rk_fit_lg_y[1] < youter[1] ){
-    ytype = 4;
-    trk_lx = rk_fit_lg_b_x->at(itrack);
-    trk_ly = rk_fit_lg_y[1];
-    return rk_fit_lg_b_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[0] > -youter[0] && rk_fit_lg_y[0] < -yinner[0] ){
-    ytype = 2;
-    trk_lx = rk_fit_lg_a_x->at(itrack);
-    trk_ly = rk_fit_lg_y[0];
-    return rk_fit_lg_a_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[0] > yinner[0] && rk_fit_lg_y[0] < youter[0] ){
-    ytype = 3;
-    trk_lx = rk_fit_lg_a_x->at(itrack);
-    trk_ly = rk_fit_lg_y[0];
-    return rk_fit_lg_a_mid->at(itrack);
-  }
-  else{
-    return -3;
-  }
-
-}
-double E16ANA_EIDSingleTrackAnalyzerV2::TargetAssociation(Long64_t entry, int itrack, int& tgtid)
-{
-  double x0 = rk_proj_tgt0_gx->at(itrack);
-  double y0 = rk_proj_tgt0_gy->at(itrack);
-  double x1 = rk_proj_tgt1_gx->at(itrack);
-  double y1 = rk_proj_tgt1_gy->at(itrack);
-  double x2 = rk_proj_tgt2_gx->at(itrack);
-  double y2 = rk_proj_tgt2_gy->at(itrack);
-
-  double r0 = x0*x0+y0*y0;
-  double r1 = x1*x1+y1*y1;
-  double r2 = x2*x2+y2*y2;
-  if(r0<r1&&r0<r2){
-    tgtid = 0;
-    return r0;
-  }
-  else if(r1<r0&&r1<r2){
-    tgtid = 1;
-    return r1;
-  }
-  else if(r2<r0&&r2<r1){
-    tgtid = 2;
-    return r2;
-  }
-  else{
-    return -1;
-  }
-}
-int E16ANA_EIDSingleTrackAnalyzerV2::TriggerType(int run_id)
-{
-  if( run_id==20908 || run_id==20909 || run_id==20914 || run_id==20921 || run_id==20924 || run_id==20927 )
-    {//IM3, 5e9
-      return 50;
-    }
-  else if( run_id==20928 || run_id==20930 || (run_id>=20932&&run_id<=20939) || run_id==20947 )
-    {//106, 5e9
-      return 56;
-    }
-  else if( run_id==20912 || run_id==20913 || (run_id>=20941&&run_id<=20946) || run_id==20915 || run_id==20916 || run_id==20929 )
-    {//107, 5e9
-      return 57;
-    }
-  else if( run_id==20987 || run_id==20989 )
-    {//IM3, 1e9
-      return 10;
-    }
-  else if( (run_id>=20996&&run_id<=20998) || (run_id>=21000&&run_id<=21010) )
-    {//104,106,108, 1e9
-      return 15;
-    }
-  else if( run_id==20990 || run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
-    {//106, 1e9
-      return 16;
-    }
-  else if( run_id==20992 || run_id==20993 )
-    {//107, 1e9
-      return 17;
-    }
-  else{
-    std::cout<<"This RunNumber is not categorized"<<std::endl;
     return -1;
   }
 }

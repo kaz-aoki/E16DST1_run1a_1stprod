@@ -2914,7 +2914,7 @@ int E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(int run_id)
     {//104,106,108, 1e9
       return 15;
     }
-  else if( run_id==20990 || run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
+  else if( run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
     {//106, 1e9
       return 16;
     }
@@ -2922,8 +2922,12 @@ int E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(int run_id)
     {//107, 1e9
       return 17;
     }
+  else if( run_id==20990 )
+    {//106, 1e9
+      return 19;
+    }
   else{
-    std::cout<<"This RunNumber is not categorized"<<std::endl;
+    std::cout<<"RunNumber "<<run_id<<" is not categorized"<<std::endl;
     return -1;
   }
 }

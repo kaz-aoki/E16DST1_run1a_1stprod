@@ -143,8 +143,14 @@ int main(int argc, char* argv[]) {
       TVector3 initmom(px,py,pz);
       proj.SetInitInfo(initvtx, initmom, pid/fabs(pid) );
       bool is_crossed = proj.CalcCrossInfo();
-      int gmid = proj.GTRModule();
-      if( is_crossed && gmid>=100 && gmid<=110 ){
+      int gmid = proj.TrgGTRMid();
+      int gcid = proj.TrgGTRCid();
+      bool gg = proj.TrgGTR();
+      // int hmid = proj.TrgHBDMid();
+      // int hcid = proj.TrgHBDCid();
+      // bool hh = proj.TrgHBD();
+      // std::cout<<is_crossed<<" "<<gg<<" "<<gmid<<" "<<gcid<<" "<<hh<<" "<<hmid<<" "<<hcid<<std::endl;
+      if( is_crossed && gg ){
 	// std::cout<<eventid<<" "<<name<<" "<<proj.Module()<<" "<<proj.Block()<<" "<<gmid<<std::endl;
 	hits[gmid-100].push_back( proj.Module()*100+proj.Block() );
       }

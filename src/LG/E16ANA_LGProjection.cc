@@ -108,7 +108,13 @@ void E16ANA_LGProjection::ClearCrossInfo(){
   lmom1.SetXYZ(-10000.,-10000.,-10000.);
   gmom1.SetXYZ(-10000.,-10000.,-10000.);
   gpos.SetXYZ(-10000.,-10000.,-10000.);
-  GTRmodule = -10000;
+  trgGTR    = false;
+  trgGTRmid = -10000;
+  trgGTRcid = -10000;
+  trgHBD    = false;
+  trgHBDmid = -10000;
+  trgHBDcid = -10000;
+  HBDlcross.SetXYZ(-10000.,-10000.,-10000.);
 }
 
 void E16ANA_LGProjection::SetInitInfo(TVector3& _initpos, TVector3& _initdir){
@@ -309,7 +315,8 @@ bool E16ANA_LGProjection::CalcCrossInfo(){
   }
   gpos = geometry->LG(module2013, block)->GetDetectorCenter();
 
-  CalcCrossGTRModule();
+  CalcCrossGTRTrigger();
+  CalcCrossHBDTrigger();
 
   return true;
 }
@@ -358,11 +365,12 @@ double E16ANA_LGProjection::CalibParameter(){
   return 1./CalibFunction();
 }
 
-void E16ANA_LGProjection::CalcCrossGTRModule(){
+void E16ANA_LGProjection::CalcCrossGTRTrigger(){
 
   if( module<101 && module>109 ) {return;}
 
   int min_n_steps = kMaxSteps + 1;
+  double ly = -10000;
   for (int m = module-2; m <= module+2; ++m) {
     if ( m==105 || m<100 || m>110 ) {
       continue;
@@ -379,9 +387,51 @@ void E16ANA_LGProjection::CalcCrossGTRModule(){
     if( fabs(lposs[0].X())<150. && fabs(lposs[0].Y())<150. ){
       auto n_steps = fitter->GetTrackSteps( 0 ).size();
       if (n_steps < min_n_steps) {
-    	GTRmodule = m;
+    	trgGTRmid = m;
+	trgGTR = true;
+	ly = lposs[0].Y();
       }
     }
   }
+  if(ly!=-10000){
+    double cid = (ly+150.)/300.*24.;
+    trgGTRcid = (int)cid;
+  }
+}
+void E16ANA_LGProjection::CalcCrossHBDTrigger(){
 
+  if( module<101 && module>109 ) {return;}
+
+  int min_n_steps = kMaxSteps + 1;
+  double lx = -10000;
+  double ly = -10000;
+  for (int m = module-1; m <= module+1; ++m) {
+    if ( m==105 || m<101 || m>109 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(m);
+    auto tmp_geom = geometry->HBD(mid2013);
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<300. && fabs(lposs[0].Y())<300. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+    	trgHBDmid = m;
+	trgHBD = true;
+	lx = lposs[0].X();
+	ly = lposs[0].Y();
+      }
+    }
+  }
+  if(lx!=-10000&&ly!=-10000){
+    double cidx = (lx+300.)/600.*6.;
+    double cidy = (ly+300.)/600.*6.;
+    trgHBDcid = (int)cidx+(int)cidy*10;
+    HBDlcross.SetXYZ(lx,ly,0.);
+  }
 }
