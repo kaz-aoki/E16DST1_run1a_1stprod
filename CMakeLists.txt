@@ -172,6 +172,8 @@ add_library(E16DST_DST1
   src/straight_track/StraightTrackAnalyzerV0.cc
   src/straight_track/E16ANA_StraightTrackNameSpace.cc
   src/straight_track/E16ANA_StraightTrack.cc
+  src/straight_track/E16ANA_StraightTrackCandidate.cc
+  src/straight_track/E16ANA_StraightMultiTrack.cc
 #  src/straight_track/StraightTrackAnalyzerForASDEffwithWireV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
@@ -402,8 +404,17 @@ target_link_libraries(run_StraightTrackAnalyzer2D
 	E16DST
 	E16DST_DST1
 )
+##--------------------------------------------------------------------------------
+##_______________________________________________________________________________
+add_executable(run_StraightTrackAnalyzerV2 usr/run_StraightTrackAnalyzerV2.cc)
+
+target_link_libraries(run_StraightTrackAnalyzerV2
+	E16DST
+	E16DST_DST1
+)
 
 ##--------------------------------------------------------------------------------
+
 
 #add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)
 #
