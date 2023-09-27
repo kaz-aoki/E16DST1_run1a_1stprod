@@ -94,24 +94,30 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
    vector<int> out_track_lg_mid;
    vector<int> out_track_lg_cid;
    vector<bool> out_track_lg_trghit;
+   vector<vector<double>> out_track_lg_trghit_t;
    vector<bool> out_track_lg_trgtrack;
    vector<bool> out_track_lg_hit;
+   vector<vector<double>> out_track_lg_hit_t;
    vector<vector<double>> out_track_lg_resx;
    vector<vector<double>> out_track_lg_resy;
    vector<int> out_track_hbd_is_crossed;
    vector<int> out_track_hbd_mid;
    vector<int> out_track_hbd_cid;
    vector<bool> out_track_hbd_trghit;
+   vector<vector<double>> out_track_hbd_trghit_t;
    vector<bool> out_track_hbd_trgtrack;
    vector<bool> out_track_hbd_hit;
+   vector<vector<double>> out_track_hbd_hit_t;
    vector<vector<double>> out_track_hbd_resx;
    vector<vector<double>> out_track_hbd_resy;
    vector<int> out_track_gtr_is_crossed;
    vector<int> out_track_gtr_mid;
    vector<int> out_track_gtr_cid;
    vector<bool> out_track_gtr_trghit;
+   vector<vector<double>> out_track_gtr_trghit_t;
    vector<bool> out_track_gtr_trgtrack;
-
+   vector<double> out_track_gtr_hit_xt;
+   vector<double> out_track_gtr_hit_yt;
 
    tree->Branch("run_id",&out_run_id,"run_id/I");
    tree->Branch("event_id",&out_event_id,"event_id/I");
@@ -132,24 +138,30 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
    tree->Branch("track_lg_mid", &out_track_lg_mid);
    tree->Branch("track_lg_cid", &out_track_lg_cid);
    tree->Branch("track_lg_trghit", &out_track_lg_trghit);
+   tree->Branch("track_lg_trghit_t", &out_track_lg_trghit_t);
    tree->Branch("track_lg_trgtrack", &out_track_lg_trgtrack);
    tree->Branch("track_lg_hit", &out_track_lg_hit);
+   tree->Branch("track_lg_hit_t", &out_track_lg_hit_t);
    tree->Branch("track_lg_resx", &out_track_lg_resx);
    tree->Branch("track_lg_resy", &out_track_lg_resy);
    tree->Branch("track_hbd_is_crossed", &out_track_hbd_is_crossed);
    tree->Branch("track_hbd_mid", &out_track_hbd_mid);
    tree->Branch("track_hbd_cid", &out_track_hbd_cid);
    tree->Branch("track_hbd_trghit", &out_track_hbd_trghit);
+   tree->Branch("track_hbd_trghit_t", &out_track_hbd_trghit_t);
    tree->Branch("track_hbd_trgtrack", &out_track_hbd_trgtrack);
    tree->Branch("track_hbd_hit", &out_track_hbd_hit);
+   tree->Branch("track_hbd_hit_t", &out_track_hbd_hit_t);
    tree->Branch("track_hbd_resx", &out_track_hbd_resx);
    tree->Branch("track_hbd_resy", &out_track_hbd_resy);
    tree->Branch("track_gtr_is_crossed", &out_track_gtr_is_crossed);
    tree->Branch("track_gtr_mid", &out_track_gtr_mid);
    tree->Branch("track_gtr_cid", &out_track_gtr_cid);
    tree->Branch("track_gtr_trghit", &out_track_gtr_trghit);
+   tree->Branch("track_gtr_trghit_t", &out_track_gtr_trghit_t);
    tree->Branch("track_gtr_trgtrack", &out_track_gtr_trgtrack);
-
+   tree->Branch("track_gtr_hit_xt", &out_track_gtr_hit_xt);
+   tree->Branch("track_gtr_hit_yt", &out_track_gtr_hit_yt);
 
    // E16ANA_HBDDeadChannel hbddch;
    // std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
@@ -209,23 +221,30 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
       out_track_lg_mid.clear();
       out_track_lg_cid.clear();
       out_track_lg_trghit.clear();
+      out_track_lg_trghit_t.clear();
       out_track_lg_trgtrack.clear();
       out_track_lg_hit.clear();
+      out_track_lg_hit_t.clear();
       out_track_lg_resx.clear();
       out_track_lg_resy.clear();
       out_track_hbd_is_crossed.clear();
       out_track_hbd_mid.clear();
       out_track_hbd_cid.clear();
       out_track_hbd_trghit.clear();
+      out_track_hbd_trghit_t.clear();
       out_track_hbd_trgtrack.clear();
       out_track_hbd_hit.clear();
+      out_track_hbd_hit_t.clear();
       out_track_hbd_resx.clear();
       out_track_hbd_resy.clear();
       out_track_gtr_is_crossed.clear();
       out_track_gtr_mid.clear();
       out_track_gtr_cid.clear();
       out_track_gtr_trghit.clear();
+      out_track_gtr_trghit_t.clear();
       out_track_gtr_trgtrack.clear();
+      out_track_gtr_hit_xt.clear();
+      out_track_gtr_hit_yt.clear();
 
       int ntrkacc = 0;
       int ntracks = track_id->size();
@@ -254,19 +273,25 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
 	bool ltrghit = false;
 	bool htrghit = false;
 	bool gtrghit = false;
+	out_track_lg_trghit_t.push_back(vector<double>());
 	for(int il=0;il<n_trg_lg_hits;il++){
 	  if( trg_lg_hit_mid->at(il)==lmid && trg_lg_hit_cid->at(il)==lcid ){
 	    ltrghit = true;
+	    out_track_lg_trghit_t[ntrkacc].push_back( trg_lg_hit_t->at(il) );
 	  }
 	}
+	out_track_hbd_trghit_t.push_back(vector<double>());
 	for(int ih=0;ih<n_trg_hbd_hits;ih++){
 	  if( trg_hbd_hit_mid->at(ih)==hmid && trg_hbd_hit_cid->at(ih)==hcid ){
 	    htrghit = true;
+	    out_track_hbd_trghit_t[ntrkacc].push_back( trg_hbd_hit_t->at(ih) );
 	  }
 	}
+	out_track_gtr_trghit_t.push_back(vector<double>());
 	for(int ig=0;ig<n_trg_gtr_hits;ig++){
 	  if( trg_gtr_hit_mid->at(ig)==gmid && trg_gtr_hit_cid->at(ig)==gcid ){
 	    gtrghit = true;
+	    out_track_gtr_trghit_t[ntrkacc].push_back( trg_gtr_hit_t->at(ig) );
 	  }
 	}
 
@@ -293,6 +318,7 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
 
 	bool lhit = false;
 	double widthlg = 100.;
+	out_track_lg_hit_t.push_back(vector<double>());
 	out_track_lg_resx.push_back(vector<double>());
 	out_track_lg_resy.push_back(vector<double>());
 	for(int il=0;il<n_lg_hits;il++){
@@ -308,10 +334,12 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
 	  }
 	  if( fabs(resx)<widthlg && fabs(resy)<widthlg ){
 	    lhit = true;
+	    out_track_lg_hit_t[ntrkacc].push_back( lg_hit_t->at(il) );
 	  }
 	}
 	bool hhit = false;
 	double widthhbd = 25.;
+	out_track_hbd_hit_t.push_back(vector<double>());
 	out_track_hbd_resx.push_back(vector<double>());
 	out_track_hbd_resy.push_back(vector<double>());
 	for(int ih=0;ih<n_hbd_clusters;ih++){
@@ -327,8 +355,12 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
 	  }
 	  if( fabs(resx)<widthhbd && fabs(resy)<widthhbd ){
 	    hhit = true;
+	    out_track_hbd_hit_t[ntrkacc].push_back( hbd_cluster_t->at(ih) );
 	  }
 	}
+
+	double gtrxt = rk_hit_gtr300_xt->at(itrack);
+	double gtryt = rk_hit_gtr300_yt->at(itrack);
 
 	out_track_id.push_back(track_id->at(itrack));
 	out_chi_square.push_back(chi_square->at(itrack));
@@ -359,6 +391,8 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
 	out_track_gtr_cid.push_back(gcid);
 	out_track_gtr_trghit.push_back(gtrghit);
 	out_track_gtr_trgtrack.push_back(gtrk);
+	out_track_gtr_hit_xt.push_back(gtrxt);
+	out_track_gtr_hit_yt.push_back(gtryt);
 
 	ntrkacc++;
 

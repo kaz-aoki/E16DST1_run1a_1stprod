@@ -27,7 +27,8 @@ int main(int argc, char* argv[]) {
     in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run02099*.root");//for 1e9106
     // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run020928*.root");//for 5e9106
     // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run02098*.root");//for 1e91M3
-    // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/calib221003/run030322*.root");//for run0c
+    // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/calib221003/run030322*.root");
+    // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/invmag/run030464*.root");
   }
   else{
     in_chain->Add(in_root_name);
