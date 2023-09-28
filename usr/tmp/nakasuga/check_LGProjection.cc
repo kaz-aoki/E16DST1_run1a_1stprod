@@ -29,11 +29,25 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-bool IsTrgPair(int id1, int id2){
-  int mid1 = id1/100;
-  int mid2 = id2/100;
-  int cid1 = id1-mid1*100;
-  int cid2 = id2-mid2*100;
+struct particleset{
+  int pid;
+  double mass;
+  double px;
+  double py;
+  double pz;
+  int charge;
+  bool lcross;
+  int lmid;
+  int lcid;
+  bool hcross;
+  int hmid;
+  int hcid;
+  bool gcross;
+  int gmid;
+  int gcid;
+};
+
+bool IsTrgPair(int mid1, int cid1, int mid2, int cid2){
   int d1x = (mid1-100)*7+cid1%10;
   int d1y = cid1/10;
   int d2x = (mid2-100)*7+cid2%10;
@@ -70,10 +84,8 @@ int main(int argc, char* argv[]) {
   // TVector3 initvtx(-25., 0., -40.);//right up
   // TVector3 initvtx(-25., 0.,  40.);//right down
 
-  std::vector<int> hits[11];
-  for(int i=0;i<11;i++){
-    hits[i].clear();
-  }
+  std::vector<particleset> parts(0);
+
   TH1F* hhits[11];
   TH1F* hpairs[11];
   for(int i=0;i<11;i++){
@@ -103,6 +115,8 @@ int main(int argc, char* argv[]) {
     double impactp, mass, px, py, pz;
     std::string name;
     fin >> eventid >> impactp >> pid >> mass >> name >> px >> py >> pz;
+    int charge = pid/fabs(pid);
+    if(pid==111){charge = 0;}
     eventid_current = eventid;
     if(pid==211){n_pip++;}
     if(pid==-211){n_pim++;}
@@ -110,50 +124,58 @@ int main(int argc, char* argv[]) {
 
     if( eventid_current != eventid_before ){
       //Fill
+      int nhits[11] = {0};
+      int npairs[11] = {0};
       int nmod1 = 0;
       int nmod2 = 0;
-      int npairall = 0;
-      for(int i=0;i<11;i++){
-	hhits[i]->Fill(hits[i].size());
-	if(hits[i].size()>0){nmod1++;}
-	if(hits[i].size()>1){nmod2++;}
-	int npair = 0;
-	if(hits[i].size()>1){
-	  for(int ip=0;ip<hits[i].size();ip++){
-	    for(int jp=ip+1;jp<hits[i].size();jp++){
-	      int id1 = hits[i].at(ip);
-	      int id2 = hits[i].at(jp);
-	      if( IsTrgPair(id1, id2) ){
-		npair++;
-	      }
-	    }
+      for(int ip=0; ip<parts.size(); ip++){
+	nhits[ parts.at(ip).gmid-100 ]++;
+	for(int jp=ip+1; jp<parts.size(); jp++){
+	  if( parts.at(jp).gmid != parts.at(ip).gmid ) continue;
+	  if( IsTrgPair( parts.at(ip).lmid, parts.at(ip).lcid, parts.at(jp).lmid, parts.at(jp).lcid ) ){
+	    npairs[ parts.at(ip).gmid-100 ]++;
 	  }
 	}
-	hpairs[i]->Fill(npair);
-	npairall+=npair;
+      }
+      for(int im=0; im<11; im++){
+	hhits[im]->Fill(nhits[im]);
+	if(nhits[im]>0){nmod1++;}
+	if(nhits[im]>1){nmod2++;}
+	hpairs[im]->Fill(npairs[im]);
       }
       hnmod1->Fill(nmod1);
       hnmod2->Fill(nmod2);
       //Clear
-      for(int i=0;i<11;i++){ hits[i].clear(); }
+      parts.clear();
       // std::cout<<"*************"<<std::endl;//event head
     }
 
-    if( fabs(pid)==211 ){
-      TVector3 initmom(px,py,pz);
-      proj.SetInitInfo(initvtx, initmom, pid/fabs(pid) );
-      bool is_crossed = proj.CalcCrossInfo();
-      int gmid = proj.TrgGTRMid();
-      int gcid = proj.TrgGTRCid();
-      bool gg = proj.TrgGTR();
-      // int hmid = proj.TrgHBDMid();
-      // int hcid = proj.TrgHBDCid();
-      // bool hh = proj.TrgHBD();
-      // std::cout<<is_crossed<<" "<<gg<<" "<<gmid<<" "<<gcid<<" "<<hh<<" "<<hmid<<" "<<hcid<<std::endl;
-      if( is_crossed && gg ){
-	// std::cout<<eventid<<" "<<name<<" "<<proj.Module()<<" "<<proj.Block()<<" "<<gmid<<std::endl;
-	hits[gmid-100].push_back( proj.Module()*100+proj.Block() );
-      }
+    particleset ptmp;
+    ptmp.pid = pid;
+    ptmp.mass = mass;
+    ptmp.px = px;
+    ptmp.py = py;
+    ptmp.pz = pz;
+    ptmp.charge = charge;
+    TVector3 initmom(px,py,pz);
+    if( charge!=0 ){
+      proj.SetInitInfo( initvtx, initmom, charge );
+      ptmp.lcross = proj.CalcCrossInfo();
+    }
+    // else{
+    //   proj.SetInitInfoStraight( initvtx, initmom );
+    //   ptmp.lcross = proj.CalcCrossInfoStraight();
+    // }
+    ptmp.lmid = proj.Module();
+    ptmp.lcid = proj.Block();
+    ptmp.hcross = proj.TrgHBD();
+    ptmp.hmid = proj.TrgHBDMid();
+    ptmp.hcid = proj.TrgHBDCid();
+    ptmp.gcross = proj.TrgGTR();
+    ptmp.gmid = proj.TrgGTRMid();
+    ptmp.gcid = proj.TrgGTRCid();
+    if( ptmp.charge!=0 && ptmp.lcross && ptmp.gcross ){
+      parts.push_back( ptmp );
     }
 
     if( eventid_current != eventid_before ){
