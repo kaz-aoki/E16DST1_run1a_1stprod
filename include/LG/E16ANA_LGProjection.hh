@@ -80,6 +80,9 @@ private :
   int trgHBDmid;
   int trgHBDcid;
   TVector3 HBDlcross;
+  bool offlineSSD;
+  bool offlineGTR100;
+  bool offlineGTR200;
 
 
 public :
@@ -108,6 +111,7 @@ public :
   double CalibParameter();
   void CalcCrossGTRTrigger();//mag
   void CalcCrossHBDTrigger();//mag
+  void CalcCrossOfflineDetector();//mag
   int Module(){return module;}
   int Module2013(){return module2013;}
   bool Is_crossed(){return is_crossed;}
@@ -160,6 +164,9 @@ public :
   double HBDLCross_x(){return HBDlcross.X();}
   double HBDLCross_y(){return HBDlcross.Y();}
   double HBDLCross_z(){return HBDlcross.Z();}
+  bool OfflineSSD(){return offlineSSD;}
+  bool OfflineGTR100(){return offlineGTR100;}
+  bool OfflineGTR200(){return offlineGTR200;}
 
 };
 #endif

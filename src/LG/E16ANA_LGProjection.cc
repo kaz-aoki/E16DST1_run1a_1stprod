@@ -115,6 +115,9 @@ void E16ANA_LGProjection::ClearCrossInfo(){
   trgHBDmid = -10000;
   trgHBDcid = -10000;
   HBDlcross.SetXYZ(-10000.,-10000.,-10000.);
+  offlineSSD       = false;
+  offlineGTR100    = false;
+  offlineGTR200    = false;
 }
 
 void E16ANA_LGProjection::SetInitInfo(TVector3& _initpos, TVector3& _initdir){
@@ -317,6 +320,7 @@ bool E16ANA_LGProjection::CalcCrossInfo(){
 
   CalcCrossGTRTrigger();
   CalcCrossHBDTrigger();
+  CalcCrossOfflineDetector();
 
   return true;
 }
@@ -433,5 +437,76 @@ void E16ANA_LGProjection::CalcCrossHBDTrigger(){
     double cidy = (ly+300.)/600.*6.;
     trgHBDcid = (int)cidx+(int)cidy*10;
     HBDlcross.SetXYZ(lx,ly,0.);
+  }
+}
+void E16ANA_LGProjection::CalcCrossOfflineDetector(){
+
+  if( module<101 && module>109 ) {return;}
+
+  //SSD
+  int min_n_steps = kMaxSteps + 1;
+  for (int m = trgGTRmid-2; m <= trgGTRmid+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->SSD(mid2013);//SSD
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<30. && fabs(lposs[0].Y())<30. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	offlineSSD = true;
+      }
+    }
+  }
+  //GTR100
+  min_n_steps = kMaxSteps + 1;
+  for (int m = trgGTRmid-2; m <= trgGTRmid+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->GTR(mid2013, 0);//GTR100
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<50. && fabs(lposs[0].Y())<50. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	offlineGTR100 = true;
+      }
+    }
+  }
+  //GTR200
+  min_n_steps = kMaxSteps + 1;
+  for (int m = trgGTRmid-2; m <= trgGTRmid+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->GTR(mid2013, 1);//GTR200
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<100. && fabs(lposs[0].Y())<100. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	offlineGTR200 = true;
+      }
+    }
   }
 }
