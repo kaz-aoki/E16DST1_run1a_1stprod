@@ -5,8 +5,17 @@
 #include <TFile.h>
 #include <TCanvas.h>
 #include <regex>
+
 #include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_WaveformFitterCRRC.hh"
+#include "E16ANA_FieldMapCalib.hh"
+#include "E16ANA_EventSelect.hh"
 #include "E16ANA_GTRcalib.hh"
+#include "E16ANA_GTRLorentzAngleCalib.hh"
+#include "E16ANA_GTRStatus.h"
+#include "E16ANA_HBDCalibration.hh"
+#include "E16ANA_HBDCut.hh"
+#include "E16ANA_HBDDeadChannel.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
@@ -14,7 +23,6 @@
 #include "GTR/GTRCheckHist.hh"
 #include "E16ANA_TargetInfo.hh"
 #include "E16ANA_RundependentName.hh"
-#include "straight_track/StraightTrackAnalyzerV0.h"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16ANA_GTRStatus.h"
@@ -28,9 +36,9 @@
 //#include "straightRoot.hh"
 #include "E16DST_Constant.hh"
 
-#include "E16ANA_StraightMultiTrack.hh"
-#include "E16ANA_StraightTrackCandidate.hh"
-#include "E16ANA_StraightTrackCheckFile.hh"
+constexpr bool kIsElectronRun = false;
+constexpr bool kSelectEvent   = false;
+
 
 using namespace std;
 
@@ -89,11 +97,13 @@ int main(int argc, char* argv[]){
     if (std::regex_search(in_file_name, match_dst, re_dst)) {
         smallest_id = match_dst.str(1);
     }
-//    std::cout << "run_num: " << run_num << std::endl;
-//    std::cout << "sink_id: " << sink_id << std::endl;
-//    std::cout << "smallest_id: " << smallest_id << std::endl;
-//    string rem    = argv[5];
-//    string run = "g4run" + run_num + "exGTR" + rem;
+    std::cout << "run_num: " << run_num << std::endl;
+    std::cout << "sink_id: " << sink_id << std::endl;
+    std::cout << "smallest_id: " << smallest_id << std::endl;
+    string rem    = argv[5];
+    string run = "g4run" + run_num + "exGTR" + rem;
+    string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root     ";
+//    char* c_outfile = out_file_name.c_str();
     TFile *f = new TFile( c_outfile, "recreate");
 	 TTree *tree = new TTree("tree", "tree");
 	
@@ -101,27 +111,53 @@ int main(int argc, char* argv[]){
     calib.SetRunID(run_id);
     E16ANA_FieldMapCalibParam field_map_param;
     field_map_param.ReadConstantData(calib.CurrentRunID());
+
+	 E16ANA_EventSelect event_select;
+	 event_select.ReadConstantData(calib.CurrentRunID());
+	 auto& selected_event_ids = event_select.SelectedEventIDs();
+    int current_ids_index = 0;
+	 auto n_selected_events = event_select.NumSelectedEventIDs();
+//GTR
     E16ANA_GTRcalibPedestal gtrped;
     gtrped.ReadCalibData( calib.CurrentRunID() );
     E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
     gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
     auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
-  
+//HBD
+    E16ANA_HBDCalibration *hbd_calib = new E16ANA_HBDCalibration();
+    hbd_calib->ReadCalibrationData(calib.CurrentRunID());
+    E16ANA_HBDCut *hbd_cut = new E16ANA_HBDCut();
+    hbd_cut->ReadCutData(calib.CurrentRunID());
+    E16ANA_HBDCut *hbd_cut_wo_timing = new E16ANA_HBDCut();
+    hbd_cut_wo_timing->ReadCutData(calib.CurrentRunID());
+    hbd_cut_wo_timing->SetCut("clustering_time_window_start", -10000.);
+    hbd_cut_wo_timing->SetCut("clustering_time_window_end", 10000.);
+ //  std::string hbd_waveform_template = calib.CalibFileName("HBD-waveform-template", 0);
+//LG
+	 E16ANA_LGBasic lgbasic;
+	 lgbasic.SetMap();
+	 lgbasic.SetCalibMap();
+//Trigger
     E16ANA_TriggerCalibParam trigger_param;
     trigger_param.ReadConstantData(calib.CurrentRunID());
 
-//targets info
+//Targets
 	 E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
 	 targets.ReadInfoWithRunID(calib.CurrentRunID());
 	 targets.Print();
-  
+//Geom and BFiled  
     auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
     cout<< static_cast<std::string>(GeometryFile)<<endl;
     E16ANA_GeometryV2::SetGlobalPointer(geometry);
+    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+    bfield_map->Initialize_binary();
+	 E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   
-    //E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
-    E16ANA_StraightMultiTrack fitter(geometry, 1);
-    E16ANA_StraightTrackCheckFile check_file(c_outfile, run_id);
+    E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
+    E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
+    E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
+
+    E16ANA_TrackCheckFile check_file(c_outfile, run_id);
   
 //    auto record = new E16DST_DST1PhysicsRecord();
     E16DST_DST1PhysicsRecord record;
@@ -129,7 +165,6 @@ int main(int argc, char* argv[]){
     int n_event = 0;
     int n_physics_event = 0;
     while (dst0->ReadAnEvent()) {
- 		
       auto event_type = dst0->EventType();
       if (event_type != E16DST_DST0EventType::Physics) {
       	std::cout << "Event ID = " << dst0->Event()->EventID() << " is not Physics Event, Event Type = " << event_type << std::endl;
@@ -146,66 +181,79 @@ int main(int argc, char* argv[]){
       if (n_event % 1000 == 0) {
         cout << "Number of event: " << n_event << endl;
       }
-		record.Clear();
         //printf("hello0 \n");
 		auto  event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 		auto  event_id = event0->EventID();
 		auto& ssd_hits0         = event0->SSD();
 		auto& gtr_hits0         = event0->GTR();
-//		auto& lg_hits0          = event0->LG();
-//		auto& trigger_gtr_hits0 = event0->TriggerGTR();
-//		auto& trigger_hbd_hits0 = event0->TriggerHBD();
-//		auto& trigger_lg_hits0  = event0->TriggerLG();
+      auto& hbd_hits0         = event0->HBD();
+		auto& lg_hits0          = event0->LG();
+		auto& trigger_gtr_hits0 = event0->TriggerGTR();
+		auto& trigger_hbd_hits0 = event0->TriggerHBD();
+		auto& trigger_lg_hits0  = event0->TriggerLG();
+	   if (kSelectEvent) {
+			bool is_selected_event = false;
+			while (true) {
+				auto current_id = selected_event_ids[current_ids_index];
+				if (event_id < current_id) {
+					break;
+				} else if (event_id == current_id) {
+					is_selected_event = true;
+					++current_ids_index;
+					break;
+				} else if (event_id > current_id ) {
+					if(current_ids_index == n_selected_events - 1){
+						break;
+					} else {
+						++current_ids_index;
+						continue;
+					}
+				}
+			}
+			if (!is_selected_event) {
+				++n_event;
+				++n_physics_event;
+				continue;
+			}
+		}
 		
-//For Run0d
-			auto& lg_hits0 = event0->LG(); 
-			auto& trigger_gtr_hits0 = event0->TriggerGTR();
-			auto& trigger_hbd_hits0 = event0->TriggerHBD();
-			auto& trigger_lg_hits0  = event0->TriggerLG();
-			//E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/fit
-			E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/fit
-			record.LG().AddHitAndClusterIds();
-			record.LG().UpdatePtrs();
-
 			
-			E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-			record.Trigger().AddHitAndClusterIDs();
-			record.Trigger().UpdatePtrs();
 
 		if(removed_layer != 0){
 		   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+			record.SSD().AddHitAndClusterIds();
 		}
 		if(removed_layer == -1 || removed_layer == 0){
+
 		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
+			record.GTR().AddHitAndClusterIds();
 		}
 		else if(removed_layer == 1 || removed_layer == 2 || removed_layer == 3){
 		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+			record.GTR().AddHitAndClusterIds();
 		 }
 		else {
 		   std::cerr << "invalid removed layer ! " << std::endl;
 		   return -1;
 		}
+
+		E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
+		record.HBD().AddHitAndClusterIds();
+		//E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/fit
+		E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/fit
+		record.LG().AddHitAndClusterIds();
+		E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+		record.Trigger().AddHitAndClusterIDs();
+		record.LG().UpdatePtrs();
 		record.GTR().UpdatePtrs();
 		record.SSD().UpdatePtrs();
-		
-//	LG 
-//		E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/fit
-//		record.LG().AddHitAndClusterIds();
-//		record.LG().UpdatePtrs();
-
-
+		record.LG().UpdatePtrs();
+		record.Trigger().UpdatePtrs();
 // Track
-		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record);
-		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, removed_layer, targets.IsWire());
+		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record, lgbasic);
+		E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter,kIsElectronRun,  &record, &check_file);
+		record.Tracks().Print();
 
-
-
-//		E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-//		record.Trigger().AddHitAndClusterIDs();
-//		record.Trigger().UpdatePtrs();
-		//printf("hello2 \n");
-		
-// SSD & GTR
 		++n_event;
 		++n_physics_event;
 		}

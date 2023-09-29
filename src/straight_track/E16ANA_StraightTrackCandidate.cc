@@ -31,7 +31,7 @@ bool E16ANA_StraightTrackCandidate::CalcRoughMomentumV2() {
 
 }
 
-void E16ANA_StraightTrackCandidate::AddTrackHit(E16ANA_StraightMultiTrack* single_track) {
+void E16ANA_StraightTrackCandidate::AddTrackHit(E16ANA_StraightMultiTrack* single_track, int removed_layer) {
   for (auto& fit_result : fit_results) {
     fit_result.set_flag = 0;
   }
@@ -45,9 +45,9 @@ void E16ANA_StraightTrackCandidate::AddTrackHit(E16ANA_StraightMultiTrack* singl
 //  single_track->SetInitialVertex(TVector3(init_pos.X(), 0., init_pos.Z()), TVector3(0.4, 0., 0)); // for Ks
   single_track->SetInitialMomentum(tid, init_mom);
   single_track->SetCharge(tid, charge);
-
-//  for (int l = 0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
-  for (int l = 1; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
+  int l_st = 0;
+  if(removed_layer == 0) { l_st = 1;}//without SSD
+  for (int l = l_st; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
     if (l == E16ANA_StraightTrackConstant::kSSD) {
       single_track->AddHit(tid, c.LayerOrder(), geometry->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
@@ -57,7 +57,7 @@ void E16ANA_StraightTrackCandidate::AddTrackHit(E16ANA_StraightMultiTrack* singl
   }
 }
 
-void E16ANA_StraightTrackCandidate::UpdateFitResult(E16ANA_StraightMultiTrack* fitter) {
+void E16ANA_StraightTrackCandidate::UpdateFitResult(E16ANA_StraightMultiTrack* fitter, int removed_layer) {
 //diffetent with magnetic field tracking
   int tid = 0;
   int hid = 0;
@@ -68,8 +68,9 @@ void E16ANA_StraightTrackCandidate::UpdateFitResult(E16ANA_StraightMultiTrack* f
   matrix_status = fitter->GetMatrixStatus();
   n_steps = fitter->GetTrackSteps(tid).size();
   n_calls = fitter->GetNumCalls();
-//  for (int l = 0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
-  for (int l = 1; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
+  int l_st = 0;
+  if(removed_layer == 0 ) l_st = 1;
+  for (int l = l_st; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
     fit_results[l].Clear();
     std::vector<TVector3> lpos;
     std::vector<TVector3> lmom;
@@ -224,13 +225,13 @@ void E16ANA_StraightTrackCandidate::Projection(E16ANA_StraightMultiTrack* fitter
 }
 
 
-double E16ANA_StraightTrackCandidate::Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag) {
+double E16ANA_StraightTrackCandidate::Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag, int removed_layer) {
   fitter->Clear();
-  this->AddTrackHit(fitter);
+  this->AddTrackHit(fitter, removed_layer);
   fitter->SetRungeKuttaStepSize(15.0);
   fitter->SetMaxSteps(kTrackingMaxSteps);
   chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kMinuitStrategy, kMinuitMaxFunctionCalls);
-  UpdateFitResult(fitter);
+  UpdateFitResult(fitter,removed_layer);
   return chisq;
 }
 
@@ -244,56 +245,103 @@ void E16ANA_StraightTrackCandidate::PrintParam() {
   std::cout << "Runge Kutta Projection Max Steps : " << kProjectionMaxSteps << std::endl;
 }
 
-
-
 bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set, int in_mid) {
   auto& pos_set = cluster_set->global_poss;
   int mid       = in_mid -100;
-  TVector2 trod1(0, -20);
-  TVector2 trod2(0, 0);
-  TVector2 trod3(0, 20);
-  TVector2 ggt1(pos_set[1].X(),pos_set[1].Z());
-  TVector2 ggt2(pos_set[2].X(),pos_set[2].Z());
-  TVector2 ggt3(pos_set[3].X(),pos_set[3].Z());
+  std::vector<TVector2> targets;
+  targets.clear();
+  if(isWire){
+     targets.push_back(TVector2(20, 40));//minus wire
+     targets.push_back(TVector2(20, -40));//do not exchange the turn of p/m
+  }
+  else {
+     targets.push_back(TVector2(0, -20));
+     targets.push_back(TVector2(0, 0));
+     targets.push_back(TVector2(0, 20)); 
+  }
+//detector pos
+  std::vector<TVector2> positions;
+  positions.clear();
+  if(removed_layer == 0){//woSSD
+    positions.push_back(TVector2(pos_set[1].X(), pos_set[1].Z()));
+    positions.push_back(TVector2(pos_set[2].X(), pos_set[2].Z()));
+    positions.push_back(TVector2(pos_set[3].X(), pos_set[3].Z()));
+  }
+  else{
+    positions.push_back(TVector2(pos_set[0].X(), pos_set[0].Z()));
+    positions.push_back(TVector2(pos_set[1].X(), pos_set[1].Z()));
+    positions.push_back(TVector2(pos_set[2].X(), pos_set[2].Z()));
+    positions.push_back(TVector2(pos_set[3].X(), pos_set[3].Z()));
+  } 
 
-  TVector2  rod1 = trod1.Rotate(Agtr[mid]*cpi/180);
-  TVector2  rod2 = trod2.Rotate(Agtr[mid]*cpi/180);
-  TVector2  rod3 = trod3.Rotate(Agtr[mid]*cpi/180);
-//  TVector2  lssd = gssd.Rotate(Agtr[mid]*cpi/180);
-  TVector2  lgt1 = ggt1.Rotate(Agtr[mid]*cpi/180);
-  TVector2  lgt2 = ggt2.Rotate(Agtr[mid]*cpi/180);
-  TVector2  lgt3 = ggt3.Rotate(Agtr[mid]*cpi/180);
+  std::vector<TVector2> rtargets;
+  rtargets.clear();
+  for(int i=0; i < targets.size(); i++){
+     rtargets.push_back(targets[i].Rotate(Agtr[mid]*cpi/180));
+  }
+  std::vector<TVector2> rpositions;
+  rpositions.clear();
+  for(int i=0; i < positions.size(); i++){
+    rpositions.push_back(positions[i].Rotate(Agtr[mid]*cpi/180)); 
+  }
 
-//  double rlx1[]={rod1.X(),lssd.X(),lgt1.X(),lgt2.X(),lgt3.X()};
-//  double rlz1[]={rod1.Y(),lssd.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
-//  double rlx2[]={rod2.X(),lssd.X(),lgt1.X(),lgt2.X(),lgt3.X()};
-//  double rlz2[]={rod2.Y(),lssd.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
-  double rlx1[]={rod1.X(),lgt1.X(),lgt2.X(),lgt3.X()};
-  double rlz1[]={rod1.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
-  double rlx2[]={rod2.X(),lgt1.X(),lgt2.X(),lgt3.X()};
-  double rlz2[]={rod2.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
-  double rlx3[]={rod3.X(),lgt1.X(),lgt2.X(),lgt3.X()};
-  double rlz3[]={rod3.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
-  //double err[]={0.4,0.1,0.3,0.3,0.3};
-  //double err[]={0.6,0.1,0.3,1.5,1.0};
-  //double err[]={0.6,0.1,0.2,999999,0.4};
-//  double err[]={0.3,0.1,0.3,0.3,0.8};
-//  double err[]={0.3,0.3,0.3,0.8};
-//  double err[]={kXSigma[0],kXSigma[1],kXSigma[2],kXSigma[3]};
-  double err[]={kXSigma[0],kXSigma[2],kXSigma[3],kXSigma[4]};//wo SSD
+  if(isWire){
+     if(removed_layer != 0){
+  	  double rlx1[]={rtargets[0].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X(),rpositions[3].X()};
+	  double rlz1[]={rtargets[0].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y(),rpositions[3].Y()};
+	  double rlx2[]={rtargets[1].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X(),rpositions[3].X()};
+  	  double rlz2[]={rtargets[1].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y(),rpositions[3].Y()};
+     double err[]={kXSigma[0],kXSigma[1],kXSigma[2],kXSigma[3],kXSigma[4]};//with SSD
+     double ra1,rb1;
+     fline(5,rlz1,rlx1,err,ra1,rb1);
+     double ra2,rb2;
+     fline(5,rlz2,rlx2,err,ra2,rb2);
+  double chi1,chi2;
+  chi1 = chi2 = 0;
+  for(int i=0;i<5;i++){
+    chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
+    chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
+  }
 
-//  std::cout << "lgt1x = "  << lgt1.X() << ", " << lgt1.Y() << ", " << std::endl;
-
-  double ra1,rb1;
-  fline(4,rlz1,rlx1,err,ra1,rb1);
-  double ra2,rb2;
-  fline(4,rlz2,rlx2,err,ra2,rb2);
-  double ra3,rb3;
-  fline(4,rlz3,rlx3,err,ra3,rb3);
-
+  double ras[2]     = {ra1, ra2}; //[2] is number of targets
+  double rbs[2]     = {rb1, rb2}; 
+  double chi_cand[2] = {chi1, chi2};
+  auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
+  int		min_i = std::distance(std::begin(chi_cand), min_t);
+  if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
+    cluster_set->charge = 1;
+    if(chi2<chi1)  cluster_set->charge = -1;
+    cluster_set->chi_square = chi_cand[min_i];
+	 cluster_set->target_id  = min_i;
+	 cluster_set->coefs[0]   = ras[min_i]; 
+	 cluster_set->coefs[1]   = rbs[min_i]; 
+    return true;
+  }
+  return false;
+     }
+     else {
+     std::cout << std::endl;
+     std::cout << "IsXTrackCandidate wo SSD and with wire tgts has not been develoed yet" << std::endl;
+     std::cout << std::endl;
+     }
+  }
+  else {
+  if(removed_layer == 0){
+  	  double rlx1[]={rtargets[0].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X()};
+	  double rlz1[]={rtargets[0].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y()};
+	  double rlx2[]={rtargets[1].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X()};
+  	  double rlz2[]={rtargets[1].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y()};
+	  double rlx3[]={rtargets[2].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X()};
+  	  double rlz3[]={rtargets[2].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y()};
+     double err[]={kXSigma[0],kXSigma[2],kXSigma[3],kXSigma[4]};//wo SSD
+     double ra1,rb1;
+     fline(4,rlz1,rlx1,err,ra1,rb1);
+     double ra2,rb2;
+     fline(4,rlz2,rlx2,err,ra2,rb2);
+     double ra3,rb3;
+     fline(4,rlz3,rlx3,err,ra3,rb3);
   double chi1,chi2, chi3;
   chi1 = chi2 = chi3 = 0;
-//  for(int i=0;i<5;i++){
   for(int i=0;i<4;i++){
     chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
     chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
@@ -305,10 +353,9 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
   double chi_cand[E16ANA_StraightTrackConstant::kNumTargets] = {chi1, chi2, chi3};
   auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
   int		min_i = std::distance(std::begin(chi_cand), min_t);
-
   if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
-//    cluster_set->charge = 1;
-//    if(chi2<chi1)  cluster_set->charge = -1;
+    cluster_set->charge = 1;
+    if(chi2<chi1)  cluster_set->charge = -1;
     cluster_set->chi_square = chi_cand[min_i];
 	 cluster_set->target_id  = min_i;
 	 cluster_set->coefs[0]   = ras[min_i]; 
@@ -316,7 +363,175 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
     return true;
   }
   return false;
+  } //three targets and without SSD case
+  else{
+  	  double rlx1[]={rtargets[0].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X(), rpositions[3].X()};
+	  double rlz1[]={rtargets[0].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y(), rpositions[3].Y()};
+	  double rlx2[]={rtargets[1].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X(), rpositions[3].X()};
+  	  double rlz2[]={rtargets[1].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y(), rpositions[3].Y()};
+	  double rlx3[]={rtargets[2].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X(), rpositions[3].X()};
+  	  double rlz3[]={rtargets[2].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y(), rpositions[3].Y()};
+     double err[]={kXSigma[0],kXSigma[1], kXSigma[2],kXSigma[3],kXSigma[4]};//with SSD
+     double ra1,rb1;
+     fline(5,rlz1,rlx1,err,ra1,rb1);
+     double ra2,rb2;
+     fline(5,rlz2,rlx2,err,ra2,rb2);
+     double ra3,rb3;
+     fline(5,rlz3,rlx3,err,ra3,rb3);
+  double chi1,chi2, chi3;
+  chi1 = chi2 = chi3 = 0;
+  for(int i=0;i<5;i++){
+    chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
+    chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
+    chi3 += pow((rlx3[i]-(rb3*rlz3[i]+ra3))/err[i],2);
+  }
+
+  double ras[E16ANA_StraightTrackConstant::kNumTargets]     = {ra1, ra2, ra3}; 
+  double rbs[E16ANA_StraightTrackConstant::kNumTargets]     = {rb1, rb2, rb3}; 
+  double chi_cand[E16ANA_StraightTrackConstant::kNumTargets] = {chi1, chi2, chi3};
+  auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
+  int		min_i = std::distance(std::begin(chi_cand), min_t);
+  if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
+   cluster_set->charge = 1;
+    if(chi2<chi1)  cluster_set->charge = -1;
+    cluster_set->chi_square = chi_cand[min_i];
+	 cluster_set->target_id  = min_i;
+	 cluster_set->coefs[0]   = ras[min_i]; 
+	 cluster_set->coefs[1]   = rbs[min_i]; 
+    return true;
+  }
+  return false;
+  }//three targets and with SSD
+  }
 }
+//
+
+
+
+////bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set, int in_mid) {
+//  auto& pos_set = cluster_set->global_poss;
+//  int mid       = in_mid -100;
+//  TVector2 trod1(0, -20);
+//  TVector2 trod2(0, 0);
+//  TVector2 trod3(0, 20);
+//  TVector2 ggt1(pos_set[1].X(),pos_set[1].Z());
+//  TVector2 ggt2(pos_set[2].X(),pos_set[2].Z());
+//  TVector2 ggt3(pos_set[3].X(),pos_set[3].Z());
+//
+//  TVector2  rod1 = trod1.Rotate(Agtr[mid]*cpi/180);
+//  TVector2  rod2 = trod2.Rotate(Agtr[mid]*cpi/180);
+//  TVector2  rod3 = trod3.Rotate(Agtr[mid]*cpi/180);
+//  TVector2  lgt1 = ggt1.Rotate(Agtr[mid]*cpi/180);
+//  TVector2  lgt2 = ggt2.Rotate(Agtr[mid]*cpi/180);
+//  TVector2  lgt3 = ggt3.Rotate(Agtr[mid]*cpi/180);
+//  if(removed_layer != 0){//with SSD
+//     TVector2  lssd = gssd.Rotate(Agtr[mid]*cpi/180);
+//   double rlx1[]={rod1.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+//  double rlz1[]={rod1.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  double rlx2[]={rod2.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+//  double rlz2[]={rod2.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  double rlx3[]={rod3.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+//  double rlz3[]={rod3.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  //double err[]={0.4,0.1,0.3,0.3,0.3};
+//  //double err[]={0.6,0.1,0.3,1.5,1.0};
+//  //double err[]={0.6,0.1,0.2,999999,0.4};
+////  double err[]={0.3,0.1,0.3,0.3,0.8};
+////  double err[]={0.3,0.3,0.3,0.8};
+////  double err[]={kXSigma[0],kXSigma[1],kXSigma[2],kXSigma[3]};
+//  double err[]={kXSigma[0],kXSigma[2],kXSigma[3],kXSigma[4]};//wo SSD
+//
+////  std::cout << "lgt1x = "  << lgt1.X() << ", " << lgt1.Y() << ", " << std::endl;
+//
+//  double ra1,rb1;
+//  fline(4,rlz1,rlx1,err,ra1,rb1);
+//  double ra2,rb2;
+//  fline(4,rlz2,rlx2,err,ra2,rb2);
+//  double ra3,rb3;
+//  fline(4,rlz3,rlx3,err,ra3,rb3);
+//
+//  double chi1,chi2, chi3;
+//  chi1 = chi2 = chi3 = 0;
+////  for(int i=0;i<5;i++){
+//  for(int i=0;i<4;i++){
+//    chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
+//    chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
+//    chi3 += pow((rlx3[i]-(rb3*rlz3[i]+ra3))/err[i],2);
+//  }
+//
+//  double ras[E16ANA_StraightTrackConstant::kNumTargets]     = {ra1, ra2, ra3}; 
+//  double rbs[E16ANA_StraightTrackConstant::kNumTargets]     = {rb1, rb2, rb3}; 
+//  double chi_cand[E16ANA_StraightTrackConstant::kNumTargets] = {chi1, chi2, chi3};
+//  auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
+//  int		min_i = std::distance(std::begin(chi_cand), min_t);
+//  if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
+////    cluster_set->charge = 1;
+////    if(chi2<chi1)  cluster_set->charge = -1;
+//    cluster_set->chi_square = chi_cand[min_i];
+//	 cluster_set->target_id  = min_i;
+//	 cluster_set->coefs[0]   = ras[min_i]; 
+//	 cluster_set->coefs[1]   = rbs[min_i]; 
+//    return true;
+//  }
+//  return false;
+//  }//with SSD
+//}
+//  else {
+//
+////  double rlx1[]={rod1.X(),lssd.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+////  double rlz1[]={rod1.Y(),lssd.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+////  double rlx2[]={rod2.X(),lssd.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+////  double rlz2[]={rod2.Y(),lssd.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  double rlx1[]={rod1.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+//  double rlz1[]={rod1.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  double rlx2[]={rod2.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+//  double rlz2[]={rod2.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  double rlx3[]={rod3.X(),lgt1.X(),lgt2.X(),lgt3.X()};
+//  double rlz3[]={rod3.Y(),lgt1.Y(),lgt2.Y(),lgt3.Y()};
+//  //double err[]={0.4,0.1,0.3,0.3,0.3};
+//  //double err[]={0.6,0.1,0.3,1.5,1.0};
+//  //double err[]={0.6,0.1,0.2,999999,0.4};
+////  double err[]={0.3,0.1,0.3,0.3,0.8};
+////  double err[]={0.3,0.3,0.3,0.8};
+////  double err[]={kXSigma[0],kXSigma[1],kXSigma[2],kXSigma[3]};
+//  double err[]={kXSigma[0],kXSigma[2],kXSigma[3],kXSigma[4]};//wo SSD
+//
+////  std::cout << "lgt1x = "  << lgt1.X() << ", " << lgt1.Y() << ", " << std::endl;
+//
+//  double ra1,rb1;
+//  fline(4,rlz1,rlx1,err,ra1,rb1);
+//  double ra2,rb2;
+//  fline(4,rlz2,rlx2,err,ra2,rb2);
+//  double ra3,rb3;
+//  fline(4,rlz3,rlx3,err,ra3,rb3);
+//
+//  double chi1,chi2, chi3;
+//  chi1 = chi2 = chi3 = 0;
+////  for(int i=0;i<5;i++){
+//  for(int i=0;i<4;i++){
+//    chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
+//    chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
+//    chi3 += pow((rlx3[i]-(rb3*rlz3[i]+ra3))/err[i],2);
+//  }
+//
+//  double ras[E16ANA_StraightTrackConstant::kNumTargets]     = {ra1, ra2, ra3}; 
+//  double rbs[E16ANA_StraightTrackConstant::kNumTargets]     = {rb1, rb2, rb3}; 
+//  double chi_cand[E16ANA_StraightTrackConstant::kNumTargets] = {chi1, chi2, chi3};
+//  auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
+//  int		min_i = std::distance(std::begin(chi_cand), min_t);
+//  if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
+////    cluster_set->charge = 1;
+////    if(chi2<chi1)  cluster_set->charge = -1;
+//    cluster_set->chi_square = chi_cand[min_i];
+//	 cluster_set->target_id  = min_i;
+//	 cluster_set->coefs[0]   = ras[min_i]; 
+//	 cluster_set->coefs[1]   = rbs[min_i]; 
+//    return true;
+//  }
+//  return false;
+//  }
+//}
+//
+//
 
 bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
@@ -471,7 +686,7 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidatesWoSSD() {
   track_candidates.clear();
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& gtr = record->GTR();
-E16INFO("number of GTR clusters: %d", gtr.NumClusters());
+//E16INFO("number of GTR clusters: %d", gtr.NumClusters());
 //  if(gtr.NumClusters() > 5000) return;
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
@@ -599,8 +814,8 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   delete cluster_set;
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
-E16INFO("number of x candidates: %d", n_x_cands);
-E16INFO("number of y candidates: %d", n_y_cands);
+//E16INFO("number of x candidates: %d", n_x_cands);
+//E16INFO("number of y candidates: %d", n_y_cands);
   
   for (const auto& x_cand : cluster_sets[0]) {
 //    auto& ssdx = *x_cand.ssd_cluster;
@@ -692,8 +907,8 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& ssd = record->SSD();
   auto& gtr = record->GTR();
-E16INFO("number of SSD clusters: %d", ssd.NumClusters());
-E16INFO("number of GTR clusters: %d", gtr.NumClusters());
+//E16INFO("number of SSD clusters: %d", ssd.NumClusters());
+//E16INFO("number of GTR clusters: %d", gtr.NumClusters());
  if(ssd.NumClusters()>30) return;
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
@@ -768,7 +983,6 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   if (IsXTrackCandidate(cluster_set,ssd_module_id)) {
                     cluster_sets[0].emplace_back(*cluster_set);
                   }
-
                 }
               }
             }
@@ -840,8 +1054,8 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   delete cluster_set;
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
-E16INFO("number of x candidates: %d", n_x_cands);
-E16INFO("number of y candidates: %d", n_y_cands);
+//E16INFO("number of x candidates: %d", n_x_cands);
+//E16INFO("number of y candidates: %d", n_y_cands);
   
   for (const auto& x_cand : cluster_sets[0]) {
     auto& ssdx = *x_cand.ssd_cluster;
@@ -875,7 +1089,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
       //tmp_cand.SetInitX(-20);
       tmp_cand.SetInitY(0);
       tmp_cand.SetInitZ(40);
-      if(x_cand.charge<0) tmp_cand.SetInitZ(-40);
+      if(x_cand.charge<0) tmp_cand.SetInitZ(-40);//target selection
       tmp_cand.SetDefaultSigma();
       tmp_cand.SetXChiSquare(x_cand.chi_square);
       tmp_cand.SetYChiSquare(y_cand.chi_square);
@@ -928,7 +1142,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
 void E16ANA_StraightTrackCandidates::Fit() {
   int i=0;
 	for (auto& cand : track_candidates) {
-    cand.Fit(fitter, vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag);
+    cand.Fit(fitter, vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, removed_layer);
 	i++;
   }
 }
@@ -1068,9 +1282,13 @@ void E16ANA_StraightTrackCandidates::SearchLGHits() {
 void E16ANA_StraightTrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
-//  SearchTrackCandidates();
-  SearchTrackCandidatesWoSSD();
-  E16INFO("number of track candidate: %d", track_candidates.size());
+  if(removed_layer == 0){//removed layer is defined in the constructor.
+  	  SearchTrackCandidatesWoSSD();
+  }
+  else {
+     SearchTrackCandidates();//
+  }
+//  E16INFO("number of track candidate: %d", track_candidates.size());
   Fit();
   SearchLGHits();//230826 add
   AddTracksToRecord();

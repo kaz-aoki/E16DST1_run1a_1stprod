@@ -11,15 +11,17 @@ constexpr bool kVtxZFixFlag = false; // 220607
 //constexpr bool kVtxZFixFlag = true;
 constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
-constexpr double kInitZRange[2] = {-40., 40.}; // 220607
+constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.265, 0.626, 0.},
-//                                          {0.252, 0.542, 0.},
-                                          {10., 0.542, 0.},//for Run0d
+                                          {0.252, 0.542, 0.},//for Run0c
+//                                          {10., 0.542, 0.},//for Run0d
                                           {0.262, 0.518, 0.}}}; // 220623 TDR2206
+//const TVector3 kInitPosError = {3., 3.4, 3.0};
 const TVector3 kInitPosError = {3., 3.4, 3.0};
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
-constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3}; // 230821 for Run0d
+//constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3}; // 230821 for Run0d
+constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 0.3, 0.3}; // 230821 for Run0c
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
@@ -33,7 +35,7 @@ constexpr int kMinHitsInXCluster = 2;
 constexpr double kGTRYDiffThreshold = 20.; // mm
 constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
 constexpr double kGTRPeakSumThresholdY = 50.;
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {30., 30.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 50.}; // x, y from previous Ks peak
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015}; 
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
 

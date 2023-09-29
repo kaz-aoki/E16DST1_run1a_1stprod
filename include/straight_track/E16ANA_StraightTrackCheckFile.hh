@@ -11,7 +11,7 @@
 #include "TVector3.h"
 #include "E16ANA_StraightTrackCandidate.hh"
 
-#define REMOVE_SSD
+//#define REMOVE_SSD
 
 
 

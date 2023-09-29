@@ -662,6 +662,17 @@ target_link_libraries(run_StraightTrackAnalyzerV2
 )
 
 ##--------------------------------------------------------------------------------
+##_______________________________________________________________________________
+add_executable(run_ASDEffWMag_2309 usr/run_ASDEffWMag_2309.cc)
+
+target_link_libraries(run_ASDEffWMag_2309
+	E16DST
+	E16DST_DST1
+)
+
+##--------------------------------------------------------------------------------
+
+
 
 
 #add_executable(make_gtr_apv_status_file usr/make_gtr_apv_status_file.cc)

@@ -261,7 +261,7 @@ class E16ANA_StraightTrackCandidate {
   std::vector<E16DST_DST1HBDCluster*>& ProjectedHBDClusters() { return hbd_clusters; }
   std::vector<E16DST_DST1LGHit*>& ProjectedLGHits() { return lg_hits; }
   std::vector<E16DST_DST1LGCluster*>& ProjectedLGClusters() { return lg_clusters; }
-  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag);
+  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag, int removed_layer);
   void Print() {
     if (chisq >= 1.0e10 || minimize_status == 0) {
       return;
@@ -382,9 +382,9 @@ class E16ANA_StraightTrackCandidate {
   static TVector3 CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1);
   bool CalcRoughMomentum();
   bool CalcRoughMomentumV2();
-  void AddTrackHit(E16ANA_StraightMultiTrack* single_track);
+  void AddTrackHit(E16ANA_StraightMultiTrack* single_track, int removed_layer);
   void Projection(E16ANA_StraightMultiTrack* fitter);
-  void UpdateFitResult(E16ANA_StraightMultiTrack* fitter);
+  void UpdateFitResult(E16ANA_StraightMultiTrack* fitter, int removed_layer);
   E16ANA_GeometryV2* geometry;
   int track_id;
   int target_id;
@@ -496,10 +496,10 @@ class E16ANA_StraightTrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
+  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, int _removed_layer, bool _isWire)
     : geometry(_geometry),fitter(_fitter),
       is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false),
-      record(_record) {
+      record(_record), removed_layer(_removed_layer), isWire(_isWire) {
     track_candidates.clear();
   }
 
@@ -701,7 +701,7 @@ class E16ANA_StraightTrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set,int ssdm);
+  bool IsXTrackCandidate(OneAxisClusterSet* cluster_set,int ssdm);
   static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
@@ -734,6 +734,8 @@ class E16ANA_StraightTrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
+  int removed_layer;
+  bool isWire;
   int n_x_cands;
   int n_y_cands;
   std::vector<E16ANA_StraightTrackCandidate> track_candidates;
