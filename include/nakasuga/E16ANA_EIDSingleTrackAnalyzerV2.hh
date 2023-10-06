@@ -1418,11 +1418,13 @@ public :
    virtual ~E16ANA_EIDSingleTrackAnalyzerV2();
    virtual Int_t    Cut(Long64_t entry);
    virtual int      CalcTargetId(int itrack, TVector3& initvtx, TVector3& initmom);
+   static  bool     IsTrgPair(int mid1, int cid1, double t1, int mid2, int cid2, double t2, int awmin, int awmax, int tw);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
    virtual void     TrackMatchOnlineOffline(int maxevent, char* out_file_name);
+   virtual void     TrackMatchOfflineOnline(int maxevent, char* out_file_name);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -2883,6 +2885,20 @@ int E16ANA_EIDSingleTrackAnalyzerV2::CalcTargetId(int itrack, TVector3& initvtx,
   }
   else{
     return -1;
+  }
+}
+bool E16ANA_EIDSingleTrackAnalyzerV2::IsTrgPair(int mid1, int cid1, double t1, int mid2, int cid2, double t2, int awmin, int awmax, int tw)
+{
+  int d1x = (mid1-100)*7+cid1%10;
+  int d1y = cid1/10;
+  int d2x = (mid2-100)*7+cid2%10;
+  int d2y = cid2/10;
+  int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+  if( (t1==0||t2==0) && fabs(t1-t2)<tw && dist>awmin && dist<awmax ){
+    return true;
+  }
+  else{
+    return false;
   }
 }
 #endif // #ifdef E16ANA_EIDSingleTrackAnalyzerV2_cxx

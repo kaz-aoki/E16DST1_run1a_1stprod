@@ -76,6 +76,7 @@ private :
   bool trgGTR;
   int trgGTRmid;
   int trgGTRcid;
+  TVector3 GTRlcross;
   bool trgHBD;
   int trgHBDmid;
   int trgHBDcid;
@@ -157,6 +158,10 @@ public :
   bool TrgGTR(){return trgGTR;}
   int TrgGTRMid(){return trgGTRmid;}
   int TrgGTRCid(){return trgGTRcid;}
+  TVector3 GTRLCross(){return GTRlcross;}
+  double GTRLCross_x(){return GTRlcross.X();}
+  double GTRLCross_y(){return GTRlcross.Y();}
+  double GTRLCross_z(){return GTRlcross.Z();}
   bool TrgHBD(){return trgHBD;}
   int TrgHBDMid(){return trgHBDmid;}
   int TrgHBDCid(){return trgHBDcid;}

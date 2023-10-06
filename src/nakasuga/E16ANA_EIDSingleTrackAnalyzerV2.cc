@@ -414,3 +414,425 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOnlineOffline(int maxevent, char
    fout->Close();
 
 }
+
+void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char* out_file_name)
+{
+   if (fChain == 0) return;
+
+   TFile* fout = new TFile(out_file_name,"recreate");
+   TTree* tree = new TTree("tree","tree");
+
+   Int_t           out_run_id;
+   Int_t           out_event_id;
+   Int_t           out_spill_id;
+   Int_t out_n_trg_tracks;
+   vector<int> out_trg_track_id;
+   vector<int> out_trg_track_lg_mid;
+   vector<int> out_trg_track_lg_cid;
+   vector<double> out_trg_track_lg_t;
+   vector<int> out_trg_track_hbd_mid;
+   vector<int> out_trg_track_hbd_cid;
+   vector<double> out_trg_track_hbd_t;
+   vector<int> out_trg_track_gtr_mid;
+   vector<int> out_trg_track_gtr_cid;
+   vector<double> out_trg_track_gtr_t;
+   vector<int> out_trg_track_inc_n_lg_hits;
+   vector<vector<double>> out_trg_track_inc_lg_lx;
+   vector<vector<double>> out_trg_track_inc_lg_ly;
+   vector<vector<double>> out_trg_track_inc_lg_t;
+   vector<int> out_trg_track_inc_n_hbd_hits;
+   vector<vector<double>> out_trg_track_inc_hbd_lx;
+   vector<vector<double>> out_trg_track_inc_hbd_ly;
+   vector<vector<double>> out_trg_track_inc_hbd_t;
+   vector<int> out_trg_track_inc_n_gtr_hits;
+   vector<vector<double>> out_trg_track_inc_gtr_lx;
+   vector<vector<double>> out_trg_track_inc_gtr_ly;
+   vector<vector<double>> out_trg_track_inc_gtr_t;
+   vector<int> out_trg_track_n_match;
+   vector<vector<double>> out_trg_track_match_id;
+   Int_t out_n_tracks;
+   vector<int> out_track_id;
+   vector<double> out_chi_square;
+   vector<int> out_rk_charge;
+   vector<double> out_track_mom;
+   vector<double> out_track_mom_x;
+   vector<double> out_track_mom_y;
+   vector<double> out_track_mom_z;
+   vector<int> out_track_tgt_id;
+   vector<double> out_track_vtx_x;
+   vector<double> out_track_vtx_y;
+   vector<double> out_track_vtx_z;
+   vector<int> out_track_gtr_mid;
+   vector<int> out_track_gtr_cid;
+   vector<double> out_track_gtr_lx;
+   vector<double> out_track_gtr_ly;
+   vector<double> out_track_gtr_xt;
+   vector<double> out_track_gtr_yt;
+   vector<double> out_track_gtr_adc;
+   vector<int> out_track_hbd_mid;
+   vector<int> out_track_hbd_cid;
+   vector<double> out_track_hbd_lx;
+   vector<double> out_track_hbd_ly;
+   vector<vector<double>> out_track_hbd_t;
+   vector<vector<double>> out_track_hbd_adc;
+   vector<int> out_track_lg_mid;
+   vector<int> out_track_lg_cid;
+   vector<double> out_track_lg_lx;
+   vector<double> out_track_lg_ly;
+   vector<vector<double>> out_track_lg_t;
+   vector<vector<double>> out_track_lg_adc;
+
+   tree->Branch("run_id",&out_run_id,"run_id/I");
+   tree->Branch("event_id",&out_event_id,"event_id/I");
+   tree->Branch("spill_id",&out_spill_id,"spill_id/I");
+   tree->Branch("n_trg_tracks",&out_n_trg_tracks,"n_trg_tracks/I");
+   tree->Branch("trg_track_id", &out_trg_track_id);
+   tree->Branch("trg_track_lg_mid", &out_trg_track_lg_mid);
+   tree->Branch("trg_track_lg_cid", &out_trg_track_lg_cid);
+   tree->Branch("trg_track_lg_t", &out_trg_track_lg_t);
+   tree->Branch("trg_track_hbd_mid", &out_trg_track_hbd_mid);
+   tree->Branch("trg_track_hbd_cid", &out_trg_track_hbd_cid);
+   tree->Branch("trg_track_hbd_t", &out_trg_track_hbd_t);
+   tree->Branch("trg_track_gtr_mid", &out_trg_track_gtr_mid);
+   tree->Branch("trg_track_gtr_cid", &out_trg_track_gtr_cid);
+   tree->Branch("trg_track_gtr_t", &out_trg_track_gtr_t);
+   tree->Branch("trg_track_inc_n_lg_hits", &out_trg_track_inc_n_lg_hits);
+   tree->Branch("trg_track_inc_lg_lx", &out_trg_track_inc_lg_lx);
+   tree->Branch("trg_track_inc_lg_ly", &out_trg_track_inc_lg_ly);
+   tree->Branch("trg_track_inc_lg_t", &out_trg_track_inc_lg_t);
+   tree->Branch("trg_track_inc_n_hbd_hits", &out_trg_track_inc_n_hbd_hits);
+   tree->Branch("trg_track_inc_hbd_lx", &out_trg_track_inc_hbd_lx);
+   tree->Branch("trg_track_inc_hbd_ly", &out_trg_track_inc_hbd_ly);
+   tree->Branch("trg_track_inc_hbd_t", &out_trg_track_inc_hbd_t);
+   tree->Branch("trg_track_inc_n_gtr_hits", &out_trg_track_inc_n_gtr_hits);
+   tree->Branch("trg_track_inc_gtr_lx", &out_trg_track_inc_gtr_lx);
+   tree->Branch("trg_track_inc_gtr_ly", &out_trg_track_inc_gtr_ly);
+   tree->Branch("trg_track_inc_gtr_t", &out_trg_track_inc_gtr_t);
+   tree->Branch("trg_track_n_match", &out_trg_track_n_match);
+   tree->Branch("trg_track_match_id", &out_trg_track_match_id);
+   tree->Branch("n_tracks",&out_n_tracks,"n_tracks/I");
+   tree->Branch("track_id", &out_track_id);
+   tree->Branch("chi_square", &out_chi_square);
+   tree->Branch("rk_charge", &out_rk_charge);
+   tree->Branch("track_mom", &out_track_mom);
+   tree->Branch("track_mom_x", &out_track_mom_x);
+   tree->Branch("track_mom_y", &out_track_mom_y);
+   tree->Branch("track_mom_z", &out_track_mom_z);
+   tree->Branch("track_tgt_id", &out_track_tgt_id);
+   tree->Branch("track_vtx_x", &out_track_vtx_x);
+   tree->Branch("track_vtx_y", &out_track_vtx_y);
+   tree->Branch("track_vtx_z", &out_track_vtx_z);
+   tree->Branch("track_gtr_mid", &out_track_gtr_mid);
+   tree->Branch("track_gtr_cid", &out_track_gtr_cid);
+   tree->Branch("track_gtr_lx", &out_track_gtr_lx);
+   tree->Branch("track_gtr_ly", &out_track_gtr_ly);
+   tree->Branch("track_gtr_xt", &out_track_gtr_xt);
+   tree->Branch("track_gtr_yt", &out_track_gtr_yt);
+   tree->Branch("track_gtr_adc", &out_track_gtr_adc);
+   tree->Branch("track_hbd_mid", &out_track_hbd_mid);
+   tree->Branch("track_hbd_cid", &out_track_hbd_cid);
+   tree->Branch("track_hbd_lx", &out_track_hbd_lx);
+   tree->Branch("track_hbd_ly", &out_track_hbd_ly);
+   tree->Branch("track_hbd_t", &out_track_hbd_t);
+   tree->Branch("track_hbd_adc", &out_track_hbd_adc);
+   tree->Branch("track_lg_mid", &out_track_lg_mid);
+   tree->Branch("track_lg_cid", &out_track_lg_cid);
+   tree->Branch("track_lg_lx", &out_track_lg_lx);
+   tree->Branch("track_lg_ly", &out_track_lg_ly);
+   tree->Branch("track_lg_t", &out_track_lg_t);
+   tree->Branch("track_lg_adc", &out_track_lg_adc);
+
+   // E16ANA_HBDDeadChannel hbddch;
+   // std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
+   // if(runoption==0){
+   //   hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
+   // }
+   // hbddch.ReadFile(hbd_deadch_file.c_str());
+
+   // auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+   // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+   // auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+   // bfield_map->Initialize_binary();
+   // E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+   // E16ANA_MultiTrack pair_fitter(bfield_map, geometry, 2);
+
+   Long64_t n_entries = fChain->GetEntries();
+   Long64_t nentries = fChain->GetEntriesFast();
+   Long64_t nbytes = 0, nb = 0;
+
+   fChain->GetEntry(0);
+   auto& calib = E16ANA_CalibDBManager::Instance();
+   calib.SetRunID(run_id);
+   auto trigger_param = new E16ANA_TriggerCalibParam();
+   trigger_param->ReadConstantData(calib.CurrentRunID());
+   bool TrigIsAWmax = trigger_param->IsMaximumWidth();
+   int TrigAWmax = trigger_param->MaximumWidth();
+   int TrigAWmin = trigger_param->MinimumWidth();
+   int TrigTW = trigger_param->TimeWidth();
+   if(!TrigIsAWmax){TrigAWmax=10000;}
+   std::cout<<"Trig:"<<run_id<<" "<<TrigAWmin<<" "<<TrigAWmax<<" "<<TrigTW<<std::endl;
+
+   E16ANA_LGProjection proj;
+
+   int nevent=0;
+   for (Long64_t jentry=0; jentry<nentries;jentry++) {//event loop
+      Long64_t ientry = LoadTree(jentry);
+      if (ientry < 0) break;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
+
+      if( E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(run_id) != 16 ) continue;
+
+      if (ientry%1000==0) {std::cout<<nevent<<" / "<<n_entries<<std::endl;}
+      if( maxevent!=-1&&nevent>maxevent ){break;}
+
+      out_trg_track_id.clear();
+      out_trg_track_lg_mid.clear();
+      out_trg_track_lg_cid.clear();
+      out_trg_track_lg_t.clear();
+      out_trg_track_hbd_mid.clear();
+      out_trg_track_hbd_cid.clear();
+      out_trg_track_hbd_t.clear();
+      out_trg_track_gtr_mid.clear();
+      out_trg_track_gtr_cid.clear();
+      out_trg_track_gtr_t.clear();
+      out_trg_track_inc_n_lg_hits.clear();
+      out_trg_track_inc_lg_lx.clear();
+      out_trg_track_inc_lg_ly.clear();
+      out_trg_track_inc_lg_t.clear();
+      out_trg_track_inc_n_hbd_hits.clear();
+      out_trg_track_inc_hbd_lx.clear();
+      out_trg_track_inc_hbd_ly.clear();
+      out_trg_track_inc_hbd_t.clear();
+      out_trg_track_inc_n_gtr_hits.clear();
+      out_trg_track_inc_gtr_lx.clear();
+      out_trg_track_inc_gtr_ly.clear();
+      out_trg_track_inc_gtr_t.clear();
+      out_trg_track_n_match.clear();
+      out_trg_track_match_id.clear();
+      out_track_id.clear();
+      out_chi_square.clear();
+      out_rk_charge.clear();
+      out_track_mom.clear();
+      out_track_mom_x.clear();
+      out_track_mom_y.clear();
+      out_track_mom_z.clear();
+      out_track_tgt_id.clear();
+      out_track_vtx_x.clear();
+      out_track_vtx_y.clear();
+      out_track_vtx_z.clear();
+      out_track_gtr_mid.clear();
+      out_track_gtr_cid.clear();
+      out_track_gtr_lx.clear();
+      out_track_gtr_ly.clear();
+      out_track_gtr_xt.clear();
+      out_track_gtr_yt.clear();
+      out_track_gtr_adc.clear();
+      out_track_hbd_mid.clear();
+      out_track_hbd_cid.clear();
+      out_track_hbd_lx.clear();
+      out_track_hbd_ly.clear();
+      out_track_hbd_t.clear();
+      out_track_hbd_adc.clear();
+      out_track_lg_mid.clear();
+      out_track_lg_cid.clear();
+      out_track_lg_lx.clear();
+      out_track_lg_ly.clear();
+      out_track_lg_t.clear();
+      out_track_lg_adc.clear();
+
+      //offline
+      int ntrkacc = 0;
+      int ntracks = track_id->size();
+      for(int itrack=0;itrack<ntracks;itrack++){
+	TVector3 initvtx;
+	TVector3 initmom;
+	int tgtid = CalcTargetId(itrack, initvtx, initmom);
+	proj.SetInitInfo(initvtx, initmom, rk_charge->at(itrack));
+	bool ll = proj.CalcCrossInfo();
+	int lmid = proj.Module();
+	int lcid = proj.Block();
+	bool gg = proj.TrgGTR();
+	int gmid = proj.TrgGTRMid();
+	int gcid = proj.TrgGTRCid();
+	bool hh = proj.TrgHBD();
+	int hmid = proj.TrgHBDMid();
+	int hcid = proj.TrgHBDCid();
+
+	if( chi_square->at(itrack)>10 ) continue;
+	if( !ll || !hh || !gg ) continue;
+
+	bool hhit = false;
+	double widthhbd = 25.;
+	out_track_hbd_t.push_back(vector<double>());
+	out_track_hbd_adc.push_back(vector<double>());
+	for(int ih=0;ih<n_hbd_clusters;ih++){
+	  if( hbd_cluster_t->at(ih)>200 ) continue;
+	  if( hbd_cluster_mid->at(ih) != hmid ) continue;
+	  double resx = hbd_cluster_x->at(ih) - proj.HBDLCross_x();
+	  double resy = hbd_cluster_y->at(ih) - proj.HBDLCross_y();
+	  if( fabs(resx)<widthhbd && fabs(resy)<widthhbd ){
+	    hhit = true;
+	    out_track_hbd_t[ntrkacc].push_back( hbd_cluster_t->at(ih) );
+	    out_track_hbd_adc[ntrkacc].push_back( hbd_cluster_adc->at(ih) );
+	  }
+	}
+
+	double widthlg = 100.;
+	out_track_lg_t.push_back(vector<double>());
+	out_track_lg_adc.push_back(vector<double>());
+	for(int il=0;il<n_lg_hits;il++){
+	  if( lg_hit_fflag->at(il)>1 ) continue;
+	  if( lg_hit_mid->at(il) != lmid ) continue;
+	  double resx = lg_hit_x->at(il) - proj.LCross1_x();
+	  double resy = lg_hit_y->at(il) - proj.LCross1_y();
+	  if( fabs(resx)<widthlg && fabs(resy)<widthlg ){
+	    out_track_lg_t[ntrkacc].push_back( lg_hit_t->at(il) );
+	    out_track_lg_adc[ntrkacc].push_back( lg_hit_adc->at(il) );
+	  }
+	}
+
+	out_track_id.push_back(track_id->at(itrack));
+	out_chi_square.push_back(chi_square->at(itrack));
+	out_rk_charge.push_back(rk_charge->at(itrack));
+	out_track_mom.push_back(initmom.Mag());
+	out_track_mom_x.push_back(initmom.X());
+	out_track_mom_y.push_back(initmom.Y());
+	out_track_mom_z.push_back(initmom.Z());
+	out_track_tgt_id.push_back(tgtid);
+	out_track_vtx_x.push_back(initvtx.X());
+	out_track_vtx_y.push_back(initvtx.Y());
+	out_track_vtx_z.push_back(initvtx.Z());
+	out_track_gtr_mid.push_back( gmid );
+	out_track_gtr_cid.push_back( gcid );
+	out_track_gtr_lx.push_back( proj.GTRLCross_x() );
+	out_track_gtr_ly.push_back( proj.GTRLCross_y() );
+	out_track_gtr_xt.push_back( rk_hit_gtr300_xt->at(itrack) );
+	out_track_gtr_yt.push_back( rk_hit_gtr300_yt->at(itrack) );
+	out_track_hbd_mid.push_back( hmid );
+	out_track_hbd_cid.push_back( hcid );
+	out_track_hbd_lx.push_back( proj.HBDLCross_x() );
+	out_track_hbd_ly.push_back( proj.HBDLCross_y() );
+	out_track_lg_mid.push_back( lmid );
+	out_track_lg_cid.push_back( lcid );
+	out_track_lg_lx.push_back( proj.LCross1_x() );
+	out_track_lg_ly.push_back( proj.LCross1_y() );
+
+	ntrkacc++;
+
+      }//track loop
+
+      //online
+      vector<bool> trgpair(n_trg_tracks, false);
+      for(int i=0;i<n_trg_tracks;i++){
+	for(int j=i+1;j<n_trg_tracks;j++){
+	  bool istrgpair = IsTrgPair( 
+	    trg_track_lg_mid->at(i), trg_track_lg_cid->at(i), trg_track_lg_t->at(i),
+	    trg_track_lg_mid->at(j), trg_track_lg_cid->at(j), trg_track_lg_t->at(j),
+	    TrigAWmin, TrigAWmax, TrigTW
+	  );
+	  if( istrgpair ){
+	    trgpair.at(i)=true;
+	    trgpair.at(j)=true;
+	  }
+	}
+      }
+      int ntrgtrkacc = 0;
+      for(int il=0;il<n_trg_tracks;il++){
+	if( !trgpair.at(il) ) continue;
+	for(int ig=0;ig<trg_track_n_gtr_hits->at(il);ig++){
+	  if( trg_track_gtr_is_t_match->at(il).at(ig)==0 ) continue;
+	  for(int ih=0;ih<trg_track_n_hbd_hits->at(il);ih++){
+	    if( trg_track_hbd_is_t_match->at(il).at(ih)==0 ) continue;
+	    out_trg_track_lg_mid.push_back( trg_track_lg_mid->at(il) );
+	    out_trg_track_lg_cid.push_back( trg_track_lg_cid->at(il) );
+	    out_trg_track_lg_t.push_back( trg_track_lg_t->at(il) );
+	    out_trg_track_hbd_mid.push_back( trg_track_hbd_mid->at(il).at(ih) );
+	    out_trg_track_hbd_cid.push_back( trg_track_hbd_cid->at(il).at(ih) );
+	    out_trg_track_hbd_t.push_back( trg_track_hbd_t->at(il).at(ih) );
+	    out_trg_track_gtr_mid.push_back( trg_track_gtr_mid->at(il).at(ig) );
+	    out_trg_track_gtr_cid.push_back( trg_track_gtr_cid->at(il).at(ig) );
+	    out_trg_track_gtr_t.push_back( trg_track_gtr_t->at(il).at(ig) );
+	    out_trg_track_id.push_back(ntrgtrkacc);
+	    int nm = 0;
+	    out_trg_track_match_id.push_back(vector<double>());
+	    for(int it=0;it<out_track_id.size();it++){
+	      if( trg_track_lg_mid->at(il) == out_track_lg_mid.at(it) && 
+		  trg_track_lg_cid->at(il) == out_track_lg_cid.at(it) && 
+		  trg_track_hbd_mid->at(il).at(ih) == out_track_hbd_mid.at(it) && 
+		  trg_track_hbd_cid->at(il).at(ih) == out_track_hbd_cid.at(it) && 
+		  trg_track_gtr_mid->at(il).at(ig) == out_track_gtr_mid.at(it) && 
+		  trg_track_gtr_cid->at(il).at(ig) == out_track_gtr_cid.at(it) ){
+		out_trg_track_match_id[nm].push_back( out_track_id.at(it) );
+		nm++;
+	      }
+	    }
+	    out_trg_track_n_match.push_back(nm);
+	    ntrgtrkacc++;
+	  }
+	}
+      }
+      // std::cout<<ntrgtrkacc<<std::endl;
+      for(int i=0;i<ntrgtrkacc;i++){
+      	int nascgtr = 0;
+      	for(int ig=0;ig<n_gtr300y_clusters;ig++){
+	  out_trg_track_inc_gtr_ly.push_back(vector<double>());
+	  out_trg_track_inc_gtr_t.push_back(vector<double>());
+      	  if( gtr300y_cluster_mid->at(ig) != out_trg_track_gtr_mid.at(i) ) continue;
+      	  int tcid = E16ANA_EIDSingleTrackAnalyzer::GTRTrgCid( gtr300y_cluster_y->at(ig) );
+      	  if( out_trg_track_gtr_cid.at(i)==tcid ){
+      	    out_trg_track_inc_gtr_ly[nascgtr].push_back( gtr300y_cluster_y->at(ig) );
+      	    out_trg_track_inc_gtr_t[nascgtr].push_back( gtr300y_cluster_t->at(ig) );
+      	    nascgtr++;
+      	  }
+      	}
+      	out_trg_track_inc_n_gtr_hits.push_back(nascgtr);
+      	int naschbd = 0;
+      	for(int ih=0;ih<n_hbd_clusters;ih++){
+	  out_trg_track_inc_hbd_lx.push_back(vector<double>());
+	  out_trg_track_inc_hbd_ly.push_back(vector<double>());
+	  out_trg_track_inc_hbd_t.push_back(vector<double>());
+      	  if( hbd_cluster_t->at(ih)>200 ) continue;
+      	  if( hbd_cluster_mid->at(ih) != out_trg_track_hbd_mid.at(i) ) continue;
+      	  int tcid = E16ANA_EIDSingleTrackAnalyzer::HBDTrgCid( hbd_cluster_x->at(ih), hbd_cluster_y->at(ih) );
+      	  if( out_trg_track_hbd_cid.at(i)==tcid ){
+      	    out_trg_track_inc_hbd_lx[naschbd].push_back( hbd_cluster_x->at(ih) );
+      	    out_trg_track_inc_hbd_ly[naschbd].push_back( hbd_cluster_y->at(ih) );
+      	    out_trg_track_inc_hbd_t[naschbd].push_back( hbd_cluster_t->at(ih) );
+      	    naschbd++;
+      	  }
+      	}
+      	out_trg_track_inc_n_hbd_hits.push_back(naschbd);
+      	int nasclg = 0;
+      	for(int il=0;il<n_lg_hits;il++){
+	  out_trg_track_inc_lg_lx.push_back(vector<double>());
+	  out_trg_track_inc_lg_ly.push_back(vector<double>());
+	  out_trg_track_inc_lg_t.push_back(vector<double>());
+      	  if( lg_hit_fflag->at(il)>1 ) continue;
+      	  if( lg_hit_mid->at(il) != out_trg_track_lg_mid.at(i) ) continue;
+      	  int tcid = lg_hit_cid->at(il);
+      	  if( out_trg_track_lg_cid.at(i)==tcid ){
+      	    out_trg_track_inc_lg_lx[nasclg].push_back( lg_hit_x->at(il) );
+      	    out_trg_track_inc_lg_ly[nasclg].push_back( lg_hit_y->at(il) );
+      	    out_trg_track_inc_lg_t[nasclg].push_back( lg_hit_t->at(il) );
+      	    nasclg++;
+      	  }
+      	}
+      	out_trg_track_inc_n_lg_hits.push_back(nasclg);
+      }
+
+      //Get Hits & Clusters
+      out_n_tracks = ntrkacc;
+      out_n_trg_tracks = ntrgtrkacc;
+      out_run_id = run_id;
+      out_event_id = event_id;
+      out_spill_id = spill_id;
+
+      tree->Fill();
+
+      nevent++;
+   }//event loop
+
+   fout->Write();
+   fout->Close();
+
+}

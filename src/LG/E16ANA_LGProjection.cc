@@ -111,6 +111,7 @@ void E16ANA_LGProjection::ClearCrossInfo(){
   trgGTR    = false;
   trgGTRmid = -10000;
   trgGTRcid = -10000;
+  GTRlcross.SetXYZ(-10000.,-10000.,-10000.);
   trgHBD    = false;
   trgHBDmid = -10000;
   trgHBDcid = -10000;
@@ -374,6 +375,7 @@ void E16ANA_LGProjection::CalcCrossGTRTrigger(){
   if( module<101 && module>109 ) {return;}
 
   int min_n_steps = kMaxSteps + 1;
+  double lx = -10000;
   double ly = -10000;
   for (int m = module-2; m <= module+2; ++m) {
     if ( m==105 || m<100 || m>110 ) {
@@ -393,6 +395,7 @@ void E16ANA_LGProjection::CalcCrossGTRTrigger(){
       if (n_steps < min_n_steps) {
     	trgGTRmid = m;
 	trgGTR = true;
+	lx = lposs[0].X();
 	ly = lposs[0].Y();
       }
     }
@@ -400,6 +403,7 @@ void E16ANA_LGProjection::CalcCrossGTRTrigger(){
   if(ly!=-10000){
     double cid = (ly+150.)/300.*24.;
     trgGTRcid = (int)cid;
+    GTRlcross.SetXYZ(lx,ly,0.);
   }
 }
 void E16ANA_LGProjection::CalcCrossHBDTrigger(){

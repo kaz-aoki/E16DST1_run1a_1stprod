@@ -1429,6 +1429,8 @@ public :
    virtual int      CalcAngleOnLGPlane(Long64_t entry, Int_t itrack, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly, TVector3& vertex, TVector3& mom);
    virtual double   TargetAssociation(Long64_t entry, int itrack, double th);
    virtual double   TargetAssociation(Long64_t entry, int itrack, int& tgtid);
+   static  int      GTRTrgCid(double ly);
+   static  int      HBDTrgCid(double lx, double ly);
    virtual bool     wTrgBias(Long64_t entry, int itrack, double trk_lg_mid, int blockch, int awmin, int awmax, int tw, bool& wtrggtr, bool& wtrghbd, int& wtrglg, bool& wtrgtrk);
    virtual bool     wTrgBias(Long64_t entry, int lgmid, int lgcid, int awmin, int awmax, int tw, int& wtrglg, bool& wtrgtrk);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -3227,12 +3229,12 @@ double E16ANA_EIDSingleTrackAnalyzer::TargetAssociation(Long64_t entry, int itra
     return -1;
   }
 }
-int GTRTrgCid(double ly)
+int E16ANA_EIDSingleTrackAnalyzer::GTRTrgCid(double ly)
 {
   double cid = (ly+150)/300.*24.;
   return (int)cid;
 }
-int HBDTrgCid(double lx, double ly)
+int E16ANA_EIDSingleTrackAnalyzer::HBDTrgCid(double lx, double ly)
 {
   double cidx = (lx+300)/600.*6.;
   double cidy = (ly+300)/600.*6.;
