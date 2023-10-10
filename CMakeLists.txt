@@ -212,6 +212,10 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TrackFactory.cc
 )
 
+add_library(E16DSTN
+	src/tmp_murakami/E16DSTN_ReadStraightTree.cc
+)
+
 target_link_libraries(E16DST_DST1
   E16ANA
 	E16DST
@@ -712,9 +716,31 @@ target_link_libraries(run_ASDEfficiencyCalcWMag
 	E16DST
 	E16DST_DST1
 )
-#_______________________________________________________________________________
+###_______________________________________________________________________________
+add_executable(run_StraightKillDuplicated usr/tmp_murakami/run_StraightKillDuplicated.cc)
 
+target_link_libraries(run_StraightKillDuplicated
+	E16DST
+	E16DST_DST1
+   E16DSTN
+)
+###_______________________________________________________________________________
+add_executable(draw_AfterKillDup usr/tmp_murakami/draw_AfterKillDup.cc)
+
+target_link_libraries(draw_AfterKillDup
+	E16DST
+	E16DST_DST1
+   E16DSTN
+)
 #_______________________________________________________________________________
+add_executable(tmp_231006 usr/tmp_murakami/tmp_231006.cc)
+
+target_link_libraries(tmp_231006
+	E16DST
+	E16DST_DST1
+   E16DSTN
+)
+#
 #add_executable(run_EfficiencyCalc usr/run_EfficiencyCalc.cc)
 #
 #target_link_libraries(run_EfficiencyCalc
