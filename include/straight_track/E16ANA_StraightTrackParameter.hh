@@ -24,7 +24,7 @@ const TVector3 kInitPosErrorWire = {0.01, 3.4, 0.01};//wire
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3};    // 230821 for Run0d
 constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c
-constexpr const std::array<double, 5> kWireXSigma = {0.1., 0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
+constexpr const std::array<double, 5> kWireXSigma = {0.1, 0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),

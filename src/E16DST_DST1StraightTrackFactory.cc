@@ -260,7 +260,7 @@ int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_Straig
         targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
 	 }
    else {
-     return -1
+     return -1;
    }
 //   std::cout << " Targets positions have benn set " << std::endl;
    E16ANA_StraightTrackCandidates track_candidates(&geometry, fitter, record, removed_layer, targets.IsWire(), targets_pos);
