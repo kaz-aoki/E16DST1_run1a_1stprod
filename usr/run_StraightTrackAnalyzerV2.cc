@@ -114,6 +114,20 @@ int main(int argc, char* argv[]){
 	 E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
 	 targets.ReadInfoWithRunID(calib.CurrentRunID());
 	 targets.Print();
+	 std::vector<TVector3> targets_pos;
+	 targets_pos.clear();
+    if(targets.NoT() == 3 ){
+            targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
+     }
+     else if (targets.IsWire()){
+         targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
+         targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
+     }
+    else {
+      return -1;
+    }
   
     auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
     cout<< static_cast<std::string>(GeometryFile)<<endl;
@@ -196,7 +210,7 @@ int main(int argc, char* argv[]){
 
 // Track
 		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record);
-		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, removed_layer);
+		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, targets_pos, removed_layer);
 
 
 

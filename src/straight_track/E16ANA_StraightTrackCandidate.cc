@@ -258,10 +258,7 @@ void E16ANA_StraightTrackCandidate::PrintParam() {
 bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set, int in_mid) {
   auto& pos_set = cluster_set->global_poss;
   int mid       = in_mid -100;
-  std::vector<TVector2> targets;
-  targets.clear();
-  for(int i=0; i < targets_pos.size();i++){
-    targets.push_back(TVector2(targets_pos[i].x(), targets_pos[i].z()));
+  std::vector<TVector2> targets; targets.clear(); for(int i=0; i < targets_pos.size();i++){ targets.push_back(TVector2(targets_pos[i].x(), targets_pos[i].z()));
   }
 //  if(isWire){
 //     targets.push_back(TVector2(20, 40));//minus wire
@@ -310,8 +307,8 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
         chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
         chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
       }
-      double ras[n_targets]     = {ra1, ra2}; //[2] is number of targets
-      double rbs[n_targets]     = {rb1, rb2}; 
+      double ras[2]     = {ra1, ra2}; //[2] is number of targets
+      double rbs[2]     = {rb1, rb2}; 
       double chi_cand[2] = {chi1, chi2};
       auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
       int	 min_i = std::distance(std::begin(chi_cand), min_t);
@@ -416,7 +413,7 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
           if(i == removed_layer) continue;
           sigmas.push_back(kXSigma[i]);
         }
-        double err[]={sigmas[0], sigmas[1],sigmas[2]};//without one layer
+        double err[]={sigmas[0], sigmas[1],sigmas[2], sigmas[3]};//without one layer
         double ra1,rb1;
         fline(4,rlz1,rlx1,err,ra1,rb1);
         double ra2,rb2;
@@ -425,10 +422,10 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
         fline(4,rlz3,rlx3,err,ra3,rb3);
         double chi1,chi2, chi3;
         chi1 = chi2 = chi3 = 0;
-        for(int i=0;i<4;i++){
-          chi1 += pow((rlx1[i]-(rb1*rlz1[i]+ra1))/err[i],2);
-          chi2 += pow((rlx2[i]-(rb2*rlz2[i]+ra2))/err[i],2);
-          chi3 += pow((rlx3[i]-(rb3*rlz3[i]+ra3))/err[i],2);
+        for(int j=0; j< 4; j++){
+          chi1 += pow((rlx1[j]-(rb1*rlz1[j]+ra1))/err[j],2);
+          chi2 += pow((rlx2[j]-(rb2*rlz2[j]+ra2))/err[j],2);
+          chi3 += pow((rlx3[j]-(rb3*rlz3[j]+ra3))/err[j],2);
         }
 
         double ras[3]     = {ra1, ra2, ra3};//3 is number of targets
@@ -962,29 +959,23 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
   for (const auto& ssd_module_id : E16ANA_StraightTrackConstant::kModuleIDs) {
     if (ssd_module_id == 105) continue;
     auto is_l = IsLModule(ssd_module_id);
-      auto& ssd_cluster_ptrs = ssd.ClusterPtrs(ssd_module_id, 0, 0);
+    auto& ssd_cluster_ptrs = ssd.ClusterPtrs(ssd_module_id, 0, 0);
     for (const auto& gtr100_module_id : E16ANA_StraightTrackConstant::kModuleIDs) {
-//    if (abs(gtr100_module_id - ssd_module_id) > 1) {
-      if (is_l != IsLModule(gtr100_module_id)) continue;
+    if (abs(gtr100_module_id - ssd_module_id) > 1) continue;
         auto& gtr100x_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsX);
       for (const auto& gtr200_module_id : E16ANA_StraightTrackConstant::kModuleIDs) {
-//        if (abs(gtr200_module_id - ssd_module_id) > 1) {
-        if (is_l != IsLModule(gtr200_module_id)) continue;
+        if (abs(gtr200_module_id - ssd_module_id) > 1) continue;
           auto& gtr200x_cluster_ptrs = gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsX);
         for (const auto& gtr300_module_id : E16ANA_StraightTrackConstant::kModuleIDs) {
-//          if (abs(gtr300_module_id - ssd_module_id) > 1) {
-          if (is_l != IsLModule(gtr300_module_id)) continue;
+          if (abs(gtr300_module_id - ssd_module_id) > 1) continue;
             auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
-          if(removed_layer !=0 ){//without SSD
+          if(removed_layer ==0 ){//without SSD
             for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
               if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_StraightTrackConstant::kGTR100 - 1]) continue;
               if (gtr100x_cluster->NumHits() < kMinHitsInXCluster) continue;
               cluster_set->gtr_clusters[0] = gtr100x_cluster;
               cluster_set->global_poss[E16ANA_StraightTrackConstant::kGTR100] = gtr100x_cluster->GlobalPosT(*geometry);
-      	      TVector3 testg = gtr100x_cluster->GlobalPos(*geometry);	      
-              //printf("x:%f,%f    y:%f,%f     z:%f,%f \n",cluster_set->global_poss[E16ANA_StraightTrackConstant::kGTR100].X(),testg.X(),
-	            //     cluster_set->global_poss[E16ANA_StraightTrackConstant::kGTR100].Y(),testg.Y(),
-	            //     cluster_set->global_poss[E16ANA_StraightTrackConstant::kGTR100].Z(),testg.Z());
+      	     TVector3 testg = gtr100x_cluster->GlobalPos(*geometry);	      
               for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
                 if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_StraightTrackConstant::kGTR200 - 1]) continue;
                 if (gtr200x_cluster->NumHits() < kMinHitsInXCluster) continue;
@@ -998,7 +989,6 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
 //                  bool is_cand = false;
 		              bool is_cand = false;
                   double chi2 = 5;
-//                  if (IsXTrackCandidate(cluster_set,ssd_module_id)) {
                   if (IsXTrackCandidate(cluster_set,gtr100_module_id)) {
                     cluster_sets[0].emplace_back(*cluster_set);
                   }
@@ -1058,7 +1048,6 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
             for (const auto& ssd_cluster : ssd_cluster_ptrs) {
               cluster_set->ssd_cluster = ssd_cluster;
               cluster_set->global_poss[E16ANA_StraightTrackConstant::kSSD] = ssd_cluster->GlobalPos(*geometry);
-              if(removed_layer == 1) {
                 for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
                   if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_StraightTrackConstant::kGTR200 - 1]) {
                     continue;
@@ -1085,7 +1074,6 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
                     }
                   }
                 }               
-              }
 				}
           }//without gtr100
           else if(removed_layer == 2) {
@@ -1210,13 +1198,15 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
 //E16INFO("number of x candidates: %d", n_x_cands);
+  std::cout << "number of x candidates " << n_x_cands <<std::endl;
 //E16INFO("number of y candidates: %d", n_y_cands);
   
   for (const auto& x_cand : cluster_sets[0]) {
     auto& ssdx = *x_cand.ssd_cluster;
     auto& gtrx = x_cand.gtr_clusters;
     std::array<int, kNumGTRLayers> x_module_ids = {gtrx[0]->ModuleId(), gtrx[1]->ModuleId(), gtrx[2]->ModuleId()};
-    std::array<float, kNumGTRLayers> x_timings = {gtrx[0]->Timing4(), gtrx[1]->Timing4(), gtrx[2]->Timing4()};
+//    std::array<float, kNumGTRLayers> x_timings = {gtrx[0]->Timing4(), gtrx[1]->Timing4(), gtrx[2]->Timing4()};
+    std::array<float, kNumGTRLayers> x_timings = {gtrx[0]->Timing(), gtrx[1]->Timing(), gtrx[2]->Timing()};
     std::array<float, kNumGTRLayers> x_peak_sums = {gtrx[0]->PeakSum(), gtrx[1]->PeakSum(), gtrx[2]->PeakSum()};
     for (const auto& y_cand : cluster_sets[1]) {
       auto& gtry = y_cand.gtr_clusters;
@@ -1228,8 +1218,12 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
       */
       for (int i = 0; i < kNumGTRLayers; ++i) {
         if(i+1 != removed_layer){ 
-        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing4()) > kGTRTimeDiffThreshold[i] ) { // Matching 
-          is_same_module = false;
+//        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing4()) > kGTRTimeDiffThreshold[i] ) { // Matching 
+        if (x_module_ids[i] != gtry[i]->ModuleId() || fabs(x_timings[i] - gtry[i]->Timing()) > kGTRTimeDiffThreshold[i] ) { // Matching 
+//			 std::cout << "module " << x_module_ids[i] << ", " << gtry[i]->ModuleId() << std::endl;
+//			 std::cout << "timing " << x_timings[i] << ", " << gtry[i]->Timing4() << std::endl;
+//          is_same_module = false;
+//			 std::cout << "not matched " << std::endl;
           break;
           }
         }
@@ -1273,6 +1267,9 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
       }
       auto& cluster_pairs = tmp_cand.ClusterPairs();
       if(removed_layer != 0){//ssd
+//		  std::cout << "ssd module " << ssdx.ModuleId() << std::endl;
+//		  std::cout << "global pos " << &x_cand.global_poss[0] << std::endl;
+//		  std::cout << "ssd address  " << &ssdx << std::endl;
         cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);//x only for ssd
       }
       for (int i = 0; i < kNumGTRLayers; ++i) {//gtr

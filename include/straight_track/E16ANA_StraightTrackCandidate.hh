@@ -261,7 +261,7 @@ class E16ANA_StraightTrackCandidate {
   std::vector<E16DST_DST1HBDCluster*>& ProjectedHBDClusters() { return hbd_clusters; }
   std::vector<E16DST_DST1LGHit*>& ProjectedLGHits() { return lg_hits; }
   std::vector<E16DST_DST1LGCluster*>& ProjectedLGClusters() { return lg_clusters; }
-  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag, bool isWire, int removed_layer);
+  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag,bool isWire,  int removed_layer);
   void Print() {
     if (chisq >= 1.0e10 || minimize_status == 0) {
       return;
@@ -496,12 +496,13 @@ class E16ANA_StraightTrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, int _removed_layer, bool _isWire, std::vector<TVector3> &_tgt_pos)
+  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, int _removed_layer, std::vector<TVector3> &_tgt_pos)
     : geometry(_geometry),fitter(_fitter),
       is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false),
-      record(_record), removed_layer(_removed_layer), isWire(_isWire) {
+      record(_record), removed_layer(_removed_layer) {
     track_candidates.clear();
     n_targets = _tgt_pos.size();
+	 if(n_targets == 2) isWire = true;
     targets_pos.resize(_tgt_pos.size());
     for(int i=0; i < _tgt_pos.size(); i++){
         targets_pos[i] = _tgt_pos[i];
