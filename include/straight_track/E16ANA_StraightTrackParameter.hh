@@ -17,11 +17,14 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.252, 0.542, 0.},//for Run0c
 //                                          {10., 0.542, 0.},//for Run0d
                                           {0.262, 0.518, 0.}}}; // 220623 TDR2206
-//const TVector3 kInitPosError = {3., 3.4, 3.0};
-const TVector3 kInitPosError = {3., 3.4, 3.0};
+const TVector3 kInitPosError     = {3., 3.4, 3.0};
+const TVector3 kInitPosErrorSSD  = {0.4 ,   0, 0.4};// if removed layer is not 0
+const TVector3 kInitPosError100  = {1.0 , 2.0, 3.0};// if ssd is removed 
+const TVector3 kInitPosErrorWire = {0.01, 3.4, 0.01};//wire
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
-//constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3}; // 230821 for Run0d
-constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 0.3, 0.3}; // 230821 for Run0c
+//constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3};    // 230821 for Run0d
+constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c
+constexpr const std::array<double, 5> kWireXSigma = {0.1., 0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
@@ -48,6 +51,9 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 }
 
 // other
+
+constexpr double kMaxSSDClusterN = 30;
+
 constexpr bool kExecutePairFit = false;
 constexpr bool kReqHBDAssociation = true;
 //constexpr double kHBDRadius = 1200.;
