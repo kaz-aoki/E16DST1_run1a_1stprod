@@ -196,7 +196,7 @@ int main(int argc, char* argv[]){
 
 // Track
 		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record);
-		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, removed_layer, targets.IsWire());
+		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, removed_layer);
 
 
 

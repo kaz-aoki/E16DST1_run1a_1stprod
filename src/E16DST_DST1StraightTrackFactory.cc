@@ -242,12 +242,32 @@ int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 }
 
 
-int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_StraightMultiTrack* fitter, E16DST_DST1PhysicsRecord* record, E16ANA_StraightTrackCheckFile* check_file,  int removed_layer, bool isWire) {
-  E16ANA_StraightTrackCandidates track_candidates(&geometry, fitter, record, removed_layer, isWire);
-  static int n_calls;
-  static int n_cands;
-  static bool is_fill_param;
-  track_candidates.Analyze();
+int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_StraightMultiTrack* fitter, E16DST_DST1PhysicsRecord* record, E16ANA_StraightTrackCheckFile* check_file,  int removed_layer) {
+// I know that calling TargetInfo every time is not good....It should be modifiled.//231008
+  std::vector<TVector3> targets_pos;
+  targets_pos.clear();
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
+  targets.ReadInfoWithRunID(calib.CurrentRunID());
+  targets.Print();
+	if(targets.NoT() == 3 ){
+	        targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
+	        targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
+	        targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
+	 }
+	 else if (targets.IsWire()){
+        targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
+        targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
+	 }
+   else {
+     return -1
+   }
+//   std::cout << " Targets positions have benn set " << std::endl;
+   E16ANA_StraightTrackCandidates track_candidates(&geometry, fitter, record, removed_layer, targets.IsWire(), targets_pos);
+   static int n_calls;
+   static int n_cands;
+   static bool is_fill_param;
+   track_candidates.Analyze();
 
 //  track_candidates.Print(3);
   

@@ -496,11 +496,16 @@ class E16ANA_StraightTrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, int _removed_layer, bool _isWire)
+  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, int _removed_layer, bool _isWire, std::vector<TVector3> &_tgt_pos)
     : geometry(_geometry),fitter(_fitter),
       is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false),
       record(_record), removed_layer(_removed_layer), isWire(_isWire) {
     track_candidates.clear();
+    n_targets = _tgt_pos.size();
+    targets_pos.resize(_tgt_pos.size());
+    for(int i=0; i < _tgt_pos.size(); i++){
+        targets_pos[i] = _tgt_pos[i];
+      }
   }
 
   ~E16ANA_StraightTrackCandidates() {}
@@ -710,7 +715,7 @@ class E16ANA_StraightTrackCandidates {
 //    }
 //    return false;
 //  }
-  void SearchTrackCandidatesWoSSD();
+//  void SearchTrackCandidatesWoSSD();
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
@@ -736,6 +741,8 @@ class E16ANA_StraightTrackCandidates {
   E16DST_DST1PhysicsRecord* record;
   int removed_layer;
   bool isWire;
+  int n_targets;
+  std::vector<TVector3> targets_pos;
   int n_x_cands;
   int n_y_cands;
   std::vector<E16ANA_StraightTrackCandidate> track_candidates;
