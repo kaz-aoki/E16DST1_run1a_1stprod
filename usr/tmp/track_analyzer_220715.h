@@ -1428,7 +1428,11 @@ public :
   void MakeEMBranches(TTree* tree);
   void ClearUsedClusterIDs();
   void SetHBDs();
+  void SetLGs();//231012 add
   double NearestRadius(int n);
+  bool HasAssociatedLG(std::array<int, track_analyzer_220715_parameter::kNumLGTypes> mids, const std::array<TVector3, track_analyzer_220715_parameter::kNumLGTypes>& track_pos, int *min_type, double *min_res, std::vector<int> *_indexs); 
+  bool HasAssociatedLG(int n); 
+  void AssociatedLG(int n);
   bool HasAssociatedHBD(int mid, const TVector3& track_pos, double* min_res, std::vector<int>* _associated_hbd_indexs);
   bool HasAssociatedHBD(int n);
   bool HasUsedCluster(const std::array<int, track_analyzer_220715_parameter::kNumTrackingDetectors>& cids);
@@ -1490,10 +1494,11 @@ public :
   E16ANA_MultiTrack*       proj_fitter;
   //
   std::array<std::vector<int>, track_analyzer_220715_parameter::kNumModules> hbd_indexs;
-//  std::array<std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes>, track_analyzer_220715_parameter::kNumModules> lg_indexs;
+  std::array<std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes>, track_analyzer_220715_parameter::kNumModules> lg_indexs;
   std::vector<int> good_track_indexs;
   std::vector<std::array<int, 2>> good_pair_indexs;
   std::vector<std::vector<int>> associated_hbd_indexs;
+  std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes> associated_lg_indexs;
   std::vector<int>    nearest_tgt_ids;
   std::vector<double> nearest_radius;
   std::array<std::vector<int>, track_analyzer_220715_parameter::kNumTrackingDetectors> used_cluster_ids;
@@ -1884,6 +1889,27 @@ public :
   std::vector<std::vector<double>> out_proj_minus_hbd_size;
   std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
   // LG Projection
+  std::vector<double>              out_proj_plus_n_lgs;
+  std::vector<double>              out_proj_plus_lg_min_res;
+  std::vector<std::vector<double>> out_proj_plus_lg_id;
+  std::vector<std::vector<double>> out_proj_plus_lg_lx;
+  std::vector<std::vector<double>> out_proj_plus_lg_ly;
+  std::vector<std::vector<double>> out_proj_plus_lg_resx;
+  std::vector<std::vector<double>> out_proj_plus_lg_resy;
+  std::vector<std::vector<double>> out_proj_plus_lg_adc;
+  std::vector<std::vector<double>> out_proj_plus_lg_size;
+  std::vector<std::vector<double>> out_proj_plus_lg_eprob;
+  std::vector<double>              out_proj_minus_n_lgs;
+  std::vector<double>              out_proj_minus_lg_min_res;
+  std::vector<std::vector<double>> out_proj_minus_lg_id;
+  std::vector<std::vector<double>> out_proj_minus_lg_lx;
+  std::vector<std::vector<double>> out_proj_minus_lg_ly;
+  std::vector<std::vector<double>> out_proj_minus_lg_resx;
+  std::vector<std::vector<double>> out_proj_minus_lg_resy;
+  std::vector<std::vector<double>> out_proj_minus_lg_adc;
+  std::vector<std::vector<double>> out_proj_minus_lg_size;
+  std::vector<std::vector<double>> out_proj_minus_lg_eprob;
+
 // tmp
 // check of E16ANA_StepTrack function
 std::vector<int>                 out_tmp_fit_plus_x0_flag;

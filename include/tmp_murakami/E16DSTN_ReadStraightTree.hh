@@ -8,6 +8,7 @@
 #ifndef E16DSTN_ReadStraightTree_h
 #define E16DSTN_ReadStraightTree_h
 
+#include "E16DSTN_StraightParameter.hh"
 #include <TROOT.h>
 #include <TChain.h>
 #include <iostream>
@@ -1419,10 +1420,22 @@ public :
    virtual void     Loop(TTree *tree,  int n, int max);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
-	virtual void     AddRecord(std::vector<int> &id);
+	virtual void     AddRecord();
 	TFile *FileOut()  {return fout;}
 	virtual void     DrawHist(TTree *tree, int print, TString pdf_name);
 	virtual void     ChooseSmallestResidual(std::vector<int> &v, std::vector<int> &ov);
+   void ClearUsedClusterIDs();
+	void SetTracks();
+	bool IsGoodTrack(int n) ;
+	bool HasUsedCluster(const std::array<int, E16DSTN_StraightParameter::kNumTrackingDetectors>& cids); 
+	void SetRemovedLayer(int rm) {removed_layer = rm;}
+   
+private:
+	std::array<std::vector<int>, E16DSTN_StraightParameter::kNumTrackingDetectors> used_cluster_ids;
+   std::vector<int> selected_ids;
+	int removed_layer;
+
+public:
 	
 
 	TFile *fout;   //= new TFile (out_file, "recreate");
@@ -2129,7 +2142,7 @@ public :
 #endif
 
 #ifdef E16DSTN_ReadStraightTree_cxx
-E16DSTN_ReadStraightTree::E16DSTN_ReadStraightTree(TTree *tree,const char *out_file) : fChain(0) 
+E16DSTN_ReadStraightTree::E16DSTN_ReadStraightTree(TTree *tree,const char *out_file) : fChain(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -4262,7 +4275,7 @@ Int_t E16DSTN_ReadStraightTree::Cut(Long64_t entry)
 
 
 
-void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
+void E16DSTN_ReadStraightTree::AddRecord()
 {
 
 	 out_event_id = event_id;

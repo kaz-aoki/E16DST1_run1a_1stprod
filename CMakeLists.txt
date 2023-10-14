@@ -214,6 +214,7 @@ add_library(E16DST_DST1
 
 add_library(E16DSTN
 	src/tmp_murakami/E16DSTN_ReadStraightTree.cc
+	src/tmp_murakami/E16DSTN_AfterTrackAna.cc
 )
 
 target_link_libraries(E16DST_DST1
@@ -720,6 +721,14 @@ target_link_libraries(run_ASDEfficiencyCalcWMag
 add_executable(run_StraightKillDuplicated usr/tmp_murakami/run_StraightKillDuplicated.cc)
 
 target_link_libraries(run_StraightKillDuplicated
+	E16DST
+	E16DST_DST1
+   E16DSTN
+)
+###_______________________________________________________________________________
+add_executable(run_AfterTrackAna usr/tmp_murakami/run_AfterTrackAna.cc)
+
+target_link_libraries(run_AfterTrackAna
 	E16DST
 	E16DST_DST1
    E16DSTN

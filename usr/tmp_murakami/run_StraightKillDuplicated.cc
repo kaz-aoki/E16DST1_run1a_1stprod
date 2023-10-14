@@ -1,5 +1,6 @@
 #define E16DSTN_ReadStraightTree_cxx
 #include "E16DSTN_ReadStraightTree.hh"
+#include "E16DSTN_StraightParameter.hh"
 #include <string>
 #include <map>
 #include <array>
@@ -52,16 +53,18 @@
 
 
 int main (int argc, char** argv) {
-	if(argc != 4){
-		std::cout << "./bin/~~ [input.root] [output.root] [max_analyzed_event]" << std::endl;
+	if(argc != 5){
+		std::cout << "./bin/~~ [input.root] [output.root] [max_analyzed_event] [removed_layer]" << std::endl;
 		return 0;	
 	}
 	std::string in_file  = argv[1];
 	std::string out_file = argv[2];
 	int max_event        = stoi(argv[3]);
+	int removed_layer    = stoi(argv[4]);
 	TFile *fin           = new TFile(in_file.c_str());
 	TTree *tree          = (TTree*)fin->Get("tree");
 	E16DSTN_ReadStraightTree *rt = new E16DSTN_ReadStraightTree(tree, out_file.c_str());
+	rt->SetRemovedLayer(removed_layer);
 	int nevent           = tree->GetEntries();
 	int print_cycle      = 100;
 	rt->Loop(tree, print_cycle, max_event);

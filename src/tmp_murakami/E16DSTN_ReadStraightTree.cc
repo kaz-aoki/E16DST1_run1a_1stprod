@@ -1,10 +1,73 @@
+
 #include "E16DSTN_ReadStraightTree.hh"
+#include "E16DSTN_StraightParameter.hh"
 #include "TCanvas.h"
 #include "TGraphErrors.h"
 #include "TF1.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TStyle.h"
+
+using namespace std;
+using namespace E16DSTN_StraightParameter;
+
+void E16DSTN_ReadStraightTree::ClearUsedClusterIDs() {
+	for(auto& ids : used_cluster_ids){
+		ids.clear();
+	}
+	return;
+}
+
+bool E16DSTN_ReadStraightTree::HasUsedCluster(const array<int, kNumTrackingDetectors> &cids){
+  for (int i = 0; i < kNumTrackingDetectors; ++i) {
+     for (const auto& used_id : used_cluster_ids[i]) {
+       if (cids[i] == used_id) {
+         return true;
+       }
+     }
+   }
+   return false;
+}
+
+bool E16DSTN_ReadStraightTree::IsGoodTrack(int n){
+//	if (kUsePosAtTargetCut && !NearestRadius(n) > kMaxRadiusAtTarget){
+//		return false;	
+//	}
+	if(removed_layer ==-1){
+	if (kUseClusterDuplicationCut == kSSDAndGTRDuplicationCut){
+		std::array<int, kNumTrackingDetectors> cids = {
+		rk_hit_ssd_id->at(n),
+		rk_hit_gtr100_xid->at(n), rk_hit_gtr100_yid->at(n), 
+		rk_hit_gtr200_xid->at(n), rk_hit_gtr200_yid->at(n),
+		rk_hit_gtr300_xid->at(n), rk_hit_gtr300_yid->at(n)};
+		if(HasUsedCluster(cids)) {
+			return false;
+		}
+		for (int i =0; i < kNumTrackingDetectors;i++){
+			used_cluster_ids[i].emplace_back(cids[i]);
+		}
+	}
+	}
+	else {
+		std::cout <<  "not developed yet " << std::endl;
+
+}
+	return true;
+}
+
+void E16DSTN_ReadStraightTree::SetTracks(){
+	selected_ids.clear();
+	for (int i=0; i < n_cands; i++){
+		if(kUseChi2Cut && chi_square->at(i) > kMaxChi2){
+			break;
+		}
+		if (IsGoodTrack(i)){
+			selected_ids.emplace_back(i);
+		}
+	}
+	return;
+}
+
 void E16DSTN_ReadStraightTree::Loop(TTree* tree, int print_cycle, int max_event){
 	int nevent = tree->GetEntries();
 
@@ -18,92 +81,31 @@ void E16DSTN_ReadStraightTree::Loop(TTree* tree, int print_cycle, int max_event)
 		} 
 
 	tree->GetEntry(n);
-	std::multimap<double, int> chi2_map;
-	chi2_map.clear();
-	std::vector<int> sorted_trkid;
-	sorted_trkid.clear();
-	std::vector<int> nodup_id;
-	nodup_id.clear();
-	if(chi_square->size() != track_id->size()){
-		std::cout << "size is different !" << std::endl;
-	}
-	for(int i=0; i<n_cands; i++){
-     	chi2_map.insert({chi_square->at(i), track_id->at(i)});
-   }	
-   for (const auto& pair : chi2_map) {
-   	sorted_trkid.push_back(pair.second);
-	}
-	
-// --- Duolicated Hits are removed by chi_sq sort
-//		bool x0_table[n_gtr100x_clusters] = {};
-////		bool x1_table[n_gtr200x_clusters] = {};
-//		bool x2_table[n_gtr300x_clusters] = {};
-//		bool y0_table[n_gtr100y_clusters + n_gtr100yb_clusters] = {};
-//		bool y1_table[n_gtr200y_clusters] = {};
-//		bool y2_table[n_gtr300y_clusters] = {};
-//		std::fill(x0_table, x0_table + n_gtr100x_clusters, 0);
-////		std::fill(x1_table, x1_table + n_gtr200x_clusters, 0);
-//		std::fill(x2_table, x2_table + n_gtr300x_clusters, 0);
-//		std::fill(y0_table, y0_table + n_gtr100y_clusters + n_gtr100yb_clusters, 0);
-//		std::fill(y1_table, y1_table + n_gtr200y_clusters, 0);
-//		std::fill(y2_table, y2_table + n_gtr300y_clusters, 0);		
+// NOT necessary, dst1 tracks are already sorted by chi2
+//	std::multimap<double, int> chi2_map;
+//	chi2_map.clear();
+//	std::vector<int> sorted_trkid;
+//	sorted_trkid.clear();
+//	std::vector<int> nodup_id;
+//	nodup_id.clear();
+//	if(chi_square->size() != track_id->size()){
+//		std::cout << "size is different !" << std::endl;
+//	}
+//	for(int i=0; i<n_cands; i++){
+//     	chi2_map.insert({chi_square->at(i), track_id->at(i)});
+//   }	
+//   for (const auto& pair : chi2_map) {
+//   	sorted_trkid.push_back(pair.second);
+//	}
 
-		int max  =  5000;
-		bool x0_table[max] = {};
-		bool x1_table[max] = {};
-		bool x2_table[max] = {};
-		bool y0_table[max] = {};
-		bool y1_table[max] = {};
-		bool y2_table[max] = {};
-		std::fill(x0_table, x0_table + max, 0);
-		std::fill(x1_table, x1_table + max, 0);
-		std::fill(x2_table, x2_table + max, 0);
-		std::fill(y0_table, y0_table + max, 0);
-		std::fill(y1_table, y1_table + max, 0);
-		std::fill(y2_table, y2_table + max, 0);		
-	
-	for(const int tid : sorted_trkid){
-		int x0id = rk_hit_gtr100_xid->at(tid);
-//		int x1id = rk_hit_gtr200_xid->at(tid);//gtr200 remove
-		int x2id = rk_hit_gtr300_xid->at(tid);
-		int y0id = rk_hit_gtr100_yid->at(tid);
-		int y1id = rk_hit_gtr200_yid->at(tid);
-		int y2id = rk_hit_gtr300_yid->at(tid);
-//		std::cout << "n_cands = " << n_cands << std::endl;
-//		std::cout << "x0      = " << x0id << "/" << n_gtr100x_clusters << std::endl;
-//		std::cout << "x2      = " << x2id << "/" << n_gtr300x_clusters << std::endl;
-//		std::cout << "y0      = " << y0id << "/" << n_gtr100y_clusters << std::endl;
-//		std::cout << "y1      = " << y2id << "/" << n_gtr200y_clusters << std::endl;
-//		std::cout << "y2      = " << y2id << "/" << n_gtr100y_clusters << std::endl;
-		if(x0_table[x0id] == 0 && 
-//			x1_table[x1id] == 0
-		   x2_table[x2id] == 0 &&
-			y0_table[y0id] == 0 && y1_table[y1id] == 0 && y2_table[y2id] == 0   ){
-		   x0_table[x0id] = 1;  
-//			x1_table[x1id] = 1; 
-			x2_table[x2id] = 1; 
-			y0_table[y0id] = 1; 
-			y1_table[y1id] = 1; 
-			y2_table[y2id] = 1;  
-			nodup_id.push_back(tid);
-		}
-		else {
-			// nothing to do
-		}	
+	ClearUsedClusterIDs();
+	SetTracks();
+////		RKFittingWoOneLayer(nodup_id, 2);//removed layer 2 = GTR200
+	if(removed_layer !=-1 ){
+//		ChooseSmallestResidual(nodup_id, selected_id);//if There is removed_layer
 	}
-		
-// --- fill -- //
-	if(nodup_id.size() == 0 ) {
-//		continue;
-	}
-	else {
-//		RKFittingWoOneLayer(nodup_id, 2);//removed layer 2 = GTR200
-		std::vector<int> selected_id;
-		selected_id.clear();
-		ChooseSmallestResidual(nodup_id, selected_id);
-		AddRecord(selected_id);
+		AddRecord();
 	} 
-}
 }
 
 
@@ -112,24 +114,28 @@ void E16DSTN_ReadStraightTree::ChooseSmallestResidual(std::vector<int> &nudup_id
 	res_map.clear();
 	std::vector<int> sorted_id;//will be sorted with residual
 	sorted_id.clear();
-	for(const int tid : nudup_ids){
-     	res_map.insert({rk_res_gtr200_x->at(tid), tid});
+	for(const int tid : selected_ids){
+     	if(removed_layer == 1) res_map.insert({rk_res_gtr100_x->at(tid), tid});
+     	if(removed_layer == 2) res_map.insert({rk_res_gtr200_x->at(tid), tid});
+     	if(removed_layer == 3) res_map.insert({rk_res_gtr300_x->at(tid), tid});
    }	
    for (const auto& pair : res_map) {
    	sorted_id.push_back(pair.second);
 	}
 	int max  =  20000;
-	bool x1_table[max] = {};
-	std::fill(x1_table, x1_table + max, 0);
-	for(const int tid : sorted_id){
-		int x1id = rk_hit_gtr200_xid->at(tid);//gtr200 remove
-		if(x1_table[x1id] == 0){
-			x1_table[x1id] = 1; 
-			selected_id.push_back(tid);
+	if(removed_layer == 2) {
+		bool x1_table[max] = {};
+		std::fill(x1_table, x1_table + max, 0);
+		for(const int tid : sorted_id){
+			int x1id = rk_hit_gtr200_xid->at(tid);//gtr200 remove
+			if(x1_table[x1id] == 0){
+				x1_table[x1id] = 1; 
+				selected_id.push_back(tid);
+			}
+			else {
+				// nothing to do
+			}	
 		}
-		else {
-			// nothing to do
-		}	
 	}
 }
 
@@ -207,7 +213,7 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 			
 			h_cor_dz_time[m][l] = new TH2D(Form("h_cor_dz_time_%d_%d", m+100, l), Form("h_cor_dz_time_%d%_d", m+100, l), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
 			h_cor_dz_time_lg[m][l] = new TH2D(Form("h_cor_dz_time_lg_%d_%d", m+100, l), Form("h_cor_dz_time_lg_%d%_d", m+100, l), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-			h_cor_res_lx[m][l] = new TH2D(Form("h_cor_res_lx_%d_%d", m+100, l), Form("h_cor_res_lx_%d%_d", m+100, l), 4, -50*l , 50*l, 100, -2, 2);
+			h_cor_res_lx[m][l] = new TH2D(Form("h_cor_res_lx_%d_%d", m+100, l), Form("h_cor_res_lx_%d%_d", m+100, l), 10, -50*l , 50*l, 100, -2, 2);
 		}
 	}
 	int nevent = tree->GetEntries();
@@ -223,6 +229,10 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 		tree->GetEntry(n);
 		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
 		for(int i=0; i < n_tracks; i++){
+
+
+
+
 			double chi2  = chi_square->at(i);
 			int    mid   = rk_fit_gtr200_mid->at(i);
 			double resx  = rk_res_gtr200_x->at(i);
@@ -469,6 +479,7 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 
 	TCanvas *c31[10];
     TGraphErrors *gr[10];
+    TGraphErrors *gr_mean[10];
     TH1D *h1[10];
     TF1 *f1[10];
     for(int hmid=101; hmid < 110; hmid++){
@@ -480,6 +491,7 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
              double xmax =  2;
              std::cout << "nibs = " << n << std::endl;
              gr[hmid-100] = new TGraphErrors(n);
+             gr_mean[hmid-100] = new TGraphErrors(n);
               for (int i = 1; i <= n; i++) {
                 c31[hmid-100]->cd(i);
                  h1[hmid-100] = h_cor_res_lx[hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
@@ -493,15 +505,25 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
                 f1[hmid-100]->SetParameter(3, 0);
                 f1[hmid-100]->SetParameter(4, -1);
                  h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
+					  double mean = f1[hmid-100]->GetParameter(1);
+					  double mean_err = f1[hmid-100]->GetParError(1);
                 double sigma = f1[hmid-100]->GetParameter(2);
                  double sigma_err = f1[hmid-100]->GetParError(2);
                 std::cout << "sigma = " << sigma << std::endl;
                  gr[hmid-100]->SetPoint(i-1, i, sigma);
                  gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
+                 gr_mean[hmid-100]->SetPoint(i-1, i, mean);
+                 gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
                 h1[hmid-100]->Draw();
              }
           c31[hmid-100]->cd(6);
           gr[hmid-100]->Draw();
+          c31[hmid-100]->cd(7);
+				gr_mean[hmid-100]->SetMaximum(0.2);
+				gr_mean[hmid-100]->SetMinimum(-0.2);
+				gr_mean[hmid-100]->SetLineStyle(0);
+				
+          gr_mean[hmid-100]->Draw();
           c31[hmid-100]->SaveAs(pdf_name, "pdf");
     }
 

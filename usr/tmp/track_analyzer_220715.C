@@ -904,36 +904,36 @@ void track_analyzer_220715::SetHBDs() {
   return;
 }
 
-//void track_analyzer_220715::SetLGs() {
-//  for (auto& lg : lg_indexs) {
-//    for (auto& lg0 : lg) {
-//      lg0.clear();
-//    }
-//  }
-//  for (int i = 0; i < n_lg_hits; ++i) {
-//    auto adc = lg_hit_adc->at(i);
-//    auto t   = lg_hit_t->at(i);
-//    if (adc < kMinLGADC || t < kMinLGTime || t > kMaxLGTime) {
-//      continue;
-//    }
-//    auto mid   = lg_hit_mid->at(i);
-//    auto cid10 = lg_hit_cid->at(i) / 10;
-//    int type;
-//    if (cid10 == 0 || cid10 == 5) {
-//      type = kLGTypeC;
-//    } else if (cid10 == 1 || cid10 == 4) {
-//      type = kLGTypeB;
-//    } else {
-//      type = kLGTypeA;
-//    }
-//    if (mid < 101 || mid > 109) {
-//      E16INFO("Invalid LG hit module ID: %d (Run ID: %d, Event ID: %d)", mid, run_id, event_id);
-//      continue;
-//    }
-//    lg_indexs[mid - 101][type].emplace_back(i);
-//  }
-//  return;
-//}
+void track_analyzer_220715::SetLGs() {
+  for (auto& lg : lg_indexs) {
+    for (auto& lg0 : lg) {
+      lg0.clear();
+    }
+  }
+  for (int i = 0; i < n_lg_hits; ++i) {
+    auto adc = lg_hit_adc->at(i);
+    auto t   = lg_hit_t->at(i);
+    if (adc < kMinLGADC || t < kMinLGTime || t > kMaxLGTime) {
+      continue;
+    }
+    auto mid   = lg_hit_mid->at(i);
+    auto cid10 = lg_hit_cid->at(i) / 10;
+    int type;
+    if (cid10 == 0 || cid10 == 5) {
+      type = kLGTypeC;
+    } else if (cid10 == 1 || cid10 == 4) {
+      type = kLGTypeB;
+    } else {
+      type = kLGTypeA;
+    }
+    if (mid < 101 || mid > 109) {
+      E16INFO("Invalid LG hit module ID: %d (Run ID: %d, Event ID: %d)", mid, run_id, event_id);
+      continue;
+    }
+    lg_indexs[mid - 101][type].emplace_back(i);
+  }
+  return;
+}
 
 double track_analyzer_220715::NearestRadius(int n) {
   array<TVector3, kNumTgts> tgt_poss = {TVector3(rk_proj_tgt0_gx->at(n), rk_proj_tgt0_gy->at(n), rk_proj_tgt0_gz->at(n)),
@@ -987,35 +987,56 @@ bool track_analyzer_220715::HasAssociatedHBD(int n) {
   return HasAssociatedHBD(mid, track_lpos, &dummy, &associated_hbd_indexs[n]);
 }
 
-//bool track_analyzer_220715::HasAssociatedLG(array<int, kNumLGTypes> mids, const array<TVector3, kNumLGTypes>& track_poss,
-//                                            double* min_res, vector<int>* _associated_lg_indexs) {
-//  *min_res = 10000.;
-//  bool has_lg = false;
-//  _associated_lg_indexs->clear();
-//  for (int t = 0; t < kNumLGTypes; ++t) {
-//    auto y = track_poss[t].Y();
-//    if (y < kMinLGY[t] || y > kMaxLGY[t]) {
-//      continue;
-//    }
-//    for (const auto& i : lg_indexs[mids[t] - 101][t]) {
-//      auto hit_pos = TVector3(lg_hit_x->at(i), lg_hit_y->at(i), 0.);
-//      auto res = hit_pos - track_poss[t];
-//      auto r = res.Mag();
-//      if (r < *min_res) {
-//        *min_res = r;
-//      }
-//      if (fabs(res.X()) > kMaxLGXResidual) {
-//        continue;
-//      }
-//      if (fabs(res.Y()) > kMaxLGYResidual) {
-//        continue;
-//      }
-//      has_lg = true;
-//      _associated_lg_indexs->emplace_back(i);
-//    }
-//  }
-//  return has_lg;
-//}
+bool track_analyzer_220715::HasAssociatedLG(int n) {
+	std::array<int, kNumLGTypes> mids = { rk_fit_lg_c_mid->at(n), rk_fit_lg_b_mid->at(n), rk_fit_lg_a_mid->at(n)};  
+	for(int t=0; t < kNumLGTypes; t++){
+	  if (mids[t] < 101 || mids[t] > 109) {
+   	 return false;
+	  }
+	}
+  std::array<TVector3, kNumLGTypes> track_lposs = {TVector3(rk_fit_lg_c_x->at(n), rk_fit_lg_c_y->at(n), 0.),
+																	TVector3(rk_fit_lg_b_x->at(n), rk_fit_lg_b_y->at(n), 0.),
+																	TVector3(rk_fit_lg_a_x->at(n), rk_fit_lg_a_y->at(n), 0.)};
+  int dummy_type;
+  double dummy_res;
+  return HasAssociatedLG(mids, track_lposs, &dummy_type, &dummy_res,  &associated_hbd_indexs[n]);
+}
+
+
+
+bool track_analyzer_220715::HasAssociatedLG(array<int, kNumLGTypes> mids, const array<TVector3, kNumLGTypes>& track_poss,
+                                            int* min_type, double* min_res, vector<int>* _associated_lg_indexs) {
+  *min_res = 10000.;
+  bool has_lg = false;
+  _associated_lg_indexs->clear();
+  for (int t = 0; t < kNumLGTypes; ++t) {
+    auto y = track_poss[t].Y();
+    if (y < kMinLGY[t] || y > kMaxLGY[t]) {
+      continue;
+    }
+//	 std::cout << "type =  " << t << std::endl;
+    for (const auto& i : lg_indexs[mids[t] - 101][t]) {
+//		std::cout << "i lg = = "  << i << std::endl;
+      auto hit_pos = TVector3(lg_hit_x->at(i), lg_hit_y->at(i), 0.);
+      auto res = hit_pos - track_poss[t];
+      auto r = res.Mag();
+		auto type = t;
+      if (r < *min_res) {
+        *min_res = r;
+			*min_type = t;
+      }
+      if (fabs(res.X()) > kMaxLGXResidual) {
+        continue;
+      }
+      if (fabs(res.Y()) > kMaxLGYResidual) {
+        continue;
+      }
+      has_lg = true;
+      _associated_lg_indexs->emplace_back(i);
+    }
+  }
+  return has_lg;
+}
 
 bool track_analyzer_220715::HasUsedCluster(const array<int, kNumTrackingDetectors>& cids) {
   for (int i = 0; i < kNumTrackingDetectors; ++i) {
@@ -1041,6 +1062,9 @@ bool track_analyzer_220715::IsGoodTrack(int n) {
   }
   if (kUseHBDAssociationCut && !HasAssociatedHBD(n)) {
     return false;
+  }
+  if (kUseLGAssociationCut && !HasAssociatedLG(n)){
+	 return false;	
   }
   if (kUseClulsterDuplicationCut == kSSDAndGTRDuplicationCut) {
     array<int, kNumTrackingDetectors> cids = {rk_hit_ssd_id->at(n),     rk_hit_gtr100_xid->at(n), rk_hit_gtr100_yid->at(n),
@@ -1944,6 +1968,28 @@ out_tmp_zx_pipi_mass.clear();
   out_proj_minus_hbd_adc.resize(out_n_pairs);
   out_proj_minus_hbd_size.resize(out_n_pairs);
   out_proj_minus_hbd_eprob.resize(out_n_pairs);
+
+  out_proj_plus_n_lgs.resize(out_n_pairs);
+  out_proj_plus_lg_min_res.resize(out_n_pairs);
+  out_proj_plus_lg_id.resize(out_n_pairs);
+  out_proj_plus_lg_lx.resize(out_n_pairs);
+  out_proj_plus_lg_ly.resize(out_n_pairs);
+  out_proj_plus_lg_resx.resize(out_n_pairs);
+  out_proj_plus_lg_resy.resize(out_n_pairs);
+  out_proj_plus_lg_adc.resize(out_n_pairs);
+  out_proj_plus_lg_size.resize(out_n_pairs);
+  out_proj_plus_lg_eprob.resize(out_n_pairs);
+  out_proj_minus_n_lgs.resize(out_n_pairs);
+  out_proj_minus_lg_min_res.resize(out_n_pairs);
+  out_proj_minus_lg_id.resize(out_n_pairs);
+  out_proj_minus_lg_lx.resize(out_n_pairs);
+  out_proj_minus_lg_ly.resize(out_n_pairs);
+  out_proj_minus_lg_resx.resize(out_n_pairs);
+  out_proj_minus_lg_resy.resize(out_n_pairs);
+  out_proj_minus_lg_adc.resize(out_n_pairs);
+  out_proj_minus_lg_size.resize(out_n_pairs);
+
+
 out_tmp_fit_plus_x0_flag.resize(out_n_pairs);
 out_tmp_fit_plus_x0_n_cross.resize(out_n_pairs);
 out_tmp_fit_plus_x0_pos_y.resize(out_n_pairs);
@@ -2891,78 +2937,79 @@ void track_analyzer_220715::AssociatedHBD(int n) {
   return;
 }
 
-//void track_analyzer_220715::AssociatedLG(int n) {
-//  for (int t = 0; t < 2; ++t) {
-//    auto i = good_pair_indexs[n][t];
-//    array<int, 3>      mids;
-//    array<TVector3, 3> track_poss;
-//    if (t == 0) {
-//      mids[0] = out_plus_lg_c_mid[n];
-//      mids[1] = out_plus_lg_b_mid[n];
-//      mids[2] = out_plus_lg_a_mid[n];
-//      track_poss[0].SetXYZ(out_fit_plus_lg_c_lx[n], out_fit_plus_lg_c_ly[n], 0.);
-//      track_poss[1].SetXYZ(out_fit_plus_lg_b_lx[n], out_fit_plus_lg_b_ly[n], 0.);
-//      track_poss[2].SetXYZ(out_fit_plus_lg_a_lx[n], out_fit_plus_lg_a_ly[n], 0.);
-//    } else {
-//      mids[0] = out_minus_lg_c_mid[n];
-//      mids[1] = out_minus_lg_b_mid[n];
-//      mids[2] = out_minus_lg_a_mid[n];
-//      track_poss[0].SetXYZ(out_fit_minus_lg_c_lx[n], out_fit_minus_lg_c_ly[n], 0.);
-//      track_poss[1].SetXYZ(out_fit_minus_lg_b_lx[n], out_fit_minus_lg_b_ly[n], 0.);
-//      track_poss[2].SetXYZ(out_fit_minus_lg_a_lx[n], out_fit_minus_lg_a_ly[n], 0.);
-//    }
-//    vector<int> tmp_hbd_indexs;
-//    double tmp_min_res;
-//    HasAssociatedLG(mids, track_poss, &tmp_min_res, &tmp_hbd_indexs);
-//    auto n_hbds = tmp_hbd_indexs.size();
-//    if (t == 0) {
-//      out_proj_plus_n_hbds[n] = n_hbds;
-//      out_proj_plus_hbd_min_res[n] = tmp_min_res;
-//      out_proj_plus_hbd_id[n].resize(n_hbds);
-//      out_proj_plus_hbd_lx[n].resize(n_hbds);
-//      out_proj_plus_hbd_ly[n].resize(n_hbds);
-//      out_proj_plus_hbd_resx[n].resize(n_hbds);
-//      out_proj_plus_hbd_resy[n].resize(n_hbds);
-//      out_proj_plus_hbd_adc[n].resize(n_hbds);
-//      out_proj_plus_hbd_size[n].resize(n_hbds);
-//      out_proj_plus_hbd_eprob[n].resize(n_hbds);
-//      for (int j = 0; j < n_hbds; ++j) {
-//        auto index = tmp_hbd_indexs[j];
-//        out_proj_plus_hbd_id[n][j]    = hbd_cluster_id->at(index);
-//        out_proj_plus_hbd_lx[n][j]    = hbd_cluster_x->at(index);
-//        out_proj_plus_hbd_ly[n][j]    = hbd_cluster_y->at(index);
-//        out_proj_plus_hbd_resx[n][j]  = hbd_cluster_x->at(index) - track_pos.X();
-//        out_proj_plus_hbd_resy[n][j]  = hbd_cluster_y->at(index) - track_pos.Y();
-//        out_proj_plus_hbd_adc[n][j]   = hbd_cluster_adc->at(index);
-//        out_proj_plus_hbd_size[n][j]  = hbd_cluster_size->at(index);
-//        out_proj_plus_hbd_eprob[n][j] = hbd_cluster_eprob->at(index);
-//      }
-//    } else {
-//      out_proj_minus_n_hbds[n] = n_hbds;
-//      out_proj_minus_hbd_min_res[n] = tmp_min_res;
-//      out_proj_minus_hbd_id[n].resize(n_hbds);
-//      out_proj_minus_hbd_lx[n].resize(n_hbds);
-//      out_proj_minus_hbd_ly[n].resize(n_hbds);
-//      out_proj_minus_hbd_resx[n].resize(n_hbds);
-//      out_proj_minus_hbd_resy[n].resize(n_hbds);
-//      out_proj_minus_hbd_adc[n].resize(n_hbds);
-//      out_proj_minus_hbd_size[n].resize(n_hbds);
-//      out_proj_minus_hbd_eprob[n].resize(n_hbds);
-//      for (int j = 0; j < n_hbds; ++j) {
-//        auto index = tmp_hbd_indexs[j];
-//        out_proj_minus_hbd_id[n][j]    = hbd_cluster_id->at(index);
-//        out_proj_minus_hbd_lx[n][j]    = hbd_cluster_x->at(index);
-//        out_proj_minus_hbd_ly[n][j]    = hbd_cluster_y->at(index);
-//        out_proj_minus_hbd_resx[n][j]  = hbd_cluster_x->at(index) - track_pos.X();
-//        out_proj_minus_hbd_resy[n][j]  = hbd_cluster_y->at(index) - track_pos.Y();
-//        out_proj_minus_hbd_adc[n][j]   = hbd_cluster_adc->at(index);
-//        out_proj_minus_hbd_size[n][j]  = hbd_cluster_size->at(index);
-//        out_proj_minus_hbd_eprob[n][j] = hbd_cluster_eprob->at(index);
-//      }
-//    }
-//  }
-//  return;
-//}
+void track_analyzer_220715::AssociatedLG(int n) {
+  for (int t = 0; t < 2; ++t) {
+    auto i = good_pair_indexs[n][t];
+    array<int, 3>      mids;
+    array<TVector3, 3> track_poss;
+    if (t == 0) {//plus
+      mids[0] = out_plus_lg_c_mid[n];
+      mids[1] = out_plus_lg_b_mid[n];
+      mids[2] = out_plus_lg_a_mid[n];
+      track_poss[0].SetXYZ(out_fit_plus_lg_c_lx[n], out_fit_plus_lg_c_ly[n], 0.);
+      track_poss[1].SetXYZ(out_fit_plus_lg_b_lx[n], out_fit_plus_lg_b_ly[n], 0.);
+      track_poss[2].SetXYZ(out_fit_plus_lg_a_lx[n], out_fit_plus_lg_a_ly[n], 0.);
+    } else {//minus
+      mids[0] = out_minus_lg_c_mid[n];
+      mids[1] = out_minus_lg_b_mid[n];
+      mids[2] = out_minus_lg_a_mid[n];
+      track_poss[0].SetXYZ(out_fit_minus_lg_c_lx[n], out_fit_minus_lg_c_ly[n], 0.);
+      track_poss[1].SetXYZ(out_fit_minus_lg_b_lx[n], out_fit_minus_lg_b_ly[n], 0.);
+      track_poss[2].SetXYZ(out_fit_minus_lg_a_lx[n], out_fit_minus_lg_a_ly[n], 0.);
+    }
+    vector<int> tmp_lg_indexs;
+    double tmp_min_res;
+	 int    tmp_min_type;
+    HasAssociatedLG(mids, track_poss,&tmp_min_type, &tmp_min_res, &tmp_lg_indexs);
+    auto n_lgs = tmp_lg_indexs.size();
+    if (t == 0) {//plus
+      out_proj_plus_n_lgs[n] = n_lgs;
+      out_proj_plus_lg_min_res[n] = tmp_min_res;
+      out_proj_plus_lg_id[n].resize(n_lgs);
+      out_proj_plus_lg_lx[n].resize(n_lgs);
+      out_proj_plus_lg_ly[n].resize(n_lgs);
+      out_proj_plus_lg_resx[n].resize(n_lgs);
+      out_proj_plus_lg_resy[n].resize(n_lgs);
+      out_proj_plus_lg_adc[n].resize(n_lgs);
+      out_proj_plus_lg_size[n].resize(n_lgs);
+ //     out_proj_plus_lg_eprob[n].resize(n_lgs);
+      for (int j = 0; j < n_lgs; ++j) {
+        auto index = tmp_lg_indexs[j];
+        out_proj_plus_lg_id[n][j]    = lg_cluster_id->at(index);
+        out_proj_plus_lg_lx[n][j]    = lg_cluster_x->at(index);
+        out_proj_plus_lg_ly[n][j]    = lg_cluster_y->at(index);
+        out_proj_plus_lg_resx[n][j]  = lg_cluster_x->at(index) - track_poss[tmp_min_type].X();
+        out_proj_plus_lg_resy[n][j]  = lg_cluster_y->at(index) - track_poss[tmp_min_type].Y();
+        out_proj_plus_lg_adc[n][j]   = lg_cluster_adc->at(index);
+        out_proj_plus_lg_size[n][j]  = lg_cluster_size->at(index);
+//        out_proj_plus_lg_eprob[n][j] = lg_cluster_eprob->at(index);
+      }
+    } else {//minus
+      out_proj_minus_n_lgs[n] = n_lgs;
+      out_proj_minus_lg_min_res[n] = tmp_min_res;
+      out_proj_minus_lg_id[n].resize(n_lgs);
+      out_proj_minus_lg_lx[n].resize(n_lgs);
+      out_proj_minus_lg_ly[n].resize(n_lgs);
+      out_proj_minus_lg_resx[n].resize(n_lgs);
+      out_proj_minus_lg_resy[n].resize(n_lgs);
+      out_proj_minus_lg_adc[n].resize(n_lgs);
+      out_proj_minus_lg_size[n].resize(n_lgs);
+//      out_proj_minus_lg_eprob[n].resize(n_lgs);
+      for (int j = 0; j < n_lgs; ++j) {
+        auto index = tmp_lg_indexs[j];
+        out_proj_minus_lg_id[n][j]    = lg_cluster_id->at(index);
+        out_proj_minus_lg_lx[n][j]    = lg_cluster_x->at(index);
+        out_proj_minus_lg_ly[n][j]    = lg_cluster_y->at(index);
+        out_proj_minus_lg_resx[n][j]  = lg_cluster_x->at(index) - track_poss[tmp_min_type].X();
+        out_proj_minus_lg_resy[n][j]  = lg_cluster_y->at(index) - track_poss[tmp_min_type].Y();
+        out_proj_minus_lg_adc[n][j]   = lg_cluster_adc->at(index);
+        out_proj_minus_lg_size[n][j]  = lg_cluster_size->at(index);
+//        out_proj_minus_lg_eprob[n][j] = lg_cluster_eprob->at(index);
+      }
+    }
+  }
+  return;
+}
 
 int track_analyzer_220715::SimpleBestTargetID(int n, double* r) {
   int tid = -1;
@@ -3601,7 +3648,7 @@ void track_analyzer_220715::FillCommonBranches() {
     ParentInfo(i);
     if (kAnalyzeFlag == kAnalyzePairFit) {
       AssociatedHBD(i);
-//      AssociatedLG(i);
+      AssociatedLG(i);
     } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
 //      out_proj_plus_n_hbds[i] = rk_proj_n_hbd->at(i0);
 //      copy(rk_proj_hbd_id->at(i0).begin(),    rk_proj_hbd_id->at(i0).end(),    back_inserter(out_proj_plus_hbd_id[i]));
@@ -4709,7 +4756,7 @@ void track_analyzer_220715::Loop(const TString& out_name) {
 //    if (Cut(ientry) < 0) continue;
     ClearUsedClusterIDs();
     SetHBDs();
-//    SetLGs();
+    SetLGs();
     SetTracks();
     SetPairs();
     ClearAndResizeBranches();
