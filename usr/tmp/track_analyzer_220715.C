@@ -1011,9 +1011,12 @@ bool track_analyzer_220715::HasAssociatedLG(array<int, kNumLGTypes> mids, const 
   _associated_lg_indexs->clear();
   for (int t = 0; t < kNumLGTypes; ++t) {
     auto y = track_poss[t].Y();
-    if (y < kMinLGY[t] || y > kMaxLGY[t]) {
+    if (fabs(y) < kMinLGY[t] || fabs(y) > kMaxLGY[t]) {
       continue;
     }
+//    if (y < kMinLGY[t] || y > kMaxLGY[t]) {
+//      continue;
+//    }
 //	 std::cout << "type =  " << t << std::endl;
     for (const auto& i : lg_indexs[mids[t] - 101][t]) {
 //		std::cout << "i lg = = "  << i << std::endl;
