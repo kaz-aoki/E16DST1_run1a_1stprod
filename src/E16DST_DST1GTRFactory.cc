@@ -49,8 +49,8 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     	}
 //	}
     for(auto &a : gtr_analyzers->analyzer_map){
-        a.second->AnalyzeV0();
-//        a.second->AnalyzeV1();
+//        a.second->AnalyzeV0();
+        a.second->AnalyzeV1();
     }
 
 	
@@ -119,7 +119,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
-						h.SetRiset(anahit.StripRiseTiming(j));
+								h.SetRiset(anahit.StripRiseTiming(j));
                         h.SetType(t);
                         h.SetLocalX(E16ANA_StraightTrackNameSpace::E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
 						h.SetPeakt(anahit.StripPeakt(j));

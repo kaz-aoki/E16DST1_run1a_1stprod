@@ -108,6 +108,28 @@ void E16DSTN_ReadStraightTree::Loop(TTree* tree, int print_cycle, int max_event)
 	} 
 }
 
+//void E16DSTN_ReadStraightTree::AfterKillDupLoop(TTree* tree, int print_cycle, int max_event,bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag, bool isWire, int removed_layer){
+//
+//	int nevent = tree->GetEntries();
+//	for(int n=0; n < nevent; n++){
+//	if( max_event != -1 && n > max_event){
+//			std::cout << "N Event Analyzed reached to max event " << std::endl;
+//			break;
+//		}
+//		if (n % print_cycle == 0) {
+//			printf(" N Re-Analyzed = %d \n", n);
+//		} 
+//	nodup_tracks.clear();
+//	tree->GetEntry(n);
+//	Re-FittingPrepare();
+//	Re-RKFitting();
+//	Re-AddRecord();
+//	} 
+//}
+
+
+
+
 
 void E16DSTN_ReadStraightTree::ChooseSmallestResidual(std::vector<int> &nudup_ids, std::vector<int> &selected_id){
 	std::multimap<double, int> res_map;
@@ -139,30 +161,7 @@ void E16DSTN_ReadStraightTree::ChooseSmallestResidual(std::vector<int> &nudup_id
 	}
 }
 
-//void E16DSTN_ReadStraightTree::RKFitting(std::vector<int> ids, const int removed_layer){ 230820developing
-//	std::array<double, 5>  sigmas = { {1.5, 2.0, 1.5},
-//												 {0  ,   0,   0},//ssd
-//												 {0.262, 0.6, 0},
-//												 {0.262, 0.6, 0},
-//												 {0.262, 0.6, 0} };
-//	for(int id = 0; id < ids.size(); id++){
-//		fitter->CLear();
-//		std::array<int, 4> l_mid 
-//		= {0, out_rk_hit_gtr100_mid->at(id), out_rk_hit_gtr200_mid->at(id), out_rk_hit_gtr300_mid->at(id)};
-//		fitter->SetInitialVertex(TVector3(out_rk_fit_init_pos_gx->at(id), out_rk_fit_init_pos_gy->at(id), out_rk_fit_init_pos_gz->at(id), TVector3(1.5, 2.0, 1.5));
-//		fitter->SetInitialMomentum(0, TVector3(out_rk_fit_init_mom_gx->at(id), out_rk_fit_init_mom_gy->at(id), out_rk_fit_init_mom_gz->at(id)));//track id is always 0 because it is single fit
-//		fitter->SetCharge(0, 0);//no meaning
-//		for(int l = 1; l < 4; l++){
-//			fitter->AddHit(0, l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(l_mid[l], l-1)), TVector3(out_rk_hit_gtr100_lxcog->at(id), out_rk_hit_gtr100_lycog->at(id), 0), sigmas[l]);
-//		}
-//		fitter->SetRungeKuttaStepSize(15.0);
-//		fitter->SetMaxSteps(kTrackingMaxSteps);
-//		double chi2 = fitter->Fit(0, 0, 0, kMinuitStrategy, kMinuitMaxFunctionCalls);
-//	
-//		
-//		
-//	}
-//}
+
 
 
 void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pdf_name){	
@@ -229,10 +228,6 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 		tree->GetEntry(n);
 		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
 		for(int i=0; i < n_tracks; i++){
-
-
-
-
 			double chi2  = chi_square->at(i);
 			int    mid   = rk_fit_gtr200_mid->at(i);
 			double resx  = rk_res_gtr200_x->at(i);

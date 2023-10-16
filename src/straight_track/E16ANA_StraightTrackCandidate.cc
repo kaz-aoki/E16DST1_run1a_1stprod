@@ -66,7 +66,6 @@ void E16ANA_StraightTrackCandidate::AddTrackHit(E16ANA_StraightMultiTrack* singl
     }
   }
 }
-
 void E16ANA_StraightTrackCandidate::UpdateFitResult(E16ANA_StraightMultiTrack* fitter, int removed_layer) {
 //diffetent with magnetic field tracking
   int tid = 0;
@@ -244,6 +243,7 @@ double E16ANA_StraightTrackCandidate::Fit(E16ANA_StraightMultiTrack* fitter, boo
   UpdateFitResult(fitter,removed_layer);
   return chisq;
 }
+
 
 void E16ANA_StraightTrackCandidate::PrintParam() {
 //  std::cout << "Sigma : ("  << kSigma(0) << ", " << kSigma(1) << ", " << kSigma(2) << ")" << std::endl;
@@ -1241,14 +1241,14 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
         tmp_cand.SetInitZ(targets_pos[tmp_cand.TargetID()].z());
       }
       else {//three targets case, ssd or gtr100 is initial 
-        if(removed_layer ==0){
+        if(removed_layer ==0){//Initail is gtr100
           auto gtr100_gpos = gtrx[0]->GlobalPos(*geometry);
           tmp_cand.SetInitX(gtr100_gpos.X());
           tmp_cand.SetInitY(gtr100_gpos.Y());
           tmp_cand.SetInitZ(gtr100_gpos.Z());
 
         }
-        else {
+        else {//Initial is ssd
           auto ssd_gpos = ssdx.GlobalPos(*geometry);
           tmp_cand.SetInitX(ssd_gpos.X());
           tmp_cand.SetInitY(CalcRoughYPosition(ssdx.ModuleId(), y_cand.coefs));
@@ -1271,10 +1271,12 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
 //		  std::cout << "global pos " << &x_cand.global_poss[0] << std::endl;
 //		  std::cout << "ssd address  " << &ssdx << std::endl;
         cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);//x only for ssd
+		  cluster_pairs[0].SetCog(TVector3(ssdx.LocalX(), 0, 0 ));
       }
       for (int i = 0; i < kNumGTRLayers; ++i) {//gtr
         if(i+1 !=removed_layer){
           cluster_pairs[1 + i].Set(geometry, 1 + i, gtrx[i]->ModuleId(), x_cand.global_poss[1 + i], y_cand.global_poss[1 + i], gtrx[i], gtry[i]);
+			 cluster_pairs[1 + i].SetCog(TVector3(gtrx[i]->CogPos(),gtry[i]->CogPos(),0.) );
       	  int nhit = gtrx[i]->NumCls();
        	  for(int j=0;j<nhit;j++){
       	    cluster_pairs[1+i].SetCAdc1((double)gtrx[i]->CAdc1(j));
