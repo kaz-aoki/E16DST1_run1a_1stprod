@@ -258,7 +258,10 @@ void E16ANA_StraightTrackCandidate::PrintParam() {
 bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluster_set, int in_mid) {
   auto& pos_set = cluster_set->global_poss;
   int mid       = in_mid -100;
-  std::vector<TVector2> targets; targets.clear(); for(int i=0; i < targets_pos.size();i++){ targets.push_back(TVector2(targets_pos[i].x(), targets_pos[i].z()));
+  std::vector<TVector2> targets;
+  targets.clear(); 
+  for(int i=0; i < targets_pos.size();i++){ 
+		targets.push_back(TVector2(targets_pos[i].x(), targets_pos[i].z()));
   }
 //  if(isWire){
 //     targets.push_back(TVector2(20, 40));//minus wire
@@ -1194,7 +1197,7 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
       }
     }
   }
-  delete cluster_set;
+  delete cluster_set;//note that it is not "cluster_sets"
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
 //E16INFO("number of x candidates: %d", n_x_cands);
@@ -1236,9 +1239,15 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
       tmp_cand.SetTrackID(track_candidates.size() - 1);
 
       if(isWire){//If wire targets case, initial of RK is targets
-        tmp_cand.SetInitX(targets_pos[tmp_cand.TargetID()].x());
-        tmp_cand.SetInitY(targets_pos[tmp_cand.TargetID()].y());
-        tmp_cand.SetInitZ(targets_pos[tmp_cand.TargetID()].z());
+      //  tmp_cand.SetInitX(targets_pos[tmp_cand.TargetID()].x());
+      //  tmp_cand.SetInitY(targets_pos[tmp_cand.TargetID()].y());
+      //  tmp_cand.SetInitZ(targets_pos[tmp_cand.TargetID()].z());
+        tmp_cand.SetInitX(targets_pos[x_cand.target_id].x());
+        tmp_cand.SetInitY(targets_pos[x_cand.target_id].y());
+        tmp_cand.SetInitZ(targets_pos[x_cand.target_id].z());
+//		  std::cout << "target id is " << x_cand.target_id << std::endl;
+//		  std::cout << "target pos is " << targets_pos[x_cand.target_id].z() << std::endl;
+		  
       }
       else {//three targets case, ssd or gtr100 is initial 
         if(removed_layer ==0){//Initail is gtr100
