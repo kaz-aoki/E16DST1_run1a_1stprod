@@ -36,7 +36,7 @@ void E16DSTN_AfterTrackAna::DrawHist(TTree* tree, int print_cycle, int event_sta
 			printf("N Analyzed = %d \n", n);
 		}
 		tree->GetEntry(n);
-		for(int i=0; i < chi2->size(); i++){
+		for(int i=0; i < n_pairs; i++){
 			double p_chi2        = plus_chi2->at(i);
 			double m_chi2        = minus_chi2->at(i);
 			int    p_hbd_mid    = plus_hbd_mid->at(i);
@@ -49,27 +49,37 @@ void E16DSTN_AfterTrackAna::DrawHist(TTree* tree, int print_cycle, int event_sta
 //			double imhbd_res_y  = proj_minus_hbd_resy->at(i);
 			double idistance    = distance->at(i);
 // proj_plus_n_hbds->at(i) == 1
-			double p_eprob     = (*proj_plus_hbd_eprob)[i][0];
-			double p_hbd_res   = proj_plus_hbd_min_res->at(i);
- 			double m_eprob     = (*proj_minus_hbd_eprob)[i][0];
-			double m_hbd_res   = proj_minus_hbd_min_res->at(i);
+			if( (*proj_plus_hbd_adc).size() > 0){
+				for(int i =0  ; i < (*proj_plus_hbd_adc).size();i++){
+				if((*proj_plus_hbd_adc)[i].size() < 1) continue;
+//			std::cout << "size i  " << (*proj_plus_n_hbds[i])->size() << std::endl;
+//			std::cout << "eprob " << (*proj_plus_hbd_adc)[i][0] << std::endl;
+//			double p_eprob     = (*proj_plus_hbd_eprob)[i][0];
+//			double p_hbd_res   = proj_plus_hbd_min_res->at(i);
+// 			double m_eprob     = (*proj_minus_hbd_eprob)[i][0];
+//			double m_hbd_res   = proj_minus_hbd_min_res->at(i);
          double p_hbd_adc    = (*proj_plus_hbd_adc)[i][0];
          double m_hbd_adc    = (*proj_minus_hbd_adc)[i][0];
 			
 //				h_chi2[0]                   ->Fill(ichi2);
-				h_distance               ->Fill(idistance);
-    			h_hbd_minres[0][p_hbd_mid-100]->Fill(p_hbd_res);
-    			h_hbd_minres[1][m_hbd_mid-100]->Fill(m_hbd_res);
-				h_hbd_eprob[0][p_hbd_mid-100]->Fill(p_eprob);
-				h_hbd_eprob[1][m_hbd_mid-100]->Fill(m_eprob);
+//				h_distance               ->Fill(idistance);
+//    			h_hbd_minres[0][p_hbd_mid-100]->Fill(p_hbd_res);
+//    			h_hbd_minres[1][m_hbd_mid-100]->Fill(m_hbd_res);
+//				h_hbd_eprob[0][p_hbd_mid-100]->Fill(p_eprob);
+//				h_hbd_eprob[1][m_hbd_mid-100]->Fill(m_eprob);
 //				h_hbd_minres[1][m_hbd_mid]->Fill(imhbd_min_res);
 //				h_hbd_res_x[0][p_hbd_mid]->Fill(iphbd_res_x);
 //				h_hbd_res_x[1][m_hbd_mid]->Fill(imhbd_res_y);
 //				h_hbd_res_y[0][p_hbd_mid]->Fill(iphbd_res_x);
 //				h_hbd_res_y[1][m_hbd_mid]->Fill(imhbd_res_y);
-			if(p_chi2 > 5	 | m_chi2 > 5) continue;
-			if(p_hbd_adc  < 11	 | m_hbd_adc < 11) continue;
+//			if(p_chi2 > 5	 || m_chi2 > 5) continue;
+//			std::cout << "p hbd adc " << p_hbd_adc << std::endl;
+//			std::cout << "m hbd adc " << m_hbd_adc << std::endl;
+//			if(p_hbd_adc  < 11	 || m_hbd_adc < 11) continue;
+				std::cout << "ee mass at best " << ee_mass_at_best_tgt << std::endl;
 				h_eemass_atbest->Fill(ee_mass_at_best_tgt->at(i));
+		}
+}
 		}
 	} 
 	TCanvas *c0 = new TCanvas();
