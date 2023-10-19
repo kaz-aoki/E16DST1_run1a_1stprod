@@ -431,6 +431,31 @@ void track_analyzer_220715::MakeBranches(TTree* tree) {
   tree->Branch("proj_minus_hbd_adc",               &out_proj_minus_hbd_adc);
   tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
   tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
+
+  tree->Branch("proj_plus_n_lgs",  &out_proj_plus_n_lgs);
+  tree->Branch("proj_plus_lg_min_res", &out_proj_plus_lg_min_res);
+  tree->Branch("proj_plus_lg_id",  &out_proj_plus_lg_id);
+  tree->Branch("proj_plus_lg_lx",  &out_proj_plus_lg_lx);
+  tree->Branch("proj_plus_lg_ly",  &out_proj_plus_lg_ly);
+  tree->Branch("proj_plus_lg_resx",  &out_proj_plus_lg_resx);
+  tree->Branch("proj_plus_lg_resy",  &out_proj_plus_lg_resy);
+  tree->Branch("proj_plus_lg_adc",  &out_proj_plus_lg_adc);
+  tree->Branch("proj_plus_lg_size",  &out_proj_plus_lg_size);
+  tree->Branch("proj_minus_n_lgs",  &out_proj_minus_n_lgs);
+  tree->Branch("proj_minus_lg_min",  &out_proj_minus_lg_min_res);
+  tree->Branch("proj_minus_lg_id",  &out_proj_minus_lg_id);
+  tree->Branch("proj_minus_lg_lx",  &out_proj_minus_lg_lx);
+  tree->Branch("proj_minus_lg_ly",  &out_proj_minus_lg_ly);
+  tree->Branch("proj_minus_lg_resx",  &out_proj_minus_lg_resx);
+  tree->Branch("proj_minus_lg_resy",  &out_proj_minus_lg_resy);
+  tree->Branch("proj_minus_lg_adc",  &out_proj_minus_lg_adc);
+  tree->Branch("proj_minus_lg_size",  &out_proj_minus_lg_size);
+
+
+
+
+
+
 // tmp check E16ANA_StepTrack function
 tree->Branch("tmp_fit_plus_x0_flag",               &out_tmp_fit_plus_x0_flag);
 tree->Branch("tmp_fit_plus_x0_n_cross",            &out_tmp_fit_plus_x0_n_cross);
@@ -1521,6 +1546,30 @@ void track_analyzer_220715::ClearAndResizeBranches() {
   out_proj_minus_hbd_adc.clear();
   out_proj_minus_hbd_size.clear();
   out_proj_minus_hbd_eprob.clear();
+
+
+  out_proj_plus_n_lgs.clear();
+  out_proj_plus_lg_min_res.clear();
+  out_proj_plus_lg_id.clear();
+  out_proj_plus_lg_lx.clear();
+  out_proj_plus_lg_ly.clear();
+  out_proj_plus_lg_resx.clear();
+  out_proj_plus_lg_resy.clear();
+  out_proj_plus_lg_adc.clear();
+  out_proj_plus_lg_size.clear();
+  out_proj_minus_n_lgs.clear();
+  out_proj_minus_lg_min_res.clear();
+  out_proj_minus_lg_id.clear();
+  out_proj_minus_lg_lx.clear();
+  out_proj_minus_lg_ly.clear();
+  out_proj_minus_lg_resx.clear();
+  out_proj_minus_lg_resy.clear();
+  out_proj_minus_lg_adc.clear();
+  out_proj_minus_lg_size.clear();
+
+
+
+
 out_tmp_fit_plus_x0_flag.clear();
 out_tmp_fit_plus_x0_n_cross.clear();
 out_tmp_fit_plus_x0_pos_y.clear();
@@ -1981,7 +2030,6 @@ out_tmp_zx_pipi_mass.clear();
   out_proj_plus_lg_resy.resize(out_n_pairs);
   out_proj_plus_lg_adc.resize(out_n_pairs);
   out_proj_plus_lg_size.resize(out_n_pairs);
-  out_proj_plus_lg_eprob.resize(out_n_pairs);
   out_proj_minus_n_lgs.resize(out_n_pairs);
   out_proj_minus_lg_min_res.resize(out_n_pairs);
   out_proj_minus_lg_id.resize(out_n_pairs);

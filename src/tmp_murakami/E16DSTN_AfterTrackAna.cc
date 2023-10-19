@@ -52,6 +52,7 @@ void E16DSTN_AfterTrackAna::DrawHist(TTree* tree, int print_cycle, int event_sta
 			if( (*proj_plus_hbd_adc).size() > 0){
 				for(int i =0  ; i < (*proj_plus_hbd_adc).size();i++){
 				if((*proj_plus_hbd_adc)[i].size() < 1) continue;
+				for(int j=0; j < (*proj_plus_lg_adc).size(); j++){//lg association
 //			std::cout << "size i  " << (*proj_plus_n_hbds[i])->size() << std::endl;
 //			std::cout << "eprob " << (*proj_plus_hbd_adc)[i][0] << std::endl;
 //			double p_eprob     = (*proj_plus_hbd_eprob)[i][0];
@@ -79,6 +80,7 @@ void E16DSTN_AfterTrackAna::DrawHist(TTree* tree, int print_cycle, int event_sta
 				std::cout << "ee mass at best " << ee_mass_at_best_tgt << std::endl;
 				h_eemass_atbest->Fill(ee_mass_at_best_tgt->at(i));
 		}
+}
 }
 		}
 	} 

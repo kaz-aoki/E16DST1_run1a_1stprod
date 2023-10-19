@@ -436,6 +436,9 @@ public :
    std::vector<std::vector<double> > *proj_plus_hbd_adc;
    std::vector<std::vector<double> > *proj_plus_hbd_size;
    std::vector<std::vector<double> > *proj_plus_hbd_eprob;
+
+
+
    std::vector<double>  *proj_minus_n_hbds;
    std::vector<double>  *proj_minus_hbd_min_res;
    std::vector<std::vector<double> > *proj_minus_hbd_id;
@@ -446,6 +449,26 @@ public :
    std::vector<std::vector<double> > *proj_minus_hbd_adc;
    std::vector<std::vector<double> > *proj_minus_hbd_size;
    std::vector<std::vector<double> > *proj_minus_hbd_eprob;
+
+   std::vector<std::vector<double>> *proj_plus_n_lgs;
+   std::vector<std::vector<double>> *proj_plus_lg_id;
+   std::vector<std::vector<double>> *proj_plus_lg_lx;
+   std::vector<std::vector<double>> *proj_plus_lg_ly;
+   std::vector<std::vector<double>> *proj_plus_lg_resx;
+   std::vector<std::vector<double>> *proj_plus_lg_resy;
+   std::vector<std::vector<double>> *proj_plus_lg_adc;
+
+   std::vector<std::vector<double>> *proj_minus_n_lgs;
+   std::vector<std::vector<double>> *proj_minus_lg_id;
+   std::vector<std::vector<double>> *proj_minus_lg_lx;
+   std::vector<std::vector<double>> *proj_minus_lg_ly;
+   std::vector<std::vector<double>> *proj_minus_lg_resx;
+   std::vector<std::vector<double>> *proj_minus_lg_resy;
+   std::vector<std::vector<double>> *proj_minus_lg_adc;
+
+
+
+
    std::vector<int>     *tmp_fit_plus_x0_flag;
    std::vector<int>     *tmp_fit_plus_x0_n_cross;
    std::vector<std::vector<double> > *tmp_fit_plus_x0_pos_y;
@@ -879,7 +902,28 @@ public :
    TBranch        *b_proj_minus_hbd_resy;   //!
    TBranch        *b_proj_minus_hbd_adc;   //!
    TBranch        *b_proj_minus_hbd_size;   //!
-   TBranch        *b_proj_minus_hbd_eprob;   //!
+   TBranch        *b_proj_minus_hbd_eprob;   //
+
+
+   TBranch *b_proj_plus_n_lgs;
+   TBranch *b_proj_plus_lg_id;
+   TBranch *b_proj_plus_lg_lx;
+   TBranch *b_proj_plus_lg_ly;
+   TBranch *b_proj_plus_lg_resx;
+   TBranch *b_proj_plus_lg_resy;
+   TBranch *b_proj_plus_lg_adc;
+   TBranch *b_proj_minus_n_lgs;
+   TBranch *b_proj_minus_lg_id;
+   TBranch *b_proj_minus_lg_lx;
+   TBranch *b_proj_minus_lg_ly;
+   TBranch *b_proj_minus_lg_resx;
+   TBranch *b_proj_minus_lg_resy;
+   TBranch *b_proj_minus_lg_adc;
+
+
+
+
+
    TBranch        *b_tmp_fit_plus_x0_flag;   //!
    TBranch        *b_tmp_fit_plus_x0_n_cross;   //!
    TBranch        *b_tmp_fit_plus_x0_pos_y;   //!
@@ -1351,6 +1395,26 @@ void E16DSTN_AfterTrackAna::Init(TTree *tree, const char* outfile)
    proj_plus_hbd_adc = 0;
    proj_plus_hbd_size = 0;
    proj_plus_hbd_eprob = 0;
+
+
+   proj_plus_n_lgs = 0;
+   proj_plus_lg_id = 0;
+   proj_plus_lg_lx = 0;
+   proj_plus_lg_ly = 0;
+   proj_plus_lg_resx = 0;
+   proj_plus_lg_resy = 0;
+   proj_plus_lg_adc = 0;
+   proj_minus_n_lgs = 0;
+   proj_minus_lg_id = 0;
+   proj_minus_lg_lx = 0;
+   proj_minus_lg_ly = 0;
+   proj_minus_lg_resx =0;
+   proj_minus_lg_resy=0;
+   proj_minus_lg_adc = 0;
+
+
+
+
    proj_minus_n_hbds = 0;
    proj_minus_hbd_min_res = 0;
    proj_minus_hbd_id = 0;
@@ -1799,6 +1863,23 @@ void E16DSTN_AfterTrackAna::Init(TTree *tree, const char* outfile)
    fChain->SetBranchAddress("proj_minus_hbd_adc", &proj_minus_hbd_adc, &b_proj_minus_hbd_adc);
    fChain->SetBranchAddress("proj_minus_hbd_size", &proj_minus_hbd_size, &b_proj_minus_hbd_size);
    fChain->SetBranchAddress("proj_minus_hbd_eprob", &proj_minus_hbd_eprob, &b_proj_minus_hbd_eprob);
+
+   fChain->SetBranchAddress("proj_plus_n_lgs", &proj_plus_n_lgs, &b_proj_plus_n_lgs);
+   fChain->SetBranchAddress("proj_plus_lg_id", &proj_plus_lg_id, &b_proj_plus_lg_id);
+   fChain->SetBranchAddress("proj_plus_lg_lx", &proj_plus_lg_lx, &b_proj_plus_lg_lx);
+   fChain->SetBranchAddress("proj_plus_lg_ly", &proj_plus_lg_ly, &b_proj_plus_lg_ly);
+   fChain->SetBranchAddress("proj_plus_lg_resx", &proj_plus_lg_resx, &b_proj_plus_lg_resx);
+   fChain->SetBranchAddress("proj_plus_lg_resy", &proj_plus_lg_resy, &b_proj_plus_lg_resy);
+   fChain->SetBranchAddress("proj_plus_lg_adc", &proj_plus_lg_adc, &b_proj_plus_lg_adc);
+
+   fChain->SetBranchAddress("proj_minus_n_lgs", &proj_minus_n_lgs, &b_proj_minus_n_lgs);
+   fChain->SetBranchAddress("proj_minus_lg_id", &proj_minus_lg_id, &b_proj_minus_lg_id);
+   fChain->SetBranchAddress("proj_minus_lg_lx", &proj_minus_lg_lx, &b_proj_minus_lg_lx);
+   fChain->SetBranchAddress("proj_minus_lg_ly", &proj_minus_lg_ly, &b_proj_minus_lg_ly);
+   fChain->SetBranchAddress("proj_minus_lg_resx", &proj_minus_lg_resx, &b_proj_minus_lg_resx);
+   fChain->SetBranchAddress("proj_minus_lg_resy", &proj_minus_lg_resy, &b_proj_minus_lg_resy);
+   fChain->SetBranchAddress("proj_minus_lg_adc", &proj_minus_lg_adc, &b_proj_minus_lg_adc);
+
    fChain->SetBranchAddress("tmp_fit_plus_x0_flag", &tmp_fit_plus_x0_flag, &b_tmp_fit_plus_x0_flag);
    fChain->SetBranchAddress("tmp_fit_plus_x0_n_cross", &tmp_fit_plus_x0_n_cross, &b_tmp_fit_plus_x0_n_cross);
    fChain->SetBranchAddress("tmp_fit_plus_x0_pos_y", &tmp_fit_plus_x0_pos_y, &b_tmp_fit_plus_x0_pos_y);
