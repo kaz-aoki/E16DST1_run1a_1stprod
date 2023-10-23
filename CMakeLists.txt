@@ -525,6 +525,17 @@ target_link_libraries(Gammaana_CodeCheck
 	E16ANA
 )
 
+# _______________________________________________________________________________
+add_executable(Gammaana_ChargedRatio usr/tmp/nakasuga/Gammaana_ChargedRatio.cc)
+
+target_link_libraries(Gammaana_ChargedRatio
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 #_______________________________________________________________________________
 add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
 
