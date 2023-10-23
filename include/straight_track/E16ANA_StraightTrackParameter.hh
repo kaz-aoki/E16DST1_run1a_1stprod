@@ -15,13 +15,14 @@ constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.265, 0.626, 0.},
 //                                          {3.0, 0.542, 0.},//for Run0c
-                                          {0.252, 0.542, 0.},//for Run0c
+                                         {0.252, 0.542, 0.},//for Run0c
 //                                          {10., 0.542, 0.},//for Run0d
                                           {0.262, 0.518, 0.}}}; // 220623 TDR2206
 const TVector3 kInitPosError     = {3., 3.4, 3.0};
 const TVector3 kInitPosErrorSSD  = {0.4 ,   0, 0.4};// if removed layer is not 0
 const TVector3 kInitPosError100  = {1.0 , 2.0, 3.0};// if ssd is removed 
-const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};//wire
+//const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};//wire
+const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};//wire
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3};    // 230821 for Run0d
 constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c

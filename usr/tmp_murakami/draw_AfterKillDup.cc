@@ -54,14 +54,16 @@
 
 
 int main (int argc, char** argv) {
-	if(argc != 3){
-		std::cout << "./bin/~~  [output.root] [pdf_name]" << std::endl;
+	if(argc != 5){
+		std::cout << "./bin/~~ [input_dir] [output.root] [maxevent] [pdf_name]" << std::endl;
 		return 0;	
 	}
-	std::string out_file = argv[1];
-	TString pdf_name     = argv[2];
-	TChain *chain        = new TChain("outtree");
-   const char *dirname = "/work22/E16/mtomoki/run0c_wire/230929-wire-v1/afterkill_root/";
+	const char *dirname    = argv[1];
+	std::string out_file = argv[2];
+	int         maxevent    = stoi(argv[3]);
+	TString pdf_name     = argv[4];
+	TChain *chain        = new TChain("tree");
+//   const char *dirname = "/work22/E16/mtomoki/run0c_wire/230929-wire-v1/afterkill_root/";
    DIR *dir;
 	struct dirent *ent;
 	if ((dir = opendir(dirname)) != NULL) {
@@ -83,8 +85,8 @@ int main (int argc, char** argv) {
 //	TTree *tree          = (TTree*)fin->Get("outtree");
 	E16DSTN_ReadStraightTree *rt = new E16DSTN_ReadStraightTree(chain, out_file.c_str());//initialize
 	int nevent           = chain->GetEntries();
-	int print_cycle      = 100;
-	rt->DrawHist(chain, print_cycle, pdf_name);
+	int print_cycle      = 10000;
+	rt->DrawHist(chain, maxevent,  print_cycle, pdf_name);
 	return 0;	
 }
 

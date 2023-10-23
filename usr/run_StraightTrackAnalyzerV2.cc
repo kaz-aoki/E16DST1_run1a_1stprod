@@ -54,6 +54,7 @@ int main(int argc, char* argv[]){
     auto event_start   = stoi(argv[4]);
     auto event_end     = stoi(argv[5]);
     auto removed_layer = stoi(argv[6]);
+	 int  print_cycle   = 10000;
 //for lg dst0
   //    return 1;
  
@@ -157,13 +158,14 @@ int main(int argc, char* argv[]){
 		if(event_end != -1 && n_physics_event > event_end){
 			break;
 		}
-      if (n_event % 1000 == 0) {
+      if (n_event % print_cycle == 0) {
         cout << "Number of event: " << n_event << endl;
       }
 		record.Clear();
         //printf("hello0 \n");
 		auto  event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 		auto  event_id = event0->EventID();
+//		std::cout << "Event id  = " << event_id << std::endl;
 		auto& ssd_hits0         = event0->SSD();
 		auto& gtr_hits0         = event0->GTR();
 //		auto& lg_hits0          = event0->LG();

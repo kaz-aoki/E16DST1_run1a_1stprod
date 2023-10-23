@@ -2214,6 +2214,7 @@ class E16ANA_StraightTrackCheckFile {
     n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
     n_selected = cands.NumSelectedTrackCandidates();
+	 std::cout << "n_cands  = " << n_cands << std::endl;
 //    n_pairs = cands.NumSelectedTrackCandidatePairs();
     n_pairs = cands.NumTrackCandidatePairs();
     n_refit_pairs = 0;

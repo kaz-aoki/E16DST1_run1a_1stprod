@@ -29,30 +29,46 @@ bool E16DSTN_ReadStraightTree::HasUsedCluster(const array<int, kNumTrackingDetec
    return false;
 }
 
+bool E16DSTN_ReadStraightTree::IsComingFromTarget(int n){
+	if(isWire){
+		if(fabs(rk_fit_init_pos_gy->at(n)) < 5){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}//wire 
+	else{
+		std::cerr << "not developed yet" << std::endl; 
+	}
+	return false;
+}
+
+
 bool E16DSTN_ReadStraightTree::IsGoodTrack(int n){
 //	if (kUsePosAtTargetCut && !NearestRadius(n) > kMaxRadiusAtTarget){
 //		return false;	
-//	}
-	if(removed_layer ==-1){
-	if (kUseClusterDuplicationCut == kSSDAndGTRDuplicationCut){
-		std::array<int, kNumTrackingDetectors> cids = {
-		rk_hit_ssd_id->at(n),
-		rk_hit_gtr100_xid->at(n), rk_hit_gtr100_yid->at(n), 
-		rk_hit_gtr200_xid->at(n), rk_hit_gtr200_yid->at(n),
-		rk_hit_gtr300_xid->at(n), rk_hit_gtr300_yid->at(n)};
-		if(HasUsedCluster(cids)) {
-			return false;
-		}
-		for (int i =0; i < kNumTrackingDetectors;i++){
-			used_cluster_ids[i].emplace_back(cids[i]);
-		}
-	}
-	}
-	else {
-		std::cout <<  "not developed yet " << std::endl;
-
-}
-	return true;
+			if(IsComingFromTarget(n)){
+				if(removed_layer ==-1){
+					if (kUseClusterDuplicationCut == kSSDAndGTRDuplicationCut){
+						std::array<int, kNumTrackingDetectors> cids = {
+						rk_hit_ssd_id->at(n),
+						rk_hit_gtr100_xid->at(n), rk_hit_gtr100_yid->at(n), 
+						rk_hit_gtr200_xid->at(n), rk_hit_gtr200_yid->at(n),
+						rk_hit_gtr300_xid->at(n), rk_hit_gtr300_yid->at(n)};
+						if(HasUsedCluster(cids)) {
+							return false;
+						}
+						for (int i =0; i < kNumTrackingDetectors;i++){
+							used_cluster_ids[i].emplace_back(cids[i]);
+						}
+					}
+				}
+				else {
+					std::cout <<  "not developed yet " << std::endl;
+				}
+			}
+			return true;
 }
 
 void E16DSTN_ReadStraightTree::SetTracks(){
@@ -164,12 +180,20 @@ void E16DSTN_ReadStraightTree::ChooseSmallestResidual(std::vector<int> &nudup_id
 
 
 
-void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pdf_name){	
+void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int n_maxevent, int print_cycle, TString pdf_name){	
 	const int n_module = 10;
 	const int n_layer = 4;
 
 	TH1D* h_chi2;
 	TH1D* h_t0diff;
+	TH1D* h_n_runid;
+	TH1D* h_n_eventid;
+	TH1D* h_n_spillid;
+
+//	TH1D* rk_fit_init_mom_gx0
+
+
+
 
 	TH1D* h_chi2_mod[n_module];
 	TH1D* h_lg_t_mod[n_module];
@@ -192,11 +216,14 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 	int htdiv[10]   = {0,  6,  6,  6,  6, 0, 6,  7,  8,  6};
 	int hdzdiv[10]  = {0, 60, 60, 60, 40, 0, 40, 36, 50, 60};
 
-	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 50);	
+	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
+	h_n_eventid = new TH1D("n of events of event id","n of events of eventid", 10000, -0.5, 9999.5);
+	h_n_spillid = new TH1D("n of events of spill id","n of events of spillid", 1000, -0.5, 999.5);
+	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 200);	
 	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -50,50);	
 	h_tgt_pos = new TH2D(Form("h_tgt_pos"), Form("h_tgt_pos"), 50, 19.8, 20.2, 200, -60, 60);
 	for(int m=0; m < n_module; m++){
-		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 50);
+		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 200);
 		h_lg_t_mod[m] = new TH1D(Form("h_lg_t_mod%d", m+100), Form("h_lg_t_mod%d", m+100), 100, 50, 150);
 		h_tgt_pos_mod_raw[m] = new TH2D(Form("h_tgt_pos_mod_raw_%d", m+100), Form("h_tgt_pos_mod_raw_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
 		h_tgt_pos_mod_cut[m] = new TH2D(Form("h_tgt_pos_mod_cut_%d", m+100), Form("h_tgt_pos_mod_cut_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
@@ -221,13 +248,22 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 	double chi2_th[n_module] = {15, 15,15, 15, 15,   0,   15, 15, 15, 15};//mod100-109
 	double res_min[n_module] = {0, -4, -4, -4, -4,   0,   -4, -4, -4, -4};//mod100-109
 	double res_max[n_module] = {0,  4,  4,  4,  4,   0,    4,  4,  4,  4};//mod100-109
+
+
+
+
 	for(int n=0; n < nevent; n++){
+		if(n > n_maxevent) break;
 		if (n % print_cycle == 0) {
 			printf(" N Analyzed = %d \n", n);
 		} 
 		tree->GetEntry(n);
+		h_n_runid->Fill(run_id);
+		h_n_eventid->Fill(event_id);
+		h_n_spillid->Fill(spill_id);
 		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
 		for(int i=0; i < n_tracks; i++){
+			if(rk_fit_gtr100_mid->at(i) < 105 || rk_fit_gtr100_mid->at(i) > 107) continue;
 			double chi2  = chi_square->at(i);
 			int    mid   = rk_fit_gtr200_mid->at(i);
 			double resx  = rk_res_gtr200_x->at(i);
@@ -258,27 +294,27 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 			if(chi2 > chi2_th[mid-100]) continue; //chi2_cut
 //			if(fabs(tgt_z)  > 30) continue;
 			h_tgt_proj_z_chi2cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
-			if(resx < res_min[mid-100]) continue;
-			if(resx > res_max[mid-100]) continue;
+//			if(resx < res_min[mid-100]) continue;
+//			if(resx > res_max[mid-100]) continue;
 			if(lg_flag) {
-			h_res_x[mid-100][fixl]->Fill(resx);
-			h_res_y[mid-100][fixl]->Fill(resy);
-			h_tgt_proj_x[mid-100]->Fill(rk_fit_init_pos_gx->at(i));
-			h_tgt_proj_y[mid-100]->Fill(rk_fit_init_pos_gy->at(i));
-			double tan  = rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i);// tan_theta 
-			h_tan_theta[mid-100][fixl]->Fill(tan);
-			h_cor_res_lx[mid-100][fixl]->Fill(lx, resx);	
-//			if(fabs(rk_fit_init_pos_gx->at(i) + 1) > 4 ) continue;
-//			if(fabs(tgt_y+ 1.5) >1.5 ) continue;
-//			if(fabs(tdiff100-5) > 30) continue;
-//			if(fabs(tdiff200-5) > 30) continue;
-//			if(fabs(tdiff300-5) > 30) continue;
-//			if(fabs(tan) > 0.08){
-
+				h_res_x[mid-100][fixl]->Fill(resx);
+				h_res_y[mid-100][fixl]->Fill(resy);
+				h_tgt_proj_x[mid-100]->Fill(rk_fit_init_pos_gx->at(i));
+				h_tgt_proj_y[mid-100]->Fill(rk_fit_init_pos_gy->at(i));
+				double tan  = rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i);// tan_theta 
+				h_tan_theta[mid-100][fixl]->Fill(tan);
+				h_cor_res_lx[mid-100][fixl]->Fill(lx, resx);	
+	//			if(fabs(rk_fit_init_pos_gx->at(i) + 1) > 4 ) continue;
+	//			if(fabs(tgt_y+ 1.5) >1.5 ) continue;
+	//			if(fabs(tdiff100-5) > 30) continue;
+	//			if(fabs(tdiff200-5) > 30) continue;
+	//			if(fabs(tdiff300-5) > 30) continue;
+	//			if(fabs(tan) > 0.08){
+	
 				h_tgt_pos_mod_cut[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
 				h_tgt_proj_z_cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
 				h_cor_dz_time[mid-100][fixl]->Fill(rk_hit_gtr200_xt->at(i), resx/tan);	
-//			std::cout << "t0fiff " << t0diff << std::endl;
+	//			std::cout << "t0fiff " << t0diff << std::endl;
 				h_t0diff->Fill(t0diff);
 				h_cor_dz_time_lg[mid-100][fixl]->Fill(rk_hit_gtr200_xt->at(i) - t0diff, resx/tan);//plus or minus?
 //			}
@@ -290,6 +326,17 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
 	c0->SaveAs(pdf_name + "[", "pdf");
 	gStyle->SetOptStat(1111111);
 	gStyle->SetOptFit(0111);
+
+	TCanvas *c00 = new TCanvas();
+	c00->Divide(2,2);
+	c00->cd(1);
+	h_n_runid->Draw();
+	c00->cd(2);
+	h_n_eventid->Draw();
+	c00->cd(3);
+	h_n_spillid->Draw();
+	c00->SaveAs(pdf_name, "pdf");
+
 
 	TCanvas *c01 = new TCanvas();
 	h_chi2->Draw();
@@ -480,7 +527,7 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
     for(int hmid=101; hmid < 110; hmid++){
        if(hmid == 105)continue;
              c31[hmid-100] = new TCanvas();
-             c31[hmid-100]->Divide(3,3);
+             c31[hmid-100]->Divide(4,3);
              int n = h_cor_res_lx[hmid-100][fixl]->GetNbinsX();
              double xmin = -2;
              double xmax =  2;
@@ -511,9 +558,9 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int print_cycle, TString pd
                  gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
                 h1[hmid-100]->Draw();
              }
-          c31[hmid-100]->cd(6);
+          c31[hmid-100]->cd(11);
           gr[hmid-100]->Draw();
-          c31[hmid-100]->cd(7);
+          c31[hmid-100]->cd(12);
 				gr_mean[hmid-100]->SetMaximum(0.2);
 				gr_mean[hmid-100]->SetMinimum(-0.2);
 				gr_mean[hmid-100]->SetLineStyle(0);
