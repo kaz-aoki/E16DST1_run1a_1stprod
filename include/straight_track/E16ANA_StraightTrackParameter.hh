@@ -6,12 +6,23 @@
 #include "TVector3.h"
 #include "E16ANA_TrackConstant.hh"
 
+
+#define WIRE_INC
+
 namespace E16ANA_StraightTrackParameter {
 constexpr bool kVtxZFixFlag = false; // 220607
 //constexpr bool kVtxZFixFlag = true;
 constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-60., 60.}; // 220607
+#ifdef WIRE_INC
+const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};//wire
+constexpr const std::array<double, 5> kWireXSigma = {0.1,  0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
+#else 
+constexpr const std::array<double, 5> kWireXSigma = {999999,  0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
+const TVector3                  kInitPosErrorWire = {999999, 3.4, 999999};//wire
+#endif
+
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.265, 0.626, 0.},
 //                                          {3.0, 0.542, 0.},//for Run0c
@@ -21,12 +32,9 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 const TVector3 kInitPosError     = {3., 3.4, 3.0};
 const TVector3 kInitPosErrorSSD  = {0.4 ,   0, 0.4};// if removed layer is not 0
 const TVector3 kInitPosError100  = {1.0 , 2.0, 3.0};// if ssd is removed 
-//const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};//wire
-const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};//wire
+constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3};    // 230821 for Run0d
-constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c
-constexpr const std::array<double, 5> kWireXSigma = {0.1,  0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
