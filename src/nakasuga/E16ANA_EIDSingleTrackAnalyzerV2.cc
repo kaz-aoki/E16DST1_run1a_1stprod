@@ -30,6 +30,18 @@
 #include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
 
+double GTRTrgPosY(int cid){
+  return (double)cid*300./24.-150.+6.25;
+}
+double HBDTrgPosX(int cid){
+  int cidx = cid%10;
+  return (double)cidx*600./6.-300.+50.;
+}
+double HBDTrgPosY(int cid){
+  int cidy = cid/10;
+  return (double)cidy*600./6.-300.+50.;
+}
+
 void E16ANA_EIDSingleTrackAnalyzerV2::Loop()
 {
 //   In a ROOT session, you can do:
@@ -429,6 +441,8 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
    vector<int> out_trg_track_id;
    vector<int> out_trg_track_lg_mid;
    vector<int> out_trg_track_lg_cid;
+   vector<double> out_trg_track_lg_x;// not in branch
+   vector<double> out_trg_track_lg_y;// not in branch
    vector<double> out_trg_track_lg_t;
    vector<int> out_trg_track_hbd_mid;
    vector<int> out_trg_track_hbd_cid;
@@ -542,6 +556,27 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
    tree->Branch("track_lg_t", &out_track_lg_t);
    tree->Branch("track_lg_adc", &out_track_lg_adc);
 
+   TH1F* hgtry = new TH1F("hgtry","hgtry",100,-400,400);
+   TH1F* hhbdx = new TH1F("hhbdx","hhbdx",100,-600,600);
+   TH1F* hhbdy = new TH1F("hhbdy","hhbdy",100,-600,600);
+   TH1F* hlgx  = new TH1F("hlgx" ,"hlgx" ,100,-800,800);
+   TH1F* hlgy  = new TH1F("hlgy" ,"hlgy" ,100,-800,800);
+   TH1F* hgtrym = new TH1F("hgtrym","hgtrym",100,-400,400);
+   TH1F* hhbdxm = new TH1F("hhbdxm","hhbdxm",100,-600,600);
+   TH1F* hhbdym = new TH1F("hhbdym","hhbdym",100,-600,600);
+   TH1F* hlgxm  = new TH1F("hlgxm" ,"hlgxm" ,100,-800,800);
+   TH1F* hlgym  = new TH1F("hlgym" ,"hlgym" ,100,-800,800);
+   std::vector<double> gtr300y_cluster_y_before;
+   std::vector<double> hbd_cluster_x_before;
+   std::vector<double> hbd_cluster_y_before;
+   std::vector<double> lg_hit_x_before;
+   std::vector<double> lg_hit_y_before;
+   int n_all_trg_tracks[5] = {0};
+   int n_asc_trg_tracks[5] = {0};
+   int n_asc_trg_tracks_alldet = 0;
+   // double width[5] = {8., 50., 50., 40., 40.};//half
+   double width[5] = {32., 80., 80., 40., 40.};//half
+
    // E16ANA_HBDDeadChannel hbddch;
    // std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
    // if(runoption==0){
@@ -588,6 +623,8 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       out_trg_track_id.clear();
       out_trg_track_lg_mid.clear();
       out_trg_track_lg_cid.clear();
+      out_trg_track_lg_x.clear();//
+      out_trg_track_lg_y.clear();//
       out_trg_track_lg_t.clear();
       out_trg_track_hbd_mid.clear();
       out_trg_track_hbd_cid.clear();
@@ -722,6 +759,20 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       }//track loop
 
       //online
+      // bug? MRPC?
+      // int ntest2 = 0;
+      // for(int il=0;il<n_trg_tracks;il++){
+      // 	for(int ig=0;ig<trg_track_n_gtr_hits->at(il);ig++){
+      // 	  if( trg_track_gtr_is_t_match->at(il).at(ig)==0 ) continue;
+      // 	  for(int ih=0;ih<trg_track_n_hbd_hits->at(il);ih++){
+      // 	    if( trg_track_hbd_is_t_match->at(il).at(ih)==0 ) continue;
+      // 	    ntest2++;
+      // 	  }
+      // 	}
+      // }
+      // if(ntest2<2){
+      // 	std::cout<<"hgmatch: "<<event_id<<" "<<ntest2<<std::endl;
+      // }
       vector<bool> trgpair(n_trg_tracks, false);
       for(int i=0;i<n_trg_tracks;i++){
 	for(int j=i+1;j<n_trg_tracks;j++){
@@ -745,6 +796,8 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	    if( trg_track_hbd_is_t_match->at(il).at(ih)==0 ) continue;
 	    out_trg_track_lg_mid.push_back( trg_track_lg_mid->at(il) );
 	    out_trg_track_lg_cid.push_back( trg_track_lg_cid->at(il) );
+	    out_trg_track_lg_x.push_back( trg_track_lg_x->at(il) );
+	    out_trg_track_lg_y.push_back( trg_track_lg_y->at(il) );
 	    out_trg_track_lg_t.push_back( trg_track_lg_t->at(il) );
 	    out_trg_track_hbd_mid.push_back( trg_track_hbd_mid->at(il).at(ih) );
 	    out_trg_track_hbd_cid.push_back( trg_track_hbd_cid->at(il).at(ih) );
@@ -773,6 +826,8 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       }
       // std::cout<<ntrgtrkacc<<std::endl;
       for(int i=0;i<ntrgtrkacc;i++){
+	//GTR
+	bool gtrisasc = false;
       	int nascgtr = 0;
       	for(int ig=0;ig<n_gtr300y_clusters;ig++){
 	  out_trg_track_inc_gtr_ly.push_back(vector<double>());
@@ -784,8 +839,25 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       	    out_trg_track_inc_gtr_t[nascgtr].push_back( gtr300y_cluster_t->at(ig) );
       	    nascgtr++;
       	  }
+	  if( gtr300y_cluster_mid->at(ig)==106 ){
+	    double resy = gtr300y_cluster_y->at(ig) - GTRTrgPosY(out_trg_track_gtr_cid.at(i));
+	    hgtry->Fill(resy);
+	    if( fabs(resy)<width[0] ){
+	      gtrisasc = true;
+	    }
+	  }
       	}
       	out_trg_track_inc_n_gtr_hits.push_back(nascgtr);
+	for(int ig=0;ig<gtr300y_cluster_y_before.size();ig++){
+	  double resy = gtr300y_cluster_y_before.at(ig) - GTRTrgPosY(out_trg_track_gtr_cid.at(i));
+	  hgtrym->Fill(resy);
+	}
+	if( out_trg_track_gtr_mid.at(i)==106 ){
+	  n_all_trg_tracks[0]++;
+	  if(gtrisasc){n_asc_trg_tracks[0]++;}
+	}
+	//HBD
+	bool hbdisasc = false;
       	int naschbd = 0;
       	for(int ih=0;ih<n_hbd_clusters;ih++){
 	  out_trg_track_inc_hbd_lx.push_back(vector<double>());
@@ -800,8 +872,33 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       	    out_trg_track_inc_hbd_t[naschbd].push_back( hbd_cluster_t->at(ih) );
       	    naschbd++;
       	  }
+	  if( hbd_cluster_mid->at(ih)==106 ){
+	    double resx = hbd_cluster_x->at(ih) - HBDTrgPosX(out_trg_track_hbd_cid.at(i));
+	    double resy = hbd_cluster_y->at(ih) - HBDTrgPosY(out_trg_track_hbd_cid.at(i));
+	    if( fabs(resy)<width[2] ){hhbdx->Fill(resx);}
+	    if( fabs(resx)<width[1] ){hhbdy->Fill(resy);}
+	    if( fabs(resx)<width[1] && fabs(resy)<width[2] ){
+	      hbdisasc = true;
+	    }
+	  }
       	}
       	out_trg_track_inc_n_hbd_hits.push_back(naschbd);
+      	for(int ih=0;ih<hbd_cluster_x_before.size();ih++){
+	  double resx = hbd_cluster_x_before.at(ih) - HBDTrgPosX(out_trg_track_hbd_cid.at(i));
+	  double resy = hbd_cluster_y_before.at(ih) - HBDTrgPosY(out_trg_track_hbd_cid.at(i));
+	  if( fabs(resy)<width[2] ){hhbdxm->Fill(resx);}
+	  if( fabs(resx)<width[1] ){hhbdym->Fill(resy);}
+      	}
+	if( out_trg_track_hbd_mid.at(i)==106 ){
+	  n_all_trg_tracks[1]++;
+	  n_all_trg_tracks[2]++;
+	  if(hbdisasc){
+	    n_asc_trg_tracks[1]++;
+	    n_asc_trg_tracks[2]++;
+	  }
+	}
+	//LG
+	bool lgisasc = false;
       	int nasclg = 0;
       	for(int il=0;il<n_lg_hits;il++){
 	  out_trg_track_inc_lg_lx.push_back(vector<double>());
@@ -816,8 +913,57 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       	    out_trg_track_inc_lg_t[nasclg].push_back( lg_hit_t->at(il) );
       	    nasclg++;
       	  }
+	  if( lg_hit_mid->at(il)==106 ){
+	    double resx = lg_hit_x->at(il) - out_trg_track_lg_x.at(i);
+	    double resy = lg_hit_y->at(il) - out_trg_track_lg_y.at(i);
+	    if( fabs(resy)<width[4] ){hlgx->Fill(resx);}
+	    if( fabs(resx)<width[3] ){hlgy->Fill(resy);}
+	    if( fabs(resx)<width[3] && fabs(resy)<width[4] ){
+	      lgisasc = true;
+	    }
+	  }
       	}
       	out_trg_track_inc_n_lg_hits.push_back(nasclg);
+      	for(int il=0;il<lg_hit_x_before.size();il++){
+	  double resx = lg_hit_x_before.at(il) - out_trg_track_lg_x.at(i);
+	  double resy = lg_hit_y_before.at(il) - out_trg_track_lg_y.at(i);
+	  if( fabs(resy)<width[4] ){hlgxm->Fill(resx);}
+	  if( fabs(resx)<width[3] ){hlgym->Fill(resy);}
+      	}
+	if( out_trg_track_lg_mid.at(i)==106 ){
+	  n_all_trg_tracks[3]++;
+	  n_all_trg_tracks[4]++;
+	  if(lgisasc){
+	    n_asc_trg_tracks[3]++;
+	    n_asc_trg_tracks[4]++;
+	  }
+	  if( gtrisasc && hbdisasc && lgisasc ){
+	    n_asc_trg_tracks_alldet++;
+	  }
+	}
+      }
+
+      //Fill before infos
+      gtr300y_cluster_y_before.clear();
+      for(int ig=0;ig<n_gtr300y_clusters;ig++){
+	if( gtr300y_cluster_mid->at(ig) != 106 ) continue;
+	gtr300y_cluster_y_before.push_back( gtr300y_cluster_y->at(ig) );
+      }
+      hbd_cluster_x_before.clear();
+      hbd_cluster_y_before.clear();
+      for(int ih=0;ih<n_hbd_clusters;ih++){
+	if( hbd_cluster_t->at(ih)>200 ) continue;
+	if( hbd_cluster_mid->at(ih) != 106 ) continue;
+	hbd_cluster_x_before.push_back( hbd_cluster_x->at(ih) );
+	hbd_cluster_y_before.push_back( hbd_cluster_y->at(ih) );
+      }
+      lg_hit_x_before.clear();
+      lg_hit_y_before.clear();
+      for(int il=0;il<n_lg_hits;il++){
+	if( lg_hit_fflag->at(il)>1 ) continue;
+	if( lg_hit_mid->at(il) != 106 ) continue;
+	lg_hit_x_before.push_back( lg_hit_x->at(il) );
+	lg_hit_y_before.push_back( lg_hit_y->at(il) );
       }
 
       //Get Hits & Clusters
@@ -831,6 +977,84 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 
       nevent++;
    }//event loop
+
+   TH1F* hgtrys = (TH1F*)hgtry->Clone("hgtrys");
+   hgtrys->Add(hgtrym,-1);
+   TH1F* hhbdxs = (TH1F*)hhbdx->Clone("hhbdxs");
+   hhbdxs->Add(hhbdxm,-1);
+   TH1F* hhbdys = (TH1F*)hhbdy->Clone("hhbdys");
+   hhbdys->Add(hhbdym,-1);
+   TH1F* hlgxs = (TH1F*)hlgx->Clone("hlgxs");
+   hlgxs->Add(hlgxm,-1);
+   TH1F* hlgys = (TH1F*)hlgy->Clone("hlgys");
+   hlgys->Add(hlgym,-1);
+
+   int ncor[5][3];//det, f/m/sub
+   ncor[0][0] = hgtry->Integral( hgtry->FindBin(-width[0]), hgtry->FindBin(width[0]) );
+   ncor[0][1] = hgtrym->Integral( hgtrym->FindBin(-width[0]), hgtrym->FindBin(width[0]) );
+   ncor[1][0] = hhbdx->Integral( hhbdx->FindBin(-width[1]), hhbdx->FindBin(width[1]) );
+   ncor[1][1] = hhbdxm->Integral( hhbdxm->FindBin(-width[1]), hhbdxm->FindBin(width[1]) );
+   ncor[2][0] = hhbdy->Integral( hhbdy->FindBin(-width[2]), hhbdy->FindBin(width[2]) );
+   ncor[2][1] = hhbdym->Integral( hhbdym->FindBin(-width[2]), hhbdym->FindBin(width[2]) );
+   ncor[3][0] = hlgx->Integral( hlgx->FindBin(-width[3]), hlgx->FindBin(width[3]) );
+   ncor[3][1] = hlgxm->Integral( hlgxm->FindBin(-width[3]), hlgxm->FindBin(width[3]) );
+   ncor[4][0] = hlgy->Integral( hlgy->FindBin(-width[4]), hlgy->FindBin(width[4]) );
+   ncor[4][1] = hlgym->Integral( hlgym->FindBin(-width[4]), hlgym->FindBin(width[4]) );
+
+   for(int i=0;i<5;i++){
+     ncor[i][2] = ncor[i][0] - ncor[i][1];
+     std::cout<<"lower: "<<ncor[i][2]<<" / "<<n_all_trg_tracks[i]<<" = "<<(double)ncor[i][2]/(double)n_all_trg_tracks[i]<<std::endl;
+     std::cout<<"upper: "<<n_asc_trg_tracks[i]<<" / "<<n_all_trg_tracks[i]<<" = "<<(double)n_asc_trg_tracks[i]/(double)n_all_trg_tracks[i]<<std::endl;
+   }
+   std::cout<<"lower all: "<<(double)ncor[0][2]/(double)n_all_trg_tracks[0]*(double)ncor[2][2]/(double)n_all_trg_tracks[2]*(double)ncor[4][2]/(double)n_all_trg_tracks[4]<<std::endl;
+   std::cout<<"upper all: "<<(double)n_asc_trg_tracks_alldet/(double)n_all_trg_tracks[0]<<std::endl;
+
+   TString pdfout = "out.pdf";
+   TCanvas* c = new TCanvas("c","c",1000,2000);
+   TLine *ll[5][2];
+   TLegend *leg[5];
+   c->Divide(2,5);
+   c->cd(1);
+   hgtry->Draw();
+   hgtrym->SetLineColor(6);
+   hgtrym->Draw("sames");
+   c->cd(3);
+   hhbdx->Draw();
+   hhbdxm->SetLineColor(6);
+   hhbdxm->Draw("sames");
+   c->cd(5);
+   hhbdy->Draw();
+   hhbdym->SetLineColor(6);
+   hhbdym->Draw("sames");
+   c->cd(7);
+   hlgx->Draw();
+   hlgxm->SetLineColor(6);
+   hlgxm->Draw("sames");
+   c->cd(9);
+   hlgy->Draw();
+   hlgym->SetLineColor(6);
+   hlgym->Draw("sames");
+   for(int i=0;i<5;i++){
+     c->cd((i+1)*2)->SetGridy();
+     if(i==0){hgtrys->Draw();}
+     if(i==1){hhbdxs->Draw();}
+     if(i==2){hhbdys->Draw();}
+     if(i==3){hlgxs->Draw();}
+     if(i==4){hlgys->Draw();}
+     gPad->Update();
+     ll[i][0] = new TLine(-width[i],gPad->GetUymin(),-width[i],gPad->GetUymax());
+     ll[i][1] = new TLine( width[i],gPad->GetUymin(), width[i],gPad->GetUymax());
+     ll[i][0]->SetLineColor(2);
+     ll[i][1]->SetLineColor(2);
+     ll[i][0]->Draw("same");
+     ll[i][1]->Draw("same");
+     leg[i] = new TLegend(0.1,0.62,0.43,0.9);
+     leg[i]->AddEntry((TObject*)0,Form("%d - %d = %d",ncor[i][0],ncor[i][1],ncor[i][2]),"");
+     leg[i]->AddEntry((TObject*)0,Form("%d / %d = %1.3f",ncor[i][2],n_all_trg_tracks[i],(double)ncor[i][2]/(double)n_all_trg_tracks[i]),"");
+     leg[i]->AddEntry((TObject*)0,Form("%d / %d = %1.3f",n_asc_trg_tracks[i],n_all_trg_tracks[i],(double)n_asc_trg_tracks[i]/(double)n_all_trg_tracks[i]),"");
+     leg[i]->Draw("sames");
+   }
+   c->SaveAs(pdfout,"pdf");
 
    fout->Write();
    fout->Close();

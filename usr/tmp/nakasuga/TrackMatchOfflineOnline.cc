@@ -24,7 +24,10 @@ int main(int argc, char* argv[]) {
    
   auto in_chain = new TChain("tree", "tree");
   if(argc==3){
-    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run02099*.root");//for 1e9106
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run020991*.root");//for 1e9106
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run020994*.root");//for 1e9106
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run020995*.root");//for 1e9106
+    in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run020999*.root");//for 1e9106
     // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run020928*.root");//for 5e9106
     // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/run0b221021/run02098*.root");//for 1e91M3
     // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/root/calib221003/run030322*.root");
