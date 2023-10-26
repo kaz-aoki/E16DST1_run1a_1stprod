@@ -438,6 +438,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
    Int_t           out_event_id;
    Int_t           out_spill_id;
    Int_t out_n_trg_tracks;
+   Int_t out_n_trg_tracks_wgtroff;
+   Int_t out_n_trg_tracks_whbdoff;
+   Int_t out_n_trg_tracks_wlgoff;
+   Int_t out_n_trg_tracks_walloff;
    vector<int> out_trg_track_id;
    vector<int> out_trg_track_lg_mid;
    vector<int> out_trg_track_lg_cid;
@@ -465,6 +469,9 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
    vector<int> out_trg_track_n_match;
    vector<vector<double>> out_trg_track_match_id;
    Int_t out_n_tracks;
+   Int_t out_n_tracks_whbd;
+   Int_t out_n_tracks_wlg;
+   Int_t out_n_tracks_wall;
    vector<int> out_track_id;
    vector<double> out_chi_square;
    vector<int> out_rk_charge;
@@ -500,6 +507,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
    tree->Branch("event_id",&out_event_id,"event_id/I");
    tree->Branch("spill_id",&out_spill_id,"spill_id/I");
    tree->Branch("n_trg_tracks",&out_n_trg_tracks,"n_trg_tracks/I");
+   tree->Branch("n_trg_tracks_wgtroff",&out_n_trg_tracks_wgtroff,"n_trg_tracks_wgtroff/I");
+   tree->Branch("n_trg_tracks_whbdoff",&out_n_trg_tracks_whbdoff,"n_trg_tracks_whbdoff/I");
+   tree->Branch("n_trg_tracks_wlgoff",&out_n_trg_tracks_wlgoff,"n_trg_tracks_wlgoff/I");
+   tree->Branch("n_trg_tracks_walloff",&out_n_trg_tracks_walloff,"n_trg_tracks_walloff/I");
    tree->Branch("trg_track_id", &out_trg_track_id);
    tree->Branch("trg_track_lg_mid", &out_trg_track_lg_mid);
    tree->Branch("trg_track_lg_cid", &out_trg_track_lg_cid);
@@ -525,6 +536,9 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
    tree->Branch("trg_track_n_match", &out_trg_track_n_match);
    tree->Branch("trg_track_match_id", &out_trg_track_match_id);
    tree->Branch("n_tracks",&out_n_tracks,"n_tracks/I");
+   tree->Branch("n_tracks_whbd",&out_n_tracks_whbd,"n_tracks_whbd/I");
+   tree->Branch("n_tracks_wlg",&out_n_tracks_wlg,"n_tracks_wlg/I");
+   tree->Branch("n_tracks_wall",&out_n_tracks_wall,"n_tracks_wall/I");
    tree->Branch("track_id", &out_track_id);
    tree->Branch("chi_square", &out_chi_square);
    tree->Branch("rk_charge", &out_rk_charge);
@@ -679,6 +693,9 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 
       //offline
       int ntrkacc = 0;
+      int ntrkacc_whbd = 0;
+      int ntrkacc_wlg = 0;
+      int ntrkacc_wall = 0;
       int ntracks = track_id->size();
       for(int itrack=0;itrack<ntracks;itrack++){
 	TVector3 initvtx;
@@ -695,7 +712,7 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	int hmid = proj.TrgHBDMid();
 	int hcid = proj.TrgHBDCid();
 
-	if( chi_square->at(itrack)>10 ) continue;
+	if( chi_square->at(itrack)>50 ) continue;
 	if( !ll || !hh || !gg ) continue;
 
 	bool hhit = false;
@@ -714,6 +731,7 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	  }
 	}
 
+	bool lhit = false;
 	double widthlg = 100.;
 	out_track_lg_t.push_back(vector<double>());
 	out_track_lg_adc.push_back(vector<double>());
@@ -723,6 +741,7 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	  double resx = lg_hit_x->at(il) - proj.LCross1_x();
 	  double resy = lg_hit_y->at(il) - proj.LCross1_y();
 	  if( fabs(resx)<widthlg && fabs(resy)<widthlg ){
+	    lhit = true;
 	    out_track_lg_t[ntrkacc].push_back( lg_hit_t->at(il) );
 	    out_track_lg_adc[ntrkacc].push_back( lg_hit_adc->at(il) );
 	  }
@@ -755,6 +774,9 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	out_track_lg_ly.push_back( proj.LCross1_y() );
 
 	ntrkacc++;
+	if(hhit){ntrkacc_whbd++;}
+	if(lhit){ntrkacc_wlg++;}
+	if(hhit && lhit){ntrkacc_wall++;}
 
       }//track loop
 
@@ -825,6 +847,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	}
       }
       // std::cout<<ntrgtrkacc<<std::endl;
+      int n_wgtroff = 0;
+      int n_whbdoff = 0;
+      int n_wlgoff = 0;
+      int n_walloff = 0;
       for(int i=0;i<ntrgtrkacc;i++){
 	//GTR
 	bool gtrisasc = false;
@@ -832,18 +858,22 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       	for(int ig=0;ig<n_gtr300y_clusters;ig++){
 	  out_trg_track_inc_gtr_ly.push_back(vector<double>());
 	  out_trg_track_inc_gtr_t.push_back(vector<double>());
+      	  if( gtr300y_cluster_adc->at(ig)<150 ) continue;
       	  if( gtr300y_cluster_mid->at(ig) != out_trg_track_gtr_mid.at(i) ) continue;
-      	  int tcid = E16ANA_EIDSingleTrackAnalyzer::GTRTrgCid( gtr300y_cluster_y->at(ig) );
-      	  if( out_trg_track_gtr_cid.at(i)==tcid ){
-      	    out_trg_track_inc_gtr_ly[nascgtr].push_back( gtr300y_cluster_y->at(ig) );
-      	    out_trg_track_inc_gtr_t[nascgtr].push_back( gtr300y_cluster_t->at(ig) );
-      	    nascgtr++;
-      	  }
+      	  // int tcid = E16ANA_EIDSingleTrackAnalyzer::GTRTrgCid( gtr300y_cluster_y->at(ig) );
+      	  // if( out_trg_track_gtr_cid.at(i)==tcid ){
+      	  //   out_trg_track_inc_gtr_ly[nascgtr].push_back( gtr300y_cluster_y->at(ig) );
+      	  //   out_trg_track_inc_gtr_t[nascgtr].push_back( gtr300y_cluster_t->at(ig) );
+      	  //   nascgtr++;
+      	  // }
 	  if( gtr300y_cluster_mid->at(ig)==106 ){
 	    double resy = gtr300y_cluster_y->at(ig) - GTRTrgPosY(out_trg_track_gtr_cid.at(i));
 	    hgtry->Fill(resy);
 	    if( fabs(resy)<width[0] ){
 	      gtrisasc = true;
+	      out_trg_track_inc_gtr_ly[nascgtr].push_back( gtr300y_cluster_y->at(ig) );
+	      out_trg_track_inc_gtr_t[nascgtr].push_back( gtr300y_cluster_t->at(ig) );
+	      nascgtr++;
 	    }
 	  }
       	}
@@ -854,7 +884,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	}
 	if( out_trg_track_gtr_mid.at(i)==106 ){
 	  n_all_trg_tracks[0]++;
-	  if(gtrisasc){n_asc_trg_tracks[0]++;}
+	  if(gtrisasc){
+	    n_asc_trg_tracks[0]++;
+	    n_wgtroff++;
+	  }
 	}
 	//HBD
 	bool hbdisasc = false;
@@ -865,13 +898,13 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	  out_trg_track_inc_hbd_t.push_back(vector<double>());
       	  if( hbd_cluster_t->at(ih)>200 ) continue;
       	  if( hbd_cluster_mid->at(ih) != out_trg_track_hbd_mid.at(i) ) continue;
-      	  int tcid = E16ANA_EIDSingleTrackAnalyzer::HBDTrgCid( hbd_cluster_x->at(ih), hbd_cluster_y->at(ih) );
-      	  if( out_trg_track_hbd_cid.at(i)==tcid ){
-      	    out_trg_track_inc_hbd_lx[naschbd].push_back( hbd_cluster_x->at(ih) );
-      	    out_trg_track_inc_hbd_ly[naschbd].push_back( hbd_cluster_y->at(ih) );
-      	    out_trg_track_inc_hbd_t[naschbd].push_back( hbd_cluster_t->at(ih) );
-      	    naschbd++;
-      	  }
+      	  // int tcid = E16ANA_EIDSingleTrackAnalyzer::HBDTrgCid( hbd_cluster_x->at(ih), hbd_cluster_y->at(ih) );
+      	  // if( out_trg_track_hbd_cid.at(i)==tcid ){
+      	  //   out_trg_track_inc_hbd_lx[naschbd].push_back( hbd_cluster_x->at(ih) );
+      	  //   out_trg_track_inc_hbd_ly[naschbd].push_back( hbd_cluster_y->at(ih) );
+      	  //   out_trg_track_inc_hbd_t[naschbd].push_back( hbd_cluster_t->at(ih) );
+      	  //   naschbd++;
+      	  // }
 	  if( hbd_cluster_mid->at(ih)==106 ){
 	    double resx = hbd_cluster_x->at(ih) - HBDTrgPosX(out_trg_track_hbd_cid.at(i));
 	    double resy = hbd_cluster_y->at(ih) - HBDTrgPosY(out_trg_track_hbd_cid.at(i));
@@ -879,6 +912,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	    if( fabs(resx)<width[1] ){hhbdy->Fill(resy);}
 	    if( fabs(resx)<width[1] && fabs(resy)<width[2] ){
 	      hbdisasc = true;
+	      out_trg_track_inc_hbd_lx[naschbd].push_back( hbd_cluster_x->at(ih) );
+	      out_trg_track_inc_hbd_ly[naschbd].push_back( hbd_cluster_y->at(ih) );
+	      out_trg_track_inc_hbd_t[naschbd].push_back( hbd_cluster_t->at(ih) );
+	      naschbd++;
 	    }
 	  }
       	}
@@ -895,6 +932,7 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	  if(hbdisasc){
 	    n_asc_trg_tracks[1]++;
 	    n_asc_trg_tracks[2]++;
+	    n_whbdoff++;
 	  }
 	}
 	//LG
@@ -906,13 +944,13 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	  out_trg_track_inc_lg_t.push_back(vector<double>());
       	  if( lg_hit_fflag->at(il)>1 ) continue;
       	  if( lg_hit_mid->at(il) != out_trg_track_lg_mid.at(i) ) continue;
-      	  int tcid = lg_hit_cid->at(il);
-      	  if( out_trg_track_lg_cid.at(i)==tcid ){
-      	    out_trg_track_inc_lg_lx[nasclg].push_back( lg_hit_x->at(il) );
-      	    out_trg_track_inc_lg_ly[nasclg].push_back( lg_hit_y->at(il) );
-      	    out_trg_track_inc_lg_t[nasclg].push_back( lg_hit_t->at(il) );
-      	    nasclg++;
-      	  }
+      	  // int tcid = lg_hit_cid->at(il);
+      	  // if( out_trg_track_lg_cid.at(i)==tcid ){
+      	  //   out_trg_track_inc_lg_lx[nasclg].push_back( lg_hit_x->at(il) );
+      	  //   out_trg_track_inc_lg_ly[nasclg].push_back( lg_hit_y->at(il) );
+      	  //   out_trg_track_inc_lg_t[nasclg].push_back( lg_hit_t->at(il) );
+      	  //   nasclg++;
+      	  // }
 	  if( lg_hit_mid->at(il)==106 ){
 	    double resx = lg_hit_x->at(il) - out_trg_track_lg_x.at(i);
 	    double resy = lg_hit_y->at(il) - out_trg_track_lg_y.at(i);
@@ -920,6 +958,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	    if( fabs(resx)<width[3] ){hlgy->Fill(resy);}
 	    if( fabs(resx)<width[3] && fabs(resy)<width[4] ){
 	      lgisasc = true;
+	      out_trg_track_inc_lg_lx[nasclg].push_back( lg_hit_x->at(il) );
+	      out_trg_track_inc_lg_ly[nasclg].push_back( lg_hit_y->at(il) );
+	      out_trg_track_inc_lg_t[nasclg].push_back( lg_hit_t->at(il) );
+	      nasclg++;
 	    }
 	  }
       	}
@@ -936,9 +978,11 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 	  if(lgisasc){
 	    n_asc_trg_tracks[3]++;
 	    n_asc_trg_tracks[4]++;
+	    n_wlgoff++;
 	  }
 	  if( gtrisasc && hbdisasc && lgisasc ){
 	    n_asc_trg_tracks_alldet++;
+	    n_walloff++;
 	  }
 	}
       }
@@ -946,6 +990,7 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
       //Fill before infos
       gtr300y_cluster_y_before.clear();
       for(int ig=0;ig<n_gtr300y_clusters;ig++){
+	if( gtr300y_cluster_adc->at(ig)<150 ) continue;
 	if( gtr300y_cluster_mid->at(ig) != 106 ) continue;
 	gtr300y_cluster_y_before.push_back( gtr300y_cluster_y->at(ig) );
       }
@@ -968,7 +1013,14 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 
       //Get Hits & Clusters
       out_n_tracks = ntrkacc;
+      out_n_tracks_whbd = ntrkacc_whbd;
+      out_n_tracks_wlg = ntrkacc_wlg;
+      out_n_tracks_wall = ntrkacc_wall;
       out_n_trg_tracks = ntrgtrkacc;
+      out_n_trg_tracks_wgtroff = n_wgtroff;
+      out_n_trg_tracks_whbdoff = n_whbdoff;
+      out_n_trg_tracks_wlgoff = n_wlgoff;
+      out_n_trg_tracks_walloff = n_walloff;
       out_run_id = run_id;
       out_event_id = event_id;
       out_spill_id = spill_id;
@@ -1003,10 +1055,10 @@ void E16ANA_EIDSingleTrackAnalyzerV2::TrackMatchOfflineOnline(int maxevent, char
 
    for(int i=0;i<5;i++){
      ncor[i][2] = ncor[i][0] - ncor[i][1];
-     std::cout<<"lower: "<<ncor[i][2]<<" / "<<n_all_trg_tracks[i]<<" = "<<(double)ncor[i][2]/(double)n_all_trg_tracks[i]<<std::endl;
+     // std::cout<<"lower: "<<ncor[i][2]<<" / "<<n_all_trg_tracks[i]<<" = "<<(double)ncor[i][2]/(double)n_all_trg_tracks[i]<<std::endl;
      std::cout<<"upper: "<<n_asc_trg_tracks[i]<<" / "<<n_all_trg_tracks[i]<<" = "<<(double)n_asc_trg_tracks[i]/(double)n_all_trg_tracks[i]<<std::endl;
    }
-   std::cout<<"lower all: "<<(double)ncor[0][2]/(double)n_all_trg_tracks[0]*(double)ncor[2][2]/(double)n_all_trg_tracks[2]*(double)ncor[4][2]/(double)n_all_trg_tracks[4]<<std::endl;
+   // std::cout<<"lower all: "<<(double)ncor[0][2]/(double)n_all_trg_tracks[0]*(double)ncor[2][2]/(double)n_all_trg_tracks[2]*(double)ncor[4][2]/(double)n_all_trg_tracks[4]<<std::endl;
    std::cout<<"upper all: "<<(double)n_asc_trg_tracks_alldet/(double)n_all_trg_tracks[0]<<std::endl;
 
    TString pdfout = "out.pdf";
