@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
       }
       //c_hitmembers.resize(n_clusters);
       
-      if(c_hitmembers.size()>1){
+      if(c_hitmembers.size()!=1){
 	std::cout<<"!!!!!!!! "<<c_hitmembers.size()<<std::endl;
       }
 
