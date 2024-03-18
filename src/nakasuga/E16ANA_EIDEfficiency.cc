@@ -1050,6 +1050,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        resx_min = -10000.;
        resy_min = -10000.;
        int cid_min = -10000;
+       double adc_min = -10000.;//240317
        int nlgh=0;
        for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
 	 double resx = track_lg_allhit_resx->at(itrack).at(ilg)-originx[lmide][1];
@@ -1065,12 +1066,16 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   resx_min=resx;
 	   resy_min=resy;
 	   cid_min=cid;
+	   adc_min=track_lg_allhit_adc->at(itrack).at(ilg);//240317
 	 }
 	 nlgh++;
        }
        bool LGhit=false;
        if(fabs(resx_min)<widthx[lmide][1] && fabs(resy_min)<widthy[lmide][1]){
 	 LGhit=true;
+       }
+       else{//240317
+	 adc_min = -10000.;
        }
 
        //Check projection position
@@ -1194,7 +1199,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   if(itype==1){
 	     double px = resx + track_hbd_lx->at(itrack);
 	     double py = resy + track_hbd_ly->at(itrack);
-	     hbdwf<<ientry<<" "<<itrack<<" "<<ihbd<<" "<<event_id<<" "<<track_id->at(itrack)<<" "<<px<<" "<<py<<std::endl;
+	     hbdwf<<ientry<<" "<<itrack<<" "<<ihbd<<" "<<event_id<<" "<<track_id->at(itrack)<<" "<<px<<" "<<py<<" "<<adc_min<<std::endl;
 	   }
 	   //
 	 }

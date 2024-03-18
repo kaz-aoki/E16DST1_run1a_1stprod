@@ -55,14 +55,16 @@ int main(int argc, char* argv[]) {
   std::vector<int> as_track_id;
   std::vector<double> as_c_lx;
   std::vector<double> as_c_ly;
+  std::vector<double> as_lg_adc;
   while(!fin.eof()){
     int tmp, aeid, atid;
-    double aclx, acly;
-    fin >> tmp >> tmp >> tmp >> aeid >> atid >> aclx >> acly;
+    double aclx, acly, lg;
+    fin >> tmp >> tmp >> tmp >> aeid >> atid >> aclx >> acly >> lg;
     as_event_id.push_back(aeid);
     as_track_id.push_back(atid);
     as_c_lx.push_back(aclx);
     as_c_ly.push_back(acly);
+    as_lg_adc.push_back(lg);
   }
   std::cout<<as_event_id.size()<<std::endl;
   ////
@@ -101,6 +103,7 @@ int main(int argc, char* argv[]) {
   vector<vector<int>> c_hitmembers;
   vector<float> c_cprob;
   vector<float> c_eprob;
+  vector<float> c_lg_adc;
 
   tree->Branch("event_id", &event_id, "event_id/I");
   tree->Branch("n_hits", &n_hits, "n_hits/I");
@@ -133,6 +136,7 @@ int main(int argc, char* argv[]) {
   tree->Branch("c_hitmembers", &c_hitmembers);
   tree->Branch("c_cprob", &c_cprob);
   tree->Branch("c_eprob", &c_eprob);
+  tree->Branch("c_lg_adc", &c_lg_adc);
   
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -214,6 +218,7 @@ int main(int argc, char* argv[]) {
 	c_lpos_z.push_back(cluster.LocalPos().Z());
 	c_cprob.push_back(cluster.IsChargedParticle());
 	c_eprob.push_back(cluster.IsE());
+	c_lg_adc.push_back(as_lg_adc.at(ana_index));
 	
 	vector<int> hitmembers;
 	for(auto hit_id : cluster.HitOrders()) hitmembers.push_back((int) hit_id);
@@ -295,6 +300,7 @@ int main(int argc, char* argv[]) {
       c_lpos_z.clear();
       c_cprob.clear();
       c_eprob.clear();
+      c_lg_adc.clear();
       c_hitmembers.clear();
       
     } else if (event_type == E16DST_DST0EventType::Scaler) {
