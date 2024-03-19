@@ -132,7 +132,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGClustering.cc
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
-  src/LG/E16ANA_LGStraightProj.cc
+  src/LG/E16ANA_LGProjection.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -174,6 +174,7 @@ add_library(E16DST_DST1
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
   src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
+  src/nakasuga/E16ANA_EIDSingleTrackAnalyzerV2.cc
   src/nakasuga/E16ANA_EIDEfficiency.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
@@ -526,6 +527,17 @@ target_link_libraries(Gammaana_CodeCheck
 	E16ANA
 )
 
+# _______________________________________________________________________________
+add_executable(Gammaana_ChargedRatio usr/tmp/nakasuga/Gammaana_ChargedRatio.cc)
+
+target_link_libraries(Gammaana_ChargedRatio
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 #_______________________________________________________________________________
 add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
 
@@ -596,6 +608,39 @@ target_link_libraries(LG_StraightEventMatch
 add_executable(LG_StraightResidual usr/tmp/nakasuga/LG_StraightResidual.cc)
 
 target_link_libraries(LG_StraightResidual
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(check_LGProjection usr/tmp/nakasuga/check_LGProjection.cc)
+
+target_link_libraries(check_LGProjection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(TrackMatchOnlineOffline usr/tmp/nakasuga/TrackMatchOnlineOffline.cc)
+
+target_link_libraries(TrackMatchOnlineOffline
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(TrackMatchOfflineOnline usr/tmp/nakasuga/TrackMatchOfflineOnline.cc)
+
+target_link_libraries(TrackMatchOfflineOnline
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic

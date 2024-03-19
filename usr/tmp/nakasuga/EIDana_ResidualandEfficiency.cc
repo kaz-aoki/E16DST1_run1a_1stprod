@@ -54,7 +54,7 @@ int main(int argc, char* argv[]) {
     if(runtype==0){
       // in_chain->Add("./out/root03a/trackselection_chisq30_fflag01.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root03a/trackselection_prod220212_chisq30.root");
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v58/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/v60/*.root");
     }
     else if(runtype==1){
       // in_chain->Add("./out/root/trackselection_5e9*.root");
@@ -83,11 +83,11 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_prod220216_22033104.root");//eID(HBD)
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_22032501.root");//gas
 
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v56/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v56/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run0302*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030300.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030301.root");
-      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030302.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030302.root");
     }
   }
   else if(argc==6||argc==8){
