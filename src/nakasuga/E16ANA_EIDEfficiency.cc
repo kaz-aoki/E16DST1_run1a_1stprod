@@ -593,7 +593,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // }
    if (fChain == 0) return;
 
-   std::ofstream hbdwf("hbdwf.txt");//240317
+   // std::ofstream hbdwf("hbdwf.txt");//240317
 
    TFile *fouthist = new TFile(out_root_name,"recreate");
    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
@@ -671,8 +671,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      originy[i][0]=0.;
      widthx[i][0]=25.;
      widthy[i][0]=25.;
-     // if(runoption==3){widthx[i][0]=35.;widthy[i][0]=35.;}
-     if(runoption==3){widthx[i][0]=20.;widthy[i][0]=20.;}//240317
+     if(runoption==3){widthx[i][0]=35.;widthy[i][0]=35.;}
+     // if(runoption==3){widthx[i][0]=20.;widthy[i][0]=20.;}//240317
      if(runoption==4){widthx[i][0]=35.;widthy[i][0]=35.;}
      originx[i][1]=0.;
      originy[i][1]=0.;
@@ -1196,11 +1196,11 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   }
 	   nhbdtrkass++;
 	   //240317
-	   if(itype==1){
-	     double px = resx + track_hbd_lx->at(itrack);
-	     double py = resy + track_hbd_ly->at(itrack);
-	     hbdwf<<ientry<<" "<<itrack<<" "<<ihbd<<" "<<event_id<<" "<<track_id->at(itrack)<<" "<<px<<" "<<py<<" "<<adc_min<<std::endl;
-	   }
+	   // if(itype==1){
+	   //   double px = resx + track_hbd_lx->at(itrack);
+	   //   double py = resy + track_hbd_ly->at(itrack);
+	   //   hbdwf<<ientry<<" "<<itrack<<" "<<ihbd<<" "<<event_id<<" "<<track_id->at(itrack)<<" "<<px<<" "<<py<<" "<<adc_min<<std::endl;
+	   // }
 	   //
 	 }
 	 nhbdc++;

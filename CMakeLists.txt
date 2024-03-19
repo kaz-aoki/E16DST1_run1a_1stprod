@@ -292,13 +292,6 @@ target_link_libraries(dst0_to_dst1_hbd_wf_check
 )
 
 #_______________________________________________________________________________
-add_executable(hbd_makewf usr/tmp/nakasuga/hbd_makewf.cc)
-
-target_link_libraries(hbd_makewf
-	E16DST_DST1
-)
-
-#_______________________________________________________________________________
 add_executable(hbd_dead_ch_check usr/hbd_dead_ch_check.cc)
 
 target_link_libraries(hbd_dead_ch_check
