@@ -18,3 +18,12 @@
 　$ git checkout 094ffb8
  
 　としてversion4のE16DSTをとってきてください。
+
+
+# GTR memo
+	usr/run_StraightTrackAnalyzerV2.cc (developing) 
+		-- one entry is corressponding to to one event (track is vector)
+	usr/run_StraightTrackAnalyzer.cc
+	    -- one entry is corressponding to one track
+	usr/run_StraightTrackAnalyzer2D.cc 
+		-- one entry ................. to one 2D track(X/Y)

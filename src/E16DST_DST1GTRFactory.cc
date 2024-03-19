@@ -42,15 +42,20 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     for(int i =0; i < noh ; i++){
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
-        int lid = hit.LayerID();
-        int sid = hit.StripID();
-        gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
-    }
+		if(mid > 200) continue;
+		if(mid == 103) continue;
+	        int lid = hit.LayerID();
+		if(mid == 102 && lid == 1) continue;
+		if(mid == 102 && lid == 2) continue;
+    	    int sid = hit.StripID();
+			gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
+    	}
+//	}
     for(auto &a : gtr_analyzers->analyzer_map){
-        a.second->AnalyzeV0();
-//        a.second->AnalyzeV1();
+//        a.second->AnalyzeV0();
+        a.second->AnalyzeV1();
     }
-       
+
 	
     
 
@@ -117,8 +122,12 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
+						h.SetRiset(anahit.StripRiseTiming(j));
                         h.SetType(t);
                         h.SetLocalX(E16ANA_StraightTrackNameSpace::E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
+						h.SetPeakt(anahit.StripPeakt(j));
+						h.SetTotEnd(anahit.StripTotEd(j));
+						h.SetTotStart(anahit.StripTotSt(j));
 						std::vector<float> fadc;
             //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
 						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
@@ -136,6 +145,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetInvalid();
                     cl.SetModuleId(mid);
                     cl.SetLayerId(lid);
+						  cl.SetClusterId(cl_id);
                     //std::cout << "t, t_hit_indexs[t] = " << t_hit_indexs[t].size() << std::endl;
                     //std::cout << "hit size = " << cl.NumHits() << std::endl;
                     //cl.SetHitOrders(t_hit_indexs[t]);
@@ -157,16 +167,42 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     }
 		    */
 		    
-		    cl.SetTiming2(anahit.Timing2());
+         		    cl.SetTiming2(anahit.Timing2());
                     cl.SetTanTheta(anahit.TanTheta());
-		    cl.SetTdcPos(anahit.TdcHit());
+		    		cl.SetTdcPos(anahit.TdcHit());
                     cl.SetTdcPos2(anahit.TdcHit2());
                     cl.SetTanTheta2(anahit.TanTheta2());
-		    int nhit = anahit.NumCls();
-		    for(int i=0;i<nhit;i++){
-                      cl.SetCTiming(anahit.CTiming(i));
-                      cl.SetCPos(anahit.CPos(i));
-		    }
+					cl.SetMaxRiset(anahit.MaxRiset());
+					cl.SetMaxTot(anahit.MaxTot());
+					cl.SetTiming3(anahit.Timing3());
+					cl.SetTiming4(anahit.Timing4());
+				    int nhit = anahit.NumCls();
+				    for(int i=0;i<nhit;i++){
+        	        	cl.SetCTiming(anahit.CTiming(i));
+                    	cl.SetCPos(anahit.CPos(i));
+						cl.SetCAdc1(anahit.CAdc1(i));
+						cl.SetCAdc2(anahit.CAdc2(i));
+						cl.SetCAdc3(anahit.CAdc3(i));
+						cl.SetCAdc4(anahit.CAdc4(i));
+						cl.SetCAdc5(anahit.CAdc5(i));
+		    		}
+					int nhit2 = anahit.NumCls2();
+				    for(int i=0;i<nhit;i++){
+        	        	cl.SetCTiming2(anahit.CTiming2(i));
+						cl.SetCPos2(anahit.CPos2(i));
+					}
+					int nhit3 = anahit.NumCls3();
+				    for(int i=0;i<nhit;i++){
+        	        	cl.SetCTiming3(anahit.CTiming3(i));
+						cl.SetCPos3(anahit.CPos3(i));
+					}
+					int nhit4 = anahit.NumCls4();
+				    for(int i=0;i<nhit;i++){
+        	        	cl.SetCTiming4(anahit.CTiming4(i));
+						cl.SetCPos4(anahit.CPos4(i));
+        	        	cl.SetCTiming5(anahit.CTiming5(i));
+						cl.SetCPos5(anahit.CPos5(i));
+					}
 		    //printf("%d th, %d , mid:%d, lay:%d, nhit:%d, nhit2:%d,cog:%f, tdc:%f, theta:%f, time1:%f, time2:%f \n",i,t,mid,lid,
 		    //	   anahit.NumHit(),nhit,anahit.CogHit(),anahit.TdcHit(),anahit.TanTheta(),anahit.Timing(),anahit.Timing2());
 

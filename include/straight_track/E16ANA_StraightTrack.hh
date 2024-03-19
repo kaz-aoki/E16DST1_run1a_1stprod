@@ -374,6 +374,9 @@ public:
 	void SetFitSample100(TVector2 _fit_sample_100){		fit_sample100 = _fit_sample_100;	}
 	void SetFitSample200(TVector2 _fit_sample_200){		fit_sample200 = _fit_sample_200;	}
 	void SetFitSample300(TVector2 _fit_sample_300){		fit_sample300  = _fit_sample_300;	}
+	void SetFitPtOnGTR100(double d){fitpt_ongtr100_y = d;}
+	void SetFitPtOnGTR200(double d){fitpt_ongtr200_y = d;}
+	void SetFitPtOnGTR300(double d){fitpt_ongtr300_y = d;}
 	TVector2 GetFitSample100(){		return fit_sample100;	}
 	TVector2 GetFitSample200(){		return fit_sample200;	}
 	TVector2 GetFitSample300(){		return fit_sample300;	}
@@ -391,6 +394,8 @@ public:
 	void SetFitRes200(TVector2 res){fit_res200 = res;}
 	void SetFitRes300(TVector2 res){fit_res300 = res;}
 	void SetFitResSSD(TVector2 res){fit_resssd = res;}
+	void SetTgtPosY(double d){tgtpos_y = d;}
+	double TgtPosY(){return tgtpos_y;}
 	TVector2 GetFitRes100(){return fit_res100;}
 	TVector2 GetFitRes200(){return fit_res200;}
 	TVector2 GetFitRes300(){return fit_res300;}
@@ -425,6 +430,9 @@ public:
 //	int IDSSDHit() const{
 //		return idssdhit;
 //	}
+	double FitPtOnGTR100(){return fitpt_ongtr100_y;}
+	double FitPtOnGTR200(){return fitpt_ongtr200_y;}
+	double FitPtOnGTR300(){return fitpt_ongtr300_y;}
     TVector2 &Pt0OnTrack(){return pt0_on_track;}
     TVector2 &Pt1OnTrack(){        return pt1_on_track;    }
     TVector2 &Pt2OnTrack(){        return pt2_on_track;    }
@@ -466,6 +474,7 @@ private:
 //	double distance;
 	double fit_a;
 	double fit_b;
+    double tgtpos_y;
 	std::vector<TVector2> v_fit_samples;
 	E16DST_DST1GTRCluster *yhit100;
 	E16DST_DST1GTRCluster *yhit200;
@@ -480,6 +489,9 @@ private:
 	double residual_200;
 	double residual_300;
 	double residual_ssd;
+	double fitpt_ongtr100_y;
+	double fitpt_ongtr200_y;
+	double fitpt_ongtr300_y;
     TVector2 fit_res100;
     TVector2 fit_res200;
     TVector2 fit_res300;

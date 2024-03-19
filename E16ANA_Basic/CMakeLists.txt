@@ -1,5 +1,9 @@
 file(GLOB E16ANA_Basic_SRCS src/*)
 
+include_directories(
+	include #230704 added by mtomoki
+)
+
 add_library(E16ANA_Basic
   ${E16ANA_Basic_SRCS}
 )

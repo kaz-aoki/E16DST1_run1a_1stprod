@@ -47,10 +47,10 @@ int E16DST_DST1WireTrackFactory3D(E16DST_DST0PhysicsEvent *event0, E16DST_DST1De
     straight_analyzer->Clear();
   	for(int mid = 100; mid< 110; mid++){
 		if(removed_layer == 0){//without SSD
- 			straight_analyzer->OneModuleAnalyze2woSSD(ssd1, gtr1, mid, geom);
+ 			straight_analyzer->OneModuleAnalyze2woSSD(3, ssd1, gtr1, mid, geom);
 		}
 		else	{
- 			straight_analyzer->OneModuleAnalyze2(ssd1, gtr1, mid, geom);
+ 			straight_analyzer->OneModuleAnalyze2(3, ssd1, gtr1, mid, geom);
 		}
 	}
 	int trks_size = straight_analyzer->GetXYZStraightTracks().size();
