@@ -28,7 +28,7 @@ endif()
 #find_package(Geant4 REQUIRED)
 
 
-add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
+#add_definitions(-DTMP_NIM_TRIGGER) # for NIM trigger
 
 find_package(Boost)
 find_package(Boost COMPONENTS iostreams; thread;)
