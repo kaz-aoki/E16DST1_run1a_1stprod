@@ -2960,9 +2960,9 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
 
      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
-       if (TrackSelection(ientry,itrack) < 0) continue;
+       if (TrackSelection(ientry,itrack,runoption) < 0) continue;
        int runp = E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(run_id);
-       if( (int)runp/10!=1 ) continue;
+       // if( (int)runp/10!=1 ) continue;
 
        //Search near HBD hit
        int hmide = track_hbd_mid->at(itrack)-103;
@@ -3002,11 +3002,11 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
        }
 
        int btrktype=-1;
-       if(HBDhit){
-       	 // btrktype=IsGoodTrack(ientry,itrack,tracksets);
-       	 btrktype=IsGoodTrackWHBD(ientry,itrack,tracksets,adc_max);
-       }
-       // btrktype=IsGoodTrack(ientry,itrack,tracksets);//220825
+       // if(HBDhit){//240322
+       // 	 // btrktype=IsGoodTrack(ientry,itrack,tracksets);
+       // 	 btrktype=IsGoodTrackWHBD(ientry,itrack,tracksets,adc_max);
+       // }
+       btrktype=IsGoodTrack(ientry,itrack,tracksets);//220825
 
        if(btrktype<0) continue;
 

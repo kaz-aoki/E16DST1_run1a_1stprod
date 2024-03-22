@@ -844,8 +844,8 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
   // if(runoption==1&&chi_square->at(itrack)>20.) {return -1;}
   if(runoption==1&&chi_square->at(itrack)>2.) {return -1;}
-  // if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}
-  if(runoption==3&&chi_square->at(itrack)>2.) {return -1;}
+  if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}
+  // if(runoption==3&&chi_square->at(itrack)>2.) {return -1;}
   // if(runoption==0&&chi_square->at(itrack)>10.) {return -1;}
   if(runoption==0&&chi_square->at(itrack)>2.) {return -1;}
   // if(fabs(track_position_block_lx->at(itrack))>30) {return -1;}
@@ -870,8 +870,8 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // if (track_mom->at(itrack) < 0.8) {return -1;}
   // if (rk_charge->at(itrack) != -1) {return -1;}
   // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
-  // if (track_tgt_dist->at(itrack)>20) {return -1;}
-  if (track_tgt_dist->at(itrack)>5) {return -1;}
+  if (track_tgt_dist->at(itrack)>20) {return -1;}
+  // if (track_tgt_dist->at(itrack)>5) {return -1;}
   // if (track_tgt_id->at(itrack)==0) {return -1;}
   // if (track_tgt_id->at(itrack)==2) {return -1;}
   // if ( track_ssd_t->at(itrack)<40 || track_ssd_t->at(itrack)>55 ) {return -1;}
