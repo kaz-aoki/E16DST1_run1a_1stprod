@@ -129,7 +129,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 
 // other
 constexpr bool kExecutePairFit = false;
-constexpr bool kReqHBDAssociation = true;
+constexpr bool kReqHBDAssociation = false;
 //constexpr double kHBDRadius = 1200.;
 constexpr double kHBDRadius = 1196.;
 #ifndef TRACK_FIND_WO_TARGET

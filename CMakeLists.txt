@@ -39,9 +39,9 @@ add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 ##add_definitions(-DSIM_DST1_GEOM_CHECK) # tmp. print position for check
 
 # event mixing
-add_definitions(-DDST1_EVENT_MIX)
+#add_definitions(-DDST1_EVENT_MIX)
 #add_definitions(-DMIX_SSD)
-add_definitions(-DMIX_GTR100)
+#add_definitions(-DMIX_GTR100)
 #add_definitions(-DMIX_GTR200)
 #add_definitions(-DMIX_GTR300)
 
@@ -656,6 +656,16 @@ add_executable(refit_track_230207
 
 target_link_libraries(refit_track_230207
   E16ANA_Basic
+)
+
+#_______________________________________________________________________________
+add_executable(sanford_wang
+  usr/tmp/sanford_wang.cc
+)
+
+target_link_libraries(sanford_wang
+  E16ANA_Basic
+  E16DST_DST1
 )
 
 #_______________________________________________________________________________

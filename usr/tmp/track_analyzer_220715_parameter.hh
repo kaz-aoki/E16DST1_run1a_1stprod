@@ -70,8 +70,10 @@ constexpr double kTargetZ[kNumTgts]    = {-20., 0., 20.};
 constexpr int    kModuleID2013[3][11]  = {{30, 27, 24, 21, 18, 15, 12,  9, 6, 3, 0},
                                           {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
                                           {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}};
-const std::array<double, kNumLGTypes> kMinLGY = {388.7 + 72., 281.  + 72.,  160.7 + 72.};
-const std::array<double, kNumLGTypes> kMaxLGY = {243.2 - 72., 137.7 - 72.,    6.5 - 72.};
+//const std::array<double, kNumLGTypes> kMinLGY = {388.7 + 72., 281.  + 72.,  160.7 + 72.};
+//const std::array<double, kNumLGTypes> kMaxLGY = {243.2 - 72., 137.7 - 72.,    6.5 - 72.};
+const std::array<double, kNumLGTypes> kMinLGY = {243.2, 137.7, 6.5};
+const std::array<double, kNumLGTypes> kMaxLGY = {388.7, 281.,  160.7};
 constexpr double kElectronMass  = 511.99894641e-6;
 constexpr double kElectronMass2 = kElectronMass * kElectronMass;
 constexpr double kPionMass      = 139.57039e-3;

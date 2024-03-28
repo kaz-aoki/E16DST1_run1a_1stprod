@@ -1926,7 +1926,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
       auto init_pos = BackInitPos(pre_init_pos, init_mom);
       tmp_cand.SetInitX(init_pos.X());
       tmp_cand.SetInitY(init_pos.Y());
-      tmp_cand.SetInitZ(init_pos.Z():
+      tmp_cand.SetInitZ(init_pos.Z());
       tmp_cand.SetInitMomX(init_mom.X());
       tmp_cand.SetInitMomY(init_mom.Y());
       tmp_cand.SetInitMomZ(init_mom.Z());
