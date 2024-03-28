@@ -650,6 +650,17 @@ target_link_libraries(TrackMatchOfflineOnline
 )
 
 #_______________________________________________________________________________
+add_executable(nevent usr/tmp/nakasuga/nevent.cc)
+
+target_link_libraries(nevent
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
 
 target_link_libraries(dst0_to_dst1_trigger_check
