@@ -973,45 +973,45 @@ target_link_libraries(tmp_check_track_finding_230106
   E16ANA_Basic
 )
 
-#_______________________________________________________________________________
-add_executable(tmp_check_track_230129
-  usr/tmp/tmp_check_track_230129_wrapper.cc
-  usr/tmp/tmp_check_track_230129.C
-)
-
-target_link_libraries(tmp_check_track_230129
-  E16ANA_Basic
-)
-
-#_______________________________________________________________________________
-add_executable(tmp_make_tfile_from_mock_data_230131
-  usr/tmp/tmp_make_tfile_from_mock_data_230131.cc
-)
-
-target_link_libraries(tmp_make_tfile_from_mock_data_230131
-  E16ANA_Basic
-)
-
-#_______________________________________________________________________________
-add_executable(refit_track_230207
-  usr/tmp/refit_track_230207_wrapper.cc
-  usr/tmp/refit_track_230207.C
-)
-
-target_link_libraries(refit_track_230207
-  E16ANA_Basic
-)
-
-#_______________________________________________________________________________
-add_executable(sanford_wang
-  usr/tmp/sanford_wang.cc
-)
-
-target_link_libraries(sanford_wang
-  E16ANA_Basic
-  E16DST_DST1
-)
-
+##_______________________________________________________________________________
+#add_executable(tmp_check_track_230129
+#  usr/tmp/tmp_check_track_230129_wrapper.cc
+#  usr/tmp/tmp_check_track_230129.C
+#)
+#
+#target_link_libraries(tmp_check_track_230129
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(tmp_make_tfile_from_mock_data_230131
+#  usr/tmp/tmp_make_tfile_from_mock_data_230131.cc
+#)
+#
+#target_link_libraries(tmp_make_tfile_from_mock_data_230131
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(refit_track_230207
+#  usr/tmp/refit_track_230207_wrapper.cc
+#  usr/tmp/refit_track_230207.C
+#)
+#
+#target_link_libraries(refit_track_230207
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(sanford_wang
+#  usr/tmp/sanford_wang.cc
+#)
+#
+#target_link_libraries(sanford_wang
+#  E16ANA_Basic
+#  E16DST_DST1
+#)
+#
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
