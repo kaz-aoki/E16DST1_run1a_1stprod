@@ -490,11 +490,11 @@ int main(int argc, char* argv[]) {
 	std::vector<std::pair<int, int>> st_pairs;
 	if(targets.IsWire()){
 		//E16DST_DST1WireTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
-		E16DST_DST1WireTrackFactory3DwoGTR300(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
+//		E16DST_DST1WireTrackFactory3DwoGTR300(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
 	}
 	else if(targets.NoT() == 3){
 		//E16DST_DST1StraightTrackFactory3D(event0, &record->SSD(), &record->GTR(), st_tracks, gtrped);
-		E16DST_DST1StraightTrackFactory3DwoGTR300(event0, &record->SSD(), &record->GTR(), &record->LG(),  st_tracks, gtrped);
+//		E16DST_DST1StraightTrackFactory3DwoGTR300(event0, &record->SSD(), &record->GTR(), &record->LG(),  st_tracks, gtrped);
 	}
 	std::vector<std::vector<double>> results;
 	results.clear();

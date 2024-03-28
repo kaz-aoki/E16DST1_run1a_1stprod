@@ -13,7 +13,8 @@
 #include <TFile.h>
 #include <TVector.h>
 #include "E16ANA_MultiTrack.hh"
-#include "SingleTrackAnalyzerForRes.hh"
+// #include "SingleTrackAnalyzerForRes.hh"
+#include "E16ANA_EIDSingleTrackAnalyzer.hh"
 #include "E16ANA_TrackConstant.hh"
 #include "E16ANA_GTRChannelManager.h"
 #include "E16ANA_GTRStatus.h"

@@ -37,7 +37,8 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    gem_th_y = 200.0;
    drift_velocity = 0.015;
    drift_gap_center = 0.0;
-   fadc_clock_period = 25.0;
+//   fadc_clock_period = 25.0;
+   fadc_clock_period = 32.0;
    fadc_t0_correction = 0.0;
    tdc_lsb = 0.035;
    gem_t0_min = -10000.0;
@@ -45,7 +46,7 @@ E16ANA_GTRAnalyzer2::E16ANA_GTRAnalyzer2(int _n_strip_x, int _n_strip_y, int _n_
    // gem_t0_min = 100.0;
    // gem_t0_max = 450.0;
    gem_tr = 75.0;
-   threshold_fraction = 0.5;\
+   threshold_fraction = 0.5;
    cluster_minimum_gap = 2;
    cluster_delta_tdc = 10000.0;
    rise_time_min = -10000.0;

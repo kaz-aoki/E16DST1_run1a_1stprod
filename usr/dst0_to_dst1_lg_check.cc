@@ -3,7 +3,7 @@
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
-//#include <boost/program_options.hpp>
+// #include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
@@ -14,172 +14,129 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGWaveform.hh"
-
-#define MKWF 1
-//#undef MKWF
+#include "E16ANA_LGConstant.hh"
+#include "E16ANA_LGDeadChannel.hh"
+#include "E16ANA_LGClustering.hh"
+#include "E16ANA_LGCheckHist.hh"
+#include "E16DST_Constant.hh"
 
 using namespace std;
-//namespace  bpo = boost::program_options;
+// namespace  bpo = boost::program_options;
+
+#define WF_ON
+#define TRG_ON
+#define LGDST1_ON
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 7) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [hist.pdf] [wf.pdf] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
-//  bpo::variables_map vm;
-//  string in_file_name;
-//  string out_file_name;
-//  int run_num;
-
+  auto out_pdf_name = argv[3];
+  auto out_wf_pdf_name = argv[4];
+  auto run_id        = stoi(argv[5]);
+  auto max_event     = stoi(argv[6]);
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
+  // std::ofstream frun("runinfo.txt");
 
-  //TH1F *hph = new TH1F("hph","PeakHeight",1100,-100,1000);
-  //TH1F *hpt = new TH1F("hpt","PeakTime",200,0,200);
-  //TH1F *htm = new TH1F("htm","Timing",200,0,200);
-  //TH1F *hbl = new TH1F("hbl","Baseline",200,-100,100);
-  //TH1F *hbr = new TH1F("hbr","BaselineRms",200,-100,100);
-  //TH1F *hit = new TH1F("hit","Integral",1100,-100,1000);
-  //TH1F *ht0 = new TH1F("ht0","CalibTiming",1000,0,200);
-  //TH1F *hed = new TH1F("hed","EnergyDeposit",1100,-1,10);
-  TH1F *hnh[7];
-  TH1F *hph[7][56];
-  TH1F *hpt[7][56];
-  TH1F *htm[7][56];
-  TH1F *hbl[7][56];
-  TH1F *hbr[7][56];
-  TH1F *hit[7][56];
-  TH1F *ht0[7][56];
-  TH1F *hed[7][56];
-  TH1F *hnp[7][56];
-  TH1F *hff[7][56];
-  TH1F *hfp[7][56];
-  TH1F *hfx[7][56];
-  TH1F *hft[7][56];
-  TH1F *hfw[7][56];
-  TH1F *hfc[7][56];
-  TH1F *hctd = new TH1F("hctd","hclusterTimeDiff",400,0,40);
-  TH1F *hcmp = new TH1F("hcmp","hclusterMaxPeak",1100,-100,1000);
-  TH1F *hctm = new TH1F("hctm","hclusterTiming",200,0,200);
-  TH1F *hcps = new TH1F("hcps","hclusterPeakSum",1100,-100,1000);
-  TH1F *hcgx = new TH1F("hcgx","hclusterGlobalX",4000,-2000,2000);
-  TH1F *hcgy = new TH1F("hcgy","hclusterGlobalY",4000,-2000,2000);
-  TH1F *hcgz = new TH1F("hcgz","hclusterGlobalZ",4000,-2000,2000);
-  TH2F *hcgyx = new TH2F("hcgyx","hclusterGlobalYX",4000,-2000,2000,4000,-2000,2000);
-  TH2F *hcgzx = new TH2F("hcgzx","hclusterGlobalZX",4000,-2000,2000,4000,-2000,2000);
-  for(int i=0;i<7;i++){
-    hnh[i] = new TH1F(Form("hnh%d",i),Form("NHit%d",i),300,0,300);
-    for(int j=0;j<56;j++){
-      hph[i][j] = new TH1F(Form("hph%d%d",i,j),Form("PeakHeight%d%d",i,j),1100,-100,1000);
-      hpt[i][j] = new TH1F(Form("hpt%d%d",i,j),Form("PeakTime%d%d",i,j),200,0,200);
-      htm[i][j] = new TH1F(Form("htm%d%d",i,j),Form("Timing%d%d",i,j),200,0,200);
-      hbl[i][j] = new TH1F(Form("hbl%d%d",i,j),Form("Baseline%d%d",i,j),200,-100,100);
-      hbr[i][j] = new TH1F(Form("hbr%d%d",i,j),Form("BaselineRms%d%d",i,j),200,-100,100);
-      hit[i][j] = new TH1F(Form("hit%d%d",i,j),Form("Integral%d%d",i,j),1100,-100,1000);
-      ht0[i][j] = new TH1F(Form("ht0%d%d",i,j),Form("CalibTiming%d%d",i,j),1000,0,200);
-      hed[i][j] = new TH1F(Form("hed%d%d",i,j),Form("EnergyDeposit%d%d",i,j),1100,-1,10);
-      hnp[i][j] = new TH1F(Form("hnp%d%d",i,j),Form("Npeaks%d%d",i,j),5,0,5);
-      hff[i][j] = new TH1F(Form("hff%d%d",i,j),Form("FitFlag%d%d",i,j),5,0,5);
-      hfp[i][j] = new TH1F(Form("hfp%d%d",i,j),Form("FitPeak%d%d",i,j),1100,-100,1000);
-      hfx[i][j] = new TH1F(Form("hfx%d%d",i,j),Form("FitPeakTime%d%d",i,j),200,0,200);
-      hft[i][j] = new TH1F(Form("hft%d%d",i,j),Form("FitTiming%d%d",i,j),200,0,200);
-      hfw[i][j] = new TH1F(Form("hfw%d%d",i,j),Form("FitWidth%d%d",i,j),200,0,2);
-      hfc[i][j] = new TH1F(Form("hfc%d%d",i,j),Form("FitChi2%d%d",i,j),200,0,50);
-    }
-  }
   uint16_t module, block;
-  float peakheight, timing, baseline, baselinerms, integral, calibtiming, energydeposit, fitpeak, fitpeaktime, fittiming, fitwidth, fitchi2;
-  int event, peaktime, npeak, npeaks, fitflag;
+  float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
+  int run, event, spill, multi, trgmulti, peaktime, ip, timestampinspill;
+  bool sl, sr, sl2, sr2, im3, im2, spikeflag, dst1flag, trg, trgwtrk;
   double gpos[3];
   double lpos[3];
-  double waveform[200];
+  // double waveform_raw[E16DST_Constant::NSamplesLG];
+  double waveform[E16DST_Constant::NSamplesLG];
+
+  tree->Branch("Run",&run,"Run/I");
   tree->Branch("Event",&event,"Event/I");
+  tree->Branch("Spill",&spill,"Spill/I");
+  tree->Branch("TimeStampInSpill",&timestampinspill,"TimeStampInSpill/I");
+  tree->Branch("Multi",&multi,"Multi/I");
+  tree->Branch("TrgMulti",&trgmulti,"TrgMulti/I");
+  tree->Branch("SL",&sl,"SL/O");
+  tree->Branch("SR",&sr,"SR/O");
+  tree->Branch("SL2",&sl2,"SL2/O");
+  tree->Branch("SR2",&sr2,"SR2/O");
+  tree->Branch("IM3",&im3,"IM3/O");
+  tree->Branch("IM2",&im2,"IM2/O");
+
   tree->Branch("Module",&module,"Module/s");
   tree->Branch("Block",&block,"Block/s");
+  tree->Branch("IP",&ip,"IP/I");
   tree->Branch("PeakHeight",&peakheight,"PeakHeight/F");
   tree->Branch("PeakTime",&peaktime,"PeakTime/I");
   tree->Branch("Timing",&timing,"timing/F");
   tree->Branch("Baseline",&baseline,"Baseline/F");
   tree->Branch("BaselineRms",&baselinerms,"BaselineRms/F");
   tree->Branch("Integral",&integral,"Integral/F");
+  tree->Branch("Falltime",&falltime,"Falltime/F");
+  tree->Branch("SpikeFlag",&spikeflag,"SpikeFlag/O");
   tree->Branch("CalibTiming",&calibtiming,"CalibTiming/F");
   tree->Branch("EnergyDeposit",&energydeposit,"EnergyDeposit/F");
-  tree->Branch("Npeak",&npeak,"Npeak/I");
-  tree->Branch("Npeaks",&npeaks,"Npeaks/I");
-  tree->Branch("FitFlag",&fitflag,"FitFlag/I");
-  tree->Branch("FitPeak",&fitpeak,"FitPeak/F");
-  tree->Branch("FitPeakTime",&fitpeaktime,"FitPeakTime/F");
-  tree->Branch("FitTiming",&fittiming,"FitTiming/F");
-  tree->Branch("FitWidth",&fitwidth,"FitWidth/F");
-  tree->Branch("FitChi2",&fitchi2,"FitChi2/F");
+  tree->Branch("Dst1Flag",&dst1flag,"Dst1Flag/O");
   tree->Branch("Gpos",gpos,"Gpos[3]/D");
   tree->Branch("Lpos",lpos,"Lpos[3]/D");
-#ifdef MKWF
-  tree->Branch("Waveform",waveform,"Waveform[200]/D");
+#ifdef WF_ON
+  // tree->Branch("Waveform_raw",waveform_raw,Form("Waveform_raw[%d]/D",E16DST_Constant::NSamplesLG));
+  tree->Branch("Waveform",waveform,Form("Waveform[%d]/D",E16DST_Constant::NSamplesLG));
 #endif
-
-//  bpo::options_description command_options("command options");
-//  command_options.add_options()
-//    ("in",                           bpo::value<string>(&in_file_name),                                                                "Input file name (string)\n")
-//    ("out",                          bpo::value<string>(&out_file_name),                                                               "Output file name (string)\n")
-//    ("coincidence-map-file-w-mag0",  bpo::value<string>(&coincidence_map_files[0])->default_value(string(CoincidenceMapWMagFile0)),    "Coincidence map file w/ mag 0 (string)\n");
-//    ("coincidence-map-file-w-mag1",  bpo::value<string>(&coincidence_map_files[1])->default_value(string(CoincidenceMapWMagFile1)),    "Coincidence map file w/ mag 1 (string)\n");
-//    ("coincidence-map-file-w-mag2",  bpo::value<string>(&coincidence_map_files[2])->default_value(string(CoincidenceMapWMagFile2)),    "Coincidence map file w/ mag 2 (string)\n");
-//    ("coincidence-map-file-w-mag3",  bpo::value<string>(&coincidence_map_files[3])->default_value(string(CoincidenceMapWMagFile3)),    "Coincidence map file w/ mag 3 (string)\n");
-//    ("coincidence-map-file-w-mag4",  bpo::value<string>(&coincidence_map_files[4])->default_value(string(CoincidenceMapWMagFile4)),    "Coincidence map file w/ mag 4 (string)\n");
-//    ("coincidence-map-file-w-mag5",  bpo::value<string>(&coincidence_map_files[5])->default_value(string(CoincidenceMapWMagFile5)),    "Coincidence map file w/ mag 5 (string)\n");
-//    ("coincidence-map-file-wo-mag0", bpo::value<string>(&coincidence_map_files[6])->default_value(string(CoincidenceMapWoMagFile0)),   "Coincidence map file w/o mag 0 (string)\n");
-//    ("coincidence-map-file-wo-mag1", bpo::value<string>(&coincidence_map_files[7])->default_value(string(CoincidenceMapWoMagFile1)),   "Coincidence map file w/o mag 1 (string)\n");
-//    ("coincidence-map-file-wo-mag2", bpo::value<string>(&coincidence_map_files[8])->default_value(string(CoincidenceMapWoMagFile2)),   "Coincidence map file w/o mag 2 (string)\n");
-//    ("coincidence-map-file-wo-mag3", bpo::value<string>(&coincidence_map_files[9])->default_value(string(CoincidenceMapWoMagFile3)),   "Coincidence map file w/o mag 3 (string)\n");
-//    ("coincidence-map-file-wo-mag4", bpo::value<string>(&coincidence_map_files[10])->default_value(string(CoincidenceMapWoMagFile4)),  "Coincidence map file w/o mag 4 (string)\n");
-//    ("coincidence-map-file-wo-mag5", bpo::value<string>(&coincidence_map_files[11])->default_value(string(CoincidenceMapWoMagFile5)),  "Coincidence map file w/o mag 5 (string)\n");
-//    ("trigger-gtr-channel-map",      bpo::value<string>(&trigger_channel_map_files[0])->default_value(string(TriggerChannelMapFile0)), "Trigger GTR channel map file (string)\n");
-//    ("trigger-hbd-channel-map",      bpo::value<string>(&trigger_channel_map_files[1])->default_value(string(TriggerChannelMapFile1)), "Trigger HBD channel map file (string)\n");
-//    ("trigger-lg-channel-map",       bpo::value<string>(&trigger_channel_map_files[2])->default_value(string(TriggerChannelMapFile2)), "Trigger LG channel map file (string)\n");
-//
-//  auto file_check = [&vm, &in_file_name, &out_file_name]() {
-//    if (in_file_name.empty()) {
-//      throw invalid_argument("Invalid input file name: "s + in_file_name);
-//    }
-//    if (out_file_name.empty()) {
-//      throw invalid_argument("Invalid output file name: "s + out_file_name);
-//    }
-//  };
+  tree->Branch("TrgTiming",&trg_lg_hit_t,"TrgTiming/F");
+  tree->Branch("Trg",&trg,"Trg/O");
+  tree->Branch("TrgwTRK",&trgwtrk,"TrgwTRK/O");
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
-  auto trigger_param = new E16ANA_TriggerCalibParam();
-  trigger_param->ReadConstantData(calib.CurrentRunID());
-  E16ANA_GTRcalibPedestal gtrped;
-  gtrped.ReadCalibData( calib.CurrentRunID() );
+#ifdef TRG_ON
+  E16ANA_TriggerCalibParam trigger_param;
+  trigger_param.ReadConstantData(calib.CurrentRunID());
+  bool TrigIsAWmax = trigger_param.IsMaximumWidth();
+  int TrigAWmax = trigger_param.MaximumWidth();
+  int TrigAWmin = trigger_param.MinimumWidth();
+  int TrigTW = trigger_param.TimeWidth();
+  if(!TrigIsAWmax){TrigAWmax=10000;}
+  std::cout<<TrigIsAWmax<<" "<<TrigAWmax<<" "<<TrigAWmin<<" "<<TrigTW<<std::endl;
+#else
+  bool TrigIsAWmax = false;
+  int TrigAWmax = -10000;
+  int TrigAWmin = -10000;
+  int TrigTW = -10000;
+#endif
+
+  // E16ANA_GTRcalibPedestal gtrped;
+  // gtrped.ReadCalibData( calib.CurrentRunID() );
   E16ANA_LGBasic lgbasic;
+  E16ANA_LGDeadChannel lgdead;
   lgbasic.SetMap();
   lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
+  lgbasic.SetTemplate();
+  lgdead.ReadDeadChannelData();
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
-  auto record = new E16DST_DST1PhysicsRecord();
-
+  // auto record = new E16DST_DST1PhysicsRecord();
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
     return -1;
   }
-//  E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
-//  gtr_pedestal->Read(argv[5]);
-//  auto dst1 = new E16DST_DST1();
-//  auto dst1 = new E16DST_DST0();
-//  if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
-//    std::cerr << "Cannot open output file: " << out_file_name << std::endl;
-//    return -1;
-//   }
+  E16DST_DST1PhysicsRecord record;
+
+  // E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
+  // gtr_pedestal->Read(argv[5]);
+  // auto dst1 = new E16DST_DST1();
+  // auto dst1 = new E16DST_DST0();
+  // if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
+  //   std::cerr << "Cannot open output file: " << out_file_name << std::endl;
+  //   return -1;
+  // }
+
+  auto *lghists = new E16ANA_LGCheckHist();
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -191,173 +148,203 @@ int main(int argc, char* argv[]) {
       cout << "Number of event: " << n_event << endl;
     }
     auto event_type = dst0->EventType();
-//    dst1->SetEventType(event_type);
     if (event_type == E16DST_DST0EventType::Physics) {
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
-//      auto event1 = dynamic_cast<E16DST_DST1PhysicsEvent*>(dst1->Event());
-//      auto event1 = new E16DST_DST1PhysicsEvent();
-      //      auto& ssd_hits0         = event0->SSD();
-      //      auto& gtr_hits0         = event0->GTR();
-      //      auto& hbd_hits0         = event0->HBD();
+      // frun<<"Physics:"<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
+      // auto& ssd_hits0         = event0->SSD();
+      // auto& gtr_hits0         = event0->GTR();
+      // auto& hbd_hits0         = event0->HBD();
       auto& lg_hits0          = event0->LG();
-      //      auto& trigger_gtr_hits0 = event0->TriggerGTR();
-      //      auto& trigger_hbd_hits0 = event0->TriggerHBD();
-      //      auto& trigger_lg_hits0  = event0->TriggerLG();
-//      E16DST_DST0Detector<E16DST_DST1LGHit> lg_hits1;
-//      E16DST_DST0Detector<E16DST_DST1LGCluster> lg_clusters1;
-//      auto& lg_hits1 = record->LG().Hits();
-//      auto& lg_clusters1 = record->LG().Clusters();
-//      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
-//      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &event1->GTRHits(), &event1->GTRClusters(), gtrped) << std::endl;
-//      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
-//      E16DST_DST1HBDFactory(hbd_hits0, &event1->HBDHits(), &event1->HBDClusters());
-//      E16DST_DST1LGHitAndClusterFactory(lg_hits0,   lg_hits1,  lg_clusters1);
-      E16DST_DST1LGFactory(lg_hits0, &record->LG(), 1, geometry);
-//      E16DST_DST1LGFactoryDST1Detector(lg_hits0, &event1->LG());
-//      E16DST_DST1TriggerFactory(*trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &event1->Trigger());
-//      event1->GTR().SetValidFlag(1);
-//      event1->LG().SetValidFlag(1);
-      //      event1->Trigger().SetValidFlag(1);
+      auto& trigger_gtr_hits0 = event0->TriggerGTR();
+      auto& trigger_hbd_hits0 = event0->TriggerHBD();
+      auto& trigger_lg_hits0  = event0->TriggerLG();
+      // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
+      auto event_id = event0->EventID();
 
+#ifdef LGDST1_ON
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
+      record.LG().AddHitAndClusterIds();
+      record.LG().UpdatePtrs();
+#endif
+#ifdef TRG_ON
+#ifdef TMP_NIM_TRIGGER
+      auto time_stamp = event0->TimeStamp();
+      E16DST_DST1TriggerFactory(time_stamp, trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+#else // TMP_NIM_TRIGGER
+      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+#endif // TMP_NIM_TRIGGER
+      record.Trigger().AddHitAndClusterIDs();
+      record.Trigger().UpdatePtrs();
+#endif
 
 //// Check begin
 //// LG
-      auto& lg_hits1 = record->LG().Hits();
+
+//run
+      run = run_id;
       event = event0->EventID();
+      spill = event0->SpillID();
+      timestampinspill = event0->TimeStampInSpill();
+      int slflag = event0->UT3().NIMFlag(0);
+      int srflag = event0->UT3().NIMFlag(1);
+      int sl2flag = event0->UT3().NIMFlag(0);//to be updated!!!!
+      int sr2flag = event0->UT3().NIMFlag(1);//to be updated!!!!
+      int im3flag = event0->UT3().NIMFlag(6);
+      int im2flag = event0->UT3().NIMFlag(6);//to be updated!!!!
+      if(slflag==0 ){sl  = false;} else{sl  = true;}
+      if(srflag==0 ){sr  = false;} else{sr  = true;}
+      if(sl2flag==0){sl2 = false;} else{sl2 = true;}
+      if(sr2flag==0){sr2 = false;} else{sr2 = true;}
+      if(im3flag==0){im3 = false;} else{im3 = true;}
+      if(im2flag==0){im2 = false;} else{im2 = true;}
+
+      int n_dst1hits = 0;
+      int n_dst1trghits = 0;
+      bool dst1hitflag[10][56];
+      bool dst1trghitflag[10][56];
+      float dst1trghitt[10][56];
+      bool dst1trgtrkhitflag[10][56];
+      for(int i=0;i<10;i++){
+	for(int j=0;j<56;j++){
+	  dst1hitflag[i][j] = false;
+	  dst1trghitflag[i][j] = false;
+	  dst1trghitt[i][j] = -10000.;
+	  dst1trgtrkhitflag[i][j] = false;
+	}
+      }
+
+//dst1hit
+#ifdef LGDST1_ON
+      auto& lg_hits1 = record.LG().Hits();
       int n_lghits = lg_hits1.size();
-      //std::cout<<"Event: "<<event<<"  Nhits: "<<n_lghits<<std::endl;
-
-      int nhit[7]={0};
-
       if (lg_hits1.size() != 0) {
-	for(int i=0;i<n_lghits;i++){//hit loop
-	  auto& lghit = lg_hits1[i];
-	  //lghit.Print();                                                                                 
-	  //std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-	  //std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-	  //std::cout<<"ph       : "<<lghit.PeakHeight()<<std::endl;
-	  //std::cout<<"T0_func  : "<<lghit.GetCalibTiming(lgbasic)<<std::endl;
-	  //std::cout<<"Gain_func: "<<lghit.GetEnergyDeposit(lgbasic)<<std::endl;
-	  //std::cout<<"Npeaks: "<<lghit.Npeaks()<<"  PulseHeight: "<<lghit.PeakHeight()<<std::endl;
-
-	  module = lghit.ModuleId();
-	  block = lghit.ChannelId();
-	  peakheight = lghit.PeakHeight();
-	  peaktime = lghit.PeakTime();
-	  timing = lghit.Timing();
-	  baseline = lghit.Baseline();
-	  baselinerms = lghit.BaselineRms();
-	  integral = lghit.Integral();
-	  npeak = lghit.Npeak();
-	  npeaks = lghit.Npeaks();
-	  fitflag = lghit.FitFlag();
-	  fitpeak = lghit.FitPeak();
-	  fitpeaktime = lghit.FitPeakTime();
-	  fittiming = lghit.FitTiming();
-	  fitwidth = lghit.FitWidth();
-	  fitchi2 = lghit.FitChi2();
-	  calibtiming = lghit.GetCalibTiming(lgbasic);
-	  energydeposit = lghit.GetEnergyDeposit(lgbasic);
-	  gpos[0] = lghit.GlobalPos(*geometry).X();
-	  gpos[1] = lghit.GlobalPos(*geometry).Y();
-	  gpos[2] = lghit.GlobalPos(*geometry).Z();
-	  lpos[0] = lghit.LocalPos(*geometry).X();
-	  lpos[1] = lghit.LocalPos(*geometry).Y();
-	  lpos[2] = lghit.LocalPos(*geometry).Z();
-
-#ifdef MKWF
-	  int hitid = lghit.HitId();
-	  auto spec = lgbasic.GetSpec(module,block);
-	  double wftype = spec->WF_TYPE;
-	  for(int cell=0;cell<200;cell++){
-	    int ph = lg_hits0.Hit(hitid).Waveform()[cell];
-	    waveform[cell] = ph*wftype;
+      	for(int i=0;i<n_lghits;i++){
+      	  auto& lghit = lg_hits1[i];
+      	  int tmod = lghit.ModuleId();
+      	  int tblk = lghit.ChannelId();
+	  if(lghit.PeakHeight()>30){
+	    dst1hitflag[tmod-100][tblk] = true;
+	    n_dst1hits++;
 	  }
+      	}
+      }
+      multi = n_dst1hits;
 #endif
 
-	  tree->Fill();
+//dst1trghit
+      int n_trg_lg_hits = record.Trigger().NumLGHits();
+      for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
+	auto& trghit = record.Trigger().LGHit(itrg);
+	int tmod = trghit.ModuleId();
+	int tblk = trghit.ChannelId();
+	dst1trghitflag[tmod-100][tblk] = true;
+	dst1trghitt[tmod-100][tblk] = trghit.Timing();
+	if(trghit.Timing()>3120&&trghit.Timing()<3150){
+	  n_dst1trghits++;
+	}
+      }
+      trgmulti = n_dst1trghits;
 
-	  if(fitflag<2){
-	  if(npeak==0){
-	  hph[module-102][block]->Fill(lghit.PeakHeight());
-	  hpt[module-102][block]->Fill(lghit.PeakTime());
-	  htm[module-102][block]->Fill(lghit.Timing());
-	  hbl[module-102][block]->Fill(lghit.Baseline());
-	  hbr[module-102][block]->Fill(lghit.BaselineRms());
-	  hit[module-102][block]->Fill(lghit.Integral());
-	  ht0[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic));
-	  hed[module-102][block]->Fill(lghit.GetEnergyDeposit(lgbasic));
-	  hnp[module-102][block]->Fill(lghit.Npeaks());
-	  hff[module-102][block]->Fill(lghit.FitFlag());
+      int n_trg_tracks = record.Trigger().NumTrackSets();
+      for(int i=0;i<n_trg_tracks;i++){
+	auto& track_set1 = record.Trigger().TrackSet(i);
+	auto& trghit1 = record.Trigger().LGHit(track_set1.LGHitOrder(0));
+	for(int j=i+1;j<n_trg_tracks;j++){
+	  auto& track_set2 = record.Trigger().TrackSet(j);
+	  auto& trghit2 = record.Trigger().LGHit(track_set2.LGHitOrder(0));
+	  int tmod1 = trghit1.ModuleId();
+	  int tblk1 = trghit1.ChannelId();
+	  float tt1 = trghit1.Timing();
+	  int tmod2 = trghit2.ModuleId();
+	  int tblk2 = trghit2.ChannelId();
+	  float tt2 = trghit2.Timing();
+	  int d1x = (tmod1-100)*7+(tblk1)%10;
+	  int d1y = (tblk1)/10;
+	  int d2x = (tmod2-100)*7+(tblk2)%10;
+	  int d2y = (tblk2)/10;
+	  int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+	  if( (tt1==0||tt2==0) && fabs(tt1-tt2)<TrigTW && dist>TrigAWmin && dist<TrigAWmax ){
+	    dst1trgtrkhitflag[tmod1-100][tblk1];
+	    dst1trgtrkhitflag[tmod2-100][tblk2];
 	  }
-	  hfp[module-102][block]->Fill(lghit.FitPeak());
-	  hfx[module-102][block]->Fill(lghit.FitPeakTime());
-	  hft[module-102][block]->Fill(lghit.FitTiming());
-	  //hft[module-102][block]->Fill(lghit.GetCalibTiming(lgbasic, lghit.FitTiming()));
-	  hfw[module-102][block]->Fill(lghit.FitWidth());
-	  hfc[module-102][block]->Fill(lghit.FitChi2());
-	  }
+	}
+      }
 
-	  nhit[module-102]++;
-	  nhit[105-102]++;
+//dst0hit
+      for (int n_hit = 0; n_hit < lg_hits0.NumberOfHits(); ++n_hit) {
+	auto hit0 = lg_hits0.Hit(n_hit);
+	module = hit0.ModuleID();
+	block = hit0.BlockID();
 
-	}//hit loop
+	auto spec = lgbasic.GetSpec(module,block);
+	double wftype = spec->WF_TYPE;
+	double t0 = lgbasic.GetT0(module,block);
+	int status = lgdead.Status(module,block);
 
-	for(int nmod=0;nmod<7;nmod++){
-	  hnh[nmod]->Fill(nhit[nmod]);
+	// double wf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+	  int ph = hit0.Waveform()[cell];
+	  // wf[cell] = ph*wftype;
+	  // waveform_raw[cell] = ph*wftype;
+	  waveform[cell] = ph;
+	}
+	E16ANA_LGWaveform::RemoveSpike(waveform);
+	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+	  waveform[cell] = waveform[cell]*wftype;
 	}
 
+	ip = spec->IP;
+
+	E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
+	lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
+
+	timing = lgwf->GetTiming();
+	peakheight = lgwf->GetPeak();
+	peaktime = lgwf->GetPeakx();
+	baseline = lgwf->GetBaseline();
+	baselinerms = lgwf->GetBaselineRms();
+	integral = lgwf->GetIntegral();
+	falltime = lgwf->GetFalltime();
+	spikeflag = lgwf->GetSpikeFlag();
+	calibtiming = 100.+timing-(lgbasic.GetT0(module,block));
+
+	dst1flag = dst1hitflag[module-100][block];
+	trg = dst1trghitflag[module-100][block];
+	trgwtrk = dst1trgtrkhitflag[module-100][block];
+	trg_lg_hit_t = dst1trghitt[module-100][block];
+
+	tree->Fill();
+
+	// if(peakheight>20&&trg_lg_hit_t>3050&&trg_lg_hit_t<3200){
+	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
+	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
+	// if(dst1flag){
+	// if(trg_lg_hit_t==0){//thr check
+	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
+	// }
+	// if(trg&&trg_lg_hit_t!=0){
+	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
+	// }
+	// if(trg_lg_hit_t==0){
+	if(dst1flag&&peakheight>30.){
+	  lghists->SetWaveform(module,block,waveform);
+	}
+
+	delete lgwf;
+
       }
-
-      auto& lg_clusters1 = record->LG().Clusters();
-      int n_lgclusters = lg_clusters1.size();
-      if (lg_clusters1.size() != 0) {
-	for(int icl=0;icl<n_lgclusters;icl++){//cluster loop
-	  auto& lgcluster = lg_clusters1[icl];
-	  if(lgcluster.HitOrders().size()>1){
-	    hctd->Fill(lgcluster.TimeDifference());
-	    hcmp->Fill(lgcluster.MaxPeakHeight());
-	    hctm->Fill(lgcluster.Timing());
-	    hcps->Fill(lgcluster.PeakSum());
-	    hcgx->Fill(lgcluster.GlobalPos(*geometry).X());
-	    hcgy->Fill(lgcluster.GlobalPos(*geometry).Y());
-	    hcgz->Fill(lgcluster.GlobalPos(*geometry).Z());
-	    hcgyx->Fill(lgcluster.GlobalPos(*geometry).X(),lgcluster.GlobalPos(*geometry).Y());
-	    hcgzx->Fill(lgcluster.GlobalPos(*geometry).X(),lgcluster.GlobalPos(*geometry).Z());
-	  }
-	}//cluster loop
-      }
-
-
-//// trigger
-//      event1->Trigger().Print(*geometry);
-//
-//// other
-////      event1->GTR().Print();
-////
-////      if (event1->LG().NumHits() != 0) {
-////        auto lghit = event1->LG().Hit(0);                                                          
-////        lghit.Print();                                                                                 
-////        std::cout<<"LPos:("<<lghit.LocalPos(*geometry).X()<< ","<<lghit.LocalPos(*geometry).Y()<<","<<lghit.LocalPos(*geometry).Z()<<")"<<std::endl;  
-////        std::cout<<"GPos:("<<lghit.GlobalPos(*geometry).X()<< ","<<lghit.GlobalPos(*geometry).Y()<<","<<lghit.GlobalPos(*geometry).Z()<<")"<<std::endl;     
-////      }
-//
-//      cout << endl << endl;
-//// Check end
-
-//      dst1->WriteAnEvent();
-//      delete event0;
-//      delete event1;
-      //delete record;
 
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
+      // frun<<"Scaler: "<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
 //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillStart) {
       auto event0 = dynamic_cast<E16DST_DST0SpillStartEvent*>(dst0->Event());
+      // frun<<"SpillS: "<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
 //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillEnd) {
       auto event0 = dynamic_cast<E16DST_DST0SpillEndEvent*>(dst0->Event());
+      // frun<<"SpillE: "<<event0->RunNumber()<<" "<<event0->SpillID()<<" "<<event0->EventIDInSpill()<<" "<<event0->EventID()<<" "<<event0->UnixTime()<<" "<<event0->TimeStamp()<<" "<<event0->TimeStampInSpill()<<std::endl;
 //      dst1->WriteAnEvent(event0);
     } else {
       std::cerr << "Invalid Event Type: " << event_type << std::endl;
@@ -366,6 +353,18 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+  TString pdfout = Form("%s",out_pdf_name);
+  TCanvas* c = new TCanvas("c","c",1400,700);
+  c->SaveAs(pdfout+"[","pdf");
+  lghists->Draw(pdfout,c);
+  lghists->Draw2D(pdfout,c);
+  lghists->DrawEach(pdfout,c);
+  lghists->DrawEachTimeCorrelation(pdfout,c);
+  c->SaveAs(pdfout+"]","pdf");
+
+  // TString wfpdfout = Form("%s",out_wf_pdf_name);
+  // lghists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();
