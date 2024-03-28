@@ -974,7 +974,6 @@ target_link_libraries(tmp_check_track_finding_230106
 )
 
 #_______________________________________________________________________________
-<<<<<<< HEAD
 add_executable(tmp_check_track_230129
   usr/tmp/tmp_check_track_230129_wrapper.cc
   usr/tmp/tmp_check_track_230129.C
