@@ -49,9 +49,10 @@ include_directories(
 	${ROOT_INCLUDE_DIRS}
 #	${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-#  /opt/E16/include/Geant4 # evb
-  /ccj/u/E16/include
-  /ccj/u/E16/include/Geant4 # ccj
+  /opt/E16/include
+  /opt/E16/include/Geant4 # evb
+#  /ccj/u/E16/include
+#  /ccj/u/E16/include/Geant4 # ccj
   include
   include/SSD
 	include/GTR
@@ -72,8 +73,8 @@ include_directories(
 
 link_directories(
 #  ${Boost_LIBRARY_DIRS}
-#  /opt/E16/lib64-gcc8/clhep # evb
-  /ccj/u/E16/lib64 #ccj
+  /opt/E16/lib64-gcc8/clhep # evb
+#  /ccj/u/E16/lib64 #ccj
 )
 
 link_libraries(
@@ -630,34 +631,34 @@ target_link_libraries(tmp_check_track_finding_230106
 )
 
 #_______________________________________________________________________________
-add_executable(tmp_check_track_230129
-  usr/tmp/tmp_check_track_230129_wrapper.cc
-  usr/tmp/tmp_check_track_230129.C
-)
-
-target_link_libraries(tmp_check_track_230129
-  E16ANA_Basic
-)
-
-#_______________________________________________________________________________
-add_executable(tmp_make_tfile_from_mock_data_230131
-  usr/tmp/tmp_make_tfile_from_mock_data_230131.cc
-)
-
-target_link_libraries(tmp_make_tfile_from_mock_data_230131
-  E16ANA_Basic
-)
-
-#_______________________________________________________________________________
-add_executable(refit_track_230207
-  usr/tmp/refit_track_230207_wrapper.cc
-  usr/tmp/refit_track_230207.C
-)
-
-target_link_libraries(refit_track_230207
-  E16ANA_Basic
-)
-
-#_______________________________________________________________________________
+#add_executable(tmp_check_track_230129
+#  usr/tmp/tmp_check_track_230129_wrapper.cc
+#  usr/tmp/tmp_check_track_230129.C
+#)
+#
+#target_link_libraries(tmp_check_track_230129
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(tmp_make_tfile_from_mock_data_230131
+#  usr/tmp/tmp_make_tfile_from_mock_data_230131.cc
+#)
+#
+#target_link_libraries(tmp_make_tfile_from_mock_data_230131
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(refit_track_230207
+#  usr/tmp/refit_track_230207_wrapper.cc
+#  usr/tmp/refit_track_230207.C
+#)
+#
+#target_link_libraries(refit_track_230207
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
