@@ -1,4 +1,5 @@
 #include "E16ANA_LGCheckHist.hh"
+#include "E16DST_Constant.hh"
 #include <TH1.h>
 #include <TLegend.h>
 #include <TGraph.h>
@@ -7,8 +8,8 @@
 #include <fstream>
 
 E16ANA_LGCheckHist::E16ANA_LGCheckHist(){
-  for(int i=0;i<8;i++){
-    for(int j=0;j<42;j++){
+  for(int i=0;i<NMOD;i++){
+    for(int j=0;j<NCH;j++){
       hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(j)),300,0,300);
       hpeaktime[i][j] = new TH1F(Form("hpeaktime%d%02d",i,j),Form("peaktime_%d_%d",IndexToModule(i),IndexToBlock(j)),200,0,200);
       htiming[i][j] = new TH1F(Form("htiming%d%02d",i,j),Form("timing_%d_%d",IndexToModule(i),IndexToBlock(j)),200,0,200);
@@ -20,11 +21,11 @@ E16ANA_LGCheckHist::E16ANA_LGCheckHist(){
       ftiming[i][j] = new TF1(Form("ftiming%d%02d",i,j),"gaus",0,200);
     }
   }
-  for(int i=0;i<8;i++){
-    for(int j=0;j<42;j++){
+  for(int i=0;i<NMOD;i++){
+    for(int j=0;j<NCH;j++){
       wfcount[i][j] = 0;
       for(int k=0;k<3;k++){
-	for(int l=0;l<200;l++){
+	for(int l=0;l<E16DST_Constant::NSamplesLG;l++){
 	  wf[i][j][k][l] = -10000.;
 	}
       }
@@ -32,8 +33,8 @@ E16ANA_LGCheckHist::E16ANA_LGCheckHist(){
   }
 }
 E16ANA_LGCheckHist::~E16ANA_LGCheckHist(){
-  for(int i=0;i<8;i++){
-    for(int j=0;j<42;j++){
+  for(int i=0;i<NMOD;i++){
+    for(int j=0;j<NCH;j++){
       delete hpeak[i][j];
       delete hpeaktime[i][j];
       delete htiming[i][j];
@@ -195,11 +196,11 @@ void E16ANA_LGCheckHist::DrawEachIntegral(TString& fpdf, TCanvas* c){
 void E16ANA_LGCheckHist::DrawEachNhits(TString& fpdf, TCanvas* c){
   DrawEachHist(fpdf,c,hnhits);
 }
-void E16ANA_LGCheckHist::DrawEachHist(TString& fpdf, TCanvas* c, TH1F* h[8][42]){
-  for(int i=0;i<8;i++){
+void E16ANA_LGCheckHist::DrawEachHist(TString& fpdf, TCanvas* c, TH1F* h[NMOD][NCH]){
+  for(int i=0;i<NMOD;i++){
     c->Clear();
     c->Divide(7,6);
-    for(int j=0;j<42;j++){
+    for(int j=0;j<NCH;j++){
       c->cd(j+1);
       h[i][j]->Draw("hist");
     }
@@ -212,10 +213,10 @@ void E16ANA_LGCheckHist::DrawEachHist(TString& fpdf, TCanvas* c, TH1F* h[8][42])
   }
 }
 void E16ANA_LGCheckHist::DrawEachTimeCorrelation(TString& fpdf, TCanvas* c){
-  for(int i=0;i<8;i++){
+  for(int i=0;i<NMOD;i++){
     c->Clear();
     c->Divide(7,6);
-    for(int j=0;j<42;j++){
+    for(int j=0;j<NCH;j++){
       c->cd(j+1);
       htimcor[i][j]->Draw("colz");
     }
@@ -258,16 +259,16 @@ void E16ANA_LGCheckHist::DrawIntegral(TString& fpdf, TCanvas* c){
 void E16ANA_LGCheckHist::DrawNhits(TString& fpdf, TCanvas* c){
   DrawGraph(fpdf,c,"Nhits",hnhits,gnhits);
 }
-void E16ANA_LGCheckHist::DrawGraph(TString& fpdf, TCanvas* c, char* name, TH1F* h[8][42], TGraph* g[8]){
+void E16ANA_LGCheckHist::DrawGraph(TString& fpdf, TCanvas* c, char* name, TH1F* h[NMOD][NCH], TGraph* g[NMOD]){
   double min = (h[0][0]->GetXaxis()->GetBinCenter(0)+h[0][0]->GetXaxis()->GetBinCenter(1))/2.;
   double max = min + (h[0][0]->GetBinWidth(1))*(h[0][0]->GetNbinsX());
   c->Clear();
   c->cd()->SetGrid();
-  for(int i=0;i<8;i++){
+  for(int i=0;i<NMOD;i++){
     double x[38];
     double y[38];
     int l=0;
-    for(int j=0;j<42;j++){
+    for(int j=0;j<NCH;j++){
       // int k = 41-j;
       int cid = IndexToBlock(j);
       if(!IsValidBlockId(cid)) continue;
@@ -323,12 +324,12 @@ void E16ANA_LGCheckHist::Draw2DIntegral(TString& fpdf, TCanvas* c){
 void E16ANA_LGCheckHist::Draw2DNhits(TString& fpdf, TCanvas* c){
   Draw2DHist(fpdf,c,"Nhits",hnhits,hhnhits);
 }
-void E16ANA_LGCheckHist::Draw2DHist(TString& fpdf, TCanvas* c, char* name, TH1F* h[8][42], TH2F* hh[8]){
+void E16ANA_LGCheckHist::Draw2DHist(TString& fpdf, TCanvas* c, char* name, TH1F* h[NMOD][NCH], TH2F* hh[NMOD]){
   c->Clear();
   c->Divide(4,2);
-  for(int i=0;i<8;i++){
+  for(int i=0;i<NMOD;i++){
     hh[i] = new TH2F(Form("hh%d",i),Form("%s_%d",name,IndexToModule(i)),7,-0.5,6.5,6,-0.5,5.5);
-    for(int j=0;j<42;j++){
+    for(int j=0;j<NCH;j++){
       int cid = IndexToBlock(j);
       int x = cid%10;
       int y = cid/10;
@@ -342,9 +343,9 @@ void E16ANA_LGCheckHist::Draw2DHist(TString& fpdf, TCanvas* c, char* name, TH1F*
 //////////////////////////////////////////////////////////////////////////
 void E16ANA_LGCheckHist::MakeT0CalibFile(){
   std::ofstream fout("t0calib.txt");
-  for(int i=0;i<8;i++){
+  for(int i=0;i<NMOD;i++){
     int module = IndexToModule(i);
-    for(int j=0;j<42;j++){
+    for(int j=0;j<NCH;j++){
       int block = IndexToBlock(j);
       if(!IsValidBlockId(block)) continue;
       // double hmean = htiming[i][j]->GetMean();
@@ -359,30 +360,30 @@ void E16ANA_LGCheckHist::MakeT0CalibFile(){
     }
   }
 }
-void E16ANA_LGCheckHist::SetWaveform(int module, int block, double waveform[200]){
+void E16ANA_LGCheckHist::SetWaveform(int module, int block, double waveform[E16DST_Constant::NSamplesLG]){
   int ii = ModuleToIndex(module);
   int ij = BlockToIndex(block);
   if( wfcount[ii][ij]>=0 && wfcount[ii][ij]<=2 ){
-    for(int cell=0;cell<200;cell++){
+    for(int cell=0;cell<E16DST_Constant::NSamplesLG;cell++){
       wf[ii][ij][wfcount[ii][ij]][cell] = waveform[cell];
     }
     wfcount[ii][ij]++;
   }
 }
 void E16ANA_LGCheckHist::DrawWaveform(TString& fpdf){
-  double x[200];
-  for(int cell=0;cell<200;cell++){
+  double x[E16DST_Constant::NSamplesLG];
+  for(int cell=0;cell<E16DST_Constant::NSamplesLG;cell++){
     x[cell] = (double)cell;
   }
   TCanvas* c = new TCanvas("c","c",700,500);
   c->SaveAs(fpdf+"[","pdf");
-  for(int i=0;i<8;i++){
+  for(int i=0;i<NMOD;i++){
     int module = IndexToModule(i);
-    for(int j=0;j<42;j++){
+    for(int j=0;j<NCH;j++){
       int block = IndexToBlock(j);
       if(!IsValidBlockId(block)) continue;
       for(int k=0;k<3;k++){
-	TGraph* g = new TGraph(200,x,wf[i][j][k]);
+	TGraph* g = new TGraph(E16DST_Constant::NSamplesLG,x,wf[i][j][k]);
 	g->SetTitle(Form("%d-%d ",module,block));
 	g->Draw("A*L");
 	c->SaveAs(fpdf,"pdf");

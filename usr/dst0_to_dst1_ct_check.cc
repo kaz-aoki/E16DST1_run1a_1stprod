@@ -6,18 +6,19 @@
 // #include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
-#include "E16ANA_GTRcalib.hh"
+// #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_TriggerCalib.hh"
 #include "E16DST_DST0.hh"
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
-#include "E16ANA_LGBasic.hh"
-#include "E16ANA_LGWaveform.hh"
-#include "E16ANA_LGConstant.hh"
-#include "E16ANA_LGDeadChannel.hh"
-#include "E16ANA_LGClustering.hh"
-#include "E16ANA_LGCheckHist.hh"
+#include "E16ANA_CTBasic.hh"
+#include "E16ANA_CTWaveform.hh"
+#include "E16ANA_LGWaveform.hh" // for RemoveSpike()
+#include "E16ANA_CTConstant.hh"
+// #include "E16ANA_LGDeadChannel.hh"
+// #include "E16ANA_LGClustering.hh"
+#include "E16ANA_CTCheckHist.hh"
 #include "E16DST_Constant.hh"
 
 using namespace std;
@@ -25,7 +26,7 @@ using namespace std;
 
 #define WF_ON
 // #define TRG_ON
-#define LGDST1_ON
+// #define LGDST1_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 7) {
@@ -45,13 +46,13 @@ int main(int argc, char* argv[]) {
   // std::ofstream frun("runinfo.txt");
 
   uint16_t module, block;
-  float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
+  float peakheight, timing, baseline, baselinerms, integral, trg_lg_hit_t;
   int run, event, spill, multi, trgmulti, peaktime, ip, timestampinspill;
   bool sl, sr, sl2, sr2, im3, im2, spikeflag, dst1flag, trg, trgwtrk;
   double gpos[3];
   double lpos[3];
-  // double waveform_raw[E16DST_Constant::NSamplesLG];
-  double waveform[E16DST_Constant::NSamplesLG];
+  // double waveform_raw[E16DST_Constant::NSamplesCT];
+  double waveform[E16DST_Constant::NSamplesCT];
 
   tree->Branch("Run",&run,"Run/I");
   tree->Branch("Event",&event,"Event/I");
@@ -75,16 +76,12 @@ int main(int argc, char* argv[]) {
   tree->Branch("Baseline",&baseline,"Baseline/F");
   tree->Branch("BaselineRms",&baselinerms,"BaselineRms/F");
   tree->Branch("Integral",&integral,"Integral/F");
-  tree->Branch("Falltime",&falltime,"Falltime/F");
-  tree->Branch("SpikeFlag",&spikeflag,"SpikeFlag/O");
-  tree->Branch("CalibTiming",&calibtiming,"CalibTiming/F");
-  tree->Branch("EnergyDeposit",&energydeposit,"EnergyDeposit/F");
   tree->Branch("Dst1Flag",&dst1flag,"Dst1Flag/O");
   tree->Branch("Gpos",gpos,"Gpos[3]/D");
   tree->Branch("Lpos",lpos,"Lpos[3]/D");
 #ifdef WF_ON
-  // tree->Branch("Waveform_raw",waveform_raw,Form("Waveform_raw[%d]/D",E16DST_Constant::NSamplesLG));
-  tree->Branch("Waveform",waveform,Form("Waveform[%d]/D",E16DST_Constant::NSamplesLG));
+  // tree->Branch("Waveform_raw",waveform_raw,Form("Waveform_raw[%d]/D",E16DST_Constant::NSamplesCT));
+  tree->Branch("Waveform",waveform,Form("Waveform[%d]/D",E16DST_Constant::NSamplesCT));
 #endif
   tree->Branch("TrgTiming",&trg_lg_hit_t,"TrgTiming/F");
   tree->Branch("Trg",&trg,"Trg/O");
@@ -110,12 +107,12 @@ int main(int argc, char* argv[]) {
 
   // E16ANA_GTRcalibPedestal gtrped;
   // gtrped.ReadCalibData( calib.CurrentRunID() );
-  E16ANA_LGBasic lgbasic;
-  E16ANA_LGDeadChannel lgdead;
-  lgbasic.SetMap();
-  lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
-  lgbasic.SetTemplate();
-  lgdead.ReadDeadChannelData();
+  E16ANA_CTBasic ctbasic;
+  // E16ANA_LGDeadChannel lgdead;
+  ctbasic.SetMap();
+  // ctbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
+  // ctbasic.SetTemplate();
+  // lgdead.ReadDeadChannelData();
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -136,7 +133,7 @@ int main(int argc, char* argv[]) {
   //   return -1;
   // }
 
-  auto *lghists = new E16ANA_LGCheckHist();
+  auto *cthists = new E16ANA_CTCheckHist();
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -154,18 +151,20 @@ int main(int argc, char* argv[]) {
       // auto& ssd_hits0         = event0->SSD();
       // auto& gtr_hits0         = event0->GTR();
       // auto& hbd_hits0         = event0->HBD();
-      auto& lg_hits0          = event0->LG();
+      auto& ct_hits0          = event0->CT();
+      // auto& lg_hits0          = event0->LG();
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
+      auto& trigger_ct_hits0  = event0->TriggerCT();
       auto& trigger_lg_hits0  = event0->TriggerLG();
       // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
 
-#ifdef LGDST1_ON
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
-      record.LG().AddHitAndClusterIds();
-      record.LG().UpdatePtrs();
-#endif
+// #ifdef LGDST1_ON
+//       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
+//       record.LG().AddHitAndClusterIds();
+//       record.LG().UpdatePtrs();
+// #endif
 #ifdef TRG_ON
 #ifdef TMP_NIM_TRIGGER
       auto time_stamp = event0->TimeStamp();
@@ -198,120 +197,115 @@ int main(int argc, char* argv[]) {
       if(im3flag==0){im3 = false;} else{im3 = true;}
       if(im2flag==0){im2 = false;} else{im2 = true;}
 
-      int n_dst1hits = 0;
-      int n_dst1trghits = 0;
-      bool dst1hitflag[10][56];
-      bool dst1trghitflag[10][56];
-      float dst1trghitt[10][56];
-      bool dst1trgtrkhitflag[10][56];
-      for(int i=0;i<10;i++){
-	for(int j=0;j<56;j++){
-	  dst1hitflag[i][j] = false;
-	  dst1trghitflag[i][j] = false;
-	  dst1trghitt[i][j] = -10000.;
-	  dst1trgtrkhitflag[i][j] = false;
-	}
-      }
+      // int n_dst1hits = 0;
+      // int n_dst1trghits = 0;
+      // bool dst1hitflag[10][56];
+      // bool dst1trghitflag[10][56];
+      // float dst1trghitt[10][56];
+      // bool dst1trgtrkhitflag[10][56];
+      // for(int i=0;i<10;i++){
+      // 	for(int j=0;j<56;j++){
+      // 	  dst1hitflag[i][j] = false;
+      // 	  dst1trghitflag[i][j] = false;
+      // 	  dst1trghitt[i][j] = -10000.;
+      // 	  dst1trgtrkhitflag[i][j] = false;
+      // 	}
+      // }
 
 //dst1hit
 #ifdef LGDST1_ON
-      auto& lg_hits1 = record.LG().Hits();
-      int n_lghits = lg_hits1.size();
-      if (lg_hits1.size() != 0) {
-      	for(int i=0;i<n_lghits;i++){
-      	  auto& lghit = lg_hits1[i];
-      	  int tmod = lghit.ModuleId();
-      	  int tblk = lghit.ChannelId();
-	  if(lghit.PeakHeight()>30){
-	    dst1hitflag[tmod-100][tblk] = true;
-	    n_dst1hits++;
-	  }
-      	}
-      }
-      multi = n_dst1hits;
+      // auto& lg_hits1 = record.LG().Hits();
+      // int n_lghits = lg_hits1.size();
+      // if (lg_hits1.size() != 0) {
+      // 	for(int i=0;i<n_lghits;i++){
+      // 	  auto& lghit = lg_hits1[i];
+      // 	  int tmod = lghit.ModuleId();
+      // 	  int tblk = lghit.ChannelId();
+      // 	  if(lghit.PeakHeight()>30){
+      // 	    dst1hitflag[tmod-100][tblk] = true;
+      // 	    n_dst1hits++;
+      // 	  }
+      // 	}
+      // }
+      // multi = n_dst1hits;
 #endif
 
 //dst1trghit
-      int n_trg_lg_hits = record.Trigger().NumLGHits();
-      for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
-	auto& trghit = record.Trigger().LGHit(itrg);
-	int tmod = trghit.ModuleId();
-	int tblk = trghit.ChannelId();
-	dst1trghitflag[tmod-100][tblk] = true;
-	dst1trghitt[tmod-100][tblk] = trghit.Timing();
-	if(trghit.Timing()>3120&&trghit.Timing()<3150){
-	  n_dst1trghits++;
-	}
-      }
-      trgmulti = n_dst1trghits;
+      // int n_trg_lg_hits = record.Trigger().NumLGHits();
+      // for(int itrg=0;itrg<n_trg_lg_hits;itrg++){
+      // 	auto& trghit = record.Trigger().LGHit(itrg);
+      // 	int tmod = trghit.ModuleId();
+      // 	int tblk = trghit.ChannelId();
+      // 	dst1trghitflag[tmod-100][tblk] = true;
+      // 	dst1trghitt[tmod-100][tblk] = trghit.Timing();
+      // 	if(trghit.Timing()>3120&&trghit.Timing()<3150){
+      // 	  n_dst1trghits++;
+      // 	}
+      // }
+      // trgmulti = n_dst1trghits;
 
-      int n_trg_tracks = record.Trigger().NumTrackSets();
-      for(int i=0;i<n_trg_tracks;i++){
-	auto& track_set1 = record.Trigger().TrackSet(i);
-	auto& trghit1 = record.Trigger().LGHit(track_set1.LGHitOrder(0));
-	for(int j=i+1;j<n_trg_tracks;j++){
-	  auto& track_set2 = record.Trigger().TrackSet(j);
-	  auto& trghit2 = record.Trigger().LGHit(track_set2.LGHitOrder(0));
-	  int tmod1 = trghit1.ModuleId();
-	  int tblk1 = trghit1.ChannelId();
-	  float tt1 = trghit1.Timing();
-	  int tmod2 = trghit2.ModuleId();
-	  int tblk2 = trghit2.ChannelId();
-	  float tt2 = trghit2.Timing();
-	  int d1x = (tmod1-100)*7+(tblk1)%10;
-	  int d1y = (tblk1)/10;
-	  int d2x = (tmod2-100)*7+(tblk2)%10;
-	  int d2y = (tblk2)/10;
-	  int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
-	  if( (tt1==0||tt2==0) && fabs(tt1-tt2)<TrigTW && dist>TrigAWmin && dist<TrigAWmax ){
-	    dst1trgtrkhitflag[tmod1-100][tblk1];
-	    dst1trgtrkhitflag[tmod2-100][tblk2];
-	  }
-	}
-      }
+      // int n_trg_tracks = record.Trigger().NumTrackSets();
+      // for(int i=0;i<n_trg_tracks;i++){
+      // 	auto& track_set1 = record.Trigger().TrackSet(i);
+      // 	auto& trghit1 = record.Trigger().LGHit(track_set1.LGHitOrder(0));
+      // 	for(int j=i+1;j<n_trg_tracks;j++){
+      // 	  auto& track_set2 = record.Trigger().TrackSet(j);
+      // 	  auto& trghit2 = record.Trigger().LGHit(track_set2.LGHitOrder(0));
+      // 	  int tmod1 = trghit1.ModuleId();
+      // 	  int tblk1 = trghit1.ChannelId();
+      // 	  float tt1 = trghit1.Timing();
+      // 	  int tmod2 = trghit2.ModuleId();
+      // 	  int tblk2 = trghit2.ChannelId();
+      // 	  float tt2 = trghit2.Timing();
+      // 	  int d1x = (tmod1-100)*7+(tblk1)%10;
+      // 	  int d1y = (tblk1)/10;
+      // 	  int d2x = (tmod2-100)*7+(tblk2)%10;
+      // 	  int d2y = (tblk2)/10;
+      // 	  int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+      // 	  if( (tt1==0||tt2==0) && fabs(tt1-tt2)<TrigTW && dist>TrigAWmin && dist<TrigAWmax ){
+      // 	    dst1trgtrkhitflag[tmod1-100][tblk1];
+      // 	    dst1trgtrkhitflag[tmod2-100][tblk2];
+      // 	  }
+      // 	}
+      // }
 
 //dst0hit
-      for (int n_hit = 0; n_hit < lg_hits0.NumberOfHits(); ++n_hit) {
-	auto hit0 = lg_hits0.Hit(n_hit);
+      for (int n_hit = 0; n_hit < ct_hits0.NumberOfHits(); ++n_hit) {
+	auto hit0 = ct_hits0.Hit(n_hit);
 	module = hit0.ModuleID();
-	block = hit0.BlockID();
+	block = hit0.ChannelID();
 
-	auto spec = lgbasic.GetSpec(module,block);
+	auto spec = ctbasic.GetSpec(module,block);
 	double wftype = spec->WF_TYPE;
-	double t0 = lgbasic.GetT0(module,block);
-	int status = lgdead.Status(module,block);
+	// double t0 = ctbasic.GetT0(module,block);
+	// int status = lgdead.Status(module,block);
 
-	// double wf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
-	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+	for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
 	  int ph = hit0.Waveform()[cell];
-	  // wf[cell] = ph*wftype;
 	  // waveform_raw[cell] = ph*wftype;
 	  waveform[cell] = ph;
 	}
 	E16ANA_LGWaveform::RemoveSpike(waveform);
-	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
+	for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
 	  waveform[cell] = waveform[cell]*wftype;
 	}
 
 	ip = spec->IP;
 
-	E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
-	lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
+	E16ANA_CTWaveform* ctwf = new E16ANA_CTWaveform();
+	ctwf->SimpleMethod(waveform); // 700 event/sec @1e10
 
-	timing = lgwf->GetTiming();
-	peakheight = lgwf->GetPeak();
-	peaktime = lgwf->GetPeakx();
-	baseline = lgwf->GetBaseline();
-	baselinerms = lgwf->GetBaselineRms();
-	integral = lgwf->GetIntegral();
-	falltime = lgwf->GetFalltime();
-	spikeflag = lgwf->GetSpikeFlag();
-	calibtiming = 100.+timing-(lgbasic.GetT0(module,block));
+	timing = ctwf->GetTiming();
+	peakheight = ctwf->GetPeak();
+	peaktime = ctwf->GetPeakx();
+	baseline = ctwf->GetBaseline();
+	baselinerms = ctwf->GetBaselineRms();
+	integral = ctwf->GetIntegral();
 
-	dst1flag = dst1hitflag[module-100][block];
-	trg = dst1trghitflag[module-100][block];
-	trgwtrk = dst1trgtrkhitflag[module-100][block];
-	trg_lg_hit_t = dst1trghitt[module-100][block];
+	// dst1flag = dst1hitflag[module-100][block];
+	// trg = dst1trghitflag[module-100][block];
+	// trgwtrk = dst1trgtrkhitflag[module-100][block];
+	// trg_lg_hit_t = dst1trghitt[module-100][block];
 
 	tree->Fill();
 
@@ -320,17 +314,17 @@ int main(int argc, char* argv[]) {
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
 	// if(trg_lg_hit_t==0){//thr check
-	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
+	  cthists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
 	// }
 	// if(trg&&trg_lg_hit_t!=0){
-	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
+	  cthists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	// }
 	// if(trg_lg_hit_t==0){
 	if(dst1flag&&peakheight>30.){
-	  lghists->SetWaveform(module,block,waveform);
+	  cthists->SetWaveform(module,block,waveform);
 	}
 
-	delete lgwf;
+	delete ctwf;
 
       }
 
@@ -357,14 +351,14 @@ int main(int argc, char* argv[]) {
   TString pdfout = Form("%s",out_pdf_name);
   TCanvas* c = new TCanvas("c","c",1400,700);
   c->SaveAs(pdfout+"[","pdf");
-  lghists->Draw(pdfout,c);
-  lghists->Draw2D(pdfout,c);
-  lghists->DrawEach(pdfout,c);
-  lghists->DrawEachTimeCorrelation(pdfout,c);
+  cthists->Draw(pdfout,c);
+  cthists->Draw2D(pdfout,c);
+  cthists->DrawEach(pdfout,c);
+  cthists->DrawEachTimeCorrelation(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
   TString wfpdfout = Form("%s",out_wf_pdf_name);
-  lghists->DrawWaveform(wfpdfout);
+  cthists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();
