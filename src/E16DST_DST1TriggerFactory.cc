@@ -29,7 +29,8 @@ int E16ANA_TriggerTime(E16ANA_TriggerCalibParam& trigger_param, int detector, ui
 #endif // TMP_NIM_TRIGGER
 }
 
-bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector, E16DST_DST1TriggerHit* hit1) {
+bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& hit0, uint32_t trigger_tdc, int detector,
+                                    E16DST_DST1TriggerHit* hit1) {
   hit1->SetInvalid();
   hit1->SetIds(hit0.ModuleID(), hit0.ChannelID());
   hit1->SetDetector(detector);
@@ -37,7 +38,8 @@ bool E16ANA_TriggerSingleHitFactory(E16ANA_TriggerCalibParam& trigger_param, E16
   return true;
 }
 
-int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint32_t trigger_tdc, int detector, std::vector<E16DST_DST1TriggerHit>* hits1, std::vector<E16DST_DST1TriggerCluster>* clusters1) {
+int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hits0, uint32_t trigger_tdc, int detector,
+                                       std::vector<E16DST_DST1TriggerHit>* hits1, std::vector<E16DST_DST1TriggerCluster>* clusters1) {
   auto max_hit = hits0.NumberOfHits();
   hits1->resize(max_hit);
   for (int n_hit = 0; n_hit < max_hit; ++n_hit) {

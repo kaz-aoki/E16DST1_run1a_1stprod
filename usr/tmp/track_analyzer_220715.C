@@ -844,24 +844,24 @@ void track_analyzer_220715::MakeEMBranches(TTree* tree) {
   tree->Branch("fit_parent_good_tgt_ids",          &em_fit_parent_good_tgt_ids);
   tree->Branch("fit_parent_x0_y",                  &em_fit_parent_x0_y);
   tree->Branch("fit_parent_x0_z",                  &em_fit_parent_x0_z);
-//  tree->Branch("proj_plus_n_hbds",                 &out_proj_plus_n_hbds);
-//  tree->Branch("proj_plus_hbd_id",                 &out_proj_plus_hbd_id);
-//  tree->Branch("proj_plus_hbd_lx",                 &out_proj_plus_hbd_lx);
-//  tree->Branch("proj_plus_hbd_ly",                 &out_proj_plus_hbd_ly);
-//  tree->Branch("proj_plus_hbd_resx",               &out_proj_plus_hbd_resx);
-//  tree->Branch("proj_plus_hbd_resy",               &out_proj_plus_hbd_resy);
-//  tree->Branch("proj_plus_hbd_adc",                &out_proj_plus_hbd_adc);
-//  tree->Branch("proj_plus_hbd_size",               &out_proj_plus_hbd_size);
-//  tree->Branch("proj_plus_hbd_eprob",              &out_proj_plus_hbd_eprob);
-//  tree->Branch("proj_minus_n_hbds",                &out_proj_minus_n_hbds);
-//  tree->Branch("proj_minus_hbd_id",                &out_proj_minus_hbd_id);
-//  tree->Branch("proj_minus_hbd_lx",                &out_proj_minus_hbd_lx);
-//  tree->Branch("proj_minus_hbd_ly",                &out_proj_minus_hbd_ly);
-//  tree->Branch("proj_minus_hbd_resx",              &out_proj_minus_hbd_resx);
-//  tree->Branch("proj_minus_hbd_resy",              &out_proj_minus_hbd_resy);
-//  tree->Branch("proj_minus_hbd_adc",               &out_proj_minus_hbd_adc);
-//  tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
-//  tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
+//  tree->Branch("proj_plus_n_hbds",                 &em_proj_plus_n_hbds);
+//  tree->Branch("proj_plus_hbd_id",                 &em_proj_plus_hbd_id);
+//  tree->Branch("proj_plus_hbd_lx",                 &em_proj_plus_hbd_lx);
+//  tree->Branch("proj_plus_hbd_ly",                 &em_proj_plus_hbd_ly);
+//  tree->Branch("proj_plus_hbd_resx",               &em_proj_plus_hbd_resx);
+//  tree->Branch("proj_plus_hbd_resy",               &em_proj_plus_hbd_resy);
+//  tree->Branch("proj_plus_hbd_adc",                &em_proj_plus_hbd_adc);
+//  tree->Branch("proj_plus_hbd_size",               &em_proj_plus_hbd_size);
+//  tree->Branch("proj_plus_hbd_eprob",              &em_proj_plus_hbd_eprob);
+//  tree->Branch("proj_minus_n_hbds",                &em_proj_minus_n_hbds);
+//  tree->Branch("proj_minus_hbd_id",                &em_proj_minus_hbd_id);
+//  tree->Branch("proj_minus_hbd_lx",                &em_proj_minus_hbd_lx);
+//  tree->Branch("proj_minus_hbd_ly",                &em_proj_minus_hbd_ly);
+//  tree->Branch("proj_minus_hbd_resx",              &em_proj_minus_hbd_resx);
+//  tree->Branch("proj_minus_hbd_resy",              &em_proj_minus_hbd_resy);
+//  tree->Branch("proj_minus_hbd_adc",               &em_proj_minus_hbd_adc);
+//  tree->Branch("proj_minus_hbd_size",              &em_proj_minus_hbd_size);
+//  tree->Branch("proj_minus_hbd_eprob",             &em_proj_minus_hbd_eprob);
   return;
 }
 
@@ -2060,34 +2060,86 @@ void track_analyzer_220715::FillTVector3(int n, const TVector3& tvec, vector<dou
   return;
 }
 
+void track_analyzer_220715::ProjectionSSD(int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                                          TVector3* ssd_lpos, TVector3* ssd_gpos, TVector3* ssd_lmom, TVector3* ssd_gmom) {
+  auto mid2013 = ModuleID2013(module_id);
+  int tid = 0; // track ID
+  int lid = 0; // layer ID
+  int hid = 0; // hit ID
+  TVector3 lpos(0., 0., 0.); // dummy hit
+  TVector3 lsigma(0., 0., 0.); // dummy hit
+  std::vector<int> mids;
+  std::vector<TVector3> lposs;
+  std::vector<TVector3> lmoms;
+  proj_fitter->Clear();
+  auto tmp_geom = geometry->SSD(mid2013);
+  proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+  proj_fitter->SetMaxSteps(kProjectionMaxSteps);
+  proj_fitter->RungeKuttaTracking(tid, init_pos, init_mom, charge);
+  proj_fitter->GetFitLPos(tid, lid, mids, lposs);
+  proj_fitter->GetFitLMom(tid, lid, mids, lmoms);
+  *ssd_lpos = lposs[hid];
+  *ssd_lmom = lmoms[hid];
+  *ssd_gpos = geometry->SSD(mid2013)->GetGPos(*ssd_lpos);
+  *ssd_gmom = geometry->SSD(mid2013)->GetGMom(*ssd_lmom);
+  return;
+}
+
+void track_analyzer_220715::ProjectionGTR(int layer_id, int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                                          TVector3* gtr_lpos, TVector3* gtr_gpos, TVector3* gtr_lmom, TVector3* gtr_gmom) {
+  auto mid2013 = ModuleID2013(module_id);
+  int tid = 0; // track ID
+  int lid = 0; // layer ID
+  int hid = 0; // hit ID
+  TVector3 lpos(0., 0., 0.); // dummy hit
+  TVector3 lsigma(0., 0., 0.); // dummy hit
+  std::vector<int> mids;
+  std::vector<TVector3> lposs;
+  std::vector<TVector3> lmoms;
+  proj_fitter->Clear();
+  auto tmp_geom = geometry->GTR(mid2013, layer_id);
+  proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+  proj_fitter->SetMaxSteps(kProjectionMaxSteps);
+  proj_fitter->RungeKuttaTracking(tid, init_pos, init_mom, charge);
+  proj_fitter->GetFitLPos(tid, lid, mids, lposs);
+  proj_fitter->GetFitLMom(tid, lid, mids, lmoms);
+  *gtr_lpos = lposs[hid];
+  *gtr_lmom = lmoms[hid];
+  *gtr_gpos = geometry->GTR(mid2013, layer_id)->GetGPos(*gtr_lpos);
+  *gtr_gmom = geometry->GTR(mid2013, layer_id)->GetGMom(*gtr_lmom);
+  return;
+}
+
 void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   auto vtx       = fitter->GetFitVertex();
   array<TVector3, 2> moms;
-#ifndef PAIR_FIT_WO_SSD
   array<array<TVector3, 4>, 2> lposs;
   array<array<TVector3, 4>, 2> lmoms;
   array<array<TVector3, 4>, 2> gposs;
   array<array<TVector3, 4>, 2> gmoms;
-#else // PAIR_FIT_WO_SSD
-  array<array<TVector3, 3>, 2> lposs;
-  array<array<TVector3, 3>, 2> lmoms;
-  array<array<TVector3, 3>, 2> gposs;
-  array<array<TVector3, 3>, 2> gmoms;
-#endif // PAIR_FIT_WO_SSD
   for (int t = 0; t < 2; ++t) {
     moms[t] = fitter->GetFitMomentum(t);
-#ifndef PAIR_FIT_WO_SSD
+    int ll = 0;
     for (int l = 0; l < 4; ++l) {
-#else // PAIR_FIT_WO_SSD
-    for (int l = 0; l < 3; ++l) {
-#endif // PAIR_FIT_WO_SSD
+      if (kFitFlag == kFitWoSSD && l == 0) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR100 && l == 1) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR200 && l == 2) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR300 && l == 3) {
+        continue;
+      }
       vector<int>      tmp_mids;
       vector<TVector3> tmp_lposs;
       vector<TVector3> tmp_lmoms;
-      fitter->GetFitLPos(t, l, tmp_mids, tmp_lposs);
+      fitter->GetFitLPos(t, ll, tmp_mids, tmp_lposs);
+      fitter->GetFitLMom(t, ll, tmp_mids, tmp_lmoms);
       auto mid = tmp_mids[0];
       lposs[t][l] = tmp_lposs[0];
-      fitter->GetFitLMom(t, l, tmp_mids, tmp_lmoms);
       lmoms[t][l] = tmp_lmoms[0];
       if (l == 0) {
         gposs[t][l] = geometry->SSD(mid)->GetGPos(lposs[t][l]);
@@ -2096,6 +2148,7 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
         gposs[t][l] = geometry->GTR(mid, l - 1)->GetGPos(lposs[t][l]);
         gmoms[t][l] = geometry->GTR(mid, l - 1)->GetGMom(lposs[t][l]);
       }
+      ++ll;
     }
   }
   out_chi2[n]            = chi2;
@@ -2110,54 +2163,125 @@ void track_analyzer_220715::FillBranchesFromPairFit(int n, double chi2) {
   out_pipi_mass[n]       = CalcMass(kPiPi, moms[0], moms[1]);
   out_pip_mass[n]        = CalcMass(kPiP,  moms[0], moms[1]);
   out_kk_mass[n]         = CalcMass(kKK,   moms[0], moms[1]);
-  FillTVector3(n, vtx,         &out_vtx_x,               &out_vtx_y,               &out_vtx_z);
-  FillTVector3(n, moms[0],     &out_plus_mom_x,          &out_plus_mom_y,          &out_plus_mom_z);
-  FillTVector3(n, moms[1],     &out_minus_mom_x,         &out_minus_mom_y,         &out_minus_mom_z);
-#ifndef PAIR_FIT_WO_SSD
-  FillTVector3(n, lposs[0][0], &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
-  FillTVector3(n, lposs[0][1], &out_fit_plus_gtr100_lx,  &out_fit_plus_gtr100_ly);
-  FillTVector3(n, lposs[0][2], &out_fit_plus_gtr200_lx,  &out_fit_plus_gtr200_ly);
-  FillTVector3(n, lposs[0][3], &out_fit_plus_gtr300_lx,  &out_fit_plus_gtr300_ly);
-  FillTVector3(n, lposs[1][0], &out_fit_minus_ssd_lx,    &out_fit_minus_ssd_ly);
-  FillTVector3(n, lposs[1][1], &out_fit_minus_gtr100_lx, &out_fit_minus_gtr100_ly);
-  FillTVector3(n, lposs[1][2], &out_fit_minus_gtr200_lx, &out_fit_minus_gtr200_ly);
-  FillTVector3(n, lposs[1][3], &out_fit_minus_gtr300_lx, &out_fit_minus_gtr300_ly);
-  FillTVector3(n, lmoms[0][0], &out_fit_plus_ssd_mom_lx,     &out_fit_plus_ssd_mom_ly,     &out_fit_plus_ssd_mom_lz);
-  FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
-  FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
-  FillTVector3(n, lmoms[0][3], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
-  FillTVector3(n, lmoms[1][0], &out_fit_minus_ssd_mom_lx,    &out_fit_minus_ssd_mom_ly,    &out_fit_minus_ssd_mom_lz);
-  FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
-  FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
-  FillTVector3(n, lmoms[1][3], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
-  FillTVector3(n, gmoms[0][0], &out_fit_plus_ssd_mom_gx,     &out_fit_plus_ssd_mom_gy,     &out_fit_plus_ssd_mom_gz);
-  FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
-  FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
-  FillTVector3(n, gmoms[0][3], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
-  FillTVector3(n, gmoms[1][0], &out_fit_minus_ssd_mom_gx,    &out_fit_minus_ssd_mom_gy,    &out_fit_minus_ssd_mom_gz);
-  FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
-  FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
-  FillTVector3(n, gmoms[1][3], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
-#else // PAIR_FIT_WO_SSD
-  FillTVector3(n, lposs[0][0], &out_fit_plus_gtr100_lx,  &out_fit_plus_gtr100_ly);
-  FillTVector3(n, lposs[0][1], &out_fit_plus_gtr200_lx,  &out_fit_plus_gtr200_ly);
-  FillTVector3(n, lposs[0][2], &out_fit_plus_gtr300_lx,  &out_fit_plus_gtr300_ly);
-  FillTVector3(n, lposs[1][0], &out_fit_minus_gtr100_lx, &out_fit_minus_gtr100_ly);
-  FillTVector3(n, lposs[1][1], &out_fit_minus_gtr200_lx, &out_fit_minus_gtr200_ly);
-  FillTVector3(n, lposs[1][2], &out_fit_minus_gtr300_lx, &out_fit_minus_gtr300_ly);
-  FillTVector3(n, lmoms[0][0], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
-  FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
-  FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
-  FillTVector3(n, lmoms[1][0], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
-  FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
-  FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
-  FillTVector3(n, gmoms[0][0], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
-  FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
-  FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
-  FillTVector3(n, gmoms[1][0], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
-  FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
-  FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
-#endif // PAIR_FIT_WO_SSD
+  FillTVector3(n, vtx,     &out_vtx_x,       &out_vtx_y,       &out_vtx_z);
+  FillTVector3(n, moms[0], &out_plus_mom_x,  &out_plus_mom_y,  &out_plus_mom_z);
+  FillTVector3(n, moms[1], &out_minus_mom_x, &out_minus_mom_y, &out_minus_mom_z);
+  if (kFitFlag != kFitWoSSD) {
+    FillTVector3(n, lposs[0][0], &out_fit_plus_ssd_lx,      &out_fit_plus_ssd_ly);
+    FillTVector3(n, lposs[1][0], &out_fit_minus_ssd_lx,     &out_fit_minus_ssd_ly);
+    FillTVector3(n, lmoms[0][0], &out_fit_plus_ssd_mom_lx,  &out_fit_plus_ssd_mom_ly,  &out_fit_plus_ssd_mom_lz);
+    FillTVector3(n, lmoms[1][0], &out_fit_minus_ssd_mom_lx, &out_fit_minus_ssd_mom_ly, &out_fit_minus_ssd_mom_lz);
+    FillTVector3(n, gmoms[0][0], &out_fit_plus_ssd_mom_gx,  &out_fit_plus_ssd_mom_gy,  &out_fit_plus_ssd_mom_gz);
+    FillTVector3(n, gmoms[1][0], &out_fit_minus_ssd_mom_gx, &out_fit_minus_ssd_mom_gy, &out_fit_minus_ssd_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionSSD(rk_fit_ssd_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
+        FillTVector3(n, lmom, &out_fit_plus_ssd_mom_lx, &out_fit_plus_ssd_mom_ly, &out_fit_plus_ssd_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_ssd_mom_gx, &out_fit_plus_ssd_mom_gy, &out_fit_plus_ssd_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_ssd_lx,     &out_fit_plus_ssd_ly);
+        FillTVector3(n, lmom, &out_fit_plus_ssd_mom_lx, &out_fit_plus_ssd_mom_ly, &out_fit_plus_ssd_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_ssd_mom_gx, &out_fit_plus_ssd_mom_gy, &out_fit_plus_ssd_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR100) {
+    FillTVector3(n, lposs[0][1], &out_fit_plus_gtr100_lx,      &out_fit_plus_gtr100_ly);
+    FillTVector3(n, lposs[1][1], &out_fit_minus_gtr100_lx,     &out_fit_minus_gtr100_ly);
+    FillTVector3(n, lmoms[0][1], &out_fit_plus_gtr100_mom_lx,  &out_fit_plus_gtr100_mom_ly,  &out_fit_plus_gtr100_mom_lz);
+    FillTVector3(n, lmoms[1][1], &out_fit_minus_gtr100_mom_lx, &out_fit_minus_gtr100_mom_ly, &out_fit_minus_gtr100_mom_lz);
+    FillTVector3(n, gmoms[0][1], &out_fit_plus_gtr100_mom_gx,  &out_fit_plus_gtr100_mom_gy,  &out_fit_plus_gtr100_mom_gz);
+    FillTVector3(n, gmoms[1][1], &out_fit_minus_gtr100_mom_gx, &out_fit_minus_gtr100_mom_gy, &out_fit_minus_gtr100_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionGTR(0, rk_fit_gtr100_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_gtr100_lx,     &out_fit_plus_gtr100_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr100_mom_lx, &out_fit_plus_gtr100_mom_ly, &out_fit_plus_gtr100_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr100_mom_gx, &out_fit_plus_gtr100_mom_gy, &out_fit_plus_gtr100_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_gtr100_lx,     &out_fit_plus_gtr100_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr100_mom_lx, &out_fit_plus_gtr100_mom_ly, &out_fit_plus_gtr100_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr100_mom_gx, &out_fit_plus_gtr100_mom_gy, &out_fit_plus_gtr100_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR200) {
+    FillTVector3(n, lposs[0][2], &out_fit_plus_gtr200_lx,      &out_fit_plus_gtr200_ly);
+    FillTVector3(n, lposs[1][2], &out_fit_minus_gtr200_lx,     &out_fit_minus_gtr200_ly);
+    FillTVector3(n, lmoms[0][2], &out_fit_plus_gtr200_mom_lx,  &out_fit_plus_gtr200_mom_ly,  &out_fit_plus_gtr200_mom_lz);
+    FillTVector3(n, lmoms[1][2], &out_fit_minus_gtr200_mom_lx, &out_fit_minus_gtr200_mom_ly, &out_fit_minus_gtr200_mom_lz);
+    FillTVector3(n, gmoms[0][2], &out_fit_plus_gtr200_mom_gx,  &out_fit_plus_gtr200_mom_gy,  &out_fit_plus_gtr200_mom_gz);
+    FillTVector3(n, gmoms[1][2], &out_fit_minus_gtr200_mom_gx, &out_fit_minus_gtr200_mom_gy, &out_fit_minus_gtr200_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionGTR(1, rk_fit_gtr200_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_gtr200_lx,     &out_fit_plus_gtr200_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr200_mom_lx, &out_fit_plus_gtr200_mom_ly, &out_fit_plus_gtr200_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr200_mom_gx, &out_fit_plus_gtr200_mom_gy, &out_fit_plus_gtr200_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_gtr200_lx,     &out_fit_plus_gtr200_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr200_mom_lx, &out_fit_plus_gtr200_mom_ly, &out_fit_plus_gtr200_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr200_mom_gx, &out_fit_plus_gtr200_mom_gy, &out_fit_plus_gtr200_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR300) {
+    FillTVector3(n, lposs[0][3], &out_fit_plus_gtr300_lx,      &out_fit_plus_gtr300_ly);
+    FillTVector3(n, lposs[1][3], &out_fit_minus_gtr300_lx,     &out_fit_minus_gtr300_ly);
+    FillTVector3(n, lmoms[0][3], &out_fit_plus_gtr300_mom_lx,  &out_fit_plus_gtr300_mom_ly,  &out_fit_plus_gtr300_mom_lz);
+    FillTVector3(n, lmoms[1][3], &out_fit_minus_gtr300_mom_lx, &out_fit_minus_gtr300_mom_ly, &out_fit_minus_gtr300_mom_lz);
+    FillTVector3(n, gmoms[0][3], &out_fit_plus_gtr300_mom_gx,  &out_fit_plus_gtr300_mom_gy,  &out_fit_plus_gtr300_mom_gz);
+    FillTVector3(n, gmoms[1][3], &out_fit_minus_gtr300_mom_gx, &out_fit_minus_gtr300_mom_gy, &out_fit_minus_gtr300_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      ProjectionGTR(2, rk_fit_gtr300_mid->at(good_pair_indexs[n][c]), charge, vtx, moms[c], &lpos, &gpos, &lmom, &gmom);
+      if (c == 0) {
+        FillTVector3(n, lpos, &out_fit_plus_gtr300_lx,     &out_fit_plus_gtr300_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr300_mom_lx, &out_fit_plus_gtr300_mom_ly, &out_fit_plus_gtr300_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr300_mom_gx, &out_fit_plus_gtr300_mom_gy, &out_fit_plus_gtr300_mom_gz);
+      } else {
+        FillTVector3(n, lpos, &out_fit_plus_gtr300_lx,     &out_fit_plus_gtr300_ly);
+        FillTVector3(n, lmom, &out_fit_plus_gtr300_mom_lx, &out_fit_plus_gtr300_mom_ly, &out_fit_plus_gtr300_mom_lz);
+        FillTVector3(n, gmom, &out_fit_plus_gtr300_mom_gx, &out_fit_plus_gtr300_mom_gy, &out_fit_plus_gtr300_mom_gz);
+      }
+    }
+  }
   return;
 }
 
@@ -2188,16 +2312,28 @@ void track_analyzer_220715::PairFit(int n) {
       fitter->SetCharge(tid, ChargeID(rk_charge->at(i)));
     }
     fitter->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i)));
-#ifndef PAIR_FIT_WO_SSD
-    fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
-    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
-    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
-    fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
-#else // PAIR_FIT_WO_SSD
-    fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
-    fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
-    fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
-#endif // PAIR_FIT_WO_SSD
+    if (kFitFlag == kFitAllLayers) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoSSD) {
+      fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR100) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR200) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR300) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+    }
   }
   fitter->SetRungeKuttaStepSize(kStepSize);
   fitter->SetMaxSteps(kMaxSteps);
@@ -2212,6 +2348,7 @@ void track_analyzer_220715::FillBranchesFromStepTrack(int n, int flag, double di
                                                       const Hep3Vector& hep_plus_mom, const Hep3Vector& hep_minus_mom) {
   auto ptid = good_pair_indexs[n][0];
   auto mtid = good_pair_indexs[n][1];
+cerr << chi_square->at(ptid) << endl;
   out_plus_chi2[n]            = chi_square->at(ptid);
   out_minus_chi2[n]           = chi_square->at(mtid);
   out_flag[n]                 = flag;
@@ -2415,21 +2552,66 @@ int track_analyzer_220715::ModuleID2013_27(int m) {
   return kModuleID2013[1][m - 100 + 1];
 }
 
+void track_analyzer_220715::ProjectionHBDAndLG(int gtr300_mid, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                                               array<int, 4>* mids, array<TVector3, 4>* lposs, array<TVector3, 4>* gposs,
+                                               array<TVector3, 4>* lmoms, array<TVector3, 4>* gmoms) {
+  int tid = 0; // track ID
+  int lid = 0; // layer ID
+  int hid = 0; // hit ID
+  TVector3 lpos(0., 0., 0.); // dummy hit
+  TVector3 lsigma(0., 0., 0.); // dummy hit
+  vector<int>      tmp_mids;
+  vector<TVector3> tmp_lposs;
+  vector<TVector3> tmp_lmoms;
+  for (int l = 0; l < 4; ++l) {
+    int nstps = 100000;
+    for (int m = gtr300_mid - 2; m <= gtr300_mid + 2; ++m) {
+      if (m < 101 || m == 105 || m > 109) {
+        continue;
+      }
+      auto mid2013 = ModuleID2013_27(m);
+      proj_fitter->Clear();
+      if (l == 0) {
+        auto tmp_geom = geometry->HBD(mid2013);
+        proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+      } else {
+        auto tmp_geom = geometry->LG(mid2013, kTypicalLGBlocks[l - 1]);
+        proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
+      }
+      proj_fitter->SetMaxSteps(kProjectionMaxSteps);
+      proj_fitter->RungeKuttaTracking(tid, init_pos, init_mom, charge);
+      auto nstps_tmp = proj_fitter->GetTrackSteps(tid).size();
+      if (nstps_tmp < nstps) {
+        mids->at(l) = m;
+        proj_fitter->GetFitLPos(tid, lid, tmp_mids, tmp_lposs);
+        proj_fitter->GetFitLMom(tid, lid, tmp_mids, tmp_lmoms);
+        if (l == 0) {
+          lposs->at(0) = tmp_lposs[hid];
+          lmoms->at(0) = tmp_lmoms[hid];
+          gposs->at(0) = geometry->HBD(mid2013)->GetGPos(tmp_lposs[hid]);
+          gmoms->at(0) = geometry->HBD(mid2013)->GetGMom(tmp_lmoms[hid]);
+        } else {
+          lmoms->at(l) = tmp_lmoms[hid];
+          gposs->at(l) = geometry->LG(mid2013, kTypicalLGBlocks[l - 1])->GetGPos(tmp_lposs[hid]);
+          gmoms->at(l) = geometry->LG(mid2013, kTypicalLGBlocks[l - 1])->GetGMom(tmp_lmoms[hid]);
+          lposs->at(l) = geometry->LGVD(mid2013)->GetLPos(gposs->at(l));
+        }
+        nstps = nstps_tmp;
+      }
+    }
+  }
+  return;
+}
+
 void track_analyzer_220715::ProjectionHBDAndLG(int n) {
   for (int t = 0; t < 2; ++t) {
     auto i = good_pair_indexs[n][t];
-    proj_fitter->Clear();
-    int tid = 0;
-    TVector3 lpos(0., 0., 0.);
-    TVector3 lsigma(0., 0., 0.);
     int mid;
     if (t == 0) {
       mid = out_plus_gtr300_mid[n];
     } else {
       mid = out_minus_gtr300_mid[n];
     }
-    int lid = 0; // only 1 layer in 1 RK
-    int hid = 0; // oonly 1 hit in 1 RK
     auto init_pos = TVector3(out_vtx_x[n], out_vtx_y[n], out_vtx_z[n]);
     TVector3 init_mom;
     double charge;
@@ -2447,142 +2629,103 @@ void track_analyzer_220715::ProjectionHBDAndLG(int n) {
         charge = -1.;
       }
     }
-    std::vector<int> mids;
-    std::vector<TVector3> lposs;
-    std::vector<TVector3> lmoms;
-    for (int l = 0; l < 4; ++l) {
-      int nstps = 100000;
-//      double r;
-      for (int m = mid - 2; m <= mid + 2; ++m) {
-        if (m < 101 || m == 105 || m > 109) {
-          continue;
-        }
-        auto mid2013 = ModuleID2013_27(m);
-        proj_fitter->Clear();
-        if (l == 0) {
-          auto tmp_geom = geometry->HBD(mid2013);
-          proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
-        } else {
-          auto tmp_geom = geometry->LG(mid2013, kTypicalLGBlocks[l - 1]);
-          proj_fitter->AddHit(tid, lid, tmp_geom, lpos, lsigma);
-        }
-        proj_fitter->SetMaxSteps(kProjectionMaxSteps);
-        proj_fitter->RungeKuttaTracking(tid, init_pos, init_mom, charge);
-        proj_fitter->GetFitLPos(tid, lid, mids, lposs);
-        proj_fitter->GetFitLMom(tid, lid, mids, lmoms);
-        auto lpos = lposs[hid];
-        auto lmom = lmoms[hid];
-//        if (fabs(lpos.X()) >= fabs(E16DST_DST1Constant::kInvalidValue)) {
-//          continue;
-//        }
-        TVector3 gpos;
-        TVector3 gmom;
-        if (l == 0) {
-          gpos = geometry->HBD(mid2013)->GetGPos(lpos);
-          gmom = geometry->HBD(mid2013)->GetGMom(lmom);
-        } else {
-          gpos = geometry->LG(mid2013, kTypicalLGBlocks[l - 1])->GetGPos(lpos);
-          gmom = geometry->LG(mid2013, kTypicalLGBlocks[l - 1])->GetGMom(lmom);
-        }
-        auto nstps_tmp = proj_fitter->GetTrackSteps(tid).size();
-        if (nstps_tmp < nstps) {
-  //      if (gpos.Mag() < r) {
-          if (l == 0) {
-            if (t == 0) {
-              out_plus_hbd_mid[n]        = m;
-              out_fit_plus_hbd_lx[n]     = lpos.X();
-              out_fit_plus_hbd_ly[n]     = lpos.Y();
-              out_fit_plus_hbd_mom_lx[n] = lmom.X();
-              out_fit_plus_hbd_mom_ly[n] = lmom.Y();
-              out_fit_plus_hbd_mom_lz[n] = lmom.Z();
-              out_fit_plus_hbd_mom_gx[n] = gmom.X();
-              out_fit_plus_hbd_mom_gy[n] = gmom.Y();
-              out_fit_plus_hbd_mom_gz[n] = gmom.Z();
-            } else {
-              out_minus_hbd_mid[n]        = m;
-              out_fit_minus_hbd_lx[n]     = lpos.X();
-              out_fit_minus_hbd_ly[n]     = lpos.Y();
-              out_fit_minus_hbd_mom_lx[n] = lmom.X();
-              out_fit_minus_hbd_mom_ly[n] = lmom.Y();
-              out_fit_minus_hbd_mom_lz[n] = lmom.Z();
-              out_fit_minus_hbd_mom_gx[n] = gmom.X();
-              out_fit_minus_hbd_mom_gy[n] = gmom.Y();
-              out_fit_minus_hbd_mom_gz[n] = gmom.Z();
-            }
-          } else {
-            auto lpos_lgvd = geometry->LGVD(mid2013)->GetLPos(gpos);
-            if (l == 1) {
-              if (t == 0) {
-                out_plus_lg_c_mid[n]        = m;
-                out_fit_plus_lg_c_lx[n]     = lpos_lgvd.X();
-                out_fit_plus_lg_c_ly[n]     = lpos_lgvd.Y();
-                out_fit_plus_lg_c_mom_lx[n] = lmom.X();
-                out_fit_plus_lg_c_mom_ly[n] = lmom.Y();
-                out_fit_plus_lg_c_mom_lz[n] = lmom.Z();
-                out_fit_plus_lg_c_mom_gx[n] = gmom.X();
-                out_fit_plus_lg_c_mom_gy[n] = gmom.Y();
-                out_fit_plus_lg_c_mom_gz[n] = gmom.Z();
-              } else {
-                out_minus_lg_c_mid[n]        = m;
-                out_fit_minus_lg_c_lx[n]     = lpos_lgvd.X();
-                out_fit_minus_lg_c_ly[n]     = lpos_lgvd.Y();
-                out_fit_minus_lg_c_mom_lx[n] = lmom.X();
-                out_fit_minus_lg_c_mom_ly[n] = lmom.Y();
-                out_fit_minus_lg_c_mom_lz[n] = lmom.Z();
-                out_fit_minus_lg_c_mom_gx[n] = gmom.X();
-                out_fit_minus_lg_c_mom_gy[n] = gmom.Y();
-                out_fit_minus_lg_c_mom_gz[n] = gmom.Z();
-              }
-            } else if (l == 2) {
-              if (t == 0) {
-                out_plus_lg_b_mid[n]    = m;
-                out_fit_plus_lg_b_lx[n] = lpos_lgvd.X();
-                out_fit_plus_lg_b_ly[n] = lpos_lgvd.Y();
-                out_fit_plus_lg_b_mom_lx[n] = lmom.X();
-                out_fit_plus_lg_b_mom_ly[n] = lmom.Y();
-                out_fit_plus_lg_b_mom_lz[n] = lmom.Z();
-                out_fit_plus_lg_b_mom_gx[n] = gmom.X();
-                out_fit_plus_lg_b_mom_gy[n] = gmom.Y();
-                out_fit_plus_lg_b_mom_gz[n] = gmom.Z();
-              } else {
-                out_minus_lg_b_mid[n]    = m;
-                out_fit_minus_lg_b_lx[n] = lpos_lgvd.X();
-                out_fit_minus_lg_b_ly[n] = lpos_lgvd.Y();
-                out_fit_minus_lg_b_mom_lx[n] = lmom.X();
-                out_fit_minus_lg_b_mom_ly[n] = lmom.Y();
-                out_fit_minus_lg_b_mom_lz[n] = lmom.Z();
-                out_fit_minus_lg_b_mom_gx[n] = gmom.X();
-                out_fit_minus_lg_b_mom_gy[n] = gmom.Y();
-                out_fit_minus_lg_b_mom_gz[n] = gmom.Z();
-              }
-            } else {
-              if (t == 0) {
-                out_plus_lg_a_mid[n]    = m;
-                out_fit_plus_lg_a_lx[n] = lpos_lgvd.X();
-                out_fit_plus_lg_a_ly[n] = lpos_lgvd.Y();
-                out_fit_plus_lg_a_mom_lx[n] = lmom.X();
-                out_fit_plus_lg_a_mom_ly[n] = lmom.Y();
-                out_fit_plus_lg_a_mom_lz[n] = lmom.Z();
-                out_fit_plus_lg_a_mom_gx[n] = gmom.X();
-                out_fit_plus_lg_a_mom_gy[n] = gmom.Y();
-                out_fit_plus_lg_a_mom_gz[n] = gmom.Z();
-              } else {
-                out_minus_lg_a_mid[n]    = m;
-                out_fit_minus_lg_a_lx[n] = lpos_lgvd.X();
-                out_fit_minus_lg_a_ly[n] = lpos_lgvd.Y();
-                out_fit_minus_lg_a_mom_lx[n] = lmom.X();
-                out_fit_minus_lg_a_mom_ly[n] = lmom.Y();
-                out_fit_minus_lg_a_mom_lz[n] = lmom.Z();
-                out_fit_minus_lg_a_mom_gx[n] = gmom.X();
-                out_fit_minus_lg_a_mom_gy[n] = gmom.Y();
-                out_fit_minus_lg_a_mom_gz[n] = gmom.Z();
-              }
-            }
-          }
-          nstps = nstps_tmp;
-  //        r = gpos.Mag();
-        }
-      }
+    array<int, 4>      mids;
+    array<TVector3, 4> lposs;
+    array<TVector3, 4> gposs;
+    array<TVector3, 4> lmoms;
+    array<TVector3, 4> gmoms;
+    ProjectionHBDAndLG(mid, charge, init_pos, init_mom, &mids, &lposs, &gposs, &lmoms, &gmoms);
+    if (t == 0) {
+      out_plus_hbd_mid[n]         = mids[0];
+      out_fit_plus_hbd_lx[n]      = lposs[0].X();
+      out_fit_plus_hbd_ly[n]      = lposs[0].Y();
+      out_fit_plus_hbd_mom_lx[n]  = lmoms[0].X();
+      out_fit_plus_hbd_mom_ly[n]  = lmoms[0].Y();
+      out_fit_plus_hbd_mom_lz[n]  = lmoms[0].Z();
+      out_fit_plus_hbd_mom_gx[n]  = gmoms[0].X();
+      out_fit_plus_hbd_mom_gy[n]  = gmoms[0].Y();
+      out_fit_plus_hbd_mom_gz[n]  = gmoms[0].Z();
+      out_plus_lg_c_mid[n]        = mids[1];
+      out_fit_plus_lg_c_lx[n]     = lposs[1].X();
+      out_fit_plus_lg_c_ly[n]     = lposs[1].Y();
+      out_fit_plus_lg_c_mom_lx[n] = lmoms[1].X();
+      out_fit_plus_lg_c_mom_ly[n] = lmoms[1].Y();
+      out_fit_plus_lg_c_mom_lz[n] = lmoms[1].Z();
+      out_fit_plus_lg_c_mom_gx[n] = gmoms[1].X();
+      out_fit_plus_lg_c_mom_gy[n] = gmoms[1].Y();
+      out_fit_plus_lg_c_mom_gz[n] = gmoms[1].Z();
+      out_plus_lg_b_mid[n]        = mids[2];
+      out_fit_plus_lg_b_lx[n]     = lposs[2].X();
+      out_fit_plus_lg_b_ly[n]     = lposs[2].Y();
+      out_fit_plus_lg_b_mom_lx[n] = lmoms[2].X();
+      out_fit_plus_lg_b_mom_ly[n] = lmoms[2].Y();
+      out_fit_plus_lg_b_mom_lz[n] = lmoms[2].Z();
+      out_fit_plus_lg_b_mom_gx[n] = gmoms[2].X();
+      out_fit_plus_lg_b_mom_gy[n] = gmoms[2].Y();
+      out_fit_plus_lg_b_mom_gz[n] = gmoms[2].Z();
+      out_plus_lg_a_mid[n]        = mids[3];
+      out_fit_plus_lg_a_lx[n]     = lposs[3].X();
+      out_fit_plus_lg_a_ly[n]     = lposs[3].Y();
+      out_fit_plus_lg_a_mom_lx[n] = lmoms[3].X();
+      out_fit_plus_lg_a_mom_ly[n] = lmoms[3].Y();
+      out_fit_plus_lg_a_mom_lz[n] = lmoms[3].Z();
+      out_fit_plus_lg_a_mom_gx[n] = gmoms[3].X();
+      out_fit_plus_lg_a_mom_gy[n] = gmoms[3].Y();
+      out_fit_plus_lg_a_mom_gz[n] = gmoms[3].Z();
+    } else {
+      out_minus_hbd_mid[n]         = mids[0];
+      out_fit_minus_hbd_lx[n]      = lposs[0].X();
+      out_fit_minus_hbd_ly[n]      = lposs[0].Y();
+      out_fit_minus_hbd_mom_lx[n]  = lmoms[0].X();
+      out_fit_minus_hbd_mom_ly[n]  = lmoms[0].Y();
+      out_fit_minus_hbd_mom_lz[n]  = lmoms[0].Z();
+      out_fit_minus_hbd_mom_gx[n]  = gmoms[0].X();
+      out_fit_minus_hbd_mom_gy[n]  = gmoms[0].Y();
+      out_fit_minus_hbd_mom_gz[n]  = gmoms[0].Z();
+      out_minus_lg_c_mid[n]        = mids[1];
+      out_fit_minus_lg_c_lx[n]     = lposs[1].X();
+      out_fit_minus_lg_c_ly[n]     = lposs[1].Y();
+      out_fit_minus_lg_c_mom_lx[n] = lmoms[1].X();
+      out_fit_minus_lg_c_mom_ly[n] = lmoms[1].Y();
+      out_fit_minus_lg_c_mom_lz[n] = lmoms[1].Z();
+      out_fit_minus_lg_c_mom_gx[n] = gmoms[1].X();
+      out_fit_minus_lg_c_mom_gy[n] = gmoms[1].Y();
+      out_fit_minus_lg_c_mom_gz[n] = gmoms[1].Z();
+      out_minus_lg_b_mid[n]        = mids[2];
+      out_fit_minus_lg_b_lx[n]     = lposs[2].X();
+      out_fit_minus_lg_b_ly[n]     = lposs[2].Y();
+      out_fit_minus_lg_b_mom_lx[n] = lmoms[2].X();
+      out_fit_minus_lg_b_mom_ly[n] = lmoms[2].Y();
+      out_fit_minus_lg_b_mom_lz[n] = lmoms[2].Z();
+      out_fit_minus_lg_b_mom_gx[n] = gmoms[2].X();
+      out_fit_minus_lg_b_mom_gy[n] = gmoms[2].Y();
+      out_fit_minus_lg_b_mom_gz[n] = gmoms[2].Z();
+      out_minus_lg_a_mid[n]        = mids[3];
+      out_fit_minus_lg_a_lx[n]     = lposs[3].X();
+      out_fit_minus_lg_a_ly[n]     = lposs[3].Y();
+      out_fit_minus_lg_a_mom_lx[n] = lmoms[3].X();
+      out_fit_minus_lg_a_mom_ly[n] = lmoms[3].Y();
+      out_fit_minus_lg_a_mom_lz[n] = lmoms[3].Z();
+      out_fit_minus_lg_a_mom_gx[n] = gmoms[3].X();
+      out_fit_minus_lg_a_mom_gy[n] = gmoms[3].Y();
+      out_fit_minus_lg_a_mom_gz[n] = gmoms[3].Z();
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::ProjectionTargets(double charge, const Hep3Vector& init_pos, const Hep3Vector& init_mom,
+                                              array<TVector3, kNumTgts>* poss, array<TVector3, kNumTgts>* moms) {
+  E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, charge, kStepTrackSizeCm, kStepTrackArraySize);
+  Hep3Vector cross_pos;
+  Hep3Vector cross_mom;
+  for (int t = 0; t < kNumTgts; ++t) {
+    if (step_track.CrossZconstPlane(kTargetZ[t] * 0.1, cross_pos, cross_mom) == -1) {
+      poss->at(t) = kErrorVector;
+      moms->at(t) = kErrorVector;
+    } else {
+      poss->at(t) = TVector3(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
+      moms->at(t) = TVector3(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
     }
   }
   return;
@@ -2608,95 +2751,74 @@ void track_analyzer_220715::ProjectionTargets(int n) {
         charge = -1.;
       }
     }
-    E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, charge, kStepTrackSizeCm, kStepTrackArraySize);
-    Hep3Vector cross_pos;
-    Hep3Vector cross_mom;
-    for (int i = 0; i < kNumTgts; ++i) {
-      if (step_track.CrossZconstPlane(kTargetZ[i] * 0.1, cross_pos, cross_mom) == -1) {
-        if (t == kChargePlus) {
-          if (i == kTgtMinus) {
-            out_fit_plus_tgt_minus_x[n] = kErrorNum;
-            out_fit_plus_tgt_minus_y[n] = kErrorNum;
-            out_fit_plus_tgt_minus_mom_x[n] = kErrorNum;
-            out_fit_plus_tgt_minus_mom_y[n] = kErrorNum;
-            out_fit_plus_tgt_minus_mom_z[n] = kErrorNum;
-          } else if (i == kTgtZero) {
-            out_fit_plus_tgt_zero_x[n] = kErrorNum;
-            out_fit_plus_tgt_zero_y[n] = kErrorNum;
-            out_fit_plus_tgt_zero_mom_x[n] = kErrorNum;
-            out_fit_plus_tgt_zero_mom_y[n] = kErrorNum;
-            out_fit_plus_tgt_zero_mom_z[n] = kErrorNum;
-          } else if (i == kTgtPlus) {
-            out_fit_plus_tgt_plus_x[n] = kErrorNum;
-            out_fit_plus_tgt_plus_y[n] = kErrorNum;
-            out_fit_plus_tgt_plus_mom_x[n] = kErrorNum;
-            out_fit_plus_tgt_plus_mom_y[n] = kErrorNum;
-            out_fit_plus_tgt_plus_mom_z[n] = kErrorNum;
-          }
-        } else {
-          if (i == kTgtMinus) {
-            out_fit_minus_tgt_minus_x[n] = kErrorNum;
-            out_fit_minus_tgt_minus_y[n] = kErrorNum;
-            out_fit_minus_tgt_minus_mom_x[n] = kErrorNum;
-            out_fit_minus_tgt_minus_mom_y[n] = kErrorNum;
-            out_fit_minus_tgt_minus_mom_z[n] = kErrorNum;
-          } else if (i == kTgtZero) {
-            out_fit_minus_tgt_zero_x[n] = kErrorNum;
-            out_fit_minus_tgt_zero_y[n] = kErrorNum;
-            out_fit_minus_tgt_zero_mom_x[n] = kErrorNum;
-            out_fit_minus_tgt_zero_mom_y[n] = kErrorNum;
-            out_fit_minus_tgt_zero_mom_z[n] = kErrorNum;
-          } else if (i == kTgtPlus) {
-            out_fit_minus_tgt_plus_x[n] = kErrorNum;
-            out_fit_minus_tgt_plus_y[n] = kErrorNum;
-            out_fit_minus_tgt_plus_mom_x[n] = kErrorNum;
-            out_fit_minus_tgt_plus_mom_y[n] = kErrorNum;
-            out_fit_minus_tgt_plus_mom_z[n] = kErrorNum;
-          }
-        }
+    array<TVector3, kNumTgts> poss;
+    array<TVector3, kNumTgts> moms;
+    ProjectionTargets(charge, init_pos, init_mom, &poss, &moms);
+    if (t == kChargePlus) {
+      FillTVector3(n, poss[0], &out_fit_plus_tgt_minus_x,     &out_fit_plus_tgt_minus_y);
+      FillTVector3(n, moms[0], &out_fit_plus_tgt_minus_mom_x, &out_fit_plus_tgt_minus_mom_y, &out_fit_plus_tgt_minus_mom_z);
+      FillTVector3(n, poss[1], &out_fit_plus_tgt_zero_x,      &out_fit_plus_tgt_zero_y);
+      FillTVector3(n, moms[1], &out_fit_plus_tgt_zero_mom_x,  &out_fit_plus_tgt_zero_mom_y,  &out_fit_plus_tgt_zero_mom_z);
+      FillTVector3(n, poss[2], &out_fit_plus_tgt_plus_x,      &out_fit_plus_tgt_plus_y);
+      FillTVector3(n, moms[2], &out_fit_plus_tgt_plus_mom_x,  &out_fit_plus_tgt_plus_mom_y,  &out_fit_plus_tgt_plus_mom_z);
+    } else {
+      FillTVector3(n, poss[0], &out_fit_minus_tgt_minus_x,     &out_fit_minus_tgt_minus_y);
+      FillTVector3(n, moms[0], &out_fit_minus_tgt_minus_mom_x, &out_fit_minus_tgt_minus_mom_y, &out_fit_minus_tgt_minus_mom_z);
+      FillTVector3(n, poss[1], &out_fit_minus_tgt_zero_x,      &out_fit_minus_tgt_zero_y);
+      FillTVector3(n, moms[1], &out_fit_minus_tgt_zero_mom_x,  &out_fit_minus_tgt_zero_mom_y,  &out_fit_minus_tgt_zero_mom_z);
+      FillTVector3(n, poss[2], &out_fit_minus_tgt_plus_x,      &out_fit_minus_tgt_plus_y);
+      FillTVector3(n, moms[2], &out_fit_minus_tgt_plus_mom_x,  &out_fit_minus_tgt_plus_mom_y,  &out_fit_minus_tgt_plus_mom_z);
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::ProjectionX0(double charge, const Hep3Vector& init_pos, const Hep3Vector& init_mom, TVector3* pos, TVector3* mom) {
+  E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, charge, kStepTrackSizeCm, kStepTrackArraySize);
+  Hep3Vector cross_pos;
+  Hep3Vector cross_mom;
+  for (int t = 0; t < kNumTgts; ++t) {
+    if (step_track.CrossXconstPlane(0., cross_pos, cross_mom) == -1) {
+      *pos = kErrorVector;
+      *mom = kErrorVector;
+    } else {
+      *pos = TVector3(cross_pos.x() * 10., cross_pos.y() * 10., cross_pos.z() * 10.);
+      *mom = TVector3(cross_mom.x(),       cross_mom.y(),       cross_mom.z());
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::ProjectionX0(int n) {
+  for (int t = 0; t < kNumCharges; ++t) {
+    auto i = good_pair_indexs[n][t];
+    auto init_pos = Hep3Vector(out_vtx_x[n] * 0.1, out_vtx_y[n] * 0.1, out_vtx_z[n] * 0.1);
+    Hep3Vector init_mom;
+    double charge;
+    if (t == kChargePlus) {
+      init_mom.set(out_plus_mom_x[n],  out_plus_mom_y[n],  out_plus_mom_z[n]);
+      charge = 1.;
+    } else {
+      init_mom.set(out_minus_mom_x[n], out_minus_mom_y[n], out_minus_mom_z[n]);
+      charge = -1.;
+    }
+    if (kForgiveSameCharge) {
+      if (ChargeID(rk_charge->at(i)) == kChargePlus) {
+        charge = 1.;
       } else {
-        if (t == kChargePlus) {
-          if (i == kTgtMinus) {
-            out_fit_plus_tgt_minus_x[n] = cross_pos.x() * 10.;
-            out_fit_plus_tgt_minus_y[n] = cross_pos.y() * 10.;
-            out_fit_plus_tgt_minus_mom_x[n] = cross_mom.x();
-            out_fit_plus_tgt_minus_mom_y[n] = cross_mom.y();
-            out_fit_plus_tgt_minus_mom_z[n] = cross_mom.z();
-          } else if (i == kTgtZero) {
-            out_fit_plus_tgt_zero_x[n] = cross_pos.x() * 10.;
-            out_fit_plus_tgt_zero_y[n] = cross_pos.y() * 10.;
-            out_fit_plus_tgt_zero_mom_x[n] = cross_mom.x();
-            out_fit_plus_tgt_zero_mom_y[n] = cross_mom.y();
-            out_fit_plus_tgt_zero_mom_z[n] = cross_mom.z();
-          } else if (i == kTgtPlus) {
-            out_fit_plus_tgt_plus_x[n] = cross_pos.x() * 10.;
-            out_fit_plus_tgt_plus_y[n] = cross_pos.y() * 10.;
-            out_fit_plus_tgt_plus_mom_x[n] = cross_mom.x();
-            out_fit_plus_tgt_plus_mom_y[n] = cross_mom.y();
-            out_fit_plus_tgt_plus_mom_z[n] = cross_mom.z();
-          }
-        } else if (t == kChargeMinus) {
-          if (i == kTgtMinus) {
-            out_fit_minus_tgt_minus_x[n] = cross_pos.x() * 10.;
-            out_fit_minus_tgt_minus_y[n] = cross_pos.y() * 10.;
-            out_fit_minus_tgt_minus_mom_x[n] = cross_mom.x();
-            out_fit_minus_tgt_minus_mom_y[n] = cross_mom.y();
-            out_fit_minus_tgt_minus_mom_z[n] = cross_mom.z();
-          } else if (i == kTgtZero) {
-            out_fit_minus_tgt_zero_x[n] = cross_pos.x() * 10.;
-            out_fit_minus_tgt_zero_y[n] = cross_pos.y() * 10.;
-            out_fit_minus_tgt_zero_mom_x[n] = cross_mom.x();
-            out_fit_minus_tgt_zero_mom_y[n] = cross_mom.y();
-            out_fit_minus_tgt_zero_mom_z[n] = cross_mom.z();
-          } else if (i == kTgtPlus) {
-            out_fit_minus_tgt_plus_x[n] = cross_pos.x() * 10.;
-            out_fit_minus_tgt_plus_y[n] = cross_pos.y() * 10.;
-            out_fit_minus_tgt_plus_mom_x[n] = cross_mom.x();
-            out_fit_minus_tgt_plus_mom_y[n] = cross_mom.y();
-            out_fit_minus_tgt_plus_mom_z[n] = cross_mom.z();
-          }
-        }
+        charge = -1.;
       }
+    }
+    TVector3 pos;
+    TVector3 mom;
+    ProjectionX0(charge, init_pos, init_mom, &pos, &mom);
+    if (t == kChargePlus) {
+      out_fit_plus_x0_y[n] = pos.Y();
+      out_fit_plus_x0_z[n] = pos.Z();
+//      out_fit_plus_x0_mom_x[n] = mom.X();
+    } else {
+      out_fit_minus_x0_y[n] = pos.Y();
+      out_fit_minus_x0_z[n] = pos.Z();
     }
   }
   return;
@@ -2774,7 +2896,7 @@ int track_analyzer_220715::BestTargetID(double vtx_z, const array<TVector3, kNum
   return best_id;
 }
 
-TVector3 X0Projection(const TVector3& pos, const TVector3& mom) {
+TVector3 track_analyzer_220715::X0Pos(const TVector3& pos, const TVector3& mom) {
   double y = pos.Y() - mom.Y() / mom.X() * pos.X();
   double z = pos.Z() - mom.Z() / mom.X() * pos.X();
   return TVector3(0., y, z);
@@ -2790,7 +2912,7 @@ void track_analyzer_220715::ParentInfo(const TVector3& vtx, const array<TVector3
     tgt_poss->at(i).SetZ(0.);
   }
   *best_tgt_id = BestTargetID(vtx.Z(), *tgt_poss, flight_paths, best_tgt_r, good_tgt_id_set, good_tgt_ids);
-  *x0_pos = X0Projection(vtx, *parent_mom);
+  *x0_pos = X0Pos(vtx, *parent_mom);
   return;
 }
 
@@ -3428,6 +3550,7 @@ void track_analyzer_220715::FillCommonBranches() {
     if (kAnalyzeFlag == kAnalyzePairFit) {
       ProjectionHBDAndLG(i);
       ProjectionTargets(i);
+      ProjectionX0(i);
     } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
       out_plus_hbd_mid[i]              = rk_fit_hbd_mid->at(i0);
       out_plus_lg_c_mid[i]             = rk_fit_lg_c_mid->at(i0);
@@ -4060,37 +4183,28 @@ void track_analyzer_220715::ClearEMBranches() {
   em_fit_parent_good_tgt_ids.clear();
   em_fit_parent_x0_y.clear();
   em_fit_parent_x0_z.clear();
-//  tree->Branch("proj_plus_n_hbds",                 &out_proj_plus_n_hbds);
-//  tree->Branch("proj_plus_hbd_id",                 &out_proj_plus_hbd_id);
-//  tree->Branch("proj_plus_hbd_lx",                 &out_proj_plus_hbd_lx);
-//  tree->Branch("proj_plus_hbd_ly",                 &out_proj_plus_hbd_ly);
-//  tree->Branch("proj_plus_hbd_resx",               &out_proj_plus_hbd_resx);
-//  tree->Branch("proj_plus_hbd_resy",               &out_proj_plus_hbd_resy);
-//  tree->Branch("proj_plus_hbd_adc",                &out_proj_plus_hbd_adc);
-//  tree->Branch("proj_plus_hbd_size",               &out_proj_plus_hbd_size);
-//  tree->Branch("proj_plus_hbd_eprob",              &out_proj_plus_hbd_eprob);
-//  tree->Branch("proj_minus_n_hbds",                &out_proj_minus_n_hbds);
-//  tree->Branch("proj_minus_hbd_id",                &out_proj_minus_hbd_id);
-//  tree->Branch("proj_minus_hbd_lx",                &out_proj_minus_hbd_lx);
-//  tree->Branch("proj_minus_hbd_ly",                &out_proj_minus_hbd_ly);
-//  tree->Branch("proj_minus_hbd_resx",              &out_proj_minus_hbd_resx);
-//  tree->Branch("proj_minus_hbd_resy",              &out_proj_minus_hbd_resy);
-//  tree->Branch("proj_minus_hbd_adc",               &out_proj_minus_hbd_adc);
-//  tree->Branch("proj_minus_hbd_size",              &out_proj_minus_hbd_size);
-//  tree->Branch("proj_minus_hbd_eprob",             &out_proj_minus_hbd_eprob);
+  em_proj_plus_n_hbds.clear();
+  em_proj_plus_hbd_id.clear();
+  em_proj_plus_hbd_lx.clear();
+  em_proj_plus_hbd_ly.clear();
+  em_proj_plus_hbd_resx.clear();
+  em_proj_plus_hbd_resy.clear();
+  em_proj_plus_hbd_adc.clear();
+  em_proj_plus_hbd_size.clear();
+  em_proj_plus_hbd_eprob.clear();
+  em_proj_minus_n_hbds.clear();
+  em_proj_minus_hbd_id.clear();
+  em_proj_minus_hbd_lx.clear();
+  em_proj_minus_hbd_ly.clear();
+  em_proj_minus_hbd_resx.clear();
+  em_proj_minus_hbd_resy.clear();
+  em_proj_minus_hbd_adc.clear();
+  em_proj_minus_hbd_size.clear();
+  em_proj_minus_hbd_eprob.clear();
   return;
 }
 
-void track_analyzer_220715::PairFitEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
-  cerr << "### NOT IMPLEMENTED ###" << endl;
-  return;
-}
-
-void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
-  array<Hep3Vector,        2> init_poss;
-  array<Hep3Vector,        2> init_moms;
-  array<E16ANA_StepTrack*, 2> tracks;
-  
+void track_analyzer_220715::FillCommonBranchesEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
   fChain->GetEntry(plus_entry_index);
   em_plus_run_id.emplace_back(run_id);
   em_plus_event_id.emplace_back(event_id);
@@ -4103,10 +4217,6 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_plus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(plus_track_index));
   em_plus_gtr200_mid.emplace_back(rk_fit_gtr200_mid->at(plus_track_index));
   em_plus_gtr300_mid.emplace_back(rk_fit_gtr300_mid->at(plus_track_index));
-  em_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(plus_track_index));
-  em_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(plus_track_index));
-  em_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(plus_track_index));
-  em_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(plus_track_index));
   em_hit_plus_ssd_id.emplace_back(rk_hit_ssd_id->at(plus_track_index));
   em_hit_plus_gtr100_xid.emplace_back(rk_hit_gtr100_xid->at(plus_track_index));
   em_hit_plus_gtr100_yid.emplace_back(rk_hit_gtr100_yid->at(plus_track_index));
@@ -4121,6 +4231,495 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   em_hit_plus_gtr200_ly.emplace_back(rk_hit_gtr200_ty->at(plus_track_index));
   em_hit_plus_gtr300_lx.emplace_back(rk_hit_gtr300_tx2->at(plus_track_index));
   em_hit_plus_gtr300_ly.emplace_back(rk_hit_gtr300_ty->at(plus_track_index));
+  fChain->GetEntry(minus_entry_index);
+  em_minus_run_id.emplace_back(run_id);
+  em_minus_event_id.emplace_back(event_id);
+  em_minus_n_cands.emplace_back(n_cands);
+//  em_minus_n_pairs.emplace_back(n_pairs);
+  em_minus_track_id.emplace_back(track_id->at(minus_track_index));
+  em_minus_charge_id.emplace_back(ChargeID(rk_charge->at(minus_track_index)));
+  em_minus_chi2.emplace_back(chi_square->at(minus_track_index));
+  em_minus_ssd_mid.emplace_back(rk_fit_ssd_mid->at(minus_track_index));
+  em_minus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(minus_track_index));
+  em_minus_gtr200_mid.emplace_back(rk_fit_gtr200_mid->at(minus_track_index));
+  em_minus_gtr300_mid.emplace_back(rk_fit_gtr300_mid->at(minus_track_index));
+  em_hit_minus_ssd_id.emplace_back(rk_hit_ssd_id->at(minus_track_index));
+  em_hit_minus_gtr100_xid.emplace_back(rk_hit_gtr100_xid->at(minus_track_index));
+  em_hit_minus_gtr100_yid.emplace_back(rk_hit_gtr100_yid->at(minus_track_index));
+  em_hit_minus_gtr200_xid.emplace_back(rk_hit_gtr200_xid->at(minus_track_index));
+  em_hit_minus_gtr200_yid.emplace_back(rk_hit_gtr200_yid->at(minus_track_index));
+  em_hit_minus_gtr300_xid.emplace_back(rk_hit_gtr300_xid->at(minus_track_index));
+  em_hit_minus_gtr300_yid.emplace_back(rk_hit_gtr300_yid->at(minus_track_index));
+  em_hit_minus_ssd_lx.emplace_back(rk_hit_ssd_x->at(minus_track_index));
+  em_hit_minus_gtr100_lx.emplace_back(rk_hit_gtr100_tx2->at(minus_track_index));
+  em_hit_minus_gtr100_ly.emplace_back(rk_hit_gtr100_ty->at(minus_track_index));
+  em_hit_minus_gtr200_lx.emplace_back(rk_hit_gtr200_tx2->at(minus_track_index));
+  em_hit_minus_gtr200_ly.emplace_back(rk_hit_gtr200_ty->at(minus_track_index));
+  em_hit_minus_gtr300_lx.emplace_back(rk_hit_gtr300_tx2->at(minus_track_index));
+  em_hit_minus_gtr300_ly.emplace_back(rk_hit_gtr300_ty->at(minus_track_index));
+  return;
+}
+
+void track_analyzer_220715::EmplaceTVector3(const TVector3& tvec, vector<double>* x, vector<double>* y, vector<double>* z) {
+  x->emplace_back(tvec.X());
+  y->emplace_back(tvec.Y());
+  z->emplace_back(tvec.Z());
+  return;
+}
+
+void track_analyzer_220715::EmplaceTVector3(const TVector3& tvec, vector<double>* x, vector<double>* y) {
+  x->emplace_back(tvec.X());
+  y->emplace_back(tvec.Y());
+  return;
+}
+
+void track_analyzer_220715::FillBranchesFromPairFitEM(double chi2) {
+  auto vtx = fitter->GetFitVertex();
+  array<TVector3, 2> moms;
+  array<array<TVector3, 4>, 2> lposs;
+  array<array<TVector3, 4>, 2> lmoms;
+  array<array<TVector3, 4>, 2> gposs;
+  array<array<TVector3, 4>, 2> gmoms;
+  for (int t = 0; t < 2; ++t) {
+    moms[t] = fitter->GetFitMomentum(t);
+    int ll = 0;
+    for (int l = 0; l < 4; ++l) {
+      if (kFitFlag == kFitWoSSD && l == 0) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR100 && l == 1) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR200 && l == 2) {
+        continue;
+      }
+      if (kFitFlag == kFitWoGTR300 && l == 3) {
+        continue;
+      }
+      vector<int>      tmp_mids;
+      vector<TVector3> tmp_lposs;
+      vector<TVector3> tmp_lmoms;
+      fitter->GetFitLPos(t, ll, tmp_mids, tmp_lposs);
+      fitter->GetFitLMom(t, ll, tmp_mids, tmp_lmoms);
+      auto mid = tmp_mids[0];
+      lposs[t][l] = tmp_lposs[0];
+      lmoms[t][l] = tmp_lmoms[0];
+      if (l == 0) {
+        gposs[t][l] = geometry->SSD(mid)->GetGPos(lposs[t][l]);
+        gmoms[t][l] = geometry->SSD(mid)->GetGMom(lmoms[t][l]);
+      } else {
+        gposs[t][l] = geometry->GTR(mid, l - 1)->GetGPos(lposs[t][l]);
+        gmoms[t][l] = geometry->GTR(mid, l - 1)->GetGMom(lposs[t][l]);
+      }
+      ++ll;
+    }
+  }
+  em_chi2.emplace_back(chi2);
+  em_plus_mom.emplace_back(moms[0].Mag());
+  em_plus_mom_theta.emplace_back(moms[0].Theta());
+  em_plus_mom_phi.emplace_back(moms[0].Phi());
+  em_minus_mom.emplace_back(moms[1].Mag());
+  em_minus_mom_theta.emplace_back(moms[1].Theta());
+  em_minus_mom_phi.emplace_back(moms[1].Phi());
+  em_mom_angle.emplace_back(moms[0].Angle(moms[1]));
+  em_ee_mass.emplace_back(CalcMass(kEE,   moms[0], moms[1]));
+  em_pipi_mass.emplace_back(CalcMass(kPiPi, moms[0], moms[1]));
+  em_pip_mass.emplace_back(CalcMass(kPiP,  moms[0], moms[1]));
+  em_kk_mass.emplace_back(CalcMass(kKK,   moms[0], moms[1]));
+  EmplaceTVector3(vtx,     &em_vtx_x,       &em_vtx_y,       &em_vtx_z);
+  EmplaceTVector3(moms[0], &em_plus_mom_x,  &em_plus_mom_y,  &em_plus_mom_z);
+  EmplaceTVector3(moms[1], &em_minus_mom_x, &em_minus_mom_y, &em_minus_mom_z);
+  if (kFitFlag != kFitWoSSD) {
+    EmplaceTVector3(lposs[0][0], &em_fit_plus_ssd_lx,      &em_fit_plus_ssd_ly);
+    EmplaceTVector3(lposs[1][0], &em_fit_minus_ssd_lx,     &em_fit_minus_ssd_ly);
+    EmplaceTVector3(lmoms[0][0], &em_fit_plus_ssd_mom_lx,  &em_fit_plus_ssd_mom_ly,  &em_fit_plus_ssd_mom_lz);
+    EmplaceTVector3(lmoms[1][0], &em_fit_minus_ssd_mom_lx, &em_fit_minus_ssd_mom_ly, &em_fit_minus_ssd_mom_lz);
+    EmplaceTVector3(gmoms[0][0], &em_fit_plus_ssd_mom_gx,  &em_fit_plus_ssd_mom_gy,  &em_fit_plus_ssd_mom_gz);
+    EmplaceTVector3(gmoms[1][0], &em_fit_minus_ssd_mom_gx, &em_fit_minus_ssd_mom_gy, &em_fit_minus_ssd_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionSSD(em_plus_ssd_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_ssd_lx,     &em_fit_plus_ssd_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_ssd_mom_lx, &em_fit_plus_ssd_mom_ly, &em_fit_plus_ssd_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_ssd_mom_gx, &em_fit_plus_ssd_mom_gy, &em_fit_plus_ssd_mom_gz);
+      } else {
+        ProjectionSSD(em_minus_ssd_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_minus_ssd_lx,     &em_fit_minus_ssd_ly);
+        EmplaceTVector3(lmom, &em_fit_minus_ssd_mom_lx, &em_fit_minus_ssd_mom_ly, &em_fit_minus_ssd_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_minus_ssd_mom_gx, &em_fit_minus_ssd_mom_gy, &em_fit_minus_ssd_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR100) {
+    EmplaceTVector3(lposs[0][1], &em_fit_plus_gtr100_lx,      &em_fit_plus_gtr100_ly);
+    EmplaceTVector3(lposs[1][1], &em_fit_minus_gtr100_lx,     &em_fit_minus_gtr100_ly);
+    EmplaceTVector3(lmoms[0][1], &em_fit_plus_gtr100_mom_lx,  &em_fit_plus_gtr100_mom_ly,  &em_fit_plus_gtr100_mom_lz);
+    EmplaceTVector3(lmoms[1][1], &em_fit_minus_gtr100_mom_lx, &em_fit_minus_gtr100_mom_ly, &em_fit_minus_gtr100_mom_lz);
+    EmplaceTVector3(gmoms[0][1], &em_fit_plus_gtr100_mom_gx,  &em_fit_plus_gtr100_mom_gy,  &em_fit_plus_gtr100_mom_gz);
+    EmplaceTVector3(gmoms[1][1], &em_fit_minus_gtr100_mom_gx, &em_fit_minus_gtr100_mom_gy, &em_fit_minus_gtr100_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionGTR(0, em_plus_gtr100_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr100_lx,     &em_fit_plus_gtr100_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr100_mom_lx, &em_fit_plus_gtr100_mom_ly, &em_fit_plus_gtr100_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr100_mom_gx, &em_fit_plus_gtr100_mom_gy, &em_fit_plus_gtr100_mom_gz);
+      } else {
+        ProjectionGTR(0, em_minus_gtr100_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr100_lx,     &em_fit_plus_gtr100_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr100_mom_lx, &em_fit_plus_gtr100_mom_ly, &em_fit_plus_gtr100_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr100_mom_gx, &em_fit_plus_gtr100_mom_gy, &em_fit_plus_gtr100_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR200) {
+    EmplaceTVector3(lposs[0][2], &em_fit_plus_gtr200_lx,      &em_fit_plus_gtr200_ly);
+    EmplaceTVector3(lposs[1][2], &em_fit_minus_gtr200_lx,     &em_fit_minus_gtr200_ly);
+    EmplaceTVector3(lmoms[0][2], &em_fit_plus_gtr200_mom_lx,  &em_fit_plus_gtr200_mom_ly,  &em_fit_plus_gtr200_mom_lz);
+    EmplaceTVector3(lmoms[1][2], &em_fit_minus_gtr200_mom_lx, &em_fit_minus_gtr200_mom_ly, &em_fit_minus_gtr200_mom_lz);
+    EmplaceTVector3(gmoms[0][2], &em_fit_plus_gtr200_mom_gx,  &em_fit_plus_gtr200_mom_gy,  &em_fit_plus_gtr200_mom_gz);
+    EmplaceTVector3(gmoms[1][2], &em_fit_minus_gtr200_mom_gx, &em_fit_minus_gtr200_mom_gy, &em_fit_minus_gtr200_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionGTR(1, em_plus_gtr200_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr200_lx,     &em_fit_plus_gtr200_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr200_mom_lx, &em_fit_plus_gtr200_mom_ly, &em_fit_plus_gtr200_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr200_mom_gx, &em_fit_plus_gtr200_mom_gy, &em_fit_plus_gtr200_mom_gz);
+      } else {
+        ProjectionGTR(1, em_minus_gtr200_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr200_lx,     &em_fit_plus_gtr200_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr200_mom_lx, &em_fit_plus_gtr200_mom_ly, &em_fit_plus_gtr200_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr200_mom_gx, &em_fit_plus_gtr200_mom_gy, &em_fit_plus_gtr200_mom_gz);
+      }
+    }
+  }
+  if (kFitFlag != kFitWoGTR300) {
+    EmplaceTVector3(lposs[0][3], &em_fit_plus_gtr300_lx,      &em_fit_plus_gtr300_ly);
+    EmplaceTVector3(lposs[1][3], &em_fit_minus_gtr300_lx,     &em_fit_minus_gtr300_ly);
+    EmplaceTVector3(lmoms[0][3], &em_fit_plus_gtr300_mom_lx,  &em_fit_plus_gtr300_mom_ly,  &em_fit_plus_gtr300_mom_lz);
+    EmplaceTVector3(lmoms[1][3], &em_fit_minus_gtr300_mom_lx, &em_fit_minus_gtr300_mom_ly, &em_fit_minus_gtr300_mom_lz);
+    EmplaceTVector3(gmoms[0][3], &em_fit_plus_gtr300_mom_gx,  &em_fit_plus_gtr300_mom_gy,  &em_fit_plus_gtr300_mom_gz);
+    EmplaceTVector3(gmoms[1][3], &em_fit_minus_gtr300_mom_gx, &em_fit_minus_gtr300_mom_gy, &em_fit_minus_gtr300_mom_gz);
+  } else {
+    for (int c = 0; c < 2; ++c) {
+      TVector3 lpos;
+      TVector3 gpos;
+      TVector3 lmom;
+      TVector3 gmom;
+      double charge = 1.;
+      if (c == 1) {
+        charge = -1.;
+      }
+      if (c == 0) {
+        ProjectionGTR(2, em_plus_gtr300_mid.back(), charge, vtx, moms[0], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr300_lx,     &em_fit_plus_gtr300_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr300_mom_lx, &em_fit_plus_gtr300_mom_ly, &em_fit_plus_gtr300_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr300_mom_gx, &em_fit_plus_gtr300_mom_gy, &em_fit_plus_gtr300_mom_gz);
+      } else {
+        ProjectionGTR(2, em_minus_gtr300_mid.back(), charge, vtx, moms[1], &lpos, &gpos, &lmom, &gmom);
+        EmplaceTVector3(lpos, &em_fit_plus_gtr300_lx,     &em_fit_plus_gtr300_ly);
+        EmplaceTVector3(lmom, &em_fit_plus_gtr300_mom_lx, &em_fit_plus_gtr300_mom_ly, &em_fit_plus_gtr300_mom_lz);
+        EmplaceTVector3(gmom, &em_fit_plus_gtr300_mom_gx, &em_fit_plus_gtr300_mom_gy, &em_fit_plus_gtr300_mom_gz);
+      }
+    }
+  }
+  em_res_plus_ssd_lx.emplace_back(em_fit_plus_ssd_lx.back()         - em_hit_plus_ssd_lx.back());
+  em_res_plus_gtr100_lx.emplace_back(em_fit_plus_gtr100_lx.back()   - em_hit_plus_gtr100_lx.back());
+  em_res_plus_gtr100_ly.emplace_back(em_fit_plus_gtr100_ly.back()   - em_hit_plus_gtr100_ly.back());
+  em_res_plus_gtr200_lx.emplace_back(em_fit_plus_gtr200_lx.back()   - em_hit_plus_gtr200_lx.back());
+  em_res_plus_gtr200_ly.emplace_back(em_fit_plus_gtr200_ly.back()   - em_hit_plus_gtr200_ly.back());
+  em_res_plus_gtr300_lx.emplace_back(em_fit_plus_gtr300_lx.back()   - em_hit_plus_gtr300_lx.back());
+  em_res_plus_gtr300_ly.emplace_back(em_fit_plus_gtr300_ly.back()   - em_hit_plus_gtr300_ly.back());
+  em_res_minus_ssd_lx.emplace_back(em_fit_minus_ssd_lx.back()       - em_hit_minus_ssd_lx.back());
+  em_res_minus_gtr100_lx.emplace_back(em_fit_minus_gtr100_lx.back() - em_hit_minus_gtr100_lx.back());
+  em_res_minus_gtr100_ly.emplace_back(em_fit_minus_gtr100_ly.back() - em_hit_minus_gtr100_ly.back());
+  em_res_minus_gtr200_lx.emplace_back(em_fit_minus_gtr200_lx.back() - em_hit_minus_gtr200_lx.back());
+  em_res_minus_gtr200_ly.emplace_back(em_fit_minus_gtr200_ly.back() - em_hit_minus_gtr200_ly.back());
+  em_res_minus_gtr300_lx.emplace_back(em_fit_minus_gtr300_lx.back() - em_hit_minus_gtr300_lx.back());
+  em_res_minus_gtr300_ly.emplace_back(em_fit_minus_gtr300_ly.back() - em_hit_minus_gtr300_ly.back());
+  return;
+}
+
+void track_analyzer_220715::PairFitEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
+  fitter->Clear();
+  fitter->SetInitialVertex(kInitVertex, kVertexSigma);
+  for (int tid = 0; tid < 2; ++tid) {
+    if (tid == kChargePlus) {
+      fChain->GetEntry(plus_entry_index);
+    } else {
+      fChain->GetEntry(minus_entry_index);
+    }
+    int i;
+    if (tid == 0) {
+      i = plus_track_index;
+    } else {
+      i = minus_track_index;
+    }
+    if (!kForgiveSameCharge) {
+      if (tid == 0) {
+        fitter->SetCharge(tid, 1.);
+      } else {
+        fitter->SetCharge(tid, -1.);
+      }
+    } else {
+      fitter->SetCharge(tid, ChargeID(rk_charge->at(i)));
+      return;
+    }
+    fitter->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(i), rk_fit_init_mom_gy->at(i), rk_fit_init_mom_gz->at(i)));
+    if (kFitFlag == kFitAllLayers) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 3, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoSSD) {
+      fitter->AddHit(tid, 0, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR100) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR200) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr300_mid->at(i)), 2), TVector3(rk_hit_gtr300_tx2->at(i), rk_hit_gtr300_ty->at(i), 0.), kGTR300Sigma);
+    } else if (kFitFlag == kFitWoGTR300) {
+      fitter->AddHit(tid, 0, geometry->SSD(ModuleID2013(rk_fit_ssd_mid->at(i))),       TVector3(rk_hit_ssd_x->at(i),      0.,                      0.), kSSDSigma);
+      fitter->AddHit(tid, 1, geometry->GTR(ModuleID2013(rk_fit_gtr100_mid->at(i)), 0), TVector3(rk_hit_gtr100_tx2->at(i), rk_hit_gtr100_ty->at(i), 0.), kGTR100Sigma);
+      fitter->AddHit(tid, 2, geometry->GTR(ModuleID2013(rk_fit_gtr200_mid->at(i)), 1), TVector3(rk_hit_gtr200_tx2->at(i), rk_hit_gtr200_ty->at(i), 0.), kGTR200Sigma);
+    }
+  }
+  fitter->SetRungeKuttaStepSize(kStepSize);
+  fitter->SetMaxSteps(kMaxSteps);
+  auto chi2 = fitter->Fit(kFixVtxXY, kFixPy, kFixVtxZ, kStrategy, kMaxFuncCalls,
+                          kVtxXRange[0], kVtxXRange[1], kVtxYRange[0], kVtxYRange[1], kVtxZRange[0], kVtxZRange[1]);
+  FillBranchesFromPairFitEM(chi2);
+  return;
+}
+
+void track_analyzer_220715::ProjectionHBDAndLGEM() {
+  for (int c = 0; c < kNumCharges; ++c) {
+    double charge = 1.;
+    if (!kForgiveSameCharge) {
+      if(c == kChargeMinus) {
+        charge = -1.;
+      }
+    } else {
+      if (c == kChargePlus && em_plus_charge_id.back() == kChargeMinus) {
+        charge = -1.;
+      } else if (c == kChargeMinus && em_minus_charge_id.back() == kChargeMinus) {
+        charge = -1.;
+      }
+    }
+    auto     init_pos = TVector3(em_vtx_x.back(), em_vtx_y.back(), em_vtx_z.back());
+    int      gtr300_mid;
+    TVector3 init_mom;
+    if (c == kChargePlus) {
+      gtr300_mid = em_plus_gtr300_mid.back();
+      init_mom   = TVector3(em_plus_mom_x.back(), em_plus_mom_y.back(), em_plus_mom_z.back());
+    } else {
+      gtr300_mid = em_minus_gtr300_mid.back();
+      init_mom = TVector3(em_minus_mom_x.back(), em_minus_mom_y.back(), em_minus_mom_z.back());
+    }
+    array<int, 4>      mids;
+    array<TVector3, 4> lposs;
+    array<TVector3, 4> gposs;
+    array<TVector3, 4> lmoms;
+    array<TVector3, 4> gmoms;
+    ProjectionHBDAndLG(gtr300_mid, charge, init_pos, init_mom, &mids, &lposs, &gposs, &lmoms, &gmoms);
+    if (c == kChargePlus) {
+      em_plus_hbd_mid.emplace_back(mids[0]);
+      em_fit_plus_hbd_lx.emplace_back(lposs[0].X());
+      em_fit_plus_hbd_ly.emplace_back(lposs[0].Y());
+      em_fit_plus_hbd_mom_lx.emplace_back(lmoms[0].X());
+      em_fit_plus_hbd_mom_ly.emplace_back(lmoms[0].Y());
+      em_fit_plus_hbd_mom_lz.emplace_back(lmoms[0].Z());
+      em_fit_plus_hbd_mom_gx.emplace_back(gmoms[0].X());
+      em_fit_plus_hbd_mom_gy.emplace_back(gmoms[0].Y());
+      em_fit_plus_hbd_mom_gz.emplace_back(gmoms[0].Z());
+      em_plus_lg_c_mid.emplace_back(mids[1]);
+      em_fit_plus_lg_c_lx.emplace_back(lposs[1].X());
+      em_fit_plus_lg_c_ly.emplace_back(lposs[1].Y());
+      em_fit_plus_lg_c_mom_lx.emplace_back(lmoms[1].X());
+      em_fit_plus_lg_c_mom_ly.emplace_back(lmoms[1].Y());
+      em_fit_plus_lg_c_mom_lz.emplace_back(lmoms[1].Z());
+      em_fit_plus_lg_c_mom_gx.emplace_back(gmoms[1].X());
+      em_fit_plus_lg_c_mom_gy.emplace_back(gmoms[1].Y());
+      em_fit_plus_lg_c_mom_gz.emplace_back(gmoms[1].Z());
+      em_plus_lg_b_mid.emplace_back(mids[2]);
+      em_fit_plus_lg_b_lx.emplace_back(lposs[2].X());
+      em_fit_plus_lg_b_ly.emplace_back(lposs[2].Y());
+      em_fit_plus_lg_b_mom_lx.emplace_back(lmoms[2].X());
+      em_fit_plus_lg_b_mom_ly.emplace_back(lmoms[2].Y());
+      em_fit_plus_lg_b_mom_lz.emplace_back(lmoms[2].Z());
+      em_fit_plus_lg_b_mom_gx.emplace_back(gmoms[2].X());
+      em_fit_plus_lg_b_mom_gy.emplace_back(gmoms[2].Y());
+      em_fit_plus_lg_b_mom_gz.emplace_back(gmoms[2].Z());
+      em_plus_lg_a_mid.emplace_back(mids[3]);
+      em_fit_plus_lg_a_lx.emplace_back(lposs[3].X());
+      em_fit_plus_lg_a_ly.emplace_back(lposs[3].Y());
+      em_fit_plus_lg_a_mom_lx.emplace_back(lmoms[3].X());
+      em_fit_plus_lg_a_mom_ly.emplace_back(lmoms[3].Y());
+      em_fit_plus_lg_a_mom_lz.emplace_back(lmoms[3].Z());
+      em_fit_plus_lg_a_mom_gx.emplace_back(gmoms[3].X());
+      em_fit_plus_lg_a_mom_gy.emplace_back(gmoms[3].Y());
+      em_fit_plus_lg_a_mom_gz.emplace_back(gmoms[3].Z());
+    } else {
+      em_minus_hbd_mid.emplace_back(mids[0]);
+      em_fit_minus_hbd_lx.emplace_back(lposs[0].X());
+      em_fit_minus_hbd_ly.emplace_back(lposs[0].Y());
+      em_fit_minus_hbd_mom_lx.emplace_back(lmoms[0].X());
+      em_fit_minus_hbd_mom_ly.emplace_back(lmoms[0].Y());
+      em_fit_minus_hbd_mom_lz.emplace_back(lmoms[0].Z());
+      em_fit_minus_hbd_mom_gx.emplace_back(gmoms[0].X());
+      em_fit_minus_hbd_mom_gy.emplace_back(gmoms[0].Y());
+      em_fit_minus_hbd_mom_gz.emplace_back(gmoms[0].Z());
+      em_minus_lg_c_mid.emplace_back(mids[1]);
+      em_fit_minus_lg_c_lx.emplace_back(lposs[1].X());
+      em_fit_minus_lg_c_ly.emplace_back(lposs[1].Y());
+      em_fit_minus_lg_c_mom_lx.emplace_back(lmoms[1].X());
+      em_fit_minus_lg_c_mom_ly.emplace_back(lmoms[1].Y());
+      em_fit_minus_lg_c_mom_lz.emplace_back(lmoms[1].Z());
+      em_fit_minus_lg_c_mom_gx.emplace_back(gmoms[1].X());
+      em_fit_minus_lg_c_mom_gy.emplace_back(gmoms[1].Y());
+      em_fit_minus_lg_c_mom_gz.emplace_back(gmoms[1].Z());
+      em_minus_lg_b_mid.emplace_back(mids[2]);
+      em_fit_minus_lg_b_lx.emplace_back(lposs[2].X());
+      em_fit_minus_lg_b_ly.emplace_back(lposs[2].Y());
+      em_fit_minus_lg_b_mom_lx.emplace_back(lmoms[2].X());
+      em_fit_minus_lg_b_mom_ly.emplace_back(lmoms[2].Y());
+      em_fit_minus_lg_b_mom_lz.emplace_back(lmoms[2].Z());
+      em_fit_minus_lg_b_mom_gx.emplace_back(gmoms[2].X());
+      em_fit_minus_lg_b_mom_gy.emplace_back(gmoms[2].Y());
+      em_fit_minus_lg_b_mom_gz.emplace_back(gmoms[2].Z());
+      em_minus_lg_a_mid.emplace_back(mids[3]);
+      em_fit_minus_lg_a_lx.emplace_back(lposs[3].X());
+      em_fit_minus_lg_a_ly.emplace_back(lposs[3].Y());
+      em_fit_minus_lg_a_mom_lx.emplace_back(lmoms[3].X());
+      em_fit_minus_lg_a_mom_ly.emplace_back(lmoms[3].Y());
+      em_fit_minus_lg_a_mom_lz.emplace_back(lmoms[3].Z());
+      em_fit_minus_lg_a_mom_gx.emplace_back(gmoms[3].X());
+      em_fit_minus_lg_a_mom_gy.emplace_back(gmoms[3].Y());
+      em_fit_minus_lg_a_mom_gz.emplace_back(gmoms[3].Z());
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::ProjectionTargetsEM() {
+  for (int c = 0; c < kNumCharges; ++c) {
+    double charge = 1.;
+    if (!kForgiveSameCharge) {
+      if(c == kChargeMinus) {
+        charge = -1.;
+      }
+    } else {
+      if (c == kChargePlus && em_plus_charge_id.back() == kChargeMinus) {
+        charge = -1.;
+      } else if (c == kChargeMinus && em_minus_charge_id.back() == kChargeMinus) {
+        charge = -1.;
+      }
+    }
+    auto init_pos = Hep3Vector(em_vtx_x.back() * 0.1, em_vtx_y.back() * 0.1, em_vtx_z.back() * 0.1);
+    auto init_mom = Hep3Vector();
+    if (c == kChargePlus) {
+      init_mom = Hep3Vector(em_plus_mom_x.back(), em_plus_mom_y.back(), em_plus_mom_z.back());
+    } else {
+      init_mom = Hep3Vector(em_minus_mom_x.back(), em_minus_mom_y.back(), em_minus_mom_z.back());
+    }
+    array<TVector3, kNumTgts> poss;
+    array<TVector3, kNumTgts> moms;
+    ProjectionTargets(charge, init_pos, init_mom, &poss, &moms);
+    if (c == kChargePlus) {
+      EmplaceTVector3(poss[kTgtMinus], &em_fit_plus_tgt_minus_x,     &em_fit_plus_tgt_minus_y);
+      EmplaceTVector3(poss[kTgtZero],  &em_fit_plus_tgt_zero_x,      &em_fit_plus_tgt_zero_y);
+      EmplaceTVector3(poss[kTgtPlus],  &em_fit_plus_tgt_plus_x,      &em_fit_plus_tgt_plus_y);
+      EmplaceTVector3(poss[kTgtMinus], &em_fit_plus_tgt_minus_mom_x, &em_fit_plus_tgt_minus_mom_y, &em_fit_plus_tgt_minus_mom_z);
+      EmplaceTVector3(poss[kTgtZero],  &em_fit_plus_tgt_zero_mom_x,  &em_fit_plus_tgt_zero_mom_y,  &em_fit_plus_tgt_zero_mom_z);
+      EmplaceTVector3(poss[kTgtPlus],  &em_fit_plus_tgt_plus_mom_x,  &em_fit_plus_tgt_plus_mom_y,  &em_fit_plus_tgt_plus_mom_z);
+    } else {
+      EmplaceTVector3(poss[kTgtMinus], &em_fit_minus_tgt_minus_x,     &em_fit_minus_tgt_minus_y);
+      EmplaceTVector3(poss[kTgtZero],  &em_fit_minus_tgt_zero_x,      &em_fit_minus_tgt_zero_y);
+      EmplaceTVector3(poss[kTgtPlus],  &em_fit_minus_tgt_plus_x,      &em_fit_minus_tgt_plus_y);
+      EmplaceTVector3(poss[kTgtMinus], &em_fit_minus_tgt_minus_mom_x, &em_fit_minus_tgt_minus_mom_y, &em_fit_minus_tgt_minus_mom_z);
+      EmplaceTVector3(poss[kTgtZero],  &em_fit_minus_tgt_zero_mom_x,  &em_fit_minus_tgt_zero_mom_y,  &em_fit_minus_tgt_zero_mom_z);
+      EmplaceTVector3(poss[kTgtPlus],  &em_fit_minus_tgt_plus_mom_x,  &em_fit_minus_tgt_plus_mom_y,  &em_fit_minus_tgt_plus_mom_z);
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::ProjectionX0EM() {
+  for (int c = 0; c < kNumCharges; ++c) {
+    double charge = 1.;
+    if (!kForgiveSameCharge) {
+      if(c == kChargeMinus) {
+        charge = -1.;
+      }
+    } else {
+      if (c == kChargePlus && em_plus_charge_id.back() == kChargeMinus) {
+        charge = -1.;
+      } else if (c == kChargeMinus && em_minus_charge_id.back() == kChargeMinus) {
+        charge = -1.;
+      }
+    }
+    auto init_pos = Hep3Vector(em_vtx_x.back() * 0.1, em_vtx_y.back() * 0.1, em_vtx_z.back() * 0.1);
+    auto init_mom = Hep3Vector();
+    if (c == kChargePlus) {
+      init_mom = Hep3Vector(em_plus_mom_x.back(), em_plus_mom_y.back(), em_plus_mom_z.back());
+    } else {
+      init_mom = Hep3Vector(em_minus_mom_x.back(), em_minus_mom_y.back(), em_minus_mom_z.back());
+    }
+    TVector3 pos;
+    TVector3 mom;
+    ProjectionX0(charge, init_pos, init_mom, &pos, &mom);
+    if (c == kChargePlus) {
+      em_fit_plus_x0_y.emplace_back(pos.Y());
+      em_fit_plus_x0_z.emplace_back(pos.Z());
+    } else {
+      em_fit_minus_x0_y.emplace_back(pos.Y());
+      em_fit_minus_x0_z.emplace_back(pos.Z());
+    }
+  }
+  return;
+}
+
+void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index) {
+  array<Hep3Vector,        2> init_poss;
+  array<Hep3Vector,        2> init_moms;
+  array<E16ANA_StepTrack*, 2> tracks;
+  
+  fChain->GetEntry(plus_entry_index);
+  em_plus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(plus_track_index));
+  em_plus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(plus_track_index));
+  em_plus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(plus_track_index));
+  em_plus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(plus_track_index));
   em_fit_plus_ssd_lx.emplace_back(rk_fit_ssd_x->at(plus_track_index));
   em_fit_plus_ssd_ly.emplace_back(rk_fit_ssd_y->at(plus_track_index));
   em_fit_plus_gtr100_lx.emplace_back(rk_fit_gtr100_x->at(plus_track_index));
@@ -4220,35 +4819,10 @@ void track_analyzer_220715::NearestPointEM(int plus_entry_index, int plus_track_
   }
   tracks[0] = new E16ANA_StepTrack(bfield_map, init_poss[0], init_moms[0], pcid, kStepTrackSizeCm, kStepTrackArraySize);
   fChain->GetEntry(minus_entry_index);
-  em_minus_run_id.emplace_back(run_id);
-  em_minus_event_id.emplace_back(event_id);
-  em_minus_n_cands.emplace_back(n_cands);
-//  em_minus_n_pairs.emplace_back(n_pairs);
-  em_minus_track_id.emplace_back(track_id->at(minus_track_index));
-  em_minus_charge_id.emplace_back(ChargeID(rk_charge->at(minus_track_index)));
-  em_minus_chi2.emplace_back(chi_square->at(minus_track_index));
-  em_minus_ssd_mid.emplace_back(rk_fit_ssd_mid->at(minus_track_index));
-  em_minus_gtr100_mid.emplace_back(rk_fit_gtr100_mid->at(minus_track_index));
-  em_minus_gtr200_mid.emplace_back(rk_fit_gtr200_mid->at(minus_track_index));
-  em_minus_gtr300_mid.emplace_back(rk_fit_gtr300_mid->at(minus_track_index));
   em_minus_hbd_mid.emplace_back(rk_fit_hbd_mid->at(minus_track_index));
   em_minus_lg_c_mid.emplace_back(rk_fit_lg_c_mid->at(minus_track_index));
   em_minus_lg_b_mid.emplace_back(rk_fit_lg_b_mid->at(minus_track_index));
   em_minus_lg_a_mid.emplace_back(rk_fit_lg_a_mid->at(minus_track_index));
-  em_hit_minus_ssd_id.emplace_back(rk_hit_ssd_id->at(minus_track_index));
-  em_hit_minus_gtr100_xid.emplace_back(rk_hit_gtr100_xid->at(minus_track_index));
-  em_hit_minus_gtr100_yid.emplace_back(rk_hit_gtr100_yid->at(minus_track_index));
-  em_hit_minus_gtr200_xid.emplace_back(rk_hit_gtr200_xid->at(minus_track_index));
-  em_hit_minus_gtr200_yid.emplace_back(rk_hit_gtr200_yid->at(minus_track_index));
-  em_hit_minus_gtr300_xid.emplace_back(rk_hit_gtr300_xid->at(minus_track_index));
-  em_hit_minus_gtr300_yid.emplace_back(rk_hit_gtr300_yid->at(minus_track_index));
-  em_hit_minus_ssd_lx.emplace_back(rk_hit_ssd_x->at(minus_track_index));
-  em_hit_minus_gtr100_lx.emplace_back(rk_hit_gtr100_tx2->at(minus_track_index));
-  em_hit_minus_gtr100_ly.emplace_back(rk_hit_gtr100_ty->at(minus_track_index));
-  em_hit_minus_gtr200_lx.emplace_back(rk_hit_gtr200_tx2->at(minus_track_index));
-  em_hit_minus_gtr200_ly.emplace_back(rk_hit_gtr200_ty->at(minus_track_index));
-  em_hit_minus_gtr300_lx.emplace_back(rk_hit_gtr300_tx2->at(minus_track_index));
-  em_hit_minus_gtr300_ly.emplace_back(rk_hit_gtr300_ty->at(minus_track_index));
   em_fit_minus_ssd_lx.emplace_back(rk_fit_ssd_x->at(minus_track_index));
   em_fit_minus_ssd_ly.emplace_back(rk_fit_ssd_y->at(minus_track_index));
   em_fit_minus_gtr100_lx.emplace_back(rk_fit_gtr100_x->at(minus_track_index));
@@ -4521,12 +5095,15 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
           em_minus_n_tracks.emplace_back(n_past_tracks);
           em_plus_n_pairs.emplace_back(n_current_pairs);
           em_minus_n_pairs.emplace_back(n_past_pairs);
+          FillCommonBranchesEM(plus_entry.entry_index, i, pentry.entry_index, j);
           if (kAnalyzeFlag == kAnalyzePairFit) {
             PairFitEM(plus_entry.entry_index, i, pentry.entry_index, j);
+            ProjectionHBDAndLGEM();
+            ProjectionTargetsEM();
+            ProjectionX0EM();
           } else if (kAnalyzeFlag == kAnalyzeNearestPoint) {
             NearestPointEM(plus_entry.entry_index, i, pentry.entry_index, j);
           }
-  //        FillCommonBranchesEM();
         }
 // Delete current_minus_track and past_plus_track pair to reduce process time
 //    for (const auto& i : minus_entry.track_indexs) {
@@ -4540,11 +5117,6 @@ void track_analyzer_220715::EventMixing(const EntryInfo& plus_entry, const Entry
 //        }
 //      }
 //    }
-//auto n = em_plus_run_id.size() - past_n_pairs;
-//for (int i = 0; i < n; ++i) {
-//  em_n_pairs.emplace_back(n); // need to replace to FillCommonBranchesEM()
-//}
-//past_n_pairs += n;
       }
     }
   } else {

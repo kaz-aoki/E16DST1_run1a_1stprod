@@ -16,8 +16,13 @@
 //int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record) {
 //int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record, CheckFile* check_file) {
 //int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16DST_DST1PhysicsRecord* record, CheckFile* check_file0, CheckFile* check_file1) {
+#ifndef DST1_EVENT_MIX
 int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16ANA_MultiTrack* pair_fitter, bool is_electron_run, E16DST_DST1PhysicsRecord* record, E16ANA_TrackCheckFile* check_file) {
   E16ANA_TrackCandidates track_candidates(&geometry, &bfield_map, fitter, pair_fitter, is_electron_run, record);
+#else // DST1_EVENT_MIX
+int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap& bfield_map, E16ANA_MultiTrack* fitter, E16ANA_MultiTrack* pair_fitter, bool is_electron_run, E16DST_DST1PhysicsRecord* record, E16DST_DST1PhysicsRecord* prev_record, E16ANA_TrackCheckFile* check_file) {
+  E16ANA_TrackCandidates track_candidates(&geometry, &bfield_map, fitter, pair_fitter, is_electron_run, record, prev_record);
+#endif // DST1_EVENT_MIX
   static int n_calls;
   static int n_cands;
   static bool is_fill_param;
