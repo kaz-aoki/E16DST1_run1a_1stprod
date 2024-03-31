@@ -47,6 +47,6 @@ static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_I
 
 static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
-                                                                         "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
+                                                                         "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgDrs4.txt"};
 
 #endif // E16_DST_DST1_DEFAULT_FILE_PATH

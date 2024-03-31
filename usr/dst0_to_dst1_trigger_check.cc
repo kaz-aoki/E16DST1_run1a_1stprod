@@ -360,8 +360,8 @@ int main(int argc, char* argv[]) {
         }
       }
 #ifndef REMOVE_REAL_HIT
-      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
-      record.SSD().AddHitAndClusterIds();
+//      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+//      record.SSD().AddHitAndClusterIds();
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
