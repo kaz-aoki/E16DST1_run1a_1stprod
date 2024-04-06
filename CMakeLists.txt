@@ -627,12 +627,12 @@ target_link_libraries(gtr_deadch_check
 )
 
 #_______________________________________________________________________________
-add_executable(run_CalcASDEffUsingStraightTrack usr/run_CalcASDEffUsingStraightTrack.cc)
-
-target_link_libraries(run_CalcASDEffUsingStraightTrack
-	E16DST
-	E16DST_DST1
-)
+#add_executable(run_CalcASDEffUsingStraightTrack usr/run_CalcASDEffUsingStraightTrack.cc)
+#
+#target_link_libraries(run_CalcASDEffUsingStraightTrack
+#	E16DST
+#	E16DST_DST1
+#)
 
 ##_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
@@ -643,22 +643,22 @@ target_link_libraries(run_CalcASDEffUsingStraightTrack
 #)
 #
 ##_______________________________________________________________________________
-add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
-
-target_link_libraries(run_StraightTrackAnalyzer
-	E16DST
-	E16DST_DST1
-)
-
-##--------------------------------------------------------------------------------
-##_______________________________________________________________________________
-add_executable(run_StraightTrackAnalyzer2D usr/run_StraightTrackAnalyzer2D.cc)
-
-target_link_libraries(run_StraightTrackAnalyzer2D
-	E16DST
-	E16DST_DST1
-)
-##--------------------------------------------------------------------------------
+#add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
+#
+#target_link_libraries(run_StraightTrackAnalyzer
+#	E16DST
+#	E16DST_DST1
+#)
+#
+###--------------------------------------------------------------------------------
+###_______________________________________________________________________________
+#add_executable(run_StraightTrackAnalyzer2D usr/run_StraightTrackAnalyzer2D.cc)
+#
+#target_link_libraries(run_StraightTrackAnalyzer2D
+#	E16DST
+#	E16DST_DST1
+#)
+###--------------------------------------------------------------------------------
 ##_______________________________________________________________________________
 add_executable(run_StraightTrackAnalyzerV2 usr/run_StraightTrackAnalyzerV2.cc)
 
@@ -704,20 +704,20 @@ target_link_libraries(run_ASDEffWMag_2309
 #E16DST_DST1
 #)
 ##_______________________________________________________________________________
-add_executable(run_EfficiencyCalcV2 usr/run_EfficiencyCalcV2.cc)
-
-target_link_libraries(run_EfficiencyCalcV2
-	E16DST
-	E16DST_DST1
-)
-#_______________________________________________________________________________
-###_______________________________________________________________________________
-add_executable(run_ASDEfficiencyCalcWMag usr/run_ASDEfficiencyCalcWMag.cc)
-
-target_link_libraries(run_ASDEfficiencyCalcWMag
-	E16DST
-	E16DST_DST1
-)
+#add_executable(run_EfficiencyCalcV2 usr/run_EfficiencyCalcV2.cc)
+#
+#target_link_libraries(run_EfficiencyCalcV2
+#	E16DST
+#	E16DST_DST1
+#)
+##_______________________________________________________________________________
+####_______________________________________________________________________________
+#add_executable(run_ASDEfficiencyCalcWMag usr/run_ASDEfficiencyCalcWMag.cc)
+#
+#target_link_libraries(run_ASDEfficiencyCalcWMag
+#	E16DST
+#	E16DST_DST1
+#)
 ###_______________________________________________________________________________
 add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
 target_link_libraries(run_ReStraightAfterKillDup
@@ -748,14 +748,14 @@ target_link_libraries(draw_AfterKillDup
 	E16DST_DST1
    E16DSTN
 )
-#_______________________________________________________________________________
-add_executable(tmp_231006 usr/tmp_murakami/tmp_231006.cc)
-
-target_link_libraries(tmp_231006
-	E16DST
-	E16DST_DST1
-   E16DSTN
-)
+##_______________________________________________________________________________
+#add_executable(tmp_231006 usr/tmp_murakami/tmp_231006.cc)
+#
+#target_link_libraries(tmp_231006
+#	E16DST
+#	E16DST_DST1
+#   E16DSTN
+#)
 #
 #add_executable(run_EfficiencyCalc usr/run_EfficiencyCalc.cc)
 #
