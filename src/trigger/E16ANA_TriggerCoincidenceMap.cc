@@ -19,7 +19,8 @@ E16ANA_TriggerCoincidenceMap::E16ANA_TriggerCoincidenceMap(const std::array<std:
       }
     }
   }
-  auto channel_map = E16DST_TriggerChannelMap(static_cast<std::string>(trigger_channel_map_files[0]), static_cast<std::string>(trigger_channel_map_files[1]), static_cast<std::string>(trigger_channel_map_files[2]));
+  auto channel_map = E16DST_TriggerChannelMap(static_cast<std::string>(trigger_channel_map_files[0]), static_cast<std::string>(trigger_channel_map_files[1]),
+                                              static_cast<std::string>(trigger_channel_map_files[2]));
   for (int is_mag = 0; is_mag < 2; ++is_mag) {
     for (int lg_sfp = 0; lg_sfp < 6; ++lg_sfp) {
       std::string line;
@@ -29,23 +30,31 @@ E16ANA_TriggerCoincidenceMap::E16ANA_TriggerCoincidenceMap(const std::array<std:
           ++n_read;
           continue;
         }
-        auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
+        int lg_channel;
+        if (lg_sfp < 3) {
+          lg_channel = 256 * 3 + 64 * lg_sfp + n_read - 2;
+        } else {
+          lg_channel = 256 * 4 + 64 * (lg_sfp - 3) + n_read - 2;
+        }
+//        auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
+        auto ids = channel_map.GetDetectorIDs(lg_channel);
         int key = 100 * ids.moduleID + ids.channelID;
         E16ANA_TriggerCoincidenceMap::Map map;
         map.gtr_start_module = E16ANA_TriggerConstant::kGTRCoincidenceStartModule[lg_sfp];
         map.hbd_start_module = E16ANA_TriggerConstant::kHBDCoincidenceStartModule[lg_sfp];
         map.gtr_map.fill(false);
         map.hbd_map.fill(false);
-        int n_gtr_channel;
         auto size = line.size();
-        if (size == 120 + 1) {
-          n_gtr_channel = 48;
-        } else if (size == 144 + 1) {
-          n_gtr_channel = 72;
-        } else {
-          std::cerr << "Invalid input size: " << size << std::endl;
-          std::exit(1);
-        }
+//        int n_gtr_channel;
+//        if (size == 120 + 1) {
+//          n_gtr_channel = 48;
+//        } else if (size == 144 + 1) {
+//          n_gtr_channel = 72;
+//        } else {
+//          std::cerr << "Invalid input size: " << size << std::endl;
+//          std::exit(1);
+//        }
+        int n_gtr_channel = 24 * 8;
         for (int ch = 0; ch < size; ++ch) {
           bool is_coin;
           if (line[size - 2 - ch] == '1') {
