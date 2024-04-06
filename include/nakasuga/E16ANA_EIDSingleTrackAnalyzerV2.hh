@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Mar 15 19:34:46 2023 by ROOT version 6.18/04
+// Wed Sep  6 16:19:39 2023 by ROOT version 6.18/04
 // from TTree tree/tree
 // found on file: run0b221021/run020908_ev0-9999.root
 //////////////////////////////////////////////////////////
 
-#ifndef E16ANA_EIDSingleTrackAnalyzer_h
-#define E16ANA_EIDSingleTrackAnalyzer_h
+#ifndef E16ANA_EIDSingleTrackAnalyzerV2_h
+#define E16ANA_EIDSingleTrackAnalyzerV2_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -27,7 +27,7 @@ using namespace std;
 #include "vector"
 #include "vector"
 
-class E16ANA_EIDSingleTrackAnalyzer {
+class E16ANA_EIDSingleTrackAnalyzerV2 {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -1414,41 +1414,25 @@ public :
    TBranch        *b_rk_pair_plus_gtr300_res_refit_z;   //!
    TBranch        *b_rk_pair_mass_refit;   //!
 
-   E16ANA_EIDSingleTrackAnalyzer(TTree *tree=0);
-   virtual ~E16ANA_EIDSingleTrackAnalyzer();
+   E16ANA_EIDSingleTrackAnalyzerV2(TTree *tree=0);
+   virtual ~E16ANA_EIDSingleTrackAnalyzerV2();
    virtual Int_t    Cut(Long64_t entry);
-   static  int      LocaltoCh(double lx, double ly);
-   static  bool     IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid);
-   static  int      KsRunPurpose(int run_id);
-   static  bool     IsInTrgRun(int run_id, int mid);
-   virtual int      TrackInHBDAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly);
-   virtual int      TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype);
-   virtual int      TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype, double slope);
-   virtual int      TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype, double* rk_fit_lg_y);
-   virtual int      CutByMorino(Long64_t entry, int itrack);
-   virtual int      CalcAngleOnLGPlane(Long64_t entry, Int_t itrack, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly, TVector3& vertex, TVector3& mom);
-   virtual double   TargetAssociation(Long64_t entry, int itrack, double th);
-   virtual double   TargetAssociation(Long64_t entry, int itrack, int& tgtid);
-   static  int      GTRTrgCid(double ly);
-   static  int      HBDTrgCid(double lx, double ly);
-   virtual bool     wTrgBias(Long64_t entry, int itrack, double trk_lg_mid, int blockch, int awmin, int awmax, int tw, bool& wtrggtr, bool& wtrghbd, int& wtrglg, bool& wtrgtrk);
-   virtual bool     wTrgBias(Long64_t entry, int lgmid, int lgcid, int awmin, int awmax, int tw, int& wtrglg, bool& wtrgtrk);
+   virtual int      CalcTargetId(int itrack, TVector3& initvtx, TVector3& initmom);
+   static  bool     IsTrgPair(int mid1, int cid1, double t1, int mid2, int cid2, double t2, int awmin, int awmax, int tw);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
-   virtual void     MakeTree_EIDEfficiency(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
-   virtual void     MakeTree_EIDEfficiency_woY(int runoption, int maxevent, char* out_file_name, int hbd_track_module, int track_charge, double max_chi_square);
-   virtual void     WaveformEfficiency(int runnum, int maxevent, double wfthrh, double wfthrl);
-   virtual void     LGHitADC(int maxevent, char* out_pdf_file, char* out_root_file);
+   virtual void     TrackMatchOnlineOffline(int maxevent, char* out_file_name);
+   virtual void     TrackMatchOfflineOnline(int maxevent, char* out_file_name);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
 
 #endif
 
-#ifdef E16ANA_EIDSingleTrackAnalyzer_cxx
-E16ANA_EIDSingleTrackAnalyzer::E16ANA_EIDSingleTrackAnalyzer(TTree *tree) : fChain(0) 
+#ifdef E16ANA_EIDSingleTrackAnalyzerV2_cxx
+E16ANA_EIDSingleTrackAnalyzerV2::E16ANA_EIDSingleTrackAnalyzerV2(TTree *tree) : fChain(0) 
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -1463,19 +1447,19 @@ E16ANA_EIDSingleTrackAnalyzer::E16ANA_EIDSingleTrackAnalyzer(TTree *tree) : fCha
    Init(tree);
 }
 
-E16ANA_EIDSingleTrackAnalyzer::~E16ANA_EIDSingleTrackAnalyzer()
+E16ANA_EIDSingleTrackAnalyzerV2::~E16ANA_EIDSingleTrackAnalyzerV2()
 {
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
 
-Int_t E16ANA_EIDSingleTrackAnalyzer::GetEntry(Long64_t entry)
+Int_t E16ANA_EIDSingleTrackAnalyzerV2::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!fChain) return 0;
    return fChain->GetEntry(entry);
 }
-Long64_t E16ANA_EIDSingleTrackAnalyzer::LoadTree(Long64_t entry)
+Long64_t E16ANA_EIDSingleTrackAnalyzerV2::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!fChain) return -5;
@@ -1488,7 +1472,7 @@ Long64_t E16ANA_EIDSingleTrackAnalyzer::LoadTree(Long64_t entry)
    return centry;
 }
 
-void E16ANA_EIDSingleTrackAnalyzer::Init(TTree *tree)
+void E16ANA_EIDSingleTrackAnalyzerV2::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -2847,7 +2831,7 @@ void E16ANA_EIDSingleTrackAnalyzer::Init(TTree *tree)
    Notify();
 }
 
-Bool_t E16ANA_EIDSingleTrackAnalyzer::Notify()
+Bool_t E16ANA_EIDSingleTrackAnalyzerV2::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -2858,502 +2842,63 @@ Bool_t E16ANA_EIDSingleTrackAnalyzer::Notify()
    return kTRUE;
 }
 
-void E16ANA_EIDSingleTrackAnalyzer::Show(Long64_t entry)
+void E16ANA_EIDSingleTrackAnalyzerV2::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
    if (!fChain) return;
    fChain->Show(entry);
 }
-Int_t E16ANA_EIDSingleTrackAnalyzer::Cut(Long64_t entry)
+Int_t E16ANA_EIDSingleTrackAnalyzerV2::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
    return 1;
 }
-int E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(double lx, double ly){
-  int y_ch = (ly+400)/130;
-  int x_ch = (lx+500)/120-1;
-  return y_ch*10 + x_ch;
+int E16ANA_EIDSingleTrackAnalyzerV2::CalcTargetId(int itrack, TVector3& initvtx, TVector3& initmom){
+
+  TVector3 tgt0( rk_proj_tgt0_gx->at(itrack), rk_proj_tgt0_gy->at(itrack), rk_proj_tgt0_gz->at(itrack) );
+  TVector3 tgt1( rk_proj_tgt1_gx->at(itrack), rk_proj_tgt1_gy->at(itrack), rk_proj_tgt1_gz->at(itrack) );
+  TVector3 tgt2( rk_proj_tgt2_gx->at(itrack), rk_proj_tgt2_gy->at(itrack), rk_proj_tgt2_gz->at(itrack) );
+  double p0 = tgt0.Perp();
+  double p1 = tgt1.Perp();
+  double p2 = tgt2.Perp();
+  TVector3 mom0( rk_proj_tgt0_mom_gx->at(itrack), rk_proj_tgt0_mom_gy->at(itrack), rk_proj_tgt0_mom_gz->at(itrack) );
+  TVector3 mom1( rk_proj_tgt1_mom_gx->at(itrack), rk_proj_tgt1_mom_gy->at(itrack), rk_proj_tgt1_mom_gz->at(itrack) );
+  TVector3 mom2( rk_proj_tgt2_mom_gx->at(itrack), rk_proj_tgt2_mom_gy->at(itrack), rk_proj_tgt2_mom_gz->at(itrack) );
+
+  if( p0<p1 && p0<p2 ){
+    initvtx = tgt0;
+    initmom = mom0;
+    return 0;
+  }
+  else if( p1<p0 && p1<p2 ){
+    initvtx = tgt1;
+    initmom = mom1;
+    return 1;
+  }
+  else if( p2<p0 && p2<p1 ){
+    initvtx = tgt2;
+    initmom = mom2;
+    return 2;
+  }
+  else{
+    return -1;
+  }
 }
-bool E16ANA_EIDSingleTrackAnalyzer::IsNeighborBlock(E16ANA_GeometryV2& geometry, int cid, int cent_cid){
-  // std::cout<<"cid:"<<cid<<" cent:"<<cent_cid<<" ";
-  TVector3 gpos = {-10000.,-10000.,-10000.};
-  TVector3 lpos = {-10000.,-10000.,-10000.};
-  gpos = geometry.LG( 0, cid )->GetDetectorCenter();
-  lpos = geometry.LGVD( 0 )->GetLPos(gpos);
-  TVector3 gposc = {-10000.,-10000.,-10000.};
-  TVector3 lposc = {-10000.,-10000.,-10000.};
-  gposc = geometry.LG( 0, cent_cid )->GetDetectorCenter();
-  lposc = geometry.LGVD( 0 )->GetLPos(gposc);
-  if( fabs(lpos.X()-lposc.X())<150 && fabs(lpos.Y()-lposc.Y())<170 ){
-    // std::cout<<"o"<<std::endl;
+bool E16ANA_EIDSingleTrackAnalyzerV2::IsTrgPair(int mid1, int cid1, double t1, int mid2, int cid2, double t2, int awmin, int awmax, int tw)
+{
+  int d1x = (mid1-100)*7+cid1%10;
+  int d1y = cid1/10;
+  int d2x = (mid2-100)*7+cid2%10;
+  int d2y = cid2/10;
+  int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
+  if( (t1==0||t2==0) && fabs(t1-t2)<tw && dist>awmin && dist<awmax ){
     return true;
   }
-  // std::cout<<"x"<<std::endl;
-  return false;
-}
-int E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(int run_id)
-{
-  if( run_id==20908 || run_id==20909 || run_id==20914 || run_id==20921 || run_id==20924 || run_id==20927 )
-    {//IM3, 5e9
-      return 50;
-    }
-  else if( run_id==20928 || run_id==20930 || (run_id>=20932&&run_id<=20939) || run_id==20947 )
-    {//106, 5e9
-      return 56;
-    }
-  else if( run_id==20912 || run_id==20913 || (run_id>=20941&&run_id<=20946) || run_id==20915 || run_id==20916 || run_id==20929 )
-    {//107, 5e9
-      return 57;
-    }
-  else if( run_id==20987 || run_id==20989 )
-    {//IM3, 1e9
-      return 10;
-    }
-  else if( (run_id>=20996&&run_id<=20998) || (run_id>=21000&&run_id<=21010) )
-    {//104,106,108, 1e9
-      return 15;
-    }
-  else if( run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
-    {//106, 1e9
-      return 16;
-    }
-  else if( run_id==20992 || run_id==20993 )
-    {//107, 1e9
-      return 17;
-    }
-  else if( run_id==20990 )
-    {//106, 1e9
-      return 19;
-    }
   else{
-    std::cout<<"RunNumber "<<run_id<<" is not categorized"<<std::endl;
-    return -1;
+    return false;
   }
 }
-bool E16ANA_EIDSingleTrackAnalyzer::IsInTrgRun(int run_id, int mid)
-{
-  if( KsRunPurpose(run_id)%10==6&&mid==106 ) {return true;}
-  else if( KsRunPurpose(run_id)%10==7&&mid==107 ) {return true;}
-  else if( KsRunPurpose(run_id)==15&&(mid==104||mid==106) ) {return true;}
-  else{return false;}
-}
-int E16ANA_EIDSingleTrackAnalyzer::TrackInHBDAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly)
-{
-  trk_lx = -10000;
-  trk_ly = -10000;
-  if( fabs(rk_fit_hbd_x->at(itrack))>300 || fabs(rk_fit_hbd_y->at(itrack))>300 || fabs(rk_fit_hbd_x->at(itrack))<6.6 || fabs(rk_fit_hbd_y->at(itrack))<6.6 ){
-    return -2;
-  }
-  else{
-    trk_lx = rk_fit_hbd_x->at(itrack);
-    trk_ly = rk_fit_hbd_y->at(itrack);
-    return rk_fit_hbd_mid->at(itrack);
-  }
-
-}
-// int E16ANA_EIDSingleTrackAnalyzer::TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype)
-// {
-//   //  normal cut
-//   double xregion[3] = {433.,372.,372.};//plane a, b, c
-//   double yinner[3] = {6.5,  137.7,243.2};
-//   double youter[3] = {160.7,281.0,388.7};
-//   // strict cut 220209
-//   // double xregion[3] = {372.,310.,310.};
-//   // double yinner[3] = {26.5,  157.7,263.2};
-//   // double youter[3] = {150.7,271.0,378.7};
-//   // strict cut
-//   // double xregion[3] = {372.,310.,310.};
-//   // double yinner[3] = {86.5,207.7,303.2};
-//   // double youter[3] = {160.7,281.0,388.7};
-
-//   int deadchm[2]={107,107};
-//   double deadchx[2]={-62,-248};
-//   double deadchy[2]={-315,-83.2};
-
-//   if( rk_fit_lg_c_mid->at(itrack)==deadchm[0] && fabs(rk_fit_lg_c_x->at(itrack)-(deadchx[0]))<65 && fabs(rk_fit_lg_c_y->at(itrack)-(deadchy[0]))<80 ){
-//     return -4;
-//   }
-//   else if( rk_fit_lg_a_mid->at(itrack)==deadchm[1] && fabs(rk_fit_lg_a_x->at(itrack)-(deadchx[1]))<65 && fabs(rk_fit_lg_a_y->at(itrack)-(deadchy[1]))<80 ){
-//     return -4;
-//   }
-//   else if(fabs(rk_fit_lg_a_x->at(itrack))>xregion[0]){
-//     return -2;
-//   }
-//   else if(fabs(rk_fit_lg_b_x->at(itrack))>xregion[1]){
-//     return -2;
-//   }
-//   else if(fabs(rk_fit_lg_c_x->at(itrack))>xregion[2]){
-//     return -2;
-//   }
-//   else if( rk_fit_lg_c_y->at(itrack) > -youter[2] && rk_fit_lg_c_y->at(itrack) < -yinner[2] ){
-//     ytype = 0;
-//     trk_lx = rk_fit_lg_c_x->at(itrack);
-//     trk_ly = rk_fit_lg_c_y->at(itrack);
-//     return rk_fit_lg_c_mid->at(itrack);
-//   }
-//   else if( rk_fit_lg_c_y->at(itrack) > yinner[2] && rk_fit_lg_c_y->at(itrack) < youter[2] ){
-//     ytype = 5;
-//     trk_lx = rk_fit_lg_c_x->at(itrack);
-//     trk_ly = rk_fit_lg_c_y->at(itrack);
-//     return rk_fit_lg_c_mid->at(itrack);
-//   }
-//   else if( rk_fit_lg_b_y->at(itrack) > -youter[1] && rk_fit_lg_b_y->at(itrack) < -yinner[1] ){
-//     ytype = 1;
-//     trk_lx = rk_fit_lg_b_x->at(itrack);
-//     trk_ly = rk_fit_lg_b_y->at(itrack);
-//     return rk_fit_lg_b_mid->at(itrack);
-//   }
-//   else if( rk_fit_lg_b_y->at(itrack) > yinner[1] && rk_fit_lg_b_y->at(itrack) < youter[1] ){
-//     ytype = 4;
-//     trk_lx = rk_fit_lg_b_x->at(itrack);
-//     trk_ly = rk_fit_lg_b_y->at(itrack);
-//     return rk_fit_lg_b_mid->at(itrack);
-//   }
-//   else if( rk_fit_lg_a_y->at(itrack) > -youter[0] && rk_fit_lg_a_y->at(itrack) < -yinner[0] ){
-//     ytype = 2;
-//     trk_lx = rk_fit_lg_a_x->at(itrack);
-//     trk_ly = rk_fit_lg_a_y->at(itrack);
-//     return rk_fit_lg_a_mid->at(itrack);
-//   }
-//   else if( rk_fit_lg_a_y->at(itrack) > yinner[0] && rk_fit_lg_a_y->at(itrack) < youter[0] ){
-//     ytype = 3;
-//     trk_lx = rk_fit_lg_a_x->at(itrack);
-//     trk_ly = rk_fit_lg_a_y->at(itrack);
-//     return rk_fit_lg_a_mid->at(itrack);
-//   }
-//   else{
-//     return -3;
-//   }
-
-// }
-int E16ANA_EIDSingleTrackAnalyzer::TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype)
-{
-  double rk_fit_lg_y[3];//plane a, b, c
-  rk_fit_lg_y[0] = rk_fit_lg_a_y->at(itrack);
-  rk_fit_lg_y[1] = rk_fit_lg_b_y->at(itrack);
-  rk_fit_lg_y[2] = rk_fit_lg_c_y->at(itrack);
-
-  return TrackInLGAcceptance(entry,itrack,trk_lx,trk_ly,ytype,rk_fit_lg_y);
-}
-int E16ANA_EIDSingleTrackAnalyzer::TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype, double slope)
-{
-  double rk_fit_lg_y[3];//plane a, b, c
-  rk_fit_lg_y[0] = slope * sqrt(rk_fit_lg_a_gx->at(itrack)*rk_fit_lg_a_gx->at(itrack)+rk_fit_lg_a_gz->at(itrack)*rk_fit_lg_a_gz->at(itrack));
-  rk_fit_lg_y[1] = slope * sqrt(rk_fit_lg_b_gx->at(itrack)*rk_fit_lg_b_gx->at(itrack)+rk_fit_lg_b_gz->at(itrack)*rk_fit_lg_b_gz->at(itrack));
-  rk_fit_lg_y[2] = slope * sqrt(rk_fit_lg_c_gx->at(itrack)*rk_fit_lg_c_gx->at(itrack)+rk_fit_lg_c_gz->at(itrack)*rk_fit_lg_c_gz->at(itrack));
-
-  return TrackInLGAcceptance(entry,itrack,trk_lx,trk_ly,ytype,rk_fit_lg_y);
-}
-int E16ANA_EIDSingleTrackAnalyzer::TrackInLGAcceptance(Long64_t entry, int itrack, double& trk_lx, double& trk_ly, int& ytype, double* rk_fit_lg_y)
-{
-  //  normal cut
-  double xregion[3] = {433.,372.,372.};//plane a, b, c
-  double yinner[3] = {6.5,  137.7,243.2};
-  double youter[3] = {160.7,281.0,388.7};
-  // strict cut 220209
-  // double xregion[3] = {372.,310.,310.};
-  // double yinner[3] = {26.5,  157.7,263.2};
-  // double youter[3] = {150.7,271.0,378.7};
-  // strict cut
-  // double xregion[3] = {372.,310.,310.};
-  // double yinner[3] = {86.5,207.7,303.2};
-  // double youter[3] = {160.7,281.0,388.7};
-
-  int deadchm[2]={107,107};
-  double deadchx[2]={-62,-248};
-  double deadchy[2]={-315,-83.2};
-
-  if( rk_fit_lg_c_mid->at(itrack)==deadchm[0] && fabs(rk_fit_lg_c_x->at(itrack)-(deadchx[0]))<65 && fabs(rk_fit_lg_y[2]-(deadchy[0]))<80 ){
-    return -4;
-  }
-  else if( rk_fit_lg_a_mid->at(itrack)==deadchm[1] && fabs(rk_fit_lg_a_x->at(itrack)-(deadchx[1]))<65 && fabs(rk_fit_lg_y[0]-(deadchy[1]))<80 ){
-    return -4;
-  }
-  else if(fabs(rk_fit_lg_a_x->at(itrack))>xregion[0]){
-    if(rk_fit_lg_a_x->at(itrack)>0){
-      return -10;
-    }
-    else{
-      return -20;
-    }
-  }
-  else if(fabs(rk_fit_lg_b_x->at(itrack))>xregion[1]){
-    if(rk_fit_lg_b_x->at(itrack)>0){
-      return -10;
-    }
-    else{
-      return -20;
-    }
-  }
-  else if(fabs(rk_fit_lg_c_x->at(itrack))>xregion[2]){
-    if(rk_fit_lg_c_x->at(itrack)>0){
-      return -10;
-    }
-    else{
-      return -20;
-    }
-  }
-  else if( rk_fit_lg_y[2] > -youter[2] && rk_fit_lg_y[2] < -yinner[2] ){
-    ytype = 0;
-    trk_lx = rk_fit_lg_c_x->at(itrack);
-    trk_ly = rk_fit_lg_y[2];
-    return rk_fit_lg_c_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[2] > yinner[2] && rk_fit_lg_y[2] < youter[2] ){
-    ytype = 5;
-    trk_lx = rk_fit_lg_c_x->at(itrack);
-    trk_ly = rk_fit_lg_y[2];
-    return rk_fit_lg_c_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[1] > -youter[1] && rk_fit_lg_y[1] < -yinner[1] ){
-    ytype = 1;
-    trk_lx = rk_fit_lg_b_x->at(itrack);
-    trk_ly = rk_fit_lg_y[1];
-    return rk_fit_lg_b_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[1] > yinner[1] && rk_fit_lg_y[1] < youter[1] ){
-    ytype = 4;
-    trk_lx = rk_fit_lg_b_x->at(itrack);
-    trk_ly = rk_fit_lg_y[1];
-    return rk_fit_lg_b_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[0] > -youter[0] && rk_fit_lg_y[0] < -yinner[0] ){
-    ytype = 2;
-    trk_lx = rk_fit_lg_a_x->at(itrack);
-    trk_ly = rk_fit_lg_y[0];
-    return rk_fit_lg_a_mid->at(itrack);
-  }
-  else if( rk_fit_lg_y[0] > yinner[0] && rk_fit_lg_y[0] < youter[0] ){
-    ytype = 3;
-    trk_lx = rk_fit_lg_a_x->at(itrack);
-    trk_ly = rk_fit_lg_y[0];
-    return rk_fit_lg_a_mid->at(itrack);
-  }
-  else{
-    return -3;
-  }
-
-}
-int E16ANA_EIDSingleTrackAnalyzer::CutByMorino(Long64_t entry, int itrack)
-{
-  // if(rk_hit_ssd_adc->at(itrack)<300) return -1;
-  // if(rk_hit_gtr100_xadc->at(itrack)<450) return -1;
-  // if(rk_hit_gtr100_yadc->at(itrack)<300) return -1;
-  if((rk_hit_gtr100_xt->at(itrack)-rk_hit_ssd_t->at(itrack))<10) return -1;
-  if((rk_hit_gtr100_xt->at(itrack)-rk_hit_ssd_t->at(itrack))>250) return -1;
-  if((rk_hit_gtr100_yt->at(itrack)-rk_hit_ssd_t->at(itrack))<10) return -1;
-  if((rk_hit_gtr100_yt->at(itrack)-rk_hit_ssd_t->at(itrack))>250) return -1;
-  if(rk_hit_gtr100_yadc->at(itrack)/rk_hit_gtr100_xadc->at(itrack)<0.25) return -1;
-  if(rk_hit_gtr100_yadc->at(itrack)/rk_hit_gtr100_xadc->at(itrack)>1.5) return -1;
-
-  // if(rk_hit_gtr200_xadc->at(itrack)<450) return -1;
-  // if(rk_hit_gtr200_yadc->at(itrack)<300) return -1;
-  if((rk_hit_gtr200_xt->at(itrack)-rk_hit_ssd_t->at(itrack))<10) return -1;
-  if((rk_hit_gtr200_xt->at(itrack)-rk_hit_ssd_t->at(itrack))>250) return -1;
-  if((rk_hit_gtr200_yt->at(itrack)-rk_hit_ssd_t->at(itrack))<10) return -1;
-  if((rk_hit_gtr200_yt->at(itrack)-rk_hit_ssd_t->at(itrack))>250) return -1;
-  if(rk_hit_gtr200_yadc->at(itrack)/rk_hit_gtr200_xadc->at(itrack)<0.25) return -1;
-  if(rk_hit_gtr200_yadc->at(itrack)/rk_hit_gtr200_xadc->at(itrack)>1.5) return -1;
-
-  // if(rk_hit_gtr300_xadc->at(itrack)<450) return -1;
-  // if(rk_hit_gtr300_yadc->at(itrack)<300) return -1;
-  if((rk_hit_gtr300_xt->at(itrack)-rk_hit_ssd_t->at(itrack))<10) return -1;
-  if((rk_hit_gtr300_xt->at(itrack)-rk_hit_ssd_t->at(itrack))>250) return -1;
-  if((rk_hit_gtr300_yt->at(itrack)-rk_hit_ssd_t->at(itrack))<10) return -1;
-  if((rk_hit_gtr300_yt->at(itrack)-rk_hit_ssd_t->at(itrack))>250) return -1;
-  if(rk_hit_gtr300_yadc->at(itrack)/rk_hit_gtr300_xadc->at(itrack)<0.25) return -1;
-  if(rk_hit_gtr300_yadc->at(itrack)/rk_hit_gtr300_xadc->at(itrack)>1.5) return -1;
-
-  if((rk_hit_gtr100_xt->at(itrack)-rk_hit_gtr100_yt->at(itrack))<-20)  return -1;
-  if((rk_hit_gtr100_xt->at(itrack)-rk_hit_gtr100_yt->at(itrack))>30)  return -1;
-  if((rk_hit_gtr200_xt->at(itrack)-rk_hit_gtr200_yt->at(itrack))<-20)  return -1;
-  if((rk_hit_gtr200_xt->at(itrack)-rk_hit_gtr200_yt->at(itrack))>30)  return -1;
-  if((rk_hit_gtr300_xt->at(itrack)-rk_hit_gtr300_yt->at(itrack))<-20)  return -1;
-  if((rk_hit_gtr300_xt->at(itrack)-rk_hit_gtr300_yt->at(itrack))>30)  return -1;
-
-  return 1;
-
-}
-double E16ANA_EIDSingleTrackAnalyzer::TargetAssociation(Long64_t entry, int itrack, double th)
-{
-  double x0 = rk_proj_tgt0_gx->at(itrack);
-  double y0 = rk_proj_tgt0_gy->at(itrack);
-  double x1 = rk_proj_tgt1_gx->at(itrack);
-  double y1 = rk_proj_tgt1_gy->at(itrack);
-  double x2 = rk_proj_tgt2_gx->at(itrack);
-  double y2 = rk_proj_tgt2_gy->at(itrack);
-  if( rk_fit_init_pos_gz->at(itrack)==-20 ){
-    if( (x0*x0+y0*y0)>th*th ){return -1;}
-    else{return sqrt(x0*x0+y0*y0);}
-  }
-  else if( rk_fit_init_pos_gz->at(itrack)==0 ){
-    if( (x1*x1+y1*y1)>th*th ){return -1;}
-    else{return sqrt(x1*x1+y1*y1);}
-  }
-  else if( rk_fit_init_pos_gz->at(itrack)==20 ){
-    if( (x2*x2+y2*y2)>th*th ){return -1;}
-    else{return sqrt(x2*x2+y2*y2);}
-  }
-  else{
-    return -1;
-  }
-}
-double E16ANA_EIDSingleTrackAnalyzer::TargetAssociation(Long64_t entry, int itrack, int& tgtid)
-{
-  double x0 = rk_proj_tgt0_gx->at(itrack);
-  double y0 = rk_proj_tgt0_gy->at(itrack);
-  double x1 = rk_proj_tgt1_gx->at(itrack);
-  double y1 = rk_proj_tgt1_gy->at(itrack);
-  double x2 = rk_proj_tgt2_gx->at(itrack);
-  double y2 = rk_proj_tgt2_gy->at(itrack);
-
-  double r0 = x0*x0+y0*y0;
-  double r1 = x1*x1+y1*y1;
-  double r2 = x2*x2+y2*y2;
-  if(r0<r1&&r0<r2){
-    tgtid = 0;
-    return r0;
-  }
-  else if(r1<r0&&r1<r2){
-    tgtid = 1;
-    return r1;
-  }
-  else if(r2<r0&&r2<r1){
-    tgtid = 2;
-    return r2;
-  }
-  else{
-    return -1;
-  }
-}
-int E16ANA_EIDSingleTrackAnalyzer::GTRTrgCid(double ly)
-{
-  double cid = (ly+150)/300.*24.;
-  return (int)cid;
-}
-int E16ANA_EIDSingleTrackAnalyzer::HBDTrgCid(double lx, double ly)
-{
-  double cidx = (lx+300)/600.*6.;
-  double cidy = (ly+300)/600.*6.;
-  return (int)cidx+((int)cidy*10);
-}
-bool E16ANA_EIDSingleTrackAnalyzer::wTrgBias(Long64_t entry, int itrack, double trk_lg_mid, int blockch, int awmin, int awmax, int tw, bool& wtrggtr, bool& wtrghbd, int& wtrglg, bool& wtrgtrk)
-{
-  bool wtrg = false;
-
-  //calc trig_tile in GTR & HBD
-  int gtrmid=-10000;
-  int gtrcid=-10000;
-  if(rk_fit_gtr300_y==0){
-    gtrmid = rk_fit_gtr300_mid->at(itrack);
-    gtrcid = GTRTrgCid(rk_fit_gtr300_gy->at(itrack));
-  }
-  else{
-    gtrmid = rk_fit_gtr300_mid->at(itrack);
-    gtrcid = GTRTrgCid(rk_fit_gtr300_y->at(itrack));
-  }
-  int hbdmid = rk_fit_hbd_mid->at(itrack);
-  int hbdcid = HBDTrgCid(rk_fit_hbd_x->at(itrack),rk_fit_hbd_y->at(itrack));
-
-
-  //calc wtrg pair
-  vector<bool> trgwbias(n_trg_tracks, false);
-  for(int i=0;i<n_trg_tracks;i++){
-    for(int j=i+1;j<n_trg_tracks;j++){
-      int d1x = (trg_track_lg_mid->at(i)-100)*7+(trg_track_lg_cid->at(i))%10;
-      int d1y = (trg_track_lg_cid->at(i))/10;
-      int d2x = (trg_track_lg_mid->at(j)-100)*7+(trg_track_lg_cid->at(j))%10;
-      int d2y = (trg_track_lg_cid->at(j))/10;
-      int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
-      if( (trg_track_lg_t->at(i)==0||trg_track_lg_t->at(j)==0) && 
-	  fabs(trg_track_lg_t->at(i)-trg_track_lg_t->at(j))<tw &&
-	  dist>awmin && dist<awmax ){
-	trgwbias.at(i)=true;
-	trgwbias.at(j)=true;
-      }
-    }
-  }
-
-
-  //calc all bias
-  for(int i=0;i<n_trg_tracks;i++){
-    //LG
-    if( trk_lg_mid==trg_track_lg_mid->at(i) && blockch==trg_track_lg_cid->at(i) ){
-      wtrglg = trg_track_lg_t->at(i);
-      //HBD
-      for(int j=0;j<trg_track_n_hbd_hits->at(i);j++){
-	if(trg_track_hbd_is_t_match->at(i).at(j)==0) continue;
-	if(trg_track_hbd_mid->at(i).at(j)==hbdmid&&trg_track_hbd_cid->at(i).at(j)==hbdcid){
-	  wtrghbd = true;
-	  break;
-	}
-      }
-      //GTR
-      for(int j=0;j<trg_track_n_gtr_hits->at(i);j++){
-	if(trg_track_gtr_is_t_match->at(i).at(j)==0) continue;
-	if(trg_track_gtr_mid->at(i).at(j)==gtrmid&&trg_track_gtr_cid->at(i).at(j)==gtrcid){
-	  wtrggtr = true;
-	  break;
-	}
-      }
-      //TRACK
-      if( trgwbias.at(i) ){
-	wtrgtrk = true;
-      }
-      //
-      if( wtrghbd && wtrggtr && wtrgtrk ){
-	wtrg = true;
-	break;
-      }
-    }// wtrglg
-
-  }//trg track loop
-
-  return wtrg;
-
-}
-bool E16ANA_EIDSingleTrackAnalyzer::wTrgBias(Long64_t entry, int lgmid, int lgcid, int awmin, int awmax, int tw, int& wtrglg, bool& wtrgtrk)
-{
-  bool wtrg = false;
-
-  //calc wtrg pair
-  vector<bool> trgwbias(n_trg_tracks, false);
-  for(int i=0;i<n_trg_tracks;i++){
-    for(int j=i+1;j<n_trg_tracks;j++){
-      int d1x = (trg_track_lg_mid->at(i)-100)*7+(trg_track_lg_cid->at(i))%10;
-      int d1y = (trg_track_lg_cid->at(i))/10;
-      int d2x = (trg_track_lg_mid->at(j)-100)*7+(trg_track_lg_cid->at(j))%10;
-      int d2y = (trg_track_lg_cid->at(j))/10;
-      int dist = (d2x-d1x)*(d2x-d1x)+(d2y-d1y)*(d2y-d1y);
-      if( (trg_track_lg_t->at(i)==0||trg_track_lg_t->at(j)==0) && 
-	  fabs(trg_track_lg_t->at(i)-trg_track_lg_t->at(j))<tw &&
-	  dist>awmin && dist<awmax ){
-	trgwbias.at(i)=true;
-	trgwbias.at(j)=true;
-      }
-    }
-  }
-
-  //calc all bias
-  for(int i=0;i<n_trg_tracks;i++){
-    //LG
-    if( lgmid==trg_track_lg_mid->at(i) && lgcid==trg_track_lg_cid->at(i) ){
-      wtrglg = trg_track_lg_t->at(i);
-
-      //Track
-      if( trgwbias.at(i) ){
-	wtrgtrk = true;
-	break;
-      }
-
-    }// wtrglg
-
-  }//trg track loop
-
-  return wtrg;
-
-}
-#endif // #ifdef E16ANA_EIDSingleTrackAnalyzer_cxx
+#endif // #ifdef E16ANA_EIDSingleTrackAnalyzerV2_cxx

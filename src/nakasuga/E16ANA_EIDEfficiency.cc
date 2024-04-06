@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include "TROOT.h"
 
+#define LGWFHit // <=> LGTrgHit
+
 double CalcBinomialError(int all, int hit){
   double value = (double)hit/(double)all;
   double rerr = 1./sqrt((double)hit);
@@ -591,6 +593,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // }
    if (fChain == 0) return;
 
+   // std::ofstream hbdwf("hbdwf.txt");//240317
+
    TFile *fouthist = new TFile(out_root_name,"recreate");
    auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
    // std::ofstream evspout[5];
@@ -668,6 +672,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      widthx[i][0]=25.;
      widthy[i][0]=25.;
      if(runoption==3){widthx[i][0]=35.;widthy[i][0]=35.;}
+     // if(runoption==3){widthx[i][0]=20.;widthy[i][0]=20.;}//240317
      if(runoption==4){widthx[i][0]=35.;widthy[i][0]=35.;}
      originx[i][1]=0.;
      originy[i][1]=0.;
@@ -1045,23 +1050,32 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        resx_min = -10000.;
        resy_min = -10000.;
        int cid_min = -10000;
+       double adc_min = -10000.;//240317
        int nlgh=0;
        for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){
 	 double resx = track_lg_allhit_resx->at(itrack).at(ilg)-originx[lmide][1];
 	 double resy = track_lg_allhit_resy->at(itrack).at(ilg)-originy[lmide][1];
 	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
+#ifdef LGWFHit
 	 if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+#else
+	 if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<-10.||tmptdc>10.) continue;//230906
+#endif
 	 if( resx*resx+resy*resy < resx_min*resx_min+resy_min*resy_min ){
 	   resx_min=resx;
 	   resy_min=resy;
 	   cid_min=cid;
+	   adc_min=track_lg_allhit_adc->at(itrack).at(ilg);//240317
 	 }
 	 nlgh++;
        }
        bool LGhit=false;
        if(fabs(resx_min)<widthx[lmide][1] && fabs(resy_min)<widthy[lmide][1]){
 	 LGhit=true;
+       }
+       else{//240317
+	 adc_min = -10000.;
        }
 
        //Check projection position
@@ -1181,6 +1195,13 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	     hbdmaxadc = track_hbd_allhit_adc->at(itrack).at(ihbd);
 	   }
 	   nhbdtrkass++;
+	   //240317
+	   // if(itype==1){
+	   //   double px = resx + track_hbd_lx->at(itrack);
+	   //   double py = resy + track_hbd_ly->at(itrack);
+	   //   hbdwf<<ientry<<" "<<itrack<<" "<<ihbd<<" "<<event_id<<" "<<track_id->at(itrack)<<" "<<px<<" "<<py<<" "<<adc_min<<std::endl;
+	   // }
+	   //
 	 }
 	 nhbdc++;
        }// hbdcluster loop
@@ -1289,7 +1310,11 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
 	 if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10]*enepar[bene];}
 	 if(gaincalib){tmpadc = tmpadc*gain;}
+#ifdef LGWFHit
 	 if(tmpadc<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+#else
+	 if(tmpadc<lgresthr||tmptdc<-10.||tmptdc>10.) continue;//230906
+#endif
 	 haresx[lmide][0][1][itype]->Fill(resx);
 	 haresx[2][0][1][itype]->Fill(resx);
 	 haresy[lmide][0][1][itype]->Fill(resy);
@@ -2839,6 +2864,8 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
    bool out_w_trg_hbd;
    int out_w_trg_lg;
    bool out_w_trg_trk;
+   double out_hbd_adc;
+   int out_hbd_csize;
 
    tree->Branch("run_id",&out_run_id,"run_id/I");
    tree->Branch("run_purpose",&out_run_purpose,"run_purpose/I");
@@ -2857,6 +2884,8 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
    tree->Branch("w_trg_hbd",&out_w_trg_hbd,"w_trg_hbd/O");
    tree->Branch("w_trg_lg",&out_w_trg_lg,"w_trg_lg/I");
    tree->Branch("w_trg_trk",&out_w_trg_trk,"w_trg_trk/O");
+   tree->Branch("hbd_adc",&out_hbd_adc,"hbd_adc/D");
+   tree->Branch("hbd_csize",&out_hbd_csize,"hbd_csize/I");
 
    TH1F* hadc[7][60];
    TH1F* hadcd[7][60];
@@ -2935,9 +2964,9 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
 
      for(int itrack=0;itrack<n_tracks;itrack++){//track loop
 
-       if (TrackSelection(ientry,itrack) < 0) continue;
+       if (TrackSelection(ientry,itrack,runoption) < 0) continue;
        int runp = E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(run_id);
-       if( (int)runp/10!=1 ) continue;
+       // if( (int)runp/10!=1 ) continue;
 
        //Search near HBD hit
        int hmide = track_hbd_mid->at(itrack)-103;
@@ -2945,6 +2974,7 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
        double resx_min = 10000.;
        double resy_min = 10000.;
        double adc_max = -10000.;
+       int csize = -10000;
        for(int ihbd=0;ihbd<track_hbd_multiplicity->at(itrack);ihbd++){
 	 double resx = track_hbd_allhit_resx->at(itrack).at(ihbd)-originx[hmide][0];
 	 double resy = track_hbd_allhit_resy->at(itrack).at(ihbd)-originy[hmide][0];
@@ -2955,6 +2985,7 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
 	 if(fabs(resx)<widthx[hmide][0]&&fabs(resy)<widthy[hmide][0]){
 	   if(adc_max<track_hbd_allhit_adc->at(itrack).at(ihbd)){
 	     adc_max = track_hbd_allhit_adc->at(itrack).at(ihbd);
+	     csize = track_hbd_allhit_size->at(itrack).at(ihbd);
 	   }
 	 }
        }
@@ -2977,7 +3008,7 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
        }
 
        int btrktype=-1;
-       if(HBDhit){
+       if(HBDhit){//240322
        	 // btrktype=IsGoodTrack(ientry,itrack,tracksets);
        	 btrktype=IsGoodTrackWHBD(ientry,itrack,tracksets,adc_max);
        }
@@ -2990,6 +3021,8 @@ void E16ANA_EIDEfficiency::LGGainCalibwTrack(int runoption, int maxevent, char* 
        out_run_purpose = E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(out_run_id);
        out_event_id = event_id;
        out_mid = track_lg_mid->at(itrack);
+       out_hbd_adc = adc_max;
+       out_hbd_csize = csize;
        int ass_track_flag = 0;
        for(int ilg=0;ilg<track_lg_multiplicity->at(itrack);ilg++){//lgfore
 	 double resx = track_lg_allhit_resx->at(itrack).at(ilg);

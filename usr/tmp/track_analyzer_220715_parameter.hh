@@ -3,7 +3,7 @@
 
 //#define TMP_SOME_Z
 //#define TMP_ZX_NEAREST
-//#define PAIR_FIT_WO_SSD
+#define PAIR_FIT_WO_SSD
 
 #include "TVector3.h"
 
@@ -14,8 +14,16 @@ enum {
   kAnalyzePairFit,
   kAnalyzeNearestPoint
 };
-constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
-//constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+enum {
+  kFitWoSSD,
+  kFitWoGTR100,
+  kFitWoGTR200,
+  kFitWoGTR300,
+  kFitAllLayers,
+};
+//constexpr int  kAnalyzeFlag       = kAnalyzePairFit;
+constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
+constexpr int  kFitFlag           = kFitAllLayers;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
 //constexpr bool kExecuteEventMixing = true;
@@ -23,7 +31,8 @@ constexpr bool kExecuteEventMixing = false;
 constexpr int  kMaxPastEntries     = 1;
 constexpr bool kMixOneTrackEvent   = true;
 //
-constexpr double kErrorNum = -10000.;
+constexpr double   kErrorNum = -10000.;
+const     TVector3 kErrorVector = {kErrorNum, kErrorNum, kErrorNum};
 
 // Constsant
 enum {
@@ -62,10 +71,10 @@ constexpr double kTargetZ[kNumTgts]    = {-20., 0., 20.};
 constexpr int    kModuleID2013[3][11]  = {{30, 27, 24, 21, 18, 15, 12,  9, 6, 3, 0},
                                           {31, 28, 25, 22, 19, 16, 13, 10, 7, 4, 1},
                                           {32, 29, 26, 23, 20, 17, 14, 11, 8, 5, 2}};
-//const std::array<double, kNumLGTypes> kMaxLGY = {388.7 + 72., 281.  + 72.,  160.7 + 72.};
-//const std::array<double, kNumLGTypes> kMinLGY = {243.2 - 72., 137.7 - 72.,    6.5 - 72.};
-const std::array<double, kNumLGTypes> kMaxLGY = {388.7 , 281.  ,  160.7 };//231014 ichikawa advice
-const std::array<double, kNumLGTypes> kMinLGY = {243.2 , 137.7 ,    6.5 };
+//const std::array<double, kNumLGTypes> kMinLGY = {388.7 + 72., 281.  + 72.,  160.7 + 72.};
+//const std::array<double, kNumLGTypes> kMaxLGY = {243.2 - 72., 137.7 - 72.,    6.5 - 72.};
+const std::array<double, kNumLGTypes> kMinLGY = {243.2, 137.7, 6.5};
+const std::array<double, kNumLGTypes> kMaxLGY = {388.7, 281.,  160.7};
 constexpr double kElectronMass  = 511.99894641e-6;
 constexpr double kElectronMass2 = kElectronMass * kElectronMass;
 constexpr double kPionMass      = 139.57039e-3;
@@ -101,10 +110,9 @@ constexpr double kMaxHBDXResidual      = 25.;
 constexpr double kMaxHBDYResidual      = 25.;
 //constexpr double kMaxHBDXResidual      = 40.;
 //constexpr double kMaxHBDYResidual      = 40.;
-constexpr double kMinHBDADC            = 7.;
-constexpr double kMinHBDSize           = 1.5;
-//constexpr int    kHBDSelection         = kNotUseHBDProb;
-constexpr int    kHBDSelection         = kUseHBDEProb;
+constexpr double kMinHBDADC            = 2.;
+constexpr double kMinHBDSize           = 0.5;
+constexpr int    kHBDSelection         = kNotUseHBDProb;
 //constexpr bool   kUseLGAssociationCut
 constexpr double kMaxLGXResidual = 200.;
 constexpr double kMaxLGYResidual = 200.; 
@@ -133,9 +141,12 @@ constexpr bool     kFixPy        = false;
 constexpr bool     kFixVtxZ      = false;
 constexpr int      kStrategy     = 0;
 constexpr int      kMaxFuncCalls = 1.0e4;
-constexpr double   kVtxXRange[2] = {-150., 150.};
-constexpr double   kVtxYRange[2] = {-150., 150.};
-constexpr double   kVtxZRange[2] = {-150., 150.};
+//constexpr double   kVtxXRange[2] = {-150., 150.};
+//constexpr double   kVtxYRange[2] = {-150., 150.};
+//constexpr double   kVtxZRange[2] = {-150., 150.};
+constexpr double   kVtxXRange[2] = {-300., 300.};
+constexpr double   kVtxYRange[2] = {-300., 300.};
+constexpr double   kVtxZRange[2] = {-300., 300.};
 
 // StepTrack parameter
 constexpr double kStepTrackSizeCm    = 0.1;

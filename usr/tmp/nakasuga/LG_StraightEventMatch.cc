@@ -17,7 +17,7 @@
 #include "E16ANA_LGConstant.hh"
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
-#include "E16ANA_LGStraightProj.hh"
+#include "E16ANA_LGProjection.hh"
 #include "straightRoot.hh"
 #include "E16DST_Constant.hh"
 
@@ -25,7 +25,7 @@ using namespace std;
 // namespace  bpo = boost::program_options;
 
 #define TRG_ON
-// #define TRK_ON
+#define TRK_ON
 
 int main(int argc, char* argv[]) {
   if (argc != 6) {
@@ -38,17 +38,6 @@ int main(int argc, char* argv[]) {
   auto out_file_name = argv[3];
   auto run_id        = stoi(argv[4]);
   auto max_event     = stoi(argv[5]);
-
-  //straight
-#ifdef TRK_ON
-  auto in_chain = new TChain("tree", "tree");
-  // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/straightroot/murakami/out_all_nakasuga.root");
-  in_chain->Add(in_st_file_name);
-  straightRoot* t = new straightRoot(in_chain);
-  t->MakeMap(run_id,-1);
-
-  E16ANA_LGStraightProj proj;
-#endif
 
   //out root
   TFile *fout = new TFile(out_file_name,"recreate");
@@ -183,6 +172,27 @@ int main(int argc, char* argv[]) {
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
+  //straight
+#ifdef TRK_ON
+  auto in_chain = new TChain("tree", "tree");
+  // in_chain->Add("/ccj/w/data06a/E16/user/nakasuga/output/straightroot/murakami/out_all_nakasuga.root");
+  in_chain->Add(in_st_file_name);
+  straightRoot* t = new straightRoot(in_chain);
+  t->MakeMap(run_id,-1);
+
+  // E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  // auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+  // bfield_map->Initialize_binary();
+  // E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+  // auto fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+  // double kStepSize    = 5.;
+  // int    kMaxSteps    = 1000;
+  // fitter->SetRungeKuttaStepSize(kStepSize);
+  // fitter->SetMaxSteps(kMaxSteps);
+  // E16ANA_LGProjection* proj = new E16ANA_LGProjection(geometry, bfield_map, fitter);
+  E16ANA_LGProjection* proj = new E16ANA_LGProjection();
+#endif
+
   // auto record = new E16DST_DST1PhysicsRecord();
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
@@ -380,18 +390,18 @@ int main(int argc, char* argv[]) {
       for(int itrack=0; itrack<t->Ntracks(); itrack++){
 	TVector3 tinitpos = initposs.at(itrack);
 	TVector3 tinitdir = initdirs.at(itrack);
-	proj.SetInitInfo(tinitpos,tinitdir);
-	if( proj.CalcCrossInfo() ){
+	proj->SetInitInfo(tinitpos,tinitdir);
+	if( proj->CalcCrossInfoStraight() ){
 	  out_trk_initpos_x.push_back( tinitpos.X() );
 	  out_trk_initpos_y.push_back( tinitpos.Y() );
 	  out_trk_initpos_z.push_back( tinitpos.Z() );
 	  out_trk_initdir_x.push_back( tinitdir.X() );
 	  out_trk_initdir_y.push_back( tinitdir.Y() );
 	  out_trk_initdir_z.push_back( tinitdir.Z() );
-	  out_trk_mid.push_back( proj.Module() );
-	  out_trk_cid.push_back( proj.Block() );
-	  out_trk_lx.push_back( proj.LCross1_x() );
-	  out_trk_ly.push_back( proj.LCross1_y() );
+	  out_trk_mid.push_back( proj->Module() );
+	  out_trk_cid.push_back( proj->Block() );
+	  out_trk_lx.push_back( proj->LCross1_x() );
+	  out_trk_ly.push_back( proj->LCross1_y() );
 	  out_trk_timing_100x.push_back( timing_100x.at(itrack) );
 	  out_trk_timing_100y.push_back( timing_100y.at(itrack) );
 	  out_trk_timing_200x.push_back( timing_200x.at(itrack) );
@@ -448,6 +458,7 @@ int main(int argc, char* argv[]) {
   delete dst0;
 #ifdef TRK_ON
   delete in_chain;
+  delete proj;
 #endif
 //  dst1->Close();
   return 0;

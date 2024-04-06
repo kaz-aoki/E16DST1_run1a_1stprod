@@ -5,6 +5,7 @@ project(E16DST1)
 set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -pg -lMinuit -lSpectrum")
 #set(CMAKE_CXX_FLAGS "-O2 -g -lMinuit -lSpectrum")
+#set(CMAKE_CXX_FLAGS "-O0 -g -Wall -lMinuit -lSpectrum")
 #set(CMAKE_EXE_LINKER_FLAGS "-pg")
 #set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
@@ -44,21 +45,26 @@ if(${_host_name} MATCHES "^e16")
 elseif(${_host_name} MATCHES "^ccj")
    message("-- E16SYS_DIR will be set for ccj servers.")
    set(E16SYS_DIR /ccj/u/E16)
+   add_definitions(-DCCJ_CALIB_FILE) # for calib files
 endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
 add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 
-#add_definitions(-DTRACK_EFF_CHECK)
-#add_definitions(-DMERGE_TRACK_PAIR)
-##add_definitions(-DMOCK_VECTOR_MESON)
-#add_definitions(-DMOCK_KS)
-#add_definitions(-DREMOVE_REAL_HIT)
-#add_definitions(-DREMOVE_DEAD_REGION_CUT)
-##add_definitions(-DSIM_DST1_GEOM_CHECK) # ?
-#add_definitions(-DWO_LAYER_EFF)
-
 #add_definitions(-DWO_TRACK_FIT)
+
+# embedding
+#add_definitions(-DTRACK_EFF_CHECK)
+#add_definitions(-DREMOVE_REAL_HIT)
+#add_definitions(-DWO_LAYER_EFF) # remove timing correlation cut between GTR x and y (for mock data)
+##add_definitions(-DSIM_DST1_GEOM_CHECK) # tmp. print position for check
+
+# event mixing
+#add_definitions(-DDST1_EVENT_MIX)
+#add_definitions(-DMIX_SSD)
+#add_definitions(-DMIX_GTR100)
+#add_definitions(-DMIX_GTR200)
+#add_definitions(-DMIX_GTR300)
 
 include_directories(
   ${ROOT_INCLUDE_DIRS}
@@ -132,7 +138,7 @@ add_library(E16ANA
   src/LG/E16ANA_LGClustering.cc
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
-  src/LG/E16ANA_LGStraightProj.cc
+  src/LG/E16ANA_LGProjection.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -174,6 +180,7 @@ add_library(E16DST_DST1
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
   src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
+  src/nakasuga/E16ANA_EIDSingleTrackAnalyzerV2.cc
   src/nakasuga/E16ANA_EIDEfficiency.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
@@ -532,6 +539,17 @@ target_link_libraries(Gammaana_CodeCheck
 	E16ANA
 )
 
+# _______________________________________________________________________________
+add_executable(Gammaana_ChargedRatio usr/tmp/nakasuga/Gammaana_ChargedRatio.cc)
+
+target_link_libraries(Gammaana_ChargedRatio
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 #_______________________________________________________________________________
 add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
 
@@ -602,6 +620,50 @@ target_link_libraries(LG_StraightEventMatch
 add_executable(LG_StraightResidual usr/tmp/nakasuga/LG_StraightResidual.cc)
 
 target_link_libraries(LG_StraightResidual
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(check_LGProjection usr/tmp/nakasuga/check_LGProjection.cc)
+
+target_link_libraries(check_LGProjection
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(TrackMatchOnlineOffline usr/tmp/nakasuga/TrackMatchOnlineOffline.cc)
+
+target_link_libraries(TrackMatchOnlineOffline
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(TrackMatchOfflineOnline usr/tmp/nakasuga/TrackMatchOfflineOnline.cc)
+
+target_link_libraries(TrackMatchOfflineOnline
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(nevent usr/tmp/nakasuga/nevent.cc)
+
+target_link_libraries(nevent
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic
@@ -955,7 +1017,6 @@ target_link_libraries(draw_field_diff_221227
 )
 
 #_______________________________________________________________________________
-#_______________________________________________________________________________
 add_executable(tmp_check_track_finding_230106
   usr/tmp/tmp_check_track_finding_230106_wrapper.cc
   usr/tmp/tmp_check_track_finding_230106.C
@@ -965,6 +1026,45 @@ target_link_libraries(tmp_check_track_finding_230106
   E16ANA_Basic
 )
 
+##_______________________________________________________________________________
+#add_executable(tmp_check_track_230129
+#  usr/tmp/tmp_check_track_230129_wrapper.cc
+#  usr/tmp/tmp_check_track_230129.C
+#)
+#
+#target_link_libraries(tmp_check_track_230129
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(tmp_make_tfile_from_mock_data_230131
+#  usr/tmp/tmp_make_tfile_from_mock_data_230131.cc
+#)
+#
+#target_link_libraries(tmp_make_tfile_from_mock_data_230131
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(refit_track_230207
+#  usr/tmp/refit_track_230207_wrapper.cc
+#  usr/tmp/refit_track_230207.C
+#)
+#
+#target_link_libraries(refit_track_230207
+#  E16ANA_Basic
+#)
+#
+##_______________________________________________________________________________
+#add_executable(sanford_wang
+#  usr/tmp/sanford_wang.cc
+#)
+#
+#target_link_libraries(sanford_wang
+#  E16ANA_Basic
+#  E16DST_DST1
+#)
+#
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

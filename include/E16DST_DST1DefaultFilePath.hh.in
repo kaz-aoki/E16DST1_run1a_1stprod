@@ -4,9 +4,11 @@
 #include <array>
 #include <string_view>
 
+#ifdef CCJ_CALIB_FILE
 //static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/calib_database"};
 //static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/database/calib_database"};
-static constexpr std::string_view CalibFilePath {"/ccj/u/E16/database/calib"};
+//static constexpr std::string_view CalibFilePath {"/ccj/u/E16/database/calib"};
+static constexpr std::string_view CalibFilePath {"/e16/u/E16/database_ccj_230524/calib"};
 
 //static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
 //static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/database/geometry_database/v2/geometry_Run0b_210226_design.dat"};
@@ -20,25 +22,43 @@ static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2
 //static constexpr std::string_view MagneticFieldMapFile("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary"); // evb
 //static constexpr std::string_view MagneticFieldMapFile("/ccj/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary"); // ccj
 static constexpr std::string_view MagneticFieldMapFile("/ccj/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A-rev1.binary"); // ccj
+#else // CCJ_CALIB_FILE
+static constexpr std::string_view CalibFilePath {"/e16/u/E16/database/calib"};
+static constexpr std::string_view GeometryFile {"/e16/u/E16/database/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
+static constexpr std::string_view MagneticFieldMapFile("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A-rev1.binary");
+#endif // CCJ_CALIB_FILE
+
 
 //static constexpr std::string_view LGCalibFilePath {"@CMAKE_INSTALL_DATADIR@/lg_calibfiles"};
 
-
-static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_0.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_1.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_2.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_3.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_4.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_5.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_0.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_1.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_2.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_3.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_4.coe",
-                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_5.coe"};
+// run0a - 0d
+//static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_0.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_1.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_2.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_3.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_4.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_NoMag_5.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_0.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_1.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_2.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_3.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_4.coe",
+//                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track3_sym_5.coe"};
+static constexpr std::array<std::string_view, 12> CoincidenceMapFiles {"@CMAKE_INSTALL_DATADIR@/coincidence_map/track_noMag_0.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_noMag_1.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_noMag_2.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_noMag_3.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_noMag_4.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_noMag_5.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_mag_0.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_mag_1.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_mag_2.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_mag_3.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_mag_4.coe",
+                                                                       "@CMAKE_INSTALL_DATADIR@/coincidence_map/track_mag_5.coe"};
 
 static constexpr std::array<std::string_view, 3> TriggerChannelMapFiles {"@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgGtr.txt",
                                                                          "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgHbd.txt",
-                                                                         "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgLgc.txt"};
+                                                                         "@CMAKE_INSTALL_DATADIR@/channel_map/Trigger/trgDrs4.txt"};
 
 #endif // E16_DST_DST1_DEFAULT_FILE_PATH
