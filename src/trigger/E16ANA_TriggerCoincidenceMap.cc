@@ -30,7 +30,14 @@ E16ANA_TriggerCoincidenceMap::E16ANA_TriggerCoincidenceMap(const std::array<std:
           ++n_read;
           continue;
         }
-        auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
+        int lg_channel;
+        if (lg_sfp < 3) {
+          lg_channel = 256 * 3 + 64 * lg_sfp + n_read - 2;
+        } else {
+          lg_channel = 256 * 4 + 64 * (lg_sfp - 3) + n_read - 2;
+        }
+//        auto ids = channel_map.GetDetectorIDs(256 * 3 + 64 * lg_sfp + n_read - 2);
+        auto ids = channel_map.GetDetectorIDs(lg_channel);
         int key = 100 * ids.moduleID + ids.channelID;
         E16ANA_TriggerCoincidenceMap::Map map;
         map.gtr_start_module = E16ANA_TriggerConstant::kGTRCoincidenceStartModule[lg_sfp];
