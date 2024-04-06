@@ -1456,13 +1456,25 @@ public :
    virtual void     Show(Long64_t entry = -1);
 	virtual void     AddRecord();
 	TFile *FileOut()  {return fout;}
-	virtual void     DrawHist(TTree *tree, int print, TString pdf_name);
+	virtual void     DrawHist(TTree *tree, int n_maxevent, int print, TString pdf_name);
 	virtual void     ChooseSmallestResidual(std::vector<int> &v, std::vector<int> &ov);
    void ClearUsedClusterIDs();
 	void SetTracks();
 	bool IsGoodTrack(int n) ;
 	bool HasUsedCluster(const std::array<int, E16DSTN_StraightParameter::kNumTrackingDetectors>& cids); 
 	void SetRemovedLayer(int rm) {removed_layer = rm;}
+	void SetTgtKind(int t){
+		if(t ==0){
+			isWire = false;
+		}	
+		else if(t ==1){
+			isWire = true;
+		}
+		else {
+			std::cerr << "target kind is incorrect" << std::endl;
+		}
+	}
+	bool IsComingFromTarget(int n);
 	
 // for re fitting
    
@@ -1470,6 +1482,7 @@ private:
 	std::array<std::vector<int>, E16DSTN_StraightParameter::kNumTrackingDetectors> used_cluster_ids;
    std::vector<int> selected_ids;
 	int removed_layer;
+	bool isWire;
 
 public:
 	
@@ -2200,6 +2213,7 @@ E16DSTN_ReadStraightTree::E16DSTN_ReadStraightTree(TTree *tree,const char *out_f
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
+	   std::cout << "tree is empty, is it really OK? " << std::endl;
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("RootFileCannotbeFound");
       if (!f || !f->IsOpen()) {
 //         f = new TFile("new_out_run_040277_evb03_sink0_000.dst1");
@@ -2249,7 +2263,7 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
 //  -- for output -- //
 
 	fout    = new TFile (out_file, "recreate");
-	outtree = new TTree("outtree", "outtree");
+	outtree = new TTree("tree", "tree");
 
 // -- for input -- //
    // Set object pointer
@@ -4650,12 +4664,12 @@ void E16DSTN_ReadStraightTree::AddRecord()
   out_n_cands = n_selected;
   for(const int id : selected_ids) {
     out_rk_hit_ssd_id[i]  = rk_hit_ssd_id->at(id);  
-    out_rk_hit_ssd_x[i]  = rk_hit_ssd_x->at(id);  
+    out_rk_hit_ssd_x[i]   = rk_hit_ssd_x->at(id);  
     out_rk_hit_ssd_gx[i]  = rk_hit_ssd_gx->at(id);  
     out_rk_hit_ssd_gy[i]  = rk_hit_ssd_gy->at(id);  
     out_rk_hit_ssd_gz[i]  = rk_hit_ssd_gz->at(id);  
-    out_rk_hit_ssd_adc[i]  = rk_hit_ssd_adc->at(id);
-    out_rk_hit_ssd_t[i]  = rk_hit_ssd_t->at(id);  
+    out_rk_hit_ssd_adc[i] = rk_hit_ssd_adc->at(id);
+    out_rk_hit_ssd_t[i]   = rk_hit_ssd_t->at(id);  
 //    out_rk_hit_ssd_chi[i]  = out_rk_hit_ssd_chi->at(id);
 
 

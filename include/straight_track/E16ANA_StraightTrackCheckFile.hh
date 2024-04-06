@@ -1780,14 +1780,14 @@ class E16ANA_StraightTrackCheckFile {
         }
         trg_track_hbd_is_t_match[i][j] = track_set.HBDHitIsUsed(j);
       }
-//      trg_track_lg_id[i] = track_set.LGHitOrder(0);
-//      auto& hit = record.Trigger().LGHit(trg_track_lg_id[i]);
-//      trg_track_lg_mid[i] = hit.ModuleId();
-//      trg_track_lg_cid[i] = hit.ChannelId();
-//      auto lpos = hit.LocalPos(geometry);
-//      trg_track_lg_x[i] = lpos.X();
-//      trg_track_lg_y[i] = lpos.Y();
-//      trg_track_lg_t[i] = hit.Timing();
+      trg_track_lg_id[i] = track_set.LGHitOrder(0);
+      auto& hit = record.Trigger().LGHit(trg_track_lg_id[i]);
+      trg_track_lg_mid[i] = hit.ModuleId();
+      trg_track_lg_cid[i] = hit.ChannelId();
+      auto lpos = hit.LocalPos(geometry);
+      trg_track_lg_x[i] = lpos.X();
+      trg_track_lg_y[i] = lpos.Y();
+      trg_track_lg_t[i] = hit.Timing();
 //      trg_track_gtr0_id[i]         = E16DST_DST1Constant::kInvalidValue;
 //      trg_track_gtr0_mid[i]        = E16DST_DST1Constant::kInvalidValue;
 //      trg_track_gtr0_cid[i]        = E16DST_DST1Constant::kInvalidValue;
@@ -2363,8 +2363,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_hit_gtr300_gtx.resize(n_cands);
     rk_hit_gtr300_gty.resize(n_cands);
     rk_hit_gtr300_gtz.resize(n_cands);
-    rk_hit_gtr300_gtx2.resize(n_cands);
-    rk_hit_gtr300_gty2.resize(n_cands);
+    rk_hit_gtr300_gtx2.resize(n_cands); rk_hit_gtr300_gty2.resize(n_cands);
     rk_hit_gtr300_gtz2.resize(n_cands);
     rk_hit_gtr300_nc.resize(n_cands);
     rk_hit_gtr300_the.resize(n_cands);
@@ -2743,8 +2742,10 @@ class E16ANA_StraightTrackCheckFile {
 		//rk_hit_gtr100_lxcog[i] = pairs[1].LocalPos().X();
 		//rk_hit_gtr200_lxcog[i] = pairs[2].LocalPos().X();
 		//rk_hit_gtr300_lxcog[i] = pairs[3].LocalPos().X();
-      auto& gtr100hit_lpos = pairs[1].LocalPosT();
+//      auto& gtr100hit_lpos = pairs[1].LocalPosT();
+      auto& gtr100hit_lpos = pairs[1].LocalPos();//231025 modified
       rk_hit_gtr100_tx2[i]  = gtr100hit_lpos.X();
+
 //      rk_hit_gtr100_cogx[i]  = pairs[1].CogPos().X();
       rk_hit_gtr100_ty[i]   = gtr100hit_lpos.Y();
       auto& gtr100hit_gpos = pairs[1].GlobalPos();
@@ -2781,7 +2782,8 @@ class E16ANA_StraightTrackCheckFile {
 //		rk_hit_gtr100_lx[i]  = gtr100_xclst->LocalPos().X();
 //		rk_hit_gtr100_ly[i]  = gtr100_xclst->LocalPos().Y();
 //		rk_hit_gtr100_lz[i]  = gtr100_xclst->LocalPos().Z();
-      auto& gtr200hit_lpos = pairs[2].LocalPosT();
+//      auto& gtr200hit_lpos = pairs[2].LocalPosT();
+      auto& gtr200hit_lpos = pairs[2].LocalPos();//231025 modified
       rk_hit_gtr200_tx2[i]  = gtr200hit_lpos.X();
       rk_hit_gtr200_ty[i]   = gtr200hit_lpos.Y();
   //    rk_hit_gtr200_cogx[i]  = pairs[2].CogPos().X();
@@ -2820,7 +2822,8 @@ class E16ANA_StraightTrackCheckFile {
 //		rk_hit_gtr200_lx[i]  = gtr200_xclst->LocalPos.X();
 //		rk_hit_gtr200_ly[i]  = gtr200_xclst->LocalPos.Y();
 //		rk_hit_gtr200_lz[i]  = gtr200_xclst->LocalPos.Z();
-      auto& gtr300hit_lpos = pairs[3].LocalPosT();
+      auto& gtr300hit_lpos = pairs[3].LocalPos();//231025 modified
+//      auto& gtr300hit_lpos = pairs[3].LocalPosT();
 //      rk_hit_gtr300_cogx[i]  = pairs[3].CogPos().X();
       rk_hit_gtr300_tx2[i]  = gtr300hit_lpos.X();
       rk_hit_gtr300_ty[i]   = gtr300hit_lpos.Y();

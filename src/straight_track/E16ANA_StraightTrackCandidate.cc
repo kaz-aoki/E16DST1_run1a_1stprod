@@ -1289,6 +1289,8 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
         if(i+1 !=removed_layer){
           cluster_pairs[1 + i].Set(geometry, 1 + i, gtrx[i]->ModuleId(), x_cand.global_poss[1 + i], y_cand.global_poss[1 + i], gtrx[i], gtry[i]);
 			 cluster_pairs[1 + i].SetCog(TVector3(gtrx[i]->CogPos(),gtry[i]->CogPos(),0.) );
+
+
       	  int nhit = gtrx[i]->NumCls();
        	  for(int j=0;j<nhit;j++){
       	    cluster_pairs[1+i].SetCAdc1((double)gtrx[i]->CAdc1(j));
@@ -1623,8 +1625,8 @@ void E16ANA_StraightTrackCandidates::AddTracksToRecord() {
       track.SetHitPos(i, lpos);
       track.SetHitMom(i, lmom);
     }
-//    for (int i = 0; i < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++i) {
-    for (int i = 1; i < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++i) {
+    for (int i = 0; i < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++i) {
+//    for (int i = 1; i < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++i) {
       for (int j = 0; j < 2; ++j) {
         if (i == E16ANA_StraightTrackConstant::kSSD) {
           if (j == 0) {

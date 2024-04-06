@@ -1,3 +1,4 @@
+
 #include "E16DSTN_ReadStraightTree.hh"
 #include "E16DSTN_StraightParameter.hh"
 #include "TCanvas.h"
@@ -186,16 +187,13 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int n_maxevent, int print_c
 	const int n_module = 10;
 	const int n_layer = 4;
 	const int n_tgt = 2;
-	const int n_div = 5;//divide x direction
-	int htdiv[10]   = {0,  6,  6,  6,  6, 0, 8,  7,  8,  6};
-	int hdzdiv[10]  = {0, 60, 60, 60, 40, 0, 40, 36, 50, 60};
-	const double sideLen[4] = {58, 100, 200, 300};
-
 	TH1D* h_chi2;
 	TH1D* h_t0diff;
 	TH1D* h_n_runid;
 	TH1D* h_n_eventid;
 	TH1D* h_n_spillid;
+
+//	TH1D* rk_fit_init_mom_gx0
 
 
 	TH1D* h_chi2_mod[n_module];
@@ -208,21 +206,18 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int n_maxevent, int print_c
 	TH1D* h_res_x[n_tgt][n_module][n_layer];
 	TH1D* h_res_y[n_tgt][n_module][n_layer];
 	TH1D* h_tan_theta[n_tgt][n_module][n_layer];
-	TH1D* h_fitlx[n_tgt][n_module][n_layer];
 
 	TH2D* h_tgt_pos;
 	TH2D* h_tgt_pos_mod_raw[n_module];
 	TH2D* h_tgt_pos_mod_cut[n_module];
-	TH2D* h_cor_dz_time[n_tgt][n_module][n_layer][n_div];
-	TH2D* h_cor_dz_time_t0cor[n_tgt][n_module][n_layer][n_div];
+	TH2D* h_cor_dz_time[n_tgt][n_module][n_layer];
+	TH2D* h_cor_dz_time_t0cor[n_tgt][n_module][n_layer];
 	TH2D* h_cor_res_fitlx[n_tgt][n_module][n_layer];
 	TH2D* h_cor_res_fitly[n_tgt][n_module][n_layer];
 	TH2D* h_cor_res_timing[n_tgt][n_module][n_layer];
 	
-	TH2D* h_slopevel[n_tgt][n_module][n_layer][n_div];
-
-	TH2D* h_trackmap[n_tgt][n_module];
-
+	int htdiv[10]   = {0,  6,  6,  6,  6, 0, 20,  7,  8,  6};
+	int hdzdiv[10]  = {0, 60, 60, 60, 40, 0, 80, 36, 50, 60};
 
 	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
 	h_n_eventid = new TH1D("n of events of event id","n of events of eventid", 10000, -0.5, 9999.5);
@@ -231,9 +226,6 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int n_maxevent, int print_c
 	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -100,100);	
 	h_tgt_pos = new TH2D(Form("h_tgt_pos"), Form("h_tgt_pos"), 50, 19.8, 20.2, 200, -60, 60);
 	for(int m=0; m < n_module; m++){
-		for(int tg=0; tg < 2; tg++){
-			h_trackmap[tg][m] = new TH2D(Form("h_track_map%d_%d", tg,  m+100), Form("h_track_map%d_%d",tg,  m+100), 25, -50, 50, 25, -50, 50);
-		}
 		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 100);
 		h_lg_t_mod[m] = new TH1D(Form("h_lg_t_mod%d", m+100), Form("h_lg_t_mod%d", m+100), 100, 50, 150);
 		h_tgt_pos_mod_raw[m] = new TH2D(Form("h_tgt_pos_mod_raw_%d", m+100), Form("h_tgt_pos_mod_raw_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
@@ -245,39 +237,24 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int n_maxevent, int print_c
 		h_tgt_proj_y[m] = new TH1D(Form("h_tgt_proj_y%d", m+100), Form("h_tgt_proj_y%d", m+100), 100, -5,5 );
 		for(int l=0; l < n_layer; l++){// -- layer 
 			for(int t=0; t < n_tgt; t++){
-				h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
 				h_res_x[t][m][l] = new TH1D(Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
 				h_res_y[t][m][l] = new TH1D(Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), 100, -4, 4);
 				h_cor_res_fitlx[t][m][l] = new TH2D(Form("h_cor_res_fitlx_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitlx_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
 				h_cor_res_fitly[t][m][l] = new TH2D(Form("h_cor_res_fitly_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitly_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
 				h_cor_res_timing[t][m][l] = new TH2D(Form("h_cor_res_timing_%d_%d_%d", t,m+100, l), Form("h_cor_res_timing_%d_%d%_d", t,m+100, l), 20, 0 , 600, 100, -2, 2);
 			h_tan_theta[t][m][l] = new TH1D(Form("h_tan_theta_t%d_m%d_l%d", t, m+100, l), Form("h_tan_theta%d_%d_%d", t,m+100, l), 100, -0.5, 0.5);
-			for(int div = 0 ; div < n_div; div++){
-			h_cor_dz_time[t][m][l][div]        = new TH2D(Form("h_cor_dz_time_%d_%d%d%d",t,  m+100, l, div)      , Form("h_cor_dz_time_%d%d%d%d",t,  m+100, l, div)      , htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-			h_cor_dz_time_t0cor[t][m][l][div] = new TH2D(Form("h_cor_dz_time_t0cor_%d%d_%d%d", t, m+100, l,div), Form("h_cor_dz_time_t0cor_%d%d%d%d",t, m+100, l,div), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-			h_slopevel[t][m][l][div] = new TH2D(Form("h_slopevel_%d%d_%d%d", t, m+100, l,div), Form("h_slopevel_%d%d%d%d",t, m+100, l,div),  25, -100, 100, 60, -2, 2);
-		}
+			h_cor_dz_time[t][m][l]       = new TH2D(Form("h_cor_dz_time_%d_%d%d",t,  m+100, l)      , Form("h_cor_dz_time_%d%d%d",t,  m+100, l)      , htdiv[m], 0, 600, hdzdiv[m], -8, 8);
+			h_cor_dz_time_t0cor[t][m][l] = new TH2D(Form("h_cor_dz_time_t0cor_%d%d_%d", t, m+100, l), Form("h_cor_dz_time_t0cor_%d%d%_d",t, m+100, l), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
 			}
 		}
 	}
 	int nevent = tree->GetEntries();
-#ifdef CHECK_100
-	int fixl   = 1; //gtr200
-#endif
-#ifdef CHECK_200
 	int fixl   = 2; //gtr200
-#endif
-#ifdef CHECK_300
-	int fixl   = 3; //gtr200
-#endif
-
-
 								//    00, 01, 02, 03, 04, 05,    06
-	double chi2_th[n_module] = {30, 30,30, 30, 30,   0,   30, 30, 30, 30};//mod100-109
+	double chi2_th[n_module] = {15, 15,15, 15, 15,   0,   10, 15, 15, 15};//mod100-109
 	double res_min[n_module] = {0, -4, -4, -4, -4,   0,   -4, -4, -4, -4};//mod100-109
 	double res_max[n_module] = {0,  4,  4,  4,  4,   0,    4,  4,  4,  4};//mod100-109
 	double timing_cut = 120;
-	double tgty_cut = 3.0;
 
 std::array<int, 4> mids;
 std::array<double, 4> resx;
@@ -296,11 +273,9 @@ std::array<double, 4> xt4s;//xt4
 		h_n_runid->Fill(run_id);
 		h_n_eventid->Fill(event_id);
 		h_n_spillid->Fill(spill_id);
-
-
 		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
 		for(int i=0; i < n_tracks; i++){
-//			if(rk_fit_gtr100_mid->at(i) < 105 || rk_fit_gtr100_mid->at(i) > 107) continue;
+			if(rk_fit_gtr100_mid->at(i) < 105 || rk_fit_gtr100_mid->at(i) > 107) continue;
 			double chi2  = chi_square->at(i);
 			int    mid   = rk_fit_gtr200_mid->at(i);
 			double ssd_t = rk_hit_ssd_t->at(i);
@@ -356,13 +331,13 @@ std::array<double, 4> xt4s;//xt4
 //				}
 //			}
 //			double t0diff = smallest_lgt - 88;//run0d
-			double t0diff =  ssd_t;
+			double t0diff = ssd_t;
 			
 // --- cut conditions --- //
 			if(chi2 > chi2_th[mid-100]) continue; //chi2_cut
+			if(fabs(tgt_y + 1) > 1.5) continue;
+
 			h_tgt_proj_z_chi2cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
-			if(fabs(tgt_y + 1) > tgty_cut) continue;
-//			if(xt4s[l] < timing_cut) continue;
 //			if(resx < res_min[mid-100]) continue;
 //			if(resx > res_max[mid-100]) continue;
 			if(lg_flag) {
@@ -370,23 +345,18 @@ std::array<double, 4> xt4s;//xt4
 				if(tgt_z < 0) tgtid = 0;//up
 				if(tgt_z > 0) tgtid = 1;//down
 				for(int l=0; l < 4; l++){
-					
-					int ith_div = (fitlxs[l] + sideLen[l]/2 ) / (sideLen[l]/ n_div);	
-					
-					h_fitlx[tgtid][mids[l]-100][l]->Fill(fitlxs[l]);
+					if(xt4s[l] < timing_cut) continue;
 					h_res_x[tgtid][mids[l]-100][l]->Fill(resx[l]);
 					h_res_y[tgtid][mids[l]-100][l]->Fill(resy[l]);
 					h_cor_res_fitlx[tgtid][mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
 					h_cor_res_fitly[tgtid][mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
 					h_cor_res_timing[tgtid][mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
 					h_tan_theta[tgtid][mids[l]-100][l]     ->Fill(tans[l]);
-					h_cor_dz_time[tgtid][mids[l]-100][l][ith_div]   ->Fill(xt4s[l], resx[l]/tans[l]);	
-					h_cor_dz_time_t0cor[tgtid][mid-100][l][ith_div] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
-					h_slopevel[tgtid][mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] );
+					h_cor_dz_time[tgtid][mids[l]-100][l]   ->Fill(xt4s[l], resx[l]/tans[l]);	
+					h_cor_dz_time_t0cor[tgtid][mid-100][l] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
 				}
 				h_tgt_proj_x[mid-100]->Fill(rk_fit_init_pos_gx->at(i));
 				h_tgt_proj_y[mid-100]->Fill(rk_fit_init_pos_gy->at(i));
-				h_trackmap[tgtid][mid-100]->Fill(fitlxs[1], fitlys[1]);
 	//			if(fabs(rk_fit_init_pos_gx->at(i) + 1) > 4 ) continue;
 	//			if(fabs(tgt_y+ 1.5) >1.5 ) continue;
 	//			if(fabs(tdiff100-5) > 30) continue;
@@ -430,18 +400,6 @@ std::array<double, 4> xt4s;//xt4
 	}
 	c1->SaveAs(pdf_name, "pdf");
 
-	TCanvas *c200 = new TCanvas();
-	c200->Divide(4,2);
-	for(int l=0; l < 4; l++){
-		c200->cd(l+1);
-		h_fitlx[0][6][l]->Draw();
-		c200->cd(5+l);
-		h_fitlx[1][6][l]->Draw();
-	}
-	c200->SaveAs(pdf_name, "pdf");
-
-
-
 
    TCanvas *c100 = new TCanvas();
 	c100->Divide(2,1);      
@@ -469,15 +427,14 @@ std::array<double, 4> xt4s;//xt4
        c310[t][hmid-100]->cd(i);
         h1[hmid-100] = h_cor_res_fitlx[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
  //    f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
-//       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0)",      xmin, xmax);
-//       f1[hmid-100]->SetParameter(0, 500);   // constant
+       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+       f1[hmid-100]->SetParameter(0, 500);   // constant
        f1[hmid-100]->SetParameter(1, 0);     // mean
-//       f1[hmid-100]->SetParLimits(1, -2, 2); // mean
-//       f1[hmid-100]->SetParameter(2, 0.3);
-//       f1[hmid-100]->SetParLimits(2, 0.1, 1);
-//       f1[hmid-100]->SetParameter(3, 0);
-//       f1[hmid-100]->SetParameter(4, -1);
+       f1[hmid-100]->SetParLimits(1, -2, 2); // mean
+       f1[hmid-100]->SetParameter(2, 0.3);
+       f1[hmid-100]->SetParLimits(2, 0.1, 1);
+       f1[hmid-100]->SetParameter(3, 0);
+       f1[hmid-100]->SetParameter(4, -1);
         h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
 	     double mean = f1[hmid-100]->GetParameter(1);
 	     double mean_err = f1[hmid-100]->GetParError(1);
@@ -521,8 +478,8 @@ std::array<double, 4> xt4s;//xt4
      for (int i = 1; i <= n; i++) {
        c311[t][hmid-100]->cd(i);
         h1y[hmid-100] = h_cor_res_fitly[t][hmid-100][fixl]->ProjectionY(Form("_pjy%d%d", hmid, i), i, i     );
-     f1y[hmid-100] = new TF1(Form("f1y%d%d",hmid, i), "gaus");
-//       f1y[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+ //    f1y[hmid-100] = new TF1(Form("f1y%d%d",hmid, i), "gaus");
+       f1y[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
        f1y[hmid-100]->SetParameter(0, 500);   // constant
        f1y[hmid-100]->SetParameter(1, 0);     // mean
        f1y[hmid-100]->SetParLimits(1, -2, 2); // mean
@@ -577,8 +534,8 @@ std::array<double, 4> xt4s;//xt4
      for (int i = 1; i <= n; i++) {
        c31t[t][hmid-100]->cd(i);
         h1t[hmid-100] = h_cor_res_timing[t][hmid-100][fixl]->ProjectionY(Form("_pjt%d%d", hmid, i), i, i     );
-     f1t[hmid-100] = new TF1(Form("f1t%d%d",hmid, i), "gaus");
-//       f1t[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+ //    f1t[hmid-100] = new TF1(Form("f1t%d%d",hmid, i), "gaus");
+       f1t[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
        f1t[hmid-100]->SetParameter(0, 500);   // constant
        f1t[hmid-100]->SetParameter(1, 0);     // mean
        f1t[hmid-100]->SetParLimits(1, -2, 2); // mean
@@ -742,31 +699,9 @@ std::array<double, 4> xt4s;//xt4
 
 
 
-
-	TCanvas *chit = new TCanvas();
-	chit->Divide(8,2);
-	for(int i =1; i < 9; i++){
-      chit->cd(i);
-      if(i < 5) {
-         h_trackmap[0][i]->Draw("colz");
-			chit->cd(i+8);
-			h_trackmap[1][i]->Draw("colz");
-      }
-      else {
-         h_trackmap[0][i+1]->Draw("colz");
-			chit->cd(i+8);
-         h_trackmap[1][i+1]->Draw("colz");
-      }
-   }
-   chit->SaveAs(pdf_name, "pdf");
-
-	
-
-
 	TCanvas *c03 = new TCanvas();
 	h_tgt_pos->Draw("colz");
 	c03->SaveAs(pdf_name, "pdf");
-
 
 
 	TCanvas *c03a = new TCanvas();
@@ -971,79 +906,79 @@ std::array<double, 4> xt4s;//xt4
 //      }
 //   }
 //   c6->SaveAs(pdf_name, "pdf");
+
+    TCanvas *c16[2][10];
+    TGraphErrors *gr16[2][10];
+    TH1D *h16[2][10];
+    TF1  *f16[2][10];
+    TF1  *fla[2][10];
+    double xmin[10]  = {0, -7, -7, -7,     -6, 0, -6.5, -5.5, -7, -7};//mod100-109
+    double xmax[10]  = {0, 10, 10, 10,    5.5, 0,    2,  4.0,  8,  8};
+	 double flmin[10] = {0, 120, 120, 120, 120, 0, 120, 100, 180, 180};
+	 double flmax[10] = {0, 450, 450, 450, 450, 0, 530, 450, 550, 450};
+	 for(int t=0; t < 2; t++){
+    for(int hmid=101; hmid < 110; hmid++){
+       if(hmid != 106)continue;
+       c16[t][hmid-100] = new TCanvas();
+       int n = h_cor_dz_time[t][hmid-100][fixl]->GetNbinsX();
+       c16[t][hmid-100]->Divide(5,5);
+       std::cout << "nbins dz = " << n << std::endl;
+       gr16[t][hmid-100] = new TGraphErrors(n);
+		 gr16[t][hmid-100]->SetMaximum( 8.0);
+		 gr16[t][hmid-100]->SetMinimum(-8.0);
+        for (int i = 1; i <= n; i++) {
+          c16[t][hmid-100]->cd(i);
+          fla[t][hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
+          h16[t][hmid-100] = h_cor_dz_time[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
+          //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
+ //       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
+ //       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
+          //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
+//          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
+          f16[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
+ //       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+ //       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+          f16[t][hmid-100]->SetParameter(0, 20); // constant
+          f16[t][hmid-100]->SetParameter(1, 0);     // mean
+          f16[t][hmid-100]->SetParameter(2, 10);    // sigma
+          f16[t][hmid-100]->SetParLimits(2, 1, 10);
+          f16[t][hmid-100]->SetParameter(3, 0);    
+//          f16[hmid-100]->SetParLimits(3, -0.8, 0);
+//          f16[hmid-100]->SetParameter(4, -1);    
+//          f16[hmid-100]->SetParameter(4, -0.5);  
+           h16[t][hmid-100]->Fit(f16[t][hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
+
+           double chi2 = f16[t][hmid-100]->GetChisquare();
+          double mean =  f16[t][hmid-100]->GetParameter(1);
+           double sigma_err = f16[t][hmid-100]->GetParError(2);
+          std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+          if(chi2 < 5) continue;
+          if(sigma_err > 10) continue;
+           gr16[t][hmid-100]->SetPoint(i-1, i*(600/n), mean);
+           gr16[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
+           gr16[t][hmid-100]->Fit(fla[t][hmid-100], "R");
+           h16[t][hmid-100]->Draw();
+       }
+          c16[t][hmid-100]->cd(6);
+          c16[t][hmid-100]->SaveAs(pdf_name, "pdf");
+		}
+    }
 //
-//    TCanvas *c16[2][10];
-//    TGraphErrors *gr16[2][10];
-//    TH1D *h16[2][10];
-//    TF1  *f16[2][10];
-//    TF1  *fla[2][10];
-//    double xmin[10]  = {0, -7, -7, -7,     -6, 0, -6.5, -5.5, -7, -7};//mod100-109
-//    double xmax[10]  = {0, 10, 10, 10,    5.5, 0,    2,  4.0,  8,  8};
-//	 double flmin[10] = {0, 120, 120, 120, 120, 0, 120, 100, 180, 180};
-//	 double flmax[10] = {0, 450, 450, 450, 450, 0, 530, 450, 550, 450};
-//	 for(int t=0; t < 2; t++){
-//    for(int hmid=101; hmid < 110; hmid++){
-//       if(hmid != 106)continue;
-//       c16[t][hmid-100] = new TCanvas();
-//       int n = h_cor_dz_time[t][hmid-100][fixl]->GetNbinsX();
-//       c16[t][hmid-100]->Divide(5,5);
-//       std::cout << "nbins dz = " << n << std::endl;
-//       gr16[t][hmid-100] = new TGraphErrors(n);
-//		 gr16[t][hmid-100]->SetMaximum( 8.0);
-//		 gr16[t][hmid-100]->SetMinimum(-8.0);
-//        for (int i = 1; i <= n; i++) {
-//          c16[t][hmid-100]->cd(i);
-//          fla[t][hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
-//          h16[t][hmid-100] = h_cor_dz_time[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
-//          //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
-// //       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
-// //       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
-//          //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
-////          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
-//          f16[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
-// //       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
-// //       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
-//          f16[t][hmid-100]->SetParameter(0, 20); // constant
-//          f16[t][hmid-100]->SetParameter(1, 0);     // mean
-//          f16[t][hmid-100]->SetParameter(2, 10);    // sigma
-//          f16[t][hmid-100]->SetParLimits(2, 1, 10);
-//          f16[t][hmid-100]->SetParameter(3, 0);    
-////          f16[hmid-100]->SetParLimits(3, -0.8, 0);
-////          f16[hmid-100]->SetParameter(4, -1);    
-////          f16[hmid-100]->SetParameter(4, -0.5);  
-//           h16[t][hmid-100]->Fit(f16[t][hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
 //
-//           double chi2 = f16[t][hmid-100]->GetChisquare();
-//          double mean =  f16[t][hmid-100]->GetParameter(1);
-//           double sigma_err = f16[t][hmid-100]->GetParError(2);
-//          std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
-//          if(chi2 < 5) continue;
-//          if(sigma_err > 10) continue;
-//           gr16[t][hmid-100]->SetPoint(i-1, i*(600/n), mean);
-//           gr16[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
-//           gr16[t][hmid-100]->Fit(fla[t][hmid-100], "R");
-//           h16[t][hmid-100]->Draw();
-//       }
-//          c16[t][hmid-100]->cd(6);
-//          c16[t][hmid-100]->SaveAs(pdf_name, "pdf");
-//		}
-//    }
-////
-////
-//    TCanvas *c17[2];
-//	for(int t=0; t < 2; t++){
-//	 c17[t]= new TCanvas();
-//    c17[t]->Divide(4,2);
-//    for(int hmid=101; hmid < 110; hmid++){
-//       if(hmid!=106) continue;
-//       if(hmid < 105) {c17[t]->cd(hmid-100);}
-//		 else {c17[t]->cd(hmid-101);}
-//       gr16[t][hmid-100]->SetTitle(Form("residual/tan_theta tgt%d  mod%d : timing ;  timing; residual/tan_theta", t, hmid) );
-//       gr16[t][hmid-100]->Draw("AP");
-//    }
-//   c17[t]->SaveAs(pdf_name, "pdf");
-//	}
-//
+    TCanvas *c17[2];
+	for(int t=0; t < 2; t++){
+	 c17[t]= new TCanvas();
+    c17[t]->Divide(4,2);
+    for(int hmid=101; hmid < 110; hmid++){
+       if(hmid!=106) continue;
+       if(hmid < 105) {c17[t]->cd(hmid-100);}
+		 else {c17[t]->cd(hmid-101);}
+       gr16[t][hmid-100]->SetTitle(Form("residual/tan_theta tgt%d  mod%d : timing ;  timing; residual/tan_theta", t, hmid) );
+       gr16[t][hmid-100]->Draw("AP");
+    }
+   c17[t]->SaveAs(pdf_name, "pdf");
+	}
+
 
 //
 //  TCanvas *c6b = new TCanvas();
@@ -1064,60 +999,61 @@ std::array<double, 4> xt4s;//xt4
 //
 //
 
-   TCanvas *c16b[2][10][n_div];
-   TGraphErrors *gr16b[2][10][n_div];
-   TH1D *h16b[2][10][n_div];
-   TF1 *f16b[2][10][n_div];
-   TF1 *flab[2][10][n_div];
-#ifdef CALIB
-   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -2, -5.5, -4, -4};//mod100-109
-   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,  2,  4.0,  5,  5};
-#else 
-   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
-   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
-#endif
-   double flminb[10] = {0, 120, 120, 120, 120, 0, 200, 120, 100, 180};
-   double flmaxb[10] = {0, 450, 450, 450, 450, 0, 550, 450, 320, 450};
+   TCanvas *c16b[2][10];
+   TGraphErrors *gr16b[2][10];
+   TH1D *h16b[2][10];
+   TF1 *f16b[2][10];
+   TF1 *flab[2][10];
+   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -1.5, -5.5, -4, -4};//mod100-109
+   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,    2,  4.0,  5,  5};
+ double flminb[10] = {0, 120, 120, 120, 120, 0, 120, 120, 100, 180};
+ double flmaxb[10] = {0, 450, 450, 450, 450, 0, 450, 450, 320, 450};
 	for(int t=0; t < 2; t++){
-		int hmid = 106;
-		for(int d=0 ; d < n_div; d++){
-      c16b[t][hmid-100][d] = new TCanvas();
-      int n = h_cor_dz_time_t0cor[t][hmid-100][fixl][d]->GetNbinsX();
-      c16b[t][hmid-100][d]->Divide(5,5);
+   for(int hmid=101; hmid < 110; hmid++){
+      if(hmid != 106)continue;
+      c16b[t][hmid-100] = new TCanvas();
+      int n = h_cor_dz_time_t0cor[t][hmid-100][fixl]->GetNbinsX();
+      c16b[t][hmid-100]->Divide(5,5);
       std::cout << "nbins dz = " << n << std::endl;
-      gr16b[t][hmid-100][d] = new TGraphErrors(n);
-   	gr16b[t][hmid-100][d]->SetMaximum( 8.0);
-	   gr16b[t][hmid-100][d]->SetMinimum(-8.0);
+      gr16b[t][hmid-100] = new TGraphErrors(n);
+	 gr16b[t][hmid-100]->SetMaximum( 8.0);
+	 gr16b[t][hmid-100]->SetMinimum(-8.0);
        for (int i = 1; i <= n; i++) {
-         c16b[t][hmid-100][d]->cd(i);
-         flab[t][hmid-100][d] = new TF1(Form("fla%d%d", t, d), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
-         h16b[t][hmid-100][d] = h_cor_dz_time_t0cor[t][hmid-100][fixl][d]->ProjectionY(Form("_py%d%d%d", hmid, i), i, i);
-//         f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
-//         f16b[t][hmid-100][d] = new TF1(Form("fitFunction%d%d", t, d), "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
-         f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
+         c16b[t][hmid-100]->cd(i);
+         flab[t][hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
+         h16b[t][hmid-100] = h_cor_dz_time_t0cor[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
+         //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
+//       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
+//       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
+         //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
+         f16b[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
+         f16b[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+         f16b[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
 //       f16b[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
 //       f16b[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
-         f16b[t][hmid-100][d]->SetParameter(0, 20); // constant
-         f16b[t][hmid-100][d]->SetParameter(1, 0);     // mean
-         f16b[t][hmid-100][d]->SetParameter(2, 3);    // sigma
-//         f16b[t][hmid-100][d]->SetParameter(3, 0);    
-//         f16b[t][hmid-100][d]->SetParameter(4, -1);    
-//         f16b[t][hmid-100][d]->SetParameter(4, -0.5);  
-         h16b[t][hmid-100][d]->Fit(f16b[t][hmid-100][d], "", "", xminb[hmid-100], xmaxb[hmid-100]);
+         f16b[t][hmid-100]->SetParameter(0, 20); // constant
+         f16b[t][hmid-100]->SetParameter(1, 0);     // mean
+         f16b[t][hmid-100]->SetParameter(2, 1);    // sigma
+         f16b[t][hmid-100]->SetParameter(3, 0);    
+//         f16b[hmid-100]->SetParLimits(2, 1, 10); // 
+//          f16b[hmid-100]->SetParLimits(3, -0.8, 0); // 
+          f16[t][hmid-100]->SetParameter(4, -1);    
+          f16[t][hmid-100]->SetParameter(4, -0.5);  
+          h16b[t][hmid-100]->Fit(f16b[t][hmid-100], "", "", xminb[hmid-100], xmaxb[hmid-100]);
 
-          double chi2 = f16b[t][hmid-100][d]->GetChisquare();
-         double mean = f16b[t][hmid-100][d]->GetParameter(1);
-          double sigma_err = f16b[t][hmid-100][d]->GetParError(2);
+          double chi2 = f16b[t][hmid-100]->GetChisquare();
+         double mean = f16b[t][hmid-100]->GetParameter(1);
+          double sigma_err = f16b[t][hmid-100]->GetParError(2);
          std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
          if(chi2 < 5) continue;
          if(sigma_err > 10) continue;
-          gr16b[t][hmid-100][d]->SetPoint(i-1, i*(600/n), mean);
-          gr16b[t][hmid-100][d]->SetPointError(i-1, 0, sigma_err);
-          gr16b[t][hmid-100][d]->Fit(flab[t][hmid-100][d], "R");
-          h16b[t][hmid-100][d]->Draw();
+          gr16b[t][hmid-100]->SetPoint(i-1, i*(600/n), mean);
+          gr16b[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
+          gr16b[t][hmid-100]->Fit(flab[t][hmid-100], "R");
+          h16b[t][hmid-100]->Draw();
       }
-         c16b[t][hmid-100][d]->cd(6);
-         c16b[t][hmid-100][d]->SaveAs(pdf_name, "pdf");
+         c16b[t][hmid-100]->cd(6);
+         c16b[t][hmid-100]->SaveAs(pdf_name, "pdf");
    	}
 	}
 
@@ -1127,111 +1063,19 @@ std::array<double, 4> xt4s;//xt4
 	c0d->SaveAs(pdf_name, "pdf");
 
     TCanvas *c17b[2];
-		for(int t=0; t < 2; t++){
-		 	c17b[t] = new TCanvas();
-   	 	c17b[t]->Divide(5,4);
-			for(int d=0; d < n_div; d++){
-				c17b[t]->cd(d+1);
-		      gr16b[t][6][d]->SetTitle(Form("residual/tan_theta tgt%d mod 106 : timing_lg ;  timing_lg; residual/tan_theta", t) );
-	   	   gr16b[t][6][d]->Draw("AP");
-				
-			}
-	 	c17b[t]->SaveAs(pdf_name, "pdf");
-	  }
+    for(int t=0; t < 2; t++){
+		c17b[t]= new TCanvas();
+    c17b[t]->Divide(4,2);
+    for(int hmid=101; hmid < 110; hmid++){
+       if(hmid!=106) continue;
+       if(hmid < 105) {c17b[t]->cd(hmid-100);}
+		 else {c17b[t]->cd(hmid-101);}
+       gr16b[t][hmid-100]->SetTitle(Form("residual/tan_theta tgt%d mod%d : timing_lg ;  timing_lg; residual/tan_theta", t, hmid) );
+       gr16b[t][hmid-100]->Draw("AP");
+    }
+   c17b[t]->SaveAs(pdf_name, "pdf");
+	}
 
 
-    TCanvas *c18[2];
-	 TGraphErrors *tg18[2];
-		for(int t=0; t < 2; t++){
-			c18[t] = new TCanvas();
-			tg18[t] = new TGraphErrors(n_div);
-			for(int d=0; d < n_div; d++){
-				double tilt = flab[t][6][d]->GetParameter(1);
-				tg18[t]->SetPoint(d, d, tilt);
-			}
-//			tg18[t]->SetMarkerSize(msize);
-			tg18[t]->Draw("AP");
-	 c18[t]->SaveAs(pdf_name, "pdf");
-	  }
-
-
-    TCanvas *c19[2];
-		for(int t=0; t < 2; t++){
-			c19[t] = new TCanvas();
-			c19[t]->Divide(4,5);
-			for(int d=0; d < n_div; d++){
-				c19[t]->cd(d+1);
-				h_slopevel[t][6][fixl][d]->Draw("colz");
-			}
-	 	c19[t]->SaveAs(pdf_name, "pdf");
-	  }
-
-
-
-
-		
-
-
-
-		c0->SaveAs(pdf_name + "]", "pdf");
+	c0->SaveAs(pdf_name + "]", "pdf");
 }
-
-
-
-//void E16DSTN_ReadStraightTree::HistFit(TCanvas *c, ){
-//   TCanvas *c16b[2][10];
-//   TGraphErrors *gr16b[2][10];
-//   TH1D *h16b[2][10];
-//   TF1 *f16b[2][10];
-//   TF1 *flab[2][10];
-//   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
-//   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
-//   double flminb[10] = {0, 120, 120, 120, 120, 0, 120, 120, 100, 180};
-//   double flmaxb[10] = {0, 450, 450, 450, 450, 0, 450, 450, 320, 450};
-//	for(int t=0; t < 2; t++){
-//   for(int hmid=101; hmid < 110; hmid++){
-//      if(hmid != 106)continue;
-//		for(int d=0 ; d < n_div; d++){
-//      c16b[t][hmid-100] = new TCanvas();
-//      int n = h_cor_dz_time_t0cor[t][hmid-100][fixl]->GetNbinsX();
-//      c16b[t][hmid-100]->Divide(5,5);
-//      std::cout << "nbins dz = " << n << std::endl;
-//      gr16b[t][hmid-100] = new TGraphErrors(n);
-//	 gr16b[t][hmid-100]->SetMaximum( 8.0);
-//	 gr16b[t][hmid-100]->SetMinimum(-8.0);
-//       for (int i = 1; i <= n; i++) {
-//         c16b[t][hmid-100]->cd(i);
-//         flab[t][hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
-//         h16b[t][hmid-100] = h_cor_dz_time_t0cor[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
-//         f16b[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
-//         f16b[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
-//         f16b[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
-////       f16b[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
-////       f16b[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
-//         f16b[t][hmid-100]->SetParameter(0, 20); // constant
-//         f16b[t][hmid-100]->SetParameter(1, 0);     // mean
-//         f16b[t][hmid-100]->SetParameter(2, 1);    // sigma
-//         f16b[t][hmid-100]->SetParameter(3, 0);    
-//          f16[t][hmid-100]->SetParameter(4, -1);    
-//          f16[t][hmid-100]->SetParameter(4, -0.5);  
-//          h16b[t][hmid-100]->Fit(f16b[t][hmid-100], "", "", xminb[hmid-100], xmaxb[hmid-100]);
-//
-//          double chi2 = f16b[t][hmid-100]->GetChisquare();
-//         double mean = f16b[t][hmid-100]->GetParameter(1);
-//          double sigma_err = f16b[t][hmid-100]->GetParError(2);
-//         std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
-//         if(chi2 < 5) continue;
-//         if(sigma_err > 10) continue;
-//          gr16b[t][hmid-100]->SetPoint(i-1, i*(600/n), mean);
-//          gr16b[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
-//          gr16b[t][hmid-100]->Fit(flab[t][hmid-100], "R");
-//          h16b[t][hmid-100]->Draw();
-//      }
-//         c16b[t][hmid-100]->cd(6);
-//         c16b[t][hmid-100]->SaveAs(pdf_name, "pdf");
-//   	}
-//		}
-//	}
-//
-//
-//}

@@ -947,6 +947,7 @@ public :
    virtual void     Init(TTree *tree, const char *outfile);
 //   virtual void     Loop();
    void     DrawHist(TTree* tree, int p, int s, int e, TString pdf);
+	bool IsSameArm(int mm , int pm );
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };

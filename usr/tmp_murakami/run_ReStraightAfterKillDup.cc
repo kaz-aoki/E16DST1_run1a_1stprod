@@ -29,36 +29,39 @@
 //#include "straightRoot.hh"
 #include "E16ANA_CalibDBManager.hh"
 #include "E16DSTN_PosCorrection.hh"
-#include "E16DST_DST1DefaultFilePath.hh.in"
+//#include "E16DST_DST1DefaultFilePath.hh.in"
 
+using namespace E16DSTN_StraightParameter;
 
 int main (int argc, char** argv) {
-	if(argc != 5){
-		std::cout << "./bin/~~ [input.root] [output.root] [max_analyzed_event] [removed_layer]" << std::endl;
+	if(argc != 6){
+		std::cout << "./bin/~~ [input.root] [output.root] [max_analyzed_event] [removed_layer] [anaSw]" << std::endl;
 		return 0;	
 	}
+	bool isWire = true;
 	std::string in_file  = argv[1];
 	std::string out_file = argv[2];
 	int max_event        = stoi(argv[3]);
 	int removed_layer    = stoi(argv[4]);
+	int anaSW            = stoi(argv[5]);
 	TFile *fin           = new TFile(in_file.c_str());
-	TTree *tree          = (TTree*)fin->Get("outtree");
+	TTree *tree          = (TTree*)fin->Get("tree");
 	//E16DSTN_ReadStraightTree *rt = new E16DSTN_ReadStraightTree(tree, out_file.c_str());
 	//rt->SetRemovedLayer(removed_layer);
 	E16DSTN_PosCorrection *pc = new E16DSTN_PosCorrection(tree, out_file.c_str());
 	int nevent           = tree->GetEntries();
-	int print_cycle      = 1000;
+	int print_cycle      = 2000;
 	bool vertex_xy_fix_flag = false;
    bool py_fix_flag = false;
 	bool vetex_z_fix_flag = false;
-	bool isWire = true;
 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
-	std::cout << static_cast<std::string>(GeometryFile) << std::endl;
+	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
 	pc->SetGeom(geom);
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack(geom, 1);
 	pc->SetFitter(fitter);
+	pc->SetIsWire(isWire);
 	pc->SetRemovedLayer(removed_layer);
-	pc->PosCoLoop(tree, print_cycle, max_event, vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag, isWire );
+	pc->PosCoLoop(tree, print_cycle, max_event, vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag , anaSW );
 	pc->FileOut()->Write();
 	return 0;	
 }

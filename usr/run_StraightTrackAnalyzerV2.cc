@@ -57,21 +57,7 @@ int main(int argc, char* argv[]){
 	 int  print_cycle   = 10000;
 //for lg dst0
   //    return 1;
- 
-  //run0c
-  //  int sink_id_pos = in_file_name.length() - 10;
-  //  string sink_id = in_file_name.substr(sink_id_pos, 1);
-  //  std::cout << "sink id = " << sink_id << std::endl;
-  //  int smallest_id_pos = in_file_name.length()-8;
-  //  string smallest_id = in_file_name.substr(smallest_id_pos, 3);
-  //  std::cout << "smallest  id = " << smallest_id << std::endl;
-  //  string runnum = argv[3];
-  //  string rem    = argv[5];
-  //  string run = "g4run0" + runnum + "exGTR" + rem;
-  //  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".ro     ot";
-  //  const char* c_out = outputfile.c_str();
- 
-  //run0d
+
     std::regex re_run("run(\\d+)");
     std::regex re_sink("sink(\\d+)");
     std::regex re_dst("_(\\d+).dst0");
@@ -213,8 +199,6 @@ int main(int argc, char* argv[]){
 // Track
 		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record);
 		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, targets_pos, removed_layer);
-
-
 
 //		E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
 //		record.Trigger().AddHitAndClusterIDs();
