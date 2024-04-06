@@ -12,8 +12,10 @@ class E16ANA_TriggerCoincidenceMap {
   struct Map {
     int                  gtr_start_module;
     int                  hbd_start_module;
-    std::array<bool, 72> gtr_map;
-    std::array<bool, 72> hbd_map;
+//    std::array<bool, 72> gtr_map; // run0a - 0d
+//    std::array<bool, 72> hbd_map;
+    std::array<bool, 24 * 4> gtr_map;
+    std::array<bool, 36 * 4> hbd_map;
   };
   E16ANA_TriggerCoincidenceMap(const std::array<std::string_view, 12>& coincidence_map_files, const std::array<std::string_view, 3>& trigger_channel_map_files);
   ~E16ANA_TriggerCoincidenceMap() {}
