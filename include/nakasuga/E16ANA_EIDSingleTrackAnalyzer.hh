@@ -1429,6 +1429,8 @@ public :
    virtual int      CalcAngleOnLGPlane(Long64_t entry, Int_t itrack, E16ANA_GeometryV2* geometry, E16ANA_MultiTrack* pair_fitter, double hbdmid, double lgmid, int ytype, double& lg_angle_lx, double& lg_angle_ly, double& lg_position_block_lx, double& lg_position_block_ly, TVector3& vertex, TVector3& mom);
    virtual double   TargetAssociation(Long64_t entry, int itrack, double th);
    virtual double   TargetAssociation(Long64_t entry, int itrack, int& tgtid);
+   static  int      GTRTrgCid(double ly);
+   static  int      HBDTrgCid(double lx, double ly);
    virtual bool     wTrgBias(Long64_t entry, int itrack, double trk_lg_mid, int blockch, int awmin, int awmax, int tw, bool& wtrggtr, bool& wtrghbd, int& wtrglg, bool& wtrgtrk);
    virtual bool     wTrgBias(Long64_t entry, int lgmid, int lgcid, int awmin, int awmax, int tw, int& wtrglg, bool& wtrgtrk);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -2914,7 +2916,7 @@ int E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(int run_id)
     {//104,106,108, 1e9
       return 15;
     }
-  else if( run_id==20990 || run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
+  else if( run_id==20991 || run_id==20994 || run_id==20995 || run_id==20999 )
     {//106, 1e9
       return 16;
     }
@@ -2922,8 +2924,12 @@ int E16ANA_EIDSingleTrackAnalyzer::KsRunPurpose(int run_id)
     {//107, 1e9
       return 17;
     }
+  else if( run_id==20990 )
+    {//106, 1e9
+      return 19;
+    }
   else{
-    std::cout<<"This RunNumber is not categorized"<<std::endl;
+    std::cout<<"RunNumber "<<run_id<<" is not categorized"<<std::endl;
     return -1;
   }
 }
@@ -3223,12 +3229,12 @@ double E16ANA_EIDSingleTrackAnalyzer::TargetAssociation(Long64_t entry, int itra
     return -1;
   }
 }
-int GTRTrgCid(double ly)
+int E16ANA_EIDSingleTrackAnalyzer::GTRTrgCid(double ly)
 {
   double cid = (ly+150)/300.*24.;
   return (int)cid;
 }
-int HBDTrgCid(double lx, double ly)
+int E16ANA_EIDSingleTrackAnalyzer::HBDTrgCid(double lx, double ly)
 {
   double cidx = (lx+300)/600.*6.;
   double cidy = (ly+300)/600.*6.;

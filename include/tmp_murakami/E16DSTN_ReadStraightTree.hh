@@ -8,6 +8,7 @@
 #ifndef E16DSTN_ReadStraightTree_h
 #define E16DSTN_ReadStraightTree_h
 
+#include "E16DSTN_StraightParameter.hh"
 #include <TROOT.h>
 #include <TChain.h>
 #include <iostream>
@@ -386,7 +387,14 @@ public :
    std::vector<float>   *rk_hit_gtr100_yt;
    std::vector<float>   *rk_hit_gtr100_xt2;
    std::vector<float>   *rk_hit_gtr100_yt2;
+   std::vector<double>  *rk_hit_gtr100_tx;
    std::vector<double>  *rk_hit_gtr100_tx2;
+   std::vector<double>  *rk_hit_gtr100_cogx;
+   std::vector<double>  *rk_hit_gtr200_cogx;
+   std::vector<double>  *rk_hit_gtr300_cogx;
+   std::vector<double>  *rk_hit_gtr100_cogy;
+   std::vector<double>  *rk_hit_gtr200_cogy;
+   std::vector<double>  *rk_hit_gtr300_cogy;
    std::vector<double>  *rk_hit_gtr100_ty;
    std::vector<double>  *rk_hit_gtr100_gtx;
    std::vector<double>  *rk_hit_gtr100_gty;
@@ -408,7 +416,9 @@ public :
    std::vector<float>   *rk_hit_gtr200_yt;
    std::vector<float>   *rk_hit_gtr200_xt2;
    std::vector<float>   *rk_hit_gtr200_yt2;
+   std::vector<double>  *rk_hit_gtr200_tx;
    std::vector<double>  *rk_hit_gtr200_tx2;
+   std::vector<double>  *rk_hit_gtr200_cog;
    std::vector<double>  *rk_hit_gtr200_ty;
    std::vector<double>  *rk_hit_gtr200_gtx;
    std::vector<double>  *rk_hit_gtr200_gty;
@@ -430,7 +440,9 @@ public :
    std::vector<float>   *rk_hit_gtr300_yt;
    std::vector<float>   *rk_hit_gtr300_xt2;
    std::vector<float>   *rk_hit_gtr300_yt2;
+   std::vector<double>  *rk_hit_gtr300_tx;
    std::vector<double>  *rk_hit_gtr300_tx2;
+   std::vector<double>  *rk_hit_gtr300_cog;
    std::vector<double>  *rk_hit_gtr300_ty;
    std::vector<double>  *rk_hit_gtr300_gtx;
    std::vector<double>  *rk_hit_gtr300_gty;
@@ -718,6 +730,12 @@ public :
    std::vector<double>  *rk_pair_plus_gtr300_res_refit_z;
    std::vector<double>  *rk_pair_mass_refit;
 
+   std::vector<float>   *rk_hit_gtr100_xt4;
+   std::vector<float>   *rk_hit_gtr200_xt4;
+   std::vector<float>   *rk_hit_gtr300_xt4;
+   std::vector<float>   *rk_hit_gtr100_ty4;
+   std::vector<float>   *rk_hit_gtr200_ty4;
+   std::vector<float>   *rk_hit_gtr300_ty4;
    // List of branches
    TBranch        *b_run_id;   //!
    TBranch        *b_event_id;   //!
@@ -1078,7 +1096,14 @@ public :
    TBranch        *b_rk_hit_gtr100_yt;   //!
    TBranch        *b_rk_hit_gtr100_xt2;   //!
    TBranch        *b_rk_hit_gtr100_yt2;   //!
+   TBranch        *b_rk_hit_gtr100_tx;   //!
    TBranch        *b_rk_hit_gtr100_tx2;   //!
+   TBranch        *b_rk_hit_gtr100_cogx;   //!
+   TBranch        *b_rk_hit_gtr200_cogx;   //!
+   TBranch        *b_rk_hit_gtr300_cogx;   //!
+   TBranch        *b_rk_hit_gtr100_cogy;   //!
+   TBranch        *b_rk_hit_gtr200_cogy;   //!
+   TBranch        *b_rk_hit_gtr300_cogy;   //!
    TBranch        *b_rk_hit_gtr100_ty;   //!
    TBranch        *b_rk_hit_gtr100_gtx;   //!
    TBranch        *b_rk_hit_gtr100_gty;   //!
@@ -1100,7 +1125,9 @@ public :
    TBranch        *b_rk_hit_gtr200_yt;   //!
    TBranch        *b_rk_hit_gtr200_xt2;   //!
    TBranch        *b_rk_hit_gtr200_yt2;   //!
+   TBranch        *b_rk_hit_gtr200_tx;   //!
    TBranch        *b_rk_hit_gtr200_tx2;   //!
+   TBranch        *b_rk_hit_gtr200_cog;   //!
    TBranch        *b_rk_hit_gtr200_ty;   //!
    TBranch        *b_rk_hit_gtr200_gtx;   //!
    TBranch        *b_rk_hit_gtr200_gty;   //!
@@ -1122,7 +1149,9 @@ public :
    TBranch        *b_rk_hit_gtr300_yt;   //!
    TBranch        *b_rk_hit_gtr300_xt2;   //!
    TBranch        *b_rk_hit_gtr300_yt2;   //!
+   TBranch        *b_rk_hit_gtr300_tx;   //!
    TBranch        *b_rk_hit_gtr300_tx2;   //!
+   TBranch        *b_rk_hit_gtr300_cog;   //!
    TBranch        *b_rk_hit_gtr300_ty;   //!
    TBranch        *b_rk_hit_gtr300_gtx;   //!
    TBranch        *b_rk_hit_gtr300_gty;   //!
@@ -1410,6 +1439,12 @@ public :
    TBranch        *b_rk_pair_plus_gtr300_res_refit_z;   //!
    TBranch        *b_rk_pair_mass_refit;   //!
 
+   TBranch   *b_rk_hit_gtr100_xt4;
+   TBranch   *b_rk_hit_gtr200_xt4;
+   TBranch   *b_rk_hit_gtr300_xt4;
+   TBranch   *b_rk_hit_gtr100_ty4;
+   TBranch   *b_rk_hit_gtr200_ty4;
+   TBranch   *b_rk_hit_gtr300_ty4;
    E16DSTN_ReadStraightTree(TTree *tree=0, const char* out_file = 0);
    virtual ~E16DSTN_ReadStraightTree();
    virtual Int_t    Cut(Long64_t entry);
@@ -1419,10 +1454,37 @@ public :
    virtual void     Loop(TTree *tree,  int n, int max);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
-	virtual void     AddRecord(std::vector<int> &id);
+	virtual void     AddRecord();
 	TFile *FileOut()  {return fout;}
-	virtual void     DrawHist(TTree *tree, int print, TString pdf_name);
+	virtual void     DrawHist(TTree *tree, int n_maxevent, int print, TString pdf_name);
 	virtual void     ChooseSmallestResidual(std::vector<int> &v, std::vector<int> &ov);
+   void ClearUsedClusterIDs();
+	void SetTracks();
+	bool IsGoodTrack(int n) ;
+	bool HasUsedCluster(const std::array<int, E16DSTN_StraightParameter::kNumTrackingDetectors>& cids); 
+	void SetRemovedLayer(int rm) {removed_layer = rm;}
+	void SetTgtKind(int t){
+		if(t ==0){
+			isWire = false;
+		}	
+		else if(t ==1){
+			isWire = true;
+		}
+		else {
+			std::cerr << "target kind is incorrect" << std::endl;
+		}
+	}
+	bool IsComingFromTarget(int n);
+	
+// for re fitting
+   
+private:
+	std::array<std::vector<int>, E16DSTN_StraightParameter::kNumTrackingDetectors> used_cluster_ids;
+   std::vector<int> selected_ids;
+	int removed_layer;
+	bool isWire;
+
+public:
 	
 
 	TFile *fout;   //= new TFile (out_file, "recreate");
@@ -1788,7 +1850,14 @@ public :
    std::vector<float>   out_rk_hit_gtr100_yt;
    std::vector<float>   out_rk_hit_gtr100_xt2;
    std::vector<float>   out_rk_hit_gtr100_yt2;
+   std::vector<double>  out_rk_hit_gtr100_tx;
    std::vector<double>  out_rk_hit_gtr100_tx2;
+   std::vector<double>  out_rk_hit_gtr100_cogx;
+   std::vector<double>  out_rk_hit_gtr200_cogx;
+   std::vector<double>  out_rk_hit_gtr300_cogx;
+   std::vector<double>  out_rk_hit_gtr100_cogy;
+   std::vector<double>  out_rk_hit_gtr200_cogy;
+   std::vector<double>  out_rk_hit_gtr300_cogy;
    std::vector<double>  out_rk_hit_gtr100_ty;
    std::vector<double>  out_rk_hit_gtr100_gtx;
    std::vector<double>  out_rk_hit_gtr100_gty;
@@ -1810,7 +1879,9 @@ public :
    std::vector<float>   out_rk_hit_gtr200_yt;
    std::vector<float>   out_rk_hit_gtr200_xt2;
    std::vector<float>   out_rk_hit_gtr200_yt2;
+   std::vector<double>  out_rk_hit_gtr200_tx;
    std::vector<double>  out_rk_hit_gtr200_tx2;
+   std::vector<double>  out_rk_hit_gtr200_cog;
    std::vector<double>  out_rk_hit_gtr200_ty;
    std::vector<double>  out_rk_hit_gtr200_gtx;
    std::vector<double>  out_rk_hit_gtr200_gty;
@@ -1832,7 +1903,9 @@ public :
    std::vector<float>   out_rk_hit_gtr300_yt;
    std::vector<float>   out_rk_hit_gtr300_xt2;
    std::vector<float>   out_rk_hit_gtr300_yt2;
+   std::vector<double>  out_rk_hit_gtr300_tx;
    std::vector<double>  out_rk_hit_gtr300_tx2;
+   std::vector<double>  out_rk_hit_gtr300_cog;
    std::vector<double>  out_rk_hit_gtr300_ty;
    std::vector<double>  out_rk_hit_gtr300_gtx;
    std::vector<double>  out_rk_hit_gtr300_gty;
@@ -2120,6 +2193,12 @@ public :
    std::vector<double> out_rk_pair_plus_gtr300_res_refit_z;
    std::vector<double> out_rk_pair_mass_refit;
 
+   std::vector<double> out_rk_hit_gtr100_xt4;
+   std::vector<double> out_rk_hit_gtr200_xt4;
+   std::vector<double> out_rk_hit_gtr300_xt4;
+   std::vector<double> out_rk_hit_gtr100_ty4;
+   std::vector<double> out_rk_hit_gtr200_ty4;
+   std::vector<double> out_rk_hit_gtr300_ty4;
 //	int out_n_dupcut_tracks;
 
 
@@ -2129,11 +2208,12 @@ public :
 #endif
 
 #ifdef E16DSTN_ReadStraightTree_cxx
-E16DSTN_ReadStraightTree::E16DSTN_ReadStraightTree(TTree *tree,const char *out_file) : fChain(0) 
+E16DSTN_ReadStraightTree::E16DSTN_ReadStraightTree(TTree *tree,const char *out_file) : fChain(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
+	   std::cout << "tree is empty, is it really OK? " << std::endl;
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("RootFileCannotbeFound");
       if (!f || !f->IsOpen()) {
 //         f = new TFile("new_out_run_040277_evb03_sink0_000.dst1");
@@ -2183,7 +2263,7 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
 //  -- for output -- //
 
 	fout    = new TFile (out_file, "recreate");
-	outtree = new TTree("outtree", "outtree");
+	outtree = new TTree("tree", "tree");
 
 // -- for input -- //
    // Set object pointer
@@ -2509,7 +2589,14 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    rk_hit_gtr100_yt = 0;
    rk_hit_gtr100_xt2 = 0;
    rk_hit_gtr100_yt2 = 0;
+   rk_hit_gtr100_tx = 0;
    rk_hit_gtr100_tx2 = 0;
+   rk_hit_gtr100_cogx = 0;
+   rk_hit_gtr200_cogx = 0;
+   rk_hit_gtr300_cogx = 0;
+   rk_hit_gtr100_cogy = 0;
+   rk_hit_gtr200_cogy = 0;
+   rk_hit_gtr300_cogy = 0;
    rk_hit_gtr100_ty = 0;
    rk_hit_gtr100_gtx = 0;
    rk_hit_gtr100_gty = 0;
@@ -2531,7 +2618,9 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    rk_hit_gtr200_yt = 0;
    rk_hit_gtr200_xt2 = 0;
    rk_hit_gtr200_yt2 = 0;
+   rk_hit_gtr200_tx = 0;
    rk_hit_gtr200_tx2 = 0;
+   rk_hit_gtr200_cog = 0;
    rk_hit_gtr200_ty = 0;
    rk_hit_gtr200_gtx = 0;
    rk_hit_gtr200_gty = 0;
@@ -2553,7 +2642,9 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    rk_hit_gtr300_yt = 0;
    rk_hit_gtr300_xt2 = 0;
    rk_hit_gtr300_yt2 = 0;
+   rk_hit_gtr300_tx = 0;
    rk_hit_gtr300_tx2 = 0;
+   rk_hit_gtr300_cog = 0;
    rk_hit_gtr300_ty = 0;
    rk_hit_gtr300_gtx = 0;
    rk_hit_gtr300_gty = 0;
@@ -2840,6 +2931,15 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    rk_pair_plus_gtr300_res_refit_y = 0;
    rk_pair_plus_gtr300_res_refit_z = 0;
    rk_pair_mass_refit = 0;
+
+   rk_hit_gtr100_xt4=0;
+   rk_hit_gtr200_xt4=0;
+   rk_hit_gtr300_xt4=0;
+   rk_hit_gtr100_ty4=0;
+   rk_hit_gtr200_ty4=0;
+   rk_hit_gtr300_ty4=0;
+
+
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -3205,7 +3305,14 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_hit_gtr100_yt", &rk_hit_gtr100_yt, &b_rk_hit_gtr100_yt);
    fChain->SetBranchAddress("rk_hit_gtr100_xt2", &rk_hit_gtr100_xt2, &b_rk_hit_gtr100_xt2);
    fChain->SetBranchAddress("rk_hit_gtr100_yt2", &rk_hit_gtr100_yt2, &b_rk_hit_gtr100_yt2);
+   fChain->SetBranchAddress("rk_hit_gtr100_tx", &rk_hit_gtr100_tx, &b_rk_hit_gtr100_tx);
    fChain->SetBranchAddress("rk_hit_gtr100_tx2", &rk_hit_gtr100_tx2, &b_rk_hit_gtr100_tx2);
+   fChain->SetBranchAddress("rk_hit_gtr100_cogx", &rk_hit_gtr100_cogx, &b_rk_hit_gtr100_cogx);
+   fChain->SetBranchAddress("rk_hit_gtr200_cogx", &rk_hit_gtr200_cogx, &b_rk_hit_gtr200_cogx);
+   fChain->SetBranchAddress("rk_hit_gtr300_cogx", &rk_hit_gtr300_cogx, &b_rk_hit_gtr300_cogx);
+   fChain->SetBranchAddress("rk_hit_gtr100_cogy", &rk_hit_gtr100_cogy, &b_rk_hit_gtr100_cogy);
+   fChain->SetBranchAddress("rk_hit_gtr200_cogy", &rk_hit_gtr200_cogy, &b_rk_hit_gtr200_cogy);
+   fChain->SetBranchAddress("rk_hit_gtr300_cogy", &rk_hit_gtr300_cogy, &b_rk_hit_gtr300_cogy);
    fChain->SetBranchAddress("rk_hit_gtr100_ty", &rk_hit_gtr100_ty, &b_rk_hit_gtr100_ty);
    fChain->SetBranchAddress("rk_hit_gtr100_gtx", &rk_hit_gtr100_gtx, &b_rk_hit_gtr100_gtx);
    fChain->SetBranchAddress("rk_hit_gtr100_gty", &rk_hit_gtr100_gty, &b_rk_hit_gtr100_gty);
@@ -3227,7 +3334,9 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_hit_gtr200_yt", &rk_hit_gtr200_yt, &b_rk_hit_gtr200_yt);
    fChain->SetBranchAddress("rk_hit_gtr200_xt2", &rk_hit_gtr200_xt2, &b_rk_hit_gtr200_xt2);
    fChain->SetBranchAddress("rk_hit_gtr200_yt2", &rk_hit_gtr200_yt2, &b_rk_hit_gtr200_yt2);
+   fChain->SetBranchAddress("rk_hit_gtr200_tx", &rk_hit_gtr200_tx, &b_rk_hit_gtr200_tx);
    fChain->SetBranchAddress("rk_hit_gtr200_tx2", &rk_hit_gtr200_tx2, &b_rk_hit_gtr200_tx2);
+   fChain->SetBranchAddress("rk_hit_gtr200_cog", &rk_hit_gtr200_cog, &b_rk_hit_gtr200_cog);
    fChain->SetBranchAddress("rk_hit_gtr200_ty", &rk_hit_gtr200_ty, &b_rk_hit_gtr200_ty);
    fChain->SetBranchAddress("rk_hit_gtr200_gtx", &rk_hit_gtr200_gtx, &b_rk_hit_gtr200_gtx);
    fChain->SetBranchAddress("rk_hit_gtr200_gty", &rk_hit_gtr200_gty, &b_rk_hit_gtr200_gty);
@@ -3249,7 +3358,9 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_hit_gtr300_yt", &rk_hit_gtr300_yt, &b_rk_hit_gtr300_yt);
    fChain->SetBranchAddress("rk_hit_gtr300_xt2", &rk_hit_gtr300_xt2, &b_rk_hit_gtr300_xt2);
    fChain->SetBranchAddress("rk_hit_gtr300_yt2", &rk_hit_gtr300_yt2, &b_rk_hit_gtr300_yt2);
+   fChain->SetBranchAddress("rk_hit_gtr300_tx", &rk_hit_gtr300_tx, &b_rk_hit_gtr300_tx);
    fChain->SetBranchAddress("rk_hit_gtr300_tx2", &rk_hit_gtr300_tx2, &b_rk_hit_gtr300_tx2);
+   fChain->SetBranchAddress("rk_hit_gtr300_cog", &rk_hit_gtr300_cog, &b_rk_hit_gtr300_cog);
    fChain->SetBranchAddress("rk_hit_gtr300_ty", &rk_hit_gtr300_ty, &b_rk_hit_gtr300_ty);
    fChain->SetBranchAddress("rk_hit_gtr300_gtx", &rk_hit_gtr300_gtx, &b_rk_hit_gtr300_gtx);
    fChain->SetBranchAddress("rk_hit_gtr300_gty", &rk_hit_gtr300_gty, &b_rk_hit_gtr300_gty);
@@ -3536,6 +3647,16 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_plus_gtr300_res_refit_y", &rk_pair_plus_gtr300_res_refit_y, &b_rk_pair_plus_gtr300_res_refit_y);
    fChain->SetBranchAddress("rk_pair_plus_gtr300_res_refit_z", &rk_pair_plus_gtr300_res_refit_z, &b_rk_pair_plus_gtr300_res_refit_z);
    fChain->SetBranchAddress("rk_pair_mass_refit", &rk_pair_mass_refit, &b_rk_pair_mass_refit);
+
+  fChain->SetBranchAddress("rk_hit_gtr100_xt4", &rk_hit_gtr100_xt4,  &b_rk_hit_gtr100_xt4);
+  fChain->SetBranchAddress("rk_hit_gtr200_xt4", &rk_hit_gtr200_xt4,  &b_rk_hit_gtr200_xt4);
+  fChain->SetBranchAddress("rk_hit_gtr300_xt4", &rk_hit_gtr300_xt4,  &b_rk_hit_gtr300_xt4);
+  fChain->SetBranchAddress("rk_hit_gtr100_ty4", &rk_hit_gtr100_ty4,  &b_rk_hit_gtr100_ty4);
+  fChain->SetBranchAddress("rk_hit_gtr200_ty4", &rk_hit_gtr200_ty4,  &b_rk_hit_gtr200_ty4);
+  fChain->SetBranchAddress("rk_hit_gtr300_ty4", &rk_hit_gtr300_ty4,  &b_rk_hit_gtr300_ty4);
+
+
+
    Notify();
 
 // -- for out -- // 	
@@ -3898,7 +4019,14 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_gtr100_yt",    &out_rk_hit_gtr100_yt);
    outtree->Branch("rk_hit_gtr100_xt2",   &out_rk_hit_gtr100_xt2);
    outtree->Branch("rk_hit_gtr100_yt2",   &out_rk_hit_gtr100_yt2);
+   outtree->Branch("rk_hit_gtr100_tx",   &out_rk_hit_gtr100_tx);
    outtree->Branch("rk_hit_gtr100_tx2",   &out_rk_hit_gtr100_tx2);
+   outtree->Branch("rk_hit_gtr100_cogx",   &out_rk_hit_gtr100_cogx);
+   outtree->Branch("rk_hit_gtr200_cogx",   &out_rk_hit_gtr200_cogx);
+   outtree->Branch("rk_hit_gtr300_cogx",   &out_rk_hit_gtr300_cogx);
+   outtree->Branch("rk_hit_gtr100_cogy",   &out_rk_hit_gtr100_cogy);
+   outtree->Branch("rk_hit_gtr200_cogy",   &out_rk_hit_gtr200_cogy);
+   outtree->Branch("rk_hit_gtr300_cogy",   &out_rk_hit_gtr300_cogy);
    outtree->Branch("rk_hit_gtr100_ty",    &out_rk_hit_gtr100_ty);
    outtree->Branch("rk_hit_gtr100_gtx",   &out_rk_hit_gtr100_gtx);
    outtree->Branch("rk_hit_gtr100_gty",   &out_rk_hit_gtr100_gty);
@@ -3920,7 +4048,9 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_gtr200_yt",    &out_rk_hit_gtr200_yt);
    outtree->Branch("rk_hit_gtr200_xt2",   &out_rk_hit_gtr200_xt2);
    outtree->Branch("rk_hit_gtr200_yt2",   &out_rk_hit_gtr200_yt2);
+   outtree->Branch("rk_hit_gtr200_tx",   &out_rk_hit_gtr200_tx);
    outtree->Branch("rk_hit_gtr200_tx2",   &out_rk_hit_gtr200_tx2);
+   outtree->Branch("rk_hit_gtr200_cog",   &out_rk_hit_gtr200_cog);
    outtree->Branch("rk_hit_gtr200_ty",    &out_rk_hit_gtr200_ty );
    outtree->Branch("rk_hit_gtr200_gtx",   &out_rk_hit_gtr200_gtx);
    outtree->Branch("rk_hit_gtr200_gty",   &out_rk_hit_gtr200_gty);
@@ -3943,6 +4073,7 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_gtr300_xt2",   &out_rk_hit_gtr300_xt2);
    outtree->Branch("rk_hit_gtr300_yt2",   &out_rk_hit_gtr300_yt2);
    outtree->Branch("rk_hit_gtr300_tx2",   &out_rk_hit_gtr300_tx2);
+   outtree->Branch("rk_hit_gtr300_cog",   &out_rk_hit_gtr300_cog);
    outtree->Branch("rk_hit_gtr300_ty",    &out_rk_hit_gtr300_ty);
    outtree->Branch("rk_hit_gtr300_gtx",   &out_rk_hit_gtr300_gtx);
    outtree->Branch("rk_hit_gtr300_gty",   &out_rk_hit_gtr300_gty);
@@ -4232,6 +4363,12 @@ void E16DSTN_ReadStraightTree::Init(TTree *tree, const char* out_file)
 
 //	outtree->Branch("n_dupcut_tracks", &out_n_dupcut_tracks);
 
+  outtree->Branch("rk_hit_gtr100_xt4", &rk_hit_gtr100_xt4);
+  outtree->Branch("rk_hit_gtr200_xt4", &rk_hit_gtr200_xt4);
+  outtree->Branch("rk_hit_gtr300_xt4", &rk_hit_gtr300_xt4);
+  outtree->Branch("rk_hit_gtr100_ty4", &rk_hit_gtr100_ty4);
+  outtree->Branch("rk_hit_gtr200_ty4", &rk_hit_gtr200_ty4);
+  outtree->Branch("rk_hit_gtr300_ty4", &rk_hit_gtr300_ty4);
 }
 
 Bool_t E16DSTN_ReadStraightTree::Notify()
@@ -4262,7 +4399,7 @@ Int_t E16DSTN_ReadStraightTree::Cut(Long64_t entry)
 
 
 
-void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
+void E16DSTN_ReadStraightTree::AddRecord()
 {
 
 	 out_event_id = event_id;
@@ -4272,6 +4409,7 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
 
 	 int n_selected = selected_ids.size();
 
+	 out_n_selected = n_selected;
     out_rk_charge.resize(n_selected);
     out_rk_hit_init_mom_gx.resize(n_selected);
     out_rk_hit_init_mom_gy.resize(n_selected);
@@ -4316,11 +4454,19 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
     out_rk_hit_gtr300_yt.resize(n_selected);
     out_rk_hit_gtr100_xt2.resize(n_selected);
     out_rk_hit_gtr100_yt2.resize(n_selected);
+    out_rk_hit_gtr100_tx.resize(n_selected);
     out_rk_hit_gtr100_tx2.resize(n_selected);
+    out_rk_hit_gtr100_cogx.resize(n_selected);
+    out_rk_hit_gtr200_cogx.resize(n_selected);
+    out_rk_hit_gtr300_cogx.resize(n_selected);
+    out_rk_hit_gtr100_cogy.resize(n_selected);
+    out_rk_hit_gtr200_cogy.resize(n_selected);
+    out_rk_hit_gtr300_cogy.resize(n_selected);
     out_rk_hit_gtr100_ty.resize(n_selected);
     out_rk_hit_gtr100_gtx.resize(n_selected);
     out_rk_hit_gtr100_gty.resize(n_selected);
     out_rk_hit_gtr100_gtz.resize(n_selected);
+    out_rk_hit_gtr100_gtx.resize(n_selected);
     out_rk_hit_gtr100_gtx2.resize(n_selected);
     out_rk_hit_gtr100_gty2.resize(n_selected);
     out_rk_hit_gtr100_gtz2.resize(n_selected);
@@ -4329,7 +4475,9 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
     out_rk_hit_gtr100_the2.resize(n_selected);
     out_rk_hit_gtr200_xt2.resize(n_selected);
     out_rk_hit_gtr200_yt2.resize(n_selected);
+    out_rk_hit_gtr200_tx.resize(n_selected);
     out_rk_hit_gtr200_tx2.resize(n_selected);
+    out_rk_hit_gtr200_cog.resize(n_selected);
     out_rk_hit_gtr200_ty.resize(n_selected);
     out_rk_hit_gtr200_gtx.resize(n_selected);
     out_rk_hit_gtr200_gty.resize(n_selected);
@@ -4342,7 +4490,9 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
     out_rk_hit_gtr200_the2.resize(n_selected);
     out_rk_hit_gtr300_xt2.resize(n_selected);
     out_rk_hit_gtr300_yt2.resize(n_selected);
+    out_rk_hit_gtr300_tx.resize(n_selected);
     out_rk_hit_gtr300_tx2.resize(n_selected);
+    out_rk_hit_gtr300_cog.resize(n_selected);
     out_rk_hit_gtr300_ty.resize(n_selected);
     out_rk_hit_gtr300_gtx.resize(n_selected);
     out_rk_hit_gtr300_gty.resize(n_selected);
@@ -4502,10 +4652,41 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
     out_rk_proj_lg_fflag.resize(n_selected);
 
 
+  out_rk_hit_gtr100_xt4.resize(n_selected);
+  out_rk_hit_gtr200_xt4.resize(n_selected);
+  out_rk_hit_gtr300_xt4.resize(n_selected);
+  out_rk_hit_gtr100_ty4.resize(n_selected);
+  out_rk_hit_gtr200_ty4.resize(n_selected);
+  out_rk_hit_gtr300_ty4.resize(n_selected);
 	 out_chi_square.resize(n_selected);
 
   int i = 0; // count	
+  out_n_cands = n_selected;
   for(const int id : selected_ids) {
+    out_rk_hit_ssd_id[i]  = rk_hit_ssd_id->at(id);  
+    out_rk_hit_ssd_x[i]   = rk_hit_ssd_x->at(id);  
+    out_rk_hit_ssd_gx[i]  = rk_hit_ssd_gx->at(id);  
+    out_rk_hit_ssd_gy[i]  = rk_hit_ssd_gy->at(id);  
+    out_rk_hit_ssd_gz[i]  = rk_hit_ssd_gz->at(id);  
+    out_rk_hit_ssd_adc[i] = rk_hit_ssd_adc->at(id);
+    out_rk_hit_ssd_t[i]   = rk_hit_ssd_t->at(id);  
+//    out_rk_hit_ssd_chi[i]  = out_rk_hit_ssd_chi->at(id);
+
+
+    out_rk_fit_ssd_mid[i] = rk_fit_ssd_mid->at(id);     
+    out_rk_fit_ssd_x[i] = rk_fit_ssd_x  ->at(id)  ;  
+    out_rk_fit_ssd_y[i] = rk_fit_ssd_y  ->at(id)  ;  
+    out_rk_fit_ssd_gx[i] = rk_fit_ssd_gx  ->at(id);   
+    out_rk_fit_ssd_gy[i] = rk_fit_ssd_gy  ->at(id);    
+    out_rk_fit_ssd_gz[i] = rk_fit_ssd_gz  ->at(id);  
+    out_rk_fit_ssd_mom_x [i] = rk_fit_ssd_mom_x ->at(id) ; 
+    out_rk_fit_ssd_mom_y [i] = rk_fit_ssd_mom_y ->at(id) ; 
+    out_rk_fit_ssd_mom_z [i] = rk_fit_ssd_mom_z ->at(id) ; 
+    out_rk_fit_ssd_mom_gx[i] = rk_fit_ssd_mom_gx->at(id) ;  
+    out_rk_fit_ssd_mom_gy[i] = rk_fit_ssd_mom_gy->at(id) ;  
+    out_rk_fit_ssd_mom_gz[i] = rk_fit_ssd_mom_gz->at(id) ; 
+ 
+
       out_rk_fit_init_mom_gx[i]   = rk_fit_init_mom_gx->at(id);
       out_rk_fit_init_mom_gy[i]   = rk_fit_init_mom_gy->at(id);
       out_rk_fit_init_mom_gz[i]   = rk_fit_init_mom_gz->at(id);
@@ -4519,6 +4700,18 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
 	   out_rk_hit_gtr100_yid[i]    = rk_hit_gtr100_yid->at(id) ;
 	   out_rk_hit_gtr200_yid[i]    = rk_hit_gtr200_yid->at(id) ;
 	   out_rk_hit_gtr300_yid[i]    = rk_hit_gtr300_yid->at(id) ;
+//		out_rk_hit_gtr100_tx[i]     = rk_hit_gtr100_tx->at(id);
+//		out_rk_hit_gtr200_tx[i]     = rk_hit_gtr200_tx->at(id);
+//		out_rk_hit_gtr300_tx[i]     = rk_hit_gtr300_tx->at(id);
+		out_rk_hit_gtr100_tx2[i]     = rk_hit_gtr100_tx2->at(id);
+		out_rk_hit_gtr100_cogx[i]     = rk_hit_gtr100_cogx->at(id);
+		out_rk_hit_gtr100_cogy[i]     = rk_hit_gtr100_cogy->at(id);
+		out_rk_hit_gtr200_tx2[i]     = rk_hit_gtr200_tx2->at(id);
+		out_rk_hit_gtr200_cogx[i]     = rk_hit_gtr200_cogx->at(id);
+		out_rk_hit_gtr200_cogy[i]     = rk_hit_gtr200_cogy->at(id);
+		out_rk_hit_gtr300_tx2[i]     = rk_hit_gtr300_tx2->at(id);
+		out_rk_hit_gtr300_cogx[i]     = rk_hit_gtr300_cogx->at(id);
+		out_rk_hit_gtr300_cogy[i]     = rk_hit_gtr300_cogy->at(id);
 		out_rk_hit_gtr100_gx[i]     = rk_hit_gtr100_gx->at(id) ;
 		out_rk_hit_gtr200_gx[i]     = rk_hit_gtr200_gx->at(id) ;
 		out_rk_hit_gtr300_gx[i]     = rk_hit_gtr300_gx->at(id) ;
@@ -4609,6 +4802,12 @@ void E16DSTN_ReadStraightTree::AddRecord(std::vector<int> &selected_ids)
 		out_rk_proj_lg_npeaks[i] = rk_proj_lg_npeaks->at(i);
 		out_rk_proj_lg_fflag[i]  = rk_proj_lg_fflag->at(i);
 
+  out_rk_hit_gtr100_xt4[i] = rk_hit_gtr100_xt4->at(i);
+  out_rk_hit_gtr200_xt4[i] = rk_hit_gtr200_xt4->at(i);
+  out_rk_hit_gtr300_xt4[i] = rk_hit_gtr300_xt4->at(i);
+//  out_rk_hit_gtr100_ty4[i] = rk_hit_gtr100_ty4->at(i);
+//  out_rk_hit_gtr200_ty4[i] = rk_hit_gtr200_ty4->at(i);
+//  out_rk_hit_gtr300_ty4[i] = rk_hit_gtr300_ty4->at(i);
 		out_chi_square[i]           = chi_square->at(id);
 		i++;
 	}

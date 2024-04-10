@@ -6,32 +6,43 @@
 #include "TVector3.h"
 #include "E16ANA_TrackConstant.hh"
 
+
+
 namespace E16ANA_StraightTrackParameter {
 constexpr bool kVtxZFixFlag = false; // 220607
 //constexpr bool kVtxZFixFlag = true;
 constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-60., 60.}; // 220607
+#ifdef WIRE_INCLUDE_TRACKING
+const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};//wire
+constexpr const std::array<double, 5> kWireXSigma = {0.1,  0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
+#else 
+constexpr const std::array<double, 5> kWireXSigma = {999999,  0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
+const TVector3                  kInitPosErrorWire = {999999, 3.4, 999999};//wire
+#endif
+
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
                                           {0.265, 0.626, 0.},
 //                                          {3.0, 0.542, 0.},//for Run0c
-                                          {0.252, 0.542, 0.},//for Run0c
-//                                          {10., 0.542, 0.},//for Run0d
+//                                         {0.252, 0.542, 0.},//for Run0c
+                                          {10., 0.542, 0.},//for Run0d
                                           {0.262, 0.518, 0.}}}; // 220623 TDR2206
+constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 10, 0.3};   // 230821 for Run0d
+
 const TVector3 kInitPosError     = {3., 3.4, 3.0};
 const TVector3 kInitPosErrorSSD  = {0.4 ,   0, 0.4};// if removed layer is not 0
 const TVector3 kInitPosError100  = {1.0 , 2.0, 3.0};// if ssd is removed 
-const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};//wire
+//constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.3, 10.0, 0.3};    // 230821 for Run0d
-constexpr const std::array<double, 5> kXSigma     = {3., 0.05, 0.3, 0.3, 0.3};   // 230821 for Run0c
-constexpr const std::array<double, 5> kWireXSigma = {0.1,  0.05, 0.3, 0.3, 0.3}; // 231009 for Run0c
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
                                             1. / (kXSigma[3] * kXSigma[3]),
                                             1. / (kXSigma[4] * kXSigma[4])};
-constexpr std::array<double, 3> kYSigma = {0.6, 0.6, 0.6}; // y rough fit
+//constexpr std::array<double, 3> kYSigma = {0.6, 0.6, 0.6}; // y rough fit
+constexpr std::array<double, 3> kYSigma = {1, 1, 1}; // y rough fit
 constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[1] * kYSigma[1]),
                                             1. / (kYSigma[2] * kYSigma[2])};
@@ -40,7 +51,8 @@ constexpr double kGTRYDiffThreshold = 20.; // mm
 //constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 50000., 100.}; // 220418 for production
 constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
 constexpr double kGTRPeakSumThresholdY = 50.;
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 50.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {30., 30.}; // x, y from previous Ks peak
+//constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 50.}; // x, y from previous Ks peak
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015}; 
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
 
@@ -50,6 +62,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
     return true;
   }
   return false;
+//    return true;
 }
 
 // other

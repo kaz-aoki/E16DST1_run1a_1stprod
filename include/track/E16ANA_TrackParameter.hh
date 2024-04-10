@@ -48,8 +48,8 @@ namespace E16ANA_TrackParameter {
 //}
 
 // electron
-//constexpr bool kVtxZFixFlag = false; // 220607
-constexpr bool kVtxZFixFlag = true;
+constexpr bool kVtxZFixFlag = false; // 220607
+//constexpr bool kVtxZFixFlag = true;
 //constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 //constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 //constexpr double kInitZRange[2] = {-40., 40.}; // 220607
@@ -125,6 +125,7 @@ constexpr double kGTRPeakSumThresholdY = 50.;
 #ifdef TRACK_FIND_WO_TARGET
 //constexpr std::array<std::array<double, 2>, 6> kXCurveCorrWindow = {{{0.2, 0.4}, {0.3, 0.5}, {0.4, 0.6}, {0.6, 0.75}, {0.7, 1.05}, {0.9, 1.3}}};
 constexpr std::array<std::array<double, 2>, 6> kXCurveCorrWindow = {{{0., 0.5}, {0.1, 0.7}, {0.2, 0.8}, {0.2, 1.2}, {0.3, 1.2}, {0.9, 1.3}}};
+constexpr double kInitPosBackRadius = 10.;
 #endif // TRACK_FIND_WO_TARGET
 #ifndef TRACK_FIND_WO_TARGET
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y

@@ -75,6 +75,7 @@ class E16ANA_StraightTrackClusterPair {
   TVector3& GlobalPos() { return global_pos; }
   TVector3& LocalPosT() { return local_t2pos; }
   TVector3& GlobalPosT() { return global_t2pos; }
+  TVector3& CogPos() { return cog_pos; }
   
   void SetT(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _x_local_pos) { // GTR
     local_t2pos  = {_x_local_pos.X(),_x_local_pos.Y(),_x_local_pos.Z()}; // z = 0?
@@ -117,6 +118,7 @@ class E16ANA_StraightTrackClusterPair {
   void                          SetCAdc3(double t)    { cadc3.push_back(t); }
   void                          SetCAdc4(double t)    { cadc4.push_back(t); }
   void                          SetCAdc5(double t)    { cadc5.push_back(t); }
+  void SetCog(TVector3 in){cog_pos = in;}
 
 
   void SetTheta(double _ctheta){ ctheta = _ctheta;}
@@ -131,6 +133,7 @@ class E16ANA_StraightTrackClusterPair {
   TVector3 global_pos;
   TVector3 local_t2pos;
   TVector3 global_t2pos;
+  TVector3 cog_pos;
   double ctheta;
   std::vector<double>           ctiming;
   std::vector<double>           cpos;
@@ -502,7 +505,15 @@ class E16ANA_StraightTrackCandidates {
       record(_record), removed_layer(_removed_layer) {
     track_candidates.clear();
     n_targets = _tgt_pos.size();
-	 if(n_targets == 2) isWire = true;
+	 if(n_targets == 2){
+        isWire = true;
+     }
+     else if(n_targets == 3) {
+         isWire = false;
+     }
+    else {
+        std::cout << "number of target error" << std::endl;
+    }
     targets_pos.resize(_tgt_pos.size());
     for(int i=0; i < _tgt_pos.size(); i++){
         targets_pos[i] = _tgt_pos[i];
@@ -747,7 +758,6 @@ class E16ANA_StraightTrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
-  int removed_layer;
   bool isWire;
   int n_targets;
   std::vector<TVector3> targets_pos;
@@ -757,6 +767,9 @@ class E16ANA_StraightTrackCandidates {
   std::vector<E16ANA_StraightTrackCandidate*> selected_track_candidates;
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
+protected:
+  int removed_layer;
+
 };
 
 #endif // E16ANA_STRAIGHTTRACKCANDIDATE_HH

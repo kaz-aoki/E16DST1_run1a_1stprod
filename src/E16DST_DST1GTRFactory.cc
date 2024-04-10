@@ -61,6 +61,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     for(int i =0; i < noh ; i++){
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
+<<<<<<< HEAD
 		  if(mid !=106) continue;
         int lid = hit.LayerID();
         int sid = hit.StripID();
@@ -68,6 +69,19 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     }
     for(auto &a : gtr_analyzers->analyzer_map){
         //a.second->AnalyzeV0();
+=======
+		if(mid > 200) continue;
+		if(mid == 103) continue;
+	     int lid = hit.LayerID();
+		if(mid == 102 && lid == 1) continue;
+		if(mid == 102 && lid == 2) continue;
+    	  int sid = hit.StripID();
+		gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
+    	}
+//	}
+    for(auto &a : gtr_analyzers->analyzer_map){
+//        a.second->AnalyzeV0();
+>>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
         a.second->AnalyzeV1();
     }
 
@@ -131,6 +145,10 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
+<<<<<<< HEAD
+=======
+								h.SetRiset(anahit.StripRiseTiming(j));
+>>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
                         h.SetType(t);
                         h.SetLocalX(E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
                         //t_hit_indexs[t].push_back(indexs[t]);

@@ -1,5 +1,6 @@
 #define E16DSTN_ReadStraightTree_cxx
 #include "E16DSTN_ReadStraightTree.hh"
+#include "E16DSTN_StraightParameter.hh"
 #include <string>
 #include <map>
 #include <array>
@@ -52,18 +53,25 @@
 
 
 int main (int argc, char** argv) {
-	if(argc != 4){
-		std::cout << "./bin/~~ [input.root] [output.root] [max_analyzed_event]" << std::endl;
+	if(argc != 6){
+		std::cout << "./bin/~~ [input.root] [output.root] [max_analyzed_event] [tgtSW (0=Extargets, 1=wire)] [removed_layer]" << std::endl;
 		return 0;	
 	}
 	std::string in_file  = argv[1];
 	std::string out_file = argv[2];
 	int max_event        = stoi(argv[3]);
+	int tgtSW            = stoi(argv[4]);
+	int removed_layer    = stoi(argv[5]);
 	TFile *fin           = new TFile(in_file.c_str());
 	TTree *tree          = (TTree*)fin->Get("tree");
 	E16DSTN_ReadStraightTree *rt = new E16DSTN_ReadStraightTree(tree, out_file.c_str());
+	if(tgtSW != 1 ){
+		std::cout << "Experimental targets ver has not been developed yet " << std::endl;
+	}
+	rt->SetTgtKind(tgtSW);
+	rt->SetRemovedLayer(removed_layer);
 	int nevent           = tree->GetEntries();
-	int print_cycle      = 100;
+	int print_cycle      = 1;
 	rt->Loop(tree, print_cycle, max_event);
 	rt->FileOut()->Write();
 	return 0;	
