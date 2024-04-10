@@ -460,15 +460,19 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double LocalX() {
     if (IsX()) {
 //      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-      return center_of_gravity;
+      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//231115 temp respect for Wang
+//      return center_of_gravity;
     } else {
       return center_of_gravity;
     }
   }
   double LocalXT() {
     if (IsX()) {
+//		std::cout << "tdc hit = " << tdchit << std::endl;
+//		std::cout << "lorent  = " <<  E16DST_DST1Constant::kGTRLorentzAngle[layer_id]<< std::endl;
+      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//23115 temp
 //      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-      return tdchit;
+//      return tdchit;
     } else {
       return tdchit;
     }
