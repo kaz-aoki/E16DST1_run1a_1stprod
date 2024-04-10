@@ -11,7 +11,6 @@
 #include "TVector3.h"
 #include "E16ANA_StraightTrackCandidate.hh"
 
-//#define REMOVE_SSD
 
 
 
@@ -1781,13 +1780,13 @@ class E16ANA_StraightTrackCheckFile {
         trg_track_hbd_is_t_match[i][j] = track_set.HBDHitIsUsed(j);
       }
       trg_track_lg_id[i] = track_set.LGHitOrder(0);
-      auto& hit = record.Trigger().LGHit(trg_track_lg_id[i]);
-      trg_track_lg_mid[i] = hit.ModuleId();
-      trg_track_lg_cid[i] = hit.ChannelId();
-      auto lpos = hit.LocalPos(geometry);
-      trg_track_lg_x[i] = lpos.X();
-      trg_track_lg_y[i] = lpos.Y();
-      trg_track_lg_t[i] = hit.Timing();
+//      auto& hit = record.Trigger().LGHit(trg_track_lg_id[i]);
+//      trg_track_lg_mid[i] = hit.ModuleId();
+//      trg_track_lg_cid[i] = hit.ChannelId();
+//      auto lpos = hit.LocalPos(geometry);
+//      trg_track_lg_x[i] = lpos.X();
+//      trg_track_lg_y[i] = lpos.Y();
+//      trg_track_lg_t[i] = hit.Timing();
 //      trg_track_gtr0_id[i]         = E16DST_DST1Constant::kInvalidValue;
 //      trg_track_gtr0_mid[i]        = E16DST_DST1Constant::kInvalidValue;
 //      trg_track_gtr0_cid[i]        = E16DST_DST1Constant::kInvalidValue;
@@ -2725,7 +2724,6 @@ class E16ANA_StraightTrackCheckFile {
       rk_hit_init_pos_gy[i] = hit_init_pos.Y();
       rk_hit_init_pos_gz[i] = hit_init_pos.Z();
       auto& pairs = cand.ClusterPairs();
-#ifndef REMOVE_SSD
       auto& ssdhit_lpos = pairs[0].LocalPos();
       rk_hit_ssd_x[i] = ssdhit_lpos.X();
       auto& ssdhit_gpos = pairs[0].GlobalPos();
@@ -2733,12 +2731,13 @@ class E16ANA_StraightTrackCheckFile {
       rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
       rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
       auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
-      rk_hit_ssd_id[i] = ssd_clst->ClusterId();
+      if(ssd_clst != 0){
+      rk_hit_ssd_id[i] =  ssd_clst->ClusterId();
       rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
 //      rk_hit_ssd_t[i]  = ssd_clst->Timing();
       rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
       rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
-#endif
+      }
 		//rk_hit_gtr100_lxcog[i] = pairs[1].LocalPos().X();
 		//rk_hit_gtr200_lxcog[i] = pairs[2].LocalPos().X();
 		//rk_hit_gtr300_lxcog[i] = pairs[3].LocalPos().X();
@@ -2872,7 +2871,6 @@ class E16ANA_StraightTrackCheckFile {
       rk_res_init_mom_gy[i] = rk_hit_init_mom_gy[i] - rk_fit_init_mom_gy[i];
       rk_res_init_mom_gz[i] = rk_hit_init_mom_gz[i] - rk_fit_init_mom_gz[i];
       const auto& fits = cand.LocalFitResults();
-#ifndef REMOVE_SSD
       rk_fit_ssd_mid[i] = fits[0].module_id;
       auto& ssdfit_lpos = fits[0].local_pos;
       auto& ssdfit_gpos = fits[0].global_pos;
@@ -2890,7 +2888,6 @@ class E16ANA_StraightTrackCheckFile {
       rk_fit_ssd_mom_gy[i] = ssdfit_gmom.Y();
       rk_fit_ssd_mom_gz[i] = ssdfit_gmom.Z();
       rk_res_ssd_x[i] = fits[0].residual_pos.X();
-#endif
       rk_fit_gtr100_mid[i] = fits[1].module_id;
       auto& gtr100fit_lpos = fits[1].local_pos;
       auto& gtr100fit_gpos = fits[1].global_pos;

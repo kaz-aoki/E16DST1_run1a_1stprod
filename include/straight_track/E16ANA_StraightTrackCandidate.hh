@@ -505,7 +505,15 @@ class E16ANA_StraightTrackCandidates {
       record(_record), removed_layer(_removed_layer) {
     track_candidates.clear();
     n_targets = _tgt_pos.size();
-	 if(n_targets == 2) isWire = true;
+	 if(n_targets == 2){
+        isWire = true;
+     }
+     else if(n_targets == 3) {
+         isWire = false;
+     }
+    else {
+        std::cout << "number of target error" << std::endl;
+    }
     targets_pos.resize(_tgt_pos.size());
     for(int i=0; i < _tgt_pos.size(); i++){
         targets_pos[i] = _tgt_pos[i];

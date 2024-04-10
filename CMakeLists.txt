@@ -49,9 +49,12 @@ elseif(${_host_name} MATCHES "^ccj")
 endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
-add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
+#add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
 
-#add_definitions(-DWO_TRACK_FIT)
+add_definitions(-DWO_TRACK_FIT)
+
+add_definitions(-DWIRE_INCLUDE_TRACKING) #include wire for tracking 
+
 
 # embedding
 #add_definitions(-DTRACK_EFF_CHECK)
