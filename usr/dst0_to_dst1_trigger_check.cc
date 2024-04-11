@@ -365,7 +365,9 @@ int main(int argc, char* argv[]) {
 #ifndef REMOVE_REAL_HIT
 
 		if(gtr_flag == 0 || gtr_flag ==1 ){//normal or residual
-		      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+            if(removed_layer != 0){
+  	            E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+            }
 	      	E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
 		}
 
@@ -381,8 +383,6 @@ int main(int argc, char* argv[]) {
 				return -1;
 			}
 		}
-		
-
 
       record.SSD().AddHitAndClusterIds();
       record.GTR().AddHitAndClusterIds();
@@ -462,7 +462,7 @@ int main(int argc, char* argv[]) {
 #ifndef DST1_EVENT_MIX
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file, gtr_flag, removed_layer);
 #else // DST1_EVENT_MIX
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &prev_record, &check_file, gtr_flag, removed_layer);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &prev_record, &check_file);
       E16DST_DST1SSDFactory(ssd_hits0, &prev_record.SSD());
       prev_record.SSD().AddHitAndClusterIds();
       E16DST_DST1GTRFactory(gtr_hits0, &prev_record.GTR(), gtrped, gtr_lorentz_angle_calib_params);

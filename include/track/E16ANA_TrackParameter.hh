@@ -50,12 +50,12 @@ namespace E16ANA_TrackParameter {
 // electron
 constexpr bool kVtxZFixFlag = false; // 220607
 //constexpr bool kVtxZFixFlag = true;
-//constexpr double kInitXRange[2] = {-40., 40.}; // 220607
-//constexpr double kInitYRange[2] = {-40., 40.}; // 220607
-//constexpr double kInitZRange[2] = {-40., 40.}; // 220607
-constexpr double kInitXRange[2] = {-10., 10.}; // tune with wang-san 
-constexpr double kInitYRange[2] = {-10., 10.}; // tune with wang-san 
-constexpr double kInitZRange[2] = {-30., 30.}; // tune with wang-san 
+constexpr double kInitXRange[2] = {-40., 40.}; // 220607
+constexpr double kInitYRange[2] = {-40., 40.}; // 220607
+constexpr double kInitZRange[2] = {-40., 40.}; // 220607
+//constexpr double kInitXRange[2] = {-10., 10.}; // tune with wang-san 
+//constexpr double kInitYRange[2] = {-10., 10.}; // tune with wang-san 
+//constexpr double kInitZRange[2] = {-30., 30.}; // tune with wang-san 
 //constexpr double kInitXRange[2] = {-150., 150.}; // 220607
 //constexpr double kInitYRange[2] = {-150., 150.}; // 220607
 //constexpr double kInitZRange[2] = {-150., 150.}; // 220607
@@ -94,12 +94,20 @@ const TVector3 kInitPosError = {3., 3.4, 0.};
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
 //constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
 #ifndef TRACK_FIND_WO_TARGET
-constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.1, 0.1, 0.1}; // not used
+constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.1, 0.1, 0.1}; 
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
                                             1. / (kXSigma[3] * kXSigma[3]),
                                             1. / (kXSigma[4] * kXSigma[4])};
+
+constexpr std::array<double, 3> kYSigma = {3, 1., 1., 1.}; // not used
+constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
+                                            1. / (kYSigma[1] * kYSigma[1]),
+                                            1. / (kYSigma[2] * kYSigma[2]), 
+                                            1. / (kYSigma[3] * kYSigma[3]) };
+
+
 #else // TRACK_FIND_WO_TARGET
 //constexpr const std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kXSigma = {0.025, 0.1, 0.1, 0.1};
 constexpr const std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kXSigma = {0.25, 1., 1., 1.};
@@ -107,11 +115,11 @@ constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
                                             1. / (kXSigma[3] * kXSigma[3])};
-#endif // TRACK_FIND_WO_TARGET
-constexpr std::array<double, 3> kYSigma = {1., 1., 1.}; // not used
+constexpr std::array<double, 3> kYSigma = {1., 1., 1.}; 
 constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[1] * kYSigma[1]),
                                             1. / (kYSigma[2] * kYSigma[2])};
+#endif // TRACK_FIND_WO_TARGET
 constexpr int kMinHitsInXCluster = 2;
 //constexpr int kMinHitsInXCluster = 1;
 constexpr double kGTRYDiffThreshold = 20.; // mm

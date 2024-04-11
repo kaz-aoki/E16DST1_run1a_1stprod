@@ -562,16 +562,12 @@ class E16ANA_TrackCandidates {
         is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false),
         vertex_z_fix_flag(E16ANA_TrackParameter::kVtxZFixFlag),
 #ifndef DST1_EVENT_MIX
-        record(_record) {
+        record(_record), gtr_flag(_gtr_flag), removed_layer(_removed_layer) {
 #else // DST1_EVENT_MIX
         record(_record), prev_record(_prev_record) {
 #endif // DST1_EVENT_MIX
 
 
-      : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
-        is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false),
-        vertex_z_fix_flag(E16ANA_TrackParameter::kVtxZFixFlag),
-        record(_record) ,gtr_flag(_gtr_flag), removed_layer(_removed_layer){
 
 
 

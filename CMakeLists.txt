@@ -50,8 +50,6 @@ endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
 #add_definitions(-DTRACK_FIND_WO_TARGET) # for Ks
-<<<<<<< HEAD
-=======
 
 add_definitions(-DWO_TRACK_FIT)
 
@@ -59,7 +57,6 @@ add_definitions(-DWIRE_INCLUDE_TRACKING) #include wire for tracking
 
 
 # embedding
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 #add_definitions(-DTRACK_EFF_CHECK)
 #add_definitions(-DREMOVE_REAL_HIT)
 #add_definitions(-DWO_LAYER_EFF) # remove timing correlation cut between GTR x and y (for mock data)
@@ -151,9 +148,9 @@ add_library(E16ANA
 )
 
 
-add_library(E16DST_DSTN
-	src/tmp_murakami/E16DSTN_ResEffAna.cc
-)
+#add_library(E16DST_DSTN
+#	src/tmp_murakami/E16DSTN_ResEffAna.cc
+#)
 
 
 
@@ -193,17 +190,7 @@ add_library(E16DST_DST1
   ${E16ANA_SSD_SRCS}
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
-<<<<<<< HEAD
-#  src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
-#  src/nakasuga/E16ANA_EIDEfficiency.cc
-#  src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
-#  src/nakasuga/E16ANA_LGGainCalibwoTrackRoot.cc
-#  src/nakasuga/E16ANA_Massw2Gamma.cc
-#  src/nakasuga/E16ANA_GammaAnalyzer.cc
-#  src/nakasuga/straightRoot.cc
-#  src/nakasuga/E16ANA_LGStraightTrackRoot.cc
-=======
-  src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
+ src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
   src/nakasuga/E16ANA_EIDSingleTrackAnalyzerV2.cc
   src/nakasuga/E16ANA_EIDEfficiency.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
@@ -212,7 +199,6 @@ add_library(E16DST_DST1
   src/nakasuga/E16ANA_GammaAnalyzer.cc
   src/nakasuga/straightRoot.cc
   src/nakasuga/E16ANA_LGStraightTrackRoot.cc
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 #  src/res/AnalyzerResidualHBD.cc
 #  src/res/AnalyzerTrackSelection.cc
 #  src/res/SingleTrackAnalyzerForRes.cc
@@ -289,11 +275,11 @@ target_link_libraries(dst0_to_dst1_ssd_check
 )
 
 #_______________________________________________________________________________
-add_executable(run_reseff usr/tmp_murakami/run_reseff.cc)
-target_link_libraries(run_reseff 
-	E16DST_DST1
-	E16DST_DSTN
-)
+#add_executable(run_reseff usr/tmp_murakami/run_reseff.cc)
+#target_link_libraries(run_reseff 
+#	E16DST_DST1
+#	E16DST_DSTN
+#)
 
 
 
@@ -651,14 +637,14 @@ target_link_libraries(dst0_to_dst1_lg_check
 #)
 
 #_______________________________________________________________________________
-add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
-
-target_link_libraries(dst0_to_dst1_trigger_check
-	E16ANA_Basic
-  E16DST_DST1
-  E16ANA_MockTrack
-)
-
+#add_executable(dst0_to_dst1_trigger_check usr/dst0_to_dst1_trigger_check.cc)
+#
+#target_link_libraries(dst0_to_dst1_trigger_check
+#	E16ANA_Basic
+#  E16DST_DST1
+#  E16ANA_MockTrack
+#)
+#
 #_______________________________________________________________________________
 #add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
 #
@@ -731,9 +717,6 @@ target_link_libraries(dst0_to_dst1_trigger_check
 #
 #
 #_______________________________________________________________________________
-<<<<<<< HEAD
-#add_executable(run_HBDLGResidualCalcForEff usr/run_HBDLGResidualCalcForEff.cc)
-=======
 add_executable(EIDana_LGGainCalibwTrack usr/tmp/nakasuga/EIDana_LGGainCalibwTrack.cc)
 
 target_link_libraries(EIDana_LGGainCalibwTrack
@@ -1024,14 +1007,11 @@ target_link_libraries(gtr_deadch_check
 
 ##_______________________________________________________________________________
 #add_executable(run_GTRResidualCalc usr/run_GTRResidualCalc.cc)
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 #
 #target_link_libraries(run_HBDLGResidualCalcForEff
 #	E16DST
 #E16DST_DST1
 #)
-<<<<<<< HEAD
-=======
 #
 ##_______________________________________________________________________________
 #add_executable(run_StraightTrackAnalyzer usr/run_StraightTrackAnalyzer.cc)
@@ -1050,7 +1030,6 @@ target_link_libraries(gtr_deadch_check
 #	E16DST_DST1
 #)
 ###--------------------------------------------------------------------------------
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 ##_______________________________________________________________________________
 #add_executable(run_HBDLGResidualCalc usr/run_HBDLGResidualCalc.cc)
 #
@@ -1089,10 +1068,7 @@ target_link_libraries(gtr_deadch_check
 #	E16DST_DST1
 #   E16DSTN
 #)
-<<<<<<< HEAD
 #_______________________________________________________________________________
-add_executable(tmp_231006 usr/tmp_murakami/tmp_231006.cc)
-=======
 ##_______________________________________________________________________________
 #add_executable(run_EfficiencyCalcV2 usr/run_EfficiencyCalcV2.cc)
 #
@@ -1132,7 +1108,6 @@ target_link_libraries(run_AfterTrackAna
 )
 ###_______________________________________________________________________________
 add_executable(draw_AfterKillDup usr/tmp_murakami/draw_AfterKillDup.cc)
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 
 target_link_libraries(draw_AfterKillDup
 	E16DST
@@ -1310,7 +1285,6 @@ target_link_libraries(calc_ssd_rate
 #)
 #
 #_______________________________________________________________________________
-<<<<<<< HEAD
 #add_executable(tmp_check_acceptance_220902 usr/tmp/tmp_check_acceptance_220902.cc)
 #
 #target_link_libraries(tmp_check_acceptance_220902
@@ -1343,7 +1317,6 @@ target_link_libraries(calc_ssd_rate
 #)
 #
 #target_link_libraries(draw_field_diff_221227
-=======
 add_executable(tmp_check_acceptance_220902 usr/tmp/tmp_check_acceptance_220902.cc)
 
 target_link_libraries(tmp_check_acceptance_220902
@@ -1415,12 +1388,10 @@ target_link_libraries(tmp_check_track_finding_230106
 #)
 #
 #target_link_libraries(refit_track_230207
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 #  E16ANA_Basic
 #)
 #
 ##_______________________________________________________________________________
-<<<<<<< HEAD
 ##_______________________________________________________________________________
 #add_executable(tmp_check_track_finding_230106
 #  usr/tmp/tmp_check_track_finding_230106_wrapper.cc
@@ -1429,7 +1400,6 @@ target_link_libraries(tmp_check_track_finding_230106
 #
 #target_link_libraries(tmp_check_track_finding_230106
 #  E16ANA_Basic
-=======
 #add_executable(sanford_wang
 #  usr/tmp/sanford_wang.cc
 #)
@@ -1437,7 +1407,6 @@ target_link_libraries(tmp_check_track_finding_230106
 #target_link_libraries(sanford_wang
 #  E16ANA_Basic
 #  E16DST_DST1
->>>>>>> 17e6fac2778e99dbc68c5ed3cdfeec579025d0d8
 #)
 #
 #_______________________________________________________________________________
