@@ -23,8 +23,8 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-#define WF_ON
-// #define TRG_ON
+// #define WF_ON
+#define TRG_ON
 #define LGDST1_ON
 
 int main(int argc, char* argv[]) {
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
       auto event_id = event0->EventID();
 
 #ifdef LGDST1_ON
-      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
+      E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
 #endif
@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
       	  auto& lghit = lg_hits1[i];
       	  int tmod = lghit.ModuleId();
       	  int tblk = lghit.ChannelId();
-	  if(lghit.PeakHeight()>30){
+	  if(lghit.PeakHeight()>30){//!!!!!!!!!!!!!!!!!!!!!!
 	    dst1hitflag[tmod-100][tblk] = true;
 	    n_dst1hits++;
 	  }
@@ -239,7 +239,7 @@ int main(int argc, char* argv[]) {
 	int tblk = trghit.ChannelId();
 	dst1trghitflag[tmod-100][tblk] = true;
 	dst1trghitt[tmod-100][tblk] = trghit.Timing();
-	if(trghit.Timing()>3120&&trghit.Timing()<3150){
+	if(trghit.Timing()>3120&&trghit.Timing()<3150){//!!!!!!!!!!!!!!!!!!!!!!
 	  n_dst1trghits++;
 	}
       }
@@ -319,9 +319,9 @@ int main(int argc, char* argv[]) {
 	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
-	// if(trg_lg_hit_t==0){//thr check
+	if(trg_lg_hit_t==0){//thr check
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
-	// }
+	}
 	// if(trg&&trg_lg_hit_t!=0){
 	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	// }
@@ -363,8 +363,8 @@ int main(int argc, char* argv[]) {
   lghists->DrawEachTimeCorrelation(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  TString wfpdfout = Form("%s",out_wf_pdf_name);
-  lghists->DrawWaveform(wfpdfout);
+  // TString wfpdfout = Form("%s",out_wf_pdf_name);
+  // lghists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();

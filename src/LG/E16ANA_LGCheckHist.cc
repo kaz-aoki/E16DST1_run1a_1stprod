@@ -17,7 +17,8 @@ E16ANA_LGCheckHist::E16ANA_LGCheckHist(){
       hbaselinerms[i][j] = new TH1F(Form("hbaselinerms%d%02d",i,j),Form("baselinerms_%d_%d",IndexToModule(i),IndexToBlock(j)),100,-20,20);
       hintegral[i][j] = new TH1F(Form("hintegral%d%02d",i,j),Form("integral_%d_%d",IndexToModule(i),IndexToBlock(j)),100,0,100);
       hnhits[i][j] = new TH1F(Form("hnhits%d%02d",i,j),Form("nhits_%d_%d",IndexToModule(i),IndexToBlock(j)),2,-0.5,1.5);
-      htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(j)),300,3000,3300,200,0,200);
+      // htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(j)),300,3000,3300,200,0,200);
+      htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(j)),200,-100,100,200,0,200);
       ftiming[i][j] = new TF1(Form("ftiming%d%02d",i,j),"gaus",0,200);
     }
   }
