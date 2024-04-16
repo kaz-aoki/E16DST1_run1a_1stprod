@@ -50,7 +50,7 @@ bool E16ANA_CTCheckHist::IsValidModuleId(int module){ // for run0e CT
     return true;
   }
   else{
-    std::cout<<"invalid module id"<<std::endl;
+    // std::cout<<"invalid module id"<<std::endl;
     return false;
   }
 }
@@ -58,7 +58,7 @@ bool E16ANA_CTCheckHist::IsValidBlockId(int module, int block){
   int x = block%10;
   int y = block/10;
   if(!IsValidModuleId(module)){
-    return -1;
+    return false;
   }
   if(module==106){
     if( (block>=0 && block<=7) || (x>=0 && x<=3 && y>=1 && y<=5) ){
@@ -133,6 +133,72 @@ int E16ANA_CTCheckHist::IndexToBlock(int index_m, int index_b){
     return -1;
   }
   return blocklist[index_m][index_b];
+}
+bool E16ANA_CTCheckHist::LGwCT(int lgmodule, int lgblock){
+  if(lgmodule==104){
+    return IsValidBlockId(lgmodule, lgblock);
+  }
+  else if(lgmodule==106){
+    if( lgblock%10==0 || lgblock%10==1 ){
+      return true;
+    }
+    else if( lgblock>=2 && lgblock<=5 ){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  else{
+    return false;
+  }
+}
+int E16ANA_CTCheckHist::LGToCT0Module(int lgmodule){
+  return lgmodule;
+}
+int E16ANA_CTCheckHist::LGToCT1Module(int lgmodule){
+  return lgmodule;
+}
+int E16ANA_CTCheckHist::LGToCT0Block(int lgmodule, int lgblock){
+  if(lgmodule==104){
+    return lgblock;
+  }
+  else if(lgmodule==106){
+    if(lgblock%10==0){
+      return lgblock;
+    }
+    else if(lgblock%10==1){
+      return lgblock+1;
+    }
+    else if( lgblock>=2 && lgblock<=5 ){
+      return lgblock+2;
+    }
+    else{
+      return -10000;
+    }
+  }
+  else{
+    return -10000;
+  }
+}
+int E16ANA_CTCheckHist::LGToCT1Block(int lgmodule, int lgblock){
+  if(lgmodule==104){
+    return -10000;
+  }
+  else if(lgmodule==106){
+    if(lgblock%10==0){
+      return lgblock+1;
+    }
+    else if(lgblock%10==1){
+      return lgblock+2;
+    }
+    else{
+      return -10000;
+    }
+  }
+  else{
+    return -10000;
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 void E16ANA_CTCheckHist::Fill(int module, int block, double peak, int peaktime, double timing, double baseline, double baselinerms, double integral, int nhits){

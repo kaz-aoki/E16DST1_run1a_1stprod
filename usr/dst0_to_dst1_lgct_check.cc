@@ -18,47 +18,50 @@
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
 #include "E16ANA_LGCheckHist.hh"
+#include "E16ANA_CTBasic.hh"
+#include "E16ANA_CTWaveform.hh"
+#include "E16ANA_CTConstant.hh"
+#include "E16ANA_CTCheckHist.hh"
 #include "E16DST_Constant.hh"
 
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-// #define WF_ON
+#define WF_ON
 #define TRG_ON
 #define LGDST1_ON
 
 int main(int argc, char* argv[]) {
-  if (argc != 7) {
+  if (argc != 5) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [hist.pdf] [wf.pdf] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto out_pdf_name = argv[3];
-  auto out_wf_pdf_name = argv[4];
-  auto run_id        = stoi(argv[5]);
-  auto max_event     = stoi(argv[6]);
+  auto run_id        = stoi(argv[3]);
+  auto max_event     = stoi(argv[4]);
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
   // std::ofstream frun("runinfo.txt");
 
-  uint16_t module, block;
-  float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
-  int run, event, spill, multi, trgmulti, peaktime, ip, timestampinspill;
-  bool sl, sr, sl2, sr2, im3, im2, spikeflag, dst1flag, trg, trgwtrk;
-  double gpos[3];
-  double lpos[3];
-  // double waveform_raw[E16DST_Constant::NSamplesLG];
-  double waveform[E16DST_Constant::NSamplesLG];
+  uint16_t lgmodule, lgblock;
+  int ct0module, ct0block, ct1module, ct1block;
+  int lgpeaktime, ct0peaktime, ct1peaktime;
+  float lgpeakheight, lgtiming, lgbaseline, lgbaselinerms, trg_lg_hit_t, ct0peakheight, ct0timing, ct0baseline, ct0baselinerms, trg_ct0_hit_t, ct1peakheight, ct1timing, ct1baseline, ct1baselinerms, trg_ct1_hit_t;
+  bool lgdst1flag, lgtrg, lgtrgwtrk;
+  double lgwaveform[E16DST_Constant::NSamplesLG];
+  double ct0waveform[E16DST_Constant::NSamplesCT];
+  double ct1waveform[E16DST_Constant::NSamplesCT];
+
+  int run, event, spill, timestampinspill;
+  bool sl, sr, sl2, sr2, im3, im2;
 
   tree->Branch("Run",&run,"Run/I");
   tree->Branch("Event",&event,"Event/I");
   tree->Branch("Spill",&spill,"Spill/I");
   tree->Branch("TimeStampInSpill",&timestampinspill,"TimeStampInSpill/I");
-  tree->Branch("Multi",&multi,"Multi/I");
-  tree->Branch("TrgMulti",&trgmulti,"TrgMulti/I");
   tree->Branch("SL",&sl,"SL/O");
   tree->Branch("SR",&sr,"SR/O");
   tree->Branch("SL2",&sl2,"SL2/O");
@@ -66,29 +69,36 @@ int main(int argc, char* argv[]) {
   tree->Branch("IM3",&im3,"IM3/O");
   tree->Branch("IM2",&im2,"IM2/O");
 
-  tree->Branch("Module",&module,"Module/s");
-  tree->Branch("Block",&block,"Block/s");
-  tree->Branch("IP",&ip,"IP/I");
-  tree->Branch("PeakHeight",&peakheight,"PeakHeight/F");
-  tree->Branch("PeakTime",&peaktime,"PeakTime/I");
-  tree->Branch("Timing",&timing,"timing/F");
-  tree->Branch("Baseline",&baseline,"Baseline/F");
-  tree->Branch("BaselineRms",&baselinerms,"BaselineRms/F");
-  tree->Branch("Integral",&integral,"Integral/F");
-  tree->Branch("Falltime",&falltime,"Falltime/F");
-  tree->Branch("SpikeFlag",&spikeflag,"SpikeFlag/O");
-  tree->Branch("CalibTiming",&calibtiming,"CalibTiming/F");
-  tree->Branch("EnergyDeposit",&energydeposit,"EnergyDeposit/F");
-  tree->Branch("Dst1Flag",&dst1flag,"Dst1Flag/O");
-  tree->Branch("Gpos",gpos,"Gpos[3]/D");
-  tree->Branch("Lpos",lpos,"Lpos[3]/D");
+  tree->Branch("LGModule",&lgmodule,"LGModule/s");
+  tree->Branch("LGBlock",&lgblock,"LGBlock/s");
+  tree->Branch("LGPeakHeight",&lgpeakheight,"LGPeakHeight/F");
+  tree->Branch("LGPeakTime",&lgpeaktime,"LGPeakTime/I");
+  tree->Branch("LGTiming",&lgtiming,"LGTiming/F");
+  tree->Branch("LGBaseline",&lgbaseline,"LGBaseline/F");
+  tree->Branch("LGBaselineRms",&lgbaselinerms,"LGBaselineRms/F");
+  tree->Branch("CT0Module",&ct0module,"CT0Module/I");
+  tree->Branch("CT0Block",&ct0block,"CT0Block/I");
+  tree->Branch("CT0PeakHeight",&ct0peakheight,"CT0PeakHeight/F");
+  tree->Branch("CT0PeakTime",&ct0peaktime,"CT0PeakTime/I");
+  tree->Branch("CT0Timing",&ct0timing,"CT0Timing/F");
+  tree->Branch("CT0Baseline",&ct0baseline,"CT0Baseline/F");
+  tree->Branch("CT0BaselineRms",&ct0baselinerms,"CT0BaselineRms/F");
+  tree->Branch("CT1Module",&ct1module,"CT1Module/I");
+  tree->Branch("CT1Block",&ct1block,"CT1Block/I");
+  tree->Branch("CT1PeakHeight",&ct1peakheight,"CT1PeakHeight/F");
+  tree->Branch("CT1PeakTime",&ct1peaktime,"CT1PeakTime/I");
+  tree->Branch("CT1Timing",&ct1timing,"CT1Timing/F");
+  tree->Branch("CT1Baseline",&ct1baseline,"CT1Baseline/F");
+  tree->Branch("CT1BaselineRms",&ct1baselinerms,"CT1BaselineRms/F");
 #ifdef WF_ON
-  // tree->Branch("Waveform_raw",waveform_raw,Form("Waveform_raw[%d]/D",E16DST_Constant::NSamplesLG));
-  tree->Branch("Waveform",waveform,Form("Waveform[%d]/D",E16DST_Constant::NSamplesLG));
+  tree->Branch("LGWaveform",lgwaveform,Form("LGWaveform[%d]/D",E16DST_Constant::NSamplesLG));
+  tree->Branch("CT0Waveform",ct0waveform,Form("CT0Waveform[%d]/D",E16DST_Constant::NSamplesCT));
+  tree->Branch("CT1Waveform",ct1waveform,Form("CT1Waveform[%d]/D",E16DST_Constant::NSamplesCT));
 #endif
-  tree->Branch("TrgTiming",&trg_lg_hit_t,"TrgTiming/F");
-  tree->Branch("Trg",&trg,"Trg/O");
-  tree->Branch("TrgwTRK",&trgwtrk,"TrgwTRK/O");
+  tree->Branch("LGDst1Flag",&lgdst1flag,"LGDst1Flag/O");
+  tree->Branch("LGTrgTiming",&trg_lg_hit_t,"LGTrgTiming/F");
+  tree->Branch("LGTrg",&lgtrg,"LGTrg/O");
+  tree->Branch("LGTrgwTRK",&lgtrgwtrk,"LGTrgwTRK/O");
 
   auto& calib = E16ANA_CalibDBManager::Instance();
   calib.SetRunID(run_id);
@@ -116,6 +126,8 @@ int main(int argc, char* argv[]) {
   lgbasic.SetCalibMap();//it is necessary to use energy deposit and calibrated timing.
   lgbasic.SetTemplate();
   lgdead.ReadDeadChannelData();
+  E16ANA_CTBasic ctbasic;
+  ctbasic.SetMap();
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   
@@ -127,16 +139,7 @@ int main(int argc, char* argv[]) {
   }
   E16DST_DST1PhysicsRecord record;
 
-  // E16ANA_GTRPedestal *gtr_pedestal = new E16ANA_GTRPedestal();
-  // gtr_pedestal->Read(argv[5]);
-  // auto dst1 = new E16DST_DST1();
-  // auto dst1 = new E16DST_DST0();
-  // if (!dst1->Open(out_file_name, E16DST_DST0::WriteMode)) {
-  //   std::cerr << "Cannot open output file: " << out_file_name << std::endl;
-  //   return -1;
-  // }
-
-  auto *lghists = new E16ANA_LGCheckHist();
+  // auto *lghists = new E16ANA_LGCheckHist();
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -154,9 +157,11 @@ int main(int argc, char* argv[]) {
       // auto& ssd_hits0         = event0->SSD();
       // auto& gtr_hits0         = event0->GTR();
       // auto& hbd_hits0         = event0->HBD();
+      auto& ct_hits0          = event0->CT();
       auto& lg_hits0          = event0->LG();
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
+      auto& trigger_ct_hits0  = event0->TriggerCT();
       auto& trigger_lg_hits0  = event0->TriggerLG();
       // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
@@ -228,7 +233,6 @@ int main(int argc, char* argv[]) {
 	  }
       	}
       }
-      multi = n_dst1hits;
 #endif
 
 //dst1trghit
@@ -243,7 +247,6 @@ int main(int argc, char* argv[]) {
 	  n_dst1trghits++;
 	// }
       }
-      trgmulti = n_dst1trghits;
 
       int n_trg_tracks = record.Trigger().NumTrackSets();
       for(int i=0;i<n_trg_tracks;i++){
@@ -270,48 +273,138 @@ int main(int argc, char* argv[]) {
 	}
       }
 
+//cthit
+      const int CTNMOD = E16ANA_CTCheckHist::GetNMOD();
+      const int CTNCH = E16ANA_CTCheckHist::GetNCH();
+      int ctpeaktimeall[CTNMOD][CTNCH];
+      float ctpeakheightall[CTNMOD][CTNCH];
+      float cttimingall[CTNMOD][CTNCH];
+      float ctbaselineall[CTNMOD][CTNCH];
+      float ctbaselinermsall[CTNMOD][CTNCH];
+      double ctwaveformall[CTNMOD][CTNCH][E16DST_Constant::NSamplesCT];
+      for (int n_hit = 0; n_hit < ct_hits0.NumberOfHits(); ++n_hit) {
+	auto hit0 = ct_hits0.Hit(n_hit);
+	uint16_t ctmodule = hit0.ModuleID();
+	uint16_t ctblock = hit0.ChannelID();
+
+	auto ctspec = ctbasic.GetSpec(ctmodule,ctblock);
+	double wftype = ctspec->WF_TYPE;
+
+	double wf[E16DST_Constant::NSamplesCT];
+	for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	  int ph = hit0.Waveform()[cell];
+	  wf[cell] = ph;
+	}
+	E16ANA_LGWaveform::RemoveSpike(wf);
+	for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	  wf[cell] = wf[cell]*wftype;
+	}
+
+	E16ANA_CTWaveform* ctwf = new E16ANA_CTWaveform();
+	ctwf->SimpleMethod(wf); // 700 event/sec @1e10
+
+	int index_m = E16ANA_CTCheckHist::ModuleToIndex((int)ctmodule);
+	int index_b = E16ANA_CTCheckHist::BlockToIndex((int)ctmodule,(int)ctblock);
+	ctpeaktimeall[index_m][index_b] = ctwf->GetPeakx();
+	cttimingall[index_m][index_b] = ctwf->GetTiming();
+	ctpeakheightall[index_m][index_b] = ctwf->GetPeak();
+	ctbaselineall[index_m][index_b] = ctwf->GetBaseline();
+	ctbaselinermsall[index_m][index_b] = ctwf->GetBaselineRms();
+	for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	  ctwaveformall[index_m][index_b][cell] = wf[cell];
+	}
+
+	delete ctwf;
+
+      }
+
 //dst0hit
       for (int n_hit = 0; n_hit < lg_hits0.NumberOfHits(); ++n_hit) {
 	auto hit0 = lg_hits0.Hit(n_hit);
-	module = hit0.ModuleID();
-	block = hit0.BlockID();
+	lgmodule = hit0.ModuleID();
+	lgblock = hit0.BlockID();
 
-	auto spec = lgbasic.GetSpec(module,block);
-	double wftype = spec->WF_TYPE;
-	double t0 = lgbasic.GetT0(module,block);
-	int status = lgdead.Status(module,block);
+	if( !E16ANA_CTCheckHist::LGwCT((int)lgmodule, (int)lgblock) ){
+	  continue;
+	}
 
-	// double wf[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+	auto lgspec = lgbasic.GetSpec(lgmodule,lgblock);
+	double wftype = lgspec->WF_TYPE;
+
 	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
 	  int ph = hit0.Waveform()[cell];
-	  // wf[cell] = ph*wftype;
-	  // waveform_raw[cell] = ph*wftype;
-	  waveform[cell] = ph;
+	  lgwaveform[cell] = ph;
 	}
-	E16ANA_LGWaveform::RemoveSpike(waveform);
+	E16ANA_LGWaveform::RemoveSpike(lgwaveform);
 	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
-	  waveform[cell] = waveform[cell]*wftype;
+	  lgwaveform[cell] = lgwaveform[cell]*wftype;
 	}
-
-	ip = spec->IP;
 
 	E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
-	lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
+	lgwf->SimpleMethod(lgwaveform); // 700 event/sec @1e10
 
-	timing = lgwf->GetTiming();
-	peakheight = lgwf->GetPeak();
-	peaktime = lgwf->GetPeakx();
-	baseline = lgwf->GetBaseline();
-	baselinerms = lgwf->GetBaselineRms();
-	integral = lgwf->GetIntegral();
-	falltime = lgwf->GetFalltime();
-	spikeflag = lgwf->GetSpikeFlag();
-	calibtiming = 100.+timing-(lgbasic.GetT0(module,block));
+	lgtiming = lgwf->GetTiming();
+	lgpeakheight = lgwf->GetPeak();
+	lgpeaktime = lgwf->GetPeakx();
+	lgbaseline = lgwf->GetBaseline();
+	lgbaselinerms = lgwf->GetBaselineRms();
 
-	dst1flag = dst1hitflag[module-100][block];
-	trg = dst1trghitflag[module-100][block];
-	trgwtrk = dst1trgtrkhitflag[module-100][block];
-	trg_lg_hit_t = dst1trghitt[module-100][block];
+	lgdst1flag = dst1hitflag[lgmodule-100][lgblock];
+	lgtrg = dst1trghitflag[lgmodule-100][lgblock];
+	lgtrgwtrk = dst1trgtrkhitflag[lgmodule-100][lgblock];
+	trg_lg_hit_t = dst1trghitt[lgmodule-100][lgblock];
+
+	//ct0
+	ct0module = E16ANA_CTCheckHist::LGToCT0Module((int)lgmodule);
+	ct0block  = E16ANA_CTCheckHist::LGToCT0Block((int)lgmodule,(int)lgblock);
+	if( E16ANA_CTCheckHist::IsValidBlockId(ct0module,ct0block) ){
+	  int index_m0 = E16ANA_CTCheckHist::ModuleToIndex(ct0module);
+	  int index_b0 = E16ANA_CTCheckHist::BlockToIndex(ct0module,ct0block);
+	  ct0timing = cttimingall[index_m0][index_b0];
+	  ct0peakheight = ctpeakheightall[index_m0][index_b0];
+	  ct0peaktime = ctpeaktimeall[index_m0][index_b0];
+	  ct0baseline = ctbaselineall[index_m0][index_b0];
+	  ct0baselinerms = ctbaselinermsall[index_m0][index_b0];
+	  for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	    ct0waveform[cell] = ctwaveformall[index_m0][index_b0][cell];
+	  }
+	}
+	else{
+	  ct0timing = -10000.;
+	  ct0peakheight = -10000.;
+	  ct0peaktime = -10000;
+	  ct0baseline = -10000.;
+	  ct0baselinerms = -10000.;
+	  for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	    ct0waveform[cell] = -10000.;
+	  }
+	}
+
+	//ct1
+	ct1module = E16ANA_CTCheckHist::LGToCT1Module((int)lgmodule);
+	ct1block  = E16ANA_CTCheckHist::LGToCT1Block((int)lgmodule,(int)lgblock);
+	if( E16ANA_CTCheckHist::IsValidBlockId(ct1module,ct1block) ){
+	  int index_m1 = E16ANA_CTCheckHist::ModuleToIndex(ct1module);
+	  int index_b1 = E16ANA_CTCheckHist::BlockToIndex(ct1module,ct1block);
+	  ct1timing = cttimingall[index_m1][index_b1];
+	  ct1peakheight = ctpeakheightall[index_m1][index_b1];
+	  ct1peaktime = ctpeaktimeall[index_m1][index_b1];
+	  ct1baseline = ctbaselineall[index_m1][index_b1];
+	  ct1baselinerms = ctbaselinermsall[index_m1][index_b1];
+	  for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	    ct1waveform[cell] = ctwaveformall[index_m1][index_b1][cell];
+	  }
+	}
+	else{
+	  ct1timing = -10000.;
+	  ct1peakheight = -10000.;
+	  ct1peaktime = -10000;
+	  ct1baseline = -10000.;
+	  ct1baselinerms = -10000.;
+	  for(int cell=0; cell<E16DST_Constant::NSamplesCT; cell++){
+	    ct1waveform[cell] = -10000.;
+	  }
+	}
 
 	tree->Fill();
 
@@ -319,16 +412,16 @@ int main(int argc, char* argv[]) {
 	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
-	if(trg_lg_hit_t==0){//thr check
-	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
-	}
-	if(trg&&trg_lg_hit_t!=0){
-	  lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
-	}
+	// if(trg_lg_hit_t==0){//thr check
+	//   lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
+	// }
+	// if(trg&&trg_lg_hit_t!=0){
+	//   lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
+	// }
 	// if(trg_lg_hit_t==0){
-	if(dst1flag&&peakheight>30.){
-	  lghists->SetWaveform(module,block,waveform);
-	}
+	// if(dst1flag&&peakheight>30.){
+	//   lghists->SetWaveform(module,block,waveform);
+	// }
 
 	delete lgwf;
 
@@ -354,14 +447,14 @@ int main(int argc, char* argv[]) {
     ++n_physics_event;
   }
 
-  TString pdfout = Form("%s",out_pdf_name);
-  TCanvas* c = new TCanvas("c","c",1400,700);
-  c->SaveAs(pdfout+"[","pdf");
-  lghists->Draw(pdfout,c);
-  lghists->Draw2D(pdfout,c);
-  lghists->DrawEach(pdfout,c);
-  lghists->DrawEachTimeCorrelation(pdfout,c);
-  c->SaveAs(pdfout+"]","pdf");
+  // TString pdfout = Form("%s",out_pdf_name);
+  // TCanvas* c = new TCanvas("c","c",1400,700);
+  // c->SaveAs(pdfout+"[","pdf");
+  // lghists->Draw(pdfout,c);
+  // lghists->Draw2D(pdfout,c);
+  // lghists->DrawEach(pdfout,c);
+  // lghists->DrawEachTimeCorrelation(pdfout,c);
+  // c->SaveAs(pdfout+"]","pdf");
 
   // TString wfpdfout = Form("%s",out_wf_pdf_name);
   // lghists->DrawWaveform(wfpdfout);

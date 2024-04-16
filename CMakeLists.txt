@@ -324,6 +324,13 @@ target_link_libraries(dst0_to_dst1_ct_check
 	E16DST_DST1
 )
 
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_lgct_check usr/dst0_to_dst1_lgct_check.cc)
+
+target_link_libraries(dst0_to_dst1_lgct_check
+	E16DST_DST1
+)
+
 # #_______________________________________________________________________________
 # add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
 
