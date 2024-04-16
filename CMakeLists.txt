@@ -78,6 +78,7 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
+	include/CT
 	include/nakasuga
 #	include/res
 	include/trigger
@@ -139,6 +140,9 @@ add_library(E16ANA
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
   src/LG/E16ANA_LGProjection.cc
+  src/CT/E16ANA_CTBasic.cc
+  src/CT/E16ANA_CTWaveform.cc
+  src/CT/E16ANA_CTCheckHist.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -310,6 +314,13 @@ target_link_libraries(hbd_dead_ch_check
 add_executable(dst0_to_dst1_lg_check usr/dst0_to_dst1_lg_check.cc)
 
 target_link_libraries(dst0_to_dst1_lg_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_ct_check usr/dst0_to_dst1_ct_check.cc)
+
+target_link_libraries(dst0_to_dst1_ct_check
 	E16DST_DST1
 )
 
