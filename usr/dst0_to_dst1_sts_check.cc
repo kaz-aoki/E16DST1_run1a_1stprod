@@ -28,12 +28,17 @@
 #include "E16ANA_LGCheckHist.hh"
 #include "E16DST_Constant.hh"
 
+#include "STS/STSDST0special.h"
+#include "STS/STSDST0util.h"
+
 using namespace std;
 // namespace  bpo = boost::program_options;
 
 #define WF_ON
 #define TRG_ON
 #define LGDST1_ON
+
+std::string sts_root = "hoge9030.root";
 
 int main(int argc, char* argv[]) {
   if (argc != 7) {
@@ -47,6 +52,16 @@ int main(int argc, char* argv[]) {
   auto out_wf_pdf_name = argv[4];
   auto run_id        = stoi(argv[5]);
   auto max_event     = stoi(argv[6]);
+
+
+  TFile* sts_fin = new TFile(sts_root.c_str());
+  TTree* sts_tree_ptr = (TTree*) sts_fin->Get("tree");
+  STSDST0special sts_tree(sts_tree_ptr);
+  if (  sts_tree.fChain == 0 ) {
+    exit(1);
+  }
+  sts_tree.GetEntry(0);
+  std::cout << "STSDST0special test : " << sts_tree.systemTimestamp << std::endl;
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
@@ -66,6 +81,28 @@ int main(int argc, char* argv[]) {
   int32_t ut3spill;           // I
   int32_t ut3event;           // I
   uint64_t emu_timestamp;     // l
+
+  std::vector<int16_t> sts_module;
+  std::vector<int16_t> sts_pn;
+  std::vector<int16_t> sts_channel;
+  std::vector<float> sts_peakheight;
+  std::vector<float> sts_hittime;
+  std::vector<float> sts_lx;
+  std::vector<float> sts_gx;
+  std::vector<float> sts_gy;
+  std::vector<float> sts_gz;
+
+  auto clear_sts = [&](){
+    sts_module.clear();
+    sts_pn.clear(); 
+    sts_channel.clear();
+    sts_peakheight.clear();
+    sts_hittime.clear();
+    sts_lx.clear();
+    sts_gx.clear();
+    sts_gy.clear();
+    sts_gz.clear();
+  };
   
   TString br_int16 = "/S";
   TString br_uint32 = "/i";
@@ -86,6 +123,16 @@ int main(int argc, char* argv[]) {
   trgtree->Branch("ut3event",&ut3event,"ut3event"+br_int32);
   trgtree->Branch("emu_timestamp",&emu_timestamp,"emu_timestamp"+br_uint64);
 
+  trgtree->Branch("sts_module",&sts_module);
+  trgtree->Branch("sts_pn",&sts_pn);
+  trgtree->Branch("sts_channel",&sts_channel);
+  trgtree->Branch("sts_peakheight",&sts_peakheight);
+  trgtree->Branch("sts_hittime",&sts_hittime);
+  trgtree->Branch("sts_lx",&sts_lx);
+  trgtree->Branch("sts_gx",&sts_gx);
+  trgtree->Branch("sts_gy",&sts_gy);
+  trgtree->Branch("sts_gz",&sts_gz);
+  std::cout << "branch? " << std::endl;
   uint16_t module, block;
   float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
   int run, event, spill, multi, trgmulti, peaktime, ip, timestampinspill;
@@ -196,7 +243,8 @@ int main(int argc, char* argv[]) {
       // auto& ssd_hits0         = event0->SSD();
       // auto& gtr_hits0         = event0->GTR();
       // auto& hbd_hits0         = event0->HBD();
-      auto& stsg              = event0->STSG();
+      auto& stsg_dst0         = event0->STSG();
+      auto& sts_dst0          = event0->STS();
       auto& lg_hits0          = event0->LG();
       auto& trigger_gtr_hits0 = event0->TriggerGTR();
       auto& trigger_hbd_hits0 = event0->TriggerHBD();
@@ -204,28 +252,13 @@ int main(int argc, char* argv[]) {
       // std::cout<<event0->LG().NumberOfHits()<<" "<<event0->TriggerLG().NumberOfHits()<<std::endl;
       auto event_id = event0->EventID();
 
-      for (int n_hit = 0; n_hit < stsg.NumberOfHits(); ++n_hit) {
-	auto hit0 = stsg.Hit(n_hit);
-	//std::cout << "STS :" << hit0.get_ut3timestamp() << std::endl;
-	l1_trgtype        = hit0.get_l1_trgtype();
-	trgtyp_rcv_count  = hit0.get_trgtyp_rcv_count();
-	gbt               = hit0.get_gbt();
-	port              = hit0.get_port();
-	trg_num_emu2geri  = hit0.get_trg_num_emu2geri();
-	trgtyp_rcv_count  = hit0.get_trgtyp_rcv_count();
-	trgdata_rcv_count = hit0.get_trgdata_rcv_count();
-	trglocal_count    = hit0.get_trglocal_count();
-	l1_geritimestamp  = hit0.get_l1_geritimestamp();
-	ut3timestamp      = hit0.get_ut3timestamp();
-	ut3spill          = hit0.get_ut3spill();
-	emu_timestamp     = hit0.get_emu_timestamp();
-	trgtree->Fill();
-      }
+      int ists_entry = 0;
 
 #ifdef LGDST1_ON
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 0, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
       record.LG().UpdatePtrs();
+
 #endif
 #ifdef TRG_ON
 #ifdef TMP_NIM_TRIGGER
@@ -238,7 +271,55 @@ int main(int argc, char* argv[]) {
       record.Trigger().UpdatePtrs();
 #endif
 
+      //std::cout << "STSFactory."<< std::endl;
+      E16DST_DST1STSFactory(stsg_dst0,sts_dst0, &record.STS());
+      //record.STS.UpdatePtrs();
+
 //// Check begin
+
+      if ( stsg_dst0.NumberOfHits() > 1 ) {
+	std::cout << "+++++++ STSGlobal: # of hits more than 1. WHY?" << std::endl;
+      }
+      /////////////////
+      //
+      // Filling STS info based on DST0.
+      //
+      /////////////////
+      for (int i_hitg = 0; i_hitg < stsg_dst0.NumberOfHits(); ++i_hitg) {
+	auto hitg0 = stsg_dst0.Hit(i_hitg);
+	//std::cout << "STS :" << hitg0.get_ut3timestamp() << std::endl;
+	l1_trgtype        = hitg0.get_l1_trgtype();
+	trgtyp_rcv_count  = hitg0.get_trgtyp_rcv_count();
+	gbt               = hitg0.get_gbt();
+	port              = hitg0.get_port();
+	trg_num_emu2geri  = hitg0.get_trg_num_emu2geri();
+	trgtyp_rcv_count  = hitg0.get_trgtyp_rcv_count();
+	trgdata_rcv_count = hitg0.get_trgdata_rcv_count();
+	trglocal_count    = hitg0.get_trglocal_count();
+	l1_geritimestamp  = hitg0.get_l1_geritimestamp();
+	ut3timestamp      = hitg0.get_ut3timestamp();
+	ut3spill          = hitg0.get_ut3spill();
+	emu_timestamp     = hitg0.get_emu_timestamp();
+	
+	clear_sts();
+	auto& hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
+	if ( hits1.size() > 0 ) {
+	  for( auto& hit1 : hits1 ) {
+	    sts_module.push_back(hit1.ModuleId());
+	    sts_pn.push_back(hit1.PN());
+	    sts_channel.push_back(hit1.ChannelId());
+	    sts_peakheight.push_back(hit1.PeakHeight());
+	    sts_hittime.push_back(hit1.Timing());
+	    sts_lx.push_back(hit1.LocalPos().X());
+	    TVector3 vec = hit1.GlobalPos();
+	    sts_gx.push_back(vec.X());
+	    sts_gy.push_back(vec.Y());
+	    sts_gz.push_back(vec.Z());
+	  }
+	}
+	trgtree->Fill();
+      }
+
 //// LG
 
 //run

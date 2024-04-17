@@ -15,7 +15,14 @@
 #include "E16ANA_StraightTrackCheckFile.hh"
 //#include "E16ANA_TrackCheckFile_wolgfit.hh"
 
-int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>* ssd1);
+int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0,
+			  E16DST_DST1Detector<E16DST_DST1SSDHit,
+			  E16DST_DST1SSDCluster>* ssd1);
+
+int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
+			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
+			  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>* sts_dst1);
+
 int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal& gtrped,
                           const std::array<double, 3>& lorentz_angle_calib_params);
 int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal& gtrped,
