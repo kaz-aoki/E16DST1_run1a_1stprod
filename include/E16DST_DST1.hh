@@ -260,6 +260,10 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   void SetGlobalPos(const TVector3& pos) { gpos = pos; }
   int16_t  PN() { return pn; }
   void     SetPN(int16_t _pn) { pn = _pn; }
+  void     SetElink(int16_t _elink) { elink = _elink; }
+  int16_t  Elink() {return elink; }
+  void SetGeriTimestamp(uint64_t _geriTimestamp) { geriTimestamp = _geriTimestamp; }
+  uint64_t GeriTimestamp() { return geriTimestamp;}
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   float peak_height;
@@ -269,6 +273,8 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   int16_t dataType;
   TVector3 lpos;
   TVector3 gpos;
+  int16_t elink;
+  uint64_t geriTimestamp;
 };
 
 class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
