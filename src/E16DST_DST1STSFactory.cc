@@ -54,7 +54,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetPeakHeight(hit0.ADC());
     hit1.SetTiming(hit0.TDC());
     hit1.SetPN(hit0.PN());
-
+    hit1.SetElink(hit0.Elink());
+    hit1.SetGeriTimestamp(hit0.GeriTimestamp());
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {
       // P
