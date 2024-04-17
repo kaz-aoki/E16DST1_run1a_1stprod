@@ -7,6 +7,7 @@
 #include <TH1.h>
 #include <TSpectrum.h>
 
+#include "E16DST_Constant.hh"
 #include "E16ANA_LGBasic.hh"
 #include "E16DST_DST1Constant.hh"
 #include "E16ANA_LGConstant.hh"
@@ -21,8 +22,8 @@ using namespace E16ANA_LGConstant;
 
 TGraph* E16ANA_LGBasic::gtmpl = nullptr;
 int E16ANA_LGBasic::ngtmpl = E16DST_DST1Constant::kInvalidValue;
-double E16ANA_LGBasic::gtmplx[200] = {E16DST_DST1Constant::kInvalidValue};
-double E16ANA_LGBasic::gtmply[200] = {E16DST_DST1Constant::kInvalidValue};
+double E16ANA_LGBasic::gtmplx[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
+double E16ANA_LGBasic::gtmply[E16DST_Constant::NSamplesLG] = {E16DST_DST1Constant::kInvalidValue};
 double E16ANA_LGBasic::tmplwidth = E16DST_DST1Constant::kInvalidValue;
 
 E16ANA_LGBasic::E16ANA_LGBasic(){
@@ -169,7 +170,7 @@ void E16ANA_LGBasic::SetTemplate(){
   }
   ngtmpl = j;
 
-  gtmpl = new TGraph(110,&x[0],&y[0]);
+  gtmpl = new TGraph(ngtmpl,&x[0],&y[0]);
 
   for(int i=0;i<20;i++){
     int cell = peakx - i;

@@ -271,7 +271,7 @@ void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxev
   Long64_t nbytes = 0, nb = 0;
 
   int wfcount[8][42] = {0};
-  // double wf[8][42][nwfs][200] = {0.};
+  // double wf[8][42][nwfs][E16DST_Constant::NSamplesLG] = {0.};
   double**** wf = NULL;
   wf = (double****)malloc(8*sizeof(double));
   if(wf==NULL){std::cerr<<"err0"<<std::endl;return;}
@@ -282,7 +282,7 @@ void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxev
       wf[i][j] = (double**)malloc(nwfs*sizeof(double));
       if(wf[i][j]==NULL){std::cerr<<"err2 "<<i<<" "<<j<<std::endl;return;}
       for(int k=0;k<nwfs;k++){
-  	wf[i][j][k] = (double*)malloc(200*sizeof(double));
+  	wf[i][j][k] = (double*)malloc(E16DST_Constant::NSamplesLG*sizeof(double));
   	if(wf[i][j][k]==NULL){std::cerr<<"err3 "<<i<<" "<<j<<" "<<k<<std::endl;return;}
       }
     }
@@ -301,7 +301,7 @@ void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxev
     int ii = E16ANA_LGCheckHist::ModuleToIndex(Module);
     int ij = E16ANA_LGCheckHist::BlockToIndex(Block);
     if( wfcount[ii][ij]>=0 && wfcount[ii][ij]<nwfs ){
-      for(int cell=0;cell<200;cell++){
+      for(int cell=0;cell<E16DST_Constant::NSamplesLG;cell++){
     	wf[ii][ij][wfcount[ii][ij]][cell] = Waveform[cell];
       }
       wfcount[ii][ij]++;
@@ -328,8 +328,8 @@ void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxev
       if(gwf[i][j]==NULL){std::cerr<<"err2 "<<i<<" "<<j<<std::endl;return;}
     }
   }
-  double x[200];
-  for(int cell=0;cell<200;cell++){
+  double x[E16DST_Constant::NSamplesLG];
+  for(int cell=0;cell<E16DST_Constant::NSamplesLG;cell++){
     x[cell] = (double)cell;
   }
   TString pdfout = Form("%s",outfile);
@@ -347,7 +347,7 @@ void E16ANA_LGOnlineAnalyzer::CheckWaveform(int run_id, char* outfile, int maxev
   	auto spec = lgbasic.GetSpec(module,block);
   	int ip = spec->IP;
   	int drs4ch = spec->DRS4CH;
-  	gwf[i][j][k] = new TGraph(200,x,wf[i][j][k]);
+  	gwf[i][j][k] = new TGraph(E16DST_Constant::NSamplesLG,x,wf[i][j][k]);
   	gwf[i][j][k]->SetTitle(Form("%d-%d %d-%d",module,block,ip,drs4ch));
   	if(k==0){
   	  gwf[i][j][k]->SetMaximum(1400);
