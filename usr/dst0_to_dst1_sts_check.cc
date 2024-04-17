@@ -81,6 +81,8 @@ int main(int argc, char* argv[]) {
   std::vector<float> sts_gx;
   std::vector<float> sts_gy;
   std::vector<float> sts_gz;
+  std::vector<uint64_t> sts_geriTimestamp;
+  std::vector<uint16_t> sts_elink;
 
   auto clear_sts = [&](){
     sts_module.clear();
@@ -92,6 +94,8 @@ int main(int argc, char* argv[]) {
     sts_gx.clear();
     sts_gy.clear();
     sts_gz.clear();
+    sts_geriTimestamp.clear();
+    sts_elink.clear();
   };
   
   TString br_int16 = "/S";
@@ -118,10 +122,15 @@ int main(int argc, char* argv[]) {
   trgtree->Branch("sts_channel",&sts_channel);
   trgtree->Branch("sts_peakheight",&sts_peakheight);
   trgtree->Branch("sts_hittime",&sts_hittime);
+  trgtree->Branch("sts_elink",&sts_elink);
+  
   trgtree->Branch("sts_lx",&sts_lx);
   trgtree->Branch("sts_gx",&sts_gx);
   trgtree->Branch("sts_gy",&sts_gy);
   trgtree->Branch("sts_gz",&sts_gz);
+
+  trgtree->Branch("sts_geriTimestamp",&sts_geriTimestamp);
+
   std::cout << "branch? " << std::endl;
   uint16_t module, block;
   float peakheight, timing, baseline, baselinerms, integral, falltime, calibtiming, energydeposit, trg_lg_hit_t;
@@ -301,10 +310,12 @@ int main(int argc, char* argv[]) {
 	    sts_peakheight.push_back(hit1.PeakHeight());
 	    sts_hittime.push_back(hit1.Timing());
 	    sts_lx.push_back(hit1.LocalPos().X());
+	    sts_elink.push_back(hit1.Elink());
 	    TVector3 vec = hit1.GlobalPos();
 	    sts_gx.push_back(vec.X());
 	    sts_gy.push_back(vec.Y());
 	    sts_gz.push_back(vec.Z());
+	    sts_geriTimestamp.push_back(hit1.GeriTimestamp());
 	  }
 	}
 	trgtree->Fill();
