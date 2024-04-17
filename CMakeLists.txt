@@ -221,7 +221,6 @@ add_library(E16DST_DST1
 
 	src/E16DST_DST1TrackFactory.cc
 
-   src/STS/STSDST0util.cc
 )
 
 target_link_libraries(E16DST_DST1

@@ -28,9 +28,6 @@
 #include "E16ANA_LGCheckHist.hh"
 #include "E16DST_Constant.hh"
 
-#include "STS/STSDST0special.h"
-#include "STS/STSDST0util.h"
-
 using namespace std;
 // namespace  bpo = boost::program_options;
 
@@ -55,13 +52,6 @@ int main(int argc, char* argv[]) {
 
 
   TFile* sts_fin = new TFile(sts_root.c_str());
-  TTree* sts_tree_ptr = (TTree*) sts_fin->Get("tree");
-  STSDST0special sts_tree(sts_tree_ptr);
-  if (  sts_tree.fChain == 0 ) {
-    exit(1);
-  }
-  sts_tree.GetEntry(0);
-  std::cout << "STSDST0special test : " << sts_tree.systemTimestamp << std::endl;
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
