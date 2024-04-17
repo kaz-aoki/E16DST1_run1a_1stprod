@@ -142,6 +142,8 @@ add_library(E16ANA
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
+  src/STS/E16ANA_STSGeometry.cc
+  src/STS/E16ANA_STSGlobalGeometry.cc
 )
 
 target_link_libraries(E16ANA
@@ -205,6 +207,7 @@ add_library(E16DST_DST1
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
+  src/E16DST_DST1STSFactory.cc
   src/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1GTRFactory_ExOneGTR.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
@@ -217,11 +220,15 @@ add_library(E16DST_DST1
  # src/E16DST_DST1WireTrackFactorywoGTR300.cc
 
 	src/E16DST_DST1TrackFactory.cc
+
+   src/STS/STSDST0util.cc
 )
 
 target_link_libraries(E16DST_DST1
-  E16ANA
+	E16ANA
 	E16DST
+	-lMatrix
+	-lGeom
 )
 
 #_______________________________________________________________________________
