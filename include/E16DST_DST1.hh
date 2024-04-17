@@ -181,6 +181,7 @@ class E16DST_DST1SSDHit : public E16DST_DST1Hit {
   float peak_time;
 };
 
+
 class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
  public:
   E16DST_DST1SSDCluster()
@@ -230,6 +231,98 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double timing_fit;
   double chi2_ndf_fit;
 };
+
+class E16DST_DST1STSHit : public E16DST_DST1Hit {
+ public:
+  E16DST_DST1STSHit()
+      : peak_height(E16DST_DST1Constant::kInvalidValue),
+        hit_time(E16DST_DST1Constant::kInvalidValue),
+        peak_time(E16DST_DST1Constant::kInvalidValue) {}
+  ~E16DST_DST1STSHit() {}
+  void     SetInvalid() override {
+    SetBaseInvalid();
+    peak_height = E16DST_DST1Constant::kInvalidValue;
+    hit_time    = E16DST_DST1Constant::kInvalidValue;
+    peak_time   = E16DST_DST1Constant::kInvalidValue;
+  }
+  void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
+  void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
+  void     SetPeakTime(float _peak_time) { peak_time = _peak_time; }
+  float    PeakHeight() override { return peak_height; }
+  float    HitTime() { return hit_time; }
+  float    PeakTime() { return peak_time; }
+  double   LocalX();
+  TVector3 LocalPos(E16ANA_GeometryV2& geometry) { return TVector3();}
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry){return TVector3();}
+  TVector3 LocalPos();
+  TVector3 GlobalPos();
+  void SetLocalPos(const TVector3& pos) { lpos = pos; }
+  void SetGlobalPos(const TVector3& pos) { gpos = pos; }
+  int16_t  PN() { return pn; }
+  void     SetPN(int16_t _pn) { pn = _pn; }
+ private:
+  int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  float peak_height;
+  float hit_time;
+  float peak_time;
+  int16_t pn;
+  int16_t dataType;
+  TVector3 lpos;
+  TVector3 gpos;
+};
+
+class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
+ public:
+  E16DST_DST1STSCluster()
+      : center_of_gravity(E16DST_DST1Constant::kInvalidValue),
+        tdc_pos(E16DST_DST1Constant::kInvalidValue),
+        tan_incident_angle(E16DST_DST1Constant::kInvalidValue) {}
+  ~E16DST_DST1STSCluster() {}
+  void SetInvalid() override {
+    SetBaseInvalid();
+    center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
+    tdc_pos            = E16DST_DST1Constant::kInvalidValue;
+    tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+  }
+  void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
+  void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
+  void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
+  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
+  void     SetPeakSumFit(double _charge_sum_fit)  { charge_sum_fit = _charge_sum_fit; }
+  void     SetCogPosFit(double _center_of_gravity_fit)    { center_of_gravity_fit = _center_of_gravity_fit; }
+  void     SetChi2NdfFit(double _chi2_ndf_fit)    { chi2_ndf_fit = _chi2_ndf_fit; }
+  double   CogPos() { return center_of_gravity; }
+  double   TdcPos() { return tdc_pos; }
+  float    TanTheta() { return tan_incident_angle; }
+  double   CogPosFit() { return center_of_gravity_fit; }
+  double   TimingFit() { return  timing_fit;}
+  double   PeakSumFit() { return  charge_sum_fit;}
+  double   Chi2NdfFit() { return  chi2_ndf_fit;}
+  double   LocalX() { return center_of_gravity; };
+  double   LocalXFit() { return center_of_gravity_fit; };
+  TVector3 LocalPos() override;
+  TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  int      GetSize() override {}
+//  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
+  void     Print() override {
+    std::cout << "E16DST_DST1STSCluster : "
+              << "Num hit strips = " << NumHits() << ", Cluster charge = " << peak_sum
+              << ", Cog hit pos = " << center_of_gravity << " [mm], TDC hit pos = " << tdc_pos 
+              << " [mm]" << std::endl;
+  }
+ private:
+  int    ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+  double center_of_gravity; // mm
+  double tdc_pos;           // mm
+  float  tan_incident_angle;    // radian
+  double center_of_gravity_fit; // mm
+  double charge_sum_fit;
+  double timing_fit;
+  double chi2_ndf_fit;
+};
+
+
+
 
 class E16DST_DST1GTRHit : public E16DST_DST1Hit {
  public:
@@ -1806,6 +1899,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
  public:
   E16DST_DST1PhysicsRecord()
       : ssd(E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>(0, E16DST_DST1Constant::kSSD, 0, 0)),
+	sts(E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>(0, E16DST_DST1Constant::kSTS, 0, 0)),
         gtr(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>(0, E16DST_DST1Constant::kGTR, 0, 0)),
         hbd(E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>(0, E16DST_DST1Constant::kHBD, 0, 0)),
         lg(E16DST_DST1Detector<E16DST_DST1LGHit, E16DST_DST1LGCluster>(0, E16DST_DST1Constant::kLG, 0, 0)) {
@@ -1814,6 +1908,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   ~E16DST_DST1PhysicsRecord() {}
   void Clear() { 
     ssd.Clear();
+    sts.Clear();
     gtr.Clear();
     hbd.Clear();
     lg.Clear();
@@ -1821,6 +1916,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
     tracks.Clear();
   }
   E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster>& SSD()     { return ssd; }
+  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>& STS()     { return sts; }
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>& GTR()     { return gtr; }
   E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster>& HBD()     { return hbd; }
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()      { return lg; }
@@ -1828,6 +1924,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   E16DST_DST1Tracks&                                             Tracks()  { return tracks; }
   void UpdatePtrs() {
     ssd.UpdatePtrs();
+    sts.UpdatePtrs();
     gtr.UpdatePtrs();
     hbd.UpdatePtrs();
     lg.UpdatePtrs();
@@ -1838,6 +1935,7 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   int Read(std::fstream* fp);
  private:
   E16DST_DST1Detector<E16DST_DST1SSDHit, E16DST_DST1SSDCluster> ssd;
+  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster> sts;
   E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> gtr;
   E16DST_DST1Detector<E16DST_DST1HBDHit, E16DST_DST1HBDCluster> hbd;
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>  lg;
