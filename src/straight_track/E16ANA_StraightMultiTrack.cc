@@ -372,6 +372,8 @@ double E16ANA_StraightMultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bo
    minuit->SetFixedVariable(0, "V_X", vertex_fit.X() );
    minuit->SetFixedVariable(1, "V_Y", vertex_fit.Y() );
    minuit->SetFixedVariable(2, "V_Z", vertex_fit.Z() );
+//   printf("fit %f %f %f %f \n",vertex_fit.X(),vertex_fit.Y(),vertex_fit.Z(),chisq  );
+   
    for(int i=0; i<n_tracks; i++){
      minuit->SetFixedVariable(i*3+3, Form("Momentum%02d_X", i), atan2(momentum_fit[i].Z(),momentum_fit[i].X()) );
      minuit->SetFixedVariable(i*3+4, Form("Momentum%02d_Y", i), asin(momentum_fit[i].Y()) );

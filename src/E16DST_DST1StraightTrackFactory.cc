@@ -248,7 +248,6 @@ int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_Straig
   static int n_cands;
   static bool is_fill_param;
   track_candidates.Analyze();
-
 //  track_candidates.Print(3);
   
 //  for (auto& cand : track_candidates.TrackCandidates()) {
