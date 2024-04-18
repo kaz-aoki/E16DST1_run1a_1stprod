@@ -44,7 +44,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
         int mid = hit.ModuleID();
 		if(mid > 200) continue;
 		if(mid == 103) continue;
-	        int lid = hit.LayerID();
+	   int lid = hit.LayerID();
 		if(mid == 102 && lid == 1) continue;
 		if(mid == 102 && lid == 2) continue;
     	    int sid = hit.StripID();

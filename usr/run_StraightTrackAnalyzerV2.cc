@@ -34,10 +34,26 @@
 
 using namespace std;
 
+int GetRemovedLayerFromEnv(){
+	#ifdef REMOVE_SSD
+	return 0;
+	#elif REMOVE_GTR100
+	return 1;
+	#elif REMOVE_GTR200
+	return 2;
+	#elif REMOVE_GTR300
+	return 3;
+	#else 
+	return -1;
+	#endif
+
+}
+
+
 int main(int argc, char* argv[]){
-   if (argc != 6) {
+   if (argc != 5) {
       cerr << "Invalid argc: " << argc << endl;
-      cerr << "./bin [input_gtr.dst0] [output.dst1] [run_num] [max physics event (all: -1)] [ removed_layer (-1 = all, 0, ssd, 1,2,3 = gtr)]" << endl;
+      cerr << "./bin [input_gtr.dst0] [output.dst1] [run_num] [max physics event (all: -1)] " << endl;
       return 1;
     }
      auto dst0 = new E16DST_DST0();
@@ -52,7 +68,9 @@ int main(int argc, char* argv[]){
     auto c_outfile     = argv[2];
     auto run_id        = stoi(argv[3]);
     auto max_event     = stoi(argv[4]);
-    auto removed_layer = stoi(argv[5]);
+    int removed_layer = GetRemovedLayerFromEnv();
+	 std::cout << "removed layer is set as " << removed_layer << std::endl;
+    
 //for lg dst0
   //    return 1;
  
@@ -72,7 +90,8 @@ int main(int argc, char* argv[]){
   //run0d
     std::regex re_run("run(\\d+)");
     std::regex re_sink("sink(\\d+)");
-    std::regex re_dst("_(\\d+).dst0");
+//    std::regex re_dst("_(\\d+).dst0");
+    std::regex re_dst("_(\\d+).srs");
     std::smatch match_run;
     std::smatch match_sink;
     std::smatch match_dst;
@@ -91,7 +110,7 @@ int main(int argc, char* argv[]){
     std::cout << "run_num: " << run_num << std::endl;
     std::cout << "sink_id: " << sink_id << std::endl;
     std::cout << "smallest_id: " << smallest_id << std::endl;
-    string rem    = argv[5];
+    string rem    = to_string(removed_layer);
     string run = "g4run" + run_num + "exGTR" + rem;
     string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root     ";
 //    char* c_outfile = out_file_name.c_str();
@@ -116,9 +135,32 @@ int main(int argc, char* argv[]){
     E16ANA_GeometryV2::SetGlobalPointer(geometry);
   
     //E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
-    E16ANA_StraightMultiTrack fitter(geometry, 1);
-    E16ANA_StraightTrackCheckFile check_file(c_outfile, run_id);
   
+
+// targets info 
+	 E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
+	 targets.ReadInfoWithRunID(calib.CurrentRunID());
+	 targets.Print();
+	 std::vector<TVector3> targets_pos;
+	 targets_pos.clear();
+    if(targets.NoT() == 3 ){
+            targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
+     }
+     else if (targets.IsWire()){
+         targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
+         targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
+     }
+    else {
+      return -1;
+    }
+
+    E16ANA_StraightMultiTrack fitter(geometry, targets_pos,1 );
+    E16ANA_StraightTrackCheckFile check_file(c_outfile, run_id);
+
+
+
 //    auto record = new E16DST_DST1PhysicsRecord();
     E16DST_DST1PhysicsRecord record;
     int fflag = 0;
@@ -164,6 +206,7 @@ int main(int argc, char* argv[]){
 
 		if(removed_layer != 0){
 		   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+		   record.SSD().UpdatePtrs();
 		}
 		if(removed_layer == -1 || removed_layer == 0){
 		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
@@ -176,7 +219,6 @@ int main(int argc, char* argv[]){
 		   return -1;
 		}
 		record.GTR().UpdatePtrs();
-		record.SSD().UpdatePtrs();
 		
 //	LG 
 //		E16DST_DST1LGFactory(lg_hits0, &record.LG(), 2, geometry); // w/fit
@@ -186,7 +228,7 @@ int main(int argc, char* argv[]){
 
 // Track
 		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record);
-		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file);
+		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, targets_pos);
 
 
 

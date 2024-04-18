@@ -939,7 +939,9 @@ class E16ANA_StraightTrackCheckFile {
     for (int i = 0; i < 3; ++i) {
       gtr_peak_sum_threshold_x[i] = cands.GTRPeakSumThresholdX(i);
     }
-    gtr_peak_sum_threshold_y= cands.GTRPeakSumThresholdY();
+    for (int i = 0; i < 3; ++i) {
+      gtr_peak_sum_threshold_y[i] = cands.GTRPeakSumThresholdY(i);
+    }
     for (int i = 0; i < 2; ++i) {
       rough_fit_chi_square_threshold[i] = cands.RoughFitChiSquareThreshold(i);
     }
@@ -3437,7 +3439,7 @@ class E16ANA_StraightTrackCheckFile {
   int min_hits_in_x_cluster;
   double gtr_y_diff_threshold;
   double gtr_peak_sum_threshold_x[3];
-  double gtr_peak_sum_threshold_y;
+  double gtr_peak_sum_threshold_y[3];
   double rough_fit_chi_square_threshold[2];
   double rough_x_fit_coefficient_threhold[3];
   double rough_y_fit_coefficient_threhold[2];

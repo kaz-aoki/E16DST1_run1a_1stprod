@@ -261,7 +261,7 @@ class E16ANA_StraightTrackCandidate {
   std::vector<E16DST_DST1HBDCluster*>& ProjectedHBDClusters() { return hbd_clusters; }
   std::vector<E16DST_DST1LGHit*>& ProjectedLGHits() { return lg_hits; }
   std::vector<E16DST_DST1LGCluster*>& ProjectedLGClusters() { return lg_clusters; }
-  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag);
+  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag, bool isWire);
   void Print() {
     if (chisq >= 1.0e10 || minimize_status == 0) {
       return;
@@ -382,7 +382,7 @@ class E16ANA_StraightTrackCandidate {
   static TVector3 CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1);
   bool CalcRoughMomentum();
   bool CalcRoughMomentumV2();
-  void AddTrackHit(E16ANA_StraightMultiTrack* single_track);
+  void AddTrackHit(E16ANA_StraightMultiTrack* single_track, bool isWire);
   void Projection(E16ANA_StraightMultiTrack* fitter);
   void UpdateFitResult(E16ANA_StraightMultiTrack* fitter);
   E16ANA_GeometryV2* geometry;
@@ -496,11 +496,20 @@ class E16ANA_StraightTrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
+  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, std::vector<TVector3>&_tgt_pos)
     : geometry(_geometry),fitter(_fitter),
       is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false),
       record(_record) {
     track_candidates.clear();
+	 n_targets = _tgt_pos.size();
+	 if(n_targets == 2) {isWire = true;}
+	 else if(n_targets == 3) {isWire = false;}
+	 else  {std::cerr << "number of targets seems incorrect " << std::endl;std::exit(0);}
+
+    targets_pos.resize(_tgt_pos.size());
+    for(int i=0; i < _tgt_pos.size(); i++){
+        targets_pos[i] = _tgt_pos[i];
+      }
   }
 
   ~E16ANA_StraightTrackCandidates() {}
@@ -523,7 +532,7 @@ class E16ANA_StraightTrackCandidates {
   int MinHitsInXCluster();
   double GTRYDiffThreshold();
   double GTRPeakSumThresholdX(int n);
-  double GTRPeakSumThresholdY();
+  double GTRPeakSumThresholdY(int n);
   double RoughFitChiSquareThreshold(int n);
   double RoughXFitCoefficientThreshold(int n);
   double RoughYFitCoefficientThreshold(int n);
@@ -654,6 +663,9 @@ class E16ANA_StraightTrackCandidates {
       sy  += y[i] * wt ;
       sx2 += x[i] *x[i] * wt ;
       sxy += y[i] *x[i] * wt ;
+
+//		std::cout << "wt " << wt << ", " << sx2 <<", " << sxy << std::endl;
+
     }
     a = (sx*sxy-sx2*sy)/(sx*sx-ss*sx2);
     b = (sx*sy-ss*sxy)/(sx*sx-ss*sx2);
@@ -701,8 +713,8 @@ class E16ANA_StraightTrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set,int ssdm);
-  static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
+   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set,int ssdm);
+   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
 //    if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
@@ -740,6 +752,13 @@ class E16ANA_StraightTrackCandidates {
   std::vector<E16ANA_StraightTrackCandidate*> selected_track_candidates;
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
+
+  bool isWire;
+	int n_targets;
+	std::vector<TVector3> targets_pos;
+
+
+
 };
 
 #endif // E16ANA_STRAIGHTTRACKCANDIDATE_HH
