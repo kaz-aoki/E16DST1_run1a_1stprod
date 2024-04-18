@@ -73,21 +73,7 @@ int main(int argc, char* argv[]){
     
 //for lg dst0
   //    return 1;
- 
-  //run0c
-  //  int sink_id_pos = in_file_name.length() - 10;
-  //  string sink_id = in_file_name.substr(sink_id_pos, 1);
-  //  std::cout << "sink id = " << sink_id << std::endl;
-  //  int smallest_id_pos = in_file_name.length()-8;
-  //  string smallest_id = in_file_name.substr(smallest_id_pos, 3);
-  //  std::cout << "smallest  id = " << smallest_id << std::endl;
-  //  string runnum = argv[3];
-  //  string rem    = argv[5];
-  //  string run = "g4run0" + runnum + "exGTR" + rem;
-  //  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".ro     ot";
-  //  const char* c_out = outputfile.c_str();
- 
-  //run0d
+
     std::regex re_run("run(\\d+)");
     std::regex re_sink("sink(\\d+)");
 //    std::regex re_dst("_(\\d+).dst0");
@@ -129,6 +115,25 @@ int main(int argc, char* argv[]){
   
     E16ANA_TriggerCalibParam trigger_param;
     trigger_param.ReadConstantData(calib.CurrentRunID());
+
+//targets info
+	 E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
+	 targets.ReadInfoWithRunID(calib.CurrentRunID());
+	 targets.Print();
+	 std::vector<TVector3> targets_pos;
+	 targets_pos.clear();
+    if(targets.NoT() == 3 ){
+            targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
+     }
+     else if (targets.IsWire()){
+         targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
+         targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
+     }
+    else {
+      return -1;
+    }
   
     auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
     cout<< static_cast<std::string>(GeometryFile)<<endl;
@@ -167,21 +172,28 @@ int main(int argc, char* argv[]){
     int n_event = 0;
     int n_physics_event = 0;
     while (dst0->ReadAnEvent()) {
-    	if (max_event != -1 &&  n_physics_event > max_event) {
-       		break;
-      	}
-      if (n_event % 1000 == 0) {
-        cout << "Number of event: " << n_event << endl;
-      }
+ 		
       auto event_type = dst0->EventType();
       if (event_type != E16DST_DST0EventType::Physics) {
       	std::cout << "Event ID = " << dst0->Event()->EventID() << " is not Physics Event, Event Type = " << event_type << std::endl;
 			continue;
 		}
-
+		if (n_physics_event < event_start) {
+			++n_event;
+			++n_physics_event;
+			continue;
+		}
+		if(event_end != -1 && n_physics_event > event_end){
+			break;
+		}
+      if (n_event % print_cycle == 0) {
+        cout << "Number of event: " << n_event << endl;
+      }
+		record.Clear();
         //printf("hello0 \n");
 		auto  event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 		auto  event_id = event0->EventID();
+//		std::cout << "Event id  = " << event_id << std::endl;
 		auto& ssd_hits0         = event0->SSD();
 		auto& gtr_hits0         = event0->GTR();
 //		auto& lg_hits0          = event0->LG();

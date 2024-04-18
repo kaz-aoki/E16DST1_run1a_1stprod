@@ -6,6 +6,7 @@
 #include "E16ANA_CalibDBManager.hh"
 #include "E16ANA_GTRcalib.hh"
 #include "E16ANA_StraightTrackNameSpace.hh"
+#include "E16DST_DST1Constant.hh"
 
 ////double E16ANA_GTRLocalX(double lorentz_angle_calib_param, int layer_id, int type, int channel_id) {
 //  double strip_pitch;
@@ -35,7 +36,8 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;
 	int n_fake_cl_x = 20 * removed_layer;
-	int n_fake_cl_y = 10 * removed_layer;
+//	int n_fake_cl_y = 10 * removed_layer;
+	int n_fake_cl_y = 1 ;
 	static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
 		E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
@@ -49,6 +51,9 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
                 for(int strip_id = 0; strip_id < n_strips; strip_id++){
                     double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
                     double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
+						  if(lid == removed_layer){
+								sigma = sigma * 0.2;//231118 modified
+						  }
                     analyzer->SetPedestal(strip_id, ped);
                     analyzer->SetPedestalSigma(strip_id, sigma);
                 }
@@ -70,8 +75,8 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
     }
     for(auto &a : gtr_analyzers->analyzer_map){
-        a.second->AnalyzeV0();
-        //a.second->AnalyzeV1();
+//        a.second->AnalyzeV0();
+        a.second->AnalyzeV1();
     }
 
     int dst1_clusters_size = 0;
@@ -97,11 +102,14 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     }
     dst1_hits.resize(dst1_hits_size);
     //dst1_clusters.resize(dst1_clusters_size);
-    if(removed_layer == 1){
-    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y * 2)*6);
+    if(removed_layer == 1 ){
+//    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y * 2)*6);//6 module
+    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y * 2)*E16DST_DST1Constant::n_gtr_modules);//6 module
+//    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y ) *E16DST_DST1Constant::n_gtr_modules);//
 	}
 	else {
-    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*6);
+//    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*6);//6 modules
+    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)  *E16DST_DST1Constant::n_gtr_modules);//
 	}
     //dst1_clusters.resize(dst1_clusters_size+61);
     int cl_id = 0;// cluster id 
@@ -144,10 +152,10 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
                         h.SetLocalX(E16ANA_StraightTrackNameSpace::E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
 						std::vector<float> fadc;
             //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
-						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
-							fadc.push_back((anahit.StripFadc(j))[k]);
-			//				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
-                        }
+//						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
+//							fadc.push_back((anahit.StripFadc(j))[k]);
+//			//				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
+//                        }
 						h.SetWaveForm(fadc);
 						fadc.clear();
 
@@ -196,8 +204,8 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 
 		    int nhit = anahit.NumCls();
 		    for(int i=0;i<nhit;i++){
-        //              cl.SetCTiming(anahit.CTiming(i));
-          //            cl.SetCPos(anahit.CPos(i));
+                      cl.SetCTiming(anahit.CTiming(i));
+                      cl.SetCPos(anahit.CPos(i));
 		    }
 		    //printf("%d th, %d , mid:%d, lay:%d, nhit:%d, nhit2:%d,cog:%f, tdc:%f, theta:%f, time1:%f, time2:%f \n",i,t,mid,lid,
 		    //	   anahit.NumHit(),nhit,anahit.CogHit(),anahit.TdcHit(),anahit.TanTheta(),anahit.Timing(),anahit.Timing2());
@@ -214,17 +222,18 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     thit_orders.push_back(0);thit_orders.push_back(1);thit_orders.push_back(2);
     for(int mid=102; mid < 109 ; mid++){
 		if(mid == 105) continue;
+//		if(mid != 106) continue;
     	for(int k=0; k < n_fake_cl_x ; k++){
 			E16DST_DST1GTRCluster &cl = dst1_clusters[cl_id];
 			double lx = -1 * (48*removed_layer) +5*k;
 			cl.SetInvalid();
 			cl.SetModuleId(mid);
 			cl.SetLayerId(removed_layer - 1);
-			cl.SetHitOrders(thit_orders);
+			cl.SetHitOrders(thit_orders);//clustersize3
 			cl.SetType(0);
 			cl.SetMaxPeakCh(1);
 			cl.SetMaxPeakHeight(99999);
-			cl.SetTiming(820);
+			cl.SetTiming(320);
 			cl.SetPeakSum(99999);//cluster charge
 			cl.SetCogPos(lx);
 			cl.SetTiming2(820);
@@ -237,7 +246,8 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 
 	    for(int k=0; k < n_fake_cl_y ; k++){
 			E16DST_DST1GTRCluster &cl = dst1_clusters[cl_id];
-			double lx =  -1 * (48 * removed_layer) +10*k;
+//			double lx =  -1 * (48 * removed_layer) +10*k;
+			double lx = 0;
 			cl.SetInvalid();
 			cl.SetModuleId(mid);
 			cl.SetLayerId(removed_layer - 1);
@@ -245,10 +255,10 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 			cl.SetType(1);
 			cl.SetMaxPeakCh(1);
 			cl.SetMaxPeakHeight(99999);
-			cl.SetTiming(820);
+			cl.SetTiming(320);
 			cl.SetPeakSum(99999);//cluster charge
 			cl.SetCogPos(lx);
-			cl.SetTiming2(820);
+			cl.SetTiming2(320);
 			cl.SetTanTheta(0);
 			cl.SetTdcPos(lx);
 			cl.SetTdcPos2(lx);
@@ -260,7 +270,8 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 		if(removed_layer ==1){
   		for(int k=0; k < n_fake_cl_y ; k++){
 			E16DST_DST1GTRCluster &cl = dst1_clusters[cl_id];
-			double lx =  -1 * (48 * removed_layer) +10*k;
+//			double lx =  -1 * (48 * removed_layer) +10*k;
+			double lx =  0;
 			cl.SetInvalid();
 			cl.SetModuleId(mid);
 			cl.SetLayerId(removed_layer - 1);
@@ -268,10 +279,10 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 			cl.SetType(2);
 			cl.SetMaxPeakCh(1);
 			cl.SetMaxPeakHeight(99999);
-			cl.SetTiming(820);
+			cl.SetTiming(320);
 			cl.SetPeakSum(99999);//cluster charge
 			cl.SetCogPos(lx);
-			cl.SetTiming2(820);
+			cl.SetTiming2(320);
 			cl.SetTanTheta(0);
 			cl.SetTdcPos(lx);
 			cl.SetTdcPos2(lx);
@@ -281,6 +292,8 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 		}
     }
     
-    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*6);
+//    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y));//
+    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*E16DST_DST1Constant::n_gtr_modules);//
+//    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y));
     //return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size);
 }

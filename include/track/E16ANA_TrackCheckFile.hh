@@ -927,8 +927,8 @@ class E16ANA_TrackCheckFile {
     gtr_y_diff_threshold = cands.GTRYDiffThreshold();
     for (int i = 0; i < 3; ++i) {
       gtr_peak_sum_threshold_x[i] = cands.GTRPeakSumThresholdX(i);
+    gtr_peak_sum_threshold_y= cands.GTRPeakSumThresholdY(i);
     }
-    gtr_peak_sum_threshold_y= cands.GTRPeakSumThresholdY();
     for (int i = 0; i < 2; ++i) {
       rough_fit_chi_square_threshold[i] = cands.RoughFitChiSquareThreshold(i);
     }
@@ -3006,7 +3006,7 @@ class E16ANA_TrackCheckFile {
         rk_proj_lg_x[i][j]      = lglpos.X();
         rk_proj_lg_y[i][j]      = lglpos.Y();
         rk_proj_lg_adc[i][j]    = lghit->FitPeak();
-        rk_proj_lg_t[i][j]      = lghit->Timing();
+        rk_proj_lg_t[i][j]      = lghit->FitTiming();
         rk_proj_lg_npeaks[i][j] = lghit->Npeaks();
         rk_proj_lg_fflag[i][j]  = lghit->FitFlag();
       }

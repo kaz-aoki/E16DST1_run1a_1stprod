@@ -86,7 +86,7 @@ enum { // total
 
 const std::array<std::string, kNumDetectorLayers> kDetectorName = {"SSD", "GTR100", "GTR200", "GTR300", "HBD", "LG c-type", "LG b-type", "LG a-type"};
 
-constexpr int kNumTrackingLayers = 4;
+constexpr int kNumTrackingLayers = 4;//DONOT Change 
 //constexpr int kNumTrackingLayers = 3;
 //constexpr int kNumDetectorLayers = 6;
 constexpr int kNumLGLayers = 3;

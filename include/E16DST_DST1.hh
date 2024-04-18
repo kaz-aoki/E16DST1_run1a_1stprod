@@ -459,16 +459,20 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 
   double LocalX() {
     if (IsX()) {
-//      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-      return center_of_gravity;
+      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//231115 temp respect for Wang
+//      return center_of_gravity;
     } else {
       return center_of_gravity;
     }
   }
   double LocalXT() {
     if (IsX()) {
-//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-      return tdchit;
+//		std::cout << "tdc hit = " << tdchit << std::endl;
+//		std::cout << "lorent  = " <<  E16DST_DST1Constant::kGTRLorentzAngle[layer_id]<< std::endl;
+//      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//23115 temp
+      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return tdchit;
     } else {
       return tdchit;
     }
@@ -962,6 +966,12 @@ class E16DST_DST1Trigger {
   ~E16DST_DST1Trigger() {}
   void Clear() {
     valid_flag = E16DST_DST1Constant::kInvalidValue;
+    for (auto& ptrs : hit_ptrs) {
+      ptrs.clear();
+    }
+    for (auto& ptrs : cluster_ptrs) {
+      ptrs.clear();
+    }
     gtr_hits.clear();
     gtr_clusters.clear();
     hbd_hits.clear();
@@ -1820,6 +1830,14 @@ class E16DST_DST1PhysicsRecord : public E16DST_DST1PhysicsHeader {
   E16DST_DST1Detector<E16DST_DST1LGHit,  E16DST_DST1LGCluster>&  LG()      { return lg; }
   E16DST_DST1Trigger&                                            Trigger() { return trigger; }
   E16DST_DST1Tracks&                                             Tracks()  { return tracks; }
+  void UpdatePtrs() {
+    ssd.UpdatePtrs();
+    gtr.UpdatePtrs();
+    hbd.UpdatePtrs();
+    lg.UpdatePtrs();
+    trigger.UpdatePtrs();
+    return;
+  }
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
  private:

@@ -1,0 +1,516 @@
+#include "E16ANA_LGProjection.hh"
+#include "E16ANA_GeometryV2.hh"
+#include "E16ANA_TrackAnalyzerFromTreeV2.hh"
+#include "E16DST_DST1DefaultFilePath.hh"
+#include <TH1.h>
+#include <TLegend.h>
+#include <TGraph.h>
+#include <TVector3.h>
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+
+E16ANA_LGProjection::E16ANA_LGProjection(){
+
+  geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
+  E16ANA_GeometryV2::SetGlobalPointer(geometry);
+  bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+  bfield_map->Initialize_binary();
+  E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+
+  fitter = new E16ANA_MultiTrack(bfield_map, geometry, 1);
+  fitter->SetRungeKuttaStepSize(kStepSize);
+  fitter->SetMaxSteps(kMaxSteps);
+
+  ClearInitInfo();
+  ClearCrossInfo();
+
+}
+E16ANA_LGProjection::E16ANA_LGProjection(E16ANA_GeometryV2* in_geometry, E16ANA_MagneticFieldMap3D* in_bfield_map, E16ANA_MultiTrack* in_fitter)
+  : geometry(in_geometry), bfield_map(in_bfield_map), fitter(in_fitter)
+{
+
+  ClearInitInfo();
+  ClearCrossInfo();
+
+}
+E16ANA_LGProjection::~E16ANA_LGProjection(){
+  delete geometry;
+  delete bfield_map;
+  delete fitter;
+}
+
+bool E16ANA_LGProjection::IsInAcceptance(int j, TVector3& v, int& out_block_y){
+  if( fabs(v.Y()) > yregion_in[j] && fabs(v.Y()) < yregion_out[j] ){
+    if( fabs(v.X()) < xregion[j] ){
+      if( v.Y()>0 ){
+	out_block_y = j+3;
+      }
+      else{
+	out_block_y = 2-j;
+      }
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  else{
+    return false;
+  }
+}
+
+void E16ANA_LGProjection::LposToBlock(int in_module2013, int in_block_y, TVector3& in_v, int& out_block_x, TVector3& out_v){
+
+  double lxtmp = 10000.;
+  if( in_block_y>=0 && in_block_y<=5 ){
+    int xmax = 6;
+    if( in_block_y==2 || in_block_y==3 ){
+      xmax = 7;
+    }
+    for(int i=0;i<xmax;i++){
+      int blocktmp = in_block_y*10+i;
+      TVector3 v0 = geometry->LGVD(in_module2013)->GetGPos(in_v);
+      TVector3 v1 = geometry->LG(in_module2013, blocktmp)->GetLPos(v0);
+      if( fabs(v1.X()) < fabs(lxtmp) ){
+	lxtmp = v1.X();
+	out_v = v1;
+	out_block_x = i;
+      }
+    }
+  }
+
+}
+
+void E16ANA_LGProjection::ClearInitInfo(){
+  initpos.SetXYZ(-10000.,-10000.,-10000.);
+  initdir.SetXYZ(-10000.,-10000.,-10000.);
+  initvtx.SetXYZ(-10000.,-10000.,-10000.);
+  initmom.SetXYZ(-10000.,-10000.,-10000.);
+  initcharge = -10000.;
+}
+
+void E16ANA_LGProjection::ClearCrossInfo(){
+  module = -10000;
+  module2013 = -10000;
+  is_crossed = false;
+  lcross0.SetXYZ(-10000.,-10000.,-10000.);
+  lcross1.SetXYZ(-10000.,-10000.,-10000.);
+  lcross2.SetXYZ(-10000.,-10000.,-10000.);
+  lcross3.SetXYZ(-10000.,-10000.,-10000.);
+  plane = -10000;
+  block_x = -10000;
+  block_y = -10000;
+  block = -10000;
+  angle_x = -10000.;
+  angle_y = -10000.;
+  gcross1.SetXYZ(-10000.,-10000.,-10000.);
+  lmom1.SetXYZ(-10000.,-10000.,-10000.);
+  gmom1.SetXYZ(-10000.,-10000.,-10000.);
+  gpos.SetXYZ(-10000.,-10000.,-10000.);
+  trgGTR    = false;
+  trgGTRmid = -10000;
+  trgGTRcid = -10000;
+  GTRlcross.SetXYZ(-10000.,-10000.,-10000.);
+  trgHBD    = false;
+  trgHBDmid = -10000;
+  trgHBDcid = -10000;
+  HBDlcross.SetXYZ(-10000.,-10000.,-10000.);
+  offlineSSD       = false;
+  offlineGTR100    = false;
+  offlineGTR200    = false;
+}
+
+void E16ANA_LGProjection::SetInitInfo(TVector3& _initpos, TVector3& _initdir){
+  initpos = _initpos;
+  initdir = _initdir;
+  double norm = 1./initdir.Mag();
+  initdir = initdir*norm;
+  ClearCrossInfo();
+}
+
+bool E16ANA_LGProjection::CalcCrossModule(){
+
+  TVector3 p0 = initpos;
+  TVector3 p1 = initpos + initdir*2000;
+
+  double tdist = 10000.;
+  for(int i=0;i<9;i++){
+    int tmid = i+101;
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(tmid);//HBD, LG
+    auto lg_geom = geometry->LGVD(mid2013);
+    TVector3 tlcross;
+    bool tis_crossed = lg_geom->IsCrossed(p0,p1,tlcross);
+    if( tis_crossed && tlcross.Mag()<tdist ){
+      module = tmid;
+      module2013 = mid2013;
+      is_crossed = true;
+      lcross0 = tlcross;
+      tdist = tlcross.Mag();
+    }
+  }
+  if(module==105){
+    is_crossed = false;
+  }
+  // std::cout<<module<<" "<<is_crossed<<" "<<lcross0.Mag()<<std::endl;
+
+  return is_crossed;
+}
+
+bool E16ANA_LGProjection::CalcCrossPlane(){
+
+  TVector3 p0 = initpos;
+  TVector3 p1 = initpos + initdir*2000;
+
+  for(int i=0;i<3;i++){
+    int j = 2-i;
+    TVector3 v0;
+    bool tis_crossed = geometry->LG(module2013,planeblock[j])->IsCrossed(p0,p1,v0);
+    TVector3 v1 = geometry->LG(module2013, planeblock[j])->GetGPos(v0);
+    TVector3 v2 = geometry->LGVD(module2013)->GetLPos(v1);
+    int out_block_y;
+    if( IsInAcceptance(j,v2,out_block_y) ){
+      plane = j;
+      lcross1 = v2;
+      block_y = out_block_y;
+      break;
+    }
+    if( i==2 ){
+      is_crossed = false;
+      return is_crossed;
+    }
+  }
+
+  return is_crossed;
+
+}
+
+void E16ANA_LGProjection::SetInitInfo(TVector3& _initvtx, TVector3& _initmom, double _initcharge){
+  initvtx = _initvtx;
+  initmom = _initmom;
+  initcharge = _initcharge;
+  ClearCrossInfo();
+}
+
+void E16ANA_LGProjection::CalcCrossPos(){
+
+  int min_n_steps = kMaxSteps + 1;
+  for (int i=0; i<3; i++) {
+    int j = 2-i;
+    int mmin = 101;
+    int mmax = 109;
+    if(i!=0&&module!=-10000){
+      mmin = module-1;
+      mmax = module+1;
+    }
+    for (int m=mmin; m<=mmax; m++) {
+      if ( m==105 || m<101 || m>109 ) {
+	continue;
+      }
+      auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(m);
+      auto tmp_geom = geometry->LG(mid2013, planeblock[j]);
+      fitter->Clear();
+      TVector3 O(0., 0., 0.);
+      fitter->AddHit(0, 0, tmp_geom, O, O);
+      fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+      std::vector<int> mids;
+      std::vector<TVector3> lposs;
+      std::vector<TVector3> lmoms;
+      fitter->GetFitLPos(0, 0, mids, lposs);
+      fitter->GetFitLMom(0, 0, mids, lmoms);
+      auto tmp_gpos = tmp_geom->GetGPos(lposs[0]);
+      auto tmp_lpos = geometry->LGVD(mid2013)->GetLPos(tmp_gpos);//only X&Y
+      auto tmp_gmom = tmp_geom->GetGMom(lmoms[0]);
+      int out_block_y;
+      if( !IsInAcceptance(j, tmp_lpos, out_block_y) ){
+	continue;
+      }
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	min_n_steps = n_steps;
+	module      = m;
+	module2013  = mid2013;
+	is_crossed  = true;
+	plane       = j;
+	block_y     = out_block_y;
+	lcross1     = tmp_lpos;
+	gcross1     = tmp_gpos;
+	lmom1       = lmoms[0];
+	gmom1       = tmp_gmom;
+      }
+    }
+  }
+
+}
+
+void E16ANA_LGProjection::CalcCrossBlock(){
+  int out_block_x = -10000;
+  TVector3 out_v(-10000.,-10000.,-10000.);
+  LposToBlock(module2013, block_y, lcross1, out_block_x, out_v);
+  lcross2 = out_v;
+  block_x = out_block_x;
+  block = block_y*10+block_x;
+}
+
+void E16ANA_LGProjection::CalcCrossAngle(){
+
+  angle_x = atan( lmom1.X() / lmom1.Z() );
+  if(block_y>=3){
+    angle_y = atan( lmom1.Y() / lmom1.Z() ) - pmtangle[plane];
+  }
+  else{
+    angle_y = -atan( lmom1.Y() / lmom1.Z() ) - pmtangle[plane];
+  }
+
+}
+
+TVector2 RYPlaneCrossPoint(TVector2& a, TVector2& b, TVector2& p){
+
+  double s = p.Y()/p.X();
+  double q = (b.Y()-a.Y())/(b.X()-a.X());
+  double cr_r = (a.Y()-q*a.X())/(s-q);
+  TVector2 cr(cr_r,s*cr_r);
+  return cr;
+}
+
+bool E16ANA_LGProjection::CalcCrossBlockForCalib(){
+
+  // local-x info and local-y info are needed for calibration of position dependence.
+
+  // local-y: calc distance between a projection-point and a pmt-plane
+  // consider grobal R-Y plane
+  // including approximation as target pos ~ O
+  TVector2 pos_pmt( pos_pmt_r[block_y], pos_pmt_y[block_y] );
+  TVector2 pos_cut( pos_cut_r[block_y], pos_cut_y[block_y] );
+  TVector2 pos_proj( plane_r[block_y], lcross1.Y() );
+  TVector2 cs = RYPlaneCrossPoint(pos_pmt,pos_cut,pos_proj);
+  TVector2 vec_y = cs - pos_pmt;
+  double lcross3_y = vec_y.Mod();
+
+  calib_is_valid = true;
+  if( lcross3_y<10. ){
+    calib_is_valid = false;
+  }
+
+  // local-x: calc distance between a track and a CENTER OF SOLID BLOCK.
+  // consider local X-Z plane
+  double lcross3_x = lcross2.X() + 135./2.*tan(angle_x);
+  lcross3_x = lcross3_x*cos(angle_x);
+  lcross3_x = (-angle_x/fabs(angle_x))*lcross3_x;
+  lcross3_x = lcross3_x/cos(angle_x);
+
+  lcross3.SetXYZ(lcross3_x, lcross3_y, 0.);
+
+  return calib_is_valid;
+}
+
+bool E16ANA_LGProjection::CalcCrossInfo(){
+  if( fabs(initmom.Y())/sqrt(initmom.X()*initmom.X()+initmom.Z()*initmom.Z())>0.35 ){
+    return false;
+  }
+  CalcCrossPos();
+  if( !is_crossed ){
+    return false;
+  }
+  CalcCrossBlock();
+  CalcCrossAngle();
+  if( !CalcCrossBlockForCalib() ){
+    return false;
+  }
+  gpos = geometry->LG(module2013, block)->GetDetectorCenter();
+
+  CalcCrossGTRTrigger();
+  CalcCrossHBDTrigger();
+  CalcCrossOfflineDetector();
+
+  return true;
+}
+
+bool E16ANA_LGProjection::CalcCrossInfoStraight(){
+  if( !CalcCrossModule() ){
+    return false;
+  }
+  if( !CalcCrossPlane() ){
+    return false;
+  }
+  CalcCrossBlock();
+  TVector3 v0 = geometry->LG(module2013, block)->GetDetectorCenter();
+  TVector3 v1 = geometry->LG(module2013, block)->GetLPos(v0+initdir);
+  lmom1 = v1;
+  CalcCrossAngle();
+  if( !CalcCrossBlockForCalib() ){
+    return false;
+  }
+  gpos = geometry->LG(module2013, block)->GetDetectorCenter();
+
+  return true;
+}
+
+double E16ANA_LGProjection::CalibFunction(){
+
+  TF1 *fc = new TF1("fc","[0]+ ( -39.56E-4*x*x + 41.71E-6*fabs(x)*x*x + 1E-8*x*x*x*x )*[1]",-65.,65.);
+  fc->FixParameter(0,1.857 -1.143*lcross3.Y()*0.01);
+  fc->FixParameter(1,0.2755-0.334*lcross3.Y()*0.01);
+
+  if( !calib_is_valid ){
+    delete fc;
+    return -0.0001;
+  }
+  else if( lcross3.Y()<75. ){
+    double ret = fc->Eval( lcross3.X() );
+    delete fc;
+    return ret;
+  }
+  else{
+    delete fc;
+    return 1.;
+  }
+}
+double E16ANA_LGProjection::CalibParameter(){
+  return 1./CalibFunction();
+}
+
+void E16ANA_LGProjection::CalcCrossGTRTrigger(){
+
+  if( module<101 && module>109 ) {return;}
+
+  int min_n_steps = kMaxSteps + 1;
+  double lx = -10000;
+  double ly = -10000;
+  for (int m = module-2; m <= module+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->GTR(mid2013, 2);//GTR300
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<150. && fabs(lposs[0].Y())<150. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+    	trgGTRmid = m;
+	trgGTR = true;
+	lx = lposs[0].X();
+	ly = lposs[0].Y();
+      }
+    }
+  }
+  if(ly!=-10000){
+    double cid = (ly+150.)/300.*24.;
+    trgGTRcid = (int)cid;
+    GTRlcross.SetXYZ(lx,ly,0.);
+  }
+}
+void E16ANA_LGProjection::CalcCrossHBDTrigger(){
+
+  if( module<101 && module>109 ) {return;}
+
+  int min_n_steps = kMaxSteps + 1;
+  double lx = -10000;
+  double ly = -10000;
+  for (int m = module-1; m <= module+1; ++m) {
+    if ( m==105 || m<101 || m>109 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013_27(m);
+    auto tmp_geom = geometry->HBD(mid2013);
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<300. && fabs(lposs[0].Y())<300. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+    	trgHBDmid = m;
+	trgHBD = true;
+	lx = lposs[0].X();
+	ly = lposs[0].Y();
+      }
+    }
+  }
+  if(lx!=-10000&&ly!=-10000){
+    double cidx = (lx+300.)/600.*6.;
+    double cidy = (ly+300.)/600.*6.;
+    trgHBDcid = (int)cidx+(int)cidy*10;
+    HBDlcross.SetXYZ(lx,ly,0.);
+  }
+}
+void E16ANA_LGProjection::CalcCrossOfflineDetector(){
+
+  if( module<101 && module>109 ) {return;}
+
+  //SSD
+  int min_n_steps = kMaxSteps + 1;
+  for (int m = trgGTRmid-2; m <= trgGTRmid+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->SSD(mid2013);//SSD
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<30. && fabs(lposs[0].Y())<30. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	offlineSSD = true;
+      }
+    }
+  }
+  //GTR100
+  min_n_steps = kMaxSteps + 1;
+  for (int m = trgGTRmid-2; m <= trgGTRmid+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->GTR(mid2013, 0);//GTR100
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<50. && fabs(lposs[0].Y())<50. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	offlineGTR100 = true;
+      }
+    }
+  }
+  //GTR200
+  min_n_steps = kMaxSteps + 1;
+  for (int m = trgGTRmid-2; m <= trgGTRmid+2; ++m) {
+    if ( m==105 || m<100 || m>110 ) {
+      continue;
+    }
+    auto mid2013 = E16ANA_TrackConstant::ModuleID2020To2013(m);
+    auto tmp_geom = geometry->GTR(mid2013, 1);//GTR200
+    fitter->Clear();
+    TVector3 O(0., 0., 0.);
+    fitter->AddHit(0, 0, tmp_geom, O, O);
+    fitter->RungeKuttaTracking(0, initvtx, initmom, initcharge);
+    std::vector<int> mids;
+    std::vector<TVector3> lposs;
+    fitter->GetFitLPos(0, 0, mids, lposs);
+    if( fabs(lposs[0].X())<100. && fabs(lposs[0].Y())<100. ){
+      auto n_steps = fitter->GetTrackSteps( 0 ).size();
+      if (n_steps < min_n_steps) {
+	offlineGTR200 = true;
+      }
+    }
+  }
+}

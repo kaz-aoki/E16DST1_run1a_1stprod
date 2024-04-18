@@ -28,6 +28,8 @@
 #include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
 
+#define LGWFHit // <=> LGTrgHit
+
 double MomtoLGPieff1(double trk_mom){
   if(trk_mom<0.4){
     return 0.054;
@@ -914,6 +916,7 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
 	out_track_lg_allhit_adc.push_back(vector<double>());
 	out_track_lg_allhit_trgt.push_back(vector<double>());
 	int nlgh = 0;
+#ifdef LGWFHit
 	for(int ilg=0;ilg<n_lg_hits;ilg++){
 	  if ( runoption==3 && lgise==2 && (lg_hit_adc->at(ilg)<20||lg_hit_adc->at(ilg)>50) ) continue;
 	  if(  lg_hit_mid->at(ilg) == trk_lg_mid && lg_hit_fflag->at(ilg)!=2 ){
@@ -926,6 +929,19 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
 	    double trgt_tmp=-10000;
 	    for(int itlg=0;itlg<n_trg_tracks;itlg++){
 	      if(trg_track_lg_mid->at(itlg)!=lg_hit_mid->at(ilg)||trg_track_lg_cid->at(itlg)!=lg_hit_cid->at(ilg)) continue;
+#else
+	for(int ilg=0;ilg<n_trg_lg_hits;ilg++){
+	  if(  trg_lg_hit_mid->at(ilg) == trk_lg_mid ){
+	    resx = trg_lg_hit_x->at(ilg) - trk_lg_lx;
+	    resy = trg_lg_hit_y->at(ilg) - trk_lg_ly;
+	    out_track_lg_allhit_resx[ntrkacc].push_back(resx);
+	    out_track_lg_allhit_resy[ntrkacc].push_back(resy);
+	    out_track_lg_allhit_ftime[ntrkacc].push_back(trg_lg_hit_t->at(ilg));
+	    out_track_lg_allhit_adc[ntrkacc].push_back(1000.);
+	    double trgt_tmp=-10000;
+	    for(int itlg=0;itlg<n_trg_tracks;itlg++){
+	      if(trg_track_lg_mid->at(itlg)!=trg_lg_hit_mid->at(ilg)||trg_track_lg_cid->at(itlg)!=trg_lg_hit_cid->at(ilg)) continue;
+#endif
 	      if(fabs(trg_track_lg_t->at(itlg))<11){
 		trgt_tmp=trg_track_lg_t->at(itlg);
 		break;

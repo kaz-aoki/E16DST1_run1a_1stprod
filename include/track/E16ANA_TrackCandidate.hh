@@ -14,6 +14,8 @@
 #include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
 
+
+
 class E16ANA_TrackClusterPair {
  public:
   E16ANA_TrackClusterPair()
@@ -130,10 +132,42 @@ class E16ANA_TrackCandidate {
     void SetT2(TVector3 _residual_pos){ residual_post2 = _residual_pos;}
     void SetC(TVector3 _residual_pos) { residual_pos   = _residual_pos;}
   };
-  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
-      : geometry(_geometry), bfield_map(_bfield_map), is_selected(false),
+  E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map,const int _gtr_flag,  const int _removed_layer)
+      : geometry(_geometry), bfield_map(_bfield_map),gtr_flag(_gtr_flag),  removed_layer(_removed_layer), is_selected(false),
         pos_at_targets({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
-        mom_at_targets({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}) {}
+        mom_at_targets({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}) {
+
+		  varXWeight = {  1./ (varXSigma[0] * varXSigma[0]),
+								1./ (varXSigma[1] * varXSigma[1]),
+								1./ (varXSigma[2] * varXSigma[2]),
+								1./ (varXSigma[3] * varXSigma[3]),
+								1./ (varXSigma[4] * varXSigma[4])};
+		  varYWeight = { 
+										1./ (varYSigma[0] * varYSigma[0]),
+										1./ (varYSigma[1] * varYSigma[1]),
+										1./ (varYSigma[2] * varYSigma[2])
+										};
+
+	
+		if(gtr_flag == 1){//reidual
+			if(removed_layer == 1 || removed_layer == 2 || removed_layer == 3) {
+					varSigmas[removed_layer]     = remSigmas;//tracking wo themselves
+//					varXSigma[removed_layer + 1] = remXSigma; //comment out, no need to enlarge the finding area
+//					varGTRPeakSumThresholdX[removed_layer - 1] = remthx;// there are no fake hits.
+//		  		   varGTRPeakSumThresholdY[removed_layer - 1] = remthy;// same 
+			}
+		}
+	
+		else if(gtr_flag == 2){//efficiency
+			if(removed_layer == 1 || removed_layer == 2 || removed_layer == 3) {
+					varSigmas[removed_layer]     = remSigmas;
+					varXSigma[removed_layer + 1] = remXSigma;
+					varYSigma[removed_layer] = remYSigma;
+					varGTRPeakSumThresholdX[removed_layer - 1] = remthx;
+		  		   varGTRPeakSumThresholdY[removed_layer - 1] = remthy;
+			}
+		}
+}
   E16ANA_TrackCandidate& operator = (const E16ANA_TrackCandidate& rhs) {
     Copy(rhs);
     return (*this);
@@ -279,8 +313,34 @@ class E16ANA_TrackCandidate {
 //  static constexpr int kTrackingMaxSteps = 80;
 //  static constexpr int kTrackingMaxSteps = 600;
 //  static constexpr int kProjectionMaxSteps = 2000;
-//  static constexpr double drift_v = 8e-3;
-//  static constexpr double centtdc = 328;
+  static constexpr double drift_v[3] = {13e-3, 13e-3, 0};
+  static constexpr double centtdc[3] = {265, 285, 0};
+
+  std::array<TVector3, 4> varSigmas = {{  {0.1, 0, 0},//you shold change class "trackcandidate" too
+														{0.3, 1, 0},
+														{0.3, 1, 0},
+							  							{0.3, 1, 0}}};
+//  std::array<TVector3, 4> varSigmas = {{  {0.075,     0, 0},//you shold change class "trackcandidate" too
+//														{0.236, 1, 0},
+//														{0.230, 1, 0},
+//							  							{0.235, 1, 0}}};
+  std::array<double, 5>   varXSigma = { 3.0, 0.05, 0.1, 0.1, 0.1};//rough
+  std::array<double, 3>   varYSigma = { 1.0, 1.0, 1.0};//rough
+  double remXSigma = 0.3;
+  double remYSigma = 40;
+  std::array<double, 5> varXWeight = { 0,0,  0, 0, 0};
+  std::array<double, 3> varYWeight = {   0, 0, 0};
+//  TVector3 remSigmas  = {0.3, 9999999999, 0};//x, y, z//chi2 th + 250 sqrt(250) * 0.3 = 4.7 mm
+  TVector3 remSigmas  = {999999999, 999999999, 0};//x, y, z//chi2 th + 250 sqrt(250) * 0.3 = 4.7 mm
+  std::array <double, 3> varGTRPeakSumThresholdX =  {100, 100, 100};
+  std::array <double, 3> varGTRPeakSumThresholdY =  {50, 50, 50};
+  double remthx = 99998;
+  double remthy = 99998;
+//  double remthx = 100;
+//  double remthy = 50;
+
+
+
 //  static constexpr double kGTRLorentzAngle[3]   = {7.5 * 0.35, -5.5 * 0.35, -3. * 0.35};
 //  static constexpr double kGTRLorentzAngleA[3]  = {0.313, -0.233, -0.129};
   // parameter
@@ -419,6 +479,8 @@ class E16ANA_TrackCandidate {
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
   std::vector<E16DST_DST1LGHit*> lg_hits;
   std::vector<E16DST_DST1LGCluster*> lg_clusters;
+  const int removed_layer;
+  const int gtr_flag;
 };
 
 class E16ANA_TrackCandidates {
@@ -489,11 +551,60 @@ class E16ANA_TrackCandidates {
     }
   };
   E16ANA_TrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map, E16ANA_MultiTrack* _fitter, E16ANA_MultiTrack* _pair_fitter,
-                         bool _is_electron_run, E16DST_DST1PhysicsRecord* _record)
+
+
+#ifndef DST1_EVENT_MIX
+                         bool _is_electron_run, E16DST_DST1PhysicsRecord* _record, const int _gtr_flag,  const int _removed_layer)
+#else // DST1_EVENT_MIX
+                         bool _is_electron_run, E16DST_DST1PhysicsRecord* _record, E16DST_DST1PhysicsRecord* _prev_record)
+#endif // DST1_EVENT_MIX
       : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter),
         is_electron_run(_is_electron_run), is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false),
         vertex_z_fix_flag(E16ANA_TrackParameter::kVtxZFixFlag),
-        record(_record) {
+#ifndef DST1_EVENT_MIX
+        record(_record), gtr_flag(_gtr_flag), removed_layer(_removed_layer) {
+#else // DST1_EVENT_MIX
+        record(_record), prev_record(_prev_record) {
+#endif // DST1_EVENT_MIX
+
+
+
+
+
+		  varXWeight = {  1./ (varXSigma[0] * varXSigma[0]),
+								1./ (varXSigma[1] * varXSigma[1]),
+								1./ (varXSigma[2] * varXSigma[2]),
+								1./ (varXSigma[3] * varXSigma[3]),
+								1./ (varXSigma[4] * varXSigma[4])};
+		  varYWeight = { 
+										1./ (varYSigma[0] * varYSigma[0]),
+										1./ (varYSigma[1] * varYSigma[1]),
+										1./ (varYSigma[2] * varYSigma[2])
+										};
+
+	
+		if(gtr_flag == 1){//reidual
+			if(removed_layer == 1 || removed_layer == 2 || removed_layer == 3) {
+					varSigmas[removed_layer]     = remSigmas;//tracking wo themselves
+//					varXSigma[removed_layer + 1] = remXSigma; //comment out, no need to enlarge the finding area
+//					varGTRPeakSumThresholdX[removed_layer - 1] = remthx;// there are no fake hits.
+//		  		   varGTRPeakSumThresholdY[removed_layer - 1] = remthy;// same 
+			}
+		}
+	
+		else if(gtr_flag == 2){//efficiency
+			if(removed_layer == 1 || removed_layer == 2 || removed_layer == 3) {
+					varSigmas[removed_layer]     = remSigmas;
+					varXSigma[removed_layer + 1] = remXSigma;
+					varYSigma[removed_layer ] = remYSigma;
+					varGTRPeakSumThresholdX[removed_layer - 1] = remthx;
+		  		   varGTRPeakSumThresholdY[removed_layer - 1] = remthy;
+			}
+		}
+
+
+
+
     track_candidates.clear();
   }
   ~E16ANA_TrackCandidates() {}
@@ -516,7 +627,7 @@ class E16ANA_TrackCandidates {
   int MinHitsInXCluster();
   double GTRYDiffThreshold();
   double GTRPeakSumThresholdX(int n);
-  double GTRPeakSumThresholdY();
+  double GTRPeakSumThresholdY(int n);
   double RoughFitChiSquareThreshold(int n);
   double RoughXFitCoefficientThreshold(int n);
   double RoughYFitCoefficientThreshold(int n);
@@ -544,7 +655,7 @@ class E16ANA_TrackCandidates {
   int NumSelectedTrackCandidatePairs() { return selected_track_pairs.size(); }
   TrackPair* SelectedTrackCandidatePair(int n) {return selected_track_pairs[n]; }
   std::vector<TrackPair*>& SelectedTrackCandidatePairs() { return selected_track_pairs; }
-  void Analyze();
+  bool Analyze();
   void Print(int i) {
     if (i % 2 == 1) {
       std::cout << "Track Candidates :" << std::endl;
@@ -606,6 +717,35 @@ class E16ANA_TrackCandidates {
   static constexpr std::array<int, 2> kNumRoughFitDegree = {3, 2}; // x, y
   static constexpr std::array<double, kNumGTRLayers> kGTRSizeCoef = {2.7, 1.4, 1.};
   static constexpr std::array<int, 3> kNumReserveTracks = {1000, 1000, 100};
+
+  std::array<TVector3, 4> varSigmas = {{  {0.1, 0, 0},//you shold change class "trackcandidate" too
+														{0.3, 1, 0},
+														{0.3, 1, 0},
+							  							{0.3, 1, 0}}};
+
+//  std::array<TVector3, 4> varSigmas = {{  {0.075,     0, 0},//you shold change class "trackcandidate" too
+//														{0.236, 1, 0},
+//														{0.230, 1, 0},
+//							  							{0.235, 1, 0}}};
+  std::array<double, 5>   varXSigma = { 3.0, 0.05, 0.1, 0.1, 0.1};//rough
+  std::array<double, 3>   varYSigma = { 1,1,1};//rough
+  double remXSigma = 0.3;
+  double remYSigma = 40;
+  std::array<double, 3> varYWeight = {   0, 0, 0};
+  std::array<double, 5> varXWeight = { 0,0,  0, 0, 0};
+//  TVector3 remSigmas  = {0.3, 9999999999, 0};//x, y, z//chi2 th + 250 sqrt(250) * 0.3 = 4.7 mm
+  TVector3 remSigmas  = {999999999, 999999999, 0};//x, y, z//chi2 th + 250 sqrt(250) * 0.3 = 4.7 mm
+  std::array <double, 3> varGTRPeakSumThresholdX =  {100, 100, 100};
+  std::array <double, 3> varGTRPeakSumThresholdY =  {50, 50, 50};
+  double remthx = 99998;
+  double remthy = 99998;
+//  double remthx = 100;
+//  double remthy = 50;
+
+
+
+
+
 //  static constexpr int kMaxOneAxisCandidates = 100;
   // parameter
 //  static constexpr std::array<double, kNumGTRLayers> kGTRTimeDiffThreshold = {40., 60., 60.};
@@ -672,6 +812,7 @@ class E16ANA_TrackCandidates {
   }
   static void CalcRotatedPos(std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double tgt_z, double rot_cos, double rot_sin, std::array<TVector3, kNumTrackingLayersWTarget>* lotated_pos);
   static void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, 5>* zz, std::array<double, kNumRoughFitDegree[0]>* zx) {
+//   void AddMatrixElement(double w, const TVector3& lotated_pos, std::array<double, 5>* zz, std::array<double, kNumRoughFitDegree[0]>* zx) {
     auto x = lotated_pos.X();
     auto z = lotated_pos.Z();
     (*zz)[4] += w * z * z * z * z; // delete at
@@ -687,7 +828,7 @@ class E16ANA_TrackCandidates {
   static void CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
                             std::array<double, kNumTrackingLayersWTarget>* zz,
                             std::array<double, kNumRoughFitDegree[0]>* zx,
-                            std::array<double, kNumRoughFitDegree[0]>* coef);
+                            std::array<double, kNumRoughFitDegree[0]>* coef, std::array<double, 5 > &_w);
   static void CalcInverseMatrix(const std::array<double, 5>& mz, std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>* matrix);
   static void CalcCoefficients(const std::array<double, kNumRoughFitDegree[0]>& zx,
                                const std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>& line,
@@ -715,6 +856,7 @@ class E16ANA_TrackCandidates {
   void CalcRotatedPos(const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos, double rot_cos, double rot_sin,
                       std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>* lotated_pos);
   static void AddMatrixElement(double w, const TVector3 lotated_pos, std::array<double, 5>* mz, std::array<double, kNumRoughFitDegree[0]>* mzx) { // the difinition of zx is reversed
+//   void AddMatrixElement(double w, const TVector3 lotated_pos, std::array<double, 5>* mz, std::array<double, kNumRoughFitDegree[0]>* mzx) { // the difinition of zx is reversed
     auto z = lotated_pos.Z();
     auto x = lotated_pos.X();
     (*mz)[0]  += w;
@@ -761,6 +903,9 @@ class E16ANA_TrackCandidates {
 //    return false;
 //  }
   bool HasAssociatedHBD(const OneAxisClusterSet& x_cand, const OneAxisClusterSet& y_cand, std::vector<bool>* hbd_y_oks);
+#ifdef TRACK_FIND_WO_TARGET
+  TVector3 BackInitPos(const TVector3& pos, const TVector3& mom);
+#endif // TRACK_FIND_WO_TARGET
   void SearchTrackCandidates();
   void Fit();
   void SearchHBDAndLGHits();
@@ -784,12 +929,17 @@ class E16ANA_TrackCandidates {
   bool py_fix_flag;
   bool vertex_z_fix_flag;
   E16DST_DST1PhysicsRecord* record;
+#ifdef DST1_EVENT_MIX
+  E16DST_DST1PhysicsRecord* prev_record;
+#endif // DST1_EVENT_MIX
   int n_x_cands;
   int n_y_cands;
   std::vector<E16ANA_TrackCandidate> track_candidates;
   std::vector<E16ANA_TrackCandidate*> selected_track_candidates;
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
+  const int removed_layer;
+  const int gtr_flag;
 #ifdef TRACK_EFF_CHECK
   std::array<std::array<bool, 4>, 2> is_xchecked;
   std::array<std::array<bool, 3>, 2> is_ychecked;

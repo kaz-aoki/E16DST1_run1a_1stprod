@@ -1428,7 +1428,11 @@ public :
   void MakeEMBranches(TTree* tree);
   void ClearUsedClusterIDs();
   void SetHBDs();
+  void SetLGs();//231012 add
   double NearestRadius(int n);
+  bool HasAssociatedLG(std::array<int, track_analyzer_220715_parameter::kNumLGTypes> mids, const std::array<TVector3, track_analyzer_220715_parameter::kNumLGTypes>& track_pos, int *min_type, double *min_res, std::vector<int> *_indexs); 
+  bool HasAssociatedLG(int n); 
+  void AssociatedLG(int n);
   bool HasAssociatedHBD(int mid, const TVector3& track_pos, double* min_res, std::vector<int>* _associated_hbd_indexs);
   bool HasAssociatedHBD(int n);
   bool HasUsedCluster(const std::array<int, track_analyzer_220715_parameter::kNumTrackingDetectors>& cids);
@@ -1440,6 +1444,10 @@ public :
   double CalcMass(int flag, const TVector3& pmom, const TVector3& mmom);
   void FillTVector3(int n, const TVector3& tvec, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
   void FillTVector3(int n, const TVector3& tvec, std::vector<double>* x, std::vector<double>* y);
+  void ProjectionSSD(int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                     TVector3* ssd_lpos, TVector3* ssd_gpos, TVector3* ssd_lmom, TVector3* ssd_gmom);
+  void ProjectionGTR(int layer_id, int module_id, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                     TVector3* ssd_lpos, TVector3* ssd_gpos, TVector3* ssd_lmom, TVector3* ssd_gmom);
   void FillBranchesFromPairFit(int n, double chi2);
   int ModuleID2013(int m);
   int ChargeID(int c);
@@ -1449,14 +1457,22 @@ public :
   void NearestPoint(int n);
   int DirID(int mid0, int mid1);
   int ModuleID2013_27(int m);
+  void ProjectionHBDAndLG(int gtr300_mid, double charge, const TVector3& init_pos, const TVector3& init_mom,
+                          std::array<int, 4>* mids, std::array<TVector3, 4>* lposs, std::array<TVector3, 4>* gposs,
+                          std::array<TVector3, 4>* lmoms, std::array<TVector3, 4>* gmoms);
   void ProjectionHBDAndLG(int n);
+  void ProjectionTargets(double charge, const Hep3Vector& init_pos, const Hep3Vector& init_mom,
+                         std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>* poss,
+                         std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>* moms);
   void ProjectionTargets(int n);
+  void ProjectionX0(double charge, const Hep3Vector& init_pos, const Hep3Vector& init_mom, TVector3* pos, TVector3* moms);
+  void ProjectionX0(int n);
 //  int BestTargetID(int n);
 //  void ParentInfo(int n);
   int BestTargetID(double vtx_z, const std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>& tgt_poss,
                    std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths,
                    double* best_tgt_r, int* good_tgt_id_set, std::vector<double>* good_tgt_ids);
-  TVector3 Xo0Pos(const TVector3& pos, const TVector3& mom);
+  TVector3 X0Pos(const TVector3& pos, const TVector3& mom);
   void ParentInfo(const TVector3& vtx, const std::array<TVector3, 2>& moms, TVector3* parent_mom,
                   std::array<TVector3, track_analyzer_220715_parameter::kNumTgts>* tgt_poss,
                   std::array<double, track_analyzer_220715_parameter::kNumTgts>* flight_paths,
@@ -1474,7 +1490,14 @@ public :
   void Analyze();
   void FillEntryInfo(int entry_index, track_analyzer_220715::EntryInfo* plus_entry, track_analyzer_220715::EntryInfo* minus_entry);
   void ClearEMBranches();
+  void FillCommonBranchesEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index);
+  void EmplaceTVector3(const TVector3& tvec, std::vector<double>* x, std::vector<double>* y, std::vector<double>* z);
+  void EmplaceTVector3(const TVector3& tvec, std::vector<double>* x, std::vector<double>* y);
+  void FillBranchesFromPairFitEM(double chi2);
   void PairFitEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index);
+  void ProjectionHBDAndLGEM();
+  void ProjectionTargetsEM();
+  void ProjectionX0EM();
   void NearestPointEM(int plus_entry_index, int plus_track_index, int minus_entry_index, int minus_track_index);
   void DirIDsEM();
   void ParentInfoEM();
@@ -1490,10 +1513,11 @@ public :
   E16ANA_MultiTrack*       proj_fitter;
   //
   std::array<std::vector<int>, track_analyzer_220715_parameter::kNumModules> hbd_indexs;
-//  std::array<std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes>, track_analyzer_220715_parameter::kNumModules> lg_indexs;
+  std::array<std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes>, track_analyzer_220715_parameter::kNumModules> lg_indexs;
   std::vector<int> good_track_indexs;
   std::vector<std::array<int, 2>> good_pair_indexs;
   std::vector<std::vector<int>> associated_hbd_indexs;
+  std::array<std::vector<int>, track_analyzer_220715_parameter::kNumLGTypes> associated_lg_indexs;
   std::vector<int>    nearest_tgt_ids;
   std::vector<double> nearest_radius;
   std::array<std::vector<int>, track_analyzer_220715_parameter::kNumTrackingDetectors> used_cluster_ids;
@@ -1884,6 +1908,27 @@ public :
   std::vector<std::vector<double>> out_proj_minus_hbd_size;
   std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
   // LG Projection
+  std::vector<double>              out_proj_plus_n_lgs;
+  std::vector<double>              out_proj_plus_lg_min_res;
+  std::vector<std::vector<double>> out_proj_plus_lg_id;
+  std::vector<std::vector<double>> out_proj_plus_lg_lx;
+  std::vector<std::vector<double>> out_proj_plus_lg_ly;
+  std::vector<std::vector<double>> out_proj_plus_lg_resx;
+  std::vector<std::vector<double>> out_proj_plus_lg_resy;
+  std::vector<std::vector<double>> out_proj_plus_lg_adc;
+  std::vector<std::vector<double>> out_proj_plus_lg_size;
+  std::vector<std::vector<double>> out_proj_plus_lg_eprob;
+  std::vector<double>              out_proj_minus_n_lgs;
+  std::vector<double>              out_proj_minus_lg_min_res;
+  std::vector<std::vector<double>> out_proj_minus_lg_id;
+  std::vector<std::vector<double>> out_proj_minus_lg_lx;
+  std::vector<std::vector<double>> out_proj_minus_lg_ly;
+  std::vector<std::vector<double>> out_proj_minus_lg_resx;
+  std::vector<std::vector<double>> out_proj_minus_lg_resy;
+  std::vector<std::vector<double>> out_proj_minus_lg_adc;
+  std::vector<std::vector<double>> out_proj_minus_lg_size;
+  std::vector<std::vector<double>> out_proj_minus_lg_eprob;
+
 // tmp
 // check of E16ANA_StepTrack function
 std::vector<int>                 out_tmp_fit_plus_x0_flag;
@@ -2302,25 +2347,25 @@ std::vector<double> out_tmp_zx_pipi_mass;
   std::vector<std::vector<double>> em_fit_parent_good_tgt_ids;
   std::vector<double>              em_fit_parent_x0_y;
   std::vector<double>              em_fit_parent_x0_z;
-//  // Projected HBD
-//  std::vector<double>              out_proj_plus_n_hbds;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_id;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_lx;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_ly;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_resx;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_resy;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_adc;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_size;
-//  std::vector<std::vector<double>> out_proj_plus_hbd_eprob;
-//  std::vector<double>              out_proj_minus_n_hbds;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_id;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_lx;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_ly;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_resx;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_resy;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_adc;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_size;
-//  std::vector<std::vector<double>> out_proj_minus_hbd_eprob;
+  // Projected HBD
+  std::vector<double>              em_proj_plus_n_hbds;
+  std::vector<std::vector<double>> em_proj_plus_hbd_id;
+  std::vector<std::vector<double>> em_proj_plus_hbd_lx;
+  std::vector<std::vector<double>> em_proj_plus_hbd_ly;
+  std::vector<std::vector<double>> em_proj_plus_hbd_resx;
+  std::vector<std::vector<double>> em_proj_plus_hbd_resy;
+  std::vector<std::vector<double>> em_proj_plus_hbd_adc;
+  std::vector<std::vector<double>> em_proj_plus_hbd_size;
+  std::vector<std::vector<double>> em_proj_plus_hbd_eprob;
+  std::vector<double>              em_proj_minus_n_hbds;
+  std::vector<std::vector<double>> em_proj_minus_hbd_id;
+  std::vector<std::vector<double>> em_proj_minus_hbd_lx;
+  std::vector<std::vector<double>> em_proj_minus_hbd_ly;
+  std::vector<std::vector<double>> em_proj_minus_hbd_resx;
+  std::vector<std::vector<double>> em_proj_minus_hbd_resy;
+  std::vector<std::vector<double>> em_proj_minus_hbd_adc;
+  std::vector<std::vector<double>> em_proj_minus_hbd_size;
+  std::vector<std::vector<double>> em_proj_minus_hbd_eprob;
 //  // Projected LG
 };
 
