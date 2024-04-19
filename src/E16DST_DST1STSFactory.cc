@@ -34,9 +34,16 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   };
   std::cout << "WARNING!!!! Module ID intentionally randomized for debugging purpose." << std::endl;
 #endif
+  if ( stsg_dst0.NumberOfHits() > 1 ) {
+    std::cout << "WARNING !!!! STS Global has more than 1 entries." << std::endl;
+  }
+  auto& hitg0 = stsg_dst0.Hit(0);
+
 
   auto& hits1 = sts_dst1->Hits(); // hits1 is std::vector<T>
   hits1.clear();
+  constexpr uint64_t bitmask_emu = (1<<14) - 1;
+  int emu_timestamp = hitg0.get_emu_timestamp() & bitmask_emu;
 
   auto lgeom = E16ANA_STSGeometry::instance();
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
@@ -52,7 +59,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetIds(hit0.ModuleID(),hit0.ChannelID());
 #endif
     hit1.SetPeakHeight(hit0.ADC());
-    hit1.SetTiming(hit0.TDC());
+    
+    hit1.SetTiming(hit0.TDC()-emu_timestamp);
     hit1.SetPN(hit0.PN());
     hit1.SetElink(hit0.Elink());
     hit1.SetGeriTimestamp(hit0.GeriTimestamp());
@@ -67,13 +75,6 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     double global[3]={0,0,0};
     ggeom->Local2Global(hit1.ModuleId(),local,global);
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
-    //hit1.SetTiming();
-    //hit1.SetPeakHeight();
-    //hit1.Type();
-    //hit1.
-      // hit0.TDC(), hit0.ChannelID(), hit0.PN(), hit0.EventMissed(), hit0.ADC()
-    //TDC, ADC, channelID,ELINK,PN,EventMissed();
-    
   }
   
   
