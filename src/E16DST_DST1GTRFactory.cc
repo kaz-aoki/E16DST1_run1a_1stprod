@@ -67,9 +67,6 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
     }
     for(auto &a : gtr_analyzers->analyzer_map){
         //a.second->AnalyzeV0();
-		if(mid > 200) continue;
-//		if(mid == 103) continue;
-	   int lid = hit.LayerID();
         a.second->AnalyzeV1();
     }
 

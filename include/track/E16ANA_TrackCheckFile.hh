@@ -927,8 +927,8 @@ class E16ANA_TrackCheckFile {
     gtr_y_diff_threshold = cands.GTRYDiffThreshold();
     for (int i = 0; i < 3; ++i) {
       gtr_peak_sum_threshold_x[i] = cands.GTRPeakSumThresholdX(i);
-    gtr_peak_sum_threshold_y= cands.GTRPeakSumThresholdY(i);
     }
+    gtr_peak_sum_threshold_y= cands.GTRPeakSumThresholdY();
     for (int i = 0; i < 2; ++i) {
       rough_fit_chi_square_threshold[i] = cands.RoughFitChiSquareThreshold(i);
     }

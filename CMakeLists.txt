@@ -1093,12 +1093,12 @@ target_link_libraries(gtr_deadch_check
 #	E16DST_DST1
 #)
 ###_______________________________________________________________________________
-add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
-target_link_libraries(run_ReStraightAfterKillDup
-	E16DST
-	E16DST_DST1
-   E16DSTN
-)
+#add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
+#target_link_libraries(run_ReStraightAfterKillDup
+#	E16DST
+#	E16DST_DST1
+#   E16DSTN
+#)
 ###_______________________________________________________________________________
 add_executable(run_StraightKillDuplicated usr/tmp_murakami/run_StraightKillDuplicated.cc)
 target_link_libraries(run_StraightKillDuplicated

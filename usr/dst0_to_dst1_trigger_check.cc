@@ -133,8 +133,8 @@ int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrac
 
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
-  if (argc != 8) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [GTR flag(0 : normal, 1: residual, 2: efficiency)][removed_layer (-1:all, 0:ssd, 1:gtr100, 2:gtr200, 3:gtr300)] " << endl;
+  if (argc != 6) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
 #else
   if (argc != 11) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [mock flag] [merge mock flag] [smear flag] [dead region flag]" << endl;
@@ -150,8 +150,6 @@ int main(int argc, char* argv[]) {
   auto run_id        = stoi(argv[3]);
   auto event_start   = stoi(argv[4]);
   auto event_end     = stoi(argv[5]);
-  auto gtr_flag      = stoi(argv[6]);
-  auto removed_layer = stoi(argv[7]);
 #ifdef TRACK_EFF_CHECK
   auto mock_data_name   = argv[6];
   auto mock_data_flag   = stoi(argv[7]);
@@ -248,7 +246,6 @@ int main(int argc, char* argv[]) {
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-//  auto bfield_map = new E16ANA_MagneticFieldMap3D(field_map_param.FileName());
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   
@@ -363,28 +360,9 @@ int main(int argc, char* argv[]) {
         }
       }
 #ifndef REMOVE_REAL_HIT
-
-		if(gtr_flag == 0 || gtr_flag ==1 ){//normal or residual
-            if(removed_layer != 0){
-  	            E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
-            }
-	      	E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
-		}
-
-		if(gtr_flag == 2){//efficiency
-			if(removed_layer != 0 ){
-		      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
-			}
-			else if(removed_layer == 1 || removed_layer ==2 || removed_layer == 3 ){
-	      	E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
-			}
-			else {
-				std::cerr << "invalid removed layer! in gtr_flag == 2" << std::endl;
-				return -1;
-			}
-		}
-
-      record.SSD().AddHitAndClusterIds();
+//      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+//      record.SSD().AddHitAndClusterIds();
+      E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
@@ -460,7 +438,7 @@ int main(int argc, char* argv[]) {
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
 #ifndef DST1_EVENT_MIX
-      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file, gtr_flag, removed_layer);
+      E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
 #else // DST1_EVENT_MIX
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &prev_record, &check_file);
       E16DST_DST1SSDFactory(ssd_hits0, &prev_record.SSD());
