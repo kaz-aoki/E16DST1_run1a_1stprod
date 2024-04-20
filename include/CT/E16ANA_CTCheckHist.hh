@@ -1,5 +1,5 @@
-#ifndef E16ANA_LGCheckHist_h
-#define E16ANA_LGCheckHist_h
+#ifndef E16ANA_CTCheckHist_h
+#define E16ANA_CTCheckHist_h
 
 #include <TROOT.h>
 #include <TChain.h>
@@ -15,22 +15,35 @@
 
 #include "E16DST_Constant.hh"
 
-class E16ANA_LGCheckHist{
+class E16ANA_CTCheckHist{
 private :
 
-  static const int NMOD = 8;
-  static const int NCH = 42;
+  static const int NMOD = 2;
+  static const int NCH  = 32;
+
+  static constexpr int blocklist[NMOD][NCH] = {
+    {43,42,41,40,53,52,51,50,
+     23,22,21,20,33,32,31,30,
+     3, 2, 1, 0, 13,12,11,10,
+     7, 6, 5, 4, -1,-1,-1,-1},
+    {55,54,45,44,
+     36,35,26,25,
+     15,14,5, 4, 
+     3, 2, 1, 0,
+     -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
+  };
+
 
 public :
-  E16ANA_LGCheckHist();
-  ~E16ANA_LGCheckHist();
+  E16ANA_CTCheckHist();
+  ~E16ANA_CTCheckHist();
 
   static bool IsValidModuleId(int module);
-  static bool IsValidBlockId(int block);
+  static bool IsValidBlockId(int module, int block);
   static int  ModuleToIndex(int module);
-  static int  BlockToIndex(int block);
+  static int  BlockToIndex(int module, int block);
   static int  IndexToModule(int index);
-  static int  IndexToBlock(int index);
+  static int  IndexToBlock(int index_m, int index_b);
   void Fill(int module, int block, double peak, int peaktime, double timing, double baseline, double baselinerms, double integral, int nhits);
   void FillPeak(int module, int block, double peak);
   void FillPeakTime(int module, int block, int peaktime);
@@ -68,8 +81,8 @@ public :
   void Draw2DIntegral(TString& fpdf, TCanvas* c);
   void Draw2DNhits(TString& fpdf, TCanvas* c);
   void Draw2DHist(TString& fpdf, TCanvas* c, char* name, TH1F* h[NMOD][NCH], TH2F* hh[NMOD]);
-  void MakeT0CalibFile();
-  void SetWaveform(int module, int block, double waveform[E16DST_Constant::NSamplesLG]);
+  // void MakeT0CalibFile();
+  void SetWaveform(int module, int block, double waveform[E16DST_Constant::NSamplesCT]);
   void DrawWaveform(TString& fpdf);
 
   TH1F* hpeak[NMOD][NCH];
@@ -99,6 +112,6 @@ public :
   TF1* ftiming[NMOD][NCH];
 
   int wfcount[NMOD][NCH];
-  double wf[NMOD][NCH][3][E16DST_Constant::NSamplesLG];
+  double wf[NMOD][NCH][3][E16DST_Constant::NSamplesCT];
 };
 #endif
