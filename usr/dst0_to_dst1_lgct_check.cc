@@ -27,20 +27,21 @@
 using namespace std;
 // namespace  bpo = boost::program_options;
 
-#define WF_ON
+// #define WF_ON
 #define TRG_ON
 #define LGDST1_ON
 
 int main(int argc, char* argv[]) {
-  if (argc != 5) {
+  if (argc != 6) {
     cerr << "Invalid argc: " << argc << endl;
-    cerr << "./bin [input.dst0] [output.dst1] [run ID] [max physics event (all: -1)] " << endl;
+    cerr << "./bin [input.dst0] [output.dst1] [hist.pdf] [run ID] [max physics event (all: -1)] " << endl;
     return -1;
   }
   auto in_file_name  = argv[1];
   auto out_file_name = argv[2];
-  auto run_id        = stoi(argv[3]);
-  auto max_event     = stoi(argv[4]);
+  auto out_pdf_name  = argv[3];
+  auto run_id        = stoi(argv[4]);
+  auto max_event     = stoi(argv[5]);
 
   TFile *fout = new TFile(out_file_name,"recreate");
   TTree *tree = new TTree("tree","tree");
@@ -140,6 +141,7 @@ int main(int argc, char* argv[]) {
   E16DST_DST1PhysicsRecord record;
 
   // auto *lghists = new E16ANA_LGCheckHist();
+  auto *cthists = new E16ANA_CTCheckHist();
 
   int n_event = 0;
   int n_physics_event = 0;
@@ -412,11 +414,14 @@ int main(int argc, char* argv[]) {
 	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
-	// if(trg_lg_hit_t==0){//thr check
-	//   lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
-	// }
+	if(trg_lg_hit_t==0&&ct0peakheight>20.){
+	  cthists->Fill(ct0module,ct0block,ct0peakheight,ct0peaktime,ct0timing,ct0baseline,ct0baselinerms,0.,0);
+	}
+	if(trg_lg_hit_t==0&&ct1peakheight>20.){
+	  cthists->Fill(ct1module,ct1block,ct1peakheight,ct1peaktime,ct1timing,ct1baseline,ct1baselinerms,0.,0);
+	}
 	// if(trg&&trg_lg_hit_t!=0){
-	//   lghists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
+	  // cthists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	// }
 	// if(trg_lg_hit_t==0){
 	// if(dst1flag&&peakheight>30.){
@@ -447,14 +452,14 @@ int main(int argc, char* argv[]) {
     ++n_physics_event;
   }
 
-  // TString pdfout = Form("%s",out_pdf_name);
-  // TCanvas* c = new TCanvas("c","c",1400,700);
-  // c->SaveAs(pdfout+"[","pdf");
-  // lghists->Draw(pdfout,c);
-  // lghists->Draw2D(pdfout,c);
-  // lghists->DrawEach(pdfout,c);
-  // lghists->DrawEachTimeCorrelation(pdfout,c);
-  // c->SaveAs(pdfout+"]","pdf");
+  TString pdfout = Form("%s",out_pdf_name);
+  TCanvas* c = new TCanvas("c","c",1400,700);
+  c->SaveAs(pdfout+"[","pdf");
+  cthists->Draw(pdfout,c);
+  cthists->Draw2D(pdfout,c);
+  cthists->DrawEach(pdfout,c);
+  // cthists->DrawEachTimeCorrelation(pdfout,c);
+  c->SaveAs(pdfout+"]","pdf");
 
   // TString wfpdfout = Form("%s",out_wf_pdf_name);
   // lghists->DrawWaveform(wfpdfout);

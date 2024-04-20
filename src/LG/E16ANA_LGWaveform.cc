@@ -197,8 +197,8 @@ void E16ANA_LGWaveform::woFitMethod(double* _wf, double t0){
 
 void E16ANA_LGWaveform::CalcPeak(){
 
-  // for(int cell=5; cell<E16DST_Constant::NSamplesLG; cell++){
-  for(int cell=50; cell<150; cell++){
+  for(int cell=5; cell<E16DST_Constant::NSamplesLG; cell++){
+  // for(int cell=50; cell<150; cell++){
     if(wf[cell]>peak){
       if( E16ANA_LGConstant::kPeakSearchStart<cell && cell<E16ANA_LGConstant::kPeakSearchEnd ){
 	peak = wf[cell];

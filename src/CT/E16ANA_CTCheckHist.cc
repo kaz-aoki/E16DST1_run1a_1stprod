@@ -11,11 +11,11 @@ E16ANA_CTCheckHist::E16ANA_CTCheckHist(){
   double nsampled = (double)E16DST_Constant::NSamplesCT;
   for(int i=0;i<NMOD;i++){
     for(int j=0;j<NCH;j++){
-      hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(i,j)),300,0,300);
+      hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(i,j)),150,0,300);
       hpeaktime[i][j] = new TH1F(Form("hpeaktime%d%02d",i,j),Form("peaktime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,0,nsampled);
       htiming[i][j] = new TH1F(Form("htiming%d%02d",i,j),Form("timing_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,0,nsampled);
       hbaseline[i][j] = new TH1F(Form("hbaseline%d%02d",i,j),Form("baseline_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,-50,50);
-      hbaselinerms[i][j] = new TH1F(Form("hbaselinerms%d%02d",i,j),Form("baselinerms_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,-20,20);
+      hbaselinerms[i][j] = new TH1F(Form("hbaselinerms%d%02d",i,j),Form("baselinerms_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,0,30);
       hintegral[i][j] = new TH1F(Form("hintegral%d%02d",i,j),Form("integral_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,0,100);
       hnhits[i][j] = new TH1F(Form("hnhits%d%02d",i,j),Form("nhits_%d_%d",IndexToModule(i),IndexToBlock(i,j)),2,-0.5,1.5);
       // htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),300,3000,3300,nsampled,0,nsampled);

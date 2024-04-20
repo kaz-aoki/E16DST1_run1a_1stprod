@@ -320,7 +320,7 @@ int main(int argc, char* argv[]) {
 	  cthists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
 	// }
 	// if(trg_lg_hit_t==0){
-	if(dst1flag&&peakheight>30.){
+	if(peakheight>30.){
 	  cthists->SetWaveform(module,block,waveform);
 	}
 
@@ -357,8 +357,8 @@ int main(int argc, char* argv[]) {
   cthists->DrawEachTimeCorrelation(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  TString wfpdfout = Form("%s",out_wf_pdf_name);
-  cthists->DrawWaveform(wfpdfout);
+  // TString wfpdfout = Form("%s",out_wf_pdf_name);
+  // cthists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();

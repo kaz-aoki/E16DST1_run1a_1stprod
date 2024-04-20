@@ -91,7 +91,8 @@ int E16DST_DST1LGFactory(E16DST_DST0Detector<E16DST_DST0LGHit>& hits0, E16DST_DS
 
     bool isHitOp0 = true;
     bool isHitOp1 = true;
-    if( peakheight<E16ANA_LGConstant::kHitThreshold || spikeflag==true || timing<70. || timing>130. ){
+    // if( peakheight<E16ANA_LGConstant::kHitThreshold || spikeflag==true || timing<70. || timing>130. ){
+    if( peakheight<E16ANA_LGConstant::kHitThreshold || spikeflag==true || timing<40. || timing>120. ){
       isHitOp0 = false;
     }
     if( isHitOp0==false && fitoption==0 ){
