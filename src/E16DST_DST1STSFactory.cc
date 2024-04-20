@@ -37,6 +37,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   if ( stsg_dst0.NumberOfHits() > 1 ) {
     std::cout << "WARNING !!!! STS Global has more than 1 entries." << std::endl;
   }
+  if ( stsg_dst0.NumberOfHits() == 0 ) return 0;
   auto& hitg0 = stsg_dst0.Hit(0);
 
 
