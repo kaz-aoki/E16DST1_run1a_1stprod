@@ -415,10 +415,22 @@ int main(int argc, char* argv[]) {
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
 	if(trg_lg_hit_t==0&&ct0peakheight>20.){
-	  cthists->Fill(ct0module,ct0block,ct0peakheight,ct0peaktime,ct0timing,ct0baseline,ct0baselinerms,0.,0);
+	  cthists->Fill(ct0module,ct0block,ct0peakheight,ct0peaktime,ct0timing,ct0baseline,ct0baselinerms,-10000.,-10000);
 	}
 	if(trg_lg_hit_t==0&&ct1peakheight>20.){
-	  cthists->Fill(ct1module,ct1block,ct1peakheight,ct1peaktime,ct1timing,ct1baseline,ct1baselinerms,0.,0);
+	  cthists->Fill(ct1module,ct1block,ct1peakheight,ct1peaktime,ct1timing,ct1baseline,ct1baselinerms,-10000.,-10000);
+	}
+	if(ct0peakheight>50.){
+	  cthists->FillNhits(ct0module,ct0block,1);
+	}
+	else{
+	  cthists->FillNhits(ct0module,ct0block,0);
+	}
+	if(ct1peakheight>50.){
+	  cthists->FillNhits(ct1module,ct1block,1);
+	}
+	else{
+	  cthists->FillNhits(ct1module,ct1block,0);
 	}
 	// if(trg&&trg_lg_hit_t!=0){
 	  // cthists->FillTimeCorrelation(module,block,peaktime,trg_lg_hit_t);
