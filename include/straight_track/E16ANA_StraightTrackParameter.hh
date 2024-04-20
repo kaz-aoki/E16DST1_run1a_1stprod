@@ -7,7 +7,6 @@
 #include "E16ANA_TrackConstant.hh"
 
 
-
 namespace E16ANA_StraightTrackParameter {
 
 #ifdef NoExist_SSD
@@ -126,8 +125,9 @@ constexpr double kGTRFakeADC = 99999;
 
 
 
+
+
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {30., 30.}; // x, y from previous Ks peak
-//constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 50.}; // x, y from previous Ks peak
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015}; 
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
 
@@ -137,13 +137,9 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
     return true;
   }
   return false;
-//    return true;
 }
 
 // other
-
-constexpr double kMaxSSDClusterN = 30;
-
 constexpr bool kExecutePairFit = false;
 constexpr bool kReqHBDAssociation = true;
 //constexpr double kHBDRadius = 1200.;

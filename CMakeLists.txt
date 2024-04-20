@@ -292,11 +292,11 @@ target_link_libraries(dst0_to_dst1_ssd_check
 
 
 #_______________________________________________________________________________
-#add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
-#
-#target_link_libraries(dst0_to_dst1_gtr_check
-#	E16DST_DST1
-#)
+add_executable(dst0_to_dst1_gtr_check usr/dst0_to_dst1_gtr_check.cc)
+
+target_link_libraries(dst0_to_dst1_gtr_check
+	E16DST_DST1
+)
 
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_hbd_check usr/dst0_to_dst1_hbd_check.cc)
@@ -695,12 +695,12 @@ target_link_libraries(dst0_to_dst1_lg_check
 #)
 ###--------------------------------------------------------------------------------
 ###_______________________________________________________________________________
-#add_executable(run_StraightTrackAnalyzerV2 usr/run_StraightTrackAnalyzerV2.cc)
-#
-#target_link_libraries(run_StraightTrackAnalyzerV2
-#	E16DST
-#	E16DST_DST1
-#)
+add_executable(run_StraightTrackAnalyzerV2 usr/run_StraightTrackAnalyzerV2.cc)
+
+target_link_libraries(run_StraightTrackAnalyzerV2
+	E16DST
+	E16DST_DST1
+)
 #
 ###--------------------------------------------------------------------------------
 ###_______________________________________________________________________________

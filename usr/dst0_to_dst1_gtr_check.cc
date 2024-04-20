@@ -65,19 +65,48 @@ int main(int argc, char* argv[]) {
 //    }
 //  };
 
-  auto& calib = E16ANA_CalibDBManager::Instance();
-  calib.SetRunID(run_id);
-  auto trigger_param = new E16ANA_TriggerCalibParam();
-  trigger_param->ReadConstantData(calib.CurrentRunID());
-  E16ANA_GTRcalibPedestal gtrped;
-  gtrped.ReadCalibData( calib.CurrentRunID() );
-  E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
-  gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
-  auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
 
-  E16ANA_TargetInfoManager& targets = E16ANA_TargetInfoManager::Instance();
-  targets.ReadInfoWithRunID( calib.CurrentRunID());
-  targets.Print();
+auto& calib = E16ANA_CalibDBManager::Instance();
+    calib.SetRunID(run_id);
+    E16ANA_FieldMapCalibParam field_map_param;
+    field_map_param.ReadConstantData(calib.CurrentRunID());
+    E16ANA_GTRcalibPedestal gtrped;
+    gtrped.ReadCalibData( calib.CurrentRunID() );
+    E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+    gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+    auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
+  
+    E16ANA_TriggerCalibParam trigger_param;
+    trigger_param.ReadConstantData(calib.CurrentRunID());
+
+//targets info
+	 E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
+	 targets.ReadInfoWithRunID(calib.CurrentRunID());
+	 targets.Print();
+	 std::vector<TVector3> targets_pos;
+	 targets_pos.clear();
+    if(targets.NoT() == 3 ){
+            targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
+            targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
+     }
+     else if (targets.IsWire()){
+         targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
+         targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
+     }
+    else {
+      return -1;
+    }
+  
+
+
+
+
+
+
+
+
+
   auto record = new E16DST_DST1PhysicsRecord();
 //  auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   auto *gtrhist = new GTRCheckHist();
@@ -122,7 +151,7 @@ int main(int argc, char* argv[]) {
       auto& gtr_clusters = record->GTR().Clusters();
 //      E16DST_DST1SSDFactory(ssd_hits0, &event1->SSDHits(), &event1->SSDClusters());
 	  E16DST_DST1GTRFactory(gtr_hits0, &record->GTR(), gtrped, gtr_lorentz_angle_calib_params);
-	record->GTR().UpdatePtrs();
+  	record->GTR().UpdatePtrs();
 //      std::cout << "GTR factory returns :: " << E16DST_DST1GTRHitAndClusterFactory(gtr_hits0, &gtr_hits, &gtr_clusters, gtrped) << std::endl;
 //      std::cout << "n_event = " << n_event << ", cluster size " << gtr_clusters.size() << std::endl;
 //      E16DST_DST1GTRFactoryDST1Detector(gtr_hits0, &event1->GTR());
@@ -136,7 +165,8 @@ int main(int argc, char* argv[]) {
 //      event1->Trigger().SetValidFlag(1);
 
 //   gtrhist->Fill(&gtr_hits, &gtr_clusters);
-   gtrhist->Fill(&record->GTR());
+//
+   gtrhist->Fill(record);
 
 
 // GTR
@@ -172,6 +202,139 @@ int main(int argc, char* argv[]) {
 //  pdf_name.Form("/ccj/w/data06a/E16/user/nakasuga/output/gtr/dst1check/pdf/gtrtest%06d.pdf",run_id);
   pdf_name.Form("c_gtr_check_run%d.pdf", run_id);
   c1->SaveAs(pdf_name + "[", "pdf");
+
+  TCanvas *c_hit_map = new TCanvas("hitmap", "hitmap", 1024, 768);
+  c_hit_map->Divide(10, 3);
+  for(int m=0; m< 10; m++){
+    for(int l=0; l < 3; l++){
+ 	   c_hit_map->cd(l*10 + m+1);
+		gtrhist->h_hit_map[m][l]->Draw("colz");
+    }
+  }
+  c_hit_map->SaveAs(pdf_name, "pdf");
+
+
+  TCanvas *c_cluster_multiplicity_x = new TCanvas("mulx", "mulx", 1024, 768);
+  c_cluster_multiplicity_x->Divide(10, 3);
+  for(int m=0; m< 10; m++){
+    for(int l=0; l < 3; l++){
+ 	   c_cluster_multiplicity_x->cd(l*10 + m+1);
+		gtrhist->h_cluster_multiplicity_x[m][l]->Draw();
+    }
+  }
+  c_cluster_multiplicity_x->SaveAs(pdf_name, "pdf");
+
+
+  TCanvas *c_cluster_multiplicity_y = new TCanvas("mulx", "mulx", 1024, 768);
+  c_cluster_multiplicity_y->Divide(10, 3);
+  for(int m=0; m< 10; m++){
+    for(int l=0; l < 3; l++){
+ 	   c_cluster_multiplicity_y->cd(l*10 + m+1);
+		gtrhist->h_cluster_multiplicity_y[m][l]->Draw();
+    }
+  }
+  c_cluster_multiplicity_y->SaveAs(pdf_name, "pdf");
+
+
+
+  
+  TGraph *tgmuly[10][3];
+  for(int m=100; m < 110 ; m++){
+    if(m == 105) continue;
+    for(int l=0; l < 3; l++){
+	    tgmuly[m-100][l]= new TGraph(12);
+	    tgmuly[m-100][l]-> SetTitle(Form("cluster_multiplicity_ydependence_%d_%d", m, l));
+	    tgmuly[m-100][l]-> SetName(Form("cluster_multiplicity_ydependence_%d_%d", m, l));
+		 tgmuly[m-100][l]->SetMarkerStyle(20);
+		 tgmuly[m-100][l]->SetMarkerSize(1.5);
+		 tgmuly[m-100][l]->SetMaximum(3);
+	 }
+	}
+
+  
+  TGraph *tgmulx[10][3];
+  for(int m=100; m < 110 ; m++){
+    if(m == 105) continue;
+    for(int l=0; l < 3; l++){
+	    tgmulx[m-100][l]= new TGraph(12);
+	    tgmulx[m-100][l]-> SetTitle(Form("cluster_multiplicity_xdependence_%d_%d", m, l));
+	    tgmulx[m-100][l]-> SetName (Form("cluster_multiplicity_xdependence_%d_%d", m, l));
+		 tgmulx[m-100][l]->SetMarkerStyle(20);
+		 tgmulx[m-100][l]->SetMarkerSize(1.5);
+		 tgmulx[m-100][l]->SetMaximum(3);
+	 }
+	}
+
+
+
+
+
+  TCanvas *c_cl_multi_xdep[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=100; m < 110 ; m++){
+    if(m == 105) continue;
+    c_cl_multi_xdep[m-100] = new TCanvas(Form("ccn%d", m-100) , Form("ccn%d", m-100), 1024, 768);
+    c_cl_multi_xdep[m-100]->Divide(13,3);
+    for(int l=0; l < 3; l++){
+    	for(int n=0; n < 12; n++){
+        c_cl_multi_xdep[m-100]->cd(l*12 + n + 1);
+        gtrhist->h_cluster_multiplicity_xdependence[m-100][l][n]->Draw();
+ 		  double mean =  gtrhist->h_cluster_multiplicity_xdependence[m-100][l][n]->GetMean(); 
+        tgmulx[m-100][l]->SetPoint(n, n, mean);
+    	}
+	 }
+    c_cl_multi_xdep[m-100]->SaveAs(pdf_name, "pdf");
+  }
+
+
+
+  TCanvas *c_cl_multi_ydep[10]; 
+  //= new TCanvas("cl charge ", 100,0,100);
+  for(int m=100; m < 110 ; m++){
+    if(m == 105) continue;
+    c_cl_multi_ydep[m-100] = new TCanvas(Form("ccn%d", m-100) , Form("ccn%d", m-100), 1024, 768);
+    c_cl_multi_ydep[m-100]->Divide(13,3);
+    for(int l=0; l < 3; l++){
+    	for(int n=0; n < 12; n++){
+        c_cl_multi_ydep[m-100]->cd(l*12 + n + 1);
+        gtrhist->h_cluster_multiplicity_ydependence[m-100][l][n]->Draw();
+ 		  double mean =  gtrhist->h_cluster_multiplicity_ydependence[m-100][l][n]->GetMean(); 
+        tgmuly[m-100][l]->SetPoint(n, n, mean);
+    	}
+	 }
+    c_cl_multi_ydep[m-100]->SaveAs(pdf_name, "pdf");
+  }
+
+
+  TCanvas *c_tg_mulx[10];
+  for(int m=100; m < 110 ; m++){
+    if(m == 105) continue;
+    c_tg_mulx[m-100] = new TCanvas("tgmulx", "tgmulx", 1024, 768); 
+    c_tg_mulx[m-100]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+       c_tg_mulx[m-100]->cd(l+1);
+       tgmulx[m-100][l]->Draw("AP");
+       tgmulx[m-100][l]->Write();
+    }
+	  c_tg_mulx[m-100]->SaveAs(pdf_name, "pdf");
+	 }
+
+
+
+  TCanvas *c_tg_muly[10];
+  for(int m=100; m < 110 ; m++){
+    if(m == 105) continue;
+    c_tg_muly[m-100] = new TCanvas("tgmuly", "tgmuly", 1024, 768); 
+    c_tg_muly[m-100]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+       c_tg_muly[m-100]->cd(l+1);
+       tgmuly[m-100][l]->Draw("AP");
+       tgmuly[m-100][l]->Write();
+    }
+	  c_tg_muly[m-100]->SaveAs(pdf_name, "pdf");
+	 }
+
+
 
 
   TCanvas *c_cl_ncluster_modall_x = new TCanvas("ccnax" , "ccnax", 1024, 768);
