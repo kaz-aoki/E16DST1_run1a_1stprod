@@ -28,53 +28,53 @@ void E16ANA_STSGlobalGeometry::Prepare(){
      r_inner,
      (-26.89 - 23.66*3)/* *deg2rad */,
      0,
-     false);
+     true);
   E16ANA_STSGlobalSensorGeom sensor102
     (102,
      r_outer,
      (-26.89 - 23.66*2) /* *deg2rad */,
      0,
-     true);
+     false);
   E16ANA_STSGlobalSensorGeom sensor103
     (103,
      r_inner,
      (-26.89 - 23.66*1) /* *deg2rad */,
      0,
-     false);
+     true);
 
   E16ANA_STSGlobalSensorGeom sensor104
     (104,
      r_outer,
      (-26.89) /* *deg2rad */,
      0,
-     true);
+     false);
   E16ANA_STSGlobalSensorGeom sensor106
     (106,
      r_outer,
      (+26.89) /* *deg2rad */,
      0,
-     true);
+     false);
 
   E16ANA_STSGlobalSensorGeom sensor107
     (107,
      r_inner,
      (+26.89 + 23.66) /* *deg2rad */,
      0,
-     false);
+     true);
 
   E16ANA_STSGlobalSensorGeom sensor108
     (108,
      r_outer,
      (+26.89 + 23.66*2) /* *deg2rad */,
      0,
-     true);
+     false);
 
   E16ANA_STSGlobalSensorGeom sensor109
     (109,
      r_inner,
      (+26.89 + 23.66*3) /* *deg2rad */,
      0,
-     false);
+     true);
 
   map_sensor[sensor101.mod] = sensor101;
   map_sensor[sensor102.mod] = sensor102;
@@ -92,7 +92,7 @@ void E16ANA_STSGlobalGeometry::Prepare(){
 
 void E16ANA_STSGlobalGeometry::PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor){
   TGeoRotation spin;
-  if (!sensor.bSpin) spin.RotateY(180.);
+  if (sensor.bSpin) spin.RotateY(180.);
   TGeoTranslation trans(0,0,sensor.radius);
   TGeoRotation rot;
   rot.RotateY(sensor.angle);

@@ -107,7 +107,7 @@ int E16ANA_STSGeometry::Ch2StripP(int iChannel){
 double E16ANA_STSGeometry::GetLocalX_fromN(double iNStrip)
 {
   if (! IsValidStrip(iNStrip) ) return error;
-  double x = -((double)iNStrip - 511.5)*StripPitch;
+  double x = ((double)iNStrip - 511.5)*StripPitch;
   return x;
 }
 
