@@ -340,6 +340,7 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_module",&lg_module);
   tree_lg->Branch("lg_channel",&lg_channel);
   tree_lg->Branch("lg_peakheight",&lg_peakheight);
+  tree_lg->Branch("lg_peaktime",&lg_peaktime);
   tree_lg->Branch("lg_baseline",&lg_baseline);
   tree_lg->Branch("lg_baselinerms",&lg_baselinerms);
   tree_lg->Branch("lg_integral",&lg_integral);
@@ -348,6 +349,7 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gz",&lg_gz);
 
   /////////////////////////////////////////////
+  TH1F* hist_cond=new TH1F("hist_cond","",10,0,10);
   
 #ifdef TRACK_EFF_CHECK
   auto mock_data = E16ANA_MockTrackOutputData();
@@ -569,6 +571,7 @@ int main(int argc, char* argv[]) {
 
       }
       clear_sts();
+      /*
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
@@ -587,8 +590,8 @@ int main(int argc, char* argv[]) {
 	}
       }
       tree_sts->Fill();
+      */
       /////////////////////// FILL STS STANDALONE TREE.
-
       /////////////////////// FILL LG STANDALONE TREE.
       clear_lg();
       auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
@@ -612,7 +615,49 @@ int main(int argc, char* argv[]) {
       tree_lg->Fill();
 
 
+      hist_cond->SetTitle("LG107, ch=30, timing cut, peakheight>0");
       ///////////////////////// STS-LG Correlation
+      bool ok = false;
+      if ( lg_hits1.size() > 0 ){
+	for ( auto& lghit : lg_hits1 ) {
+	  TVector3 gpos = lghit.GlobalPos(*geometry);
+	  
+	  if ( lghit.ModuleId() != 107 ) continue;
+	  if ( lghit.ChannelId() != 30 ) continue;
+
+	  if ( lghit.PeakHeight() < 0 ) continue;
+	  if ( fabs(lghit.PeakTime()-80) > 10 ) continue;
+	  ok = true;
+	  /*
+	  if ( lghit.ModuleId() != 106 ) continue;
+	  if ( lghit.PeakHeight() <= 0 ) continue;
+	  if ( fabs(lghit.PeakTime()-80) < 10 ) continue; // bug.
+	  if ( (lghit.ChannelId() %10) == 0 ) ok = true;
+	  */
+	}
+      }
+      
+      if ( ok ) {
+	auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
+	if ( sts_hits1.size() > 0 ) {
+	  for( auto& hit1 : sts_hits1 ) {
+	    sts_module.push_back(hit1.ModuleId());
+	    sts_pn.push_back(hit1.PN());
+	    sts_channel.push_back(hit1.ChannelId());
+	    sts_peakheight.push_back(hit1.PeakHeight());
+	    sts_hittime.push_back(hit1.Timing());
+	    sts_lx.push_back(hit1.LocalPos().X());
+	    sts_elink.push_back(hit1.Elink());
+	    TVector3 vec = hit1.GlobalPos();
+	    sts_gx.push_back(vec.X());
+	    sts_gy.push_back(vec.Y());
+	    sts_gz.push_back(vec.Z());
+	    sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	  }
+	}
+	tree_sts->Fill();
+      }
+
 
 
 
