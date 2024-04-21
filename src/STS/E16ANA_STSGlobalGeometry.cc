@@ -102,11 +102,16 @@ void E16ANA_STSGlobalGeometry::PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor)
 
 void E16ANA_STSGlobalGeometry::Local2Global(int mod,const double* local, double* global)
 {
-  map_mat[mod].LocalToMaster(local,global);
+  double tmp[3] = {-local[0],local[1],local[2]};
+  map_mat[mod].LocalToMaster(tmp,global);
 }
 
 void E16ANA_STSGlobalGeometry::Global2Local(int mod,const double* global, double* local){
-  map_mat[mod].MasterToLocal(global,local);
+  double tmp[3];
+  map_mat[mod].MasterToLocal(global,tmp);
+  local[0] = -tmp[0];
+  local[1] = tmp[1];
+  local[2] = tmp[2];
 }
 
 void E16ANA_STSGlobalGeometry::CalcPointOnPlane(int mod, double* global1, double* global2, double* global_out){
