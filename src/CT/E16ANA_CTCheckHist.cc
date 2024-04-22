@@ -11,7 +11,7 @@ E16ANA_CTCheckHist::E16ANA_CTCheckHist(){
   double nsampled = (double)E16DST_Constant::NSamplesCT;
   for(int i=0;i<NMOD;i++){
     for(int j=0;j<NCH;j++){
-      hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(i,j)),150,0,300);
+      hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,0,300);
       hpeaktime[i][j] = new TH1F(Form("hpeaktime%d%02d",i,j),Form("peaktime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,0,nsampled);
       htiming[i][j] = new TH1F(Form("htiming%d%02d",i,j),Form("timing_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,0,nsampled);
       hbaseline[i][j] = new TH1F(Form("hbaseline%d%02d",i,j),Form("baseline_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,-50,50);

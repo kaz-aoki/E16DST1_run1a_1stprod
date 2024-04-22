@@ -117,7 +117,7 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
     if( IDtoModule(tid)==-1 ){// vacant ch
       fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
     }
-    // else if( IDtoModule(tid)>=102 && IDtoModule(tid)<=108 ){// for FMON
+    // else if( IDtoModule(tid)>=103 && IDtoModule(tid)<=107 ){// for FMON
     //   fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
     // }
     else{
@@ -128,6 +128,9 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
       // std::cout<<hvch<<" ph:"<<ph<<"=>"<<standard_phmean<<", HV:"<<thvval<<"=>"<<newhvval<<std::endl;
       // if(hvch==111){//107-2
       // 	newhvval = 1328.26;
+      // }
+      // if(hvch==139){//108-41
+      // 	newhvval = 1350.;
       // }
 // #else
       double gain = 1.5;

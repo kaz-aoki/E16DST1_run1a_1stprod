@@ -70,10 +70,10 @@ void E16ANA_LGCTOnlineAnalyzer::MakeCTPDF(int run_id, char* outfile, int maxeven
     if( maxevent!=-1&&nevent>maxevent ){break;}
     nevent++;
 
-    if(LGTrgTiming==0&&CT0PeakHeight>20.){
+    if(LGTrgTiming==0&&CT0PeakHeight>30.){
       cthists->Fill(CT0Module,CT0Block,CT0PeakHeight,CT0PeakTime,CT0Timing,CT0Baseline,CT0BaselineRms,0.,0);
     }
-    if(LGTrgTiming==0&&CT1PeakHeight>20.){
+    if(LGTrgTiming==0&&CT1PeakHeight>30.){
       cthists->Fill(CT1Module,CT1Block,CT1PeakHeight,CT1PeakTime,CT1Timing,CT1Baseline,CT1BaselineRms,0.,0);
     }
 

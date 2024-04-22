@@ -15,8 +15,10 @@ const int kHitTimeEnd = 150;//[cell]
 
   //const int kPeakSearchStart = 5;//[cell]
 // const int kPeakSearchStart = 50;//[cell]
-const int kPeakSearchStart = 10;//[cell]
-const int kPeakSearchEnd = 160;//[cell]
+// const int kPeakSearchStart = 10;//[cell]//240421 20:17
+// const int kPeakSearchEnd = 160;//[cell]//240421 20:17
+const int kPeakSearchStart = 30;//[cell]
+const int kPeakSearchEnd = 130;//[cell]
 const int kTimingSearchRegion = 20;//[cell] before peaktime
 const int kBaselineStart = -60;//[cell] +peaktime
 const int kBaselineEnd = -10;//[cell] +peaktime

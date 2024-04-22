@@ -277,7 +277,11 @@ int main(int argc, char* argv[]) {
 	block = hit0.BlockID();
 
 	auto spec = lgbasic.GetSpec(module,block);
+	ip = spec->IP;
 	double wftype = spec->WF_TYPE;
+	// if(ip==27){ //temporary 20240422
+	//   wftype = 0.44;
+	// }
 	double t0 = lgbasic.GetT0(module,block);
 	int status = lgdead.Status(module,block);
 
@@ -292,8 +296,6 @@ int main(int argc, char* argv[]) {
 	for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
 	  waveform[cell] = waveform[cell]*wftype;
 	}
-
-	ip = spec->IP;
 
 	E16ANA_LGWaveform* lgwf = new E16ANA_LGWaveform();
 	lgwf->SimpleMethod(waveform); // 700 event/sec @1e10
@@ -316,10 +318,10 @@ int main(int argc, char* argv[]) {
 	tree->Fill();
 
 	// if(peakheight>20&&trg_lg_hit_t>3050&&trg_lg_hit_t<3200){
-	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
+	if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
-	if(trg_lg_hit_t==0){//thr check
+	// if(trg_lg_hit_t==0){//thr check
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
 	}
 	if(trg&&trg_lg_hit_t!=0){
@@ -363,8 +365,8 @@ int main(int argc, char* argv[]) {
   lghists->DrawEachTimeCorrelation(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  // TString wfpdfout = Form("%s",out_wf_pdf_name);
-  // lghists->DrawWaveform(wfpdfout);
+  TString wfpdfout = Form("%s",out_wf_pdf_name);
+  lghists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();
