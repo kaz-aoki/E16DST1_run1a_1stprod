@@ -48,18 +48,18 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 #ifndef REMOVE_GTR100
                                           {0.265, 0.626, 0.},
 #else 
-                                          {10, 10, 0.},
+                                          {99999, 99999, 0.},
 #endif //100
 #ifndef REMOVE_GTR200
                                           {0.265, 0.626, 0.},
 #else 
-                                          {10, 10, 0.},
+                                          {99999, 99999, 0.},
 #endif //200
 
 #ifndef REMOVE_GTR300
                                           {0.265, 0.626, 0.},
 #else 
-                                          {10, 10, 0.},
+                                          {99999, 99999, 0.},
 #endif //300
 //                                          {3.0, 0.542, 0.},//for Run0c
 //                                         {0.252, 0.542, 0.},//for Run0c
@@ -160,6 +160,12 @@ constexpr int    kProjectionMaxSteps = 2000;
 
 //constexpr double kMaxChi2ForSearchAssociatedHits = 500.;
 constexpr double kMaxChi2ForSearchAssociatedHits = 1.0e10;
+
+constexpr bool   kUseChi2Cut = true;
+constexpr double kMaxChi2  = 50;
+
+
+
 
 }; // E16ANA_StraightTrackParameter
 

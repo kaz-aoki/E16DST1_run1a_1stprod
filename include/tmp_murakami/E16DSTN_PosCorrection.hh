@@ -1,5 +1,5 @@
-#ifndef E16DSTN_PosCorrection_hh
-#define E16DSTN_PosCorrection_hh
+#ifndef E16DSTN_POSCORRECTION_HH 
+#define E16DSTN_POSCORRECTION_HH
 
 #include <TROOT.h>
 #include <TH1D.h>
@@ -13,7 +13,6 @@
 #include "E16ANA_StraightTrackConstant.hh"
 #include "E16ANA_StraightMultiTrack.hh"
 #include "E16DST_DST1Constant.hh"
-#include "E16DSTN_StraightParameter.hh"
 
 class E16DSTN_PosCorrection {
 public : 
@@ -1452,7 +1451,7 @@ public :
 	
    void PosCoLoop(TTree *tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag,bool  vetex_z_fix_flag, int analysisSW);
 	void UpdateFitResult(E16ANA_StraightMultiTrack *fitter, const int tid);
-	bool HasUsedCluster(const std::array<int, E16DSTN_StraightParameter::kNumTrackingDetectors> &cids);
+	bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingLayers> &cids);
 	void SetIsWire(bool i) {
 	isWire = i;}
 	void ResizeTmpVectors();
@@ -2302,13 +2301,13 @@ public :
 
 private:
 	E16ANA_StraightMultiTrack *fitter;
-	std::array<std::vector<int>, E16DSTN_StraightParameter::kNumTrackingDetectors> used_cluster_ids;
+	std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingLayers> used_cluster_ids;
 //	std::vector<int> killdup_ids;
 	std::vector<int> good_ids;
 	std::vector<int> sorted_ids;
 	std::vector<int> killdup_ids;
 	std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> det_sigmas;//detectors sigmas
-	std::array<FitResult, E16ANA_StraightTrackConstant::kNumDetectorLayers> fit_results;
+	std::array<FitResult, E16ANA_StraightTrackConstant::kNumTrackingLayers> fit_results;
 	int removed_layer;
 	TVector3 init_pos_fit;
 	TVector3 init_mom_fit;
