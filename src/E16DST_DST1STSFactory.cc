@@ -60,8 +60,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetIds(hit0.ModuleID(),hit0.ChannelID());
 #endif
     hit1.SetPeakHeight(hit0.ADC());
-    
-    hit1.SetTiming(hit0.TDC()-emu_timestamp);
+    if ( hit0.TDC() != 0xffff ) hit1.SetTiming(hit0.TDC()-emu_timestamp);
     hit1.SetPN(hit0.PN());
     hit1.SetElink(hit0.Elink());
     hit1.SetGeriTimestamp(hit0.GeriTimestamp());
