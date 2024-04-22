@@ -1,11 +1,12 @@
 #include "E16DSTN_PosCorrection.hh"
 #include "E16ANA_StraightTrackConstant.hh"
-//#include "E16ANA_StraightTrackParameter.hh"
+#include "E16ANA_StraightTrackParameter.hh"
 #include "E16ANA_StraightMultiTrack.hh"
 #include <map>
 
-//using namespace E16ANA_StraightTrackParameter;
-using namespace E16DSTN_StraightParameter;
+using namespace E16ANA_StraightTrackParameter;
+//using namespace E16DSTN_StraightParameter;
+
 
 
 void E16DSTN_PosCorrection::PosCoLoop(TTree *tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool  vetex_z_fix_flag, int analysisSW) { 
@@ -27,23 +28,23 @@ void E16DSTN_PosCorrection::PosCoLoop(TTree *tree, int print_cycle, int max_even
 	killdup_ids.clear();
 
 	if(analysisSW == 0){//dulication cut first 
-	ResizeTmpVectors();
-	ChiSqSort(sorted_ids);//output vec
-	SetTracks(sorted_ids, good_ids);//in/out vec
-	ClearUsedClusterIDs();
-	RemoveDuplicatedHits(good_ids, killdup_ids);
-	CorrectionFit(killdup_ids);
-	AddRecord(killdup_ids);
+		ResizeTmpVectors();
+		ChiSqSort(sorted_ids);//output vec
+		SetTracks(sorted_ids, good_ids);//in/out vec
+		ClearUsedClusterIDs();
+		RemoveDuplicatedHits(good_ids, killdup_ids);
+		CorrectionFit(killdup_ids);
+		AddRecord(killdup_ids);
 	}
 	else if (analysisSW == 1){//Re-Fit First
-	ResizeTmpVectors();
-	SetTracks(good_ids);//good tracks are choosen based on chi2, targetpos 
-	CorrectionFit(good_ids);
-	ChiSqSort(good_ids, sorted_ids);//in out
-	ClearUsedClusterIDs();
-	RemoveDuplicatedHits(sorted_ids, killdup_ids);
-	AddRecord(killdup_ids);
-	}
+		ResizeTmpVectors();
+		SetTracks(good_ids);//good tracks are choosen based on chi2, targetpos 
+		CorrectionFit(good_ids);
+		ChiSqSort(good_ids, sorted_ids);//in out
+		ClearUsedClusterIDs();
+		RemoveDuplicatedHits(sorted_ids, killdup_ids);
+		AddRecord(killdup_ids);
+		}
 	}
 }
 
@@ -158,30 +159,71 @@ void E16DSTN_PosCorrection::RemoveDuplicatedHits(std::vector<int> &in_ids, std::
 	
 	for(int i=0; i < in_ids.size() ; i++){
 		int tid = in_ids[i];
-		if(removed_layer ==-1){
-			std::array<int, kNumTrackingDetectors> cids = {
+#ifndef NoExist_SSD
+			std::array<int, kNumTrackingLayers> cids = {
 			rk_hit_ssd_id->at(tid),
 			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
 			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
 			rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
-			if(HasUsedCluster(cids)){
+         if(HasUsedCluster(cids)){
 				continue;			
 			} else {
-				for (int j=0; j  <  kNumTrackingDetectors;j++){
+				for (int j=0; j  <  kNumTrackingLayers;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
 			out_ids.emplace_back(tid);
 			}
-		}
-		else {
-			std::cerr << "not developed yet" << std::endl;
-		}
+#elif REMOVE_100
+			std::array<int, kNumTrackingLayers-1 > cids = {
+			rk_hit_ssd_id->at(tid),
+//			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
+	         if(HasUsedCluster(cids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  kNumTrackingLayers;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			out_ids.emplace_back(tid);
+			}
+		rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+#elif REMOVE_200
+			std::array<int, kNumTrackingLayers-1 > cids = {
+			rk_hit_ssd_id->at(tid),
+			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+//			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
+	      rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+		         if(HasUsedCluster(cids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  kNumTrackingLayers;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			out_ids.emplace_back(tid);
+			}
+#elif REMOVE_300
+			std::array<int, kNumTrackingLayers-1 > cids = {
+			rk_hit_ssd_id->at(tid),
+			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid)};
+//rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+			         if(HasUsedCluster(cids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  kNumTrackingLayers;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			out_ids.emplace_back(tid);
+			}
+#endif
+
+			
 	}
 }
 
 
-bool E16DSTN_PosCorrection::HasUsedCluster(const std::array<int, kNumTrackingDetectors> &cids){
-  for (int i = 0; i < kNumTrackingDetectors; ++i) {
+bool E16DSTN_PosCorrection::HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingLayers> &cids){
+  for (int i = 0; i < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++i) {
      for (const auto& used_id : used_cluster_ids[i]) {
        if (cids[i] == used_id) {
          return true;
@@ -193,23 +235,23 @@ bool E16DSTN_PosCorrection::HasUsedCluster(const std::array<int, kNumTrackingDet
 
 
 bool E16DSTN_PosCorrection::IsComingFromTarget(int i){
-	if(isWire){
-		if( fabs(rk_fit_init_pos_gy->at(i)) < 5){
-			double init_gz = rk_fit_init_pos_gz->at(i);
-			if( kUpTargetgz - kWireZRegion < init_gz  && init_gz < kUpTargetgz + kWireZRegion){
-				return true;
-			}
-			else if ( kDownTargetgz - kWireZRegion< init_gz && init_gz < kDownTargetgz + kWireZRegion){
-				return true;		
-			}else {
-				return false;
-			}
-		}
-	}
-	else {
-		std::cerr << "not developed yet for coming from targets " << std::endl;
-		return false;	
-	}
+//	if(isWire){
+//		if( fabs(rk_fit_init_pos_gy->at(i)) < 5){
+//			double init_gz = rk_fit_init_pos_gz->at(i);
+//			if( kUpTargetgz - kWireZRegion < init_gz  && init_gz < kUpTargetgz + kWireZRegion){
+//				return true;
+//			}
+//			else if ( kDownTargetgz - kWireZRegion< init_gz && init_gz < kDownTargetgz + kWireZRegion){
+//				return true;		
+//			}else {
+//				return false;
+//			}
+//		}
+//	}
+//	else {
+//		std::cerr << "not developed yet for coming from targets " << std::endl;
+//		return false;	
+//	}
 }
 
 
@@ -411,9 +453,9 @@ void E16DSTN_PosCorrection::CorrectionFit(std::vector<int> &inids){
 		fitter->Clear();
 		this->AddTrackCorrectedHit(fitter, tid);
 		fitter->SetRungeKuttaStepSize(15.0);
-		fitter->SetMaxSteps(kTrackingMaxSteps);
+		fitter->SetMaxSteps(E16ANA_StraightTrackParameter::kTrackingMaxSteps);
 		double chi2;
-		chi2 = fitter->Fit(false, false, false, kMinuitStrategy, kMinuitMaxFunctionCalls);//vertex z not fix
+		chi2 = fitter->Fit(false, false, false, E16ANA_StraightTrackParameter::kMinuitStrategy, E16ANA_StraightTrackParameter::kMinuitMaxFunctionCalls);//vertex z not fix
 		//chi2 = fitter->Fit(false, false, true, kMinuitStrategy, kMinuitMaxFunctionCalls);//vertex z fix
 //		std::cout << "chi2 = " << chi2 << std::endl;
 		chisq.push_back(chi2);	
@@ -432,15 +474,12 @@ void E16DSTN_PosCorrection::AddTrackCorrectedHit(E16ANA_StraightMultiTrack *fitt
 //	}
 	fitter->Clear();
 	double target_z, target_x;
-	if(rk_fit_init_pos_gz->at(tid) < 0){
-		target_z = kUpTargetgz;
-		target_x = kUpTargetgx;
-	}
-	else{
-		target_z = kDownTargetgz;
-		target_x = kDownTargetgx;
-	}
-  	fitter->SetInitialVertex(TVector3(target_x,rk_fit_init_pos_gy->at(tid), target_z),TVector3(kInitPosErrorWire));
+
+	if(isWire){
+  		fitter->SetInitialVertex(TVector3(rk_fit_init_pos_gx->at(tid) ,rk_fit_init_pos_gy->at(tid), rk_fit_init_pos_gz->at(tid)),kInitPosErrorWire );
+   }
+
+	
 
 //	std::cout << "init "  << rk_fit_init_pos_gy->at(tid) << std::endl;
 	fitter->SetInitialMomentum(0, TVector3(rk_fit_init_mom_gx->at(tid), rk_fit_init_mom_gy->at(tid), rk_fit_init_mom_gz->at(tid)));//zero is for a single track
@@ -450,7 +489,18 @@ void E16DSTN_PosCorrection::AddTrackCorrectedHit(E16ANA_StraightMultiTrack *fitt
 //
 
    for (int l = 0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
-   	if (l == removed_layer) continue;
+#ifdef NoExist_SSD
+   	if (l == 0) continue;
+#endif
+
+#ifdef REMOVE_100
+   	if (l == 1) continue;
+#elif REMOVE_200
+   	if (l == 2) continue;
+#elif REMOVE_300
+   	if (l == 3) continue;
+#endif
+
 		int mid[4] = {rk_fit_ssd_mid->at(tid), rk_fit_gtr100_mid->at(tid), rk_fit_gtr200_mid->at(tid), rk_fit_gtr300_mid->at(tid)};
 //		std::cout << "mid " << rk_fit_ssd_mid->at(tid) << std::endl;
     	if (l == E16ANA_StraightTrackConstant::kSSD) {
