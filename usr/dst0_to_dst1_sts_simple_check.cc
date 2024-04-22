@@ -257,6 +257,8 @@ int main(int argc, char* argv[]) {
   std::vector<float> sts_gz;
   std::vector<uint64_t> sts_geriTimestamp;
   std::vector<uint16_t> sts_elink;
+  std::vector<int> sts_tdc_l1geri;
+  std::vector<long> sts_geri_l1geri;
 
   auto clear_sts = [&](){
     sts_module.clear();
@@ -270,6 +272,8 @@ int main(int argc, char* argv[]) {
     sts_gz.clear();
     sts_geriTimestamp.clear();
     sts_elink.clear();
+    sts_tdc_l1geri.clear();
+    sts_geri_l1geri.clear();
   };
   
   TString br_int16 = "/S";
@@ -301,6 +305,8 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_peakheight",&sts_peakheight);
   tree_sts->Branch("sts_hittime",&sts_hittime);
   tree_sts->Branch("sts_elink",&sts_elink);
+  tree_sts->Branch("sts_tdc_l1geri",&sts_tdc_l1geri);
+  tree_sts->Branch("sts_geri_l1geri",&sts_geri_l1geri);
   
   tree_sts->Branch("sts_lx",&sts_lx);
   tree_sts->Branch("sts_gx",&sts_gx);
@@ -576,14 +582,20 @@ int main(int argc, char* argv[]) {
 	  sts_pn.push_back(hit1.PN());
 	  sts_channel.push_back(hit1.ChannelId());
 	  sts_peakheight.push_back(hit1.PeakHeight());
-	  sts_hittime.push_back(hit1.Timing());
 	  sts_lx.push_back(hit1.LocalPos().X());
 	  sts_elink.push_back(hit1.Elink());
+	  if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
+	    sts_hittime.push_back(hit1.Timing());
+	    sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
+	  }
+
 	  TVector3 vec = hit1.GlobalPos();
 	  sts_gx.push_back(vec.X());
 	  sts_gy.push_back(vec.Y());
 	  sts_gz.push_back(vec.Z());
 	  sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	  int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
+	  sts_geri_l1geri.push_back(tmp);
 	}
       }
       tree_sts->Fill();
