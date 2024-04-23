@@ -7,6 +7,53 @@
 using namespace E16ANA_StraightTrackParameter;
 //using namespace E16DSTN_StraightParameter;
 
+E16DSTN_PosCorrection::E16DSTN_PosCorrection(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter) : fChain(0){
+	if (tree ==0){
+		TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("RootFileCannotbeFound");
+		if (!f || !f->IsOpen()){
+			std::cout  << "not found " << std::endl;
+		}
+		f->GetObject("tree", tree);
+	}
+
+	std::cout  << "Initializing tree "  << std::endl; 
+	Init(tree, out_file);
+	std::cout  << "Initializing ends "  << std::endl; 
+}
+
+E16DSTN_PosCorrection::~E16DSTN_PosCorrection(){
+	if(!fChain) return;
+	delete fChain->GetCurrentFile();
+}
+
+
+Int_t E16DSTN_PosCorrection::GetEntry(Long64_t entry)
+{
+// Read contents of entry.
+   if (!fChain) return 0;
+   return fChain->GetEntry(entry);
+}
+Long64_t E16DSTN_PosCorrection::LoadTree(Long64_t entry)
+{
+// Set the environment to read one entry
+   if (!fChain) return -5;
+   Long64_t centry = fChain->LoadTree(entry);
+   if (centry < 0) return centry;
+   if (fChain->GetTreeNumber() != fCurrent) {
+      fCurrent = fChain->GetTreeNumber();
+      Notify();
+   }
+   return centry;
+}
+
+Bool_t E16DSTN_PosCorrection::Notify(){
+	return kTRUE;
+}
+
+void E16DSTN_PosCorrection::Show(Long64_t entry){
+	if(!fChain) return;
+	fChain->Show(entry);
+}
 
 
 void E16DSTN_PosCorrection::PosCoLoop(TTree *tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool  vetex_z_fix_flag, int analysisSW) { 
@@ -156,11 +203,10 @@ void E16DSTN_PosCorrection::ChiSqSort( std::vector<int> &inids, std::vector<int>
 
 
 void E16DSTN_PosCorrection::RemoveDuplicatedHits(std::vector<int> &in_ids, std::vector<int> &out_ids){
-	
+#ifndef NoExist_SSD
 	for(int i=0; i < in_ids.size() ; i++){
 		int tid = in_ids[i];
-#ifndef NoExist_SSD
-			std::array<int, kNumTrackingLayers> cids = {
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> cids = {
 			rk_hit_ssd_id->at(tid),
 			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
 			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
@@ -168,62 +214,147 @@ void E16DSTN_PosCorrection::RemoveDuplicatedHits(std::vector<int> &in_ids, std::
          if(HasUsedCluster(cids)){
 				continue;			
 			} else {
-				for (int j=0; j  <  kNumTrackingLayers;j++){
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
 			out_ids.emplace_back(tid);
 			}
-#elif REMOVE_100
-			std::array<int, kNumTrackingLayers-1 > cids = {
+    }
+  #else//NoExist_SSD
+    #ifdef REMOVE_100
+    for(int i=0; i < in_ids.size() ; i++){
+		int tid = in_ids[i];
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
 			rk_hit_ssd_id->at(tid),
-//			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
 			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
-	         if(HasUsedCluster(cids)){
+			rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+         if(HasUsedCluster(cids)){
 				continue;			
 			} else {
-				for (int j=0; j  <  kNumTrackingLayers;j++){
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
 			out_ids.emplace_back(tid);
 			}
-		rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
-#elif REMOVE_200
-			std::array<int, kNumTrackingLayers-1 > cids = {
+    }
+    #elif REMOVE_200
+    for(int i=0; i < in_ids.size() ; i++){
+		int tid = in_ids[i];
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
 			rk_hit_ssd_id->at(tid),
 			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
-//			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
-	      rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
-		         if(HasUsedCluster(cids)){
+			rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+         if(HasUsedCluster(cids)){
 				continue;			
 			} else {
-				for (int j=0; j  <  kNumTrackingLayers;j++){
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
 			out_ids.emplace_back(tid);
 			}
-#elif REMOVE_300
-			std::array<int, kNumTrackingLayers-1 > cids = {
+    }
+     #elif REMOVE_300
+    for(int i=0; i < in_ids.size() ; i++){
+		int tid = in_ids[i];
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
 			rk_hit_ssd_id->at(tid),
 			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
 			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid)};
-//rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
-			         if(HasUsedCluster(cids)){
+         if(HasUsedCluster(cids)){
 				continue;			
 			} else {
-				for (int j=0; j  <  kNumTrackingLayers;j++){
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
 			out_ids.emplace_back(tid);
 			}
-#endif
+    }
+    #else
+    std::cout << "ssd no exist "<< std::endl;
+	for(int i=0; i < in_ids.size() ; i++){
+		int tid = in_ids[i];
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
+			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
+			rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+         if(HasUsedCluster(cids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-1;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			out_ids.emplace_back(tid);
+			}
+    }
+#endif // REMOVE_GTRxxx
+#endif // NoExist_SSD
 
+
+}
+
+//
+//#elif REMOVE_100
+//			std::array<int, kNumTrackingStrips-1 > cids = {
+//			rk_hit_ssd_id->at(tid),
+////			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+//			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
+//	         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  kNumTrackingStrips;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(tid);
+//			}
+//		rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+//#elif REMOVE_200
+//			std::array<int, kNumTrackingStrips-1 > cids = {
+//			rk_hit_ssd_id->at(tid),
+//			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+////			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid),
+//	      rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+//		         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  kNumTrackingStrips;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(tid);
+//			}
+//#elif REMOVE_300
+//			std::array<int, kNumTrackingStrips-1 > cids = {
+//			rk_hit_ssd_id->at(tid),
+//			rk_hit_gtr100_xid->at(tid), rk_hit_gtr100_yid->at(tid),
+//			rk_hit_gtr200_xid->at(tid), rk_hit_gtr200_yid->at(tid)};
+////rk_hit_gtr300_xid->at(tid), rk_hit_gtr300_yid->at(tid)};
+//			         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  kNumTrackingStrips;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(tid);
+//			}
+//#endif
+//
+//}
 			
-	}
+
+bool E16DSTN_PosCorrection::HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> &cids){
+  for (int i = 0; i < E16ANA_StraightTrackConstant::kNumTrackingStrips; ++i) {
+     for (const auto& used_id : used_cluster_ids[i]) {
+       if (cids[i] == used_id) {
+         return true;
+       }
+     }
+   }
+   return false;
 }
 
 
-bool E16DSTN_PosCorrection::HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingLayers> &cids){
-  for (int i = 0; i < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++i) {
+
+bool E16DSTN_PosCorrection::HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips-1 > &cids){
+  for (int i = 0; i < E16ANA_StraightTrackConstant::kNumTrackingStrips; ++i) {
      for (const auto& used_id : used_cluster_ids[i]) {
        if (cids[i] == used_id) {
          return true;
@@ -252,6 +383,7 @@ bool E16DSTN_PosCorrection::IsComingFromTarget(int i){
 //		std::cerr << "not developed yet for coming from targets " << std::endl;
 //		return false;	
 //	}
+    return true;
 }
 
 
@@ -281,9 +413,9 @@ void E16DSTN_PosCorrection::SetTracks(std::vector<int> &invec,std::vector<int> &
 //	good_ids.clear();
 	for(int i=0; i < invec.size(); i++){
 		int tid = invec[i];
-		if(kUseChi2Cut && chi_square->at(tid) > kMaxChi2){
-			break;
-		}
+//		if(kUseChi2Cut && chi_square->at(tid) > kMaxChi2){
+//			break;
+//		}
 		if(IsGoodTrack(tid)){
 //			good_ids.emplace_back(i);
  			outids.emplace_back(i);
@@ -307,7 +439,7 @@ void E16DSTN_PosCorrection::UpdateFitResult(E16ANA_StraightMultiTrack *fitter,  
 	init_mom_fit = fitter->GetFitMomentum(0);
 
 
-	for(int l=0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l){
+	for(int l=0; l < E16ANA_StraightTrackConstant::kNumTrackingStrips; ++l){
 		fit_results[l].Clear();
 		std::vector<TVector3> lpos;
     	std::vector<TVector3> lmom;
@@ -505,11 +637,15 @@ void E16DSTN_PosCorrection::AddTrackCorrectedHit(E16ANA_StraightMultiTrack *fitt
 //		std::cout << "mid " << rk_fit_ssd_mid->at(tid) << std::endl;
     	if (l == E16ANA_StraightTrackConstant::kSSD) {
 		TVector3 lpos(rk_fit_ssd_x->at(tid), 0, 0 );
-//		std::cout << "ssd x " << rk_hit_ssd_x->at(tid) << std::endl;
-      fitter->AddHit(0, l, geom->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l])),lpos, kSigmas[l]);//first zero is for a single track, second argv is the layzer order
+		std::cout << "ssd x " << rk_hit_ssd_x->at(tid) << std::endl;
     } else {
-      fitter->AddHit(0, l, geom->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]), l - 1), CorrectedLocalPos(tid,mid[l],  l), kSigmas[l]);//first zero is for a single track
-//		std::cout << "gtr x " << CorrectedLocalPos(tid, mid[l], l ).X() <<", " << CorrectedLocalPos(tid, mid[l], l).Y() <<std::endl;
+	  std::cout << "gtr x " << CorrectedLocalPos(tid, mid[l], l ).X() <<", " << CorrectedLocalPos(tid, mid[l], l).Y() <<std::endl;
+      std::cout << "mid " << mid[l] << std::endl;
+      std::cout << "kmid " <<  E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]) << std::endl;
+      std::cout << "l " << l <<  std::endl;
+      std::cout << "geom " << geom->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]), l - 1);
+
+      fitter->AddHit(0, l, geom->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]), l - 1), CorrectedLocalPos(tid, mid[l],  l), kSigmas[l]);//first zero is for a single track
     }
   }
 //	fitter->PrintHits();
@@ -517,181 +653,193 @@ void E16DSTN_PosCorrection::AddTrackCorrectedHit(E16ANA_StraightMultiTrack *fitt
 
 TVector3 E16DSTN_PosCorrection::CorrectedLocalPos(const int tid, const int mid, const int l){
 	TVector3 cor_pos;//correcrted pos 
-#ifdef CALIB
-
-	if(l == 0){
+    if(l == 0){
 		return TVector3(rk_hit_ssd_x->at(tid),0, 0 );
-	}
-	
-	else if(l == 1){//gtr100
-//		double localx     = rk_hit_gtr100_tx2->at(tid);
-//		double localy     = rk_hit_gtr100_ty->at(tid);
-		double localx     = rk_hit_gtr100_cogx->at(tid);
-		double localy     = rk_hit_gtr100_cogy->at(tid);
-		double vd     = 0.011;
-		double gap = 1.5;
-//		double tan    = (double)rk_fit_gtr100_mom_gx->at(tid)/rk_fit_gtr100_mom_gz->at(tid);
-		double tan    = (double)rk_fit_gtr100_mom_x->at(tid)/rk_fit_gtr100_mom_z->at(tid);
-		double tcor   = 1.4*exp(-0.5*pow((fabs(localx)-45)/11,2))+1e-4*(localy*localy);
-		double cent0  = 150;
-		double tc1x   = cent0 + (gap - tcor)/vd;
-		double crx1   = localx - (tc1x - rk_hit_gtr100_xt4->at(tid)) * vd * tan;	
-//		double crx1   = localx - (tc1x - rk_hit_gtr100_xt->at(tid)) * vd * tan;	
-		double cry1   = localy;
-		return TVector3(crx1, cry1, 0);
-	}
-	else if(l == 2)	{//gtr200
-//		double localx     = rk_hit_gtr200_tx2->at(tid);//should be gtx?
-//		double localy     = rk_hit_gtr200_ty->at(tid);
-//		double localx     = rk_hit_gtr200_cogx->at(tid);
-		double localy     = rk_hit_gtr200_cogy->at(tid);
-		double projx  = rk_fit_gtr200_x->at(tid);
-		double projy  = rk_fit_gtr200_y->at(tid);
-		double vd     = 0.010;
-		double gap    = 1.5;
-//		double tan    = (double)rk_fit_gtr200_mom_gx->at(tid)/rk_fit_gtr200_mom_gz->at(tid);
-		double tan    = (double)rk_fit_gtr200_mom_x->at(tid)/rk_fit_gtr200_mom_z->at(tid);
-//		double tcor   = -0.8*exp(-0.5*pow((localx+75)/15,2))+exp(-0.5*pow((localx-55)/20, 2))+4e-4*(localy*localy)/4.0;
-		double tcor   = -0.8*exp(-0.5*pow((projx+75)/15,2))+exp(-0.5*pow((projx-55)/20, 2))+4e-4*(projy*projy)/4.0;
-		double cent0  = 150;
-		double tc2x   = cent0 + (gap - tcor)/vd;
-		double crx2   = projx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
-//		double crx2   = localx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
-//		double crx2   = localx - (tc2x - rk_hit_gtr200_xt->at(tid)) * vd * tan;	
-		double cry2   = localy;
-		return TVector3(crx2, cry2, 0);
-	}
-	else if(l == 3){//gtr300
-//		double localx     = rk_hit_gtr300_tx2->at(tid);//should be gtx?
-//		double localy     = rk_hit_gtr300_ty->at(tid);
-		double localx     = rk_hit_gtr300_cogx->at(tid);//should be gtx?
-		double localy     = rk_hit_gtr300_cogy->at(tid);
-		double vd     = 0.018;
-		double gap    = 1.5;
-//		double tan   = (double)rk_fit_gtr300_mom_gx->at(tid)/rk_fit_gtr300_mom_gz->at(tid);
-		double tan   = (double)rk_fit_gtr300_mom_x->at(tid)/rk_fit_gtr300_mom_z->at(tid);
-		double tcor   = 1.4*exp(-0.5*pow((localx+115)/14,2))+6e-4*(localy*localy)/6.0;
-		double cent0  = 150;
-		double tc3x   = cent0 + (gap - tcor)/vd;
-		double crx3   = localx - (tc3x - rk_hit_gtr300_xt4->at(tid)) * vd * tan;	
-//		double crx3   = localx - (tc3x - rk_hit_gtr300_xt->at(tid)) * vd * tan;	
-		double cry3   = localy;
-		return TVector3(crx3, cry3, 0);
-	}
-#endif
-#ifdef COG_INFO
-	
-
-//  -------- COG  ---------- ///
-	if(l == 0) {
-		cor_pos = TVector3(rk_hit_ssd_x->at(tid), 0 , 0);
-	}
-	else if(l == 1) {
-		cor_pos = TVector3(rk_hit_gtr100_cogx->at(tid), rk_hit_gtr100_cogy->at(tid) , 0);
-	}
-	else if(l == 2) {
-		cor_pos = TVector3(rk_hit_gtr200_cogx->at(tid), rk_hit_gtr200_cogy->at(tid) , 0);
-	}
-	else if(l == 3) {
-		cor_pos = TVector3(rk_hit_gtr300_cogx->at(tid), rk_hit_gtr300_cogy->at(tid) , 0);
-	}
-#endif 
-#ifdef TDC_INFO
-
-
-// ---------- TDC ----------- //
-	if(l == 0) {
-		cor_pos = TVector3(rk_hit_ssd_x->at(tid), 0 , 0);
-	}
-	else if(l == 1) {
-		cor_pos = TVector3(rk_hit_gtr100_tx2->at(tid), rk_hit_gtr100_cogy->at(tid) , 0);
-	}
-	else if(l == 2) {
-		cor_pos = TVector3(rk_hit_gtr200_tx2->at(tid), rk_hit_gtr200_cogy->at(tid) , 0);
-	}
-	else if(l == 3) {
-		cor_pos = TVector3(rk_hit_gtr300_tx2->at(tid), rk_hit_gtr300_cogy->at(tid) , 0);
-	}
-#endif 
-
-#ifdef DRIFT_V
-// -----   Drift velocity ----- // 
-	if(l == 0) {
-		cor_pos = TVector3(rk_hit_ssd_x->at(tid), 0 , 0);
-	}
-
-
-	if(l == 0){
-		return TVector3(rk_hit_ssd_x->at(tid),0, 0 );
-	}
-	
-	else if(l == 1){//gtr100
-//		double localx     = rk_hit_gtr100_tx2->at(tid);
-//		double localy     = rk_hit_gtr100_ty->at(tid);
-		double localx     = rk_hit_gtr100_cogx->at(tid);
-		double localy     = rk_hit_gtr100_cogy->at(tid);
-		double vd     = 0.011;
-		double gap = 1.5;
-//		double tan    = (double)rk_fit_gtr100_mom_gx->at(tid)/rk_fit_gtr100_mom_gz->at(tid);
-		double tan    = (double)rk_fit_gtr100_mom_x->at(tid)/rk_fit_gtr100_mom_z->at(tid);
-		double tcor   = 1.4*exp(-0.5*pow((fabs(localx)-45)/11,2))+1e-4*(localy*localy);
-		double cent0  = 150;
-		double tc1x   = cent0 + (gap - tcor)/vd;
-		double crx1   = localx - (tc1x - rk_hit_gtr100_xt4->at(tid)) * vd * tan;	
-//		double crx1   = localx - (tc1x - rk_hit_gtr100_xt->at(tid)) * vd * tan;	
-		double cry1   = localy;
-		return TVector3(crx1, cry1, 0);
-	}
-	else if(l == 2)	{//gtr200
-		#ifdef CHECK_200
-		cor_pos = TVector3(rk_hit_gtr200_cogx->at(tid), rk_hit_gtr200_cogy->at(tid) , 0);
-		#else
-//		double localx     = rk_hit_gtr200_tx2->at(tid);//should be gtx?
-//		double localy     = rk_hit_gtr200_ty->at(tid);
-//		double localx     = rk_hit_gtr200_cogx->at(tid);
-		double localy     = rk_hit_gtr200_cogy->at(tid);
-		double projx  = rk_fit_gtr200_x->at(tid);
-		double projy  = rk_fit_gtr200_y->at(tid);
-		double vd     = 0.010;
-		double gap    = 1.5;
-//		double tan    = (double)rk_fit_gtr200_mom_gx->at(tid)/rk_fit_gtr200_mom_gz->at(tid);
-		double tan    = (double)rk_fit_gtr200_mom_x->at(tid)/rk_fit_gtr200_mom_z->at(tid);
-//		double tcor   = -0.8*exp(-0.5*pow((localx+75)/15,2))+exp(-0.5*pow((localx-55)/20, 2))+4e-4*(localy*localy)/4.0;
-		double tcor   = -0.8*exp(-0.5*pow((projx+75)/15,2))+exp(-0.5*pow((projx-55)/20, 2))+4e-4*(projy*projy)/4.0;
-		double cent0  = 150;
-		double tc2x   = cent0 + (gap - tcor)/vd;
-		double crx2   = projx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
-//		double crx2   = localx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
-//		double crx2   = localx - (tc2x - rk_hit_gtr200_xt->at(tid)) * vd * tan;	
-		double cry2   = localy;
-		return TVector3(crx2, cry2, 0);
-		#endif
-	}
-	else if(l == 3){//gtr300
-//		double localx     = rk_hit_gtr300_tx2->at(tid);//should be gtx?
-//		double localy     = rk_hit_gtr300_ty->at(tid);
-		double localx     = rk_hit_gtr300_cogx->at(tid);//should be gtx?
-		double localy     = rk_hit_gtr300_cogy->at(tid);
-		double vd     = 0.018;
-		double gap    = 1.5;
-//		double tan   = (double)rk_fit_gtr300_mom_gx->at(tid)/rk_fit_gtr300_mom_gz->at(tid);
-		double tan   = (double)rk_fit_gtr300_mom_x->at(tid)/rk_fit_gtr300_mom_z->at(tid);
-		double tcor   = 1.4*exp(-0.5*pow((localx+115)/14,2))+6e-4*(localy*localy)/6.0;
-		double cent0  = 150;
-		double tc3x   = cent0 + (gap - tcor)/vd;
-		double crx3   = localx - (tc3x - rk_hit_gtr300_xt4->at(tid)) * vd * tan;	
-//		double crx3   = localx - (tc3x - rk_hit_gtr300_xt->at(tid)) * vd * tan;	
-		double cry3   = localy;
-		return TVector3(crx3, cry3, 0);
-	}
-
-
-
-#endif
-
-
-	return cor_pos;
-}
+    }
+    else if (l == 1){
+        cor_pos = TVector3(rk_hit_gtr100_tx2->at(tid), rk_hit_gtr100_ty->at(tid), 0);
+    }
+    else if (l == 2){
+        cor_pos = TVector3(rk_hit_gtr200_tx2->at(tid), rk_hit_gtr200_ty->at(tid), 0);
+    }
+    else if (l == 3){
+        cor_pos = TVector3(rk_hit_gtr300_tx2->at(tid), rk_hit_gtr300_ty->at(tid), 0);
+    }
+     return cor_pos;
+};
+//#ifdef CALIB
+//
+//	if(l == 0){
+//		return TVector3(rk_hit_ssd_x->at(tid),0, 0 );
+//	}
+//	
+//	else if(l == 1){//gtr100
+////		double localx     = rk_hit_gtr100_tx2->at(tid);
+////		double localy     = rk_hit_gtr100_ty->at(tid);
+//		double localx     = rk_hit_gtr100_cogx->at(tid);
+//		double localy     = rk_hit_gtr100_cogy->at(tid);
+//		double vd     = 0.011;
+//		double gap = 1.5;
+////		double tan    = (double)rk_fit_gtr100_mom_gx->at(tid)/rk_fit_gtr100_mom_gz->at(tid);
+//		double tan    = (double)rk_fit_gtr100_mom_x->at(tid)/rk_fit_gtr100_mom_z->at(tid);
+//		double tcor   = 1.4*exp(-0.5*pow((fabs(localx)-45)/11,2))+1e-4*(localy*localy);
+//		double cent0  = 150;
+//		double tc1x   = cent0 + (gap - tcor)/vd;
+//		double crx1   = localx - (tc1x - rk_hit_gtr100_xt4->at(tid)) * vd * tan;	
+////		double crx1   = localx - (tc1x - rk_hit_gtr100_xt->at(tid)) * vd * tan;	
+//		double cry1   = localy;
+//		return TVector3(crx1, cry1, 0);
+//	}
+//	else if(l == 2)	{//gtr200
+////		double localx     = rk_hit_gtr200_tx2->at(tid);//should be gtx?
+////		double localy     = rk_hit_gtr200_ty->at(tid);
+////		double localx     = rk_hit_gtr200_cogx->at(tid);
+//		double localy     = rk_hit_gtr200_cogy->at(tid);
+//		double projx  = rk_fit_gtr200_x->at(tid);
+//		double projy  = rk_fit_gtr200_y->at(tid);
+//		double vd     = 0.010;
+//		double gap    = 1.5;
+////		double tan    = (double)rk_fit_gtr200_mom_gx->at(tid)/rk_fit_gtr200_mom_gz->at(tid);
+//		double tan    = (double)rk_fit_gtr200_mom_x->at(tid)/rk_fit_gtr200_mom_z->at(tid);
+////		double tcor   = -0.8*exp(-0.5*pow((localx+75)/15,2))+exp(-0.5*pow((localx-55)/20, 2))+4e-4*(localy*localy)/4.0;
+//		double tcor   = -0.8*exp(-0.5*pow((projx+75)/15,2))+exp(-0.5*pow((projx-55)/20, 2))+4e-4*(projy*projy)/4.0;
+//		double cent0  = 150;
+//		double tc2x   = cent0 + (gap - tcor)/vd;
+//		double crx2   = projx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
+////		double crx2   = localx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
+////		double crx2   = localx - (tc2x - rk_hit_gtr200_xt->at(tid)) * vd * tan;	
+//		double cry2   = localy;
+//		return TVector3(crx2, cry2, 0);
+//	}
+//	else if(l == 3){//gtr300
+////		double localx     = rk_hit_gtr300_tx2->at(tid);//should be gtx?
+////		double localy     = rk_hit_gtr300_ty->at(tid);
+//		double localx     = rk_hit_gtr300_cogx->at(tid);//should be gtx?
+//		double localy     = rk_hit_gtr300_cogy->at(tid);
+//		double vd     = 0.018;
+//		double gap    = 1.5;
+////		double tan   = (double)rk_fit_gtr300_mom_gx->at(tid)/rk_fit_gtr300_mom_gz->at(tid);
+//		double tan   = (double)rk_fit_gtr300_mom_x->at(tid)/rk_fit_gtr300_mom_z->at(tid);
+//		double tcor   = 1.4*exp(-0.5*pow((localx+115)/14,2))+6e-4*(localy*localy)/6.0;
+//		double cent0  = 150;
+//		double tc3x   = cent0 + (gap - tcor)/vd;
+//		double crx3   = localx - (tc3x - rk_hit_gtr300_xt4->at(tid)) * vd * tan;	
+////		double crx3   = localx - (tc3x - rk_hit_gtr300_xt->at(tid)) * vd * tan;	
+//		double cry3   = localy;
+//		return TVector3(crx3, cry3, 0);
+//	}
+//#endif
+//#ifdef COG_INFO
+//	
+//
+////  -------- COG  ---------- ///
+//	if(l == 0) {
+//		cor_pos = TVector3(rk_hit_ssd_x->at(tid), 0 , 0);
+//	}
+//	else if(l == 1) {
+//		cor_pos = TVector3(rk_hit_gtr100_cogx->at(tid), rk_hit_gtr100_cogy->at(tid) , 0);
+//	}
+//	else if(l == 2) {
+//		cor_pos = TVector3(rk_hit_gtr200_cogx->at(tid), rk_hit_gtr200_cogy->at(tid) , 0);
+//	}
+//	else if(l == 3) {
+//		cor_pos = TVector3(rk_hit_gtr300_cogx->at(tid), rk_hit_gtr300_cogy->at(tid) , 0);
+//	}
+//#endif 
+//#ifdef TDC_INFO
+//
+//
+//// ---------- TDC ----------- //
+//	if(l == 0) {
+//		cor_pos = TVector3(rk_hit_ssd_x->at(tid), 0 , 0);
+//	}
+//	else if(l == 1) {
+//		cor_pos = TVector3(rk_hit_gtr100_tx2->at(tid), rk_hit_gtr100_cogy->at(tid) , 0);
+//	}
+//	else if(l == 2) {
+//		cor_pos = TVector3(rk_hit_gtr200_tx2->at(tid), rk_hit_gtr200_cogy->at(tid) , 0);
+//	}
+//	else if(l == 3) {
+//		cor_pos = TVector3(rk_hit_gtr300_tx2->at(tid), rk_hit_gtr300_cogy->at(tid) , 0);
+//	}
+//#endif 
+//
+//#ifdef DRIFT_V
+//// -----   Drift velocity ----- // 
+//	if(l == 0) {
+//		cor_pos = TVector3(rk_hit_ssd_x->at(tid), 0 , 0);
+//	}
+//
+//
+//	if(l == 0){
+//		return TVector3(rk_hit_ssd_x->at(tid),0, 0 );
+//	}
+//	
+//	else if(l == 1){//gtr100
+////		double localx     = rk_hit_gtr100_tx2->at(tid);
+////		double localy     = rk_hit_gtr100_ty->at(tid);
+//		double localx     = rk_hit_gtr100_cogx->at(tid);
+//		double localy     = rk_hit_gtr100_cogy->at(tid);
+//		double vd     = 0.011;
+//		double gap = 1.5;
+////		double tan    = (double)rk_fit_gtr100_mom_gx->at(tid)/rk_fit_gtr100_mom_gz->at(tid);
+//		double tan    = (double)rk_fit_gtr100_mom_x->at(tid)/rk_fit_gtr100_mom_z->at(tid);
+//		double tcor   = 1.4*exp(-0.5*pow((fabs(localx)-45)/11,2))+1e-4*(localy*localy);
+//		double cent0  = 150;
+//		double tc1x   = cent0 + (gap - tcor)/vd;
+//		double crx1   = localx - (tc1x - rk_hit_gtr100_xt4->at(tid)) * vd * tan;	
+////		double crx1   = localx - (tc1x - rk_hit_gtr100_xt->at(tid)) * vd * tan;	
+//		double cry1   = localy;
+//		return TVector3(crx1, cry1, 0);
+//	}
+//	else if(l == 2)	{//gtr200
+//		#ifdef CHECK_200
+//		cor_pos = TVector3(rk_hit_gtr200_cogx->at(tid), rk_hit_gtr200_cogy->at(tid) , 0);
+//		#else
+////		double localx     = rk_hit_gtr200_tx2->at(tid);//should be gtx?
+////		double localy     = rk_hit_gtr200_ty->at(tid);
+////		double localx     = rk_hit_gtr200_cogx->at(tid);
+//		double localy     = rk_hit_gtr200_cogy->at(tid);
+//		double projx  = rk_fit_gtr200_x->at(tid);
+//		double projy  = rk_fit_gtr200_y->at(tid);
+//		double vd     = 0.010;
+//		double gap    = 1.5;
+////		double tan    = (double)rk_fit_gtr200_mom_gx->at(tid)/rk_fit_gtr200_mom_gz->at(tid);
+//		double tan    = (double)rk_fit_gtr200_mom_x->at(tid)/rk_fit_gtr200_mom_z->at(tid);
+////		double tcor   = -0.8*exp(-0.5*pow((localx+75)/15,2))+exp(-0.5*pow((localx-55)/20, 2))+4e-4*(localy*localy)/4.0;
+//		double tcor   = -0.8*exp(-0.5*pow((projx+75)/15,2))+exp(-0.5*pow((projx-55)/20, 2))+4e-4*(projy*projy)/4.0;
+//		double cent0  = 150;
+//		double tc2x   = cent0 + (gap - tcor)/vd;
+//		double crx2   = projx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
+////		double crx2   = localx - (tc2x - rk_hit_gtr200_xt4->at(tid)) * vd * tan;	
+////		double crx2   = localx - (tc2x - rk_hit_gtr200_xt->at(tid)) * vd * tan;	
+//		double cry2   = localy;
+//		return TVector3(crx2, cry2, 0);
+//		#endif
+//	}
+//	else if(l == 3){//gtr300
+////		double localx     = rk_hit_gtr300_tx2->at(tid);//should be gtx?
+////		double localy     = rk_hit_gtr300_ty->at(tid);
+//		double localx     = rk_hit_gtr300_cogx->at(tid);//should be gtx?
+//		double localy     = rk_hit_gtr300_cogy->at(tid);
+//		double vd     = 0.018;
+//		double gap    = 1.5;
+////		double tan   = (double)rk_fit_gtr300_mom_gx->at(tid)/rk_fit_gtr300_mom_gz->at(tid);
+//		double tan   = (double)rk_fit_gtr300_mom_x->at(tid)/rk_fit_gtr300_mom_z->at(tid);
+//		double tcor   = 1.4*exp(-0.5*pow((localx+115)/14,2))+6e-4*(localy*localy)/6.0;
+//		double cent0  = 150;
+//		double tc3x   = cent0 + (gap - tcor)/vd;
+//		double crx3   = localx - (tc3x - rk_hit_gtr300_xt4->at(tid)) * vd * tan;	
+////		double crx3   = localx - (tc3x - rk_hit_gtr300_xt->at(tid)) * vd * tan;	
+//		double cry3   = localy;
+//		return TVector3(crx3, cry3, 0);
+//	}
+//
+//
+//
+//#endif
+//
+//
 
 //		double vd = 0.010;//drift velocity
 //		double gap = 1.5; // drift gap [mm]
@@ -700,5 +848,4 @@ TVector3 E16DSTN_PosCorrection::CorrectedLocalPos(const int tid, const int mid, 
 //		double tcor2 = -0.8*(exp(-0.5*pow((projx2+75)/15,2))+exp(-0.5*pow((projx2-55)/20,2)))+4e-4*(projy2*projy2/4);
 //		double tc2 = 150+(gap-tcor2) / vd;
 //		double cx2 = rk_hit_gtr100_x->at(tid)+ (tc2 - gtr)
-	
 

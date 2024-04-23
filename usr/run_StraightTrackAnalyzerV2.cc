@@ -131,7 +131,7 @@ int main(int argc, char* argv[]){
     trigger_param.ReadConstantData(calib.CurrentRunID());
   
     auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
-    cout<< static_cast<std::string>(GeometryFile)<<endl;
+    cout<< "Read geom : " << static_cast<std::string>(GeometryFile)<<endl;
     E16ANA_GeometryV2::SetGlobalPointer(geometry);
   
     //E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();

@@ -1,37 +1,40 @@
-//#define E16DSTN_ReadStraightTree_cxx
-#define E16DSTN_PosCorrection_cxx
-
-//#include "E16DSTN_ReadStraightTree.hh"
-#include "E16ANA_StraightTrackParameter.hh"
-#include <string>
-#include <map>
-#include <array>
-#include <iostream>
-#include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <TROOT.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "TFile.h"
-#include "TTree.h"
-#include "TMath.h"
-#include "TVector3.h"
-#include <vector>
-//#include "TMLocal_StraightAnalyzer.hh"
-//#include "E16ANA_GeometryV2.hh"
-#include "E16ANA_StraightTrackNameSpace.hh"
-#include "E16ANA_StraightTrack.hh"
+#include <TH1.h>
+#include <TFile.h>
+#include <TCanvas.h>
+#include <regex>
+#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_GTRcalib.hh"
+#include "E16ANA_TriggerCalib.hh"
+#include "E16DST_DST0.hh"
+#include "E16DST_DST1.hh"
+#include "E16DST_DST1DefaultFilePath.hh"
+#include "GTR/GTRCheckHist.hh"
+#include "E16ANA_TargetInfo.hh"
+#include "E16ANA_RundependentName.hh"
+#include "straight_track/StraightTrackAnalyzerV0.h"
+#include "E16DST_DST1.hh"
+#include "E16DST_DST1DetectorFactory.hh"
+#include "E16ANA_GTRStatus.h"
+#include "E16ANA_GTRChannelManager.h"
 #include "E16ANA_LGBasic.hh"
 #include "E16ANA_LGWaveform.hh"
 #include "E16ANA_LGConstant.hh"
 #include "E16ANA_LGDeadChannel.hh"
 #include "E16ANA_LGClustering.hh"
-#include "E16ANA_LGStraightProj.hh"
+//#include "E16ANA_LGStraightProj.hh"
 //#include "straightRoot.hh"
-#include "E16ANA_CalibDBManager.hh"
-#include "E16DSTN_PosCorrection.hh"
-#include "E16ANA_TargetInfo.hh"
-#include "E16DST_DST1DefaultFilePath.hh.in"
+#include "E16DST_Constant.hh"
+
+#include "E16ANA_StraightMultiTrack.hh"
+#include "E16ANA_StraightTrackCandidate.hh"
+#include "E16ANA_StraightTrackCheckFile.hh"
+
+#include  "E16DSTN_PosCorrection.hh"
+
+
 
 //using namespace E16DSTN_StraightParameter;
 using namespace E16ANA_StraightTrackParameter;
@@ -41,7 +44,7 @@ int main (int argc, char** argv) {
 		std::cout << "./bin/~~ [input.root] [output.root] [runID] [max_analyzed_event] [anaSw]" << std::endl;
 		return 0;	
 	}
-	bool isWire = true;
+	bool isWire = false;
 	std::string in_file  = argv[1];
 	std::string out_file = argv[2];
 	int run_id        = stoi(argv[3]);
@@ -58,11 +61,7 @@ int main (int argc, char** argv) {
    bool py_fix_flag = false;
 	bool vetex_z_fix_flag = false;
 
-	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
-	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
-   E16ANA_GeometryV2::SetGlobalPointer(geom);
-//	pc->SetGeom(geom);
-	
+
     auto& calib = E16ANA_CalibDBManager::Instance();
     calib.SetRunID(run_id);
     E16ANA_FieldMapCalibParam field_map_param;
@@ -72,7 +71,10 @@ int main (int argc, char** argv) {
     E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
     gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
     auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
-  
+ 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
+	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
+    E16ANA_GeometryV2::SetGlobalPointer(geom);
+	 
     E16ANA_TriggerCalibParam trigger_param;
     trigger_param.ReadConstantData(calib.CurrentRunID());
  
@@ -97,9 +99,6 @@ int main (int argc, char** argv) {
     }
 
  
-
-
-
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack(geom, targets_pos, 1);
 	pc->SetFitter(fitter);
 	pc->SetIsWire(isWire);
