@@ -237,15 +237,11 @@ add_library(E16DST_DST1
 	src/E16DST_DST1TriggerFactory.cc
   src/E16DST_DST1WireTrackFactory.cc
  # src/E16DST_DST1WireTrackFactorywoGTR300.cc
-
 	src/E16DST_DST1TrackFactory.cc
-)
-
-add_library(E16DSTN
-	src/tmp_murakami/E16DSTN_ReadStraightTree.cc
-	src/tmp_murakami/E16DSTN_AfterTrackAna.cc
 	src/tmp_murakami/E16DSTN_PosCorrection.cc
 )
+
+
 
 target_link_libraries(E16DST_DST1
   E16ANA
@@ -1103,34 +1099,34 @@ target_link_libraries(gtr_deadch_check
 #	E16DST_DST1
 #)
 ###_______________________________________________________________________________
-#add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
-#target_link_libraries(run_ReStraightAfterKillDup
+add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
+target_link_libraries(run_ReStraightAfterKillDup
+	E16DST
+	E16DST_DST1
+#   E16DSTN
+)
+###_______________________________________________________________________________
+#add_executable(run_StraightKillDuplicated usr/tmp_murakami/run_StraightKillDuplicated.cc)
+#target_link_libraries(run_StraightKillDuplicated
+#	E16DST
+#	E16DST_DST1
+#)
+###_______________________________________________________________________________
+
+#add_executable(run_AfterTrackAna usr/tmp_murakami/run_AfterTrackAna.cc)
+#
+#target_link_libraries(run_AfterTrackAna
 #	E16DST
 #	E16DST_DST1
 #   E16DSTN
 #)
-###_______________________________________________________________________________
-add_executable(run_StraightKillDuplicated usr/tmp_murakami/run_StraightKillDuplicated.cc)
-target_link_libraries(run_StraightKillDuplicated
-	E16DST
-	E16DST_DST1
-   E16DSTN
-)
-###_______________________________________________________________________________
-add_executable(run_AfterTrackAna usr/tmp_murakami/run_AfterTrackAna.cc)
-
-target_link_libraries(run_AfterTrackAna
-	E16DST
-	E16DST_DST1
-   E16DSTN
-)
 ###_______________________________________________________________________________
 add_executable(draw_AfterKillDup usr/tmp_murakami/draw_AfterKillDup.cc)
 
 target_link_libraries(draw_AfterKillDup
 	E16DST
 	E16DST_DST1
-   E16DSTN
+#   E16DSTN
 )
 ##_______________________________________________________________________________
 #add_executable(tmp_231006 usr/tmp_murakami/tmp_231006.cc)
