@@ -264,6 +264,10 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   int16_t  Elink() {return elink; }
   void SetGeriTimestamp(uint64_t _geriTimestamp) { geriTimestamp = _geriTimestamp; }
   uint64_t GeriTimestamp() { return geriTimestamp;}
+  void SetADC(uint16_t _adc) { adc = _adc; }
+  uint16_t ADC() { return adc; }
+  uint16_t TDC() { return tdc; }
+  void SetTDC(uint16_t _tdc) { tdc = _tdc; }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   float peak_height;
@@ -275,6 +279,8 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   TVector3 gpos;
   int16_t elink;
   uint64_t geriTimestamp;
+  uint16_t tdc;
+  uint16_t adc;
 };
 
 class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
