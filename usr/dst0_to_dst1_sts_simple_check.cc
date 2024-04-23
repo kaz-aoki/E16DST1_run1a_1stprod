@@ -33,9 +33,12 @@
 #endif // TRACK_EFF_CHECK
 
 #include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "STS/E16ANA_EventDisplay.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
+
+const bool visualization = true;
 
 constexpr bool kIsElectronRun = true;
 constexpr bool kSelectEvent   = false;
@@ -215,6 +218,7 @@ int main(int argc, char* argv[]) {
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
+
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
@@ -226,6 +230,18 @@ int main(int argc, char* argv[]) {
 
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
 
+
+  ////////
+  E16ANA_EventDisplay display;
+  display.SetGeometry(geometry);
+  display.SetMirror();
+  bool pdf_first = true;
+  //  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
+  //auto* lgeom = E16ANA_STSGeometry::instance();
+  if ( visualization ) display.DrawSensor();
+  if ( visualization ) display.SetPdfName("out.pdf");
+ 
+  
   ////////////////////// PREPARE STS TREE
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
 
@@ -258,7 +274,10 @@ int main(int argc, char* argv[]) {
   std::vector<uint64_t> sts_geriTimestamp;
   std::vector<uint16_t> sts_elink;
   std::vector<int> sts_tdc_l1geri;
+  std::vector<int> sts_tdc_l1geri2;
   std::vector<long> sts_geri_l1geri;
+  std::vector<uint16_t> sts_tdc;
+  std::vector<uint16_t> sts_adc;
 
   auto clear_sts = [&](){
     sts_module.clear();
@@ -273,7 +292,10 @@ int main(int argc, char* argv[]) {
     sts_geriTimestamp.clear();
     sts_elink.clear();
     sts_tdc_l1geri.clear();
+    sts_tdc_l1geri2.clear();
     sts_geri_l1geri.clear();
+    sts_tdc.clear();
+    sts_adc.clear();
   };
   
   TString br_int16 = "/S";
@@ -302,10 +324,12 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_module",&sts_module);
   tree_sts->Branch("sts_pn",&sts_pn);
   tree_sts->Branch("sts_channel",&sts_channel);
+
   tree_sts->Branch("sts_peakheight",&sts_peakheight);
   tree_sts->Branch("sts_hittime",&sts_hittime);
   tree_sts->Branch("sts_elink",&sts_elink);
   tree_sts->Branch("sts_tdc_l1geri",&sts_tdc_l1geri);
+  tree_sts->Branch("sts_tdc_l1geri2",&sts_tdc_l1geri2);
   tree_sts->Branch("sts_geri_l1geri",&sts_geri_l1geri);
   
   tree_sts->Branch("sts_lx",&sts_lx);
@@ -354,6 +378,33 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gz",&lg_gz);
 
   /////////////////////////////////////////////
+
+  /*
+  ///////////////////// PREPARE STS TREE
+  TTree* tree_gtr = new TTree("tree_gtr","tree_gtr");
+
+  std::vector<int> gtr_module;
+  std::vector<int> gtr_layer;
+  std::vector<float> gtr_timing;
+  std::vector<float> gtr_peaksum;
+
+  auto clear_gtr = [&](){
+    gtr_module.clear();
+    gtr_layer.clear();
+    gtr_timing.clear();
+    gtr_peaksum.clear();
+  };
+  
+  tree_gtr->Branch("event",&event_id,"event"+br_uint32);
+  tree_gtr->Branch("spill",&spill_id,"spill"+br_uint32);
+  tree_gtr->Branch("gtr_module",&gtr_module);
+  tree_gtr->Branch("gtr_layer",&gtr_layer);
+  tree_gtr->Branch("gtr_timing",&gtr_timing);
+  tree_gtr->Branch("gtr_peaksum",&gtr_peaksum);
+  */
+  
+  //////////////////////////////////////////
+  
   
 #ifdef TRACK_EFF_CHECK
   auto mock_data = E16ANA_MockTrackOutputData();
@@ -479,7 +530,8 @@ int main(int argc, char* argv[]) {
 #endif // TMP_NIM_TRIGGER
       record.Trigger().AddHitAndClusterIDs();
 // HBD clustering w/o timing selection begin
-      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());
+      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD
+());
       record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
@@ -572,10 +624,12 @@ int main(int argc, char* argv[]) {
 	ut3timestamp      = hitg0.get_ut3timestamp();
 	ut3spill          = hitg0.get_ut3spill();
 	emu_timestamp     = hitg0.get_emu_timestamp();
-
+      }else{
+	continue;
       }
       clear_sts();
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
+      if ( visualization ) display.DrawSensor();
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
 	  sts_module.push_back(hit1.ModuleId());
@@ -584,11 +638,23 @@ int main(int argc, char* argv[]) {
 	  sts_peakheight.push_back(hit1.PeakHeight());
 	  sts_lx.push_back(hit1.LocalPos().X());
 	  sts_elink.push_back(hit1.Elink());
+
+	  if ( hit1.TDC() == 0xffff ) {
+	    sts_tdc_l1geri2.push_back(-1000000);
+	  }else{
+	    auto& hitg0 = stsg_dst0.Hit(0);
+	    int geri14 = (int) ( hitg0.get_l1_geritimestamp()&0b11111111111111 );
+	    sts_tdc_l1geri2.push_back((int)hit1.TDC() - geri14);
+	  }
+
 	  if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
 	    sts_hittime.push_back(hit1.Timing());
 	    sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
+	  }else{
+	    sts_hittime.push_back(E16DST_DST1Constant::kInvalidValue);
+	    sts_tdc_l1geri.push_back(-1000000.);
 	  }
-
+	  
 	  TVector3 vec = hit1.GlobalPos();
 	  sts_gx.push_back(vec.X());
 	  sts_gy.push_back(vec.Y());
@@ -596,11 +662,45 @@ int main(int argc, char* argv[]) {
 	  sts_geriTimestamp.push_back(hit1.GeriTimestamp());
 	  int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
 	  sts_geri_l1geri.push_back(tmp);
+	  
+	  if ( visualization ){
+	    if ( fabs(hit1.Timing()+95.) <100  && hit1.PeakHeight()>0 ) {
+	      double global[3]={vec.X(),vec.Y(),vec.Z()};
+	      display.DrawHit(global);
+	    }
+	  }
 	}
       }
-      tree_sts->Fill();
-      /////////////////////// FILL STS STANDALONE TREE.
 
+      tree_sts->Fill();
+
+      /////////////////////// FILL GTR STANDALONE TREE.
+      /*
+      clear_gtr();
+      auto& gtr_clusters1 = record.GTR().Clusters();
+      if ( gtr_clusters1.size() > 0 ) {
+	for ( auto& gtr_clust1 : gtr_clusters1 ) {
+	  gtr_module.push_back(gtr_clust1.ModuleId());
+	  gtr_layer.push_back(gtr_clust1.LayerId());
+	  gtr_timing.push_back(gtr_clust1.Timing());
+	  gtr_peaksum.push_back(gtr_clust1.PeakSum());
+	  //
+
+	  TVector3 pos = gtr_clust1.GlobalPos(*geometry);
+	  double global[3] = {pos.X(),pos.Y(),pos.Z()};
+	  display.DrawHit(global);
+	}
+      }
+      tree_gtr->Fill();
+      */
+
+
+      //if ( visualization ) {
+      //display.SetHitColor(kBlue);
+      ///display.DrawHit(global_interp);
+      //display.SetHitColor(kRed);
+      //}
+    
       /////////////////////// FILL LG STANDALONE TREE.
       clear_lg();
       auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
@@ -622,10 +722,10 @@ int main(int argc, char* argv[]) {
 	}
       }
       tree_lg->Fill();
-
-
+      
+      
       ///////////////////////// STS-LG Correlation
-
+      
 
 
       // 
@@ -651,6 +751,17 @@ int main(int argc, char* argv[]) {
       }
       */
 
+      if ( visualization ) {
+	display.DrawUpdate();
+	if ( pdf_first ) {
+	  display.SavePdfStart();
+	  pdf_first = false;
+	}else{
+	  display.SavePdf();
+	}
+      }
+
+
       record.Tracks().Print();
 //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
@@ -669,6 +780,18 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+  if ( visualization ) {
+    display.DrawUpdate();
+    if ( pdf_first ) {
+      display.SavePdfStart();
+      pdf_first = false;
+    }else{
+      display.SavePdf();
+    }
+  }
+
+  if ( visualization ) display.SavePdfEnd();
 
   delete geometry;
   delete dst0;
