@@ -137,7 +137,7 @@ int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrac
 }
 #endif // TRACK_EFF_CHECK
 
-const char* track_root = "/e16/w/data109y3/user/aoki/run_050351_gtr/afterkill_240417_050351_sink0_000.root";
+const char* track_root = "/e16/w/data109y3/user/aoki/run050351_gtr_root/afterkill_240417_050351_sink0_000.root";
 
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
@@ -274,6 +274,7 @@ int main(int argc, char* argv[]) {
   }
   
   ////////////////////// PREPARE STS TREE
+  check_file.cd();
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
 
   uint32_t event_id; // i
@@ -661,7 +662,7 @@ int main(int argc, char* argv[]) {
 
 
       if ( stsg_dst0.NumberOfHits() > 1 ){
-	std::cout << "++++++ STSGlobal: # of hits more than 1. WHY??" << std::endl;
+	std::cout << "++++++ STSGlobal: # of hits more than 1. Indication of merged DST0." << std::endl;
       }
 
       auto stscut_tdc = [](auto& hit){ return ( fabs(hit.Timing()+95)<100.);};
@@ -711,7 +712,7 @@ int main(int argc, char* argv[]) {
 	    sts_hittime.push_back(hit1.Timing());
 	    sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
 	  }else{
-	    sts_hittime.push_back(E16DST_DST1Constant::kInvalidValue);
+	    sts_hittime.push_back   (-1000000.);
 	    sts_tdc_l1geri.push_back(-1000000.);
 	  }
 	  
