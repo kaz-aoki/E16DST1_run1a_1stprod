@@ -96,7 +96,11 @@ void E16ANA_STSGlobalGeometry::PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor)
   TGeoTranslation trans(0,0,sensor.radius);
   TGeoRotation rot;
   rot.RotateY(sensor.angle);
-  TGeoHMatrix hmat = rot * trans* spin;
+
+  TGeoRotation corr_rot;
+  corr_rot.RotateY(-(4./148.81)*180./3.1415926);
+
+  TGeoHMatrix hmat = corr_rot * rot * trans* spin;
   map_mat[sensor.mod] = hmat;
 }
 
@@ -150,10 +154,11 @@ void E16ANA_STSGlobalGeometry::CalcPointOnPlane(int mod, double* global1, double
   TVector3 ans = x0 + x*t;
   ans.GetXYZ(global_out);
 
-
+  /*
   std::cout << "inside E16ANA_STSGlobalGeometry::CalcPointOnPlane()" << std::endl;
   std::cout << "n0 "; n0.Print();
   std::cout << "n  "; n.Print();
   std::cout << "x0 "; x0.Print();
   std::cout << "x  "; x.Print();
+  */
 }
