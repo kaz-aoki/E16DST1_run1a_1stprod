@@ -268,6 +268,8 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   uint16_t ADC() { return adc; }
   uint16_t TDC() { return tdc; }
   void SetTDC(uint16_t _tdc) { tdc = _tdc; }
+  uint16_t E16sts() { return e16sts; }
+  void SetE16sts(uint16_t _e16sts) { e16sts = _e16sts; }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   float peak_height;
@@ -281,6 +283,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   uint64_t geriTimestamp;
   uint16_t tdc;
   uint16_t adc;
+  uint16_t e16sts;
 };
 
 class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
