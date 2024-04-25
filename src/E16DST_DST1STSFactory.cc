@@ -35,11 +35,20 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   std::cout << "WARNING!!!! Module ID intentionally randomized for debugging purpose." << std::endl;
 #endif
   if ( stsg_dst0.NumberOfHits() > 1 ) {
-    std::cout << "WARNING !!!! STS Global has more than 1 entries." << std::endl;
+    std::cout << "STS Global has more than 1 entries. DST0 of STSs are merged." << std::endl;
   }
   if ( stsg_dst0.NumberOfHits() == 0 ) return 0;
-  auto& hitg0 = stsg_dst0.Hit(0);
 
+  auto& hitg0 = stsg_dst0.Hit(0);
+  std::map<int,int> hitgmap;
+  static bool first = true;
+  for ( int i = 0 ; i < stsg_dst0.NumberOfHits() ; i ++ ) {
+    hitgmap[stsg_dst0.Hit(i).get_e16sts()] = i;
+    if ( first ) {
+      std::cout << "hitgmap: e16sts=" << stsg_dst0.Hit(i).get_e16sts() << " --> stsg_dst0[" << i << "]" << std::endl;
+    }
+  }
+  if ( first ) first = false;
 
   auto& hits1 = sts_dst1->Hits(); // hits1 is std::vector<T>
   hits1.clear();
@@ -51,7 +60,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-    if( hit0.ADC() <= 0 ) continue;
+    //if( hit0.ADC() <= 0 ) continue;
+    if( hit0.ADC() == 0xffff ) continue; // invalid.
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -60,12 +70,14 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetIds(hit0.ModuleID(),hit0.ChannelID());
 #endif
     hit1.SetPeakHeight(hit0.ADC());
+    int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
     if ( hit0.TDC() != 0xffff ) hit1.SetTiming(hit0.TDC()-emu_timestamp);
     hit1.SetPN(hit0.PN());
     hit1.SetElink(hit0.Elink());
     hit1.SetGeriTimestamp(hit0.GeriTimestamp());
     hit1.SetTDC(hit0.TDC());
     hit1.SetADC(hit0.ADC());
+    hit1.SetE16sts(hit0.E16sts());
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {
       // P
