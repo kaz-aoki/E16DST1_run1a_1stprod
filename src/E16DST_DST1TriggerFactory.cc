@@ -128,17 +128,12 @@ int E16ANA_TriggerSearchCoincidenceHit(int coincidence_window, int track_coarse_
 int E16DST_DST1TriggerFactory(uint64_t time_stamp, E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
 #else // TMP_NIM_TRIGGER
 int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0Detector<E16DST_DST0TriggerHit>& gtr_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& hbd_hits, E16DST_DST0Detector<E16DST_DST0TriggerHit>& lg_hits, E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger) {
-  std::cout << "trigger factory staaaaaat " << std::endl;
 #endif // TMP_NIM_TRIGGER
   bool is_mag_field = true; // tmp
-  std::cout << "coin hit gtr before " << std::endl;
   auto gtr_coincidence_window = E16ANA_TriggerConstant::kMRGTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kGTR - E16DST_DST1Constant::kNumTriggerOffset);
-  std::cout << "coin hit hdb before " << std::endl;
   auto hbd_coincidence_window = E16ANA_TriggerConstant::kMRGTransmitCycleNs * trigger_param.CoincidenceWindow(E16DST_DST1Constant::kHBD - E16DST_DST1Constant::kNumTriggerOffset);
 
-  std::cout << "coin map before " << std::endl;
   static auto* channel_map      = new E16DST_TriggerChannelMap(static_cast<std::string>(TriggerChannelMapFiles[0]), static_cast<std::string>(TriggerChannelMapFiles[1]), static_cast<std::string>(TriggerChannelMapFiles[2]));
-  std::cout << "coin map after " << std::endl;
   static auto* coincidence_maps = new E16ANA_TriggerCoincidenceMap(CoincidenceMapFiles, TriggerChannelMapFiles);
   trigger->Clear();
 
@@ -149,18 +144,14 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,  &trigger->LGHits(),  &trigger->LGClusters());
 #else // TMP_NIM_TRIGGER
   auto trigger_tdc = ut3.TriggerTime();
-  std::cout << "single hit gtr before " << std::endl;
   E16ANA_TriggerHitAndClusterFactory(trigger_param, gtr_hits, trigger_tdc, E16DST_DST1Constant::kGTR, &trigger->GTRHits(), &trigger->GTRClusters());
-  std::cout << "single hit hbd before " << std::endl;
   E16ANA_TriggerHitAndClusterFactory(trigger_param, hbd_hits, trigger_tdc, E16DST_DST1Constant::kHBD, &trigger->HBDHits(), &trigger->HBDClusters());
-  std::cout << "single hit lg before " << std::endl;
   E16ANA_TriggerHitAndClusterFactory(trigger_param, lg_hits,  trigger_tdc, E16DST_DST1Constant::kLG,  &trigger->LGHits(),  &trigger->LGClusters());
 #endif // TMP_NIM_TRIGGER
   auto max_track =ut3.NumberOfTracks();
   trigger->Tracks().resize(max_track);
   
   for (int n_track = 0; n_track < max_track; ++n_track) {
-  std::cout << "single hit fac before2 " << std::endl;
     E16ANA_TriggerSingleHitFactory(trigger_param, ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks()[n_track]);
   }
   
@@ -213,7 +204,6 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   }
   std::sort(coarse_time.begin(), coarse_time.end());
 
-  std::cout << "n_tracks = " << n_tracks << std::endl;
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
     auto& track_set = trigger->TrackSets()[track_num];
     track_set.Clear();
@@ -250,7 +240,6 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   }
 
   auto n_hits = lg_hits.NumberOfHits();
-  std::cout << "n_hitss = " << n_hits << std::endl;
   trigger->HitSets().resize(n_hits);
   for (int hit_num = 0; hit_num < n_hits; ++hit_num) {
     auto& hit_set = trigger->HitSets()[hit_num];

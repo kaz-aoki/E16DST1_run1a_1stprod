@@ -30,13 +30,13 @@ const int kRemovedLayer = -1;
 
 constexpr bool kVtxZFixFlag = false; // 220607
 //constexpr bool kVtxZFixFlag = true;
-constexpr double kInitXRange[2] = {-40., 40.}; // 220607
+constexpr double kInitXRange[2] = {-40., 0.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 
 #ifndef TRACK_FIND_WO_TARGET
-const TVector3 kInitPosErrorWire = {0.1, 3.4, 0.1};
-constexpr const std::array<double, 5> kWireXSigma = {0.1, 0.05, 0.3, 0.3, 0.3}; 
+const TVector3 kInitPosErrorWire = {10, 3.4, 3};
+constexpr const std::array<double, 5> kWireXSigma = {3.0, 0.05, 0.3, 0.3, 0.3}; 
 const TVector3 kInitPosError = {3., 3.4, 3.};
 #else 
 const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};
@@ -76,7 +76,7 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 //
 //
 #ifndef TRACK_FIND_WO_TARGET
-constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 0.3, 0.3, 0.3};
+constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 1, 1, 1};
 #else 
 constexpr const std::array<double, 5> kXSigmaIncTgt = {999999, 0.005, 0.3, 0.3, 0.3};
 #endif
@@ -162,7 +162,7 @@ constexpr int    kProjectionMaxSteps = 2000;
 constexpr double kMaxChi2ForSearchAssociatedHits = 1.0e10;
 
 constexpr bool   kUseChi2Cut = true;
-constexpr double kMaxChi2  = 50;
+constexpr double kMaxChi2  = 1000;
 
 
 

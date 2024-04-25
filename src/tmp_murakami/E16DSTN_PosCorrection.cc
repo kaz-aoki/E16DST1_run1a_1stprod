@@ -7,7 +7,7 @@
 using namespace E16ANA_StraightTrackParameter;
 //using namespace E16DSTN_StraightParameter;
 
-E16DSTN_PosCorrection::E16DSTN_PosCorrection(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter) : fChain(0){
+E16DSTN_PosCorrection::E16DSTN_PosCorrection(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter) : fChain(0), geom(_geom), fitter(_fitter){
 	if (tree ==0){
 		TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("RootFileCannotbeFound");
 		if (!f || !f->IsOpen()){
@@ -80,8 +80,10 @@ void E16DSTN_PosCorrection::PosCoLoop(TTree *tree, int print_cycle, int max_even
 		SetTracks(sorted_ids, good_ids);//in/out vec
 		ClearUsedClusterIDs();
 		RemoveDuplicatedHits(good_ids, killdup_ids);
-		CorrectionFit(killdup_ids);
-		AddRecord(killdup_ids);
+		AddRecord(killdup_ids);//temoprary 240423
+//		CorrectionFit(killdup_ids);
+//		std::cout << "add record start " << std::endl;
+//		AddRecord(killdup_ids);
 	}
 	else if (analysisSW == 1){//Re-Fit First
 		ResizeTmpVectors();
@@ -437,21 +439,28 @@ void E16DSTN_PosCorrection::UpdateFitResult(E16ANA_StraightMultiTrack *fitter,  
 	int hid = 0;
 	init_pos_fit = fitter->GetFitVertex();
 	init_mom_fit = fitter->GetFitMomentum(0);
+	std::cout << "fi_pos " << init_pos_fit.X() << std::endl;
 
-
-	for(int l=0; l < E16ANA_StraightTrackConstant::kNumTrackingStrips; ++l){
+	for(int l=0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l){
+		if(l == 0) continue;
 		fit_results[l].Clear();
 		std::vector<TVector3> lpos;
     	std::vector<TVector3> lmom;
       std::vector<int> mid;
       fitter->GetFitLPos(0, l, mid, lpos);
       fitter->GetFitLMom(0, l, mid, lmom);
+      std::cout << " lpos =" << lpos[l].x() << std::endl;
       TVector3 gpos;
       TVector3 gmom;
-		if(l == removed_layer) {
-			mid[l] = mid[l-1];//tmp
-		}
+//		if(l == removed_layer) {
+//			mid[l] = mid[l-1];//tmp
+//		}
+		std::cout << "mid = " << mid[1] << std::endl;
+#ifdef NoExist_SSD
+      auto mid2020 = E16ANA_StraightTrackConstant::ModuleID2013To2020(mid[1]);
+#else
       auto mid2020 = E16ANA_StraightTrackConstant::ModuleID2013To2020(mid[0]);
+#endif
       if (l <= E16ANA_StraightTrackConstant::kSSD) {
         gpos = geom->SSD(mid[hid])->GetGPos(lpos[hid]);
         gmom = geom->SSD(mid[hid])->GetGMom(lmom[hid]);
@@ -589,7 +598,7 @@ void E16DSTN_PosCorrection::CorrectionFit(std::vector<int> &inids){
 		double chi2;
 		chi2 = fitter->Fit(false, false, false, E16ANA_StraightTrackParameter::kMinuitStrategy, E16ANA_StraightTrackParameter::kMinuitMaxFunctionCalls);//vertex z not fix
 		//chi2 = fitter->Fit(false, false, true, kMinuitStrategy, kMinuitMaxFunctionCalls);//vertex z fix
-//		std::cout << "chi2 = " << chi2 << std::endl;
+		std::cout << "chi2 = " << chi2 << std::endl;
 		chisq.push_back(chi2);	
 		UpdateFitResult(fitter, tid);
 	}
@@ -640,15 +649,12 @@ void E16DSTN_PosCorrection::AddTrackCorrectedHit(E16ANA_StraightMultiTrack *fitt
 		std::cout << "ssd x " << rk_hit_ssd_x->at(tid) << std::endl;
     } else {
 	  std::cout << "gtr x " << CorrectedLocalPos(tid, mid[l], l ).X() <<", " << CorrectedLocalPos(tid, mid[l], l).Y() <<std::endl;
-      std::cout << "mid " << mid[l] << std::endl;
-      std::cout << "kmid " <<  E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]) << std::endl;
-      std::cout << "l " << l <<  std::endl;
-      std::cout << "geom " << geom->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]), l - 1);
-
+		
+      std::cout << "kawama wamod = " << E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]) << std::endl;
       fitter->AddHit(0, l, geom->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mid[l]), l - 1), CorrectedLocalPos(tid, mid[l],  l), kSigmas[l]);//first zero is for a single track
     }
   }
-//	fitter->PrintHits();
+	fitter->PrintHits();
 }
 
 TVector3 E16DSTN_PosCorrection::CorrectedLocalPos(const int tid, const int mid, const int l){

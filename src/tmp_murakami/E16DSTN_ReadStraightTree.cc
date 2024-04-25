@@ -51,30 +51,24 @@ bool E16DSTN_ReadStraightTree::IsGoodTrack(int n){
 //	if (kUsePosAtTargetCut && !NearestRadius(n) > kMaxRadiusAtTarget){
 //		return false;	
 			if(IsComingFromTarget(n)){
+				if(removed_layer ==-1){
 					if (kUseClusterDuplicationCut == kSSDAndGTRDuplicationCut){
 						std::array<int, kNumTrackingDetectors> cids = {
-#ifndef NoExist_SSD
 						rk_hit_ssd_id->at(n),
 						rk_hit_gtr100_xid->at(n), rk_hit_gtr100_yid->at(n), 
 						rk_hit_gtr200_xid->at(n), rk_hit_gtr200_yid->at(n),
 						rk_hit_gtr300_xid->at(n), rk_hit_gtr300_yid->at(n)};
-#else
-						rk_hit_gtr100_xid->at(n), rk_hit_gtr100_yid->at(n), 
-						rk_hit_gtr200_xid->at(n), rk_hit_gtr200_yid->at(n),
-						rk_hit_gtr300_xid->at(n), rk_hit_gtr300_yid->at(n)};
-#endif
 						if(HasUsedCluster(cids)) {
 							return false;
 						}
-#ifndef NoExist_SSD
 						for (int i =0; i < kNumTrackingDetectors;i++){
-#else
-						for (int i =0; i < kNumTrackingDetectors-1;i++){
-#endif
 							used_cluster_ids[i].emplace_back(cids[i]);
 						}
-
 					}
+				}
+				else {
+					std::cout <<  "not developed yet " << std::endl;
+				}
 			}
 			return true;
 }
@@ -82,7 +76,6 @@ bool E16DSTN_ReadStraightTree::IsGoodTrack(int n){
 void E16DSTN_ReadStraightTree::SetTracks(){
 	selected_ids.clear();
 	for (int i=0; i < n_cands; i++){
-      std::cout << "i = " << i << std::endl;
 		if(kUseChi2Cut && chi_square->at(i) > kMaxChi2){
 			break;
 		}
@@ -126,9 +119,9 @@ void E16DSTN_ReadStraightTree::Loop(TTree* tree, int print_cycle, int max_event)
 	ClearUsedClusterIDs();
 	SetTracks();
 ////		RKFittingWoOneLayer(nodup_id, 2);//removed layer 2 = GTR200
-//	if(removed_layer !=-1 ){
+	if(removed_layer !=-1 ){
 //		ChooseSmallestResidual(nodup_id, selected_id);//if There is removed_layer
-//	}
+	}
 		AddRecord();
 	} 
 }
@@ -157,33 +150,33 @@ void E16DSTN_ReadStraightTree::Loop(TTree* tree, int print_cycle, int max_event)
 
 
 void E16DSTN_ReadStraightTree::ChooseSmallestResidual(std::vector<int> &nudup_ids, std::vector<int> &selected_id){
-//	std::multimap<double, int> res_map;
-//	res_map.clear();
-//	std::vector<int> sorted_id;//will be sorted with residual
-//	sorted_id.clear();
-//	for(const int tid : selected_ids){
-//     	if(removed_layer == 1) res_map.insert({rk_res_gtr100_x->at(tid), tid});
-//     	if(removed_layer == 2) res_map.insert({rk_res_gtr200_x->at(tid), tid});
-//     	if(removed_layer == 3) res_map.insert({rk_res_gtr300_x->at(tid), tid});
-//   }	
-//   for (const auto& pair : res_map) {
-//   	sorted_id.push_back(pair.second);
-//	}
-//	int max  =  20000;
-//	if(removed_layer == 2) {
-//		bool x1_table[max] = {};
-//		std::fill(x1_table, x1_table + max, 0);
-//		for(const int tid : sorted_id){
-//			int x1id = rk_hit_gtr200_xid->at(tid);//gtr200 remove
-//			if(x1_table[x1id] == 0){
-//				x1_table[x1id] = 1; 
-//				selected_id.push_back(tid);
-//			}
-//			else {
-//				// nothing to do
-//			}	
-//		}
-//	}
+	std::multimap<double, int> res_map;
+	res_map.clear();
+	std::vector<int> sorted_id;//will be sorted with residual
+	sorted_id.clear();
+	for(const int tid : selected_ids){
+     	if(removed_layer == 1) res_map.insert({rk_res_gtr100_x->at(tid), tid});
+     	if(removed_layer == 2) res_map.insert({rk_res_gtr200_x->at(tid), tid});
+     	if(removed_layer == 3) res_map.insert({rk_res_gtr300_x->at(tid), tid});
+   }	
+   for (const auto& pair : res_map) {
+   	sorted_id.push_back(pair.second);
+	}
+	int max  =  20000;
+	if(removed_layer == 2) {
+		bool x1_table[max] = {};
+		std::fill(x1_table, x1_table + max, 0);
+		for(const int tid : sorted_id){
+			int x1id = rk_hit_gtr200_xid->at(tid);//gtr200 remove
+			if(x1_table[x1id] == 0){
+				x1_table[x1id] = 1; 
+				selected_id.push_back(tid);
+			}
+			else {
+				// nothing to do
+			}	
+		}
+	}
 }
 
 
@@ -268,16 +261,16 @@ void E16DSTN_ReadStraightTree::DrawHist(TTree* tree, int n_maxevent, int print_c
 		}
 	}
 	int nevent = tree->GetEntries();
-   int fixl;
-#ifdef REMOVE_100
-	 fixl   = 1; //gtr200
+#ifdef CHECK_100
+	int fixl   = 1; //gtr200
 #endif
-#ifdef REMOVE_200
-	 fixl   = 2; //gtr200
+#ifdef CHECK_200
+	int fixl   = 2; //gtr200
 #endif
-#ifdef REMOVE_300
-	 fixl   = 3; //gtr200
+#ifdef CHECK_300
+	int fixl   = 3; //gtr200
 #endif
+
 
 								//    00, 01, 02, 03, 04, 05,    06
 	double chi2_th[n_module] = {30, 30,30, 30, 30,   0,   30, 30, 30, 30};//mod100-109
@@ -307,37 +300,15 @@ std::array<double, 4> xt4s;//xt4
 
 		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
 		for(int i=0; i < n_tracks; i++){
-			std::cout << "i2 = " << i << std::endl;
 //			if(rk_fit_gtr100_mid->at(i) < 105 || rk_fit_gtr100_mid->at(i) > 107) continue;
 			double chi2  = chi_square->at(i);
-			std::cout << "chi2 = " << chi2 << std::endl;
 			int    mid   = rk_fit_gtr200_mid->at(i);
-
-#ifndef NoExist_SSD
 			double ssd_t = rk_hit_ssd_t->at(i);
-#endif
-			std::cout << "mid  = " << mid << std::endl;
-
-			mids = {	
-						
-#ifndef NoExist_SSD
-rk_fit_ssd_mid->at(i),
-#else 
-0,
-#endif
+			mids = {	rk_fit_ssd_mid->at(i),
 						rk_fit_gtr100_mid->at(i),						
 						rk_fit_gtr200_mid->at(i),
 						rk_fit_gtr300_mid->at(i)};
-
-
-			resx = { 
-						
-#ifndef NoExist_SSD
-rk_res_ssd_x->at(i),
-#else 
-0,
-#endif
-	
+			resx = { rk_res_ssd_x->at(i),
 						rk_res_gtr100_x->at(i),
 						rk_res_gtr200_x->at(i),
 						rk_res_gtr300_x->at(i)};
@@ -345,12 +316,7 @@ rk_res_ssd_x->at(i),
 						rk_res_gtr100_y->at(i),
 						rk_res_gtr200_y->at(i),
 						rk_res_gtr300_y->at(i)};
-			fitlxs   = { 						
-#ifndef NoExist_SSD
-rk_fit_ssd_x  ->at(i),
-#else 
-0,
-#endif
+			fitlxs   = { rk_fit_ssd_x  ->at(i),
 			   		 rk_fit_gtr100_x->at(i),
 						 rk_fit_gtr200_x->at(i),
 						 rk_fit_gtr300_x->at(i)};
@@ -358,17 +324,10 @@ rk_fit_ssd_x  ->at(i),
 			   		 rk_fit_gtr100_y->at(i),
 						 rk_fit_gtr200_y->at(i),
 						 rk_fit_gtr300_y->at(i)};
-			tans = { 
-#ifndef NoExist_SSD
-
-rk_fit_ssd_mom_x->at(i)/rk_fit_ssd_mom_z->at(i),
-#else 
-0,
-#endif
+			tans = { rk_fit_ssd_mom_x->at(i)/rk_fit_ssd_mom_z->at(i),
 						rk_fit_gtr100_mom_x->at(i)/rk_fit_gtr100_mom_z->at(i),
 						rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i),
 						rk_fit_gtr300_mom_x->at(i)/rk_fit_gtr300_mom_z->at(i)};
-         std::cout << "xt4  " << rk_hit_gtr100_xt4->at(i) << std::endl;
 			xt4s = { 0, 
 						rk_hit_gtr100_xt4->at(i),
 						rk_hit_gtr200_xt4->at(i),
@@ -396,12 +355,10 @@ rk_fit_ssd_mom_x->at(i)/rk_fit_ssd_mom_z->at(i),
 //					}
 //				}
 //			}
-
-			double t0diff = smallest_lgt - 88;//run0d
-//			double t0diff =  ssd_t;
+//			double t0diff = smallest_lgt - 88;//run0d
+			double t0diff =  ssd_t;
 			
 // --- cut conditions --- //
-			
 			if(chi2 > chi2_th[mid-100]) continue; //chi2_cut
 			h_tgt_proj_z_chi2cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
 			if(fabs(tgt_y + 1) > tgty_cut) continue;

@@ -14,7 +14,7 @@
 
 E16ANA_GTRStripAnalyzer::E16ANA_GTRStripAnalyzer(int _n_strips, int _n_sampling)
    : n_strips(_n_strips), n_sampling(_n_sampling), strip_pitch(0.35), gem_threshold(4.0), gem_tot_threshold(-10000.0),
-     drift_velocity(0.010), drift_gap_center(0.0), fadc_clock_period(25.0), fadc_t0_correction(0.0),
+     drift_velocity(0.010), drift_gap_center(0.0), fadc_clock_period(32.0), fadc_t0_correction(0.0),
      gem_tdc_min(-10000.0), gem_tdc_max(10000.0), gem_tr(75.0), threshold_fraction(0.5), inverted(1.0),cluster_minimum_gap(2), cluster_delta_tdc(10000.0),  
      rise_time_min(-10000.0),   rise_time_max(10000.0),
      peak_time_min(-10000.0),   peak_time_max(10000.0)
@@ -400,7 +400,7 @@ void E16ANA_GTRStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
       if (fadc_peak[id] > temp_max_value) {
          temp_max_strip = id;
          temp_max_value = fadc_peak[id];
-	     temp_tot       = fadc_tot[id];
+	      temp_tot       = fadc_tot[id];
          temp_rise      = fadc_rise[id];
       }
       temp_num_hit++;

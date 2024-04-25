@@ -1,3 +1,4 @@
+#define E16DSTN_PosCorrection_cxx
 #include <stdlib.h>
 #include <iostream>
 #include <TROOT.h>
@@ -54,7 +55,6 @@ int main (int argc, char** argv) {
 	TTree *tree          = (TTree*)fin->Get("tree");
 	//E16DSTN_ReadStraightTree *rt = new E16DSTN_ReadStraightTree(tree, out_file.c_str());
 	//rt->SetRemovedLayer(removed_layer);
-	E16DSTN_PosCorrection *pc = new E16DSTN_PosCorrection(tree, out_file.c_str());
 	int nevent           = tree->GetEntries();
 	int print_cycle      = 2000;
 	bool vertex_xy_fix_flag = false;
@@ -71,10 +71,11 @@ int main (int argc, char** argv) {
     E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
     gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
     auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
- 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
-	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
+ 	 auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
+  	 std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
     E16ANA_GeometryV2::SetGlobalPointer(geom);
 	 
+//    pc->SetGeom(geom);
     E16ANA_TriggerCalibParam trigger_param;
     trigger_param.ReadConstantData(calib.CurrentRunID());
  
@@ -97,13 +98,13 @@ int main (int argc, char** argv) {
     else {
       return -1;
     }
-
  
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack(geom, targets_pos, 1);
-	pc->SetFitter(fitter);
+	 E16DSTN_PosCorrection *pc = new E16DSTN_PosCorrection(tree, out_file.c_str(), geom, fitter);
+//	pc->SetFitter(fitter);
 	pc->SetIsWire(isWire);
 //	pc->SetRemovedLayer(removed_layer);
-	pc->PosCoLoop(tree, print_cycle, max_event, vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag , anaSW );
+	pc->PosCoLoop(tree, print_cycle, max_event, vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag , anaSW);
 	pc->FileOut()->Write();
 	return 0;	
 }

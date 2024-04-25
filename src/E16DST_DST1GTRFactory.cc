@@ -109,7 +109,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     t_hit_indexs[0].clear();
                     t_hit_indexs[1].clear();
                     t_hit_indexs[2].clear();
-					hit_orders.clear();
+						  hit_orders.clear();
                     E16ANA_GTRAnalyzedStripHit &anahit = v_anahits[t].get()[i];
                     for(int j=0; j<anahit.NumHit(); j++){
                         E16DST_DST1GTRHit &h = dst1_hits[h_id];
@@ -119,12 +119,12 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
-						h.SetRiset(anahit.StripRiseTiming(j));
+						      h.SetRiset(anahit.StripRiseTiming(j));
                         h.SetType(t);
                         h.SetLocalX(E16ANA_StraightTrackNameSpace::E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
-						h.SetPeakt(anahit.StripPeakt(j));
-						h.SetTotEnd(anahit.StripTotEd(j));
-						h.SetTotStart(anahit.StripTotSt(j));
+								h.SetPeakt(anahit.StripPeakt(j));
+								h.SetTotEnd(anahit.StripTotEd(j));
+								h.SetTotStart(anahit.StripTotSt(j));
 						std::vector<float> fadc;
             //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
 						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
@@ -164,15 +164,15 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     }
 		    */
 		    
-         		    cl.SetTiming2(anahit.Timing2());
+         		     cl.SetTiming2(anahit.Timing2());
                     cl.SetTanTheta(anahit.TanTheta());
-		    		cl.SetTdcPos(anahit.TdcHit());
+	    	    		  cl.SetTdcPos(anahit.TdcHit());
                     cl.SetTdcPos2(anahit.TdcHit2());
                     cl.SetTanTheta2(anahit.TanTheta2());
-					cl.SetMaxRiset(anahit.MaxRiset());
-					cl.SetMaxTot(anahit.MaxTot());
-					cl.SetTiming3(anahit.Timing3());
-					cl.SetTiming4(anahit.Timing4());
+						  cl.SetMaxRiset(anahit.MaxRiset());
+					     cl.SetMaxTot(anahit.MaxTot());
+					     cl.SetTiming3(anahit.Timing3());
+					     cl.SetTiming4(anahit.Timing4());
 				    int nhit = anahit.NumCls();
 				    for(int i=0;i<nhit;i++){
         	        	cl.SetCTiming(anahit.CTiming(i));

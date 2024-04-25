@@ -200,9 +200,9 @@ int main(int argc, char* argv[]){
 			record.LG().UpdatePtrs();
 
 			
-//			E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
-//			record.Trigger().AddHitAndClusterIDs();
-//			record.Trigger().UpdatePtrs();
+			E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+			record.Trigger().AddHitAndClusterIDs();
+			record.Trigger().UpdatePtrs();
 
 #ifndef NoExist_SSD
 		   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
