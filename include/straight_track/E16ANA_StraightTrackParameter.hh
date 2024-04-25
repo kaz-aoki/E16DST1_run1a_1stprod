@@ -30,13 +30,13 @@ const int kRemovedLayer = -1;
 
 constexpr bool kVtxZFixFlag = false; // 220607
 //constexpr bool kVtxZFixFlag = true;
-constexpr double kInitXRange[2] = {-40., 0.}; // 220607
+constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 
 #ifndef TRACK_FIND_WO_TARGET
-const TVector3 kInitPosErrorWire = {10, 3.4, 3};
-constexpr const std::array<double, 5> kWireXSigma = {3.0, 0.05, 0.3, 0.3, 0.3}; 
+const TVector3 kInitPosErrorWire = {0.05, 3.4, 0.3};
+constexpr const std::array<double, 5> kWireXSigma = {3.0, 0.05, 0.3, 0.1, 0.1}; 
 const TVector3 kInitPosError = {3., 3.4, 3.};
 #else 
 const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};

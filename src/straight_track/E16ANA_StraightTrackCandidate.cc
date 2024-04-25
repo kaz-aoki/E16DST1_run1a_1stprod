@@ -324,6 +324,10 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
       double chi_cand[2] = {chi1, chi2};
       auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
       int	 min_i = std::distance(std::begin(chi_cand), min_t);
+//		std::cout << "chi1 " << chi1 << std::endl;
+//		std::cout << "chi2 " << chi2 << std::endl;
+
+
       if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
 //        cluster_set->charge = -1;
 //        if(chi2<chi1)  cluster_set->charge = 1;

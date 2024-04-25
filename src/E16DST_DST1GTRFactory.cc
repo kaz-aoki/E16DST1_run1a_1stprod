@@ -130,7 +130,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
 						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
 							fadc.push_back((anahit.StripFadc(j))[k]);
 			//				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
-                        }
+                     }
 						h.SetWaveForm(fadc);
 						fadc.clear();
                         //t_hit_indexs[t].push_back(indexs[t]);
@@ -163,7 +163,6 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         cl.SetTdcPos(anahit.TdcHit());
                     }
 		    */
-		    
          		     cl.SetTiming2(anahit.Timing2());
                     cl.SetTanTheta(anahit.TanTheta());
 	    	    		  cl.SetTdcPos(anahit.TdcHit());

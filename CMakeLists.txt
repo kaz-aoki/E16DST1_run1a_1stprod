@@ -53,14 +53,14 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
 add_definitions(-DNoExist_SSD) # //turn on this if you do not have ssd as a tracking point, like Run0d 
 #add_definitions(-DREMOVE_GTR100) # 
-add_definitions(-DREMOVE_GTR200) # 
+#add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
 #add_definitions(-DEFFICIENCY_EVAL) # //turn on if you want to evaluate the efficiency
 
 
 
 add_definitions(-DWO_TRACK_FIT)
-add_definitions(-DWIRE_INCLUDE_TRACKING) #include wire for tracking 
+#add_definitions(-DWIRE_INCLUDE_TRACKING) #include wire for tracking 
 
 
 # embedding
@@ -88,7 +88,7 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-	include/CT
+#	include/CT
 	include/nakasuga
 #	include/res
 	include/trigger
@@ -150,9 +150,9 @@ add_library(E16ANA
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
   src/LG/E16ANA_LGProjection.cc
-  src/CT/E16ANA_CTBasic.cc
-  src/CT/E16ANA_CTWaveform.cc
-  src/CT/E16ANA_CTCheckHist.cc
+#  src/CT/E16ANA_CTBasic.cc
+#  src/CT/E16ANA_CTWaveform.cc
+#  src/CT/E16ANA_CTCheckHist.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -239,6 +239,8 @@ add_library(E16DST_DST1
  # src/E16DST_DST1WireTrackFactorywoGTR300.cc
 	src/E16DST_DST1TrackFactory.cc
 	src/tmp_murakami/E16DSTN_PosCorrection.cc
+	src/tmp_murakami/E16DSTN_ReadStraightTree.cc
+	src/tmp_murakami/E16DSTN_ReStraightV2.cc
 )
 
 
@@ -347,11 +349,11 @@ target_link_libraries(dst0_to_dst1_lg_check
 )
 
 #_______________________________________________________________________________
-add_executable(dst0_to_dst1_ct_check usr/dst0_to_dst1_ct_check.cc)
-
-target_link_libraries(dst0_to_dst1_ct_check
-	E16DST_DST1
-)
+#add_executable(dst0_to_dst1_ct_check usr/dst0_to_dst1_ct_check.cc)
+#
+#target_link_libraries(dst0_to_dst1_ct_check
+#	E16DST_DST1
+#)
 
 # #_______________________________________________________________________________
 # add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
@@ -1097,7 +1099,16 @@ target_link_libraries(gtr_deadch_check
 #target_link_libraries(run_ASDEfficiencyCalcWMag
 #	E16DST
 #	E16DST_DST1
-#)
+
+add_executable(run_ReStraightV2 usr/tmp_murakami/run_ReStraightV2.cc)
+target_link_libraries(run_ReStraightV2
+	E16DST
+	E16DST_DST1
+)
+
+
+
+
 ###_______________________________________________________________________________
 add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
 target_link_libraries(run_ReStraightAfterKillDup
@@ -1121,9 +1132,8 @@ target_link_libraries(run_ReStraightAfterKillDup
 #   E16DSTN
 #)
 ###_______________________________________________________________________________
-add_executable(draw_AfterKillDup usr/tmp_murakami/draw_AfterKillDup.cc)
-
-target_link_libraries(draw_AfterKillDup
+add_executable(draw_HistStraight usr/tmp_murakami/draw_HistStraight.cc)
+target_link_libraries(draw_HistStraight
 	E16DST
 	E16DST_DST1
 #   E16DSTN

@@ -408,8 +408,8 @@ double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
     auto min_tgt = std::min_element(std::begin(t_distance), std::end(t_distance));
     int  min_i   = std::distance(std::begin(t_distance), min_tgt) ;
 
-	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/vertex_sigma.X();
-	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/vertex_sigma.Y();
+	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/0.3;
+	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/2.0;
 ////	 double dz = ((vertex_fit.Z()) - targets_pos[min_i].Z() )/vertex_sigma.Z();
 ////    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
 ////    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;

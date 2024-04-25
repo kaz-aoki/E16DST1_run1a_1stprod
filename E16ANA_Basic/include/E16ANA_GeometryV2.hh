@@ -189,9 +189,6 @@ public:
 
    // Ex. geometry->GTR(module,layer)->GetLPos(gpos); (mm -> mm)
    const E16ANA_DetectorGeometry* GTR(int module, int layer) const {
-      std::cout << "module geom  layer " << module << ", " << layer << std::endl;
-      std::cout << "n mnod lay  " << n_gtr_modules << ", " << n_gtr_layers << std::endl;
-
       return gtr_geometry[module][layer];
    };
    const E16ANA_DetectorGeometry* GTR1(int module) const {
