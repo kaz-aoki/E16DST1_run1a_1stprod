@@ -21,6 +21,10 @@ class E16ANA_TrackCheckFile {
   E16ANA_TrackCheckFile(char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
       : file(TFile(file_name, "recreate")), run_id(_run_id) {
 //    gInterpreter->GenerateDictionary("std::vector<std::vector<bool>>; std::vector<std::vector<int>>; std::vector<std::vector<float>>; std::vector<std::vectror<double>>", "vector");
+    if (! file.IsOpen() ) {
+      std::cout << file_name << " cannot be opened." << std::endl;
+      exit(1);
+    }
     t_param = new TTree("param", "param");
     tree = new TTree("tree", "tree");
     // Hit, Cluster
