@@ -194,6 +194,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("gtr100x_cluster_gtx",   &gtr100x_cluster_gtx);
     tree->Branch("gtr100x_cluster_nc",    &gtr100x_cluster_nc);
     tree->Branch("gtr100x_cluster_size",  &gtr100x_cluster_size);
+    tree->Branch("gtr100x_cluster_last_tot_end",  &gtr100x_cluster_last_tot_end);
     tree->Branch("n_gtr200x_clusters",    &n_gtr200x_clusters, "n_gtr200x_clusters/I");
     tree->Branch("gtr200x_cluster_id",    &gtr200x_cluster_id);
 //    tree->Branch("gtr200x_cluster_consist_hit_id", &gtr200x_cluster_consist_hit_id, "gtr200x_cluster_consist_hit_id/S");
@@ -210,6 +211,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("gtr200x_cluster_nc",    &gtr200x_cluster_nc);
     tree->Branch("gtr200x_cluster_gtx",   &gtr200x_cluster_gtx);
     tree->Branch("gtr200x_cluster_size",  &gtr200x_cluster_size);
+    tree->Branch("gtr200x_cluster_last_tot_end",  &gtr200x_cluster_last_tot_end);
     tree->Branch("n_gtr300x_clusters",    &n_gtr300x_clusters, "n_gtr300x_clusters/I");
     tree->Branch("gtr300x_cluster_id",    &gtr300x_cluster_id);
 //    tree->Branch("gtr300x_cluster_consist_hit_id", &gtr300x_cluster_consist_hit_id, "gtr300x_cluster_consist_hit_id/S");
@@ -226,6 +228,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("gtr300x_cluster_nc",    &gtr300x_cluster_nc);
     tree->Branch("gtr300x_cluster_gtx",   &gtr300x_cluster_gtx);
     tree->Branch("gtr300x_cluster_size",  &gtr300x_cluster_size);
+    tree->Branch("gtr300x_cluster_last_tot_end",  &gtr300x_cluster_last_tot_end);
     tree->Branch("n_gtr100y_clusters",    &n_gtr100y_clusters, "n_gtr100y_clusters/I");
     tree->Branch("gtr100y_cluster_id",    &gtr100y_cluster_id);
     tree->Branch("gtr100y_cluster_mid",   &gtr100y_cluster_mid);
@@ -1249,6 +1252,7 @@ class E16ANA_StraightTrackCheckFile {
     gtr100x_cluster_adc.clear();
     gtr100x_cluster_t.clear();
     gtr100x_cluster_size.clear();
+    gtr100x_cluster_last_tot_end.clear();
     gtr200x_cluster_id.clear();
 //    gtr200x_cluster_consist_hit_id.clear();
     gtr200x_cluster_mid.clear();
@@ -1258,6 +1262,7 @@ class E16ANA_StraightTrackCheckFile {
     gtr200x_cluster_adc.clear();
     gtr200x_cluster_t.clear();
     gtr200x_cluster_size.clear();
+    gtr200x_cluster_last_tot_end.clear();
     gtr300x_cluster_id.clear();
 //    gtr300x_cluster_consist_hit_id.clear();
     gtr300x_cluster_mid.clear();
@@ -1267,6 +1272,7 @@ class E16ANA_StraightTrackCheckFile {
     gtr300x_cluster_adc.clear();
     gtr300x_cluster_t.clear();
     gtr300x_cluster_size.clear();
+    gtr300x_cluster_last_tot_end.clear();
     gtr100y_cluster_id.clear();
     gtr100y_cluster_mid.clear();
     gtr100y_cluster_y.clear();
@@ -1354,15 +1360,16 @@ class E16ANA_StraightTrackCheckFile {
           gtr100x_cluster_gz.emplace_back(gpos.Z());
           gtr100x_cluster_adc.emplace_back(clst.PeakSum());
           gtr100x_cluster_t.emplace_back(clst.Timing());
-	        gtr100x_cluster_t2.emplace_back(clst.Timing2());
-	        gtr100x_cluster_t3.emplace_back(clst.Timing3());
-	        gtr100x_cluster_t4.emplace_back(clst.Timing4());
-	        gtr100x_cluster_nc.emplace_back(clst.NumCls());
-	        gtr100x_cluster_the.emplace_back(clst.TanTheta());
-	        gtr100x_cluster_tx.emplace_back(clst.LocalXT());
-	        auto gpost = clst.GlobalPosT(geometry);
+	       gtr100x_cluster_t2.emplace_back(clst.Timing2());
+	       gtr100x_cluster_t3.emplace_back(clst.Timing3());
+	       gtr100x_cluster_t4.emplace_back(clst.Timing4());
+	       gtr100x_cluster_nc.emplace_back(clst.NumCls());
+	       gtr100x_cluster_the.emplace_back(clst.TanTheta());
+	       gtr100x_cluster_tx.emplace_back(clst.LocalXT());
+	       auto gpost = clst.GlobalPosT(geometry);
           gtr100x_cluster_gtx.emplace_back(gpost.X());
           gtr100x_cluster_size.emplace_back(clst.NumHits());
+			 gtr100x_cluster_last_tot_end.emplace_back(clst.LastTotEnd());
 #ifdef TRACK_EFF_CHECK
           gtr100x_cluster_is_merged.emplace_back(clst.IsMerged());
           if (clst.IsMerged()) {
@@ -1436,6 +1443,7 @@ class E16ANA_StraightTrackCheckFile {
           auto gpost = clst.GlobalPosT(geometry);
           gtr200x_cluster_gtx.emplace_back(gpost.X());
           gtr200x_cluster_size.emplace_back(clst.NumHits());
+			 gtr200x_cluster_last_tot_end.emplace_back(clst.LastTotEnd());
 #ifdef TRACK_EFF_CHECK
           gtr200x_cluster_is_merged.emplace_back(clst.IsMerged());
           if (clst.IsMerged()) {
@@ -1486,6 +1494,7 @@ class E16ANA_StraightTrackCheckFile {
           auto gpost = clst.GlobalPosT(geometry);
           gtr300x_cluster_gtx.emplace_back(gpost.X());
           gtr300x_cluster_size.emplace_back(clst.NumHits());
+			 gtr300x_cluster_last_tot_end.emplace_back(clst.LastTotEnd());
 #ifdef TRACK_EFF_CHECK
           gtr300x_cluster_is_merged.emplace_back(clst.IsMerged());
           if (clst.IsMerged()) {
@@ -3691,6 +3700,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<int>    gtr100x_cluster_nc;
   std::vector<double> gtr100x_cluster_gtx;
   std::vector<int> gtr100x_cluster_size;
+  std::vector<double> gtr100x_cluster_last_tot_end;
   int n_gtr200x_clusters;
   std::vector<int> gtr200x_cluster_id;
 //  std::vector<std::vector<int16_t>> gtr200x_cluster_consist_hit_id;
@@ -3708,6 +3718,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<int>    gtr200x_cluster_nc;
   std::vector<double> gtr200x_cluster_gtx;
   std::vector<int> gtr200x_cluster_size;
+  std::vector<double> gtr200x_cluster_last_tot_end;
   int n_gtr300x_clusters;
   std::vector<int> gtr300x_cluster_id;
 //  std::vector<std::vector<int16_t>> gtr300x_cluster_consist_hit_id;
@@ -3725,6 +3736,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<int>    gtr300x_cluster_nc;
   std::vector<double> gtr300x_cluster_gtx;
   std::vector<int> gtr300x_cluster_size;
+  std::vector<double> gtr300x_cluster_last_tot_end;
   int n_gtr100y_clusters;
   std::vector<int> gtr100y_cluster_id;
   std::vector<int> gtr100y_cluster_mid;

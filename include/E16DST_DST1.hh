@@ -455,6 +455,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   float            MaxTot() {return maxtot;}
   void             SetMaxTot(float t){maxtot = t;}
   
+  void                          SetLastTotEnd(float tote){ last_tot_end = tote;}
+  float                         LastTotEnd(){ return last_tot_end;}
 
 
   double LocalX() {
@@ -526,6 +528,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   std::vector<float>           cadc3; 
   std::vector<float>           cadc4; 
   std::vector<float>           cadc5; 
+  float                        last_tot_end;
 
 };
 
