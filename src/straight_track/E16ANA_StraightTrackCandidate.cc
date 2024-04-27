@@ -886,6 +886,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
 E16INFO("number of x candidates: %d", n_x_cands);
 E16INFO("number of y candidates: %d", n_y_cands);
   
+ if(n_x_cands < 300){  
+
+
   int count = 0;
   int county = 0;
   for (const auto& x_cand : cluster_sets[0]) {
@@ -982,6 +985,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
 	    cluster_pairs[1+i].SetCPos5((double)gtrx[i]->CPos5(j));
 	  }
       }
+}
     }
   }
 }

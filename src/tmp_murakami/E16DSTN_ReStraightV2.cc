@@ -170,10 +170,10 @@ for (int i = 0; i < kNumTrackingStrips; ++i) {
 
 
 
-void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, TString pdf_name){	
+void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name){	
 
    const int n_module = 10;
-   const int n_layer = 10;
+   const int n_layer = 4;
    const int n_tgt = 3; 
    const int n_div = 8;
 
@@ -194,9 +194,9 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH1D* h_tgt_proj_z_chi2cut[n_module];
 	TH1D* h_tgt_proj_x[n_module];
 	TH1D* h_tgt_proj_y[n_module];
-	TH1D* h_res_x[n_tgt][n_module][n_layer];
-	TH1D* h_res_y[n_tgt][n_module][n_layer];
-	TH1D* h_tan_theta[n_tgt][n_module][n_layer];
+	TH1D* h_res_x[n_module][n_layer];
+	TH1D* h_res_y[n_module][n_layer];
+	TH1D* h_tan_theta[n_module][n_layer];
 	TH1D* h_fitlx[n_tgt][n_module][n_layer];
    
    TH1D* h_cluster_timing_raw[n_module][n_layer];
@@ -204,6 +204,11 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
    TH1D* h_cluster_timing_chi2_xdependence[n_module][n_layer][n_div];
    TH1D* h_cluster_timing_chi2_ydependence[n_module][n_layer][n_div];
    
+	TH1D* h_tot_end_fr[n_module][n_layer];	
+	TH1D* h_tot_end_bg[n_module][n_layer];	
+
+
+
 	TH1D* h_cluster_adc_xdependence[n_module][n_layer][n_div];
 	TH1D* h_cluster_adc_ydependence[n_module][n_layer][n_div];
 
@@ -211,13 +216,13 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH2D* h_tgt_pos;
 	TH2D* h_tgt_pos_mod_raw[n_module];
 	TH2D* h_tgt_pos_mod_cut[n_module];
-	TH2D* h_cor_dz_time[n_tgt][n_module][n_layer][n_div];
-	TH2D* h_cor_dz_time_t0cor[n_tgt][n_module][n_layer][n_div];
-	TH2D* h_cor_res_fitlx[n_tgt][n_module][n_layer];
-	TH2D* h_cor_res_fitly[n_tgt][n_module][n_layer];
-	TH2D* h_cor_res_timing[n_tgt][n_module][n_layer];
+	TH2D* h_cor_dz_time[n_module][n_layer];
+	TH2D* h_cor_dz_time_t0cor[n_module][n_layer];
+	TH2D* h_cor_res_fitlx[n_module][n_layer];
+	TH2D* h_cor_res_fitly[n_module][n_layer];
+	TH2D* h_cor_res_timing[n_module][n_layer];
 	
-	TH2D* h_slopevel[n_tgt][n_module][n_layer][n_div];
+	TH2D* h_slopevel[n_module][n_layer][n_div];
 
 //	TH2D* h_trackmap[n_tgt][n_module];
 
@@ -245,6 +250,18 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 		for(int l=0; l < n_layer; l++){// -- layer 
 				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,600 ) ;
 				h_cluster_timing_chi2[m][l] = new TH1D (Form("h_cluster_timing_chi2%d_%d", m+100, l), Form("h_cluster_timing_chi2%d_%d", m+100, l), 100, 0 ,600 ) ;
+				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
+				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
+//				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
+				h_res_x[m][l] = new TH1D(Form("h_res_x__m%d_l%d", m+100, l), Form("h_res_x__m%d_l%d", m+100, l), 100, -2, 2);
+				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
+
+				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx__%d_%d", m+100, l), Form("h_cor_res_fitlx_%d_%d", m+100, l), 40, -50*l , 50*l, 100, -0.5, 0.5);
+				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly__%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 100, -2, 2);
+				h_cor_res_timing[m][l] = new TH2D(Form("h_cor_res_timing__%d_%d", m+100, l), Form("h_cor_res_timing_%d_%d", m+100, l), 20, 0 , 600, 100, -2, 2);
+				h_tan_theta[m][l] = new TH1D(Form("h_tan_theta_m%d_l%d",  m+100, l), Form("h_tan_theta_%d_%d", m+100, l), 20,  -0.5, 0.5);
+				h_cor_dz_time[m][l]        = new TH2D(Form("h_cor_dz_time_%d%d", m+100, l)      , Form("h_cor_dz_time_%d%d",  m+100, l)     , 20, 0, 600, 50,  -2, 2);
+				h_cor_dz_time_t0cor[m][l]= new TH2D(Form("h_cor_dz_time_t0cor_%d_%d",  m+100, l), Form("h_cor_dz_time_t0cor_%d%d", m+100, l), 20, 0, 600, 7, -8, 8);
 					for(int div = 0; div < n_div; div++){
 						h_cluster_timing_chi2_xdependence[m][l][div] = new TH1D(Form("h_cluster_timing_chi2_xdependence%d_%d_%d", m+100, l, div), Form("h_cluster_timing_chi2_xdependence%d_%d_%d", m+100, l, div), 20, 0 ,600 ) ;
 						h_cluster_timing_chi2_ydependence[m][l][div] = new TH1D(Form("h_cluster_timing_chi2_ydependence%d_%d_%d", m+100, l, div), Form("h_cluster_timing_chi2_ydependence%d_%d_%d", m+100, l, div), 20, 0 ,600 ) ;
@@ -253,15 +270,6 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 						}
 				for(int t=0; t < n_tgt; t++){
 					h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
-					h_res_x[t][m][l] = new TH1D(Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
-					h_res_y[t][m][l] = new TH1D(Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), 100, -4, 4);
-					h_cor_res_fitlx[t][m][l] = new TH2D(Form("h_cor_res_fitlx_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitlx_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
-					h_cor_res_fitly[t][m][l] = new TH2D(Form("h_cor_res_fitly_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitly_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
-					h_cor_res_timing[t][m][l] = new TH2D(Form("h_cor_res_timing_%d_%d_%d", t,m+100, l), Form("h_cor_res_timing_%d_%d%_d", t,m+100, l), 20, 0 , 600, 100, -2, 2);
-					h_tan_theta[t][m][l] = new TH1D(Form("h_tan_theta_t%d_m%d_l%d", t, m+100, l), Form("h_tan_theta%d_%d_%d", t,m+100, l), 100, -0.5, 0.5);
-//						h_cor_dz_time[t][m][l][div]        = new TH2D(Form("h_cor_dz_time_%d_%d%d%d",t,  m+100, l, div)      , Form("h_cor_dz_time_%d%d%d%d",t,  m+100, l, div)      , htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-//						h_cor_dz_time_t0cor[t][m][l][div] = new TH2D(Form("h_cor_dz_time_t0cor_%d%d_%d%d", t, m+100, l,div), Form("h_cor_dz_time_t0cor_%d%d%d%d",t, m+100, l,div), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-//						h_slopevel[t][m][l][div] = new TH2D(Form("h_slopevel_%d%d_%d%d", t, m+100, l,div), Form("h_slopevel_%d%d%d%d",t, m+100, l,div),  25, -100, 100, 60, -2, 2);
 				}
 			}
 		}	
@@ -277,6 +285,8 @@ std::array<double, 4> tans;//tan thetas
 std::array<double, 4> xt4s;//xt4
 std::array<double, 4> xadcs;//xt4
 std::array<double, 4> yadcs;//xt4
+std::array<double, 4> xcids;//xt4
+std::array<double, 4> xtotend;//xt4
 
 
 	for(int n=0; n < nevent; n++){
@@ -327,8 +337,14 @@ std::array<double, 4> yadcs;//xt4
 				xadcs = {rk_hit_ssd_adc->at(i), rk_hit_gtr100_xadc->at(i), rk_hit_gtr200_xadc->at(i), rk_hit_gtr300_xadc->at(i)};
 				yadcs = {0, rk_hit_gtr100_yadc->at(i), rk_hit_gtr200_yadc->at(i), rk_hit_gtr300_yadc->at(i)};
 
+
+				xcids = {-100, rk_hit_gtr100_xid->at(i), rk_hit_gtr200_xid->at(i), rk_hit_gtr300_xid->at(i)};
+            xtotend = {-100,gtr100x_cluster_last_tot_end->at(i), gtr200x_cluster_last_tot_end->at(i), gtr300x_cluster_last_tot_end->at(i) };
+				
+
+
 //         std::cout << "rk " << rk_hit_gtr100_xt4->at(i);
-//         std::cout << "rk " << rk_hit_gtr200_xt4->at(i);
+//         sjd::cout << "rk " << rk_hit_gtr200_xt4->at(i);
 //         std::cout << "rk " << rk_hit_gtr300_xt4->at(i);
 			double tgt_x = rk_fit_init_pos_gx->at(i);
 			double tgt_y = rk_fit_init_pos_gy->at(i);
@@ -356,14 +372,11 @@ std::array<double, 4> yadcs;//xt4
 	
 
 			for(int l=0; l < 4; l++){
-			
 			}
 
-
-
+			double tgt_range_center[10] = {0, -60, -60, -60, -60, 0, -60, -60, -60, -60};		
+		
 			if (lg_flag){
-
-
 			h_chi2->Fill(chi2);
 			h_chi2_mod[mid-100]->Fill(chi2);
 			h_tgt_pos_mod_raw[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
@@ -373,6 +386,7 @@ std::array<double, 4> yadcs;//xt4
 						if(mid ==m){
 						h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
 							for(int l=0; l < 4; l++){
+								if(l==0) continue;
 								double lx = fitlxs[l];
 								double ly = fitlys[l];
 								double offset = 50 * (l );
@@ -380,22 +394,85 @@ std::array<double, 4> yadcs;//xt4
 								int nth_div =  (lx + offset) / ((l*100)/n_div);
 								int nth_divy = (ly + offset) / ((l*100)/n_div);
 //								std::cout << "nth div = " << nth_div << std::endl;
-								if(mids[l] == m ){
 									h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
-									if(chi2 <  1000){
+									if(chi2 <  10){
+										h_res_x[mids[l]-100][l]->Fill(resx[l]);
+										h_res_y[mids[l]-100][l]->Fill(resy[l]);
 										h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
 										h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
 										h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
 										h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
-										h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+//										h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+							
+										h_cor_res_fitlx[mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
+										h_cor_res_fitly[mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
+										h_cor_res_timing[mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
+										h_tan_theta[mids[l]-100][l]     ->Fill(tans[l]);
+										h_cor_dz_time[mids[l]-100][l]   ->Fill(xt4s[l], resx[l]/tans[l]);	
+										h_cor_dz_time_t0cor[mid-100][l] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
+//										h_slopevel[mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] ); 
+
+
+										if(m == 102){
+										if(-25 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
+											h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+										} else {
+											h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+										}
+										}
+										else if(m == 103){
+										if(-20 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
+											h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+										} else {
+											h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+										}
+										}
+	
+	
+										else if(m == 104){
+										if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
+											h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+										} else {
+											h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+										}
+										}
+	
+										else if(m == 106){
+										if(-15 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 32){
+											h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+										} else {
+											h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+										}
+										}
+
+
+	
+										else if(m == 107){
+										if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
+											h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+										} else {
+											h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+										}
+										}
+
+	
+										else {
+										if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
+											h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+										} else {
+											h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+										}
+										}
+
+
+
 			         			}
-								}
+}
 							}
 						}
 					}
 				}
 			}
-	}
 
 	TCanvas *c0 = new TCanvas();
 	c0->SaveAs(pdf_name + "[", "pdf");
@@ -427,13 +504,57 @@ std::array<double, 4> yadcs;//xt4
 		for(int l=0; l < 4; l++){
    		c2_chi[m]->cd(l+1);
 	      if(m < 5) {
-      	   h_cluster_timing_chi2[m][l]->Draw("colz");
+      	   h_cluster_timing_chi2[m][l]->Draw();
    	   }
  	     else {
-         	h_cluster_timing_chi2[m][l]->Draw("colz");
+         	h_cluster_timing_chi2[m][l]->Draw();
       	}
    	}
    c2_chi[m]->SaveAs(pdf_name, "pdf");
+	}
+
+
+
+	TCanvas *c22[n_module];
+	for(int m =1; m < 9; m++){
+	   c22[m]= new TCanvas();
+		c22[m]->Divide(2,2);
+		for(int l=0; l < 4; l++){
+   		c22[m]->cd(l+1);
+	      if(m < 5) {
+      	   h_tot_end_fr[m][l]->Draw();
+      	   h_tot_end_bg[m][l]->Scale(h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries());
+      	   std::cout << "scale " << h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries() << std::endl;
+      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+      	   h_tot_end_bg[m][l]->Draw("same");
+   	   }
+ 	     else {
+         	h_tot_end_fr[m][l]->Draw();
+      	   h_tot_end_bg[m][l]->Scale(h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries());
+      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+         	h_tot_end_bg[m][l]->Draw("same");
+      	}
+   	}
+   c22[m]->SaveAs(pdf_name, "pdf");
+	}
+
+
+	TCanvas *c23[n_module];
+	for(int m =1; m < 9; m++){
+	   c23[m]= new TCanvas();
+		c23[m]->Divide(2,2);
+		for(int l=0; l < 4; l++){
+   		c23[m]->cd(l+1);
+	      if(m < 5) {
+      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+      	   h_tot_end_bg[m][l]->Draw("same");
+   	   }
+ 	     else {
+      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+         	h_tot_end_bg[m][l]->Draw("same");
+      	}
+   	}
+   c23[m]->SaveAs(pdf_name, "pdf");
 	}
 
 
@@ -565,13 +686,313 @@ std::array<double, 4> yadcs;//xt4
 				h_cluster_adc_ydependence[m][l][div]->Draw();
 			}
 		}
-	c6[m]->SaveAs(pdf_name, "pdf");
-	}
+	c6[m]->SaveAs(pdf_name, "pdf"); }
+
+
+
+  TCanvas *c1[10];
+  for(int m =1; m < 9; m++){ 
+    c1[m]= new TCanvas(); 
+    c1[m]->Divide(2,2);
+    for(int l=0; l < n_layer; l++){
+     c1[m]->cd(1+l);
+     if(m < 5) {
+        h_res_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
+        h_res_x[m][l]->Draw("colz");
+     }
+     else {
+        h_res_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
+        h_res_x[m+1][l]->Draw("colz");
+     }
+	 }
+    c1[m]->SaveAs(pdf_name, "pdf");
+  }
+
+ TCanvas *c2y = new TCanvas();
+ c2y->Divide(4,2);
+ for(int i =1; i < 9; i++){
+     c2y->cd(i);
+     if(i < 5) {
+        h_res_y[i][residual_layer]->Draw("colz");
+     }
+     else {
+        h_res_y[i+1][residual_layer]->Draw("colz");
+     }
+  }
+  c2y->SaveAs(pdf_name, "pdf");
+
+ TCanvas *c3t = new TCanvas();
+ c3t->Divide(4,2);
+ for(int i =1; i < 9; i++){
+     c3t->cd(i);
+     if(i < 5) {
+        h_tan_theta[i][residual_layer]->Draw("colz");
+     }
+     else {
+        h_tan_theta[i+1][residual_layer]->Draw("colz");
+     }
+  }
+  c3t->SaveAs(pdf_name, "pdf");
 
 
 
 
 
+ TCanvas *c31[10];
+   TGraphErrors *gr[10];
+   TGraphErrors *gr_mean[10];
+   TH1D *h1[10];
+   TF1 *f1[10];
+   for(int hmid=101; hmid < 110; hmid++){
+      if(hmid == 105)continue;
+            c31[hmid-100] = new TCanvas();
+            c31[hmid-100]->Divide(4,3);
+            int n = h_cor_res_fitlx[hmid-100][residual_layer]->GetNbinsX();
+            double xmin = -2;
+            double xmax =  2;
+            std::cout << "nibs = " << n << std::endl;
+            gr[hmid-100] = new TGraphErrors(n);
+            gr_mean[hmid-100] = new TGraphErrors(n);
+             for (int i = 1; i <= n; i++) {
+               c31[hmid-100]->cd(i);
+                h1[hmid-100] = h_cor_res_fitlx[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
+//             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
+               f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+               f1[hmid-100]->SetParameter(0, 500);   // constant
+               f1[hmid-100]->SetParameter(1, 0);     // mean
+               f1[hmid-100]->SetParLimits(1, -2, 2); // mean
+               f1[hmid-100]->SetParameter(2, 0.3);
+               f1[hmid-100]->SetParLimits(2, 0.1, 1);
+               f1[hmid-100]->SetParameter(3, 0);
+               f1[hmid-100]->SetParameter(4, -1);
+                h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
+ 				  double mean = f1[hmid-100]->GetParameter(1);
+ 				  double mean_err = f1[hmid-100]->GetParError(1);
+               double sigma = f1[hmid-100]->GetParameter(2);
+                double sigma_err = f1[hmid-100]->GetParError(2);
+               std::cout << "sigma = " << sigma << std::endl;
+                gr[hmid-100]->SetPoint(i-1, i, sigma);
+                gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
+                gr_mean[hmid-100]->SetPoint(i-1, i, mean);
+                gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
+               h1[hmid-100]->Draw();
+            }
+         c31[hmid-100]->cd(11);
+         gr[hmid-100]->Draw();
+         c31[hmid-100]->cd(12);
+ 			gr_mean[hmid-100]->SetMaximum(0.2);
+ 			gr_mean[hmid-100]->SetMinimum(-0.2);
+ 			gr_mean[hmid-100]->SetLineStyle(0);
+ 			
+         gr_mean[hmid-100]->Draw();
+         c31[hmid-100]->SaveAs(pdf_name, "pdf");
+   }
+
+
+  TCanvas *c61 = new TCanvas();
+  c61->Divide(4,2);
+  for(int i =1; i < 9; i++){
+     c61->cd(i);
+     if(i < 5) {
+        h_cor_dz_time[i][residual_layer]->Draw("colz");
+     }
+     else {
+        h_cor_dz_time[i+1][residual_layer]->Draw("colz");
+     }
+  }
+  c61->SaveAs(pdf_name, "pdf");
+
+
+   TCanvas *c16[10];
+   TGraphErrors *gr16[10];
+   TH1D *h16[10];
+   TF1  *f16[10];
+   TF1  *fla[10];
+   double xmin[10]  = {0, -7, -7, -7,     -0.5, 0, -0.5, -5.5, -7, -7};//mod100-109
+   double xmax[10]  = {0, 10, 10, 10,      0.5, 0,  0.5 ,  4.0,  8,  8};
+   double flmin[10] = {0, 120, 120, 120, 0,   0,   0, 100, 180, 180};
+   double flmax[10] = {0, 450, 450, 450, 500, 0, 500, 450, 550, 450};
+   for(int hmid=101; hmid < 110; hmid++){
+      c16[hmid-100] = new TCanvas();
+      int n = h_cor_dz_time[hmid-100][residual_layer]->GetNbinsX();
+      c16[hmid-100]->Divide(5,5);
+      std::cout << "nbins dz = " << n << std::endl;
+      gr16[hmid-100] = new TGraphErrors(n);
+    	gr16[hmid-100]->SetMaximum( 8.0);
+ 	   gr16[hmid-100]->SetMinimum(-8.0);
+       for (int i = 1; i <= n; i++) {
+         c16[hmid-100]->cd(i);
+         fla[hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
+         h16[hmid-100] = h_cor_dz_time[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
+         //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
+//       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
+//       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
+         //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
+          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
+         f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
+//       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+//       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+         f16[hmid-100]->SetParameter(0, 20); // constant
+         f16[hmid-100]->SetParameter(1, 0);     // mean
+         f16[hmid-100]->SetParameter(2, 10);    // sigma
+         f16[hmid-100]->SetParLimits(2, 1, 10);
+         f16[hmid-100]->SetParameter(3, 0);    
+         f16[hmid-100]->SetParLimits(3, -0.8, 0);
+         f16[hmid-100]->SetParameter(4, -1);    
+         f16[hmid-100]->SetParameter(4, -0.5);  
+         h16[hmid-100]->Fit(f16[hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
+
+          double chi2 = f16[hmid-100]->GetChisquare();
+         double mean =  f16[hmid-100]->GetParameter(1);
+          double sigma_err = f16[hmid-100]->GetParError(2);
+         std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+         if(chi2 < 5) continue;
+         if(sigma_err > 10) continue;
+          gr16[hmid-100]->SetPoint(i-1, i*(600/n), mean);
+          gr16[hmid-100]->SetPointError(i-1, 0, sigma_err);
+          gr16[hmid-100]->Fit(fla[hmid-100], "R");
+          h16[hmid-100]->Draw();
+      }
+         c16[hmid-100]->SaveAs(pdf_name, "pdf");
+   }
+
+
+   TCanvas *c17[2];
+ for(int t=0; t < 2; t++){
+  c17[t]= new TCanvas();
+   c17[t]->Divide(4,2);
+   for(int hmid=101; hmid < 110; hmid++){
+      if(hmid!=106) continue;
+      if(hmid < 105) {c17[t]->cd(hmid-100);}
+ 	 else {c17[t]->cd(hmid-101);}
+      gr16[hmid-100]->SetTitle(Form("residual/tan_theta tgt%d  mod%d : timing ;  timing; residual/tan_theta", t, hmid) );
+      gr16[hmid-100]->Draw("AP");
+   }
+  c17[t]->SaveAs(pdf_name, "pdf");
+ }
+
+
+
+ TCanvas *c6b = new TCanvas();
+ c6b->Divide(2,2);
+ for(int tgt=0; tgt<2; tgt++){
+ for(int i =1; i < 9; i++){
+   
+    c6b->cd(i);
+    if(i < 5) {
+       h_cor_dz_time_t0cor[i][residual_layer]->Draw("colz");
+    }
+    else {
+       h_cor_dz_time_t0cor[i+1][residual_layer]->Draw("colz");
+    }
+ }
+ }
+ c6b->SaveAs(pdf_name, "pdf");
+
+
+
+//TCanvas *c16b[2][10][n_div];
+//TGraphErrors *gr16b[2][10][n_div];
+//TH1D *h16b[2][10][n_div];
+//TF1 *f16b[2][10][n_div];
+//TF1 *flab[2][10][n_div];
+//def CALIB
+//double xminb[10]  = {0, -4, -7, -7,     -6, 0, -2, -5.5, -4, -4};//mod100-109
+//double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,  2,  4.0,  5,  5};
+//se 
+//double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
+//double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
+//dif
+//double flminb[10] = {0, 120, 120, 120, 120, 0, 200, 120, 100, 180};
+//double flmaxb[10] = {0, 450, 450, 450, 450, 0, 550, 450, 320, 450};
+//r(int t=0; t < 2; t++){
+// int hmid = 106;
+// for(int d=0 ; d < n_div; d++){
+//   c16b[t][hmid-100][d] = new TCanvas();
+//   int n = h_cor_dz_time_t0cor[t][hmid-100][residual_layer][d]->GetNbinsX();
+//   c16b[t][hmid-100][d]->Divide(5,5);
+//   std::cout << "nbins dz = " << n << std::endl;
+//   gr16b[t][hmid-100][d] = new TGraphErrors(n);
+//	gr16b[t][hmid-100][d]->SetMaximum( 8.0);
+// gr16b[t][hmid-100][d]->SetMinimum(-8.0);
+//    for (int i = 1; i <= n; i++) {
+//      c16b[t][hmid-100][d]->cd(i);
+//      flab[t][hmid-100][d] = new TF1(Form("fla%d%d", t, d), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
+//      h16b[t][hmid-100][d] = h_cor_dz_time_t0cor[t][hmid-100][residual_layer][d]->ProjectionY(Form("_py%d%d%d", hmid, i), i, i);
+//        f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+//        f16b[t][hmid-100][d] = new TF1(Form("fitFunction%d%d", t, d), "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+//      f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
+//      f16b[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+//      f16b[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+//      f16b[t][hmid-100][d]->SetParameter(0, 20); // constant
+//      f16b[t][hmid-100][d]->SetParameter(1, 0);     // mean
+//      f16b[t][hmid-100][d]->SetParameter(2, 3);    // sigma
+//        f16b[t][hmid-100][d]->SetParameter(3, 0);    
+//        f16b[t][hmid-100][d]->SetParameter(4, -1);    
+//        f16b[t][hmid-100][d]->SetParameter(4, -0.5);  
+//      h16b[t][hmid-100][d]->Fit(f16b[t][hmid-100][d], "", "", xminb[hmid-100], xmaxb[hmid-100]);
+//
+//       double chi2 = f16b[t][hmid-100][d]->GetChisquare();
+//      double mean = f16b[t][hmid-100][d]->GetParameter(1);
+//       double sigma_err = f16b[t][hmid-100][d]->GetParError(2);
+//      std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+//      if(chi2 < 5) continue;
+//      if(sigma_err > 10) continue;
+//       gr16b[t][hmid-100][d]->SetPoint(i-1, i*(600/n), mean);
+//       gr16b[t][hmid-100][d]->SetPointError(i-1, 0, sigma_err);
+//       gr16b[t][hmid-100][d]->Fit(flab[t][hmid-100][d], "R");
+//       h16b[t][hmid-100][d]->Draw();
+//   }
+//      c16b[t][hmid-100][d]->cd(6);
+//      c16b[t][hmid-100][d]->SaveAs(pdf_name, "pdf");
+//	}
+//
+//
+////
+////TCanvas *c0d = new TCanvas();
+////t0diff->Draw();
+////d->SaveAs(pdf_name, "pdf");
+//
+// TCanvas *c17b[2];
+//  	c17b[t] = new TCanvas();
+//	 	c17b[t]->Divide(5,4);
+// 	for(int d=0; d < n_div; d++){
+// 		c17b[t]->cd(d+1);
+//       gr16b[t][6][d]->SetTitle(Form("residual/tan_theta tgt%d mod 106 : timing_lg ;  timing_lg; residual/tan_theta", t) );
+// 	   gr16b[t][6][d]->Draw("AP");
+// 		
+// 	}
+//   c17b[t]->SaveAs(pdf_name, "pdf");
+////}
+////
+////
+// TCanvas *c18[2];
+//GraphErrors *tg18[2];
+// for(int t=0; t < 2; t++){
+// 	c18[t] = new TCanvas();
+// 	tg18[t] = new TGraphErrors(n_div);
+// 	for(int d=0; d < n_div; d++){
+// 		double tilt = flab[t][6][d]->GetParameter(1);
+// 		tg18[t]->SetPoint(d, d, tilt);
+// 	}
+// 		tg18[t]->SetMarkerSize(msize);
+// 	tg18[t]->Draw("AP");
+//18[t]->SaveAs(pdf_name, "pdf");
+//}
+//
+//
+// TCanvas *c19[2];
+// for(int t=0; t < 2; t++){
+// 	c19[t] = new TCanvas();
+// 	c19[t]->Divide(4,5);
+// 	for(int d=0; d < n_div; d++){
+// 		c19[t]->cd(d+1);
+// 		h_slopevel[t][6][residual_layer][d]->Draw("colz");
+// 	}
+// c19[t]->SaveAs(pdf_name, "pdf");
+//}
+//
+//
 
 
 	c0->SaveAs(pdf_name + "]", "pdf");
@@ -599,9 +1020,9 @@ std::array<double, 4> yadcs;//xt4
 //
 //	TH2D* h_tgt_pos;
 //	TH2D* h_tgt_pos_mod_raw[n_module];
-//	TH2D* h_tgt_pos_mod_cut[n_module];
-//	TH2D* h_cor_dz_time[n_tgt][n_module][n_layer][n_div];
-//	TH2D* h_cor_dz_time_t0cor[n_tgt][n_module][n_layer][n_div];
+////	TH2D* h_tgt_pos_mod_cut[n_module];
+//	TH2D* h_cor_dz_time[n_module][n_layer][n_div];
+//	TH2D* h_cor_dz_time_t0cor[n_module][n_layer][n_div];
 //	TH2D* h_cor_res_fitlx[n_tgt][n_module][n_layer];
 //	TH2D* h_cor_res_fitly[n_tgt][n_module][n_layer];
 //	TH2D* h_cor_res_timing[n_tgt][n_module][n_layer];
@@ -1552,8 +1973,6 @@ std::array<double, 4> yadcs;//xt4
 //			}
 //	 	c19[t]->SaveAs(pdf_name, "pdf");
 //	  }
-//
-//
 //
 //
 //		

@@ -2200,7 +2200,7 @@ public :
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips-1 >& cids);
 
-   void DrawHist( TTree* tree, int n_maxevent, int print_cycle, TString pdf_name);
+   void DrawHist( TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name);
    private:
    E16ANA_StraightMultiTrack *fitter;
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
@@ -3076,6 +3076,8 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("gtr100x_cluster_nc", &gtr100x_cluster_nc, &b_gtr100x_cluster_nc);
    fChain->SetBranchAddress("gtr100x_cluster_size", &gtr100x_cluster_size, &b_gtr100x_cluster_size);
    fChain->SetBranchAddress("gtr100x_cluster_last_tot_end", &gtr100x_cluster_last_tot_end, &b_gtr100x_cluster_last_tot_end);
+   fChain->SetBranchAddress("gtr200x_cluster_last_tot_end", &gtr200x_cluster_last_tot_end, &b_gtr200x_cluster_last_tot_end);
+   fChain->SetBranchAddress("gtr300x_cluster_last_tot_end", &gtr300x_cluster_last_tot_end, &b_gtr300x_cluster_last_tot_end);
    fChain->SetBranchAddress("n_gtr200x_clusters", &n_gtr200x_clusters, &b_n_gtr200x_clusters);
    fChain->SetBranchAddress("gtr200x_cluster_id", &gtr200x_cluster_id, &b_gtr200x_cluster_id);
    fChain->SetBranchAddress("gtr200x_cluster_mid", &gtr200x_cluster_mid, &b_gtr200x_cluster_mid);
@@ -3787,6 +3789,8 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("gtr100x_cluster_nc",          &out_gtr100x_cluster_nc);
    outtree->Branch("gtr100x_cluster_size",        &out_gtr100x_cluster_size);
    outtree->Branch("gtr100x_cluster_last_tot_end",        &out_gtr100x_cluster_last_tot_end);
+   outtree->Branch("gtr200x_cluster_last_tot_end",        &out_gtr200x_cluster_last_tot_end);
+   outtree->Branch("gtr300x_cluster_last_tot_end",        &out_gtr300x_cluster_last_tot_end);
    outtree->Branch("n_gtr200x_clusters",          &out_n_gtr200x_clusters );
    outtree->Branch("gtr200x_cluster_id",          &out_gtr200x_cluster_id );
    outtree->Branch("gtr200x_cluster_mid",         &out_gtr200x_cluster_mid);
@@ -4425,7 +4429,9 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 //	int n_tracks = rk_hit_init_pos_gz->size() ;	
 	int n_tracks = alive_ids.size();	
 	
-	 out_gtr100x_hit_t.resize(n_tracks);
+	 out_gtr100x_cluster_last_tot_end.resize(n_tracks);
+	 out_gtr200x_cluster_last_tot_end.resize(n_tracks);
+	 out_gtr300x_cluster_last_tot_end.resize(n_tracks);
 
 	 out_rk_charge.resize(n_tracks);
     out_rk_hit_init_mom_gx.resize(n_tracks);
@@ -4698,6 +4704,7 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 
 
 
+
 //  out_n_cands = n_selected;
 	for(int i = 0 ; i < n_tracks ; i++){		
 		int tid = alive_ids[i];
@@ -4716,6 +4723,41 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 //			}
 //		}
 	  
+
+		int cid_100 = rk_hit_gtr100_xid->at(tid);//cluster id which is used in a track
+		for(int j=0; j < n_gtr100x_clusters; j++){
+			int cid = gtr100x_cluster_id->at(j);//cluster id from all cluster
+			if(cid_100 == cid){ //if both are matched
+            out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
+			}
+		}
+
+		int cid_200 = rk_hit_gtr200_xid->at(tid);//cluster id which is used in a track
+		for(int j=0; j < n_gtr200x_clusters; j++){
+			int cid = gtr200x_cluster_id->at(j);//cluster id from all cluster
+//			std::cout << "cid = " << cid << std::endl;
+//			std::cout << "cid200 = " << cid_200 << std::endl;
+//			std::cout << "j  = " << j  << std::endl;
+			
+			if(cid_200 == cid){ //if both are matchej
+//				std::cout << "size " << gtr200x_cluster_last_tot_end->size() << std::endl;
+///				std::cout << "out_gtr size = i ,  " << i << ", " << out_gtr200x_cluster_last_tot_end.size() << std::endl;
+            out_gtr200x_cluster_last_tot_end[i] = gtr200x_cluster_last_tot_end->at(j);//tot_end is filled
+//				std::cout<< "hello " << std::endl;
+			}
+		}	
+   	int cid_300 = rk_hit_gtr300_xid->at(tid);//cluster id which is used in a track
+		for(int j=0; j < n_gtr300x_clusters; j++){
+			int cid = gtr300x_cluster_id->at(j);//cluster id from all cluster
+			if(cid_300 == cid){ //if both are matched
+            out_gtr300x_cluster_last_tot_end[i] = gtr300x_cluster_last_tot_end->at(j);//tot_end is filled
+			}
+		}
+
+
+
+
+		
 
 	//	std::cout << "mom = " << rk_fit_init_mom_gz->at(tid) << std::endl;
 		out_chi_square[i]           = chi_square->at(tid);
