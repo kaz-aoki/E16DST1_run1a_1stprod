@@ -241,7 +241,20 @@ int main(int argc, char* argv[]) {
     std::cout << track_root << " not found." << std::endl;
     return 0;
   }
+
   TTree* outtree = (TTree*) file_track->Get("outtree");
+  if ( outtree == nullptr ) {
+    std::cout << "outtree not found. I will try tree" << std::endl;
+    outtree = (TTree*) file_track->Get("tree");
+    if ( outtree == nullptr ) {
+      std::cout << "tree not found. abort." << std::endl;
+      return 0;
+    }
+  }
+  if ( outtree == nullptr ) {
+    std::cout << "TTree cannot be found" << std::endl;
+    return 0;
+  }
   int itrack = 0;
   int track_event;
   std::vector<double>  *rk_fit_init_mom_gx;
