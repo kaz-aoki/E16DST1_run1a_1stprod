@@ -346,6 +346,13 @@ target_link_libraries(dst0_to_dst1_sts_straight_check
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_straight_check_alone usr/dst0_to_dst1_sts_straight_check_alone.cc)
+
+target_link_libraries(dst0_to_dst1_sts_straight_check_alone
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_ct_check usr/dst0_to_dst1_ct_check.cc)
 
 target_link_libraries(dst0_to_dst1_ct_check

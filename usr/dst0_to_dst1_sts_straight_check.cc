@@ -830,7 +830,7 @@ int main(int argc, char* argv[]) {
 
       tree_sts->Fill();
 
-
+      
       auto& gtr_clusters1 = record.GTR().Clusters();
       if ( gtr_clusters1.size() > 0 ) {
 	for ( auto& gtr_clust1 : gtr_clusters1 ) {

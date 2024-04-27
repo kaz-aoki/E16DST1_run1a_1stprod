@@ -139,8 +139,9 @@ int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrac
 
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
-  if (argc != 6) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
+  if (argc != 7) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] "
+	 << "[display.pdf]" << endl;
 #else
   if (argc != 11) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [mock flag] [merge mock flag] [smear flag] [dead region flag]" << endl;
@@ -156,6 +157,7 @@ int main(int argc, char* argv[]) {
   auto run_id        = stoi(argv[3]);
   auto event_start   = stoi(argv[4]);
   auto event_end     = stoi(argv[5]);
+  std::string display_pdf = argv[6];
 #ifdef TRACK_EFF_CHECK
   auto mock_data_name   = argv[6];
   auto mock_data_flag   = stoi(argv[7]);
@@ -238,8 +240,7 @@ int main(int argc, char* argv[]) {
   bool pdf_first = true;
   //  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
   //auto* lgeom = E16ANA_STSGeometry::instance();
-  if ( visualization ) display.DrawSensor();
-  if ( visualization ) display.SetPdfName("out.pdf");
+  if ( visualization ) display.SetPdfName(display_pdf);
  
   
   ////////////////////// PREPARE STS TREE
@@ -370,6 +371,7 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_module",&lg_module);
   tree_lg->Branch("lg_channel",&lg_channel);
   tree_lg->Branch("lg_peakheight",&lg_peakheight);
+  tree_lg->Branch("lg_peaktime",&lg_peaktime);
   tree_lg->Branch("lg_baseline",&lg_baseline);
   tree_lg->Branch("lg_baselinerms",&lg_baselinerms);
   tree_lg->Branch("lg_integral",&lg_integral);
@@ -534,7 +536,8 @@ int main(int argc, char* argv[]) {
 ());
       record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
-      check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
+      // kaz removed .
+      //check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
 #endif // REMOVE_REAL_HIT
 #ifdef TRACK_EFF_CHECK
@@ -590,7 +593,8 @@ int main(int argc, char* argv[]) {
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
       record.Trigger().UpdatePtrs();
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
+      std::cout << "Warning : AddRecord removed to avoid problem." << std::endl;
+      //check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
 #ifndef DST1_EVENT_MIX
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
@@ -605,8 +609,11 @@ int main(int argc, char* argv[]) {
       std::cout << "################################################ my event loop" << std::endl;
 
       if ( stsg_dst0.NumberOfHits() > 1 ){
-	std::cout << "++++++ STSGlobal: # of hits more than 1. WHY??" << std::endl;
+	std::cout << "++++++ STSGlobal: # of hits more than 1. Indication of merged DST0." << std::endl;
       }
+
+      auto stscut_tdc = [](auto& hit){ return ( fabs(hit.Timing()+95)<100.);};
+      auto stscut_adc = [](auto& hit){ return ( hit.PeakHeight() > 0.00001 ); };
 
       ///////////////// FILL STS STANDALONE TREE.
 
@@ -627,52 +634,122 @@ int main(int argc, char* argv[]) {
       }else{
 	continue;
       }
+
       clear_sts();
+
+      auto fill_sts = [&](auto& hit1) {
+	sts_module.push_back(hit1.ModuleId());
+	sts_pn.push_back(hit1.PN());
+	sts_channel.push_back(hit1.ChannelId());
+	sts_peakheight.push_back(hit1.PeakHeight());
+	sts_lx.push_back(hit1.LocalPos().X());
+	sts_elink.push_back(hit1.Elink());
+	
+	if ( hit1.TDC() == 0xffff ) {
+	  sts_tdc_l1geri2.push_back(-1000000);
+	}else{
+	  auto& hitg0 = stsg_dst0.Hit(0);
+	  int geri14 = (int) ( hitg0.get_l1_geritimestamp()&0b11111111111111 );
+	  sts_tdc_l1geri2.push_back((int)hit1.TDC() - geri14);
+	}
+	
+	if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
+	  sts_hittime.push_back(hit1.Timing());
+	  sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
+	}else{
+	  sts_hittime.push_back   (-1000000.);
+	  sts_tdc_l1geri.push_back(-1000000.);
+	}
+	
+	TVector3 vec = hit1.GlobalPos();
+	sts_gx.push_back(vec.X());
+	sts_gy.push_back(vec.Y());
+	sts_gz.push_back(vec.Z());
+	sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
+	sts_geri_l1geri.push_back(tmp);
+      };
+      
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( visualization ) display.DrawSensor();
+      
+      bool has_sts_hits = false;
+      auto do_first_when_vis = [&]() {
+	if (has_sts_hits) return;
+	if ( visualization ) display.DrawSensor();
+	if ( visualization ) {
+	  double global[3] = { 20., 0., 40.};
+	  display.DrawHit(global);
+	  double global2[3] = { 20., 0., -40.};
+	  display.DrawHit(global2);
+	  double global3[3] = {-20., 0., -40.};
+	  display.DrawHit(global3);
+	  double global4[3] = {-20., 0., 40.};
+	  display.DrawHit(global4);
+	}
+      };
+
+      TVector3 wire[2] = { TVector3(20.,0.,40.), TVector3(20.,0.,-40.) };
+      
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
-	  sts_module.push_back(hit1.ModuleId());
-	  sts_pn.push_back(hit1.PN());
-	  sts_channel.push_back(hit1.ChannelId());
-	  sts_peakheight.push_back(hit1.PeakHeight());
-	  sts_lx.push_back(hit1.LocalPos().X());
-	  sts_elink.push_back(hit1.Elink());
-
-	  if ( hit1.TDC() == 0xffff ) {
-	    sts_tdc_l1geri2.push_back(-1000000);
-	  }else{
-	    auto& hitg0 = stsg_dst0.Hit(0);
-	    int geri14 = (int) ( hitg0.get_l1_geritimestamp()&0b11111111111111 );
-	    sts_tdc_l1geri2.push_back((int)hit1.TDC() - geri14);
-	  }
-
-	  if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
-	    sts_hittime.push_back(hit1.Timing());
-	    sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
-	  }else{
-	    sts_hittime.push_back(E16DST_DST1Constant::kInvalidValue);
-	    sts_tdc_l1geri.push_back(-1000000.);
-	  }
-	  
-	  TVector3 vec = hit1.GlobalPos();
-	  sts_gx.push_back(vec.X());
-	  sts_gy.push_back(vec.Y());
-	  sts_gz.push_back(vec.Z());
-	  sts_geriTimestamp.push_back(hit1.GeriTimestamp());
-	  int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
-	  sts_geri_l1geri.push_back(tmp);
-	  
+	  fill_sts(hit1);
 	  if ( visualization ){
 	    if ( fabs(hit1.Timing()+95.) <100  && hit1.PeakHeight()>0 ) {
+	      do_first_when_vis();
+	      has_sts_hits = true;
+
+	      TVector3 vec = hit1.GlobalPos();
 	      double global[3]={vec.X(),vec.Y(),vec.Z()};
 	      display.DrawHit(global);
+	      
+	      
+	      /*
+	      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
+	      if ( lg_hits1.size() > 0 )  {
+		for ( auto& lghit : lg_hits1 ) {
+		  if( lghit.ModuleId() == hit1.ModuleId() ||
+		      abs(lghit.ModuleId() - hit1.ModuleId())<=1 ) {
+		    if ( lghit.PeakTime() > 90 || lghit.PeakTime() < 0 ) continue;
+		  }
+		}
+		}*/
+	      
+	      /*
+
+		  TVector3 gpos = lghit.GlobalPos(*geometry);
+		  //std::cout << "LG " << module << " ch=" << channel << "  ";
+		  //gpos.Print();
+		  lg_module.push_back(lghit.ModuleId());
+		  lg_channel.push_back(lghit.ChannelId());
+		  lg_peakheight.push_back(lghit.PeakHeight());
+		  lg_peaktime.push_back(lghit.PeakTime());
+		  lg_baseline.push_back(lghit.Baseline());
+		  lg_baseline.push_back(lghit.BaselineRms());
+		  lg_integral.push_back(lghit.Integral());
+		  lg_gx.push_back(gpos.X());
+		  lg_gy.push_back(gpos.Y());
+		  lg_gz.push_back(gpos.Z());
+		}
+	      }
+
+	      */
+
+
 	    }
 	  }
 	}
       }
-
       tree_sts->Fill();
+      auto& gtr_clusters1 = record.GTR().Clusters();
+      if ( gtr_clusters1.size() > 0 ) {
+	for ( auto& gtr_clust1 : gtr_clusters1 ) {
+	  if ( visualization ) {
+	    TVector3 pos = gtr_clust1.GlobalPos(*geometry);
+	    double global[3] = {pos.X(),pos.Y(),pos.Z()};
+	    display.DrawHit(global);
+	  }
+	}
+      }
 
       /////////////////////// FILL GTR STANDALONE TREE.
       /*
@@ -722,7 +799,6 @@ int main(int argc, char* argv[]) {
 	}
       }
       tree_lg->Fill();
-      
       
       ///////////////////////// STS-LG Correlation
       
