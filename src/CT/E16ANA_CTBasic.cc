@@ -8,6 +8,7 @@
 #include <TSpectrum.h>
 
 #include "E16ANA_CTBasic.hh"
+#include "E16DST_Constant.hh"
 // #include "E16DST_DST1Constant.hh"
 // #include "E16ANA_LGConstant.hh"
 
@@ -21,8 +22,8 @@
 
 // TGraph* E16ANA_LGBasic::gtmpl = nullptr;
 // int E16ANA_LGBasic::ngtmpl = E16DST_DST1Constant::kInvalidValue;
-// double E16ANA_LGBasic::gtmplx[200] = {E16DST_DST1Constant::kInvalidValue};
-// double E16ANA_LGBasic::gtmply[200] = {E16DST_DST1Constant::kInvalidValue};
+// double E16ANA_LGBasic::gtmplx[E16DST_Constant::NSamplesCT] = {E16DST_DST1Constant::kInvalidValue};
+// double E16ANA_LGBasic::gtmply[E16DST_Constant::NSamplesCT] = {E16DST_DST1Constant::kInvalidValue};
 // double E16ANA_LGBasic::tmplwidth = E16DST_DST1Constant::kInvalidValue;
 
 E16ANA_CTBasic::E16ANA_CTBasic(){

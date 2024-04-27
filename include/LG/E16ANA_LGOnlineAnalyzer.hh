@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include "E16DST_Constant.hh"
 #include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
 #include "E16ANA_EIDSingleTrackAnalyzer.hh"
@@ -62,7 +63,7 @@ public :
    Bool_t          Dst1Flag;
    Double_t        Gpos[3];
    Double_t        Lpos[3];
-   Double_t        Waveform[200];
+   Double_t        Waveform[E16DST_Constant::NSamplesLG];
    Float_t         TrgTiming;
    Bool_t          Trg;
    Bool_t          TrgwTRK;
