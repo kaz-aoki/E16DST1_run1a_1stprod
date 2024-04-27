@@ -357,8 +357,8 @@ int main(int argc, char* argv[]) {
   cthists->DrawEachTimeCorrelation(pdfout,c);
   c->SaveAs(pdfout+"]","pdf");
 
-  // TString wfpdfout = Form("%s",out_wf_pdf_name);
-  // cthists->DrawWaveform(wfpdfout);
+  TString wfpdfout = Form("%s",out_wf_pdf_name);
+  cthists->DrawWaveform(wfpdfout);
 
   fout->Write();
   fout->Close();
