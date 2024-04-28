@@ -100,7 +100,8 @@ void E16ANA_STSGlobalGeometry::PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor)
   TGeoRotation corr_rot;
   corr_rot.RotateY(-(4./148.81)*180./3.1415926);
 
-  TGeoHMatrix hmat = corr_rot * rot * trans* spin;
+  //TGeoHMatrix hmat = corr_rot * rot * trans* spin;
+  TGeoHMatrix hmat = rot * trans* spin;
   map_mat[sensor.mod] = hmat;
 }
 
