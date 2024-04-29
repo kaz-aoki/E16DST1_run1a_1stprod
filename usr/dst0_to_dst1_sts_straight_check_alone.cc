@@ -40,7 +40,7 @@ using namespace std;
 
 const bool visualization = true;
 
-constexpr bool kIsElectronRun = true;
+constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
 
 #ifdef TRACK_EFF_CHECK
@@ -711,59 +711,69 @@ int main(int argc, char* argv[]) {
 	  }
 	}
       }
-      /*
-      std::cout << "# of clusters in GTR" << std::endl;
-      for( int i = 0;i<nclus_gtr.size(); i++){
-	std::cout << "LAYER " << i << std::endl;
-	for( auto& p : nclus_gtr[i] ) {
-	  std::cout << p.first << " " << p.second << std::endl;
-	}
-      }
-      */
 
-      //if ( gtr_clusters1.size() > 100 ) {
-      //std::cout << "gtr clusters more than 100. "<< std::endl;
-      //continue;
-      //}
+      //class enum TGTType { TGT, WireR, WireL };
+      //TGTType tgt_type = TGT;
+      
+      std::vector<TVector3> wiresR={ TVector3( 20.,0.,40.), TVector3( 20.,0.,-40.) };
+      std::vector<TVector3> wiresL={ TVector3(-20.,0.,40.), TVector3(-20.,0.,-40.) };
+      //TVector3 targets[3] = { TVector3(0.,0.,20), TVector3(0,0,0), TVector3(0,0,-20) };
+
+      //std::vector<TVector3> origin = wireR;
+
+      TVector3 origin(0.,0.,0.);
+      auto get_phi = [](TVector3& vec) ->double {
+	double phi = vec.Phi();
+	if ( phi < - 3.1415926535/2. ) phi += 3.*3.14159265/2.;
+	return phi;
+      };
 
       bool has_sts_hits = false;
       auto do_first_when_vis = [&]() {
-	if (has_sts_hits) return;
-	if ( visualization ) display.DrawSensor();
 	if ( visualization ) {
-	  double global[3] = { 20., 0., 40.};
-	  display.DrawHit(global);
-	  double global2[3] = { 20., 0., -40.};
-	  display.DrawHit(global2);
-	  double global3[3] = {-20., 0., -40.};
-	  display.DrawHit(global3);
-	  double global4[3] = {-20., 0., 40.};
-	  display.DrawHit(global4);
+	  display.DrawSensor();
+
+	  //TString str; str.Form("Run %d",run_id);
+	  //display.DrawLatex(-800,800,str);
+	  //str.Form("Event %d",event_id);
+	  //	  display.DrawLatex(-800,730,str);
+	  display.DrawRun(run_id);
+	  display.DrawEvent(event_id);
+	  display.DrawWires();
+	  display.DrawTargets();
 	}
       };
 
-      TVector3 wire[2] = { TVector3(20.,0.,40.), TVector3(20.,0.,-40.) };
+       do_first_when_vis();
       
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
 	  fill_sts(hit1);
 	  if ( visualization ){
 	    if ( fabs(hit1.Timing()+95.) <100  && hit1.PeakHeight()>0 ) {
-	      do_first_when_vis();
 	      has_sts_hits = true;
 
-	      TVector3 vec = hit1.GlobalPos();
-	      double global[3]={vec.X(),vec.Y(),vec.Z()};
-	      display.DrawHit(global);
+	      TVector3 sts_vec = hit1.GlobalPos();
+	      double sts_gpos[3]={sts_vec.X(),sts_vec.Y(),sts_vec.Z()};
+	      display.DrawHit(sts_gpos);
 	      bool lg_found = false;
+	      
+	      
 	      
 	      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
 	      if ( lg_hits1.size() > 0 )  {
 		for ( auto& lghit : lg_hits1 ) {
-		  if( lghit.ModuleId() == hit1.ModuleId() ||
+			  if( lghit.ModuleId() == hit1.ModuleId() ||
 		      abs(lghit.ModuleId() - hit1.ModuleId())<=1 ) {
 		    if ( lghit.PeakTime() > 90 || lghit.PeakTime() < 0 ) continue;
-		    lg_found = true;
+
+		    TVector3 lgpos = lghit.GlobalPos(*geometry);
+		    if ( fabs(get_phi(sts_vec)-get_phi(lgpos)) < 0.1 ) {
+		      if ( (sts_vec.Theta()-lgpos.Theta()) < 0.1 ) {
+			lg_found = true;
+		      }
+		    }
+
 		  }
 		}
 	      }
@@ -851,6 +861,13 @@ int main(int argc, char* argv[]) {
 	  lg_gx.push_back(gpos.X());
 	  lg_gy.push_back(gpos.Y());
 	  lg_gz.push_back(gpos.Z());
+	  if ( lghit.PeakTime() < 90 && lghit.PeakTime() > 0 ) {
+	    if ( visualization ) {
+	      display.DrawHit(gpos.X(),gpos.Y(),gpos.Z());
+	      display.DrawLGBox(lghit.ModuleId(),lghit.ChannelId());
+	    }
+	  }
+
 	}
       }
       tree_lg->Fill();

@@ -40,7 +40,7 @@ using namespace std;
 
 const bool visualization = true;
 
-constexpr bool kIsElectronRun = true;
+constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
 
 #ifdef TRACK_EFF_CHECK
@@ -672,11 +672,8 @@ int main(int argc, char* argv[]) {
       
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
       
-      bool has_sts_hits = false;
-      auto do_first_when_vis = [&]() {
-	if (has_sts_hits) return;
-	if ( visualization ) display.DrawSensor();
-	if ( visualization ) {
+      if ( visualization ) display.DrawSensor();
+      if ( visualization ) {
 	  double global[3] = { 20., 0., 40.};
 	  display.DrawHit(global);
 	  double global2[3] = { 20., 0., -40.};
@@ -685,8 +682,7 @@ int main(int argc, char* argv[]) {
 	  display.DrawHit(global3);
 	  double global4[3] = {-20., 0., 40.};
 	  display.DrawHit(global4);
-	}
-      };
+      }
 
       TVector3 wire[2] = { TVector3(20.,0.,40.), TVector3(20.,0.,-40.) };
       
@@ -695,13 +691,9 @@ int main(int argc, char* argv[]) {
 	  fill_sts(hit1);
 	  if ( visualization ){
 	    if ( fabs(hit1.Timing()+95.) <100  && hit1.PeakHeight()>0 ) {
-	      do_first_when_vis();
-	      has_sts_hits = true;
-
 	      TVector3 vec = hit1.GlobalPos();
 	      double global[3]={vec.X(),vec.Y(),vec.Z()};
 	      display.DrawHit(global);
-	      
 	      
 	      /*
 	      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
@@ -743,6 +735,7 @@ int main(int argc, char* argv[]) {
       auto& gtr_clusters1 = record.GTR().Clusters();
       if ( gtr_clusters1.size() > 0 ) {
 	for ( auto& gtr_clust1 : gtr_clusters1 ) {
+	  if ( gtr_clust1.Type() != 0 ) continue; // show only X.
 	  if ( visualization ) {
 	    TVector3 pos = gtr_clust1.GlobalPos(*geometry);
 	    double global[3] = {pos.X(),pos.Y(),pos.Z()};
@@ -801,31 +794,6 @@ int main(int argc, char* argv[]) {
       tree_lg->Fill();
       
       ///////////////////////// STS-LG Correlation
-      
-
-
-      // 
-
-      /*
-      //auto LR = [](int mod) { return (mod < 105); };
-      auto* ggeom = E16ANA_STSGlobalGeometry::instance();
-      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
-      if ( lg_hits1.size() == 0 ) continue;
-      auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( sts_hits1.size() > 0 ) {
-	for( auto& sts_hit : sts_hits1 ) {
-	  int module_sts = sts_hit.ModuleId();
-	  for ( auto& lg_hit : lg_hits1 ){
-	    int module_lg = lg_hit.ModuleId();
-	    if ( lr == LR(module_lg) ) {
-	      
-	      // Try
-	      //ggeom->CalcPointOnPlane();
-	    }
-	  }
-	}
-      }
-      */
 
       if ( visualization ) {
 	display.DrawUpdate();
@@ -835,20 +803,19 @@ int main(int argc, char* argv[]) {
 	}else{
 	  display.SavePdf();
 	}
+	display.DrawSensor();
       }
-
-
-      record.Tracks().Print();
-//      dst1->WriteAnEvent();
+      //record.Tracks().Print();
+      //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
+      //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillStart) {
       auto event0 = dynamic_cast<E16DST_DST0SpillStartEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
+      //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillEnd) {
       auto event0 = dynamic_cast<E16DST_DST0SpillEndEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
+      //      dst1->WriteAnEvent(event0);
     } else {
       std::cerr << "Invalid Event Type: " << event_type << std::endl;
       return -1;
@@ -856,17 +823,7 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
-
-  if ( visualization ) {
-    display.DrawUpdate();
-    if ( pdf_first ) {
-      display.SavePdfStart();
-      pdf_first = false;
-    }else{
-      display.SavePdf();
-    }
-  }
-
+  
   if ( visualization ) display.SavePdfEnd();
 
   delete geometry;
