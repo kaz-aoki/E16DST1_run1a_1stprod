@@ -76,6 +76,13 @@ void E16ANA_STSGlobalGeometry::Prepare(){
      0,
      true);
 
+  E16ANA_STSGlobalSensorGeom sensor207
+    (207,
+     r_inner,
+     (+26.89 + 23.66) /* *deg2rad */,
+     0,
+     true);
+
   map_sensor[sensor101.mod] = sensor101;
   map_sensor[sensor102.mod] = sensor102;
   map_sensor[sensor103.mod] = sensor103;
@@ -84,6 +91,7 @@ void E16ANA_STSGlobalGeometry::Prepare(){
   map_sensor[sensor107.mod] = sensor107;
   map_sensor[sensor108.mod] = sensor108;
   map_sensor[sensor109.mod] = sensor109;
+  map_sensor[sensor109.mod] = sensor207;
   
   for( auto iter = map_sensor.begin(); iter != map_sensor.end(); iter++){
     PrepareMatrix(iter->second);
