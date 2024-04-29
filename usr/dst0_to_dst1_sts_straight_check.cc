@@ -38,9 +38,10 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-const bool visualization = true;
+constexpr bool visualization = true;
+constexpr bool vis_gtr = false;
 
-constexpr bool kIsElectronRun = true;
+constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
 
 #ifdef TRACK_EFF_CHECK
@@ -287,7 +288,6 @@ int main(int argc, char* argv[]) {
   bool pdf_first = true;
   auto* ggeom = E16ANA_STSGlobalGeometry::instance();
   //auto* lgeom = E16ANA_STSGeometry::instance();
-  if ( visualization ) display.DrawSensor();
   if ( visualization ) display.SetPdfName(display_pdf);
  
 
@@ -671,6 +671,7 @@ int main(int argc, char* argv[]) {
 #endif // DST1_EVENT_MIX
       std::cout << "################################################ my event loop" << std::endl;
 
+      /////////// Search for Tomoki Track.
       std::cout << " event = " << event_id << std::endl;
       bool found = false;
       while(true) {
@@ -693,7 +694,11 @@ int main(int argc, char* argv[]) {
 	continue;
       }
       //std::cout << "track found" << std::endl;
-
+      ///////////////////// search Tomoki track finished.
+      if ( rk_fit_init_mom_gz->size() == 0 ) {
+	std::cout << " Event found in GTR tree but there is no track candidate. Skipping this event." << std::endl;
+	continue;
+      }
 
 
       if ( stsg_dst0.NumberOfHits() > 1 ){
@@ -759,7 +764,13 @@ int main(int argc, char* argv[]) {
       };
 
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( visualization ) display.DrawSensor();
+      if ( visualization ){
+	display.DrawSensor();
+	display.DrawRun(run_id);
+	display.DrawEvent(event_id);
+	display.DrawWires();
+	display.DrawTargets();
+      }
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
 	  //fill_sts(hit1);
@@ -830,13 +841,14 @@ int main(int argc, char* argv[]) {
 
       tree_sts->Fill();
 
-      
-      auto& gtr_clusters1 = record.GTR().Clusters();
-      if ( gtr_clusters1.size() > 0 ) {
-	for ( auto& gtr_clust1 : gtr_clusters1 ) {
-	  TVector3 pos = gtr_clust1.GlobalPos(*geometry);
-	  double global[3] = {pos.X(),pos.Y(),pos.Z()};
-	  display.DrawHit(global);
+      if ( vis_gtr ) {
+	auto& gtr_clusters1 = record.GTR().Clusters();
+	if ( gtr_clusters1.size() > 0 ) {
+	  for ( auto& gtr_clust1 : gtr_clusters1 ) {
+	    TVector3 pos = gtr_clust1.GlobalPos(*geometry);
+	    double global[3] = {pos.X(),pos.Y(),pos.Z()};
+	    display.DrawHit(global);
+	  }
 	}
       }
 
@@ -885,6 +897,12 @@ int main(int argc, char* argv[]) {
 	  lg_gx.push_back(gpos.X());
 	  lg_gy.push_back(gpos.Y());
 	  lg_gz.push_back(gpos.Z());
+
+	  if ( visualization ) {
+	    if ( lghit.PeakTime() < 90 && lghit.PeakTime() > 0 ) {
+	      display.DrawLGBox(lghit.ModuleId(),lghit.ChannelId());
+	    }
+	  }
 	}
       }
       tree_lg->Fill();
