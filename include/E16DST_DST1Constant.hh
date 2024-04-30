@@ -12,6 +12,7 @@ enum kDetector {
   kGTR,
   kHBD,
   kLG,
+  kSTS,
   kNumDetectors,
   kNumTriggerOffset = 1,
 };
