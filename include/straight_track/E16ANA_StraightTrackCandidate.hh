@@ -386,6 +386,7 @@ class E16ANA_StraightTrackCandidate {
   void Projection(E16ANA_StraightMultiTrack* fitter);
   void UpdateFitResult(E16ANA_StraightMultiTrack* fitter);
   E16ANA_GeometryV2* geometry;
+  E16ANA_MagneticFieldMap* bfiled_map;
   int track_id;
   int target_id;
   bool has_e_hbd_cluster;
@@ -496,8 +497,8 @@ class E16ANA_StraightTrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record, std::vector<TVector3>&_tgt_pos)
-    : geometry(_geometry),fitter(_fitter),
+  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap *_bfield_map, E16ANA_StraightMultiTrack* _fitter, E16ANA_StraightMultiTrack *_pair_fitter, E16DST_DST1PhysicsRecord* _record, std::vector<TVector3>&_tgt_pos)
+    : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter), 
       is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false),
       record(_record) {
     track_candidates.clear();
@@ -539,9 +540,9 @@ class E16ANA_StraightTrackCandidates {
   double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
   double LGProjectionThreshold() { return kLGProjectionThreshold; }
   double LGElectronThreshold() { return kLGElectronThreshold; }
-  double ResidualThresholdX(int n) { return kResidualThresholdX[n]; }
-  double ResidualThresholdY(int n) { return kResidualThresholdY[n]; }
-  double NearTargetThreshold() { return kNearTargetThreshold; }
+  double ResidualThresholdX(int n) { return E16ANA_StraightTrackParameter::kResidualThresholdX[n]; }
+  double ResidualThresholdY(int n) { return E16ANA_StraightTrackParameter::kResidualThresholdY[n]; }
+  double NearTargetThreshold() { return E16ANA_StraightTrackParameter::kNearTargetThreshold; }
   double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
   int StepTrackArraySize() { return kStepTrackArraySize; }
   TVector3 VertexSigma() { return kVertexSigma; }
@@ -640,15 +641,17 @@ class E16ANA_StraightTrackCandidates {
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kLGElectronThreshold = 50.;
-  static constexpr double kNearTargetThreshold = 100.; // square value
-  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
-  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
+//  static constexpr double kNearTargetThreshold = 100.; // square value
+//  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
+//  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
-  static constexpr double kTrackingStepSize = 1.;
+  static constexpr double kTrackingStepSize = 15.;
   static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kMinuitStrategy = 2;
-  static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
+  static constexpr double kPairTrackingStepSize = 15.;
+  static constexpr int kPairTrackingMaxSteps = 80;
+  static constexpr int kPairMinuitStrategy = 2;
+  static constexpr int kPairMinuitMaxFunctionCalls = 1.0e4;
 //  static inline const TVector3 kVertexSigma = {3., 3., 0.};
   static inline const TVector3 kVertexSigma = {0., 0., 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};//seems not used
@@ -738,6 +741,7 @@ class E16ANA_StraightTrackCandidates {
   void AnalyzeTrackPairs();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
+  E16ANA_MagneticFieldMap *bfield_map;
   E16ANA_StraightMultiTrack* fitter;
   E16ANA_StraightMultiTrack* pair_fitter;
   bool is_electron_run;

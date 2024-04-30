@@ -2758,11 +2758,11 @@ class E16ANA_StraightTrackCheckFile {
       rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
       auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
       if(ssd_clst != 0){
-      rk_hit_ssd_id[i] =  ssd_clst->ClusterId();
-      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-//      rk_hit_ssd_t[i]  = ssd_clst->Timing();
-      rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
-      rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+	      rk_hit_ssd_id[i] =  ssd_clst->ClusterId();
+	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+	//      rk_hit_ssd_t[i]  = ssd_clst->Timing();
+   	   rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
       }
 		//rk_hit_gtr100_lxcog[i] = pairs[1].LocalPos().X();
 		//rk_hit_gtr200_lxcog[i] = pairs[2].LocalPos().X();
@@ -3361,6 +3361,8 @@ class E16ANA_StraightTrackCheckFile {
 //        rk_proj_lg3_fflag[i] = lghit->FitFlag();
 //      }
     }
+
+	std::cout  << "before pair " << std::endl;
     for (int i = 0; i < n_pairs; ++i) {
 //      auto pair = cands.SelectedTrackCandidatePair(i);
       auto& pair = cands.TrackCandidatePair(i);
@@ -3376,13 +3378,20 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_minus_mom_gy[i] = mgpos(1);
       rk_pair_minus_mom_gz[i] = mgpos(2);
       auto ssd_minus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
-      rk_pair_minus_ssd_t[i] = ssd_minus->Timing();
-      auto& lg_hits_minus = pair.cand_minus->ProjectedLGHits();
-      auto n_lg_hits_minus = lg_hits_minus.size();
-      rk_pair_minus_lg_t[i].resize(n_lg_hits_minus);
-      for (int j = 0; j < n_lg_hits_minus; ++j) {
-        rk_pair_minus_lg_t[i][j] = lg_hits_minus[j]->Timing();
-      }
+		if(ssd_minus !=nullptr){
+      	rk_pair_minus_ssd_t[i] = ssd_minus->Timing();
+		}
+//      auto& lg_hits_minus = pair.cand_minus->ProjectedLGHits();
+//      auto n_lg_hits_minus = lg_hits_minus.size();
+//      rk_pair_minus_lg_t[i].resize(n_lg_hits_minus);
+////		std::cout << "lg hits minus size " << n_lg_hits_minus << std::endl;
+//      for (int j = 0; j < n_lg_hits_minus; ++j) {
+////		std::cout << "lg hits minus j " << j << std::endl;
+////      std::cout << "lg hits themselves " << &lg_hits_minus[j] << std::endl;
+////      std::cout << "lg hits timing " << lg_hits_minus[j]->Timing() << std::endl;
+////        rk_pair_minus_lg_t[i][j] = lg_hits_minus[j]->Timing();
+//      }
+//		 // std::cout << "lg timing afterk " << std::endl;
 //      rk_pair_minus_lg0_t[i] = -10000;
 //      rk_pair_minus_lg1_t[i] = -10000;
 //      rk_pair_minus_lg2_t[i] = -10000;
@@ -3407,14 +3416,25 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_vtx_gx[i] = pair_vtx.X();
       rk_pair_vtx_gy[i] = pair_vtx.Y();
       rk_pair_vtx_gz[i] = pair_vtx.Z();
+ 
+
+
       auto ssd_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+
+      if(ssd_plus != nullptr){
       rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
-      auto& lg_hits_plus = pair.cand_plus->ProjectedLGHits();
-      auto n_lg_hits_plus = lg_hits_plus.size();
-      rk_pair_plus_lg_t[i].resize(n_lg_hits_plus);
-      for (int j = 0; j < n_lg_hits_plus; ++j) {
-        rk_pair_plus_lg_t[i][j] = lg_hits_plus[j]->Timing();
-      }
+		}
+//      auto& lg_hits_plus = pair.cand_plus->ProjectedLGHits();
+//		std::cout << "after lg plus cast " << std::endl; 
+//      auto n_lg_hits_plus = lg_hits_plus.size();
+//		std::cout << "n_lg size " << n_lg_hits_plus << std::endl;
+//      rk_pair_plus_lg_t[i].resize(n_lg_hits_plus);
+//      for (int j = 0; j < n_lg_hits_plus; ++j) {
+////      std::cout << "lg hits themselves " << lg_hits_minus[j] << std::endl;
+////      std::cout << "lg hits timing " << lg_hits_minus[j]->Timing() << std::endl;
+////        rk_pair_plus_lg_t[i][j] = lg_hits_plus[j]->Timing();
+//      }
+//		std::cout<< "after lg " << std::endl;
 //      rk_pair_plus_lg0_t[i] = -10000;
 //      rk_pair_plus_lg1_t[i] = -10000;
 //      rk_pair_plus_lg2_t[i] = -10000;
@@ -3460,6 +3480,8 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_minus_gtr300_pos_refit_gy[i] = mposs_refit[3].Y();
       rk_pair_minus_gtr300_pos_refit_gz[i] = mposs_refit[3].Z();
       auto& pposs_refit = pair.track_plus_pos_refit;
+
+
       rk_pair_plus_ssd_pos_refit_gx[i] = pposs_refit[0].X();
       rk_pair_plus_ssd_pos_refit_gy[i] = pposs_refit[0].Y();
       rk_pair_plus_ssd_pos_refit_gz[i] = pposs_refit[0].Z();

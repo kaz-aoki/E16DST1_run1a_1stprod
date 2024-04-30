@@ -242,8 +242,8 @@ int E16DST_DST1StraightTrackFactory2D(E16DST_DST0PhysicsEvent *event0, E16DST_DS
 }
 
 
-int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_StraightMultiTrack* fitter, E16DST_DST1PhysicsRecord* record, E16ANA_StraightTrackCheckFile* check_file, std::vector<TVector3> &tgt_pos) {
-  E16ANA_StraightTrackCandidates track_candidates(&geometry, fitter, record, tgt_pos);
+int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap &bfield_map, E16ANA_StraightMultiTrack* fitter, E16ANA_StraightMultiTrack *pair_fitter, E16DST_DST1PhysicsRecord* record, E16ANA_StraightTrackCheckFile* check_file, std::vector<TVector3> &tgt_pos) {
+  E16ANA_StraightTrackCandidates track_candidates(&geometry, &bfield_map, fitter, pair_fitter,  record, tgt_pos);
   static int n_calls;
   static int n_cands;
   static bool is_fill_param;

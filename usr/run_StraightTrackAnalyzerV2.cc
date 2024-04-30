@@ -127,6 +127,11 @@ int main(int argc, char* argv[]){
     gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
     auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
   
+    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+	 bfield_map->Initialize_binary();
+	E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+
+
     E16ANA_TriggerCalibParam trigger_param;
     trigger_param.ReadConstantData(calib.CurrentRunID());
   
@@ -156,7 +161,8 @@ int main(int argc, char* argv[]){
       return -1;
     }
 
-    E16ANA_StraightMultiTrack fitter(geometry, targets_pos,1 );
+    E16ANA_StraightMultiTrack     fitter(bfield_map, geometry, targets_pos, 1 );
+    E16ANA_StraightMultiTrack     pair_fitter(bfield_map, geometry, targets_pos, 2 );
     E16ANA_StraightTrackCheckFile check_file(c_outfile, run_id);
 
 
@@ -231,7 +237,7 @@ int main(int argc, char* argv[]){
 
 // Track
 		check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8 , record);
-		E16DST_DST1StraightTrackFactoryV2(*geometry, &fitter, &record, &check_file, targets_pos);
+		E16DST_DST1StraightTrackFactoryV2(*geometry, *bfield_map,  &fitter, &pair_fitter, &record, &check_file, targets_pos);
 
 
 

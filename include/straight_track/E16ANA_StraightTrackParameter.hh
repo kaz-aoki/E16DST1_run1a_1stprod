@@ -140,8 +140,8 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 }
 
 // other
-constexpr bool kExecutePairFit = false;
-constexpr bool kReqHBDAssociation = true;
+constexpr bool kExecutePairFit = true;
+//constexpr bool kReqHBDAssociation = true;
 //constexpr double kHBDRadius = 1200.;
 constexpr double kHBDRadius = 1196.;
 constexpr double kMaxHBDRoughXRes = 180.;
@@ -150,6 +150,8 @@ constexpr double kMinHBDADCForRK = 2.;
 
 constexpr double kTrackingStepSize = 15.;
 constexpr int    kTrackingMaxSteps = 80;
+constexpr double kPairTrackingStepSize = 15.;
+constexpr int    kPairTrackingMaxSteps = 80;
 constexpr int    kMinuitStrategy = 0;
 constexpr int    kMinuitMaxFunctionCalls = 1.0e3;
 //constexpr double kTrackingStepSize = 1.; // pair fit value
@@ -164,6 +166,9 @@ constexpr double kMaxChi2ForSearchAssociatedHits = 1.0e10;
 constexpr bool   kUseChi2Cut = true;
 constexpr double kMaxChi2  = 1000;
 
+constexpr std::array<double, E16ANA_StraightTrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
+constexpr std::array<double, E16ANA_StraightTrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4};
+constexpr double kNearTargetThreshold = 100.;
 
 
 

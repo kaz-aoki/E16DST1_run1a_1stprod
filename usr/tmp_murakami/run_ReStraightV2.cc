@@ -78,7 +78,13 @@ int main (int argc, char** argv) {
  	 auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
   	 std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
     E16ANA_GeometryV2::SetGlobalPointer(geom);
-	 
+	  
+    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+	 bfield_map->Initialize_binary();
+	E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
+
+
+
 //    pc->SetGeom(geom);
     E16ANA_TriggerCalibParam trigger_param;
     trigger_param.ReadConstantData(calib.CurrentRunID());
@@ -103,7 +109,7 @@ int main (int argc, char** argv) {
       return -1;
     }
  
-	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack(geom, targets_pos, 1);
+	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack( bfield_map, geom,  targets_pos, 1);
 	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom, fitter, targets_pos);
    re->Loop(tree, print_cycle, max_event,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag , anaSW );
 //	pc->SetFitter(fitter);

@@ -66,9 +66,9 @@ private:
     */
 
 public:
-   //E16ANA_StraightMultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_Geometry *_geom, int _n_tracks = 2);
+   E16ANA_StraightMultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_GeometryV2 *_geom, std::vector<TVector3> &tgt_pos, int _n_tracks = 2);
 //   E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_geom, int _n_tracks = 2);
-   E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_geom, std::vector<TVector3> &tgt_pos , int _n_tracks = 2);
+//   E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_geom, std::vector<TVector3> &tgt_pos , int _n_tracks = 2);
    ~E16ANA_StraightMultiTrack();
 
    /* Set initial values of fitting */
