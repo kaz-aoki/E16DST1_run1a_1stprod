@@ -4842,6 +4842,8 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
  	   out_rk_fit_ssd_mom_gy[i] =  rk_fit_ssd_mom_gy->at(tid);
  	   out_rk_fit_ssd_mom_gz[i] =  rk_fit_ssd_mom_gz->at(tid);
 
+      out_rk_fit_init_mom_gx[i]   = rk_fit_init_mom_gx->at(tid);
+      out_rk_fit_init_mom_gy[i]   = rk_fit_init_mom_gy->at(tid);
       out_rk_fit_init_mom_gz[i]   = rk_fit_init_mom_gz->at(tid);
       out_rk_fit_init_pos_gx[i]   = rk_fit_init_pos_gx->at(tid);
       out_rk_fit_init_pos_gy[i]   = rk_fit_init_pos_gy->at(tid);
