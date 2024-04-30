@@ -88,7 +88,7 @@ include_directories(
 #	include/GTR_ozawa
 	include/HBD
 	include/LG
-#	include/CT
+	include/CT
 	include/nakasuga
 #	include/res
 	include/trigger
@@ -157,6 +157,10 @@ add_library(E16ANA
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
+  src/STS/E16ANA_STSGeometry.cc
+  src/STS/E16ANA_STSGlobalGeometry.cc
+  src/STS/E16ANA_STSEventDisplay.cc
+  src/STS/E16ANA_EventDisplay.cc
 )
 
 
@@ -228,6 +232,7 @@ add_library(E16DST_DST1
   
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
+  src/E16DST_DST1STSFactory.cc
   src/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1GTRFactory_ExOneGTR.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
@@ -242,13 +247,16 @@ add_library(E16DST_DST1
 	src/tmp_murakami/E16DSTN_PosCorrection.cc
 	src/tmp_murakami/E16DSTN_ReadStraightTree.cc
 	src/tmp_murakami/E16DSTN_ReStraightV2.cc
+
 )
 
 
 
 target_link_libraries(E16DST_DST1
-  E16ANA
+	E16ANA
 	E16DST
+	-lMatrix
+	-lGeom
 )
 
 #_______________________________________________________________________________
@@ -350,11 +358,38 @@ target_link_libraries(dst0_to_dst1_lg_check
 )
 
 #_______________________________________________________________________________
-#add_executable(dst0_to_dst1_ct_check usr/dst0_to_dst1_ct_check.cc)
-#
-#target_link_libraries(dst0_to_dst1_ct_check
-#	E16DST_DST1
-#)
+add_executable(dst0_to_dst1_sts_check usr/dst0_to_dst1_sts_check.cc)
+
+target_link_libraries(dst0_to_dst1_sts_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_simple_check usr/dst0_to_dst1_sts_simple_check.cc)
+
+target_link_libraries(dst0_to_dst1_sts_simple_check
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_straight_check usr/dst0_to_dst1_sts_straight_check.cc)
+
+target_link_libraries(dst0_to_dst1_sts_straight_check
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_straight_check_alone usr/dst0_to_dst1_sts_straight_check_alone.cc)
+
+target_link_libraries(dst0_to_dst1_sts_straight_check_alone
+	E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_ct_check usr/dst0_to_dst1_ct_check.cc)
+
+target_link_libraries(dst0_to_dst1_ct_check
+	E16DST_DST1
+)
 
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_lgct_check usr/dst0_to_dst1_lgct_check.cc)
