@@ -158,7 +158,12 @@ int main(int argc, char* argv[]){
 			record.LG().UpdatePtrs();
 
 			
+#ifdef TMP_NIM_TRIGGER
+      auto time_stamp = event0->TimeStamp();
+      E16DST_DST1TriggerFactory(time_stamp, trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+#else // TMP_NIM_TRIGGER
 			E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+#endif // TMP_NIM_TRIGGER
 			record.Trigger().AddHitAndClusterIDs();
 			record.Trigger().UpdatePtrs();
 

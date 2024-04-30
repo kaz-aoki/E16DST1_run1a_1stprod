@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "E16DST_DST0.hh"
+#include "E16DST_Constant.hh"
 #include "E16ANA_CalibDBManager.hh"
 #include "E16DST_DST1Constant.hh"
 #include "E16ANA_LGConstant.hh"
@@ -63,8 +64,8 @@ struct ip_pp{
 
   static TGraph* gtmpl;
   static int ngtmpl;
-  static double gtmplx[200];
-  static double gtmply[200];
+  static double gtmplx[E16DST_Constant::NSamplesLG];
+  static double gtmply[E16DST_Constant::NSamplesLG];
   static double tmplwidth; //[cell]
 
 private:
