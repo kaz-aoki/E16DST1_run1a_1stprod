@@ -53,7 +53,7 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
 add_definitions(-DNoExist_SSD) # //turn on this if you do not have ssd as a tracking point, like Run0d 
 #add_definitions(-DREMOVE_GTR100) # 
-add_definitions(-DREMOVE_GTR200) # 
+#add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
 #add_definitions(-DEFFICIENCY_EVAL) # //turn on if you want to evaluate the efficiency
 
@@ -1110,13 +1110,13 @@ target_link_libraries(run_ReStraightV2
 
 
 ###_______________________________________________________________________________
-add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
-target_link_libraries(run_ReStraightAfterKillDup
-	E16DST
-	E16DST_DST1
-#   E16DSTN
-)
-###_______________________________________________________________________________
+#add_executable(run_ReStraightAfterKillDup usr/tmp_murakami/run_ReStraightAfterKillDup.cc)
+#target_link_libraries(run_ReStraightAfterKillDup
+#	E16DST
+#	E16DST_DST1
+##   E16DSTN
+#)
+####_______________________________________________________________________________
 #add_executable(run_StraightKillDuplicated usr/tmp_murakami/run_StraightKillDuplicated.cc)
 #target_link_libraries(run_StraightKillDuplicated
 #	E16DST
