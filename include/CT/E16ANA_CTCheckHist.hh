@@ -38,12 +38,19 @@ public :
   E16ANA_CTCheckHist();
   ~E16ANA_CTCheckHist();
 
+  static int  GetNMOD(){return NMOD;}
+  static int  GetNCH(){return NCH;}
   static bool IsValidModuleId(int module);
   static bool IsValidBlockId(int module, int block);
   static int  ModuleToIndex(int module);
   static int  BlockToIndex(int module, int block);
   static int  IndexToModule(int index);
   static int  IndexToBlock(int index_m, int index_b);
+  static bool LGwCT(int lgmodule, int lgblock);
+  static int  LGToCT0Module(int lgmodule);
+  static int  LGToCT0Block(int lgmodule, int lgblock);
+  static int  LGToCT1Module(int lgmodule);
+  static int  LGToCT1Block(int lgmodule, int lgblock);
   void Fill(int module, int block, double peak, int peaktime, double timing, double baseline, double baselinerms, double integral, int nhits);
   void FillPeak(int module, int block, double peak);
   void FillPeakTime(int module, int block, int peaktime);

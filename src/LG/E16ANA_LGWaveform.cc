@@ -197,8 +197,8 @@ void E16ANA_LGWaveform::woFitMethod(double* _wf, double t0){
 
 void E16ANA_LGWaveform::CalcPeak(){
 
-  // for(int cell=5; cell<E16DST_Constant::NSamplesLG; cell++){
-  for(int cell=50; cell<150; cell++){
+  for(int cell=5; cell<E16DST_Constant::NSamplesLG; cell++){
+  // for(int cell=50; cell<150; cell++){
     if(wf[cell]>peak){
       if( E16ANA_LGConstant::kPeakSearchStart<cell && cell<E16ANA_LGConstant::kPeakSearchEnd ){
 	peak = wf[cell];
@@ -293,7 +293,8 @@ void E16ANA_LGWaveform::CalcIntegral(){
 
 void E16ANA_LGWaveform::CalcWaveforms(){
 
-  hwf = new TH1F("hwf","hwf",200,0.5,200.5);
+  double nsampleslgd = (double)E16DST_Constant::NSamplesLG;
+  hwf = new TH1F("hwf","hwf",E16DST_Constant::NSamplesLG,0.5,nsampleslgd+0.5);
 
   for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
     if(cell==0){ dwf[cell] = wf[cell]; }
@@ -315,7 +316,8 @@ void E16ANA_LGWaveform::CalcWaveform_woFit(){
     wf[cell] = wf[cell] - baseline;
   }
 
-  hwf = new TH1F("hwf","hwf",200,0.5,200.5);
+  double nsampleslgd = (double)E16DST_Constant::NSamplesLG;
+  hwf = new TH1F("hwf","hwf",E16DST_Constant::NSamplesLG,0.5,nsampleslgd+0.5);
 
   for(int cell=0; cell<E16DST_Constant::NSamplesLG; cell++){
     if(cell==0){ dwf[cell] = wf[cell]; }
@@ -599,7 +601,7 @@ void E16ANA_LGWaveform::CalcOffset(){
 
   double ibg = 0;
   int nbg = 0;
-  pxmin = 200;
+  pxmin = E16DST_Constant::NSamplesLG;
   pxmax = 0;
   /*
   for(int p=0; p<nps_full; p++){
@@ -795,13 +797,13 @@ int E16ANA_LGWaveform::FitTmpl1(double* pxs, double* ps){
     x[i] = i;
     ey[i]=mwf[i]*0.05+1.2;
   }
-  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+  TGraphErrors* wf = new TGraphErrors(E16DST_Constant::NSamplesLG,x,&mwf[0],ex,ey);
 
   //fit
   Double_t chi2,Ndof,baseline;
   Double_t m, s, v;
 
-  TF1* tmpl1 = new TF1("tmpl1",Template1,0,200,4);
+  TF1* tmpl1 = new TF1("tmpl1",Template1,0,(double)E16DST_Constant::NSamplesLG,4);
   tmpl1->SetParameters(pxs_short[0],0.95,ps_short[0]-offset,offset);		
   //tmpl1->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
   tmpl1->SetParLimits(1,0,2);
@@ -892,7 +894,7 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
     x[i] = i;
     ey[i]=mwf[i]*0.05+1.2;
   }
-  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+  TGraphErrors* wf = new TGraphErrors(E16DST_Constant::NSamplesLG,x,&mwf[0],ex,ey);
 
   //fit
   Double_t chi2,Ndof,baseline;
@@ -900,7 +902,7 @@ int E16ANA_LGWaveform::FitTmpl2(double* pxs, double* ps){
   Double_t s[2];
   Double_t v[2];
 
-  TF1* tmpl2 = new TF1("tmpl2",Template2,0,200,7);
+  TF1* tmpl2 = new TF1("tmpl2",Template2,0,(double)E16DST_Constant::NSamplesLG,7);
   tmpl2->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset,offset);
   tmpl2->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
   tmpl2->SetParLimits(1,0,2);
@@ -1015,7 +1017,7 @@ int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
     x[i] = i;
     ey[i]=mwf[i]*0.05+1.2;
   }
-  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+  TGraphErrors* wf = new TGraphErrors(E16DST_Constant::NSamplesLG,x,&mwf[0],ex,ey);
 
   //fit
   Double_t chi2,Ndof,baseline;
@@ -1023,7 +1025,7 @@ int E16ANA_LGWaveform::FitTmpl3(double* pxs, double* ps){
   Double_t s[3];
   Double_t v[3];
 
-  TF1* tmpl3 = new TF1("tmpl3",Template3,0,200,10);
+  TF1* tmpl3 = new TF1("tmpl3",Template3,0,(double)E16DST_Constant::NSamplesLG,10);
   tmpl3->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset, pxs_short[2],0.95,ps_short[2]-offset, offset);
   tmpl3->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
   //tmpl3->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
@@ -1133,7 +1135,7 @@ void E16ANA_LGWaveform::DrawWf(){
     x[i] = i;
     ey[i]=mwf[i]*0.05+1.2;
   }
-  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+  TGraphErrors* wf = new TGraphErrors(E16DST_Constant::NSamplesLG,x,&mwf[0],ex,ey);
 
   if(n_fit0<100){
     c0[n_fit0] = new TCanvas(Form("c0%d",n_fit0),Form("c0%d",n_fit0),700,500);
@@ -1164,7 +1166,7 @@ int E16ANA_LGWaveform::Fit(double* pxs, double* ps){
     x[i] = i;
     ey[i]=mwf[i]*0.05+1.2;
   }
-  TGraphErrors* wf = new TGraphErrors(200,x,&mwf[0],ex,ey);
+  TGraphErrors* wf = new TGraphErrors(E16DST_Constant::NSamplesLG,x,&mwf[0],ex,ey);
 
 
   //fit
@@ -1176,7 +1178,7 @@ int E16ANA_LGWaveform::Fit(double* pxs, double* ps){
 
   if(nps_short==1){
 
-    TF1* tmpl1 = new TF1("tmpl1",Template1,0,200,4);
+    TF1* tmpl1 = new TF1("tmpl1",Template1,0,(double)E16DST_Constant::NSamplesLG,4);
     tmpl1->SetParameters(pxs_short[0],0.95,ps_short[0]-offset,offset);		
     //tmpl1->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);
     tmpl1->SetParLimits(1,0,2);
@@ -1199,7 +1201,7 @@ int E16ANA_LGWaveform::Fit(double* pxs, double* ps){
   }
   else if(nps_short==2){
 
-    TF1* tmpl2 = new TF1("tmpl2",Template2,0,200,7);
+    TF1* tmpl2 = new TF1("tmpl2",Template2,0,(double)E16DST_Constant::NSamplesLG,7);
     tmpl2->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset,offset);                            
     tmpl2->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
     tmpl2->SetParLimits(1,0,2);
@@ -1223,7 +1225,7 @@ int E16ANA_LGWaveform::Fit(double* pxs, double* ps){
   }
   else if(nps_short==3){
 
-    TF1* tmpl3 = new TF1("tmpl3",Template3,0,200,10);
+    TF1* tmpl3 = new TF1("tmpl3",Template3,0,(double)E16DST_Constant::NSamplesLG,10);
     tmpl3->SetParameters(pxs_short[0],0.95,ps_short[0]-offset, pxs_short[1],0.95,ps_short[1]-offset, pxs_short[2],0.95,ps_short[2]-offset, offset);
     tmpl3->SetParLimits(0,pxs_short[0]-15,pxs_short[0]+15);
     //tmpl3->SetParLimits(2,ps_short[0]-15,ps_short[0]+15);

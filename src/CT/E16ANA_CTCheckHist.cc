@@ -8,17 +8,19 @@
 #include <fstream>
 
 E16ANA_CTCheckHist::E16ANA_CTCheckHist(){
+  double nsampled = (double)E16DST_Constant::NSamplesCT;
   for(int i=0;i<NMOD;i++){
     for(int j=0;j<NCH;j++){
-      hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(i,j)),300,0,300);
-      hpeaktime[i][j] = new TH1F(Form("hpeaktime%d%02d",i,j),Form("peaktime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),200,0,200);
-      htiming[i][j] = new TH1F(Form("htiming%d%02d",i,j),Form("timing_%d_%d",IndexToModule(i),IndexToBlock(i,j)),200,0,200);
+      hpeak[i][j] = new TH1F(Form("hpeak%d%02d",i,j),Form("peak_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,0,300);
+      hpeaktime[i][j] = new TH1F(Form("hpeaktime%d%02d",i,j),Form("peaktime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,0,nsampled);
+      htiming[i][j] = new TH1F(Form("htiming%d%02d",i,j),Form("timing_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,0,nsampled);
       hbaseline[i][j] = new TH1F(Form("hbaseline%d%02d",i,j),Form("baseline_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,-50,50);
-      hbaselinerms[i][j] = new TH1F(Form("hbaselinerms%d%02d",i,j),Form("baselinerms_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,-20,20);
+      hbaselinerms[i][j] = new TH1F(Form("hbaselinerms%d%02d",i,j),Form("baselinerms_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,0,30);
       hintegral[i][j] = new TH1F(Form("hintegral%d%02d",i,j),Form("integral_%d_%d",IndexToModule(i),IndexToBlock(i,j)),100,0,100);
       hnhits[i][j] = new TH1F(Form("hnhits%d%02d",i,j),Form("nhits_%d_%d",IndexToModule(i),IndexToBlock(i,j)),2,-0.5,1.5);
-      htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),300,3000,3300,200,0,200);
-      ftiming[i][j] = new TF1(Form("ftiming%d%02d",i,j),"gaus",0,200);
+      // htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),300,3000,3300,nsampled,0,nsampled);
+      htimcor[i][j] = new TH2F(Form("htimcor%d%02d",i,j),Form("WFTime_vs_TrgTime_%d_%d",IndexToModule(i),IndexToBlock(i,j)),nsampled,-(nsampled/2.),nsampled/2.,nsampled,0,nsampled);
+      ftiming[i][j] = new TF1(Form("ftiming%d%02d",i,j),"gaus",0,nsampled);
     }
   }
   for(int i=0;i<NMOD;i++){
@@ -50,7 +52,7 @@ bool E16ANA_CTCheckHist::IsValidModuleId(int module){ // for run0e CT
     return true;
   }
   else{
-    std::cout<<"invalid module id"<<std::endl;
+    // std::cout<<"invalid module id"<<std::endl;
     return false;
   }
 }
@@ -58,7 +60,7 @@ bool E16ANA_CTCheckHist::IsValidBlockId(int module, int block){
   int x = block%10;
   int y = block/10;
   if(!IsValidModuleId(module)){
-    return -1;
+    return false;
   }
   if(module==106){
     if( (block>=0 && block<=7) || (x>=0 && x<=3 && y>=1 && y<=5) ){
@@ -133,6 +135,72 @@ int E16ANA_CTCheckHist::IndexToBlock(int index_m, int index_b){
     return -1;
   }
   return blocklist[index_m][index_b];
+}
+bool E16ANA_CTCheckHist::LGwCT(int lgmodule, int lgblock){
+  if(lgmodule==104){
+    return IsValidBlockId(lgmodule, lgblock);
+  }
+  else if(lgmodule==106){
+    if( lgblock%10==0 || lgblock%10==1 ){
+      return true;
+    }
+    else if( lgblock>=2 && lgblock<=5 ){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  else{
+    return false;
+  }
+}
+int E16ANA_CTCheckHist::LGToCT0Module(int lgmodule){
+  return lgmodule;
+}
+int E16ANA_CTCheckHist::LGToCT1Module(int lgmodule){
+  return lgmodule;
+}
+int E16ANA_CTCheckHist::LGToCT0Block(int lgmodule, int lgblock){
+  if(lgmodule==104){
+    return lgblock;
+  }
+  else if(lgmodule==106){
+    if(lgblock%10==0){
+      return lgblock;
+    }
+    else if(lgblock%10==1){
+      return lgblock+1;
+    }
+    else if( lgblock>=2 && lgblock<=5 ){
+      return lgblock+2;
+    }
+    else{
+      return -10000;
+    }
+  }
+  else{
+    return -10000;
+  }
+}
+int E16ANA_CTCheckHist::LGToCT1Block(int lgmodule, int lgblock){
+  if(lgmodule==104){
+    return -10000;
+  }
+  else if(lgmodule==106){
+    if(lgblock%10==0){
+      return lgblock+1;
+    }
+    else if(lgblock%10==1){
+      return lgblock+2;
+    }
+    else{
+      return -10000;
+    }
+  }
+  else{
+    return -10000;
+  }
 }
 //////////////////////////////////////////////////////////////////////////
 void E16ANA_CTCheckHist::Fill(int module, int block, double peak, int peaktime, double timing, double baseline, double baselinerms, double integral, int nhits){

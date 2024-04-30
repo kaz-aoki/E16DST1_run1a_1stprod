@@ -40,10 +40,10 @@ public:
   double nstocell(double _ns){return _ns*E16ANA_CTConstant::kTimeScale;}
   bool InvalidCell(int _cell){
     if(_cell<0||_cell>E16DST_Constant::NSamplesCT){
-      return false;
+      return true;
     }
     else{
-      return true;
+      return false;
     }
   }
 

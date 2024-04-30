@@ -150,9 +150,10 @@ add_library(E16ANA
   src/LG/E16ANA_LGOnlineAnalyzer.cc
   src/LG/E16ANA_LGCheckHist.cc
   src/LG/E16ANA_LGProjection.cc
-#  src/CT/E16ANA_CTBasic.cc
-#  src/CT/E16ANA_CTWaveform.cc
-#  src/CT/E16ANA_CTCheckHist.cc
+  src/CT/E16ANA_CTBasic.cc
+  src/CT/E16ANA_CTWaveform.cc
+  src/CT/E16ANA_CTCheckHist.cc
+  src/CT/E16ANA_LGCTOnlineAnalyzer.cc
   src/trigger/E16ANA_TriggerCalib.cc
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
@@ -354,6 +355,13 @@ target_link_libraries(dst0_to_dst1_lg_check
 #target_link_libraries(dst0_to_dst1_ct_check
 #	E16DST_DST1
 #)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_lgct_check usr/dst0_to_dst1_lgct_check.cc)
+
+target_link_libraries(dst0_to_dst1_lgct_check
+	E16DST_DST1
+)
 
 # #_______________________________________________________________________________
 # add_executable(dst0_to_dst1_all_check usr/dst0_to_dst1_all_check.cc)
@@ -901,6 +909,28 @@ target_link_libraries(LG_LEDcheck
 add_executable(LG_MakePDF usr/tmp/nakasuga/LG_MakePDF.cc)
 
 target_link_libraries(LG_MakePDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LGCT_MakeCTPDF usr/tmp/nakasuga/LGCT_MakeCTPDF.cc)
+
+target_link_libraries(LGCT_MakeCTPDF
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(LGCT_MakeLGPDF usr/tmp/nakasuga/LGCT_MakeLGPDF.cc)
+
+target_link_libraries(LGCT_MakeLGPDF
 	E16DST_DST1
 #E16ANA_CalibDB
 	E16ANA_Basic

@@ -1,6 +1,7 @@
 #ifndef E16ANA_CTCONSTANT_HH
 #define E16ANA_CTCONSTANT_HH
 
+#include "E16DST_Constant.hh"
 #include <array>
 #include <TGraph.h>
 
@@ -12,8 +13,9 @@ const double             kTimeScale               = 960. / 1000.;
 // const int kHitTimeStart = 50;//[cell]
 // const int kHitTimeEnd = 150;//[cell]
 
-const int kPeakSearchStart = 5;//[cell]
-const int kPeakSearchEnd = 200;//[cell]
+// const int kPeakSearchStart = 5;//[cell]
+const int kPeakSearchStart = 30;//[cell]
+const int kPeakSearchEnd = E16DST_Constant::NSamplesCT;//[cell]
 const int kTimingSearchRegion = 20;//[cell] before peaktime
 const int kBaselineStart = -65;//[cell] +peaktime
 const int kBaselineEnd = -15;//[cell] +peaktime
