@@ -2091,7 +2091,7 @@ void E16ANA_TrackCandidates::SelectTracks() {
       }
     }
     bool is_large_residual = false;
-    for (int i = 0; i < E16ANA_TrackConstant::kNumTargets; ++i) {
+    for (int i = 0; i < E16ANA_TrackConstant::kNumTrackingLayers; ++i) {
       auto& res = cand.LocalFitResult(i).residual_pos;
       if (fabs(res.X()) > kResidualThresholdX[i]) {
         is_large_residual = true;
