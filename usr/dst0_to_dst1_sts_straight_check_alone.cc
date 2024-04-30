@@ -620,12 +620,59 @@ int main(int argc, char* argv[]) {
 #endif // DST1_EVENT_MIX
       std::cout << "################################################ my event loop" << std::endl;
 
+
+      auto do_first_when_vis = [&]() {
+	if ( visualization ) {
+	  display.DrawSensor();
+	  display.DrawRun(run_id);
+	  display.DrawEvent(event_id);
+	  display.DrawWires();
+	  display.DrawTargets();
+	}
+      };
+      
+      do_first_when_vis();
+       
+      auto lgcut_tdc =  [](auto& hit) ->bool { return ( hit.PeakTime()>0 && hit.PeakTime()<90.); };
+      
+      /////////////////////// FILL LG STANDALONE TREE.
+      clear_lg();
+      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
+      if ( lg_hits1.size() > 0 )  {
+	for ( auto& lghit : lg_hits1 ) {
+	  TVector3 gpos = lghit.GlobalPos(*geometry);
+	  //std::cout << "LG " << module << " ch=" << channel << "  ";
+	  //gpos.Print();
+	  lg_module.push_back(lghit.ModuleId());
+	  lg_channel.push_back(lghit.ChannelId());
+	  lg_peakheight.push_back(lghit.PeakHeight());
+	  lg_peaktime.push_back(lghit.PeakTime());
+	  lg_baseline.push_back(lghit.Baseline());
+	  lg_baseline.push_back(lghit.BaselineRms());
+	  lg_integral.push_back(lghit.Integral());
+	  lg_gx.push_back(gpos.X());
+	  lg_gy.push_back(gpos.Y());
+	  lg_gz.push_back(gpos.Z());
+	  if ( lgcut_tdc(lghit) ){
+	    if ( visualization ) {
+	      //display.DrawHit(gpos.X(),gpos.Y(),gpos.Z());
+	      display.SetHitColor(kBlue);
+	      display.DrawLGHitBox(lghit.ModuleId(),lghit.ChannelId());
+	      display.SetHitColor(kRed);
+	    }
+	  }
+
+	}
+      }
+      tree_lg->Fill();
+
       if ( stsg_dst0.NumberOfHits() > 1 ){
 	std::cout << "++++++ STSGlobal: # of hits more than 1. Indication of merged DST0." << std::endl;
       }
 
-      auto stscut_tdc = [](auto& hit){ return ( fabs(hit.Timing()+95)<100.);};
-      auto stscut_adc = [](auto& hit){ return ( hit.PeakHeight() > 0.00001 ); };
+      auto stscut_tdc = [](auto& hit) ->bool { return ( fabs(hit.Timing()+95)<100.);};
+      auto stscut_adc = [](auto& hit) ->bool { return ( hit.PeakHeight() > 0.00001 ); };
+
 
       ///////////////// FILL STS STANDALONE TREE.
 
@@ -729,23 +776,7 @@ int main(int argc, char* argv[]) {
       };
 
       bool has_sts_hits = false;
-      auto do_first_when_vis = [&]() {
-	if ( visualization ) {
-	  display.DrawSensor();
 
-	  //TString str; str.Form("Run %d",run_id);
-	  //display.DrawLatex(-800,800,str);
-	  //str.Form("Event %d",event_id);
-	  //	  display.DrawLatex(-800,730,str);
-	  display.DrawRun(run_id);
-	  display.DrawEvent(event_id);
-	  display.DrawWires();
-	  display.DrawTargets();
-	}
-      };
-
-       do_first_when_vis();
-      
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
 	  fill_sts(hit1);
@@ -756,48 +787,35 @@ int main(int argc, char* argv[]) {
 	      TVector3 sts_vec = hit1.GlobalPos();
 	      double sts_gpos[3]={sts_vec.X(),sts_vec.Y(),sts_vec.Z()};
 	      display.DrawHit(sts_gpos);
+
+	      TVector3 extpos = sts_vec*15;
+	      double ext_gpos[3] = {extpos.X(),extpos.Y(),extpos.Z()};
+	      display.SetLineColor(kBlue);
+	      display.DrawLine(sts_gpos,ext_gpos);
+	      
 	      bool lg_found = false;
-	      
-	      
+
+	      TVector2 sts_vec2(sts_vec.Z(),sts_vec.X());
 	      
 	      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
 	      if ( lg_hits1.size() > 0 )  {
 		for ( auto& lghit : lg_hits1 ) {
-			  if( lghit.ModuleId() == hit1.ModuleId() ||
+		  if( lghit.ModuleId() == hit1.ModuleId() ||
 		      abs(lghit.ModuleId() - hit1.ModuleId())<=1 ) {
-		    if ( lghit.PeakTime() > 90 || lghit.PeakTime() < 0 ) continue;
-
+		    if (! lgcut_tdc(lghit) ) continue;
 		    TVector3 lgpos = lghit.GlobalPos(*geometry);
-		    if ( fabs(get_phi(sts_vec)-get_phi(lgpos)) < 0.1 ) {
-		      if ( (sts_vec.Theta()-lgpos.Theta()) < 0.1 ) {
-			lg_found = true;
-		      }
+		    TVector2 lg_vec2(lgpos.Z(),lgpos.X());
+		    if ( fabs(sts_vec2.Phi()-lg_vec2.Phi())*lgpos.Mag() < 65. ) {
+		      lg_found = true;
+		      display.SetHitColor(kRed);
+		      display.DrawLGHitBox(lghit.ModuleId(),lghit.ChannelId());
 		    }
-
 		  }
 		}
 	      }
 	      if (! lg_found ) continue;
 	      
-	      /*
-
-		  TVector3 gpos = lghit.GlobalPos(*geometry);
-		  //std::cout << "LG " << module << " ch=" << channel << "  ";
-		  //gpos.Print();
-		  lg_module.push_back(lghit.ModuleId());
-		  lg_channel.push_back(lghit.ChannelId());
-		  lg_peakheight.push_back(lghit.PeakHeight());
-		  lg_peaktime.push_back(lghit.PeakTime());
-		  lg_baseline.push_back(lghit.Baseline());
-		  lg_baseline.push_back(lghit.BaselineRms());
-		  lg_integral.push_back(lghit.Integral());
-		  lg_gx.push_back(gpos.X());
-		  lg_gy.push_back(gpos.Y());
-		  lg_gz.push_back(gpos.Z());
-		}
-	      }
-
-	      */
+	      
 
 
 	    }
@@ -843,35 +861,6 @@ int main(int argc, char* argv[]) {
       //display.SetHitColor(kRed);
       //}
     
-      /////////////////////// FILL LG STANDALONE TREE.
-      clear_lg();
-      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
-      if ( lg_hits1.size() > 0 )  {
-	for ( auto& lghit : lg_hits1 ) {
-	  TVector3 gpos = lghit.GlobalPos(*geometry);
-	  //std::cout << "LG " << module << " ch=" << channel << "  ";
-	  //gpos.Print();
-	  lg_module.push_back(lghit.ModuleId());
-	  lg_channel.push_back(lghit.ChannelId());
-	  lg_peakheight.push_back(lghit.PeakHeight());
-	  lg_peaktime.push_back(lghit.PeakTime());
-	  lg_baseline.push_back(lghit.Baseline());
-	  lg_baseline.push_back(lghit.BaselineRms());
-	  lg_integral.push_back(lghit.Integral());
-	  lg_gx.push_back(gpos.X());
-	  lg_gy.push_back(gpos.Y());
-	  lg_gz.push_back(gpos.Z());
-	  if ( lghit.PeakTime() < 90 && lghit.PeakTime() > 0 ) {
-	    if ( visualization ) {
-	      display.DrawHit(gpos.X(),gpos.Y(),gpos.Z());
-	      display.DrawLGBox(lghit.ModuleId(),lghit.ChannelId());
-	    }
-	  }
-
-	}
-      }
-      tree_lg->Fill();
-      
       ///////////////////////// STS-LG Correlation
       
 
