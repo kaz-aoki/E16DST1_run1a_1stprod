@@ -32,7 +32,7 @@
 //#include "mockdataIOtestSimple.hh"
 #endif // TRACK_EFF_CHECK
 
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
 
 using namespace std;
@@ -339,6 +339,10 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_gz",&sts_gz);
 
   tree_sts->Branch("sts_geriTimestamp",&sts_geriTimestamp);
+
+  tree_sts->Branch("sts_tdc",&sts_tdc);
+  tree_sts->Branch("sts_adc",&sts_adc);
+ 
   ////////////////////////////////////////////////
 
   // PREPARE LG HITO
@@ -644,7 +648,9 @@ int main(int argc, char* argv[]) {
 	sts_peakheight.push_back(hit1.PeakHeight());
 	sts_lx.push_back(hit1.LocalPos().X());
 	sts_elink.push_back(hit1.Elink());
-	
+	sts_tdc.push_back(hit1.TDC());
+        sts_adc.push_back(hit1.ADC());
+
 	if ( hit1.TDC() == 0xffff ) {
 	  sts_tdc_l1geri2.push_back(-1000000);
 	}else{

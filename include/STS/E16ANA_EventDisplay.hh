@@ -3,7 +3,7 @@
 # class E16ANA_EventDisplay
 # K.Aoki
 # 
-# event display of E16-STS. 2D only.
+# event display of E16. 2D only. includes STS,GTR,HBD and LG.
 #
 # instance of E16ANA_EventDisplay will create a TCanvas and have it inside.
 #
@@ -38,12 +38,13 @@ public:
   void Clear();
   void DrawHit(double* pos);
   void DrawHit(double x, double y, double z);
+  void DrawHit(const TVector3& pos);
   void DrawLine(double* pos1, double* pos2);
   void DrawLatex(double x, double y,TString str);
   void DrawTargets();
   void DrawWires();
   void DrawBox(double* pos1, double *pos2);
-  void DrawLGBox(int module,int block);
+  void DrawLGHitBox(int module,int block);
 
   void DrawUpdate();
   void SetPdfName(std::string name);
@@ -54,6 +55,7 @@ public:
   void SetMirror() { _mirror = true; }
   void SetNoMirror() { _mirror = false; }
   void SetHitColor(Color_t color) { color_hit = color; }
+  void SetLineColor(Color_t color) { color_line = color; }
   void SetGeometry(E16ANA_GeometryV2* geom) { geome16 = geom;}
 
   int G4modGTR(int mid) {
@@ -76,7 +78,8 @@ public:
   std::string _pdf_name;
   bool _mirror;
   Color_t color_hit;
-  
+  Color_t color_line{kBlue};
+
   double frame_xy[4]={-2000.,-2000.,2000.,2000.}; // frame for LG
 };
 
