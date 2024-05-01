@@ -812,3 +812,14 @@ TVector3 E16ANA_PlanarSTSGeometry::GetDetectorCenter() const {
   ggeom->Local2Global(e16module,local,global);
   return TVector3(global);
 }
+
+ROOT::Math::Plane3D E16ANA_PlanarSTSGeometry::GetPlane(double local_z) const {
+  TVector3 origin_vec3 = GetGPos(TVector3(0.,0.,0.));
+  TVector3 arrow_vec3 = GetGPos(TVector3(0.,0.,1.));
+  TVector3 normal_vec3 = arrow_vec3-origin_vec3;
+
+  ROOT::Math::Plane3D::Point origin(origin_vec3);
+  ROOT::Math::Plane3D::Vector normal(normal_vec3);
+  ROOT::Math::Plane3D plane(normal,origin);
+  return plane;
+}
