@@ -2,7 +2,7 @@
 #include "TCanvas.h"
 #include "STS/E16ANA_EventDisplay.hh"
 #include "STS/E16ANA_STSGeometry.hh"
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "TLine.h"
 #include "TVector3.h"
 #include "E16ANA_GeometryV2.hh"

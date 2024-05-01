@@ -11,7 +11,7 @@
 #include <TRandom.h>
 
 #include "STS/E16ANA_STSGeometry.hh"
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 
 using namespace std;
 

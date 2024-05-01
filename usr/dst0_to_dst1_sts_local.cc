@@ -33,11 +33,14 @@
 #endif // TRACK_EFF_CHECK
 
 #include "E16ANA_STSGlobalGeometry.hh"
+#include "STS/E16ANA_EventDisplay.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-constexpr bool kIsElectronRun = true;
+const bool visualization = true;
+
+constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
 
 #ifdef TRACK_EFF_CHECK
@@ -136,8 +139,9 @@ int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrac
 
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
-  if (argc != 6) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
+  if (argc != 7) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] "
+	 << "[display.pdf]" << endl;
 #else
   if (argc != 11) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [mock flag] [merge mock flag] [smear flag] [dead region flag]" << endl;
@@ -153,6 +157,7 @@ int main(int argc, char* argv[]) {
   auto run_id        = stoi(argv[3]);
   auto event_start   = stoi(argv[4]);
   auto event_end     = stoi(argv[5]);
+  std::string display_pdf = argv[6];
 #ifdef TRACK_EFF_CHECK
   auto mock_data_name   = argv[6];
   auto mock_data_flag   = stoi(argv[7]);
@@ -215,6 +220,7 @@ int main(int argc, char* argv[]) {
 
   auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
   E16ANA_GeometryV2::SetGlobalPointer(geometry);
+
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
@@ -226,6 +232,29 @@ int main(int argc, char* argv[]) {
 
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
 
+  std::vector< std::map<int,TH1D* > > histos_gtr;
+  std::vector<int> modules{101,102,103,104,106,107,108,109,206,207};
+  histos_gtr.resize(3);
+
+  for ( int i = 0; i<histos_gtr.size() ; i++){
+    for( int imod = 0; imod < modules.size(); imod++){
+      std::cout << "module ID " << modules[imod] << std::endl;
+      TString name; name.Form("hist_ngtrclust_%d_%d",i,modules[imod]);
+      std::cout << name << std::endl;
+      histos_gtr[i][modules[imod]] = new TH1D(name,name,500,0,500);
+    }
+  }
+
+  ////////
+  E16ANA_EventDisplay display;
+  display.SetGeometry(geometry);
+  display.SetMirror();
+  bool pdf_first = true;
+  //  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
+  //auto* lgeom = E16ANA_STSGeometry::instance();
+  if ( visualization ) display.SetPdfName(display_pdf);
+ 
+  
   ////////////////////// PREPARE STS TREE
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
 
@@ -257,6 +286,11 @@ int main(int argc, char* argv[]) {
   std::vector<float> sts_gz;
   std::vector<uint64_t> sts_geriTimestamp;
   std::vector<uint16_t> sts_elink;
+  std::vector<int> sts_tdc_l1geri;
+  std::vector<int> sts_tdc_l1geri2;
+  std::vector<long> sts_geri_l1geri;
+  std::vector<uint16_t> sts_tdc;
+  std::vector<uint16_t> sts_adc;
 
   auto clear_sts = [&](){
     sts_module.clear();
@@ -270,6 +304,11 @@ int main(int argc, char* argv[]) {
     sts_gz.clear();
     sts_geriTimestamp.clear();
     sts_elink.clear();
+    sts_tdc_l1geri.clear();
+    sts_tdc_l1geri2.clear();
+    sts_geri_l1geri.clear();
+    sts_tdc.clear();
+    sts_adc.clear();
   };
   
   TString br_int16 = "/S";
@@ -298,14 +337,21 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_module",&sts_module);
   tree_sts->Branch("sts_pn",&sts_pn);
   tree_sts->Branch("sts_channel",&sts_channel);
+
   tree_sts->Branch("sts_peakheight",&sts_peakheight);
   tree_sts->Branch("sts_hittime",&sts_hittime);
   tree_sts->Branch("sts_elink",&sts_elink);
+  tree_sts->Branch("sts_tdc_l1geri",&sts_tdc_l1geri);
+  tree_sts->Branch("sts_tdc_l1geri2",&sts_tdc_l1geri2);
+  tree_sts->Branch("sts_geri_l1geri",&sts_geri_l1geri);
   
   tree_sts->Branch("sts_lx",&sts_lx);
   tree_sts->Branch("sts_gx",&sts_gx);
   tree_sts->Branch("sts_gy",&sts_gy);
   tree_sts->Branch("sts_gz",&sts_gz);
+
+  tree_sts->Branch("sts_adc",&sts_adc);
+  tree_sts->Branch("sts_tdc",&sts_tdc);
 
   tree_sts->Branch("sts_geriTimestamp",&sts_geriTimestamp);
   ////////////////////////////////////////////////
@@ -349,7 +395,33 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gz",&lg_gz);
 
   /////////////////////////////////////////////
-  TH1F* hist_cond=new TH1F("hist_cond","",10,0,10);
+
+  /*
+  ///////////////////// PREPARE STS TREE
+  TTree* tree_gtr = new TTree("tree_gtr","tree_gtr");
+
+  std::vector<int> gtr_module;
+  std::vector<int> gtr_layer;
+  std::vector<float> gtr_timing;
+  std::vector<float> gtr_peaksum;
+
+  auto clear_gtr = [&](){
+    gtr_module.clear();
+    gtr_layer.clear();
+    gtr_timing.clear();
+    gtr_peaksum.clear();
+  };
+  
+  tree_gtr->Branch("event",&event_id,"event"+br_uint32);
+  tree_gtr->Branch("spill",&spill_id,"spill"+br_uint32);
+  tree_gtr->Branch("gtr_module",&gtr_module);
+  tree_gtr->Branch("gtr_layer",&gtr_layer);
+  tree_gtr->Branch("gtr_timing",&gtr_timing);
+  tree_gtr->Branch("gtr_peaksum",&gtr_peaksum);
+  */
+  
+  //////////////////////////////////////////
+  
   
 #ifdef TRACK_EFF_CHECK
   auto mock_data = E16ANA_MockTrackOutputData();
@@ -475,10 +547,12 @@ int main(int argc, char* argv[]) {
 #endif // TMP_NIM_TRIGGER
       record.Trigger().AddHitAndClusterIDs();
 // HBD clustering w/o timing selection begin
-      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());
+      E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD
+());
       record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
-      check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
+      // kaz removed .
+      //check_file.AddHBDClusterss(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
 #endif // REMOVE_REAL_HIT
 #ifdef TRACK_EFF_CHECK
@@ -534,7 +608,8 @@ int main(int argc, char* argv[]) {
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
       record.Trigger().UpdatePtrs();
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
+      std::cout << "Warning : AddRecord removed to avoid problem." << std::endl;
+      //check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
 #ifndef DST1_EVENT_MIX
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);
@@ -548,9 +623,26 @@ int main(int argc, char* argv[]) {
 #endif // DST1_EVENT_MIX
       std::cout << "################################################ my event loop" << std::endl;
 
+
+      auto do_first_when_vis = [&]() {
+	if ( visualization ) {
+	  display.DrawSensor();
+	  display.DrawRun(run_id);
+	  display.DrawEvent(event_id);
+	  display.DrawWires();
+	  display.DrawTargets();
+	}
+      };
+      
+      do_first_when_vis();
+       
       if ( stsg_dst0.NumberOfHits() > 1 ){
-	std::cout << "++++++ STSGlobal: # of hits more than 1. WHY??" << std::endl;
+	std::cout << "++++++ STSGlobal: # of hits more than 1. Indication of merged DST0." << std::endl;
       }
+
+      auto stscut_tdc = [](auto& hit) ->bool { return ( fabs(hit.Timing()+95)<100.);};
+      auto stscut_adc = [](auto& hit) ->bool { return ( hit.PeakHeight() > 0.00001 ); };
+
 
       ///////////////// FILL STS STANDALONE TREE.
 
@@ -568,121 +660,62 @@ int main(int argc, char* argv[]) {
 	ut3timestamp      = hitg0.get_ut3timestamp();
 	ut3spill          = hitg0.get_ut3spill();
 	emu_timestamp     = hitg0.get_emu_timestamp();
-
+      }else{
+	continue;
       }
+
       clear_sts();
-      /*
-      auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( sts_hits1.size() > 0 ) {
-	for( auto& hit1 : sts_hits1 ) {
-	  sts_module.push_back(hit1.ModuleId());
-	  sts_pn.push_back(hit1.PN());
-	  sts_channel.push_back(hit1.ChannelId());
-	  sts_peakheight.push_back(hit1.PeakHeight());
+
+      auto fill_sts = [&](auto& hit1) {
+	sts_module.push_back(hit1.ModuleId());
+	sts_pn.push_back(hit1.PN());
+	sts_channel.push_back(hit1.ChannelId());
+	sts_peakheight.push_back(hit1.PeakHeight());
+	sts_lx.push_back(hit1.LocalPos().X());
+	sts_elink.push_back(hit1.Elink());
+	sts_tdc.push_back(hit1.TDC());
+	sts_adc.push_back(hit1.ADC());
+
+	if ( hit1.TDC() == 0xffff ) {
+	  sts_tdc_l1geri2.push_back(-1000000);
+	}else{
+	  auto& hitg0 = stsg_dst0.Hit(0);
+	  int geri14 = (int) ( hitg0.get_l1_geritimestamp()&0b11111111111111 );
+	  sts_tdc_l1geri2.push_back((int)hit1.TDC() - geri14);
+	}
+	
+	if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
 	  sts_hittime.push_back(hit1.Timing());
-	  sts_lx.push_back(hit1.LocalPos().X());
-	  sts_elink.push_back(hit1.Elink());
-	  TVector3 vec = hit1.GlobalPos();
-	  sts_gx.push_back(vec.X());
-	  sts_gy.push_back(vec.Y());
-	  sts_gz.push_back(vec.Z());
-	  sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	  sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
+	}else{
+	  sts_hittime.push_back   (-1000000.);
+	  sts_tdc_l1geri.push_back(-1000000.);
 	}
-      }
-      tree_sts->Fill();
-      */
-      /////////////////////// FILL STS STANDALONE TREE.
-      /////////////////////// FILL LG STANDALONE TREE.
-      clear_lg();
-      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
-      if ( lg_hits1.size() > 0 )  {
-	for ( auto& lghit : lg_hits1 ) {
-	  TVector3 gpos = lghit.GlobalPos(*geometry);
-	  //std::cout << "LG " << module << " ch=" << channel << "  ";
-	  //gpos.Print();
-	  lg_module.push_back(lghit.ModuleId());
-	  lg_channel.push_back(lghit.ChannelId());
-	  lg_peakheight.push_back(lghit.PeakHeight());
-	  lg_peaktime.push_back(lghit.PeakTime());
-	  lg_baseline.push_back(lghit.Baseline());
-	  lg_baseline.push_back(lghit.BaselineRms());
-	  lg_integral.push_back(lghit.Integral());
-	  lg_gx.push_back(gpos.X());
-	  lg_gy.push_back(gpos.Y());
-	  lg_gz.push_back(gpos.Z());
-	}
-      }
-      tree_lg->Fill();
-
-
-      hist_cond->SetTitle("LG107, ch=30, timing cut, peakheight>0");
-      ///////////////////////// STS-LG Correlation
-      bool ok = false;
-      if ( lg_hits1.size() > 0 ){
-	for ( auto& lghit : lg_hits1 ) {
-	  TVector3 gpos = lghit.GlobalPos(*geometry);
-	  
-	  if ( lghit.ModuleId() != 107 ) continue;
-	  if ( lghit.ChannelId() != 30 ) continue;
-
-	  if ( lghit.PeakHeight() < 0 ) continue;
-	  if ( fabs(lghit.PeakTime()-80) > 10 ) continue;
-	  ok = true;
-	  /*
-	  if ( lghit.ModuleId() != 106 ) continue;
-	  if ( lghit.PeakHeight() <= 0 ) continue;
-	  if ( fabs(lghit.PeakTime()-80) < 10 ) continue; // bug.
-	  if ( (lghit.ChannelId() %10) == 0 ) ok = true;
-	  */
-	}
-      }
+	
+	TVector3 vec = hit1.GlobalPos();
+	sts_gx.push_back(vec.X());
+	sts_gy.push_back(vec.Y());
+	sts_gz.push_back(vec.Z());
+	sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
+	sts_geri_l1geri.push_back(tmp);
+      };
       
-      if ( ok ) {
-	auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-	if ( sts_hits1.size() > 0 ) {
-	  for( auto& hit1 : sts_hits1 ) {
-	    sts_module.push_back(hit1.ModuleId());
-	    sts_pn.push_back(hit1.PN());
-	    sts_channel.push_back(hit1.ChannelId());
-	    sts_peakheight.push_back(hit1.PeakHeight());
-	    sts_hittime.push_back(hit1.Timing());
-	    sts_lx.push_back(hit1.LocalPos().X());
-	    sts_elink.push_back(hit1.Elink());
-	    TVector3 vec = hit1.GlobalPos();
-	    sts_gx.push_back(vec.X());
-	    sts_gy.push_back(vec.Y());
-	    sts_gz.push_back(vec.Z());
-	    sts_geriTimestamp.push_back(hit1.GeriTimestamp());
-	  }
-	}
-	tree_sts->Fill();
-      }
-
-
-
-
-      // 
-
-      /*
-      //auto LR = [](int mod) { return (mod < 105); };
-      auto* ggeom = E16ANA_STSGlobalGeometry::instance();
-      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
-      if ( lg_hits1.size() == 0 ) continue;
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( sts_hits1.size() > 0 ) {
-	for( auto& sts_hit : sts_hits1 ) {
-	  int module_sts = sts_hit.ModuleId();
-	  for ( auto& lg_hit : lg_hits1 ){
-	    int module_lg = lg_hit.ModuleId();
-	    if ( lr == LR(module_lg) ) {
-	      
-	      // Try
-	      //ggeom->CalcPointOnPlane();
-	    }
-	  }
+
+      //sts_hits1
+
+      
+      if ( visualization ) {
+	display.DrawUpdate();
+	if ( pdf_first ) {
+	  display.SavePdfStart();
+	  pdf_first = false;
+	}else{
+	  display.SavePdf();
 	}
       }
-      */
+
 
       record.Tracks().Print();
 //      dst1->WriteAnEvent();
@@ -702,6 +735,27 @@ int main(int argc, char* argv[]) {
     ++n_event;
     ++n_physics_event;
   }
+
+  if ( visualization ) {
+    display.DrawUpdate();
+    if ( pdf_first ) {
+      display.SavePdfStart();
+      pdf_first = false;
+    }else{
+      display.SavePdf();
+    }
+  }
+
+  if ( visualization ) display.SavePdfEnd();
+
+  check_file.cd();
+  for ( int i = 0;i<histos_gtr.size() ; i++){
+    for ( auto& h : histos_gtr[i] ) {
+      h.second->Write();
+    }
+  }
+  
+
 
   delete geometry;
   delete dst0;

@@ -105,6 +105,8 @@ link_libraries(
   libHepPDT.so
   libHepPID.so
 	libz.so
+  -lGeom
+  -lMatrix
 )
 
 #_______________________________________________________________________________
@@ -148,13 +150,15 @@ add_library(E16ANA
   src/trigger/E16ANA_TriggerCoincidenceMap.cc
   src/track/E16ANA_TrackCandidate.cc
   src/STS/E16ANA_STSGeometry.cc
-  src/STS/E16ANA_STSGlobalGeometry.cc
+#    src/STS/E16ANA_STSGlobalGeometry.cc
   src/STS/E16ANA_STSEventDisplay.cc
   src/STS/E16ANA_EventDisplay.cc
 )
 
 target_link_libraries(E16ANA
   E16ANA_Basic
+#  -lMatrix
+#  -lGeom
 )
 
 #_______________________________________________________________________________
@@ -233,8 +237,8 @@ add_library(E16DST_DST1
 target_link_libraries(E16DST_DST1
 	E16ANA
 	E16DST
-	-lMatrix
-	-lGeom
+#	-lMatrix
+#	-lGeom
 )
 
 #_______________________________________________________________________________
@@ -343,6 +347,12 @@ target_link_libraries(dst0_to_dst1_sts_simple_check
 add_executable(dst0_to_dst1_sts_straight_check usr/dst0_to_dst1_sts_straight_check.cc)
 
 target_link_libraries(dst0_to_dst1_sts_straight_check
+	E16DST_DST1
+)
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_local usr/dst0_to_dst1_sts_local.cc)
+
+target_link_libraries(dst0_to_dst1_sts_local
 	E16DST_DST1
 )
 

@@ -2,7 +2,7 @@
 #include "TCanvas.h"
 #include "STS/E16ANA_STSEventDisplay.hh"
 #include "STS/E16ANA_STSGeometry.hh"
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "TLine.h"
 
 E16ANA_STSEventDisplay::E16ANA_STSEventDisplay(const std::string canv_name):_canv_name(canv_name),_mirror(false),color_hit(kRed),_pdf_name("out.pdf"){
