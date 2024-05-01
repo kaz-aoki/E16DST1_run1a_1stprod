@@ -250,10 +250,21 @@ int main(int argc, char* argv[]) {
   display.SetGeometry(geometry);
   display.SetMirror();
   bool pdf_first = true;
-  //  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
   //auto* lgeom = E16ANA_STSGeometry::instance();
   if ( visualization ) display.SetPdfName(display_pdf);
  
+  ////// geometry test
+  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
+  TVector3 lpos;
+  TVector3 gpos = geometry->STS(display.G4modGTR(106),0)->GetGPos(lpos);
+  gpos.Print();
+  {
+    double tmp_local[3]= {0.,0.,0.};
+    double tmp_global[3];
+    ggeom->Local2Global(106,tmp_local,tmp_global);
+    TVector3 tmp(tmp_global);
+    std::cout << "STS GEOM "; tmp.Print();
+  }
   
   ////////////////////// PREPARE STS TREE
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
