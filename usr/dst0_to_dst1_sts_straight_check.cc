@@ -32,7 +32,7 @@
 //#include "mockdataIOtestSimple.hh"
 #endif // TRACK_EFF_CHECK
 
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
 
 using namespace std;
@@ -900,7 +900,7 @@ int main(int argc, char* argv[]) {
 
 	  if ( visualization ) {
 	    if ( lghit.PeakTime() < 90 && lghit.PeakTime() > 0 ) {
-	      display.DrawLGBox(lghit.ModuleId(),lghit.ChannelId());
+	      display.DrawLGHitBox(lghit.ModuleId(),lghit.ChannelId());
 	    }
 	  }
 	}

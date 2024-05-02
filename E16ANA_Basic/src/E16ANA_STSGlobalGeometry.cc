@@ -1,4 +1,4 @@
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "TGeoMatrix.h"
 #include "TVector3.h"
 #include <iostream>

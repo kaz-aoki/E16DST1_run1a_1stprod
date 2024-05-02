@@ -2,7 +2,7 @@
 #include "TCanvas.h"
 #include "STS/E16ANA_EventDisplay.hh"
 #include "STS/E16ANA_STSGeometry.hh"
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "TLine.h"
 #include "TVector3.h"
 #include "E16ANA_GeometryV2.hh"
@@ -65,6 +65,11 @@ void E16ANA_EventDisplay::DrawSensor(){
   }
 }
 
+
+void E16ANA_EventDisplay::DrawHit(const TVector3& pos){
+  DrawHit(pos.X(),pos.Y(),pos.Z());
+}
+
 void E16ANA_EventDisplay::DrawHit(double* pos){
   DrawHit(pos[0],pos[1],pos[2]);
 }
@@ -108,7 +113,7 @@ void E16ANA_EventDisplay::DrawLine(double *pos1,double *pos2){
     pos2_x = -pos2_x;
   }
   TLine line;
-  line.SetLineColor(kBlue);
+  line.SetLineColor(color_line);
   line.DrawLine(pos1_x,pos1[2],pos2_x,pos2[2]);
   line.DrawLine(pos1_x,pos1[2],pos2_x,pos2[2]);
 }
@@ -124,7 +129,7 @@ void E16ANA_EventDisplay::DrawLatex(double x, double y, TString str){
 
 void E16ANA_EventDisplay::DrawTargets(){
   TLine line;
-  line.SetLineColor(kBlue);
+  SetLineColor(kBlue);
   line.DrawLine(-10.,  0., 10.,  0.);
   line.DrawLine(-10., 20., 10., 20.);
   line.DrawLine(-10.,-20., 10.,-20.);
@@ -166,14 +171,14 @@ void E16ANA_EventDisplay::DrawBox(double *pos1,double *pos2){
   double pos2_y = pos2[2];
   
   TLine line;
-  line.SetLineColor(kRed);
+  SetLineColor(kRed);
   line.DrawLine(pos1_x,pos1_y,pos1_x,pos2_y);
   line.DrawLine(pos1_x,pos2_y,pos2_x,pos2_y);
   line.DrawLine(pos2_x,pos2_y,pos2_x,pos1_y);
   line.DrawLine(pos2_x,pos1_y,pos1_x,pos1_y);
 }
 
-void E16ANA_EventDisplay::DrawLGBox(int module,int block){
+void E16ANA_EventDisplay::DrawLGHitBox(int module,int block){
   auto lg = geome16->LG(G4modHBDLG(module),block);
   constexpr double lg_width = 122.;
   constexpr double lg_depth = 135.;
@@ -191,6 +196,7 @@ void E16ANA_EventDisplay::DrawLGBox(int module,int block){
   double global2[3] = { gpos2.X(), gpos2.Y(), gpos2.Z() };
   double global3[3] = { gpos3.X(), gpos3.Y(), gpos3.Z() };
   double global4[3] = { gpos4.X(), gpos4.Y(), gpos4.Z() };
+  SetLineColor(color_hit);
   DrawLine(global1,global2);
   DrawLine(global2,global3);
   DrawLine(global3,global4);

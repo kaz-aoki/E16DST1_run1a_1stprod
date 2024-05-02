@@ -4,7 +4,7 @@
 #include "E16DST_DST1Constant.hh"
 #include "E16ANA_LGBasic.hh"
 #include "STS/E16ANA_STSGeometry.hh"
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
   hit_orders.clear();
