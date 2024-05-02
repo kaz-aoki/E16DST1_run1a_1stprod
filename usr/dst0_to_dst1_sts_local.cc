@@ -33,7 +33,9 @@
 #endif // TRACK_EFF_CHECK
 
 #include "E16ANA_STSGlobalGeometry.hh"
+#include "STS/E16ANA_STSGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
+#include "STS/E16ANA_STSHistos.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -232,6 +234,10 @@ int main(int argc, char* argv[]) {
 
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
 
+
+
+  /////////////  custom init
+
   std::vector< std::map<int,TH1D* > > histos_gtr;
   std::vector<int> modules{101,102,103,104,106,107,108,109,206,207};
   histos_gtr.resize(3);
@@ -244,8 +250,16 @@ int main(int argc, char* argv[]) {
       histos_gtr[i][modules[imod]] = new TH1D(name,name,500,0,500);
     }
   }
+  
+  E16ANA_STSHistos sts_histos;
+  sts_histos.create();
+  TH1D* hist_eff[10];
+  for( int i = 0;i<10;i++){
+    TString str;
+    str.Form("STS107_N_eff_bin%d",i);
+    hist_eff[i] = new TH1D(str,str,2,-0.5,1.5);
+  }
 
-  ////////
   E16ANA_EventDisplay display;
   display.SetGeometry(geometry);
   display.SetMirror();
@@ -266,6 +280,17 @@ int main(int argc, char* argv[]) {
     std::cout << "STS GEOM "; tmp.Print();
   }
   
+  auto* lgeom = E16ANA_STSGeometry::instance();
+  //int istrip = lgeom->Ch2StripP(channel);
+  auto botref = lgeom->GetBotRef(134);
+  auto topref = lgeom->GetTopRef(134);
+  std::cout << topref.first << ", " << topref.second << std::endl;
+  std::cout << botref.first << ". " << botref.second << std::endl;
+  int strip = 100;
+  double x = lgeom->GetLocalX_fromN(strip);
+  int strip2 = lgeom->X2StripN(x);
+  std::cout << "N strip=" << strip << " --> x " << x << "   --> strip=" << strip2 << std::endl;
+
   ////////////////////// PREPARE STS TREE
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
 
@@ -675,8 +700,7 @@ int main(int argc, char* argv[]) {
 	continue;
       }
 
-      clear_sts();
-
+      ///////function definition fill_sts
       auto fill_sts = [&](auto& hit1) {
 	sts_module.push_back(hit1.ModuleId());
 	sts_pn.push_back(hit1.PN());
@@ -711,11 +735,96 @@ int main(int argc, char* argv[]) {
 	int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
 	sts_geri_l1geri.push_back(tmp);
       };
+      //////////////////// function definition.
+
+      ////// ACTUAL LOOP
+      clear_sts();
+      sts_histos.clear_counters();
+
+      std::vector<int> p_bin_edge{0,134,200,300,400,500,600,700,800,900,1024};
+      int n_pbins = p_bin_edge.size()-1;
+      // i=0 [0,134),
+      // i=1 [134,200), ...
+      std::vector<std::pair<double,double> > n_bin_edged;
+      std::vector<std::pair<int,int> > n_bin_edge;
+
+      auto round_strip = [](double stripD)->int {
+	int istrip = static_cast<int>(stripD);
+	if ( (stripD-istrip ) > 0.5 ) istrip++;
+	return istrip;
+      };
+
+      n_bin_edged.push_back(std::make_pair<double,double>(-1,-1));
+      n_bin_edge.push_back(std::make_pair<int,int>(-1,-1));
+      for( int i = 1; i < p_bin_edge.size();i++){
+	double nfrom = lgeom->GetBotRef(p_bin_edge[i]).first;
+	double nto = lgeom->GetTopRef(p_bin_edge[i+1]-1).first;
+	n_bin_edged.push_back(std::make_pair(nfrom,nto));
+	n_bin_edge.push_back(std::make_pair<int,int>(round_strip(nfrom),round_strip(nto)));
+      }
+
+      auto p_bin = [&](int iStripP) {
+	for( int i = 1; i < p_bin_edge.size(); i++){
+	  if ( iStripP < p_bin_edge[i] ) { return i-1; }
+	}
+	return -1;
+      };
       
+
+      for( int i = 0;i<n_pbins;i++){
+	std::cout << "pbin " << i << " [" << p_bin_edge[i] << "," << p_bin_edge[i+1] << ")" << std::endl;
+	std::cout << "nbin " << i << " [" << n_bin_edged[i].first << "," << n_bin_edged[i].second << "]  ";
+	double nfrom = lgeom->X2StripN(n_bin_edged[i].first);
+	double nto = lgeom->X2StripN(n_bin_edged[i].second);
+	std::cout << nfrom  << "," << nto << "    ";
+	std::cout << " round_strip " << round_strip(nfrom) << " -- " << round_strip(nto) << std::endl;
+      }
+      std::cout << " iStripP " << 10 << " p_bin " << p_bin(10) << std::endl;
+      
+
+      std::map< int, int > counterp;
+      std::map< int, int > countern;
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
+      if ( sts_hits1.size() != 0 ){
+	for( auto& hit : sts_hits1 ) {
+	  fill_sts(hit);
+	  if ( stscut_adc(hit) && stscut_tdc(hit) ) {
+	    sts_histos.inc_count(hit.ModuleId(),hit.PN(),"multiplicity");
+	    
+	    if (hit.ModuleId()==107){
+	      if ( hit.PN() == 0) {
+		int iStrip = lgeom->Ch2StripP(hit.ChannelId());
+		counterp[p_bin(iStrip)]++;
+	      }else if ( hit.PN() == 1 ){
+		
+		int value_to_find = hit.ChannelId();
+		auto judge = [value_to_find](std::pair<int,int> el) {
+		  return ( el.first <= value_to_find && value_to_find <= el.second );		  
+		};
+		auto iter = std::find_if(n_bin_edge.begin(),n_bin_edge.end(),judge);
+		countern[std::distance(n_bin_edge.begin(),iter)]++;
+		if ( iter != n_bin_edge.end() ) {
+		  auto iter2 = std::find_if(iter+1,n_bin_edge.end(),judge);
+		  if ( iter2  != n_bin_edge.end() ){
+		    countern[std::distance(n_bin_edge.begin(),iter2)]++;
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+      for ( auto iter = counterp.begin() ; iter != counterp.end(); iter ++ ) {
+	if ( iter->second == 1 ) {
+	  int ibin = distance(counterp.begin(),iter);
+	  if ( ibin < 0 ) continue;
+	  if ( countern[ibin] > 0 ) hist_eff[ibin]->Fill(1);
+	  else hist_eff[ibin]->Fill(0);
+	}
+      }
 
-      //sts_hits1
-
+      sts_histos.fill_counters();
+      tree_sts->Fill();
       
       if ( visualization ) {
 	display.DrawUpdate();
