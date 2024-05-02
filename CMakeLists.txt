@@ -51,7 +51,10 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
 #add_definitions(-DTRACK_FIND_WO_TARGET) # \\ common for wire and three targets for straight track 
 
-add_definitions(-DNoExist_SSD) # //turn on this if you do not have ssd as a tracking point, like Run0d 
+
+#tracking //murakmai
+#add_definitions(-DNoExist_SSD) # //turn on this if you do not have ssd as a tracking point, like Run0d 
+add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking point, like Run0d 
 #add_definitions(-DREMOVE_GTR100) # 
 #add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
