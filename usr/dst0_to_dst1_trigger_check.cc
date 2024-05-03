@@ -31,7 +31,7 @@
 //#include "mockdataIOtestSimple.hh"
 #endif // TRACK_EFF_CHECK
 
-#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
 
 using namespace std;
@@ -370,10 +370,15 @@ int main(int argc, char* argv[]) {
 #ifndef REMOVE_REAL_HIT
 
 #ifndef NoExist_SSD
+		#ifndef UseSTS
 	   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
+      record.SSD().UpdatePtrs();
+		#else
 		E16DST_DST1STSFactory(stsg_hits0, sts_hits0, &record.STS());
+		record.STS().AddHitAndClusterIds();
       record.STS().UpdatePtrs();
+		#endif
 #endif
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
@@ -396,7 +401,6 @@ int main(int argc, char* argv[]) {
 // HBD clustering w/o timing selection end
 #endif // REMOVE_REAL_HIT
 #ifdef TRACK_EFF_CHECK
-      record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();

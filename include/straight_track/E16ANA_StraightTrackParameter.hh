@@ -140,7 +140,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 }
 
 // other
-constexpr bool kExecutePairFit = true;
+constexpr bool kExecutePairFit = false;
 //constexpr bool kReqHBDAssociation = true;
 //constexpr double kHBDRadius = 1200.;
 constexpr double kHBDRadius = 1196.;

@@ -317,6 +317,8 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double   LocalXFit() { return center_of_gravity_fit; };
   TVector3 LocalPos() override;
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
+  TVector3 GlobalPos() ;
+  void     SetGlobalPos(const TVector3& pos) { gpos = pos; }
   int      GetSize() override {}
 //  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void     Print() override {
@@ -334,6 +336,8 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double charge_sum_fit;
   double timing_fit;
   double chi2_ndf_fit;
+  TVector3 gpos;
+  TVector3 lpos;
 };
 
 
@@ -582,8 +586,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 //		std::cout << "lorent  = " <<  E16DST_DST1Constant::kGTRLorentzAngle[layer_id]<< std::endl;
 //      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//23115 temp
 
-//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-      return tdchit;
+      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return tdchit;
     } else {
       return tdchit;
     }

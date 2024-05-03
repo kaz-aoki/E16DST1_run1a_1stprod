@@ -93,6 +93,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
   }
 
+//  std::cout << "sts dst0 num hits = " << sts_dst0.NumberOfHits() << std::endl;  
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
 	 if (hit0.ADC() == 0xffff) continue; // invalid

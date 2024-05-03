@@ -28,7 +28,11 @@ class E16ANA_StraightTrackClusterPair {
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = nullptr;
+    #ifndef UseSTS
     local_pos = {dynamic_cast<E16DST_DST1SSDCluster*>(x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+	 #else
+    local_pos = {dynamic_cast<E16DST_DST1STSCluster*>(x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+	 #endif
 //    global_pos = _geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id))->GetGPos(local_pos);
     global_pos = _global_pos;
   }
@@ -590,6 +594,7 @@ class E16ANA_StraightTrackCandidates {
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
 //    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
+    E16DST_DST1STSCluster* sts_cluster;
 //    std::array<E16DST_DST1GTRCluster*, kNumGTRLayers> gtr_clusters;
     std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
   };
@@ -727,6 +732,7 @@ class E16ANA_StraightTrackCandidates {
 //  }
   void SearchTrackCandidatesWoSSD();
   void SearchTrackCandidates();
+  void SearchTrackCandidatesUsingSTS();
   void Fit();
   void SearchHBDAndLGHits();
   void SearchLGHits();//230826 add

@@ -32,6 +32,8 @@
 #include "E16ANA_StraightTrackCandidate.hh"
 #include "E16ANA_StraightTrackCheckFile.hh"
 
+#include "E16ANA_STSGlobalGeometry.hh"
+///#include "STS/E16ANA_STSGlobalGeometry.hh"
 using namespace std;
 
 int GetRemovedLayerFromEnv(){
@@ -138,6 +140,8 @@ int main(int argc, char* argv[]){
     auto geometry = new E16ANA_GeometryV2(static_cast<std::string>(GeometryFile));
     cout<< "Read geom : " << static_cast<std::string>(GeometryFile)<<endl;
     E16ANA_GeometryV2::SetGlobalPointer(geometry);
+
+	 auto *sts_geom = E16ANA_STSGlobalGeometry::instance();
   
     //E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   
@@ -189,6 +193,8 @@ int main(int argc, char* argv[]){
 		auto  event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
 		auto  event_id = event0->EventID();
 		auto& ssd_hits0         = event0->SSD();
+		auto& sts_hits0         = event0->STS();
+		auto& sts_ghits0        = event0->STSG();
 		auto& gtr_hits0         = event0->GTR();
 //		auto& lg_hits0          = event0->LG();
 //		auto& trigger_gtr_hits0 = event0->TriggerGTR();
@@ -216,8 +222,15 @@ int main(int argc, char* argv[]){
 			record.Trigger().UpdatePtrs();
 
 #ifndef NoExist_SSD
+			#ifndef UseSTS
 		   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+			record.SSD().AddHitAndClusterIds();
 		   record.SSD().UpdatePtrs();
+			#else 
+		   E16DST_DST1STSFactory(sts_ghits0,sts_hits0,  &record.STS());
+			record.STS().AddHitAndClusterIds();
+		   record.STS().UpdatePtrs();
+			#endif
 #endif
 		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
 //		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
@@ -232,6 +245,7 @@ int main(int argc, char* argv[]){
 //		   std::cerr << "invalid removed layer ! " << std::endl;
 //		   return -1;
 //		}
+		record.GTR().AddHitAndClusterIds();
 		record.GTR().UpdatePtrs();
 		
 //	LG 
