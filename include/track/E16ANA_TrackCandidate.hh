@@ -28,7 +28,11 @@ class E16ANA_TrackClusterPair {
     module_id   = _module_id;
     clusters[0] = _x_cluster;
     clusters[1] = nullptr;
+	 #ifdef UseSTS
+    local_pos = {dynamic_cast<E16DST_DST1STSCluster*>(_x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+    #else 
     local_pos = {dynamic_cast<E16DST_DST1SSDCluster*>(_x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+    #endif
 //    global_pos = _geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id))->GetGPos(local_pos);
     global_pos = _global_pos;
   }
@@ -606,6 +610,7 @@ class E16ANA_TrackCandidates {
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
 //    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
+    E16DST_DST1STSCluster* sts_cluster;
 //    std::array<E16DST_DST1GTRCluster*, kNumGTRLayers> gtr_clusters;
     std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
   };
@@ -773,6 +778,7 @@ class E16ANA_TrackCandidates {
   TVector3 BackInitPos(const TVector3& pos, const TVector3& mom);
 #endif // TRACK_FIND_WO_TARGET
   void SearchTrackCandidates();
+  void SearchTrackCandidatesWithSTS();
   void Fit();
   void SearchHBDAndLGHits();
   void SelectTracks();

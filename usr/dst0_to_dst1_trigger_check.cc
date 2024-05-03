@@ -31,6 +31,9 @@
 //#include "mockdataIOtestSimple.hh"
 #endif // TRACK_EFF_CHECK
 
+#include "E16ANA_STSGlobalGeometry.hh"
+#include "STS/E16ANA_EventDisplay.hh"
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -134,7 +137,7 @@ int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrac
 int main(int argc, char* argv[]) {
 #ifndef TRACK_EFF_CHECK
   if (argc != 6) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)]" << endl;
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] " << endl;
 #else
   if (argc != 11) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [mock flag] [merge mock flag] [smear flag] [dead region flag]" << endl;
@@ -249,6 +252,9 @@ int main(int argc, char* argv[]) {
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   
+  auto *sts_geom = E16ANA_STSGlobalGeometry::instance();
+  
+
 //  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
   E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
@@ -327,6 +333,8 @@ int main(int argc, char* argv[]) {
       }
       auto event0 = dynamic_cast<E16DST_DST0PhysicsEvent*>(dst0->Event());
       auto& ssd_hits0         = event0->SSD();
+		auto& stsg_hits0         = event0->STSG();//gerry
+		auto& sts_hits0         = event0->STS();
       auto& gtr_hits0         = event0->GTR();
       auto& hbd_hits0         = event0->HBD();
       auto& lg_hits0          = event0->LG();
@@ -360,8 +368,18 @@ int main(int argc, char* argv[]) {
         }
       }
 #ifndef REMOVE_REAL_HIT
-//      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
-//      record.SSD().AddHitAndClusterIds();
+
+#ifndef NoExist_SSD
+		#ifndef UseSTS
+	   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+      record.SSD().AddHitAndClusterIds();
+      record.SSD().UpdatePtrs();
+		#else
+		E16DST_DST1STSFactory(stsg_hits0, sts_hits0, &record.STS());
+		record.STS().AddHitAndClusterIds();
+      record.STS().UpdatePtrs();
+		#endif
+#endif
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
@@ -383,11 +401,34 @@ int main(int argc, char* argv[]) {
 // HBD clustering w/o timing selection end
 #endif // REMOVE_REAL_HIT
 #ifdef TRACK_EFF_CHECK
-      record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
       record.Trigger().UpdatePtrs();
+
+// ------------------ Easy Event Selection by LG Trigger Hit ----------------------- // 240501 changed a litte from Morino-san ana
+   	int nlg = record.Trigger().NumLGHits();
+		int tnlg = 0;
+		int tnlg2 = 0;
+		for (int k=0; k < nlg; k++){
+			auto &hit = record.Trigger().LGHit(k);
+			if(fabs(hit.Timing()) > 10 && fabs(hit.Timing()) < 200 tnlg++;
+			if(fabs(hit.Timing()) < 10 ) tnlg2++;
+		}
+		if(tnlg2> 15) continue;
+		if(tnlg> 30) continue;
+		
+		int tngt = 0;
+		int ngt = record.Trigger().NumGTRHits();
+		for(int k=0; jk < ngt; k++){
+			auto &hit = record.Trigger().GTRHit(k);
+			if(hit.Timing() > -50 && hit.Timing() < 350) tngt++;
+		}
+//		if(tngt > 12) continue;
+		if(tngt > 36) continue;
+
+// -------------------------------------------------------------------------------------
+
       check_file.ClearSimTrack();
       if (merge_mock_flag == kMergeSingleTrack) {
         if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {

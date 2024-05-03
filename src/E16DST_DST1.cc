@@ -50,7 +50,8 @@ TVector3 E16DST_DST1STSCluster::LocalPos() {
 
 TVector3 E16DST_DST1STSCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
   //return geometry.SaSD(ModuleId2020To2013(module_id))->GetGPos(LocalPos()); // tmp
-  return TVector3();
+//  return TVector3();
+	return gpos;
 }
 
 
