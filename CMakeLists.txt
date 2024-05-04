@@ -238,10 +238,11 @@ add_library(E16DST_DST1
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
   #src/tmp/EfficiencyCalc.cc
-  
+
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
   src/E16DST_DST1STSFactory.cc
+  src/STS/E16ANA_STSAnalyzer.cc
   src/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1GTRFactory_ExOneGTR.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc

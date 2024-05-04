@@ -12,6 +12,7 @@
 
 #include "STS/E16ANA_STSGeometry.hh"
 #include "E16ANA_STSGlobalGeometry.hh"
+#include "STS/E16ANA_STSAnalyzer.hh"
 
 using namespace std;
 
@@ -60,10 +61,12 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   auto lgeom = E16ANA_STSGeometry::instance();
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
 
+  /// filling sts hit information.
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
     //if( hit0.ADC() <= 0 ) continue;
     if( hit0.ADC() == 0xffff ) continue; // invalid.
+    if (hit0.TDC() == 0xffff ) continue;
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -80,6 +83,11 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetTDC(hit0.TDC());
     hit1.SetADC(hit0.ADC());
     hit1.SetE16sts(hit0.E16sts());
+    if ( hit1.PN() == 0 ) {
+      hit1.SetStripId(lgeom->Ch2StripP(hit1.ChannelId()));
+    }else{
+      hit1.SetStripId(hit1.ChannelId());
+    }
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {
       // P
@@ -92,6 +100,10 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     ggeom->Local2Global(hit1.ModuleId(),local,global);
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
   }
+
+  // sorting sts hit information
+  E16ANA_STSAnalyzer ana;
+  ana.clusterize(hits1, clusters1);
 
 //  std::cout << "sts dst0 num hits = " << sts_dst0.NumberOfHits() << std::endl;  
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
