@@ -64,9 +64,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   /// filling sts hit information.
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-    //if( hit0.ADC() <= 0 ) continue;
-    if( hit0.ADC() == 0xffff ) continue; // invalid.
-    if (hit0.TDC() == 0xffff ) continue;
+    if( hit0.ADCinvalid() ) continue;
+    if( hit0.TDCinvalid() ) continue;
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -76,7 +75,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 #endif
     hit1.SetPeakHeight(hit0.ADC());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
-    if ( hit0.TDC() != 0xffff ) hit1.SetTiming(hit0.TDC()-emu_timestamp);
+    hit1.SetTiming(hit0.TDC()-emu_timestamp);
     hit1.SetPN(hit0.PN());
     hit1.SetElink(hit0.Elink());
     hit1.SetGeriTimestamp(hit0.GeriTimestamp());
@@ -108,7 +107,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 //  std::cout << "sts dst0 num hits = " << sts_dst0.NumberOfHits() << std::endl;  
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-	 if (hit0.ADC() == 0xffff) continue; // invalid
+    if ( hit0.ADCinvalid() ) continue; // invalid
 	 clusters1.emplace_back();
 	 auto& cluster1 = clusters1.back();
 #ifdef STS_MODULE_RAND
@@ -121,7 +120,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 	 cluster1.SetModuleId(hit0.ModuleID());
 	 cluster1.SetPeakSum(hit0.ADC());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
-    if ( hit0.TDC() != 0xffff ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
+    if ( ! hit0.TDCinvalid() ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
 	 cluster1.SetTiming(hit0.TDC() - emu_timestamp);
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {

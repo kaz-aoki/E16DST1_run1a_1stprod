@@ -245,9 +245,9 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
     dataType = -1;
     elink=-1;
     geriTimestamp = 0xffffffffffffffffL;
-    tdc = 0xffff;
-    adc = 0xffff;
-    e16sts = 0xffff;
+    tdc = -1;
+    adc = -1;
+    e16sts = -1;
     strip_id = -1;
   }
   void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
@@ -269,12 +269,12 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   int16_t  Elink() {return elink; }
   void SetGeriTimestamp(uint64_t _geriTimestamp) { geriTimestamp = _geriTimestamp; }
   uint64_t GeriTimestamp() { return geriTimestamp;}
-  void SetADC(uint16_t _adc) { adc = _adc; }
-  uint16_t ADC() { return adc; }
-  uint16_t TDC() { return tdc; }
-  void SetTDC(uint16_t _tdc) { tdc = _tdc; }
-  uint16_t E16sts() { return e16sts; }
-  void SetE16sts(uint16_t _e16sts) { e16sts = _e16sts; }
+  void SetADC(int16_t _adc) { adc = _adc; }
+  int16_t ADC() { return adc; }
+  int16_t TDC() { return tdc; }
+  void SetTDC(int16_t _tdc) { tdc = _tdc; }
+  int16_t E16sts() { return e16sts; }
+  void SetE16sts(int16_t _e16sts) { e16sts = _e16sts; }
   int16_t StripId() const { return strip_id; }
   void SetStripId(int16_t _strip) { strip_id = _strip; }
  private:
@@ -289,9 +289,10 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   TVector3 gpos;
   int16_t elink{-1};
   uint64_t geriTimestamp{0xffffffffffffffffL};
-  uint16_t tdc{0xffff};
-  uint16_t adc{0xffff};
-  uint16_t e16sts{0xffff};
+  int16_t tdc{-1};
+  int16_t adc{-1};
+  int16_t tdcemu{-1};
+  int16_t e16sts{-1};
   int16_t strip_id{-1};
 };
 
