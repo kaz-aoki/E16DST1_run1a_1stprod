@@ -234,16 +234,21 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
 
 class E16DST_DST1STSHit : public E16DST_DST1Hit {
  public:
-  E16DST_DST1STSHit()
-      : peak_height(E16DST_DST1Constant::kInvalidValue),
-        hit_time(E16DST_DST1Constant::kInvalidValue),
-        peak_time(E16DST_DST1Constant::kInvalidValue) {}
+  E16DST_DST1STSHit(){}
   ~E16DST_DST1STSHit() {}
   void     SetInvalid() override {
     SetBaseInvalid();
-    peak_height = E16DST_DST1Constant::kInvalidValue;
-    hit_time    = E16DST_DST1Constant::kInvalidValue;
-    peak_time   = E16DST_DST1Constant::kInvalidValue;
+    peak_height = sts_finvalid;
+    hit_time    = sts_finvalid;
+    peak_time   = sts_finvalid;
+    pn = 0xffff;
+    dataType = -1;
+    elink=-1;
+    geriTimestamp = 0xffffffffffffffffL;
+    tdc = 0xffff;
+    adc = 0xffff;
+    e16sts = 0xffff;
+    strip_id = -1;
   }
   void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
@@ -270,20 +275,24 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   void SetTDC(uint16_t _tdc) { tdc = _tdc; }
   uint16_t E16sts() { return e16sts; }
   void SetE16sts(uint16_t _e16sts) { e16sts = _e16sts; }
+  int16_t StripId() const { return strip_id; }
+  void SetStripId(int16_t _strip) { strip_id = _strip; }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  float peak_height;
-  float hit_time;
-  float peak_time;
-  int16_t pn;
-  int16_t dataType;
+  static constexpr float sts_finvalid = -10000000.;
+  float peak_height {sts_finvalid};
+  float hit_time    {sts_finvalid};
+  float peak_time   {sts_finvalid};
+  int16_t pn{-1};
+  int16_t dataType{-1};
   TVector3 lpos;
   TVector3 gpos;
-  int16_t elink;
-  uint64_t geriTimestamp;
-  uint16_t tdc;
-  uint16_t adc;
-  uint16_t e16sts;
+  int16_t elink{-1};
+  uint64_t geriTimestamp{0xffffffffffffffffL};
+  uint16_t tdc{0xffff};
+  uint16_t adc{0xffff};
+  uint16_t e16sts{0xffff};
+  int16_t strip_id{-1};
 };
 
 class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
