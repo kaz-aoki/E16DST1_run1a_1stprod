@@ -350,7 +350,9 @@ target_link_libraries(dst0_to_dst1_sts_straight_check
 	E16DST_DST1
 )
 #_______________________________________________________________________________
-add_executable(dst0_to_dst1_sts_local usr/dst0_to_dst1_sts_local.cc)
+add_executable(dst0_to_dst1_sts_local
+		usr/dst0_to_dst1_sts_local.cc
+	 	src/STS/E16ANA_STSHistos.cc)	
 
 target_link_libraries(dst0_to_dst1_sts_local
 	E16DST_DST1
