@@ -9,7 +9,7 @@
 
 const double E16ANA_StraightMultiTrack::chisq_sigma_min = 1.0e-4; // 0.1 um
 
-E16ANA_StraightMultiTrack::E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_goem, int _n_tracks) : 
+E16ANA_StraightMultiTrack::E16ANA_StraightMultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_GeometryV2 *_goem,  std::vector<TVector3> &_tgt_pos, int _n_tracks) : 
   geom(_goem), n_tracks(_n_tracks),
   rungekutta_step_size(5.0), // 5.0 mm
   print_level(-1),
@@ -24,6 +24,14 @@ E16ANA_StraightMultiTrack::E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_goem, i
    for(int i=0; i<n_tracks; i++){
       track_steps[i].reserve(2000);
    }
+   n_targets = _tgt_pos.size();
+   if(n_targets == 2) {isWire = true;} 
+   else if (n_targets == 3) {isWire = false;}
+   else {std::cerr << "number of targets seems incorrect " << std::endl;std::exit(0);}
+   targets_pos.resize(n_targets);
+   for(int i=0; i < n_targets; i++){
+     targets_pos[i] = _tgt_pos[i];
+    }
 }
 
 E16ANA_StraightMultiTrack::~E16ANA_StraightMultiTrack(){
@@ -325,7 +333,7 @@ double E16ANA_StraightMultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bo
 
    minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 1, vertex_init.X()-20., vertex_init.X()+20.); // mm // update 2021-09-20
    minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 1, vertex_init.Y()-20., vertex_init.Y()+20.); // mm // update 2021-09-20
-   minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 1, vertex_init.Z()-20., vertex_init.Z()+20.);
+   minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 1, vertex_init.Z()-50., vertex_init.Z()+55.);
 
   // printf("moment \n init %f %f %f \n",momentum_init[0].X(),momentum_init[0].Y(),momentum_init[0].Z()  );
 
@@ -364,6 +372,8 @@ double E16ANA_StraightMultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bo
    minuit->SetFixedVariable(0, "V_X", vertex_fit.X() );
    minuit->SetFixedVariable(1, "V_Y", vertex_fit.Y() );
    minuit->SetFixedVariable(2, "V_Z", vertex_fit.Z() );
+//   printf("fit %f %f %f %f \n",vertex_fit.X(),vertex_fit.Y(),vertex_fit.Z(),chisq  );
+   
    for(int i=0; i<n_tracks; i++){
      minuit->SetFixedVariable(i*3+3, Form("Momentum%02d_X", i), atan2(momentum_fit[i].Z(),momentum_fit[i].X()) );
      minuit->SetFixedVariable(i*3+4, Form("Momentum%02d_Y", i), asin(momentum_fit[i].Y()) );
@@ -383,11 +393,29 @@ double E16ANA_StraightMultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bo
 
 double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
 //  double dx = (vertex_fit.X()-20)/0.4;
-  double dx = (vertex_fit.X()+0.8)/3;//what is this ? 
-  //double dx = (vertex_fit.X())/1.5;
+//  double dx = (vertex_fit.X()+0.8)/3;//what is this ? 
+//double dx = (vertex_fit.X())/1.5;
 //  double dy = (vertex_fit.Y()+1)/2;
-  double dy = (vertex_fit.Y()+0.2)/2;
-  return dx*dx+dy*dy;
+//  double dy = (vertex_fit.Y()+0.2)/2;
+    
+    std::vector<double> t_distance;
+    t_distance.clear();
+    for(int i=0; i < targets_pos.size(); i++){//wire or three targets 
+      t_distance.push_back (   pow(vertex_fit.X() - targets_pos[i].X(), 2) 
+                             + pow(vertex_fit.Y() - targets_pos[i].Y(), 2) ); 
+//                             + pow(vertex_fit.Z() - targets_pos[i].Z(), 2) );
+    }
+    auto min_tgt = std::min_element(std::begin(t_distance), std::end(t_distance));
+    int  min_i   = std::distance(std::begin(t_distance), min_tgt) ;
+
+	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/0.3;
+	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/2.0;
+////	 double dz = ((vertex_fit.Z()) - targets_pos[min_i].Z() )/vertex_sigma.Z();
+////    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
+////    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
+////    if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
+////    return dx*dx+dy*dy+dz*dz;
+    return dx*dx+dy*dy;
 }
 
 double E16ANA_StraightMultiTrack::RungeKuttaTracking(int track_id, const TVector3 &vertex, const TVector3 &momentum, double charge){

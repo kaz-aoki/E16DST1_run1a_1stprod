@@ -150,10 +150,14 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
 #endif // TMP_NIM_TRIGGER
   auto max_track =ut3.NumberOfTracks();
   trigger->Tracks().resize(max_track);
+  
   for (int n_track = 0; n_track < max_track; ++n_track) {
     E16ANA_TriggerSingleHitFactory(trigger_param, ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks()[n_track]);
   }
   
+
+
+
   // track_set
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsGTR>, 2> gtr_maps;
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsHBD>, 2> hbd_maps;
@@ -199,6 +203,7 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
     }
   }
   std::sort(coarse_time.begin(), coarse_time.end());
+
   for (int track_num = 0; track_num < n_tracks; ++track_num) {
     auto& track_set = trigger->TrackSets()[track_num];
     track_set.Clear();
