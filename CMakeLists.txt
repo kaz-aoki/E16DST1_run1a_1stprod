@@ -10,7 +10,9 @@ set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
 #set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../build)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../install)
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../install)
+endif()
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX}/share)
@@ -373,7 +375,6 @@ target_link_libraries(dst0_to_dst1_sts_check
 
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_sts_simple_check usr/dst0_to_dst1_sts_simple_check.cc)
-
 target_link_libraries(dst0_to_dst1_sts_simple_check
 	E16DST_DST1
 )
