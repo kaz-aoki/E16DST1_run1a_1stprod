@@ -34,6 +34,7 @@
 
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
+#include "STS/E16ANA_STSAnalyzer.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -266,6 +267,7 @@ int main(int argc, char* argv[]) {
   std::vector<int16_t> sts_module;
   std::vector<int16_t> sts_pn;
   std::vector<int16_t> sts_channel;
+  std::vector<int16_t> sts_strip;
   std::vector<float> sts_peakheight;
   std::vector<float> sts_hittime;
   std::vector<float> sts_lx;
@@ -284,6 +286,7 @@ int main(int argc, char* argv[]) {
     sts_module.clear();
     sts_pn.clear(); 
     sts_channel.clear();
+    sts_strip.clear();
     sts_peakheight.clear();
     sts_hittime.clear();
     sts_lx.clear();
@@ -325,6 +328,7 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_module",&sts_module);
   tree_sts->Branch("sts_pn",&sts_pn);
   tree_sts->Branch("sts_channel",&sts_channel);
+  tree_sts->Branch("sts_strip",&sts_strip);
 
   tree_sts->Branch("sts_peakheight",&sts_peakheight);
   tree_sts->Branch("sts_hittime",&sts_hittime);
@@ -645,6 +649,7 @@ int main(int argc, char* argv[]) {
 	sts_module.push_back(hit1.ModuleId());
 	sts_pn.push_back(hit1.PN());
 	sts_channel.push_back(hit1.ChannelId());
+	sts_strip.push_back(hit1.StripId());
 	sts_peakheight.push_back(hit1.PeakHeight());
 	sts_lx.push_back(hit1.LocalPos().X());
 	sts_elink.push_back(hit1.Elink());
