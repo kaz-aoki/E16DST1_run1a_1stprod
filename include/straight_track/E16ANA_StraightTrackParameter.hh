@@ -53,7 +53,8 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 #ifndef REMOVE_GTR200
                                           {0.265, 0.626, 0.},
 #else 
-                                          {99999, 99999, 0.},
+//                                          {99999, 99999, 0.},
+                                          {10, 0.6, 0.},
 #endif //200
 
 #ifndef REMOVE_GTR300
@@ -140,7 +141,7 @@ static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 }
 
 // other
-constexpr bool kExecutePairFit = false;
+constexpr bool kExecutePairFit = true;
 //constexpr bool kReqHBDAssociation = true;
 //constexpr double kHBDRadius = 1200.;
 constexpr double kHBDRadius = 1196.;

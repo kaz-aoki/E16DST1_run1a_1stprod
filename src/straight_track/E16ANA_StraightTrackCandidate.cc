@@ -83,7 +83,7 @@ void E16ANA_StraightTrackCandidate::UpdateFitResult(E16ANA_StraightMultiTrack* f
   n_calls = fitter->GetNumCalls();
   for (int l = 0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
 //  for (int l = 1; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; ++l) {
-#if NoExist_SSD
+#ifdef NoExist_SSD
 		if(l == 0){
 			continue;
 		}
@@ -706,7 +706,7 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidatesWoSSD() {
   track_candidates.clear();
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& gtr = record->GTR();
-E16INFO("number of GTR clusters: %d", gtr.NumClusters());
+E16MESSAGE("number of GTR clusters: %d", gtr.NumClusters());
 //  if(gtr.NumClusters() > 5000) return;
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
@@ -893,8 +893,8 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   delete cluster_set;
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
-E16INFO("number of x candidates: %d", n_x_cands);
-E16INFO("number of y candidates: %d", n_y_cands);
+E16MESSAGE("number of x candidates: %d", n_x_cands);
+E16MESSAGE("number of y candidates: %d", n_y_cands);
   
  if(n_x_cands < 300){  
 
@@ -1007,8 +1007,8 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidates() {
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& ssd = record->SSD();
   auto& gtr = record->GTR();
-E16INFO("number of SSD clusters: %d", ssd.NumClusters());
-E16INFO("number of GTR clusters: %d", gtr.NumClusters());
+E16MESSAGE("number of SSD clusters: %d", ssd.NumClusters());
+E16MESSAGE("number of GTR clusters: %d", gtr.NumClusters());
 // if(ssd.NumClusters()>30) return;
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
@@ -1195,8 +1195,8 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   delete cluster_set;
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
-E16INFO("number of x candidates: %d", n_x_cands);
-E16INFO("number of y candidates: %d", n_y_cands);
+E16MESSAGE("number of x candidates: %d", n_x_cands);
+E16MESSAGE("number of y candidates: %d", n_y_cands);
   
   for (const auto& x_cand : cluster_sets[0]) {
     auto& ssdx = *x_cand.ssd_cluster;
@@ -1295,8 +1295,8 @@ void E16ANA_StraightTrackCandidates::SearchTrackCandidatesUsingSTS() {
   track_candidates.reserve(kNumReserveTracks[2]); // tmp
   auto& sts = record->STS();
   auto& gtr = record->GTR();
-E16INFO("number of STS clusters: %d", sts.NumClusters());
-E16INFO("number of GTR clusters: %d", gtr.NumClusters());
+E16MESSAGE("number of STS clusters: %d", sts.NumClusters());
+E16MESSAGE("number of GTR clusters: %d", gtr.NumClusters());
   if(sts.NumClusters()>500) return;
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
@@ -1483,8 +1483,8 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   delete cluster_set;
   n_x_cands = cluster_sets[0].size();
   n_y_cands = cluster_sets[1].size();
-E16INFO("number of x candidates: %d", n_x_cands);
-E16INFO("number of y candidates: %d", n_y_cands);
+E16MESSAGE("number of x candidates: %d", n_x_cands);
+E16MESSAGE("number of y candidates: %d", n_y_cands);
   
   for (const auto& x_cand : cluster_sets[0]) {
     auto& stsx = *x_cand.sts_cluster;
@@ -2024,7 +2024,7 @@ void E16ANA_StraightTrackCandidates::Analyze() {
   SearchTrackCandidates();
   #endif
 #endif
-  E16INFO("number of track candidate: %d", track_candidates.size());
+  E16MESSAGE("number of track candidate: %d", track_candidates.size());
   Fit();
   ProjectionTarget();
   SearchLGHits();//230826 add

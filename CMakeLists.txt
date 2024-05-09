@@ -53,10 +53,10 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
 
 #tracking //murakmai
-#add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
-add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking point, like Run0d 
+add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
+#add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking point, like Run0d 
 #add_definitions(-DREMOVE_GTR100) # 
-#add_definitions(-DREMOVE_GTR200) # 
+#jkadd_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
 #add_definitions(-DEFFICIENCY_EVAL) # //turn on if you want to evaluate the efficiency
 

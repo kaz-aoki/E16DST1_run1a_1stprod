@@ -44,7 +44,7 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 			out_ids.emplace_back(i);
 			}
     }
-  #else//NoExist_SSD
+#else//NoExist_SSD
     #ifdef REMOVE_100
     for(int i=0; i < n_cands ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
@@ -91,8 +91,7 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 			}
     }
     #else
-
-	for(int i=0; i < n_cands ; i++){
+	 for(int i=0; i < n_cands ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
 			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
@@ -108,7 +107,6 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
     }
 #endif // REMOVE_GTRxxx
 #endif // NoExist_SSD
-
 	 AddRecord(out_ids);
    }
 }
@@ -256,11 +254,11 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 				h_res_x[m][l] = new TH1D(Form("h_res_x__m%d_l%d", m+100, l), Form("h_res_x__m%d_l%d", m+100, l), 100, -2, 2);
 				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
 
-				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx__%d_%d", m+100, l), Form("h_cor_res_fitlx_%d_%d", m+100, l), 40, -50*l , 50*l, 100, -0.5, 0.5);
+				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx__%d_%d", m+100, l), Form("h_cor_res_fitlx_%d_%d", m+100, l), 40, -50*l , 50*l, 100, -2.5, 2.5);
 				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly__%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 100, -2, 2);
 				h_cor_res_timing[m][l] = new TH2D(Form("h_cor_res_timing__%d_%d", m+100, l), Form("h_cor_res_timing_%d_%d", m+100, l), 20, 0 , 600, 100, -2, 2);
 				h_tan_theta[m][l] = new TH1D(Form("h_tan_theta_m%d_l%d",  m+100, l), Form("h_tan_theta_%d_%d", m+100, l), 20,  -0.5, 0.5);
-				h_cor_dz_time[m][l]        = new TH2D(Form("h_cor_dz_time_%d%d", m+100, l)      , Form("h_cor_dz_time_%d%d",  m+100, l)     , 20, 0, 600, 50,  -2, 2);
+				h_cor_dz_time[m][l]        = new TH2D(Form("h_cor_dz_time_%d%d", m+100, l)      , Form("h_cor_dz_time_%d%d",  m+100, l)     , 20, 0, 600, 60,  -6, 6);
 				h_cor_dz_time_t0cor[m][l]= new TH2D(Form("h_cor_dz_time_t0cor_%d_%d",  m+100, l), Form("h_cor_dz_time_t0cor_%d%d", m+100, l), 20, 0, 600, 7, -8, 8);
 					for(int div = 0; div < n_div; div++){
 						h_cluster_timing_chi2_xdependence[m][l][div] = new TH1D(Form("h_cluster_timing_chi2_xdependence%d_%d_%d", m+100, l, div), Form("h_cluster_timing_chi2_xdependence%d_%d_%d", m+100, l, div), 20, 0 ,600 ) ;
@@ -808,9 +806,9 @@ std::array<double, 4> xtotend;//xt4
    TH1D *h16[10];
    TF1  *f16[10];
    TF1  *fla[10];
-   double xmin[10]  = {0, -7, -7, -7,     -0.5, 0, -0.5, -5.5, -7, -7};//mod100-109
-   double xmax[10]  = {0, 10, 10, 10,      0.5, 0,  0.5 ,  4.0,  8,  8};
-   double flmin[10] = {0, 120, 120, 120, 0,   0,   0, 100, 180, 180};
+   double xmin[10]  = {0, -4.5, -5.5, -5.5,     -5.5, 0, -3.5,  -3.5, -4.5, -4.5};//mod100-109
+   double xmax[10]  = {0, 4.5, 3.5, 3.5,      3.5, 0,  3.5 ,  3.0,  8,  8};
+   double flmin[10] = {0, 120, 120, 120, 120,   0,   120, 100, 180, 180};
    double flmax[10] = {0, 450, 450, 450, 500, 0, 500, 450, 550, 450};
    for(int hmid=101; hmid < 110; hmid++){
       c16[hmid-100] = new TCanvas();
@@ -857,37 +855,39 @@ std::array<double, 4> xtotend;//xt4
    }
 
 
-   TCanvas *c17[2];
- for(int t=0; t < 2; t++){
-  c17[t]= new TCanvas();
-   c17[t]->Divide(4,2);
+   TCanvas *c17;
+  c17= new TCanvas();
+   c17->Divide(4,2);
    for(int hmid=101; hmid < 110; hmid++){
-      if(hmid!=106) continue;
-      if(hmid < 105) {c17[t]->cd(hmid-100);}
- 	 else {c17[t]->cd(hmid-101);}
-      gr16[hmid-100]->SetTitle(Form("residual/tan_theta tgt%d  mod%d : timing ;  timing; residual/tan_theta", t, hmid) );
+		if(hmid == 105) continue;
+      if(hmid < 105) {
+		c17->cd(hmid-100);
+      gr16[hmid-100]->SetTitle(Form("residual/tan_theta mod%d : timing ;  timing; residual/tan_theta",  hmid) );
+      gr16[hmid-100]->Draw("AP");
+	 }
+ 	 else {c17->cd(hmid-101);}
+      gr16[hmid-100]->SetTitle(Form("residual/tan_theta mod%d : timing ;  timing; residual/tan_theta",  hmid) );
       gr16[hmid-100]->Draw("AP");
    }
-  c17[t]->SaveAs(pdf_name, "pdf");
- }
+  c17->SaveAs(pdf_name, "pdf");
 
 
 
- TCanvas *c6b = new TCanvas();
- c6b->Divide(2,2);
- for(int tgt=0; tgt<2; tgt++){
- for(int i =1; i < 9; i++){
-   
-    c6b->cd(i);
-    if(i < 5) {
-       h_cor_dz_time_t0cor[i][residual_layer]->Draw("colz");
-    }
-    else {
-       h_cor_dz_time_t0cor[i+1][residual_layer]->Draw("colz");
-    }
- }
- }
- c6b->SaveAs(pdf_name, "pdf");
+// TCanvas *c6b = new TCanvas();
+// c6b->Divide(2,2);
+// for(int tgt=0; tgt<2; tgt++){
+// for(int i =1; i < 9; i++){
+//   
+//    c6b->cd(i);
+//    if(i < 5) {
+//       h_cor_dz_time_t0cor[i][residual_layer]->Draw("colz");
+//    }
+//    else {
+//       h_cor_dz_time_t0cor[i+1][residual_layer]->Draw("colz");
+//    }
+// }
+// }
+// c6b->SaveAs(pdf_name, "pdf");
 
 
 

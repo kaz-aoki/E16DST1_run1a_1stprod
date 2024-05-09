@@ -426,6 +426,9 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
   n_calls = fitter->GetNumCalls();
   //if(chisq<20) fitter->PrintHits();
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+	 #ifdef NoExist_SSD
+		if(l==0) continue;
+	 #endif
     fit_results[l].Clear();
     std::vector<TVector3> lpos;
     std::vector<TVector3> lmom;
