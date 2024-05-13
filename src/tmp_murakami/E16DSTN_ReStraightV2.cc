@@ -8,28 +8,41 @@
 using namespace E16ANA_StraightTrackParameter;
 using namespace E16ANA_StraightTrackConstant;
 
-void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag ,int  anaSW)
-{
-   if (fChain == 0) return;
 
-   Long64_t nevent = fChain->GetEntries();
-   std::cout << "nevent = " << nevent << std::endl;
-   Long64_t nbytes = 0, nb = 0;
+void E16DSTN_ReStraightV2::ChiSqSort( std::vector<int> &sorted_ids){
+	int n_chisq  = chi_square->size();
+	int n_tracks = n_cands;
+	if(n_tracks != n_cands) {
+		std::cerr << "It is a bug ! : Unexpected behavior was detected." << std::endl;
+		exit(1);
+	} 
+	std::multimap<double, int> chi2_trkid_map;
+	chi2_trkid_map.clear();
+	for(int i=0; i < n_tracks; i++){
+		chi2_trkid_map.insert(std::make_pair(chi_square->at(i), i));
+	}
+	for(const auto &el : chi2_trkid_map){
+		sorted_ids.push_back(el.second);
+	}
+}
 
-   for(int n=0; n < nevent ; n++){
-		if(max_event != -1 &&  n > max_event){
-			std::cout << "N event analyzed readched to max event " << std::endl;
-		   break;	
-      }
-      if( n% print_cycle == 0 ){
-         printf( "N analyzed = %d \n ", n);
-      }
-      tree->GetEntry(n);
-		ClearUsedClusterIDs();
-      std::vector<int> out_ids;
-      out_ids.clear();
+void E16DSTN_ReStraightV2::SelectTracks(std::vector<int> &sorted_ids, std::vector<int> &selected_ids){
+	for(int i=0; i < n_cands; i++){
+		if(IsGoodTrack(i)){
+			selected_ids.emplace_back(i);
+		}
+	}
+}
+
+bool E16DSTN_ReStraightV2::IsGoodTrack(const int id){
+	return true;
+}
+
+
+void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids, std::vector<int> &killdup_ids){
+	int n_selected_ids = selected_ids.size();
 #ifndef NoExist_SSD
-	for(int i=0; i < n_cands ; i++){
+	for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> cids = {
 			rk_hit_ssd_id->at(i),
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
@@ -41,12 +54,12 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
-			out_ids.emplace_back(i);
+			killdup_ids.emplace_back(i);
 			}
     }
 #else//NoExist_SSD
     #ifdef REMOVE_100
-    for(int i=0; i < n_cands ; i++){
+    for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
 			rk_hit_ssd_id->at(i),
 			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
@@ -57,11 +70,11 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
-			out_ids.emplace_back(i);
+			killdup_ids.emplace_back(i);
 			}
     }
     #elif REMOVE_200
-    for(int i=0; i < n_cands ; i++){
+    for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
 			rk_hit_ssd_id->at(i),
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
@@ -72,11 +85,11 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
-			out_ids.emplace_back(i);
+			killdup_ids.emplace_back(i);
 			}
     }
      #elif REMOVE_300
-    for(int i=0; i < n_cands ; i++){
+    for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
 			rk_hit_ssd_id->at(i),
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
@@ -87,11 +100,11 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
-			out_ids.emplace_back(i);
+			killdup_ids.emplace_back(i);
 			}
     }
     #else
-	 for(int i=0; i < n_cands ; i++){
+	 for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
 			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
@@ -102,16 +115,339 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-1;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
-			out_ids.emplace_back(i);
+			killdup_ids.emplace_back(i);
 			}
     }
 #endif // REMOVE_GTRxxx
 #endif // NoExist_SSD
-	 AddRecord(out_ids);
-   }
 }
 
 
+
+void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag ,int  anaSW)
+{
+   if (fChain == 0) return;
+   Long64_t nevent = fChain->GetEntries();
+   std::cout << "nevent = " << nevent << std::endl;
+   Long64_t nbytes = 0, nb = 0;
+   for(int n=0; n < nevent ; n++){
+		if(max_event != -1 &&  n > max_event){
+			std::cout << "N event analyzed readched to max event " << std::endl;
+		   break;	
+      }
+      if( n% print_cycle == 0 ){
+         printf( "N analyzed = %d \n ", n);
+      }
+      tree->GetEntry(n);
+      std::vector<int> out_ids;
+      std::vector<int> sorted_ids;
+      std::vector<int> selected_ids;
+      std::vector<int> killdup_ids;
+      out_ids.clear();
+		sorted_ids.clear();
+		selected_ids.clear();
+		killdup_ids.clear();
+		ChiSqSort(sorted_ids);
+		SelectTracks(sorted_ids, selected_ids);
+		ClearUsedClusterIDs();
+		DuplicationClusterCut(selected_ids, killdup_ids);
+		AnalyzeTrackPairs(killdup_ids);
+	 	AddRecord(killdup_ids);
+   }
+}
+
+bool E16DSTN_ReStraightV2::IsSameTarget(const int tid0, const int tid1){
+	
+
+
+
+
+	return true;	
+}
+
+double E16DSTN_ReStraightV2::SearchVertex(TrackPair *track_pair){
+	int tid0 = track_pair->tid0;
+	int tid1 = track_pair->tid1;
+	Hep3Vector init_pos0 (rk_fit_init_pos_gx->at(tid0) * 0.1, rk_fit_init_pos_gy->at(tid0) * 0.1, rk_fit_init_pos_gz->at(tid0) * 0.1);
+	Hep3Vector init_mom0 (rk_fit_init_mom_gx->at(tid0) , rk_fit_init_mom_gy->at(tid0) , rk_fit_init_mom_gz->at(tid0) );
+	Hep3Vector init_pos1 (rk_fit_init_pos_gx->at(tid1) * 0.1, rk_fit_init_pos_gy->at(tid1) * 0.1, rk_fit_init_pos_gz->at(tid1) * 0.1);
+	Hep3Vector init_mom1 (rk_fit_init_mom_gx->at(tid1) , rk_fit_init_mom_gy->at(tid1) , rk_fit_init_mom_gz->at(tid1) );
+	std::cout << "init pos  = " << init_pos0.x() << ", " << init_pos0.y() << " ," << init_pos0.z() << std::endl;
+	std::cout << "init pos  = " << init_pos1.x() << ", " << init_pos1.y() << " ," << init_pos1.z() << std::endl;
+	E16ANA_StraightStepTrack step_track0(init_pos0, init_mom0, -1,  0.1, 1000);
+	E16ANA_StraightStepTrack step_track1(init_pos1, init_mom1,  1,  0.1, 1000);
+	double distance;
+	Hep3Vector cross_point;
+	Hep3Vector mom0;
+	Hep3Vector mom1;
+	auto flag = step_track0.Cross(step_track1, &distance, &cross_point, &mom0, &mom1);
+	track_pair->vtx = {cross_point.x() * 10, cross_point.y() * 10, cross_point.z() *10.};
+	std::cout << "vertex  = " << track_pair->vtx.x() << ", " << track_pair->vtx.y() << " ," << track_pair->vtx.z() << std::endl;
+	track_pair->distance = distance *10.;
+	track_pair->mom_minus = {mom0.x(), mom0.y(), mom0.z()};
+	track_pair->mom_plus  = {mom1.x(), mom1.y(), mom1.z()};
+	return distance * 10;
+}
+
+void E16DSTN_ReStraightV2::AnalyzeTrackPairs(std::vector<int> &in_ids){
+	track_pairs.clear();
+	TrackPair track_pair;
+	track_pair.Clear();
+	int n_cands = in_ids.size();
+	for(int i = 0; i < n_cands -1 ; i++){
+		int tid0 = in_ids[i]; //track id 0
+		for(int j = i + 1; j < n_cands; j++){
+			int tid1 = in_ids[j];//track id 1
+//			std::cout << "tid 0 1 = "  << tid0 << ", " << tid1 << std::endl;
+			if(IsSameTarget(tid0, tid1)){
+				if(rk_fit_gtr100_mid->at(tid0) == rk_fit_gtr100_mid->at(tid1)) continue;
+				track_pair.tid0 = tid0;
+				track_pair.tid1 = tid1;
+				SearchVertex(&track_pair);	
+//				PairTracking(&track_pair);
+				track_pairs.emplace_back(track_pair);
+			}	
+		}
+	}
+	SelectTrackPairs();
+	return;
+}
+
+void E16DSTN_ReStraightV2::PairTracking(TrackPair *track_pair){
+	AddTracks(track_pair);
+	pair_fitter->SetRungeKuttaStepSize(kPairTrackingStepSize);
+	pair_fitter->SetMaxSteps(kPairTrackingMaxSteps);
+	track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kPairMinuitStrategy, kPairMinuitMaxFunctionCalls);
+	UpdateFitResult(track_pair);
+}
+
+void E16DSTN_ReStraightV2::UpdateFitResult(TrackPair *track_pair){
+	track_pair->vtx_refit = pair_fitter->GetFitVertex();
+	track_pair->mom_minus_refit = pair_fitter->GetFitMomentum(0);
+	track_pair->mom_plus_refit  = pair_fitter->GetFitMomentum(1);
+	for (int track_index = 0; track_index < 2; ++track_index) {
+	   for (int layer_index = 0; layer_index < E16ANA_TrackConstant::kNumTrackingLayers; ++layer_index) {
+	      #ifdef NoExist_SSD
+	      if(layer_index == 0 ) continue;
+	      #endif
+	      std::vector<int> mid;
+	      std::vector<TVector3> lpos;
+	      std::vector<TVector3> lmom;
+	      std::vector<TVector3> lres;
+	      pair_fitter->GetFitLPos(track_index, layer_index, mid, lpos);
+	      pair_fitter->GetFitLMom(track_index, layer_index, mid, lmom);
+	      pair_fitter->GetFitResidual(track_index, layer_index, mid, lres);
+	      int hid = 0;//hit ID
+	      if (layer_index == E16ANA_TrackConstant::kSSD) {
+	         if(track_index == 0){
+	            track_pair->track_minus_pos_refit[layer_index] = geometry->SSD(mid[hid])->GetGPos(lpos[hid]);
+	            track_pair->track_minus_mom_refit[layer_index] = geometry->SSD(mid[hid])->GetGMom(lmom[hid]);
+	            track_pair->track_minus_res_refit[layer_index] = lres[hid];
+	         } else {
+	            track_pair->track_plus_pos_refit[layer_index] = geometry->SSD(mid[hid])->GetGPos(lpos[hid]);
+	            track_pair->track_plus_mom_refit[layer_index] = geometry->SSD(mid[hid])->GetGMom(lmom[hid]);
+	            track_pair->track_plus_res_refit[layer_index] = lres[hid];
+	         }
+	      } else {
+	         if(track_index == 0){
+	         track_pair->track_minus_pos_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGPos(lpos[hid]);
+	         track_pair->track_minus_mom_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGMom(lmom[hid]);
+	         track_pair->track_minus_res_refit[layer_index] = lres[hid];
+	         } else {
+	         track_pair->track_plus_pos_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1)->GetGPos(lpos[hid]);
+	         track_pair->track_plus_mom_refit[layer_index] = geometry->GTR(mid[hid], layer_index - 1) ->GetGMom(lmom[hid]);
+	         track_pair->track_plus_res_refit[layer_index] = lres[hid];
+	         }
+	      }
+	   }
+	}
+	track_pair->is_refit = true;
+	return;
+}
+
+void E16DSTN_ReStraightV2::SelectTrackPairs(){
+	selected_track_pairs.clear();
+	std::vector<int> used_tids;
+	used_tids.clear();
+	std::sort(track_pairs.begin(), track_pairs.end(), [](auto& lhs, auto& rhs) {
+       return lhs.chi_square_refit < rhs.chi_square_refit;
+    });
+    for(auto &pair : track_pairs){
+       bool is_used = false;
+       for(auto &used_tid : used_tids) {
+          if(used_tid == pair.tid0){
+             is_used = true;
+             break;
+          }
+       }
+       if(!is_used) {
+          for(auto &used_tid: used_tids){
+             if(used_tid = pair.tid1){
+                is_used = true;
+                break;
+             }
+          }
+       }
+       if (is_used){
+          continue;
+       }
+       pair.is_selected = true;
+       selected_track_pairs.emplace_back(&pair);
+       used_tids.emplace_back(pair.tid0);
+       used_tids.emplace_back(pair.tid1);
+    }
+    return;
+}
+
+
+
+void E16DSTN_ReStraightV2::AddTracks(TrackPair *track_pair){
+	pair_fitter->Clear();
+	pair_fitter->SetInitialVertex(track_pair->vtx, kVertexSigma);
+	pair_fitter->SetInitialMomentum(0, track_pair->mom_minus);
+	pair_fitter->SetInitialMomentum(1, track_pair->mom_plus);
+	int tid0 = track_pair->tid0;
+	int tid1 = track_pair->tid1;
+	int tids[2] = {tid0, tid1};
+
+	std::array<int, E16ANA_StraightTrackConstant::kNumTrackingLayers> mids[2];
+	std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> local_poss[2];
+	mids[0] =  { rk_fit_ssd_mid->at(tid0), rk_fit_gtr100_mid->at(tid0), rk_fit_gtr200_mid->at(tid0), rk_fit_gtr300_mid->at(tid0)};
+	mids[1] =  { rk_fit_ssd_mid->at(tid1), rk_fit_gtr100_mid->at(tid1), rk_fit_gtr200_mid->at(tid1), rk_fit_gtr300_mid->at(tid1)};
+	local_poss[0] = {	TVector3(rk_hit_ssd_x->at(tid0), 0, 0), 
+							TVector3(rk_hit_gtr100_xt->at(tid0), rk_hit_gtr100_ty->at(tid0), 0), 
+							TVector3(rk_hit_gtr200_xt->at(tid0), rk_hit_gtr200_ty->at(tid0), 0), 
+							TVector3(rk_hit_gtr300_xt->at(tid0), rk_hit_gtr300_ty->at(tid0), 0)}; 
+	local_poss[1] = {	TVector3(rk_hit_ssd_x->at(tid1)    , 0                        , 0), 
+							TVector3(rk_hit_gtr100_xt->at(tid1), rk_hit_gtr100_ty->at(tid1), 0), 
+							TVector3(rk_hit_gtr200_xt->at(tid1), rk_hit_gtr200_ty->at(tid1), 0), 
+							TVector3(rk_hit_gtr300_xt->at(tid1), rk_hit_gtr300_ty->at(tid1), 0)}; 	
+
+	for(int track_index=0; track_index < 2; track_index++){
+		for(int l=0; l < E16ANA_StraightTrackConstant::kNumTrackingLayers; l++){
+			#ifdef NoExist_SSD
+			if(l == 0) continue;
+			#endif
+			if(l == E16ANA_TrackConstant::kSSD){
+				#ifdef UseSTS
+				pair_fitter->AddHit(tids[track_index], l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l])),      local_poss[track_index][l], kSigmas[l]);
+				#else
+				pair_fitter->AddHit(tids[track_index], l, geometry->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l])),  local_poss[track_index][l], kSigmas[l]);
+				#endif
+			}
+			else {
+				pair_fitter->AddHit(tids[track_index], l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l]),  l-1), local_poss[track_index][l], kSigmas[l]);
+			}
+		}
+	}
+	return;
+}
+
+
+//void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag ,int  anaSW)
+//{
+//   if (fChain == 0) return;
+//
+//   Long64_t nevent = fChain->GetEntries();
+//   std::cout << "nevent = " << nevent << std::endl;
+//   Long64_t nbytes = 0, nb = 0;
+//
+//   for(int n=0; n < nevent ; n++){
+//		if(max_event != -1 &&  n > max_event){
+//			std::cout << "N event analyzed readched to max event " << std::endl;
+//		   break;	
+//      }
+//      if( n% print_cycle == 0 ){
+//         printf( "N analyzed = %d \n ", n);
+//      }
+//      tree->GetEntry(n);
+//		ClearUsedClusterIDs();
+//      std::vector<int> out_ids;
+//      out_ids.clear();
+//#ifndef NoExist_SSD
+//	for(int i=0; i < n_cands ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> cids = {
+//			rk_hit_ssd_id->at(i),
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
+//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(i);
+//			}
+//    }
+//#else//NoExist_SSD
+//    #ifdef REMOVE_100
+//    for(int i=0; i < n_cands ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+//			rk_hit_ssd_id->at(i),
+//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
+//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(i);
+//			}
+//    }
+//    #elif REMOVE_200
+//    for(int i=0; i < n_cands ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+//			rk_hit_ssd_id->at(i),
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(i);
+//			}
+//    }
+//     #elif REMOVE_300
+//    for(int i=0; i < n_cands ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+//			rk_hit_ssd_id->at(i),
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i)};
+//         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(i);
+//			}
+//    }
+//    #else
+//	 for(int i=0; i < n_cands ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
+//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//         if(HasUsedCluster(cids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-1;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			out_ids.emplace_back(i);
+//			}
+//    }
+//#endif // REMOVE_GTRxxx
+//#endif // NoExist_SSD
+//	 AddRecord(out_ids);
+//   }
+//}
+//
+//
 
 void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 	for(auto &ids : used_cluster_ids){

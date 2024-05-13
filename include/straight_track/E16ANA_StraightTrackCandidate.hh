@@ -11,7 +11,7 @@
 #include "E16ANA_GeometryV2.hh"
 #include "E16ANA_MagneticFieldMap.hh"
 #include "E16ANA_StraightMultiTrack.hh"
-#include "E16ANA_StepTrack.hh"
+#include "E16ANA_StraightStepTrack.hh"
 #include "E16DST_DST1.hh"
 
 class E16ANA_StraightTrackClusterPair {

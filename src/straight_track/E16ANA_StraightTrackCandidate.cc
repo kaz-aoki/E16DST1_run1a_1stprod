@@ -1745,7 +1745,7 @@ void E16ANA_StraightTrackCandidates::ProjectionTarget() {
    	auto t_init_mom = cand.FitInitMom();
 	   Hep3Vector init_pos(t_init_pos(0) * 0.1, t_init_pos(1) * 0.1, t_init_pos(2) * 0.1);
 		Hep3Vector init_mom(t_init_mom(0),       t_init_mom(1),       t_init_mom(2));
-		E16ANA_StepTrack step_track(bfield_map, init_pos, init_mom, cand.Charge(), kStepTrackStepSizeCm, kStepTrackArraySize);
+		E16ANA_StraightStepTrack step_track(init_pos, init_mom, cand.Charge(), kStepTrackStepSizeCm, kStepTrackArraySize);
 		for (int i = 0; i < targets_pos.size() ; ++i) {
 			if (step_track.CrossZconstPlane(E16ANA_TrackConstant::kTargetZ[i] * 0.1, cross_pos, cross_mom) == -1) {
 				pos[i] = E16DST_DST1Constant::kInvalidVector;
@@ -1771,8 +1771,8 @@ double  E16ANA_StraightTrackCandidates::SearchVertex(TrackPair *track_pair) {
    Hep3Vector init_mom0 (t_init_mom0(0)      , t_init_mom0(1)      , t_init_mom0(2));
    Hep3Vector init_pos1 (t_init_pos1(0) * 0.1, t_init_pos1(1) * 0.1, t_init_pos1(2) * 0.1);
    Hep3Vector init_mom1 (t_init_mom1(0)      , t_init_mom1(1)      , t_init_mom1(2));
-   E16ANA_StepTrack step_track0(bfield_map, init_pos0, init_mom0, -1, kStepTrackStepSizeCm, kStepTrackArraySize);
-   E16ANA_StepTrack step_track1(bfield_map, init_pos1, init_mom1,  1, kStepTrackStepSizeCm, kStepTrackArraySize);
+   E16ANA_StraightStepTrack step_track0( init_pos0, init_mom0, -1, kStepTrackStepSizeCm, kStepTrackArraySize);
+   E16ANA_StraightStepTrack step_track1( init_pos1, init_mom1,  1, kStepTrackStepSizeCm, kStepTrackArraySize);
    double distance;
 	Hep3Vector cross_point;
 	Hep3Vector mom0;
@@ -2056,6 +2056,6 @@ void E16ANA_StraightTrackCandidates::PrintParam() {
   std::cout << "HBD Projection Threshold : " << kHBDProjectionThreshold << std::endl;
   std::cout << "LG  Projection Threshold : " << kLGProjectionThreshold << std::endl;
   std::cout << "Near Target Threshold : " << kNearTargetThreshold << std::endl;
-  std::cout << "E16ANA_StepTrack Step Size [cm] : " << kStepTrackStepSizeCm << std::endl;
-  std::cout << "E16ANA_StepTrack Array Size : " << kStepTrackArraySize << std::endl;
+  std::cout << "E16ANA_StraightStepTrack Step Size [cm] : " << kStepTrackStepSizeCm << std::endl;
+  std::cout << "E16ANA_StraightStepTrack Array Size : " << kStepTrackArraySize << std::endl;
 }
