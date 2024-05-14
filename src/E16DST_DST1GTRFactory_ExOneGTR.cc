@@ -65,13 +65,14 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
 //		if(mid ! = 107) continue;
+		  if(mid > 200) continue;
         int lid = hit.LayerID();
         int sid = hit.StripID();
         gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
     }
     for(auto &a : gtr_analyzers->analyzer_map){
-        a.second->AnalyzeV0();
-        //a.second->AnalyzeV1();
+//        a.second->AnalyzeV0();
+        a.second->AnalyzeV1();
     }
 
     int dst1_clusters_size = 0;
