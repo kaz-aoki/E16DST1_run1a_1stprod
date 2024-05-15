@@ -74,7 +74,9 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetIds(hit0.ModuleID(),hit0.ChannelID());
 #endif
     hit1.SetPeakHeight(hit0.ADC());
-    int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
+    uint64_t original_emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp();
+    hit1.SetEmuTimestamp(original_emu_timestamp);
+    int emu_timestamp = original_emu_timestamp & bitmask_emu;
     hit1.SetTiming(hit0.TDC()-emu_timestamp);
     hit1.SetPN(hit0.PN());
     hit1.SetElink(hit0.Elink());
@@ -100,7 +102,6 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
   }
 
-  // sorting sts hit information
   E16ANA_STSAnalyzer ana;
   ana.clusterize(hits1, clusters1);
 
