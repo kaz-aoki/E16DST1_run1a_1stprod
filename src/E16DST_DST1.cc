@@ -3,6 +3,8 @@
 #include "E16ANA_TriggerConstant.hh"
 #include "E16DST_DST1Constant.hh"
 #include "E16ANA_LGBasic.hh"
+#include "STS/E16ANA_STSGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 
 void E16DST_DST1Cluster::SetHitOrders(std::vector<int16_t>& _hit_orders) {
   hit_orders.clear();
@@ -28,6 +30,30 @@ TVector3 E16DST_DST1SSDCluster::LocalPos() {
 TVector3 E16DST_DST1SSDCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
   return geometry.SSD(ModuleId2020To2013(module_id))->GetGPos(LocalPos()); // tmp
 }
+
+
+double E16DST_DST1STSHit::LocalX(){
+  auto lgeom = E16ANA_STSGeometry::instance();
+  if ( pn == 1 ) return lgeom->GetLocalX_fromN(channel_id);
+  else return E16DST_DST1Constant::kInvalidValue;
+}
+TVector3 E16DST_DST1STSHit::LocalPos(){
+  return lpos;
+}
+TVector3 E16DST_DST1STSHit::GlobalPos(){
+  return gpos;
+}
+
+TVector3 E16DST_DST1STSCluster::LocalPos() {
+  return TVector3(center_of_gravity, 0., 0.);
+}
+
+TVector3 E16DST_DST1STSCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
+  //return geometry.SaSD(ModuleId2020To2013(module_id))->GetGPos(LocalPos()); // tmp
+//  return TVector3();
+	return gpos;
+}
+
 
 //double E16DST_DST1GTRHit::LocalX() {
 ////    return E16DST_DST1Constant::gtr_strip_pitch_x; 

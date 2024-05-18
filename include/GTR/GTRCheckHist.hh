@@ -5,6 +5,7 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1Constant.hh"
 #include <TH1D.h>
+#include <TH2D.h>
 
 
 class GTRCheckHist{
@@ -13,7 +14,8 @@ public:
     ~GTRCheckHist();
 
     //void Fill(E16DST_DST0Detector<E16DST_DST1GTRHit> *hits, E16DST_DST0Detector<E16DST_DST1GTRCluster> *clusters);
-    void Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1);
+//    void Fill(E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster> *gtr1);
+    void Fill(E16DST_DST1PhysicsRecord*  record);
     void Fill(std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks);
 	TH1D *h_hit_timing_x[10][3];
 	TH1D *h_hit_ph_x[10][3];
@@ -48,13 +50,19 @@ public:
     TH1D *h_cl_tan_x[10][3];
     TH1D *h_cl_tan_y[10][3];
     TH1D *h_cl_tan_yb[10][3];
+    TH1D *h_hit_multiplicity_x[10][3];
+    TH1D *h_cluster_multiplicity_x[10][3];
+    TH1D *h_cluster_multiplicity_xdependence[10][3][12];
+    TH1D *h_cluster_multiplicity_y[10][3];
+    TH1D *h_cluster_multiplicity_ydependence[10][3][12];
 
 	TH1D *h_tgt_z[10];
-
+    TH2D *h_hit_map[10][3];
 
 private:
 
-    
+   const int n_xdiv =12; 
+   const int n_ydiv =12; 
 
 };
 

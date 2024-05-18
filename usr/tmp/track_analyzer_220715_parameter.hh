@@ -26,7 +26,8 @@ constexpr int  kAnalyzeFlag       = kAnalyzeNearestPoint;
 constexpr int  kFitFlag           = kFitAllLayers;
 constexpr bool kForgiveSameCharge = false; // default false. for vertex search
 // Event mixing
-constexpr bool kExecuteEventMixing = true;
+//constexpr bool kExecuteEventMixing = true;
+constexpr bool kExecuteEventMixing = false;
 constexpr int  kMaxPastEntries     = 1;
 constexpr bool kMixOneTrackEvent   = true;
 //
@@ -104,6 +105,7 @@ constexpr double kMaxMom       = 3.;
 constexpr bool   kUsePosAtTargetCut = false;
 constexpr double kMaxRadiusAtTarget = 5.;
 constexpr bool   kUseHBDAssociationCut = true;
+constexpr bool   kUseLGAssociationCut = true;
 constexpr double kMaxHBDXResidual      = 25.;
 constexpr double kMaxHBDYResidual      = 25.;
 //constexpr double kMaxHBDXResidual      = 40.;
@@ -112,9 +114,10 @@ constexpr double kMinHBDADC            = 2.;
 constexpr double kMinHBDSize           = 0.5;
 constexpr int    kHBDSelection         = kNotUseHBDProb;
 //constexpr bool   kUseLGAssociationCut
-//constexpr double kMaxLGXResidual = 
-//constexpr double kMaxLGYResidual = 
-constexpr double kMinLGADC       = 10.;
+constexpr double kMaxLGXResidual = 200.;
+constexpr double kMaxLGYResidual = 200.; 
+//constexpr double kMinLGADC       = 10.;
+constexpr double kMinLGADC       = 100.;
 constexpr double kMinLGTime      = -1000.;
 constexpr double kMaxLGTime      = 1000.;
 constexpr int    kUseClulsterDuplicationCut = kSSDAndGTRDuplicationCut;

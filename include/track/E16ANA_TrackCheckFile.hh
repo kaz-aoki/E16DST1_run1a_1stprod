@@ -17,9 +17,14 @@
 
 class E16ANA_TrackCheckFile {
  public:
+  void cd() { file.cd(); }
   E16ANA_TrackCheckFile(char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
       : file(TFile(file_name, "recreate")), run_id(_run_id) {
 //    gInterpreter->GenerateDictionary("std::vector<std::vector<bool>>; std::vector<std::vector<int>>; std::vector<std::vector<float>>; std::vector<std::vectror<double>>", "vector");
+    if (! file.IsOpen() ) {
+      std::cout << file_name << " cannot be opened." << std::endl;
+      exit(1);
+    }
     t_param = new TTree("param", "param");
     tree = new TTree("tree", "tree");
     // Hit, Cluster
@@ -963,7 +968,11 @@ class E16ANA_TrackCheckFile {
 #ifdef TRACK_EFF_CHECK
     cluster_merged = false;
 #endif // TRACK_EFF_CHECK
+#ifdef USeSTS
+    n_ssd_hits = record.STS().NumHits();
+#else 
     n_ssd_hits = record.SSD().NumHits();
+#endif
     ssd_hit_id.resize(n_ssd_hits);
     ssd_hit_mid.resize(n_ssd_hits);
     ssd_hit_cid.resize(n_ssd_hits);
@@ -973,7 +982,11 @@ class E16ANA_TrackCheckFile {
     ssd_hit_t.resize(n_ssd_hits);
     ssd_hit_adc.resize(n_ssd_hits);
     for (int i = 0; i < n_ssd_hits; ++i) {
+#ifdef UseSTS
+      auto& hit = record.STS().Hit(i);
+#else
       auto& hit = record.SSD().Hit(i);
+#endif
 //      ssd_hit_id[i] = i;
       ssd_hit_id[i] = hit.HitId();
       ssd_hit_mid[i] = hit.ModuleId();
@@ -1158,7 +1171,11 @@ class E16ANA_TrackCheckFile {
       hbd_hit_t[i] = hit.Timing();
       hbd_hit_adc[i] = hit.PeakHeight();
     }
+#ifdef UseSTS
+    n_ssd_clusters = record.STS().NumClusters();
+#else
     n_ssd_clusters = record.SSD().NumClusters();
+#endif
     ssd_cluster_id.resize(n_ssd_clusters);
     ssd_cluster_mid.resize(n_ssd_clusters);
     ssd_cluster_x.resize(n_ssd_clusters);
@@ -1175,7 +1192,11 @@ class E16ANA_TrackCheckFile {
     ssd_cluster_is_merged.resize(n_ssd_clusters);
 #endif // TRACK_EFF_CHECK
     for (int i = 0; i < n_ssd_clusters; ++i) {
+#ifdef UseSTS
+      auto& clst = record.STS().Cluster(i);
+#else
       auto& clst = record.SSD().Cluster(i);
+#endif
 //      ssd_cluster_id[i] = i;
       ssd_cluster_id[i] = clst.ClusterId();
       ssd_cluster_mid[i] = clst.ModuleId();
@@ -1736,10 +1757,11 @@ class E16ANA_TrackCheckFile {
       auto& hit = record.Trigger().LGHit(trg_track_lg_id[i]);
       trg_track_lg_mid[i] = hit.ModuleId();
       trg_track_lg_cid[i] = hit.ChannelId();
-      auto lpos = hit.LocalPos(geometry);
-      trg_track_lg_x[i] = lpos.X();
-      trg_track_lg_y[i] = lpos.Y();
-      trg_track_lg_t[i] = hit.Timing();
+//      auto lpos = hit.LocalPos(geometry);
+//      trg_track_lg_x[i] = lpos.X();
+//      trg_track_lg_y[i] = lpos.Y();
+//      trg_track_lg_t[i] = hit.Timing();
+//
 //      trg_track_gtr0_id[i]         = E16DST_DST1Constant::kInvalidValue;
 //      trg_track_gtr0_mid[i]        = E16DST_DST1Constant::kInvalidValue;
 //      trg_track_gtr0_cid[i]        = E16DST_DST1Constant::kInvalidValue;
@@ -2052,7 +2074,11 @@ class E16ANA_TrackCheckFile {
     mock_init_mom_x.emplace_back(track.OrigPTV().X());
     mock_init_mom_y.emplace_back(track.OrigPTV().Y());
     mock_init_mom_z.emplace_back(track.OrigPTV().Z());
+#ifdef UseSTS
     auto& ssd = track.SSD();
+#else
+    auto& ssd = track.STS();
+#endif
     mock_ssd_mid.emplace_back(ssd.ModuleID());
     mock_ssd_lpos_x.emplace_back(ssd.X());
     mock_ssd_lpos_y.emplace_back(ssd.Y());
@@ -2659,8 +2685,12 @@ class E16ANA_TrackCheckFile {
       rk_hit_ssd_gx[i] = ssdhit_gpos.X();
       rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
       rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
+#ifdef UseSTS
+      auto ssd_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
+#else
       auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
-      rk_hit_ssd_id[i] = ssd_clst->ClusterId();
+#endif
+      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
       rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
 //      rk_hit_ssd_t[i]  = ssd_clst->Timing();
       rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
@@ -3237,7 +3267,11 @@ class E16ANA_TrackCheckFile {
       rk_pair_minus_mom_gx[i] = mgpos(0);
       rk_pair_minus_mom_gy[i] = mgpos(1);
       rk_pair_minus_mom_gz[i] = mgpos(2);
+#ifdef UseSTS
+      auto ssd_minus = dynamic_cast<E16DST_DST1STSCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
+#else
       auto ssd_minus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
+#endif
       rk_pair_minus_ssd_t[i] = ssd_minus->Timing();
       auto& lg_hits_minus = pair.cand_minus->ProjectedLGHits();
       auto n_lg_hits_minus = lg_hits_minus.size();
@@ -3269,7 +3303,11 @@ class E16ANA_TrackCheckFile {
       rk_pair_vtx_gx[i] = pair_vtx.X();
       rk_pair_vtx_gy[i] = pair_vtx.Y();
       rk_pair_vtx_gz[i] = pair_vtx.Z();
+#ifdef UseSTS
+      auto ssd_plus = dynamic_cast<E16DST_DST1STSCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+#else
       auto ssd_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+#endif
       rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
       auto& lg_hits_plus = pair.cand_plus->ProjectedLGHits();
       auto n_lg_hits_plus = lg_hits_plus.size();

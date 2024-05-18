@@ -93,6 +93,15 @@ public:
    int GetModuleID() const {return module_id;};
    int GetLayerID() const {return layer_id;};
 
+
+  // Borrowed from online/GTR
+  int KawamaToE16DST(int module_id_kawama) const
+  {
+    constexpr int module_id_e16dst[33] = {10, 110, 210, 9, 109, 209, 8, 108, 208, 7, 107, 207, 6, 106, 206, 5, 105, 205,
+					  4,  104, 204, 3, 103, 203, 2, 102, 202, 1, 101, 201, 0, 100, 200};
+    return module_id_e16dst[module_id_kawama];
+  };
+
 protected:
    std::string detector_type; // "GTR", "HBD", or "SSD"
    int module_id;
@@ -161,6 +170,20 @@ private:
 
 };
 
+
+class E16ANA_PlanarSTSGeometry : public E16ANA_PlanarGeometry {
+public:
+  E16ANA_PlanarSTSGeometry(const std::string &type, int module_id, int layer_id) :
+    E16ANA_PlanarGeometry(type,module_id, layer_id) {;}
+
+  TVector3 GetGPos(const TVector3 &lpos) const;
+  TVector3 GetLPos(const TVector3 &gpos) const;
+  TVector3 GetDetectorCenter() const;
+  ROOT::Math::Plane3D GetPlane(double local_z = 0.0) const;
+
+};
+
+
 class E16ANA_GeometryV2 : public E16ANA_Geometry {
 public:
   static E16ANA_GeometryV2* GlobalPointer();
@@ -208,6 +231,12 @@ public:
    };
    const E16ANA_DetectorGeometry* SSD(int module) const {
       return ssd_geometry[module][0];
+   };
+   const E16ANA_DetectorGeometry* STS(int module,int layer) const {
+      return sts_geometry[module][layer];
+   };
+   const E16ANA_DetectorGeometry* STS(int module) const {
+      return sts_geometry[module][0];
    };
    const E16ANA_DetectorGeometry* LGVD(int module) const {
       return lgvd_geometry[module];
@@ -342,6 +371,7 @@ private:
 
    int n_gtr_modules;   int n_gtr_layers;
    int n_ssd_modules;   int n_ssd_layers;
+   int n_sts_modules;   int n_sts_layers;
    int n_hbd_modules;
    int n_lg_modules;    int n_lg_blocks;
 
@@ -356,6 +386,7 @@ private:
    const static std::string gtr_str;
    const static std::string hbd_str;
    const static std::string ssd_str;
+   const static std::string sts_str;
    const static std::string lgvd_str;
    const static std::string lg_str;
    const static std::string frame_str;
@@ -379,6 +410,7 @@ private:
    E16ANA_DetectorGeometry **lgvd_geometry;
    E16ANA_DetectorGeometry ***lg_geometry;
    E16ANA_DetectorGeometry ***ssd_geometry;
+   E16ANA_DetectorGeometry ***sts_geometry;
 
    ParamsArray_t params;
 
@@ -410,6 +442,9 @@ private:
    std::string GetTreeStringSSD(int frame);
    std::string GetTreeStringSSD(int frame, int layer);
    std::string GetTreeStringSSD(int frame, int layer, int module);
+   std::string GetTreeStringSTS(int frame);
+   std::string GetTreeStringSTS(int frame, int layer);
+   std::string GetTreeStringSTS(int frame, int layer, int module);
    std::string GetTreeStringLGVD(int frame);
    std::string GetTreeStringLGVD(int frame ,int module);
    std::string GetTreeStringLG(int frame);

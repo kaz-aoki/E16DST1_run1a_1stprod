@@ -482,7 +482,7 @@ for(int i=0;i<2;i++) {//parameter defining, and init value setting
   minuit->mnexcm("MIGRAD", argument, nArg, errorFlag);
 #endif  
 
-  cerr<<"fcnCalledCount ="<<fcnCalledCount<<endl;
+//  cerr<<"fcnCalledCount ="<<fcnCalledCount<<endl;
 
   nArg=0;
   //  char name[256];
@@ -523,7 +523,7 @@ for(int i=0;i<2;i++) {//parameter defining, and init value setting
   istat=9999;
 #endif
 
-  cerr<<" in MinuitDistance: distance  "<<*distance<<endl;
+//  cerr<<" in MinuitDistance: distance  "<<*distance<<endl;
 
   delete minuit;
 

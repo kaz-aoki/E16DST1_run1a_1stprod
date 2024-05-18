@@ -28,7 +28,11 @@ class E16ANA_StraightTrackClusterPair {
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = nullptr;
+    #ifndef UseSTS
     local_pos = {dynamic_cast<E16DST_DST1SSDCluster*>(x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+	 #else
+    local_pos = {dynamic_cast<E16DST_DST1STSCluster*>(x_cluster)->LocalPos().X(), 0., 0.}; // z = 0?
+	 #endif
 //    global_pos = _geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(module_id))->GetGPos(local_pos);
     global_pos = _global_pos;
   }
@@ -261,7 +265,7 @@ class E16ANA_StraightTrackCandidate {
   std::vector<E16DST_DST1HBDCluster*>& ProjectedHBDClusters() { return hbd_clusters; }
   std::vector<E16DST_DST1LGHit*>& ProjectedLGHits() { return lg_hits; }
   std::vector<E16DST_DST1LGCluster*>& ProjectedLGClusters() { return lg_clusters; }
-  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag);
+  double Fit(E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag, bool isWire);
   void Print() {
     if (chisq >= 1.0e10 || minimize_status == 0) {
       return;
@@ -382,10 +386,11 @@ class E16ANA_StraightTrackCandidate {
   static TVector3 CalcRoughMomentum(const TVector3& gxz0, const TVector3& gxz1);
   bool CalcRoughMomentum();
   bool CalcRoughMomentumV2();
-  void AddTrackHit(E16ANA_StraightMultiTrack* single_track);
+  void AddTrackHit(E16ANA_StraightMultiTrack* single_track, bool isWire);
   void Projection(E16ANA_StraightMultiTrack* fitter);
   void UpdateFitResult(E16ANA_StraightMultiTrack* fitter);
   E16ANA_GeometryV2* geometry;
+  E16ANA_MagneticFieldMap* bfiled_map;
   int track_id;
   int target_id;
   bool has_e_hbd_cluster;
@@ -496,11 +501,20 @@ class E16ANA_StraightTrackCandidates {
       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
     }
   };
-  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_StraightMultiTrack* _fitter, E16DST_DST1PhysicsRecord* _record)
-    : geometry(_geometry),fitter(_fitter),
+  E16ANA_StraightTrackCandidates(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap *_bfield_map, E16ANA_StraightMultiTrack* _fitter, E16ANA_StraightMultiTrack *_pair_fitter, E16DST_DST1PhysicsRecord* _record, std::vector<TVector3>&_tgt_pos)
+    : geometry(_geometry), bfield_map(_bfield_map), fitter(_fitter), pair_fitter(_pair_fitter), 
       is_used_layer({true, true, true, true}), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false),
       record(_record) {
     track_candidates.clear();
+	 n_targets = _tgt_pos.size();
+	 if(n_targets == 2) {isWire = true;}
+	 else if(n_targets == 3) {isWire = false;}
+	 else  {std::cerr << "number of targets seems incorrect " << std::endl;std::exit(0);}
+
+    targets_pos.resize(_tgt_pos.size());
+    for(int i=0; i < _tgt_pos.size(); i++){
+        targets_pos[i] = _tgt_pos[i];
+      }
   }
 
   ~E16ANA_StraightTrackCandidates() {}
@@ -523,16 +537,16 @@ class E16ANA_StraightTrackCandidates {
   int MinHitsInXCluster();
   double GTRYDiffThreshold();
   double GTRPeakSumThresholdX(int n);
-  double GTRPeakSumThresholdY();
+  double GTRPeakSumThresholdY(int n);
   double RoughFitChiSquareThreshold(int n);
   double RoughXFitCoefficientThreshold(int n);
   double RoughYFitCoefficientThreshold(int n);
   double HBDProjectionThreshold() { return kHBDProjectionThreshold; }
   double LGProjectionThreshold() { return kLGProjectionThreshold; }
   double LGElectronThreshold() { return kLGElectronThreshold; }
-  double ResidualThresholdX(int n) { return kResidualThresholdX[n]; }
-  double ResidualThresholdY(int n) { return kResidualThresholdY[n]; }
-  double NearTargetThreshold() { return kNearTargetThreshold; }
+  double ResidualThresholdX(int n) { return E16ANA_StraightTrackParameter::kResidualThresholdX[n]; }
+  double ResidualThresholdY(int n) { return E16ANA_StraightTrackParameter::kResidualThresholdY[n]; }
+  double NearTargetThreshold() { return E16ANA_StraightTrackParameter::kNearTargetThreshold; }
   double StepTrackStepSizeCm() { return kStepTrackStepSizeCm; }
   int StepTrackArraySize() { return kStepTrackArraySize; }
   TVector3 VertexSigma() { return kVertexSigma; }
@@ -580,6 +594,7 @@ class E16ANA_StraightTrackCandidates {
     std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> global_poss;
 //    std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> timings;
     E16DST_DST1SSDCluster* ssd_cluster;
+    E16DST_DST1STSCluster* sts_cluster;
 //    std::array<E16DST_DST1GTRCluster*, kNumGTRLayers> gtr_clusters;
     std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
   };
@@ -631,15 +646,17 @@ class E16ANA_StraightTrackCandidates {
   static constexpr double kHBDProjectionThreshold = 40.;
   static constexpr double kLGProjectionThreshold = 100.; // 98.
   static constexpr double kLGElectronThreshold = 50.;
-  static constexpr double kNearTargetThreshold = 100.; // square value
-  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
-  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
+//  static constexpr double kNearTargetThreshold = 100.; // square value
+//  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdX = {1., 2., 2., 1.5};
+//  static constexpr std::array<double, E16ANA_TrackConstant::kNumTrackingLayers> kResidualThresholdY = {0., 4., 4., 4.};
   static constexpr double kStepTrackStepSizeCm = 0.1; // cm
   static constexpr int kStepTrackArraySize = 1000; // 0.1 cm x 1000 = 1 m
-  static constexpr double kTrackingStepSize = 1.;
+  static constexpr double kTrackingStepSize = 15.;
   static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kMinuitStrategy = 2;
-  static constexpr int kMinuitMaxFunctionCalls = 1.0e4;
+  static constexpr double kPairTrackingStepSize = 15.;
+  static constexpr int kPairTrackingMaxSteps = 80;
+  static constexpr int kPairMinuitStrategy = 2;
+  static constexpr int kPairMinuitMaxFunctionCalls = 1.0e4;
 //  static inline const TVector3 kVertexSigma = {3., 3., 0.};
   static inline const TVector3 kVertexSigma = {0., 0., 0.};
   static inline const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};//seems not used
@@ -654,6 +671,9 @@ class E16ANA_StraightTrackCandidates {
       sy  += y[i] * wt ;
       sx2 += x[i] *x[i] * wt ;
       sxy += y[i] *x[i] * wt ;
+
+//		std::cout << "wt " << wt << ", " << sx2 <<", " << sxy << std::endl;
+
     }
     a = (sx*sxy-sx2*sy)/(sx*sx-ss*sx2);
     b = (sx*sy-ss*sxy)/(sx*sx-ss*sx2);
@@ -701,8 +721,8 @@ class E16ANA_StraightTrackCandidates {
 //  static void CalcTargetX();
 //  static void CalcTargetZ();
 //  static void CalcChiSquare();
-  static bool IsXTrackCandidate(OneAxisClusterSet* cluster_set,int ssdm);
-  static bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
+   bool IsXTrackCandidate(OneAxisClusterSet* cluster_set,int ssdm);
+   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
 //  static bool ExistADCCorrelation(float x_adc, float y_adc) {
 ////    if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
 //    if (y_adc < 0.74 * x_adc + 800. && (y_adc > 0.74 * x_adc - 800. || y_adc > 1200.)) {
@@ -712,6 +732,7 @@ class E16ANA_StraightTrackCandidates {
 //  }
   void SearchTrackCandidatesWoSSD();
   void SearchTrackCandidates();
+  void SearchTrackCandidatesUsingSTS();
   void Fit();
   void SearchHBDAndLGHits();
   void SearchLGHits();//230826 add
@@ -726,6 +747,7 @@ class E16ANA_StraightTrackCandidates {
   void AnalyzeTrackPairs();
   void AddTracksToRecord();
   E16ANA_GeometryV2* geometry;
+  E16ANA_MagneticFieldMap *bfield_map;
   E16ANA_StraightMultiTrack* fitter;
   E16ANA_StraightMultiTrack* pair_fitter;
   bool is_electron_run;
@@ -740,6 +762,13 @@ class E16ANA_StraightTrackCandidates {
   std::vector<E16ANA_StraightTrackCandidate*> selected_track_candidates;
   std::vector<TrackPair> track_pairs;
   std::vector<TrackPair*> selected_track_pairs;
+
+  bool isWire;
+	int n_targets;
+	std::vector<TVector3> targets_pos;
+
+
+
 };
 
 #endif // E16ANA_STRAIGHTTRACKCANDIDATE_HH

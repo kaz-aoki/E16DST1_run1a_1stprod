@@ -68,7 +68,6 @@ int main(int argc, char* argv[]) {
   auto *gtrhist = new GTRCheckHist();
   auto gtr_status = new E16ANA_GTRStatus(calib.CurrentRunID());
   auto *cm = new E16ANA_GTRChannelManager();
-//<<<<<<< HEAD
 
   TH2D *h_deadch_map[10][3];
   TH2D *h_deadch_map_ch[10][3];
@@ -80,8 +79,6 @@ int main(int argc, char* argv[]) {
 		h_gem_deadch_map[m-100][l] = new TH2D(Form("h_gem_deadch_map_m%d_l%d", m, l ), Form("h_gem_deadch_map_m%d_l%d", m, l ), 288 * (l +1), (l+1)*(-50), (l+1)*50, 72 * (l+1), (l+1)*(-50), (l+1)*50);
 	}
   }
-//=======
-//>>>>>>> upstream/main
   
   E16ANA_GTRcalibParams gtr_params;
   gtr_params.ReadCalibData(calib.CurrentRunID());

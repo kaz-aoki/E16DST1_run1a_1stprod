@@ -22,6 +22,9 @@ class E16ANA_StraightMultiTrack {
 private:
    /* typedef and declaration of struct */
    //typedef ROOT::Math::Plane3D Plane_t;
+   int n_targets;
+   bool isWire;
+	std::vector<TVector3> targets_pos; 
    struct Hit_t;
    struct LessModuleHit;
    typedef std::pair<int, std::vector<Hit_t*> > ModuleHits_t;
@@ -63,8 +66,9 @@ private:
     */
 
 public:
-   //E16ANA_StraightMultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_Geometry *_geom, int _n_tracks = 2);
-   E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_geom, int _n_tracks = 2);
+   E16ANA_StraightMultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_GeometryV2 *_geom, std::vector<TVector3> &tgt_pos, int _n_tracks = 2);
+//   E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_geom, int _n_tracks = 2);
+//   E16ANA_StraightMultiTrack(E16ANA_GeometryV2 *_geom, std::vector<TVector3> &tgt_pos , int _n_tracks = 2);
    ~E16ANA_StraightMultiTrack();
 
    /* Set initial values of fitting */

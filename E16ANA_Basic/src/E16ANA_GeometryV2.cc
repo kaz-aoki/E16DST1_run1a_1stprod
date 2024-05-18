@@ -5,6 +5,9 @@
 //2016-11-22, uploaded by nakai
 //2016-04-01, uploaded by nakai
 #include "E16ANA_GeometryV2.hh"
+#include "STS/E16ANA_STSGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
+
 
 #include <fstream>
 #include <bitset>
@@ -279,6 +282,7 @@ const std::string E16ANA_GeometryV2::e16_str     = "E16";
 const std::string E16ANA_GeometryV2::gtr_str     = "GTR";
 const std::string E16ANA_GeometryV2::hbd_str     = "HBD";
 const std::string E16ANA_GeometryV2::ssd_str     = "SSD";
+const std::string E16ANA_GeometryV2::sts_str     = "STS";
 const std::string E16ANA_GeometryV2::lgvd_str    = "LGVD";
 const std::string E16ANA_GeometryV2::lg_str      = "LG";
 const std::string E16ANA_GeometryV2::frame_str   = "Frame";
@@ -288,7 +292,7 @@ const std::string E16ANA_GeometryV2::module_str  = "Module";
 const std::string E16ANA_GeometryV2::block_str   = "Block";
 
 E16ANA_GeometryV2::E16ANA_GeometryV2() : 
-  n_gtr_modules(33), n_gtr_layers(3), n_ssd_modules(33), n_ssd_layers(1),n_hbd_modules(27), n_lg_modules(27), n_lg_blocks(60)
+  n_gtr_modules(33), n_gtr_layers(3), n_ssd_modules(33), n_sts_modules(33), n_ssd_layers(1), n_sts_layers(1), n_hbd_modules(27), n_lg_modules(27), n_lg_blocks(60)
 {
    Initialize();
    SetDesignValues();
@@ -296,7 +300,7 @@ E16ANA_GeometryV2::E16ANA_GeometryV2() :
 }
 
 E16ANA_GeometryV2::E16ANA_GeometryV2(const std::string &filename) :
-   n_gtr_modules(33), n_gtr_layers(3), n_ssd_modules(33), n_ssd_layers(1), n_hbd_modules(27), n_lg_modules(27), n_lg_blocks(60)
+  n_gtr_modules(33), n_gtr_layers(3), n_ssd_modules(33), n_sts_modules(33), n_ssd_layers(1), n_sts_layers(1), n_hbd_modules(27), n_lg_modules(27), n_lg_blocks(60)
 {
    std::ifstream ifs(filename);
    if(ifs.fail()){
@@ -362,6 +366,10 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
    for(int i=0; i<n_ssd_modules; i++){
       ssd_geometry[i] = new E16ANA_DetectorGeometry*[n_ssd_layers];
    }
+   sts_geometry = new E16ANA_DetectorGeometry**[n_sts_modules];
+   for(int i=0; i<n_sts_modules; i++){
+      sts_geometry[i] = new E16ANA_DetectorGeometry*[n_sts_layers];
+   }
    hbd_geometry = new E16ANA_DetectorGeometry*[n_hbd_modules+n_hbd_modules/3 ];
    gtr_frame_geometry = new E16ANA_DetectorGeometry*[n_gtr_modules/3 ];
 
@@ -374,6 +382,7 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
    Node_t *gtr = new Node_t(gtr_str);
    Node_t *hbd = new Node_t(hbd_str);
    Node_t *ssd = new Node_t(ssd_str);
+   Node_t *sts = new Node_t(sts_str);
    Node_t *lgvd = new Node_t(lgvd_str);
    Node_t *lg = new Node_t(lg_str);
    Leaf_t *gtr_leaf[n_gtr_modules][n_gtr_layers];
@@ -381,11 +390,13 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
    Leaf_t *hbd_leaf[n_hbd_modules];
    Leaf_t *hbd_frame_leaf[n_hbd_modules/3];
    Leaf_t *ssd_leaf[n_ssd_modules][n_ssd_layers];
+   Leaf_t *sts_leaf[n_sts_modules][n_sts_layers];
    Leaf_t *lgvd_leaf[n_lg_modules];
    Leaf_t *lg_leaf[n_lg_modules][n_lg_blocks];
    geometry_tree->AddChild(gtr);
    geometry_tree->AddChild(hbd);
    geometry_tree->AddChild(ssd);
+   geometry_tree->AddChild(sts);
    geometry_tree->AddChild(lgvd);
    geometry_tree->AddChild(lg);
 
@@ -435,6 +446,15 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
       }
    }
 #endif
+   
+   for(int i=0; i<n_sts_modules; i++){
+  node_name = GetNumString(chamber_str, i);
+  for(int j=0; j<n_sts_layers; j++){
+         sts_geometry[i][j] = new E16ANA_PlanarSTSGeometry(sts_str,i,j);
+         sts_leaf[i][j] = new Leaf_t(node_name, sts_geometry[i][j]);
+      }
+   }
+
    for(int i=0; i<n_lg_modules; i++){
       node_name = GetNumString(chamber_str, i);
       lgvd_geometry[i] = new E16ANA_PlanarGeometry(lgvd_str,i,0);
@@ -502,6 +522,20 @@ void E16ANA_GeometryV2::ConstructGeometryTree(){
       ssd->AddChild(ssd_frame);
    }
 #endif
+   /////
+   for(int i=0; i<n_sts_modules/3; i++){
+      node_name = GetNumString(frame_str, i);
+      Node_t *sts_frame = new Node_t(node_name);
+      for(int j=0; j<n_sts_layers; j++){
+         node_name = GetNumString(layer_str, j);
+         Node_t *sts_ladder = new Node_t(node_name);
+         sts_ladder->AddChild(sts_leaf[i*3  ][j]);
+         sts_ladder->AddChild(sts_leaf[i*3+1][j]);
+         sts_ladder->AddChild(sts_leaf[i*3+2][j]);
+         sts_frame->AddChild(sts_ladder);
+      }
+      sts->AddChild(sts_frame);
+   }
 
    // construct LGVD tree
    for(int i=0; i<n_lg_modules/3; i++){
@@ -641,6 +675,8 @@ void E16ANA_GeometryV2::SetValuesFromV1(E16ANA_GeometryV1 *geom_v1){
       params[design_str+delimiter+GetTreeStringSSD(i/3,i)].SetXYZ(0.,y,z);
       params[design_str+delimiter+GetTreeStringSSD(i/3)].SetRotation(0.,roty,0.);
    }
+   // STS
+   // WILL NOT IMPLEMENT THIS PART.
 
    SetValues(geometry_tree, params);
 }
@@ -734,7 +770,56 @@ std::string E16ANA_GeometryV2::GetTreeStringSSD(int frame){
       +GetNumString(frame_str, frame);
 }
 
+std::string E16ANA_GeometryV2::GetTreeStringSTS(int frame){
+   return e16_str+delimiter
+      +sts_str+delimiter
+      +GetNumString(frame_str, frame);
+}
+
 std::string E16ANA_GeometryV2::GetTreeStringSSD(int frame, int module){
    return GetTreeStringSSD(frame)+delimiter+GetNumString(chamber_str, module);
 }
 
+std::string E16ANA_GeometryV2::GetTreeStringSTS(int frame, int module){
+   return GetTreeStringSTS(frame)+delimiter+GetNumString(chamber_str, module);
+}
+
+
+TVector3 E16ANA_PlanarSTSGeometry::GetGPos(const TVector3& lpos) const {
+  auto ggeom = E16ANA_STSGlobalGeometry::instance();
+  double local[3]={lpos.X(),lpos.Y(),lpos.Z()};
+  double global[3];
+  int e16module = KawamaToE16DST(module_id);
+
+  ggeom->Local2Global(e16module,local,global);
+  return TVector3(global);
+};
+
+TVector3 E16ANA_PlanarSTSGeometry::GetLPos(const TVector3& gpos) const {
+  auto ggeom = E16ANA_STSGlobalGeometry::instance();
+  double global[3] = {gpos.X(),gpos.Y(),gpos.Z()};
+  int e16module = KawamaToE16DST(module_id);
+  double local[3];
+  ggeom->Global2Local(e16module,global,local);
+  return TVector3(local);
+}
+
+TVector3 E16ANA_PlanarSTSGeometry::GetDetectorCenter() const {
+  auto ggeom = E16ANA_STSGlobalGeometry::instance();
+  double local[3]={0.,0.,0.,};
+  int e16module = KawamaToE16DST(module_id);
+  double global[3];
+  ggeom->Local2Global(e16module,local,global);
+  return TVector3(global);
+}
+
+ROOT::Math::Plane3D E16ANA_PlanarSTSGeometry::GetPlane(double local_z) const {
+  TVector3 origin_vec3 = GetGPos(TVector3(0.,0.,0.));
+  TVector3 arrow_vec3 = GetGPos(TVector3(0.,0.,1.));
+  TVector3 normal_vec3 = arrow_vec3-origin_vec3;
+
+  ROOT::Math::Plane3D::Point origin(origin_vec3);
+  ROOT::Math::Plane3D::Vector normal(normal_vec3);
+  ROOT::Math::Plane3D plane(normal,origin);
+  return plane;
+}

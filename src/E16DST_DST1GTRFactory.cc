@@ -43,10 +43,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
 		if(mid > 200) continue;
-		if(mid == 103) continue;
-	        int lid = hit.LayerID();
-		if(mid == 102 && lid == 1) continue;
-		if(mid == 102 && lid == 2) continue;
+	   int lid = hit.LayerID();
     	    int sid = hit.StripID();
 			gtr_analyzers->analyzer_map[OnlineGTR::IDs(mid, lid).value64]->SetFadc(sid, hit.Waveform());
     	}
@@ -112,7 +109,8 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     t_hit_indexs[0].clear();
                     t_hit_indexs[1].clear();
                     t_hit_indexs[2].clear();
-					hit_orders.clear();
+						  hit_orders.clear();
+						  double last_totend = -1000;
                     E16ANA_GTRAnalyzedStripHit &anahit = v_anahits[t].get()[i];
                     for(int j=0; j<anahit.NumHit(); j++){
                         E16DST_DST1GTRHit &h = dst1_hits[h_id];
@@ -122,18 +120,21 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
-						h.SetRiset(anahit.StripRiseTiming(j));
+						      h.SetRiset(anahit.StripRiseTiming(j));
                         h.SetType(t);
                         h.SetLocalX(E16ANA_StraightTrackNameSpace::E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
-						h.SetPeakt(anahit.StripPeakt(j));
-						h.SetTotEnd(anahit.StripTotEd(j));
-						h.SetTotStart(anahit.StripTotSt(j));
+								h.SetPeakt(anahit.StripPeakt(j));
+								h.SetTotEnd(anahit.StripTotEd(j));
+								if(last_totend < anahit.StripTotEd(j)){
+									last_totend = anahit.StripTotEd(j);
+								}
+								h.SetTotStart(anahit.StripTotSt(j));
 						std::vector<float> fadc;
             //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
 						for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
 							fadc.push_back((anahit.StripFadc(j))[k]);
 			//				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
-                        }
+                     }
 						h.SetWaveForm(fadc);
 						fadc.clear();
                         //t_hit_indexs[t].push_back(indexs[t]);
@@ -146,46 +147,33 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetModuleId(mid);
                     cl.SetLayerId(lid);
 						  cl.SetClusterId(cl_id);
-                    //std::cout << "t, t_hit_indexs[t] = " << t_hit_indexs[t].size() << std::endl;
-                    //std::cout << "hit size = " << cl.NumHits() << std::endl;
-                    //cl.SetHitOrders(t_hit_indexs[t]);
                     cl.SetHitOrders(hit_orders);
-		    //std::cout << "hit size after = " << cl.NumHits() << std::endl;
                     cl.SetType(t);
                     cl.SetMaxPeakCh(anahit.MaxStripId());
                     cl.SetMaxPeakHeight(anahit.MaxValue());
                     cl.SetTiming(anahit.Timing());
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
-                    //std::cout << "cluster charge = " << anahit.ClusterCharge() << std::endl;//cluster charge
                     cl.SetCogPos(anahit.CogHit());
-//					std::cout << "cl cog = " << anahit.CogHit() << std::endl;
-		    /*
-                    if(isnan(anahit.TdcHit())){
-                    }
-                    else{
-                        cl.SetTdcPos(anahit.TdcHit());
-                    }
-		    */
-		    
-         		    cl.SetTiming2(anahit.Timing2());
+         		     cl.SetTiming2(anahit.Timing2());
                     cl.SetTanTheta(anahit.TanTheta());
-		    		cl.SetTdcPos(anahit.TdcHit());
+	    	    		  cl.SetTdcPos(anahit.TdcHit());
                     cl.SetTdcPos2(anahit.TdcHit2());
                     cl.SetTanTheta2(anahit.TanTheta2());
-					cl.SetMaxRiset(anahit.MaxRiset());
-					cl.SetMaxTot(anahit.MaxTot());
-					cl.SetTiming3(anahit.Timing3());
-					cl.SetTiming4(anahit.Timing4());
-				    int nhit = anahit.NumCls();
-				    for(int i=0;i<nhit;i++){
-        	        	cl.SetCTiming(anahit.CTiming(i));
-                    	cl.SetCPos(anahit.CPos(i));
-						cl.SetCAdc1(anahit.CAdc1(i));
-						cl.SetCAdc2(anahit.CAdc2(i));
-						cl.SetCAdc3(anahit.CAdc3(i));
-						cl.SetCAdc4(anahit.CAdc4(i));
-						cl.SetCAdc5(anahit.CAdc5(i));
-		    		}
+						  cl.SetMaxRiset(anahit.MaxRiset());
+					     cl.SetMaxTot(anahit.MaxTot());
+					     cl.SetTiming3(anahit.Timing3());
+					     cl.SetTiming4(anahit.Timing4());
+						  cl.SetLastTotEnd(last_totend);//240426
+	 				     int nhit = anahit.NumCls();
+				    	  for(int i=0;i<nhit;i++){
+	        	           cl.SetCTiming(anahit.CTiming(i));
+                    	  cl.SetCPos(anahit.CPos(i));
+							  cl.SetCAdc1(anahit.CAdc1(i));
+							  cl.SetCAdc2(anahit.CAdc2(i));
+							  cl.SetCAdc3(anahit.CAdc3(i));
+							  cl.SetCAdc4(anahit.CAdc4(i));
+							  cl.SetCAdc5(anahit.CAdc5(i));
+		    				}
 					int nhit2 = anahit.NumCls2();
 				    for(int i=0;i<nhit;i++){
         	        	cl.SetCTiming2(anahit.CTiming2(i));

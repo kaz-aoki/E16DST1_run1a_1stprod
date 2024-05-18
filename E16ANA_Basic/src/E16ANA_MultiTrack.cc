@@ -534,13 +534,19 @@ double E16ANA_MultiTrack::CalcVertexChisquare(){
    //double dx = (vertex_fit.X()-vertex_init.X())/vertex_sigma.X();
    //double dy = (vertex_fit.Y()-vertex_init.Y())/vertex_sigma.Y();
    //double dz = (vertex_fit.Z()-vertex_init.Z())/vertex_sigma.Z();
-   double dx = (vertex_fit.X())/vertex_sigma.X();
-   double dy = (vertex_fit.Y())/vertex_sigma.Y();
-   double dz = (vertex_fit.Z())/vertex_sigma.Z();
+//   std::cout << "vertex fitinit x = " << vertex_init.X() << std::endl;
+//   std::cout << "vertex fitinit y = " << vertex_init.Y() << std::endl;
+//   std::cout << "vertex fit z = " << vertex_fit.Z() << std::endl;
+//   double dx = (vertex_fit.X()  - vertex_init.X())/vertex_sigma.X();
+//   double dy = (vertex_fit.Y() - vertex_init.Y())/vertex_sigma.Y();
+   double dx = (vertex_fit.X() )/vertex_sigma.X();
+   double dy = (vertex_fit.Y() )/vertex_sigma.Y();
+//   double dz = (vertex_fit.Z()-vertex_init.Z())/vertex_sigma.Z();
    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
-   if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
-   return dx*dx+dy*dy+dz*dz;
+//   if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
+//   return dx*dx+dy*dy+dz*dz;
+   return dx*dx+dy*dy;
 }
 
 double E16ANA_MultiTrack::RungeKuttaTracking(int track_id, const TVector3 &vertex, const TVector3 &momentum, double charge){
