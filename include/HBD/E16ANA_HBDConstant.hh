@@ -28,7 +28,8 @@ namespace HBD_Module_Constant{
 }
 
 namespace HBD_Circuit_Constant{
-  constexpr int apv25_period = 24; //nsec
+  // constexpr int apv25_period = 24; //nsec
+  constexpr int apv25_period = 32; //nsec
   constexpr int SRS_ATCA_TDC = 2; //nsec
   constexpr int apv25_timeconstant = 52; //nsec
 }
