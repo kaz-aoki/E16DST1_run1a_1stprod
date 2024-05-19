@@ -46,6 +46,10 @@ elseif(${_host_name} MATCHES "^ccj")
    message("-- E16SYS_DIR will be set for ccj servers.")
    set(E16SYS_DIR /ccj/u/E16)
    add_definitions(-DCCJ_CALIB_FILE) # for calib files
+elseif(${_host_name} MATCHES "cc.kek.jp$")
+   message("-- E16SYS_DIR will be set for kekcc servers.")
+   set(E16SYS_DIR /opt/E16)
+   add_definitions(-DCCJ_CALIB_FILE) # for calib files
 endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
