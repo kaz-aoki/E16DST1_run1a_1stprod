@@ -13,6 +13,7 @@
 #include <cmath>
 #include <map>
 #include "TGeoMatrix.h"
+#include "TVector3.h"
 
 class E16ANA_STSGlobalSensorGeom{
  public:
@@ -32,6 +33,18 @@ class E16ANA_STSGlobalGeometry{
   static E16ANA_STSGlobalGeometry* instance();
   void Local2Global(int mod,const double* local, double* global);
   void Global2Local(int mod,const double* global, double* local);
+  void Local2Global(int mod,const TVector3& local, TVector3& global){
+    double tmp_local[3] = { local.X(), local.Y(), local.Z() };
+    double tmp_global[3];
+    Local2Global(mod,tmp_local,tmp_global);
+    global.SetXYZ(tmp_global[0],tmp_global[1],tmp_global[2]);
+  }
+  void Global2Local(int mod,const TVector3& global, TVector3& local){
+    double tmp_global[3] = {global.X(),global.Y(),global.Z()};
+    double tmp_local[3];
+    Global2Local(mod,tmp_global,tmp_local);
+    local.SetXYZ(tmp_local[0],tmp_local[1],tmp_local[2]);
+  }
 
   void CalcPointOnPlane(int mod,double* global0, double* global1, double* global_out);
 
