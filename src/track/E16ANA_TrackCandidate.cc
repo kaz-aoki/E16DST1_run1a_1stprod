@@ -1216,7 +1216,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 //E16INFO("number of SSD clusters: %d", ssd.NumClusters());
 E16INFO("number of STS clusters: %d", sts.NumClusters());
 E16INFO("number of GTR clusters: %d", gtr.NumClusters());
-if (sts.NumClusters() > 200 ) return;
+//if (sts.NumClusters() > 200 ) return;
   std::array<std::vector<OneAxisClusterSet>, 2> cluster_sets;
   cluster_sets[0].reserve(kNumReserveTracks[0]);
   cluster_sets[1].reserve(kNumReserveTracks[1]);
@@ -1528,6 +1528,12 @@ if (sts.NumClusters() > 200 ) return;
   n_y_cands = cluster_sets[1].size();
 E16INFO("number of x candidates: %d", n_x_cands);
 E16INFO("number of y candidates: %d", n_y_cands);
+  if (n_x_cands > 400) {
+    return;
+  }
+  if (n_y_cands > 400) {
+    return;
+  }
   
   for (const auto& x_cand : cluster_sets[0]) {
     auto& gtrx = x_cand.gtr_clusters;
