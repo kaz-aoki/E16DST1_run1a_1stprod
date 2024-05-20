@@ -386,6 +386,38 @@ int main(int argc, char* argv[]) {
       }
 
 
+//////////////////////// check GTR track root file.0
+
+      /////////// Search for Tomoki Track.
+      std::cout << " event = " << event_id << std::endl;
+      bool gtrtrk_found = false;
+      while(true) {
+	if ( itrack >= outtree->GetEntries() ) break;
+	outtree->GetEntry(itrack);
+	//std::cout << " event = " << event_id << "  track_event " << track_event << std::endl;
+	if ( track_event < event_id ) {
+	  std::cout << " event = " << event_id <<   " VS track_event " << track_event << std::endl;
+	  itrack++;
+	  continue;
+	}else if (track_event == event_id ){
+	  gtrtrk_found = true;
+	  break;
+	}else{
+	  break;
+	}
+      }
+      if ( ! gtrtrk_found ) {
+	std::cout << "track not found" << std::endl;
+	continue;
+      }
+      //std::cout << "track found" << std::endl;
+      ///////////////////// search Tomoki track finished.
+      if ( rk_fit_init_mom_gz->size() == 0 ) {
+	std::cout << " Event found in GTR tree but there is no track candidate. Skipping this event." << std::endl;
+	continue;
+      }
+
+
 //////////////////////// DST1 RECONSTRUCTION //////////////////////////////
 #ifndef REMOVE_REAL_HIT
 //      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
@@ -435,34 +467,6 @@ int main(int argc, char* argv[]) {
 
       std::cout << "################################################ my event loop" << std::endl;
 
-      /////////// Search for Tomoki Track.
-      std::cout << " event = " << event_id << std::endl;
-      bool gtrtrk_found = false;
-      while(true) {
-	if ( itrack >= outtree->GetEntries() ) break;
-	outtree->GetEntry(itrack);
-	//std::cout << " event = " << event_id << "  track_event " << track_event << std::endl;
-	if ( track_event < event_id ) {
-	  std::cout << " event = " << event_id <<   " VS track_event " << track_event << std::endl;
-	  itrack++;
-	  continue;
-	}else if (track_event == event_id ){
-	  gtrtrk_found = true;
-	  break;
-	}else{
-	  break;
-	}
-      }
-      if ( ! gtrtrk_found ) {
-	std::cout << "track not found" << std::endl;
-	continue;
-      }
-      //std::cout << "track found" << std::endl;
-      ///////////////////// search Tomoki track finished.
-      if ( rk_fit_init_mom_gz->size() == 0 ) {
-	std::cout << " Event found in GTR tree but there is no track candidate. Skipping this event." << std::endl;
-	continue;
-      }
 
 
       if ( stsg_dst0.NumberOfHits() > 1 ){
@@ -471,6 +475,9 @@ int main(int argc, char* argv[]) {
 
       auto stscut_tdc = [](auto& hit){ return ( fabs(hit.Timing()+95)<100.);};
       auto stscut_adc = [](auto& hit){ return ( hit.PeakHeight() > 0 ); };
+      auto stscluscut_tdc = [](auto& clus) { return (fabs(clus.Timing()+95)<100.); };
+      auto stscluscut_adc = [](auto& clus) { return clus.PeakSum()>0; };
+      
       
 
       ///////////////// FILL STS STANDALONE TREE.
@@ -526,7 +533,20 @@ int main(int argc, char* argv[]) {
 	  int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
 	  sts_geri_l1geri.push_back(tmp);
       };
-
+      auto fill_sts_clus = [&](auto& clus1){
+	sts_module.push_back(clus1.ModuleId());
+	sts_pn.push_back(clus1.PN());
+	sts_peakheight.push_back(clus1.PeakSum());
+	sts_lx.push_back(clus1.LocalPos().X());
+	sts_hittime.push_back(clus1.Timing());
+	TVector3 vec = clus1.GlobalPos();
+	sts_gx.push_back(vec.X());
+	sts_gy.push_back(vec.Y());
+	sts_gz.push_back(vec.Z());
+	
+	// fill gpos.
+	// check if clus1's tdc is emu_timestamp subtracted one.
+      };
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
       if ( visualization ){
 	display.DrawSensor();
@@ -582,15 +602,44 @@ int main(int argc, char* argv[]) {
 	display.SetHitColor(kGreen+3);
 	display.DrawHit(global_interp);
 	display.SetHitColor(kRed);
-
+	TVector3 origin_plane;
+	ggeom->Local2Global(track_mod,TVector3(0.,0.,0.),origin_plane);
+	TVector3 arrow_plane;
+	ggeom->Local2Global(track_mod,TVector3(0.,0.,1.),arrow_plane);
+	TVector3 norm_plane = arrow_plane-origin_plane;
+	if ( arrow_plane.Mag2() < origin_plane.Mag2() ) norm_plane = -norm_plane;
+	// norm_plane always points outward.
 	
+	TVector3 trk_mom(mom);
+	// TODO: calculate 2D angle between trk_mom and norm_plane.
+	// TODO: fill rk info into tree .
+	
+	auto& sts_clus1 = record.STS().Clusters();
+	if ( sts_clus1.size() > 0 ) {
+	  for( auto& clus1 : sts_clus1 ) {
+	    if ( clus1.ModuleId() != track_mod ) continue;
+	    if ( clus1.PN() != 1 ) continue;
+	    if ( ! stscluscut_tdc(clus1) ) continue;
+	    if ( ! stscluscut_adc(clus1) ) continue;
+	    TVector3 sts_gpos = clus1.GlobalPos();
+	    TVector3 sts_lpos = clus1.LocalPos();
+	    double local_interp[3];
+	    ggeom->Global2Local(track_mod, global_interp,local_interp);
+	    float residual = sts_lpos.X()-local_interp[0];
+	    hist_res_map[track_mod]->Fill(residual);
+	    fill_sts_clus(clus1);
+	    sts_residual.push_back(residual);
+	  }
+	}
+
+	/*
 	if ( sts_hits1.size() > 0 ) {
 	  for( auto& hit1 : sts_hits1 ) {
 	    if ( hit1.ModuleId() != track_mod ) continue;
 	    if ( hit1.PN() != 1 ) continue;
 	    if ( ! stscut_tdc(hit1) ) continue;
 	    if ( ! stscut_adc(hit1) ) continue;
-
+	    
 	    TVector3 sts_gpos = hit1.GlobalPos();
 	    TVector3 sts_lpos = hit1.LocalPos();
 	    double local_interp[3];
@@ -601,8 +650,9 @@ int main(int argc, char* argv[]) {
 	    sts_residual.push_back(residual);
 	  }
 	}
-      } // loop over all candidates.
-
+	*/
+      } // loop over all RK track candidates.
+      
       tree_sts->Fill();
 
       if ( vis_gtr ) {
