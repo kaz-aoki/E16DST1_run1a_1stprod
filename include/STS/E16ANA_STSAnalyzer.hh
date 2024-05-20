@@ -6,9 +6,23 @@
 
 struct E16ANA_STSClusterParam {
   int adc_thresh = 0;
-  int tdc_window = 10;
+  int tdc_window = 60;
   int allowed_strip_jump = 0;
 };
+
+class E16ANA_STSCluster{
+public:
+  std::vector<E16DST_DST1STSHit> hits;
+  
+  void show() {
+    std::cout << "STSCluster:" << std::endl;
+    for ( auto iter = hits.begin(); iter != hits.end(); iter++){
+      std::cout << "mod=" << iter->ModuleId() << ", PN=" << iter->PN() << ", Strip=" << iter->StripId() <<
+	", tdc=" << iter->TDC() << ", adc=" << iter->ADC() << std::endl;
+    }
+  }
+};
+
 
 class E16ANA_STSAnalyzer{
 public:

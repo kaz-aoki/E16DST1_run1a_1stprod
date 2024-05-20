@@ -241,10 +241,11 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
     peak_height = sts_finvalid;
     hit_time    = sts_finvalid;
     peak_time   = sts_finvalid;
-    pn = 0xffff;
+    pn = -1;
     dataType = -1;
     elink=-1;
     geriTimestamp = 0xffffffffffffffffL;
+    emuTimestamp =  0xffffffffffffffffL;
     tdc = -1;
     adc = -1;
     e16sts = -1;
@@ -254,26 +255,28 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
   void     SetPeakTime(float _peak_time) { peak_time = _peak_time; }
   float    PeakHeight() override { return peak_height; }
-  float    HitTime() { return hit_time; }
-  float    PeakTime() { return peak_time; }
+  float    HitTime()  const { return hit_time; }
+  float    PeakTime() const { return peak_time; }
   double   LocalX();
   TVector3 LocalPos(E16ANA_GeometryV2& geometry) { return TVector3();}
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry){return TVector3();}
-  TVector3 LocalPos();
+  TVector3 LocalPos() ;
   TVector3 GlobalPos();
   void SetLocalPos(const TVector3& pos) { lpos = pos; }
   void SetGlobalPos(const TVector3& pos) { gpos = pos; }
-  int16_t  PN() { return pn; }
+  int16_t  PN() const  { return pn; }
   void     SetPN(int16_t _pn) { pn = _pn; }
   void     SetElink(int16_t _elink) { elink = _elink; }
-  int16_t  Elink() {return elink; }
+  int16_t  Elink() const {return elink; }
   void SetGeriTimestamp(uint64_t _geriTimestamp) { geriTimestamp = _geriTimestamp; }
-  uint64_t GeriTimestamp() { return geriTimestamp;}
+  uint64_t GeriTimestamp() const { return geriTimestamp;}
+  void SetEmuTimestamp(uint64_t _emuTimestamp) { emuTimestamp = _emuTimestamp; }
+  uint64_t EmuTimestamp() const { return emuTimestamp; }
   void SetADC(int16_t _adc) { adc = _adc; }
-  int16_t ADC() { return adc; }
-  int16_t TDC() { return tdc; }
+  int16_t ADC() const { return adc; }
+  int16_t TDC() const { return tdc; }
   void SetTDC(int16_t _tdc) { tdc = _tdc; }
-  int16_t E16sts() { return e16sts; }
+  int16_t E16sts() const { return e16sts; }
   void SetE16sts(int16_t _e16sts) { e16sts = _e16sts; }
   int16_t StripId() const { return strip_id; }
   void SetStripId(int16_t _strip) { strip_id = _strip; }
@@ -289,6 +292,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   TVector3 gpos;
   int16_t elink{-1};
   uint64_t geriTimestamp{0xffffffffffffffffL};
+  uint64_t emuTimestamp{0xffffffffffffffffL};
   int16_t tdc{-1};
   int16_t adc{-1};
   int16_t tdcemu{-1};
@@ -339,13 +343,13 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   }
  private:
   int    ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  double center_of_gravity; // mm
-  double tdc_pos;           // mm
-  float  tan_incident_angle;    // radian
-  double center_of_gravity_fit; // mm
-  double charge_sum_fit;
-  double timing_fit;
-  double chi2_ndf_fit;
+  double center_of_gravity{E16DST_DST1Constant::kInvalidValue}; // mm
+  double tdc_pos{E16DST_DST1Constant::kInvalidValue};           // mm
+  float  tan_incident_angle{E16DST_DST1Constant::kInvalidValue};    // radian
+  double center_of_gravity_fit{E16DST_DST1Constant::kInvalidValue}; // mm
+  double charge_sum_fit{E16DST_DST1Constant::kInvalidValue};
+  double timing_fit{E16DST_DST1Constant::kInvalidValue};
+  double chi2_ndf_fit{E16DST_DST1Constant::kInvalidValue};
   TVector3 gpos;
   TVector3 lpos;
 };
