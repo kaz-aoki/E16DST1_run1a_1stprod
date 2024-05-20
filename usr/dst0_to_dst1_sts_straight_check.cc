@@ -25,13 +25,6 @@
 
 #include "E16ANA_TrackCheckFile.hh"
 
-#ifdef TRACK_EFF_CHECK
-#include "E16ANA_GTRAnalyzerMaker.hh"
-#include "E16ANA_MakeDummyDST1.hh"
-#include "E16ANA_MockTrackOutputData.hh"
-//#include "mockdataIOtestSimple.hh"
-#endif // TRACK_EFF_CHECK
-
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
 
@@ -44,115 +37,12 @@ constexpr bool vis_gtr = false;
 constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
 
-#ifdef TRACK_EFF_CHECK
-enum {
-  kVectorMesonData,
-  kKsData
-};
-enum {
-  kMergeSingleTrack,
-  kMergeTrackPair
-};
-enum {
-  kReadMockAlive,
-  kReadMockDead,
-  kReadMockError
-};
-
-int ReadAndAddMockVectorMesonTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
-                                       E16ANA_TrackCheckFile* check_file) {
-  bool is_dead = false;
-  for (int i = 0; i < 2; ++i) {
-    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
-      cerr << "mock data finished at " << endl;
-      return kReadMockError;
-    }
-    if (mock_data->TrackID() % 2 != 1 - i)  {
-      cerr << "something error occured in mock track reading: " << mock_data->TrackID() << endl;
-      return kReadMockError;
-    }
-    mock_tracks[i] = mock_data->Track();
-    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
-    check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
-    if (is_dead_track) {
-      is_dead = true;
-    }
-  }
-  if (is_dead) {
-    return kReadMockDead;
-  }
-  return kReadMockAlive;
-}
-
-enum {
-  kKs,
-  kPiPlus,
-  kPiMinus,
-  kNumParticles
-};
-int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
-                              E16ANA_TrackCheckFile* check_file) {
-  bool is_dead = false;
-  array<int, kNumParticles> charges;
-  for (int i = 0; i < 3; ++i) {
-    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
-      cerr << "mock data finished at " << endl;
-      return kReadMockError;
-    }
-    auto& track = mock_data->Track();
-    charges[i] = track.Charge();
-    if (i == 0) {
-      if (charges[i] != 0) {
-        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
-        return kReadMockError;
-      }
-      check_file->AddSimTrack(false, track);
-    } else {
-      if (charges[i] == 0) {
-        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
-        return kReadMockError;
-      }
-      if (i == 2) {
-        if (charges[1] == charges[2]) {
-          cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
-          return kReadMockError;
-        }
-      }
-      if (charges[i] == 1) {
-        mock_tracks[0] = track;
-      } else {
-        mock_tracks[1] = track;
-      }
-//      auto is_dead_track = data_merger.IsDeadRegion(track) || data_merger.IsDiscriDeadRegion(track);
-      auto is_dead_track = data_merger.IsDeadRegion(track);
-      check_file->AddSimTrack(is_dead_track, track);
-      if (is_dead_track) {
-        is_dead = true;
-      }
-    }
-  }
-  if (is_dead) {
-    return kReadMockDead;
-  }
-  return kReadMockAlive;
-}
-#endif // TRACK_EFF_CHECK
-
 //const char* track_root = "/e16/w/data109y3/user/aoki/run050351_gtr_root/afterkill_240417_050351_sink0_000.root";
 
 int main(int argc, char* argv[]) {
-#ifndef TRACK_EFF_CHECK
   if (argc != 8) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] "
 	 << "[track_root] [display.pdf] " << std::endl;
-#else
-  if (argc != 11) {
-    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [mock flag] [merge mock flag] [smear flag] [dead region flag]" << endl;
-    cerr << "mock data flag 0: vector meson, 1: Ks" << endl;
-    cerr << "merge mock flag 0: merge single track (maybe doesn't work well), 1: merge track pair" << endl;
-    cerr << "smear flag 0: no smear, 1: design smear, 2: TDR2105 smear, 3: other" << endl;
-    cerr << "dead region flag 0: no dead region, 1: w/ dead region" << endl;
-#endif
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -162,29 +52,6 @@ int main(int argc, char* argv[]) {
   auto event_end     = stoi(argv[5]);
   TString track_root = argv[6];
   std::string display_pdf = argv[7];
-#ifdef TRACK_EFF_CHECK
-  auto mock_data_name   = argv[6];
-  auto mock_data_flag   = stoi(argv[7]);
-  auto merge_mock_flag  = stoi(argv[8]);
-  auto smear_flag       = stoi(argv[9]);
-  auto dead_region_flag = stoi(argv[10]);
-  if (mock_data_flag != 0 && mock_data_flag != 1) {
-    cerr << "Invalid dead region flag: " << smear_flag << endl;
-    return -1;
-  }
-  if (merge_mock_flag != 0 && merge_mock_flag != 1) {
-    cerr << "Invalid dead region flag: " << smear_flag << endl;
-    return -1;
-  }
-  if (smear_flag < 0 || smear_flag > 3) {
-    cerr << "Invalid smear flag: " << smear_flag << endl;
-    return -1;
-  }
-  if (dead_region_flag != 0 && dead_region_flag != 1) {
-    cerr << "Invalid dead region flag: " << smear_flag << endl;
-    return -1;
-  }
-#endif
 
   FILE* fp = fopen(in_file_name, "r");
   if (!fp) {
@@ -441,65 +308,6 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gy",&lg_gy);
   tree_lg->Branch("lg_gz",&lg_gz);
 
-  /////////////////////////////////////////////
-
-  /*
-  ///////////////////// PREPARE STS TREE
-  TTree* tree_gtr = new TTree("tree_gtr","tree_gtr");
-
-  std::vector<int> gtr_module;
-  std::vector<int> gtr_layer;
-  std::vector<float> gtr_timing;
-  std::vector<float> gtr_peaksum;
-
-  auto clear_gtr = [&](){
-    gtr_module.clear();
-    gtr_layer.clear();
-    gtr_timing.clear();
-    gtr_peaksum.clear();
-  };
-  
-  tree_gtr->Branch("event",&event_id,"event"+br_uint32);
-  tree_gtr->Branch("spill",&spill_id,"spill"+br_uint32);
-  tree_gtr->Branch("gtr_module",&gtr_module);
-  tree_gtr->Branch("gtr_layer",&gtr_layer);
-  tree_gtr->Branch("gtr_timing",&gtr_timing);
-  tree_gtr->Branch("gtr_peaksum",&gtr_peaksum);
-  */
-  
-  //////////////////////////////////////////
-  
-  
-#ifdef TRACK_EFF_CHECK
-  auto mock_data = E16ANA_MockTrackOutputData();
-  if (mock_data.OpenReadFile(mock_data_name) != E16ANA_MockTrackOutputData::OK) {
-    cerr << "cannot open mock data file" << endl;
-    return -1;
-  }
-  
-  E16ANA_GTRcalibParams gtr_params;
-  gtr_params.ReadCalibData(run_id);
-  auto gtr_analyzers = new E16ANA_GTRAnalyzerMaker(gtr_params);
-  for(int mid = 100; mid <= 110; ++mid) {
-    for(int lid = 0; lid < 3; ++lid) {
-      auto gtr_analyzer2 = gtr_analyzers->Chamber(mid, lid);
-      int n_strips = gtr_analyzer2->GetNumberOfStrips();
-      for(int strip_id = 0; strip_id < n_strips; ++strip_id) {
-        double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
-        double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
-        gtr_analyzer2->SetPedestal(strip_id, ped);
-        gtr_analyzer2->SetPedestalSigma(strip_id, sigma);
-      }
-    }
-  }
-  auto gtr_stat = E16ANA_GTRStatus(run_id);
-  auto hbd_dead_ch = E16ANA_HBDDeadChannel();
-  hbd_dead_ch.ReadDeadChannelData(run_id);
-  auto lg_dead_ch = E16ANA_LGDeadChannel();
-  lg_dead_ch.ReadDeadChannelData();
-  auto data_merger = E16ANA_MakeDummyDST1(smear_flag, gtr_analyzers, &gtr_stat, gtr_stat.ASDDeadChannel(), &hbd_dead_ch, &lg_dead_ch);
-
-#endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -576,6 +384,9 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
+
+
+//////////////////////// DST1 RECONSTRUCTION //////////////////////////////
 #ifndef REMOVE_REAL_HIT
 //      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
 //      record.SSD().AddHitAndClusterIds();
@@ -601,54 +412,6 @@ int main(int argc, char* argv[]) {
       check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
 #endif // REMOVE_REAL_HIT
-#ifdef TRACK_EFF_CHECK
-      record.SSD().UpdatePtrs();
-      record.GTR().UpdatePtrs();
-      record.HBD().UpdatePtrs();
-      record.LG().UpdatePtrs();
-      record.Trigger().UpdatePtrs();
-      check_file.ClearSimTrack();
-      if (merge_mock_flag == kMergeSingleTrack) {
-        if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
-          cerr << "mock data finished at " << n_physics_event << " events" << endl;
-          break;
-        }
-        bool is_finished = false;
-//        while (data_merger.IsDeadRegion(mock_data.Track())) {
-        while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
-          check_file.AddSimTrack(true, mock_data.Track());
-          if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
-            cerr << "mock data finished at " << n_physics_event << " events" << endl;
-            is_finished = true;
-            break;
-          }
-        }
-        if (is_finished) {
-          break;
-        }
-        check_file.AddSimTrack(false, mock_data.Track());
-        data_merger.MergeMockToRealData(0, mock_data.Track(), &record);
-      } else if (merge_mock_flag == kMergeTrackPair) {
-        int mock_read_flag;
-        E16ANA_MockTrack mock_tracks[2];
-        while (true) {
-          if (mock_data_flag == kVectorMesonData) {
-            mock_read_flag = ReadAndAddMockVectorMesonTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
-          } else if (mock_data_flag == kKsData) {
-            mock_read_flag = ReadAndAddMockKsTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
-          }
-          if (dead_region_flag == 1 && mock_read_flag == kReadMockDead) {
-            continue;
-          }
-          break;
-        }
-        if (mock_read_flag == kReadMockError) {
-          break;
-        }
-        data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
-        data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
-      }
-#endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
       record.HBD().UpdatePtrs();
@@ -669,27 +432,28 @@ int main(int argc, char* argv[]) {
       prev_record.GTR().AddHitAndClusterIds();
       prev_record.UpdatePtrs();
 #endif // DST1_EVENT_MIX
+
       std::cout << "################################################ my event loop" << std::endl;
 
       /////////// Search for Tomoki Track.
       std::cout << " event = " << event_id << std::endl;
-      bool found = false;
+      bool gtrtrk_found = false;
       while(true) {
 	if ( itrack >= outtree->GetEntries() ) break;
 	outtree->GetEntry(itrack);
 	//std::cout << " event = " << event_id << "  track_event " << track_event << std::endl;
 	if ( track_event < event_id ) {
-	  //std::cout << " event = " << event_id <<   " VS track_event " << track_event << std::endl;
+	  std::cout << " event = " << event_id <<   " VS track_event " << track_event << std::endl;
 	  itrack++;
 	  continue;
 	}else if (track_event == event_id ){
-	  found = true;
+	  gtrtrk_found = true;
 	  break;
 	}else{
 	  break;
 	}
       }
-      if ( ! found ) {
+      if ( ! gtrtrk_found ) {
 	std::cout << "track not found" << std::endl;
 	continue;
       }
