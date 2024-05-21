@@ -645,8 +645,9 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // int hbdclthr = 1;
    double ssdoffset = 51.;
    // double ssdregion = 11.;
-   double ssdregion = 6.;
-   if(runoption==3){ssdregion = 60.;}
+   // double ssdregion = 6.;//240519
+   double ssdregion = 10000.;//240519
+   // if(runoption==3){ssdregion = 60.;}//240519
    if(runoption==4){ssdregion = 60.;}
    if(runoption==0){ssdregion = 60.;}
    // if(runoption==3){ssdregion = 11.;}

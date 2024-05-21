@@ -844,7 +844,7 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
   // if(runoption==1&&chi_square->at(itrack)>20.) {return -1;}
   if(runoption==1&&chi_square->at(itrack)>2.) {return -1;}
-  if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}
+  // if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}//240519
   // if(runoption==3&&chi_square->at(itrack)>2.) {return -1;}
   // if(runoption==0&&chi_square->at(itrack)>10.) {return -1;}
   if(runoption==0&&chi_square->at(itrack)>2.) {return -1;}
@@ -864,13 +864,13 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // int thr[7] = {10, 15, 20, 25, 10, 15, 20};
   // if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
   // if (runoption==0&&track_ssd_adc->at(itrack)>150) {return -1;}
-  if (runoption==3&&track_ssd_adc->at(itrack)>420) {return -1;}
+  // if (runoption==3&&track_ssd_adc->at(itrack)>420) {return -1;}//240519
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   // if (track_mom->at(itrack) > 2.) {return -1;}
   // if (track_mom->at(itrack) < 0.8) {return -1;}
   // if (rk_charge->at(itrack) != -1) {return -1;}
   // if (track_lg_mid->at(itrack)==104&&track_lg_lx->at(itrack)>280.&&track_lg_lx->at(itrack)<330.&&track_lg_ly->at(itrack)>-330.&&track_lg_ly->at(itrack)<-270.) {return -1;}
-  if (track_tgt_dist->at(itrack)>20) {return -1;}
+  // if (track_tgt_dist->at(itrack)>20) {return -1;}//240519
   // if (track_tgt_dist->at(itrack)>5) {return -1;}
   // if (track_tgt_id->at(itrack)==0) {return -1;}
   // if (track_tgt_id->at(itrack)==2) {return -1;}

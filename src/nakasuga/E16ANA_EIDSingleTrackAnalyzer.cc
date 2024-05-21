@@ -428,7 +428,8 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
    tree->Branch("track_lg_cl_allhit_dum_maxcid", &out_track_lg_cl_allhit_dum_maxcid);
 
    E16ANA_HBDDeadChannel hbddch;
-   std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
+   // std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0c-220114.dat";
+   std::string hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/240515/HBD-dead-ch-tmp-240515.dat";
    if(runoption==0){
      hbd_deadch_file = "/ccj/u/E16/database/calib/HBD/dead_ch/220114/HBD-dead-ch-run0b-220114.dat";
    }
@@ -829,7 +830,7 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
 	out_track_hbd_allhit_cprob.push_back(vector<double>());
 	int nhbdc = 0;
 	for(int ihbd=0;ihbd<n_hbd_clusters;ihbd++){
-	  if ( hbd_cluster_t->at(ihbd)>200 ) continue;
+	  // if ( hbd_cluster_t->at(ihbd)>200 ) continue;//240519
 	  if ( runoption==3 && hbdise==1 && hbd_cluster_eprob->at(ihbd)<1 ) continue;//220213;
 	  // if ( runoption==3 && hbdise==1 && (hbd_cluster_size->at(ihbd)<2||hbd_cluster_adc->at(ihbd)<7*60) ) continue;//220407;
 	  if ( runoption==3 && hbdise==2 && (hbd_cluster_size->at(ihbd)!=1||hbd_cluster_adc->at(ihbd)>3) ) continue;//220213;
@@ -873,7 +874,7 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
 	int nhbdc_dam = 0;
 	if( n_hbd_clusters_tmp!=100000 ){//dummy
 	  for(int ihbd=0;ihbd<n_hbd_clusters_tmp;ihbd++){
-	    if ( hbd_cluster_t_tmp.at(ihbd)>200 ) continue;
+	    // if ( hbd_cluster_t_tmp.at(ihbd)>200 ) continue;//240519
 	    if ( runoption==3 && hbdise==1 && hbd_cluster_eprob_tmp.at(ihbd)<1 ) continue;//220213
 	    // if ( runoption==3 && hbdise==1 && (hbd_cluster_size_tmp.at(ihbd)<2||hbd_cluster_adc_tmp.at(ihbd)<7*60) ) continue;//220407;
 	    if ( runoption==3 && hbdise==2 && (hbd_cluster_size_tmp.at(ihbd)!=1||hbd_cluster_adc_tmp.at(ihbd)>3) ) continue;//220213;
