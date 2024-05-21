@@ -2268,6 +2268,7 @@ public :
 
    void DrawHist( TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name);
 	bool IsGoodTrack(const int id);
+	bool IsRealTrack(const int id);
 	bool IsSameTarget(const int tid0, const int tid1);
    void AnalyzeTrackPairs(std::vector<int> &in_ids);
 	void PairTracking(TrackPair *track_pair);

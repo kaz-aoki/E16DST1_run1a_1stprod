@@ -35,7 +35,7 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     auto& dst1_clusters = gtr1->Clusters();
     static bool isFirst = true;
 	int n_fake_cl_x = 20 * removed_layer;
-	int n_fake_cl_y = 10 * removed_layer;
+	int n_fake_cl_y = 20 * removed_layer;
 	static E16ANA_GTRAnalyzerMaker *gtr_analyzers;
     if(isFirst){
 		E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
@@ -64,7 +64,7 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     for(int i =0; i < noh ; i++){
         E16DST_DST0GTRHit &hit = dst0_hits.Hit(i);
         int mid = hit.ModuleID();
-//		if(mid ! = 107) continue;
+	  	  if(mid != 106) continue;
 		  if(mid > 200) continue;
         int lid = hit.LayerID();
         int sid = hit.StripID();
@@ -98,11 +98,12 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     }
     dst1_hits.resize(dst1_hits_size);
     //dst1_clusters.resize(dst1_clusters_size);
+    int n_gtrmodules = 8;
     if(removed_layer == 1){
-    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y * 2)*6);
+    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y * 2)*n_gtrmodules);
 	}
 	else {
-    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*6);
+    	dst1_clusters.resize(dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*n_gtrmodules);
 	}
     //dst1_clusters.resize(dst1_clusters_size+61);
     int cl_id = 0;// cluster id 
@@ -213,7 +214,7 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
     std::vector<int16_t> thit_orders;    
     thit_orders.clear();
     thit_orders.push_back(0);thit_orders.push_back(1);thit_orders.push_back(2);
-    for(int mid=102; mid < 109 ; mid++){
+    for(int mid=101; mid < 110 ; mid++){
 		if(mid == 105) continue;
     	for(int k=0; k < n_fake_cl_x ; k++){
 			E16DST_DST1GTRCluster &cl = dst1_clusters[cl_id];

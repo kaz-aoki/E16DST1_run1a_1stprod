@@ -312,10 +312,10 @@ class E16ANA_StraightTrackCandidate {
   static constexpr std::array<int, E16ANA_TrackConstant::kNumLGLayers> kTypicalLGBlocks = {0, 10, 20};
   static constexpr int kMinuitStrategy = 0;
   static constexpr int kMinuitMaxFunctionCalls = 1.0e3;
-  static constexpr double kTrackingStepSize = 5.;
+  static constexpr double kTrackingStepSize = 15.;
 //  static constexpr int kTrackingMaxSteps = 300;
 //  static constexpr int kTrackingMaxSteps = 400;
-  static constexpr int kTrackingMaxSteps = 80;
+  static constexpr int kTrackingMaxSteps = 40;
 //  static constexpr int kTrackingMaxSteps = 600;
   static constexpr int kProjectionMaxSteps = 2000;
   static constexpr double drift_v  = 8e-3;

@@ -28,14 +28,31 @@ void E16DSTN_ReStraightV2::ChiSqSort( std::vector<int> &sorted_ids){
 
 void E16DSTN_ReStraightV2::SelectTracks(std::vector<int> &sorted_ids, std::vector<int> &selected_ids){
 	for(int i=0; i < n_cands; i++){
-		if(IsGoodTrack(i)){
-			selected_ids.emplace_back(i);
+		if(IsRealTrack(i)){
+			if(IsGoodTrack(i)){
+				selected_ids.emplace_back(i);
+			}
 		}
 	}
 }
 
 bool E16DSTN_ReStraightV2::IsGoodTrack(const int id){
 	return true;
+}
+
+bool E16DSTN_ReStraightV2::IsRealTrack(const int id){
+	bool flag = true;
+   double adcs_x[3] = {rk_hit_gtr100_xadc->at(id), rk_hit_gtr200_xadc->at(id), rk_hit_gtr300_xadc->at(id)};
+   double adcs_y[3] = {rk_hit_gtr100_yadc->at(id), rk_hit_gtr200_yadc->at(id), rk_hit_gtr300_yadc->at(id)};
+	for(int i=0; i < 3; i++){
+		if(adcs_x[i] == 99999) {
+			flag = false;
+		}
+		if(adcs_y[i] == 99999) {
+			flag = false;
+		}
+	}
+	return flag;
 }
 
 
@@ -157,11 +174,6 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
 }
 
 bool E16DSTN_ReStraightV2::IsSameTarget(const int tid0, const int tid1){
-	
-
-
-
-
 	return true;	
 }
 
@@ -479,7 +491,6 @@ for (int i = 0; i < kNumTrackingStrips-1; ++i) {
      if(cids[i] == used_id){
        return true;
      }
-
    }
 	return false;
 }
@@ -496,9 +507,6 @@ for (int i = 0; i < kNumTrackingStrips; ++i) {
    }
 	return false;
   }
-
-
-
 }
 
 

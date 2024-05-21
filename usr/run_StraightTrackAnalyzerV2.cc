@@ -137,7 +137,7 @@ int main(int argc, char* argv[]){
     	if (event_end != -1 &&  n_physics_event > event_end) {
        		break;
       	}
-      if (n_event % 1000 == 0) {
+      if (n_event % 10 == 0) {
         cout << "Number of event: " << n_event << endl;
       }
       auto event_type = dst0->EventType();
@@ -194,9 +194,12 @@ int main(int argc, char* argv[]){
 		   record.STS().UpdatePtrs();
 			#endif
 #endif
-		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
-//		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
 
+#ifndef REMOVE_NOLAYER
+		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+#else 
+		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
+#endif
 //		if(removed_layer == -1 || removed_layer == 0){
 //		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
 //		}

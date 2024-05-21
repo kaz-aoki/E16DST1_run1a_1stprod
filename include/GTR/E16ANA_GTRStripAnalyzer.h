@@ -17,7 +17,7 @@
 class E16ANA_GTRAnalyzedStripHit {
 public:
    enum {
-      n_sampling = 24,
+      n_sampling = 15,
       is_x = 0,
       is_y = 1,
       is_yb = 2,
