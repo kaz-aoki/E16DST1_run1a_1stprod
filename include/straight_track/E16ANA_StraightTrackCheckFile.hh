@@ -73,6 +73,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("cluster_merged", &cluster_merged, "cluster_merged/O");
 #endif // TRACK_EFF_CHECK
 
+#ifndef UseSTS
     tree->Branch("n_ssd_hits",  &n_ssd_hits, "n_ssd_hits/I");
     tree->Branch("ssd_hit_id",  &ssd_hit_id);
     tree->Branch("ssd_hit_mid", &ssd_hit_mid);
@@ -82,7 +83,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("ssd_hit_gz",  &ssd_hit_gz);
     tree->Branch("ssd_hit_t",   &ssd_hit_t);
     tree->Branch("ssd_hit_adc", &ssd_hit_adc);
-
+#else 
     tree->Branch("n_sts_hits",  &n_sts_hits, "n_sts_hits/I");
     tree->Branch("sts_hit_id",  &sts_hit_id);
     tree->Branch("sts_hit_mid", &sts_hit_mid);
@@ -92,9 +93,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("sts_hit_gz",  &sts_hit_gz);
     tree->Branch("sts_hit_t",   &sts_hit_t);
     tree->Branch("sts_hit_adc", &sts_hit_adc);
-
-
-
+#endif
     tree->Branch("n_gtr100x_hits",  &n_gtr100x_hits, "n_gtr100x_hits/I");
     tree->Branch("gtr100x_hit_id",  &gtr100x_hit_id);
     tree->Branch("gtr100x_hit_mid", &gtr100x_hit_mid);
@@ -178,6 +177,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("gtr200y_cluster_is_merged", &gtr200y_cluster_is_merged);
     tree->Branch("gtr300y_cluster_is_merged", &gtr300y_cluster_is_merged);
 #endif // TRACK_EFF_CHECK
+#ifndef UseSTS
     tree->Branch("n_ssd_clusters",  &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_id", &ssd_cluster_id);
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
@@ -192,7 +192,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("ssd_cluster_fit_t",   &ssd_cluster_fit_t);
     tree->Branch("ssd_cluster_fit_adc",   &ssd_cluster_fit_adc);
     tree->Branch("ssd_cluster_fit_chi2",  &ssd_cluster_fit_chi2);
-
+#else
     tree->Branch("n_sts_clusters",  &n_sts_clusters, "n_sts_clusters/I");
     tree->Branch("sts_cluster_id", &sts_cluster_id);
     tree->Branch("sts_cluster_mid", &sts_cluster_mid);
@@ -207,6 +207,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("sts_cluster_fit_t",   &sts_cluster_fit_t);
     tree->Branch("sts_cluster_fit_adc",   &sts_cluster_fit_adc);
     tree->Branch("sts_cluster_fit_chi2",  &sts_cluster_fit_chi2);
+#endif
     tree->Branch("n_gtr100x_clusters",    &n_gtr100x_clusters, "n_gtr100x_clusters/I");
     tree->Branch("gtr100x_cluster_id",    &gtr100x_cluster_id);
 //    tree->Branch("gtr100x_cluster_consist_hit_id", &gtr100x_cluster_consist_hit_id, "gtr100x_cluster_consist_hit_id/S");
@@ -446,6 +447,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("mock_init_mom_x",    &mock_init_mom_x);
     tree->Branch("mock_init_mom_y",    &mock_init_mom_y);
     tree->Branch("mock_init_mom_z",    &mock_init_mom_z);
+#ifndef UseSTS
     tree->Branch("mock_ssd_mid",       &mock_ssd_mid);
     tree->Branch("mock_ssd_lpos_x",    &mock_ssd_lpos_x);
     tree->Branch("mock_ssd_lpos_y",    &mock_ssd_lpos_y);
@@ -459,6 +461,22 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("mock_ssd_gmom_x",    &mock_ssd_gmom_x);
     tree->Branch("mock_ssd_gmom_y",    &mock_ssd_gmom_y);
     tree->Branch("mock_ssd_gmom_z",    &mock_ssd_gmom_z);
+#else
+    tree->Branch("mock_sts_mid",       &mock_sts_mid);
+    tree->Branch("mock_sts_lpos_x",    &mock_sts_lpos_x);
+    tree->Branch("mock_sts_lpos_y",    &mock_sts_lpos_y);
+    tree->Branch("mock_sts_lpos_z",    &mock_sts_lpos_z);
+    tree->Branch("mock_sts_gpos_x",    &mock_sts_gpos_x);
+    tree->Branch("mock_sts_gpos_y",    &mock_sts_gpos_y);
+    tree->Branch("mock_sts_gpos_z",    &mock_sts_gpos_z);
+    tree->Branch("mock_sts_lmom_x",    &mock_sts_lmom_x);
+    tree->Branch("mock_sts_lmom_y",    &mock_sts_lmom_y);
+    tree->Branch("mock_sts_lmom_z",    &mock_sts_lmom_z);
+    tree->Branch("mock_sts_gmom_x",    &mock_sts_gmom_x);
+    tree->Branch("mock_sts_gmom_y",    &mock_sts_gmom_y);
+    tree->Branch("mock_sts_gmom_z",    &mock_sts_gmom_z);
+
+#endif
     tree->Branch("mock_gtr100_mid",    &mock_gtr100_mid);
     tree->Branch("mock_gtr100_lpos_x", &mock_gtr100_lpos_x);
     tree->Branch("mock_gtr100_lpos_y", &mock_gtr100_lpos_y);
@@ -573,6 +591,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_hit_init_pos_gx", &rk_hit_init_pos_gx);
     tree->Branch("rk_hit_init_pos_gy", &rk_hit_init_pos_gy);
     tree->Branch("rk_hit_init_pos_gz", &rk_hit_init_pos_gz);
+#ifndef UseSTS
     tree->Branch("rk_hit_ssd_id",   &rk_hit_ssd_id);
     tree->Branch("rk_hit_ssd_x",    &rk_hit_ssd_x);
     tree->Branch("rk_hit_ssd_gx",   &rk_hit_ssd_gx);
@@ -581,7 +600,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_hit_ssd_adc",  &rk_hit_ssd_adc);
     tree->Branch("rk_hit_ssd_t",    &rk_hit_ssd_t);
     tree->Branch("rk_hit_ssd_chi2", &rk_hit_ssd_chi2);
-
+#else
     tree->Branch("rk_hit_sts_id",   &rk_hit_sts_id);
     tree->Branch("rk_hit_sts_x",    &rk_hit_sts_x);
     tree->Branch("rk_hit_sts_gx",   &rk_hit_sts_gx);
@@ -590,8 +609,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_hit_sts_adc",  &rk_hit_sts_adc);
     tree->Branch("rk_hit_sts_t",    &rk_hit_sts_t);
     tree->Branch("rk_hit_sts_chi2", &rk_hit_sts_chi2);
- 
-
+#endif
 
     tree->Branch("rk_hit_gtr100_xid", &rk_hit_gtr100_xid);
     tree->Branch("rk_hit_gtr100_yid", &rk_hit_gtr100_yid);
@@ -684,6 +702,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_fit_init_pos_gx", &rk_fit_init_pos_gx);
     tree->Branch("rk_fit_init_pos_gy", &rk_fit_init_pos_gy);
     tree->Branch("rk_fit_init_pos_gz", &rk_fit_init_pos_gz);
+#ifndef UseSTS
     tree->Branch("rk_fit_ssd_mid",       &rk_fit_ssd_mid);
     tree->Branch("rk_fit_ssd_x",         &rk_fit_ssd_x);
     tree->Branch("rk_fit_ssd_y",         &rk_fit_ssd_y);
@@ -696,8 +715,8 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_fit_ssd_mom_gx",    &rk_fit_ssd_mom_gx);
     tree->Branch("rk_fit_ssd_mom_gy",    &rk_fit_ssd_mom_gy);
     tree->Branch("rk_fit_ssd_mom_gz",    &rk_fit_ssd_mom_gz);
-
-   tree->Branch("rk_fit_sts_mid",       &rk_fit_sts_mid);
+#else
+    tree->Branch("rk_fit_sts_mid",       &rk_fit_sts_mid);
     tree->Branch("rk_fit_sts_x",         &rk_fit_sts_x);
     tree->Branch("rk_fit_sts_y",         &rk_fit_sts_y);
     tree->Branch("rk_fit_sts_gx",        &rk_fit_sts_gx);
@@ -709,6 +728,7 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_fit_sts_mom_gx",    &rk_fit_sts_mom_gx);
     tree->Branch("rk_fit_sts_mom_gy",    &rk_fit_sts_mom_gy);
     tree->Branch("rk_fit_sts_mom_gz",    &rk_fit_sts_mom_gz);
+#endif
   
 
 
@@ -816,8 +836,11 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_res_init_mom_gx", &rk_res_init_mom_gx);
     tree->Branch("rk_res_init_mom_gy", &rk_res_init_mom_gy);
     tree->Branch("rk_res_init_mom_gz", &rk_res_init_mom_gz);
+#ifndef UseSTS
     tree->Branch("rk_res_ssd_x", &rk_res_ssd_x);
+#else
     tree->Branch("rk_res_sts_x", &rk_res_sts_x);
+#endif
     tree->Branch("rk_res_gtr100_x", &rk_res_gtr100_x);
     tree->Branch("rk_res_gtr100_y", &rk_res_gtr100_y);
     tree->Branch("rk_res_gtr200_x", &rk_res_gtr200_x);
@@ -886,8 +909,11 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx);
     tree->Branch("rk_pair_minus_mom_gy", &rk_pair_minus_mom_gy);
     tree->Branch("rk_pair_minus_mom_gz", &rk_pair_minus_mom_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_minus_ssd_t", &rk_pair_minus_ssd_t);
+#else
     tree->Branch("rk_pair_minus_sts_t", &rk_pair_minus_sts_t);
+#endif
     tree->Branch("rk_pair_minus_lg_t", &rk_pair_minus_lg_t);
     tree->Branch("rk_pair_plus_track_id", &rk_pair_plus_track_id);
     tree->Branch("rk_pair_plus_gtr300_mid", &rk_pair_plus_gtr300_mid);
@@ -895,8 +921,11 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_plus_mom_gx", &rk_pair_plus_mom_gx);
     tree->Branch("rk_pair_plus_mom_gy", &rk_pair_plus_mom_gy);
     tree->Branch("rk_pair_plus_mom_gz", &rk_pair_plus_mom_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_plus_ssd_t", &rk_pair_plus_ssd_t);
+#else
     tree->Branch("rk_pair_plus_sts_t", &rk_pair_plus_sts_t);
+#endif
     tree->Branch("rk_pair_plus_lg_t", &rk_pair_plus_lg_t);
     tree->Branch("rk_pair_distance", &rk_pair_distance);
     tree->Branch("rk_pair_vtx_gx", &rk_pair_vtx_gx);
@@ -914,12 +943,15 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_plus_mom_refit_gx", &rk_pair_plus_mom_refit_gx);
     tree->Branch("rk_pair_plus_mom_refit_gy", &rk_pair_plus_mom_refit_gy);
     tree->Branch("rk_pair_plus_mom_refit_gz", &rk_pair_plus_mom_refit_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_minus_ssd_pos_refit_gx", &rk_pair_minus_ssd_pos_refit_gx);
     tree->Branch("rk_pair_minus_ssd_pos_refit_gy", &rk_pair_minus_ssd_pos_refit_gy);
     tree->Branch("rk_pair_minus_ssd_pos_refit_gz", &rk_pair_minus_ssd_pos_refit_gz);
+#else
     tree->Branch("rk_pair_minus_sts_pos_refit_gx", &rk_pair_minus_sts_pos_refit_gx);
     tree->Branch("rk_pair_minus_sts_pos_refit_gy", &rk_pair_minus_sts_pos_refit_gy);
     tree->Branch("rk_pair_minus_sts_pos_refit_gz", &rk_pair_minus_sts_pos_refit_gz);
+#endif
     tree->Branch("rk_pair_minus_gtr100_pos_refit_gx", &rk_pair_minus_gtr100_pos_refit_gx);
     tree->Branch("rk_pair_minus_gtr100_pos_refit_gy", &rk_pair_minus_gtr100_pos_refit_gy);
     tree->Branch("rk_pair_minus_gtr100_pos_refit_gz", &rk_pair_minus_gtr100_pos_refit_gz);
@@ -929,12 +961,15 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_minus_gtr300_pos_refit_gx", &rk_pair_minus_gtr300_pos_refit_gx);
     tree->Branch("rk_pair_minus_gtr300_pos_refit_gy", &rk_pair_minus_gtr300_pos_refit_gy);
     tree->Branch("rk_pair_minus_gtr300_pos_refit_gz", &rk_pair_minus_gtr300_pos_refit_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_plus_ssd_pos_refit_gx", &rk_pair_plus_ssd_pos_refit_gx);
     tree->Branch("rk_pair_plus_ssd_pos_refit_gy", &rk_pair_plus_ssd_pos_refit_gy);
     tree->Branch("rk_pair_plus_ssd_pos_refit_gz", &rk_pair_plus_ssd_pos_refit_gz);
+#else
     tree->Branch("rk_pair_plus_sts_pos_refit_gx", &rk_pair_plus_sts_pos_refit_gx);
     tree->Branch("rk_pair_plus_sts_pos_refit_gy", &rk_pair_plus_sts_pos_refit_gy);
     tree->Branch("rk_pair_plus_sts_pos_refit_gz", &rk_pair_plus_sts_pos_refit_gz);
+#endif
     tree->Branch("rk_pair_plus_gtr100_pos_refit_gx", &rk_pair_plus_gtr100_pos_refit_gx);
     tree->Branch("rk_pair_plus_gtr100_pos_refit_gy", &rk_pair_plus_gtr100_pos_refit_gy);
     tree->Branch("rk_pair_plus_gtr100_pos_refit_gz", &rk_pair_plus_gtr100_pos_refit_gz);
@@ -944,12 +979,15 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_plus_gtr300_pos_refit_gx", &rk_pair_plus_gtr300_pos_refit_gx);
     tree->Branch("rk_pair_plus_gtr300_pos_refit_gy", &rk_pair_plus_gtr300_pos_refit_gy);
     tree->Branch("rk_pair_plus_gtr300_pos_refit_gz", &rk_pair_plus_gtr300_pos_refit_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_minus_ssd_mom_refit_gx", &rk_pair_minus_ssd_mom_refit_gx);
     tree->Branch("rk_pair_minus_ssd_mom_refit_gy", &rk_pair_minus_ssd_mom_refit_gy);
     tree->Branch("rk_pair_minus_ssd_mom_refit_gz", &rk_pair_minus_ssd_mom_refit_gz);
+#else
     tree->Branch("rk_pair_minus_sts_mom_refit_gx", &rk_pair_minus_sts_mom_refit_gx);
     tree->Branch("rk_pair_minus_sts_mom_refit_gy", &rk_pair_minus_sts_mom_refit_gy);
     tree->Branch("rk_pair_minus_sts_mom_refit_gz", &rk_pair_minus_sts_mom_refit_gz);
+#endif
     tree->Branch("rk_pair_minus_gtr100_mom_refit_gx", &rk_pair_minus_gtr100_mom_refit_gx);
     tree->Branch("rk_pair_minus_gtr100_mom_refit_gy", &rk_pair_minus_gtr100_mom_refit_gy);
     tree->Branch("rk_pair_minus_gtr100_mom_refit_gz", &rk_pair_minus_gtr100_mom_refit_gz);
@@ -959,12 +997,15 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_minus_gtr300_mom_refit_gx", &rk_pair_minus_gtr300_mom_refit_gx);
     tree->Branch("rk_pair_minus_gtr300_mom_refit_gy", &rk_pair_minus_gtr300_mom_refit_gy);
     tree->Branch("rk_pair_minus_gtr300_mom_refit_gz", &rk_pair_minus_gtr300_mom_refit_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_plus_ssd_mom_refit_gx", &rk_pair_plus_ssd_mom_refit_gx);
     tree->Branch("rk_pair_plus_ssd_mom_refit_gy", &rk_pair_plus_ssd_mom_refit_gy);
     tree->Branch("rk_pair_plus_ssd_mom_refit_gz", &rk_pair_plus_ssd_mom_refit_gz);
+#else
     tree->Branch("rk_pair_plus_sts_mom_refit_gx", &rk_pair_plus_sts_mom_refit_gx);
     tree->Branch("rk_pair_plus_sts_mom_refit_gy", &rk_pair_plus_sts_mom_refit_gy);
     tree->Branch("rk_pair_plus_sts_mom_refit_gz", &rk_pair_plus_sts_mom_refit_gz);
+#endif
     tree->Branch("rk_pair_plus_gtr100_mom_refit_gx", &rk_pair_plus_gtr100_mom_refit_gx);
     tree->Branch("rk_pair_plus_gtr100_mom_refit_gy", &rk_pair_plus_gtr100_mom_refit_gy);
     tree->Branch("rk_pair_plus_gtr100_mom_refit_gz", &rk_pair_plus_gtr100_mom_refit_gz);
@@ -974,12 +1015,15 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_plus_gtr300_mom_refit_gx", &rk_pair_plus_gtr300_mom_refit_gx);
     tree->Branch("rk_pair_plus_gtr300_mom_refit_gy", &rk_pair_plus_gtr300_mom_refit_gy);
     tree->Branch("rk_pair_plus_gtr300_mom_refit_gz", &rk_pair_plus_gtr300_mom_refit_gz);
+#ifndef UseSTS
     tree->Branch("rk_pair_minus_ssd_res_refit_x", &rk_pair_minus_ssd_res_refit_x);
     tree->Branch("rk_pair_minus_ssd_res_refit_y", &rk_pair_minus_ssd_res_refit_y);
     tree->Branch("rk_pair_minus_ssd_res_refit_z", &rk_pair_minus_ssd_res_refit_z);
+#else
     tree->Branch("rk_pair_minus_sts_res_refit_x", &rk_pair_minus_sts_res_refit_x);
     tree->Branch("rk_pair_minus_sts_res_refit_y", &rk_pair_minus_sts_res_refit_y);
     tree->Branch("rk_pair_minus_sts_res_refit_z", &rk_pair_minus_sts_res_refit_z);
+#endif
     tree->Branch("rk_pair_minus_gtr100_res_refit_x", &rk_pair_minus_gtr100_res_refit_x);
     tree->Branch("rk_pair_minus_gtr100_res_refit_y", &rk_pair_minus_gtr100_res_refit_y);
     tree->Branch("rk_pair_minus_gtr100_res_refit_z", &rk_pair_minus_gtr100_res_refit_z);
@@ -989,12 +1033,15 @@ class E16ANA_StraightTrackCheckFile {
     tree->Branch("rk_pair_minus_gtr300_res_refit_x", &rk_pair_minus_gtr300_res_refit_x);
     tree->Branch("rk_pair_minus_gtr300_res_refit_y", &rk_pair_minus_gtr300_res_refit_y);
     tree->Branch("rk_pair_minus_gtr300_res_refit_z", &rk_pair_minus_gtr300_res_refit_z);
+#ifndef UseSTS
     tree->Branch("rk_pair_plus_ssd_res_refit_x", &rk_pair_plus_ssd_res_refit_x);
     tree->Branch("rk_pair_plus_ssd_res_refit_y", &rk_pair_plus_ssd_res_refit_y);
     tree->Branch("rk_pair_plus_ssd_res_refit_z", &rk_pair_plus_ssd_res_refit_z);
+#else
     tree->Branch("rk_pair_plus_sts_res_refit_x", &rk_pair_plus_sts_res_refit_x);
     tree->Branch("rk_pair_plus_sts_res_refit_y", &rk_pair_plus_sts_res_refit_y);
     tree->Branch("rk_pair_plus_sts_res_refit_z", &rk_pair_plus_sts_res_refit_z);
+#endif
     tree->Branch("rk_pair_plus_gtr100_res_refit_x", &rk_pair_plus_gtr100_res_refit_x);
     tree->Branch("rk_pair_plus_gtr100_res_refit_y", &rk_pair_plus_gtr100_res_refit_y);
     tree->Branch("rk_pair_plus_gtr100_res_refit_z", &rk_pair_plus_gtr100_res_refit_z);
@@ -1079,6 +1126,7 @@ class E16ANA_StraightTrackCheckFile {
 #ifdef TRACK_EFF_CHECK
     cluster_merged = false;
 #endif // TRACK_EFF_CHECK
+#ifndef UseSTS
     n_ssd_hits = record.SSD().NumHits();
     ssd_hit_id.resize(n_ssd_hits);
     ssd_hit_mid.resize(n_ssd_hits);
@@ -1100,7 +1148,7 @@ class E16ANA_StraightTrackCheckFile {
       ssd_hit_t[i] = hit.Timing();
       ssd_hit_adc[i] = hit.PeakHeight();
     }
-
+#else
     n_sts_hits = record.STS().NumHits();
     sts_hit_id.resize(n_sts_hits);
     sts_hit_mid.resize(n_sts_hits);
@@ -1123,10 +1171,7 @@ class E16ANA_StraightTrackCheckFile {
       sts_hit_t[i] = hit.Timing();
       sts_hit_adc[i] = hit.PeakHeight();
     }
-
-
-
-
+#endif
     n_gtr100x_hits = 0;
     gtr100x_hit_id.clear();
     gtr100x_hit_mid.clear();
@@ -1300,6 +1345,7 @@ class E16ANA_StraightTrackCheckFile {
       hbd_hit_t[i] = hit.Timing();
       hbd_hit_adc[i] = hit.PeakHeight();
     }
+#ifndef UseSTS
     n_ssd_clusters = record.SSD().NumClusters();
     ssd_cluster_id.resize(n_ssd_clusters);
     ssd_cluster_mid.resize(n_ssd_clusters);
@@ -1339,8 +1385,7 @@ class E16ANA_StraightTrackCheckFile {
       }
 #endif // TRACK_EFF_CHECK
     }
-
-
+#else//UseSTS
     n_sts_clusters = record.STS().NumClusters();
     sts_cluster_id.resize(n_sts_clusters);
     sts_cluster_mid.resize(n_sts_clusters);
@@ -1380,6 +1425,7 @@ class E16ANA_StraightTrackCheckFile {
       }
 #endif // TRACK_EFF_CHECK
     }
+#endif//UseSTS
 
 
 
@@ -2184,6 +2230,7 @@ class E16ANA_StraightTrackCheckFile {
     mock_init_mom_x.clear();
     mock_init_mom_y.clear();
     mock_init_mom_z.clear();
+#ifndef UseSTS
     mock_ssd_mid.clear();
     mock_ssd_lpos_x.clear();
     mock_ssd_lpos_y.clear();
@@ -2197,7 +2244,7 @@ class E16ANA_StraightTrackCheckFile {
     mock_ssd_gmom_x.clear();
     mock_ssd_gmom_y.clear();
     mock_ssd_gmom_z.clear();
- 
+#else
     mock_sts_mid.clear();
     mock_sts_lpos_x.clear();
     mock_sts_lpos_y.clear();
@@ -2211,6 +2258,7 @@ class E16ANA_StraightTrackCheckFile {
     mock_sts_gmom_x.clear();
     mock_sts_gmom_y.clear();
     mock_sts_gmom_z.clear();
+#endif
     mock_gtr100_mid.clear();
     mock_gtr100_lpos_x.clear();
     mock_gtr100_lpos_y.clear();
@@ -2288,6 +2336,7 @@ class E16ANA_StraightTrackCheckFile {
     mock_init_mom_x.emplace_back(track.OrigPTV().X());
     mock_init_mom_y.emplace_back(track.OrigPTV().Y());
     mock_init_mom_z.emplace_back(track.OrigPTV().Z());
+#ifndef UseSTS
     auto& ssd = track.SSD();
     mock_ssd_mid.emplace_back(ssd.ModuleID());
     mock_ssd_lpos_x.emplace_back(ssd.X());
@@ -2302,6 +2351,7 @@ class E16ANA_StraightTrackCheckFile {
     mock_ssd_gmom_x.emplace_back(ssd.GPTV().X());
     mock_ssd_gmom_y.emplace_back(ssd.GPTV().Y());
     mock_ssd_gmom_z.emplace_back(ssd.GPTV().Z());
+#else
     auto& sts = track.STS();
     mock_sts_mid.emplace_back(sts.ModuleID());
     mock_sts_lpos_x.emplace_back(sts.X());
@@ -2316,7 +2366,7 @@ class E16ANA_StraightTrackCheckFile {
     mock_sts_gmom_x.emplace_back(sts.GPTV().X());
     mock_sts_gmom_y.emplace_back(sts.GPTV().Y());
     mock_sts_gmom_z.emplace_back(sts.GPTV().Z());
- 
+#endif
     auto& gtr100 = track.GTR1();
     mock_gtr100_mid.emplace_back(gtr100.ModuleID());
     mock_gtr100_lpos_x.emplace_back(gtr100.X());
@@ -2478,6 +2528,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_hit_init_pos_gx.resize(n_cands);
     rk_hit_init_pos_gy.resize(n_cands);
     rk_hit_init_pos_gz.resize(n_cands);
+#ifndef UseSTS
     rk_hit_ssd_id.resize(n_cands);
     rk_hit_ssd_x.resize(n_cands);
     rk_hit_ssd_gx.resize(n_cands);
@@ -2486,6 +2537,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_hit_ssd_adc.resize(n_cands);
     rk_hit_ssd_t.resize(n_cands);
     rk_hit_ssd_chi2.resize(n_cands);
+#else
     rk_hit_sts_id.resize(n_cands);
     rk_hit_sts_x.resize(n_cands);
     rk_hit_sts_gx.resize(n_cands);
@@ -2494,7 +2546,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_hit_sts_adc.resize(n_cands);
     rk_hit_sts_t.resize(n_cands);
     rk_hit_sts_chi2.resize(n_cands);
-  
+#endif
     rk_hit_gtr100_xid.resize(n_cands);
     rk_hit_gtr100_yid.resize(n_cands);
     rk_hit_gtr100_gx.resize(n_cands);
@@ -2590,6 +2642,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_fit_init_pos_gx.resize(n_cands);
     rk_fit_init_pos_gy.resize(n_cands);
     rk_fit_init_pos_gz.resize(n_cands);
+#ifndef UseSTS
     rk_fit_ssd_mid.resize(n_cands);
     rk_fit_ssd_x.resize(n_cands);
     rk_fit_ssd_y.resize(n_cands);
@@ -2602,7 +2655,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_fit_ssd_mom_gx.resize(n_cands);
     rk_fit_ssd_mom_gy.resize(n_cands);
     rk_fit_ssd_mom_gz.resize(n_cands);
- 
+#else
     rk_fit_sts_mid.resize(n_cands);
     rk_fit_sts_x.resize(n_cands);
     rk_fit_sts_y.resize(n_cands);
@@ -2615,6 +2668,7 @@ class E16ANA_StraightTrackCheckFile {
     rk_fit_sts_mom_gx.resize(n_cands);
     rk_fit_sts_mom_gy.resize(n_cands);
     rk_fit_sts_mom_gz.resize(n_cands);
+#endif
     rk_fit_gtr100_mid.resize(n_cands);
     rk_fit_gtr100_x.resize(n_cands);
     rk_fit_gtr100_y.resize(n_cands);
@@ -2719,8 +2773,11 @@ class E16ANA_StraightTrackCheckFile {
     rk_res_init_mom_gx.resize(n_cands);
     rk_res_init_mom_gy.resize(n_cands);
     rk_res_init_mom_gz.resize(n_cands);
+#ifndef UseSTS
     rk_res_ssd_x.resize(n_cands);
+#else
     rk_res_sts_x.resize(n_cands);
+#endif
     rk_res_gtr100_x.resize(n_cands);
     rk_res_gtr100_y.resize(n_cands);
     rk_res_gtr200_x.resize(n_cands);
@@ -2809,8 +2866,11 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_minus_mom_gx.resize(n_pairs);
     rk_pair_minus_mom_gy.resize(n_pairs);
     rk_pair_minus_mom_gz.resize(n_pairs);
+#ifndef UseSTS
 	 rk_pair_minus_ssd_t.resize(n_pairs);
+#else
     rk_pair_minus_sts_t.resize(n_pairs);
+#endif
     rk_pair_minus_lg_t.clear();
     rk_pair_minus_lg_t.resize(n_pairs);
     rk_pair_plus_track_id.resize(n_pairs);
@@ -2819,8 +2879,11 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_plus_mom_gx.resize(n_pairs);
     rk_pair_plus_mom_gy.resize(n_pairs);
     rk_pair_plus_mom_gz.resize(n_pairs);
+#ifndef UseSTS
     rk_pair_plus_ssd_t.resize(n_pairs);
+#else
     rk_pair_plus_sts_t.resize(n_pairs);
+#endif
     rk_pair_plus_lg_t.clear();
     rk_pair_plus_lg_t.resize(n_pairs);
     rk_pair_distance.resize(n_pairs);
@@ -2839,12 +2902,15 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_plus_mom_refit_gx.resize(n_pairs);
     rk_pair_plus_mom_refit_gy.resize(n_pairs);
     rk_pair_plus_mom_refit_gz.resize(n_pairs);
+#ifndef UseSTS
     rk_pair_minus_ssd_pos_refit_gx.resize(n_pairs);
     rk_pair_minus_ssd_pos_refit_gy.resize(n_pairs);
     rk_pair_minus_ssd_pos_refit_gz.resize(n_pairs);
+#else
     rk_pair_minus_sts_pos_refit_gx.resize(n_pairs);
     rk_pair_minus_sts_pos_refit_gy.resize(n_pairs);
     rk_pair_minus_sts_pos_refit_gz.resize(n_pairs);
+#endif
     rk_pair_minus_gtr100_pos_refit_gx.resize(n_pairs);
     rk_pair_minus_gtr100_pos_refit_gy.resize(n_pairs);
     rk_pair_minus_gtr100_pos_refit_gz.resize(n_pairs);
@@ -2854,12 +2920,15 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_minus_gtr300_pos_refit_gx.resize(n_pairs);
     rk_pair_minus_gtr300_pos_refit_gy.resize(n_pairs);
     rk_pair_minus_gtr300_pos_refit_gz.resize(n_pairs);
+#ifndef UseSTS
     rk_pair_plus_ssd_pos_refit_gx.resize(n_pairs);
     rk_pair_plus_ssd_pos_refit_gy.resize(n_pairs);
     rk_pair_plus_ssd_pos_refit_gz.resize(n_pairs);
+#else 
     rk_pair_plus_sts_pos_refit_gx.resize(n_pairs);
     rk_pair_plus_sts_pos_refit_gy.resize(n_pairs);
     rk_pair_plus_sts_pos_refit_gz.resize(n_pairs);
+#endif
     rk_pair_plus_gtr100_pos_refit_gx.resize(n_pairs);
     rk_pair_plus_gtr100_pos_refit_gy.resize(n_pairs);
     rk_pair_plus_gtr100_pos_refit_gz.resize(n_pairs);
@@ -2869,12 +2938,33 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_plus_gtr300_pos_refit_gx.resize(n_pairs);
     rk_pair_plus_gtr300_pos_refit_gy.resize(n_pairs);
     rk_pair_plus_gtr300_pos_refit_gz.resize(n_pairs);
+#ifndef UseSTS
     rk_pair_minus_ssd_mom_refit_gx.resize(n_pairs);
     rk_pair_minus_ssd_mom_refit_gy.resize(n_pairs);
     rk_pair_minus_ssd_mom_refit_gz.resize(n_pairs);
+    rk_pair_plus_ssd_mom_refit_gx.resize(n_pairs);
+    rk_pair_plus_ssd_mom_refit_gy.resize(n_pairs);
+    rk_pair_plus_ssd_mom_refit_gz.resize(n_pairs);
+    rk_pair_minus_ssd_res_refit_x.resize(n_pairs);
+    rk_pair_minus_ssd_res_refit_y.resize(n_pairs);
+    rk_pair_minus_ssd_res_refit_z.resize(n_pairs);
+    rk_pair_plus_ssd_res_refit_x.resize(n_pairs);
+    rk_pair_plus_ssd_res_refit_y.resize(n_pairs);
+    rk_pair_plus_ssd_res_refit_z.resize(n_pairs);
+#else
     rk_pair_minus_sts_mom_refit_gx.resize(n_pairs);
     rk_pair_minus_sts_mom_refit_gy.resize(n_pairs);
     rk_pair_minus_sts_mom_refit_gz.resize(n_pairs);
+    rk_pair_plus_sts_mom_refit_gx.resize(n_pairs);
+    rk_pair_plus_sts_mom_refit_gy.resize(n_pairs);
+    rk_pair_plus_sts_mom_refit_gz.resize(n_pairs);
+    rk_pair_minus_sts_res_refit_x.resize(n_pairs);
+    rk_pair_minus_sts_res_refit_y.resize(n_pairs);
+    rk_pair_minus_sts_res_refit_z.resize(n_pairs);
+    rk_pair_plus_sts_res_refit_x.resize(n_pairs);
+    rk_pair_plus_sts_res_refit_y.resize(n_pairs);
+    rk_pair_plus_sts_res_refit_z.resize(n_pairs);
+#endif
     rk_pair_minus_gtr100_mom_refit_gx.resize(n_pairs);
     rk_pair_minus_gtr100_mom_refit_gy.resize(n_pairs);
     rk_pair_minus_gtr100_mom_refit_gz.resize(n_pairs);
@@ -2884,12 +2974,6 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_minus_gtr300_mom_refit_gx.resize(n_pairs);
     rk_pair_minus_gtr300_mom_refit_gy.resize(n_pairs);
     rk_pair_minus_gtr300_mom_refit_gz.resize(n_pairs);
-    rk_pair_plus_ssd_mom_refit_gx.resize(n_pairs);
-    rk_pair_plus_ssd_mom_refit_gy.resize(n_pairs);
-    rk_pair_plus_ssd_mom_refit_gz.resize(n_pairs);
-    rk_pair_plus_sts_mom_refit_gx.resize(n_pairs);
-    rk_pair_plus_sts_mom_refit_gy.resize(n_pairs);
-    rk_pair_plus_sts_mom_refit_gz.resize(n_pairs);
     rk_pair_plus_gtr100_mom_refit_gx.resize(n_pairs);
     rk_pair_plus_gtr100_mom_refit_gy.resize(n_pairs);
     rk_pair_plus_gtr100_mom_refit_gz.resize(n_pairs);
@@ -2899,12 +2983,6 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_plus_gtr300_mom_refit_gx.resize(n_pairs);
     rk_pair_plus_gtr300_mom_refit_gy.resize(n_pairs);
     rk_pair_plus_gtr300_mom_refit_gz.resize(n_pairs);
-    rk_pair_minus_ssd_res_refit_x.resize(n_pairs);
-    rk_pair_minus_ssd_res_refit_y.resize(n_pairs);
-    rk_pair_minus_ssd_res_refit_z.resize(n_pairs);
-    rk_pair_minus_sts_res_refit_x.resize(n_pairs);
-    rk_pair_minus_sts_res_refit_y.resize(n_pairs);
-    rk_pair_minus_sts_res_refit_z.resize(n_pairs);
     rk_pair_minus_gtr100_res_refit_x.resize(n_pairs);
     rk_pair_minus_gtr100_res_refit_y.resize(n_pairs);
     rk_pair_minus_gtr100_res_refit_z.resize(n_pairs);
@@ -2914,12 +2992,6 @@ class E16ANA_StraightTrackCheckFile {
     rk_pair_minus_gtr300_res_refit_x.resize(n_pairs);
     rk_pair_minus_gtr300_res_refit_y.resize(n_pairs);
     rk_pair_minus_gtr300_res_refit_z.resize(n_pairs);
-    rk_pair_plus_ssd_res_refit_x.resize(n_pairs);
-    rk_pair_plus_ssd_res_refit_y.resize(n_pairs);
-    rk_pair_plus_ssd_res_refit_z.resize(n_pairs);
-    rk_pair_plus_sts_res_refit_x.resize(n_pairs);
-    rk_pair_plus_sts_res_refit_y.resize(n_pairs);
-    rk_pair_plus_sts_res_refit_z.resize(n_pairs);
     rk_pair_plus_gtr100_res_refit_x.resize(n_pairs);
     rk_pair_plus_gtr100_res_refit_y.resize(n_pairs);
     rk_pair_plus_gtr100_res_refit_z.resize(n_pairs);
@@ -2970,6 +3042,7 @@ class E16ANA_StraightTrackCheckFile {
       rk_hit_init_pos_gy[i] = hit_init_pos.Y();
       rk_hit_init_pos_gz[i] = hit_init_pos.Z();
       auto& pairs = cand.ClusterPairs();
+#ifndef UseSTS
       auto& ssdhit_lpos = pairs[0].LocalPos();
       rk_hit_ssd_x[i] = ssdhit_lpos.X();
       auto& ssdhit_gpos = pairs[0].GlobalPos();
@@ -2984,6 +3057,22 @@ class E16ANA_StraightTrackCheckFile {
    	   rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
       	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
       }
+#else
+      auto& stshit_lpos = pairs[0].LocalPos();
+      rk_hit_sts_x[i] = stshit_lpos.X();
+      auto& stshit_gpos = pairs[0].GlobalPos();
+      rk_hit_sts_gx[i] = stshit_gpos.X();
+      rk_hit_sts_gy[i] = stshit_gpos.Y();
+      rk_hit_sts_gz[i] = stshit_gpos.Z();
+      auto sts_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
+      if(sts_clst != 0){
+	      rk_hit_sts_id[i] =  sts_clst->ClusterId();
+	      rk_hit_sts_adc[i] = sts_clst->PeakSum();
+	//      rk_hit_sts_t[i]  = sts_clst->Timing();
+   	   rk_hit_sts_t[i]  = sts_clst->TimingFit();
+      	rk_hit_sts_chi2[i] = sts_clst->Chi2NdfFit();
+      }
+#endif
 		//rk_hit_gtr100_lxcog[i] = pairs[1].LocalPos().X();
 		//rk_hit_gtr200_lxcog[i] = pairs[2].LocalPos().X();
 		//rk_hit_gtr300_lxcog[i] = pairs[3].LocalPos().X();
@@ -3005,7 +3094,7 @@ class E16ANA_StraightTrackCheckFile {
       rk_hit_gtr100_the2[i] = pairs[1].Theta();
       auto gtr100_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
       auto gtr100_yclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(1));
-      rk_hit_gtr100_xid[i] = gtr100_xclst->ClusterId();
+      rk_hit_gtr100_xid[i]  = gtr100_xclst->ClusterId();
       rk_hit_gtr100_cogx[i] = gtr100_xclst->CogPos();
       rk_hit_gtr100_cogy[i] = gtr100_yclst->CogPos();
       rk_hit_gtr100_xadc[i] = gtr100_xclst->PeakSum();
@@ -3117,6 +3206,7 @@ class E16ANA_StraightTrackCheckFile {
       rk_res_init_mom_gy[i] = rk_hit_init_mom_gy[i] - rk_fit_init_mom_gy[i];
       rk_res_init_mom_gz[i] = rk_hit_init_mom_gz[i] - rk_fit_init_mom_gz[i];
       const auto& fits = cand.LocalFitResults();
+#ifndef UseSTS
       rk_fit_ssd_mid[i] = fits[0].module_id;
       auto& ssdfit_lpos = fits[0].local_pos;
       auto& ssdfit_gpos = fits[0].global_pos;
@@ -3134,6 +3224,26 @@ class E16ANA_StraightTrackCheckFile {
       rk_fit_ssd_mom_gy[i] = ssdfit_gmom.Y();
       rk_fit_ssd_mom_gz[i] = ssdfit_gmom.Z();
       rk_res_ssd_x[i] = fits[0].residual_pos.X();
+#else
+      rk_fit_sts_mid[i] = fits[0].module_id;
+      auto& stsfit_lpos = fits[0].local_pos;
+      auto& stsfit_gpos = fits[0].global_pos;
+      auto& stsfit_lmom = fits[0].local_mom;
+      auto& stsfit_gmom = fits[0].global_mom;
+      rk_fit_sts_x[i] = stsfit_lpos.X();
+      rk_fit_sts_y[i] = stsfit_lpos.Y();
+      rk_fit_sts_gx[i] = stsfit_gpos.X();
+      rk_fit_sts_gy[i] = stsfit_gpos.Y();
+      rk_fit_sts_gz[i] = stsfit_gpos.Z();
+      rk_fit_sts_mom_x[i] = stsfit_lmom.X();
+      rk_fit_sts_mom_y[i] = stsfit_lmom.Y();
+      rk_fit_sts_mom_z[i] = stsfit_lmom.Z();
+      rk_fit_sts_mom_gx[i] = stsfit_gmom.X();
+      rk_fit_sts_mom_gy[i] = stsfit_gmom.Y();
+      rk_fit_sts_mom_gz[i] = stsfit_gmom.Z();
+      rk_res_sts_x[i] = fits[0].residual_pos.X();
+
+#endif
       rk_fit_gtr100_mid[i] = fits[1].module_id;
       auto& gtr100fit_lpos = fits[1].local_pos;
       auto& gtr100fit_gpos = fits[1].global_pos;
@@ -3369,10 +3479,18 @@ class E16ANA_StraightTrackCheckFile {
         rk_proj_lg_fflag[i][j]  = lghit->FitFlag();
       }
 #ifdef TRACK_EFF_CHECK
+	#ifndef UseSTS
       std::array<int, 7> cids = {rk_hit_ssd_id[i] / 10000,
                                  rk_hit_gtr100_xid[i] / 10000, rk_hit_gtr100_yid[i] / 10000,
                                  rk_hit_gtr200_xid[i] / 10000, rk_hit_gtr200_yid[i] / 10000,
                                  rk_hit_gtr300_xid[i] / 10000, rk_hit_gtr300_yid[i] / 10000};
+	#else
+      std::array<int, 7> cids = {rk_hit_sts_id[i] / 10000,
+                                 rk_hit_gtr100_xid[i] / 10000, rk_hit_gtr100_yid[i] / 10000,
+                                 rk_hit_gtr200_xid[i] / 10000, rk_hit_gtr200_yid[i] / 10000,
+                                 rk_hit_gtr300_xid[i] / 10000, rk_hit_gtr300_yid[i] / 10000};
+
+	#endif //UseSTS
       is_sim_track[i] = false;
       if (cids[0] != 0) {
         is_sim_track[i] = true;
@@ -3596,10 +3714,29 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_minus_mom_gx[i] = mgpos(0);
       rk_pair_minus_mom_gy[i] = mgpos(1);
       rk_pair_minus_mom_gz[i] = mgpos(2);
+#ifndef UseSTS
       auto ssd_minus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
 		if(ssd_minus !=nullptr){
       	rk_pair_minus_ssd_t[i] = ssd_minus->Timing();
 		}
+
+      auto ssd_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+      if(ssd_plus != nullptr){
+      rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
+		}
+#else 
+      auto sts_minus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
+		if(sts_minus !=nullptr){
+      	rk_pair_minus_sts_t[i] = sts_minus->Timing();
+		}
+
+      auto sts_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+      if(sts_plus != nullptr){
+      rk_pair_plus_sts_t[i] = sts_plus->Timing();
+		}
+
+#endif
+
 //      auto& lg_hits_minus = pair.cand_minus->ProjectedLGHits();
 //      auto n_lg_hits_minus = lg_hits_minus.size();
 //      rk_pair_minus_lg_t[i].resize(n_lg_hits_minus);
@@ -3636,13 +3773,6 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_vtx_gy[i] = pair_vtx.Y();
       rk_pair_vtx_gz[i] = pair_vtx.Z();
  
-
-
-      auto ssd_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
-
-      if(ssd_plus != nullptr){
-      rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
-		}
 //      auto& lg_hits_plus = pair.cand_plus->ProjectedLGHits();
 //		std::cout << "after lg plus cast " << std::endl; 
 //      auto n_lg_hits_plus = lg_hits_plus.size();
@@ -3686,9 +3816,16 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_plus_mom_refit_gy[i] = pmom_refit.Y();
       rk_pair_plus_mom_refit_gz[i] = pmom_refit.Z();
       auto& mposs_refit = pair.track_minus_pos_refit;
+#ifndef UseSTS
       rk_pair_minus_ssd_pos_refit_gx[i] = mposs_refit[0].X();
       rk_pair_minus_ssd_pos_refit_gy[i] = mposs_refit[0].Y();
       rk_pair_minus_ssd_pos_refit_gz[i] = mposs_refit[0].Z();
+#else 
+      rk_pair_minus_sts_pos_refit_gx[i] = mposs_refit[0].X();
+      rk_pair_minus_sts_pos_refit_gy[i] = mposs_refit[0].Y();
+      rk_pair_minus_sts_pos_refit_gz[i] = mposs_refit[0].Z();
+
+#endif
       rk_pair_minus_gtr100_pos_refit_gx[i] = mposs_refit[1].X();
       rk_pair_minus_gtr100_pos_refit_gy[i] = mposs_refit[1].Y();
       rk_pair_minus_gtr100_pos_refit_gz[i] = mposs_refit[1].Z();
@@ -3699,11 +3836,16 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_minus_gtr300_pos_refit_gy[i] = mposs_refit[3].Y();
       rk_pair_minus_gtr300_pos_refit_gz[i] = mposs_refit[3].Z();
       auto& pposs_refit = pair.track_plus_pos_refit;
-
-
+#ifndef UseSTS
       rk_pair_plus_ssd_pos_refit_gx[i] = pposs_refit[0].X();
       rk_pair_plus_ssd_pos_refit_gy[i] = pposs_refit[0].Y();
       rk_pair_plus_ssd_pos_refit_gz[i] = pposs_refit[0].Z();
+#else
+      rk_pair_plus_sts_pos_refit_gx[i] = pposs_refit[0].X();
+      rk_pair_plus_sts_pos_refit_gy[i] = pposs_refit[0].Y();
+      rk_pair_plus_sts_pos_refit_gz[i] = pposs_refit[0].Z();
+
+#endif
       rk_pair_plus_gtr100_pos_refit_gx[i] = pposs_refit[1].X();
       rk_pair_plus_gtr100_pos_refit_gy[i] = pposs_refit[1].Y();
       rk_pair_plus_gtr100_pos_refit_gz[i] = pposs_refit[1].Z();
@@ -3714,9 +3856,16 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_plus_gtr300_pos_refit_gy[i] = pposs_refit[3].Y();
       rk_pair_plus_gtr300_pos_refit_gz[i] = pposs_refit[3].Z();
       auto& mmoms_refit = pair.track_minus_mom_refit;
+#ifndef UseSTS
       rk_pair_minus_ssd_mom_refit_gx[i] = mmoms_refit[0].X();
       rk_pair_minus_ssd_mom_refit_gy[i] = mmoms_refit[0].Y();
       rk_pair_minus_ssd_mom_refit_gz[i] = mmoms_refit[0].Z();
+#else
+      rk_pair_minus_sts_mom_refit_gx[i] = mmoms_refit[0].X();
+      rk_pair_minus_sts_mom_refit_gy[i] = mmoms_refit[0].Y();
+      rk_pair_minus_sts_mom_refit_gz[i] = mmoms_refit[0].Z();
+
+#endif
       rk_pair_minus_gtr100_mom_refit_gx[i] = mmoms_refit[1].X();
       rk_pair_minus_gtr100_mom_refit_gy[i] = mmoms_refit[1].Y();
       rk_pair_minus_gtr100_mom_refit_gz[i] = mmoms_refit[1].Z();
@@ -3727,9 +3876,16 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_minus_gtr300_mom_refit_gy[i] = mmoms_refit[3].Y();
       rk_pair_minus_gtr300_mom_refit_gz[i] = mmoms_refit[3].Z();
       auto& pmoms_refit = pair.track_plus_mom_refit;
+#ifndef UseSTS
       rk_pair_plus_ssd_mom_refit_gx[i] = pmoms_refit[0].X();
       rk_pair_plus_ssd_mom_refit_gy[i] = pmoms_refit[0].Y();
       rk_pair_plus_ssd_mom_refit_gz[i] = pmoms_refit[0].Z();
+#else
+      rk_pair_plus_sts_mom_refit_gx[i] = pmoms_refit[0].X();
+      rk_pair_plus_sts_mom_refit_gy[i] = pmoms_refit[0].Y();
+      rk_pair_plus_sts_mom_refit_gz[i] = pmoms_refit[0].Z();
+
+#endif
       rk_pair_plus_gtr100_mom_refit_gx[i] = pmoms_refit[1].X();
       rk_pair_plus_gtr100_mom_refit_gy[i] = pmoms_refit[1].Y();
       rk_pair_plus_gtr100_mom_refit_gz[i] = pmoms_refit[1].Z();
@@ -3740,9 +3896,16 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_plus_gtr300_mom_refit_gy[i] = pmoms_refit[3].Y();
       rk_pair_plus_gtr300_mom_refit_gz[i] = pmoms_refit[3].Z();
       auto& mress_refit = pair.track_minus_res_refit;
+#ifndef UseSTS
       rk_pair_minus_ssd_res_refit_x[i] = mress_refit[0].X();
       rk_pair_minus_ssd_res_refit_y[i] = mress_refit[0].Y();
       rk_pair_minus_ssd_res_refit_z[i] = mress_refit[0].Z();
+#else 
+      rk_pair_minus_sts_res_refit_x[i] = mress_refit[0].X();
+      rk_pair_minus_sts_res_refit_y[i] = mress_refit[0].Y();
+      rk_pair_minus_sts_res_refit_z[i] = mress_refit[0].Z();
+
+#endif
       rk_pair_minus_gtr100_res_refit_x[i] = mress_refit[1].X();
       rk_pair_minus_gtr100_res_refit_y[i] = mress_refit[1].Y();
       rk_pair_minus_gtr100_res_refit_z[i] = mress_refit[1].Z();
@@ -3753,9 +3916,16 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_minus_gtr300_res_refit_y[i] = mress_refit[3].Y();
       rk_pair_minus_gtr300_res_refit_z[i] = mress_refit[3].Z();
       auto& press_refit = pair.track_plus_res_refit;
+#ifndef UseSTS
       rk_pair_plus_ssd_res_refit_x[i] = press_refit[0].X();
       rk_pair_plus_ssd_res_refit_y[i] = press_refit[0].Y();
       rk_pair_plus_ssd_res_refit_z[i] = press_refit[0].Z();
+#else 
+      rk_pair_plus_sts_res_refit_x[i] = press_refit[0].X();
+      rk_pair_plus_sts_res_refit_y[i] = press_refit[0].Y();
+      rk_pair_plus_sts_res_refit_z[i] = press_refit[0].Z();
+
+#endif
       rk_pair_plus_gtr100_res_refit_x[i] = press_refit[1].X();
       rk_pair_plus_gtr100_res_refit_y[i] = press_refit[1].Y();
       rk_pair_plus_gtr100_res_refit_z[i] = press_refit[1].Z();
@@ -3818,6 +3988,7 @@ class E16ANA_StraightTrackCheckFile {
   bool cluster_merged;
 #endif // TRACK_EFF_CHECK
   // Hit, Cluster
+ #ifndef UseSTS
   int n_ssd_hits;
   std::vector<int>    ssd_hit_id;
   std::vector<int>    ssd_hit_mid;
@@ -3827,6 +3998,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> ssd_hit_gz;
   std::vector<double> ssd_hit_t;
   std::vector<float>  ssd_hit_adc;
+#else 
   int n_sts_hits;
   std::vector<int>    sts_hit_id;
   std::vector<int>    sts_hit_mid;
@@ -3836,6 +4008,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> sts_hit_gz;
   std::vector<double> sts_hit_t;
   std::vector<float>  sts_hit_adc;
+#endif
  
   int n_gtr100x_hits;
   std::vector<int>    gtr100x_hit_id;
@@ -3911,7 +4084,11 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> hbd_hit_t;
   std::vector<float>  hbd_hit_adc;
 #ifdef TRACK_EFF_CHECK
+#ifndef UseSTS
   std::vector<bool> ssd_cluster_is_merged;
+#else
+  std::vector<bool> sts_cluster_is_merged;
+#endif
   std::vector<bool> gtr100x_cluster_is_merged;
   std::vector<bool> gtr200x_cluster_is_merged;
   std::vector<bool> gtr300x_cluster_is_merged;
@@ -3920,6 +4097,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<bool> gtr200y_cluster_is_merged;
   std::vector<bool> gtr300y_cluster_is_merged;
 #endif // TRACK_EFF_CHECK
+#ifndef UseSTS
   int n_ssd_clusters;
   std::vector<int> ssd_cluster_id;
   std::vector<int> ssd_cluster_mid;
@@ -3933,6 +4111,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> ssd_cluster_fit_t;
   std::vector<double> ssd_cluster_fit_adc;
   std::vector<double> ssd_cluster_fit_chi2;
+#else
   int n_sts_clusters;
   std::vector<int> sts_cluster_id;
   std::vector<int> sts_cluster_mid;
@@ -3946,6 +4125,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> sts_cluster_fit_t;
   std::vector<double> sts_cluster_fit_adc;
   std::vector<double> sts_cluster_fit_chi2;
+#endif
 
  
   int n_gtr100x_clusters;
@@ -4196,6 +4376,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> mock_init_mom_x;
   std::vector<double> mock_init_mom_y;
   std::vector<double> mock_init_mom_z;
+#ifndef UseSTS
   std::vector<int>    mock_ssd_mid;
   std::vector<double> mock_ssd_lpos_x;
   std::vector<double> mock_ssd_lpos_y;
@@ -4209,6 +4390,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> mock_ssd_gmom_x;
   std::vector<double> mock_ssd_gmom_y;
   std::vector<double> mock_ssd_gmom_z;
+#else
   std::vector<int>    mock_sts_mid;
   std::vector<double> mock_sts_lpos_x;
   std::vector<double> mock_sts_lpos_y;
@@ -4222,6 +4404,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> mock_sts_gmom_x;
   std::vector<double> mock_sts_gmom_y;
   std::vector<double> mock_sts_gmom_z;
+#endif
  
   std::vector<int>    mock_gtr100_mid;
   std::vector<double> mock_gtr100_lpos_x;
@@ -4337,6 +4520,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_hit_init_pos_gx;
   std::vector<double> rk_hit_init_pos_gy;
   std::vector<double> rk_hit_init_pos_gz;
+#ifndef UseSTS
   std::vector<int> rk_hit_ssd_id;
   std::vector<double> rk_hit_ssd_x;
   std::vector<double> rk_hit_ssd_gx;
@@ -4345,6 +4529,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<float> rk_hit_ssd_adc;
   std::vector<float> rk_hit_ssd_t;
   std::vector<double> rk_hit_ssd_chi2;
+#else
   std::vector<int> rk_hit_sts_id;
   std::vector<double> rk_hit_sts_x;
   std::vector<double> rk_hit_sts_gx;
@@ -4353,6 +4538,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<float> rk_hit_sts_adc;
   std::vector<float> rk_hit_sts_t;
   std::vector<double> rk_hit_sts_chi2;
+#endif
  
   std::vector<int> rk_hit_gtr100_xid;
   std::vector<int> rk_hit_gtr100_yid;
@@ -4448,6 +4634,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_fit_init_pos_gx;
   std::vector<double> rk_fit_init_pos_gy;
   std::vector<double> rk_fit_init_pos_gz;
+#ifndef UseSTS
   std::vector<int> rk_fit_ssd_mid;
   std::vector<double> rk_fit_ssd_x;
   std::vector<double> rk_fit_ssd_y;
@@ -4460,6 +4647,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_fit_ssd_mom_gx;
   std::vector<double> rk_fit_ssd_mom_gy;
   std::vector<double> rk_fit_ssd_mom_gz;
+#else
   std::vector<int> rk_fit_sts_mid;
   std::vector<double> rk_fit_sts_x;
   std::vector<double> rk_fit_sts_y;
@@ -4472,6 +4660,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_fit_sts_mom_gx;
   std::vector<double> rk_fit_sts_mom_gy;
   std::vector<double> rk_fit_sts_mom_gz;
+#endif
 
 
   std::vector<int> rk_fit_gtr100_mid;
@@ -4578,8 +4767,11 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_res_init_mom_gx;
   std::vector<double> rk_res_init_mom_gy;
   std::vector<double> rk_res_init_mom_gz;
+#ifndef UseSTS
   std::vector<double> rk_res_ssd_x;
+#else
   std::vector<double> rk_res_sts_x;
+#endif
   std::vector<double> rk_res_gtr100_x;
   std::vector<double> rk_res_gtr100_y;
   std::vector<double> rk_res_gtr200_x;
@@ -4664,8 +4856,11 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_minus_mom_gx;
   std::vector<double> rk_pair_minus_mom_gy;
   std::vector<double> rk_pair_minus_mom_gz;
+#ifndef UseSTS
   std::vector<double> rk_pair_minus_ssd_t;
+#else
   std::vector<double> rk_pair_minus_sts_t;
+#endif
 
   std::vector<std::vector<double>> rk_pair_minus_lg_t;
   std::vector<int> rk_pair_plus_track_id;
@@ -4674,8 +4869,47 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_plus_mom_gx;
   std::vector<double> rk_pair_plus_mom_gy;
   std::vector<double> rk_pair_plus_mom_gz;
+#ifndef UseSTS
   std::vector<double> rk_pair_plus_ssd_t;
+  std::vector<double> rk_pair_minus_ssd_pos_refit_gx;
+  std::vector<double> rk_pair_minus_ssd_pos_refit_gy;
+  std::vector<double> rk_pair_minus_ssd_pos_refit_gz;
+  std::vector<double> rk_pair_plus_ssd_pos_refit_gx;
+  std::vector<double> rk_pair_plus_ssd_pos_refit_gy;
+  std::vector<double> rk_pair_plus_ssd_pos_refit_gz;
+  std::vector<double> rk_pair_minus_ssd_mom_refit_gx;
+  std::vector<double> rk_pair_minus_ssd_mom_refit_gy;
+  std::vector<double> rk_pair_minus_ssd_mom_refit_gz;
+  std::vector<double> rk_pair_plus_ssd_mom_refit_gx;
+  std::vector<double> rk_pair_plus_ssd_mom_refit_gy;
+  std::vector<double> rk_pair_plus_ssd_mom_refit_gz;
+  std::vector<double> rk_pair_minus_ssd_res_refit_x;
+  std::vector<double> rk_pair_minus_ssd_res_refit_y;
+  std::vector<double> rk_pair_minus_ssd_res_refit_z;
+  std::vector<double> rk_pair_plus_ssd_res_refit_x;
+  std::vector<double> rk_pair_plus_ssd_res_refit_y;
+  std::vector<double> rk_pair_plus_ssd_res_refit_z;
+#else
   std::vector<double> rk_pair_plus_sts_t;
+  std::vector<double> rk_pair_minus_sts_pos_refit_gx;
+  std::vector<double> rk_pair_minus_sts_pos_refit_gy;
+  std::vector<double> rk_pair_minus_sts_pos_refit_gz;
+  std::vector<double> rk_pair_plus_sts_pos_refit_gx;
+  std::vector<double> rk_pair_plus_sts_pos_refit_gy;
+  std::vector<double> rk_pair_plus_sts_pos_refit_gz;
+  std::vector<double> rk_pair_minus_sts_mom_refit_gx;
+  std::vector<double> rk_pair_minus_sts_mom_refit_gy;
+  std::vector<double> rk_pair_minus_sts_mom_refit_gz;
+  std::vector<double> rk_pair_plus_sts_mom_refit_gx;
+  std::vector<double> rk_pair_plus_sts_mom_refit_gy;
+  std::vector<double> rk_pair_plus_sts_mom_refit_gz;
+  std::vector<double> rk_pair_minus_sts_res_refit_x;
+  std::vector<double> rk_pair_minus_sts_res_refit_y;
+  std::vector<double> rk_pair_minus_sts_res_refit_z;
+  std::vector<double> rk_pair_plus_sts_res_refit_x;
+  std::vector<double> rk_pair_plus_sts_res_refit_y;
+  std::vector<double> rk_pair_plus_sts_res_refit_z;
+#endif
 
   std::vector<std::vector<double>> rk_pair_plus_lg_t;
   std::vector<double> rk_pair_distance;
@@ -4694,12 +4928,7 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_plus_mom_refit_gx;
   std::vector<double> rk_pair_plus_mom_refit_gy;
   std::vector<double> rk_pair_plus_mom_refit_gz;
-  std::vector<double> rk_pair_minus_ssd_pos_refit_gx;
-  std::vector<double> rk_pair_minus_sts_pos_refit_gx;
-  std::vector<double> rk_pair_minus_ssd_pos_refit_gy;
-  std::vector<double> rk_pair_minus_sts_pos_refit_gy;
-  std::vector<double> rk_pair_minus_ssd_pos_refit_gz;
-  std::vector<double> rk_pair_minus_sts_pos_refit_gz;
+
 
   std::vector<double> rk_pair_minus_gtr100_pos_refit_gx;
   std::vector<double> rk_pair_minus_gtr100_pos_refit_gy;
@@ -4710,12 +4939,6 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_minus_gtr300_pos_refit_gx;
   std::vector<double> rk_pair_minus_gtr300_pos_refit_gy;
   std::vector<double> rk_pair_minus_gtr300_pos_refit_gz;
-  std::vector<double> rk_pair_plus_ssd_pos_refit_gx;
-  std::vector<double> rk_pair_plus_ssd_pos_refit_gy;
-  std::vector<double> rk_pair_plus_ssd_pos_refit_gz;
-  std::vector<double> rk_pair_plus_sts_pos_refit_gx;
-  std::vector<double> rk_pair_plus_sts_pos_refit_gy;
-  std::vector<double> rk_pair_plus_sts_pos_refit_gz;
 
   std::vector<double> rk_pair_plus_gtr100_pos_refit_gx;
   std::vector<double> rk_pair_plus_gtr100_pos_refit_gy;
@@ -4726,12 +4949,6 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_plus_gtr300_pos_refit_gx;
   std::vector<double> rk_pair_plus_gtr300_pos_refit_gy;
   std::vector<double> rk_pair_plus_gtr300_pos_refit_gz;
-  std::vector<double> rk_pair_minus_ssd_mom_refit_gx;
-  std::vector<double> rk_pair_minus_ssd_mom_refit_gy;
-  std::vector<double> rk_pair_minus_ssd_mom_refit_gz;
-  std::vector<double> rk_pair_minus_sts_mom_refit_gx;
-  std::vector<double> rk_pair_minus_sts_mom_refit_gy;
-  std::vector<double> rk_pair_minus_sts_mom_refit_gz;
   std::vector<double> rk_pair_minus_gtr100_mom_refit_gx;
   std::vector<double> rk_pair_minus_gtr100_mom_refit_gy;
   std::vector<double> rk_pair_minus_gtr100_mom_refit_gz;
@@ -4741,12 +4958,6 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_minus_gtr300_mom_refit_gx;
   std::vector<double> rk_pair_minus_gtr300_mom_refit_gy;
   std::vector<double> rk_pair_minus_gtr300_mom_refit_gz;
-  std::vector<double> rk_pair_plus_ssd_mom_refit_gx;
-  std::vector<double> rk_pair_plus_ssd_mom_refit_gy;
-  std::vector<double> rk_pair_plus_ssd_mom_refit_gz;
-  std::vector<double> rk_pair_plus_sts_mom_refit_gx;
-  std::vector<double> rk_pair_plus_sts_mom_refit_gy;
-  std::vector<double> rk_pair_plus_sts_mom_refit_gz;
   std::vector<double> rk_pair_plus_gtr100_mom_refit_gx;
   std::vector<double> rk_pair_plus_gtr100_mom_refit_gy;
   std::vector<double> rk_pair_plus_gtr100_mom_refit_gz;
@@ -4756,12 +4967,6 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_plus_gtr300_mom_refit_gx;
   std::vector<double> rk_pair_plus_gtr300_mom_refit_gy;
   std::vector<double> rk_pair_plus_gtr300_mom_refit_gz;
-  std::vector<double> rk_pair_minus_ssd_res_refit_x;
-  std::vector<double> rk_pair_minus_ssd_res_refit_y;
-  std::vector<double> rk_pair_minus_ssd_res_refit_z;
-  std::vector<double> rk_pair_minus_sts_res_refit_x;
-  std::vector<double> rk_pair_minus_sts_res_refit_y;
-  std::vector<double> rk_pair_minus_sts_res_refit_z;
   std::vector<double> rk_pair_minus_gtr100_res_refit_x;
   std::vector<double> rk_pair_minus_gtr100_res_refit_y;
   std::vector<double> rk_pair_minus_gtr100_res_refit_z;
@@ -4771,12 +4976,6 @@ class E16ANA_StraightTrackCheckFile {
   std::vector<double> rk_pair_minus_gtr300_res_refit_x;
   std::vector<double> rk_pair_minus_gtr300_res_refit_y;
   std::vector<double> rk_pair_minus_gtr300_res_refit_z;
-  std::vector<double> rk_pair_plus_ssd_res_refit_x;
-  std::vector<double> rk_pair_plus_ssd_res_refit_y;
-  std::vector<double> rk_pair_plus_ssd_res_refit_z;
-  std::vector<double> rk_pair_plus_sts_res_refit_x;
-  std::vector<double> rk_pair_plus_sts_res_refit_y;
-  std::vector<double> rk_pair_plus_sts_res_refit_z;
   std::vector<double> rk_pair_plus_gtr100_res_refit_x;
   std::vector<double> rk_pair_plus_gtr100_res_refit_y;
   std::vector<double> rk_pair_plus_gtr100_res_refit_z;
