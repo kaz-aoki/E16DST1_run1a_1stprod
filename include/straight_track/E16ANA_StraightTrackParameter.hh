@@ -41,7 +41,7 @@ constexpr const std::array<double, 5> kWireXSigma = {999999, 2.0, 0.5, 0.5, 0.5}
 const TVector3 kInitPosError = {3., 3.4, 3.};
 #else 
 const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};
-constexpr const std::array<double, 5> kWireXSigma = {999999, 0.05, 0.3, 10.0, 0.3}; 
+constexpr const std::array<double, 5> kWireXSigma = {999999, 0.05, 0.3, 0.3, 0.3}; 
 const TVector3 kInitPosError = {999999, 3.4, 999999};
 #endif
 
@@ -142,7 +142,7 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 
 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {5000., 30.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 30.}; // x, y from previous Ks peak
 #else
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {250., 25.}; // x, y from previous Ks peak
 #endif

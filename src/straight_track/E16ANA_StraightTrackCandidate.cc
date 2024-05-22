@@ -559,177 +559,127 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
 //  return false;
 //}
 
-bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
-  auto& pos_set = cluster_set->global_poss;
-//targets position 
-  int n_tgt = targets_pos.size(); 
-  std::vector<double> tgt_y;
-  std::vector<double> tgt_r;
-  tgt_y.resize(n_tgt);
-  tgt_r.resize(n_tgt);
-  for(int i=0; i < n_tgt; i++){
-     tgt_y[i] = targets_pos[i].y();
-     tgt_r[i] = targets_pos[i].x() * targets_pos[i].x() + targets_pos[i].z() * targets_pos[i].z();
-  }
-
-#ifdef REMOVE_GTR100
-  std::array<double, kNumGTRLayers> gtr_y({0, pos_set[2].Y(), pos_set[3].Y()});
-  std::array<double, kNumGTRLayers> gtr_r({0,
-                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
-                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-#elif REMOVE_GTR200
-  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), 0, pos_set[3].Y()});
-  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
-                                           0,
-                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-#elif REMOVE_GTR300
-  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), 0});
-  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
-                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
-                                           0 });
-#else
-  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
-  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
-                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
-                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-
-#endif
-
-
-  if (fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[1] * gtr_y[1]) > kGTRYDiffThreshold ||
-      fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold ||
-      fabs(kGTRSizeCoef[1] * gtr_y[1] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold) {
-//cout << "y subtract bad" << endl;
-#ifdef TRACK_EFF_CHECK
-    for (int i = 0; i < 2; ++i) {
-      if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
-        y_reject_point[i] += Pow2(kRejYSubtract);
-      }
-    }
-#endif
-    return false;
-  }
-
-  double r2 [n_tgt]={ 0.};
-  double r  [n_tgt]={ 0.};
-  double c  [n_tgt]={ 0.};
-  double ry [n_tgt]={ 0.};
-  double y  [n_tgt]={ 0.};
-
-  
-  for (int tgt = 0; tgt < n_tgt; ++tgt) {
-    r2[tgt] += kWeightInit[1] * tgt_r[tgt] * tgt_r[tgt];
-    r [tgt] += kWeightInit[1] * tgt_r[tgt];
-    c [tgt] += kWeightInit[1];
-    ry[tgt] += kWeightInit[1] * tgt_r[tgt] * tgt_y[tgt];
-    y [tgt] += kWeightInit[1] * tgt_y[tgt];
-	 
-    for (int i = 0; i < kNumGTRLayers; ++i) {
-      r2[tgt] += kYWeight[i] * gtr_r[i] * gtr_r[i];
-      r [tgt] += kYWeight[i] * gtr_r[i];
-      c [tgt] += kYWeight[i];
-      ry[tgt] += kYWeight[i] * gtr_r[i] * gtr_y[i];
-      y [tgt] += kYWeight[i] * gtr_y[i];
-    }
-  }
-  
-  
-  std::vector<std::vector<double>> coef;
-  coef.resize(n_tgt);	
-  for(int tgt=0; tgt < n_tgt; tgt++){
-	 coef[tgt].resize(kNumRoughFitDegree[1]);
-    coef[tgt] = {(r2[tgt] * y[tgt]  - r[tgt] * ry[tgt]) / (c[tgt] * r2[tgt] - r[tgt] * r[tgt]),
-                  (c[tgt]  * ry[tgt] - r[tgt] * y[tgt])  / (c[tgt] * r2[tgt] - r[tgt] * r[tgt])};
-  }
-
-  double chi2_cand[n_tgt] = {0.};
-
-  
-  for (int tgt = 0; tgt < n_tgt; ++tgt) {
-    std::array<double, kNumGTRLayers + 1> fit_y;
-    for (int i = 0; i < kNumGTRLayers; ++i) {
-      fit_y[i] = coef[tgt][0] + coef[tgt][1] * gtr_r[i];//a + bx 
-      chi2_cand[tgt] += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
-    }
-    fit_y[kNumGTRLayers + 1] = coef[tgt][0] + coef[tgt][1] * tgt_r[tgt];//a + bx 
-    chi2_cand[tgt] += kWeightInit[1] * (fit_y[kNumGTRLayers + 1] - tgt_y[tgt]) * (fit_y[kNumGTRLayers + 1] - tgt_y[tgt]);
-  }
-
-  double min_chi2 = 999999;
-  int min_tgt_id = 99999;
-  for(int i=0; i < n_tgt; i++){
-    if(chi2_cand[i] < min_chi2) {
-      min_chi2 = chi2_cand[i];
-		min_tgt_id = i;
-	 }
-  }
-  
-
-  if (min_chi2 < kRoughFitChiSquareThreshold[1] && fabs(coef[min_tgt_id][0]) < kRoughYFitCoefficientThreshold[0]) {
-    cluster_set->xy = coef[min_tgt_id][0];
-    cluster_set->chi_square = min_chi2;
-    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
-      cluster_set->coefs[i] = coef[min_tgt_id][i];
-    }
-    return true;
-  }
-#ifdef TRACK_EFF_CHECK
-  for (int i = 0; i < 2; ++i) {
-    if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
-      if (min_chi2 < kRoughFitChiSquareThreshold[1]) {
-        y_reject_point[i] += Pow2(kRejYChi2);
-      }
-      if (fabs(coef[min_tgt_id][0]) < kRoughYFitCoefficientThreshold[0]) {
-        y_reject_point[i] += Pow2(kRejYCoef0);
-      }
-    }
-  }
-#endif
-//cout << "y chi2 bad" << endl;
-  return false;
-
-//  double r2 = 0.;
-//  double r  = 0.;
-//  double c  = 0.;
-//  double ry = 0.;
-//  double y  = 0.;
-//  for (int i = 0; i < kNumGTRLayers; ++i) {
-//    r2 += kYWeight[i] * gtr_r[i] * gtr_r[i];
-//    r  += kYWeight[i] * gtr_r[i];
-//    c  += kYWeight[i];
-//    ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
-//    y  += kYWeight[i] * gtr_y[i];
+//bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
+//  auto& pos_set = cluster_set->global_poss;
+////targets position 
+//  int n_tgt = targets_pos.size(); 
+//  std::vector<double> tgt_y;
+//  std::vector<double> tgt_r;
+//  tgt_y.resize(n_tgt);
+//  tgt_r.resize(n_tgt);
+//  for(int i=0; i < n_tgt; i++){
+//     tgt_y[i] = targets_pos[i].y();
+//     tgt_r[i] = targets_pos[i].x() * targets_pos[i].x() + targets_pos[i].z() * targets_pos[i].z();
 //  }
 //
+//#ifdef REMOVE_GTR100
+//  std::array<double, kNumGTRLayers> gtr_y({0, pos_set[2].Y(), pos_set[3].Y()});
+//  std::array<double, kNumGTRLayers> gtr_r({0,
+//                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
+//                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
+//#elif REMOVE_GTR200
+//  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), 0, pos_set[3].Y()});
+//  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
+//                                           0,
+//                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
+//#elif REMOVE_GTR300
+//  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), 0});
+//  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
+//                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
+//                                           0 });
+//#else
+//  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
+//  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
+//                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
+//                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
+//
+//#endif
 //
 //
+//  if (fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[1] * gtr_y[1]) > kGTRYDiffThreshold ||
+//      fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold ||
+//      fabs(kGTRSizeCoef[1] * gtr_y[1] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold) {
+////cout << "y subtract bad" << endl;
+//#ifdef TRACK_EFF_CHECK
+//    for (int i = 0; i < 2; ++i) {
+//      if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
+//        y_reject_point[i] += Pow2(kRejYSubtract);
+//      }
+//    }
+//#endif
+//    return false;
+//  }
+//
+//  double r2 [n_tgt]={ 0.};
+//  double r  [n_tgt]={ 0.};
+//  double c  [n_tgt]={ 0.};
+//  double ry [n_tgt]={ 0.};
+//  double y  [n_tgt]={ 0.};
 //
 //  
-//  std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
-//                                                  (c  * ry - r * y)  / (c * r2 - r * r)});
-//  double chi2_cand = 0.;
-//  std::array<double, kNumGTRLayers> fit_y;
-//  for (int i = 0; i < kNumGTRLayers; ++i) {
-//    fit_y[i] = coef[0] + coef[1] * gtr_r[i];//a + bx 
-//    chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
+//  for (int tgt = 0; tgt < n_tgt; ++tgt) {
+//    r2[tgt] += kWeightInit[1] * tgt_r[tgt] * tgt_r[tgt];
+//    r [tgt] += kWeightInit[1] * tgt_r[tgt];
+//    c [tgt] += kWeightInit[1];
+//    ry[tgt] += kWeightInit[1] * tgt_r[tgt] * tgt_y[tgt];
+//    y [tgt] += kWeightInit[1] * tgt_y[tgt];
+//	 
+//    for (int i = 0; i < kNumGTRLayers; ++i) {
+//      r2[tgt] += kYWeight[i] * gtr_r[i] * gtr_r[i];
+//      r [tgt] += kYWeight[i] * gtr_r[i];
+//      c [tgt] += kYWeight[i];
+//      ry[tgt] += kYWeight[i] * gtr_r[i] * gtr_y[i];
+//      y [tgt] += kYWeight[i] * gtr_y[i];
+//    }
+//  }
+//  
+//  
+//  std::vector<std::vector<double>> coef;
+//  coef.resize(n_tgt);	
+//  for(int tgt=0; tgt < n_tgt; tgt++){
+//	 coef[tgt].resize(kNumRoughFitDegree[1]);
+//    coef[tgt] = {(r2[tgt] * y[tgt]  - r[tgt] * ry[tgt]) / (c[tgt] * r2[tgt] - r[tgt] * r[tgt]),
+//                  (c[tgt]  * ry[tgt] - r[tgt] * y[tgt])  / (c[tgt] * r2[tgt] - r[tgt] * r[tgt])};
 //  }
 //
+//  double chi2_cand[n_tgt] = {0.};
 //
-//  if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
-//    cluster_set->xy = coef[0];
-//    cluster_set->chi_square = chi2_cand;
+//  
+//  for (int tgt = 0; tgt < n_tgt; ++tgt) {
+//    std::array<double, kNumGTRLayers + 1> fit_y;
+//    for (int i = 0; i < kNumGTRLayers; ++i) {
+//      fit_y[i] = coef[tgt][0] + coef[tgt][1] * gtr_r[i];//a + bx 
+//      chi2_cand[tgt] += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
+//    }
+//    fit_y[kNumGTRLayers + 1] = coef[tgt][0] + coef[tgt][1] * tgt_r[tgt];//a + bx 
+//    chi2_cand[tgt] += kWeightInit[1] * (fit_y[kNumGTRLayers + 1] - tgt_y[tgt]) * (fit_y[kNumGTRLayers + 1] - tgt_y[tgt]);
+//  }
+//
+//  double min_chi2 = 999999;
+//  int min_tgt_id = 99999;
+//  for(int i=0; i < n_tgt; i++){
+//    if(chi2_cand[i] < min_chi2) {
+//      min_chi2 = chi2_cand[i];
+//		min_tgt_id = i;
+//	 }
+//  }
+//  
+//
+//  if (min_chi2 < kRoughFitChiSquareThreshold[1] && fabs(coef[min_tgt_id][0]) < kRoughYFitCoefficientThreshold[0]) {
+//    cluster_set->xy = coef[min_tgt_id][0];
+//    cluster_set->chi_square = min_chi2;
 //    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
-//      cluster_set->coefs[i] = coef[i];
+//      cluster_set->coefs[i] = coef[min_tgt_id][i];
 //    }
 //    return true;
 //  }
 //#ifdef TRACK_EFF_CHECK
 //  for (int i = 0; i < 2; ++i) {
 //    if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
-//      if (chi2_cand < kRoughFitChiSquareThreshold[1]) {
+//      if (min_chi2 < kRoughFitChiSquareThreshold[1]) {
 //        y_reject_point[i] += Pow2(kRejYChi2);
 //      }
-//      if (fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
+//      if (fabs(coef[min_tgt_id][0]) < kRoughYFitCoefficientThreshold[0]) {
 //        y_reject_point[i] += Pow2(kRejYCoef0);
 //      }
 //    }
@@ -737,79 +687,129 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
 //#endif
 ////cout << "y chi2 bad" << endl;
 //  return false;
-}
-
-
-//bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
-//  auto& pos_set = cluster_set->global_poss;
-//  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
-//  std::array<double, kNumGTRLayers> gtr_r({sqrt(pow(pos_set[1].X()-20,2) +pow(pos_set[1].Z()+40,2)),
-//	sqrt(pow(pos_set[2].X()-20,2) +pow(pos_set[2].Z()+40,2)),
-//	sqrt(pow(pos_set[3].X()-20,2) +pow(pos_set[3].Z()+40,2))});
-//  double r2 = 0.;
-//  double r  = 0.;
-//  double c  = 0.;
-//  double ry = 0.;
-//  double y  = 0.;
-//  for (int i = 0; i < kNumGTRLayers; ++i) {
-//    r2 += kYWeight[i] * gtr_r[i] * gtr_r[i];
-//    r  += kYWeight[i] * gtr_r[i];
-//    c  += kYWeight[i];
-//    ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
-//    y  += kYWeight[i] * gtr_y[i];
-//  }
-//  std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
-//                                                  (c  * ry - r * y)  / (c * r2 - r * r)});
-//  double chi2_cand = 0.;
-//  std::array<double, kNumGTRLayers> fit_y;
-//  for (int i = 0; i < kNumGTRLayers; ++i) {
-//    fit_y[i] = coef[0] + coef[1] * gtr_r[i];
-//    chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
-//  }
-//  if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
-//    cluster_set->xy = coef[0];
-//    cluster_set->chi_square = chi2_cand;
-//    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
-//      cluster_set->coefs[i] = coef[i];
-//    }
-//    return true;
-//  }else{
-//    std::array<double, kNumGTRLayers> gtr_r2({sqrt(pow(pos_set[1].X()-20,2) +pow(pos_set[1].Z()-40,2)),
-//	  sqrt(pow(pos_set[2].X()-20,2) +pow(pos_set[2].Z()-40,2)),
-//	  sqrt(pow(pos_set[3].X()-20,2) +pow(pos_set[3].Z()-40,2))});
-//      
-//    double dr2 = 0.;
-//    double dr  = 0.;
-//    double dc  = 0.;
-//    double dry = 0.;
-//    double dy  = 0.;
-//    for (int i = 0; i < kNumGTRLayers; ++i) {
-//      dr2 += kYWeight[i] * gtr_r2[i] * gtr_r2[i];
-//      dr  += kYWeight[i] * gtr_r2[i];
-//      dc  += kYWeight[i];
-//      dry += kYWeight[i] * gtr_r2[i] * gtr_y[i];
-//      dy  += kYWeight[i] * gtr_y[i];
-//    }
-//    std::array<double, kNumRoughFitDegree[1]> dcoef({(dr2 * dy  - dr * dry) / (dc * dr2 - dr * dr),
-//	  (dc  * dry - dr * dy)  / (dc * dr2 - dr * dr)});
-//    double dchi2_cand = 0.;
-//    std::array<double, kNumGTRLayers> dfit_y;
 //
-//    for (int i = 0; i < kNumGTRLayers; ++i) {
-//      dfit_y[i] = dcoef[0] + dcoef[1] * gtr_r2[i];
-//      dchi2_cand += kYWeight[i] * (dfit_y[i] - gtr_y[i]) * (dfit_y[i] - gtr_y[i]);
-//    }
-//    if (dchi2_cand < kRoughFitChiSquareThreshold[1] && fabs(dcoef[0]) < kRoughYFitCoefficientThreshold[0]) {
-//      cluster_set->xy = dcoef[0];
-//      cluster_set->chi_square = dchi2_cand;
-//      for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
-//	cluster_set->coefs[i] = dcoef[i];
-//      }
-//      return true;
-//    }
-//  }
-//  return false;
+////  double r2 = 0.;
+////  double r  = 0.;
+////  double c  = 0.;
+////  double ry = 0.;
+////  double y  = 0.;
+////  for (int i = 0; i < kNumGTRLayers; ++i) {
+////    r2 += kYWeight[i] * gtr_r[i] * gtr_r[i];
+////    r  += kYWeight[i] * gtr_r[i];
+////    c  += kYWeight[i];
+////    ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
+////    y  += kYWeight[i] * gtr_y[i];
+////  }
+////
+////
+////
+////
+////  
+////  std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
+////                                                  (c  * ry - r * y)  / (c * r2 - r * r)});
+////  double chi2_cand = 0.;
+////  std::array<double, kNumGTRLayers> fit_y;
+////  for (int i = 0; i < kNumGTRLayers; ++i) {
+////    fit_y[i] = coef[0] + coef[1] * gtr_r[i];//a + bx 
+////    chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
+////  }
+////
+////
+////  if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
+////    cluster_set->xy = coef[0];
+////    cluster_set->chi_square = chi2_cand;
+////    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
+////      cluster_set->coefs[i] = coef[i];
+////    }
+////    return true;
+////  }
+////#ifdef TRACK_EFF_CHECK
+////  for (int i = 0; i < 2; ++i) {
+////    if (is_sim_ycluster[i][0] && is_sim_ycluster[i][1] && is_sim_ycluster[i][2]) {
+////      if (chi2_cand < kRoughFitChiSquareThreshold[1]) {
+////        y_reject_point[i] += Pow2(kRejYChi2);
+////      }
+////      if (fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
+////        y_reject_point[i] += Pow2(kRejYCoef0);
+////      }
+////    }
+////  }
+////#endif
+//////cout << "y chi2 bad" << endl;
+////  return false;
 //}
+//
+
+bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
+  auto& pos_set = cluster_set->global_poss;
+  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
+  std::array<double, kNumGTRLayers> gtr_r({sqrt(pow(pos_set[1].X()-20,2) +pow(pos_set[1].Z()+40,2)),
+	sqrt(pow(pos_set[2].X()-20,2) +pow(pos_set[2].Z()+40,2)),
+	sqrt(pow(pos_set[3].X()-20,2) +pow(pos_set[3].Z()+40,2))});
+  double r2 = 0.;
+  double r  = 0.;
+  double c  = 0.;
+  double ry = 0.;
+  double y  = 0.;
+  for (int i = 0; i < kNumGTRLayers; ++i) {
+    r2 += kYWeight[i] * gtr_r[i] * gtr_r[i];
+    r  += kYWeight[i] * gtr_r[i];
+    c  += kYWeight[i];
+    ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
+    y  += kYWeight[i] * gtr_y[i];
+  }
+  std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
+                                                  (c  * ry - r * y)  / (c * r2 - r * r)});
+  double chi2_cand = 0.;
+  std::array<double, kNumGTRLayers> fit_y;
+  for (int i = 0; i < kNumGTRLayers; ++i) {
+    fit_y[i] = coef[0] + coef[1] * gtr_r[i];
+    chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
+  }
+  if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
+    cluster_set->xy = coef[0];
+    cluster_set->chi_square = chi2_cand;
+    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
+      cluster_set->coefs[i] = coef[i];
+    }
+    return true;
+  }else{
+    std::array<double, kNumGTRLayers> gtr_r2({sqrt(pow(pos_set[1].X()-20,2) +pow(pos_set[1].Z()-40,2)),
+	  sqrt(pow(pos_set[2].X()-20,2) +pow(pos_set[2].Z()-40,2)),
+	  sqrt(pow(pos_set[3].X()-20,2) +pow(pos_set[3].Z()-40,2))});
+      
+    double dr2 = 0.;
+    double dr  = 0.;
+    double dc  = 0.;
+    double dry = 0.;
+    double dy  = 0.;
+    for (int i = 0; i < kNumGTRLayers; ++i) {
+      dr2 += kYWeight[i] * gtr_r2[i] * gtr_r2[i];
+      dr  += kYWeight[i] * gtr_r2[i];
+      dc  += kYWeight[i];
+      dry += kYWeight[i] * gtr_r2[i] * gtr_y[i];
+      dy  += kYWeight[i] * gtr_y[i];
+    }
+    std::array<double, kNumRoughFitDegree[1]> dcoef({(dr2 * dy  - dr * dry) / (dc * dr2 - dr * dr),
+	  (dc  * dry - dr * dy)  / (dc * dr2 - dr * dr)});
+    double dchi2_cand = 0.;
+    std::array<double, kNumGTRLayers> dfit_y;
+
+    for (int i = 0; i < kNumGTRLayers; ++i) {
+      dfit_y[i] = dcoef[0] + dcoef[1] * gtr_r2[i];
+      dchi2_cand += kYWeight[i] * (dfit_y[i] - gtr_y[i]) * (dfit_y[i] - gtr_y[i]);
+    }
+    if (dchi2_cand < kRoughFitChiSquareThreshold[1] && fabs(dcoef[0]) < kRoughYFitCoefficientThreshold[0]) {
+      cluster_set->xy = dcoef[0];
+      cluster_set->chi_square = dchi2_cand;
+      for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
+	cluster_set->coefs[i] = dcoef[i];
+      }
+      return true;
+    }
+  }
+  return false;
+}
 
 double E16ANA_StraightTrackCandidates::GTRTimeDiffThreshold(int n) { return kGTRTimeDiffThreshold[n]; }
 double E16ANA_StraightTrackCandidates::XSigma(int n) { return kXSigmaIncTgt[n]; }
@@ -1020,6 +1020,9 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
 //E16MESSAGE("number of y candidates: %d", n_y_cands);
 E16INFO("number of x candidates: %d", n_x_cands);
 E16INFO("number of y candidates: %d", n_y_cands);
+
+  if(n_x_cands > 500) return;
+  if(n_y_cands > 500) return;
   
   int count = 0;
   int county = 0;
