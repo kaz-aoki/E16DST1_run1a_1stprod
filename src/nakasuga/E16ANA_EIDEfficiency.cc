@@ -657,7 +657,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    char det[ndet][20] = {"HBD","LGHit"};
    const int ntrktype=6;
    char trktype[ntrktype][20] = {"w/o_HBD&LG_kgs","w/HBD_kgs","w/LG_kgs","w/HBDLG_kgs","w/HBD_kh","w/HBDf&m_kh"};
-   int eptype = 4;
+   int eptype = 1;
    int roughbin[ndet] = {200,50};
    // if(runoption==0){
    //   roughbin[0] = 400;
@@ -786,6 +786,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      }
    }
    TH2F* hbdhitmap[5];
+   TH1F* hbdadc[5];
+   TH1F* hbdadcd[5];
    TH1F* hbdadcwot[5];
    TH1F* hbdadcwotd[5];
    TH1F* hbdadcwt[5];
@@ -907,6 +909,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    }
    for(int i=0;i<5;i++){
      hbdhitmap[i] = new TH2F(Form("hbdhitmap%d",i),Form("HBDhitmap_mod%d_Fore",103+i),50,-300,300,50,-300,300);
+     hbdadc[i] = new TH1F(Form("hbdadc%d",i),Form("HBDadc_TrackAssoc_mod%d_Fore",103+i),100,0,20);
+     hbdadcd[i] = new TH1F(Form("hbdadcd%d",i),Form("HBDadc_TrackAssoc_mod%d_Mix",103+i),100,0,20);
      hbdadcwot[i] = new TH1F(Form("hbdadcwot%d",i),Form("HBDadc_TrackAssoc_wotrg_mod%d_Fore",103+i),100,0,20);
      hbdadcwotd[i] = new TH1F(Form("hbdadcwotd%d",i),Form("HBDadc_TrackAssoc_wotrg_mod%d_Mix",103+i),100,0,20);
      hbdadcwt[i] = new TH1F(Form("hbdadcwt%d",i),Form("HBDadc_TrackAssoc_wtrg_mod%d_Fore",103+i),100,0,20);
@@ -914,15 +918,15 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      hexp[i] = new TH1F(Form("hexp%d",i),Form("expected_LG_AdcSum/Mom_TrackAssoc_mod%d",103+i),32,0,800/ienepar[bene]);
      hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_AdcSum_Fore_TrackAssoc_mod%d",103+i),128,0,800/ienepar[bene]);
      hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_AdcSum_Mix_TrackAssoc_mod%d",103+i),128,0,800/ienepar[bene]);
-     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),100,0,1,40,0,240/ienepar[bene]);
-     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),100,0,1,40,0,240/ienepar[bene]);
-     hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),100,0,1,50,0,600/ienepar[bene]);
-     hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),100,0,1,50,0,600/ienepar[bene]);
-     // hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,1.5,200,0,600/ienepar[bene]);
-     // hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,1.5,200,0,600/ienepar[bene]);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),25,0,1.5,40,0,240/ienepar[bene]);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),25,0,1.5,40,0,240/ienepar[bene]);
+     hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,3,50,0,600/ienepar[bene]);
+     hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,3,50,0,600/ienepar[bene]);
+     // hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,3,200,0,600/ienepar[bene]);
+     // hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,3,200,0,600/ienepar[bene]);
      for(int j=0;j<42;j++){
-       hevspe[i][j] = new TH2F(Form("hevspe%d%d",i,j),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d_blk%d",103+i,(int)j/7*10+j%7),100,0,1,50,0,600/ienepar[bene]);
-       hevsped[i][j] = new TH2F(Form("hevsped%d%d",i,j),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_blk%d",103+i,(int)j/7*10+j%7),100,0,1,50,0,600/ienepar[bene]);
+       hevspe[i][j] = new TH2F(Form("hevspe%d%d",i,j),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d_blk%d",103+i,(int)j/7*10+j%7),50,0,3,50,0,600/ienepar[bene]);
+       hevsped[i][j] = new TH2F(Form("hevsped%d%d",i,j),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_blk%d",103+i,(int)j/7*10+j%7),50,0,3,50,0,600/ienepar[bene]);
        hedivpe[i][j] = new TH1F(Form("hedivpe%d%d",i,j),Form("LG_AdcSum/Mom_Fore_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),16,0,800/ienepar[bene]);
        hedivped[i][j] = new TH1F(Form("hedivped%d%d",i,j),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),16,0,800/ienepar[bene]);
        heffe[i][j] = new TH1F(Form("heffe%d%d",i,j),Form("LG_Efficiency_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),3,0,3);
@@ -933,8 +937,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        heffem[i][j] = new TH1F(Form("heffem%d%d",i,j),Form("LG_Efficiency_TrackAssoc_mod%d_blk%d",103+i,j),3,0,3);
        heffemvstrg[i][j] = new TH2F(Form("heffemvstrg%d%d",i,j),Form("TrgBias_vs_LG_Efficiency_TrackAssoc_mod%d_blk%d",103+i,j),3,0,3,3,0,3);
      }
-     heovpvsp[i] = new TH2F(Form("heovpvsp%d",i),Form("LG_E/pVsMom_Fore_TrackAssoc_mod%d",103+i),100,0,1,50,0,600/ienepar[bene]);
-     heovpvspd[i] = new TH2F(Form("heovpovspd%d",i),Form("LG_E/pVsMom_Mix_TrackAssoc_mod%d",103+i),100,0,1,50,0,600/ienepar[bene]);
+     heovpvsp[i] = new TH2F(Form("heovpvsp%d",i),Form("LG_E/pVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,3,50,0,600/ienepar[bene]);
+     heovpvspd[i] = new TH2F(Form("heovpovspd%d",i),Form("LG_E/pVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,3,50,0,600/ienepar[bene]);
      for(int j=0;j<4;j++){
        hedivp[j][i] = new TH1F(Form("hedivp%d%d",j,i),Form("LG_AdcSum/Mom_Fore_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
        hedivpd[j][i] = new TH1F(Form("hedivpd%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
@@ -976,9 +980,9 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      for(int j=0;j<3;j++){
        htheta[i][j] = new TH1F(Form("htheta%d%d",i,j),Form("theta(deg)_TrackAssoc_Fore_mod%d_over%dGeV/c",103+i,j),40,-40,40);
      }
-     hevsprd_hmix[i] = new TH2F(Form("hevsprd_hmix%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_hmix",103+i),100,0,1,50,0,600/ienepar[bene]);
-     // hevsprd_hmix[i] = new TH2F(Form("hevsprd_hmix%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_hmix",103+i),50,0,1.5,100,0,600/ienepar[bene]);
-     heovpvspd_hmix[i] = new TH2F(Form("heovpovspd_hmix%d",i),Form("LG_E/pVsMom_Mix_TrackAssoc_mod%d_hmix",103+i),100,0,1,50,0,600/ienepar[bene]);
+     hevsprd_hmix[i] = new TH2F(Form("hevsprd_hmix%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_hmix",103+i),50,0,3,50,0,600/ienepar[bene]);
+     // hevsprd_hmix[i] = new TH2F(Form("hevsprd_hmix%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_hmix",103+i),50,0,3,100,0,600/ienepar[bene]);
+     heovpvspd_hmix[i] = new TH2F(Form("heovpovspd_hmix%d",i),Form("LG_E/pVsMom_Mix_TrackAssoc_mod%d_hmix",103+i),50,0,3,50,0,600/ienepar[bene]);
      hnlghitwtcd_hmix[i] = new TH1F(Form("hnlghitwtcd_hmix%d",i),Form("N_LGHits_TrackAssoc_inCluster_Mix_mod%d_hmix",103+i),10,0,10);
      htdiffcd_hmix[i] = new TH1F(Form("htdiffcd_hmix%d",i),Form("MaxTimeDifference_TrackAssoc_inCluster_Mix_mod%d_hmix",103+i),100,0,20);
      hcogxcd_hmix[i] = new TH1F(Form("hcogxcd_hmix%d",i),Form("COGx_residual_TrackAssoc_inCluster_Mix_mod%d_hmix",103+i),100,-150,150);
@@ -1221,6 +1225,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   hbdadcwot[hmide]->Fill(hbdmaxadc);
 	   hbdadcwot[2]->Fill(hbdmaxadc);
 	 }
+	 hbdadc[hmide]->Fill(hbdmaxadc);
+	 hbdadc[2]->Fill(hbdmaxadc);
 	 hbdadcvsmom[hmide]->Fill(track_mom->at(itrack),hbdmaxadc);
 	 if(lmide==0||lmide==1){hbdadcvsmom[2]->Fill(track_mom->at(itrack),hbdmaxadc);}
 	 if(lmide==3||lmide==4){hbdadcvsmom[5]->Fill(track_mom->at(itrack),hbdmaxadc);}
@@ -1286,6 +1292,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	       hbdadcwotd[hmide]->Fill(hbdmaxadc_dum);
 	       hbdadcwotd[2]->Fill(hbdmaxadc_dum);
 	     }
+	     hbdadcd[hmide]->Fill(hbdmaxadc_dum);
+	     hbdadcd[2]->Fill(hbdmaxadc_dum);
 	   }
 	 }
        }//calc mix
@@ -2788,7 +2796,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // }
    // cexp->SaveAs(outfile,"pdf");
    for(int l=0;l<ntrktype;l++){
-     if(l==1||l==2||l==3) continue;
+     // if(l==1||l==2||l==3) continue;
+     if(l==2||l==3||l==4||l==5) continue;
      cnt[l]->SaveAs(outfile,"pdf");
      for(int k=0;k<ndet;k++){
        cn[k][l]->SaveAs(outfile,"pdf");
