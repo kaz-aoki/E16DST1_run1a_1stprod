@@ -3064,7 +3064,7 @@ class E16ANA_StraightTrackCheckFile {
       rk_hit_sts_gx[i] = stshit_gpos.X();
       rk_hit_sts_gy[i] = stshit_gpos.Y();
       rk_hit_sts_gz[i] = stshit_gpos.Z();
-      auto sts_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
+      auto sts_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
       if(sts_clst != 0){
 	      rk_hit_sts_id[i] =  sts_clst->ClusterId();
 	      rk_hit_sts_adc[i] = sts_clst->PeakSum();
@@ -3725,12 +3725,12 @@ class E16ANA_StraightTrackCheckFile {
       rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
 		}
 #else 
-      auto sts_minus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
+      auto sts_minus = dynamic_cast<E16DST_DST1STSCluster*>(pair.cand_minus->ClusterPair(0).Cluster(0));
 		if(sts_minus !=nullptr){
       	rk_pair_minus_sts_t[i] = sts_minus->Timing();
 		}
 
-      auto sts_plus = dynamic_cast<E16DST_DST1SSDCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
+      auto sts_plus = dynamic_cast<E16DST_DST1STSCluster*>(pair.cand_plus->ClusterPair(0).Cluster(0));
       if(sts_plus != nullptr){
       rk_pair_plus_sts_t[i] = sts_plus->Timing();
 		}

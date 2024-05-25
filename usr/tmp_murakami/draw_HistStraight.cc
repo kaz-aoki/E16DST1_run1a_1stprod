@@ -22,8 +22,7 @@ int main (int argc, char** argv) {
 //	TTree *tree          = (TTree*)fin->Get("outtree");
 	std::vector<TVector3> dummy;
 	E16DSTN_ReStraightV2 *rt = new E16DSTN_ReStraightV2(tree, out_file.c_str(), nullptr, nullptr, dummy);//initialize
-	int nevent           = tree->GetEntries();
-	int print_cycle      = 10000;
+	int print_cycle      = 1000;
    
 	rt->DrawHist(tree, maxevent,  print_cycle, residual_layer, pdf_name);
 	return 0;	

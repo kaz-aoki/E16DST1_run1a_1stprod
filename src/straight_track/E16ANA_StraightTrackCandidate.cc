@@ -318,11 +318,11 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
    	  double rlx2[]={rtargets[1].X(),rpositions[0].X(),rpositions[1].X(),rpositions[2].X(),rpositions[3].X()};//wire1_x
     	  double rlz2[]={rtargets[1].Y(),rpositions[0].Y(),rpositions[1].Y(),rpositions[2].Y(),rpositions[3].Y()};//wire1_y
 
-        std::cout << "t : " << rtargets[0].X() << " " << rtargets[0].Y() << std::endl;
-        std::cout << "0 : " << rpositions[0].X() << " " << rpositions[0].Y() << std::endl;
-        std::cout << "1 : " << rpositions[1].X() << " " << rpositions[1].Y() << std::endl;
-        std::cout << "2 : " << rpositions[2].X() << " " << rpositions[2].Y() << std::endl;
-        std::cout << "3 : " << rpositions[3].X() << " " << rpositions[3].Y() << std::endl;
+//        std::cout << "t : " << rtargets[0].X() << " " << rtargets[0].Y() << std::endl;
+//        std::cout << "0 : " << rpositions[0].X() << " " << rpositions[0].Y() << std::endl;
+//        std::cout << "1 : " << rpositions[1].X() << " " << rpositions[1].Y() << std::endl;
+//        std::cout << "2 : " << rpositions[2].X() << " " << rpositions[2].Y() << std::endl;
+//        std::cout << "3 : " << rpositions[3].X() << " " << rpositions[3].Y() << std::endl;
 
 
 	     double err[]={kWireXSigma[0],kWireXSigma[1],kWireXSigma[2],kWireXSigma[3],kWireXSigma[4]};//with all
@@ -342,8 +342,8 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
       auto   min_t = std::min_element(std::begin(chi_cand), std::end(chi_cand));
       int	 min_i = std::distance(std::begin(chi_cand), min_t);
 
-      std::cout << "chi1 = "  << chi1 << std::endl;
-      std::cout << "chi2 = "  << chi2 << std::endl;
+//      std::cout << "chi1 = "  << chi1 << std::endl;
+//      std::cout << "chi2 = "  << chi2 << std::endl;
 
       if (chi_cand[min_i] < kRoughFitChiSquareThreshold[0]) {
 //        cluster_set->charge = -1;

@@ -37,7 +37,7 @@ constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 
 #ifndef TRACK_FIND_WO_TARGET
 const TVector3 kInitPosErrorWire = {3.0, 3.4, 3.0};
-constexpr const std::array<double, 5> kWireXSigma = {999999, 2.0, 0.5, 0.5, 0.5}; 
+constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
 const TVector3 kInitPosError = {3., 3.4, 3.};
 #else 
 const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};

@@ -60,6 +60,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   auto lgeom = E16ANA_STSGeometry::instance();
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
 
+
+
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
     //if( hit0.ADC() <= 0 ) continue;
