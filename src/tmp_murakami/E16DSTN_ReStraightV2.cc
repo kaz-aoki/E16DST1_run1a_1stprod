@@ -607,6 +607,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 	TH1D* h_res_lg_x[n_module];
 	TH1D* h_res_lg_y[n_module];
+	TH1D* h_bak_res_lg_x[n_module];
+	TH1D* h_bak_res_lg_y[n_module];
 
 //	TH2D* h_trackmap[n_tgt][n_module];
 
@@ -635,6 +637,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 		h_res_lg_x[m]  = new TH1D(Form("h_res_lg_x_%d", m+100), Form("h_res_lg_x_%d", m+100), 50, -400, 400 );
 		h_res_lg_y[m]  = new TH1D(Form("h_res_lg_y_%d", m+100), Form("h_res_lg_y_%d", m+100), 50, -400, 400 );
 
+		h_bak_res_lg_x[m]  = new TH1D(Form("h_bak_res_lg_x_%d", m+100), Form("h_bak_res_lg_x_%d", m+100), 50, -400, 400 );
+		h_bak_res_lg_y[m]  = new TH1D(Form("h_bak_res_lg_y_%d", m+100), Form("h_bak_res_lg_y_%d", m+100), 50, -400, 400 );
 
 		for(int l=0; l < n_layer; l++){// -- layer 
 				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,600 ) ;
@@ -676,6 +680,13 @@ std::array<double, 4> xadcs;//xt4
 std::array<double, 4> yadcs;//xt4
 std::array<double, 4> xcids;//xt4
 std::array<double, 4> xtotend;//xt4
+
+
+	double mplgy;
+	double plgx;
+	double pre_mplgy[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
+	double pre_plgx[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
+
 
 
 	for(int n=0; n < nevent; n++){
@@ -763,7 +774,7 @@ std::array<double, 4> xtotend;//xt4
 					if(mid ==m){
 					h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
 						for(int l=0; l < 4; l++){
-							if(l==0) continue;
+//							if(l==0) continue;
 							double lx = fitlxs[l];
 							double ly = fitlys[l];
 							double offset = 50 * (l );
@@ -772,12 +783,15 @@ std::array<double, 4> xtotend;//xt4
 							int nth_divy = (ly + offset) / ((l*100)/n_div);
 //								std::cout << "nth div = " << nth_div << std::endl;
 								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
-								if(chi2 <  100){
+								if(chi2 <  50){
 
 
 //---  LG residual
-										double mplgy = rk_fit_lg_b_gy->at(i);
-										double plgx  = rk_fit_lg_b_x->at(i);
+										 mplgy = rk_fit_lg_b_gy->at(i);
+										 plgx  = rk_fit_lg_b_x->at(i);
+										
+										
+										
 										if(fabs(mplgy) > 260){
 											plgx = rk_fit_lg_c_x->at(i);
 										}
@@ -789,12 +803,19 @@ std::array<double, 4> xtotend;//xt4
 										int nlg = 0;
 										for(int k=0; k < n_lg_hits;k++){
 											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+												int lg_mid = lg_hit_mid->at(k);
 												if(lg_hit_adc->at(k) < 10) continue;
 								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
-												double dx = lg_hit_x->at(k) - plgx;
-												double dy = lg_hit_gy->at(k) - mplgy;
-												h_res_lg_x[lg_hit_mid->at(k)-100]->Fill(dx);
-												h_res_lg_y[lg_hit_mid->at(k)-100]->Fill(dx);
+												double dx     = lg_hit_x->at(k) - plgx;
+												double dy     = lg_hit_gy->at(k) - mplgy;
+												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
+												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
+												
+												h_res_lg_x[lg_mid-100]->Fill(dx);
+												h_res_lg_y[lg_mid-100]->Fill(dx);
+												h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
+												h_bak_res_lg_y[lg_mid-100]->Fill(pre_dx);
+
 											}
 										}
 //								
@@ -803,10 +824,10 @@ std::array<double, 4> xtotend;//xt4
 									h_res_x[mids[l]-100][l]->Fill(resx[l]);
 									h_res_y[mids[l]-100][l]->Fill(resy[l]);
 									h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
-									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
-									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
-									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
-									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+//									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
+//									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
+//									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
+//									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
 									h_cor_res_fitlx[mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
 									h_cor_res_fitly[mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
 									h_cor_res_timing[mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
@@ -875,7 +896,10 @@ std::array<double, 4> xtotend;//xt4
 					}
 				}
 				}
+												pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
+												pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
 			}
+
 	}
 
 	TCanvas *c0 = new TCanvas();
@@ -888,7 +912,7 @@ std::array<double, 4> xtotend;//xt4
 	for(int m =1; m < 9; m++){
 	   c2[m]= new TCanvas();
 		c2[m]->Divide(2,2);
-		for(int l=0; l < 3; l++){
+		for(int l=0; l < 4; l++){
    		c2[m]->cd(l+1);
 	      if(m < 5) {
       	   h_cluster_timing_raw[m][l]->Draw("colz");
@@ -1285,9 +1309,13 @@ std::array<double, 4> xtotend;//xt4
 		if(mid == 105) continue;
 		c18->cd(mid-100);
 		h_res_lg_x[mid-100]->Draw();
+		h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
+		h_bak_res_lg_x[mid-100]->Draw("same");
 		if(mid > 105){
 			c18->cd(mid-101);
 			h_res_lg_x[mid-100]->Draw();
+			h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
+			h_bak_res_lg_x[mid-100]->Draw("same");
 			
 		}
    }
