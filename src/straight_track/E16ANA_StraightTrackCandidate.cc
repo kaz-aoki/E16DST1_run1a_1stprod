@@ -742,73 +742,76 @@ bool E16ANA_StraightTrackCandidates::IsXTrackCandidate(OneAxisClusterSet* cluste
 
 bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
   auto& pos_set = cluster_set->global_poss;
-  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
-  std::array<double, kNumGTRLayers> gtr_r({sqrt(pow(pos_set[1].X()-20,2) +pow(pos_set[1].Z()+40,2)),
-	sqrt(pow(pos_set[2].X()-20,2) +pow(pos_set[2].Z()+40,2)),
-	sqrt(pow(pos_set[3].X()-20,2) +pow(pos_set[3].Z()+40,2))});
-  double r2 = 0.;
-  double r  = 0.;
-  double c  = 0.;
-  double ry = 0.;
-  double y  = 0.;
-  for (int i = 0; i < kNumGTRLayers; ++i) {
-    r2 += kYWeight[i] * gtr_r[i] * gtr_r[i];
-    r  += kYWeight[i] * gtr_r[i];
-    c  += kYWeight[i];
-    ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
-    y  += kYWeight[i] * gtr_y[i];
-  }
-  std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
-                                                  (c  * ry - r * y)  / (c * r2 - r * r)});
-  double chi2_cand = 0.;
-  std::array<double, kNumGTRLayers> fit_y;
-  for (int i = 0; i < kNumGTRLayers; ++i) {
-    fit_y[i] = coef[0] + coef[1] * gtr_r[i];
-    chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
-  }
-  if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
-    cluster_set->xy = coef[0];
-    cluster_set->chi_square = chi2_cand;
-    for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
-      cluster_set->coefs[i] = coef[i];
-    }
-    return true;
-  }else{
-    std::array<double, kNumGTRLayers> gtr_r2({sqrt(pow(pos_set[1].X()-20,2) +pow(pos_set[1].Z()-40,2)),
-	  sqrt(pow(pos_set[2].X()-20,2) +pow(pos_set[2].Z()-40,2)),
-	  sqrt(pow(pos_set[3].X()-20,2) +pow(pos_set[3].Z()-40,2))});
-      
-    double dr2 = 0.;
-    double dr  = 0.;
-    double dc  = 0.;
-    double dry = 0.;
-    double dy  = 0.;
-    for (int i = 0; i < kNumGTRLayers; ++i) {
-      dr2 += kYWeight[i] * gtr_r2[i] * gtr_r2[i];
-      dr  += kYWeight[i] * gtr_r2[i];
-      dc  += kYWeight[i];
-      dry += kYWeight[i] * gtr_r2[i] * gtr_y[i];
-      dy  += kYWeight[i] * gtr_y[i];
-    }
-    std::array<double, kNumRoughFitDegree[1]> dcoef({(dr2 * dy  - dr * dry) / (dc * dr2 - dr * dr),
-	  (dc  * dry - dr * dy)  / (dc * dr2 - dr * dr)});
-    double dchi2_cand = 0.;
-    std::array<double, kNumGTRLayers> dfit_y;
 
+  if(isWire){//wire case
+    std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
+    std::array<double, kNumGTRLayers> gtr_r({sqrt(pow(pos_set[1].X() - targets_pos[0].x(),2) +pow(pos_set[1].Z() - targets_pos[0].z(),2)),
+    sqrt(pow(pos_set[2].X() - targets_pos[0].x(),2) +pow(pos_set[2].Z() - targets_pos[0].z(),2)),
+  	 sqrt(pow(pos_set[3].X() - targets_pos[0].x(),2) +pow(pos_set[3].Z() - targets_pos[0].z(),2))});
+    double r2 = 0.;
+    double r  = 0.;
+    double c  = 0.;
+    double ry = 0.;
+    double y  = 0.;
     for (int i = 0; i < kNumGTRLayers; ++i) {
-      dfit_y[i] = dcoef[0] + dcoef[1] * gtr_r2[i];
-      dchi2_cand += kYWeight[i] * (dfit_y[i] - gtr_y[i]) * (dfit_y[i] - gtr_y[i]);
+      r2 += kYWeight[i] * gtr_r[i] * gtr_r[i];
+      r  += kYWeight[i] * gtr_r[i];
+      c  += kYWeight[i];
+      ry += kYWeight[i] * gtr_r[i] * gtr_y[i];
+      y  += kYWeight[i] * gtr_y[i];
     }
-    if (dchi2_cand < kRoughFitChiSquareThreshold[1] && fabs(dcoef[0]) < kRoughYFitCoefficientThreshold[0]) {
-      cluster_set->xy = dcoef[0];
-      cluster_set->chi_square = dchi2_cand;
+    std::array<double, kNumRoughFitDegree[1]> coef({(r2 * y  - r * ry) / (c * r2 - r * r),
+                                                    (c  * ry - r * y)  / (c * r2 - r * r)});
+    double chi2_cand = 0.;
+    std::array<double, kNumGTRLayers> fit_y;
+    for (int i = 0; i < kNumGTRLayers; ++i) {
+      fit_y[i] = coef[0] + coef[1] * gtr_r[i];
+      chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
+    }
+    if (chi2_cand < kRoughFitChiSquareThreshold[1] && fabs(coef[0]) < kRoughYFitCoefficientThreshold[0]) {
+      cluster_set->xy = coef[0];
+      cluster_set->chi_square = chi2_cand;
       for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
-	cluster_set->coefs[i] = dcoef[i];
+        cluster_set->coefs[i] = coef[i];
       }
       return true;
+    }else{
+      std::array<double, kNumGTRLayers> gtr_r2({sqrt(pow(pos_set[1].X() - targets_pos[1].x(),2) +pow(pos_set[1].Z() - targets_pos[1].z(),2)),
+  	  sqrt(pow(pos_set[2].X() - targets_pos[1].x(),2) +pow(pos_set[2].Z()-targets_pos[1].z(),2)),
+  	  sqrt(pow(pos_set[3].X() - targets_pos[1].x(),2) +pow(pos_set[3].Z()-targets_pos[1].z(),2))});
+        
+      double dr2 = 0.;
+      double dr  = 0.;
+      double dc  = 0.;
+      double dry = 0.;
+      double dy  = 0.;
+      for (int i = 0; i < kNumGTRLayers; ++i) {
+        dr2 += kYWeight[i] * gtr_r2[i] * gtr_r2[i];
+        dr  += kYWeight[i] * gtr_r2[i];
+        dc  += kYWeight[i];
+        dry += kYWeight[i] * gtr_r2[i] * gtr_y[i];
+        dy  += kYWeight[i] * gtr_y[i];
+      }
+      std::array<double, kNumRoughFitDegree[1]> dcoef({(dr2 * dy  - dr * dry) / (dc * dr2 - dr * dr),
+  	  (dc  * dry - dr * dy)  / (dc * dr2 - dr * dr)});
+      double dchi2_cand = 0.;
+      std::array<double, kNumGTRLayers> dfit_y;
+  
+      for (int i = 0; i < kNumGTRLayers; ++i) {
+        dfit_y[i] = dcoef[0] + dcoef[1] * gtr_r2[i];
+        dchi2_cand += kYWeight[i] * (dfit_y[i] - gtr_y[i]) * (dfit_y[i] - gtr_y[i]);
+      }
+      if (dchi2_cand < kRoughFitChiSquareThreshold[1] && fabs(dcoef[0]) < kRoughYFitCoefficientThreshold[0]) {
+        cluster_set->xy = dcoef[0];
+        cluster_set->chi_square = dchi2_cand;
+        for (int i = 0; i < kNumRoughFitDegree[1]; ++i) {
+  	cluster_set->coefs[i] = dcoef[i];
+        }
+        return true;
+      }
     }
+    return false;
   }
-  return false;
 }
 
 double E16ANA_StraightTrackCandidates::GTRTimeDiffThreshold(int n) { return kGTRTimeDiffThreshold[n]; }
