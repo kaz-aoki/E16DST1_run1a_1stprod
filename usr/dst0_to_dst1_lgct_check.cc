@@ -414,10 +414,12 @@ int main(int argc, char* argv[]) {
 	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
-	if(trg_lg_hit_t==0&&ct0peakheight>20.){
+	// if(trg_lg_hit_t==0&&ct0peakheight>20.){
+	if(trg_lg_hit_t==0){
 	  cthists->Fill(ct0module,ct0block,ct0peakheight,ct0peaktime,ct0timing,ct0baseline,ct0baselinerms,-10000.,-10000);
 	}
-	if(trg_lg_hit_t==0&&ct1peakheight>20.){
+	// if(trg_lg_hit_t==0&&ct1peakheight>20.){
+	if(trg_lg_hit_t==0 && E16ANA_CTCheckHist::IsValidBlockId(ct1module,ct1block)){
 	  cthists->Fill(ct1module,ct1block,ct1peakheight,ct1peaktime,ct1timing,ct1baseline,ct1baselinerms,-10000.,-10000);
 	}
 	if(ct0peakheight>50.){
