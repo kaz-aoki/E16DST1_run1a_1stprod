@@ -22,8 +22,10 @@ const int kRemovedLayer = 2;
 #elif REMOVE_GTR300
 const int kRemovedLayer = 3;
 #else 
+	#ifndef NoExist_SSD
 	#define REMOVE_NOLAYER
 const int kRemovedLayer = -1;
+	#endif
 #endif
 
 
@@ -36,7 +38,7 @@ constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 
 #ifndef TRACK_FIND_WO_TARGET
-const TVector3 kInitPosErrorWire = {1.0, 3.4, 1.0};
+const TVector3 kInitPosErrorWire = {1.0, 3.5, 1.0};
 constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
 const TVector3 kInitPosError = {3., 3.4, 3.};
 #else 
@@ -101,6 +103,14 @@ constexpr std::array<double, 3> kYSigma = {0.5, 0.5, 1.}; // y rough fit
 constexpr std::array<double, 3> kYSigma = {0.5, 0.5, 0.5}; // y rough fit
 #endif
 
+#ifndef TRACK_FIND_WO_TARGET
+constexpr double kYTargetSigma = 3.5;//track finding
+#else
+constexpr double kYTargetSigma = 99999;//track finding
+#endif
+
+constexpr double kYTargetWeight = 1./kYTargetSigma;//track finding
+
 constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[1] * kYSigma[1]),
                                             1. / (kYSigma[2] * kYSigma[2])};
@@ -142,7 +152,7 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 
 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 30.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // x, y from previous Ks peak
 #else
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {250., 25.}; // x, y from previous Ks peak
 #endif

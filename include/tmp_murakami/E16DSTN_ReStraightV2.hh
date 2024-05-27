@@ -2268,8 +2268,8 @@ public :
    virtual void     Show(Long64_t entry = -1);
  
 	TFile *FileOut() {return fout;}
-   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids);
-   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips-1 >& cids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
    void ClearUsedClusterIDs();
    void AddRecord(TTree* intree, std::vector<int> &alive_ids);
 	void ChiSqSort(std::vector<int> &ids);
@@ -2289,7 +2289,11 @@ public :
 
    private:
    E16ANA_StraightMultiTrack *pair_fitter;
+#ifdef REMOVE_NOLAYER
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
+#else
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> used_cluster_ids;
+#endif
    E16ANA_GeometryV2 *geometry ;
    bool isWire;
    int n_targets;
@@ -4071,32 +4075,32 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("trg_track_lg_x",         &trg_track_lg_x);
    outtree->Branch("trg_track_lg_y",         &trg_track_lg_y);
    outtree->Branch("trg_track_lg_t",         &trg_track_lg_t);
-   outtree->Branch("n_x_cands",              &out_n_x_cands);
-   outtree->Branch("n_y_cands",              &out_n_y_cands);
-   outtree->Branch("n_cands",                &out_n_cands);
-   outtree->Branch("n_selected",             &out_n_selected);
-   outtree->Branch("n_pairs",                &out_n_pairs);
-   outtree->Branch("n_refit_pairs",          &out_n_refit_pairs);
-   outtree->Branch("track_id",               &out_track_id);
-   outtree->Branch("has_e_hbd_cluster",      &out_has_e_hbd_cluster);
-   outtree->Branch("has_e_lg_hit",           &out_has_e_lg_hit);
-   outtree->Branch("is_large_residual",      &out_is_large_residual);
-   outtree->Branch("is_near_target",         &out_is_near_target);
-   outtree->Branch("is_cluster_used",        &out_is_cluster_used);
-   outtree->Branch("is_selected",            &out_is_selected);
+   outtree->Branch("n_x_cands",              &n_x_cands);
+   outtree->Branch("n_y_cands",              &n_y_cands);
+   outtree->Branch("n_cands",                &n_cands);
+   outtree->Branch("n_selected",             &n_selected);
+   outtree->Branch("n_pairs",                &n_pairs);
+   outtree->Branch("n_refit_pairs",          &n_refit_pairs);
+   outtree->Branch("track_id",               &track_id);
+   outtree->Branch("has_e_hbd_cluster",      &has_e_hbd_cluster);
+   outtree->Branch("has_e_lg_hit",           &has_e_lg_hit);
+   outtree->Branch("is_large_residual",      &is_large_residual);
+   outtree->Branch("is_near_target",         &is_near_target);
+   outtree->Branch("is_cluster_used",        &is_cluster_used);
+   outtree->Branch("is_selected",            &is_selected);
    outtree->Branch("x_rough_fit_chi_square", &out_x_rough_fit_chi_square);
    outtree->Branch("x_rough_fit_dist0",      &out_x_rough_fit_dist0);
    outtree->Branch("x_rough_fit_dist1",      &out_x_rough_fit_dist1);
    outtree->Branch("x_rough_fit_coef0",      &out_x_rough_fit_coef0);
    outtree->Branch("x_rough_fit_coef1",      &out_x_rough_fit_coef1);
    outtree->Branch("x_rough_fit_coef2",      &out_x_rough_fit_coef2);
-   outtree->Branch("rough_fit_n_hbds",       &out_rough_fit_n_hbds);
-   outtree->Branch("rough_fit_hbd_ids",      &out_rough_fit_hbd_ids);
-   outtree->Branch("rough_fit_hbd_ress",     &out_rough_fit_hbd_ress);
-   outtree->Branch("rough_fit_hbd_y_oks",    &out_rough_fit_hbd_y_oks);
-   outtree->Branch("y_rough_fit_chi_square", &out_y_rough_fit_chi_square);
-   outtree->Branch("y_rough_fit_coef0",   &out_y_rough_fit_coef0);
-   outtree->Branch("y_rough_fit_coef1",   &out_y_rough_fit_coef1);
+   outtree->Branch("rough_fit_n_hbds",       &rough_fit_n_hbds);
+   outtree->Branch("rough_fit_hbd_ids",      &rough_fit_hbd_ids);
+   outtree->Branch("rough_fit_hbd_ress",     &rough_fit_hbd_ress);
+   outtree->Branch("rough_fit_hbd_y_oks",    &rough_fit_hbd_y_oks);
+   outtree->Branch("y_rough_fit_chi_square", &y_rough_fit_chi_square);
+   outtree->Branch("y_rough_fit_coef0",   &y_rough_fit_coef0);
+   outtree->Branch("y_rough_fit_coef1",   &y_rough_fit_coef1);
    outtree->Branch("chi_square",          &out_chi_square);
    outtree->Branch("n_steps",             &out_n_steps);
    outtree->Branch("n_calls",             &out_n_calls);
@@ -4963,6 +4967,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 
 	//	std::cout << "mom = " << rk_fit_init_mom_gz->at(tid) << std::endl;
 		out_chi_square[i]       = chi_square->at(tid);
+#ifndef NoExist_SSD
 		out_rk_hit_sts_id[i]    = rk_hit_sts_id->at(tid) ;
 		out_rk_hit_sts_gx[i]    = rk_hit_sts_gx->at(tid) ;
 		out_rk_hit_sts_gy[i]    = rk_hit_sts_gy->at(tid) ;
@@ -4971,6 +4976,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 		out_rk_hit_sts_t[i]     = rk_hit_sts_t->at(tid);
 		out_rk_hit_sts_x[i]     = rk_hit_sts_x->at(tid);
 		out_rk_hit_sts_chi2[i]  = rk_hit_sts_chi2->at(tid);
+#endif
 
 		out_rk_hit_gtr100_xid[i]    = rk_hit_gtr100_xid->at(tid) ;
 		out_rk_hit_gtr200_xid[i]    = rk_hit_gtr200_xid->at(tid) ;
@@ -5026,6 +5032,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 // -- fit res are 
 
 
+#ifndef NoExist_SSD
       out_rk_fit_sts_mid[i]       = rk_fit_sts_mid->at(tid);
  	   out_rk_fit_sts_x[i]         = rk_fit_sts_x->at(tid)  ;
  	   out_rk_fit_sts_y[i] =   rk_fit_sts_y         ->at(tid);
@@ -5038,6 +5045,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
  	   out_rk_fit_sts_mom_gx[i] =  rk_fit_sts_mom_gx->at(tid);
  	   out_rk_fit_sts_mom_gy[i] =  rk_fit_sts_mom_gy->at(tid);
  	   out_rk_fit_sts_mom_gz[i] =  rk_fit_sts_mom_gz->at(tid);
+#endif
 
       out_rk_fit_init_mom_gx[i]   = rk_fit_init_mom_gx->at(tid);
       out_rk_fit_init_mom_gy[i]   = rk_fit_init_mom_gy->at(tid);
@@ -5087,7 +5095,9 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
       out_rk_res_init_mom_gx[i]   = rk_res_init_mom_gx->at(tid); 
       out_rk_res_init_mom_gy[i]   = rk_res_init_mom_gy->at(tid); 
       out_rk_res_init_mom_gz[i]   = rk_res_init_mom_gz->at(tid); 
+#ifndef NoExist_SSD
       out_rk_res_sts_x[i]         = rk_res_sts_x->at(tid);        
+#endif
       out_rk_res_gtr100_x[i]      = rk_res_gtr100_x->at(tid);
       out_rk_res_gtr100_y[i]      = rk_res_gtr100_y->at(tid);
       out_rk_res_gtr200_x[i]      = rk_res_gtr200_x->at(tid);
@@ -5199,9 +5209,31 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_plus_mom_refit_gy[i] = pmom_refit.Y();
        out_rk_pair_plus_mom_refit_gz[i] = pmom_refit.Z();
        auto& mposs_refit = pair.track_minus_pos_refit;
+       auto& pposs_refit = pair.track_plus_pos_refit;
+       auto& mmoms_refit = pair.track_minus_mom_refit;
+       auto& pmoms_refit = pair.track_plus_mom_refit;
+       auto& mress_refit = pair.track_minus_res_refit;
+       auto& press_refit = pair.track_plus_res_refit;
+#ifndef NoExist_SSD
        out_rk_pair_minus_sts_pos_refit_gx[i] = mposs_refit[0].X();
        out_rk_pair_minus_sts_pos_refit_gy[i] = mposs_refit[0].Y();
        out_rk_pair_minus_sts_pos_refit_gz[i] = mposs_refit[0].Z();
+       out_rk_pair_plus_sts_pos_refit_gx[i] = pposs_refit[0].X();
+       out_rk_pair_plus_sts_pos_refit_gy[i] = pposs_refit[0].Y();
+       out_rk_pair_plus_sts_pos_refit_gz[i] = pposs_refit[0].Z();
+       out_rk_pair_minus_sts_mom_refit_gx[i] = mmoms_refit[0].X();
+       out_rk_pair_minus_sts_mom_refit_gy[i] = mmoms_refit[0].Y();
+       out_rk_pair_minus_sts_mom_refit_gz[i] = mmoms_refit[0].Z();
+       out_rk_pair_plus_sts_mom_refit_gx[i] = pmoms_refit[0].X();
+       out_rk_pair_plus_sts_mom_refit_gy[i] = pmoms_refit[0].Y();
+       out_rk_pair_plus_sts_mom_refit_gz[i] = pmoms_refit[0].Z();
+       out_rk_pair_minus_sts_res_refit_x[i] = mress_refit[0].X();
+       out_rk_pair_minus_sts_res_refit_y[i] = mress_refit[0].Y();
+       out_rk_pair_minus_sts_res_refit_z[i] = mress_refit[0].Z();
+       out_rk_pair_plus_sts_res_refit_x[i] = press_refit[0].X();
+       out_rk_pair_plus_sts_res_refit_y[i] = press_refit[0].Y();
+       out_rk_pair_plus_sts_res_refit_z[i] = press_refit[0].Z();
+#endif
        out_rk_pair_minus_gtr100_pos_refit_gx[i] = mposs_refit[1].X();
        out_rk_pair_minus_gtr100_pos_refit_gy[i] = mposs_refit[1].Y();
        out_rk_pair_minus_gtr100_pos_refit_gz[i] = mposs_refit[1].Z();
@@ -5211,12 +5243,8 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_minus_gtr300_pos_refit_gx[i] = mposs_refit[3].X();
        out_rk_pair_minus_gtr300_pos_refit_gy[i] = mposs_refit[3].Y();
        out_rk_pair_minus_gtr300_pos_refit_gz[i] = mposs_refit[3].Z();
-       auto& pposs_refit = pair.track_plus_pos_refit;
 
 
-       out_rk_pair_plus_sts_pos_refit_gx[i] = pposs_refit[0].X();
-       out_rk_pair_plus_sts_pos_refit_gy[i] = pposs_refit[0].Y();
-       out_rk_pair_plus_sts_pos_refit_gz[i] = pposs_refit[0].Z();
        out_rk_pair_plus_gtr100_pos_refit_gx[i] = pposs_refit[1].X();
        out_rk_pair_plus_gtr100_pos_refit_gy[i] = pposs_refit[1].Y();
        out_rk_pair_plus_gtr100_pos_refit_gz[i] = pposs_refit[1].Z();
@@ -5226,10 +5254,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_plus_gtr300_pos_refit_gx[i] = pposs_refit[3].X();
        out_rk_pair_plus_gtr300_pos_refit_gy[i] = pposs_refit[3].Y();
        out_rk_pair_plus_gtr300_pos_refit_gz[i] = pposs_refit[3].Z();
-       auto& mmoms_refit = pair.track_minus_mom_refit;
-       out_rk_pair_minus_sts_mom_refit_gx[i] = mmoms_refit[0].X();
-       out_rk_pair_minus_sts_mom_refit_gy[i] = mmoms_refit[0].Y();
-       out_rk_pair_minus_sts_mom_refit_gz[i] = mmoms_refit[0].Z();
        out_rk_pair_minus_gtr100_mom_refit_gx[i] = mmoms_refit[1].X();
        out_rk_pair_minus_gtr100_mom_refit_gy[i] = mmoms_refit[1].Y();
        out_rk_pair_minus_gtr100_mom_refit_gz[i] = mmoms_refit[1].Z();
@@ -5239,10 +5263,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_minus_gtr300_mom_refit_gx[i] = mmoms_refit[3].X();
        out_rk_pair_minus_gtr300_mom_refit_gy[i] = mmoms_refit[3].Y();
        out_rk_pair_minus_gtr300_mom_refit_gz[i] = mmoms_refit[3].Z();
-       auto& pmoms_refit = pair.track_plus_mom_refit;
-       out_rk_pair_plus_sts_mom_refit_gx[i] = pmoms_refit[0].X();
-       out_rk_pair_plus_sts_mom_refit_gy[i] = pmoms_refit[0].Y();
-       out_rk_pair_plus_sts_mom_refit_gz[i] = pmoms_refit[0].Z();
        out_rk_pair_plus_gtr100_mom_refit_gx[i] = pmoms_refit[1].X();
        out_rk_pair_plus_gtr100_mom_refit_gy[i] = pmoms_refit[1].Y();
        out_rk_pair_plus_gtr100_mom_refit_gz[i] = pmoms_refit[1].Z();
@@ -5252,10 +5272,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_plus_gtr300_mom_refit_gx[i] = pmoms_refit[3].X();
        out_rk_pair_plus_gtr300_mom_refit_gy[i] = pmoms_refit[3].Y();
        out_rk_pair_plus_gtr300_mom_refit_gz[i] = pmoms_refit[3].Z();
-       auto& mress_refit = pair.track_minus_res_refit;
-       out_rk_pair_minus_sts_res_refit_x[i] = mress_refit[0].X();
-       out_rk_pair_minus_sts_res_refit_y[i] = mress_refit[0].Y();
-       out_rk_pair_minus_sts_res_refit_z[i] = mress_refit[0].Z();
        out_rk_pair_minus_gtr100_res_refit_x[i] = mress_refit[1].X();
        out_rk_pair_minus_gtr100_res_refit_y[i] = mress_refit[1].Y();
        out_rk_pair_minus_gtr100_res_refit_z[i] = mress_refit[1].Z();
@@ -5265,10 +5281,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_minus_gtr300_res_refit_x[i] = mress_refit[3].X();
        out_rk_pair_minus_gtr300_res_refit_y[i] = mress_refit[3].Y();
        out_rk_pair_minus_gtr300_res_refit_z[i] = mress_refit[3].Z();
-       auto& press_refit = pair.track_plus_res_refit;
-       out_rk_pair_plus_sts_res_refit_x[i] = press_refit[0].X();
-       out_rk_pair_plus_sts_res_refit_y[i] = press_refit[0].Y();
-       out_rk_pair_plus_sts_res_refit_z[i] = press_refit[0].Z();
        out_rk_pair_plus_gtr100_res_refit_x[i] = press_refit[1].X();
        out_rk_pair_plus_gtr100_res_refit_y[i] = press_refit[1].Y();
        out_rk_pair_plus_gtr100_res_refit_z[i] = press_refit[1].Z();

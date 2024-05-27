@@ -195,7 +195,11 @@ int main(int argc, char* argv[]){
 			#endif
 #endif
 
-#ifndef REMOVE_NOLAYER
+#ifdef REMOVE_GTR100
+		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+#elif REMOVE_GTR200
+		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+#elif REMOVE_GTR300
 		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
 #else 
 		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);

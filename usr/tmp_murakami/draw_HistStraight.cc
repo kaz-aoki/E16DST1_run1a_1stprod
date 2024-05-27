@@ -25,6 +25,7 @@ int main (int argc, char** argv) {
 	int print_cycle      = 1000;
    
 	rt->DrawHist(tree, maxevent,  print_cycle, residual_layer, pdf_name);
+	
 	return 0;	
 }
 

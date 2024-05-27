@@ -72,9 +72,11 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 //			 << ", " << rk_hit_gtr100_yid->at(i) 
 //			 << ", " << rk_hit_gtr200_yid->at(i) 
 //			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
-         if(HasUsedCluster(cids)){
-				continue;			
+         if(HasUsedCluster(cids, used_cluster_ids)){
+//			std::cout << "duplicated !" << std::endl;
+			continue;			
 			} else {
+//				std::cout << "NOT duplicated !" << std::endl;
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips;j++){
 					used_cluster_ids[j].emplace_back(cids[j]);
 				}
@@ -82,58 +84,59 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 			}
     }
 #else//NoExist_SSD
-    #ifdef REMOVE_100
-    for(int i=0; i < n_selected_ids ; i++){
-			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-			rk_hit_sts_id->at(i),
-			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
-			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-         if(HasUsedCluster(cids)){
-				continue;			
-			} else {
-				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-					used_cluster_ids[j].emplace_back(cids[j]);
-				}
-			killdup_ids.emplace_back(i);
-			}
-    }
-    #elif REMOVE_200
-    for(int i=0; i < n_selected_ids ; i++){
-			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-			rk_hit_sts_id->at(i),
-			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-         if(HasUsedCluster(cids)){
-				continue;			
-			} else {
-				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-					used_cluster_ids[j].emplace_back(cids[j]);
-				}
-			killdup_ids.emplace_back(i);
-			}
-    }
-     #elif REMOVE_300
-    for(int i=0; i < n_selected_ids ; i++){
-			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-			rk_hit_sts_id->at(i),
-			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i)};
-         if(HasUsedCluster(cids)){
-				continue;			
-			} else {
-				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-					used_cluster_ids[j].emplace_back(cids[j]);
-				}
-			killdup_ids.emplace_back(i);
-			}
-    }
-    #else
+
+//    #ifdef REMOVE_100
+//    for(int i=0; i < n_selected_ids ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+//			rk_hit_sts_id->at(i),
+//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
+//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//         if(HasUsedCluster(cids, used_cluster_ids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			killdup_ids.emplace_back(i);
+//			}
+//    }
+//    #elif REMOVE_200
+//    for(int i=0; i < n_selected_ids ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+//			rk_hit_sts_id->at(i),
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//         if(HasUsedCluster(cids, used_cluster_ids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			killdup_ids.emplace_back(i);
+//			}
+//    }
+//     #elif REMOVE_300
+//    for(int i=0; i < n_selected_ids ; i++){
+//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+//			rk_hit_sts_id->at(i),
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i)};
+//         if(HasUsedCluster(cids, used_cluster_ids)){
+//				continue;			
+//			} else {
+//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			killdup_ids.emplace_back(i);
+//			}
+//    }
+//    #else
 	 for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
 			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
 			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-         if(HasUsedCluster(cids)){
+         if(HasUsedCluster(cids, used_cluster_ids)){
 				continue;			
 			} else {
 				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-1;j++){
@@ -142,7 +145,7 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 			killdup_ids.emplace_back(i);
 			}
     }
-#endif // REMOVE_GTRxxx
+//#endif // REMOVE_GTRxxx
 #endif // NoExist_SSD
 }
 
@@ -526,29 +529,27 @@ void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 //	}
 //}
 
-
-bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 1> &cids){
-for (int i = 0; i < kNumTrackingStrips-1; ++i) {
-	for(const auto& used_id : used_cluster_ids[i]){
-     if(cids[i] == used_id){
-       return true;
-     }
-   }
+bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 1> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids ){
+	for (int i = 0; i < kNumTrackingStrips-1; ++i) {
+		for(const auto& used_id : used_cluster_ids[i]){
+     		if(cids[i] == used_id){
+       		return true;
+     		}
+   	}
+	}
 	return false;
 }
-}
 
 
-bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips> &cids){
-for (int i = 0; i < kNumTrackingStrips; ++i) {
-	for(const auto& used_id : used_cluster_ids[i]){
-     if(cids[i] == used_id){
-       return true;
-     }
-
-   }
+bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids ){//all layer tracking
+	for (int i = 0; i < kNumTrackingStrips; ++i) {
+		for(const auto& used_id : used_cluster_ids[i]){
+	     if(cids[i] == used_id){
+	       return true;
+	     }
+	   }
+	  }
 	return false;
-  }
 }
 
 
@@ -594,7 +595,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 	TH1D* h_cluster_adc_xdependence[n_module][n_layer][n_div];
 	TH1D* h_cluster_adc_ydependence[n_module][n_layer][n_div];
-	TH2D* h_tgt_pos;
+	TH2D* h_init_pos;
 	TH2D* h_tgt_pos_mod_raw[n_module];
 	TH2D* h_tgt_pos_mod_cut[n_module];
 	TH2D* h_cor_dz_time[n_module][n_layer];
@@ -618,7 +619,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	h_n_spillid = new TH1D("n of events of spill id","n of events of spillid", 1000, -0.5, 999.5);
 	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 100);	
 	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -100,100);	
-	h_tgt_pos = new TH2D(Form("h_tgt_pos"), Form("h_tgt_pos"), 50, 19.8, 20.2, 200, -60, 60);
+	h_init_pos = new TH2D(Form("h_init_pos"), Form("h_init_pos"), 50, -30, 30, 50, -60, 60);
 
 	for(int m=0; m < n_module; m++){
 		for(int tg=0; tg < 2; tg++){
@@ -630,7 +631,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 		h_tgt_pos_mod_cut[m] = new TH2D(Form("h_tgt_pos_mod_cut_%d", m+100), Form("h_tgt_pos_mod_cut_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
 		h_tgt_proj_z_raw[m] = new TH1D(Form("h_tgt_proj_z_raw%d", m+100), Form("h_tgt_proj_z_raw%d", m+100), 100, -60, 60);
 		h_tgt_proj_z_cut[m] = new TH1D(Form("h_tgt_proj_z_cut%d", m+100), Form("h_tgt_proj_z_cut%d", m+100), 100, -60, 60);
-		h_tgt_proj_z_chi2cut[m] = new TH1D(Form("h_tgt_proj_z_chi2cut%d", m+100), Form("h_tgt_proj_z_chi2cut%d", m+100), 100, -45, 45);
+		h_tgt_proj_z_chi2cut[m] = new TH1D(Form("h_tgt_proj_z_chi2cut%d", m+100), Form("h_tgt_proj_z_chi2cut%d", m+100), 100, -80, 80);
 		h_tgt_proj_x[m] = new TH1D(Form("h_tgt_proj_x%d", m+100), Form("h_tgt_proj_x%d", m+100), 100, 19.8, 20.2);
 		h_tgt_proj_y[m] = new TH1D(Form("h_tgt_proj_y%d", m+100), Form("h_tgt_proj_y%d", m+100), 100, -5,5 );
 
@@ -744,8 +745,12 @@ std::array<double, 4> xtotend;//xt4
 	double tdiff100 = rk_hit_gtr100_xt->at(i) - rk_hit_gtr100_yt->at(i);
 	double tdiff200 = rk_hit_gtr200_xt->at(i) - rk_hit_gtr200_yt->at(i);
 	double tdiff300 = rk_hit_gtr300_xt->at(i) - rk_hit_gtr300_yt->at(i);
-	int mid = mids[1];
+	int mid = mids[1];//mid is decided by gtr100
      bool lg_flag = true;
+
+//	std::cout << "fitlx " << fitlxs[1] << std::endl;
+
+
 //	double smallest_lgt = 1000;
 //	for(int j=0; j < rk_proj_lg_t->size(); j++) {
 //		for( auto lgt : rk_proj_lg_t->at(j)){
@@ -768,13 +773,17 @@ std::array<double, 4> xtotend;//xt4
 		h_chi2->Fill(chi2);
 		h_chi2_mod[mid-100]->Fill(chi2);
 		h_tgt_pos_mod_raw[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
-			h_tgt_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
+		h_init_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
 		h_tgt_proj_z_raw[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
+
+
+
 			for(int m=100; m < 110; m++){
-					if(mid ==m){
-					h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
+					if(mid ==m){//module id matching (with track)
 						for(int l=0; l < 4; l++){
-//							if(l==0) continue;
+#ifdef NoExist_SSD
+							if(l==0) continue;
+#endif
 							double lx = fitlxs[l];
 							double ly = fitlys[l];
 							double offset = 50 * (l );
@@ -784,12 +793,13 @@ std::array<double, 4> xtotend;//xt4
 //								std::cout << "nth div = " << nth_div << std::endl;
 								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
 								if(chi2 <  50){
-
+										h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
 
 //---  LG residual
 										 mplgy = rk_fit_lg_b_gy->at(i);
 										 plgx  = rk_fit_lg_b_x->at(i);
 										
+//										std::cout << "plgx " << plgx << std::endl;
 										
 										
 										if(fabs(mplgy) > 260){
@@ -810,6 +820,9 @@ std::array<double, 4> xtotend;//xt4
 												double dy     = lg_hit_gy->at(k) - mplgy;
 												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
 												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
+
+//												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
+//												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
 												
 												h_res_lg_x[lg_mid-100]->Fill(dx);
 												h_res_lg_y[lg_mid-100]->Fill(dx);
@@ -901,6 +914,8 @@ std::array<double, 4> xtotend;//xt4
 			}
 
 	}
+   
+   fout->Write();
 
 	TCanvas *c0 = new TCanvas();
 	c0->SaveAs(pdf_name + "[", "pdf");
@@ -941,6 +956,9 @@ std::array<double, 4> xtotend;//xt4
    c2_chi[m]->SaveAs(pdf_name, "pdf");
 	}
 
+TCanvas *c03 = new TCanvas();
+h_init_pos->Draw("colz");
+c03->SaveAs(pdf_name, "pdf");
 
 
 	TCanvas *c22[n_module];
@@ -2018,10 +2036,6 @@ std::array<double, 4> xtotend;//xt4
 //
 //	
 //
-//
-//	TCanvas *c03 = new TCanvas();
-//	h_tgt_pos->Draw("colz");
-//	c03->SaveAs(pdf_name, "pdf");
 //
 //
 //
