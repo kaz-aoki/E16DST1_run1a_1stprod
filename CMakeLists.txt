@@ -447,16 +447,16 @@ target_link_libraries(dst0_to_dst1_lgct_check
 # )
 
 #_______________________________________________________________________________
-#add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency.cc)
-#
-#target_link_libraries(EIDana_MakeTree_EIDEfficiency
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
+add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency.cc)
+
+target_link_libraries(EIDana_MakeTree_EIDEfficiency
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 #add_executable(EIDana_MakeTree_EIDEfficiency_woY usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency_woY.cc)
 #

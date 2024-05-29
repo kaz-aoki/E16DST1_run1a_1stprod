@@ -89,7 +89,7 @@ public :
      int maxadcch;
    };
 
-  double relg[4][5][6][7]={
+  double relg[5][5][6][7]={
     {//morino220531
     {//103
     {1.,1.,1.,1.,1.,1.,1.},
@@ -267,6 +267,49 @@ public :
       {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
       {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
       {0.947466,0.924747,0.902027,0.879308,0.856589,0.833869,0.81115,},
+    }
+    },
+
+    {//nakasuga, 240528
+    {//103
+    {1.362,1.350,1.226,1.102,1.023,1.,1.},
+    {1.362,1.350,1.226,1.102,1.023,1.,1.},
+    {1.362,1.350,1.226,1.102,1.023,1.,1.},
+    {1.362,1.350,1.226,1.102,1.023,1.,1.},
+    {1.362,1.350,1.226,1.102,1.023,1.,1.},
+    {1.362,1.350,1.226,1.102,1.023,1.,1.},
+    },
+    {//104
+    {1.038,1.153,1.380,1.778,2.388,2.890,2.890},
+    {1.038,1.153,1.380,1.778,2.388,2.890,2.890},
+    {1.038,1.153,1.380,1.778,2.388,2.890,2.890},
+    {1.038,1.153,1.380,1.778,2.388,2.890,2.890},
+    {1.038,1.153,1.380,1.778,2.388,2.890,2.890},
+    {1.038,1.153,1.380,1.778,2.388,2.890,2.890},
+    },
+    {//
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    {1.,1.,1.,1.,1.,1.,1.},
+    },
+    {//106
+    {2.890,2.388,1.778,1.380,1.153,1.038,1.038},
+    {2.890,2.388,1.778,1.380,1.153,1.038,1.038},
+    {2.890,2.388,1.778,1.380,1.153,1.038,1.038},
+    {2.890,2.388,1.778,1.380,1.153,1.038,1.038},
+    {2.890,2.388,1.778,1.380,1.153,1.038,1.038},
+    {2.890,2.388,1.778,1.380,1.153,1.038,1.038},
+    },
+    {//107
+    {1.,1.023,1.102,1.226,1.350,1.362,1.362},
+    {1.,1.023,1.102,1.226,1.350,1.362,1.362},
+    {1.,1.023,1.102,1.226,1.350,1.362,1.362},
+    {1.,1.023,1.102,1.226,1.350,1.362,1.362},
+    {1.,1.023,1.102,1.226,1.350,1.362,1.362},
+    {1.,1.023,1.102,1.226,1.350,1.362,1.362},
     }
     }
 
@@ -841,10 +884,11 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // double rxt = track_hbd_nearx->at(itrack)-hbd_voriginx[(trk_mid-103+2)%5];
   // double ryt = track_hbd_neary->at(itrack)-hbd_voriginy[(trk_mid-103+2)%5];
   if(track_hbd_mid->at(itrack)!=track_lg_mid->at(itrack)) {return -1;}
+  if(track_hbd_mid->at(itrack)<103||track_hbd_mid->at(itrack)>107) {return -1;}
   // if( fabs(rxt)>hbd_vsigmax[(trk_mid-103+2)%5] || fabs(ryt)>hbd_vsigmay[(trk_mid-103+2)%5] ) {return -1;}
   // if(runoption==1&&chi_square->at(itrack)>20.) {return -1;}
   if(runoption==1&&chi_square->at(itrack)>2.) {return -1;}
-  // if(runoption==3&&chi_square->at(itrack)>10.) {return -1;}//240519
+  // if(runoption==3&&chi_square->at(itrack)>20.) {return -1;}//240519
   // if(runoption==3&&chi_square->at(itrack)>2.) {return -1;}
   // if(runoption==0&&chi_square->at(itrack)>10.) {return -1;}
   if(runoption==0&&chi_square->at(itrack)>2.) {return -1;}
@@ -865,6 +909,7 @@ int E16ANA_EIDEfficiency::TrackSelection(Long64_t entry, int itrack, int runopti
   // if( track_ssd_multiplicity->at(itrack)>=thr[0] || track_gtr100x_multiplicity->at(itrack)>=thr[1] || track_gtr200x_multiplicity->at(itrack)>=thr[2] || track_gtr300x_multiplicity->at(itrack)>=thr[3] || track_gtr100y_multiplicity->at(itrack)>=thr[4] || track_gtr200y_multiplicity->at(itrack)>=thr[5] || track_gtr300y_multiplicity->at(itrack)>=thr[6]) {return -1;}
   // if (runoption==0&&track_ssd_adc->at(itrack)>150) {return -1;}
   // if (runoption==3&&track_ssd_adc->at(itrack)>420) {return -1;}//240519
+  // if (runoption==3&&track_ssd_adc->at(itrack)>8) {return -1;}//240528
   // if(track_ssd_t->at(itrack)<40.||track_ssd_t->at(itrack)>55.) {return -1;}
   // if (track_mom->at(itrack) > 2.) {return -1;}
   // if (track_mom->at(itrack) < 0.8) {return -1;}

@@ -652,7 +652,7 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
       	if (trk_hbd_mid < 0) continue;
       	double cog[2] = {trk_hbd_lx,trk_hbd_ly};
       	int hbd_padid = E16ANA_HBDGeometry::GetPadIDWLocalCoordinate(trk_hbd_mid,cog);
-      	if( hbddch.Status(trk_hbd_mid,hbd_padid) != 0 ) continue;
+      	// if( hbddch.Status(trk_hbd_mid,hbd_padid) != 0 ) continue;//240527
 	double trk_lg_lx = -10000;
 	double trk_lg_ly = -10000;
 	int ytype = -10000;
