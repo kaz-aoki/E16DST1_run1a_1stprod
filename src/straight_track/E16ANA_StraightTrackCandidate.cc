@@ -791,7 +791,7 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
     return false;
   }
   
-  else{//three targets case
+  else{// ---- three targets case
 //targets position 
   int n_tgt = targets_pos.size(); 
   std::vector<double> tgt_y;
@@ -863,8 +863,6 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
       y [tgt] += kYWeight[i] * gtr_y[i];
     }
   }
-  
-  
   std::vector<std::vector<double>> coef;
   coef.resize(n_tgt);	
   for(int tgt=0; tgt < n_tgt; tgt++){
@@ -874,7 +872,6 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
   }
 
   double chi2_cand[n_tgt] = {0.};
-
   
   for (int tgt = 0; tgt < n_tgt; ++tgt) {
     std::array<double, kNumGTRLayers + 1> fit_y;
@@ -894,7 +891,6 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
 		min_tgt_id = i;
 	 }
   }
-  
 
   if (min_chi2 < kRoughFitChiSquareThreshold[1] && fabs(coef[min_tgt_id][0]) < kRoughYFitCoefficientThreshold[0]) {
     cluster_set->xy = coef[min_tgt_id][0];

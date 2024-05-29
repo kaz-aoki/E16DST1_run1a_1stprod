@@ -42,8 +42,8 @@ public :
 
 
 	struct TrackPair {
-		int tid0;//track id
-		int tid1;//track id
+		int tid0;//track id //minus
+		int tid1;//track id //plus
 		TVector3 vtx;
 		double distance;
 		TVector3 mom_minus;
@@ -425,6 +425,9 @@ public :
    Int_t           n_selected;
    Int_t           n_pairs;
    Int_t           n_refit_pairs;
+
+   Int_t           n_alive_tracks;
+
    vector<int>     *track_id;
    vector<bool>    *has_e_hbd_cluster;
    vector<bool>    *has_e_lg_hit;
@@ -1137,6 +1140,7 @@ public :
    TBranch        *b_n_cands;   //!
    TBranch        *b_n_selected;   //!
    TBranch        *b_n_pairs;   //!
+
    TBranch        *b_n_refit_pairs;   //!
    TBranch        *b_track_id;   //!
    TBranch        *b_has_e_hbd_cluster;   //!
@@ -1853,6 +1857,9 @@ public :
    Int_t                out_n_selected;
    Int_t                out_n_pairs;
    Int_t                out_n_refit_pairs;
+
+//	Int_t out_n_alive_tracks;
+
    std::vector<int>     out_track_id;
    std::vector<bool>    out_has_e_hbd_cluster;
    std::vector<bool>    out_has_e_lg_hit;
@@ -2280,6 +2287,7 @@ public :
 	bool IsGoodTrack(const int id);
 	bool IsRealTrack(const int id);
 	bool IsSameTarget(const int tid0, const int tid1);
+	bool IsLRTrack(const int tid0, const int tid1);
    void AnalyzeTrackPairs(std::vector<int> &in_ids);
 	void PairTracking(TrackPair *track_pair);
 	void AddTracks(TrackPair *track_pair);
@@ -4081,26 +4089,29 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("n_selected",             &n_selected);
    outtree->Branch("n_pairs",                &n_pairs);
    outtree->Branch("n_refit_pairs",          &n_refit_pairs);
-   outtree->Branch("track_id",               &track_id);
-   outtree->Branch("has_e_hbd_cluster",      &has_e_hbd_cluster);
-   outtree->Branch("has_e_lg_hit",           &has_e_lg_hit);
-   outtree->Branch("is_large_residual",      &is_large_residual);
-   outtree->Branch("is_near_target",         &is_near_target);
-   outtree->Branch("is_cluster_used",        &is_cluster_used);
-   outtree->Branch("is_selected",            &is_selected);
+
+//	outtree->Branch("n_alive_tracks", &out_n_alive_tracks);
+
+   outtree->Branch("track_id",               &out_track_id);
+   outtree->Branch("has_e_hbd_cluster",      &out_has_e_hbd_cluster);
+   outtree->Branch("has_e_lg_hit",           &out_has_e_lg_hit);
+   outtree->Branch("is_large_residual",      &out_is_large_residual);
+   outtree->Branch("is_near_target",         &out_is_near_target);
+   outtree->Branch("is_cluster_used",        &out_is_cluster_used);
+   outtree->Branch("is_selected",            &out_is_selected);
    outtree->Branch("x_rough_fit_chi_square", &out_x_rough_fit_chi_square);
    outtree->Branch("x_rough_fit_dist0",      &out_x_rough_fit_dist0);
    outtree->Branch("x_rough_fit_dist1",      &out_x_rough_fit_dist1);
    outtree->Branch("x_rough_fit_coef0",      &out_x_rough_fit_coef0);
    outtree->Branch("x_rough_fit_coef1",      &out_x_rough_fit_coef1);
    outtree->Branch("x_rough_fit_coef2",      &out_x_rough_fit_coef2);
-   outtree->Branch("rough_fit_n_hbds",       &rough_fit_n_hbds);
-   outtree->Branch("rough_fit_hbd_ids",      &rough_fit_hbd_ids);
-   outtree->Branch("rough_fit_hbd_ress",     &rough_fit_hbd_ress);
-   outtree->Branch("rough_fit_hbd_y_oks",    &rough_fit_hbd_y_oks);
-   outtree->Branch("y_rough_fit_chi_square", &y_rough_fit_chi_square);
-   outtree->Branch("y_rough_fit_coef0",   &y_rough_fit_coef0);
-   outtree->Branch("y_rough_fit_coef1",   &y_rough_fit_coef1);
+   outtree->Branch("rough_fit_n_hbds",       &out_rough_fit_n_hbds);
+   outtree->Branch("rough_fit_hbd_ids",      &out_rough_fit_hbd_ids);
+   outtree->Branch("rough_fit_hbd_ress",     &out_rough_fit_hbd_ress);
+   outtree->Branch("rough_fit_hbd_y_oks",    &out_rough_fit_hbd_y_oks);
+   outtree->Branch("y_rough_fit_chi_square", &out_y_rough_fit_chi_square);
+   outtree->Branch("y_rough_fit_coef0",  	   &out_y_rough_fit_coef0);
+   outtree->Branch("y_rough_fit_coef1",      &out_y_rough_fit_coef1);
    outtree->Branch("chi_square",          &out_chi_square);
    outtree->Branch("n_steps",             &out_n_steps);
    outtree->Branch("n_calls",             &out_n_calls);
@@ -4527,7 +4538,29 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 
 //	int n_tracks = rk_hit_init_pos_gz->size() ;	
 	int n_tracks = alive_ids.size();	
-	
+//	out_n_alive_tracks = n_tracks;
+
+    	out_track_id.resize(n_tracks);
+  	   out_has_e_hbd_cluster.resize(n_tracks);
+  	   out_has_e_lg_hit.resize(n_tracks);
+  	   out_is_large_residual.resize(n_tracks);   
+  	   out_is_near_target.resize(n_tracks);
+  	   out_is_cluster_used.resize(n_tracks); 
+  	   out_is_selected.resize(n_tracks);
+  	   out_x_rough_fit_chi_square.resize(n_tracks); 
+  	   out_x_rough_fit_dist0.resize(n_tracks);
+  	   out_x_rough_fit_dist1.resize(n_tracks);
+  	   out_x_rough_fit_coef0.resize(n_tracks);
+  	   out_x_rough_fit_coef1.resize(n_tracks);
+  	   out_x_rough_fit_coef2.resize(n_tracks);   
+  	   out_rough_fit_n_hbds.resize(n_tracks);
+  	   out_rough_fit_hbd_ids.resize(n_tracks);   
+  	   out_rough_fit_hbd_ress.resize(n_tracks); 
+  	   out_rough_fit_hbd_y_oks.resize(n_tracks);  
+  	   out_y_rough_fit_chi_square.resize(n_tracks);  
+  	   out_y_rough_fit_coef0.resize(n_tracks);
+  	   out_y_rough_fit_coef1.resize(n_tracks);
+
 	 out_gtr100x_cluster_last_tot_end.resize(n_tracks);
 	 out_gtr200x_cluster_last_tot_end.resize(n_tracks);
 	 out_gtr300x_cluster_last_tot_end.resize(n_tracks);
@@ -4917,6 +4950,29 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 //  out_n_cands = n_selected;
 	for(int i = 0 ; i < n_tracks ; i++){		
 		int tid = alive_ids[i];
+		out_track_id[i] = tid;
+	   out_has_e_hbd_cluster[i]=     	   has_e_hbd_cluster->at(tid);
+	   out_has_e_lg_hit[i]=          	   has_e_lg_hit->at(tid);
+	   out_is_large_residual[i]=     	   is_large_residual->at(tid);   
+	   out_is_near_target[i]=  is_near_target->at(tid);
+	   out_is_cluster_used[i]=     is_cluster_used->at(tid); 
+	   out_is_selected[i]=     is_selected->at(tid);
+	   out_x_rough_fit_chi_square[i]= 	   x_rough_fit_chi_square->at(tid); 
+//	   out_x_rough_fit_dist0[i]=     x_rough_fit_dist0->at(tid);
+//	   out_x_rough_fit_dist1[i]=     x_rough_fit_dist1->at(tid);
+	   out_x_rough_fit_coef0[i]=     x_rough_fit_coef0->at(tid);
+	   out_x_rough_fit_coef1[i]=     x_rough_fit_coef1->at(tid);
+	   out_x_rough_fit_coef2[i]=     x_rough_fit_coef2->at(tid);   
+	   out_rough_fit_n_hbds[i]=     rough_fit_n_hbds->at(tid);
+	   out_rough_fit_hbd_ids[i]=    rough_fit_hbd_ids->at(tid);   
+	   out_rough_fit_hbd_ress[i]=   rough_fit_hbd_ress->at(tid); 
+	   out_rough_fit_hbd_y_oks[i]=  rough_fit_hbd_y_oks->at(tid);  
+	   out_y_rough_fit_chi_square[i]=     y_rough_fit_chi_square->at(tid);  
+	   out_y_rough_fit_coef0[i]=     y_rough_fit_coef0->at(tid);
+	   out_y_rough_fit_coef1[i]=	   y_rough_fit_coef1->at(tid);
+
+
+
 //      int cl_size_100 = gtr100x_cluster_size->at(tid);
 //		for(int j=0; j < cl_size_100; j++){
 //			std::cout << "track id " << i << std::endl;
@@ -5187,7 +5243,9 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 		out_rk_pair_distance[i] = pair.distance;
 		out_rk_pair_minus_track_id[i] = pair.tid0;
 		out_rk_pair_plus_track_id[i]  = pair.tid1;
-	
+      out_rk_pair_minus_chi_square[i] = chi_square->at(pair.tid0);	
+      out_rk_pair_plus_chi_square[i] = chi_square->at(pair.tid1);	
+
 		auto& pair_vtx = pair.vtx;
 		out_rk_pair_vtx_gx[i] = pair_vtx.X();
 		out_rk_pair_vtx_gy[i] = pair_vtx.Y();

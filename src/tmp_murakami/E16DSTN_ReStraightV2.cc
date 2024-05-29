@@ -222,6 +222,29 @@ bool E16DSTN_ReStraightV2::IsSameTarget(const int tid0, const int tid1){
 	return true;	
 }
 
+bool E16DSTN_ReStraightV2::IsLRTrack(const int tid0, const int tid1){
+	bool flag = false;
+#ifndef REMOVE_GTR100
+	int mid0 = rk_fit_gtr100_mid->at(tid0);
+	int mid1 = rk_fit_gtr100_mid->at(tid1);
+#else
+	int mid0 = rk_fit_gtr200_mid->at(tid0);
+	int mid1 = rk_fit_gtr200_mid->at(tid1);
+#endif
+	if(mid0 < 105) {//L
+		if(mid1 > 105 && mid1 < 200){
+			flag = true;
+		}
+	}
+	if(mid0 > 105 && mid0 < 200) {
+		if(mid1 < 105 ){
+			flag = true;
+		}
+	}
+	return flag;
+}
+
+
 double E16DSTN_ReStraightV2::SearchVertex(TrackPair *track_pair){
 	int tid0 = track_pair->tid0;
 	int tid1 = track_pair->tid1;
@@ -256,14 +279,16 @@ void E16DSTN_ReStraightV2::AnalyzeTrackPairs(std::vector<int> &in_ids){
 		for(int j = i + 1; j < n_cands; j++){
 			int tid1 = in_ids[j];//track id 1
 //			std::cout << "tid 0 1 = "  << tid0 << ", " << tid1 << std::endl;
-			if(IsSameTarget(tid0, tid1)){
-				if(rk_fit_gtr100_mid->at(tid0) == rk_fit_gtr100_mid->at(tid1)) continue;
-				track_pair.tid0 = tid0;
-				track_pair.tid1 = tid1;
-				SearchVertex(&track_pair);	
-//				PairTracking(&track_pair);
-				track_pairs.emplace_back(track_pair);
-			}	
+//			if(IsSameTarget(tid0, tid1)){
+				if(IsLRTrack(tid0, tid1)){
+//					if(rk_fit_gtr100_mid->at(tid0) == rk_fit_gtr100_mid->at(tid1)) continue;
+					track_pair.tid0 = tid0;
+					track_pair.tid1 = tid1;
+					SearchVertex(&track_pair);	
+//					PairTracking(&track_pair);
+					track_pairs.emplace_back(track_pair);
+				}
+//			}	
 		}
 	}
 	SelectTrackPairs();
@@ -580,6 +605,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH1D* h_tgt_proj_y[n_module];
 	TH1D* h_res_x[n_module][n_layer];
 	TH1D* h_res_y[n_module][n_layer];
+	TH1D* h_res_vtx_trk_x[n_module][n_layer];
+	TH1D* h_res_vtx_trk_y[n_module][n_layer];
 	TH1D* h_tan_theta[n_module][n_layer];
 	TH1D* h_fitlx[n_tgt][n_module][n_layer];
    
@@ -605,13 +632,27 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH2D* h_cor_res_timing[n_module][n_layer];
 	
 	TH2D* h_slopevel[n_module][n_layer][n_div];
-
 	TH1D* h_res_lg_x[n_module];
 	TH1D* h_res_lg_y[n_module];
+	TH1D* h_res_vtx_trk_lg_x[n_module];
+	TH1D* h_res_vtx_trk_lg_y[n_module];
 	TH1D* h_bak_res_lg_x[n_module];
 	TH1D* h_bak_res_lg_y[n_module];
+	TH1D* h_bak_res_vtx_trk_lg_x[n_module];
+	TH1D* h_bak_res_vtx_trk_lg_y[n_module];
 
-//	TH2D* h_trackmap[n_tgt][n_module];
+//pair
+	TH1D* h_vtx_gx;
+	TH1D* h_vtx_gy;
+	TH1D* h_vtx_gz;
+	TH2D* h_vtx_gx_gz;	
+	TH2D* h_vtx_gx_gy;	
+   h_vtx_gx = new TH1D("h_vtx_gx", "h_vtx_gx", 80, -20, 20);
+   h_vtx_gy = new TH1D("h_vtx_gy", "h_vtx_gy", 80, -20, 20);
+   h_vtx_gz = new TH1D("h_vtx_gz", "h_vtx_gz", 80, -50, 50);
+  	h_vtx_gx_gz = new TH2D("h_vtx_gx_gz", "h_vtx_gx_gz", 80, -20, 20, 80, -40, 40); 
+  	h_vtx_gx_gy = new TH2D("h_vtx_gx_gy", "h_vtx_gx_gy", 80, -20, 20, 80, -20, 20); 
+
 
 
 	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
@@ -637,6 +678,10 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 		h_res_lg_x[m]  = new TH1D(Form("h_res_lg_x_%d", m+100), Form("h_res_lg_x_%d", m+100), 50, -400, 400 );
 		h_res_lg_y[m]  = new TH1D(Form("h_res_lg_y_%d", m+100), Form("h_res_lg_y_%d", m+100), 50, -400, 400 );
+		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
+		h_res_vtx_trk_lg_y[m]  = new TH1D(Form("h_res_vtx_trk_lg_y_%d", m+100), Form("h_res_vtx_trk_lg_y_%d", m+100), 50, -400, 400 );
+		h_bak_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_bak_res_vtx_trk_lg_x_%d", m+100), Form("h_bak_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
+		h_bak_res_vtx_trk_lg_y[m]  = new TH1D(Form("h_bak_res_vtx_trk_lg_y_%d", m+100), Form("h_bak_res_vtx_trk_lg_y_%d", m+100), 50, -400, 400 );
 
 		h_bak_res_lg_x[m]  = new TH1D(Form("h_bak_res_lg_x_%d", m+100), Form("h_bak_res_lg_x_%d", m+100), 50, -400, 400 );
 		h_bak_res_lg_y[m]  = new TH1D(Form("h_bak_res_lg_y_%d", m+100), Form("h_bak_res_lg_y_%d", m+100), 50, -400, 400 );
@@ -650,6 +695,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 				h_res_x[m][l] = new TH1D(Form("h_res_x__m%d_l%d", m+100, l), Form("h_res_x__m%d_l%d", m+100, l), 100, -2, 2);
 				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
 
+				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
+				h_res_vtx_trk_y[m][l] = new TH1D(Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), 100, -4, 4);
 				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx__%d_%d", m+100, l), Form("h_cor_res_fitlx_%d_%d", m+100, l), 40, -50*l , 50*l, 100, -2.5, 2.5);
 				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly__%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 100, -2, 2);
 				h_cor_res_timing[m][l] = new TH2D(Form("h_cor_res_timing__%d_%d", m+100, l), Form("h_cor_res_timing_%d_%d", m+100, l), 20, 0 , 600, 100, -2, 2);
@@ -671,8 +718,14 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 
 std::array<int, 4> mids;
+std::array<int, 4> mids_tid0;
+std::array<int, 4> mids_tid1;
 std::array<double, 4> resx;
+std::array<double, 4> resx_tid0;
+std::array<double, 4> resx_tid1;
 std::array<double, 4> resy;
+std::array<double, 4> resy_tid0;
+std::array<double, 4> resy_tid1;
 std::array<double, 4> fitlxs;
 std::array<double, 4> fitlys;
 std::array<double, 4> tans;//tan thetas
@@ -700,6 +753,78 @@ std::array<double, 4> xtotend;//xt4
 			h_n_eventid->Fill(event_id);
 			h_n_spillid->Fill(spill_id);
 
+// ------- analysis for pair ------- //
+			for(int i=0; i < n_pairs; i++){
+				if(rk_pair_plus_chi_square->at(i) < 20 && rk_pair_minus_chi_square->at(i) < 20){
+					int tid0 = rk_pair_minus_track_id->at(i);
+					int tid1 = rk_pair_plus_track_id->at(i);
+					int n_tracks = chi_square->size();
+					for(int j=0; j < n_tracks; j++){
+					   TVector3 vtx_gpos = TVector3(rk_pair_vtx_gx->at(i), rk_pair_vtx_gy->at(i), rk_pair_vtx_gz->at(i));
+						h_vtx_gx->Fill(vtx_gpos.x());
+						h_vtx_gy->Fill(vtx_gpos.y());
+						h_vtx_gz->Fill(vtx_gpos.z());
+						h_vtx_gx_gz->Fill(vtx_gpos.x(), vtx_gpos.z());
+						h_vtx_gx_gy->Fill(vtx_gpos.x(), vtx_gpos.y());
+					if( tid0 == track_id->at(j) || tid1 == track_id->at(j)){
+						mids= {	rk_fit_sts_mid->at(j),
+									rk_fit_gtr100_mid->at(j),						
+									rk_fit_gtr200_mid->at(j),
+									rk_fit_gtr300_mid->at(j)};
+						resx = { rk_res_sts_x->at(j),
+									rk_res_gtr100_x->at(j),
+									rk_res_gtr200_x->at(j),
+									rk_res_gtr300_x->at(j)};
+						resy = { 0,
+									rk_res_gtr100_y->at(j),
+									rk_res_gtr200_y->at(j),
+									rk_res_gtr300_y->at(j)};
+						for(int l=1; l < 4; l++){//layer loop
+							h_res_vtx_trk_x[mids[l]-100][l]->Fill(resx[l]);
+							h_res_vtx_trk_y[mids[l]-100][l]->Fill(resy[l]);
+						}
+// --- residual LG -- //
+//										 mplgy = rk_fit_lg_b_gy->at(i);
+//										 plgx  = rk_fit_lg_b_x->at(i);
+//										if(fabs(mplgy) > 260){
+//											plgx = rk_fit_lg_c_x->at(i);
+//										}
+//										if(fabs(mplgy) < 150){
+//											plgx = rk_fit_lg_a_x->at(i);
+//										}
+//										double lg_near = -9999;
+//										double mind =9999;
+//										int nlg = 0;
+//										for(int k=0; k < n_lg_hits;k++){
+//											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+//												int lg_mid = lg_hit_mid->at(k);
+//												if(lg_hit_adc->at(k) < 10) continue;
+//								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
+//												double dx     = lg_hit_x->at(k) - plgx;
+//												double dy     = lg_hit_gy->at(k) - mplgy;
+//												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
+//												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
+//
+////												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
+////												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
+//												
+//												h_res_vtx_trk_lg_x[lg_mid-100]->Fill(dx);
+//												h_res_vtx_trk_lg_y[lg_mid-100]->Fill(dx);
+//												h_bak_res_vtx_trk_lg_x[lg_mid-100]->Fill(pre_dx);
+//												h_bak_res_vtx_trk_lg_y[lg_mid-100]->Fill(pre_dx);
+//											}
+//										}
+
+
+
+
+						}
+					}
+				}	
+			}//analysis for pairs
+
+
+// ------- analysis for 1 track ---- // 
 			int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
          for(int i=0; i < n_tracks;i++){
          	double chi2 = chi_square->at(i);
@@ -746,7 +871,7 @@ std::array<double, 4> xtotend;//xt4
 	double tdiff200 = rk_hit_gtr200_xt->at(i) - rk_hit_gtr200_yt->at(i);
 	double tdiff300 = rk_hit_gtr300_xt->at(i) - rk_hit_gtr300_yt->at(i);
 	int mid = mids[1];//mid is decided by gtr100
-     bool lg_flag = true;
+   bool lg_flag = true;
 
 //	std::cout << "fitlx " << fitlxs[1] << std::endl;
 
@@ -792,16 +917,12 @@ std::array<double, 4> xtotend;//xt4
 							int nth_divy = (ly + offset) / ((l*100)/n_div);
 //								std::cout << "nth div = " << nth_div << std::endl;
 								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
-								if(chi2 <  50){
+								if(chi2 <  20){
 										h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
 
 //---  LG residual
 										 mplgy = rk_fit_lg_b_gy->at(i);
 										 plgx  = rk_fit_lg_b_x->at(i);
-										
-//										std::cout << "plgx " << plgx << std::endl;
-										
-										
 										if(fabs(mplgy) > 260){
 											plgx = rk_fit_lg_c_x->at(i);
 										}
@@ -820,15 +941,12 @@ std::array<double, 4> xtotend;//xt4
 												double dy     = lg_hit_gy->at(k) - mplgy;
 												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
 												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
-
 //												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
 //												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
-												
 												h_res_lg_x[lg_mid-100]->Fill(dx);
 												h_res_lg_y[lg_mid-100]->Fill(dx);
 												h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
 												h_bak_res_lg_y[lg_mid-100]->Fill(pre_dx);
-
 											}
 										}
 //								
@@ -881,9 +999,6 @@ std::array<double, 4> xtotend;//xt4
 										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
 									}
 									}
-
-
-
 									else if(m == 107){
 									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
 										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
@@ -891,8 +1006,6 @@ std::array<double, 4> xtotend;//xt4
 										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
 									}
 									}
-
-
 									else {
 									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
 										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
@@ -900,8 +1013,6 @@ std::array<double, 4> xtotend;//xt4
 										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
 									}
 									}
-
-
 
 		         			}
 
@@ -921,6 +1032,65 @@ std::array<double, 4> xtotend;//xt4
 	c0->SaveAs(pdf_name + "[", "pdf");
 	gStyle->SetOptStat(1111111);
 	gStyle->SetOptFit(0111);
+
+	TCanvas *c_vtx = new TCanvas();
+		c_vtx->Divide(3,2);
+		c_vtx->cd(1);
+		h_vtx_gx->Fit("gaus", "", "", -2, 3);
+		h_vtx_gx->Draw();
+		c_vtx->cd(2);
+		h_vtx_gy->Fit("gaus", "", "", -3, 1);
+		h_vtx_gy->Draw();
+		c_vtx->cd(3);
+		h_vtx_gz->Draw();
+		c_vtx->cd(4);
+		h_vtx_gx_gz->Draw("colz");
+		c_vtx->cd(5);
+		h_vtx_gx_gy->Draw("colz");
+   c_vtx->SaveAs(pdf_name, "pdf");
+
+
+  TCanvas *c_res_v[10];
+  for(int m =1; m < 9; m++){ 
+    c_res_v[m]= new TCanvas(); 
+    c_res_v[m]->Divide(2,2);
+    for(int l=0; l < n_layer; l++){
+     c_res_v[m]->cd(1+l);
+     if(m < 5) {
+        h_res_vtx_trk_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
+        h_res_vtx_trk_x[m][l]->Draw("colz");
+     }
+     else {
+        h_res_vtx_trk_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
+        h_res_vtx_trk_x[m+1][l]->Draw("colz");
+     }
+	 }
+    c_res_v[m]->SaveAs(pdf_name, "pdf");
+  }
+
+
+	TCanvas *cv_lgres;
+	cv_lgres = new TCanvas();
+	cv_lgres->Divide(4,2);
+	for(int mid=101; mid < 110; mid++){
+		if(mid == 105) continue;
+		if(mid < 105){
+		cv_lgres->cd(mid-100);
+		h_res_vtx_trk_lg_x[mid-100]->Draw();
+		h_bak_res_vtx_trk_lg_x[mid-100]->SetLineColor(kRed);
+		h_bak_res_vtx_trk_lg_x[mid-100]->Draw("same");
+		}
+	   else if(mid > 105){
+			cv_lgres->cd(mid-101);
+			h_res_vtx_trk_lg_x[mid-100]->Draw();
+			h_bak_res_vtx_trk_lg_x[mid-100]->SetLineColor(kRed);
+			h_bak_res_vtx_trk_lg_x[mid-100]->Draw("same");
+			
+		}
+   }
+	cv_lgres->SaveAs(pdf_name, "pdf");
+
+
 
 
 	TCanvas *c2[n_module];
@@ -1325,11 +1495,13 @@ c03->SaveAs(pdf_name, "pdf");
 	c18->Divide(4,2);
 	for(int mid=101; mid < 110; mid++){
 		if(mid == 105) continue;
+		if(mid < 105){
 		c18->cd(mid-100);
 		h_res_lg_x[mid-100]->Draw();
 		h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
 		h_bak_res_lg_x[mid-100]->Draw("same");
-		if(mid > 105){
+		}
+	   else if(mid > 105){
 			c18->cd(mid-101);
 			h_res_lg_x[mid-100]->Draw();
 			h_bak_res_lg_x[mid-100]->SetLineColor(kRed);

@@ -40,7 +40,8 @@ constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 #ifndef TRACK_FIND_WO_TARGET
 const TVector3 kInitPosErrorWire = {1.0, 3.5, 1.0};
 constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
-const TVector3 kInitPosError = {3., 3.4, 3.};
+//const TVector3 kInitPosError = {3., 3.4, 3.};
+const TVector3 kInitPosError = {99999, 99999, 99999};
 #else 
 const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};
 constexpr const std::array<double, 5> kWireXSigma = {999999, 0.05, 0.3, 0.3, 0.3}; 
@@ -82,7 +83,7 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 //
 //
 #ifndef TRACK_FIND_WO_TARGET
-constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 0.3, 0.3, 0.3};
+constexpr const std::array<double, 5> kXSigmaIncTgt = {30., 0.005, 0.3, 0.3, 0.3};
 #else 
 constexpr const std::array<double, 5> kXSigmaIncTgt = {999999, 0.005, 0.3, 0.3, 0.3};
 #endif
@@ -152,9 +153,9 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 
 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {5000., 300.}; // x, y from previous Ks peak
 #else
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {250., 25.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {2500., 25.}; // x, y from previous Ks peak
 #endif
 
 
