@@ -791,8 +791,10 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
     return false;
   }
   
-  else{// ---- three targets case
-//targets position 
+  else{
+// ---- three targets case --- //
+//
+// targets position 
   int n_tgt = targets_pos.size(); 
   std::vector<double> tgt_y;
   std::vector<double> tgt_r;
@@ -802,30 +804,11 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
      tgt_y[i] = targets_pos[i].y();
      tgt_r[i] = targets_pos[i].x() * targets_pos[i].x() + targets_pos[i].z() * targets_pos[i].z();
   }
-
-#ifdef REMOVE_GTR100
-  std::array<double, kNumGTRLayers> gtr_y({0, pos_set[2].Y(), pos_set[3].Y()});
-  std::array<double, kNumGTRLayers> gtr_r({0,
-                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
-                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-#elif REMOVE_GTR200
-  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), 0, pos_set[3].Y()});
-  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
-                                           0,
-                                           sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-#elif REMOVE_GTR300
-  std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), 0});
-  std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
-                                           sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
-                                           0 });
-#else
+// detector positions
   std::array<double, kNumGTRLayers> gtr_y({pos_set[1].Y(), pos_set[2].Y(), pos_set[3].Y()});
   std::array<double, kNumGTRLayers> gtr_r({sqrt(pos_set[1].X() * pos_set[1].X() + pos_set[1].Z() * pos_set[1].Z()),
                                            sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
                                            sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
-
-#endif
-
 
   if (fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[1] * gtr_y[1]) > kGTRYDiffThreshold ||
       fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold ||

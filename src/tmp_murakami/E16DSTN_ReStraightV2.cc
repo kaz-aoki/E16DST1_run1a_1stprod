@@ -1,5 +1,6 @@
 #define E16DSTN_ReStraightV2_cxx
 #include "E16DSTN_ReStraightV2.hh"
+#include "E16ANA_StraightTrackParameter.hh"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -28,11 +29,11 @@ void E16DSTN_ReStraightV2::ChiSqSort( std::vector<int> &sorted_ids){
 
 void E16DSTN_ReStraightV2::SelectTracks(std::vector<int> &sorted_ids, std::vector<int> &selected_ids){
 	for(int i=0; i < n_cands; i++){
-		if(IsRealTrack(i)){
+//		if(IsRealTrack(i)){
 			if(IsGoodTrack(i)){
 				selected_ids.emplace_back(i);
 			}
-		}
+//		}
 	}
 }
 
@@ -58,20 +59,21 @@ bool E16DSTN_ReStraightV2::IsRealTrack(const int id){
 
 void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids, std::vector<int> &killdup_ids){
 	int n_selected_ids = selected_ids.size();
-#ifndef NoExist_SSD
+
+#ifdef REMOVE_NOLAYER // all layer exist
 	for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> cids = {
 			rk_hit_sts_id->at(i),
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
 			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
 			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-// 			std::cout << "ids (" << rk_hit_sts_id->at(i)   
-//			 << ", " << rk_hit_gtr100_xid->at(i) 
-//			 << ", " << rk_hit_gtr200_xid->at(i) 
-//			 << ", " << rk_hit_gtr300_xid->at(i) 
-//			 << ", " << rk_hit_gtr100_yid->at(i) 
-//			 << ", " << rk_hit_gtr200_yid->at(i) 
-//			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
+ 			std::cout << "ids (" << rk_hit_sts_id->at(i)   
+			 << ", " << rk_hit_gtr100_xid->at(i) 
+			 << ", " << rk_hit_gtr200_xid->at(i) 
+			 << ", " << rk_hit_gtr300_xid->at(i) 
+			 << ", " << rk_hit_gtr100_yid->at(i) 
+			 << ", " << rk_hit_gtr200_yid->at(i) 
+			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
          if(HasUsedCluster(cids, used_cluster_ids)){
 //			std::cout << "duplicated !" << std::endl;
 			continue;			
@@ -83,54 +85,8 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 			killdup_ids.emplace_back(i);
 			}
     }
-#else//NoExist_SSD
-
-//    #ifdef REMOVE_100
-//    for(int i=0; i < n_selected_ids ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
-//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-//         if(HasUsedCluster(cids, used_cluster_ids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			killdup_ids.emplace_back(i);
-//			}
-//    }
-//    #elif REMOVE_200
-//    for(int i=0; i < n_selected_ids ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-//         if(HasUsedCluster(cids, used_cluster_ids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			killdup_ids.emplace_back(i);
-//			}
-//    }
-//     #elif REMOVE_300
-//    for(int i=0; i < n_selected_ids ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i)};
-//         if(HasUsedCluster(cids, used_cluster_ids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			killdup_ids.emplace_back(i);
-//			}
-//    }
-//    #else
+#else//
+	#ifdef No_Exist_SSD
 	 for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
@@ -145,8 +101,58 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 			killdup_ids.emplace_back(i);
 			}
     }
-//#endif // REMOVE_GTRxxx
-#endif // NoExist_SSD
+    #elif REMOVE_GTR100
+    for(int i=0; i < n_selected_ids ; i++){
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+			rk_hit_sts_id->at(i),
+			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
+			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+         if(HasUsedCluster(cids, used_cluster_ids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			killdup_ids.emplace_back(i);
+			}
+    }
+    #elif REMOVE_GTR200
+    for(int i=0; i < n_selected_ids ; i++){
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+			rk_hit_sts_id->at(i),
+			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+// 			std::cout << "ids (" << rk_hit_sts_id->at(i)   
+//			 << ", " << rk_hit_gtr100_xid->at(i) 
+//			 << ", " << rk_hit_gtr300_xid->at(i) 
+//			 << ", " << rk_hit_gtr100_yid->at(i) 
+//			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
+         if(HasUsedCluster(cids, used_cluster_ids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			killdup_ids.emplace_back(i);
+			}
+    }
+     #elif REMOVE_GTR300
+    for(int i=0; i < n_selected_ids ; i++){
+			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
+			rk_hit_sts_id->at(i),
+			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
+			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i)};
+         if(HasUsedCluster(cids, used_cluster_ids)){
+				continue;			
+			} else {
+				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
+					used_cluster_ids[j].emplace_back(cids[j]);
+				}
+			killdup_ids.emplace_back(i);
+			}
+    }
+#endif // 
+#endif //
 }
 
 
@@ -554,8 +560,8 @@ void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 //	}
 //}
 
-bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 1> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids ){
-	for (int i = 0; i < kNumTrackingStrips-1; ++i) {
+bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 2> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids ){
+	for (int i = 0; i < kNumTrackingStrips-2; ++i) {
 		for(const auto& used_id : used_cluster_ids[i]){
      		if(cids[i] == used_id){
        		return true;

@@ -40,8 +40,8 @@ constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 #ifndef TRACK_FIND_WO_TARGET
 const TVector3 kInitPosErrorWire = {1.0, 3.5, 1.0};
 constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
-//const TVector3 kInitPosError = {3., 3.4, 3.};
-const TVector3 kInitPosError = {99999, 99999, 99999};
+const TVector3 kInitPosError = {3., 3.4, 3.};
+//const TVector3 kInitPosError = {99999, 99999, 99999};
 #else 
 const TVector3 kInitPosErrorWire = {999999, 3.4, 999999};
 constexpr const std::array<double, 5> kWireXSigma = {999999, 0.05, 0.3, 0.3, 0.3}; 
@@ -59,7 +59,7 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 #ifndef REMOVE_GTR200
                                           {0.265, 0.626, 0.},
 #else 
-                                          {99999, 99999, 0.},
+                                          {999999, 999999, 0.},
 //                                          {10, 0.6, 0.},
 #endif //200
 
@@ -83,9 +83,25 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 //
 //
 #ifndef TRACK_FIND_WO_TARGET
-constexpr const std::array<double, 5> kXSigmaIncTgt = {30., 0.005, 0.3, 0.3, 0.3};
-#else 
-constexpr const std::array<double, 5> kXSigmaIncTgt = {999999, 0.005, 0.3, 0.3, 0.3};
+	#ifdef REMOVE_GTR100
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 99999, 0.3, 0.3};
+	#elif REMOVE_GTR200
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 0.3, 9999999, 0.3};
+	#elif REMOVE_GTR300
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 0.3, 0.3, 99999};
+	#else
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {3., 0.005, 0.3, 0.3, 0.3};
+	#endif
+#else //track find w/o targets
+	#ifdef REMOVE_GTR100
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {99999., 0.005, 99999, 0.3, 0.3};
+	#elif REMOVE_GTR200
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {99999., 0.005, 0.3, 99999, 0.3};
+	#elif REMOVE_GTR300
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {99999., 0.005, 0.3, 0.3, 99999};
+	#else
+	constexpr const std::array<double, 5> kXSigmaIncTgt = {99999., 0.005, 0.3, 0.3, 0.3};
+	#endif
 #endif
 
 constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
@@ -95,11 +111,11 @@ constexpr std::array<double, 5> kXWeight = {1. / (kXSigmaIncTgt[0] * kXSigmaIncT
                                             1. / (kXSigmaIncTgt[3] * kXSigmaIncTgt[3]),
                                             1. / (kXSigmaIncTgt[4] * kXSigmaIncTgt[4])};
 #ifdef REMOVE_GTR100
-constexpr std::array<double, 3> kYSigma = {1., 0.5, 0.5}; // y rough fit
+constexpr std::array<double, 3> kYSigma = {99999., 0.5, 0.5}; // y rough fit
 #elif REMOVE_GTR200
-constexpr std::array<double, 3> kYSigma = {0.5, 1., 0.5}; // y rough fit
+constexpr std::array<double, 3> kYSigma = {0.5, 99999, 0.5}; // y rough fit
 #elif REMOVE_GTR300
-constexpr std::array<double, 3> kYSigma = {0.5, 0.5, 1.}; // y rough fit
+constexpr std::array<double, 3> kYSigma = {0.5, 0.5, 99999}; // y rough fit
 #else
 constexpr std::array<double, 3> kYSigma = {0.5, 0.5, 0.5}; // y rough fit
 #endif
@@ -121,8 +137,20 @@ constexpr double kGTRYDiffThreshold = 20.; // mm
 
 constexpr double kGTRFakeADC = 99999;
 
+
+#ifdef REMOVE_GTR100
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {kGTRFakeADC - 1., 100., 100.}; // 220418 for production
+constexpr std::array<double, 3> kGTRPeakSumThresholdY = {kGTRFakeADC - 1., 100., 100.}; // 220418 for production
+#elif REMOVE_GTR200
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100, kGTRFakeADC - 1., 100.}; // 220418 for production
+constexpr std::array<double, 3> kGTRPeakSumThresholdY = {100, kGTRFakeADC - 1., 100.}; // 220418 for production
+#elif REMOVE_GTR300
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100, 100, kGTRFakeADC - 1.}; // 220418 for production
+constexpr std::array<double, 3> kGTRPeakSumThresholdY = {100, 100, kGTRFakeADC - 1.}; // 220418 for production
+#else 
 constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
 constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 220418 for production
+#endif
 //#ifndef EFFICIENCY_EVAL
 //  constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
 //  #else
@@ -153,9 +181,9 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 
 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {5000., 300.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // 
 #else
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {2500., 25.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {300., 300}; //
 #endif
 
 

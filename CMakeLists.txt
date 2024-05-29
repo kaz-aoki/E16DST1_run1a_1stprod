@@ -63,7 +63,7 @@ add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking 
 #add_definitions(-DREMOVE_GTR100) # 
 add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
-#add_definitions(-DEFFICIENCY_EVAL) # //turn on if you want to evaluate the efficiency
+#add_definitions(-DEFFICIENCY_EVAL) # //no used 
 
 
 
