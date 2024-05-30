@@ -644,6 +644,17 @@ target_link_libraries(HBDADCwoTrack
 #	E16ANA
 #)
 #
+#_______________________________________________________________________________
+add_executable(LG_MakeHVTableOffline usr/tmp/nakasuga/LG_MakeHVTableOffline.cc)
+
+target_link_libraries(LG_MakeHVTableOffline
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 #add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
 #

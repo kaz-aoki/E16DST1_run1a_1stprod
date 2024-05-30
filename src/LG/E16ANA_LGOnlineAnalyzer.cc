@@ -144,6 +144,54 @@ void E16ANA_LGOnlineAnalyzer::MakeHVTable(int FMstate, int run_id, char* prefile
   froot->Close();
 }
 
+void E16ANA_LGOnlineAnalyzer::MakeHVTableOffline(char* gainfile, char* prefile, char* newfile_prefix)
+{
+  auto& calib = E16ANA_CalibDBManager::Instance();
+  calib.SetRunID(51000);//use run0e channel map
+  E16ANA_LGBasic lgbasic;
+  lgbasic.SetMap();
+
+  std::ifstream fgain(gainfile);
+  double gain[1000];
+  while(!fgain.eof()){
+    int tmp_module, tmp_block;
+    double tmp_gain;
+    fgain >> tmp_module >> tmp_block >> tmp_gain;
+    auto spec = lgbasic.GetSpec(tmp_module,tmp_block);
+    int hvch = spec->HVCH;
+    if(hvch>=0&&hvch<1000){
+      gain[hvch] = tmp_gain;
+    }
+  }
+
+  std::ifstream fin(prefile);
+  char ext[] = ".txt";
+  strcat(newfile_prefix,ext);
+  std::ofstream fout(newfile_prefix);
+  while(!fin.eof()){
+    std::string thvch, tname;
+    double thvval, tlimit;
+    int tid;
+    fin >> thvch >> tname >> thvval >> tlimit >> tid;
+    if(fin.eof()) break;
+    thvch.erase(0,1);
+    int hvch = stoi(thvch);
+    if( IDtoModule(tid)==-1 ){// vacant ch
+      fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
+    }
+    // else if( IDtoModule(tid)>=103 && IDtoModule(tid)<=107 ){// for FMON
+    //   fout <<"u"<< thvch <<" "<< tname <<" "<< thvval <<" "<< tlimit <<" "<< tid <<std::endl;
+    // }
+    else{
+      double newhvval;
+      double tmp_gain = gain[hvch];
+      ScaleHVValue(1, tmp_gain, thvval, newhvval);
+      std::cout<<hvch<<" gain:"<<tmp_gain<<", HV:"<<thvval<<"=>"<<newhvval<<std::endl;
+      fout <<"u"<< thvch <<" "<< tname <<" "<< newhvval <<" "<< tlimit <<" "<< tid <<std::endl;
+    }
+  }
+}
+
 void E16ANA_LGOnlineAnalyzer::LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], TH1F* (&hoff)[8], TH1F* (&hsoff)[8], int maxevent)
 {
   if (fChain == 0) return;
