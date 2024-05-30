@@ -759,7 +759,15 @@ void E16ANA_EIDSingleTrackAnalyzer::MakeTree_EIDEfficiency(int runoption, int ma
 	out_track_angle_ly.push_back(track_angle_ly);
 	out_track_position_block_lx.push_back(track_position_block_lx);
 	out_track_position_block_ly.push_back(track_position_block_ly);
-	out_track_ssd_t.push_back(rk_hit_ssd_t->at(itrack));
+	double tmpssdt = -10000.;
+	for(int issd=0;issd<n_ssd_clusters;issd++){
+	  if(rk_hit_ssd_id->at(itrack)==ssd_cluster_id->at(issd)){
+	    tmpssdt = ssd_cluster_t->at(issd);
+	    break;
+	  }
+	}
+	out_track_ssd_t.push_back(tmpssdt);
+	// out_track_ssd_t.push_back(rk_hit_ssd_t->at(itrack));
 	// out_track_ssd_t.push_back(rk_hit_ssd_t->at(itrack)-trigger_fine_time);
 	out_track_ssd_adc.push_back(rk_hit_ssd_adc->at(itrack));
 	out_track_ssd_multiplicity.push_back(nssd);

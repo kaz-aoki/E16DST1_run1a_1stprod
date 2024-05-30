@@ -147,7 +147,7 @@ double ExpectedE(double p){
 
 double E16ANA_EIDEfficiency::CalcADCNearHit(int condition, std::vector<hitset>& lgnear, double ssdt, lgcls& lgcluster){
 
-  double ssdoffset = 51.;
+  double ssdoffset = 51.;//to be updated!!!!!!!!!!!
   double ssdregion = 6.;
 
   if(condition==0){//return maxadc
@@ -618,13 +618,17 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // double enepar[4] = {1.,40.,80.,198.};
    // int ienepar[4] = {1,40,80,200};
 
+   int gaincheck = 0;
    bool gaincalib = true;
+   if(gaincheck==1){gaincalib=false;}
    bool fwdonly = false;
    bool hbdass_in_dst1 = false;
    bool new_cluster_method = true;//221006
    bool w_calib_pos_dep = true;//calib parameter w/ position dependence
+   if(gaincheck==1){w_calib_pos_dep=false;}
    if(runoption==0){w_calib_pos_dep=false;}
-   int w_ssd_timing_match = 0;// 0: not required, 1: required but return maxadc, 2: required
+   int w_ssd_timing_for_cluster = 0;// 0: not required, 1: required but return maxadc, 2: required
+   bool w_ssd_timing_for_hit = false;
    int searchx = 100;//for lg cluster
    int searchy = 100;//for lg cluster
    // int searchx = 100;//for lg cluster
@@ -643,13 +647,16 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // if(runoption==3){hbdthr = 4.;}
    // if(runoption==4){hbdthr = 0.;}
    // int hbdclthr = 1;
-   double ssdoffset = 51.;
+   double lgoffset = 85.;
+   double ssdoffset = -95.;
+   double ssd_t_unit = 3.125;//[1/ns]
    // double ssdregion = 11.;
    // double ssdregion = 6.;//240519
-   double ssdregion = 10000.;//240519
+   // double time_region = 10000.;//240519
+   double time_region = 15.;//240529
    // if(runoption==3){ssdregion = 60.;}//240519
-   if(runoption==4){ssdregion = 60.;}
-   if(runoption==0){ssdregion = 60.;}
+   // if(runoption==4){ssdregion = 60.;}
+   // if(runoption==0){ssdregion = 60.;}
    // if(runoption==3){ssdregion = 11.;}
    // if(runoption==4){ssdregion = 11.;}
 
@@ -658,6 +665,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    const int ntrktype=6;
    char trktype[ntrktype][20] = {"w/o_HBD&LG_kgs","w/HBD_kgs","w/LG_kgs","w/HBDLG_kgs","w/HBD_kh","w/HBDf&m_kh"};
    int eptype = 1;
+   if(gaincheck==1){eptype=0;}
    int roughbin[ndet] = {200,50};
    // if(runoption==0){
    //   roughbin[0] = 400;
@@ -965,8 +973,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
        hhitmapcd[j][i] = new TH2F(Form("hhitmapcd%d%d",j,i),Form("LGhitmap_mod%d_E/pcut%d_Mix",103+i,j),7,-0.5,6.5,6,-0.5,5.5);
        hhitmapcd_hmix[j][i] = new TH2F(Form("hhitmapcd_hmix%d%d",j,i),Form("LGhitmap_mod%d_E/pcut%d_Mix_hmix",103+i,j),7,-0.5,6.5,6,-0.5,5.5);
      }
-     htsvslc[i] = new TH2F(Form("htsvslc%d",i),Form("Timing_SSDvsLG_TrackAssoc_inCluster_Fore_mod%d",103+i),50,50,150,50,-10,90);
-     htsvslcd[i] = new TH2F(Form("htsvslcd%d",i),Form("Timing_SSDvsLG_TrackAssoc_inCluster_Mix_mod%d",103+i),50,50,150,50,-10,90);
+     htsvslc[i] = new TH2F(Form("htsvslc%d",i),Form("Timing_SSDvsLG_TrackAssoc_inCluster_Fore_mod%d",103+i),50,40,140,32,-111,-79);
+     htsvslcd[i] = new TH2F(Form("htsvslcd%d",i),Form("Timing_SSDvsLG_TrackAssoc_inCluster_Mix_mod%d",103+i),50,40,140,32,-111,-79);
      htsslc[i] = new TH1F(Form("htsslc%d",i),Form("Timing_SSD-LG_TrackAssoc_inCluster_Fore_mod%d",103+i),100,-100,100);
      htsslcd[i] = new TH1F(Form("htsslcd%d",i),Form("Timing_SSD-LG_TrackAssoc_inCluster_Mix_mod%d",103+i),100,-100,100);
      htdiffc[i] = new TH1F(Form("htdiffc%d",i),Form("MaxTimeDifference_TrackAssoc_inCluster_Fore_mod%d",103+i),100,0,20);
@@ -1030,6 +1038,11 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 
        if (TrackSelection(ientry,itrack,runoption) < 0) continue;
 
+       double ssd_t_for_lg_hit = track_ssd_t->at(itrack);
+       if( !w_ssd_timing_for_hit ){
+	 ssd_t_for_lg_hit = -95.;
+       }
+
        //Search near HBD hit
        int hmide = track_hbd_mid->at(itrack)-103;
        int lmide = track_lg_mid->at(itrack)-103;
@@ -1067,7 +1080,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
 #ifdef LGWFHit
-	 if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	 if( track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr ||
+	   (tmptdc-lgoffset)<(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)-time_region) ||
+	   (tmptdc-lgoffset)>(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)+time_region) 
+	 ) continue;//220418
 #else
 	 if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<-10.||tmptdc>10.) continue;//230906
 #endif
@@ -1130,7 +1146,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 btrktype[1]=IsGoodTrack(ientry,itrack,tracksets[1]);
 	 //
 	 // if(btrktype[1]>=0){
-	 //   wfout[lmide]<<run_id<<" "<<event_id<<" "<<track_lg_mid->at(itrack)<<" "<<track_lg_blockch->at(itrack)<<" "<<track_position_block_lx->at(itrack)<<" "<<track_position_block_ly->at(itrack)<<" "<<track_angle_lx->at(itrack)<<" "<<track_angle_ly->at(itrack)<<" "<<track_mom->at(itrack)<<" "<<track_ssd_t->at(itrack)+ssdoffset<<" "<<rk_charge->at(itrack);
+	 //   wfout[lmide]<<run_id<<" "<<event_id<<" "<<track_lg_mid->at(itrack)<<" "<<track_lg_blockch->at(itrack)<<" "<<track_position_block_lx->at(itrack)<<" "<<track_position_block_ly->at(itrack)<<" "<<track_angle_lx->at(itrack)<<" "<<track_angle_ly->at(itrack)<<" "<<track_mom->at(itrack)<<" "<<ssd_t_for_lg_hit+ssdoffset<<" "<<rk_charge->at(itrack);
 	 //   std::vector<int> tmp_cids(0);
 	 //   CalcClusterCand(*geometry, tmp_cids, track_lg_blockch->at(itrack), track_position_block_lx->at(itrack), track_position_block_ly->at(itrack), track_angle_lx->at(itrack));
 	 //   wfout[lmide]<<" "<<tmp_cids.size();
@@ -1324,7 +1340,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10]*enepar[bene];}
 	 if(gaincalib){tmpadc = tmpadc*gain;}
 #ifdef LGWFHit
-	 if(tmpadc<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;//220418
+	 if( tmpadc<lgresthr ||
+	   (tmptdc-lgoffset)<(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)-time_region) ||
+	   (tmptdc-lgoffset)>(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)+time_region)
+	 ) continue;//220418
 #else
 	 if(tmpadc<lgresthr||tmptdc<-10.||tmptdc>10.) continue;//230906
 #endif
@@ -1383,7 +1402,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 if(lgnear.size()>0){
 	   hexp[lmide]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
 	   hexp[2]->Fill(ExpectedE(track_mom->at(itrack))/enepar[bene]/track_mom->at(itrack));
-	   adcsum=CalcADCNearHit(w_ssd_timing_match,lgnear,track_ssd_t->at(itrack),lgcluster);
+	   adcsum=CalcADCNearHit(w_ssd_timing_for_cluster,lgnear,track_ssd_t->at(itrack),lgcluster);
 	   if(w_calib_pos_dep){
 	     double tbx, tby;
 	     double calib_pos_dep = CalcCalibPar(track_lg_lx->at(itrack),track_lg_ly->at(itrack),track_angle_lx->at(itrack),track_lg_blockch->at(itrack),tbx, tby);
@@ -1503,7 +1522,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 //       double resy = track_lg_allhit_resy->at(itrack).at(ilg)-originy[lmide][1];
 	 //       double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 //       int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
-	 //       if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmptdc>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;
+	 //       if(track_lg_allhit_adc->at(itrack).at(ilg)<lgresthr||tmptdc<(ssdoffset-ssdregion)+ssd_t_for_lg_hit||tmptdc>(ssdoffset+ssdregion)+ssd_t_for_lg_hit) continue;
 	 //       bool hitincls = false;
 	 //       for(int ict2=0;ict2<lgcluster.cids.size();ict2++){
 	 // 	 if(cid==lgcluster.cids.at(ict2)&&tmptdc==lgcluster.tdcs.at(ict2)){
@@ -1526,8 +1545,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   htsvslc[2]->Fill(lgcluster.tdcs.at(ict),track_ssd_t->at(itrack));
 	   // evspout[lmide]<<lgcluster.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
 	   // evspout[2]<<lgcluster.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
-	   htsslc[lmide]->Fill( track_ssd_t->at(itrack) - (lgcluster.tdcs.at(ict)-51.) );
-	   htsslc[2]->Fill( track_ssd_t->at(itrack) - (lgcluster.tdcs.at(ict)-51.) );
+	   htsslc[lmide]->Fill( (track_ssd_t->at(itrack)-ssdoffset) - (lgcluster.tdcs.at(ict)-lgoffset) );
+	   htsslc[2]->Fill( (track_ssd_t->at(itrack)-ssdoffset) - (lgcluster.tdcs.at(ict)-lgoffset) );
 	 }
 	 if(lgcluster.cids.size()>1){
 	   htdiffc[lmide]->Fill(lgcluster.timediff);
@@ -1708,7 +1727,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   hntrackassd[2][1][itype]->Fill(nlgtrkass_dum);
 	   if(itype==eptype){
 	     if(lgneard.size()>0){
-	       adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);
+	       adcsumd=CalcADCNearHit(w_ssd_timing_for_cluster,lgneard,track_ssd_t->at(itrack),lgclusterd);
 	       if(w_calib_pos_dep){
 		 double tbx, tby;
 		 double calib_pos_dep = CalcCalibPar(track_lg_lx->at(itrack),track_lg_ly->at(itrack),track_angle_lx->at(itrack),track_lg_blockch->at(itrack),tbx,tby);
@@ -1723,8 +1742,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	       htsvslcd[2]->Fill(lgclusterd.tdcs.at(ict),track_ssd_t->at(itrack));
 	       // evspdout[lmide]<<lgclusterd.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
 	       // evspdout[2]<<lgclusterd.tdcs.at(ict)<<" "<<track_ssd_t->at(itrack)<<std::endl;
-	       htsslcd[lmide]->Fill( track_ssd_t->at(itrack) - (lgclusterd.tdcs.at(ict)-51.) );
-	       htsslcd[2]->Fill( track_ssd_t->at(itrack) - (lgclusterd.tdcs.at(ict)-51.) );
+	       htsslcd[lmide]->Fill( (track_ssd_t->at(itrack)-ssdoffset) - (lgclusterd.tdcs.at(ict)-lgoffset) );
+	       htsslcd[2]->Fill( (track_ssd_t->at(itrack)-ssdoffset) - (lgclusterd.tdcs.at(ict)-lgoffset) );
 	     }
 	     if(lgclusterd.cids.size()>1){
 	       htdiffcd[lmide]->Fill(lgclusterd.timediff);
@@ -1823,7 +1842,10 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(tmplx,tmply);
 	   if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10]*enepar[bene];}
 	   if(gaincalib){tmpa=tmpa*gain;}
-	   if(tmpa<lgresthr||tmpt<(ssdoffset-ssdregion)+track_ssd_t->at(itrack)||tmpt>(ssdoffset+ssdregion)+track_ssd_t->at(itrack)) continue;
+	   if( tmpa<lgresthr ||
+	     (tmpt-lgoffset)<(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)-time_region) ||
+	     (tmpt-lgoffset)>(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)+time_region)
+	   ) continue;
 	   hitset lghit;
 	   lghit.mid=track_lg_mid->at(itrack);
 	   lghit.lx=tmplx;
@@ -1901,7 +1923,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 }
        }
        if(lgneard.size()>0){
-	 adcsumd=CalcADCNearHit(w_ssd_timing_match,lgneard,track_ssd_t->at(itrack),lgclusterd);
+	 adcsumd=CalcADCNearHit(w_ssd_timing_for_cluster,lgneard,track_ssd_t->at(itrack),lgclusterd);
 	 if(w_calib_pos_dep){
 	   double tbx, tby;
 	   double calib_pos_dep = CalcCalibPar(track_lg_lx->at(itrack),track_lg_ly->at(itrack),track_angle_lx->at(itrack),track_lg_blockch->at(itrack),tbx,tby);
