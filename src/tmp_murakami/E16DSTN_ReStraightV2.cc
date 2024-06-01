@@ -647,6 +647,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH1D* h_bak_res_vtx_trk_lg_x[n_module];
 	TH1D* h_bak_res_vtx_trk_lg_y[n_module];
 
+//removed residual
+
 //pair
 	TH1D* h_vtx_gx;
 	TH1D* h_vtx_gy;
@@ -698,7 +700,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
 				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
 //				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
-				h_res_x[m][l] = new TH1D(Form("h_res_x__m%d_l%d", m+100, l), Form("h_res_x__m%d_l%d", m+100, l), 100, -2, 2);
+				h_res_x[m][l] = new TH1D(Form("h_res_x__m%d_l%d", m+100, l), Form("h_res_x__m%d_l%d", m+100, l), 100, -10, 10);
 				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
 
 				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
@@ -761,7 +763,7 @@ std::array<double, 4> xtotend;//xt4
 
 // ------- analysis for pair ------- //
 			for(int i=0; i < n_pairs; i++){
-				if(rk_pair_plus_chi_square->at(i) < 20 && rk_pair_minus_chi_square->at(i) < 20){
+				if(rk_pair_plus_chi_square->at(i) < 200 && rk_pair_minus_chi_square->at(i) < 200){
 					int tid0 = rk_pair_minus_track_id->at(i);
 					int tid1 = rk_pair_plus_track_id->at(i);
 					int n_tracks = chi_square->size();
@@ -923,8 +925,61 @@ std::array<double, 4> xtotend;//xt4
 							int nth_divy = (ly + offset) / ((l*100)/n_div);
 //								std::cout << "nth div = " << nth_div << std::endl;
 								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
-								if(chi2 <  20){
+								if(chi2 <  200){
 										h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
+
+// ---  removed layer residual --- // 
+//
+
+#ifdef REMOVE_GTR100
+	auto *clusters_x    = gtr100x_cluster_x;
+	auto *clusters_xadc = gtr100x_cluster_adc;
+	int n_clusters = n_gtr100x_clusters;
+	double min_resx = 9999;
+	for(int k=0; k < n_clusters; k++){
+		if(clusters_xadc->at(k) < kGTRFakeADC ){
+		double resx = fitlxs[1] - clusters_x->at(k);
+			if(resx < min_resx){
+				min_resx = resx;
+			}
+		}
+	}
+	resx[1] = min_resx;//residual 
+#elif  REMOVE_GTR200
+	auto *clusters_x    = gtr200x_cluster_x;
+	auto *clusters_xadc = gtr200x_cluster_adc;
+	auto *clusters_mids = gtr200x_cluster_mid	;
+	int n_clusters = n_gtr200x_clusters;
+	double min_resx = 9999;
+	std::cout << "n_clusters = " << n_clusters << std::endl; 
+	for(int k=0; k < n_clusters; k++){
+		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
+		if(clusters_mids->at(k) == mids[2]){
+			if(clusters_xadc->at(k) < kGTRFakeADC ){
+				
+				double resx = fitlxs[2] - clusters_x->at(k);
+				if(resx < min_resx){
+					min_resx = resx;
+				}
+			}
+		}
+	}
+	resx[2] = min_resx;//residual 
+#elif REMOVE_GTR300
+	auto *clusters_x    = gtr300x_cluster_x;
+	auto *clusters_xadc = gtr300x_cluster_adc;
+	int n_clusters = n_gtr300x_clusters;
+	double min_resx = 9999;
+	for(int k=0; k < n_clusters; k++){
+		if(clusters_xadc->at(k) < kGTRFakeADC ){
+		double resx = fitlxs[3] - clusters_x->at(k);
+			if(resx < min_resx){
+				min_resx = resx;
+			}
+		}
+	}
+	resx[3] = min_resx;//residual 
+#endif
 
 //---  LG residual
 										 mplgy = rk_fit_lg_b_gy->at(i);

@@ -183,12 +183,16 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 #ifdef REMOVE_NOLAYER
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // 
 #else
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {300., 300}; //
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 1000}; //
 #endif
 
 
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015}; 
+#ifdef REMOVE_NOLAYER
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
+#else
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
+#endif
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {

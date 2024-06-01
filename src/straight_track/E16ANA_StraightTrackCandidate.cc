@@ -753,7 +753,6 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
     double c  = 0.;
     double ry = 0.;
     double y  = 0.;
-
 //targets
     r2 += kYTargetWeight* 0.0 * 0.0;
     r  += kYTargetWeight*0.0 ;
@@ -810,6 +809,7 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
                                            sqrt(pos_set[2].X() * pos_set[2].X() + pos_set[2].Z() * pos_set[2].Z()),
                                            sqrt(pos_set[3].X() * pos_set[3].X() + pos_set[3].Z() * pos_set[3].Z())});
 
+#ifdef REMOVE_NOLAYER
   if (fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[1] * gtr_y[1]) > kGTRYDiffThreshold ||
       fabs(kGTRSizeCoef[0] * gtr_y[0] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold ||
       fabs(kGTRSizeCoef[1] * gtr_y[1] - kGTRSizeCoef[2] * gtr_y[2]) > kGTRYDiffThreshold) {
@@ -823,6 +823,7 @@ bool E16ANA_StraightTrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluste
 #endif
     return false;
   }
+#endif
 
   double r2 [n_tgt]={ 0.};
   double r  [n_tgt]={ 0.};

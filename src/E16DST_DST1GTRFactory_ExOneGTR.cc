@@ -286,7 +286,12 @@ int E16DST_DST1GTRFactory_ExOneGTR(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_
 	     }
 		}
     }
-    
-    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y)*n_gtrmodules);
-    //return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size);
+   
+#ifdef REMOVE_GTR100 
+    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y * 2 )*n_gtrmodules);
+
+#else
+    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+(n_fake_cl_x + n_fake_cl_y )*n_gtrmodules);
+#endif    
+//return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size);
 }
