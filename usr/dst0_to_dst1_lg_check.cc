@@ -3,6 +3,7 @@
 #include <TH1.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TLegend.h>
 // #include <boost/program_options.hpp>
 
 #include "E16ANA_CalibDBManager.hh"
@@ -360,6 +361,11 @@ int main(int argc, char* argv[]) {
   TString pdfout = Form("%s",out_pdf_name);
   TCanvas* c = new TCanvas("c","c",1400,700);
   c->SaveAs(pdfout+"[","pdf");
+  c->cd();
+  TLegend *leg = new TLegend(0.1,0.1,0.9,0.9);
+  leg->AddEntry((TObject*)0,Form("run%06d",run_id),"");
+  leg->Draw();
+  c->SaveAs(pdfout,"pdf");
   lghists->Draw(pdfout,c);
   lghists->Draw2D(pdfout,c);
   lghists->DrawEach(pdfout,c);

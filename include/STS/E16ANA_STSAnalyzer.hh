@@ -8,6 +8,9 @@ struct E16ANA_STSClusterParam {
   int adc_thresh = 0;
   int tdc_window = 60;
   int allowed_strip_jump = 0;
+  
+  int timing_min = -115;
+  int timing_max = -86;
 };
 
 class E16ANA_STSCluster{
