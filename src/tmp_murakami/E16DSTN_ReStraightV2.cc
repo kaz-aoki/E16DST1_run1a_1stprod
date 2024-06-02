@@ -67,13 +67,13 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
 			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
 			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
- 			std::cout << "ids (" << rk_hit_sts_id->at(i)   
-			 << ", " << rk_hit_gtr100_xid->at(i) 
-			 << ", " << rk_hit_gtr200_xid->at(i) 
-			 << ", " << rk_hit_gtr300_xid->at(i) 
-			 << ", " << rk_hit_gtr100_yid->at(i) 
-			 << ", " << rk_hit_gtr200_yid->at(i) 
-			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
+// 			std::cout << "ids (" << rk_hit_sts_id->at(i)   
+//			 << ", " << rk_hit_gtr100_xid->at(i) 
+//			 << ", " << rk_hit_gtr200_xid->at(i) 
+//			 << ", " << rk_hit_gtr300_xid->at(i) 
+//			 << ", " << rk_hit_gtr100_yid->at(i) 
+//			 << ", " << rk_hit_gtr200_yid->at(i) 
+//			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
          if(HasUsedCluster(cids, used_cluster_ids)){
 //			std::cout << "duplicated !" << std::endl;
 			continue;			
@@ -592,40 +592,33 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
    const int n_layer = 4;
    const int n_tgt = 3; 
    const int n_div = 8;
-
-	int nevent = tree->GetEntries();
-
+   int nevent = tree->GetEntries();
    std::cout << "nevent : " << nevent << std::endl;
-	TH1D* h_chi2;
-	TH1D* h_t0diff;
-	TH1D* h_n_runid;
-	TH1D* h_n_eventid;
-	TH1D* h_n_spillid;
-
-	TH1D* h_chi2_mod[n_module];
-	TH1D* h_lg_t_mod[n_module];
-	TH1D* h_tgt_proj_z_raw[n_module];
-	TH1D* h_tgt_proj_z_cut[n_module];
-	TH1D* h_tgt_proj_z_chi2cut[n_module];
-	TH1D* h_tgt_proj_x[n_module];
-	TH1D* h_tgt_proj_y[n_module];
-	TH1D* h_res_x[n_module][n_layer];
-	TH1D* h_res_y[n_module][n_layer];
-	TH1D* h_res_vtx_trk_x[n_module][n_layer];
-	TH1D* h_res_vtx_trk_y[n_module][n_layer];
-	TH1D* h_tan_theta[n_module][n_layer];
-	TH1D* h_fitlx[n_tgt][n_module][n_layer];
-   
+   TH1D* h_chi2;
+   TH1D* h_t0diff;
+   TH1D* h_n_runid;
+   TH1D* h_n_eventid;
+   TH1D* h_n_spillid;
+   TH1D* h_chi2_mod[n_module];
+   TH1D* h_lg_t_mod[n_module];
+   TH1D* h_tgt_proj_z_raw[n_module];
+   TH1D* h_tgt_proj_z_cut[n_module];
+   TH1D* h_tgt_proj_z_chi2cut[n_module];
+   TH1D* h_tgt_proj_x[n_module];
+   TH1D* h_tgt_proj_y[n_module];
+   TH1D* h_res_x[n_module][n_layer];
+   TH1D* h_pre_res_x[n_module][n_layer];
+   TH1D* h_res_y[n_module][n_layer];
+   TH1D* h_res_vtx_trk_x[n_module][n_layer];
+   TH1D* h_res_vtx_trk_y[n_module][n_layer];
+   TH1D* h_tan_theta[n_module][n_layer];
+   TH1D* h_fitlx[n_tgt][n_module][n_layer];
    TH1D* h_cluster_timing_raw[n_module][n_layer];
    TH1D* h_cluster_timing_chi2[n_module][n_layer];
    TH1D* h_cluster_timing_chi2_xdependence[n_module][n_layer][n_div];
    TH1D* h_cluster_timing_chi2_ydependence[n_module][n_layer][n_div];
-   
 	TH1D* h_tot_end_fr[n_module][n_layer];	
 	TH1D* h_tot_end_bg[n_module][n_layer];	
-
-
-
 	TH1D* h_cluster_adc_xdependence[n_module][n_layer][n_div];
 	TH1D* h_cluster_adc_ydependence[n_module][n_layer][n_div];
 	TH2D* h_init_pos;
@@ -636,7 +629,6 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH2D* h_cor_res_fitlx[n_module][n_layer];
 	TH2D* h_cor_res_fitly[n_module][n_layer];
 	TH2D* h_cor_res_timing[n_module][n_layer];
-	
 	TH2D* h_slopevel[n_module][n_layer][n_div];
 	TH1D* h_res_lg_x[n_module];
 	TH1D* h_res_lg_y[n_module];
@@ -700,7 +692,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
 				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
 //				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
-				h_res_x[m][l] = new TH1D(Form("h_res_x__m%d_l%d", m+100, l), Form("h_res_x__m%d_l%d", m+100, l), 100, -10, 10);
+				h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -5, 5);
+				h_pre_res_x[m][l] = new TH1D(Form("h_pre_res_x_m%d_l%d", m+100, l), Form("h_pre_res_x_m%d_l%d", m+100, l), 100, -10, 10);
 				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
 
 				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
@@ -729,6 +722,7 @@ std::array<int, 4> mids;
 std::array<int, 4> mids_tid0;
 std::array<int, 4> mids_tid1;
 std::array<double, 4> resx;
+std::array<double, 4> pre_resx;
 std::array<double, 4> resx_tid0;
 std::array<double, 4> resx_tid1;
 std::array<double, 4> resy;
@@ -750,6 +744,10 @@ std::array<double, 4> xtotend;//xt4
 	double pre_plgx[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
 
 
+	int   pre_n_clusters = 0;
+	std::vector<double> pre_clusters_x;
+	std::vector<float>  pre_clusters_xadc;
+	std::vector<int>    pre_clusters_mids;
 
 	for(int n=0; n < nevent; n++){
 		if(n > n_maxevent) break;
@@ -844,6 +842,7 @@ std::array<double, 4> xtotend;//xt4
 							rk_res_gtr100_x->at(i),
 							rk_res_gtr200_x->at(i),
 							rk_res_gtr300_x->at(i)};
+				pre_resx = { -999, -999, -999, -999};
 				resy = { 0,
 							rk_res_gtr100_y->at(i),
 							rk_res_gtr200_y->at(i),
@@ -951,9 +950,9 @@ std::array<double, 4> xtotend;//xt4
 	auto *clusters_mids = gtr200x_cluster_mid	;
 	int n_clusters = n_gtr200x_clusters;
 	double min_resx = 9999;
-	std::cout << "n_clusters = " << n_clusters << std::endl; 
+   double pre_min_resx = 9999;
 	for(int k=0; k < n_clusters; k++){
-		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
+//		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
 		if(clusters_mids->at(k) == mids[2]){
 			if(clusters_xadc->at(k) < kGTRFakeADC ){
 				
@@ -964,7 +963,21 @@ std::array<double, 4> xtotend;//xt4
 			}
 		}
 	}
-	resx[2] = min_resx;//residual 
+	resx[2] = min_resx;
+   for(int k=0; k < pre_n_clusters; k++){
+		if(pre_clusters_mids[k] == mids[2]){
+			if(pre_clusters_xadc[k] < kGTRFakeADC ){
+				double resx = fitlxs[2] - pre_clusters_x[k];
+				if(resx < pre_min_resx){
+					pre_min_resx = resx;
+				}
+			}
+		}
+	}
+	pre_resx[2] = pre_min_resx;
+   
+
+
 #elif REMOVE_GTR300
 	auto *clusters_x    = gtr300x_cluster_x;
 	auto *clusters_xadc = gtr300x_cluster_adc;
@@ -1011,9 +1024,8 @@ std::array<double, 4> xtotend;//xt4
 											}
 										}
 //								
-
-
 									h_res_x[mids[l]-100][l]->Fill(resx[l]);
+									h_pre_res_x[mids[l]-100][l]->Fill(pre_resx[l]);
 									h_res_y[mids[l]-100][l]->Fill(resy[l]);
 									h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
 //									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
@@ -1085,8 +1097,47 @@ std::array<double, 4> xtotend;//xt4
 												pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
 			}
 
+#ifndef REMOVE_NOLAYER
+#ifdef REMOVE_GTR100
+	pre_n_clusters    = n_gtr100x_clusters;
+   pre_clusters_x.resize(pre_n_clusters); 
+   pre_clusters_xadc.resize(pre_n_clusters); 
+   pre_clusters_mids.resize(pre_n_clusters); 
+	for(int k=0; k < pre_n_clusters;k++){
+		pre_clusters_x[k]    = gtr100x_cluster_x->at(k);
+		pre_clusters_xadc[k] = gtr100x_cluster_adc->at(k);
+		pre_clusters_mids[k] = gtr100x_cluster_mid->at(k);
+	}
+
+
+	
+#elif REMOVE_GTR200
+	pre_n_clusters    = n_gtr200x_clusters;
+   pre_clusters_x.resize(pre_n_clusters); 
+   pre_clusters_xadc.resize(pre_n_clusters); 
+   pre_clusters_mids.resize(pre_n_clusters); 
+	for(int k=0; k < pre_n_clusters;k++){
+		pre_clusters_x[k]    = gtr200x_cluster_x->at(k);
+		pre_clusters_xadc[k] = gtr200x_cluster_adc->at(k);
+		pre_clusters_mids[k] = gtr200x_cluster_mid->at(k);
+	}
+
+#elif REMOVE_GTR300
+	pre_n_clusters    = n_gtr300x_clusters;
+   pre_clusters_x.resize(pre_n_clusters); 
+   pre_clusters_xadc.resize(pre_n_clusters); 
+   pre_clusters_mids.resize(pre_n_clusters); 
+	for(int k=0; k < pre_n_clusters;k++){
+		pre_clusters_x[k]    = gtr300x_cluster_x->at(k);
+		pre_clusters_xadc[k] = gtr300x_cluster_adc->at(k);
+		pre_clusters_mids[k] = gtr300x_cluster_mid->at(k);
+	}
+
+
+#endif
 	}
    
+#endif 
    fout->Write();
 
 	TCanvas *c0 = new TCanvas();
@@ -1376,10 +1427,15 @@ c03->SaveAs(pdf_name, "pdf");
      if(m < 5) {
         h_res_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
         h_res_x[m][l]->Draw("colz");
+		  h_pre_res_x[m][l]->SetLineColor(kRed);
+		  h_pre_res_x[m][l]->Draw("same");
+
      }
      else {
         h_res_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
         h_res_x[m+1][l]->Draw("colz");
+		  h_pre_res_x[m+1][l]->SetLineColor(kRed);
+		  h_pre_res_x[m+1][l]->Draw("same");
      }
 	 }
     c1[m]->SaveAs(pdf_name, "pdf");
