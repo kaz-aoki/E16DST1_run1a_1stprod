@@ -632,10 +632,17 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	TH2D* h_slopevel[n_module][n_layer][n_div];
 	TH1D* h_res_lg_x[n_module];
 	TH1D* h_res_lg_y[n_module];
+   
+   TH2D* h_res_lg_2d[n_module];
+
 	TH1D* h_res_vtx_trk_lg_x[n_module];
 	TH1D* h_res_vtx_trk_lg_y[n_module];
 	TH1D* h_bak_res_lg_x[n_module];
 	TH1D* h_bak_res_lg_y[n_module];
+
+   TH2D* h_bak_res_lg_2d[n_module];
+	
+
 	TH1D* h_bak_res_vtx_trk_lg_x[n_module];
 	TH1D* h_bak_res_vtx_trk_lg_y[n_module];
 
@@ -678,6 +685,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 		h_res_lg_x[m]  = new TH1D(Form("h_res_lg_x_%d", m+100), Form("h_res_lg_x_%d", m+100), 50, -400, 400 );
 		h_res_lg_y[m]  = new TH1D(Form("h_res_lg_y_%d", m+100), Form("h_res_lg_y_%d", m+100), 50, -400, 400 );
+		h_res_lg_2d[m]  = new TH2D(Form("h_res_lg_2d_%d", m+100), Form("h_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
 		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
 		h_res_vtx_trk_lg_y[m]  = new TH1D(Form("h_res_vtx_trk_lg_y_%d", m+100), Form("h_res_vtx_trk_lg_y_%d", m+100), 50, -400, 400 );
 		h_bak_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_bak_res_vtx_trk_lg_x_%d", m+100), Form("h_bak_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
@@ -685,6 +693,8 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 		h_bak_res_lg_x[m]  = new TH1D(Form("h_bak_res_lg_x_%d", m+100), Form("h_bak_res_lg_x_%d", m+100), 50, -400, 400 );
 		h_bak_res_lg_y[m]  = new TH1D(Form("h_bak_res_lg_y_%d", m+100), Form("h_bak_res_lg_y_%d", m+100), 50, -400, 400 );
+		h_bak_res_lg_2d[m]  = new TH2D(Form("h_bak_res_lg_2d_%d", m+100), Form("h_bak_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
+		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
 
 		for(int l=0; l < n_layer; l++){// -- layer 
 				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,600 ) ;
@@ -749,6 +759,16 @@ std::array<double, 4> xtotend;//xt4
 	std::vector<float>  pre_clusters_xadc;
 	std::vector<int>    pre_clusters_mids;
 
+
+	int	pre_n_lg_hits;
+	std::vector<int>		pre_lg_hit_mid;
+   std::vector<float>		pre_lg_hit_adc ;
+   std::vector<double>		pre_lg_hit_x ;
+   std::vector<double>		pre_lg_hit_gy;
+
+
+	int cnt_lgres_fore[10] = {0};
+	int cnt_lgres_bg[10]   = {0};
 	for(int n=0; n < nevent; n++){
 		if(n > n_maxevent) break;
 			if (n % print_cycle == 0) {
@@ -761,7 +781,7 @@ std::array<double, 4> xtotend;//xt4
 
 // ------- analysis for pair ------- //
 			for(int i=0; i < n_pairs; i++){
-				if(rk_pair_plus_chi_square->at(i) < 200 && rk_pair_minus_chi_square->at(i) < 200){
+				if(rk_pair_plus_chi_square->at(i) < 20 && rk_pair_minus_chi_square->at(i) < 20){
 					int tid0 = rk_pair_minus_track_id->at(i);
 					int tid1 = rk_pair_plus_track_id->at(i);
 					int n_tracks = chi_square->size();
@@ -833,6 +853,11 @@ std::array<double, 4> xtotend;//xt4
 // ------- analysis for 1 track ---- // 
 			int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
          for(int i=0; i < n_tracks;i++){
+				
+				if(rk_fit_gtr200_mid->at(i) != 106)continue;
+				std::cout << "i " << i << std::endl;
+
+
          	double chi2 = chi_square->at(i);
 				mids = {	rk_fit_sts_mid->at(i),
 					rk_fit_gtr100_mid->at(i),						
@@ -924,7 +949,7 @@ std::array<double, 4> xtotend;//xt4
 							int nth_divy = (ly + offset) / ((l*100)/n_div);
 //								std::cout << "nth div = " << nth_div << std::endl;
 								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
-								if(chi2 <  200){
+								if(chi2 <  20){
 										h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
 
 // ---  removed layer residual --- // 
@@ -1006,6 +1031,8 @@ std::array<double, 4> xtotend;//xt4
 										double lg_near = -9999;
 										double mind =9999;
 										int nlg = 0;
+										bool assoc_fore = false;
+										bool assoc_bg = false;
 										for(int k=0; k < n_lg_hits;k++){
 											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
 												int lg_mid = lg_hit_mid->at(k);
@@ -1013,17 +1040,38 @@ std::array<double, 4> xtotend;//xt4
 								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
 												double dx     = lg_hit_x->at(k) - plgx;
 												double dy     = lg_hit_gy->at(k) - mplgy;
-												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
-												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
 //												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
 //												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
 												h_res_lg_x[lg_mid-100]->Fill(dx);
 												h_res_lg_y[lg_mid-100]->Fill(dx);
-												h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
-												h_bak_res_lg_y[lg_mid-100]->Fill(pre_dx);
+												h_res_lg_2d[lg_mid-100]->Fill(dx, dy);
+												if(fabs(dx) < 80 & fabs(dy) < 80 ){
+													assoc_fore = true;
+												}
 											}
 										}
-//								
+//			------ previous ----- //					
+									for(int k=0; k < pre_n_lg_hits;k++){
+										if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
+											int lg_mid = pre_lg_hit_mid[k];
+											if(pre_lg_hit_adc[k] < 10) continue;
+										double pre_dx = pre_lg_hit_x[k]  - plgx;
+										double pre_dy = pre_lg_hit_gy[k] - mplgy;
+										h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
+										h_bak_res_lg_y[lg_mid-100]->Fill(pre_dx);
+										h_bak_res_lg_2d[lg_mid-100]->Fill(pre_dx, pre_dy);
+											if(fabs(pre_dx) < 80 & fabs(pre_dy) < 80){
+													assoc_bg = true;
+											}
+										}
+									}
+									if(assoc_fore){
+										cnt_lgres_fore[rk_fit_lg_b_mid->at(i)-100]++;
+										std::cout << "associated  " << std::endl;
+									}
+									if(assoc_bg){
+										cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
+									}
 									h_res_x[mids[l]-100][l]->Fill(resx[l]);
 									h_pre_res_x[mids[l]-100][l]->Fill(pre_resx[l]);
 									h_res_y[mids[l]-100][l]->Fill(resy[l]);
@@ -1132,12 +1180,21 @@ std::array<double, 4> xtotend;//xt4
 		pre_clusters_xadc[k] = gtr300x_cluster_adc->at(k);
 		pre_clusters_mids[k] = gtr300x_cluster_mid->at(k);
 	}
-
-
 #endif
-	}
-   
 #endif 
+
+		pre_n_lg_hits = n_lg_hits;
+		pre_lg_hit_mid.resize(n_lg_hits);
+		pre_lg_hit_adc.resize(n_lg_hits);
+		pre_lg_hit_x .resize(n_lg_hits);
+		pre_lg_hit_gy.resize(n_lg_hits);
+		for(int k=0; k < n_lg_hits; k++){
+			pre_lg_hit_mid[k] = lg_hit_mid->at(k);
+			pre_lg_hit_adc[k] = lg_hit_adc->at(k);
+			pre_lg_hit_x[k]  =  lg_hit_x->at(k);
+			pre_lg_hit_gy[k] =  lg_hit_gy->at(k);
+		}
+	}
    fout->Write();
 
 	TCanvas *c0 = new TCanvas();
@@ -1425,14 +1482,14 @@ c03->SaveAs(pdf_name, "pdf");
     for(int l=0; l < n_layer; l++){
      c1[m]->cd(1+l);
      if(m < 5) {
-        h_res_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
+        h_res_x[m][l]->Fit("gaus", "", "", -0.5, 0.5);
         h_res_x[m][l]->Draw("colz");
 		  h_pre_res_x[m][l]->SetLineColor(kRed);
 		  h_pre_res_x[m][l]->Draw("same");
 
      }
      else {
-        h_res_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
+        h_res_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.5);
         h_res_x[m+1][l]->Draw("colz");
 		  h_pre_res_x[m+1][l]->SetLineColor(kRed);
 		  h_pre_res_x[m+1][l]->Draw("same");
@@ -1516,11 +1573,9 @@ c03->SaveAs(pdf_name, "pdf");
  			gr_mean[hmid-100]->SetMaximum(0.2);
  			gr_mean[hmid-100]->SetMinimum(-0.2);
  			gr_mean[hmid-100]->SetLineStyle(0);
- 			
          gr_mean[hmid-100]->Draw();
          c31[hmid-100]->SaveAs(pdf_name, "pdf");
    }
-
 
   TCanvas *c61 = new TCanvas();
   c61->Divide(4,2);
@@ -1627,6 +1682,77 @@ c03->SaveAs(pdf_name, "pdf");
 		}
    }
 	c18->SaveAs(pdf_name, "pdf");
+
+   TCanvas *c19;
+	c19 = new TCanvas();
+	c19->Divide(4,2);
+	for(int mid=101; mid < 110; mid++){
+		if(mid == 105) continue;
+		if(mid < 105){
+		c19->cd(mid-100);
+		h_res_lg_y[mid-100]->Draw();
+		h_bak_res_lg_y[mid-100]->SetLineColor(kRed);
+		h_bak_res_lg_y[mid-100]->Draw("same");
+		}
+	   else if(mid > 105){
+			c19->cd(mid-101);
+			h_res_lg_y[mid-100]->Draw();
+			h_bak_res_lg_y[mid-100]->SetLineColor(kRed);
+			h_bak_res_lg_y[mid-100]->Draw("same");
+			
+		}
+   }
+	c19->SaveAs(pdf_name, "pdf");
+
+   TCanvas *c20;
+	c20 = new TCanvas();
+	c20->Divide(4,2);
+	for(int mid=101; mid < 110; mid++){
+		if(mid == 105) continue;
+		if(mid < 105){
+		c20->cd(mid-100);
+		h_res_lg_2d[mid-100]->Draw("colz");
+//		h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+//		h_bak_res_lg_2d[mid-100]->Draw("same");
+		}
+	   else if(mid > 105){
+			c20->cd(mid-101);
+			h_res_lg_2d[mid-100]->Draw("colz");
+//			h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+//			h_bak_res_lg_2d[mid-100]->Draw("same");
+			
+		}
+   }
+	c20->SaveAs(pdf_name, "pdf");
+
+
+   TCanvas *c20_bg;
+	c20_bg = new TCanvas();
+	c20_bg->Divide(4,2);
+	for(int mid=101; mid < 110; mid++){
+		if(mid == 105) continue;
+		if(mid < 105){
+		c20_bg->cd(mid-100);
+		h_bak_res_lg_2d[mid-100]->Draw("colz");
+//		h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+//		h_bak_res_lg_2d[mid-100]->Draw("same");
+		}
+	   else if(mid > 105){
+			c20_bg->cd(mid-101);
+			h_bak_res_lg_2d[mid-100]->Draw("colz");
+//			h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+//			h_bak_res_lg_2d[mid-100]->Draw("same");
+		}
+   }
+	c20_bg->SaveAs(pdf_name, "pdf");
+
+
+
+	for(int m=0; m < 10; m++){
+	std::cout << "m = " << m+100 << ",fore lg residual = " << cnt_lgres_fore[m] << ", bg lg residual = " << cnt_lgres_bg[m] << std::endl;
+	}
+
+
 
 // TCanvas *c6b = new TCanvas();
 // c6b->Divide(2,2);
