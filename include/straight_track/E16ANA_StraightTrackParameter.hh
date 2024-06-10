@@ -181,9 +181,9 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 
 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // 
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 300.}; // 
 #else
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 1000}; //
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 500}; //
 #endif
 
 

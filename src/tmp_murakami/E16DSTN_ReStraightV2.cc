@@ -176,6 +176,9 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
       std::vector<int> sorted_ids;
       std::vector<int> selected_ids;
       std::vector<int> killdup_ids;
+
+
+
       out_ids.clear();
 		sorted_ids.clear();
 		selected_ids.clear();
@@ -584,84 +587,8 @@ bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips> &
 }
 
 
-
-
-void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name){	
-
-   const int n_module = 10;
-   const int n_layer = 4;
-   const int n_tgt = 3; 
-   const int n_div = 8;
-   int nevent = tree->GetEntries();
-   std::cout << "nevent : " << nevent << std::endl;
-   TH1D* h_chi2;
-   TH1D* h_t0diff;
-   TH1D* h_n_runid;
-   TH1D* h_n_eventid;
-   TH1D* h_n_spillid;
-   TH1D* h_chi2_mod[n_module];
-   TH1D* h_lg_t_mod[n_module];
-   TH1D* h_tgt_proj_z_raw[n_module];
-   TH1D* h_tgt_proj_z_cut[n_module];
-   TH1D* h_tgt_proj_z_chi2cut[n_module];
-   TH1D* h_tgt_proj_x[n_module];
-   TH1D* h_tgt_proj_y[n_module];
-   TH1D* h_res_x[n_module][n_layer];
-   TH1D* h_pre_res_x[n_module][n_layer];
-   TH1D* h_res_y[n_module][n_layer];
-   TH1D* h_res_vtx_trk_x[n_module][n_layer];
-   TH1D* h_res_vtx_trk_y[n_module][n_layer];
-   TH1D* h_tan_theta[n_module][n_layer];
-   TH1D* h_fitlx[n_tgt][n_module][n_layer];
-   TH1D* h_cluster_timing_raw[n_module][n_layer];
-   TH1D* h_cluster_timing_chi2[n_module][n_layer];
-   TH1D* h_cluster_timing_chi2_xdependence[n_module][n_layer][n_div];
-   TH1D* h_cluster_timing_chi2_ydependence[n_module][n_layer][n_div];
-	TH1D* h_tot_end_fr[n_module][n_layer];	
-	TH1D* h_tot_end_bg[n_module][n_layer];	
-	TH1D* h_cluster_adc_xdependence[n_module][n_layer][n_div];
-	TH1D* h_cluster_adc_ydependence[n_module][n_layer][n_div];
-	TH2D* h_init_pos;
-	TH2D* h_tgt_pos_mod_raw[n_module];
-	TH2D* h_tgt_pos_mod_cut[n_module];
-	TH2D* h_cor_dz_time[n_module][n_layer];
-	TH2D* h_cor_dz_time_t0cor[n_module][n_layer];
-	TH2D* h_cor_res_fitlx[n_module][n_layer];
-	TH2D* h_cor_res_fitly[n_module][n_layer];
-	TH2D* h_cor_res_timing[n_module][n_layer];
-	TH2D* h_slopevel[n_module][n_layer][n_div];
-	TH1D* h_res_lg_x[n_module];
-	TH1D* h_res_lg_y[n_module];
-   
-   TH2D* h_res_lg_2d[n_module];
-
-	TH1D* h_res_vtx_trk_lg_x[n_module];
-	TH1D* h_res_vtx_trk_lg_y[n_module];
-	TH1D* h_bak_res_lg_x[n_module];
-	TH1D* h_bak_res_lg_y[n_module];
-
-   TH2D* h_bak_res_lg_2d[n_module];
-	
-
-	TH1D* h_bak_res_vtx_trk_lg_x[n_module];
-	TH1D* h_bak_res_vtx_trk_lg_y[n_module];
-
-//removed residual
-
-//pair
-	TH1D* h_vtx_gx;
-	TH1D* h_vtx_gy;
-	TH1D* h_vtx_gz;
-	TH2D* h_vtx_gx_gz;	
-	TH2D* h_vtx_gx_gy;	
-   h_vtx_gx = new TH1D("h_vtx_gx", "h_vtx_gx", 80, -20, 20);
-   h_vtx_gy = new TH1D("h_vtx_gy", "h_vtx_gy", 80, -20, 20);
-   h_vtx_gz = new TH1D("h_vtx_gz", "h_vtx_gz", 80, -50, 50);
-  	h_vtx_gx_gz = new TH2D("h_vtx_gx_gz", "h_vtx_gx_gz", 80, -20, 20, 80, -40, 40); 
-  	h_vtx_gx_gy = new TH2D("h_vtx_gx_gy", "h_vtx_gx_gy", 80, -20, 20, 80, -20, 20); 
-
-
-
+void E16DSTN_ReStraightV2::InitHistos(){	
+//basic 
 	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
 	h_n_eventid = new TH1D("n of events of event id","n of events of eventid", 10000, -0.5, 9999.5);
 	h_n_spillid = new TH1D("n of events of spill id","n of events of spillid", 1000, -0.5, 999.5);
@@ -669,7 +596,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -100,100);	
 	h_init_pos = new TH2D(Form("h_init_pos"), Form("h_init_pos"), 50, -30, 30, 50, -60, 60);
 
-	for(int m=0; m < n_module; m++){
+	for(int m=0; m < n_modules; m++){
 		for(int tg=0; tg < 2; tg++){
 //			h_trackmap[tg][m] = new TH2D(Form("h_track_map%d_%d", tg,  m+100), Form("h_track_map%d_%d",tg,  m+100), 25, -50, 50, 25, -50, 50);
 		}
@@ -696,14 +623,14 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 		h_bak_res_lg_2d[m]  = new TH2D(Form("h_bak_res_lg_2d_%d", m+100), Form("h_bak_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
 		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
 
-		for(int l=0; l < n_layer; l++){// -- layer 
+		for(int l=0; l < n_layers; l++){// -- layer 
 				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,600 ) ;
 				h_cluster_timing_chi2[m][l] = new TH1D (Form("h_cluster_timing_chi2%d_%d", m+100, l), Form("h_cluster_timing_chi2%d_%d", m+100, l), 100, 0 ,600 ) ;
 				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
 				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
 //				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
-				h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -5, 5);
-				h_pre_res_x[m][l] = new TH1D(Form("h_pre_res_x_m%d_l%d", m+100, l), Form("h_pre_res_x_m%d_l%d", m+100, l), 100, -10, 10);
+				h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -2, 2);
+				h_pre_res_x[m][l] = new TH1D(Form("h_pre_res_x_m%d_l%d", m+100, l), Form("h_pre_res_x_m%d_l%d", m+100, l), 100, -2, 2);
 				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
 
 				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
@@ -720,68 +647,198 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 						h_cluster_adc_xdependence[m][l][div] = new TH1D(Form("h_cluster_adc_xdependence%d_%d_%d", m+100, l, div), Form("h_cluster_adc_xdependence%d_%d_%d", m+100, l, div), 20, 0 ,5000 ) ;
 						h_cluster_adc_ydependence[m][l][div] = new TH1D(Form("h_cluster_adc_ydependence%d_%d_%d", m+100, l, div), Form("h_cluster_adc_ydependence%d_%d_%d", m+100, l, div), 20, 0 ,5000 ) ;
 						}
-				for(int t=0; t < n_tgt; t++){
-					h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
-				}
+	//			for(int t=0; t < n_tgt; t++){
+//					h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
+	//			}
 			}
 		}	
+// vertex
+   h_vtx_gx = new TH1D("h_vtx_gx", "h_vtx_gx", 80, -20, 20);
+   h_vtx_gy = new TH1D("h_vtx_gy", "h_vtx_gy", 80, -20, 20);
+   h_vtx_gz = new TH1D("h_vtx_gz", "h_vtx_gz", 80, -50, 50);
+  	h_vtx_gx_gz = new TH2D("h_vtx_gx_gz", "h_vtx_gx_gz", 80, -20, 20, 80, -40, 40); 
+  	h_vtx_gx_gy = new TH2D("h_vtx_gx_gy", "h_vtx_gx_gy", 80, -20, 20, 80, -20, 20); 
+}
+
+
+void E16DSTN_ReStraightV2::FillVectors(int i){
+			mids = {	rk_fit_sts_mid->at(i),
+				rk_fit_gtr100_mid->at(i),						
+				rk_fit_gtr200_mid->at(i),
+				rk_fit_gtr300_mid->at(i)};
+			resx = { rk_res_sts_x->at(i),
+						rk_res_gtr100_x->at(i),
+						rk_res_gtr200_x->at(i),
+						rk_res_gtr300_x->at(i)};
+			pre_resx = { -999, -999, -999, -999};
+			resy = { 0,
+						rk_res_gtr100_y->at(i),
+						rk_res_gtr200_y->at(i),
+						rk_res_gtr300_y->at(i)};
+			fitlxs   = { rk_fit_sts_x  ->at(i),
+			   		 rk_fit_gtr100_x->at(i),
+						 rk_fit_gtr200_x->at(i),
+						 rk_fit_gtr300_x->at(i)};
+			fitlys   = { 0,
+			   		 rk_fit_gtr100_y->at(i),
+						 rk_fit_gtr200_y->at(i),
+						 rk_fit_gtr300_y->at(i)};
+			tans = { rk_fit_sts_mom_x->at(i)/rk_fit_sts_mom_z->at(i),
+						rk_fit_gtr100_mom_x->at(i)/rk_fit_gtr100_mom_z->at(i),
+						rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i),
+						rk_fit_gtr300_mom_x->at(i)/rk_fit_gtr300_mom_z->at(i)};
+			xt4s = { 0, 
+						rk_hit_gtr100_xt4->at(i),
+						rk_hit_gtr200_xt4->at(i),
+     					rk_hit_gtr300_xt4->at(i)};
+			xadcs = {rk_hit_sts_adc->at(i), rk_hit_gtr100_xadc->at(i), rk_hit_gtr200_xadc->at(i), rk_hit_gtr300_xadc->at(i)};
+			yadcs = {0, rk_hit_gtr100_yadc->at(i), rk_hit_gtr200_yadc->at(i), rk_hit_gtr300_yadc->at(i)};
+			xcids = {rk_hit_sts_id->at(i), rk_hit_gtr100_xid->at(i), rk_hit_gtr200_xid->at(i), rk_hit_gtr300_xid->at(i)};
+         xtotend = {-100,gtr100x_cluster_last_tot_end->at(i), gtr200x_cluster_last_tot_end->at(i), gtr300x_cluster_last_tot_end->at(i) };
+}
+
+
+void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
+#ifdef REMOVE_GTR100
+	auto *clusters_x    = gtr100x_cluster_x;
+	auto *clusters_xadc = gtr100x_cluster_adc;
+	auto *clusters_xcid = gtr100x_cluster_cid;
+	int n_clusters = n_gtr100x_clusters;
+	double min_resx = 9999;
+	double pre_min_resx = 9999;
+	for(int k=0; k < n_clusters; k++){
+		if(clusters_xadc->at(k) < kGTRFakeADC ){
+			double resx = fitlxs[1] - clusters_x->at(k);
+			if(resx < min_resx){
+				min_resx = resx;
+				xcdis[1] = clusters_xcid->at(k); 
+			}
+		}
+	}
+	resx[1]  = min_resx;//residual 
+// -- previous 
+   for(int k=0; k < pre_n_gtrx_clusters; k++){
+		if(pre_gtrx_cluster_mid[k] == mids[1]){
+			if(pre_gtrx_cluster_adc[k] < kGTRFakeADC ){
+				double resx = fitlxs[1] - pre_gtrx_cluster_x[k];
+				if(resx < pre_min_resx){
+					pre_min_resx = resx;
+				}
+			}
+		}
+	}
+	pre_resx[1] = pre_min_resx;
+
+#elif  REMOVE_GTR200
+	auto *clusters_x    = gtr200x_cluster_x;
+	auto *clusters_xadc = gtr200x_cluster_adc;
+	auto *clusters_xcids = gtr200x_cluster_id;
+	auto *clusters_mids = gtr200x_cluster_mid	;
+	int n_clusters = n_gtr200x_clusters;
+	double min_resx = 9999;
+   double pre_min_resx = 9999;
+	for(int k=0; k < n_clusters; k++){
+//		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
+		if(clusters_mids->at(k) == mids[2]){
+			if(clusters_xadc->at(k) < kGTRFakeADC ){
+				
+				double resx = fitlxs[2] - clusters_x->at(k);
+				if(resx < min_resx){
+					min_resx = resx;
+				xcids[2] = clusters_xcids->at(k); 
+				}
+			}
+		}
+	}
+	resx[2] = min_resx;
+// --- previous --- // 
+   for(int k=0; k < pre_n_gtrx_clusters; k++){
+		if(pre_gtrx_cluster_mid[k] == mids[2]){
+			if(pre_gtrx_cluster_adc[k] < kGTRFakeADC ){
+				double resx = fitlxs[2] - pre_gtrx_cluster_x[k];
+				if(resx < pre_min_resx){
+					pre_min_resx = resx;
+				}
+			}
+		}
+	}
+	pre_resx[2] = pre_min_resx;
+#elif REMOVE_GTR300
+	auto *clusters_x    = gtr300x_cluster_x;
+	auto *clusters_xcids = gtr300x_cluster_cid;
+	auto *clusters_xadc = gtr300x_cluster_adc;
+	int n_clusters = n_gtr300x_clusters;
+	double min_resx = 9999;
+	double pre_min_resx = 9999;
+	for(int k=0; k < n_clusters; k++){
+		if(clusters_xadc->at(k) < kGTRFakeADC ){
+		double resx = fitlxs[3] - clusters_x->at(k);
+			if(resx < min_resx){
+				min_resx = resx;
+				xcdis[3] = clusters_xcid->at(k); 
+			}
+		}
+	}
+	resx[3] = min_resx;//residual 
+   for(int k=0; k < pre_n_clusters; k++){
+		if(pre_clusters_mid[k] == mids[3]){
+			if(pre_clusters_adc[k] < kGTRFakeADC ){
+				double resx = fitlxs[3] - pre_clusters_x[k];
+				if(resx < pre_min_resx){
+					pre_min_resx = resx;
+				}
+			}
+		}
+	}
+	pre_resx[3] = pre_min_resx;
+#endif
+}
+
+//void E16DSTN_ReStraightV2::CalculateLGAllHitsResidual(int i){//i th track
+//}
+//
+//
+void E16DSTN_ReStraightV2::FillPulseInfos(){
+	for(int l=1; l < n_layers; l++){
+		int cid = xcids[l];	
+	}
 
 
 
-std::array<int, 4> mids;
-std::array<int, 4> mids_tid0;
-std::array<int, 4> mids_tid1;
-std::array<double, 4> resx;
-std::array<double, 4> pre_resx;
-std::array<double, 4> resx_tid0;
-std::array<double, 4> resx_tid1;
-std::array<double, 4> resy;
-std::array<double, 4> resy_tid0;
-std::array<double, 4> resy_tid1;
-std::array<double, 4> fitlxs;
-std::array<double, 4> fitlys;
-std::array<double, 4> tans;//tan thetas
-std::array<double, 4> xt4s;//xt4
-std::array<double, 4> xadcs;//xt4
-std::array<double, 4> yadcs;//xt4
-std::array<double, 4> xcids;//xt4
-std::array<double, 4> xtotend;//xt4
+}
 
-
+void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name){	
+	int nevent = tree->GetEntries();
+	std::cout << "Total N events in the tree : " << nevent << std::endl;
 	double mplgy;
 	double plgx;
 	double pre_mplgy[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
 	double pre_plgx[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
-
-
-	int   pre_n_clusters = 0;
-	std::vector<double> pre_clusters_x;
-	std::vector<float>  pre_clusters_xadc;
-	std::vector<int>    pre_clusters_mids;
-
-
-	int	pre_n_lg_hits;
-	std::vector<int>		pre_lg_hit_mid;
-   std::vector<float>		pre_lg_hit_adc ;
-   std::vector<double>		pre_lg_hit_x ;
-   std::vector<double>		pre_lg_hit_gy;
-
-
+//	std::vector<double> pre_clusters_x;
+//	std::vector<float>  pre_clusters_xadc;
+//	std::vector<int>    pre_clusters_mids;
+//	int	pre_n_lg_hits;
+//	std::vector<int>		pre_lg_hit_mid;
+//   std::vector<float>		pre_lg_hit_adc ;
+//   std::vector<double>		pre_lg_hit_x ;
+//   std::vector<double>		pre_lg_hit_gy;
 	int cnt_lgres_fore[10] = {0};
 	int cnt_lgres_bg[10]   = {0};
+
+	double chi_sq_th  = 20;
+
+	InitHistos();
 	for(int n=0; n < nevent; n++){
 		if(n > n_maxevent) break;
-			if (n % print_cycle == 0) {
-				printf(" N Analyzed = %d \n", n);
-			} 
-			tree->GetEntry(n);
-			h_n_runid->Fill(run_id);
-			h_n_eventid->Fill(event_id);
-			h_n_spillid->Fill(spill_id);
+		if (n % print_cycle == 0) {
+			printf(" N Analyzed = %d \n", n);
+		} 
+		tree->GetEntry(n);
+
 
 // ------- analysis for pair ------- //
 			for(int i=0; i < n_pairs; i++){
-				if(rk_pair_plus_chi_square->at(i) < 20 && rk_pair_minus_chi_square->at(i) < 20){
+				if(rk_pair_plus_chi_square->at(i) < chi_sq_th && rk_pair_minus_chi_square->at(i) < chi_sq_th){
 					int tid0 = rk_pair_minus_track_id->at(i);
 					int tid1 = rk_pair_plus_track_id->at(i);
 					int n_tracks = chi_square->size();
@@ -809,217 +866,7 @@ std::array<double, 4> xtotend;//xt4
 							h_res_vtx_trk_x[mids[l]-100][l]->Fill(resx[l]);
 							h_res_vtx_trk_y[mids[l]-100][l]->Fill(resy[l]);
 						}
-// --- residual LG -- //
-//										 mplgy = rk_fit_lg_b_gy->at(i);
-//										 plgx  = rk_fit_lg_b_x->at(i);
-//										if(fabs(mplgy) > 260){
-//											plgx = rk_fit_lg_c_x->at(i);
-//										}
-//										if(fabs(mplgy) < 150){
-//											plgx = rk_fit_lg_a_x->at(i);
-//										}
-//										double lg_near = -9999;
-//										double mind =9999;
-//										int nlg = 0;
-//										for(int k=0; k < n_lg_hits;k++){
-//											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
-//												int lg_mid = lg_hit_mid->at(k);
-//												if(lg_hit_adc->at(k) < 10) continue;
-//								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
-//												double dx     = lg_hit_x->at(k) - plgx;
-//												double dy     = lg_hit_gy->at(k) - mplgy;
-//												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
-//												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
-//
-////												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
-////												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
-//												
-//												h_res_vtx_trk_lg_x[lg_mid-100]->Fill(dx);
-//												h_res_vtx_trk_lg_y[lg_mid-100]->Fill(dx);
-//												h_bak_res_vtx_trk_lg_x[lg_mid-100]->Fill(pre_dx);
-//												h_bak_res_vtx_trk_lg_y[lg_mid-100]->Fill(pre_dx);
-//											}
-//										}
-
-
-
-
-						}
-					}
-				}	
-			}//analysis for pairs
-
-
-// ------- analysis for 1 track ---- // 
-			int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
-         for(int i=0; i < n_tracks;i++){
-				
-				if(rk_fit_gtr200_mid->at(i) != 106)continue;
-				std::cout << "i " << i << std::endl;
-
-
-         	double chi2 = chi_square->at(i);
-				mids = {	rk_fit_sts_mid->at(i),
-					rk_fit_gtr100_mid->at(i),						
-					rk_fit_gtr200_mid->at(i),
-					rk_fit_gtr300_mid->at(i)};
-				resx = { rk_res_sts_x->at(i),
-							rk_res_gtr100_x->at(i),
-							rk_res_gtr200_x->at(i),
-							rk_res_gtr300_x->at(i)};
-				pre_resx = { -999, -999, -999, -999};
-				resy = { 0,
-							rk_res_gtr100_y->at(i),
-							rk_res_gtr200_y->at(i),
-							rk_res_gtr300_y->at(i)};
-				fitlxs   = { rk_fit_sts_x  ->at(i),
-				   		 rk_fit_gtr100_x->at(i),
-							 rk_fit_gtr200_x->at(i),
-							 rk_fit_gtr300_x->at(i)};
-				fitlys   = { 0,
-				   		 rk_fit_gtr100_y->at(i),
-							 rk_fit_gtr200_y->at(i),
-							 rk_fit_gtr300_y->at(i)};
-				tans = { rk_fit_sts_mom_x->at(i)/rk_fit_sts_mom_z->at(i),
-							rk_fit_gtr100_mom_x->at(i)/rk_fit_gtr100_mom_z->at(i),
-							rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i),
-							rk_fit_gtr300_mom_x->at(i)/rk_fit_gtr300_mom_z->at(i)};
-				xt4s = { 0, 
-							rk_hit_gtr100_xt4->at(i),
-							rk_hit_gtr200_xt4->at(i),
-      					rk_hit_gtr300_xt4->at(i)};
-				xadcs = {rk_hit_sts_adc->at(i), rk_hit_gtr100_xadc->at(i), rk_hit_gtr200_xadc->at(i), rk_hit_gtr300_xadc->at(i)};
-				yadcs = {0, rk_hit_gtr100_yadc->at(i), rk_hit_gtr200_yadc->at(i), rk_hit_gtr300_yadc->at(i)};
-
-
-				xcids = {-100, rk_hit_gtr100_xid->at(i), rk_hit_gtr200_xid->at(i), rk_hit_gtr300_xid->at(i)};
-            xtotend = {-100,gtr100x_cluster_last_tot_end->at(i), gtr200x_cluster_last_tot_end->at(i), gtr300x_cluster_last_tot_end->at(i) };
-				
-
-	double tgt_x = rk_fit_init_pos_gx->at(i);
-	double tgt_y = rk_fit_init_pos_gy->at(i);
-	double tgt_z = rk_fit_init_pos_gz->at(i);
-	double tdiff100 = rk_hit_gtr100_xt->at(i) - rk_hit_gtr100_yt->at(i);
-	double tdiff200 = rk_hit_gtr200_xt->at(i) - rk_hit_gtr200_yt->at(i);
-	double tdiff300 = rk_hit_gtr300_xt->at(i) - rk_hit_gtr300_yt->at(i);
-	int mid = mids[1];//mid is decided by gtr100
-   bool lg_flag = true;
-
-//	std::cout << "fitlx " << fitlxs[1] << std::endl;
-
-
-//	double smallest_lgt = 1000;
-//	for(int j=0; j < rk_proj_lg_t->size(); j++) {
-//		for( auto lgt : rk_proj_lg_t->at(j)){
-//			h_lg_t_mod[mid-100]->Fill(lgt);
-//			if(lgt > 0  && lgt< 90){ 
-//				lg_flag = true;
-//			if(smallest_lgt > lgt) smallest_lgt = lgt;
-//			}
-//		}
-//	}
-//	double t0diff = smallest_lgt - 88;//run0d
-
-
-	for(int l=0; l < 4; l++){
-	}
-
-	double tgt_range_center[10] = {0, -60, -60, -60, -60, 0, -60, -60, -60, -60};		
-
-		if (lg_flag){
-		h_chi2->Fill(chi2);
-		h_chi2_mod[mid-100]->Fill(chi2);
-		h_tgt_pos_mod_raw[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
-		h_init_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
-		h_tgt_proj_z_raw[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
-
-
-
-			for(int m=100; m < 110; m++){
-					if(mid ==m){//module id matching (with track)
-						for(int l=0; l < 4; l++){
-#ifdef NoExist_SSD
-							if(l==0) continue;
-#endif
-							double lx = fitlxs[l];
-							double ly = fitlys[l];
-							double offset = 50 * (l );
-//								std::cout << "lx  = " << lx << std::endl; 
-							int nth_div =  (lx + offset) / ((l*100)/n_div);
-							int nth_divy = (ly + offset) / ((l*100)/n_div);
-//								std::cout << "nth div = " << nth_div << std::endl;
-								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
-								if(chi2 <  20){
-										h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
-
-// ---  removed layer residual --- // 
-//
-
-#ifdef REMOVE_GTR100
-	auto *clusters_x    = gtr100x_cluster_x;
-	auto *clusters_xadc = gtr100x_cluster_adc;
-	int n_clusters = n_gtr100x_clusters;
-	double min_resx = 9999;
-	for(int k=0; k < n_clusters; k++){
-		if(clusters_xadc->at(k) < kGTRFakeADC ){
-		double resx = fitlxs[1] - clusters_x->at(k);
-			if(resx < min_resx){
-				min_resx = resx;
-			}
-		}
-	}
-	resx[1] = min_resx;//residual 
-#elif  REMOVE_GTR200
-	auto *clusters_x    = gtr200x_cluster_x;
-	auto *clusters_xadc = gtr200x_cluster_adc;
-	auto *clusters_mids = gtr200x_cluster_mid	;
-	int n_clusters = n_gtr200x_clusters;
-	double min_resx = 9999;
-   double pre_min_resx = 9999;
-	for(int k=0; k < n_clusters; k++){
-//		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
-		if(clusters_mids->at(k) == mids[2]){
-			if(clusters_xadc->at(k) < kGTRFakeADC ){
-				
-				double resx = fitlxs[2] - clusters_x->at(k);
-				if(resx < min_resx){
-					min_resx = resx;
-				}
-			}
-		}
-	}
-	resx[2] = min_resx;
-   for(int k=0; k < pre_n_clusters; k++){
-		if(pre_clusters_mids[k] == mids[2]){
-			if(pre_clusters_xadc[k] < kGTRFakeADC ){
-				double resx = fitlxs[2] - pre_clusters_x[k];
-				if(resx < pre_min_resx){
-					pre_min_resx = resx;
-				}
-			}
-		}
-	}
-	pre_resx[2] = pre_min_resx;
-   
-
-
-#elif REMOVE_GTR300
-	auto *clusters_x    = gtr300x_cluster_x;
-	auto *clusters_xadc = gtr300x_cluster_adc;
-	int n_clusters = n_gtr300x_clusters;
-	double min_resx = 9999;
-	for(int k=0; k < n_clusters; k++){
-		if(clusters_xadc->at(k) < kGTRFakeADC ){
-		double resx = fitlxs[3] - clusters_x->at(k);
-			if(resx < min_resx){
-				min_resx = resx;
-			}
-		}
-	}
-	resx[3] = min_resx;//residual 
-#endif
-
-//---  LG residual
+ //1--- residual LG -- //
 										 mplgy = rk_fit_lg_b_gy->at(i);
 										 plgx  = rk_fit_lg_b_x->at(i);
 										if(fabs(mplgy) > 260){
@@ -1031,8 +878,6 @@ std::array<double, 4> xtotend;//xt4
 										double lg_near = -9999;
 										double mind =9999;
 										int nlg = 0;
-										bool assoc_fore = false;
-										bool assoc_bg = false;
 										for(int k=0; k < n_lg_hits;k++){
 											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
 												int lg_mid = lg_hit_mid->at(k);
@@ -1040,149 +885,138 @@ std::array<double, 4> xtotend;//xt4
 								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
 												double dx     = lg_hit_x->at(k) - plgx;
 												double dy     = lg_hit_gy->at(k) - mplgy;
+												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
+												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
+
 //												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
 //												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
-												h_res_lg_x[lg_mid-100]->Fill(dx);
-												h_res_lg_y[lg_mid-100]->Fill(dx);
-												h_res_lg_2d[lg_mid-100]->Fill(dx, dy);
-												if(fabs(dx) < 80 & fabs(dy) < 80 ){
-													assoc_fore = true;
-												}
+												
+												h_res_vtx_trk_lg_x[lg_mid-100]->Fill(dx);
+												h_res_vtx_trk_lg_y[lg_mid-100]->Fill(dx);
+												h_bak_res_vtx_trk_lg_x[lg_mid-100]->Fill(pre_dx);
+												h_bak_res_vtx_trk_lg_y[lg_mid-100]->Fill(pre_dx);
 											}
 										}
-//			------ previous ----- //					
-									for(int k=0; k < pre_n_lg_hits;k++){
-										if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
-											int lg_mid = pre_lg_hit_mid[k];
-											if(pre_lg_hit_adc[k] < 10) continue;
-										double pre_dx = pre_lg_hit_x[k]  - plgx;
-										double pre_dy = pre_lg_hit_gy[k] - mplgy;
-										h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
-										h_bak_res_lg_y[lg_mid-100]->Fill(pre_dx);
-										h_bak_res_lg_2d[lg_mid-100]->Fill(pre_dx, pre_dy);
-											if(fabs(pre_dx) < 80 & fabs(pre_dy) < 80){
-													assoc_bg = true;
-											}
-										}
-									}
-									if(assoc_fore){
-										cnt_lgres_fore[rk_fit_lg_b_mid->at(i)-100]++;
-										std::cout << "associated  " << std::endl;
-									}
-									if(assoc_bg){
-										cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
-									}
-									h_res_x[mids[l]-100][l]->Fill(resx[l]);
-									h_pre_res_x[mids[l]-100][l]->Fill(pre_resx[l]);
-									h_res_y[mids[l]-100][l]->Fill(resy[l]);
-									h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
-//									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
-//									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
-//									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
-//									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
-									h_cor_res_fitlx[mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
-									h_cor_res_fitly[mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
-									h_cor_res_timing[mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
-									h_tan_theta[mids[l]-100][l]     ->Fill(tans[l]);
-									h_cor_dz_time[mids[l]-100][l]   ->Fill(xt4s[l], resx[l]/tans[l]);	
-//									h_cor_dz_time_t0cor[mid-100][l] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
-//										h_slopevel[mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] ); 
+						}
+					}
+				}	
+			}//analysis for pairs
 
+/// ------- analysis for 1 track ---- // 
+		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
+      for(int i=0; i < n_tracks;i++){// track loop
+			if(rk_fit_gtr200_mid->at(i) != 106)continue;
+	      double chi2 = chi_square->at(i);
 
-									if(m == 102){
-									if(-25 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
-										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
-									} else {
-										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
-									}
-									}
-									else if(m == 103){
-									if(-20 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
-										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
-									} else {
-										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
-									}
-									}
+			if(chi2 > chi_sq_th) continue;
 
-
-									else if(m == 104){
-									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
-										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
-									} else {
-										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
-									}
-									}
-
-									else if(m == 106){
-									if(-15 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 32){
-										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
-									} else {
-										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
-									}
-									}
-									else if(m == 107){
-									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
-										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
-									} else {
-										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
-									}
-									}
-									else {
-									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
-										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
-									} else {
-										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
-									}
-									}
-
-		         			}
-
+			FillVectors(i);//
+			#ifndef REMOVE_NOLAYER
+			CalculateRemovedGTRMinResidual();
+			#endif
+			// ----- LG Asssociation --------- // 
+				bool assoc_fore = false;
+				bool assoc_bg = false;
+				double plgx  = rk_fit_lg_b_x->at(i);
+				double mplgy = rk_fit_lg_b_gy->at(i);
+				if(fabs(mplgy) > 260){
+					plgx = rk_fit_lg_c_x->at(i);
+				}
+				if(fabs(mplgy) < 150){
+					plgx = rk_fit_lg_a_x->at(i);
+				}
+			// --- fore event --- //
+				for(int k=0; k < n_lg_hits;k++){
+					if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+						int lg_mid = lg_hit_mid->at(k);
+						if(lg_hit_adc->at(k) < 10) continue;
+			//			if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
+						double dx     = lg_hit_x->at(k) - plgx;
+						double dy     = lg_hit_gy->at(k) - mplgy;
+						h_res_lg_x[lg_mid-100]->Fill(dx);
+						h_res_lg_y[lg_mid-100]->Fill(dy);
+						h_res_lg_2d[lg_mid-100]->Fill(dx,dy);
+						if(fabs(dx) < 80 & fabs(dy) < 80 ){//association
+							assoc_fore = true;
 						}
 					}
 				}
+			// ----- previous event ---- // 
+				for(int k=0; k < pre_n_lg_hits;k++){
+					if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
+						int lg_mid = pre_lg_hit_mid[k];
+						if(pre_lg_hit_adc[k] < 10) continue;
+			//			if(fabs(pre_lg_hit_x[k] - 310) < 1 && fabs(pre_lg_hit_gy[k] + 315) < 1) continue; 
+							double pre_dx = pre_lg_hit_x[k]  - plgx;
+							double pre_dy = pre_lg_hit_gy[k] - mplgy;
+							h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
+							h_bak_res_lg_y[lg_mid-100]->Fill(pre_dy);
+							h_bak_res_lg_2d[lg_mid-100]->Fill(pre_dx, pre_dy);
+						if(fabs(pre_dx) < 80 & fabs(pre_dy) < 80 ){//association
+							assoc_bg = true;
+						}
+					}
 				}
-												pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
-												pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
-			}
+			//
+				if(assoc_fore){
+					cnt_lgres_fore[rk_fit_lg_b_mid->at(i)-100]++;
+				}
+				if(assoc_bg){
+					cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
+				}
+			// -- LG association finished ---- /// 
 
+//			pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
+//			pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
+			
+			
+// Fill Histos GTR
+			for(int lid = 0; lid < n_layers; lid++){
+				h_res_x[mids[lid]-100][lid]->Fill(resx[lid]);
+				h_pre_res_x[mids[lid]-100][lid]->Fill(pre_resx[lid]);
+			}
+			
+			FillPulseInfos();
+
+		}//track loop
+//
+//
 #ifndef REMOVE_NOLAYER
 #ifdef REMOVE_GTR100
-	pre_n_clusters    = n_gtr100x_clusters;
-   pre_clusters_x.resize(pre_n_clusters); 
-   pre_clusters_xadc.resize(pre_n_clusters); 
-   pre_clusters_mids.resize(pre_n_clusters); 
-	for(int k=0; k < pre_n_clusters;k++){
-		pre_clusters_x[k]    = gtr100x_cluster_x->at(k);
-		pre_clusters_xadc[k] = gtr100x_cluster_adc->at(k);
-		pre_clusters_mids[k] = gtr100x_cluster_mid->at(k);
+	pre_n_gtrx_clusters    = n_gtr100x_clusters;
+   pre_gtrx_cluster_x.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_xadc.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_mid.resize(pre_n_gtrx_clusters); 
+	for(int k=0; k < pre_n_gtrx_clusters;k++){
+		pre_gtrx_cluster_x[k]    = gtr100x_cluster_x->at(k);
+		pre_gtrx_cluster_xadc[k] = gtr100x_cluster_adc->at(k);
+		pre_gtrx_cluster_mid[k] = gtr100x_cluster_mid->at(k);
 	}
-
-
-	
 #elif REMOVE_GTR200
-	pre_n_clusters    = n_gtr200x_clusters;
-   pre_clusters_x.resize(pre_n_clusters); 
-   pre_clusters_xadc.resize(pre_n_clusters); 
-   pre_clusters_mids.resize(pre_n_clusters); 
-	for(int k=0; k < pre_n_clusters;k++){
-		pre_clusters_x[k]    = gtr200x_cluster_x->at(k);
-		pre_clusters_xadc[k] = gtr200x_cluster_adc->at(k);
-		pre_clusters_mids[k] = gtr200x_cluster_mid->at(k);
+	pre_n_gtrx_clusters    = n_gtr200x_clusters;
+   pre_gtrx_cluster_x.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_adc.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_mid.resize(pre_n_gtrx_clusters); 
+	for(int k=0; k < pre_n_gtrx_clusters;k++){
+		pre_gtrx_cluster_x[k]    = gtr200x_cluster_x->at(k);
+		pre_gtrx_cluster_adc[k] = gtr200x_cluster_adc->at(k);
+		pre_gtrx_cluster_mid[k] = gtr200x_cluster_mid->at(k);
 	}
 
 #elif REMOVE_GTR300
-	pre_n_clusters    = n_gtr300x_clusters;
-   pre_clusters_x.resize(pre_n_clusters); 
-   pre_clusters_xadc.resize(pre_n_clusters); 
-   pre_clusters_mids.resize(pre_n_clusters); 
-	for(int k=0; k < pre_n_clusters;k++){
-		pre_clusters_x[k]    = gtr300x_cluster_x->at(k);
-		pre_clusters_xadc[k] = gtr300x_cluster_adc->at(k);
-		pre_clusters_mids[k] = gtr300x_cluster_mid->at(k);
+	pre_n_gtrx_clusters    = n_gtr300x_clusters;
+   pre_gtrx_cluster_x.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_adc.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_mid.resize(pre_n_gtrx_clusters); 
+	for(int k=0; k < pre_n_gtrx_clusters;k++){
+		pre_gtrx_cluster_x[k]    = gtr300x_cluster_x->at(k);
+		pre_gtrx_cluster_adc[k] = gtr300x_cluster_adc->at(k);
+		pre_gtrx_cluster_mid[k] = gtr300x_cluster_mid->at(k);
 	}
-#endif
+	#endif
 #endif 
 
+// --- Filled lg previous event --- // 
 		pre_n_lg_hits = n_lg_hits;
 		pre_lg_hit_mid.resize(n_lg_hits);
 		pre_lg_hit_adc.resize(n_lg_hits);
@@ -1194,7 +1028,9 @@ std::array<double, 4> xtotend;//xt4
 			pre_lg_hit_x[k]  =  lg_hit_x->at(k);
 			pre_lg_hit_gy[k] =  lg_hit_gy->at(k);
 		}
-	}
+
+	}// event loop
+
    fout->Write();
 
 	TCanvas *c0 = new TCanvas();
@@ -1202,67 +1038,7 @@ std::array<double, 4> xtotend;//xt4
 	gStyle->SetOptStat(1111111);
 	gStyle->SetOptFit(0111);
 
-	TCanvas *c_vtx = new TCanvas();
-		c_vtx->Divide(3,2);
-		c_vtx->cd(1);
-		h_vtx_gx->Fit("gaus", "", "", -2, 3);
-		h_vtx_gx->Draw();
-		c_vtx->cd(2);
-		h_vtx_gy->Fit("gaus", "", "", -3, 1);
-		h_vtx_gy->Draw();
-		c_vtx->cd(3);
-		h_vtx_gz->Draw();
-		c_vtx->cd(4);
-		h_vtx_gx_gz->Draw("colz");
-		c_vtx->cd(5);
-		h_vtx_gx_gy->Draw("colz");
-   c_vtx->SaveAs(pdf_name, "pdf");
-
-
-  TCanvas *c_res_v[10];
-  for(int m =1; m < 9; m++){ 
-    c_res_v[m]= new TCanvas(); 
-    c_res_v[m]->Divide(2,2);
-    for(int l=0; l < n_layer; l++){
-     c_res_v[m]->cd(1+l);
-     if(m < 5) {
-        h_res_vtx_trk_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
-        h_res_vtx_trk_x[m][l]->Draw("colz");
-     }
-     else {
-        h_res_vtx_trk_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
-        h_res_vtx_trk_x[m+1][l]->Draw("colz");
-     }
-	 }
-    c_res_v[m]->SaveAs(pdf_name, "pdf");
-  }
-
-
-	TCanvas *cv_lgres;
-	cv_lgres = new TCanvas();
-	cv_lgres->Divide(4,2);
-	for(int mid=101; mid < 110; mid++){
-		if(mid == 105) continue;
-		if(mid < 105){
-		cv_lgres->cd(mid-100);
-		h_res_vtx_trk_lg_x[mid-100]->Draw();
-		h_bak_res_vtx_trk_lg_x[mid-100]->SetLineColor(kRed);
-		h_bak_res_vtx_trk_lg_x[mid-100]->Draw("same");
-		}
-	   else if(mid > 105){
-			cv_lgres->cd(mid-101);
-			h_res_vtx_trk_lg_x[mid-100]->Draw();
-			h_bak_res_vtx_trk_lg_x[mid-100]->SetLineColor(kRed);
-			h_bak_res_vtx_trk_lg_x[mid-100]->Draw("same");
-			
-		}
-   }
-	cv_lgres->SaveAs(pdf_name, "pdf");
-
-
-
-
-	TCanvas *c2[n_module];
+	TCanvas *c2[n_modules];
 	for(int m =1; m < 9; m++){
 	   c2[m]= new TCanvas();
 		c2[m]->Divide(2,2);
@@ -1279,7 +1055,7 @@ std::array<double, 4> xtotend;//xt4
 	}
 
 
-	TCanvas *c2_chi[n_module];
+	TCanvas *c2_chi[n_modules];
 	for(int m =1; m < 9; m++){
 	   c2_chi[m]= new TCanvas();
 		c2_chi[m]->Divide(2,2);
@@ -1300,7 +1076,7 @@ h_init_pos->Draw("colz");
 c03->SaveAs(pdf_name, "pdf");
 
 
-	TCanvas *c22[n_module];
+	TCanvas *c22[n_modules];
 	for(int m =1; m < 9; m++){
 	   c22[m]= new TCanvas();
 		c22[m]->Divide(2,2);
@@ -1324,7 +1100,7 @@ c03->SaveAs(pdf_name, "pdf");
 	}
 
 
-	TCanvas *c23[n_module];
+	TCanvas *c23[n_modules];
 	for(int m =1; m < 9; m++){
 	   c23[m]= new TCanvas();
 		c23[m]->Divide(2,2);
@@ -1418,68 +1194,11 @@ c03->SaveAs(pdf_name, "pdf");
       }
    }
    c02->SaveAs(pdf_name, "pdf");
-
-
-
-	TCanvas *c3[n_module];
-   for(int m=0; m < n_module;m++){
-		c3[m] = new TCanvas();
-		c3[m]->Divide(n_div,3 );
-		for(int l=1; l<4; l++){
-			for(int div=0; div < n_div; div++){
-			   c3[m]->cd(div + 1 + n_div * (l-1) );
-				h_cluster_timing_chi2_xdependence[m][l][div]->Draw();
-			}
-		}
-	c3[m]->SaveAs(pdf_name, "pdf");
-	}
-
-	TCanvas *c4[n_module];
-   for(int m=0; m < n_module;m++){
-		c4[m] = new TCanvas();
-		c4[m]->Divide(n_div, 3);
-		for(int l=1; l<4; l++){
-			for(int div=0; div < n_div; div++){
-			   c4[m]->cd(div + 1 + n_div * (l-1) );
-				h_cluster_timing_chi2_ydependence[m][l][div]->Draw();
-			}
-		}
-	c4[m]->SaveAs(pdf_name, "pdf");
-	}
-
-
-	TCanvas *c5[n_module];
-   for(int m=0; m < n_module;m++){
-		c5[m] = new TCanvas();
-		c5[m]->Divide(n_div, 3);
-		for(int l=1; l<4; l++){
-			for(int div=0; div < n_div; div++){
-			   c5[m]->cd(div + 1 + n_div * (l-1) );
-				h_cluster_adc_xdependence[m][l][div]->Draw();
-			}
-		}
-	c5[m]->SaveAs(pdf_name, "pdf");
-	}
-
-	TCanvas *c6[n_module];
-   for(int m=0; m < n_module;m++){
-		c6[m] = new TCanvas();
-		c6[m]->Divide(n_div, 3);
-		for(int l=1; l<4; l++){
-			for(int div=0; div < n_div; div++){
-			   c6[m]->cd(div + 1 + n_div * (l-1) );
-				h_cluster_adc_ydependence[m][l][div]->Draw();
-			}
-		}
-	c6[m]->SaveAs(pdf_name, "pdf"); }
-
-
-
   TCanvas *c1[10];
   for(int m =1; m < 9; m++){ 
     c1[m]= new TCanvas(); 
     c1[m]->Divide(2,2);
-    for(int l=0; l < n_layer; l++){
+    for(int l=0; l < n_layers; l++){
      c1[m]->cd(1+l);
      if(m < 5) {
         h_res_x[m][l]->Fit("gaus", "", "", -0.5, 0.5);
@@ -1511,157 +1230,6 @@ c03->SaveAs(pdf_name, "pdf");
   }
   c2y->SaveAs(pdf_name, "pdf");
 
- TCanvas *c3t = new TCanvas();
- c3t->Divide(4,2);
- for(int i =1; i < 9; i++){
-     c3t->cd(i);
-     if(i < 5) {
-        h_tan_theta[i][residual_layer]->Draw("colz");
-     }
-     else {
-        h_tan_theta[i+1][residual_layer]->Draw("colz");
-     }
-  }
-  c3t->SaveAs(pdf_name, "pdf");
-
-
-
-
-
- TCanvas *c31[10];
-   TGraphErrors *gr[10];
-   TGraphErrors *gr_mean[10];
-   TH1D *h1[10];
-   TF1 *f1[10];
-   for(int hmid=101; hmid < 110; hmid++){
-      if(hmid == 105)continue;
-            c31[hmid-100] = new TCanvas();
-            c31[hmid-100]->Divide(4,3);
-            int n = h_cor_res_fitlx[hmid-100][residual_layer]->GetNbinsX();
-            double xmin = -2;
-            double xmax =  2;
-            std::cout << "nibs = " << n << std::endl;
-            gr[hmid-100] = new TGraphErrors(n);
-            gr_mean[hmid-100] = new TGraphErrors(n);
-             for (int i = 1; i <= n; i++) {
-               c31[hmid-100]->cd(i);
-                h1[hmid-100] = h_cor_res_fitlx[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
-//             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
-               f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-               f1[hmid-100]->SetParameter(0, 500);   // constant
-               f1[hmid-100]->SetParameter(1, 0);     // mean
-               f1[hmid-100]->SetParLimits(1, -2, 2); // mean
-               f1[hmid-100]->SetParameter(2, 0.3);
-               f1[hmid-100]->SetParLimits(2, 0.1, 1);
-               f1[hmid-100]->SetParameter(3, 0);
-               f1[hmid-100]->SetParameter(4, -1);
-                h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
- 				  double mean = f1[hmid-100]->GetParameter(1);
- 				  double mean_err = f1[hmid-100]->GetParError(1);
-               double sigma = f1[hmid-100]->GetParameter(2);
-                double sigma_err = f1[hmid-100]->GetParError(2);
-               std::cout << "sigma = " << sigma << std::endl;
-                gr[hmid-100]->SetPoint(i-1, i, sigma);
-                gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
-                gr_mean[hmid-100]->SetPoint(i-1, i, mean);
-                gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
-               h1[hmid-100]->Draw();
-            }
-         c31[hmid-100]->cd(11);
-         gr[hmid-100]->Draw();
-         c31[hmid-100]->cd(12);
- 			gr_mean[hmid-100]->SetMaximum(0.2);
- 			gr_mean[hmid-100]->SetMinimum(-0.2);
- 			gr_mean[hmid-100]->SetLineStyle(0);
-         gr_mean[hmid-100]->Draw();
-         c31[hmid-100]->SaveAs(pdf_name, "pdf");
-   }
-
-  TCanvas *c61 = new TCanvas();
-  c61->Divide(4,2);
-  for(int i =1; i < 9; i++){
-     c61->cd(i);
-     if(i < 5) {
-        h_cor_dz_time[i][residual_layer]->Draw("colz");
-     }
-     else {
-        h_cor_dz_time[i+1][residual_layer]->Draw("colz");
-     }
-  }
-  c61->SaveAs(pdf_name, "pdf");
-
-
-   TCanvas *c16[10];
-   TGraphErrors *gr16[10];
-   TH1D *h16[10];
-   TF1  *f16[10];
-   TF1  *fla[10];
-   double xmin[10]  = {0, -4.5, -5.5, -5.5,     -5.5, 0, -3.5,  -3.5, -4.5, -4.5};//mod100-109
-   double xmax[10]  = {0, 4.5, 3.5, 3.5,      3.5, 0,  3.5 ,  3.0,  8,  8};
-   double flmin[10] = {0, 120, 120, 120, 120,   0,   120, 100, 180, 180};
-   double flmax[10] = {0, 450, 450, 450, 500, 0, 500, 450, 550, 450};
-   for(int hmid=101; hmid < 110; hmid++){
-      c16[hmid-100] = new TCanvas();
-      int n = h_cor_dz_time[hmid-100][residual_layer]->GetNbinsX();
-      c16[hmid-100]->Divide(5,5);
-      std::cout << "nbins dz = " << n << std::endl;
-      gr16[hmid-100] = new TGraphErrors(n);
-    	gr16[hmid-100]->SetMaximum( 8.0);
- 	   gr16[hmid-100]->SetMinimum(-8.0);
-       for (int i = 1; i <= n; i++) {
-         c16[hmid-100]->cd(i);
-         fla[hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
-         h16[hmid-100] = h_cor_dz_time[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
-         //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
-//       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
-//       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
-         //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
-          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
-         f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
-//       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
-//       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
-         f16[hmid-100]->SetParameter(0, 20); // constant
-         f16[hmid-100]->SetParameter(1, 0);     // mean
-         f16[hmid-100]->SetParameter(2, 10);    // sigma
-         f16[hmid-100]->SetParLimits(2, 1, 10);
-         f16[hmid-100]->SetParameter(3, 0);    
-         f16[hmid-100]->SetParLimits(3, -0.8, 0);
-         f16[hmid-100]->SetParameter(4, -1);    
-         f16[hmid-100]->SetParameter(4, -0.5);  
-         h16[hmid-100]->Fit(f16[hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
-
-          double chi2 = f16[hmid-100]->GetChisquare();
-         double mean =  f16[hmid-100]->GetParameter(1);
-          double sigma_err = f16[hmid-100]->GetParError(2);
-         std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
-         if(chi2 < 5) continue;
-         if(sigma_err > 10) continue;
-          gr16[hmid-100]->SetPoint(i-1, i*(600/n), mean);
-          gr16[hmid-100]->SetPointError(i-1, 0, sigma_err);
-          gr16[hmid-100]->Fit(fla[hmid-100], "R");
-          h16[hmid-100]->Draw();
-      }
-         c16[hmid-100]->SaveAs(pdf_name, "pdf");
-   }
-
-
-   TCanvas *c17;
-  c17= new TCanvas();
-   c17->Divide(4,2);
-   for(int hmid=101; hmid < 110; hmid++){
-		if(hmid == 105) continue;
-      if(hmid < 105) {
-		c17->cd(hmid-100);
-      gr16[hmid-100]->SetTitle(Form("residual/tan_theta mod%d : timing ;  timing; residual/tan_theta",  hmid) );
-      gr16[hmid-100]->Draw("AP");
-	 }
- 	 else {c17->cd(hmid-101);}
-      gr16[hmid-100]->SetTitle(Form("residual/tan_theta mod%d : timing ;  timing; residual/tan_theta",  hmid) );
-      gr16[hmid-100]->Draw("AP");
-   }
-  c17->SaveAs(pdf_name, "pdf");
-
-
 	TCanvas *c18;
 	c18 = new TCanvas();
 	c18->Divide(4,2);
@@ -1671,13 +1239,13 @@ c03->SaveAs(pdf_name, "pdf");
 		c18->cd(mid-100);
 		h_res_lg_x[mid-100]->Draw();
 		h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
-		h_bak_res_lg_x[mid-100]->Draw("same");
+		h_bak_res_lg_x[mid-100]->Draw("sames");
 		}
 	   else if(mid > 105){
 			c18->cd(mid-101);
 			h_res_lg_x[mid-100]->Draw();
 			h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
-			h_bak_res_lg_x[mid-100]->Draw("same");
+			h_bak_res_lg_x[mid-100]->Draw("sames");
 			
 		}
    }
@@ -1692,13 +1260,13 @@ c03->SaveAs(pdf_name, "pdf");
 		c19->cd(mid-100);
 		h_res_lg_y[mid-100]->Draw();
 		h_bak_res_lg_y[mid-100]->SetLineColor(kRed);
-		h_bak_res_lg_y[mid-100]->Draw("same");
+		h_bak_res_lg_y[mid-100]->Draw("sames");
 		}
 	   else if(mid > 105){
 			c19->cd(mid-101);
 			h_res_lg_y[mid-100]->Draw();
 			h_bak_res_lg_y[mid-100]->SetLineColor(kRed);
-			h_bak_res_lg_y[mid-100]->Draw("same");
+			h_bak_res_lg_y[mid-100]->Draw("sames");
 			
 		}
    }
@@ -1878,39 +1446,85 @@ c03->SaveAs(pdf_name, "pdf");
 
 	c0->SaveAs(pdf_name + "]", "pdf");
 
+
+
+
 }
 
-	//TH1D* h_chi2;
-//	TH1D* h_t0diff;
-//	TH1D* h_n_runid;
-//	TH1D* h_n_eventid;
-//	TH1D* h_n_spillid;
+//void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name){	
 //
-//
-//	TH1D* h_chi2_mod[n_module];
-//	TH1D* h_lg_t_mod[n_module];
-//	TH1D* h_tgt_proj_z_raw[n_module];
-//	TH1D* h_tgt_proj_z_cut[n_module];
-//	TH1D* h_tgt_proj_z_chi2cut[n_module];
-//	TH1D* h_tgt_proj_x[n_module];
-//	TH1D* h_tgt_proj_y[n_module];
-//	TH1D* h_res_x[n_tgt][n_module][n_layer];
-//	TH1D* h_res_y[n_tgt][n_module][n_layer];
-//	TH1D* h_tan_theta[n_tgt][n_module][n_layer];
-//	TH1D* h_fitlx[n_tgt][n_module][n_layer];
-//
-//	TH2D* h_tgt_pos;
+//   const int n_module = 10;
+//   const int n_layers = 4;
+//   const int n_tgt = 3; 
+//   const int n_div = 8;
+//   int nevent = tree->GetEntries();
+//   std::cout << "nevent : " << nevent << std::endl;
+//   TH1D* h_chi2;
+//   TH1D* h_t0diff;
+//   TH1D* h_n_runid;
+//   TH1D* h_n_eventid;
+//   TH1D* h_n_spillid;
+//   TH1D* h_chi2_mod[n_module];
+//   TH1D* h_lg_t_mod[n_module];
+//   TH1D* h_tgt_proj_z_raw[n_module];
+//   TH1D* h_tgt_proj_z_cut[n_module];
+//   TH1D* h_tgt_proj_z_chi2cut[n_module];
+//   TH1D* h_tgt_proj_x[n_module];
+//   TH1D* h_tgt_proj_y[n_module];
+//   TH1D* h_res_x[n_module][n_layers];
+//   TH1D* h_pre_res_x[n_module][n_layers];
+//   TH1D* h_res_y[n_module][n_layers];
+//   TH1D* h_res_vtx_trk_x[n_module][n_layers];
+//   TH1D* h_res_vtx_trk_y[n_module][n_layers];
+//   TH1D* h_tan_theta[n_module][n_layers];
+//   TH1D* h_fitlx[n_tgt][n_module][n_layers];
+//   TH1D* h_cluster_timing_raw[n_module][n_layers];
+//   TH1D* h_cluster_timing_chi2[n_module][n_layer];
+//   TH1D* h_cluster_timing_chi2_xdependence[n_module][n_layer][n_div];
+//   TH1D* h_cluster_timing_chi2_ydependence[n_module][n_layer][n_div];
+//	TH1D* h_tot_end_fr[n_module][n_layer];	
+//	TH1D* h_tot_end_bg[n_module][n_layer];	
+//	TH1D* h_cluster_adc_xdependence[n_module][n_layer][n_div];
+//	TH1D* h_cluster_adc_ydependence[n_module][n_layer][n_div];
+//	TH2D* h_init_pos;
 //	TH2D* h_tgt_pos_mod_raw[n_module];
-////	TH2D* h_tgt_pos_mod_cut[n_module];
-//	TH2D* h_cor_dz_time[n_module][n_layer][n_div];
-//	TH2D* h_cor_dz_time_t0cor[n_module][n_layer][n_div];
-//	TH2D* h_cor_res_fitlx[n_tgt][n_module][n_layer];
-//	TH2D* h_cor_res_fitly[n_tgt][n_module][n_layer];
-//	TH2D* h_cor_res_timing[n_tgt][n_module][n_layer];
-//	
-//	TH2D* h_slopevel[n_tgt][n_module][n_layer][n_div];
+//	TH2D* h_tgt_pos_mod_cut[n_module];
+//	TH2D* h_cor_dz_time[n_module][n_layer];
+//	TH2D* h_cor_dz_time_t0cor[n_module][n_layer];
+//	TH2D* h_cor_res_fitlx[n_module][n_layer];
+//	TH2D* h_cor_res_fitly[n_module][n_layer];
+//	TH2D* h_cor_res_timing[n_module][n_layer];
+//	TH2D* h_slopevel[n_module][n_layer][n_div];
+//	TH1D* h_res_lg_x[n_module];
+//	TH1D* h_res_lg_y[n_module];
+//   
+//   TH2D* h_res_lg_2d[n_module];
 //
-//	TH2D* h_trackmap[n_tgt][n_module];
+//	TH1D* h_res_vtx_trk_lg_x[n_module];
+//	TH1D* h_res_vtx_trk_lg_y[n_module];
+//	TH1D* h_bak_res_lg_x[n_module];
+//	TH1D* h_bak_res_lg_y[n_module];
+//
+//   TH2D* h_bak_res_lg_2d[n_module];
+//	
+//
+//	TH1D* h_bak_res_vtx_trk_lg_x[n_module];
+//	TH1D* h_bak_res_vtx_trk_lg_y[n_module];
+//
+////removed residual
+//
+////pair
+//	TH1D* h_vtx_gx;
+//	TH1D* h_vtx_gy;
+//	TH1D* h_vtx_gz;
+//	TH2D* h_vtx_gx_gz;	
+//	TH2D* h_vtx_gx_gy;	
+//   h_vtx_gx = new TH1D("h_vtx_gx", "h_vtx_gx", 80, -20, 20);
+//   h_vtx_gy = new TH1D("h_vtx_gy", "h_vtx_gy", 80, -20, 20);
+//   h_vtx_gz = new TH1D("h_vtx_gz", "h_vtx_gz", 80, -50, 50);
+//  	h_vtx_gx_gz = new TH2D("h_vtx_gx_gz", "h_vtx_gx_gz", 80, -20, 20, 80, -40, 40); 
+//  	h_vtx_gx_gy = new TH2D("h_vtx_gx_gy", "h_vtx_gx_gy", 80, -20, 20, 80, -20, 20); 
+//
 //
 //
 //	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
@@ -1918,10 +1532,11 @@ c03->SaveAs(pdf_name, "pdf");
 //	h_n_spillid = new TH1D("n of events of spill id","n of events of spillid", 1000, -0.5, 999.5);
 //	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 100);	
 //	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -100,100);	
-//	h_tgt_pos = new TH2D(Form("h_tgt_pos"), Form("h_tgt_pos"), 50, 19.8, 20.2, 200, -60, 60);
+//	h_init_pos = new TH2D(Form("h_init_pos"), Form("h_init_pos"), 50, -30, 30, 50, -60, 60);
+//
 //	for(int m=0; m < n_module; m++){
 //		for(int tg=0; tg < 2; tg++){
-//			h_trackmap[tg][m] = new TH2D(Form("h_track_map%d_%d", tg,  m+100), Form("h_track_map%d_%d",tg,  m+100), 25, -50, 50, 25, -50, 50);
+////			h_trackmap[tg][m] = new TH2D(Form("h_track_map%d_%d", tg,  m+100), Form("h_track_map%d_%d",tg,  m+100), 25, -50, 50, 25, -50, 50);
 //		}
 //		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 100);
 //		h_lg_t_mod[m] = new TH1D(Form("h_lg_t_mod%d", m+100), Form("h_lg_t_mod%d", m+100), 100, 50, 150);
@@ -1929,556 +1544,667 @@ c03->SaveAs(pdf_name, "pdf");
 //		h_tgt_pos_mod_cut[m] = new TH2D(Form("h_tgt_pos_mod_cut_%d", m+100), Form("h_tgt_pos_mod_cut_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
 //		h_tgt_proj_z_raw[m] = new TH1D(Form("h_tgt_proj_z_raw%d", m+100), Form("h_tgt_proj_z_raw%d", m+100), 100, -60, 60);
 //		h_tgt_proj_z_cut[m] = new TH1D(Form("h_tgt_proj_z_cut%d", m+100), Form("h_tgt_proj_z_cut%d", m+100), 100, -60, 60);
-//		h_tgt_proj_z_chi2cut[m] = new TH1D(Form("h_tgt_proj_z_chi2cut%d", m+100), Form("h_tgt_proj_z_chi2cut%d", m+100), 100, -45, 45);
+//		h_tgt_proj_z_chi2cut[m] = new TH1D(Form("h_tgt_proj_z_chi2cut%d", m+100), Form("h_tgt_proj_z_chi2cut%d", m+100), 100, -80, 80);
 //		h_tgt_proj_x[m] = new TH1D(Form("h_tgt_proj_x%d", m+100), Form("h_tgt_proj_x%d", m+100), 100, 19.8, 20.2);
 //		h_tgt_proj_y[m] = new TH1D(Form("h_tgt_proj_y%d", m+100), Form("h_tgt_proj_y%d", m+100), 100, -5,5 );
+//
+//		h_res_lg_x[m]  = new TH1D(Form("h_res_lg_x_%d", m+100), Form("h_res_lg_x_%d", m+100), 50, -400, 400 );
+//		h_res_lg_y[m]  = new TH1D(Form("h_res_lg_y_%d", m+100), Form("h_res_lg_y_%d", m+100), 50, -400, 400 );
+//		h_res_lg_2d[m]  = new TH2D(Form("h_res_lg_2d_%d", m+100), Form("h_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
+//		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
+//		h_res_vtx_trk_lg_y[m]  = new TH1D(Form("h_res_vtx_trk_lg_y_%d", m+100), Form("h_res_vtx_trk_lg_y_%d", m+100), 50, -400, 400 );
+//		h_bak_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_bak_res_vtx_trk_lg_x_%d", m+100), Form("h_bak_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
+//		h_bak_res_vtx_trk_lg_y[m]  = new TH1D(Form("h_bak_res_vtx_trk_lg_y_%d", m+100), Form("h_bak_res_vtx_trk_lg_y_%d", m+100), 50, -400, 400 );
+//
+//		h_bak_res_lg_x[m]  = new TH1D(Form("h_bak_res_lg_x_%d", m+100), Form("h_bak_res_lg_x_%d", m+100), 50, -400, 400 );
+//		h_bak_res_lg_y[m]  = new TH1D(Form("h_bak_res_lg_y_%d", m+100), Form("h_bak_res_lg_y_%d", m+100), 50, -400, 400 );
+//		h_bak_res_lg_2d[m]  = new TH2D(Form("h_bak_res_lg_2d_%d", m+100), Form("h_bak_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
+//		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
+//
 //		for(int l=0; l < n_layer; l++){// -- layer 
-//			for(int t=0; t < n_tgt; t++){
-//				h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
-//				h_res_x[t][m][l] = new TH1D(Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
-//				h_res_y[t][m][l] = new TH1D(Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), 100, -4, 4);
-//				h_cor_res_fitlx[t][m][l] = new TH2D(Form("h_cor_res_fitlx_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitlx_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
-//				h_cor_res_fitly[t][m][l] = new TH2D(Form("h_cor_res_fitly_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitly_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
-//				h_cor_res_timing[t][m][l] = new TH2D(Form("h_cor_res_timing_%d_%d_%d", t,m+100, l), Form("h_cor_res_timing_%d_%d%_d", t,m+100, l), 20, 0 , 600, 100, -2, 2);
-//			h_tan_theta[t][m][l] = new TH1D(Form("h_tan_theta_t%d_m%d_l%d", t, m+100, l), Form("h_tan_theta%d_%d_%d", t,m+100, l), 100, -0.5, 0.5);
-//			for(int div = 0 ; div < n_div; div++){
-//			h_cor_dz_time[t][m][l][div]        = new TH2D(Form("h_cor_dz_time_%d_%d%d%d",t,  m+100, l, div)      , Form("h_cor_dz_time_%d%d%d%d",t,  m+100, l, div)      , htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-//			h_cor_dz_time_t0cor[t][m][l][div] = new TH2D(Form("h_cor_dz_time_t0cor_%d%d_%d%d", t, m+100, l,div), Form("h_cor_dz_time_t0cor_%d%d%d%d",t, m+100, l,div), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
-//			h_slopevel[t][m][l][div] = new TH2D(Form("h_slopevel_%d%d_%d%d", t, m+100, l,div), Form("h_slopevel_%d%d%d%d",t, m+100, l,div),  25, -100, 100, 60, -2, 2);
-//		}
+//				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,600 ) ;
+//				h_cluster_timing_chi2[m][l] = new TH1D (Form("h_cluster_timing_chi2%d_%d", m+100, l), Form("h_cluster_timing_chi2%d_%d", m+100, l), 100, 0 ,600 ) ;
+//				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
+//				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
+////				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
+//				h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -5, 5);
+//				h_pre_res_x[m][l] = new TH1D(Form("h_pre_res_x_m%d_l%d", m+100, l), Form("h_pre_res_x_m%d_l%d", m+100, l), 100, -10, 10);
+//				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
+//
+//				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
+//				h_res_vtx_trk_y[m][l] = new TH1D(Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), 100, -4, 4);
+//				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx__%d_%d", m+100, l), Form("h_cor_res_fitlx_%d_%d", m+100, l), 40, -50*l , 50*l, 100, -2.5, 2.5);
+//				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly__%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 100, -2, 2);
+//				h_cor_res_timing[m][l] = new TH2D(Form("h_cor_res_timing__%d_%d", m+100, l), Form("h_cor_res_timing_%d_%d", m+100, l), 20, 0 , 600, 100, -2, 2);
+//				h_tan_theta[m][l] = new TH1D(Form("h_tan_theta_m%d_l%d",  m+100, l), Form("h_tan_theta_%d_%d", m+100, l), 20,  -0.5, 0.5);
+//				h_cor_dz_time[m][l]        = new TH2D(Form("h_cor_dz_time_%d%d", m+100, l)      , Form("h_cor_dz_time_%d%d",  m+100, l)     , 20, 0, 600, 60,  -6, 6);
+//				h_cor_dz_time_t0cor[m][l]= new TH2D(Form("h_cor_dz_time_t0cor_%d_%d",  m+100, l), Form("h_cor_dz_time_t0cor_%d%d", m+100, l), 20, 0, 600, 7, -8, 8);
+//					for(int div = 0; div < n_div; div++){
+//						h_cluster_timing_chi2_xdependence[m][l][div] = new TH1D(Form("h_cluster_timing_chi2_xdependence%d_%d_%d", m+100, l, div), Form("h_cluster_timing_chi2_xdependence%d_%d_%d", m+100, l, div), 20, 0 ,600 ) ;
+//						h_cluster_timing_chi2_ydependence[m][l][div] = new TH1D(Form("h_cluster_timing_chi2_ydependence%d_%d_%d", m+100, l, div), Form("h_cluster_timing_chi2_ydependence%d_%d_%d", m+100, l, div), 20, 0 ,600 ) ;
+//						h_cluster_adc_xdependence[m][l][div] = new TH1D(Form("h_cluster_adc_xdependence%d_%d_%d", m+100, l, div), Form("h_cluster_adc_xdependence%d_%d_%d", m+100, l, div), 20, 0 ,5000 ) ;
+//						h_cluster_adc_ydependence[m][l][div] = new TH1D(Form("h_cluster_adc_ydependence%d_%d_%d", m+100, l, div), Form("h_cluster_adc_ydependence%d_%d_%d", m+100, l, div), 20, 0 ,5000 ) ;
+//						}
+//				for(int t=0; t < n_tgt; t++){
+//					h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
+//				}
 //			}
-//		}
-//	}
-//	int nevent = tree->GetEntries();
-//#ifdef CHECK_100
-//	int fixl   = 1; //gtr200
-//#endif
-//#ifdef CHECK_200
-//	int fixl   = 2; //gtr200
-//#endif
-//#ifdef CHECK_300
-//	int fixl   = 3; //gtr200
-//#endif
+//		}	
 //
 //
-//								//    00, 01, 02, 03, 04, 05,    06
-//	double chi2_th[n_module] = {30, 30,30, 30, 30,   0,   30, 30, 30, 30};//mod100-109
-//	double res_min[n_module] = {0, -4, -4, -4, -4,   0,   -4, -4, -4, -4};//mod100-109
-//	double res_max[n_module] = {0,  4,  4,  4,  4,   0,    4,  4,  4,  4};//mod100-109
-//	double timing_cut = 120;
-//	double tgty_cut = 3.0;
 //
 //std::array<int, 4> mids;
+//std::array<int, 4> mids_tid0;
+//std::array<int, 4> mids_tid1;
 //std::array<double, 4> resx;
+//std::array<double, 4> pre_resx;
+//std::array<double, 4> resx_tid0;
+//std::array<double, 4> resx_tid1;
 //std::array<double, 4> resy;
+//std::array<double, 4> resy_tid0;
+//std::array<double, 4> resy_tid1;
 //std::array<double, 4> fitlxs;
 //std::array<double, 4> fitlys;
 //std::array<double, 4> tans;//tan thetas
 //std::array<double, 4> xt4s;//xt4
+//std::array<double, 4> xadcs;//xt4
+//std::array<double, 4> yadcs;//xt4
+//std::array<double, 4> xcids;//xt4
+//std::array<double, 4> xtotend;//xt4
 //
+//
+//	double mplgy;
+//	double plgx;
+//	double pre_mplgy[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
+//	double pre_plgx[10] = {9999, 9999, 9999, 9999 ,9999, 9999, 9999, 9999, 9999, 9999};
+//
+//
+//	int   pre_n_clusters = 0;
+//	std::vector<double> pre_clusters_x;
+//	std::vector<float>  pre_clusters_xadc;
+//	std::vector<int>    pre_clusters_mids;
+//
+//
+//	int	pre_n_lg_hits;
+//	std::vector<int>		pre_lg_hit_mid;
+//   std::vector<float>		pre_lg_hit_adc ;
+//   std::vector<double>		pre_lg_hit_x ;
+//   std::vector<double>		pre_lg_hit_gy;
+//
+//
+//	int cnt_lgres_fore[10] = {0};
+//	int cnt_lgres_bg[10]   = {0};
 //	for(int n=0; n < nevent; n++){
 //		if(n > n_maxevent) break;
-//		if (n % print_cycle == 0) {
-//			printf(" N Analyzed = %d \n", n);
-//		} 
-//		tree->GetEntry(n);
-//		h_n_runid->Fill(run_id);
-//		h_n_eventid->Fill(event_id);
-//		h_n_spillid->Fill(spill_id);
+//			if (n % print_cycle == 0) {
+//				printf(" N Analyzed = %d \n", n);
+//			} 
+//			tree->GetEntry(n);
+//			h_n_runid->Fill(run_id);
+//			h_n_eventid->Fill(event_id);
+//			h_n_spillid->Fill(spill_id);
+//
+//// ------- analysis for pair ------- //
+//			for(int i=0; i < n_pairs; i++){
+//				if(rk_pair_plus_chi_square->at(i) < 20 && rk_pair_minus_chi_square->at(i) < 20){
+//					int tid0 = rk_pair_minus_track_id->at(i);
+//					int tid1 = rk_pair_plus_track_id->at(i);
+//					int n_tracks = chi_square->size();
+//					for(int j=0; j < n_tracks; j++){
+//					   TVector3 vtx_gpos = TVector3(rk_pair_vtx_gx->at(i), rk_pair_vtx_gy->at(i), rk_pair_vtx_gz->at(i));
+//						h_vtx_gx->Fill(vtx_gpos.x());
+//						h_vtx_gy->Fill(vtx_gpos.y());
+//						h_vtx_gz->Fill(vtx_gpos.z());
+//						h_vtx_gx_gz->Fill(vtx_gpos.x(), vtx_gpos.z());
+//						h_vtx_gx_gy->Fill(vtx_gpos.x(), vtx_gpos.y());
+//					if( tid0 == track_id->at(j) || tid1 == track_id->at(j)){
+//						mids= {	rk_fit_sts_mid->at(j),
+//									rk_fit_gtr100_mid->at(j),						
+//									rk_fit_gtr200_mid->at(j),
+//									rk_fit_gtr300_mid->at(j)};
+//						resx = { rk_res_sts_x->at(j),
+//									rk_res_gtr100_x->at(j),
+//									rk_res_gtr200_x->at(j),
+//									rk_res_gtr300_x->at(j)};
+//						resy = { 0,
+//									rk_res_gtr100_y->at(j),
+//									rk_res_gtr200_y->at(j),
+//									rk_res_gtr300_y->at(j)};
+//						for(int l=1; l < 4; l++){//layer loop
+//							h_res_vtx_trk_x[mids[l]-100][l]->Fill(resx[l]);
+//							h_res_vtx_trk_y[mids[l]-100][l]->Fill(resy[l]);
+//						}
+//// --- residual LG -- //
+////										 mplgy = rk_fit_lg_b_gy->at(i);
+////										 plgx  = rk_fit_lg_b_x->at(i);
+////										if(fabs(mplgy) > 260){
+////											plgx = rk_fit_lg_c_x->at(i);
+////										}
+////										if(fabs(mplgy) < 150){
+////											plgx = rk_fit_lg_a_x->at(i);
+////										}
+////										double lg_near = -9999;
+////										double mind =9999;
+////										int nlg = 0;
+////										for(int k=0; k < n_lg_hits;k++){
+////											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+////												int lg_mid = lg_hit_mid->at(k);
+////												if(lg_hit_adc->at(k) < 10) continue;
+////								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
+////												double dx     = lg_hit_x->at(k) - plgx;
+////												double dy     = lg_hit_gy->at(k) - mplgy;
+////												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
+////												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
+////
+//////												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
+//////												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
+////												
+////												h_res_vtx_trk_lg_x[lg_mid-100]->Fill(dx);
+////												h_res_vtx_trk_lg_y[lg_mid-100]->Fill(dx);
+////												h_bak_res_vtx_trk_lg_x[lg_mid-100]->Fill(pre_dx);
+////												h_bak_res_vtx_trk_lg_y[lg_mid-100]->Fill(pre_dx);
+////											}
+////										}
 //
 //
-//		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
-//		for(int i=0; i < n_tracks; i++){
-////			if(rk_fit_gtr100_mid->at(i) < 105 || rk_fit_gtr100_mid->at(i) > 107) continue;
-//			double chi2  = chi_square->at(i);
-//			int    mid   = rk_fit_gtr200_mid->at(i);
-//			double sts_t = rk_hit_sts_t->at(i);
-//			mids = {	rk_fit_sts_mid->at(i),
-//						rk_fit_gtr100_mid->at(i),						
-//						rk_fit_gtr200_mid->at(i),
-//						rk_fit_gtr300_mid->at(i)};
-//			resx = { rk_res_sts_x->at(i),
-//						rk_res_gtr100_x->at(i),
-//						rk_res_gtr200_x->at(i),
-//						rk_res_gtr300_x->at(i)};
-//			resy = { 0,
-//						rk_res_gtr100_y->at(i),
-//						rk_res_gtr200_y->at(i),
-//						rk_res_gtr300_y->at(i)};
-//			fitlxs   = { rk_fit_sts_x  ->at(i),
-//			   		 rk_fit_gtr100_x->at(i),
-//						 rk_fit_gtr200_x->at(i),
-//						 rk_fit_gtr300_x->at(i)};
-//			fitlys   = { 0,
-//			   		 rk_fit_gtr100_y->at(i),
-//						 rk_fit_gtr200_y->at(i),
-//						 rk_fit_gtr300_y->at(i)};
-//			tans = { rk_fit_sts_mom_x->at(i)/rk_fit_sts_mom_z->at(i),
-//						rk_fit_gtr100_mom_x->at(i)/rk_fit_gtr100_mom_z->at(i),
-//						rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i),
-//						rk_fit_gtr300_mom_x->at(i)/rk_fit_gtr300_mom_z->at(i)};
-//			xt4s = { 0, 
-//						rk_hit_gtr100_xt4->at(i),
-//						rk_hit_gtr200_xt4->at(i),
-//						rk_hit_gtr300_xt4->at(i)};
-//			
-//			double tgt_x = rk_fit_init_pos_gx->at(i);
-//			double tgt_y = rk_fit_init_pos_gy->at(i);
-//			double tgt_z = rk_fit_init_pos_gz->at(i);
-//			double tdiff100 = rk_hit_gtr100_xt->at(i) - rk_hit_gtr100_yt->at(i);
-//			double tdiff200 = rk_hit_gtr200_xt->at(i) - rk_hit_gtr200_yt->at(i);
-//			double tdiff300 = rk_hit_gtr300_xt->at(i) - rk_hit_gtr300_yt->at(i);
-//			h_chi2->Fill(chi2);
-//			h_chi2_mod[mid-100]->Fill(chi2);
-//			h_tgt_pos_mod_raw[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
-//			h_tgt_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
-//			h_tgt_proj_z_raw[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
-//			bool lg_flag = true;//run0c wire
-//			double smallest_lgt = 1000;
-////			for(int j=0; j < rk_proj_lg_t->size(); j++) {
-////				for( auto lgt : rk_proj_lg_t->at(j)){
-////					h_lg_t_mod[mid-100]->Fill(lgt);
-////					if(lgt > 0 ){ 
-////					lg_flag = true;
-////					if(smallest_lgt > lgt) smallest_lgt = lgt;
-////					}
-////				}
+//
+//
+//						}
+//					}
+//				}	
+//			}//analysis for pairs
+//
+//
+//// ------- analysis for 1 track ---- // 
+//			int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
+//         for(int i=0; i < n_tracks;i++){
+//				
+//				if(rk_fit_gtr200_mid->at(i) != 106)continue;
+//				std::cout << "i " << i << std::endl;
+//         	double chi2 = chi_square->at(i);
+//				mids = {	rk_fit_sts_mid->at(i),
+//					rk_fit_gtr100_mid->at(i),						
+//					rk_fit_gtr200_mid->at(i),
+//					rk_fit_gtr300_mid->at(i)};
+//				resx = { rk_res_sts_x->at(i),
+//							rk_res_gtr100_x->at(i),
+//							rk_res_gtr200_x->at(i),
+//							rk_res_gtr300_x->at(i)};
+//				pre_resx = { -999, -999, -999, -999};
+//				resy = { 0,
+//							rk_res_gtr100_y->at(i),
+//							rk_res_gtr200_y->at(i),
+//							rk_res_gtr300_y->at(i)};
+//				fitlxs   = { rk_fit_sts_x  ->at(i),
+//				   		 rk_fit_gtr100_x->at(i),
+//							 rk_fit_gtr200_x->at(i),
+//							 rk_fit_gtr300_x->at(i)};
+//				fitlys   = { 0,
+//				   		 rk_fit_gtr100_y->at(i),
+//							 rk_fit_gtr200_y->at(i),
+//							 rk_fit_gtr300_y->at(i)};
+//				tans = { rk_fit_sts_mom_x->at(i)/rk_fit_sts_mom_z->at(i),
+//							rk_fit_gtr100_mom_x->at(i)/rk_fit_gtr100_mom_z->at(i),
+//							rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i),
+//							rk_fit_gtr300_mom_x->at(i)/rk_fit_gtr300_mom_z->at(i)};
+//				xt4s = { 0, 
+//							rk_hit_gtr100_xt4->at(i),
+//							rk_hit_gtr200_xt4->at(i),
+//      					rk_hit_gtr300_xt4->at(i)};
+//				xadcs = {rk_hit_sts_adc->at(i), rk_hit_gtr100_xadc->at(i), rk_hit_gtr200_xadc->at(i), rk_hit_gtr300_xadc->at(i)};
+//				yadcs = {0, rk_hit_gtr100_yadc->at(i), rk_hit_gtr200_yadc->at(i), rk_hit_gtr300_yadc->at(i)};
+//
+//
+//				xcids = {-100, rk_hit_gtr100_xid->at(i), rk_hit_gtr200_xid->at(i), rk_hit_gtr300_xid->at(i)};
+//            xtotend = {-100,gtr100x_cluster_last_tot_end->at(i), gtr200x_cluster_last_tot_end->at(i), gtr300x_cluster_last_tot_end->at(i) };
+//				
+//
+//	double tgt_x = rk_fit_init_pos_gx->at(i);
+//	double tgt_y = rk_fit_init_pos_gy->at(i);
+//	double tgt_z = rk_fit_init_pos_gz->at(i);
+//	double tdiff100 = rk_hit_gtr100_xt->at(i) - rk_hit_gtr100_yt->at(i);
+//	double tdiff200 = rk_hit_gtr200_xt->at(i) - rk_hit_gtr200_yt->at(i);
+//	double tdiff300 = rk_hit_gtr300_xt->at(i) - rk_hit_gtr300_yt->at(i);
+//	int mid = mids[1];//mid is decided by gtr100
+//   bool lg_flag = true;
+//
+////	std::cout << "fitlx " << fitlxs[1] << std::endl;
+//
+//
+////	double smallest_lgt = 1000;
+////	for(int j=0; j < rk_proj_lg_t->size(); j++) {
+////		for( auto lgt : rk_proj_lg_t->at(j)){
+////			h_lg_t_mod[mid-100]->Fill(lgt);
+////			if(lgt > 0  && lgt< 90){ 
+////				lg_flag = true;
+////			if(smallest_lgt > lgt) smallest_lgt = lgt;
 ////			}
-////			double t0diff = smallest_lgt - 88;//run0d
-//			double t0diff =  sts_t;
-//			
-//// --- cut conditions --- //
-//			if(chi2 > chi2_th[mid-100]) continue; //chi2_cut
-//			h_tgt_proj_z_chi2cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
-//			if(fabs(tgt_y + 1) > tgty_cut) continue;
-////			if(xt4s[l] < timing_cut) continue;
-////			if(resx < res_min[mid-100]) continue;
-////			if(resx > res_max[mid-100]) continue;
-//			if(lg_flag) {
-//				int tgtid;
-//				if(tgt_z < 0) tgtid = 0;//up
-//				if(tgt_z > 0) tgtid = 1;//down
-//				for(int l=0; l < 4; l++){
-//					
-//					int ith_div = (fitlxs[l] + sideLen[l]/2 ) / (sideLen[l]/ n_div);	
-//					
-//					h_fitlx[tgtid][mids[l]-100][l]->Fill(fitlxs[l]);
-//					h_res_x[tgtid][mids[l]-100][l]->Fill(resx[l]);
-//					h_res_y[tgtid][mids[l]-100][l]->Fill(resy[l]);
-//					h_cor_res_fitlx[tgtid][mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
-//					h_cor_res_fitly[tgtid][mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
-//					h_cor_res_timing[tgtid][mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
-//					h_tan_theta[tgtid][mids[l]-100][l]     ->Fill(tans[l]);
-//					h_cor_dz_time[tgtid][mids[l]-100][l][ith_div]   ->Fill(xt4s[l], resx[l]/tans[l]);	
-//					h_cor_dz_time_t0cor[tgtid][mid-100][l][ith_div] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
-//					h_slopevel[tgtid][mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] );
-//				}
-//				h_tgt_proj_x[mid-100]->Fill(rk_fit_init_pos_gx->at(i));
-//				h_tgt_proj_y[mid-100]->Fill(rk_fit_init_pos_gy->at(i));
-//				h_trackmap[tgtid][mid-100]->Fill(fitlxs[1], fitlys[1]);
-//	//			if(fabs(rk_fit_init_pos_gx->at(i) + 1) > 4 ) continue;
-//	//			if(fabs(tgt_y+ 1.5) >1.5 ) continue;
-//	//			if(fabs(tdiff100-5) > 30) continue;
-//	//			if(fabs(tdiff200-5) > 30) continue;
-//	//			if(fabs(tdiff300-5) > 30) continue;
-//	//			if(fabs(tan) > 0.08){
-//	
-//				h_tgt_pos_mod_cut[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
-//				h_tgt_proj_z_cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
-//	//			std::cout << "t0fiff " << t0diff << std::endl;
-//				h_t0diff->Fill(t0diff);
-////			}
-//		}
+////		}
+////	}
+////	double t0diff = smallest_lgt - 88;//run0d
+//
+//
+//	for(int l=0; l < 4; l++){
+//	}
+//
+//	double tgt_range_center[10] = {0, -60, -60, -60, -60, 0, -60, -60, -60, -60};		
+//
+//		if (lg_flag){
+//		h_chi2->Fill(chi2);
+//		h_chi2_mod[mid-100]->Fill(chi2);
+//		h_tgt_pos_mod_raw[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
+//		h_init_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
+//		h_tgt_proj_z_raw[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
+//
+//
+//
+//			for(int m=100; m < 110; m++){
+//					if(mid ==m){//module id matching (with track)
+//						for(int l=0; l < 4; l++){
+//#ifdef NoExist_SSD
+//							if(l==0) continue;
+//#endif
+//							double lx = fitlxs[l];
+//							double ly = fitlys[l];
+//							double offset = 50 * (l );
+////								std::cout << "lx  = " << lx << std::endl; 
+//							int nth_div =  (lx + offset) / ((l*100)/n_div);
+//							int nth_divy = (ly + offset) / ((l*100)/n_div);
+////								std::cout << "nth div = " << nth_div << std::endl;
+//								h_cluster_timing_raw[m-100][l]->Fill(xt4s[l]);
+//								if(chi2 <  20){
+//										h_tgt_proj_z_chi2cut[m-100]->Fill(rk_fit_init_pos_gz->at(i));
+//
+//// ---  removed layer residual --- // 
+////
+//
+//#ifdef REMOVE_GTR100
+//	auto *clusters_x    = gtr100x_cluster_x;
+//	auto *clusters_xadc = gtr100x_cluster_adc;
+//	int n_clusters = n_gtr100x_clusters;
+//	double min_resx = 9999;
+//	for(int k=0; k < n_clusters; k++){
+//		if(clusters_xadc->at(k) < kGTRFakeADC ){
+//		double resx = fitlxs[1] - clusters_x->at(k);
+//			if(resx < min_resx){
+//				min_resx = resx;
+//			}
 //		}
 //	}
+//	resx[1] = min_resx;//residual 
+//#elif  REMOVE_GTR200
+//	auto *clusters_x    = gtr200x_cluster_x;
+//	auto *clusters_xadc = gtr200x_cluster_adc;
+//	auto *clusters_mids = gtr200x_cluster_mid	;
+//	int n_clusters = n_gtr200x_clusters;
+//	double min_resx = 9999;
+//   double pre_min_resx = 9999;
+//	for(int k=0; k < n_clusters; k++){
+////		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
+//		if(clusters_mids->at(k) == mids[2]){
+//			if(clusters_xadc->at(k) < kGTRFakeADC ){
+//				
+//				double resx = fitlxs[2] - clusters_x->at(k);
+//				if(resx < min_resx){
+//					min_resx = resx;
+//				}
+//			}
+//		}
+//	}
+//	resx[2] = min_resx;
+//   for(int k=0; k < pre_n_clusters; k++){
+//		if(pre_clusters_mids[k] == mids[2]){
+//			if(pre_clusters_xadc[k] < kGTRFakeADC ){
+//				double resx = fitlxs[2] - pre_clusters_x[k];
+//				if(resx < pre_min_resx){
+//					pre_min_resx = resx;
+//				}
+//			}
+//		}
+//	}
+//	pre_resx[2] = pre_min_resx;
+//   
+//
+//
+//#elif REMOVE_GTR300
+//	auto *clusters_x    = gtr300x_cluster_x;
+//	auto *clusters_xadc = gtr300x_cluster_adc;
+//	int n_clusters = n_gtr300x_clusters;
+//	double min_resx = 9999;
+//	for(int k=0; k < n_clusters; k++){
+//		if(clusters_xadc->at(k) < kGTRFakeADC ){
+//		double resx = fitlxs[3] - clusters_x->at(k);
+//			if(resx < min_resx){
+//				min_resx = resx;
+//			}
+//		}
+//	}
+//	resx[3] = min_resx;//residual 
+//#endif
+//
+////---  LG residual
+//										 mplgy = rk_fit_lg_b_gy->at(i);
+//										 plgx  = rk_fit_lg_b_x->at(i);
+//										if(fabs(mplgy) > 260){
+//											plgx = rk_fit_lg_c_x->at(i);
+//										}
+//										if(fabs(mplgy) < 150){
+//											plgx = rk_fit_lg_a_x->at(i);
+//										}
+//										double lg_near = -9999;
+//										double mind =9999;
+//										int nlg = 0;
+//										bool assoc_fore = false;
+//										bool assoc_bg = false;
+//										for(int k=0; k < n_lg_hits;k++){
+//											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+//												int lg_mid = lg_hit_mid->at(k);
+//												if(lg_hit_adc->at(k) < 10) continue;
+//								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
+//												double dx     = lg_hit_x->at(k) - plgx;
+//												double dy     = lg_hit_gy->at(k) - mplgy;
+////												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
+////												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
+//												h_res_lg_x[lg_mid-100]->Fill(dx);
+//												h_res_lg_y[lg_mid-100]->Fill(dx);
+//												h_res_lg_2d[lg_mid-100]->Fill(dx, dy);
+//												if(fabs(dx) < 80 & fabs(dy) < 80 ){
+//													assoc_fore = true;
+//												}
+//											}
+//										}
+////			------ previous ----- //					
+//									for(int k=0; k < pre_n_lg_hits;k++){
+//										if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
+//											int lg_mid = pre_lg_hit_mid[k];
+//											if(pre_lg_hit_adc[k] < 10) continue;
+//										double pre_dx = pre_lg_hit_x[k]  - plgx;
+//										double pre_dy = pre_lg_hit_gy[k] - mplgy;
+//										h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
+//										h_bak_res_lg_y[lg_mid-100]->Fill(pre_dx);
+//										h_bak_res_lg_2d[lg_mid-100]->Fill(pre_dx, pre_dy);
+//											if(fabs(pre_dx) < 80 & fabs(pre_dy) < 80){
+//													assoc_bg = true;
+//											}
+//										}
+//									}
+//									if(assoc_fore){
+//										cnt_lgres_fore[rk_fit_lg_b_mid->at(i)-100]++;
+//										std::cout << "associated  " << std::endl;
+//									}
+//									if(assoc_bg){
+//										cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
+//									}
+//									h_res_x[mids[l]-100][l]->Fill(resx[l]);
+//									h_pre_res_x[mids[l]-100][l]->Fill(pre_resx[l]);
+//									h_res_y[mids[l]-100][l]->Fill(resy[l]);
+//									h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
+////									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
+////									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
+////									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
+////									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+//									h_cor_res_fitlx[mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
+//									h_cor_res_fitly[mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
+//									h_cor_res_timing[mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
+//									h_tan_theta[mids[l]-100][l]     ->Fill(tans[l]);
+//									h_cor_dz_time[mids[l]-100][l]   ->Fill(xt4s[l], resx[l]/tans[l]);	
+////									h_cor_dz_time_t0cor[mid-100][l] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
+////										h_slopevel[mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] ); 
+//
+//
+//									if(m == 102){
+//									if(-25 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
+//										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+//									} else {
+//										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+//									}
+//									}
+//									else if(m == 103){
+//									if(-20 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
+//										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+//									} else {
+//										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+//									}
+//									}
+//
+//
+//									else if(m == 104){
+//									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
+//										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+//									} else {
+//										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+//									}
+//									}
+//
+//									else if(m == 106){
+//									if(-15 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 32){
+//										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+//									} else {
+//										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+//									}
+//									}
+//									else if(m == 107){
+//									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 20){
+//										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+//									} else {
+//										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+//									}
+//									}
+//									else {
+//									if(-30 < rk_fit_init_pos_gz->at(i) && rk_fit_init_pos_gz->at(i) < 30){
+//										h_tot_end_fr[m-100][l]->Fill(xtotend[l]);
+//									} else {
+//										h_tot_end_bg[m-100][l]->Fill(xtotend[l]);
+//									}
+//									}
+//
+//		         			}
+//
+//						}
+//					}
+//				}
+//				}
+//												pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
+//												pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
+//			}
+//
+//#ifndef REMOVE_NOLAYER
+//#ifdef REMOVE_GTR100
+//	pre_n_clusters    = n_gtr100x_clusters;
+//   pre_clusters_x.resize(pre_n_clusters); 
+//   pre_clusters_xadc.resize(pre_n_clusters); 
+//   pre_clusters_mids.resize(pre_n_clusters); 
+//	for(int k=0; k < pre_n_clusters;k++){
+//		pre_clusters_x[k]    = gtr100x_cluster_x->at(k);
+//		pre_clusters_xadc[k] = gtr100x_cluster_adc->at(k);
+//		pre_clusters_mids[k] = gtr100x_cluster_mid->at(k);
+//	}
+//
+//
+//	
+//#elif REMOVE_GTR200
+//	pre_n_clusters    = n_gtr200x_clusters;
+//   pre_clusters_x.resize(pre_n_clusters); 
+//   pre_clusters_xadc.resize(pre_n_clusters); 
+//   pre_clusters_mids.resize(pre_n_clusters); 
+//	for(int k=0; k < pre_n_clusters;k++){
+//		pre_clusters_x[k]    = gtr200x_cluster_x->at(k);
+//		pre_clusters_xadc[k] = gtr200x_cluster_adc->at(k);
+//		pre_clusters_mids[k] = gtr200x_cluster_mid->at(k);
+//	}
+//
+//#elif REMOVE_GTR300
+//	pre_n_clusters    = n_gtr300x_clusters;
+//   pre_clusters_x.resize(pre_n_clusters); 
+//   pre_clusters_xadc.resize(pre_n_clusters); 
+//   pre_clusters_mids.resize(pre_n_clusters); 
+//	for(int k=0; k < pre_n_clusters;k++){
+//		pre_clusters_x[k]    = gtr300x_cluster_x->at(k);
+//		pre_clusters_xadc[k] = gtr300x_cluster_adc->at(k);
+//		pre_clusters_mids[k] = gtr300x_cluster_mid->at(k);
+//	}
+//#endif
+//#endif 
+//
+//		pre_n_lg_hits = n_lg_hits;
+//		pre_lg_hit_mid.resize(n_lg_hits);
+//		pre_lg_hit_adc.resize(n_lg_hits);
+//		pre_lg_hit_x .resize(n_lg_hits);
+//		pre_lg_hit_gy.resize(n_lg_hits);
+//		for(int k=0; k < n_lg_hits; k++){
+//			pre_lg_hit_mid[k] = lg_hit_mid->at(k);
+//			pre_lg_hit_adc[k] = lg_hit_adc->at(k);
+//			pre_lg_hit_x[k]  =  lg_hit_x->at(k);
+//			pre_lg_hit_gy[k] =  lg_hit_gy->at(k);
+//		}
+//	}
+//   fout->Write();
 //
 //	TCanvas *c0 = new TCanvas();
 //	c0->SaveAs(pdf_name + "[", "pdf");
 //	gStyle->SetOptStat(1111111);
 //	gStyle->SetOptFit(0111);
 //
-//	TCanvas *c00 = new TCanvas();
-//	c00->Divide(2,2);
-//	c00->cd(1);
-//	h_n_runid->Draw();
-//	c00->cd(2);
-//	h_n_eventid->Draw();
-//	c00->cd(3);
-//	h_n_spillid->Draw();
-//	c00->SaveAs(pdf_name, "pdf");
+//	TCanvas *c_vtx = new TCanvas();
+//		c_vtx->Divide(3,2);
+//		c_vtx->cd(1);
+//		h_vtx_gx->Fit("gaus", "", "", -2, 3);
+//		h_vtx_gx->Draw();
+//		c_vtx->cd(2);
+//		h_vtx_gy->Fit("gaus", "", "", -3, 1);
+//		h_vtx_gy->Draw();
+//		c_vtx->cd(3);
+//		h_vtx_gz->Draw();
+//		c_vtx->cd(4);
+//		h_vtx_gx_gz->Draw("colz");
+//		c_vtx->cd(5);
+//		h_vtx_gx_gy->Draw("colz");
+//   c_vtx->SaveAs(pdf_name, "pdf");
 //
-////module 106 focus
-//	int fixm = 106;
-//	TCanvas *c1 = new TCanvas();
-//	c1->Divide(4,2);
-//	for(int l=0; l < 4; l++){
-//		c1->cd(l+1);
-//		h_res_x[0][6][l]->Draw();
-//		c1->cd(5+l);
-//		h_res_x[1][6][l]->Draw();
+//
+//  TCanvas *c_res_v[10];
+//  for(int m =1; m < 9; m++){ 
+//    c_res_v[m]= new TCanvas(); 
+//    c_res_v[m]->Divide(2,2);
+//    for(int l=0; l < n_layer; l++){
+//     c_res_v[m]->cd(1+l);
+//     if(m < 5) {
+//        h_res_vtx_trk_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
+//        h_res_vtx_trk_x[m][l]->Draw("colz");
+//     }
+//     else {
+//        h_res_vtx_trk_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
+//        h_res_vtx_trk_x[m+1][l]->Draw("colz");
+//     }
+//	 }
+//    c_res_v[m]->SaveAs(pdf_name, "pdf");
+//  }
+//
+//
+//	TCanvas *cv_lgres;
+//	cv_lgres = new TCanvas();
+//	cv_lgres->Divide(4,2);
+//	for(int mid=101; mid < 110; mid++){
+//		if(mid == 105) continue;
+//		if(mid < 105){
+//		cv_lgres->cd(mid-100);
+//		h_res_vtx_trk_lg_x[mid-100]->Draw();
+//		h_bak_res_vtx_trk_lg_x[mid-100]->SetLineColor(kRed);
+//		h_bak_res_vtx_trk_lg_x[mid-100]->Draw("same");
+//		}
+//	   else if(mid > 105){
+//			cv_lgres->cd(mid-101);
+//			h_res_vtx_trk_lg_x[mid-100]->Draw();
+//			h_bak_res_vtx_trk_lg_x[mid-100]->SetLineColor(kRed);
+//			h_bak_res_vtx_trk_lg_x[mid-100]->Draw("same");
+//			
+//		}
+//   }
+//	cv_lgres->SaveAs(pdf_name, "pdf");
+//
+//
+//
+//
+//	TCanvas *c2[n_module];
+//	for(int m =1; m < 9; m++){
+//	   c2[m]= new TCanvas();
+//		c2[m]->Divide(2,2);
+//		for(int l=0; l < 4; l++){
+//   		c2[m]->cd(l+1);
+//	      if(m < 5) {
+//      	   h_cluster_timing_raw[m][l]->Draw("colz");
+//   	   }
+// 	     else {
+//         	h_cluster_timing_raw[m][l]->Draw("colz");
+//      	}
+//   	}
+//   c2[m]->SaveAs(pdf_name, "pdf");
 //	}
-//	c1->SaveAs(pdf_name, "pdf");
 //
-//	TCanvas *c200 = new TCanvas();
-//	c200->Divide(4,2);
-//	for(int l=0; l < 4; l++){
-//		c200->cd(l+1);
-//		h_fitlx[0][6][l]->Draw();
-//		c200->cd(5+l);
-//		h_fitlx[1][6][l]->Draw();
+//
+//	TCanvas *c2_chi[n_module];
+//	for(int m =1; m < 9; m++){
+//	   c2_chi[m]= new TCanvas();
+//		c2_chi[m]->Divide(2,2);
+//		for(int l=0; l < 4; l++){
+//   		c2_chi[m]->cd(l+1);
+//	      if(m < 5) {
+//      	   h_cluster_timing_chi2[m][l]->Draw();
+//   	   }
+// 	     else {
+//         	h_cluster_timing_chi2[m][l]->Draw();
+//      	}
+//   	}
+//   c2_chi[m]->SaveAs(pdf_name, "pdf");
 //	}
-//	c200->SaveAs(pdf_name, "pdf");
+//
+//TCanvas *c03 = new TCanvas();
+//h_init_pos->Draw("colz");
+//c03->SaveAs(pdf_name, "pdf");
 //
 //
+//	TCanvas *c22[n_module];
+//	for(int m =1; m < 9; m++){
+//	   c22[m]= new TCanvas();
+//		c22[m]->Divide(2,2);
+//		for(int l=0; l < 4; l++){
+//   		c22[m]->cd(l+1);
+//	      if(m < 5) {
+//      	   h_tot_end_fr[m][l]->Draw();
+//      	   h_tot_end_bg[m][l]->Scale(h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries());
+//      	   std::cout << "scale " << h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries() << std::endl;
+//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+//      	   h_tot_end_bg[m][l]->Draw("same");
+//   	   }
+// 	     else {
+//         	h_tot_end_fr[m][l]->Draw();
+//      	   h_tot_end_bg[m][l]->Scale(h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries());
+//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+//         	h_tot_end_bg[m][l]->Draw("same");
+//      	}
+//   	}
+//   c22[m]->SaveAs(pdf_name, "pdf");
+//	}
 //
 //
-//   TCanvas *c100 = new TCanvas();
-//	c100->Divide(2,1);      
-//   c100->cd(1); h_tgt_proj_z_raw[6]->Draw("colz"); c100->SaveAs(pdf_name, "pdf");
-//	
+//	TCanvas *c23[n_module];
+//	for(int m =1; m < 9; m++){
+//	   c23[m]= new TCanvas();
+//		c23[m]->Divide(2,2);
+//		for(int l=0; l < 4; l++){
+//   		c23[m]->cd(l+1);
+//	      if(m < 5) {
+//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+//      	   h_tot_end_bg[m][l]->Draw("same");
+//   	   }
+// 	     else {
+//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
+//         	h_tot_end_bg[m][l]->Draw("same");
+//      	}
+//   	}
+//   c23[m]->SaveAs(pdf_name, "pdf");
+//	}
 //
-//	 TCanvas *c310[2][10];
-//    TGraphErrors *gr[2][10];
-//    TGraphErrors *gr_mean[2][10];
-//    TH1D *h1[10];
-//    TF1 *f1[10];
-//	 int hmid = 106;
-//    c310[0][hmid-100] = new TCanvas();
-//    c310[1][hmid-100] = new TCanvas();
-//    c310[0][hmid-100]->Divide(5,5);
-//    c310[1][hmid-100]->Divide(5,5);
-//	 for(int t=0; t < 2; t++){
-//    int n = h_cor_res_fitlx[t][hmid-100][fixl]->GetNbinsX();
-//    double xmin = -2;
-//    double xmax =  2;
-//    std::cout << "nbins = " << n << std::endl;
-//    gr[t][hmid-100] = new TGraphErrors(n);
-//    gr_mean[t][hmid-100] = new TGraphErrors(n);
-//     for (int i = 1; i <= n; i++) {
-//       c310[t][hmid-100]->cd(i);
-//        h1[hmid-100] = h_cor_res_fitlx[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
-// //    f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
-////       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-//       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0)",      xmin, xmax);
-////       f1[hmid-100]->SetParameter(0, 500);   // constant
-//       f1[hmid-100]->SetParameter(1, 0);     // mean
-////       f1[hmid-100]->SetParLimits(1, -2, 2); // mean
-////       f1[hmid-100]->SetParameter(2, 0.3);
-////       f1[hmid-100]->SetParLimits(2, 0.1, 1);
-////       f1[hmid-100]->SetParameter(3, 0);
-////       f1[hmid-100]->SetParameter(4, -1);
-//        h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
-//	     double mean = f1[hmid-100]->GetParameter(1);
-//	     double mean_err = f1[hmid-100]->GetParError(1);
-//       double sigma = f1[hmid-100]->GetParameter(2);
-//        double sigma_err = f1[hmid-100]->GetParError(2);
-//       std::cout << "sigma = " << sigma << std::endl;
-//        gr[t][hmid-100]->SetPoint(i-1, -100 + 200/n * i + 200/n/2, sigma);
-//        gr[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
-//        gr_mean[t][hmid-100]->SetPoint(i-1, -100+ 200/n * i + 200/n/2, mean);
-//        gr_mean[t][hmid-100]->SetPointError(i-1, 0, mean_err);
-//       h1[hmid-100]->Draw();
-//    }
-//          c310[t][hmid-100]->cd(24);
-//			
-//          gr[t][hmid-100]->Draw("AP");
-//          c310[t][hmid-100]->cd(25);
-//				gr_mean[t][hmid-100]->SetMaximum(1.0);
-//				gr_mean[t][hmid-100]->SetMinimum(-1.0);
-//				gr_mean[t][hmid-100]->SetLineStyle(0);
-//          gr_mean[t][hmid-100]->Draw("AP");
-//          c310[t][hmid-100]->SaveAs(pdf_name, "pdf");
-//		}//target loop
-//
-//
-//	 TCanvas *c311[2][10];
-//    TGraphErrors *gry[2][10];
-//    TGraphErrors *gry_mean[2][10];
-//    TH1D *h1y[10];
-//    TF1 *f1y[10];
-//    c311[0][hmid-100] = new TCanvas();
-//    c311[1][hmid-100] = new TCanvas();
-//    c311[0][hmid-100]->Divide(5,5);
-//    c311[1][hmid-100]->Divide(5,5);
-//	 for(int t=0; t < 2; t++){
-//    int n = h_cor_res_fitly[t][hmid-100][fixl]->GetNbinsX();
-//    double xmin = -2;
-//    double xmax =  2;
-//    std::cout << "nbins = " << n << std::endl;
-//    gry[t][hmid-100] = new TGraphErrors(n);
-//    gry_mean[t][hmid-100] = new TGraphErrors(n);
-//     for (int i = 1; i <= n; i++) {
-//       c311[t][hmid-100]->cd(i);
-//        h1y[hmid-100] = h_cor_res_fitly[t][hmid-100][fixl]->ProjectionY(Form("_pjy%d%d", hmid, i), i, i     );
-//     f1y[hmid-100] = new TF1(Form("f1y%d%d",hmid, i), "gaus");
-////       f1y[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-//       f1y[hmid-100]->SetParameter(0, 500);   // constant
-//       f1y[hmid-100]->SetParameter(1, 0);     // mean
-//       f1y[hmid-100]->SetParLimits(1, -2, 2); // mean
-//       f1y[hmid-100]->SetParameter(2, 0.3);
-//       f1y[hmid-100]->SetParLimits(2, 0.1, 1);
-//       f1y[hmid-100]->SetParameter(3, 0);
-//       f1y[hmid-100]->SetParameter(4, -1);
-//        h1y[hmid-100]->Fit(f1y[hmid-100], "", "", xmin, xmax);
-//	     double mean = f1y[hmid-100]->GetParameter(1);
-//	     double mean_err = f1y[hmid-100]->GetParError(1);
-//       double sigma = f1y[hmid-100]->GetParameter(2);
-//        double sigma_err = f1y[hmid-100]->GetParError(2);
-//       std::cout << "sigma = " << sigma << std::endl;
-//        gry[t][hmid-100]->SetPoint(i-1, -100 + 200/n * i + 200/n/2, sigma);
-//        gry[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
-//        gry_mean[t][hmid-100]->SetPoint(i-1, -100+ 200/n * i + 200/n/2, mean);
-//        gry_mean[t][hmid-100]->SetPointError(i-1, 0, mean_err);
-//       h1y[hmid-100]->Draw();
-//    }
-//          c311[t][hmid-100]->cd(24);
-//			
-//          gry[t][hmid-100]->Draw("AP");
-//          c311[t][hmid-100]->cd(25);
-//				gry_mean[t][hmid-100]->SetMaximum(1.0);
-//				gry_mean[t][hmid-100]->SetMinimum(-1.0);
-//				gry_mean[t][hmid-100]->SetLineStyle(0);
-//          gry_mean[t][hmid-100]->Draw("AP");
-//          c311[t][hmid-100]->SaveAs(pdf_name, "pdf");
-//		}//target loop
-//
-//
-//	TCanvas *c333 = new TCanvas();
-//	h_cor_res_timing[0][6][2]->Draw();
-//	c333->SaveAs(pdf_name, "pdf");
-//
-//	 TCanvas *c31t[2][10];
-//    TGraphErrors *grt[2][10];
-//    TGraphErrors *grt_mean[2][10];
-//    TH1D *h1t[10];
-//    TF1 *f1t[10];
-//    c31t[0][hmid-100] = new TCanvas();
-//    c31t[1][hmid-100] = new TCanvas();
-//    c31t[0][hmid-100]->Divide(5,5);
-//    c31t[1][hmid-100]->Divide(5,5);
-//	 for(int t=0; t < 2; t++){
-//    int n = h_cor_res_timing[t][hmid-100][fixl]->GetNbinsX();
-//    double xmin = -2;
-//    double xmax =  2;
-//    std::cout << "nbins = " << n << std::endl;
-//    grt[t][hmid-100] = new TGraphErrors(n);
-//    grt_mean[t][hmid-100] = new TGraphErrors(n);
-//     for (int i = 1; i <= n; i++) {
-//       c31t[t][hmid-100]->cd(i);
-//        h1t[hmid-100] = h_cor_res_timing[t][hmid-100][fixl]->ProjectionY(Form("_pjt%d%d", hmid, i), i, i     );
-//     f1t[hmid-100] = new TF1(Form("f1t%d%d",hmid, i), "gaus");
-////       f1t[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-//       f1t[hmid-100]->SetParameter(0, 500);   // constant
-//       f1t[hmid-100]->SetParameter(1, 0);     // mean
-//       f1t[hmid-100]->SetParLimits(1, -2, 2); // mean
-//       f1t[hmid-100]->SetParameter(2, 0.3);
-//       f1t[hmid-100]->SetParLimits(2, 0.1, 1);
-//       f1t[hmid-100]->SetParameter(3, 0);
-//       f1t[hmid-100]->SetParameter(4, -1);
-//        h1t[hmid-100]->Fit(f1t[hmid-100], "", "", xmin, xmax);
-//	     double mean = f1t[hmid-100]->GetParameter(1);
-//	     double mean_err = f1t[hmid-100]->GetParError(1);
-//       double sigma = f1t[hmid-100]->GetParameter(2);
-//        double sigma_err = f1t[hmid-100]->GetParError(2);
-//       std::cout << "sigma = " << sigma << std::endl;
-//        grt[t][hmid-100]->SetPoint(i-1,   600/n * i + 600/n/2, sigma);
-//        grt[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
-//        grt_mean[t][hmid-100]->SetPoint(i-1, 600/n * i + 600/n/2, mean);
-//        grt_mean[t][hmid-100]->SetPointError(i-1, 0, mean_err);
-//       h1t[hmid-100]->Draw();
-//    }
-//          c31t[t][hmid-100]->cd(24);
-//			
-//          grt[t][hmid-100]->Draw("AP");
-//          c31t[t][hmid-100]->cd(25);
-//				grt_mean[t][hmid-100]->SetMaximum(1.0);
-//				grt_mean[t][hmid-100]->SetMinimum(-1.0);
-//			 grt_mean[t][hmid-100]->SetLineStyle(0);
-//          grt_mean[t][hmid-100]->Draw("AP");
-//          c31t[t][hmid-100]->SaveAs(pdf_name, "pdf");
-//		}//target loop
-//
-//
-////
-//
-//	double msize = 0.4;
-//	TCanvas *c312 = new TCanvas();
-//	c312->Divide(2,2);
-//	c312->cd(1);
-//	gr[0][6]->SetTitle("residual vs local x  ");
-//	gr[0][6]->GetYaxis()->SetTitle("residual sigma [mm]");
-//	gr[0][6]->GetXaxis()->SetRangeUser(-100, 100);
-//	gr[0][6]->GetXaxis()->SetTitle("local x [mm]");
-//	gr[0][6]->SetMarkerStyle(20);
-//	gr[1][6]->SetMarkerStyle(21);
-//	gr[0][6]->SetMarkerSize(msize);
-//	gr[1][6]->SetMarkerSize(msize);
-//	gr[1][6]->SetMarkerColor(kRed);
-//	gr[0][6]->Draw("AP");
-//	gr[1][6]->SetLineColor(kRed);
-//	gr[1][6]->Draw("P SAME");
-//
-//	c312->cd(2);
-//	gry[0][6]->SetTitle("residual vs localy ");
-//	gry[0][6]->GetYaxis()->SetTitle("residual sigma [mm]");
-//	gry[0][6]->GetXaxis()->SetRangeUser(-100, 100);
-//	gry[0][6]->GetXaxis()->SetTitle("local y [mm]");
-//	gry[0][6]->SetMarkerStyle(20);
-//	gry[1][6]->SetMarkerStyle(21);
-//	gry[0][6]->SetMarkerSize(msize);
-//	gry[1][6]->SetMarkerSize(msize);
-//	gry[1][6]->SetMarkerColor(kRed);
-//	gry[0][6]->Draw("AP");
-//	gry[1][6]->SetLineColor(kRed);
-//	gry[1][6]->Draw("P SAME");
-//
-//   c312->cd(3);
-//	grt[0][6]->SetTitle("residual vs timing ");
-//	grt[0][6]->GetYaxis()->SetTitle("residual sigma [mm]");
-//	grt[0][6]->GetXaxis()->SetRangeUser(0, 600);
-//	grt[0][6]->GetXaxis()->SetTitle("timing x [ns]");
-//	grt[0][6]->SetMarkerStyle(20);
-//	grt[1][6]->SetMarkerStyle(21);
-//	grt[0][6]->SetMarkerSize(msize);
-//	grt[1][6]->SetMarkerSize(msize);
-//	grt[1][6]->SetMarkerColor(kRed);
-//	grt[0][6]->Draw("AP");
-//	grt[1][6]->SetLineColor(kRed);
-//	grt[1][6]->Draw("P SAME");
-//	c312->SaveAs(pdf_name, "pdf");
-//
-//	TCanvas *c313 = new TCanvas();
-//	c313->Divide(2,2);
-//	c313->cd(1);
-//	gr_mean[0][6]->SetTitle("residual vs local x mean ");
-//	gr_mean[0][6]->GetYaxis()->SetTitle("residual mean [mm]");
-//	gr_mean[0][6]->GetXaxis()->SetRangeUser(-100, 100);
-//	gr_mean[0][6]->GetXaxis()->SetTitle("local x [mm]");
-//	gr_mean[0][6]->SetMarkerStyle(20);
-//	gr_mean[1][6]->SetMarkerStyle(21);
-//	gr_mean[1][6]->SetMarkerColor(kRed);
-//	gr_mean[0][6]->SetMarkerSize(msize);
-//	gr_mean[1][6]->SetMarkerSize(msize);
-//	gr_mean[0][6]->Draw("AP");
-//	gr_mean[1][6]->SetLineColor(kRed);
-//	gr_mean[1][6]->Draw("P SAME");
-//	c313->cd(2);
-//	gry_mean[0][6]->SetTitle("residual vs localy mean ");
-//	gry_mean[0][6]->GetYaxis()->SetTitle("residual mean [mm]");
-//	gry_mean[0][6]->GetXaxis()->SetRangeUser(-100, 100);
-//	gry_mean[0][6]->GetXaxis()->SetTitle("local y [mm]");
-//	gry_mean[0][6]->SetMarkerStyle(20);
-//	gry_mean[1][6]->SetMarkerStyle(21);
-//	gry_mean[1][6]->SetMarkerColor(kRed);
-//	gry_mean[0][6]->SetMarkerSize(msize);
-//	gry_mean[1][6]->SetMarkerSize(msize);
-//	gry_mean[0][6]->Draw("AP");
-//	gry_mean[1][6]->SetLineColor(kRed);
-//	gry_mean[1][6]->Draw("P SAME");
-//	c313->cd(3);
-//	grt_mean[0][6]->SetTitle("residual mean vs timing ");
-//	grt_mean[0][6]->GetYaxis()->SetTitle("residual mean [mm]");
-//	grt_mean[0][6]->GetXaxis()->SetRangeUser(0, 600);
-//	grt_mean[0][6]->GetXaxis()->SetTitle("timing x [ns]");
-//	grt_mean[0][6]->SetMarkerStyle(20);
-//	grt_mean[1][6]->SetMarkerStyle(21);
-//	grt_mean[1][6]->SetMarkerColor(kRed);
-//	grt_mean[0][6]->SetMarkerSize(msize);
-//	grt_mean[1][6]->SetMarkerSize(msize);
-//	grt_mean[0][6]->Draw("AP");
-//	grt_mean[1][6]->SetLineColor(kRed);
-//	grt_mean[1][6]->Draw("P SAME");
-//
-//
-//	c313->SaveAs(pdf_name, "pdf");
-//
-//
-//	
-//
-//
-//
-//
-//	TCanvas *c01 = new TCanvas();
-//	h_chi2->Draw();
-//	c01->SaveAs(pdf_name, "pdf");
-//
-//
-//	TCanvas *c02 = new TCanvas();
-//	c02->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      c02->cd(i);
-//      if(i < 5) {
-//         h_chi2_mod[i]->Draw("colz");
-//      }
-//      else {
-//         h_chi2_mod[i+1]->Draw("colz");
-//      }
-//   }
-//   c02->SaveAs(pdf_name, "pdf");
-//
-//	TCanvas *clgt = new TCanvas();
-//	clgt->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      clgt->cd(i);
-//      if(i < 5) {
-//         h_lg_t_mod[i]->Draw("colz");
-//      }
-//      else {
-//         h_lg_t_mod[i+1]->Draw("colz");
-//      }
-//   }
-//   clgt->SaveAs(pdf_name, "pdf");
-//
-//
-//
-//
-//	TCanvas *chit = new TCanvas();
-//	chit->Divide(8,2);
-//	for(int i =1; i < 9; i++){
-//      chit->cd(i);
-//      if(i < 5) {
-//         h_trackmap[0][i]->Draw("colz");
-//			chit->cd(i+8);
-//			h_trackmap[1][i]->Draw("colz");
-//      }
-//      else {
-//         h_trackmap[0][i+1]->Draw("colz");
-//			chit->cd(i+8);
-//         h_trackmap[1][i+1]->Draw("colz");
-//      }
-//   }
-//   chit->SaveAs(pdf_name, "pdf");
-//
-//	
-//
-//
-//
-//
-//	TCanvas *c03a = new TCanvas();
-//	c03a->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      c03a->cd(i);
-//      if(i < 5) {
-//         h_tgt_pos_mod_raw[i]->Draw("colz");
-//      }
-//      else {
-//         h_tgt_pos_mod_raw[i+1]->Draw("colz");
-//      }
-//   }
-//   c03a->SaveAs(pdf_name, "pdf");
-//
-//	TCanvas *c03b = new TCanvas();
-//	c03b->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      c03b->cd(i);
-//      if(i < 5) {
-//         h_tgt_pos_mod_cut[i]->Draw("colz");
-//      }
-//      else {
-//         h_tgt_pos_mod_cut[i+1]->Draw("colz");
-//      }
-//   }
-//   c03b->SaveAs(pdf_name, "pdf");
 //
 //
 //
@@ -2523,345 +2249,1482 @@ c03->SaveAs(pdf_name, "pdf");
 //   c04a->SaveAs(pdf_name, "pdf");
 //
 //
-//
-//	TCanvas *c04x = new TCanvas();
-//	c04x->Divide(4,2);
+//	TCanvas *clgt = new TCanvas();
+//	clgt->Divide(4,2);
 //	for(int i =1; i < 9; i++){
-//      c04x->cd(i);
+//      clgt->cd(i);
 //      if(i < 5) {
-//         h_tgt_proj_x[i]->Draw("colz");
+//         h_lg_t_mod[i]->Draw("colz");
 //      }
 //      else {
-//         h_tgt_proj_x[i+1]->Draw("colz");
+//         h_lg_t_mod[i+1]->Draw("colz");
 //      }
 //   }
-//   c04x->SaveAs(pdf_name, "pdf");
+//   clgt->SaveAs(pdf_name, "pdf");
 //
-//	TCanvas *c04y = new TCanvas();
-//	c04y->Divide(4,2);
+//
+//
+//	TCanvas *c01 = new TCanvas();
+//	h_chi2->Draw();
+//	c01->SaveAs(pdf_name, "pdf");
+//
+//
+//	TCanvas *c02 = new TCanvas();
+//	c02->Divide(4,2);
 //	for(int i =1; i < 9; i++){
-//      c04y->cd(i);
+//      c02->cd(i);
 //      if(i < 5) {
-//         h_tgt_proj_y[i]->Draw("colz");
+//         h_chi2_mod[i]->Draw("colz");
 //      }
 //      else {
-//         h_tgt_proj_y[i+1]->Draw("colz");
+//         h_chi2_mod[i+1]->Draw("colz");
 //      }
 //   }
-//   c04y->SaveAs(pdf_name, "pdf");
-//
-////	TCanvas *c1 = new TCanvas();
-////	c1->Divide(4,2);
-////	for(int i =1; i < 9; i++){
-////      c1->cd(i);
-////      if(i < 5) {
-////         h_res_x[i][fixl]->Draw("colz");
-////      }
-////      else {
-////         h_res_x[i+1][fixl]->Draw("colz");
-////      }
-////   }
-////   c1->SaveAs(pdf_name, "pdf");
-////
-////	TCanvas *c2 = new TCanvas();
-////	c2->Divide(4,2);
-////	for(int i =1; i < 9; i++){
-////      c2->cd(i);
-////      if(i < 5) {
-////         h_res_y[i][fixl]->Draw("colz");
-////      }
-////      else {
-////         h_res_y[i+1][fixl]->Draw("colz");
-////      }
-////   }
-////   c2->SaveAs(pdf_name, "pdf");
-////
-////	TCanvas *c3 = new TCanvas();
-////	c3->Divide(4,2);
-////	for(int i =1; i < 9; i++){
-////      c3->cd(i);
-////      if(i < 5) {
-////         h_tan_theta[t][i][fixl]->Draw("colz");
-////      }
-////      else {
-////         h_tan_theta[i+1][fixl]->Draw("colz");
-////      }
-////   }
-////   c3->SaveAs(pdf_name, "pdf");
+//   c02->SaveAs(pdf_name, "pdf");
 //
 //
 //
+//	TCanvas *c3[n_module];
+//   for(int m=0; m < n_module;m++){
+//		c3[m] = new TCanvas();
+//		c3[m]->Divide(n_div,3 );
+//		for(int l=1; l<4; l++){
+//			for(int div=0; div < n_div; div++){
+//			   c3[m]->cd(div + 1 + n_div * (l-1) );
+//				h_cluster_timing_chi2_xdependence[m][l][div]->Draw();
+//			}
+//		}
+//	c3[m]->SaveAs(pdf_name, "pdf");
+//	}
 //
-////
-////	TCanvas *c31[10];
-////    TGraphErrors *gr[10];
-////    TGraphErrors *gr_mean[10];
-////    TH1D *h1[10];
-////    TF1 *f1[10];
-////    for(int hmid=101; hmid < 110; hmid++){
-////       if(hmid == 105)continue;
-////             c31[hmid-100] = new TCanvas();
-////             c31[hmid-100]->Divide(4,3);
-////             int n = h_cor_res_fitlx[0][hmid-100][fixl]->GetNbinsX();
-////             double xmin = -2;
-////             double xmax =  2;
-////             std::cout << "nibs = " << n << std::endl;
-////             gr[hmid-100] = new TGraphErrors(n);
-////             gr_mean[hmid-100] = new TGraphErrors(n);
-////              for (int i = 1; i <= n; i++) {
-////                c31[hmid-100]->cd(i);
-////                 h1[hmid-100] = h_cor_res_fitlx[0][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
-//// //             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
-////                f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-////                f1[hmid-100]->SetParameter(0, 500);   // constant
-////                f1[hmid-100]->SetParameter(1, 0);     // mean
-////                f1[hmid-100]->SetParLimits(1, -2, 2); // mean
-////                f1[hmid-100]->SetParameter(2, 0.3);
-////                f1[hmid-100]->SetParLimits(2, 0.1, 1);
-////                f1[hmid-100]->SetParameter(3, 0);
-////                f1[hmid-100]->SetParameter(4, -1);
-////                 h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
-////					  double mean = f1[hmid-100]->GetParameter(1);
-////					  double mean_err = f1[hmid-100]->GetParError(1);
-////                double sigma = f1[hmid-100]->GetParameter(2);
-////                 double sigma_err = f1[hmid-100]->GetParError(2);
-////                std::cout << "sigma = " << sigma << std::endl;
-////                 gr[hmid-100]->SetPoint(i-1, i, sigma);
-////                 gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
-////                 gr_mean[hmid-100]->SetPoint(i-1, i, mean);
-////                 gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
-////                h1[hmid-100]->Draw();
-////             }
-////          c31[hmid-100]->cd(11);
-////          gr[hmid-100]->Draw();
-////          c31[hmid-100]->cd(12);
-////				gr_mean[hmid-100]->SetMaximum(0.2);
-////				gr_mean[hmid-100]->SetMinimum(-0.2);
-////				gr_mean[hmid-100]->SetLineStyle(0);
-////				
-////          gr_mean[hmid-100]->Draw();
-////          c31[hmid-100]->SaveAs(pdf_name, "pdf");
-////    }
-////
-//
-////   TCanvas *c6 = new TCanvas();
-////   c6->Divide(4,2);
-////   for(int i =1; i < 9; i++){
-////      c6->cd(i);
-////      if(i < 5) {
-////         h_cor_dz_time[i][fixl]->Draw("colz");
-////      }
-////      else {
-////         h_cor_dz_time[i+1][fixl]->Draw("colz");
-////      }
-////   }
-////   c6->SaveAs(pdf_name, "pdf");
-////
-////    TCanvas *c16[2][10];
-////    TGraphErrors *gr16[2][10];
-////    TH1D *h16[2][10];
-////    TF1  *f16[2][10];
-////    TF1  *fla[2][10];
-////    double xmin[10]  = {0, -7, -7, -7,     -6, 0, -6.5, -5.5, -7, -7};//mod100-109
-////    double xmax[10]  = {0, 10, 10, 10,    5.5, 0,    2,  4.0,  8,  8};
-////	 double flmin[10] = {0, 120, 120, 120, 120, 0, 120, 100, 180, 180};
-////	 double flmax[10] = {0, 450, 450, 450, 450, 0, 530, 450, 550, 450};
-////	 for(int t=0; t < 2; t++){
-////    for(int hmid=101; hmid < 110; hmid++){
-////       if(hmid != 106)continue;
-////       c16[t][hmid-100] = new TCanvas();
-////       int n = h_cor_dz_time[t][hmid-100][fixl]->GetNbinsX();
-////       c16[t][hmid-100]->Divide(5,5);
-////       std::cout << "nbins dz = " << n << std::endl;
-////       gr16[t][hmid-100] = new TGraphErrors(n);
-////		 gr16[t][hmid-100]->SetMaximum( 8.0);
-////		 gr16[t][hmid-100]->SetMinimum(-8.0);
-////        for (int i = 1; i <= n; i++) {
-////          c16[t][hmid-100]->cd(i);
-////          fla[t][hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
-////          h16[t][hmid-100] = h_cor_dz_time[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
-////          //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
-//// //       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
-//// //       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
-////          //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
-//////          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
-////          f16[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
-//// //       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
-//// //       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
-////          f16[t][hmid-100]->SetParameter(0, 20); // constant
-////          f16[t][hmid-100]->SetParameter(1, 0);     // mean
-////          f16[t][hmid-100]->SetParameter(2, 10);    // sigma
-////          f16[t][hmid-100]->SetParLimits(2, 1, 10);
-////          f16[t][hmid-100]->SetParameter(3, 0);    
-//////          f16[hmid-100]->SetParLimits(3, -0.8, 0);
-//////          f16[hmid-100]->SetParameter(4, -1);    
-//////          f16[hmid-100]->SetParameter(4, -0.5);  
-////           h16[t][hmid-100]->Fit(f16[t][hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
-////
-////           double chi2 = f16[t][hmid-100]->GetChisquare();
-////          double mean =  f16[t][hmid-100]->GetParameter(1);
-////           double sigma_err = f16[t][hmid-100]->GetParError(2);
-////          std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
-////          if(chi2 < 5) continue;
-////          if(sigma_err > 10) continue;
-////           gr16[t][hmid-100]->SetPoint(i-1, i*(600/n), mean);
-////           gr16[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
-////           gr16[t][hmid-100]->Fit(fla[t][hmid-100], "R");
-////           h16[t][hmid-100]->Draw();
-////       }
-////          c16[t][hmid-100]->cd(6);
-////          c16[t][hmid-100]->SaveAs(pdf_name, "pdf");
-////		}
-////    }
-//////
-//////
-////    TCanvas *c17[2];
-////	for(int t=0; t < 2; t++){
-////	 c17[t]= new TCanvas();
-////    c17[t]->Divide(4,2);
-////    for(int hmid=101; hmid < 110; hmid++){
-////       if(hmid!=106) continue;
-////       if(hmid < 105) {c17[t]->cd(hmid-100);}
-////		 else {c17[t]->cd(hmid-101);}
-////       gr16[t][hmid-100]->SetTitle(Form("residual/tan_theta tgt%d  mod%d : timing ;  timing; residual/tan_theta", t, hmid) );
-////       gr16[t][hmid-100]->Draw("AP");
-////    }
-////   c17[t]->SaveAs(pdf_name, "pdf");
-////	}
-////
-//
-////
-////  TCanvas *c6b = new TCanvas();
-////  c6b->Divide(2,2);
-////  for(int tgt=0; tgt<2; tgt++){
-////  for(int i =1; i < 9; i++){
-////	  
-////     c6b->cd(i);
-////     if(i < 5) {
-////        h_cor_dz_time_t0cor[tgt][i][fixl]->Draw("colz");
-////     }
-////     else {
-////        h_cor_dz_time_t0cor[tgt][i+1][fixl]->Draw("colz");
-////     }
-////  }
-////	}
-////  c6b->SaveAs(pdf_name, "pdf");
-////
-////
-//
-//   TCanvas *c16b[2][10][n_div];
-//   TGraphErrors *gr16b[2][10][n_div];
-//   TH1D *h16b[2][10][n_div];
-//   TF1 *f16b[2][10][n_div];
-//   TF1 *flab[2][10][n_div];
-//#ifdef CALIB
-//   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -2, -5.5, -4, -4};//mod100-109
-//   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,  2,  4.0,  5,  5};
-//#else 
-//   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
-//   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
-//#endif
-//   double flminb[10] = {0, 120, 120, 120, 120, 0, 200, 120, 100, 180};
-//   double flmaxb[10] = {0, 450, 450, 450, 450, 0, 550, 450, 320, 450};
-//	for(int t=0; t < 2; t++){
-//		int hmid = 106;
-//		for(int d=0 ; d < n_div; d++){
-//      c16b[t][hmid-100][d] = new TCanvas();
-//      int n = h_cor_dz_time_t0cor[t][hmid-100][fixl][d]->GetNbinsX();
-//      c16b[t][hmid-100][d]->Divide(5,5);
-//      std::cout << "nbins dz = " << n << std::endl;
-//      gr16b[t][hmid-100][d] = new TGraphErrors(n);
-//   	gr16b[t][hmid-100][d]->SetMaximum( 8.0);
-//	   gr16b[t][hmid-100][d]->SetMinimum(-8.0);
-//       for (int i = 1; i <= n; i++) {
-//         c16b[t][hmid-100][d]->cd(i);
-//         flab[t][hmid-100][d] = new TF1(Form("fla%d%d", t, d), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
-//         h16b[t][hmid-100][d] = h_cor_dz_time_t0cor[t][hmid-100][fixl][d]->ProjectionY(Form("_py%d%d%d", hmid, i), i, i);
-////         f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
-////         f16b[t][hmid-100][d] = new TF1(Form("fitFunction%d%d", t, d), "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
-//         f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
-////       f16b[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
-////       f16b[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
-//         f16b[t][hmid-100][d]->SetParameter(0, 20); // constant
-//         f16b[t][hmid-100][d]->SetParameter(1, 0);     // mean
-//         f16b[t][hmid-100][d]->SetParameter(2, 3);    // sigma
-////         f16b[t][hmid-100][d]->SetParameter(3, 0);    
-////         f16b[t][hmid-100][d]->SetParameter(4, -1);    
-////         f16b[t][hmid-100][d]->SetParameter(4, -0.5);  
-//         h16b[t][hmid-100][d]->Fit(f16b[t][hmid-100][d], "", "", xminb[hmid-100], xmaxb[hmid-100]);
-//
-//          double chi2 = f16b[t][hmid-100][d]->GetChisquare();
-//         double mean = f16b[t][hmid-100][d]->GetParameter(1);
-//          double sigma_err = f16b[t][hmid-100][d]->GetParError(2);
-//         std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
-//         if(chi2 < 5) continue;
-//         if(sigma_err > 10) continue;
-//          gr16b[t][hmid-100][d]->SetPoint(i-1, i*(600/n), mean);
-//          gr16b[t][hmid-100][d]->SetPointError(i-1, 0, sigma_err);
-//          gr16b[t][hmid-100][d]->Fit(flab[t][hmid-100][d], "R");
-//          h16b[t][hmid-100][d]->Draw();
-//      }
-//         c16b[t][hmid-100][d]->cd(6);
-//         c16b[t][hmid-100][d]->SaveAs(pdf_name, "pdf");
-//   	}
+//	TCanvas *c4[n_module];
+//   for(int m=0; m < n_module;m++){
+//		c4[m] = new TCanvas();
+//		c4[m]->Divide(n_div, 3);
+//		for(int l=1; l<4; l++){
+//			for(int div=0; div < n_div; div++){
+//			   c4[m]->cd(div + 1 + n_div * (l-1) );
+//				h_cluster_timing_chi2_ydependence[m][l][div]->Draw();
+//			}
+//		}
+//	c4[m]->SaveAs(pdf_name, "pdf");
 //	}
 //
 //
-//	TCanvas *c0d = new TCanvas();
-//	h_t0diff->Draw();
-//	c0d->SaveAs(pdf_name, "pdf");
-//
-//    TCanvas *c17b[2];
-//		for(int t=0; t < 2; t++){
-//		 	c17b[t] = new TCanvas();
-//   	 	c17b[t]->Divide(5,4);
-//			for(int d=0; d < n_div; d++){
-//				c17b[t]->cd(d+1);
-//		      gr16b[t][6][d]->SetTitle(Form("residual/tan_theta tgt%d mod 106 : timing_lg ;  timing_lg; residual/tan_theta", t) );
-//	   	   gr16b[t][6][d]->Draw("AP");
-//				
+//	TCanvas *c5[n_module];
+//   for(int m=0; m < n_module;m++){
+//		c5[m] = new TCanvas();
+//		c5[m]->Divide(n_div, 3);
+//		for(int l=1; l<4; l++){
+//			for(int div=0; div < n_div; div++){
+//			   c5[m]->cd(div + 1 + n_div * (l-1) );
+//				h_cluster_adc_xdependence[m][l][div]->Draw();
 //			}
-//	 	c17b[t]->SaveAs(pdf_name, "pdf");
-//	  }
+//		}
+//	c5[m]->SaveAs(pdf_name, "pdf");
+//	}
 //
-//
-//    TCanvas *c18[2];
-//	 TGraphErrors *tg18[2];
-//		for(int t=0; t < 2; t++){
-//			c18[t] = new TCanvas();
-//			tg18[t] = new TGraphErrors(n_div);
-//			for(int d=0; d < n_div; d++){
-//				double tilt = flab[t][6][d]->GetParameter(1);
-//				tg18[t]->SetPoint(d, d, tilt);
+//	TCanvas *c6[n_module];
+//   for(int m=0; m < n_module;m++){
+//		c6[m] = new TCanvas();
+//		c6[m]->Divide(n_div, 3);
+//		for(int l=1; l<4; l++){
+//			for(int div=0; div < n_div; div++){
+//			   c6[m]->cd(div + 1 + n_div * (l-1) );
+//				h_cluster_adc_ydependence[m][l][div]->Draw();
 //			}
-////			tg18[t]->SetMarkerSize(msize);
-//			tg18[t]->Draw("AP");
-//	 c18[t]->SaveAs(pdf_name, "pdf");
-//	  }
-//
-//
-//    TCanvas *c19[2];
-//		for(int t=0; t < 2; t++){
-//			c19[t] = new TCanvas();
-//			c19[t]->Divide(4,5);
-//			for(int d=0; d < n_div; d++){
-//				c19[t]->cd(d+1);
-//				h_slopevel[t][6][fixl][d]->Draw("colz");
-//			}
-//	 	c19[t]->SaveAs(pdf_name, "pdf");
-//	  }
-//
-//
-//		
+//		}
+//	c6[m]->SaveAs(pdf_name, "pdf"); }
 //
 //
 //
-//		c0->SaveAs(pdf_name + "]", "pdf");
+//  TCanvas *c1[10];
+//  for(int m =1; m < 9; m++){ 
+//    c1[m]= new TCanvas(); 
+//    c1[m]->Divide(2,2);
+//    for(int l=0; l < n_layer; l++){
+//     c1[m]->cd(1+l);
+//     if(m < 5) {
+//        h_res_x[m][l]->Fit("gaus", "", "", -0.5, 0.5);
+//        h_res_x[m][l]->Draw("colz");
+//		  h_pre_res_x[m][l]->SetLineColor(kRed);
+//		  h_pre_res_x[m][l]->Draw("same");
+//
+//     }
+//     else {
+//        h_res_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.5);
+//        h_res_x[m+1][l]->Draw("colz");
+//		  h_pre_res_x[m+1][l]->SetLineColor(kRed);
+//		  h_pre_res_x[m+1][l]->Draw("same");
+//     }
+//	 }
+//    c1[m]->SaveAs(pdf_name, "pdf");
+//  }
+//
+// TCanvas *c2y = new TCanvas();
+// c2y->Divide(4,2);
+// for(int i =1; i < 9; i++){
+//     c2y->cd(i);
+//     if(i < 5) {
+//        h_res_y[i][residual_layer]->Draw("colz");
+//     }
+//     else {
+//        h_res_y[i+1][residual_layer]->Draw("colz");
+//     }
+//  }
+//  c2y->SaveAs(pdf_name, "pdf");
+//
+// TCanvas *c3t = new TCanvas();
+// c3t->Divide(4,2);
+// for(int i =1; i < 9; i++){
+//     c3t->cd(i);
+//     if(i < 5) {
+//        h_tan_theta[i][residual_layer]->Draw("colz");
+//     }
+//     else {
+//        h_tan_theta[i+1][residual_layer]->Draw("colz");
+//     }
+//  }
+//  c3t->SaveAs(pdf_name, "pdf");
+//
+//
+//
+//
+//
+// TCanvas *c31[10];
+//   TGraphErrors *gr[10];
+//   TGraphErrors *gr_mean[10];
+//   TH1D *h1[10];
+//   TF1 *f1[10];
+//   for(int hmid=101; hmid < 110; hmid++){
+//      if(hmid == 105)continue;
+//            c31[hmid-100] = new TCanvas();
+//            c31[hmid-100]->Divide(4,3);
+//            int n = h_cor_res_fitlx[hmid-100][residual_layer]->GetNbinsX();
+//            double xmin = -2;
+//            double xmax =  2;
+//            std::cout << "nibs = " << n << std::endl;
+//            gr[hmid-100] = new TGraphErrors(n);
+//            gr_mean[hmid-100] = new TGraphErrors(n);
+//             for (int i = 1; i <= n; i++) {
+//               c31[hmid-100]->cd(i);
+//                h1[hmid-100] = h_cor_res_fitlx[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
+////             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
+//               f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+//               f1[hmid-100]->SetParameter(0, 500);   // constant
+//               f1[hmid-100]->SetParameter(1, 0);     // mean
+//               f1[hmid-100]->SetParLimits(1, -2, 2); // mean
+//               f1[hmid-100]->SetParameter(2, 0.3);
+//               f1[hmid-100]->SetParLimits(2, 0.1, 1);
+//               f1[hmid-100]->SetParameter(3, 0);
+//               f1[hmid-100]->SetParameter(4, -1);
+//                h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
+// 				  double mean = f1[hmid-100]->GetParameter(1);
+// 				  double mean_err = f1[hmid-100]->GetParError(1);
+//               double sigma = f1[hmid-100]->GetParameter(2);
+//                double sigma_err = f1[hmid-100]->GetParError(2);
+//               std::cout << "sigma = " << sigma << std::endl;
+//                gr[hmid-100]->SetPoint(i-1, i, sigma);
+//                gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
+//                gr_mean[hmid-100]->SetPoint(i-1, i, mean);
+//                gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
+//               h1[hmid-100]->Draw();
+//            }
+//         c31[hmid-100]->cd(11);
+//         gr[hmid-100]->Draw();
+//         c31[hmid-100]->cd(12);
+// 			gr_mean[hmid-100]->SetMaximum(0.2);
+// 			gr_mean[hmid-100]->SetMinimum(-0.2);
+// 			gr_mean[hmid-100]->SetLineStyle(0);
+//         gr_mean[hmid-100]->Draw();
+//         c31[hmid-100]->SaveAs(pdf_name, "pdf");
+//   }
+//
+//  TCanvas *c61 = new TCanvas();
+//  c61->Divide(4,2);
+//  for(int i =1; i < 9; i++){
+//     c61->cd(i);
+//     if(i < 5) {
+//        h_cor_dz_time[i][residual_layer]->Draw("colz");
+//     }
+//     else {
+//        h_cor_dz_time[i+1][residual_layer]->Draw("colz");
+//     }
+//  }
+//  c61->SaveAs(pdf_name, "pdf");
+//
+//
+//   TCanvas *c16[10];
+//   TGraphErrors *gr16[10];
+//   TH1D *h16[10];
+//   TF1  *f16[10];
+//   TF1  *fla[10];
+//   double xmin[10]  = {0, -4.5, -5.5, -5.5,     -5.5, 0, -3.5,  -3.5, -4.5, -4.5};//mod100-109
+//   double xmax[10]  = {0, 4.5, 3.5, 3.5,      3.5, 0,  3.5 ,  3.0,  8,  8};
+//   double flmin[10] = {0, 120, 120, 120, 120,   0,   120, 100, 180, 180};
+//   double flmax[10] = {0, 450, 450, 450, 500, 0, 500, 450, 550, 450};
+//   for(int hmid=101; hmid < 110; hmid++){
+//      c16[hmid-100] = new TCanvas();
+//      int n = h_cor_dz_time[hmid-100][residual_layer]->GetNbinsX();
+//      c16[hmid-100]->Divide(5,5);
+//      std::cout << "nbins dz = " << n << std::endl;
+//      gr16[hmid-100] = new TGraphErrors(n);
+//    	gr16[hmid-100]->SetMaximum( 8.0);
+// 	   gr16[hmid-100]->SetMinimum(-8.0);
+//       for (int i = 1; i <= n; i++) {
+//         c16[hmid-100]->cd(i);
+//         fla[hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
+//         h16[hmid-100] = h_cor_dz_time[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
+//         //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
+////       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
+////       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
+//         //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
+//          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
+//         f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
+////       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+////       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+//         f16[hmid-100]->SetParameter(0, 20); // constant
+//         f16[hmid-100]->SetParameter(1, 0);     // mean
+//         f16[hmid-100]->SetParameter(2, 10);    // sigma
+//         f16[hmid-100]->SetParLimits(2, 1, 10);
+//         f16[hmid-100]->SetParameter(3, 0);    
+//         f16[hmid-100]->SetParLimits(3, -0.8, 0);
+//         f16[hmid-100]->SetParameter(4, -1);    
+//         f16[hmid-100]->SetParameter(4, -0.5);  
+//         h16[hmid-100]->Fit(f16[hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
+//
+//          double chi2 = f16[hmid-100]->GetChisquare();
+//         double mean =  f16[hmid-100]->GetParameter(1);
+//          double sigma_err = f16[hmid-100]->GetParError(2);
+//         std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+//         if(chi2 < 5) continue;
+//         if(sigma_err > 10) continue;
+//          gr16[hmid-100]->SetPoint(i-1, i*(600/n), mean);
+//          gr16[hmid-100]->SetPointError(i-1, 0, sigma_err);
+//          gr16[hmid-100]->Fit(fla[hmid-100], "R");
+//          h16[hmid-100]->Draw();
+//      }
+//         c16[hmid-100]->SaveAs(pdf_name, "pdf");
+//   }
+//
+//
+//   TCanvas *c17;
+//  c17= new TCanvas();
+//   c17->Divide(4,2);
+//   for(int hmid=101; hmid < 110; hmid++){
+//		if(hmid == 105) continue;
+//      if(hmid < 105) {
+//		c17->cd(hmid-100);
+//      gr16[hmid-100]->SetTitle(Form("residual/tan_theta mod%d : timing ;  timing; residual/tan_theta",  hmid) );
+//      gr16[hmid-100]->Draw("AP");
+//	 }
+// 	 else {c17->cd(hmid-101);}
+//      gr16[hmid-100]->SetTitle(Form("residual/tan_theta mod%d : timing ;  timing; residual/tan_theta",  hmid) );
+//      gr16[hmid-100]->Draw("AP");
+//   }
+//  c17->SaveAs(pdf_name, "pdf");
+//
+//
+//	TCanvas *c18;
+//	c18 = new TCanvas();
+//	c18->Divide(4,2);
+//	for(int mid=101; mid < 110; mid++){
+//		if(mid == 105) continue;
+//		if(mid < 105){
+//		c18->cd(mid-100);
+//		h_res_lg_x[mid-100]->Draw();
+//		h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
+//		h_bak_res_lg_x[mid-100]->Draw("same");
+//		}
+//	   else if(mid > 105){
+//			c18->cd(mid-101);
+//			h_res_lg_x[mid-100]->Draw();
+//			h_bak_res_lg_x[mid-100]->SetLineColor(kRed);
+//			h_bak_res_lg_x[mid-100]->Draw("same");
+//			
+//		}
+//   }
+//	c18->SaveAs(pdf_name, "pdf");
+//
+//   TCanvas *c19;
+//	c19 = new TCanvas();
+//	c19->Divide(4,2);
+//	for(int mid=101; mid < 110; mid++){
+//		if(mid == 105) continue;
+//		if(mid < 105){
+//		c19->cd(mid-100);
+//		h_res_lg_y[mid-100]->Draw();
+//		h_bak_res_lg_y[mid-100]->SetLineColor(kRed);
+//		h_bak_res_lg_y[mid-100]->Draw("same");
+//		}
+//	   else if(mid > 105){
+//			c19->cd(mid-101);
+//			h_res_lg_y[mid-100]->Draw();
+//			h_bak_res_lg_y[mid-100]->SetLineColor(kRed);
+//			h_bak_res_lg_y[mid-100]->Draw("same");
+//			
+//		}
+//   }
+//	c19->SaveAs(pdf_name, "pdf");
+//
+//   TCanvas *c20;
+//	c20 = new TCanvas();
+//	c20->Divide(4,2);
+//	for(int mid=101; mid < 110; mid++){
+//		if(mid == 105) continue;
+//		if(mid < 105){
+//		c20->cd(mid-100);
+//		h_res_lg_2d[mid-100]->Draw("colz");
+////		h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+////		h_bak_res_lg_2d[mid-100]->Draw("same");
+//		}
+//	   else if(mid > 105){
+//			c20->cd(mid-101);
+//			h_res_lg_2d[mid-100]->Draw("colz");
+////			h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+////			h_bak_res_lg_2d[mid-100]->Draw("same");
+//			
+//		}
+//   }
+//	c20->SaveAs(pdf_name, "pdf");
+//
+//
+//   TCanvas *c20_bg;
+//	c20_bg = new TCanvas();
+//	c20_bg->Divide(4,2);
+//	for(int mid=101; mid < 110; mid++){
+//		if(mid == 105) continue;
+//		if(mid < 105){
+//		c20_bg->cd(mid-100);
+//		h_bak_res_lg_2d[mid-100]->Draw("colz");
+////		h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+////		h_bak_res_lg_2d[mid-100]->Draw("same");
+//		}
+//	   else if(mid > 105){
+//			c20_bg->cd(mid-101);
+//			h_bak_res_lg_2d[mid-100]->Draw("colz");
+////			h_bak_res_lg_2d[mid-100]->SetLineColor(kRed);
+////			h_bak_res_lg_2d[mid-100]->Draw("same");
+//		}
+//   }
+//	c20_bg->SaveAs(pdf_name, "pdf");
+//
+//
+//
+//	for(int m=0; m < 10; m++){
+//	std::cout << "m = " << m+100 << ",fore lg residual = " << cnt_lgres_fore[m] << ", bg lg residual = " << cnt_lgres_bg[m] << std::endl;
+//	}
+//
+//
+//
+//// TCanvas *c6b = new TCanvas();
+//// c6b->Divide(2,2);
+//// for(int tgt=0; tgt<2; tgt++){
+//// for(int i =1; i < 9; i++){
+////   
+////    c6b->cd(i);
+////    if(i < 5) {
+////       h_cor_dz_time_t0cor[i][residual_layer]->Draw("colz");
+////    }
+////    else {
+////       h_cor_dz_time_t0cor[i+1][residual_layer]->Draw("colz");
+////    }
+//// }
+//// }
+//// c6b->SaveAs(pdf_name, "pdf");
+//
+//
+//
+////TCanvas *c16b[2][10][n_div];
+////TGraphErrors *gr16b[2][10][n_div];
+////TH1D *h16b[2][10][n_div];
+////TF1 *f16b[2][10][n_div];
+////TF1 *flab[2][10][n_div];
+////def CALIB
+////double xminb[10]  = {0, -4, -7, -7,     -6, 0, -2, -5.5, -4, -4};//mod100-109
+////double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,  2,  4.0,  5,  5};
+////se 
+////double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
+////double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
+////dif
+////double flminb[10] = {0, 120, 120, 120, 120, 0, 200, 120, 100, 180};
+////double flmaxb[10] = {0, 450, 450, 450, 450, 0, 550, 450, 320, 450};
+////r(int t=0; t < 2; t++){
+//// int hmid = 106;
+//// for(int d=0 ; d < n_div; d++){
+////   c16b[t][hmid-100][d] = new TCanvas();
+////   int n = h_cor_dz_time_t0cor[t][hmid-100][residual_layer][d]->GetNbinsX();
+////   c16b[t][hmid-100][d]->Divide(5,5);
+////   std::cout << "nbins dz = " << n << std::endl;
+////   gr16b[t][hmid-100][d] = new TGraphErrors(n);
+////	gr16b[t][hmid-100][d]->SetMaximum( 8.0);
+//// gr16b[t][hmid-100][d]->SetMinimum(-8.0);
+////    for (int i = 1; i <= n; i++) {
+////      c16b[t][hmid-100][d]->cd(i);
+////      flab[t][hmid-100][d] = new TF1(Form("fla%d%d", t, d), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
+////      h16b[t][hmid-100][d] = h_cor_dz_time_t0cor[t][hmid-100][residual_layer][d]->ProjectionY(Form("_py%d%d%d", hmid, i), i, i);
+////        f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+////        f16b[t][hmid-100][d] = new TF1(Form("fitFunction%d%d", t, d), "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+////      f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
+////      f16b[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+////      f16b[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+////      f16b[t][hmid-100][d]->SetParameter(0, 20); // constant
+////      f16b[t][hmid-100][d]->SetParameter(1, 0);     // mean
+////      f16b[t][hmid-100][d]->SetParameter(2, 3);    // sigma
+////        f16b[t][hmid-100][d]->SetParameter(3, 0);    
+////        f16b[t][hmid-100][d]->SetParameter(4, -1);    
+////        f16b[t][hmid-100][d]->SetParameter(4, -0.5);  
+////      h16b[t][hmid-100][d]->Fit(f16b[t][hmid-100][d], "", "", xminb[hmid-100], xmaxb[hmid-100]);
+////
+////       double chi2 = f16b[t][hmid-100][d]->GetChisquare();
+////      double mean = f16b[t][hmid-100][d]->GetParameter(1);
+////       double sigma_err = f16b[t][hmid-100][d]->GetParError(2);
+////      std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+////      if(chi2 < 5) continue;
+////      if(sigma_err > 10) continue;
+////       gr16b[t][hmid-100][d]->SetPoint(i-1, i*(600/n), mean);
+////       gr16b[t][hmid-100][d]->SetPointError(i-1, 0, sigma_err);
+////       gr16b[t][hmid-100][d]->Fit(flab[t][hmid-100][d], "R");
+////       h16b[t][hmid-100][d]->Draw();
+////   }
+////      c16b[t][hmid-100][d]->cd(6);
+////      c16b[t][hmid-100][d]->SaveAs(pdf_name, "pdf");
+////	}
+////
+////
+//////
+//////TCanvas *c0d = new TCanvas();
+//////t0diff->Draw();
+//////d->SaveAs(pdf_name, "pdf");
+////
+//// TCanvas *c17b[2];
+////  	c17b[t] = new TCanvas();
+////	 	c17b[t]->Divide(5,4);
+//// 	for(int d=0; d < n_div; d++){
+//// 		c17b[t]->cd(d+1);
+////       gr16b[t][6][d]->SetTitle(Form("residual/tan_theta tgt%d mod 106 : timing_lg ;  timing_lg; residual/tan_theta", t) );
+//// 	   gr16b[t][6][d]->Draw("AP");
+//// 		
+//// 	}
+////   c17b[t]->SaveAs(pdf_name, "pdf");
+//////}
+//////
+//////
+//// TCanvas *c18[2];
+////GraphErrors *tg18[2];
+//// for(int t=0; t < 2; t++){
+//// 	c18[t] = new TCanvas();
+//// 	tg18[t] = new TGraphErrors(n_div);
+//// 	for(int d=0; d < n_div; d++){
+//// 		double tilt = flab[t][6][d]->GetParameter(1);
+//// 		tg18[t]->SetPoint(d, d, tilt);
+//// 	}
+//// 		tg18[t]->SetMarkerSize(msize);
+//// 	tg18[t]->Draw("AP");
+////18[t]->SaveAs(pdf_name, "pdf");
+////}
+////
+////
+//// TCanvas *c19[2];
+//// for(int t=0; t < 2; t++){
+//// 	c19[t] = new TCanvas();
+//// 	c19[t]->Divide(4,5);
+//// 	for(int d=0; d < n_div; d++){
+//// 		c19[t]->cd(d+1);
+//// 		h_slopevel[t][6][residual_layer][d]->Draw("colz");
+//// 	}
+//// c19[t]->SaveAs(pdf_name, "pdf");
+////}
+////
+////
+//
+//
+//	c0->SaveAs(pdf_name + "]", "pdf");
+//
 //}
 //
+//	//TH1D* h_chi2;
+////	TH1D* h_t0diff;
+////	TH1D* h_n_runid;
+////	TH1D* h_n_eventid;
+////	TH1D* h_n_spillid;
+////
+////
+////	TH1D* h_chi2_mod[n_module];
+////	TH1D* h_lg_t_mod[n_module];
+////	TH1D* h_tgt_proj_z_raw[n_module];
+////	TH1D* h_tgt_proj_z_cut[n_module];
+////	TH1D* h_tgt_proj_z_chi2cut[n_module];
+////	TH1D* h_tgt_proj_x[n_module];
+////	TH1D* h_tgt_proj_y[n_module];
+////	TH1D* h_res_x[n_tgt][n_module][n_layer];
+////	TH1D* h_res_y[n_tgt][n_module][n_layer];
+////	TH1D* h_tan_theta[n_tgt][n_module][n_layer];
+////	TH1D* h_fitlx[n_tgt][n_module][n_layer];
+////
+////	TH2D* h_tgt_pos;
+////	TH2D* h_tgt_pos_mod_raw[n_module];
+//////	TH2D* h_tgt_pos_mod_cut[n_module];
+////	TH2D* h_cor_dz_time[n_module][n_layer][n_div];
+////	TH2D* h_cor_dz_time_t0cor[n_module][n_layer][n_div];
+////	TH2D* h_cor_res_fitlx[n_tgt][n_module][n_layer];
+////	TH2D* h_cor_res_fitly[n_tgt][n_module][n_layer];
+////	TH2D* h_cor_res_timing[n_tgt][n_module][n_layer];
+////	
+////	TH2D* h_slopevel[n_tgt][n_module][n_layer][n_div];
+////
+////	TH2D* h_trackmap[n_tgt][n_module];
+////
+////
+////	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
+////	h_n_eventid = new TH1D("n of events of event id","n of events of eventid", 10000, -0.5, 9999.5);
+////	h_n_spillid = new TH1D("n of events of spill id","n of events of spillid", 1000, -0.5, 999.5);
+////	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 100);	
+////	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -100,100);	
+////	h_tgt_pos = new TH2D(Form("h_tgt_pos"), Form("h_tgt_pos"), 50, 19.8, 20.2, 200, -60, 60);
+////	for(int m=0; m < n_module; m++){
+////		for(int tg=0; tg < 2; tg++){
+////			h_trackmap[tg][m] = new TH2D(Form("h_track_map%d_%d", tg,  m+100), Form("h_track_map%d_%d",tg,  m+100), 25, -50, 50, 25, -50, 50);
+////		}
+////		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 100);
+////		h_lg_t_mod[m] = new TH1D(Form("h_lg_t_mod%d", m+100), Form("h_lg_t_mod%d", m+100), 100, 50, 150);
+////		h_tgt_pos_mod_raw[m] = new TH2D(Form("h_tgt_pos_mod_raw_%d", m+100), Form("h_tgt_pos_mod_raw_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
+////		h_tgt_pos_mod_cut[m] = new TH2D(Form("h_tgt_pos_mod_cut_%d", m+100), Form("h_tgt_pos_mod_cut_%d", m+100), 50, 19.8, 20.2, 60, -60, 60);
+////		h_tgt_proj_z_raw[m] = new TH1D(Form("h_tgt_proj_z_raw%d", m+100), Form("h_tgt_proj_z_raw%d", m+100), 100, -60, 60);
+////		h_tgt_proj_z_cut[m] = new TH1D(Form("h_tgt_proj_z_cut%d", m+100), Form("h_tgt_proj_z_cut%d", m+100), 100, -60, 60);
+////		h_tgt_proj_z_chi2cut[m] = new TH1D(Form("h_tgt_proj_z_chi2cut%d", m+100), Form("h_tgt_proj_z_chi2cut%d", m+100), 100, -45, 45);
+////		h_tgt_proj_x[m] = new TH1D(Form("h_tgt_proj_x%d", m+100), Form("h_tgt_proj_x%d", m+100), 100, 19.8, 20.2);
+////		h_tgt_proj_y[m] = new TH1D(Form("h_tgt_proj_y%d", m+100), Form("h_tgt_proj_y%d", m+100), 100, -5,5 );
+////		for(int l=0; l < n_layer; l++){// -- layer 
+////			for(int t=0; t < n_tgt; t++){
+////				h_fitlx[t][m][l] = new TH1D(Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), Form("h_fitlx_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
+////				h_res_x[t][m][l] = new TH1D(Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_x_tgt%d_m%d_l%d",t, m+100, l), 100, -2, 2);
+////				h_res_y[t][m][l] = new TH1D(Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), Form("h_res_y_tgt%d_m%d_l%d",t, m+100, l), 100, -4, 4);
+////				h_cor_res_fitlx[t][m][l] = new TH2D(Form("h_cor_res_fitlx_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitlx_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
+////				h_cor_res_fitly[t][m][l] = new TH2D(Form("h_cor_res_fitly_%d_%d_%d", t,m+100, l), Form("h_cor_res_fitly_%d_%d%_d", t,m+100, l), 20, -50*l , 50*l, 100, -2, 2);
+////				h_cor_res_timing[t][m][l] = new TH2D(Form("h_cor_res_timing_%d_%d_%d", t,m+100, l), Form("h_cor_res_timing_%d_%d%_d", t,m+100, l), 20, 0 , 600, 100, -2, 2);
+////			h_tan_theta[t][m][l] = new TH1D(Form("h_tan_theta_t%d_m%d_l%d", t, m+100, l), Form("h_tan_theta%d_%d_%d", t,m+100, l), 100, -0.5, 0.5);
+////			for(int div = 0 ; div < n_div; div++){
+////			h_cor_dz_time[t][m][l][div]        = new TH2D(Form("h_cor_dz_time_%d_%d%d%d",t,  m+100, l, div)      , Form("h_cor_dz_time_%d%d%d%d",t,  m+100, l, div)      , htdiv[m], 0, 600, hdzdiv[m], -8, 8);
+////			h_cor_dz_time_t0cor[t][m][l][div] = new TH2D(Form("h_cor_dz_time_t0cor_%d%d_%d%d", t, m+100, l,div), Form("h_cor_dz_time_t0cor_%d%d%d%d",t, m+100, l,div), htdiv[m], 0, 600, hdzdiv[m], -8, 8);
+////			h_slopevel[t][m][l][div] = new TH2D(Form("h_slopevel_%d%d_%d%d", t, m+100, l,div), Form("h_slopevel_%d%d%d%d",t, m+100, l,div),  25, -100, 100, 60, -2, 2);
+////		}
+////			}
+////		}
+////	}
+////	int nevent = tree->GetEntries();
+////#ifdef CHECK_100
+////	int fixl   = 1; //gtr200
+////#endif
+////#ifdef CHECK_200
+////	int fixl   = 2; //gtr200
+////#endif
+////#ifdef CHECK_300
+////	int fixl   = 3; //gtr200
+////#endif
+////
+////
+////								//    00, 01, 02, 03, 04, 05,    06
+////	double chi2_th[n_module] = {30, 30,30, 30, 30,   0,   30, 30, 30, 30};//mod100-109
+////	double res_min[n_module] = {0, -4, -4, -4, -4,   0,   -4, -4, -4, -4};//mod100-109
+////	double res_max[n_module] = {0,  4,  4,  4,  4,   0,    4,  4,  4,  4};//mod100-109
+////	double timing_cut = 120;
+////	double tgty_cut = 3.0;
+////
+////std::array<int, 4> mids;
+////std::array<double, 4> resx;
+////std::array<double, 4> resy;
+////std::array<double, 4> fitlxs;
+////std::array<double, 4> fitlys;
+////std::array<double, 4> tans;//tan thetas
+////std::array<double, 4> xt4s;//xt4
+////
+////	for(int n=0; n < nevent; n++){
+////		if(n > n_maxevent) break;
+////		if (n % print_cycle == 0) {
+////			printf(" N Analyzed = %d \n", n);
+////		} 
+////		tree->GetEntry(n);
+////		h_n_runid->Fill(run_id);
+////		h_n_eventid->Fill(event_id);
+////		h_n_spillid->Fill(spill_id);
+////
+////
+////		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
+////		for(int i=0; i < n_tracks; i++){
+//////			if(rk_fit_gtr100_mid->at(i) < 105 || rk_fit_gtr100_mid->at(i) > 107) continue;
+////			double chi2  = chi_square->at(i);
+////			int    mid   = rk_fit_gtr200_mid->at(i);
+////			double sts_t = rk_hit_sts_t->at(i);
+////			mids = {	rk_fit_sts_mid->at(i),
+////						rk_fit_gtr100_mid->at(i),						
+////						rk_fit_gtr200_mid->at(i),
+////						rk_fit_gtr300_mid->at(i)};
+////			resx = { rk_res_sts_x->at(i),
+////						rk_res_gtr100_x->at(i),
+////						rk_res_gtr200_x->at(i),
+////						rk_res_gtr300_x->at(i)};
+////			resy = { 0,
+////						rk_res_gtr100_y->at(i),
+////						rk_res_gtr200_y->at(i),
+////						rk_res_gtr300_y->at(i)};
+////			fitlxs   = { rk_fit_sts_x  ->at(i),
+////			   		 rk_fit_gtr100_x->at(i),
+////						 rk_fit_gtr200_x->at(i),
+////						 rk_fit_gtr300_x->at(i)};
+////			fitlys   = { 0,
+////			   		 rk_fit_gtr100_y->at(i),
+////						 rk_fit_gtr200_y->at(i),
+////						 rk_fit_gtr300_y->at(i)};
+////			tans = { rk_fit_sts_mom_x->at(i)/rk_fit_sts_mom_z->at(i),
+////						rk_fit_gtr100_mom_x->at(i)/rk_fit_gtr100_mom_z->at(i),
+////						rk_fit_gtr200_mom_x->at(i)/rk_fit_gtr200_mom_z->at(i),
+////						rk_fit_gtr300_mom_x->at(i)/rk_fit_gtr300_mom_z->at(i)};
+////			xt4s = { 0, 
+////						rk_hit_gtr100_xt4->at(i),
+////						rk_hit_gtr200_xt4->at(i),
+////						rk_hit_gtr300_xt4->at(i)};
+////			
+////			double tgt_x = rk_fit_init_pos_gx->at(i);
+////			double tgt_y = rk_fit_init_pos_gy->at(i);
+////			double tgt_z = rk_fit_init_pos_gz->at(i);
+////			double tdiff100 = rk_hit_gtr100_xt->at(i) - rk_hit_gtr100_yt->at(i);
+////			double tdiff200 = rk_hit_gtr200_xt->at(i) - rk_hit_gtr200_yt->at(i);
+////			double tdiff300 = rk_hit_gtr300_xt->at(i) - rk_hit_gtr300_yt->at(i);
+////			h_chi2->Fill(chi2);
+////			h_chi2_mod[mid-100]->Fill(chi2);
+////			h_tgt_pos_mod_raw[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
+////			h_tgt_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
+////			h_tgt_proj_z_raw[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
+////			bool lg_flag = true;//run0c wire
+////			double smallest_lgt = 1000;
+//////			for(int j=0; j < rk_proj_lg_t->size(); j++) {
+//////				for( auto lgt : rk_proj_lg_t->at(j)){
+//////					h_lg_t_mod[mid-100]->Fill(lgt);
+//////					if(lgt > 0 ){ 
+//////					lg_flag = true;
+//////					if(smallest_lgt > lgt) smallest_lgt = lgt;
+//////					}
+//////				}
+//////			}
+//////			double t0diff = smallest_lgt - 88;//run0d
+////			double t0diff =  sts_t;
+////			
+////// --- cut conditions --- //
+////			if(chi2 > chi2_th[mid-100]) continue; //chi2_cut
+////			h_tgt_proj_z_chi2cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
+////			if(fabs(tgt_y + 1) > tgty_cut) continue;
+//////			if(xt4s[l] < timing_cut) continue;
+//////			if(resx < res_min[mid-100]) continue;
+//////			if(resx > res_max[mid-100]) continue;
+////			if(lg_flag) {
+////				int tgtid;
+////				if(tgt_z < 0) tgtid = 0;//up
+////				if(tgt_z > 0) tgtid = 1;//down
+////				for(int l=0; l < 4; l++){
+////					
+////					int ith_div = (fitlxs[l] + sideLen[l]/2 ) / (sideLen[l]/ n_div);	
+////					
+////					h_fitlx[tgtid][mids[l]-100][l]->Fill(fitlxs[l]);
+////					h_res_x[tgtid][mids[l]-100][l]->Fill(resx[l]);
+////					h_res_y[tgtid][mids[l]-100][l]->Fill(resy[l]);
+////					h_cor_res_fitlx[tgtid][mids[l]-100][l]->Fill(fitlxs[l], resx[l]);	
+////					h_cor_res_fitly[tgtid][mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
+////					h_cor_res_timing[tgtid][mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
+////					h_tan_theta[tgtid][mids[l]-100][l]     ->Fill(tans[l]);
+////					h_cor_dz_time[tgtid][mids[l]-100][l][ith_div]   ->Fill(xt4s[l], resx[l]/tans[l]);	
+////					h_cor_dz_time_t0cor[tgtid][mid-100][l][ith_div] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
+////					h_slopevel[tgtid][mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] );
+////				}
+////				h_tgt_proj_x[mid-100]->Fill(rk_fit_init_pos_gx->at(i));
+////				h_tgt_proj_y[mid-100]->Fill(rk_fit_init_pos_gy->at(i));
+////				h_trackmap[tgtid][mid-100]->Fill(fitlxs[1], fitlys[1]);
+////	//			if(fabs(rk_fit_init_pos_gx->at(i) + 1) > 4 ) continue;
+////	//			if(fabs(tgt_y+ 1.5) >1.5 ) continue;
+////	//			if(fabs(tdiff100-5) > 30) continue;
+////	//			if(fabs(tdiff200-5) > 30) continue;
+////	//			if(fabs(tdiff300-5) > 30) continue;
+////	//			if(fabs(tan) > 0.08){
+////	
+////				h_tgt_pos_mod_cut[mid-100]->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
+////				h_tgt_proj_z_cut[mid-100]->Fill(rk_fit_init_pos_gz->at(i));
+////	//			std::cout << "t0fiff " << t0diff << std::endl;
+////				h_t0diff->Fill(t0diff);
+//////			}
+////		}
+////		}
+////	}
+////
+////	TCanvas *c0 = new TCanvas();
+////	c0->SaveAs(pdf_name + "[", "pdf");
+////	gStyle->SetOptStat(1111111);
+////	gStyle->SetOptFit(0111);
+////
+////	TCanvas *c00 = new TCanvas();
+////	c00->Divide(2,2);
+////	c00->cd(1);
+////	h_n_runid->Draw();
+////	c00->cd(2);
+////	h_n_eventid->Draw();
+////	c00->cd(3);
+////	h_n_spillid->Draw();
+////	c00->SaveAs(pdf_name, "pdf");
+////
+//////module 106 focus
+////	int fixm = 106;
+////	TCanvas *c1 = new TCanvas();
+////	c1->Divide(4,2);
+////	for(int l=0; l < 4; l++){
+////		c1->cd(l+1);
+////		h_res_x[0][6][l]->Draw();
+////		c1->cd(5+l);
+////		h_res_x[1][6][l]->Draw();
+////	}
+////	c1->SaveAs(pdf_name, "pdf");
+////
+////	TCanvas *c200 = new TCanvas();
+////	c200->Divide(4,2);
+////	for(int l=0; l < 4; l++){
+////		c200->cd(l+1);
+////		h_fitlx[0][6][l]->Draw();
+////		c200->cd(5+l);
+////		h_fitlx[1][6][l]->Draw();
+////	}
+////	c200->SaveAs(pdf_name, "pdf");
+////
+////
+////
+////
+////   TCanvas *c100 = new TCanvas();
+////	c100->Divide(2,1);      
+////   c100->cd(1); h_tgt_proj_z_raw[6]->Draw("colz"); c100->SaveAs(pdf_name, "pdf");
+////	
+////
+////	 TCanvas *c310[2][10];
+////    TGraphErrors *gr[2][10];
+////    TGraphErrors *gr_mean[2][10];
+////    TH1D *h1[10];
+////    TF1 *f1[10];
+////	 int hmid = 106;
+////    c310[0][hmid-100] = new TCanvas();
+////    c310[1][hmid-100] = new TCanvas();
+////    c310[0][hmid-100]->Divide(5,5);
+////    c310[1][hmid-100]->Divide(5,5);
+////	 for(int t=0; t < 2; t++){
+////    int n = h_cor_res_fitlx[t][hmid-100][fixl]->GetNbinsX();
+////    double xmin = -2;
+////    double xmax =  2;
+////    std::cout << "nbins = " << n << std::endl;
+////    gr[t][hmid-100] = new TGraphErrors(n);
+////    gr_mean[t][hmid-100] = new TGraphErrors(n);
+////     for (int i = 1; i <= n; i++) {
+////       c310[t][hmid-100]->cd(i);
+////        h1[hmid-100] = h_cor_res_fitlx[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
+//// //    f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
+//////       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+////       f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0)",      xmin, xmax);
+//////       f1[hmid-100]->SetParameter(0, 500);   // constant
+////       f1[hmid-100]->SetParameter(1, 0);     // mean
+//////       f1[hmid-100]->SetParLimits(1, -2, 2); // mean
+//////       f1[hmid-100]->SetParameter(2, 0.3);
+//////       f1[hmid-100]->SetParLimits(2, 0.1, 1);
+//////       f1[hmid-100]->SetParameter(3, 0);
+//////       f1[hmid-100]->SetParameter(4, -1);
+////        h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
+////	     double mean = f1[hmid-100]->GetParameter(1);
+////	     double mean_err = f1[hmid-100]->GetParError(1);
+////       double sigma = f1[hmid-100]->GetParameter(2);
+////        double sigma_err = f1[hmid-100]->GetParError(2);
+////       std::cout << "sigma = " << sigma << std::endl;
+////        gr[t][hmid-100]->SetPoint(i-1, -100 + 200/n * i + 200/n/2, sigma);
+////        gr[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
+////        gr_mean[t][hmid-100]->SetPoint(i-1, -100+ 200/n * i + 200/n/2, mean);
+////        gr_mean[t][hmid-100]->SetPointError(i-1, 0, mean_err);
+////       h1[hmid-100]->Draw();
+////    }
+////          c310[t][hmid-100]->cd(24);
+////			
+////          gr[t][hmid-100]->Draw("AP");
+////          c310[t][hmid-100]->cd(25);
+////				gr_mean[t][hmid-100]->SetMaximum(1.0);
+////				gr_mean[t][hmid-100]->SetMinimum(-1.0);
+////				gr_mean[t][hmid-100]->SetLineStyle(0);
+////          gr_mean[t][hmid-100]->Draw("AP");
+////          c310[t][hmid-100]->SaveAs(pdf_name, "pdf");
+////		}//target loop
+////
+////
+////	 TCanvas *c311[2][10];
+////    TGraphErrors *gry[2][10];
+////    TGraphErrors *gry_mean[2][10];
+////    TH1D *h1y[10];
+////    TF1 *f1y[10];
+////    c311[0][hmid-100] = new TCanvas();
+////    c311[1][hmid-100] = new TCanvas();
+////    c311[0][hmid-100]->Divide(5,5);
+////    c311[1][hmid-100]->Divide(5,5);
+////	 for(int t=0; t < 2; t++){
+////    int n = h_cor_res_fitly[t][hmid-100][fixl]->GetNbinsX();
+////    double xmin = -2;
+////    double xmax =  2;
+////    std::cout << "nbins = " << n << std::endl;
+////    gry[t][hmid-100] = new TGraphErrors(n);
+////    gry_mean[t][hmid-100] = new TGraphErrors(n);
+////     for (int i = 1; i <= n; i++) {
+////       c311[t][hmid-100]->cd(i);
+////        h1y[hmid-100] = h_cor_res_fitly[t][hmid-100][fixl]->ProjectionY(Form("_pjy%d%d", hmid, i), i, i     );
+////     f1y[hmid-100] = new TF1(Form("f1y%d%d",hmid, i), "gaus");
+//////       f1y[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+////       f1y[hmid-100]->SetParameter(0, 500);   // constant
+////       f1y[hmid-100]->SetParameter(1, 0);     // mean
+////       f1y[hmid-100]->SetParLimits(1, -2, 2); // mean
+////       f1y[hmid-100]->SetParameter(2, 0.3);
+////       f1y[hmid-100]->SetParLimits(2, 0.1, 1);
+////       f1y[hmid-100]->SetParameter(3, 0);
+////       f1y[hmid-100]->SetParameter(4, -1);
+////        h1y[hmid-100]->Fit(f1y[hmid-100], "", "", xmin, xmax);
+////	     double mean = f1y[hmid-100]->GetParameter(1);
+////	     double mean_err = f1y[hmid-100]->GetParError(1);
+////       double sigma = f1y[hmid-100]->GetParameter(2);
+////        double sigma_err = f1y[hmid-100]->GetParError(2);
+////       std::cout << "sigma = " << sigma << std::endl;
+////        gry[t][hmid-100]->SetPoint(i-1, -100 + 200/n * i + 200/n/2, sigma);
+////        gry[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
+////        gry_mean[t][hmid-100]->SetPoint(i-1, -100+ 200/n * i + 200/n/2, mean);
+////        gry_mean[t][hmid-100]->SetPointError(i-1, 0, mean_err);
+////       h1y[hmid-100]->Draw();
+////    }
+////          c311[t][hmid-100]->cd(24);
+////			
+////          gry[t][hmid-100]->Draw("AP");
+////          c311[t][hmid-100]->cd(25);
+////				gry_mean[t][hmid-100]->SetMaximum(1.0);
+////				gry_mean[t][hmid-100]->SetMinimum(-1.0);
+////				gry_mean[t][hmid-100]->SetLineStyle(0);
+////          gry_mean[t][hmid-100]->Draw("AP");
+////          c311[t][hmid-100]->SaveAs(pdf_name, "pdf");
+////		}//target loop
+////
+////
+////	TCanvas *c333 = new TCanvas();
+////	h_cor_res_timing[0][6][2]->Draw();
+////	c333->SaveAs(pdf_name, "pdf");
+////
+////	 TCanvas *c31t[2][10];
+////    TGraphErrors *grt[2][10];
+////    TGraphErrors *grt_mean[2][10];
+////    TH1D *h1t[10];
+////    TF1 *f1t[10];
+////    c31t[0][hmid-100] = new TCanvas();
+////    c31t[1][hmid-100] = new TCanvas();
+////    c31t[0][hmid-100]->Divide(5,5);
+////    c31t[1][hmid-100]->Divide(5,5);
+////	 for(int t=0; t < 2; t++){
+////    int n = h_cor_res_timing[t][hmid-100][fixl]->GetNbinsX();
+////    double xmin = -2;
+////    double xmax =  2;
+////    std::cout << "nbins = " << n << std::endl;
+////    grt[t][hmid-100] = new TGraphErrors(n);
+////    grt_mean[t][hmid-100] = new TGraphErrors(n);
+////     for (int i = 1; i <= n; i++) {
+////       c31t[t][hmid-100]->cd(i);
+////        h1t[hmid-100] = h_cor_res_timing[t][hmid-100][fixl]->ProjectionY(Form("_pjt%d%d", hmid, i), i, i     );
+////     f1t[hmid-100] = new TF1(Form("f1t%d%d",hmid, i), "gaus");
+//////       f1t[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+////       f1t[hmid-100]->SetParameter(0, 500);   // constant
+////       f1t[hmid-100]->SetParameter(1, 0);     // mean
+////       f1t[hmid-100]->SetParLimits(1, -2, 2); // mean
+////       f1t[hmid-100]->SetParameter(2, 0.3);
+////       f1t[hmid-100]->SetParLimits(2, 0.1, 1);
+////       f1t[hmid-100]->SetParameter(3, 0);
+////       f1t[hmid-100]->SetParameter(4, -1);
+////        h1t[hmid-100]->Fit(f1t[hmid-100], "", "", xmin, xmax);
+////	     double mean = f1t[hmid-100]->GetParameter(1);
+////	     double mean_err = f1t[hmid-100]->GetParError(1);
+////       double sigma = f1t[hmid-100]->GetParameter(2);
+////        double sigma_err = f1t[hmid-100]->GetParError(2);
+////       std::cout << "sigma = " << sigma << std::endl;
+////        grt[t][hmid-100]->SetPoint(i-1,   600/n * i + 600/n/2, sigma);
+////        grt[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
+////        grt_mean[t][hmid-100]->SetPoint(i-1, 600/n * i + 600/n/2, mean);
+////        grt_mean[t][hmid-100]->SetPointError(i-1, 0, mean_err);
+////       h1t[hmid-100]->Draw();
+////    }
+////          c31t[t][hmid-100]->cd(24);
+////			
+////          grt[t][hmid-100]->Draw("AP");
+////          c31t[t][hmid-100]->cd(25);
+////				grt_mean[t][hmid-100]->SetMaximum(1.0);
+////				grt_mean[t][hmid-100]->SetMinimum(-1.0);
+////			 grt_mean[t][hmid-100]->SetLineStyle(0);
+////          grt_mean[t][hmid-100]->Draw("AP");
+////          c31t[t][hmid-100]->SaveAs(pdf_name, "pdf");
+////		}//target loop
+////
+////
+//////
+////
+////	double msize = 0.4;
+////	TCanvas *c312 = new TCanvas();
+////	c312->Divide(2,2);
+////	c312->cd(1);
+////	gr[0][6]->SetTitle("residual vs local x  ");
+////	gr[0][6]->GetYaxis()->SetTitle("residual sigma [mm]");
+////	gr[0][6]->GetXaxis()->SetRangeUser(-100, 100);
+////	gr[0][6]->GetXaxis()->SetTitle("local x [mm]");
+////	gr[0][6]->SetMarkerStyle(20);
+////	gr[1][6]->SetMarkerStyle(21);
+////	gr[0][6]->SetMarkerSize(msize);
+////	gr[1][6]->SetMarkerSize(msize);
+////	gr[1][6]->SetMarkerColor(kRed);
+////	gr[0][6]->Draw("AP");
+////	gr[1][6]->SetLineColor(kRed);
+////	gr[1][6]->Draw("P SAME");
+////
+////	c312->cd(2);
+////	gry[0][6]->SetTitle("residual vs localy ");
+////	gry[0][6]->GetYaxis()->SetTitle("residual sigma [mm]");
+////	gry[0][6]->GetXaxis()->SetRangeUser(-100, 100);
+////	gry[0][6]->GetXaxis()->SetTitle("local y [mm]");
+////	gry[0][6]->SetMarkerStyle(20);
+////	gry[1][6]->SetMarkerStyle(21);
+////	gry[0][6]->SetMarkerSize(msize);
+////	gry[1][6]->SetMarkerSize(msize);
+////	gry[1][6]->SetMarkerColor(kRed);
+////	gry[0][6]->Draw("AP");
+////	gry[1][6]->SetLineColor(kRed);
+////	gry[1][6]->Draw("P SAME");
+////
+////   c312->cd(3);
+////	grt[0][6]->SetTitle("residual vs timing ");
+////	grt[0][6]->GetYaxis()->SetTitle("residual sigma [mm]");
+////	grt[0][6]->GetXaxis()->SetRangeUser(0, 600);
+////	grt[0][6]->GetXaxis()->SetTitle("timing x [ns]");
+////	grt[0][6]->SetMarkerStyle(20);
+////	grt[1][6]->SetMarkerStyle(21);
+////	grt[0][6]->SetMarkerSize(msize);
+////	grt[1][6]->SetMarkerSize(msize);
+////	grt[1][6]->SetMarkerColor(kRed);
+////	grt[0][6]->Draw("AP");
+////	grt[1][6]->SetLineColor(kRed);
+////	grt[1][6]->Draw("P SAME");
+////	c312->SaveAs(pdf_name, "pdf");
+////
+////	TCanvas *c313 = new TCanvas();
+////	c313->Divide(2,2);
+////	c313->cd(1);
+////	gr_mean[0][6]->SetTitle("residual vs local x mean ");
+////	gr_mean[0][6]->GetYaxis()->SetTitle("residual mean [mm]");
+////	gr_mean[0][6]->GetXaxis()->SetRangeUser(-100, 100);
+////	gr_mean[0][6]->GetXaxis()->SetTitle("local x [mm]");
+////	gr_mean[0][6]->SetMarkerStyle(20);
+////	gr_mean[1][6]->SetMarkerStyle(21);
+////	gr_mean[1][6]->SetMarkerColor(kRed);
+////	gr_mean[0][6]->SetMarkerSize(msize);
+////	gr_mean[1][6]->SetMarkerSize(msize);
+////	gr_mean[0][6]->Draw("AP");
+////	gr_mean[1][6]->SetLineColor(kRed);
+////	gr_mean[1][6]->Draw("P SAME");
+////	c313->cd(2);
+////	gry_mean[0][6]->SetTitle("residual vs localy mean ");
+////	gry_mean[0][6]->GetYaxis()->SetTitle("residual mean [mm]");
+////	gry_mean[0][6]->GetXaxis()->SetRangeUser(-100, 100);
+////	gry_mean[0][6]->GetXaxis()->SetTitle("local y [mm]");
+////	gry_mean[0][6]->SetMarkerStyle(20);
+////	gry_mean[1][6]->SetMarkerStyle(21);
+////	gry_mean[1][6]->SetMarkerColor(kRed);
+////	gry_mean[0][6]->SetMarkerSize(msize);
+////	gry_mean[1][6]->SetMarkerSize(msize);
+////	gry_mean[0][6]->Draw("AP");
+////	gry_mean[1][6]->SetLineColor(kRed);
+////	gry_mean[1][6]->Draw("P SAME");
+////	c313->cd(3);
+////	grt_mean[0][6]->SetTitle("residual mean vs timing ");
+////	grt_mean[0][6]->GetYaxis()->SetTitle("residual mean [mm]");
+////	grt_mean[0][6]->GetXaxis()->SetRangeUser(0, 600);
+////	grt_mean[0][6]->GetXaxis()->SetTitle("timing x [ns]");
+////	grt_mean[0][6]->SetMarkerStyle(20);
+////	grt_mean[1][6]->SetMarkerStyle(21);
+////	grt_mean[1][6]->SetMarkerColor(kRed);
+////	grt_mean[0][6]->SetMarkerSize(msize);
+////	grt_mean[1][6]->SetMarkerSize(msize);
+////	grt_mean[0][6]->Draw("AP");
+////	grt_mean[1][6]->SetLineColor(kRed);
+////	grt_mean[1][6]->Draw("P SAME");
+////
+////
+////	c313->SaveAs(pdf_name, "pdf");
+////
+////
+////	
+////
+////
+////
+////
+////	TCanvas *c01 = new TCanvas();
+////	h_chi2->Draw();
+////	c01->SaveAs(pdf_name, "pdf");
+////
+////
+////	TCanvas *c02 = new TCanvas();
+////	c02->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c02->cd(i);
+////      if(i < 5) {
+////         h_chi2_mod[i]->Draw("colz");
+////      }
+////      else {
+////         h_chi2_mod[i+1]->Draw("colz");
+////      }
+////   }
+////   c02->SaveAs(pdf_name, "pdf");
+////
+////	TCanvas *clgt = new TCanvas();
+////	clgt->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      clgt->cd(i);
+////      if(i < 5) {
+////         h_lg_t_mod[i]->Draw("colz");
+////      }
+////      else {
+////         h_lg_t_mod[i+1]->Draw("colz");
+////      }
+////   }
+////   clgt->SaveAs(pdf_name, "pdf");
+////
+////
+////
+////
+////	TCanvas *chit = new TCanvas();
+////	chit->Divide(8,2);
+////	for(int i =1; i < 9; i++){
+////      chit->cd(i);
+////      if(i < 5) {
+////         h_trackmap[0][i]->Draw("colz");
+////			chit->cd(i+8);
+////			h_trackmap[1][i]->Draw("colz");
+////      }
+////      else {
+////         h_trackmap[0][i+1]->Draw("colz");
+////			chit->cd(i+8);
+////         h_trackmap[1][i+1]->Draw("colz");
+////      }
+////   }
+////   chit->SaveAs(pdf_name, "pdf");
+////
+////	
+////
+////
+////
+////
+////	TCanvas *c03a = new TCanvas();
+////	c03a->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c03a->cd(i);
+////      if(i < 5) {
+////         h_tgt_pos_mod_raw[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_pos_mod_raw[i+1]->Draw("colz");
+////      }
+////   }
+////   c03a->SaveAs(pdf_name, "pdf");
+////
+////	TCanvas *c03b = new TCanvas();
+////	c03b->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c03b->cd(i);
+////      if(i < 5) {
+////         h_tgt_pos_mod_cut[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_pos_mod_cut[i+1]->Draw("colz");
+////      }
+////   }
+////   c03b->SaveAs(pdf_name, "pdf");
+////
+////
+////
+////	TCanvas *c04 = new TCanvas();
+////	c04->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c04->cd(i);
+////      if(i < 5) {
+////         h_tgt_proj_z_raw[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_proj_z_raw[i+1]->Draw("colz");
+////      }
+////   }
+////   c04->SaveAs(pdf_name, "pdf");
+////
+////	TCanvas *c04c = new TCanvas();
+////	c04c->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c04c->cd(i);
+////      if(i < 5) {
+////         h_tgt_proj_z_chi2cut[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_proj_z_chi2cut[i+1]->Draw("colz");
+////      }
+////   }
+////   c04c->SaveAs(pdf_name, "pdf");
+////
+////
+////	TCanvas *c04a = new TCanvas();
+////	c04a->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c04a->cd(i);
+////      if(i < 5) {
+////         h_tgt_proj_z_cut[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_proj_z_cut[i+1]->Draw("colz");
+////      }
+////   }
+////   c04a->SaveAs(pdf_name, "pdf");
+////
+////
+////
+////	TCanvas *c04x = new TCanvas();
+////	c04x->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c04x->cd(i);
+////      if(i < 5) {
+////         h_tgt_proj_x[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_proj_x[i+1]->Draw("colz");
+////      }
+////   }
+////   c04x->SaveAs(pdf_name, "pdf");
+////
+////	TCanvas *c04y = new TCanvas();
+////	c04y->Divide(4,2);
+////	for(int i =1; i < 9; i++){
+////      c04y->cd(i);
+////      if(i < 5) {
+////         h_tgt_proj_y[i]->Draw("colz");
+////      }
+////      else {
+////         h_tgt_proj_y[i+1]->Draw("colz");
+////      }
+////   }
+////   c04y->SaveAs(pdf_name, "pdf");
+////
+//////	TCanvas *c1 = new TCanvas();
+//////	c1->Divide(4,2);
+//////	for(int i =1; i < 9; i++){
+//////      c1->cd(i);
+//////      if(i < 5) {
+//////         h_res_x[i][fixl]->Draw("colz");
+//////      }
+//////      else {
+//////         h_res_x[i+1][fixl]->Draw("colz");
+//////      }
+//////   }
+//////   c1->SaveAs(pdf_name, "pdf");
+//////
+//////	TCanvas *c2 = new TCanvas();
+//////	c2->Divide(4,2);
+//////	for(int i =1; i < 9; i++){
+//////      c2->cd(i);
+//////      if(i < 5) {
+//////         h_res_y[i][fixl]->Draw("colz");
+//////      }
+//////      else {
+//////         h_res_y[i+1][fixl]->Draw("colz");
+//////      }
+//////   }
+//////   c2->SaveAs(pdf_name, "pdf");
+//////
+//////	TCanvas *c3 = new TCanvas();
+//////	c3->Divide(4,2);
+//////	for(int i =1; i < 9; i++){
+//////      c3->cd(i);
+//////      if(i < 5) {
+//////         h_tan_theta[t][i][fixl]->Draw("colz");
+//////      }
+//////      else {
+//////         h_tan_theta[i+1][fixl]->Draw("colz");
+//////      }
+//////   }
+//////   c3->SaveAs(pdf_name, "pdf");
+////
+////
+////
+////
+//////
+//////	TCanvas *c31[10];
+//////    TGraphErrors *gr[10];
+//////    TGraphErrors *gr_mean[10];
+//////    TH1D *h1[10];
+//////    TF1 *f1[10];
+//////    for(int hmid=101; hmid < 110; hmid++){
+//////       if(hmid == 105)continue;
+//////             c31[hmid-100] = new TCanvas();
+//////             c31[hmid-100]->Divide(4,3);
+//////             int n = h_cor_res_fitlx[0][hmid-100][fixl]->GetNbinsX();
+//////             double xmin = -2;
+//////             double xmax =  2;
+//////             std::cout << "nibs = " << n << std::endl;
+//////             gr[hmid-100] = new TGraphErrors(n);
+//////             gr_mean[hmid-100] = new TGraphErrors(n);
+//////              for (int i = 1; i <= n; i++) {
+//////                c31[hmid-100]->cd(i);
+//////                 h1[hmid-100] = h_cor_res_fitlx[0][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
+////// //             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
+//////                f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+//////                f1[hmid-100]->SetParameter(0, 500);   // constant
+//////                f1[hmid-100]->SetParameter(1, 0);     // mean
+//////                f1[hmid-100]->SetParLimits(1, -2, 2); // mean
+//////                f1[hmid-100]->SetParameter(2, 0.3);
+//////                f1[hmid-100]->SetParLimits(2, 0.1, 1);
+//////                f1[hmid-100]->SetParameter(3, 0);
+//////                f1[hmid-100]->SetParameter(4, -1);
+//////                 h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
+//////					  double mean = f1[hmid-100]->GetParameter(1);
+//////					  double mean_err = f1[hmid-100]->GetParError(1);
+//////                double sigma = f1[hmid-100]->GetParameter(2);
+//////                 double sigma_err = f1[hmid-100]->GetParError(2);
+//////                std::cout << "sigma = " << sigma << std::endl;
+//////                 gr[hmid-100]->SetPoint(i-1, i, sigma);
+//////                 gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
+//////                 gr_mean[hmid-100]->SetPoint(i-1, i, mean);
+//////                 gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
+//////                h1[hmid-100]->Draw();
+//////             }
+//////          c31[hmid-100]->cd(11);
+//////          gr[hmid-100]->Draw();
+//////          c31[hmid-100]->cd(12);
+//////				gr_mean[hmid-100]->SetMaximum(0.2);
+//////				gr_mean[hmid-100]->SetMinimum(-0.2);
+//////				gr_mean[hmid-100]->SetLineStyle(0);
+//////				
+//////          gr_mean[hmid-100]->Draw();
+//////          c31[hmid-100]->SaveAs(pdf_name, "pdf");
+//////    }
+//////
+////
+//////   TCanvas *c6 = new TCanvas();
+//////   c6->Divide(4,2);
+//////   for(int i =1; i < 9; i++){
+//////      c6->cd(i);
+//////      if(i < 5) {
+//////         h_cor_dz_time[i][fixl]->Draw("colz");
+//////      }
+//////      else {
+//////         h_cor_dz_time[i+1][fixl]->Draw("colz");
+//////      }
+//////   }
+//////   c6->SaveAs(pdf_name, "pdf");
+//////
+//////    TCanvas *c16[2][10];
+//////    TGraphErrors *gr16[2][10];
+//////    TH1D *h16[2][10];
+//////    TF1  *f16[2][10];
+//////    TF1  *fla[2][10];
+//////    double xmin[10]  = {0, -7, -7, -7,     -6, 0, -6.5, -5.5, -7, -7};//mod100-109
+//////    double xmax[10]  = {0, 10, 10, 10,    5.5, 0,    2,  4.0,  8,  8};
+//////	 double flmin[10] = {0, 120, 120, 120, 120, 0, 120, 100, 180, 180};
+//////	 double flmax[10] = {0, 450, 450, 450, 450, 0, 530, 450, 550, 450};
+//////	 for(int t=0; t < 2; t++){
+//////    for(int hmid=101; hmid < 110; hmid++){
+//////       if(hmid != 106)continue;
+//////       c16[t][hmid-100] = new TCanvas();
+//////       int n = h_cor_dz_time[t][hmid-100][fixl]->GetNbinsX();
+//////       c16[t][hmid-100]->Divide(5,5);
+//////       std::cout << "nbins dz = " << n << std::endl;
+//////       gr16[t][hmid-100] = new TGraphErrors(n);
+//////		 gr16[t][hmid-100]->SetMaximum( 8.0);
+//////		 gr16[t][hmid-100]->SetMinimum(-8.0);
+//////        for (int i = 1; i <= n; i++) {
+//////          c16[t][hmid-100]->cd(i);
+//////          fla[t][hmid-100] = new TF1(Form("fla%d", hmid), "pol1", flmin[hmid-100], flmax[hmid-100]);
+//////          h16[t][hmid-100] = h_cor_dz_time[t][hmid-100][fixl]->ProjectionY(Form("_py%d%d", hmid, i), i, i);
+//////          //f16[hmid-100] = new TF1(Form("f16%d%d",hmid, i), "landau");
+////// //       f16[hmid-100] = new TF1("fitFunction", "gaus(0) + [3]*exp(-[4]*(x-[5])  )", xmin, xmax);
+////// //       f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x+[6]*x*x*x", xmin,xmax);
+//////          //f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "Slope", "X0");
+////////          f16[hmid-100] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xmin[hmid-100],xmax[hmid-100]);
+//////          f16[t][hmid-100] = new TF1("fitFunction", "gaus(0)+[3]*x", xmin[hmid-100],xmax[hmid-100]);
+////// //       f16[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+////// //       f16[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+//////          f16[t][hmid-100]->SetParameter(0, 20); // constant
+//////          f16[t][hmid-100]->SetParameter(1, 0);     // mean
+//////          f16[t][hmid-100]->SetParameter(2, 10);    // sigma
+//////          f16[t][hmid-100]->SetParLimits(2, 1, 10);
+//////          f16[t][hmid-100]->SetParameter(3, 0);    
+////////          f16[hmid-100]->SetParLimits(3, -0.8, 0);
+////////          f16[hmid-100]->SetParameter(4, -1);    
+////////          f16[hmid-100]->SetParameter(4, -0.5);  
+//////           h16[t][hmid-100]->Fit(f16[t][hmid-100], "", "", xmin[hmid-100], xmax[hmid-100]);
+//////
+//////           double chi2 = f16[t][hmid-100]->GetChisquare();
+//////          double mean =  f16[t][hmid-100]->GetParameter(1);
+//////           double sigma_err = f16[t][hmid-100]->GetParError(2);
+//////          std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+//////          if(chi2 < 5) continue;
+//////          if(sigma_err > 10) continue;
+//////           gr16[t][hmid-100]->SetPoint(i-1, i*(600/n), mean);
+//////           gr16[t][hmid-100]->SetPointError(i-1, 0, sigma_err);
+//////           gr16[t][hmid-100]->Fit(fla[t][hmid-100], "R");
+//////           h16[t][hmid-100]->Draw();
+//////       }
+//////          c16[t][hmid-100]->cd(6);
+//////          c16[t][hmid-100]->SaveAs(pdf_name, "pdf");
+//////		}
+//////    }
+////////
+////////
+//////    TCanvas *c17[2];
+//////	for(int t=0; t < 2; t++){
+//////	 c17[t]= new TCanvas();
+//////    c17[t]->Divide(4,2);
+//////    for(int hmid=101; hmid < 110; hmid++){
+//////       if(hmid!=106) continue;
+//////       if(hmid < 105) {c17[t]->cd(hmid-100);}
+//////		 else {c17[t]->cd(hmid-101);}
+//////       gr16[t][hmid-100]->SetTitle(Form("residual/tan_theta tgt%d  mod%d : timing ;  timing; residual/tan_theta", t, hmid) );
+//////       gr16[t][hmid-100]->Draw("AP");
+//////    }
+//////   c17[t]->SaveAs(pdf_name, "pdf");
+//////	}
+//////
+////
+//////
+//////  TCanvas *c6b = new TCanvas();
+//////  c6b->Divide(2,2);
+//////  for(int tgt=0; tgt<2; tgt++){
+//////  for(int i =1; i < 9; i++){
+//////	  
+//////     c6b->cd(i);
+//////     if(i < 5) {
+//////        h_cor_dz_time_t0cor[tgt][i][fixl]->Draw("colz");
+//////     }
+//////     else {
+//////        h_cor_dz_time_t0cor[tgt][i+1][fixl]->Draw("colz");
+//////     }
+//////  }
+//////	}
+//////  c6b->SaveAs(pdf_name, "pdf");
+//////
+//////
+////
+////   TCanvas *c16b[2][10][n_div];
+////   TGraphErrors *gr16b[2][10][n_div];
+////   TH1D *h16b[2][10][n_div];
+////   TF1 *f16b[2][10][n_div];
+////   TF1 *flab[2][10][n_div];
+////#ifdef CALIB
+////   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -2, -5.5, -4, -4};//mod100-109
+////   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,  2,  4.0,  5,  5};
+////#else 
+////   double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
+////   double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
+////#endif
+////   double flminb[10] = {0, 120, 120, 120, 120, 0, 200, 120, 100, 180};
+////   double flmaxb[10] = {0, 450, 450, 450, 450, 0, 550, 450, 320, 450};
+////	for(int t=0; t < 2; t++){
+////		int hmid = 106;
+////		for(int d=0 ; d < n_div; d++){
+////      c16b[t][hmid-100][d] = new TCanvas();
+////      int n = h_cor_dz_time_t0cor[t][hmid-100][fixl][d]->GetNbinsX();
+////      c16b[t][hmid-100][d]->Divide(5,5);
+////      std::cout << "nbins dz = " << n << std::endl;
+////      gr16b[t][hmid-100][d] = new TGraphErrors(n);
+////   	gr16b[t][hmid-100][d]->SetMaximum( 8.0);
+////	   gr16b[t][hmid-100][d]->SetMinimum(-8.0);
+////       for (int i = 1; i <= n; i++) {
+////         c16b[t][hmid-100][d]->cd(i);
+////         flab[t][hmid-100][d] = new TF1(Form("fla%d%d", t, d), "pol1", flminb[hmid-100], flmaxb[hmid-100]);
+////         h16b[t][hmid-100][d] = h_cor_dz_time_t0cor[t][hmid-100][fixl][d]->ProjectionY(Form("_py%d%d%d", hmid, i), i, i);
+//////         f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]+[4]*x+[5]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+//////         f16b[t][hmid-100][d] = new TF1(Form("fitFunction%d%d", t, d), "gaus(0)+[3]*x*x", xminb[hmid-100],xmaxb[hmid-100]);
+////         f16b[t][hmid-100][d] = new TF1("fitFunction", "gaus(0)+[3]*x", xminb[hmid-100],xmaxb[hmid-100]);
+//////       f16b[hmid-100] = new TF1("fitFunction", "[0]*exp(-0.5*((x-[1])/[2])**2) + [3]*TMath::Erfc([4]*(x-[5]))", xmin, xmax);
+//////       f16b[hmid-100]->SetParNames("Constant", "Mean", "Sigma", "TailHeight", "TailSlope","TailX0");
+////         f16b[t][hmid-100][d]->SetParameter(0, 20); // constant
+////         f16b[t][hmid-100][d]->SetParameter(1, 0);     // mean
+////         f16b[t][hmid-100][d]->SetParameter(2, 3);    // sigma
+//////         f16b[t][hmid-100][d]->SetParameter(3, 0);    
+//////         f16b[t][hmid-100][d]->SetParameter(4, -1);    
+//////         f16b[t][hmid-100][d]->SetParameter(4, -0.5);  
+////         h16b[t][hmid-100][d]->Fit(f16b[t][hmid-100][d], "", "", xminb[hmid-100], xmaxb[hmid-100]);
+////
+////          double chi2 = f16b[t][hmid-100][d]->GetChisquare();
+////         double mean = f16b[t][hmid-100][d]->GetParameter(1);
+////          double sigma_err = f16b[t][hmid-100][d]->GetParError(2);
+////         std::cout << "mod, fit chi2  = " << hmid  << ", "  << chi2 << std::endl;
+////         if(chi2 < 5) continue;
+////         if(sigma_err > 10) continue;
+////          gr16b[t][hmid-100][d]->SetPoint(i-1, i*(600/n), mean);
+////          gr16b[t][hmid-100][d]->SetPointError(i-1, 0, sigma_err);
+////          gr16b[t][hmid-100][d]->Fit(flab[t][hmid-100][d], "R");
+////          h16b[t][hmid-100][d]->Draw();
+////      }
+////         c16b[t][hmid-100][d]->cd(6);
+////         c16b[t][hmid-100][d]->SaveAs(pdf_name, "pdf");
+////   	}
+////	}
+////
+////
+////	TCanvas *c0d = new TCanvas();
+////	h_t0diff->Draw();
+////	c0d->SaveAs(pdf_name, "pdf");
+////
+////    TCanvas *c17b[2];
+////		for(int t=0; t < 2; t++){
+////		 	c17b[t] = new TCanvas();
+////   	 	c17b[t]->Divide(5,4);
+////			for(int d=0; d < n_div; d++){
+////				c17b[t]->cd(d+1);
+////		      gr16b[t][6][d]->SetTitle(Form("residual/tan_theta tgt%d mod 106 : timing_lg ;  timing_lg; residual/tan_theta", t) );
+////	   	   gr16b[t][6][d]->Draw("AP");
+////				
+////			}
+////	 	c17b[t]->SaveAs(pdf_name, "pdf");
+////	  }
+////
+////
+////    TCanvas *c18[2];
+////	 TGraphErrors *tg18[2];
+////		for(int t=0; t < 2; t++){
+////			c18[t] = new TCanvas();
+////			tg18[t] = new TGraphErrors(n_div);
+////			for(int d=0; d < n_div; d++){
+////				double tilt = flab[t][6][d]->GetParameter(1);
+////				tg18[t]->SetPoint(d, d, tilt);
+////			}
+//////			tg18[t]->SetMarkerSize(msize);
+////			tg18[t]->Draw("AP");
+////	 c18[t]->SaveAs(pdf_name, "pdf");
+////	  }
+////
+////
+////    TCanvas *c19[2];
+////		for(int t=0; t < 2; t++){
+////			c19[t] = new TCanvas();
+////			c19[t]->Divide(4,5);
+////			for(int d=0; d < n_div; d++){
+////				c19[t]->cd(d+1);
+////				h_slopevel[t][6][fixl][d]->Draw("colz");
+////			}
+////	 	c19[t]->SaveAs(pdf_name, "pdf");
+////	  }
+////
+////
+////		
+////
+////
+////
+////		c0->SaveAs(pdf_name + "]", "pdf");
+////}
+////
+////
+////
+////void E16DSTN_ReadStraightTree::HistFit(TCanvas *c, ){
+////   TCanvas *c16b[2][10];
+////   TGraphErrors *gr16b[2][10];
 //
-//
-//void E16DSTN_ReadStraightTree::HistFit(TCanvas *c, ){
-//   TCanvas *c16b[2][10];
-//   TGraphErrors *gr16b[2][10];
-
