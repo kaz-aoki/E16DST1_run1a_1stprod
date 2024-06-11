@@ -4703,16 +4703,16 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_gtr200_yt4", &out_rk_hit_gtr200_yt4);
    outtree->Branch("rk_hit_gtr300_yt4", &out_rk_hit_gtr300_yt4);
 
-   outtree->Branch("gtr100x_cluster_last_tot_end",        &out_gtr100x_cluster_last_tot_end);
-   outtree->Branch("gtr200x_cluster_last_tot_end",        &out_gtr200x_cluster_last_tot_end);
-   outtree->Branch("gtr300x_cluster_last_tot_end",        &out_gtr300x_cluster_last_tot_end);
-   outtree->Branch("gtr100x_cluster_consist_hit_id", &out_gtr100x_cluster_consist_hit_id);
-   outtree->Branch("gtr200x_cluster_consist_hit_id", &out_gtr200x_cluster_consist_hit_id);
-   outtree->Branch("gtr300x_cluster_consist_hit_id", &out_gtr300x_cluster_consist_hit_id);
-   outtree->Branch("gtr100y_cluster_consist_hit_id", &out_gtr100y_cluster_consist_hit_id);
-   outtree->Branch("gtr100yb_cluster_consist_hit_id", &out_gtr100yb_cluster_consist_hit_id);
-   outtree->Branch("gtr200y_cluster_consist_hit_id", &out_gtr200y_cluster_consist_hit_id);
-   outtree->Branch("gtr300y_cluster_consist_hit_id", &out_gtr300y_cluster_consist_hit_id);
+   outtree->Branch("gtr100x_cluster_last_tot_end",    gtr100x_cluster_last_tot_end);
+   outtree->Branch("gtr200x_cluster_last_tot_end",    gtr200x_cluster_last_tot_end);
+   outtree->Branch("gtr300x_cluster_last_tot_end",    gtr300x_cluster_last_tot_end);
+   outtree->Branch("gtr100x_cluster_consist_hit_id",  gtr100x_cluster_consist_hit_id);
+   outtree->Branch("gtr200x_cluster_consist_hit_id",  gtr200x_cluster_consist_hit_id);
+   outtree->Branch("gtr300x_cluster_consist_hit_id",  gtr300x_cluster_consist_hit_id);
+   outtree->Branch("gtr100y_cluster_consist_hit_id",  gtr100y_cluster_consist_hit_id);
+   outtree->Branch("gtr100yb_cluster_consist_hit_id", gtr100yb_cluster_consist_hit_id);
+   outtree->Branch("gtr200y_cluster_consist_hit_id",  gtr200y_cluster_consist_hit_id);
+   outtree->Branch("gtr300y_cluster_consist_hit_id",  gtr300y_cluster_consist_hit_id);
 //   outtree->Branch("re_lg_res_x", &out_re_lg_res_x);
 //   outtree->Branch("re_lg_res_y", &out_re_lg_res_y);
 
@@ -4786,15 +4786,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 	 out_gtr100x_cluster_last_tot_end.resize(n_tracks);
 	 out_gtr200x_cluster_last_tot_end.resize(n_tracks);
 	 out_gtr300x_cluster_last_tot_end.resize(n_tracks);
-
-
-    out_gtr100x_cluster_consist_hit_id.resize(n_tracks);
-    out_gtr200x_cluster_consist_hit_id.resize(n_tracks);
-    out_gtr300x_cluster_consist_hit_id.resize(n_tracks);
-    out_gtr100y_cluster_consist_hit_id.resize(n_tracks);
-    out_gtr100yb_cluster_consist_hit_id.resize(n_tracks);
-    out_gtr200y_cluster_consist_hit_id.resize(n_tracks);
-    out_gtr300y_cluster_consist_hit_id.resize(n_tracks);
 
 	 out_rk_charge.resize(n_tracks);
     out_rk_hit_init_mom_gx.resize(n_tracks);
@@ -5203,23 +5194,11 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 	   out_y_rough_fit_coef1[i]=	   y_rough_fit_coef1->at(tid);
 
 
-			out_gtr100x_cluster_consist_hit_id[i].clear();
-			out_gtr200x_cluster_consist_hit_id[i].clear();
-			out_gtr300x_cluster_consist_hit_id[i].clear();
-			out_gtr100y_cluster_consist_hit_id[i].clear();
-			out_gtr100yb_cluster_consist_hit_id[i].clear();
-			out_gtr200y_cluster_consist_hit_id[i].clear();
-			out_gtr300y_cluster_consist_hit_id[i].clear();
-
 		int cid_100 = rk_hit_gtr100_xid->at(tid);//cluster id which is used in a track
 		for(int j=0; j < n_gtr100x_clusters; j++){
 			int cid = gtr100x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_100 == cid){ //if both are matched
    	      out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
-				int cl_size = gtr100x_cluster_consist_hit_id->at(j).size();
-				for(int k=0; k < cl_size; k++){
-					out_gtr100x_cluster_consist_hit_id[i].push_back(gtr100x_cluster_consist_hit_id->at(j)[k]);
-				}
 			}
 		}
 
@@ -5228,10 +5207,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 			int cid = gtr200x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_200 == cid){ //if both are matchej
             out_gtr200x_cluster_last_tot_end[i] = gtr200x_cluster_last_tot_end->at(j);//tot_end is filled
-				int cl_size = gtr200x_cluster_consist_hit_id->at(j).size();
-				for(int k=0; k < cl_size; k++){
-					out_gtr200x_cluster_consist_hit_id[i].push_back(gtr200x_cluster_consist_hit_id->at(j)[k]);
-				}
 			}
 		}	
    	int cid_300 = rk_hit_gtr300_xid->at(tid);//cluster id which is used in a track
@@ -5239,10 +5214,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 			int cid = gtr300x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_300 == cid){ //if both are matched
             out_gtr300x_cluster_last_tot_end[i] = gtr300x_cluster_last_tot_end->at(j);//tot_end is filled
-				int cl_size = gtr300x_cluster_consist_hit_id->at(j).size();
-				for(int k=0; k < cl_size; k++){
-					out_gtr300x_cluster_consist_hit_id[i].push_back(gtr300x_cluster_consist_hit_id->at(j)[k]);
-				}
 			}
 		}
 

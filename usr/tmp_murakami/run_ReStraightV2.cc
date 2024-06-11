@@ -45,10 +45,6 @@ int main (int argc, char** argv) {
 		std::cout << "./bin/~~ [input.root] [output.root] [runID] [max_analyzed_event] [anaSw]" << std::endl;
 		return 0;	
 	}
-	else {
-       std::cout << " appropriately loading " << std::endl;
-   }
-   std::cout  << "hello " << std::endl;
 	bool isWire = true;
 	std::string in_file  = argv[1];
 	std::string out_file = argv[2];
@@ -65,50 +61,48 @@ int main (int argc, char** argv) {
    bool py_fix_flag = false;
 	bool vetex_z_fix_flag = false;
 
-
-    auto& calib = E16ANA_CalibDBManager::Instance();
-    calib.SetRunID(run_id);
-    E16ANA_FieldMapCalibParam field_map_param;
-    field_map_param.ReadConstantData(calib.CurrentRunID());
-    E16ANA_GTRcalibPedestal gtrped;
-    gtrped.ReadCalibData( calib.CurrentRunID() );
-    E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
-    gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
-    auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
- 	 auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
-  	 std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
-    E16ANA_GeometryV2::SetGlobalPointer(geom);
-	  
-    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-	 bfield_map->Initialize_binary();
+	auto& calib = E16ANA_CalibDBManager::Instance();
+	calib.SetRunID(run_id);
+	E16ANA_FieldMapCalibParam field_map_param;
+	field_map_param.ReadConstantData(calib.CurrentRunID());
+	E16ANA_GTRcalibPedestal gtrped;
+	gtrped.ReadCalibData( calib.CurrentRunID() );
+	E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
+	gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
+	auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
+	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
+	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
+	E16ANA_GeometryV2::SetGlobalPointer(geom);
+	 
+	auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+	bfield_map->Initialize_binary();
 	E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
 
 
 
 //    pc->SetGeom(geom);
-    E16ANA_TriggerCalibParam trigger_param;
-    trigger_param.ReadConstantData(calib.CurrentRunID());
+	E16ANA_TriggerCalibParam trigger_param;
+	trigger_param.ReadConstantData(calib.CurrentRunID());
  
 
 // targets info 
-	 E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
-	 targets.ReadInfoWithRunID(calib.CurrentRunID());
-	 targets.Print();
-	 std::vector<TVector3> targets_pos;
-	 targets_pos.clear();
-    if(targets.NoT() == 3 ){
-            targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
-            targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
-            targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
-     }
-     else if (targets.IsWire()){
-         targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
-         targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
-     }
-    else {
-      return -1;
-    }
- 
+	E16ANA_TargetInfoManager &targets = E16ANA_TargetInfoManager::Instance();
+	targets.ReadInfoWithRunID(calib.CurrentRunID());
+	targets.Print();
+	std::vector<TVector3> targets_pos;
+	targets_pos.clear();
+	if(targets.NoT() == 3 ){
+	        targets_pos.push_back(TVector3( targets.Info(0).Position().x(),targets.Info(0).Position().y(),  targets.Info(0).Position().z()));
+	        targets_pos.push_back(TVector3( targets.Info(1).Position().x(),targets.Info(1).Position().y(),  targets.Info(1).Position().z()));
+	        targets_pos.push_back(TVector3( targets.Info(2).Position().x(),targets.Info(2).Position().y(),  targets.Info(2).Position().z()));
+	 }
+	 else if (targets.IsWire()){
+	     targets_pos.push_back(TVector3  (targets.Info(0).Position().x(), targets.Info(0).Position().y(), targets.Info(0).Position().z()));
+	     targets_pos.push_back(TVector3  (targets.Info(1).Position().x(), targets.Info(1).Position().y(), targets.Info(1).Position().z()));
+	 }
+	else {
+	  return -1;
+	}
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack( bfield_map, geom,  targets_pos, 1);
 	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom, fitter, targets_pos);
    re->Loop(tree, print_cycle, max_event,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag , anaSW );

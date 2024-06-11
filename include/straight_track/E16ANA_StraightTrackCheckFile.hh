@@ -1734,10 +1734,7 @@ class E16ANA_StraightTrackCheckFile {
 			for(int t=0; t< cl_size; t++){
 				v.push_back(clst.HitOrder(t));
 			}	
-				gtr300x_cluster_consist_hit_id.push_back(v);
-
-
-
+			gtr300x_cluster_consist_hit_id.push_back(v);
 
           gtr300x_cluster_mid.emplace_back(clst.ModuleId());
           gtr300x_cluster_x.emplace_back(clst.LocalX());

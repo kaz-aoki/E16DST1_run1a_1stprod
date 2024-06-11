@@ -621,15 +621,20 @@ void E16DSTN_ReStraightV2::InitHistos(){
 		h_bak_res_lg_x[m]  = new TH1D(Form("h_bak_res_lg_x_%d", m+100), Form("h_bak_res_lg_x_%d", m+100), 50, -400, 400 );
 		h_bak_res_lg_y[m]  = new TH1D(Form("h_bak_res_lg_y_%d", m+100), Form("h_bak_res_lg_y_%d", m+100), 50, -400, 400 );
 		h_bak_res_lg_2d[m]  = new TH2D(Form("h_bak_res_lg_2d_%d", m+100), Form("h_bak_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
-		h_res_vtx_trk_lg_x[m]  = new TH1D(Form("h_res_vtx_trk_lg_x_%d", m+100), Form("h_res_vtx_trk_lg_x_%d", m+100), 50, -400, 400 );
 
 		for(int l=0; l < n_layers; l++){// -- layer 
-				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,600 ) ;
-				h_cluster_timing_chi2[m][l] = new TH1D (Form("h_cluster_timing_chi2%d_%d", m+100, l), Form("h_cluster_timing_chi2%d_%d", m+100, l), 100, 0 ,600 ) ;
+				h_hit_timing_x[m][l] = new TH1D (Form("h_hit_timing_x_%d_%d", m+100, l), Form("h_hit_timing_x_%d_%d", m+100, l), 100, 0 ,500 ) ;
+				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,500 ) ;
+				h_cluster_timing_chi2[m][l] = new TH1D (Form("h_cluster_timing_chi2%d_%d", m+100, l), Form("h_cluster_timing_chi2%d_%d", m+100, l), 100, 0 ,500 ) ;
 				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
 				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
 //				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
-				h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -2, 2);
+				if(l == 0){
+					h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -0.5, 0.5);//sts
+				}
+				else {
+					h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -1.5, 1.5);
+				}
 				h_pre_res_x[m][l] = new TH1D(Form("h_pre_res_x_m%d_l%d", m+100, l), Form("h_pre_res_x_m%d_l%d", m+100, l), 100, -2, 2);
 				h_res_y[m][l] = new TH1D(Form("h_res_y__m%d_l%d", m+100, l), Form("h_res_y__m%d_l%d", m+100, l), 100, -4, 4);
 
@@ -709,7 +714,7 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 	for(int k=0; k < n_clusters; k++){
 		if(clusters_xadc->at(k) < kGTRFakeADC ){
 			double resx = fitlxs[1] - clusters_x->at(k);
-			if(resx < min_resx){
+			if(fabs(resx) < fabs(min_resx)){
 				min_resx = resx;
 				xcdis[1] = clusters_xcid->at(k); 
 			}
@@ -721,7 +726,7 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 		if(pre_gtrx_cluster_mid[k] == mids[1]){
 			if(pre_gtrx_cluster_adc[k] < kGTRFakeADC ){
 				double resx = fitlxs[1] - pre_gtrx_cluster_x[k];
-				if(resx < pre_min_resx){
+				if(fabs(resx) < fabs(pre_min_resx)){
 					pre_min_resx = resx;
 				}
 			}
@@ -741,11 +746,10 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 //		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
 		if(clusters_mids->at(k) == mids[2]){
 			if(clusters_xadc->at(k) < kGTRFakeADC ){
-				
 				double resx = fitlxs[2] - clusters_x->at(k);
-				if(resx < min_resx){
+				if(fabs(resx)  < fabs(min_resx)){
 					min_resx = resx;
-				xcids[2] = clusters_xcids->at(k); 
+					xcids[2] = clusters_xcids->at(k); 
 				}
 			}
 		}
@@ -756,7 +760,7 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 		if(pre_gtrx_cluster_mid[k] == mids[2]){
 			if(pre_gtrx_cluster_adc[k] < kGTRFakeADC ){
 				double resx = fitlxs[2] - pre_gtrx_cluster_x[k];
-				if(resx < pre_min_resx){
+				if(fabs(resx) < fabs(pre_min_resx)){
 					pre_min_resx = resx;
 				}
 			}
@@ -773,7 +777,7 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 	for(int k=0; k < n_clusters; k++){
 		if(clusters_xadc->at(k) < kGTRFakeADC ){
 		double resx = fitlxs[3] - clusters_x->at(k);
-			if(resx < min_resx){
+			if(fabs(resx) < fabs(min_resx)){
 				min_resx = resx;
 				xcdis[3] = clusters_xcid->at(k); 
 			}
@@ -784,7 +788,7 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 		if(pre_clusters_mid[k] == mids[3]){
 			if(pre_clusters_adc[k] < kGTRFakeADC ){
 				double resx = fitlxs[3] - pre_clusters_x[k];
-				if(resx < pre_min_resx){
+				if(fabs(resx) < fabs(pre_min_resx)){
 					pre_min_resx = resx;
 				}
 			}
@@ -798,13 +802,53 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 //}
 //
 //
-void E16DSTN_ReStraightV2::FillPulseInfos(){
-	for(int l=1; l < n_layers; l++){
-		int cid = xcids[l];	
+void E16DSTN_ReStraightV2::FillPulseInfos(int tid){//ith track
+	std::array<int, 4> n_cls_x   = {n_sts_clusters, n_gtr100x_clusters, n_gtr200x_clusters, n_gtr300x_clusters};	
+	std::array<vector<int>*, 4> cl_ids_x  = {sts_cluster_id, gtr100x_cluster_id, gtr200x_cluster_id, gtr300x_cluster_id};	
+	std::array<vector<int>*, 4> cl_mids_x   = {sts_cluster_mid, gtr100x_cluster_mid, gtr200x_cluster_mid, gtr300x_cluster_mid};	
+	std::array<vector<double>*, 4> consist_ids;
+// searching consist cluster 
+	for(int l=1; l < n_layers;l++){
+		int cid_track = xcids[l];//cid in track
+		int mid_track = mids[l];//mid in track
+		auto *cids = cl_ids_x[l];
+		for(int i=0; i < n_cls_x[l];i++){
+			if(mid_track != cl_mids_x[l]->at(i)) continue;//module match
+			int cid = cids->at(i);
+			if(cid == cid_track){//a cluster used in track
+				if(l==1) {//gtr100
+					consist_ids[l] =  &gtr100x_cluster_consist_hit_id->at(i);
+				}		
+				else if(l==2) {//gtr200
+					consist_ids[l] =  &gtr200x_cluster_consist_hit_id->at(i);
+				}		
+				else if(l==3) {//gtr300
+					consist_ids[l] =  &gtr300x_cluster_consist_hit_id->at(i);
+				}		
+			}
+		}
 	}
-
-
-
+	
+// searching hits 
+	std::array<int, 4> n_hits_x   = {n_sts_hits, n_gtr100x_hits, n_gtr200x_hits, n_gtr300x_hits};	
+	std::array<vector<int>*, 4> hits_ids_x  = {sts_hit_id, gtr100x_hit_id, gtr200x_hit_id, gtr300x_hit_id};	
+	std::array<vector<int>*, 4> hit_mids_x   = {sts_hit_mid, gtr100x_hit_mid, gtr200x_hit_mid, gtr300x_hit_mid};	
+	std::array<vector<double>*, 4> hit_timings_x   = {sts_hit_t, gtr100x_hit_t,  gtr200x_hit_t, gtr300x_hit_t};	
+	for(int l=1; l < n_layers; l++){
+		for(int i=0; i < n_hits_x[l]; i++){
+			int hid = hits_ids_x[l]->at(i);	
+			int mid_track = mids[l];
+//			std::cout << "m " << hit_mids_x[l]->at(i) << ", layer " << l << ", hid = "  << hid << std::endl; 
+//			if(mid_track != hit_mids_x[l]->at(i) )	continue;
+			for(int j=0; j< consist_ids[l]->size(); j++){
+				int consist_id = consist_ids[l]->at(j);
+//				std::cout << "consist id  = " << consist_id << std::endl;
+				if(consist_id == hid){
+					h_hit_timing_x[mid_track - 100][l]->Fill(hit_timings_x[l]->at(i));
+				}
+			}
+		}
+	}
 }
 
 void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name){	
@@ -905,16 +949,15 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 /// ------- analysis for 1 track ---- // 
 		int n_tracks = chi_square->size();//note that n tracks are judged with chi2 vec
       for(int i=0; i < n_tracks;i++){// track loop
-			if(rk_fit_gtr200_mid->at(i) != 106)continue;
 	      double chi2 = chi_square->at(i);
+			h_chi2->Fill(chi2);
 
 			if(chi2 > chi_sq_th) continue;
-
 			FillVectors(i);//
 			#ifndef REMOVE_NOLAYER
 			CalculateRemovedGTRMinResidual();
 			#endif
-			// ----- LG Asssociation --------- // 
+// ----- LG Asssociation --------- // 
 				bool assoc_fore = false;
 				bool assoc_bg = false;
 				double plgx  = rk_fit_lg_b_x->at(i);
@@ -925,7 +968,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 				if(fabs(mplgy) < 150){
 					plgx = rk_fit_lg_a_x->at(i);
 				}
-			// --- fore event --- //
+	// --- fore event --- //
 				for(int k=0; k < n_lg_hits;k++){
 					if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
 						int lg_mid = lg_hit_mid->at(k);
@@ -941,7 +984,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 						}
 					}
 				}
-			// ----- previous event ---- // 
+	// ----- previous event ---- // 
 				for(int k=0; k < pre_n_lg_hits;k++){
 					if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
 						int lg_mid = pre_lg_hit_mid[k];
@@ -964,20 +1007,33 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 				if(assoc_bg){
 					cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
 				}
-			// -- LG association finished ---- /// 
+// -- LG association finished ---- /// 
 
 //			pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
 //			pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
-			
+//									h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
+////									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
+////									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
+////									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
+////									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+//
 			
 // Fill Histos GTR
 			for(int lid = 0; lid < n_layers; lid++){
 				h_res_x[mids[lid]-100][lid]->Fill(resx[lid]);
+				h_res_y[mids[lid]-100][lid]->Fill(resy[lid]);
 				h_pre_res_x[mids[lid]-100][lid]->Fill(pre_resx[lid]);
-			}
-			
-			FillPulseInfos();
+				h_cor_res_fitlx[mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
+//									h_cor_res_fitly[mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
+//									h_cor_res_timing[mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
+//									h_tan_theta[mids[l]-100][l]     ->Fill(tans[l]);
+//									h_cor_dz_time[mids[l]-100][l]   ->Fill(xt4s[l], resx[l]/tans[l]);	
+////									h_cor_dz_time_t0cor[mid-100][l] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
+////										h_slopevel[mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] ); 
 
+			}
+
+			FillPulseInfos(i);
 		}//track loop
 //
 //
@@ -1037,6 +1093,23 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	c0->SaveAs(pdf_name + "[", "pdf");
 	gStyle->SetOptStat(1111111);
 	gStyle->SetOptFit(0111);
+
+
+
+	TCanvas *cht[n_modules];
+	for(int m =1; m < 9; m++){
+		if(m == 5) continue;
+	   cht[m]= new TCanvas();
+		cht[m]->Divide(2,2);
+		for(int l=0; l < 4; l++){
+   		cht[m]->cd(l+1);
+      	h_hit_timing_x[m][l]->Draw();
+   	}
+   cht[m]->SaveAs(pdf_name, "pdf");
+	}
+
+
+
 
 	TCanvas *c2[n_modules];
 	for(int m =1; m < 9; m++){
