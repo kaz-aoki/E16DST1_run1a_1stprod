@@ -176,6 +176,7 @@ private:
    TH1D* h_res_vtx_trk_y[n_modules][n_layers];
    TH1D* h_tan_theta[n_modules][n_layers];
 //   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
+   TH1D* h_hit_timing_x[n_modules][n_layers];
    TH1D* h_cluster_timing_raw[n_modules][n_layers];
    TH1D* h_cluster_timing_chi2[n_modules][n_layers];
    TH1D* h_cluster_timing_chi2_xdependence[n_modules][n_layers][n_div];
@@ -2481,7 +2482,7 @@ public:
 	void SelectTrackPairs();
 
    void DrawHist( TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name);
-	void FillPulseInfos();
+	void FillPulseInfos(int i);
 	void InitHistos();
 	void FillVectors(int i);
 	void CalculateRemovedGTRMinResidual();
@@ -5211,19 +5212,13 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 			out_gtr300y_cluster_consist_hit_id[i].clear();
 
 		int cid_100 = rk_hit_gtr100_xid->at(tid);//cluster id which is used in a track
-		std::cout << "n clusters " << n_gtr100x_clusters << std::endl;
 		for(int j=0; j < n_gtr100x_clusters; j++){
 			int cid = gtr100x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_100 == cid){ //if both are matched
    	      out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
-				std::cout << "J " << j << std::endl;
-				std::cout << "cons size " << gtr100x_cluster_consist_hit_id->size() << std::endl;
-				std::cout << "tot  size " << gtr100x_cluster_last_tot_end->size() << std::endl;
-				
 				int cl_size = gtr100x_cluster_consist_hit_id->at(j).size();
-				std::cout << "clsize" << cl_size << std::endl;
 				for(int k=0; k < cl_size; k++){
-				out_gtr100x_cluster_consist_hit_id[i].push_back(gtr100x_cluster_consist_hit_id->at(j)[k]);
+					out_gtr100x_cluster_consist_hit_id[i].push_back(gtr100x_cluster_consist_hit_id->at(j)[k]);
 				}
 			}
 		}
@@ -5231,14 +5226,12 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 		int cid_200 = rk_hit_gtr200_xid->at(tid);//cluster id which is used in a track
 		for(int j=0; j < n_gtr200x_clusters; j++){
 			int cid = gtr200x_cluster_id->at(j);//cluster id from all cluster
-//			std::cout << "cid = " << cid << std::endl;
-//			std::cout << "cid200 = " << cid_200 << std::endl;
-//			std::cout << "j  = " << j  << std::endl;
 			if(cid_200 == cid){ //if both are matchej
-//				std::cout << "size " << gtr200x_cluster_last_tot_end->size() << std::endl;
-///				std::cout << "out_gtr size = i ,  " << i << ", " << out_gtr200x_cluster_last_tot_end.size() << std::endl;
             out_gtr200x_cluster_last_tot_end[i] = gtr200x_cluster_last_tot_end->at(j);//tot_end is filled
-//				std::cout<< "hello " << std::endl;
+				int cl_size = gtr200x_cluster_consist_hit_id->at(j).size();
+				for(int k=0; k < cl_size; k++){
+					out_gtr200x_cluster_consist_hit_id[i].push_back(gtr200x_cluster_consist_hit_id->at(j)[k]);
+				}
 			}
 		}	
    	int cid_300 = rk_hit_gtr300_xid->at(tid);//cluster id which is used in a track
@@ -5246,6 +5239,10 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 			int cid = gtr300x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_300 == cid){ //if both are matched
             out_gtr300x_cluster_last_tot_end[i] = gtr300x_cluster_last_tot_end->at(j);//tot_end is filled
+				int cl_size = gtr300x_cluster_consist_hit_id->at(j).size();
+				for(int k=0; k < cl_size; k++){
+					out_gtr300x_cluster_consist_hit_id[i].push_back(gtr300x_cluster_consist_hit_id->at(j)[k]);
+				}
 			}
 		}
 
