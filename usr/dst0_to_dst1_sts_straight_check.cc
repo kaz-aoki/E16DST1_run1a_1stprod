@@ -28,6 +28,7 @@
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
 
+
 using namespace std;
 //namespace  bpo = boost::program_options;
 
@@ -132,6 +133,8 @@ int main(int argc, char* argv[]) {
   std::vector<double>  *rk_fit_init_pos_gy;
   std::vector<double>  *rk_fit_init_pos_gz;
   std::vector<int>     *rk_fit_gtr100_mid;
+  std::vector<int>     *rk_fit_gtr200_mid;
+  std::vector<int>     *rk_fit_gtr300_mid;
   std::vector<double>  *chi_square;
   //std::vector<int>     *rk_proj_n_lg;  // This was not filled.
   std::vector<std::vector<double> > *rk_proj_lg_t;
@@ -144,6 +147,8 @@ int main(int argc, char* argv[]) {
   outtree->SetBranchAddress("rk_fit_init_pos_gy",&rk_fit_init_pos_gy);
   outtree->SetBranchAddress("rk_fit_init_pos_gz",&rk_fit_init_pos_gz);
   outtree->SetBranchAddress("rk_fit_gtr100_mid",&rk_fit_gtr100_mid);
+  outtree->SetBranchAddress("rk_fit_gtr200_mid",&rk_fit_gtr200_mid);
+  outtree->SetBranchAddress("rk_fit_gtr300_mid",&rk_fit_gtr300_mid);
   outtree->SetBranchAddress("chi_square",&chi_square);
   //outtree->SetBranchAddress("rk_proj_n_lg",&rk_proj_n_lg);
   outtree->SetBranchAddress("rk_proj_lg_t",&rk_proj_lg_t);
@@ -157,7 +162,6 @@ int main(int argc, char* argv[]) {
   //auto* lgeom = E16ANA_STSGeometry::instance();
   if ( visualization ) display.SetPdfName(display_pdf);
  
-
   std::vector<int> modules = {101,102,103,104,106,107,108,109};
   std::map<int,TH1D*> hist_res_map;
   TString str;
@@ -205,6 +209,14 @@ int main(int argc, char* argv[]) {
   std::vector<uint16_t> sts_tdc;
   std::vector<uint16_t> sts_adc;
   std::vector<float> sts_residual;
+  std::vector<float> sts_rk_fit_init_mom_gx;
+  std::vector<float> sts_rk_fit_init_mom_gy;
+  std::vector<float> sts_rk_fit_init_mom_gz;
+  std::vector<float> sts_rk_fit_init_pos_gx;
+  std::vector<float> sts_rk_fit_init_pos_gy;
+  std::vector<float> sts_rk_fit_init_pos_gz;
+  //std::vector<float> sts_cost;
+  std::vector<float> sts_angle;
 
   auto clear_sts = [&](){
     sts_module.clear();
@@ -224,6 +236,13 @@ int main(int argc, char* argv[]) {
     sts_tdc.clear();
     sts_adc.clear();
     sts_residual.clear();
+    sts_rk_fit_init_mom_gx.clear();
+    sts_rk_fit_init_mom_gy.clear();
+    sts_rk_fit_init_mom_gz.clear();
+    sts_rk_fit_init_pos_gx.clear();
+    sts_rk_fit_init_pos_gy.clear();
+    sts_rk_fit_init_pos_gz.clear();
+    sts_angle.clear();
   };
   
   TString br_int16 = "/S";
@@ -268,6 +287,17 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_geriTimestamp",&sts_geriTimestamp);
   tree_sts->Branch("sts_residual",&sts_residual);
 
+  //tree_sts->Branch("sts_cost",&sts_cost);
+  tree_sts->Branch("sts_angle",&sts_angle);
+  
+  tree_sts->Branch("sts_rk_fit_init_mom_gx",&sts_rk_fit_init_mom_gx);
+  tree_sts->Branch("sts_rk_fit_init_mom_gy",&sts_rk_fit_init_mom_gy);
+  tree_sts->Branch("sts_rk_fit_init_mom_gz",&sts_rk_fit_init_mom_gz);
+
+  tree_sts->Branch("sts_rk_fit_init_pos_gx",&sts_rk_fit_init_pos_gx);
+  tree_sts->Branch("sts_rk_fit_init_pos_gy",&sts_rk_fit_init_pos_gy);
+  tree_sts->Branch("sts_rk_fit_init_pos_gz",&sts_rk_fit_init_pos_gz);
+  
   ////////////////////////////////////////////////
 
   // PREPARE LG HITO
@@ -308,6 +338,14 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gy",&lg_gy);
   tree_lg->Branch("lg_gz",&lg_gz);
 
+  ////////////////////// PREPARE EVENT TREE
+  TTree* tree_event = new TTree("tree_event_in_dst0","tree_event_in_dst0");
+  tree_event->Branch("event",&event_id,"event"+br_uint32);
+
+  TTree* tree_analyzed = new TTree("tree_analyzed","tree_analyezd");
+  tree_analyzed->Branch("event",&event_id,"event"+br_uint32);
+  
+  
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -359,6 +397,7 @@ int main(int argc, char* argv[]) {
 //      auto& trigger_lg_hits0  = event0->TriggerLG();
       event_id = event0->EventID();
       spill_id = event0->SpillID();
+      tree_event->Fill();
       if (kSelectEvent) {
         bool is_selected_event = false;
         while (true) {
@@ -466,7 +505,7 @@ int main(int argc, char* argv[]) {
 #endif // DST1_EVENT_MIX
 
       std::cout << "################################################ my event loop" << std::endl;
-
+      tree_analyzed->Fill();
 
 
       if ( stsg_dst0.NumberOfHits() > 1 ){
@@ -536,9 +575,11 @@ int main(int argc, char* argv[]) {
       auto fill_sts_clus = [&](auto& clus1){
 	sts_module.push_back(clus1.ModuleId());
 	sts_pn.push_back(clus1.PN());
+	sts_channel.push_back(-1);
 	sts_peakheight.push_back(clus1.PeakSum());
 	sts_lx.push_back(clus1.LocalPos().X());
 	sts_hittime.push_back(clus1.Timing());
+	sts_elink.push_back(-1);
 	TVector3 vec = clus1.GlobalPos();
 	sts_gx.push_back(vec.X());
 	sts_gy.push_back(vec.Y());
@@ -576,15 +617,9 @@ int main(int argc, char* argv[]) {
 	  if ( (rk_proj_lg_t->at(i)).at(ilg) > -1000 && (rk_proj_lg_t->at(i)).at(ilg) < 90. ) OK = true;
 	}
 	if (! OK ) continue;
-	/*
-	bool OK = false;
-	for( int ilg = 0;ilg < rk_proj_n_lg->at(i); ilg++){
-	  if ( rk_proj_lg_t->at(i).size() != rk_proj_n_lg->at(i) ) {
-	    std::cout << "SOMETHING IS WRONG." << std::endl;
-	  //if ( (rk_proj_lg_t->at(i)).at(ilg) > -1000 && (rk_proj_lg_t->at(i)).at(ilg) < 90. ) OK = true;
-	}
-	*/
-
+	
+	if ( (rk_fit_gtr100_mid->at(i) != rk_fit_gtr200_mid->at(i)) ||
+	     (rk_fit_gtr200_mid->at(i) != rk_fit_gtr300_mid->at(i)) ) continue;
 
 	double mom[3] = { rk_fit_init_mom_gx->at(i),
 			  rk_fit_init_mom_gy->at(i),
@@ -610,10 +645,17 @@ int main(int argc, char* argv[]) {
 	if ( arrow_plane.Mag2() < origin_plane.Mag2() ) norm_plane = -norm_plane;
 	// norm_plane always points outward.
 	
-	TVector3 trk_mom(mom);
+	//TVector2 norm_plane2(norm_plane.X(),norm_plane.Z());
+	//TVector2 trk_mom2(mom[0],mom[2]);
+	//double cost = (trk_mom2 * norm_plane2)/trk_mom2.Mod()/norm_plane2.Mod();
+	TVector2 norm_plane2(norm_plane.Z(),norm_plane.X());
+	TVector2 trk_mom2(mom[2],mom[0]);
+	double angle = trk_mom2.Phi()-norm_plane2.Phi();
+
 	// TODO: calculate 2D angle between trk_mom and norm_plane.
 	// TODO: fill rk info into tree .
 	
+	/*
 	auto& sts_clus1 = record.STS().Clusters();
 	if ( sts_clus1.size() > 0 ) {
 	  for( auto& clus1 : sts_clus1 ) {
@@ -629,10 +671,17 @@ int main(int argc, char* argv[]) {
 	    hist_res_map[track_mod]->Fill(residual);
 	    fill_sts_clus(clus1);
 	    sts_residual.push_back(residual);
+	    sts_rk_fit_init_pos_gx.push_back(global[0]);
+	    sts_rk_fit_init_pos_gy.push_back(global[1]);
+	    sts_rk_fit_init_pos_gz.push_back(global[2]);
+	    sts_rk_fit_init_mom_gx.push_back(mom[0]);
+	    sts_rk_fit_init_mom_gy.push_back(mom[1]);
+	    sts_rk_fit_init_mom_gz.push_back(mom[2]);
+	    sts_cost.push_back(cost);
 	  }
 	}
-
-	/*
+	*/
+	
 	if ( sts_hits1.size() > 0 ) {
 	  for( auto& hit1 : sts_hits1 ) {
 	    if ( hit1.ModuleId() != track_mod ) continue;
@@ -648,9 +697,16 @@ int main(int argc, char* argv[]) {
 	    hist_res_map[track_mod]->Fill(residual);
 	    fill_sts(hit1);
 	    sts_residual.push_back(residual);
+	    sts_rk_fit_init_pos_gx.push_back(global[0]);
+	    sts_rk_fit_init_pos_gy.push_back(global[1]);
+	    sts_rk_fit_init_pos_gz.push_back(global[2]);
+	    sts_rk_fit_init_mom_gx.push_back(mom[0]);
+	    sts_rk_fit_init_mom_gy.push_back(mom[1]);
+	    sts_rk_fit_init_mom_gz.push_back(mom[2]);
+	    sts_angle.push_back(angle);
 	  }
 	}
-	*/
+
       } // loop over all RK track candidates.
       
       tree_sts->Fill();
