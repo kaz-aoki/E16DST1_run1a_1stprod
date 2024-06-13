@@ -144,9 +144,11 @@ void E16ANA_STSAnalyzer::sort(std::vector<E16DST_DST1STSHit>& hits1){
 
 void E16ANA_STSAnalyzer::fill_dst1(std::vector<E16DST_DST1STSCluster>& clusters1){
   if ( vec_cluster.size() == 0 ) return;
+  clusters1.clear();
   auto lgeom = E16ANA_STSGeometry::instance();
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
   for( auto& clus : vec_cluster ) {
+    if ( clus.hits.size() == 0 ) continue;
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
     cluster1.SetCogPos(clus.cog());
