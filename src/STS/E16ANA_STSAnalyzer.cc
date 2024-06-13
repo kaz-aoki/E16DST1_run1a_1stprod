@@ -16,6 +16,9 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
 
   // 1st clustering
   for( auto& hit : hits1 ) {
+    if ( hit.ADC() == 0 ) continue;
+    if ( hit.Timing() < param.timing_min ) continue;
+    if ( hit.Timing() > param.timing_max ) continue;
     if (vec_cluster.size() == 0 ){
       vec_cluster.emplace_back();
       vec_cluster.back().hits.push_back(hit);

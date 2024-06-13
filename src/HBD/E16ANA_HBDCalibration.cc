@@ -203,6 +203,9 @@ bool E16ANA_HBDCalibration::GetCalibratedSignal(const int module_id, const int p
     if(pedestal[index][pad_id].size() > 1){
       for(int i=0; i<n_samples; i++){
 	out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(i);
+	if(in_waveform[i]<-10000){
+	  out_waveform[i] = 0;
+	}
       }
       return true;
     }
