@@ -40,7 +40,7 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-const bool visualization = true;
+const bool visualization = false;
 
 constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
 
 
   /////////////  custom init
-
+  /*
   std::vector< std::map<int,TH1D* > > histos_gtr;
   std::vector<int> modules{101,102,103,104,106,107,108,109,206,207};
   histos_gtr.resize(3);
@@ -250,14 +250,16 @@ int main(int argc, char* argv[]) {
       histos_gtr[i][modules[imod]] = new TH1D(name,name,500,0,500);
     }
   }
-  
+  */
+
   E16ANA_STSHistos sts_histos;
   sts_histos.create();
   TH1D* hist_eff[10];
   for( int i = 0;i<10;i++){
     TString str;
     str.Form("STS107_N_eff_bin%d",i);
-    hist_eff[i] = new TH1D(str,str,2,-0.5,1.5);
+    //hist_eff[i] = new TH1D(str,str,2,-0.5,1.5);
+    hist_eff[i] = new TH1D(str,str,10,-0.5,9.5);
   }
 
   E16ANA_EventDisplay display;
@@ -266,6 +268,9 @@ int main(int argc, char* argv[]) {
   bool pdf_first = true;
   //auto* lgeom = E16ANA_STSGeometry::instance();
   if ( visualization ) display.SetPdfName(display_pdf);
+  else {
+    std::cout << "visualization false. no pdf" << std::endl;
+  }
  
   ////// geometry test
   auto* ggeom = E16ANA_STSGlobalGeometry::instance();
@@ -430,6 +435,64 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gy",&lg_gy);
   tree_lg->Branch("lg_gz",&lg_gz);
 
+  ////////////////////    PREPARE SPECIAL BINNING
+
+  std::vector<int> p_bin_edge{0,134,200,300,400,500,600,700,800,900,1024};
+  int n_pbins = p_bin_edge.size()-1;
+  // i=0 [0,134),
+  // i=1 [134,200), ...
+  std::vector<std::pair<double,double> > n_bin_edged;
+  std::vector<std::pair<int,int> > n_bin_edge;
+  
+  auto round_strip = [](double stripD)->int {
+    int istrip = static_cast<int>(stripD);
+    if ( (stripD-istrip ) > 0.5 ) istrip++;
+    return istrip;
+  };
+  
+  n_bin_edged.push_back(std::make_pair<double,double>(-1,-1)); // edge in double.
+  n_bin_edge.push_back(std::make_pair<int,int>(-1,-1));
+  for( int i = 1; i < p_bin_edge.size();i++){
+    double nfrom = lgeom->GetBotRef(p_bin_edge[i]).first;
+    double nto = lgeom->GetTopRef(p_bin_edge[i+1]-1).first;
+    n_bin_edged.push_back(std::make_pair(nfrom,nto));
+    int ifrom = lgeom->X2StripN(nfrom);
+    int ito = lgeom->X2StripN(nto);
+    std::cout << "ifrom = " << ifrom << "  ito=" << ito << std::endl;
+    if ( ifrom > ito ) {
+      int a = ifrom;
+      ifrom = ito;
+      ito = a;
+    }
+    n_bin_edge.push_back(std::make_pair<int,int>(round_strip(ifrom),round_strip(ito)));
+  }
+  
+  auto p_bin = [&](int iStripP) {
+    for( int i = 1; i < p_bin_edge.size(); i++){
+      if ( iStripP < p_bin_edge[i] ) { return i-1; }
+    }
+    return -1;
+  };
+  
+  auto show_binning = [&]() {
+    std::cout << "Binning -----" << std::endl;
+    for( int i = 0;i<n_pbins;i++){
+      std::cout << "pbin " << i << " [" << p_bin_edge[i] << "," << p_bin_edge[i+1] << ")" << std::endl;
+      std::cout << "nbin " << i << " [" << n_bin_edge[i].first << "," << n_bin_edge[i].second << "]    - localx ";
+      std::cout << "nbin " << i << " [" << n_bin_edged[i].first << "," << n_bin_edged[i].second << "]  " << std::endl;
+      //double nfrom = lgeom->X2StripN(n_bin_edged[i].first);
+      //double nto = lgeom->X2StripN(n_bin_edged[i].second);
+      //std::cout << nfrom  << "," << nto << "    ";
+      //std::cout << " round_strip " << round_strip(nfrom) << " -- " << round_strip(nto) << std::endl;
+    }
+    //std::cout << " iStripP " << 10 << " p_bin " << p_bin(10) << std::endl;
+    std::cout << "Binning -----" << std::endl;
+  };
+  
+  show_binning();
+  
+  /////// END OF SPECIAL BNINNG
+  
   /////////////////////////////////////////////
 
   /*
@@ -568,13 +631,16 @@ int main(int argc, char* argv[]) {
 #ifndef REMOVE_REAL_HIT
 //      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
 //      record.SSD().AddHitAndClusterIds();
+      /* kaz removed for speed up
       E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
       record.GTR().AddHitAndClusterIds();
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut, wf1d_fitter, &record.HBD());
       record.HBD().AddHitAndClusterIds();
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
+      */
       E16DST_DST1STSFactory(stsg_dst0,sts_dst0, &record.STS());
+
 #ifdef TMP_NIM_TRIGGER
       auto time_stamp = event0->TimeStamp();
       E16DST_DST1TriggerFactory(time_stamp, trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
@@ -583,10 +649,14 @@ int main(int argc, char* argv[]) {
 #endif // TMP_NIM_TRIGGER
       record.Trigger().AddHitAndClusterIDs();
 // HBD clustering w/o timing selection begin
+
+      /* removed for speed up
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD
 ());
       record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
+      */
+
       // kaz removed .
       //check_file.AddHBDClusterss(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
@@ -676,9 +746,19 @@ int main(int argc, char* argv[]) {
 	std::cout << "++++++ STSGlobal: # of hits more than 1. Indication of merged DST0." << std::endl;
       }
 
-      auto stscut_tdc = [](auto& hit) ->bool { return ( fabs(hit.Timing()+95)<100.);};
-      auto stscut_adc = [](auto& hit) ->bool { return ( hit.PeakHeight() > 0.00001 ); };
+      auto stscut_tdc = [](auto& hit) ->bool { return ( hit.Timing() > -110. && hit.Timing()<-90.);};
+      auto stscut_adc = [](auto& hit) ->bool { return ( hit.ADC() > 0 ); };
 
+      auto stscut_nothot = [](auto& hit) ->bool {
+	if ( hit.ModuleId() == 107 && hit.PN() == 0 ) {
+	  if ( hit.ChannelId() >= 128 && hit.ChannelId() < 134 ) return false;
+	  if ( hit.ChannelId() == 510 ) return false;
+	  if ( hit.ChannelId() == 512 ) return false;
+	  if ( hit.ChannelId() == 638 ) return false;
+	  if ( hit.ChannelId() == 766 ) return false;
+	}
+	return true;
+      };
 
       ///////////////// FILL STS STANDALONE TREE.
 
@@ -741,85 +821,61 @@ int main(int argc, char* argv[]) {
       clear_sts();
       sts_histos.clear_counters();
 
-      std::vector<int> p_bin_edge{0,134,200,300,400,500,600,700,800,900,1024};
-      int n_pbins = p_bin_edge.size()-1;
-      // i=0 [0,134),
-      // i=1 [134,200), ...
-      std::vector<std::pair<double,double> > n_bin_edged;
-      std::vector<std::pair<int,int> > n_bin_edge;
-
-      auto round_strip = [](double stripD)->int {
-	int istrip = static_cast<int>(stripD);
-	if ( (stripD-istrip ) > 0.5 ) istrip++;
-	return istrip;
-      };
-
-      n_bin_edged.push_back(std::make_pair<double,double>(-1,-1));
-      n_bin_edge.push_back(std::make_pair<int,int>(-1,-1));
-      for( int i = 1; i < p_bin_edge.size();i++){
-	double nfrom = lgeom->GetBotRef(p_bin_edge[i]).first;
-	double nto = lgeom->GetTopRef(p_bin_edge[i+1]-1).first;
-	n_bin_edged.push_back(std::make_pair(nfrom,nto));
-	n_bin_edge.push_back(std::make_pair<int,int>(round_strip(nfrom),round_strip(nto)));
-      }
-
-      auto p_bin = [&](int iStripP) {
-	for( int i = 1; i < p_bin_edge.size(); i++){
-	  if ( iStripP < p_bin_edge[i] ) { return i-1; }
-	}
-	return -1;
-      };
-      
-
-      for( int i = 0;i<n_pbins;i++){
-	std::cout << "pbin " << i << " [" << p_bin_edge[i] << "," << p_bin_edge[i+1] << ")" << std::endl;
-	std::cout << "nbin " << i << " [" << n_bin_edged[i].first << "," << n_bin_edged[i].second << "]  ";
-	double nfrom = lgeom->X2StripN(n_bin_edged[i].first);
-	double nto = lgeom->X2StripN(n_bin_edged[i].second);
-	std::cout << nfrom  << "," << nto << "    ";
-	std::cout << " round_strip " << round_strip(nfrom) << " -- " << round_strip(nto) << std::endl;
-      }
-      std::cout << " iStripP " << 10 << " p_bin " << p_bin(10) << std::endl;
-      
-
       std::map< int, int > counterp;
       std::map< int, int > countern;
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
       if ( sts_hits1.size() != 0 ){
 	for( auto& hit : sts_hits1 ) {
 	  fill_sts(hit);
-	  if ( stscut_adc(hit) && stscut_tdc(hit) ) {
+	  if ( stscut_adc(hit) && stscut_tdc(hit) && stscut_nothot(hit)) {
 	    sts_histos.inc_count(hit.ModuleId(),hit.PN(),"multiplicity");
 	    
 	    if (hit.ModuleId()==107){
+	      std::cout << "mod=" << hit.ModuleId() << " PN=" << hit.PN() << ", ch=" << hit.ChannelId() << ", adc=" << hit.ADC() << ", timing=" << hit.Timing() << std::endl;
+
 	      if ( hit.PN() == 0) {
+		if ( hit.ADC() < 4 ) continue;
 		int iStrip = lgeom->Ch2StripP(hit.ChannelId());
 		counterp[p_bin(iStrip)]++;
 	      }else if ( hit.PN() == 1 ){
 		
 		int value_to_find = hit.ChannelId();
+		std::cout << " Hit in n. ch=" << value_to_find << "  ";
 		auto judge = [value_to_find](std::pair<int,int> el) {
 		  return ( el.first <= value_to_find && value_to_find <= el.second );		  
 		};
 		auto iter = std::find_if(n_bin_edge.begin(),n_bin_edge.end(),judge);
+		std::cout << " bin=" << std::distance(n_bin_edge.begin(),iter);
 		countern[std::distance(n_bin_edge.begin(),iter)]++;
 		if ( iter != n_bin_edge.end() ) {
 		  auto iter2 = std::find_if(iter+1,n_bin_edge.end(),judge);
 		  if ( iter2  != n_bin_edge.end() ){
 		    countern[std::distance(n_bin_edge.begin(),iter2)]++;
+		    std::cout << " bin=" << std::distance(n_bin_edge.begin(),iter2);
 		  }
 		}
+		std::cout << std::endl;
 	      }
 	    }
 	  }
 	}
       }
+      std::cout << "SUMMARY OF THE EVENT ====== " << std::endl;
       for ( auto iter = counterp.begin() ; iter != counterp.end(); iter ++ ) {
-	if ( iter->second == 1 ) {
+	std::cout << "counterp " << iter->first << " = " << iter->second << std::endl;
+      }
+      for ( auto iter = countern.begin() ; iter != countern.end(); iter ++ ) {
+	std::cout << "countern " << iter->first << " = " << iter->second << std::endl;
+      }
+      for ( auto iter = counterp.begin() ; iter != counterp.end(); iter ++ ) {
+	if ( iter->second >= 1 ) {
 	  int ibin = distance(counterp.begin(),iter);
 	  if ( ibin < 0 ) continue;
+	  /*
 	  if ( countern[ibin] > 0 ) hist_eff[ibin]->Fill(1);
 	  else hist_eff[ibin]->Fill(0);
+	  */
+	  hist_eff[ibin]->Fill(countern[ibin]);
 	}
       }
 
@@ -869,12 +925,13 @@ int main(int argc, char* argv[]) {
   if ( visualization ) display.SavePdfEnd();
 
   check_file.cd();
+  /*
   for ( int i = 0;i<histos_gtr.size() ; i++){
     for ( auto& h : histos_gtr[i] ) {
       h.second->Write();
     }
   }
-  
+  */
 
 
   delete geometry;
