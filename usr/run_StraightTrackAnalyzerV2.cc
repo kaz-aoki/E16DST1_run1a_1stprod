@@ -122,8 +122,10 @@ int main(int argc, char* argv[]){
       return -1;
     }
 
-    E16ANA_StraightMultiTrack     fitter(bfield_map, geometry, targets_pos, 1 );
-    E16ANA_StraightMultiTrack     pair_fitter(bfield_map, geometry, targets_pos, 2 );
+//    E16ANA_StraightMultiTrack     fitter(bfield_map, geometry, targets_pos, 1 );
+//    E16ANA_StraightMultiTrack     pair_fitter(bfield_map, geometry, targets_pos, 2 );
+    E16ANA_StraightMultiTrack     fitter(nullptr, geometry, targets_pos, 1 );
+    E16ANA_StraightMultiTrack     pair_fitter(nullptr, geometry, targets_pos, 2 );
     E16ANA_StraightTrackCheckFile check_file(c_outfile, run_id);
 
 

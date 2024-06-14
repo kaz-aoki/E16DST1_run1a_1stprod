@@ -29,6 +29,7 @@
 #include <TF1.h> 
 #include "E16ANA_StraightStepTrack.hh"
 #include "E16DST_DST1Constant.hh" 
+#include "E16DSTN_ReStraightParameter.hh"
 
 using namespace std;
 
@@ -39,6 +40,45 @@ using namespace std;
 class E16DSTN_ReStraightV2 {
 
 public :
+  struct FitResult {
+    int set_flag;
+    int layer_order;
+    int module_id;
+    TVector3 local_pos;
+    TVector3 local_mom;
+    TVector3 global_pos;
+    TVector3 global_mom;
+//    TVector3 local_sigma;
+    TVector3 residual_pos;
+    TVector3 residual_post;
+    TVector3 residual_post2;
+    void Clear() {
+      set_flag = 0;
+      layer_order = E16DST_DST1Constant::kInvalidValue;
+      module_id = E16DST_DST1Constant::kInvalidValue;
+      local_pos = E16DST_DST1Constant::kInvalidVector;
+      local_mom = E16DST_DST1Constant::kInvalidVector;
+      global_pos = E16DST_DST1Constant::kInvalidVector;
+      global_mom = E16DST_DST1Constant::kInvalidVector;
+      residual_pos = E16DST_DST1Constant::kInvalidVector;
+      residual_post = E16DST_DST1Constant::kInvalidVector;
+      residual_post2 = E16DST_DST1Constant::kInvalidVector;
+    }
+    void Set(int _layer_order, int _module_id, TVector3 _local_pos, TVector3 _local_mom, TVector3 _global_pos, TVector3 _global_mom, TVector3 _residual_pos) {
+      set_flag = 1;
+      layer_order = _layer_order;
+      module_id = _module_id;
+      local_pos = _local_pos;
+      local_mom = _local_mom;
+      global_pos = _global_pos;
+      global_mom = _global_mom;
+      residual_pos = _residual_pos;
+    }
+    void SetT(TVector3 _residual_pos) { residual_post  = _residual_pos;}
+    void SetT2(TVector3 _residual_pos){ residual_post2 = _residual_pos;}
+    void SetC(TVector3 _residual_pos) { residual_pos   = _residual_pos;}
+  };
+
 	struct TrackPair {
 		int tid0;//track id //minus
 		int tid1;//track id //plus
@@ -107,6 +147,7 @@ public :
 
 
 private:
+   E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
@@ -126,6 +167,8 @@ private:
    std::vector<TVector3> targets_pos; 
    std::vector<TrackPair> track_pairs;
    std::vector<TrackPair*> selected_track_pairs;
+
+  std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
 
 	static constexpr int kPairMinuitStrategy = 2;
 	static constexpr int kPairMinuitMaxFunctionCalls = 1e4;
@@ -148,6 +191,7 @@ private:
 	std::array<double, 4> fitlys;
 	std::array<double, 4> tans;//tan thetas
 	std::array<double, 4> xt4s;//xt4
+	std::array<double, 4> yts;//
 	std::array<double, 4> xadcs;//
 	std::array<double, 4> yadcs;//
 	std::array<int, 4> xcids;//
@@ -169,6 +213,9 @@ private:
    TH1D* h_tgt_proj_z_chi2cut[n_modules];
    TH1D* h_tgt_proj_x[n_modules];
    TH1D* h_tgt_proj_y[n_modules];
+   TH2D* h_hitmap[n_modules][n_layers];
+   TH1D* h_hitmap_x[n_modules][n_layers];
+   TH1D* h_hitmap_y[n_modules][n_layers];
    TH1D* h_res_x[n_modules][n_layers];
    TH1D* h_pre_res_x[n_modules][n_layers];
    TH1D* h_res_y[n_modules][n_layers];
@@ -177,8 +224,10 @@ private:
    TH1D* h_tan_theta[n_modules][n_layers];
 //   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
    TH1D* h_hit_timing_x[n_modules][n_layers];
-   TH1D* h_cluster_timing_raw[n_modules][n_layers];
-   TH1D* h_cluster_timing_chi2[n_modules][n_layers];
+	TH1D* h_cluster_t_diff[n_modules][n_layers];
+	TH2D* h_cluster_t_diff_2d[n_modules][n_layers];
+   TH1D* h_cluster_timing_x[n_modules][n_layers];
+   TH1D* h_cluster_timing_y[n_modules][n_layers];
    TH1D* h_cluster_timing_chi2_xdependence[n_modules][n_layers][n_div];
    TH1D* h_cluster_timing_chi2_ydependence[n_modules][n_layers][n_div];
 	TH1D* h_tot_end_fr[n_modules][n_layers];	
@@ -1321,6 +1370,7 @@ public:
    TBranch        *b_n_selected;   //!
    TBranch        *b_n_pairs;   //!
 
+   TBranch        *b_n_alive_tracks;   //!
    TBranch        *b_n_refit_pairs;   //!
    TBranch        *b_track_id;   //!
    TBranch        *b_has_e_hbd_cluster;   //!
@@ -2038,7 +2088,7 @@ public:
    Int_t                out_n_pairs;
    Int_t                out_n_refit_pairs;
 
-//	Int_t out_n_alive_tracks;
+	Int_t out_n_alive_tracks;
 
    std::vector<int>     out_track_id;
    std::vector<bool>    out_has_e_hbd_cluster;
@@ -2451,13 +2501,14 @@ public:
 	std::vector<std::vector<double>>	out_gtr300y_cluster_consist_hit_id;
 
 
-   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
+   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
    virtual ~E16DSTN_ReStraightV2();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, const char *out_file);
-   virtual void     Loop(TTree* tree, int print, int max, bool xy, bool py, bool z, int SW);
+   virtual void     Loop(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  
@@ -2481,11 +2532,15 @@ public:
 	double SearchVertex(TrackPair *track_pair);
 	void SelectTrackPairs();
 
-   void DrawHist( TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name);
+   void DrawHist( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
 	void FillPulseInfos(int i);
 	void InitHistos();
 	void FillVectors(int i);
 	void CalculateRemovedGTRMinResidual();
+	double Fit(int itk, E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag,  bool py_fix_flag, bool vertex_z_fix_flag);
+	void AddTrackHit(int itk, E16ANA_StraightMultiTrack* f);
+	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
+	TVector3 CorrectedLocalPos(int itk, int mid, int l);
 //	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
 };
 
@@ -2493,7 +2548,7 @@ public:
 
 #ifdef E16DSTN_ReStraightV2_cxx
 
-E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), pair_fitter(_pair_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(E16ANA_StraightTrackParameter::kVtxZFixFlag)
+E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), fitter(_fitter),pair_fitter(_pair_fitter),  vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(E16ANA_StraightTrackParameter::kVtxZFixFlag)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -2506,9 +2561,9 @@ E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E1
    }
    Init(tree, out_file);
    n_targets = _tgt_pos.size();
-   if(n_targets = 2) {isWire = true;}
+   if(n_targets == 2) {isWire = true;}
 	else if (n_targets == 3) {isWire = false;}
-   else {std::cerr << "strange number of targerts" << std::endl; std::exit(0);}
+//   else {std::cerr << "strange number of targerts" << std::endl; std::exit(0);}
    targets_pos.resize(_tgt_pos.size());
    for(int i=0; i < _tgt_pos.size(); i++){
      targets_pos[i] = _tgt_pos[i];
@@ -3577,6 +3632,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("n_cands", &n_cands, &b_n_cands);
    fChain->SetBranchAddress("n_selected", &n_selected, &b_n_selected);
    fChain->SetBranchAddress("n_pairs", &n_pairs, &b_n_pairs);
+
+   fChain->SetBranchAddress("n_alive_tracks", &n_alive_tracks, &b_n_alive_tracks);//240613
+
    fChain->SetBranchAddress("n_refit_pairs", &n_refit_pairs, &b_n_refit_pairs);
    fChain->SetBranchAddress("track_id", &track_id, &b_track_id);
    fChain->SetBranchAddress("has_e_hbd_cluster", &has_e_hbd_cluster, &b_has_e_hbd_cluster);
@@ -4300,12 +4358,14 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("trg_track_lg_t",         &trg_track_lg_t);
    outtree->Branch("n_x_cands",              &n_x_cands);
    outtree->Branch("n_y_cands",              &n_y_cands);
-   outtree->Branch("n_cands",                &n_cands);
+
    outtree->Branch("n_selected",             &n_selected);
-   outtree->Branch("n_pairs",                &n_pairs);
    outtree->Branch("n_refit_pairs",          &n_refit_pairs);
 
-//	outtree->Branch("n_alive_tracks", &out_n_alive_tracks);
+   outtree->Branch("n_cands",                &n_cands);
+   outtree->Branch("n_pairs",                &n_pairs);
+
+	outtree->Branch("n_alive_tracks",         &out_n_alive_tracks);
 
    outtree->Branch("track_id",               &out_track_id);
    outtree->Branch("has_e_hbd_cluster",      &out_has_e_hbd_cluster);
@@ -4760,7 +4820,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 
 //	int n_tracks = rk_hit_init_pos_gz->size() ;	
 	int n_tracks = alive_ids.size();	
-//	out_n_alive_tracks = n_tracks;
+	out_n_alive_tracks = n_tracks;
 
     	out_track_id.resize(n_tracks);
   	   out_has_e_hbd_cluster.resize(n_tracks);
@@ -5024,6 +5084,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
    out_rk_hit_gtr300_cogx.resize(n_tracks) ;
    out_rk_hit_gtr100_cogy.resize(n_tracks) ;
    out_rk_hit_gtr200_cogy.resize(n_tracks) ;
+   out_rk_hit_gtr300_cogy.resize(n_tracks) ;
 	
    out_rk_hit_gtr100_xt4.resize(n_tracks);
    out_rk_hit_gtr200_xt4.resize(n_tracks);
@@ -5169,7 +5230,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 //		out_re_lg_res_x.resize(n_tracks);
 //		out_re_lg_res_y.resize(n_tracks);
 
-//  out_n_cands = n_selected;
+   out_n_cands = n_tracks;//number of alive tracks
 	for(int i = 0 ; i < n_tracks ; i++){		
 		int tid = alive_ids[i];
 		out_track_id[i] = tid;
@@ -5216,10 +5277,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
             out_gtr300x_cluster_last_tot_end[i] = gtr300x_cluster_last_tot_end->at(j);//tot_end is filled
 			}
 		}
-
-
-
-
 		
 
 	//	std::cout << "mom = " << rk_fit_init_mom_gz->at(tid) << std::endl;
@@ -5427,7 +5484,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
    out_rk_hit_gtr300_cogx[i] = rk_hit_gtr300_cogx->at(tid);
    out_rk_hit_gtr100_cogy[i] = rk_hit_gtr100_cogy->at(tid);
    out_rk_hit_gtr200_cogy[i] = rk_hit_gtr200_cogy->at(tid);
-   out_rk_hit_gtr200_cogy[i] = rk_hit_gtr200_cogy->at(tid);
+   out_rk_hit_gtr300_cogy[i] = rk_hit_gtr300_cogy->at(tid);
 	
    out_rk_hit_gtr100_xt4[i] = rk_hit_gtr100_xt4->at(tid);
    out_rk_hit_gtr200_xt4[i] = rk_hit_gtr200_xt4->at(tid);

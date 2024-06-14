@@ -104,7 +104,7 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 	#endif
 #endif
 
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {80., 80., 80.};
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigmaIncTgt[0] * kXSigmaIncTgt[0]),
                                             1. / (kXSigmaIncTgt[1] * kXSigmaIncTgt[1]),
                                             1. / (kXSigmaIncTgt[2] * kXSigmaIncTgt[2]),

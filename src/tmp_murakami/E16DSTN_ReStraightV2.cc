@@ -1,19 +1,21 @@
 #define E16DSTN_ReStraightV2_cxx
 #include "E16DSTN_ReStraightV2.hh"
-#include "E16ANA_StraightTrackParameter.hh"
+//#include "E16ANA_StraightTrackParameter.hh"
+#include "E16DSTN_ReStraightParameter.hh"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
 
-using namespace E16ANA_StraightTrackParameter;
+//using namespace E16ANA_StraightTrackParameter;
 using namespace E16ANA_StraightTrackConstant;
 
+using namespace E16DSTN_ReStraightParameter;
 
 void E16DSTN_ReStraightV2::ChiSqSort( std::vector<int> &sorted_ids){
 	int n_chisq  = chi_square->size();
 	int n_tracks = n_cands;
-	if(n_tracks != n_cands) {
+	if(n_tracks != n_chisq) {
 		std::cerr << "It is a bug ! : Unexpected behavior was detected." << std::endl;
 		exit(1);
 	} 
@@ -59,7 +61,6 @@ bool E16DSTN_ReStraightV2::IsRealTrack(const int id){
 
 void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids, std::vector<int> &killdup_ids){
 	int n_selected_ids = selected_ids.size();
-
 #ifdef REMOVE_NOLAYER // all layer exist
 	for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> cids = {
@@ -157,15 +158,16 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 
 
 
-void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag ,int  anaSW)
+void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int event_start, int event_end, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag )
 {
    if (fChain == 0) return;
    Long64_t nevent = fChain->GetEntries();
    std::cout << "nevent = " << nevent << std::endl;
    Long64_t nbytes = 0, nb = 0;
    for(int n=0; n < nevent ; n++){
-		if(max_event != -1 &&  n > max_event){
-			std::cout << "N event analyzed readched to max event " << std::endl;
+		if(n < event_start) continue;
+		if(n > event_end){
+			std::cout << "N event analyzed readched to event_end that you decide" << std::endl;
 		   break;	
       }
       if( n% print_cycle == 0 ){
@@ -176,9 +178,6 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
       std::vector<int> sorted_ids;
       std::vector<int> selected_ids;
       std::vector<int> killdup_ids;
-
-
-
       out_ids.clear();
 		sorted_ids.clear();
 		selected_ids.clear();
@@ -195,37 +194,183 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, boo
    }
 }
 
-//void SearchLGAssociationHit(std::vector<int> &in_ids){
-////rough selection
-//	projected_lg_hits.clear();
-//	for(int i=0; i < in_ids.size(); i++){
-//		int tid = in_ids[i];
-//		double mplgy = rk_fit_lg_b_gy->at(tid);
-//		double plgx  = rk_fit_lg_b_x->at(tid);
-//		if(fabs(mplgy) > 260){
-//			plgx = rk_fit_lg_c_x->at(tid);
-//		}
-//		if(fabs(mplgy) < 150){
-//			plgx = rk_fit_lg_a_x->at(tid);
-//		}
-//		double lg_near = -9999;
-//		double mind =9999;
-//		int nlg = 0;
-//		PeojectedLGHits plg;
-//		for(int k=0; k < n_lg_hits;k++){
-//			if(lgf_hit_mid->at(k) == rk_fit_lg_b_mid->at(tid)){
-//				if(lg_hit_adc->at(k) < 10) continue;
-////				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
-//				double dx = lg_hit_x->at(k) - plgx;
-//				double dy = lg_hit_gy->at(k) - mplgy;
-//				plg.res_x = dx;
-//				plg.res_y = dy;
-//				projected_lg_hits.emplace_back(plg);
-//			}
-//		}
-//	}
-//}
 
+void E16DSTN_ReStraightV2::ReTracking(TTree* tree, int print_cycle, int event_start, int event_end, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag){
+   if (fChain == 0) return;
+   Long64_t nevent = fChain->GetEntries();
+   std::cout << "nevent = " << nevent << std::endl;
+   Long64_t nbytes = 0, nb = 0;
+   for(int n=0; n < nevent ; n++){
+		if(n < event_start) continue;
+		if(n > event_end){
+			std::cout << "N event analyzed readched to event_end that you decide" << std::endl;
+		   break;	
+      }
+      if( n% print_cycle == 0 ){
+         printf( "N analyzed = %d \n ", n);
+      }
+      tree->GetEntry(n);
+		std::vector<int> alive_ids;
+		alive_ids.clear();
+		for(int itk=0; itk < n_alive_tracks; itk++){//ith track
+			Fit(itk, fitter, vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag);
+			alive_ids.push_back(itk);	
+   	}
+		AnalyzeTrackPairs(alive_ids);
+	 	AddRecord(tree, alive_ids);
+	}
+}
+
+double E16DSTN_ReStraightV2::Fit(int itk, E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag,  bool py_fix_flag, bool vertex_z_fix_flag){
+	fitter->Clear();
+	this->AddTrackHit(itk, fitter);
+	fitter->SetRungeKuttaStepSize(5.0);
+	fitter->SetMaxSteps(80);
+	double chisq = fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, 0, 1.0e3);
+	UpdateFitResult(itk, fitter);
+	return chisq;
+}
+
+void E16DSTN_ReStraightV2::UpdateFitResult(int itk, E16ANA_StraightMultiTrack *fitter){
+	int tid = 0;
+	for(int l=0; l < 4; l++){
+		std::vector<TVector3> lpos;
+      std::vector<TVector3> lmom;
+      std::vector<int> mid;
+      fitter->GetFitLPos(0, l, mid, lpos);
+      fitter->GetFitLMom(0, l, mid, lmom);
+      TVector3 gpos;
+      TVector3 gmom;
+      auto mid2020 = E16ANA_StraightTrackConstant::ModuleID2013To2020(mid[0]);
+      if (l <= E16ANA_StraightTrackConstant::kSSD) {
+        gpos = geometry->STS(mid[tid])->GetGPos(lpos[tid]);
+        gmom = geometry->STS(mid[tid])->GetGMom(lmom[tid]);
+      } else {
+        gpos = geometry->GTR(mid[tid], l - 1)->GetGPos(lpos[tid]);
+        gmom = geometry->GTR(mid[tid], l - 1)->GetGMom(lmom[tid]);
+      }
+      auto res_pos  = CorrectedLocalPos( tid,mid[tid] ,l ) - lpos[tid];
+//    std::cout  << "layer, rpos Mag  "  << l << ", " << rpos.Mag() << std::endl;
+//    std::cout  << "lpos  "  << lpos[tid].X() << ", " << lpos[tid].Y() << ", " << lpos[tid].Z() << std::endl;
+//    std::cout  << "cpos  "
+//    << CorrectedLocalPos(tid, mid[tid], l).X() << ", "
+//    << CorrectedLocalPos(tid, mid[tid], l).Y() << ", "
+//    << CorrectedLocalPos(tid, mid[tid], l).Z() << std::endl;
+      fit_results[l].Set(l, mid2020, lpos[tid], lmom[tid], gpos, gmom, res_pos);
+    }
+
+//initial 
+	rk_fit_init_pos_gx->at(itk) = fitter->GetFitVertex().x();
+	rk_fit_init_pos_gy->at(itk) = fitter->GetFitVertex().y();
+	rk_fit_init_pos_gz->at(itk) = fitter->GetFitVertex().z();
+	rk_fit_init_mom_gx->at(itk) = fitter->GetFitMomentum(0).x();
+	rk_fit_init_mom_gy->at(itk) = fitter->GetFitMomentum(0).y();
+	rk_fit_init_mom_gz->at(itk) = fitter->GetFitMomentum(0).z();
+//detector
+   rk_fit_sts_mid->at(itk)= fit_results[0].module_id;
+   rk_fit_sts_x->at(itk)= fit_results[0].local_pos.X();
+   rk_fit_sts_y->at(itk)= fit_results[0].local_pos.Y();
+   rk_fit_sts_gx->at(itk)= fit_results[0].global_pos.X();
+   rk_fit_sts_gy->at(itk)= fit_results[0].global_pos.Y();
+   rk_fit_sts_gz->at(itk)= fit_results[0].global_pos.Z();
+   rk_fit_sts_mom_x->at(itk)= fit_results[0].local_mom.X();
+   rk_fit_sts_mom_y->at(itk)= fit_results[0].local_mom.Y();
+   rk_fit_sts_mom_z->at(itk)= fit_results[0].local_mom.Z();
+   rk_fit_sts_mom_gx->at(itk)= fit_results[0].global_mom.X();
+   rk_fit_sts_mom_gy->at(itk)= fit_results[0].global_mom.Y();
+   rk_fit_sts_mom_gz->at(itk)= fit_results[0].global_mom.Z();
+   rk_res_sts_x->at(itk)= fit_results[0].residual_pos.X();
+
+   rk_fit_gtr100_mid->at(itk)= fit_results[1].module_id;
+   rk_fit_gtr200_mid->at(itk)= fit_results[2].module_id;
+   rk_fit_gtr300_mid->at(itk)= fit_results[3].module_id;
+   rk_fit_gtr100_x->at(itk)= fit_results[1].local_pos.X();
+   rk_fit_gtr200_x->at(itk)= fit_results[2].local_pos.X();
+   rk_fit_gtr300_x->at(itk)= fit_results[3].local_pos.X();
+   rk_fit_gtr100_y->at(itk)= fit_results[1].local_pos.Y();
+   rk_fit_gtr200_y->at(itk)= fit_results[2].local_pos.Y();
+   rk_fit_gtr300_y->at(itk)= fit_results[3].local_pos.Y();
+   rk_fit_gtr100_gx->at(itk)= fit_results[1].global_pos.X();
+   rk_fit_gtr200_gx->at(itk)= fit_results[2].global_pos.X();
+   rk_fit_gtr300_gx->at(itk)= fit_results[3].global_pos.X();
+   rk_fit_gtr100_gy->at(itk)= fit_results[1].global_pos.Y();
+   rk_fit_gtr200_gy->at(itk)= fit_results[2].global_pos.Y();
+   rk_fit_gtr300_gy->at(itk)= fit_results[3].global_pos.Y();
+   rk_fit_gtr100_gz->at(itk)= fit_results[1].global_pos.Z();
+   rk_fit_gtr200_gz->at(itk)= fit_results[2].global_pos.Z();
+   rk_fit_gtr300_gz->at(itk)= fit_results[3].global_pos.Z();
+   rk_fit_gtr100_mom_x->at(itk)= fit_results[1].local_mom.X();
+   rk_fit_gtr200_mom_x->at(itk)= fit_results[2].local_mom.X();
+   rk_fit_gtr300_mom_x->at(itk)= fit_results[3].local_mom.X();
+   rk_fit_gtr100_mom_y->at(itk)= fit_results[1].local_mom.Y();
+   rk_fit_gtr200_mom_y->at(itk)= fit_results[2].local_mom.Y();
+   rk_fit_gtr300_mom_y->at(itk)= fit_results[3].local_mom.Y();
+   rk_fit_gtr100_mom_z->at(itk)= fit_results[1].local_mom.Z();
+   rk_fit_gtr200_mom_z->at(itk)= fit_results[2].local_mom.Z();
+   rk_fit_gtr300_mom_z->at(itk)= fit_results[3].local_mom.Z();
+   rk_fit_gtr100_mom_gx->at(itk)= fit_results[1].global_mom.X();
+   rk_fit_gtr200_mom_gx->at(itk)= fit_results[2].global_mom.X();
+   rk_fit_gtr300_mom_gx->at(itk)= fit_results[3].global_mom.X();
+   rk_fit_gtr100_mom_gy->at(itk)= fit_results[1].global_mom.Y();
+   rk_fit_gtr200_mom_gy->at(itk)= fit_results[2].global_mom.Y();
+   rk_fit_gtr300_mom_gy->at(itk)= fit_results[3].global_mom.Y();
+   rk_fit_gtr100_mom_gz->at(itk)= fit_results[1].global_mom.Z();
+   rk_fit_gtr200_mom_gz->at(itk)= fit_results[2].global_mom.Z();
+   rk_fit_gtr300_mom_gz->at(itk)= fit_results[3].global_mom.Z();
+
+   rk_res_gtr100_x->at(itk)= fit_results[1].residual_pos.X();
+   rk_res_gtr100_y->at(itk)= fit_results[1].residual_pos.Y();
+   rk_res_gtr200_x->at(itk)= fit_results[2].residual_pos.X();
+   rk_res_gtr200_y->at(itk)= fit_results[2].residual_pos.Y();
+   rk_res_gtr300_x->at(itk)= fit_results[3].residual_pos.X();
+   rk_res_gtr300_y->at(itk)= fit_results[3].residual_pos.Y();
+
+}
+
+void E16DSTN_ReStraightV2::AddTrackHit(int itk, E16ANA_StraightMultiTrack* single_track){
+	single_track->Clear();
+	int tid = 0; // only 1 track is fit
+	if(isWire){
+		single_track->SetInitialVertex(TVector3(rk_fit_init_pos_gx->at(itk), rk_fit_init_pos_gy->at(itk), rk_fit_init_pos_gz->at(itk)), kInitPosErrorWire );
+	}
+	else {
+		single_track->SetInitialVertex(TVector3(rk_fit_init_pos_gx->at(itk), rk_fit_init_pos_gy->at(itk), rk_fit_init_pos_gz->at(itk)), kInitPosError);//maybe not good
+	}
+
+
+	single_track->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(itk), rk_fit_init_mom_gy->at(itk), rk_fit_init_mom_gz->at(itk)));
+	
+	int rk_mids[4] = {rk_fit_sts_mid->at(itk), rk_fit_gtr100_mid->at(itk), rk_fit_gtr200_mid->at(itk), rk_fit_gtr300_mid->at(itk)};
+	for(int l=0; l < 4; ++l){
+		if(l == E16ANA_StraightTrackConstant::kSSD){
+			single_track->AddHit(tid, l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l])), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+		}
+		else {
+			single_track->AddHit(tid, l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l]), l-1), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+		}
+	}
+}
+
+TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, const int lid){
+	if(lid == 0){//ssd
+		 return TVector3(rk_hit_sts_x->at(itk), 0, 0);//sts
+	}
+	else if(lid == 1){//gtr100
+		double lx = rk_hit_gtr100_cogx->at(itk);	//cog
+		double ly = rk_hit_gtr100_cogy->at(itk);	//cog
+		return TVector3(lx, ly, 0);
+	}
+	else if(lid == 2){//gtr100
+		double lx = rk_hit_gtr200_cogx->at(itk);	//cog
+		double ly = rk_hit_gtr200_cogy->at(itk);	//cog
+		return TVector3(lx, ly, 0);
+	}
+	else if(lid == 3){//gtr100
+		double lx = rk_hit_gtr300_cogx->at(itk);	//cog
+		double ly = rk_hit_gtr300_cogy->at(itk);	//cog
+		return TVector3(lx, ly, 0);
+	}
+}
 
 bool E16DSTN_ReStraightV2::IsSameTarget(const int tid0, const int tid1){
 	return true;	
@@ -306,8 +451,8 @@ void E16DSTN_ReStraightV2::AnalyzeTrackPairs(std::vector<int> &in_ids){
 
 void E16DSTN_ReStraightV2::PairTracking(TrackPair *track_pair){
 	AddTracks(track_pair);
-	pair_fitter->SetRungeKuttaStepSize(kPairTrackingStepSize);
-	pair_fitter->SetMaxSteps(kPairTrackingMaxSteps);
+	pair_fitter->SetRungeKuttaStepSize(15);
+	pair_fitter->SetMaxSteps(80);
 	track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kPairMinuitStrategy, kPairMinuitMaxFunctionCalls);
 	UpdateFitResult(track_pair);
 }
@@ -435,111 +580,6 @@ void E16DSTN_ReStraightV2::AddTracks(TrackPair *track_pair){
 }
 
 
-//void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int max_event, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag ,int  anaSW)
-//{
-//   if (fChain == 0) return;
-//
-//   Long64_t nevent = fChain->GetEntries();
-//   std::cout << "nevent = " << nevent << std::endl;
-//   Long64_t nbytes = 0, nb = 0;
-//
-//   for(int n=0; n < nevent ; n++){
-//		if(max_event != -1 &&  n > max_event){
-//			std::cout << "N event analyzed readched to max event " << std::endl;
-//		   break;	
-//      }
-//      if( n% print_cycle == 0 ){
-//         printf( "N analyzed = %d \n ", n);
-//      }
-//      tree->GetEntry(n);
-//		ClearUsedClusterIDs();
-//      std::vector<int> out_ids;
-//      out_ids.clear();
-//#ifndef NoExist_SSD
-//	for(int i=0; i < n_cands ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips> cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
-//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-//         if(HasUsedCluster(cids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			out_ids.emplace_back(i);
-//			}
-//    }
-//#else//NoExist_SSD
-//    #ifdef REMOVE_100
-//    for(int i=0; i < n_cands ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
-//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-//         if(HasUsedCluster(cids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			out_ids.emplace_back(i);
-//			}
-//    }
-//    #elif REMOVE_200
-//    for(int i=0; i < n_cands ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-//         if(HasUsedCluster(cids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			out_ids.emplace_back(i);
-//			}
-//    }
-//     #elif REMOVE_300
-//    for(int i=0; i < n_cands ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -2 > cids = {
-//			rk_hit_sts_id->at(i),
-//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i)};
-//         if(HasUsedCluster(cids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-2;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			out_ids.emplace_back(i);
-//			}
-//    }
-//    #else
-//	 for(int i=0; i < n_cands ; i++){
-//			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
-//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
-//			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
-//			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
-//         if(HasUsedCluster(cids)){
-//				continue;			
-//			} else {
-//				for (int j=0; j  <  E16ANA_StraightTrackConstant::kNumTrackingStrips-1;j++){
-//					used_cluster_ids[j].emplace_back(cids[j]);
-//				}
-//			out_ids.emplace_back(i);
-//			}
-//    }
-//#endif // REMOVE_GTRxxx
-//#endif // NoExist_SSD
-//	 AddRecord(out_ids);
-//   }
-//}
-//
-//
-
 void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 	for(auto &ids : used_cluster_ids){
 		ids.clear();
@@ -547,21 +587,6 @@ void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 	return;
 }
 
-
-
-//void E16DSTN_ReStraightV2::SetTracks(std::vector<int> &invec,std::vector<int> &outids){
-////	good_ids.clear();
-//	for(int i=0; i < invec.size(); i++){
-//		int tid = invec[i];
-////		if(kUseChi2Cut && chi_square->at(tid) > kMaxChi2){
-////			break;
-////		}
-//		if(IsGoodTrack(tid)){
-////			good_ids.emplace_back(i);
-// 			outids.emplace_back(i);
-//		}
-//	}
-//}
 
 bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 2> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids ){
 	for (int i = 0; i < kNumTrackingStrips-2; ++i) {
@@ -623,9 +648,14 @@ void E16DSTN_ReStraightV2::InitHistos(){
 		h_bak_res_lg_2d[m]  = new TH2D(Form("h_bak_res_lg_2d_%d", m+100), Form("h_bak_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
 
 		for(int l=0; l < n_layers; l++){// -- layer 
+				h_hitmap[m][l] = new TH2D (Form("h_hit_map_%d_%d", m+100, l), Form("h_hit_map_%d_%d", m+100, l), 50,  -50*l , 50 * l, 50, -50 * l , 50*l ) ;
+				h_hitmap_x[m][l] = new TH1D (Form("h_hit_map_x_%d_%d", m+100, l), Form("h_hit_map_x_%d_%d", m+100, l), 50,  -50*l , 50 * l ) ;
+				h_hitmap_y[m][l] = new TH1D (Form("h_hit_map_y_%d_%d", m+100, l), Form("h_hit_map_y_%d_%d", m+100, l), 50,  -50*l , 50 * l ) ;
 				h_hit_timing_x[m][l] = new TH1D (Form("h_hit_timing_x_%d_%d", m+100, l), Form("h_hit_timing_x_%d_%d", m+100, l), 100, 0 ,500 ) ;
-				h_cluster_timing_raw[m][l] = new TH1D (Form("h_cluster_timing_raw%d_%d", m+100, l), Form("h_cluster_timing_raw%d_%d", m+100, l), 100, 0 ,500 ) ;
-				h_cluster_timing_chi2[m][l] = new TH1D (Form("h_cluster_timing_chi2%d_%d", m+100, l), Form("h_cluster_timing_chi2%d_%d", m+100, l), 100, 0 ,500 ) ;
+				h_cluster_t_diff[m][l] = new TH1D (Form("h_cl_t_diff_xy_m%d_l%d", m+100, l), Form("h_cl_t_diff_xy_m%d_l%d", m+100, l), 50, -100, 100 );
+				h_cluster_t_diff_2d[m][l] = new TH2D (Form("h_cl_t_diff_2d_m%d_l%d", m+100, l), Form("h_cl_t_diff_2d_m%d_l%d", m+100, l), 50, 0, 350, 50, 0, 350 );
+				h_cluster_timing_x[m][l] = new TH1D (Form("h_cluster_timing_x%d_%d", m+100, l), Form("h_cluster_timing_x%d_%d", m+100, l), 100, 0 ,500 ) ;
+				h_cluster_timing_y[m][l] = new TH1D (Form("h_cluster_timing_y%d_%d", m+100, l), Form("h_cluster_timing_y%d_%d", m+100, l), 100, 0 ,500 ) ;
 				h_tot_end_fr[m][l] = new TH1D (Form("h_tot_end_fr%d_%d", m+100, l), Form("h_tot_end_fr%d_%d", m+100, l), 50, -10 ,1000 ) ;
 				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
 //				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
@@ -640,8 +670,8 @@ void E16DSTN_ReStraightV2::InitHistos(){
 
 				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
 				h_res_vtx_trk_y[m][l] = new TH1D(Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), 100, -4, 4);
-				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx__%d_%d", m+100, l), Form("h_cor_res_fitlx_%d_%d", m+100, l), 40, -50*l , 50*l, 100, -2.5, 2.5);
-				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly__%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 100, -2, 2);
+				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx_m%d_l%d", m+100, l), Form("h_cor_res_fitlx_m%d_l%d", m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly_%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 50, -2, 2);
 				h_cor_res_timing[m][l] = new TH2D(Form("h_cor_res_timing__%d_%d", m+100, l), Form("h_cor_res_timing_%d_%d", m+100, l), 20, 0 , 600, 100, -2, 2);
 				h_tan_theta[m][l] = new TH1D(Form("h_tan_theta_m%d_l%d",  m+100, l), Form("h_tan_theta_%d_%d", m+100, l), 20,  -0.5, 0.5);
 				h_cor_dz_time[m][l]        = new TH2D(Form("h_cor_dz_time_%d%d", m+100, l)      , Form("h_cor_dz_time_%d%d",  m+100, l)     , 20, 0, 600, 60,  -6, 6);
@@ -671,10 +701,10 @@ void E16DSTN_ReStraightV2::FillVectors(int i){
 				rk_fit_gtr100_mid->at(i),						
 				rk_fit_gtr200_mid->at(i),
 				rk_fit_gtr300_mid->at(i)};
-			resx = { rk_res_sts_x->at(i),
-						rk_res_gtr100_x->at(i),
-						rk_res_gtr200_x->at(i),
-						rk_res_gtr300_x->at(i)};
+			resx = { rk_res_sts_cogx->at(i),
+						rk_res_gtr100_cogx->at(i),
+						rk_res_gtr200_cogx->at(i),
+						rk_res_gtr300_cogx->at(i)};
 			pre_resx = { -999, -999, -999, -999};
 			resy = { 0,
 						rk_res_gtr100_y->at(i),
@@ -696,6 +726,10 @@ void E16DSTN_ReStraightV2::FillVectors(int i){
 						rk_hit_gtr100_xt4->at(i),
 						rk_hit_gtr200_xt4->at(i),
      					rk_hit_gtr300_xt4->at(i)};
+			yts = { 0, 
+						rk_hit_gtr100_yt->at(i),
+						rk_hit_gtr200_yt->at(i),
+     					rk_hit_gtr300_yt->at(i)};
 			xadcs = {rk_hit_sts_adc->at(i), rk_hit_gtr100_xadc->at(i), rk_hit_gtr200_xadc->at(i), rk_hit_gtr300_xadc->at(i)};
 			yadcs = {0, rk_hit_gtr100_yadc->at(i), rk_hit_gtr200_yadc->at(i), rk_hit_gtr300_yadc->at(i)};
 			xcids = {rk_hit_sts_id->at(i), rk_hit_gtr100_xid->at(i), rk_hit_gtr200_xid->at(i), rk_hit_gtr300_xid->at(i)};
@@ -707,21 +741,25 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 #ifdef REMOVE_GTR100
 	auto *clusters_x    = gtr100x_cluster_x;
 	auto *clusters_xadc = gtr100x_cluster_adc;
-	auto *clusters_xcid = gtr100x_cluster_cid;
+	auto *clusters_xcids = gtr100x_cluster_id;
+	auto *clusters_mids = gtr100x_cluster_mid	;
 	int n_clusters = n_gtr100x_clusters;
 	double min_resx = 9999;
-	double pre_min_resx = 9999;
+   double pre_min_resx = 9999;
 	for(int k=0; k < n_clusters; k++){
-		if(clusters_xadc->at(k) < kGTRFakeADC ){
-			double resx = fitlxs[1] - clusters_x->at(k);
-			if(fabs(resx) < fabs(min_resx)){
-				min_resx = resx;
-				xcdis[1] = clusters_xcid->at(k); 
+//		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
+		if(clusters_mids->at(k) == mids[1]){
+			if(clusters_xadc->at(k) < kGTRFakeADC ){
+				double resx = fitlxs[1] - clusters_x->at(k);
+				if(fabs(resx)  < fabs(min_resx)){
+					min_resx = resx;
+					xcids[1] = clusters_xcids->at(k); 
+				}
 			}
 		}
 	}
-	resx[1]  = min_resx;//residual 
-// -- previous 
+	resx[1] = min_resx;
+// --- previous --- // 
    for(int k=0; k < pre_n_gtrx_clusters; k++){
 		if(pre_gtrx_cluster_mid[k] == mids[1]){
 			if(pre_gtrx_cluster_adc[k] < kGTRFakeADC ){
@@ -769,25 +807,30 @@ void E16DSTN_ReStraightV2::CalculateRemovedGTRMinResidual(){
 	pre_resx[2] = pre_min_resx;
 #elif REMOVE_GTR300
 	auto *clusters_x    = gtr300x_cluster_x;
-	auto *clusters_xcids = gtr300x_cluster_cid;
 	auto *clusters_xadc = gtr300x_cluster_adc;
+	auto *clusters_xcids = gtr300x_cluster_id;
+	auto *clusters_mids = gtr300x_cluster_mid	;
 	int n_clusters = n_gtr300x_clusters;
 	double min_resx = 9999;
-	double pre_min_resx = 9999;
+   double pre_min_resx = 9999;
 	for(int k=0; k < n_clusters; k++){
-		if(clusters_xadc->at(k) < kGTRFakeADC ){
-		double resx = fitlxs[3] - clusters_x->at(k);
-			if(fabs(resx) < fabs(min_resx)){
-				min_resx = resx;
-				xcdis[3] = clusters_xcid->at(k); 
+//		std::cout << "mid = " << clusters_mids->at(k) << "xaadc = "  << clusters_xadc->at(k) << ", " << clusters_x->at(k) << std::endl;
+		if(clusters_mids->at(k) == mids[3]){
+			if(clusters_xadc->at(k) < kGTRFakeADC ){
+				double resx = fitlxs[3] - clusters_x->at(k);
+				if(fabs(resx)  < fabs(min_resx)){
+					min_resx = resx;
+					xcids[3] = clusters_xcids->at(k); 
+				}
 			}
 		}
 	}
-	resx[3] = min_resx;//residual 
-   for(int k=0; k < pre_n_clusters; k++){
-		if(pre_clusters_mid[k] == mids[3]){
-			if(pre_clusters_adc[k] < kGTRFakeADC ){
-				double resx = fitlxs[3] - pre_clusters_x[k];
+	resx[3] = min_resx;
+// --- previous --- // 
+   for(int k=0; k < pre_n_gtrx_clusters; k++){
+		if(pre_gtrx_cluster_mid[k] == mids[3]){
+			if(pre_gtrx_cluster_adc[k] < kGTRFakeADC ){
+				double resx = fitlxs[3] - pre_gtrx_cluster_x[k];
 				if(fabs(resx) < fabs(pre_min_resx)){
 					pre_min_resx = resx;
 				}
@@ -830,9 +873,9 @@ void E16DSTN_ReStraightV2::FillPulseInfos(int tid){//ith track
 	}
 	
 // searching hits 
-	std::array<int, 4> n_hits_x   = {n_sts_hits, n_gtr100x_hits, n_gtr200x_hits, n_gtr300x_hits};	
-	std::array<vector<int>*, 4> hits_ids_x  = {sts_hit_id, gtr100x_hit_id, gtr200x_hit_id, gtr300x_hit_id};	
-	std::array<vector<int>*, 4> hit_mids_x   = {sts_hit_mid, gtr100x_hit_mid, gtr200x_hit_mid, gtr300x_hit_mid};	
+	std::array<int, 4> n_hits_x                    = {n_sts_hits, n_gtr100x_hits, n_gtr200x_hits, n_gtr300x_hits};	
+	std::array<vector<int>*, 4> hits_ids_x         = {sts_hit_id, gtr100x_hit_id, gtr200x_hit_id, gtr300x_hit_id};	
+	std::array<vector<int>*, 4> hit_mids_x         = {sts_hit_mid, gtr100x_hit_mid, gtr200x_hit_mid, gtr300x_hit_mid};	
 	std::array<vector<double>*, 4> hit_timings_x   = {sts_hit_t, gtr100x_hit_t,  gtr200x_hit_t, gtr300x_hit_t};	
 	for(int l=1; l < n_layers; l++){
 		for(int i=0; i < n_hits_x[l]; i++){
@@ -844,14 +887,14 @@ void E16DSTN_ReStraightV2::FillPulseInfos(int tid){//ith track
 				int consist_id = consist_ids[l]->at(j);
 //				std::cout << "consist id  = " << consist_id << std::endl;
 				if(consist_id == hid){
-					h_hit_timing_x[mid_track - 100][l]->Fill(hit_timings_x[l]->at(i));
+					h_hit_timing_x[hit_mids_x[l]->at(i) - 100][l]->Fill(hit_timings_x[l]->at(i));
 				}
 			}
 		}
 	}
 }
 
-void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name){	
+void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_start, int n_end, int print_cycle, const int residual_layer,  TString pdf_name){	
 	int nevent = tree->GetEntries();
 	std::cout << "Total N events in the tree : " << nevent << std::endl;
 	double mplgy;
@@ -869,18 +912,19 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	int cnt_lgres_fore[10] = {0};
 	int cnt_lgres_bg[10]   = {0};
 
-	double chi_sq_th  = 20;
+	double chi_sq_th  = 100;
 
 	InitHistos();
 	for(int n=0; n < nevent; n++){
-		if(n > n_maxevent) break;
+		if(n > n_end) break;
 		if (n % print_cycle == 0) {
 			printf(" N Analyzed = %d \n", n);
-		} 
+		}
+		if(n < n_start) continue;
 		tree->GetEntry(n);
-
-
-// ------- analysis for pair ------- //
+//
+//
+//// ------- analysis for pair ------- //
 			for(int i=0; i < n_pairs; i++){
 				if(rk_pair_plus_chi_square->at(i) < chi_sq_th && rk_pair_minus_chi_square->at(i) < chi_sq_th){
 					int tid0 = rk_pair_minus_track_id->at(i);
@@ -893,55 +937,55 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 						h_vtx_gz->Fill(vtx_gpos.z());
 						h_vtx_gx_gz->Fill(vtx_gpos.x(), vtx_gpos.z());
 						h_vtx_gx_gy->Fill(vtx_gpos.x(), vtx_gpos.y());
-					if( tid0 == track_id->at(j) || tid1 == track_id->at(j)){
-						mids= {	rk_fit_sts_mid->at(j),
-									rk_fit_gtr100_mid->at(j),						
-									rk_fit_gtr200_mid->at(j),
-									rk_fit_gtr300_mid->at(j)};
-						resx = { rk_res_sts_x->at(j),
-									rk_res_gtr100_x->at(j),
-									rk_res_gtr200_x->at(j),
-									rk_res_gtr300_x->at(j)};
-						resy = { 0,
-									rk_res_gtr100_y->at(j),
-									rk_res_gtr200_y->at(j),
-									rk_res_gtr300_y->at(j)};
-						for(int l=1; l < 4; l++){//layer loop
-							h_res_vtx_trk_x[mids[l]-100][l]->Fill(resx[l]);
-							h_res_vtx_trk_y[mids[l]-100][l]->Fill(resy[l]);
-						}
- //1--- residual LG -- //
-										 mplgy = rk_fit_lg_b_gy->at(i);
-										 plgx  = rk_fit_lg_b_x->at(i);
-										if(fabs(mplgy) > 260){
-											plgx = rk_fit_lg_c_x->at(i);
-										}
-										if(fabs(mplgy) < 150){
-											plgx = rk_fit_lg_a_x->at(i);
-										}
-										double lg_near = -9999;
-										double mind =9999;
-										int nlg = 0;
-										for(int k=0; k < n_lg_hits;k++){
-											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
-												int lg_mid = lg_hit_mid->at(k);
-												if(lg_hit_adc->at(k) < 10) continue;
-								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
-												double dx     = lg_hit_x->at(k) - plgx;
-												double dy     = lg_hit_gy->at(k) - mplgy;
-												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
-												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
-
-//												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
-//												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
-												
-												h_res_vtx_trk_lg_x[lg_mid-100]->Fill(dx);
-												h_res_vtx_trk_lg_y[lg_mid-100]->Fill(dx);
-												h_bak_res_vtx_trk_lg_x[lg_mid-100]->Fill(pre_dx);
-												h_bak_res_vtx_trk_lg_y[lg_mid-100]->Fill(pre_dx);
-											}
-										}
-						}
+//					if( tid0 == track_id->at(j) || tid1 == track_id->at(j)){
+//						mids= {	rk_fit_sts_mid->at(j),
+//									rk_fit_gtr100_mid->at(j),						
+//									rk_fit_gtr200_mid->at(j),
+//									rk_fit_gtr300_mid->at(j)};
+//						resx = { rk_res_sts_x->at(j),
+//									rk_res_gtr100_x->at(j),
+//									rk_res_gtr200_x->at(j),
+//									rk_res_gtr300_x->at(j)};
+//						resy = { 0,
+//									rk_res_gtr100_y->at(j),
+//									rk_res_gtr200_y->at(j),
+//									rk_res_gtr300_y->at(j)};
+//						for(int l=1; l < 4; l++){//layer loop
+//							h_res_vtx_trk_x[mids[l]-100][l]->Fill(resx[l]);
+//							h_res_vtx_trk_y[mids[l]-100][l]->Fill(resy[l]);
+//						}
+// //1--- residual LG -- //
+//										 mplgy = rk_fit_lg_b_gy->at(i);
+//										 plgx  = rk_fit_lg_b_x->at(i);
+//										if(fabs(mplgy) > 260){
+//											plgx = rk_fit_lg_c_x->at(i);
+//										}
+//										if(fabs(mplgy) < 150){
+//											plgx = rk_fit_lg_a_x->at(i);
+//										}
+//										double lg_near = -9999;
+//										double mind =9999;
+//										int nlg = 0;
+//										for(int k=0; k < n_lg_hits;k++){
+//											if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+//												int lg_mid = lg_hit_mid->at(k);
+//												if(lg_hit_adc->at(k) < 10) continue;
+//								//				if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
+//												double dx     = lg_hit_x->at(k) - plgx;
+//												double dy     = lg_hit_gy->at(k) - mplgy;
+//												double pre_dx = lg_hit_x->at(k)  - pre_plgx[lg_mid-100];
+//												double pre_dy = lg_hit_gy->at(k) - pre_mplgy[lg_mid-100];
+//
+////												std::cout << "dx = " << dx << ", " << pre_dx << std::endl;
+////												std::cout << "dy = " << dy << ", " << pre_dy << std::endl;
+//												
+//												h_res_vtx_trk_lg_x[lg_mid-100]->Fill(dx);
+//												h_res_vtx_trk_lg_y[lg_mid-100]->Fill(dx);
+//												h_bak_res_vtx_trk_lg_x[lg_mid-100]->Fill(pre_dx);
+//												h_bak_res_vtx_trk_lg_y[lg_mid-100]->Fill(pre_dx);
+//											}
+//										}
+//						}
 					}
 				}	
 			}//analysis for pairs
@@ -951,7 +995,6 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
       for(int i=0; i < n_tracks;i++){// track loop
 	      double chi2 = chi_square->at(i);
 			h_chi2->Fill(chi2);
-
 			if(chi2 > chi_sq_th) continue;
 			FillVectors(i);//
 			#ifndef REMOVE_NOLAYER
@@ -1016,23 +1059,28 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 ////									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
 ////									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
 ////									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
-//
 			
 // Fill Histos GTR
 			for(int lid = 0; lid < n_layers; lid++){
+				h_hitmap[mids[lid]-100][lid]->Fill( fitlxs[lid], fitlys[lid]);
+				h_hitmap_x[mids[lid]-100][lid]->Fill( fitlxs[lid]);
+				h_hitmap_y[mids[lid]-100][lid]->Fill( fitlys[lid]);
+				h_cluster_t_diff[mids[lid]-100][lid]->Fill( xt4s[lid] - yts[lid]);
+				h_cluster_t_diff_2d[mids[lid]-100][lid]->Fill( xt4s[lid] ,  yts[lid]);
 				h_res_x[mids[lid]-100][lid]->Fill(resx[lid]);
 				h_res_y[mids[lid]-100][lid]->Fill(resy[lid]);
+				h_cluster_timing_x[mids[lid]-100][lid]->Fill(xt4s[lid]);
+				h_cluster_timing_y[mids[lid]-100][lid]->Fill(yts[lid]);
 				h_pre_res_x[mids[lid]-100][lid]->Fill(pre_resx[lid]);
 				h_cor_res_fitlx[mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
-//									h_cor_res_fitly[mids[l]-100][l]->Fill(fitlys[l], resx[l]);	
+				h_cor_res_fitly[mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 //									h_cor_res_timing[mids[l]-100][l]->Fill(xt4s[l], resx[l]);	//timing
 //									h_tan_theta[mids[l]-100][l]     ->Fill(tans[l]);
 //									h_cor_dz_time[mids[l]-100][l]   ->Fill(xt4s[l], resx[l]/tans[l]);	
 ////									h_cor_dz_time_t0cor[mid-100][l] ->Fill(xt4s[l] - t0diff, resx[l]/tans[l]);//plus or minus?
 ////										h_slopevel[mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] ); 
-
-			}
-
+				h_tot_end_fr[mids[lid]-100][lid]->Fill(xtotend[lid]);
+				}
 			FillPulseInfos(i);
 		}//track loop
 //
@@ -1041,11 +1089,11 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 #ifdef REMOVE_GTR100
 	pre_n_gtrx_clusters    = n_gtr100x_clusters;
    pre_gtrx_cluster_x.resize(pre_n_gtrx_clusters); 
-   pre_gtrx_cluster_xadc.resize(pre_n_gtrx_clusters); 
+   pre_gtrx_cluster_adc.resize(pre_n_gtrx_clusters); 
    pre_gtrx_cluster_mid.resize(pre_n_gtrx_clusters); 
 	for(int k=0; k < pre_n_gtrx_clusters;k++){
 		pre_gtrx_cluster_x[k]    = gtr100x_cluster_x->at(k);
-		pre_gtrx_cluster_xadc[k] = gtr100x_cluster_adc->at(k);
+		pre_gtrx_cluster_adc[k] = gtr100x_cluster_adc->at(k);
 		pre_gtrx_cluster_mid[k] = gtr100x_cluster_mid->at(k);
 	}
 #elif REMOVE_GTR200
@@ -1094,6 +1142,99 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 	gStyle->SetOptStat(1111111);
 	gStyle->SetOptFit(0111);
 
+	TCanvas *c_vtx = new TCanvas();
+		c_vtx->Divide(3,2);
+		c_vtx->cd(1);
+		h_vtx_gx->Fit("gaus", "", "", -2, 3);
+		h_vtx_gx->Draw();
+		c_vtx->cd(2);
+		h_vtx_gy->Fit("gaus", "", "", -3, 1);
+		h_vtx_gy->Draw();
+		c_vtx->cd(3);
+		h_vtx_gz->Draw();
+		c_vtx->cd(4);
+		h_vtx_gx_gz->Draw("colz");
+		c_vtx->cd(5);
+		h_vtx_gx_gy->Draw("colz");
+   c_vtx->SaveAs(pdf_name, "pdf");
+
+//
+//
+//  TCanvas *c_res_v[10];
+//  for(int m =1; m < 9; m++){ 
+//    c_res_v[m]= new TCanvas(); 
+//    c_res_v[m]->Divide(2,2);
+//    for(int l=0; l < n_layer; l++){
+//     c_res_v[m]->cd(1+l);
+//     if(m < 5) {
+//        h_res_vtx_trk_x[m][l]->Fit("gaus", "", "", -0.5, 0.2);
+//        h_res_vtx_trk_x[m][l]->Draw("colz");
+//     }
+//     else {
+//        h_res_vtx_trk_x[m+1][l]->Fit("gaus", "", "", -0.5, 0.2);
+//        h_res_vtx_trk_x[m+1][l]->Draw("colz");
+//     }
+//	 }
+//    c_res_v[m]->SaveAs(pdf_name, "pdf");
+//  }
+
+//
+
+
+	TCanvas *chm[n_modules];
+	for(int m =1; m < 9; m++){
+		if(m == 5) continue;
+	   chm[m]= new TCanvas();
+		chm[m]->Divide(4,3);
+		for(int l=0; l < 4; l++){
+   		chm[m]->cd(l+1);
+			h_hitmap[m][l]->Draw("colz");
+   		chm[m]->cd(l+5);
+			h_hitmap_x[m][l]->Draw();
+   		chm[m]->cd(l+9);
+			h_hitmap_y[m][l]->Draw();
+   	}
+   	chm[m]->SaveAs(pdf_name, "pdf");
+	}
+
+		
+
+	TCanvas *chtd[n_modules];
+	for(int m =1; m < 9; m++){
+		if(m == 5) continue;
+	   chtd[m]= new TCanvas();
+		chtd[m]->Divide(4,2);
+		for(int l=0; l < 4; l++){
+   		chtd[m]->cd(l+1);
+      	h_cluster_t_diff[m][l]->Draw();
+   		chtd[m]->cd(l+5);
+      	h_cluster_t_diff_2d[m][l]->Draw("colz");
+   	}
+   	chtd[m]->SaveAs(pdf_name, "pdf");
+	}
+
+
+
+
+	TCanvas *c2[n_modules];
+	for(int m =1; m < 9; m++){
+	   c2[m]= new TCanvas();
+		c2[m]->Divide(4,2);
+		for(int l=0; l < 4; l++){
+   		c2[m]->cd(l+1);
+	      if(m < 5) {
+      	   h_cluster_timing_x[m][l]->Draw("colz");
+   			c2[m]->cd(l+5);
+      	   h_cluster_timing_y[m][l]->Draw("colz");
+   	   }
+ 	     else {
+         	h_cluster_timing_x[m][l]->Draw("colz");
+   			c2[m]->cd(l+5);
+         	h_cluster_timing_y[m][l]->Draw("colz");
+      	}
+   	}
+   c2[m]->SaveAs(pdf_name, "pdf");
+	}
 
 
 	TCanvas *cht[n_modules];
@@ -1110,39 +1251,6 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_maxevent, int print_cycle
 
 
 
-
-	TCanvas *c2[n_modules];
-	for(int m =1; m < 9; m++){
-	   c2[m]= new TCanvas();
-		c2[m]->Divide(2,2);
-		for(int l=0; l < 4; l++){
-   		c2[m]->cd(l+1);
-	      if(m < 5) {
-      	   h_cluster_timing_raw[m][l]->Draw("colz");
-   	   }
- 	     else {
-         	h_cluster_timing_raw[m][l]->Draw("colz");
-      	}
-   	}
-   c2[m]->SaveAs(pdf_name, "pdf");
-	}
-
-
-	TCanvas *c2_chi[n_modules];
-	for(int m =1; m < 9; m++){
-	   c2_chi[m]= new TCanvas();
-		c2_chi[m]->Divide(2,2);
-		for(int l=0; l < 4; l++){
-   		c2_chi[m]->cd(l+1);
-	      if(m < 5) {
-      	   h_cluster_timing_chi2[m][l]->Draw();
-   	   }
- 	     else {
-         	h_cluster_timing_chi2[m][l]->Draw();
-      	}
-   	}
-   c2_chi[m]->SaveAs(pdf_name, "pdf");
-	}
 
 TCanvas *c03 = new TCanvas();
 h_init_pos->Draw("colz");
@@ -1267,6 +1375,7 @@ c03->SaveAs(pdf_name, "pdf");
       }
    }
    c02->SaveAs(pdf_name, "pdf");
+
   TCanvas *c1[10];
   for(int m =1; m < 9; m++){ 
     c1[m]= new TCanvas(); 
@@ -1290,18 +1399,177 @@ c03->SaveAs(pdf_name, "pdf");
     c1[m]->SaveAs(pdf_name, "pdf");
   }
 
- TCanvas *c2y = new TCanvas();
- c2y->Divide(4,2);
- for(int i =1; i < 9; i++){
-     c2y->cd(i);
-     if(i < 5) {
-        h_res_y[i][residual_layer]->Draw("colz");
+  TCanvas *cresy[10];
+  for(int m =1; m < 9; m++){ 
+    cresy[m]= new TCanvas(); 
+    cresy[m]->Divide(2,2);
+    for(int l=0; l < n_layers; l++){
+     cresy[m]->cd(1+l);
+     if(m < 5) {
+        h_res_y[m][l]->Fit("gaus", "", "", -0.5, 0.5);
+        h_res_y[m][l]->Draw("colz");
+//		  h_pre_res_y[m][l]->SetLineColor(kRed);
+//		  h_pre_res_y[m][l]->Draw("same");
+
      }
      else {
-        h_res_y[i+1][residual_layer]->Draw("colz");
+        h_res_y[m+1][l]->Fit("gaus", "", "", -0.5, 0.5);
+        h_res_y[m+1][l]->Draw("colz");
+//		  h_pre_res_y[m+1][l]->SetLineColor(kRed);
+//		  h_pre_res_y[m+1][l]->Draw("same");
      }
+	 }
+    cresy[m]->SaveAs(pdf_name, "pdf");
   }
-  c2y->SaveAs(pdf_name, "pdf");
+
+
+
+
+   TCanvas *c31[10][4];
+   TGraphErrors *gr[10][4];
+   TGraphErrors *gr_mean[10][4];
+   TH1D *h1[10][4];
+   TF1 *f1[10][4];
+   for(int hmid=101; hmid < 110; hmid++){
+      if(hmid == 105)continue;
+				for(int l=0; l < n_layers;l++){
+            c31[hmid-100][l] = new TCanvas();
+            c31[hmid-100][l]->Divide(5,5);
+            int n = h_cor_res_fitlx[hmid-100][l]->GetNbinsX();
+            double xmin = -1;
+            double xmax =  1;
+            std::cout << "nibs = " << n << std::endl;
+            gr[hmid-100][l] = new TGraphErrors(n);
+            gr[hmid-100][l]->SetTitle(Form("X Residual Sigma m%d l%d; local x; sigma", hmid, l ));
+            gr_mean[hmid-100][l] = new TGraphErrors(n);
+            gr_mean[hmid-100][l]->SetTitle(Form("X Residual Mean m%d l%d; local x; mean", hmid, l ));
+             for (int i = 1; i <= n; i++) {
+               c31[hmid-100][l]->cd(i);
+               h1[hmid-100][l] = h_cor_res_fitlx[hmid-100][l]->ProjectionY(Form("x_py_m%d_l%d_%d", hmid, l, i), i, i     );
+//             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
+               f1[hmid-100][l] = new TF1(Form("f%d%d", hmid, l), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+               f1[hmid-100][l]->SetParameter(0, 500);   // constant
+               f1[hmid-100][l]->SetParameter(1, 0);     // mean
+               f1[hmid-100][l]->SetParLimits(1, -2, 2); // mean
+               f1[hmid-100][l]->SetParameter(2, 0.3);
+               f1[hmid-100][l]->SetParLimits(2, 0.1, 1);
+               f1[hmid-100][l]->SetParameter(3, 0);
+               f1[hmid-100][l]->SetParameter(4, -1);
+               h1[hmid-100][l]->Fit(f1[hmid-100][l], "", "", xmin, xmax);
+ 				   double mean      = f1[hmid-100][l]->GetParameter(1);
+ 				   double mean_err  = f1[hmid-100][l]->GetParError(1);
+               double sigma     = f1[hmid-100][l]->GetParameter(2);
+               double sigma_err = f1[hmid-100][l]->GetParError(2);
+               std::cout << "sigma = " << sigma << std::endl;
+               gr[hmid-100][l]->SetPoint(i-1, i, sigma);
+               gr[hmid-100][l]->SetPointError(i-1, 0, sigma_err);
+               gr_mean[hmid-100][l]->SetPoint(i-1, i, mean);
+               gr_mean[hmid-100][l]->SetPointError(i-1, 0, mean_err);
+               h1[hmid-100][l]->Draw();
+            }
+         c31[hmid-100][l]->cd(23);
+         gr[hmid-100][l]->SetMaximum(0.5);
+         gr[hmid-100][l]->SetMinimum(-0.5);
+         gr[hmid-100][l]->Draw("ap");
+         c31[hmid-100][l]->cd(24);
+ 			gr_mean[hmid-100][l]->SetMaximum(1.0);
+ 			gr_mean[hmid-100][l]->SetMinimum(-1.0);
+ 			gr_mean[hmid-100][l]->SetLineStyle(0);
+         gr_mean[hmid-100][l]->Draw("ap");
+         c31[hmid-100][l]->SaveAs(pdf_name, "pdf");
+		}
+   }
+
+
+
+	TCanvas *c31a[n_modules];
+	for(int m =1; m < 9; m++){
+		if(m==5) continue;
+	   c31a[m]= new TCanvas();
+		c31a[m]->Divide(4,2);
+		for(int l=0; l < 4; l++){
+   		c31a[m]->cd(l+1);
+			gr[m][l]->Draw("ap");
+   		c31a[m]->cd(l+5);
+			gr_mean[m][l]->Draw("ap");
+      }
+   c31a[m]->SaveAs(pdf_name, "pdf");
+	}
+
+
+   TCanvas *c31y[10][4];
+   TGraphErrors *gr_y[10][4];
+   TGraphErrors *gr_y_mean[10][4];
+   TH1D *h1y[10][4];
+   TF1 *f1y[10][4];
+   for(int hmid=101; hmid < 110; hmid++){
+      if(hmid == 105)continue;
+				for(int l=0; l < n_layers;l++){
+            c31y[hmid-100][l] = new TCanvas();
+            c31y[hmid-100][l]->Divide(5,5);
+            int n = h_cor_res_fitly[hmid-100][l]->GetNbinsX();
+            double xmin = -1;
+            double xmax =  1;
+            std::cout << "nibs = " << n << std::endl;
+            gr_y[hmid-100][l] = new TGraphErrors(n);
+            gr_y[hmid-100][l]->SetTitle(Form("Y Residual Sigma m%d l%d; local y; sigma", hmid, l ));
+            gr_y_mean[hmid-100][l] = new TGraphErrors(n);
+            gr_y_mean[hmid-100][l]->SetTitle(Form("Y Residual Mean m%d l%d; local y; mean", hmid, l ));
+             for (int i = 1; i <= n; i++) {
+               c31y[hmid-100][l]->cd(i);
+               h1y[hmid-100][l] = h_cor_res_fitly[hmid-100][l]->ProjectionY(Form("y_py_m%d_l%d_%d", hmid, l, i), i, i     );
+//             f1y[hmid-100] = new TF1(Form("f1y%d%d",hmid, i), "gaus");
+               f1y[hmid-100][l] = new TF1(Form("f%d%d", hmid, l), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
+               f1y[hmid-100][l]->SetParameter(0, 500);   // constant
+               f1y[hmid-100][l]->SetParameter(1, 0);     // mean
+               f1y[hmid-100][l]->SetParLimits(1, -2, 2); // mean
+               f1y[hmid-100][l]->SetParameter(2, 0.3);
+               f1y[hmid-100][l]->SetParLimits(2, 0.1, 1);
+               f1y[hmid-100][l]->SetParameter(3, 0);
+               f1y[hmid-100][l]->SetParameter(4, -1);
+               h1y[hmid-100][l]->Fit(f1y[hmid-100][l], "", "", xmin, xmax);
+ 				   double mean      = f1y[hmid-100][l]->GetParameter(1);
+ 				   double mean_err  = f1y[hmid-100][l]->GetParError(1);
+               double sigma     = f1y[hmid-100][l]->GetParameter(2);
+               double sigma_err = f1y[hmid-100][l]->GetParError(2);
+               std::cout << "sigma = " << sigma << std::endl;
+               gr_y[hmid-100][l]->SetPoint(i-1, i, sigma);
+               gr_y[hmid-100][l]->SetPointError(i-1, 0, sigma_err);
+               gr_y_mean[hmid-100][l]->SetPoint(i-1, i, mean);
+               gr_y_mean[hmid-100][l]->SetPointError(i-1, 0, mean_err);
+               h1y[hmid-100][l]->Draw();
+            }
+         c31y[hmid-100][l]->cd(23);
+         gr_y[hmid-100][l]->SetMaximum(0.5);
+         gr_y[hmid-100][l]->SetMinimum(-0.5);
+         gr_y[hmid-100][l]->Draw("ap");
+         c31y[hmid-100][l]->cd(24);
+ 			gr_y_mean[hmid-100][l]->SetMaximum(1.0);
+ 			gr_y_mean[hmid-100][l]->SetMinimum(-1.0);
+ 			gr_y_mean[hmid-100][l]->SetLineStyle(0);
+         gr_y_mean[hmid-100][l]->Draw("ap");
+         c31y[hmid-100][l]->SaveAs(pdf_name, "pdf");
+		}
+   }
+
+
+	TCanvas *c31b[n_modules];
+	for(int m =1; m < 9; m++){
+		if(m==5) continue;
+	   c31b[m]= new TCanvas();
+		c31b[m]->Divide(4,2);
+		for(int l=0; l < 4; l++){
+   		c31b[m]->cd(l+1);
+			gr_y[m][l]->Draw("ap");
+   		c31b[m]->cd(l+5);
+			gr_y_mean[m][l]->Draw("ap");
+      }
+   c31b[m]->SaveAs(pdf_name, "pdf");
+	}
+
+
+
+
 
 	TCanvas *c18;
 	c18 = new TCanvas();
@@ -1387,14 +1655,6 @@ c03->SaveAs(pdf_name, "pdf");
    }
 	c20_bg->SaveAs(pdf_name, "pdf");
 
-
-
-	for(int m=0; m < 10; m++){
-	std::cout << "m = " << m+100 << ",fore lg residual = " << cnt_lgres_fore[m] << ", bg lg residual = " << cnt_lgres_bg[m] << std::endl;
-	}
-
-
-
 // TCanvas *c6b = new TCanvas();
 // c6b->Divide(2,2);
 // for(int tgt=0; tgt<2; tgt++){
@@ -1410,28 +1670,23 @@ c03->SaveAs(pdf_name, "pdf");
 // }
 // }
 // c6b->SaveAs(pdf_name, "pdf");
-
-
-
+//
+//
+//
 //TCanvas *c16b[2][10][n_div];
 //TGraphErrors *gr16b[2][10][n_div];
 //TH1D *h16b[2][10][n_div];
 //TF1 *f16b[2][10][n_div];
 //TF1 *flab[2][10][n_div];
-//def CALIB
-//double xminb[10]  = {0, -4, -7, -7,     -6, 0, -2, -5.5, -4, -4};//mod100-109
-//double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,  2,  4.0,  5,  5};
-//se 
 //double xminb[10]  = {0, -4, -7, -7,     -6, 0, -4, -5.5, -4, -4};//mod100-109
 //double xmaxb[10]  = {0,  4, 10, 10,    5.5, 0,   4,  4.0,  5,  5};
-//dif
 //double flminb[10] = {0, 120, 120, 120, 120, 0, 200, 120, 100, 180};
 //double flmaxb[10] = {0, 450, 450, 450, 450, 0, 550, 450, 320, 450};
-//r(int t=0; t < 2; t++){
+//for(int t=0; t < 2; t++){
 // int hmid = 106;
 // for(int d=0 ; d < n_div; d++){
 //   c16b[t][hmid-100][d] = new TCanvas();
-//   int n = h_cor_dz_time_t0cor[t][hmid-100][residual_layer][d]->GetNbinsX();
+//   int n = h_cor_dz_time_t0cor[hmid-100][residual_layer][d]->GetNbinsX();
 //   c16b[t][hmid-100][d]->Divide(5,5);
 //   std::cout << "nbins dz = " << n << std::endl;
 //   gr16b[t][hmid-100][d] = new TGraphErrors(n);
@@ -1469,12 +1724,12 @@ c03->SaveAs(pdf_name, "pdf");
 //      c16b[t][hmid-100][d]->SaveAs(pdf_name, "pdf");
 //	}
 //
+
 //
-////
-////TCanvas *c0d = new TCanvas();
-////t0diff->Draw();
-////d->SaveAs(pdf_name, "pdf");
-//
+//TCanvas *c0d = new TCanvas();
+//t0diff->Draw();
+//d->SaveAs(pdf_name, "pdf");
+
 // TCanvas *c17b[2];
 //  	c17b[t] = new TCanvas();
 //	 	c17b[t]->Divide(5,4);
@@ -1487,7 +1742,7 @@ c03->SaveAs(pdf_name, "pdf");
 //   c17b[t]->SaveAs(pdf_name, "pdf");
 ////}
 ////
-////
+//
 // TCanvas *c18[2];
 //GraphErrors *tg18[2];
 // for(int t=0; t < 2; t++){
@@ -1502,7 +1757,7 @@ c03->SaveAs(pdf_name, "pdf");
 //18[t]->SaveAs(pdf_name, "pdf");
 //}
 //
-//
+
 // TCanvas *c19[2];
 // for(int t=0; t < 2; t++){
 // 	c19[t] = new TCanvas();
@@ -1515,6 +1770,14 @@ c03->SaveAs(pdf_name, "pdf");
 //}
 //
 //
+
+
+	for(int m=0; m < 10; m++){
+	std::cout << "m = " << m+100 << ",fore lg residual = " << cnt_lgres_fore[m] << ", bg lg residual = " << cnt_lgres_bg[m] << std::endl;
+	}
+
+
+
 
 
 	c0->SaveAs(pdf_name + "]", "pdf");
@@ -2236,106 +2499,6 @@ c03->SaveAs(pdf_name, "pdf");
 //c03->SaveAs(pdf_name, "pdf");
 //
 //
-//	TCanvas *c22[n_module];
-//	for(int m =1; m < 9; m++){
-//	   c22[m]= new TCanvas();
-//		c22[m]->Divide(2,2);
-//		for(int l=0; l < 4; l++){
-//   		c22[m]->cd(l+1);
-//	      if(m < 5) {
-//      	   h_tot_end_fr[m][l]->Draw();
-//      	   h_tot_end_bg[m][l]->Scale(h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries());
-//      	   std::cout << "scale " << h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries() << std::endl;
-//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
-//      	   h_tot_end_bg[m][l]->Draw("same");
-//   	   }
-// 	     else {
-//         	h_tot_end_fr[m][l]->Draw();
-//      	   h_tot_end_bg[m][l]->Scale(h_tot_end_fr[m][l]->GetEntries() / h_tot_end_bg[m][l]->GetEntries());
-//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
-//         	h_tot_end_bg[m][l]->Draw("same");
-//      	}
-//   	}
-//   c22[m]->SaveAs(pdf_name, "pdf");
-//	}
-//
-//
-//	TCanvas *c23[n_module];
-//	for(int m =1; m < 9; m++){
-//	   c23[m]= new TCanvas();
-//		c23[m]->Divide(2,2);
-//		for(int l=0; l < 4; l++){
-//   		c23[m]->cd(l+1);
-//	      if(m < 5) {
-//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
-//      	   h_tot_end_bg[m][l]->Draw("same");
-//   	   }
-// 	     else {
-//      	   h_tot_end_bg[m][l]->SetLineColor(kRed);
-//         	h_tot_end_bg[m][l]->Draw("same");
-//      	}
-//   	}
-//   c23[m]->SaveAs(pdf_name, "pdf");
-//	}
-//
-//
-//
-//
-//	TCanvas *c04 = new TCanvas();
-//	c04->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      c04->cd(i);
-//      if(i < 5) {
-//         h_tgt_proj_z_raw[i]->Draw("colz");
-//      }
-//      else {
-//         h_tgt_proj_z_raw[i+1]->Draw("colz");
-//      }
-//   }
-//   c04->SaveAs(pdf_name, "pdf");
-//
-//	TCanvas *c04c = new TCanvas();
-//	c04c->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      c04c->cd(i);
-//      if(i < 5) {
-//         h_tgt_proj_z_chi2cut[i]->Draw("colz");
-//      }
-//      else {
-//         h_tgt_proj_z_chi2cut[i+1]->Draw("colz");
-//      }
-//   }
-//   c04c->SaveAs(pdf_name, "pdf");
-//
-//
-//	TCanvas *c04a = new TCanvas();
-//	c04a->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      c04a->cd(i);
-//      if(i < 5) {
-//         h_tgt_proj_z_cut[i]->Draw("colz");
-//      }
-//      else {
-//         h_tgt_proj_z_cut[i+1]->Draw("colz");
-//      }
-//   }
-//   c04a->SaveAs(pdf_name, "pdf");
-//
-//
-//	TCanvas *clgt = new TCanvas();
-//	clgt->Divide(4,2);
-//	for(int i =1; i < 9; i++){
-//      clgt->cd(i);
-//      if(i < 5) {
-//         h_lg_t_mod[i]->Draw("colz");
-//      }
-//      else {
-//         h_lg_t_mod[i+1]->Draw("colz");
-//      }
-//   }
-//   clgt->SaveAs(pdf_name, "pdf");
-//
-//
 //
 //	TCanvas *c01 = new TCanvas();
 //	h_chi2->Draw();
@@ -2463,56 +2626,7 @@ c03->SaveAs(pdf_name, "pdf");
 //
 //
 //
-//
-// TCanvas *c31[10];
-//   TGraphErrors *gr[10];
-//   TGraphErrors *gr_mean[10];
-//   TH1D *h1[10];
-//   TF1 *f1[10];
-//   for(int hmid=101; hmid < 110; hmid++){
-//      if(hmid == 105)continue;
-//            c31[hmid-100] = new TCanvas();
-//            c31[hmid-100]->Divide(4,3);
-//            int n = h_cor_res_fitlx[hmid-100][residual_layer]->GetNbinsX();
-//            double xmin = -2;
-//            double xmax =  2;
-//            std::cout << "nibs = " << n << std::endl;
-//            gr[hmid-100] = new TGraphErrors(n);
-//            gr_mean[hmid-100] = new TGraphErrors(n);
-//             for (int i = 1; i <= n; i++) {
-//               c31[hmid-100]->cd(i);
-//                h1[hmid-100] = h_cor_res_fitlx[hmid-100][residual_layer]->ProjectionY(Form("_py%d%d", hmid, i), i, i     );
-////             f1[hmid-100] = new TF1(Form("f1%d%d",hmid, i), "gaus");
-//               f1[hmid-100] = new TF1(Form("f%d", hmid), "gaus(0) + [3]+[4]*x+[5]*x*x+[6]*x*x*x",      xmin, xmax);
-//               f1[hmid-100]->SetParameter(0, 500);   // constant
-//               f1[hmid-100]->SetParameter(1, 0);     // mean
-//               f1[hmid-100]->SetParLimits(1, -2, 2); // mean
-//               f1[hmid-100]->SetParameter(2, 0.3);
-//               f1[hmid-100]->SetParLimits(2, 0.1, 1);
-//               f1[hmid-100]->SetParameter(3, 0);
-//               f1[hmid-100]->SetParameter(4, -1);
-//                h1[hmid-100]->Fit(f1[hmid-100], "", "", xmin, xmax);
-// 				  double mean = f1[hmid-100]->GetParameter(1);
-// 				  double mean_err = f1[hmid-100]->GetParError(1);
-//               double sigma = f1[hmid-100]->GetParameter(2);
-//                double sigma_err = f1[hmid-100]->GetParError(2);
-//               std::cout << "sigma = " << sigma << std::endl;
-//                gr[hmid-100]->SetPoint(i-1, i, sigma);
-//                gr[hmid-100]->SetPointError(i-1, 0, sigma_err);
-//                gr_mean[hmid-100]->SetPoint(i-1, i, mean);
-//                gr_mean[hmid-100]->SetPointError(i-1, 0, mean_err);
-//               h1[hmid-100]->Draw();
-//            }
-//         c31[hmid-100]->cd(11);
-//         gr[hmid-100]->Draw();
-//         c31[hmid-100]->cd(12);
-// 			gr_mean[hmid-100]->SetMaximum(0.2);
-// 			gr_mean[hmid-100]->SetMinimum(-0.2);
-// 			gr_mean[hmid-100]->SetLineStyle(0);
-//         gr_mean[hmid-100]->Draw();
-//         c31[hmid-100]->SaveAs(pdf_name, "pdf");
-//   }
-//
+///
 //  TCanvas *c61 = new TCanvas();
 //  c61->Divide(4,2);
 //  for(int i =1; i < 9; i++){
