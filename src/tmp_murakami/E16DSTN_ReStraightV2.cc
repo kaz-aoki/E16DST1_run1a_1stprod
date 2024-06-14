@@ -701,10 +701,10 @@ void E16DSTN_ReStraightV2::FillVectors(int i){
 				rk_fit_gtr100_mid->at(i),						
 				rk_fit_gtr200_mid->at(i),
 				rk_fit_gtr300_mid->at(i)};
-			resx = { rk_res_sts_cogx->at(i),
-						rk_res_gtr100_cogx->at(i),
-						rk_res_gtr200_cogx->at(i),
-						rk_res_gtr300_cogx->at(i)};
+			resx = { rk_res_sts_x->at(i),
+						rk_res_gtr100_x->at(i),
+						rk_res_gtr200_x->at(i),
+						rk_res_gtr300_x->at(i)};
 			pre_resx = { -999, -999, -999, -999};
 			resy = { 0,
 						rk_res_gtr100_y->at(i),
