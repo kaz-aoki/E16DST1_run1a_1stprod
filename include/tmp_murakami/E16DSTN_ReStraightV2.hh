@@ -2515,6 +2515,7 @@ public:
 	TFile *FileOut() {return fout;}
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
    void ClearUsedClusterIDs();
    void AddRecord(TTree* intree, std::vector<int> &alive_ids);
 	void ChiSqSort(std::vector<int> &ids);

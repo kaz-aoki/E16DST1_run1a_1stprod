@@ -181,15 +181,15 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 
 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 300.}; // 
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // 
 #else
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 500}; //
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 500}; //
 #endif
 
 
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015}; 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
 #else
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
 #endif

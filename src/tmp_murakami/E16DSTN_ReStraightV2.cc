@@ -87,7 +87,7 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 			}
     }
 #else//
-	#ifdef No_Exist_SSD
+	#ifdef NoExist_SSD
 	 for(int i=0; i < n_selected_ids ; i++){
 			std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips -1 > cids = {
 			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i),
@@ -183,11 +183,11 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int event_start, i
 		selected_ids.clear();
 		killdup_ids.clear();
 //      std::cout << "n_cands = " << n_cands << std::endl;
-		ChiSqSort(sorted_ids);
-		SelectTracks(sorted_ids, selected_ids);
+ 	ChiSqSort(sorted_ids);
+ 	SelectTracks(sorted_ids, selected_ids);
 //	   std::cout << "n of selected tracks = " << selected_ids.size() << std::endl;
-		ClearUsedClusterIDs();
-		DuplicationClusterCut(selected_ids, killdup_ids);
+ 	ClearUsedClusterIDs();
+ 	DuplicationClusterCut(selected_ids, killdup_ids);
 //	   std::cout << "n of duplication cut tracks = " << killdup_ids.size() << std::endl;
 		AnalyzeTrackPairs(killdup_ids);
 	 	AddRecord(tree,  killdup_ids);
@@ -599,6 +599,17 @@ bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 2
 	return false;
 }
 
+bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 1> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids ){
+	for (int i = 0; i < kNumTrackingStrips-1; ++i) {
+		for(const auto& used_id : used_cluster_ids[i]){
+     		if(cids[i] == used_id){
+       		return true;
+     		}
+   	}
+	}
+	return false;
+}
+
 
 bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids ){//all layer tracking
 	for (int i = 0; i < kNumTrackingStrips; ++i) {
@@ -912,7 +923,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_start, int n_end, int pri
 	int cnt_lgres_fore[10] = {0};
 	int cnt_lgres_bg[10]   = {0};
 
-	double chi_sq_th  = 100;
+	double chi_sq_th  = 200;
 
 	InitHistos();
 	for(int n=0; n < nevent; n++){
