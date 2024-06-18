@@ -26,7 +26,7 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
   static int n_calls;
   static int n_cands;
   static bool is_fill_param;
-  track_candidates.Analyze();
+  // track_candidates.Analyze();//nakasuga
 
 //  track_candidates.Print(3);
   
@@ -44,6 +44,6 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
   check_file->AddEntry(n_calls, geometry, track_candidates);
   ++n_calls;
   n_cands += track_candidates.NumTrackCandidates();
-  std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;
+  // std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;//nakasuga
   return 0;
 }

@@ -84,11 +84,12 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_prod220216_22033104.root");//eID(HBD)
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/trackselection_eIDcalib_22032501.root");//gas
 
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v56/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v56/*.root");//240601
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run0302*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030300.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030301.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030302.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID5e9/240601/*.root");
     }
   }
   else if(argc==6||argc==8){

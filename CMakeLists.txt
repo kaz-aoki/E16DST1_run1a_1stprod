@@ -512,6 +512,17 @@ target_link_libraries(HBDADCwoTrack
 	E16ANA
 )
 
+#_______________________________________________________________________________
+add_executable(DST1woTrack usr/tmp/nakasuga/DST1woTrack.cc)
+
+target_link_libraries(DST1woTrack
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 #add_executable(EIDana_LGGainCalibwTrack usr/tmp/nakasuga/EIDana_LGGainCalibwTrack.cc)
 #
