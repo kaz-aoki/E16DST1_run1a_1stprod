@@ -1065,14 +1065,20 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_start, int n_end, int pri
 
 //			pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
 //			pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
-//									h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
-////									h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
-////									h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
-////									h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
-////									h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+//			h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
+////		h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
+////		h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
+////		h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
+////		h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+
+// Fill Histos 
+				h_init_pos->Fill(rk_fit_init_pos_gx->at(i), rk_fit_init_pos_gz->at(i));
 			
 // Fill Histos GTR
 			for(int lid = 0; lid < n_layers; lid++){
+				#ifdef NoExist_SSD
+				if(lid == 0 ) continue;
+				#endif
 				h_hitmap[mids[lid]-100][lid]->Fill( fitlxs[lid], fitlys[lid]);
 				h_hitmap_x[mids[lid]-100][lid]->Fill( fitlxs[lid]);
 				h_hitmap_y[mids[lid]-100][lid]->Fill( fitlys[lid]);
