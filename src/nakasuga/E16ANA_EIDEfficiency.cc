@@ -612,9 +612,9 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    g->SetTitle("g");
    int ig = 0;
 
-   int bene = 4;
-   double enepar[5] = {1.,40.,80.,1.,1.};
-   int ienepar[5] = {1,40,80,1,1};
+   int bene = 5;
+   double enepar[6] = {1.,40.,80.,1.,1.,1.};
+   int ienepar[6] = {1,40,80,1,1,1};
    // double enepar[4] = {1.,40.,80.,198.};
    // int ienepar[4] = {1,40,80,200};
 
@@ -637,7 +637,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    // int searchy = 80;//for lg cluster
    int mixevent = 50;
    // double lgthr[4] = {20.,50.,80.,100.};
-   double lgthr[4] = {10.,20.,50.,80.};
+   // double lgthr[4] = {10.,20.,50.,80.};
+   double lgthr[4] = {10.,50.,100.,200.};
    double lgresthr = 50.;
    if(runoption==0){lgresthr = 10.;}
    if(runoption==3){lgresthr = 10.;}
