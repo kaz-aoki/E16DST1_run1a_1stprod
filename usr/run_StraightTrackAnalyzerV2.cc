@@ -53,9 +53,9 @@ int GetRemovedLayerFromEnv(){
 
 
 int main(int argc, char* argv[]){
-   if (argc != 5) {
+   if (argc != 6) {
       cerr << "Invalid argc: " << argc << endl;
-      cerr << "./bin [input_gtr.dst0] [output.dst1] [run_num] [max physics event (all: -1)] " << endl;
+      cerr << "./bin [input_gtr.dst0] [output.dst1] [run_num] [n_event_start] [n_event_end] " << endl;
       return 1;
     }
      auto dst0 = new E16DST_DST0();
@@ -69,53 +69,10 @@ int main(int argc, char* argv[]){
     auto out_file_name = argv[2];
     auto c_outfile     = argv[2];
     auto run_id        = stoi(argv[3]);
-    auto max_event     = stoi(argv[4]);
+    auto event_start   = stoi(argv[4]);
+    auto event_end     = stoi(argv[5]);
     int removed_layer = GetRemovedLayerFromEnv();
-	 std::cout << "removed layer is set as " << removed_layer << std::endl;
-    
-//for lg dst0
-  //    return 1;
- 
-  //run0c
-  //  int sink_id_pos = in_file_name.length() - 10;
-  //  string sink_id = in_file_name.substr(sink_id_pos, 1);
-  //  std::cout << "sink id = " << sink_id << std::endl;
-  //  int smallest_id_pos = in_file_name.length()-8;
-  //  string smallest_id = in_file_name.substr(smallest_id_pos, 3);
-  //  std::cout << "smallest  id = " << smallest_id << std::endl;
-  //  string runnum = argv[3];
-  //  string rem    = argv[5];
-  //  string run = "g4run0" + runnum + "exGTR" + rem;
-  //  string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".ro     ot";
-  //  const char* c_out = outputfile.c_str();
- 
-  //run0d
-    std::regex re_run("run(\\d+)");
-    std::regex re_sink("sink(\\d+)");
-//    std::regex re_dst("_(\\d+).dst0");
-    std::regex re_dst("_(\\d+).srs");
-    std::smatch match_run;
-    std::smatch match_sink;
-    std::smatch match_dst;
-    std::string run_num;
-    std::string sink_id;
-    std::string smallest_id;
-    if(std::regex_search(in_file_name, match_run, re_run)){
-        run_num = match_run.str(1);
-    }
-    if (std::regex_search(in_file_name, match_sink, re_sink)) {
-        sink_id = match_sink.str(1);
-    }
-    if (std::regex_search(in_file_name, match_dst, re_dst)) {
-        smallest_id = match_dst.str(1);
-    }
-    std::cout << "run_num: " << run_num << std::endl;
-    std::cout << "sink_id: " << sink_id << std::endl;
-    std::cout << "smallest_id: " << smallest_id << std::endl;
-    string rem    = to_string(removed_layer);
-    string run = "g4run" + run_num + "exGTR" + rem;
-    string outputfile = "./dst1_test/" + run + "_sink" + sink_id +"_"+ smallest_id+".root     ";
-//    char* c_outfile = out_file_name.c_str();
+
     TFile *f = new TFile( c_outfile, "recreate");
 	 TTree *tree = new TTree("tree", "tree");
 	
@@ -129,8 +86,9 @@ int main(int argc, char* argv[]){
     gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
     auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
   
-    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
-	 bfield_map->Initialize_binary();
+//    auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
+    auto bfield_map = new E16ANA_MagneticFieldConst(0, 1);
+	bfield_map->Initialize_binary();
 	E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
 
 
@@ -167,6 +125,8 @@ int main(int argc, char* argv[]){
 
     E16ANA_StraightMultiTrack     fitter(bfield_map, geometry, targets_pos, 1 );
     E16ANA_StraightMultiTrack     pair_fitter(bfield_map, geometry, targets_pos, 2 );
+//    E16ANA_StraightMultiTrack     fitter(nullptr, geometry, targets_pos, 1 );
+//    E16ANA_StraightMultiTrack     pair_fitter(nullptr, geometry, targets_pos, 2 );
     E16ANA_StraightTrackCheckFile check_file(c_outfile, run_id);
 
 
@@ -177,15 +137,20 @@ int main(int argc, char* argv[]){
     int n_event = 0;
     int n_physics_event = 0;
     while (dst0->ReadAnEvent()) {
-    	if (max_event != -1 &&  n_physics_event > max_event) {
+    	if (event_end != -1 &&  n_physics_event > event_end) {
        		break;
       	}
-      if (n_event % 1000 == 0) {
+      if (n_event % 10 == 0) {
         cout << "Number of event: " << n_event << endl;
       }
       auto event_type = dst0->EventType();
       if (event_type != E16DST_DST0EventType::Physics) {
       	std::cout << "Event ID = " << dst0->Event()->EventID() << " is not Physics Event, Event Type = " << event_type << std::endl;
+			continue;
+		}
+		if(n_physics_event < event_start) {
+			++n_event;
+			++n_physics_event;
 			continue;
 		}
 
@@ -232,9 +197,16 @@ int main(int argc, char* argv[]){
 		   record.STS().UpdatePtrs();
 			#endif
 #endif
-		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
-//		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
 
+#ifdef REMOVE_GTR100
+		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+#elif REMOVE_GTR200
+		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+#elif REMOVE_GTR300
+		   E16DST_DST1GTRFactory_ExOneGTR(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params, removed_layer);
+#else 
+		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
+#endif
 //		if(removed_layer == -1 || removed_layer == 0){
 //		   E16DST_DST1GTRFactory(gtr_hits0, &record.GTR(), gtrped, gtr_lorentz_angle_calib_params);
 //		}

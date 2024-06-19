@@ -33,7 +33,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
             }     
         }
         isFirst = false;
-        std::cout << "GTR Analyzer parameters are set :: should be called ONLY ONCE " << std::endl;
+        std::cout << "GTR Factory :: GTR Analyzer parameters are set :: should be called ONLY ONCE " << std::endl;
     }
     int noh = dst0_hits.NumberOfHits();
     for (auto &a : gtr_analyzers->analyzer_map){
@@ -50,7 +50,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
 //	}
     for(auto &a : gtr_analyzers->analyzer_map){
 //        a.second->AnalyzeV0();
-        a.second->AnalyzeV1();
+       a.second->AnalyzeV1();
     }
 
 	

@@ -20,11 +20,4 @@
 　としてversion4のE16DSTをとってきてください。
 
 
-# Murakami memo
-	usr/run_StraightTrackAnalyzerV2.cc (recommend, but developing) 
-		-- one entry is corressponding to to one event (track is vector)
-	usr/run_StraightTrackAnalyzer.cc
-	    -- one entry is corressponding to one track
-	usr/run_StraightTrackAnalyzer2D.cc 
-		-- one entry ................. to one 2D track(X/Y)
 

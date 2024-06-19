@@ -264,6 +264,6 @@ int E16DST_DST1StraightTrackFactoryV2(E16ANA_GeometryV2& geometry, E16ANA_Magnet
   check_file->AddEntry(n_calls, geometry, track_candidates);
   ++n_calls;
   n_cands += track_candidates.NumTrackCandidates();
-  std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;
+  E16INFO("Total Number of Track Candidates: %d", n_cands);
   return 0;
 }

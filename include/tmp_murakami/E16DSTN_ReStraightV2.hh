@@ -10,6 +10,8 @@
 
 #include <TROOT.h>
 #include <TChain.h>
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
@@ -25,7 +27,10 @@
 #include "E16ANA_StraightTrackParameter.hh"
 #include <TGraphErrors.h> 
 #include <TF1.h> 
- 
+#include "E16ANA_StraightStepTrack.hh"
+#include "E16DST_DST1Constant.hh" 
+#include "E16DSTN_ReStraightParameter.hh"
+
 using namespace std;
 
 
@@ -33,7 +38,239 @@ using namespace std;
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class E16DSTN_ReStraightV2 {
+
 public :
+  struct FitResult {
+    int set_flag;
+    int layer_order;
+    int module_id;
+    TVector3 local_pos;
+    TVector3 local_mom;
+    TVector3 global_pos;
+    TVector3 global_mom;
+//    TVector3 local_sigma;
+    TVector3 residual_pos;
+    TVector3 residual_post;
+    TVector3 residual_post2;
+    void Clear() {
+      set_flag = 0;
+      layer_order = E16DST_DST1Constant::kInvalidValue;
+      module_id = E16DST_DST1Constant::kInvalidValue;
+      local_pos = E16DST_DST1Constant::kInvalidVector;
+      local_mom = E16DST_DST1Constant::kInvalidVector;
+      global_pos = E16DST_DST1Constant::kInvalidVector;
+      global_mom = E16DST_DST1Constant::kInvalidVector;
+      residual_pos = E16DST_DST1Constant::kInvalidVector;
+      residual_post = E16DST_DST1Constant::kInvalidVector;
+      residual_post2 = E16DST_DST1Constant::kInvalidVector;
+    }
+    void Set(int _layer_order, int _module_id, TVector3 _local_pos, TVector3 _local_mom, TVector3 _global_pos, TVector3 _global_mom, TVector3 _residual_pos) {
+      set_flag = 1;
+      layer_order = _layer_order;
+      module_id = _module_id;
+      local_pos = _local_pos;
+      local_mom = _local_mom;
+      global_pos = _global_pos;
+      global_mom = _global_mom;
+      residual_pos = _residual_pos;
+    }
+    void SetT(TVector3 _residual_pos) { residual_post  = _residual_pos;}
+    void SetT2(TVector3 _residual_pos){ residual_post2 = _residual_pos;}
+    void SetC(TVector3 _residual_pos) { residual_pos   = _residual_pos;}
+  };
+
+	struct TrackPair {
+		int tid0;//track id //minus
+		int tid1;//track id //plus
+		TVector3 vtx;
+		double distance;
+		TVector3 mom_minus;
+		TVector3 mom_plus;
+		bool is_refit;
+		bool is_selected;
+		double chi_square_refit;
+		TVector3 vtx_refit;
+		TVector3 mom_minus_refit;
+		TVector3 mom_plus_refit;
+      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_pos_refit;
+      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_pos_refit;
+      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_mom_refit;
+      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_mom_refit;
+      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_res_refit;
+      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_res_refit;
+	   TrackPair& operator = (const TrackPair& rhs) {
+	     Copy(rhs);
+	     return (*this);
+	   }
+	   void Copy(const TrackPair& rhs) {
+	     this->tid0= rhs.tid0;
+	     this->tid1= rhs.tid1;
+	     this->vtx = rhs.vtx;
+	     this->distance = rhs.distance;
+	     this->mom_minus = rhs.mom_minus;
+	     this->mom_plus = rhs.mom_plus;
+	     this->is_refit = rhs.is_refit;
+	     this->is_selected = rhs.is_selected;
+	     this->chi_square_refit = rhs.chi_square_refit;
+	     this->vtx_refit = rhs.vtx_refit;
+	     this->mom_minus_refit = rhs.mom_minus_refit;
+	     this->mom_plus_refit = rhs.mom_plus_refit;
+	     this->track_minus_pos_refit = rhs.track_minus_pos_refit;
+	     this->track_plus_pos_refit = rhs.track_plus_pos_refit;
+	     this->track_minus_mom_refit = rhs.track_minus_mom_refit;
+	     this->track_plus_mom_refit = rhs.track_plus_mom_refit;
+	     this->track_minus_res_refit = rhs.track_minus_res_refit;
+		  this->track_plus_res_refit = rhs.track_plus_res_refit;
+        return;
+     }
+     void Clear() {
+       tid0 = E16DST_DST1Constant::kInvalidValue;
+       tid1 = E16DST_DST1Constant::kInvalidValue;
+       vtx = E16DST_DST1Constant::kInvalidVector;
+       distance = E16DST_DST1Constant::kInvalidValue;
+       mom_minus = E16DST_DST1Constant::kInvalidVector;
+       mom_plus = E16DST_DST1Constant::kInvalidVector;
+       is_refit = false;
+       is_selected = false;
+       vtx_refit = E16DST_DST1Constant::kInvalidVector;
+ //      distance_refit = E16DST_DST1Constant::kInvalidValue;
+       mom_minus_refit = E16DST_DST1Constant::kInvalidVector;
+       mom_plus_refit = E16DST_DST1Constant::kInvalidVector;
+       track_minus_pos_refit.fill(E16DST_DST1Constant::kInvalidVector);
+       track_plus_pos_refit.fill(E16DST_DST1Constant::kInvalidVector);
+       track_minus_mom_refit.fill(E16DST_DST1Constant::kInvalidVector);
+       track_plus_mom_refit.fill(E16DST_DST1Constant::kInvalidVector);
+       track_minus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
+       track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
+     }
+   };
+
+
+private:
+   E16ANA_StraightMultiTrack *fitter;
+   E16ANA_StraightMultiTrack *pair_fitter;
+#ifdef REMOVE_NOLAYER
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
+#else
+	#ifndef NoExist_SSD
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> used_cluster_ids;
+	#else
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> used_cluster_ids;
+	#endif
+#endif
+   E16ANA_GeometryV2 *geometry ;
+   bool isWire;
+   int n_targets;
+	bool vertex_xy_fix_flag;
+	bool py_fix_flag;
+	bool vertex_z_fix_flag;
+   std::vector<TVector3> targets_pos; 
+   std::vector<TrackPair> track_pairs;
+   std::vector<TrackPair*> selected_track_pairs;
+
+  std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
+
+	static constexpr int kPairMinuitStrategy = 2;
+	static constexpr int kPairMinuitMaxFunctionCalls = 1e4;
+	static inline const TVector3 kVertexSigma = {0, 0, 0};	
+   static const int n_modules = 10;
+	static const int n_layers  = 4;
+	static const int n_div = 8;
+// -- arrays for branch info -- // 
+	std::array<int, 4> mids;
+	std::array<int, 4> mids_tid0;
+	std::array<int, 4> mids_tid1;
+	std::array<double, 4> resx;
+	std::array<double, 4> pre_resx;
+	std::array<double, 4> resx_tid0;
+	std::array<double, 4> resx_tid1;
+	std::array<double, 4> resy;
+	std::array<double, 4> resy_tid0;
+	std::array<double, 4> resy_tid1;
+	std::array<double, 4> fitlxs;
+	std::array<double, 4> fitlys;
+	std::array<double, 4> tans;//tan thetas
+	std::array<double, 4> xt4s;//xt4
+	std::array<double, 4> yts;//
+	std::array<double, 4> xadcs;//
+	std::array<double, 4> yadcs;//
+	std::array<int, 4> xcids;//
+	std::array<double, 4> xtotend;//
+
+
+
+
+//Histograms
+   TH1D* h_chi2;
+   TH1D* h_t0diff;
+   TH1D* h_n_runid;
+   TH1D* h_n_eventid;
+   TH1D* h_n_spillid;
+   TH1D* h_chi2_mod[n_modules];
+   TH1D* h_lg_t_mod[n_modules];
+   TH1D* h_tgt_proj_z_raw[n_modules];
+   TH1D* h_tgt_proj_z_cut[n_modules];
+   TH1D* h_tgt_proj_z_chi2cut[n_modules];
+   TH1D* h_tgt_proj_x[n_modules];
+   TH1D* h_tgt_proj_y[n_modules];
+   TH2D* h_hitmap[n_modules][n_layers];
+   TH1D* h_hitmap_x[n_modules][n_layers];
+   TH1D* h_hitmap_y[n_modules][n_layers];
+   TH1D* h_res_x[n_modules][n_layers];
+   TH1D* h_pre_res_x[n_modules][n_layers];
+   TH1D* h_res_y[n_modules][n_layers];
+   TH1D* h_res_vtx_trk_x[n_modules][n_layers];
+   TH1D* h_res_vtx_trk_y[n_modules][n_layers];
+   TH1D* h_tan_theta[n_modules][n_layers];
+//   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
+   TH1D* h_hit_timing_x[n_modules][n_layers];
+	TH1D* h_cluster_t_diff[n_modules][n_layers];
+	TH2D* h_cluster_t_diff_2d[n_modules][n_layers];
+   TH1D* h_cluster_timing_x[n_modules][n_layers];
+   TH1D* h_cluster_timing_y[n_modules][n_layers];
+   TH1D* h_cluster_timing_chi2_xdependence[n_modules][n_layers][n_div];
+   TH1D* h_cluster_timing_chi2_ydependence[n_modules][n_layers][n_div];
+	TH1D* h_tot_end_fr[n_modules][n_layers];	
+	TH1D* h_tot_end_bg[n_modules][n_layers];	
+	TH1D* h_cluster_adc_xdependence[n_modules][n_layers][n_div];
+	TH1D* h_cluster_adc_ydependence[n_modules][n_layers][n_div];
+	TH2D* h_init_pos;
+	TH2D* h_tgt_pos_mod_raw[n_modules];
+	TH2D* h_tgt_pos_mod_cut[n_modules];
+	TH2D* h_cor_dz_time[n_modules][n_layers];
+	TH2D* h_cor_dz_time_t0cor[n_modules][n_layers];
+	TH2D* h_cor_res_fitlx[n_modules][n_layers];
+	TH2D* h_cor_res_fitly[n_modules][n_layers];
+	TH2D* h_cor_res_timing[n_modules][n_layers];
+	TH2D* h_slopevel[n_modules][n_layers][n_div];
+	TH1D* h_res_lg_x[n_modules];
+	TH1D* h_res_lg_y[n_modules];
+   
+   TH2D* h_res_lg_2d[n_modules];
+
+	TH1D* h_res_vtx_trk_lg_x[n_modules];
+	TH1D* h_res_vtx_trk_lg_y[n_modules];
+	TH1D* h_bak_res_lg_x[n_modules];
+	TH1D* h_bak_res_lg_y[n_modules];
+
+   TH2D* h_bak_res_lg_2d[n_modules];
+	
+
+	TH1D* h_bak_res_vtx_trk_lg_x[n_modules];
+	TH1D* h_bak_res_vtx_trk_lg_y[n_modules];
+
+//removed residual
+
+//pair
+	TH1D* h_vtx_gx;
+	TH1D* h_vtx_gy;
+	TH1D* h_vtx_gz;
+	TH2D* h_vtx_gx_gz;	
+	TH2D* h_vtx_gx_gy;	
+
+
+public:
+
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
 
@@ -44,15 +281,15 @@ public :
    ULong64_t       timestamp_in_spill;
    Int_t           trigger_fine_time;
    Int_t           n_fill;
-   Int_t           n_ssd_hits;
-   vector<int>     *ssd_hit_id;
-   vector<int>     *ssd_hit_mid;
-   vector<int>     *ssd_hit_cid;
-   vector<double>  *ssd_hit_x;
-   vector<double>  *ssd_hit_gx;
-   vector<double>  *ssd_hit_gz;
-   vector<double>  *ssd_hit_t;
-   vector<float>   *ssd_hit_adc;
+   Int_t           n_sts_hits;
+   vector<int>     *sts_hit_id;
+   vector<int>     *sts_hit_mid;
+   vector<int>     *sts_hit_cid;
+   vector<double>  *sts_hit_x;
+   vector<double>  *sts_hit_gx;
+   vector<double>  *sts_hit_gz;
+   vector<double>  *sts_hit_t;
+   vector<float>   *sts_hit_adc;
    Int_t           n_gtr100x_hits;
    vector<int>     *gtr100x_hit_id;
    vector<int>     *gtr100x_hit_mid;
@@ -115,6 +352,25 @@ public :
    vector<double>  *gtr300y_hit_ty;
    vector<double>  *gtr300y_hit_t;
    vector<float>   *gtr300y_hit_adc;
+
+   Int_t           pre_n_gtrx_clusters = 0;
+   vector<int>     pre_gtrx_cluster_id;
+   vector<int>     pre_gtrx_cluster_mid;
+   vector<int>     pre_gtrx_cluster_cid;
+   vector<double>  pre_gtrx_cluster_x;
+   vector<double>  pre_gtrx_cluster_ty;
+   vector<double>  pre_gtrx_cluster_t;
+   vector<float>   pre_gtrx_cluster_adc;
+   Int_t           pre_n_gtry_clusters = 0;
+   vector<int>     pre_gtry_cluster_id;
+   vector<int>     pre_gtry_cluster_mid;
+   vector<int>     pre_gtry_cluster_cid;
+   vector<double>  pre_gtry_cluster_y;
+   vector<double>  pre_gtry_cluster_ty;
+   vector<double>  pre_gtry_cluster_t;
+   vector<float>   pre_gtry_cluster_adc;
+
+
    Int_t           n_hbd_hits;
    vector<int>     *hbd_hit_id;
    vector<int>     *hbd_hit_mid;
@@ -126,22 +382,22 @@ public :
    vector<double>  *hbd_hit_gz;
    vector<double>  *hbd_hit_t;
    vector<float>   *hbd_hit_adc;
-   Int_t           n_ssd_clusters;
-   vector<int>     *ssd_cluster_id;
-   vector<int>     *ssd_cluster_mid;
-   vector<double>  *ssd_cluster_x;
-   vector<double>  *ssd_cluster_gx;
-   vector<double>  *ssd_cluster_gz;
-   vector<float>   *ssd_cluster_adc;
-   vector<double>  *ssd_cluster_t;
-   vector<int>     *ssd_cluster_size;
-   vector<double>  *ssd_cluster_fit_x;
-   vector<double>  *ssd_cluster_fit_t;
-   vector<double>  *ssd_cluster_fit_adc;
-   vector<double>  *ssd_cluster_fit_chi2;
+   Int_t           n_sts_clusters;
+   vector<int>     *sts_cluster_id;
+   vector<int>     *sts_cluster_mid;
+   vector<double>  *sts_cluster_x;
+   vector<double>  *sts_cluster_gx;
+   vector<double>  *sts_cluster_gz;
+   vector<float>   *sts_cluster_adc;
+   vector<double>  *sts_cluster_t;
+   vector<int>     *sts_cluster_size;
+   vector<double>  *sts_cluster_fit_x;
+   vector<double>  *sts_cluster_fit_t;
+   vector<double>  *sts_cluster_fit_adc;
+   vector<double>  *sts_cluster_fit_chi2;
    Int_t           n_gtr100x_clusters;
    vector<int>     *gtr100x_cluster_id;
-//   vector<vector<int>>     *gtr100x_cluster_consist_hit_id;
+   vector<vector<double>>     *gtr100x_cluster_consist_hit_id;
    vector<int>     *gtr100x_cluster_mid;
    vector<double>  *gtr100x_cluster_x;
    vector<double>  *gtr100x_cluster_gx;
@@ -159,6 +415,7 @@ public :
    vector<double>  *gtr300x_cluster_last_tot_end;
    Int_t           n_gtr200x_clusters;
    vector<int>     *gtr200x_cluster_id;
+   vector<vector<double>>     *gtr200x_cluster_consist_hit_id;
    vector<int>     *gtr200x_cluster_mid;
    vector<double>  *gtr200x_cluster_x;
    vector<double>  *gtr200x_cluster_gx;
@@ -173,6 +430,7 @@ public :
    vector<int>     *gtr200x_cluster_size;
    Int_t           n_gtr300x_clusters;
    vector<int>     *gtr300x_cluster_id;
+   vector<vector<double>>     *gtr300x_cluster_consist_hit_id;
    vector<int>     *gtr300x_cluster_mid;
    vector<double>  *gtr300x_cluster_x;
    vector<double>  *gtr300x_cluster_gx;
@@ -187,6 +445,7 @@ public :
    vector<int>     *gtr300x_cluster_size;
    Int_t           n_gtr100y_clusters;
    vector<int>     *gtr100y_cluster_id;
+   vector<vector<double>>     *gtr100y_cluster_consist_hit_id;
    vector<int>     *gtr100y_cluster_mid;
    vector<double>  *gtr100y_cluster_y;
    vector<float>   *gtr100y_cluster_adc;
@@ -198,6 +457,7 @@ public :
    vector<int>     *gtr100y_cluster_size;
    Int_t           n_gtr100yb_clusters;
    vector<int>     *gtr100yb_cluster_id;
+   vector<vector<double>>     *gtr100yb_cluster_consist_hit_id;
    vector<int>     *gtr100yb_cluster_mid;
    vector<double>  *gtr100yb_cluster_y;
    vector<float>   *gtr100yb_cluster_adc;
@@ -209,6 +469,7 @@ public :
    vector<int>     *gtr100yb_cluster_size;
    Int_t           n_gtr200y_clusters;
    vector<int>     *gtr200y_cluster_id;
+   vector<vector<double>>     *gtr200y_cluster_consist_hit_id;
    vector<int>     *gtr200y_cluster_mid;
    vector<double>  *gtr200y_cluster_y;
    vector<float>   *gtr200y_cluster_adc;
@@ -220,6 +481,7 @@ public :
    vector<int>     *gtr200y_cluster_size;
    Int_t           n_gtr300y_clusters;
    vector<int>     *gtr300y_cluster_id;
+   vector<vector<double>>     *gtr300y_cluster_consist_hit_id;
    vector<int>     *gtr300y_cluster_mid;
    vector<double>  *gtr300y_cluster_y;
    vector<float>   *gtr300y_cluster_adc;
@@ -277,6 +539,23 @@ public :
    vector<float>   *lg_hit_wofit_t;
    vector<int>     *lg_hit_npeaks;
    vector<int>     *lg_hit_fflag;
+   Int_t           pre_n_lg_hits = 0;
+   vector<int>     pre_lg_hit_id;
+   vector<int>     pre_lg_hit_mid;
+   vector<int>     pre_lg_hit_cid;
+   vector<double>  pre_lg_hit_x;
+   vector<double>  pre_lg_hit_y;
+   vector<double>  pre_lg_hit_z;
+   vector<double>  pre_lg_hit_gx;
+   vector<double>  pre_lg_hit_gy;
+   vector<double>  pre_lg_hit_gz;
+   vector<float>   pre_lg_hit_adc;
+   vector<float>   pre_lg_hit_t;
+   vector<float>   pre_lg_hit_wofit_adc;
+   vector<float>   pre_lg_hit_wofit_t;
+   vector<int>     pre_lg_hit_npeaks;
+   vector<int>     pre_lg_hit_fflag;
+
    Int_t           n_lg_clusters;
    vector<int>     *lg_cluster_id;
    vector<int>     *lg_cluster_mid;
@@ -352,6 +631,9 @@ public :
    Int_t           n_selected;
    Int_t           n_pairs;
    Int_t           n_refit_pairs;
+
+   Int_t           n_alive_tracks;
+
    vector<int>     *track_id;
    vector<bool>    *has_e_hbd_cluster;
    vector<bool>    *has_e_lg_hit;
@@ -380,14 +662,14 @@ public :
    vector<double>  *rk_hit_init_pos_gx;
    vector<double>  *rk_hit_init_pos_gy;
    vector<double>  *rk_hit_init_pos_gz;
-   vector<int>     *rk_hit_ssd_id;
-   vector<double>  *rk_hit_ssd_x;
-   vector<double>  *rk_hit_ssd_gx;
-   vector<double>  *rk_hit_ssd_gy;
-   vector<double>  *rk_hit_ssd_gz;
-   vector<float>   *rk_hit_ssd_adc;
-   vector<float>   *rk_hit_ssd_t;
-   vector<double>  *rk_hit_ssd_chi2;
+   vector<int>     *rk_hit_sts_id;
+   vector<double>  *rk_hit_sts_x;
+   vector<double>  *rk_hit_sts_gx;
+   vector<double>  *rk_hit_sts_gy;
+   vector<double>  *rk_hit_sts_gz;
+   vector<float>   *rk_hit_sts_adc;
+   vector<float>   *rk_hit_sts_t;
+   vector<double>  *rk_hit_sts_chi2;
    vector<int>     *rk_hit_gtr100_xid;
    vector<int>     *rk_hit_gtr100_yid;
    vector<double>  *rk_hit_gtr100_gx;
@@ -479,18 +761,18 @@ public :
    vector<double>  *rk_fit_init_pos_gx;
    vector<double>  *rk_fit_init_pos_gy;
    vector<double>  *rk_fit_init_pos_gz;
-   vector<int>     *rk_fit_ssd_mid;
-   vector<double>  *rk_fit_ssd_x;
-   vector<double>  *rk_fit_ssd_y;
-   vector<double>  *rk_fit_ssd_gx;
-   vector<double>  *rk_fit_ssd_gy;
-   vector<double>  *rk_fit_ssd_gz;
-   vector<double>  *rk_fit_ssd_mom_x;
-   vector<double>  *rk_fit_ssd_mom_y;
-   vector<double>  *rk_fit_ssd_mom_z;
-   vector<double>  *rk_fit_ssd_mom_gx;
-   vector<double>  *rk_fit_ssd_mom_gy;
-   vector<double>  *rk_fit_ssd_mom_gz;
+   vector<int>     *rk_fit_sts_mid;
+   vector<double>  *rk_fit_sts_x;
+   vector<double>  *rk_fit_sts_y;
+   vector<double>  *rk_fit_sts_gx;
+   vector<double>  *rk_fit_sts_gy;
+   vector<double>  *rk_fit_sts_gz;
+   vector<double>  *rk_fit_sts_mom_x;
+   vector<double>  *rk_fit_sts_mom_y;
+   vector<double>  *rk_fit_sts_mom_z;
+   vector<double>  *rk_fit_sts_mom_gx;
+   vector<double>  *rk_fit_sts_mom_gy;
+   vector<double>  *rk_fit_sts_mom_gz;
    vector<int>     *rk_fit_gtr100_mid;
    vector<double>  *rk_fit_gtr100_x;
    vector<double>  *rk_fit_gtr100_y;
@@ -581,7 +863,7 @@ public :
    vector<double>  *rk_res_init_mom_gx;
    vector<double>  *rk_res_init_mom_gy;
    vector<double>  *rk_res_init_mom_gz;
-   vector<double>  *rk_res_ssd_x;
+   vector<double>  *rk_res_sts_x;
    vector<double>  *rk_res_gtr100_x;
    vector<double>  *rk_res_gtr100_y;
    vector<double>  *rk_res_gtr200_x;
@@ -650,7 +932,7 @@ public :
    vector<double>  *rk_pair_minus_mom_gx;
    vector<double>  *rk_pair_minus_mom_gy;
    vector<double>  *rk_pair_minus_mom_gz;
-   vector<double>  *rk_pair_minus_ssd_t;
+   vector<double>  *rk_pair_minus_sts_t;
    vector<vector<double> > *rk_pair_minus_lg_t;
    vector<int>     *rk_pair_plus_track_id;
    vector<int>     *rk_pair_plus_gtr300_mid;
@@ -658,7 +940,7 @@ public :
    vector<double>  *rk_pair_plus_mom_gx;
    vector<double>  *rk_pair_plus_mom_gy;
    vector<double>  *rk_pair_plus_mom_gz;
-   vector<double>  *rk_pair_plus_ssd_t;
+   vector<double>  *rk_pair_plus_sts_t;
    vector<vector<double> > *rk_pair_plus_lg_t;
    vector<double>  *rk_pair_distance;
    vector<double>  *rk_pair_vtx_gx;
@@ -676,9 +958,9 @@ public :
    vector<double>  *rk_pair_plus_mom_refit_gx;
    vector<double>  *rk_pair_plus_mom_refit_gy;
    vector<double>  *rk_pair_plus_mom_refit_gz;
-   vector<double>  *rk_pair_minus_ssd_pos_refit_gx;
-   vector<double>  *rk_pair_minus_ssd_pos_refit_gy;
-   vector<double>  *rk_pair_minus_ssd_pos_refit_gz;
+   vector<double>  *rk_pair_minus_sts_pos_refit_gx;
+   vector<double>  *rk_pair_minus_sts_pos_refit_gy;
+   vector<double>  *rk_pair_minus_sts_pos_refit_gz;
    vector<double>  *rk_pair_minus_gtr100_pos_refit_gx;
    vector<double>  *rk_pair_minus_gtr100_pos_refit_gy;
    vector<double>  *rk_pair_minus_gtr100_pos_refit_gz;
@@ -688,9 +970,9 @@ public :
    vector<double>  *rk_pair_minus_gtr300_pos_refit_gx;
    vector<double>  *rk_pair_minus_gtr300_pos_refit_gy;
    vector<double>  *rk_pair_minus_gtr300_pos_refit_gz;
-   vector<double>  *rk_pair_plus_ssd_pos_refit_gx;
-   vector<double>  *rk_pair_plus_ssd_pos_refit_gy;
-   vector<double>  *rk_pair_plus_ssd_pos_refit_gz;
+   vector<double>  *rk_pair_plus_sts_pos_refit_gx;
+   vector<double>  *rk_pair_plus_sts_pos_refit_gy;
+   vector<double>  *rk_pair_plus_sts_pos_refit_gz;
    vector<double>  *rk_pair_plus_gtr100_pos_refit_gx;
    vector<double>  *rk_pair_plus_gtr100_pos_refit_gy;
    vector<double>  *rk_pair_plus_gtr100_pos_refit_gz;
@@ -700,9 +982,9 @@ public :
    vector<double>  *rk_pair_plus_gtr300_pos_refit_gx;
    vector<double>  *rk_pair_plus_gtr300_pos_refit_gy;
    vector<double>  *rk_pair_plus_gtr300_pos_refit_gz;
-   vector<double>  *rk_pair_minus_ssd_mom_refit_gx;
-   vector<double>  *rk_pair_minus_ssd_mom_refit_gy;
-   vector<double>  *rk_pair_minus_ssd_mom_refit_gz;
+   vector<double>  *rk_pair_minus_sts_mom_refit_gx;
+   vector<double>  *rk_pair_minus_sts_mom_refit_gy;
+   vector<double>  *rk_pair_minus_sts_mom_refit_gz;
    vector<double>  *rk_pair_minus_gtr100_mom_refit_gx;
    vector<double>  *rk_pair_minus_gtr100_mom_refit_gy;
    vector<double>  *rk_pair_minus_gtr100_mom_refit_gz;
@@ -712,9 +994,9 @@ public :
    vector<double>  *rk_pair_minus_gtr300_mom_refit_gx;
    vector<double>  *rk_pair_minus_gtr300_mom_refit_gy;
    vector<double>  *rk_pair_minus_gtr300_mom_refit_gz;
-   vector<double>  *rk_pair_plus_ssd_mom_refit_gx;
-   vector<double>  *rk_pair_plus_ssd_mom_refit_gy;
-   vector<double>  *rk_pair_plus_ssd_mom_refit_gz;
+   vector<double>  *rk_pair_plus_sts_mom_refit_gx;
+   vector<double>  *rk_pair_plus_sts_mom_refit_gy;
+   vector<double>  *rk_pair_plus_sts_mom_refit_gz;
    vector<double>  *rk_pair_plus_gtr100_mom_refit_gx;
    vector<double>  *rk_pair_plus_gtr100_mom_refit_gy;
    vector<double>  *rk_pair_plus_gtr100_mom_refit_gz;
@@ -724,9 +1006,9 @@ public :
    vector<double>  *rk_pair_plus_gtr300_mom_refit_gx;
    vector<double>  *rk_pair_plus_gtr300_mom_refit_gy;
    vector<double>  *rk_pair_plus_gtr300_mom_refit_gz;
-   vector<double>  *rk_pair_minus_ssd_res_refit_x;
-   vector<double>  *rk_pair_minus_ssd_res_refit_y;
-   vector<double>  *rk_pair_minus_ssd_res_refit_z;
+   vector<double>  *rk_pair_minus_sts_res_refit_x;
+   vector<double>  *rk_pair_minus_sts_res_refit_y;
+   vector<double>  *rk_pair_minus_sts_res_refit_z;
    vector<double>  *rk_pair_minus_gtr100_res_refit_x;
    vector<double>  *rk_pair_minus_gtr100_res_refit_y;
    vector<double>  *rk_pair_minus_gtr100_res_refit_z;
@@ -736,9 +1018,9 @@ public :
    vector<double>  *rk_pair_minus_gtr300_res_refit_x;
    vector<double>  *rk_pair_minus_gtr300_res_refit_y;
    vector<double>  *rk_pair_minus_gtr300_res_refit_z;
-   vector<double>  *rk_pair_plus_ssd_res_refit_x;
-   vector<double>  *rk_pair_plus_ssd_res_refit_y;
-   vector<double>  *rk_pair_plus_ssd_res_refit_z;
+   vector<double>  *rk_pair_plus_sts_res_refit_x;
+   vector<double>  *rk_pair_plus_sts_res_refit_y;
+   vector<double>  *rk_pair_plus_sts_res_refit_z;
    vector<double>  *rk_pair_plus_gtr100_res_refit_x;
    vector<double>  *rk_pair_plus_gtr100_res_refit_y;
    vector<double>  *rk_pair_plus_gtr100_res_refit_z;
@@ -757,15 +1039,15 @@ public :
    TBranch        *b_timestamp_in_spill;   //!
    TBranch        *b_trigger_fine_time;   //!
    TBranch        *b_n_fill;   //!
-   TBranch        *b_n_ssd_hits;   //!
-   TBranch        *b_ssd_hit_id;   //!
-   TBranch        *b_ssd_hit_mid;   //!
-   TBranch        *b_ssd_hit_cid;   //!
-   TBranch        *b_ssd_hit_x;   //!
-   TBranch        *b_ssd_hit_gx;   //!
-   TBranch        *b_ssd_hit_gz;   //!
-   TBranch        *b_ssd_hit_t;   //!
-   TBranch        *b_ssd_hit_adc;   //!
+   TBranch        *b_n_sts_hits;   //!
+   TBranch        *b_sts_hit_id;   //!
+   TBranch        *b_sts_hit_mid;   //!
+   TBranch        *b_sts_hit_cid;   //!
+   TBranch        *b_sts_hit_x;   //!
+   TBranch        *b_sts_hit_gx;   //!
+   TBranch        *b_sts_hit_gz;   //!
+   TBranch        *b_sts_hit_t;   //!
+   TBranch        *b_sts_hit_adc;   //!
    TBranch        *b_n_gtr100x_hits;   //!
    TBranch        *b_gtr100x_hit_id;   //!
    TBranch        *b_gtr100x_hit_mid;   //!
@@ -839,22 +1121,28 @@ public :
    TBranch        *b_hbd_hit_gz;   //!
    TBranch        *b_hbd_hit_t;   //!
    TBranch        *b_hbd_hit_adc;   //!
-   TBranch        *b_n_ssd_clusters;   //!
-   TBranch        *b_ssd_cluster_id;   //!
-   TBranch        *b_ssd_cluster_mid;   //!
-   TBranch        *b_ssd_cluster_x;   //!
-   TBranch        *b_ssd_cluster_gx;   //!
-   TBranch        *b_ssd_cluster_gz;   //!
-   TBranch        *b_ssd_cluster_adc;   //!
-   TBranch        *b_ssd_cluster_t;   //!
-   TBranch        *b_ssd_cluster_size;   //!
-   TBranch        *b_ssd_cluster_fit_x;   //!
-   TBranch        *b_ssd_cluster_fit_t;   //!
-   TBranch        *b_ssd_cluster_fit_adc;   //!
-   TBranch        *b_ssd_cluster_fit_chi2;   //!
+   TBranch        *b_n_sts_clusters;   //!
+   TBranch        *b_sts_cluster_id;   //!
+   TBranch        *b_sts_cluster_mid;   //!
+   TBranch        *b_sts_cluster_x;   //!
+   TBranch        *b_sts_cluster_gx;   //!
+   TBranch        *b_sts_cluster_gz;   //!
+   TBranch        *b_sts_cluster_adc;   //!
+   TBranch        *b_sts_cluster_t;   //!
+   TBranch        *b_sts_cluster_size;   //!
+   TBranch        *b_sts_cluster_fit_x;   //!
+   TBranch        *b_sts_cluster_fit_t;   //!
+   TBranch        *b_sts_cluster_fit_adc;   //!
+   TBranch        *b_sts_cluster_fit_chi2;   //!
    TBranch        *b_n_gtr100x_clusters;   //!
    TBranch        *b_gtr100x_cluster_id;   //!
-//   TBranch        *b_gtr100x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr100x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr200x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr300x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr100y_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr100yb_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr200y_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr300y_cluster_consist_hit_id;   //!
    TBranch        *b_gtr100x_cluster_mid;   //!
    TBranch        *b_gtr100x_cluster_x;   //!
    TBranch        *b_gtr100x_cluster_gx;   //!
@@ -990,6 +1278,23 @@ public :
    TBranch        *b_lg_hit_wofit_t;   //!
    TBranch        *b_lg_hit_npeaks;   //!
    TBranch        *b_lg_hit_fflag;   //!
+//   TBranch        *b_pre_n_lg_hits;   //!
+//   TBranch        *b_pre_lg_hit_id;   //!
+//   TBranch        *b_pre_lg_hit_mid;   //!
+//   TBranch        *b_pre_lg_hit_cid;   //!
+//   TBranch        *b_pre_lg_hit_x;   //!
+//   TBranch        *b_pre_lg_hit_y;   //!
+//   TBranch        *b_pre_lg_hit_z;   //!
+//   TBranch        *b_pre_lg_hit_gx;   //!
+//   TBranch        *b_pre_lg_hit_gy;   //!
+//   TBranch        *b_pre_lg_hit_gz;   //!
+//   TBranch        *b_pre_lg_hit_adc;   //!
+//   TBranch        *b_pre_lg_hit_t;   //!
+//   TBranch        *b_pre_lg_hit_wofit_adc;   //!
+//   TBranch        *b_pre_lg_hit_wofit_t;   //!
+//   TBranch        *b_pre_lg_hit_npeaks;   //!
+//   TBranch        *b_pre_lg_hit_fflag;   //!
+// 
    TBranch        *b_n_lg_clusters;   //!
    TBranch        *b_lg_cluster_id;   //!
    TBranch        *b_lg_cluster_mid;   //!
@@ -1064,6 +1369,8 @@ public :
    TBranch        *b_n_cands;   //!
    TBranch        *b_n_selected;   //!
    TBranch        *b_n_pairs;   //!
+
+   TBranch        *b_n_alive_tracks;   //!
    TBranch        *b_n_refit_pairs;   //!
    TBranch        *b_track_id;   //!
    TBranch        *b_has_e_hbd_cluster;   //!
@@ -1093,14 +1400,14 @@ public :
    TBranch        *b_rk_hit_init_pos_gx;   //!
    TBranch        *b_rk_hit_init_pos_gy;   //!
    TBranch        *b_rk_hit_init_pos_gz;   //!
-   TBranch        *b_rk_hit_ssd_id;   //!
-   TBranch        *b_rk_hit_ssd_x;   //!
-   TBranch        *b_rk_hit_ssd_gx;   //!
-   TBranch        *b_rk_hit_ssd_gy;   //!
-   TBranch        *b_rk_hit_ssd_gz;   //!
-   TBranch        *b_rk_hit_ssd_adc;   //!
-   TBranch        *b_rk_hit_ssd_t;   //!
-   TBranch        *b_rk_hit_ssd_chi2;   //!
+   TBranch        *b_rk_hit_sts_id;   //!
+   TBranch        *b_rk_hit_sts_x;   //!
+   TBranch        *b_rk_hit_sts_gx;   //!
+   TBranch        *b_rk_hit_sts_gy;   //!
+   TBranch        *b_rk_hit_sts_gz;   //!
+   TBranch        *b_rk_hit_sts_adc;   //!
+   TBranch        *b_rk_hit_sts_t;   //!
+   TBranch        *b_rk_hit_sts_chi2;   //!
    TBranch        *b_rk_hit_gtr100_xid;   //!
    TBranch        *b_rk_hit_gtr100_yid;   //!
    TBranch        *b_rk_hit_gtr100_gx;   //!
@@ -1192,18 +1499,18 @@ public :
    TBranch        *b_rk_fit_init_pos_gx;   //!
    TBranch        *b_rk_fit_init_pos_gy;   //!
    TBranch        *b_rk_fit_init_pos_gz;   //!
-   TBranch        *b_rk_fit_ssd_mid;   //!
-   TBranch        *b_rk_fit_ssd_x;   //!
-   TBranch        *b_rk_fit_ssd_y;   //!
-   TBranch        *b_rk_fit_ssd_gx;   //!
-   TBranch        *b_rk_fit_ssd_gy;   //!
-   TBranch        *b_rk_fit_ssd_gz;   //!
-   TBranch        *b_rk_fit_ssd_mom_x;   //!
-   TBranch        *b_rk_fit_ssd_mom_y;   //!
-   TBranch        *b_rk_fit_ssd_mom_z;   //!
-   TBranch        *b_rk_fit_ssd_mom_gx;   //!
-   TBranch        *b_rk_fit_ssd_mom_gy;   //!
-   TBranch        *b_rk_fit_ssd_mom_gz;   //!
+   TBranch        *b_rk_fit_sts_mid;   //!
+   TBranch        *b_rk_fit_sts_x;   //!
+   TBranch        *b_rk_fit_sts_y;   //!
+   TBranch        *b_rk_fit_sts_gx;   //!
+   TBranch        *b_rk_fit_sts_gy;   //!
+   TBranch        *b_rk_fit_sts_gz;   //!
+   TBranch        *b_rk_fit_sts_mom_x;   //!
+   TBranch        *b_rk_fit_sts_mom_y;   //!
+   TBranch        *b_rk_fit_sts_mom_z;   //!
+   TBranch        *b_rk_fit_sts_mom_gx;   //!
+   TBranch        *b_rk_fit_sts_mom_gy;   //!
+   TBranch        *b_rk_fit_sts_mom_gz;   //!
    TBranch        *b_rk_fit_gtr100_mid;   //!
    TBranch        *b_rk_fit_gtr100_x;   //!
    TBranch        *b_rk_fit_gtr100_y;   //!
@@ -1294,7 +1601,7 @@ public :
    TBranch        *b_rk_res_init_mom_gx;   //!
    TBranch        *b_rk_res_init_mom_gy;   //!
    TBranch        *b_rk_res_init_mom_gz;   //!
-   TBranch        *b_rk_res_ssd_x;   //!
+   TBranch        *b_rk_res_sts_x;   //!
    TBranch        *b_rk_res_gtr100_x;   //!
    TBranch        *b_rk_res_gtr100_y;   //!
    TBranch        *b_rk_res_gtr200_x;   //!
@@ -1363,7 +1670,7 @@ public :
    TBranch        *b_rk_pair_minus_mom_gx;   //!
    TBranch        *b_rk_pair_minus_mom_gy;   //!
    TBranch        *b_rk_pair_minus_mom_gz;   //!
-   TBranch        *b_rk_pair_minus_ssd_t;   //!
+   TBranch        *b_rk_pair_minus_sts_t;   //!
    TBranch        *b_rk_pair_minus_lg_t;   //!
    TBranch        *b_rk_pair_plus_track_id;   //!
    TBranch        *b_rk_pair_plus_gtr300_mid;   //!
@@ -1371,7 +1678,7 @@ public :
    TBranch        *b_rk_pair_plus_mom_gx;   //!
    TBranch        *b_rk_pair_plus_mom_gy;   //!
    TBranch        *b_rk_pair_plus_mom_gz;   //!
-   TBranch        *b_rk_pair_plus_ssd_t;   //!
+   TBranch        *b_rk_pair_plus_sts_t;   //!
    TBranch        *b_rk_pair_plus_lg_t;   //!
    TBranch        *b_rk_pair_distance;   //!
    TBranch        *b_rk_pair_vtx_gx;   //!
@@ -1389,9 +1696,9 @@ public :
    TBranch        *b_rk_pair_plus_mom_refit_gx;   //!
    TBranch        *b_rk_pair_plus_mom_refit_gy;   //!
    TBranch        *b_rk_pair_plus_mom_refit_gz;   //!
-   TBranch        *b_rk_pair_minus_ssd_pos_refit_gx;   //!
-   TBranch        *b_rk_pair_minus_ssd_pos_refit_gy;   //!
-   TBranch        *b_rk_pair_minus_ssd_pos_refit_gz;   //!
+   TBranch        *b_rk_pair_minus_sts_pos_refit_gx;   //!
+   TBranch        *b_rk_pair_minus_sts_pos_refit_gy;   //!
+   TBranch        *b_rk_pair_minus_sts_pos_refit_gz;   //!
    TBranch        *b_rk_pair_minus_gtr100_pos_refit_gx;   //!
    TBranch        *b_rk_pair_minus_gtr100_pos_refit_gy;   //!
    TBranch        *b_rk_pair_minus_gtr100_pos_refit_gz;   //!
@@ -1401,9 +1708,9 @@ public :
    TBranch        *b_rk_pair_minus_gtr300_pos_refit_gx;   //!
    TBranch        *b_rk_pair_minus_gtr300_pos_refit_gy;   //!
    TBranch        *b_rk_pair_minus_gtr300_pos_refit_gz;   //!
-   TBranch        *b_rk_pair_plus_ssd_pos_refit_gx;   //!
-   TBranch        *b_rk_pair_plus_ssd_pos_refit_gy;   //!
-   TBranch        *b_rk_pair_plus_ssd_pos_refit_gz;   //!
+   TBranch        *b_rk_pair_plus_sts_pos_refit_gx;   //!
+   TBranch        *b_rk_pair_plus_sts_pos_refit_gy;   //!
+   TBranch        *b_rk_pair_plus_sts_pos_refit_gz;   //!
    TBranch        *b_rk_pair_plus_gtr100_pos_refit_gx;   //!
    TBranch        *b_rk_pair_plus_gtr100_pos_refit_gy;   //!
    TBranch        *b_rk_pair_plus_gtr100_pos_refit_gz;   //!
@@ -1413,9 +1720,9 @@ public :
    TBranch        *b_rk_pair_plus_gtr300_pos_refit_gx;   //!
    TBranch        *b_rk_pair_plus_gtr300_pos_refit_gy;   //!
    TBranch        *b_rk_pair_plus_gtr300_pos_refit_gz;   //!
-   TBranch        *b_rk_pair_minus_ssd_mom_refit_gx;   //!
-   TBranch        *b_rk_pair_minus_ssd_mom_refit_gy;   //!
-   TBranch        *b_rk_pair_minus_ssd_mom_refit_gz;   //!
+   TBranch        *b_rk_pair_minus_sts_mom_refit_gx;   //!
+   TBranch        *b_rk_pair_minus_sts_mom_refit_gy;   //!
+   TBranch        *b_rk_pair_minus_sts_mom_refit_gz;   //!
    TBranch        *b_rk_pair_minus_gtr100_mom_refit_gx;   //!
    TBranch        *b_rk_pair_minus_gtr100_mom_refit_gy;   //!
    TBranch        *b_rk_pair_minus_gtr100_mom_refit_gz;   //!
@@ -1425,9 +1732,9 @@ public :
    TBranch        *b_rk_pair_minus_gtr300_mom_refit_gx;   //!
    TBranch        *b_rk_pair_minus_gtr300_mom_refit_gy;   //!
    TBranch        *b_rk_pair_minus_gtr300_mom_refit_gz;   //!
-   TBranch        *b_rk_pair_plus_ssd_mom_refit_gx;   //!
-   TBranch        *b_rk_pair_plus_ssd_mom_refit_gy;   //!
-   TBranch        *b_rk_pair_plus_ssd_mom_refit_gz;   //!
+   TBranch        *b_rk_pair_plus_sts_mom_refit_gx;   //!
+   TBranch        *b_rk_pair_plus_sts_mom_refit_gy;   //!
+   TBranch        *b_rk_pair_plus_sts_mom_refit_gz;   //!
    TBranch        *b_rk_pair_plus_gtr100_mom_refit_gx;   //!
    TBranch        *b_rk_pair_plus_gtr100_mom_refit_gy;   //!
    TBranch        *b_rk_pair_plus_gtr100_mom_refit_gz;   //!
@@ -1437,9 +1744,9 @@ public :
    TBranch        *b_rk_pair_plus_gtr300_mom_refit_gx;   //!
    TBranch        *b_rk_pair_plus_gtr300_mom_refit_gy;   //!
    TBranch        *b_rk_pair_plus_gtr300_mom_refit_gz;   //!
-   TBranch        *b_rk_pair_minus_ssd_res_refit_x;   //!
-   TBranch        *b_rk_pair_minus_ssd_res_refit_y;   //!
-   TBranch        *b_rk_pair_minus_ssd_res_refit_z;   //!
+   TBranch        *b_rk_pair_minus_sts_res_refit_x;   //!
+   TBranch        *b_rk_pair_minus_sts_res_refit_y;   //!
+   TBranch        *b_rk_pair_minus_sts_res_refit_z;   //!
    TBranch        *b_rk_pair_minus_gtr100_res_refit_x;   //!
    TBranch        *b_rk_pair_minus_gtr100_res_refit_y;   //!
    TBranch        *b_rk_pair_minus_gtr100_res_refit_z;   //!
@@ -1449,9 +1756,9 @@ public :
    TBranch        *b_rk_pair_minus_gtr300_res_refit_x;   //!
    TBranch        *b_rk_pair_minus_gtr300_res_refit_y;   //!
    TBranch        *b_rk_pair_minus_gtr300_res_refit_z;   //!
-   TBranch        *b_rk_pair_plus_ssd_res_refit_x;   //!
-   TBranch        *b_rk_pair_plus_ssd_res_refit_y;   //!
-   TBranch        *b_rk_pair_plus_ssd_res_refit_z;   //!
+   TBranch        *b_rk_pair_plus_sts_res_refit_x;   //!
+   TBranch        *b_rk_pair_plus_sts_res_refit_y;   //!
+   TBranch        *b_rk_pair_plus_sts_res_refit_z;   //!
    TBranch        *b_rk_pair_plus_gtr100_res_refit_x;   //!
    TBranch        *b_rk_pair_plus_gtr100_res_refit_y;   //!
    TBranch        *b_rk_pair_plus_gtr100_res_refit_z;   //!
@@ -1468,321 +1775,321 @@ public :
 	TFile *fout;   //= new TFile (out_file, "recreate");
 	TTree *outtree;// = new TTree("outtree", "outtree");
 
-   Int_t           out_run_id;
-   Int_t           out_event_id;
-   Int_t           out_spill_id;
-   ULong64_t       out_timestamp_in_spill;
-   Int_t           out_trigger_fine_time;
-   Int_t           out_n_fill;
-   Int_t           out_n_ssd_hits;
-   std::vector<int>     out_ssd_hit_id;
-   std::vector<int>     out_ssd_hit_mid;
-   std::vector<int>     out_ssd_hit_cid;
-   std::vector<double>  out_ssd_hit_x;
-   std::vector<double>  out_ssd_hit_gx;
-   std::vector<double>  out_ssd_hit_gz;
-   std::vector<double>  out_ssd_hit_t;
-   std::vector<float>   out_ssd_hit_adc;
-   Int_t           out_n_gtr100x_hits;
-   std::vector<int>     out_gtr100x_hit_id;
-   std::vector<int>     out_gtr100x_hit_mid;
-   std::vector<int>     out_gtr100x_hit_cid;
-   std::vector<double>  out_gtr100x_hit_x;
-   std::vector<double>  out_gtr100x_hit_tx;
-   std::vector<double>  out_gtr100x_hit_gx;
-   std::vector<double>  out_gtr100x_hit_gz;
-   std::vector<std::vector<double>>  out_gtr100x_hit_t;
-   std::vector<float>   out_gtr100x_hit_adc;
-   Int_t           out_n_gtr200x_hits;
-   std::vector<int>     out_gtr200x_hit_id;
-   std::vector<int>     out_gtr200x_hit_mid;
-   std::vector<int>     out_gtr200x_hit_cid;
-   std::vector<double>  out_gtr200x_hit_x;
-   std::vector<double>  out_gtr200x_hit_tx;
-   std::vector<double>  out_gtr200x_hit_gx;
-   std::vector<double>  out_gtr200x_hit_gz;
-   std::vector<double>  out_gtr200x_hit_t;
-   std::vector<float>   out_gtr200x_hit_adc;
-   Int_t           out_n_gtr300x_hits;
-   std::vector<int>     out_gtr300x_hit_id;
-   std::vector<int>     out_gtr300x_hit_mid;
-   std::vector<int>     out_gtr300x_hit_cid;
-   std::vector<double>  out_gtr300x_hit_x;
-   std::vector<double>  out_gtr300x_hit_tx;
-   std::vector<double>  out_gtr300x_hit_gx;
-   std::vector<double>  out_gtr300x_hit_gz;
-   std::vector<double>  out_gtr300x_hit_t;
-   std::vector<float>   out_gtr300x_hit_adc;
-   Int_t           out_n_gtr100y_hits;
-   std::vector<int>     out_gtr100y_hit_id;
-   std::vector<int>     out_gtr100y_hit_mid;
-   std::vector<int>     out_gtr100y_hit_cid;
-   std::vector<double>  out_gtr100y_hit_y;
-   std::vector<double>  out_gtr100y_hit_ty;
-   std::vector<double>  out_gtr100y_hit_t;
-   std::vector<float>   out_gtr100y_hit_adc;
-   Int_t           out_n_gtr100yb_hits;
-   std::vector<int>     out_gtr100yb_hit_id;
-   std::vector<int>     out_gtr100yb_hit_mid;
-   std::vector<int>     out_gtr100yb_hit_cid;
-   std::vector<double>  out_gtr100yb_hit_y;
-   std::vector<double>  out_gtr100yb_hit_ty;
-   std::vector<double>  out_gtr100yb_hit_t;
-   std::vector<float>   out_gtr100yb_hit_adc;
-   Int_t                out_n_gtr200y_hits;
-   std::vector<int>     out_gtr200y_hit_id;
-   std::vector<int>     out_gtr200y_hit_mid;
-   std::vector<int>     out_gtr200y_hit_cid;
-   std::vector<double>  out_gtr200y_hit_y;
-   std::vector<double>  out_gtr200y_hit_ty;
-   std::vector<double>  out_gtr200y_hit_t;
-   std::vector<float>   out_gtr200y_hit_adc;
-
-   Int_t                out_n_gtr300y_hits;
-   std::vector<int>     out_gtr300y_hit_id;
-   std::vector<int>     out_gtr300y_hit_mid;
-   std::vector<int>     out_gtr300y_hit_cid;
-   std::vector<double>  out_gtr300y_hit_y;
-   std::vector<double>  out_gtr300y_hit_ty;
-   std::vector<double>  out_gtr300y_hit_t;
-   std::vector<float>   out_gtr300y_hit_adc;
-   Int_t                out_n_hbd_hits;
-   std::vector<int>     out_hbd_hit_id;
-   std::vector<int>     out_hbd_hit_mid;
-   std::vector<int>     out_hbd_hit_cid;
-   std::vector<double>  out_hbd_hit_x;
-   std::vector<double>  out_hbd_hit_y;
-   std::vector<double>  out_hbd_hit_gx;
-   std::vector<double>  out_hbd_hit_gy;
-   std::vector<double>  out_hbd_hit_gz;
-   std::vector<double>  out_hbd_hit_t;
-   std::vector<float>   out_hbd_hit_adc;
-   Int_t                out_n_ssd_clusters;
-   std::vector<int>     out_ssd_cluster_id;
-   std::vector<int>     out_ssd_cluster_mid;
-   std::vector<double>  out_ssd_cluster_x;
-   std::vector<double>  out_ssd_cluster_gx;
-   std::vector<double>  out_ssd_cluster_gz;
-   std::vector<float>   out_ssd_cluster_adc;
-   std::vector<double>  out_ssd_cluster_t;
-   std::vector<int>     out_ssd_cluster_size;
-   std::vector<double>  out_ssd_cluster_fit_x;
-   std::vector<double>  out_ssd_cluster_fit_t;
-   std::vector<double>  out_ssd_cluster_fit_adc;
-   std::vector<double>  out_ssd_cluster_fit_chi2;
-   Int_t                out_n_gtr100x_clusters;
-   std::vector<int>     out_gtr100x_cluster_id;
-//   std::vector<std::vector<int>>     out_gtr100x_cluster_consist_hit_id;
-   std::vector<int>     out_gtr100x_cluster_mid;
-   std::vector<double>  out_gtr100x_cluster_x;
-   std::vector<double>  out_gtr100x_cluster_gx;
-   std::vector<double>  out_gtr100x_cluster_gz;
-   std::vector<float>   out_gtr100x_cluster_adc;
-   std::vector<double>  out_gtr100x_cluster_t;
-   std::vector<double>  out_gtr100x_cluster_t2;
-   std::vector<double>  out_gtr100x_cluster_tx;
-   std::vector<double>  out_gtr100x_cluster_the;
-   std::vector<double>  out_gtr100x_cluster_gtx;
-   std::vector<int>     out_gtr100x_cluster_nc;
-   std::vector<int>     out_gtr100x_cluster_size;
-   std::vector<double>     out_gtr100x_cluster_last_tot_end;
-   std::vector<double>     out_gtr200x_cluster_last_tot_end;
-   std::vector<double>     out_gtr300x_cluster_last_tot_end;
-   Int_t                out_n_gtr200x_clusters;
-   std::vector<int>     out_gtr200x_cluster_id;
-   std::vector<int>     out_gtr200x_cluster_mid;
-   std::vector<double>  out_gtr200x_cluster_x;
-   std::vector<double>  out_gtr200x_cluster_gx;
-   std::vector<double>  out_gtr200x_cluster_gz;
-   std::vector<float>   out_gtr200x_cluster_adc;
-   std::vector<double>  out_gtr200x_cluster_t;
-   std::vector<double>  out_gtr200x_cluster_t2;
-   std::vector<double>  out_gtr200x_cluster_tx;
-   std::vector<double>  out_gtr200x_cluster_the;
-   std::vector<int>     out_gtr200x_cluster_nc;
-   std::vector<double>  out_gtr200x_cluster_gtx;
-   std::vector<int>     out_gtr200x_cluster_size;
-   Int_t                out_n_gtr300x_clusters;
-   std::vector<int>     out_gtr300x_cluster_id;
-   std::vector<int>     out_gtr300x_cluster_mid;
-   std::vector<double>  out_gtr300x_cluster_x;
-   std::vector<double>  out_gtr300x_cluster_gx;
-   std::vector<double>  out_gtr300x_cluster_gz;
-   std::vector<float>   out_gtr300x_cluster_adc;
-   std::vector<double>  out_gtr300x_cluster_t;
-   std::vector<double>  out_gtr300x_cluster_t2;
-   std::vector<double>  out_gtr300x_cluster_tx;
-   std::vector<double>  out_gtr300x_cluster_the;
-   std::vector<int>     out_gtr300x_cluster_nc;
-   std::vector<double>  out_gtr300x_cluster_gtx;
-   std::vector<int>     out_gtr300x_cluster_size;
-   Int_t                out_n_gtr100y_clusters;
-   std::vector<int>     out_gtr100y_cluster_id;
-   std::vector<int>     out_gtr100y_cluster_mid;
-   std::vector<double>  out_gtr100y_cluster_y;
-   std::vector<float>   out_gtr100y_cluster_adc;
-   std::vector<double>  out_gtr100y_cluster_t;
-   std::vector<double>  out_gtr100y_cluster_t2;
-   std::vector<double>  out_gtr100y_cluster_ty;
-   std::vector<double>  out_gtr100y_cluster_the;
-   std::vector<int>     out_gtr100y_cluster_nc;
-   std::vector<int>     out_gtr100y_cluster_size;
-   Int_t                out_n_gtr100yb_clusters;
-   std::vector<int>     out_gtr100yb_cluster_id;
-   std::vector<int>     out_gtr100yb_cluster_mid;
-   std::vector<double>  out_gtr100yb_cluster_y;
-   std::vector<float>   out_gtr100yb_cluster_adc;
-   std::vector<double>  out_gtr100yb_cluster_t;
-   std::vector<double>  out_gtr100yb_cluster_t2;
-   std::vector<double>  out_gtr100yb_cluster_ty;
-   std::vector<double>  out_gtr100yb_cluster_the;
-   std::vector<int>     out_gtr100yb_cluster_nc;
-   std::vector<int>     out_gtr100yb_cluster_size;
-   Int_t                out_n_gtr200y_clusters;
-   std::vector<int>     out_gtr200y_cluster_id;
-   std::vector<int>     out_gtr200y_cluster_mid;
-   std::vector<double>  out_gtr200y_cluster_y;
-   std::vector<float>   out_gtr200y_cluster_adc;
-   std::vector<double>  out_gtr200y_cluster_t;
-   std::vector<double>  out_gtr200y_cluster_t2;
-   std::vector<double>  out_gtr200y_cluster_ty;
-   std::vector<double>  out_gtr200y_cluster_the;
-   std::vector<int>     out_gtr200y_cluster_nc;
-   std::vector<int>     out_gtr200y_cluster_size;
-   Int_t                out_n_gtr300y_clusters;
-   std::vector<int>     out_gtr300y_cluster_id;
-   std::vector<int>     out_gtr300y_cluster_mid;
-   std::vector<double>  out_gtr300y_cluster_y;
-   std::vector<float>   out_gtr300y_cluster_adc;
-   std::vector<double>  out_gtr300y_cluster_t;
-   std::vector<double>  out_gtr300y_cluster_t2;
-   std::vector<double>  out_gtr300y_cluster_ty;
-   std::vector<double>  out_gtr300y_cluster_the;
-   std::vector<int>     out_gtr300y_cluster_nc;
-   std::vector<int>     out_gtr300y_cluster_size;
-   Int_t                out_n_hbd_clusters;
-   std::vector<int>     out_hbd_cluster_id;
-   std::vector<int>     out_hbd_cluster_mid;
-   std::vector<double>  out_hbd_cluster_x;
-   std::vector<double>  out_hbd_cluster_y;
-   std::vector<double>  out_hbd_cluster_gx;
-   std::vector<double>  out_hbd_cluster_gy;
-   std::vector<double>  out_hbd_cluster_gz;
-   std::vector<float>   out_hbd_cluster_adc;
-   std::vector<int>     out_hbd_cluster_max_cid;
-   std::vector<double>  out_hbd_cluster_t;
-   std::vector<float>   out_hbd_cluster_ftime;
-   std::vector<float>   out_hbd_cluster_tdiff;
-   std::vector<int>     out_hbd_cluster_size;
-   std::vector<float>   out_hbd_cluster_eprob;
-   std::vector<float>   out_hbd_cluster_cprob;
-   Int_t                out_n_hbd_clusters_wotime;
-   std::vector<int>     out_hbd_cluster_wotime_id;
-   std::vector<int>     out_hbd_cluster_wotime_mid;
-   std::vector<double>  out_hbd_cluster_wotime_x;
-   std::vector<double>  out_hbd_cluster_wotime_y;
-   std::vector<double>  out_hbd_cluster_wotime_gx;
-   std::vector<double>  out_hbd_cluster_wotime_gy;
-   std::vector<double>  out_hbd_cluster_wotime_gz;
-   std::vector<float>   out_hbd_cluster_wotime_adc;
-   std::vector<int>     out_hbd_cluster_wotime_max_cid;
-   std::vector<double>  out_hbd_cluster_wotime_t;
-   std::vector<float>   out_hbd_cluster_wotime_ftime;
-   std::vector<float>   out_hbd_cluster_wotime_tdiff;
-   std::vector<int>     out_hbd_cluster_wotime_size;
-   std::vector<float>   out_hbd_cluster_wotime_eprob;
-   std::vector<float>   out_hbd_cluster_wotime_cprob;
-   Int_t                out_n_lg_hits;
-   std::vector<int>     out_lg_hit_id;
-   std::vector<int>     out_lg_hit_mid;
-   std::vector<int>     out_lg_hit_cid;
-   std::vector<double>  out_lg_hit_x;
-   std::vector<double>  out_lg_hit_y;
-   std::vector<double>  out_lg_hit_z;
-   std::vector<double>  out_lg_hit_gx;
-   std::vector<double>  out_lg_hit_gy;
-   std::vector<double>  out_lg_hit_gz;
-   std::vector<float>   out_lg_hit_adc;
-   std::vector<float>   out_lg_hit_t;
-   std::vector<float>   out_lg_hit_wofit_adc;
-   std::vector<float>   out_lg_hit_wofit_t;
-   std::vector<int>     out_lg_hit_npeaks;
-   std::vector<int>     out_lg_hit_fflag;
-   Int_t                out_n_lg_clusters;
-   std::vector<int>     out_lg_cluster_id;
-   std::vector<int>     out_lg_cluster_mid;
-   std::vector<int>     out_lg_cluster_max_cid;
-   std::vector<int>     out_lg_cluster_max_adc;
-   std::vector<double>  out_lg_cluster_x;
-   std::vector<double>  out_lg_cluster_y;
-   std::vector<double>  out_lg_cluster_z;
-   std::vector<double>  out_lg_cluster_gx;
-   std::vector<double>  out_lg_cluster_gy;
-   std::vector<double>  out_lg_cluster_gz;
-   std::vector<float>   out_lg_cluster_adc;
-   std::vector<float>   out_lg_cluster_t;
-   std::vector<float>   out_lg_cluster_tdiff;
-   std::vector<int>     out_lg_cluster_size;
-   Int_t                out_n_trg_gtr_hits;
-   std::vector<int>     out_trg_gtr_hit_id;
-   std::vector<int>     out_trg_gtr_hit_mid;
-   std::vector<int>     out_trg_gtr_hit_cid;
-   std::vector<double>  out_trg_gtr_hit_x;
-   std::vector<double>  out_trg_gtr_hit_y;
-   std::vector<double>  out_trg_gtr_hit_gx;
-   std::vector<double>  out_trg_gtr_hit_gy;
-   std::vector<double>  out_trg_gtr_hit_gz;
-   std::vector<float>   out_trg_gtr_hit_t;
-   Int_t                out_n_trg_hbd_hits;
-   std::vector<int>     out_trg_hbd_hit_id;
-   std::vector<int>     out_trg_hbd_hit_mid;
-   std::vector<int>     out_trg_hbd_hit_cid;
-   std::vector<double>  out_trg_hbd_hit_x;
-   std::vector<double>  out_trg_hbd_hit_y;
-   std::vector<double>  out_trg_hbd_hit_gx;
-   std::vector<double>  out_trg_hbd_hit_gy;
-   std::vector<double>  out_trg_hbd_hit_gz;
-   std::vector<float>   out_trg_hbd_hit_t;
-   Int_t                out_n_trg_lg_hits;
-   std::vector<int>     out_trg_lg_hit_id;
-   std::vector<int>     out_trg_lg_hit_mid;
-   std::vector<int>     out_trg_lg_hit_cid;
-   std::vector<double>  out_trg_lg_hit_x;
-   std::vector<double>  out_trg_lg_hit_y;
-   std::vector<double>  out_trg_lg_hit_z;
-   std::vector<double>  out_trg_lg_hit_gx;
-   std::vector<double>  out_trg_lg_hit_gy;
-   std::vector<double>  out_trg_lg_hit_gz;
-   std::vector<float>   out_trg_lg_hit_t;
-   Int_t                out_n_trg_tracks;
-   std::vector<int>     out_trg_track_n_gtr_hits;
-   std::vector<std::vector<double> > out_trg_track_gtr_id;
-   std::vector<std::vector<double> > out_trg_track_gtr_mid;
-   std::vector<std::vector<double> > out_trg_track_gtr_cid;
-   std::vector<std::vector<double> > out_trg_track_gtr_x;
-   std::vector<std::vector<double> > out_trg_track_gtr_y;
-   std::vector<std::vector<double> > out_trg_track_gtr_t;
-   std::vector<std::vector<double> > out_trg_track_gtr_is_t_match;
-   std::vector<int>                  out_trg_track_n_hbd_hits;
-   std::vector<std::vector<double> > out_trg_track_hbd_id;
-   std::vector<std::vector<double> > out_trg_track_hbd_mid;
-   std::vector<std::vector<double> > out_trg_track_hbd_cid;
-   std::vector<std::vector<double> > out_trg_track_hbd_x;
-   std::vector<std::vector<double> > out_trg_track_hbd_y;
-   std::vector<std::vector<double> > out_trg_track_hbd_t;
-   std::vector<std::vector<double> > out_trg_track_hbd_is_t_match;
-   std::vector<int>     out_trg_track_lg_id;
-   std::vector<int>     out_trg_track_lg_mid;
-   std::vector<int>     out_trg_track_lg_cid;
-   std::vector<double>  out_trg_track_lg_x;
-   std::vector<double>  out_trg_track_lg_y;
-   std::vector<float>   out_trg_track_lg_t;
+//   Int_t           out_run_id;
+//   Int_t           out_event_id;
+//   Int_t           out_spill_id;
+//   ULong64_t       out_timestamp_in_spill;
+//   Int_t           out_trigger_fine_time;
+//   Int_t           out_n_fill;
+//   Int_t           out_n_sts_hits;
+//   std::vector<int>     out_sts_hit_id;
+//   std::vector<int>     out_sts_hit_mid;
+//   std::vector<int>     out_sts_hit_cid;
+//   std::vector<double>  out_sts_hit_x;
+//   std::vector<double>  out_sts_hit_gx;
+//   std::vector<double>  out_sts_hit_gz;
+//   std::vector<double>  out_sts_hit_t;
+//   std::vector<float>   out_sts_hit_adc;
+//   Int_t           out_n_gtr100x_hits;
+//   std::vector<int>     out_gtr100x_hit_id;
+//   std::vector<int>     out_gtr100x_hit_mid;
+//   std::vector<int>     out_gtr100x_hit_cid;
+//   std::vector<double>  out_gtr100x_hit_x;
+//   std::vector<double>  out_gtr100x_hit_tx;
+//   std::vector<double>  out_gtr100x_hit_gx;
+//   std::vector<double>  out_gtr100x_hit_gz;
+//   std::vector<std::vector<double>>  out_gtr100x_hit_t;
+//   std::vector<float>   out_gtr100x_hit_adc;
+//   Int_t           out_n_gtr200x_hits;
+//   std::vector<int>     out_gtr200x_hit_id;
+//   std::vector<int>     out_gtr200x_hit_mid;
+//   std::vector<int>     out_gtr200x_hit_cid;
+//   std::vector<double>  out_gtr200x_hit_x;
+//   std::vector<double>  out_gtr200x_hit_tx;
+//   std::vector<double>  out_gtr200x_hit_gx;
+//   std::vector<double>  out_gtr200x_hit_gz;
+//   std::vector<double>  out_gtr200x_hit_t;
+//   std::vector<float>   out_gtr200x_hit_adc;
+//   Int_t           out_n_gtr300x_hits;
+//   std::vector<int>     out_gtr300x_hit_id;
+//   std::vector<int>     out_gtr300x_hit_mid;
+//   std::vector<int>     out_gtr300x_hit_cid;
+//   std::vector<double>  out_gtr300x_hit_x;
+//   std::vector<double>  out_gtr300x_hit_tx;
+//   std::vector<double>  out_gtr300x_hit_gx;
+//   std::vector<double>  out_gtr300x_hit_gz;
+//   std::vector<double>  out_gtr300x_hit_t;
+//   std::vector<float>   out_gtr300x_hit_adc;
+//   Int_t           out_n_gtr100y_hits;
+//   std::vector<int>     out_gtr100y_hit_id;
+//   std::vector<int>     out_gtr100y_hit_mid;
+//   std::vector<int>     out_gtr100y_hit_cid;
+//   std::vector<double>  out_gtr100y_hit_y;
+//   std::vector<double>  out_gtr100y_hit_ty;
+//   std::vector<double>  out_gtr100y_hit_t;
+//   std::vector<float>   out_gtr100y_hit_adc;
+//   Int_t           out_n_gtr100yb_hits;
+//   std::vector<int>     out_gtr100yb_hit_id;
+//   std::vector<int>     out_gtr100yb_hit_mid;
+//   std::vector<int>     out_gtr100yb_hit_cid;
+//   std::vector<double>  out_gtr100yb_hit_y;
+//   std::vector<double>  out_gtr100yb_hit_ty;
+//   std::vector<double>  out_gtr100yb_hit_t;
+//   std::vector<float>   out_gtr100yb_hit_adc;
+//   Int_t                out_n_gtr200y_hits;
+//   std::vector<int>     out_gtr200y_hit_id;
+//   std::vector<int>     out_gtr200y_hit_mid;
+//   std::vector<int>     out_gtr200y_hit_cid;
+//   std::vector<double>  out_gtr200y_hit_y;
+//   std::vector<double>  out_gtr200y_hit_ty;
+//   std::vector<double>  out_gtr200y_hit_t;
+//   std::vector<float>   out_gtr200y_hit_adc;
+//
+//   Int_t                out_n_gtr300y_hits;
+//   std::vector<int>     out_gtr300y_hit_id;
+//   std::vector<int>     out_gtr300y_hit_mid;
+//   std::vector<int>     out_gtr300y_hit_cid;
+//   std::vector<double>  out_gtr300y_hit_y;
+//   std::vector<double>  out_gtr300y_hit_ty;
+//   std::vector<double>  out_gtr300y_hit_t;
+//   std::vector<float>   out_gtr300y_hit_adc;
+//   Int_t                out_n_hbd_hits;
+//   std::vector<int>     out_hbd_hit_id;
+//   std::vector<int>     out_hbd_hit_mid;
+//   std::vector<int>     out_hbd_hit_cid;
+//   std::vector<double>  out_hbd_hit_x;
+//   std::vector<double>  out_hbd_hit_y;
+//   std::vector<double>  out_hbd_hit_gx;
+//   std::vector<double>  out_hbd_hit_gy;
+//   std::vector<double>  out_hbd_hit_gz;
+//   std::vector<double>  out_hbd_hit_t;
+//   std::vector<float>   out_hbd_hit_adc;
+//   Int_t                out_n_sts_clusters;
+//   std::vector<int>     out_sts_cluster_id;
+//   std::vector<int>     out_sts_cluster_mid;
+//   std::vector<double>  out_sts_cluster_x;
+//   std::vector<double>  out_sts_cluster_gx;
+//   std::vector<double>  out_sts_cluster_gz;
+//   std::vector<float>   out_sts_cluster_adc;
+//   std::vector<double>  out_sts_cluster_t;
+//   std::vector<int>     out_sts_cluster_size;
+//   std::vector<double>  out_sts_cluster_fit_x;
+//   std::vector<double>  out_sts_cluster_fit_t;
+//   std::vector<double>  out_sts_cluster_fit_adc;
+//   std::vector<double>  out_sts_cluster_fit_chi2;
+//   Int_t                out_n_gtr100x_clusters;
+//   std::vector<int>     out_gtr100x_cluster_id;
+////   std::vector<std::vector<int>>     out_gtr100x_cluster_consist_hit_id;
+//   std::vector<int>     out_gtr100x_cluster_mid;
+//   std::vector<double>  out_gtr100x_cluster_x;
+//   std::vector<double>  out_gtr100x_cluster_gx;
+//   std::vector<double>  out_gtr100x_cluster_gz;
+//   std::vector<float>   out_gtr100x_cluster_adc;
+//   std::vector<double>  out_gtr100x_cluster_t;
+//   std::vector<double>  out_gtr100x_cluster_t2;
+//   std::vector<double>  out_gtr100x_cluster_tx;
+//   std::vector<double>  out_gtr100x_cluster_the;
+//   std::vector<double>  out_gtr100x_cluster_gtx;
+//   std::vector<int>     out_gtr100x_cluster_nc;
+//   std::vector<int>     out_gtr100x_cluster_size;
+//   Int_t                out_n_gtr200x_clusters;
+//   std::vector<int>     out_gtr200x_cluster_id;
+//   std::vector<int>     out_gtr200x_cluster_mid;
+//   std::vector<double>  out_gtr200x_cluster_x;
+//   std::vector<double>  out_gtr200x_cluster_gx;
+//   std::vector<double>  out_gtr200x_cluster_gz;
+//   std::vector<float>   out_gtr200x_cluster_adc;
+//   std::vector<double>  out_gtr200x_cluster_t;
+//   std::vector<double>  out_gtr200x_cluster_t2;
+//   std::vector<double>  out_gtr200x_cluster_tx;
+//   std::vector<double>  out_gtr200x_cluster_the;
+//   std::vector<int>     out_gtr200x_cluster_nc;
+//   std::vector<double>  out_gtr200x_cluster_gtx;
+//   std::vector<int>     out_gtr200x_cluster_size;
+//   Int_t                out_n_gtr300x_clusters;
+//   std::vector<int>     out_gtr300x_cluster_id;
+//   std::vector<int>     out_gtr300x_cluster_mid;
+//   std::vector<double>  out_gtr300x_cluster_x;
+//   std::vector<double>  out_gtr300x_cluster_gx;
+//   std::vector<double>  out_gtr300x_cluster_gz;
+//   std::vector<float>   out_gtr300x_cluster_adc;
+//   std::vector<double>  out_gtr300x_cluster_t;
+//   std::vector<double>  out_gtr300x_cluster_t2;
+//   std::vector<double>  out_gtr300x_cluster_tx;
+//   std::vector<double>  out_gtr300x_cluster_the;
+//   std::vector<int>     out_gtr300x_cluster_nc;
+//   std::vector<double>  out_gtr300x_cluster_gtx;
+//   std::vector<int>     out_gtr300x_cluster_size;
+//   Int_t                out_n_gtr100y_clusters;
+//   std::vector<int>     out_gtr100y_cluster_id;
+//   std::vector<int>     out_gtr100y_cluster_mid;
+//   std::vector<double>  out_gtr100y_cluster_y;
+//   std::vector<float>   out_gtr100y_cluster_adc;
+//   std::vector<double>  out_gtr100y_cluster_t;
+//   std::vector<double>  out_gtr100y_cluster_t2;
+//   std::vector<double>  out_gtr100y_cluster_ty;
+//   std::vector<double>  out_gtr100y_cluster_the;
+//   std::vector<int>     out_gtr100y_cluster_nc;
+//   std::vector<int>     out_gtr100y_cluster_size;
+//   Int_t                out_n_gtr100yb_clusters;
+//   std::vector<int>     out_gtr100yb_cluster_id;
+//   std::vector<int>     out_gtr100yb_cluster_mid;
+//   std::vector<double>  out_gtr100yb_cluster_y;
+//   std::vector<float>   out_gtr100yb_cluster_adc;
+//   std::vector<double>  out_gtr100yb_cluster_t;
+//   std::vector<double>  out_gtr100yb_cluster_t2;
+//   std::vector<double>  out_gtr100yb_cluster_ty;
+//   std::vector<double>  out_gtr100yb_cluster_the;
+//   std::vector<int>     out_gtr100yb_cluster_nc;
+//   std::vector<int>     out_gtr100yb_cluster_size;
+//   Int_t                out_n_gtr200y_clusters;
+//   std::vector<int>     out_gtr200y_cluster_id;
+//   std::vector<int>     out_gtr200y_cluster_mid;
+//   std::vector<double>  out_gtr200y_cluster_y;
+//   std::vector<float>   out_gtr200y_cluster_adc;
+//   std::vector<double>  out_gtr200y_cluster_t;
+//   std::vector<double>  out_gtr200y_cluster_t2;
+//   std::vector<double>  out_gtr200y_cluster_ty;
+//   std::vector<double>  out_gtr200y_cluster_the;
+//   std::vector<int>     out_gtr200y_cluster_nc;
+//   std::vector<int>     out_gtr200y_cluster_size;
+//   Int_t                out_n_gtr300y_clusters;
+//   std::vector<int>     out_gtr300y_cluster_id;
+//   std::vector<int>     out_gtr300y_cluster_mid;
+//   std::vector<double>  out_gtr300y_cluster_y;
+//   std::vector<float>   out_gtr300y_cluster_adc;
+//   std::vector<double>  out_gtr300y_cluster_t;
+//   std::vector<double>  out_gtr300y_cluster_t2;
+//   std::vector<double>  out_gtr300y_cluster_ty;
+//   std::vector<double>  out_gtr300y_cluster_the;
+//   std::vector<int>     out_gtr300y_cluster_nc;
+//   std::vector<int>     out_gtr300y_cluster_size;
+//   Int_t                out_n_hbd_clusters;
+//   std::vector<int>     out_hbd_cluster_id;
+//   std::vector<int>     out_hbd_cluster_mid;
+//   std::vector<double>  out_hbd_cluster_x;
+//   std::vector<double>  out_hbd_cluster_y;
+//   std::vector<double>  out_hbd_cluster_gx;
+//   std::vector<double>  out_hbd_cluster_gy;
+//   std::vector<double>  out_hbd_cluster_gz;
+//   std::vector<float>   out_hbd_cluster_adc;
+//   std::vector<int>     out_hbd_cluster_max_cid;
+//   std::vector<double>  out_hbd_cluster_t;
+//   std::vector<float>   out_hbd_cluster_ftime;
+//   std::vector<float>   out_hbd_cluster_tdiff;
+//   std::vector<int>     out_hbd_cluster_size;
+//   std::vector<float>   out_hbd_cluster_eprob;
+//   std::vector<float>   out_hbd_cluster_cprob;
+//   Int_t                out_n_hbd_clusters_wotime;
+//   std::vector<int>     out_hbd_cluster_wotime_id;
+//   std::vector<int>     out_hbd_cluster_wotime_mid;
+//   std::vector<double>  out_hbd_cluster_wotime_x;
+//   std::vector<double>  out_hbd_cluster_wotime_y;
+//   std::vector<double>  out_hbd_cluster_wotime_gx;
+//   std::vector<double>  out_hbd_cluster_wotime_gy;
+//   std::vector<double>  out_hbd_cluster_wotime_gz;
+//   std::vector<float>   out_hbd_cluster_wotime_adc;
+//   std::vector<int>     out_hbd_cluster_wotime_max_cid;
+//   std::vector<double>  out_hbd_cluster_wotime_t;
+//   std::vector<float>   out_hbd_cluster_wotime_ftime;
+//   std::vector<float>   out_hbd_cluster_wotime_tdiff;
+//   std::vector<int>     out_hbd_cluster_wotime_size;
+//   std::vector<float>   out_hbd_cluster_wotime_eprob;
+//   std::vector<float>   out_hbd_cluster_wotime_cprob;
+//   Int_t                out_n_lg_hits;
+//   std::vector<int>     out_lg_hit_id;
+//   std::vector<int>     out_lg_hit_mid;
+//   std::vector<int>     out_lg_hit_cid;
+//   std::vector<double>  out_lg_hit_x;
+//   std::vector<double>  out_lg_hit_y;
+//   std::vector<double>  out_lg_hit_z;
+//   std::vector<double>  out_lg_hit_gx;
+//   std::vector<double>  out_lg_hit_gy;
+//   std::vector<double>  out_lg_hit_gz;
+//   std::vector<float>   out_lg_hit_adc;
+//   std::vector<float>   out_lg_hit_t;
+//   std::vector<float>   out_lg_hit_wofit_adc;
+//   std::vector<float>   out_lg_hit_wofit_t;
+//   std::vector<int>     out_lg_hit_npeaks;
+//   std::vector<int>     out_lg_hit_fflag;
+//   Int_t                out_n_lg_clusters;
+//   std::vector<int>     out_lg_cluster_id;
+//   std::vector<int>     out_lg_cluster_mid;
+//   std::vector<int>     out_lg_cluster_max_cid;
+//   std::vector<int>     out_lg_cluster_max_adc;
+//   std::vector<double>  out_lg_cluster_x;
+//   std::vector<double>  out_lg_cluster_y;
+//   std::vector<double>  out_lg_cluster_z;
+//   std::vector<double>  out_lg_cluster_gx;
+//   std::vector<double>  out_lg_cluster_gy;
+//   std::vector<double>  out_lg_cluster_gz;
+//   std::vector<float>   out_lg_cluster_adc;
+//   std::vector<float>   out_lg_cluster_t;
+//   std::vector<float>   out_lg_cluster_tdiff;
+//   std::vector<int>     out_lg_cluster_size;
+//   Int_t                out_n_trg_gtr_hits;
+//   std::vector<int>     out_trg_gtr_hit_id;
+//   std::vector<int>     out_trg_gtr_hit_mid;
+//   std::vector<int>     out_trg_gtr_hit_cid;
+//   std::vector<double>  out_trg_gtr_hit_x;
+//   std::vector<double>  out_trg_gtr_hit_y;
+//   std::vector<double>  out_trg_gtr_hit_gx;
+//   std::vector<double>  out_trg_gtr_hit_gy;
+//   std::vector<double>  out_trg_gtr_hit_gz;
+//   std::vector<float>   out_trg_gtr_hit_t;
+//   Int_t                out_n_trg_hbd_hits;
+//   std::vector<int>     out_trg_hbd_hit_id;
+//   std::vector<int>     out_trg_hbd_hit_mid;
+//   std::vector<int>     out_trg_hbd_hit_cid;
+//   std::vector<double>  out_trg_hbd_hit_x;
+//   std::vector<double>  out_trg_hbd_hit_y;
+//   std::vector<double>  out_trg_hbd_hit_gx;
+//   std::vector<double>  out_trg_hbd_hit_gy;
+//   std::vector<double>  out_trg_hbd_hit_gz;
+//   std::vector<float>   out_trg_hbd_hit_t;
+//   Int_t                out_n_trg_lg_hits;
+//   std::vector<int>     out_trg_lg_hit_id;
+//   std::vector<int>     out_trg_lg_hit_mid;
+//   std::vector<int>     out_trg_lg_hit_cid;
+//   std::vector<double>  out_trg_lg_hit_x;
+//   std::vector<double>  out_trg_lg_hit_y;
+//   std::vector<double>  out_trg_lg_hit_z;
+//   std::vector<double>  out_trg_lg_hit_gx;
+//   std::vector<double>  out_trg_lg_hit_gy;
+//   std::vector<double>  out_trg_lg_hit_gz;
+//   std::vector<float>   out_trg_lg_hit_t;
+//   Int_t                out_n_trg_tracks;
+//   std::vector<int>     out_trg_track_n_gtr_hits;
+//   std::vector<std::vector<double> > out_trg_track_gtr_id;
+//   std::vector<std::vector<double> > out_trg_track_gtr_mid;
+//   std::vector<std::vector<double> > out_trg_track_gtr_cid;
+//   std::vector<std::vector<double> > out_trg_track_gtr_x;
+//   std::vector<std::vector<double> > out_trg_track_gtr_y;
+//   std::vector<std::vector<double> > out_trg_track_gtr_t;
+//   std::vector<std::vector<double> > out_trg_track_gtr_is_t_match;
+//   std::vector<int>                  out_trg_track_n_hbd_hits;
+//   std::vector<std::vector<double> > out_trg_track_hbd_id;
+//   std::vector<std::vector<double> > out_trg_track_hbd_mid;
+//   std::vector<std::vector<double> > out_trg_track_hbd_cid;
+//   std::vector<std::vector<double> > out_trg_track_hbd_x;
+//   std::vector<std::vector<double> > out_trg_track_hbd_y;
+//   std::vector<std::vector<double> > out_trg_track_hbd_t;
+//   std::vector<std::vector<double> > out_trg_track_hbd_is_t_match;
+//   std::vector<int>     out_trg_track_lg_id;
+//   std::vector<int>     out_trg_track_lg_mid;
+//   std::vector<int>     out_trg_track_lg_cid;
+//   std::vector<double>  out_trg_track_lg_x;
+//   std::vector<double>  out_trg_track_lg_y;
+//   std::vector<float>   out_trg_track_lg_t;
    Int_t                out_n_x_cands;
    Int_t                out_n_y_cands;
    Int_t                out_n_cands;
    Int_t                out_n_selected;
    Int_t                out_n_pairs;
    Int_t                out_n_refit_pairs;
+
+	Int_t out_n_alive_tracks;
+
    std::vector<int>     out_track_id;
    std::vector<bool>    out_has_e_hbd_cluster;
    std::vector<bool>    out_has_e_lg_hit;
@@ -1813,14 +2120,14 @@ public :
    std::vector<double>  out_rk_hit_init_pos_gx;
    std::vector<double>  out_rk_hit_init_pos_gy;
    std::vector<double>  out_rk_hit_init_pos_gz;
-   std::vector<int>     out_rk_hit_ssd_id;
-   std::vector<double>  out_rk_hit_ssd_x;
-   std::vector<double>  out_rk_hit_ssd_gx;
-   std::vector<double>  out_rk_hit_ssd_gy;
-   std::vector<double>  out_rk_hit_ssd_gz;
-   std::vector<float>   out_rk_hit_ssd_adc;
-   std::vector<float>   out_rk_hit_ssd_t;
-   std::vector<double>  out_rk_hit_ssd_chi2;
+   std::vector<int>     out_rk_hit_sts_id;
+   std::vector<double>  out_rk_hit_sts_x;
+   std::vector<double>  out_rk_hit_sts_gx;
+   std::vector<double>  out_rk_hit_sts_gy;
+   std::vector<double>  out_rk_hit_sts_gz;
+   std::vector<float>   out_rk_hit_sts_adc;
+   std::vector<float>   out_rk_hit_sts_t;
+   std::vector<double>  out_rk_hit_sts_chi2;
    std::vector<int>     out_rk_hit_gtr100_xid;
    std::vector<int>     out_rk_hit_gtr100_yid;
    std::vector<double>  out_rk_hit_gtr100_gx;
@@ -1893,18 +2200,18 @@ public :
    std::vector<double>  out_rk_fit_init_pos_gx;
    std::vector<double>  out_rk_fit_init_pos_gy;
    std::vector<double>  out_rk_fit_init_pos_gz;
-   std::vector<int>     out_rk_fit_ssd_mid;
-   std::vector<double>  out_rk_fit_ssd_x;
-   std::vector<double>  out_rk_fit_ssd_y;
-   std::vector<double>  out_rk_fit_ssd_gx;
-   std::vector<double>  out_rk_fit_ssd_gy;
-   std::vector<double>  out_rk_fit_ssd_gz;
-   std::vector<double>  out_rk_fit_ssd_mom_x;
-   std::vector<double>  out_rk_fit_ssd_mom_y;
-   std::vector<double>  out_rk_fit_ssd_mom_z;
-   std::vector<double>  out_rk_fit_ssd_mom_gx;
-   std::vector<double>  out_rk_fit_ssd_mom_gy;
-   std::vector<double>  out_rk_fit_ssd_mom_gz;
+   std::vector<int>     out_rk_fit_sts_mid;
+   std::vector<double>  out_rk_fit_sts_x;
+   std::vector<double>  out_rk_fit_sts_y;
+   std::vector<double>  out_rk_fit_sts_gx;
+   std::vector<double>  out_rk_fit_sts_gy;
+   std::vector<double>  out_rk_fit_sts_gz;
+   std::vector<double>  out_rk_fit_sts_mom_x;
+   std::vector<double>  out_rk_fit_sts_mom_y;
+   std::vector<double>  out_rk_fit_sts_mom_z;
+   std::vector<double>  out_rk_fit_sts_mom_gx;
+   std::vector<double>  out_rk_fit_sts_mom_gy;
+   std::vector<double>  out_rk_fit_sts_mom_gz;
    std::vector<int>     out_rk_fit_gtr100_mid;
    std::vector<double>  out_rk_fit_gtr100_x;
    std::vector<double>  out_rk_fit_gtr100_y;
@@ -1995,7 +2302,7 @@ public :
    std::vector<double>  out_rk_res_init_mom_gx;
    std::vector<double>  out_rk_res_init_mom_gy;
    std::vector<double>  out_rk_res_init_mom_gz;
-   std::vector<double>  out_rk_res_ssd_x;
+   std::vector<double>  out_rk_res_sts_x;
    std::vector<double>  out_rk_res_gtr100_x;
    std::vector<double>  out_rk_res_gtr100_y;
    std::vector<double>  out_rk_res_gtr200_x;
@@ -2064,7 +2371,7 @@ public :
    std::vector<double>               out_rk_pair_minus_mom_gx;
    std::vector<double>               out_rk_pair_minus_mom_gy;
    std::vector<double>               out_rk_pair_minus_mom_gz;
-   std::vector<double>               out_rk_pair_minus_ssd_t;
+   std::vector<double>               out_rk_pair_minus_sts_t;
    std::vector<std::vector<double> > out_rk_pair_minus_lg_t;
    std::vector<int>                  out_rk_pair_plus_track_id;
    std::vector<int>                  out_rk_pair_plus_gtr300_mid;
@@ -2072,7 +2379,7 @@ public :
    std::vector<double>               out_rk_pair_plus_mom_gx;
    std::vector<double>               out_rk_pair_plus_mom_gy;
    std::vector<double>               out_rk_pair_plus_mom_gz;
-   std::vector<double>               out_rk_pair_plus_ssd_t;
+   std::vector<double>               out_rk_pair_plus_sts_t;
    std::vector<std::vector<double> > out_rk_pair_plus_lg_t;
    std::vector<double> out_rk_pair_distance;
    std::vector<double> out_rk_pair_vtx_gx;
@@ -2090,9 +2397,9 @@ public :
    std::vector<double> out_rk_pair_plus_mom_refit_gx;
    std::vector<double> out_rk_pair_plus_mom_refit_gy;
    std::vector<double> out_rk_pair_plus_mom_refit_gz;
-   std::vector<double> out_rk_pair_minus_ssd_pos_refit_gx;
-   std::vector<double> out_rk_pair_minus_ssd_pos_refit_gy;
-   std::vector<double> out_rk_pair_minus_ssd_pos_refit_gz;
+   std::vector<double> out_rk_pair_minus_sts_pos_refit_gx;
+   std::vector<double> out_rk_pair_minus_sts_pos_refit_gy;
+   std::vector<double> out_rk_pair_minus_sts_pos_refit_gz;
    std::vector<double> out_rk_pair_minus_gtr100_pos_refit_gx;
    std::vector<double> out_rk_pair_minus_gtr100_pos_refit_gy;
    std::vector<double> out_rk_pair_minus_gtr100_pos_refit_gz;
@@ -2102,9 +2409,9 @@ public :
    std::vector<double> out_rk_pair_minus_gtr300_pos_refit_gx;
    std::vector<double> out_rk_pair_minus_gtr300_pos_refit_gy;
    std::vector<double> out_rk_pair_minus_gtr300_pos_refit_gz;
-   std::vector<double> out_rk_pair_plus_ssd_pos_refit_gx;
-   std::vector<double> out_rk_pair_plus_ssd_pos_refit_gy;
-   std::vector<double> out_rk_pair_plus_ssd_pos_refit_gz;
+   std::vector<double> out_rk_pair_plus_sts_pos_refit_gx;
+   std::vector<double> out_rk_pair_plus_sts_pos_refit_gy;
+   std::vector<double> out_rk_pair_plus_sts_pos_refit_gz;
    std::vector<double> out_rk_pair_plus_gtr100_pos_refit_gx;
    std::vector<double> out_rk_pair_plus_gtr100_pos_refit_gy;
    std::vector<double> out_rk_pair_plus_gtr100_pos_refit_gz;
@@ -2114,9 +2421,9 @@ public :
    std::vector<double> out_rk_pair_plus_gtr300_pos_refit_gx;
    std::vector<double> out_rk_pair_plus_gtr300_pos_refit_gy;
    std::vector<double> out_rk_pair_plus_gtr300_pos_refit_gz;
-   std::vector<double> out_rk_pair_minus_ssd_mom_refit_gx;
-   std::vector<double> out_rk_pair_minus_ssd_mom_refit_gy;
-   std::vector<double> out_rk_pair_minus_ssd_mom_refit_gz;
+   std::vector<double> out_rk_pair_minus_sts_mom_refit_gx;
+   std::vector<double> out_rk_pair_minus_sts_mom_refit_gy;
+   std::vector<double> out_rk_pair_minus_sts_mom_refit_gz;
    std::vector<double> out_rk_pair_minus_gtr100_mom_refit_gx;
    std::vector<double> out_rk_pair_minus_gtr100_mom_refit_gy;
    std::vector<double> out_rk_pair_minus_gtr100_mom_refit_gz;
@@ -2126,9 +2433,9 @@ public :
    std::vector<double> out_rk_pair_minus_gtr300_mom_refit_gx;
    std::vector<double> out_rk_pair_minus_gtr300_mom_refit_gy;
    std::vector<double> out_rk_pair_minus_gtr300_mom_refit_gz;
-   std::vector<double> out_rk_pair_plus_ssd_mom_refit_gx;
-   std::vector<double> out_rk_pair_plus_ssd_mom_refit_gy;
-   std::vector<double> out_rk_pair_plus_ssd_mom_refit_gz;
+   std::vector<double> out_rk_pair_plus_sts_mom_refit_gx;
+   std::vector<double> out_rk_pair_plus_sts_mom_refit_gy;
+   std::vector<double> out_rk_pair_plus_sts_mom_refit_gz;
    std::vector<double> out_rk_pair_plus_gtr100_mom_refit_gx;
    std::vector<double> out_rk_pair_plus_gtr100_mom_refit_gy;
    std::vector<double> out_rk_pair_plus_gtr100_mom_refit_gz;
@@ -2138,9 +2445,9 @@ public :
    std::vector<double> out_rk_pair_plus_gtr300_mom_refit_gx;
    std::vector<double> out_rk_pair_plus_gtr300_mom_refit_gy;
    std::vector<double> out_rk_pair_plus_gtr300_mom_refit_gz;
-   std::vector<double> out_rk_pair_minus_ssd_res_refit_x;
-   std::vector<double> out_rk_pair_minus_ssd_res_refit_y;
-   std::vector<double> out_rk_pair_minus_ssd_res_refit_z;
+   std::vector<double> out_rk_pair_minus_sts_res_refit_x;
+   std::vector<double> out_rk_pair_minus_sts_res_refit_y;
+   std::vector<double> out_rk_pair_minus_sts_res_refit_z;
    std::vector<double> out_rk_pair_minus_gtr100_res_refit_x;
    std::vector<double> out_rk_pair_minus_gtr100_res_refit_y;
    std::vector<double> out_rk_pair_minus_gtr100_res_refit_z;
@@ -2150,9 +2457,9 @@ public :
    std::vector<double> out_rk_pair_minus_gtr300_res_refit_x;
    std::vector<double> out_rk_pair_minus_gtr300_res_refit_y;
    std::vector<double> out_rk_pair_minus_gtr300_res_refit_z;
-   std::vector<double> out_rk_pair_plus_ssd_res_refit_x;
-   std::vector<double> out_rk_pair_plus_ssd_res_refit_y;
-   std::vector<double> out_rk_pair_plus_ssd_res_refit_z;
+   std::vector<double> out_rk_pair_plus_sts_res_refit_x;
+   std::vector<double> out_rk_pair_plus_sts_res_refit_y;
+   std::vector<double> out_rk_pair_plus_sts_res_refit_z;
    std::vector<double> out_rk_pair_plus_gtr100_res_refit_x;
    std::vector<double> out_rk_pair_plus_gtr100_res_refit_y;
    std::vector<double> out_rk_pair_plus_gtr100_res_refit_z;
@@ -2171,7 +2478,6 @@ public :
    std::vector<double>      out_rk_hit_gtr200_cogy;
    std::vector<double>      out_rk_hit_gtr300_cogy;
 
-
    std::vector<float>   out_rk_hit_gtr100_xt4;
    std::vector<float>   out_rk_hit_gtr200_xt4;
    std::vector<float>   out_rk_hit_gtr300_xt4;
@@ -2179,44 +2485,71 @@ public :
    std::vector<float>   out_rk_hit_gtr200_yt4;
    std::vector<float>   out_rk_hit_gtr300_yt4;
 
+//   std::vector<std::vector<double>> out_re_lg_res_x;//restraight lg residual
+//   std::vector<std::vector<double>> out_re_lg_res_y;//restraight lg residual
+
+   std::vector<double>     out_gtr100x_cluster_last_tot_end;
+   std::vector<double>     out_gtr200x_cluster_last_tot_end;
+   std::vector<double>     out_gtr300x_cluster_last_tot_end;
+
+	std::vector<std::vector<double>>	out_gtr100x_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr200x_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr300x_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr100y_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr100yb_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr200y_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr300y_cluster_consist_hit_id;
 
 
-
-
-
-   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, std::vector<TVector3> &tgt_pos);
+   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
    virtual ~E16DSTN_ReStraightV2();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, const char *out_file);
-   virtual void     Loop(TTree* tree, int print, int max, bool xy, bool py, bool z, int SW);
+   virtual void     Loop(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
-   void ClearUsedClusterIDs();
-   void AddRecord(std::vector<int> &alive_ids);
-   
+ 
 	TFile *FileOut() {return fout;}
-   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids);
-   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips-1 >& cids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
+   void ClearUsedClusterIDs();
+   void AddRecord(TTree* intree, std::vector<int> &alive_ids);
+	void ChiSqSort(std::vector<int> &ids);
+	void SelectTracks(std::vector<int> &ids, std::vector<int> &outids);
+	void DuplicationClusterCut(std::vector<int> &ids, std::vector<int> &outids);
 
-   void DrawHist( TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name);
-   private:
-   E16ANA_StraightMultiTrack *fitter;
-   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
-   E16ANA_GeometryV2 *geom ;
-   bool isWire;
-   int n_targets;
-   std::vector<TVector3> targets_pos; 
+	bool IsGoodTrack(const int id);
+	bool IsRealTrack(const int id);
+	bool IsSameTarget(const int tid0, const int tid1);
+	bool IsLRTrack(const int tid0, const int tid1);
+   void AnalyzeTrackPairs(std::vector<int> &in_ids);
+	void PairTracking(TrackPair *track_pair);
+	void AddTracks(TrackPair *track_pair);
+	void UpdateFitResult(TrackPair *track_pair);
+	double SearchVertex(TrackPair *track_pair);
+	void SelectTrackPairs();
 
-
+   void DrawHist( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
+	void FillPulseInfos(int i);
+	void InitHistos();
+	void FillVectors(int i);
+	void CalculateRemovedGTRMinResidual();
+	double Fit(int itk, E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag,  bool py_fix_flag, bool vertex_z_fix_flag);
+	void AddTrackHit(int itk, E16ANA_StraightMultiTrack* f);
+	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
+	TVector3 CorrectedLocalPos(int itk, int mid, int l);
+//	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
 };
 
 #endif
 
 #ifdef E16DSTN_ReStraightV2_cxx
 
-E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geom(_geom), fitter(_fitter)
+E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), fitter(_fitter),pair_fitter(_pair_fitter),  vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(E16ANA_StraightTrackParameter::kVtxZFixFlag)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -2229,9 +2562,9 @@ E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E1
    }
    Init(tree, out_file);
    n_targets = _tgt_pos.size();
-   if(n_targets = 2) {isWire = true;}
+   if(n_targets == 2) {isWire = true;}
 	else if (n_targets == 3) {isWire = false;}
-   else {std::cerr << "strange number of targerts" << std::endl; std::exit(0);}
+//   else {std::cerr << "strange number of targerts" << std::endl; std::exit(0);}
    targets_pos.resize(_tgt_pos.size());
    for(int i=0; i < _tgt_pos.size(); i++){
      targets_pos[i] = _tgt_pos[i];
@@ -2279,14 +2612,14 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
 
 
    // Set object pointer
-   ssd_hit_id = 0;
-   ssd_hit_mid = 0;
-   ssd_hit_cid = 0;
-   ssd_hit_x = 0;
-   ssd_hit_gx = 0;
-   ssd_hit_gz = 0;
-   ssd_hit_t = 0;
-   ssd_hit_adc = 0;
+   sts_hit_id = 0;
+   sts_hit_mid = 0;
+   sts_hit_cid = 0;
+   sts_hit_x = 0;
+   sts_hit_gx = 0;
+   sts_hit_gz = 0;
+   sts_hit_t = 0;
+   sts_hit_adc = 0;
    gtr100x_hit_id = 0;
    gtr100x_hit_mid = 0;
    gtr100x_hit_cid = 0;
@@ -2352,20 +2685,26 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    hbd_hit_gz = 0;
    hbd_hit_t = 0;
    hbd_hit_adc = 0;
-   ssd_cluster_id = 0;
-   ssd_cluster_mid = 0;
-   ssd_cluster_x = 0;
-   ssd_cluster_gx = 0;
-   ssd_cluster_gz = 0;
-   ssd_cluster_adc = 0;
-   ssd_cluster_t = 0;
-   ssd_cluster_size = 0;
-   ssd_cluster_fit_x = 0;
-   ssd_cluster_fit_t = 0;
-   ssd_cluster_fit_adc = 0;
-   ssd_cluster_fit_chi2 = 0;
+   sts_cluster_id = 0;
+   sts_cluster_mid = 0;
+   sts_cluster_x = 0;
+   sts_cluster_gx = 0;
+   sts_cluster_gz = 0;
+   sts_cluster_adc = 0;
+   sts_cluster_t = 0;
+   sts_cluster_size = 0;
+   sts_cluster_fit_x = 0;
+   sts_cluster_fit_t = 0;
+   sts_cluster_fit_adc = 0;
+   sts_cluster_fit_chi2 = 0;
    gtr100x_cluster_id = 0;
-//   gtr100x_cluster_consist_hit_id = 0;
+   gtr100x_cluster_consist_hit_id = 0;
+   gtr200x_cluster_consist_hit_id = 0;
+   gtr300x_cluster_consist_hit_id = 0;
+   gtr100y_cluster_consist_hit_id = 0;
+   gtr100yb_cluster_consist_hit_id = 0;
+   gtr200y_cluster_consist_hit_id = 0;
+   gtr300y_cluster_consist_hit_id = 0;
    gtr100x_cluster_mid = 0;
    gtr100x_cluster_x = 0;
    gtr100x_cluster_gx = 0;
@@ -2492,6 +2831,22 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    lg_hit_wofit_t = 0;
    lg_hit_npeaks = 0;
    lg_hit_fflag = 0;
+//   pre_lg_hit_id = 0;
+//   pre_lg_hit_mid = 0;
+//   pre_lg_hit_cid = 0;
+//   pre_lg_hit_x = 0;
+//   pre_lg_hit_y = 0;
+//   pre_lg_hit_z = 0;
+//   pre_lg_hit_gx = 0;
+//   pre_lg_hit_gy = 0;
+//   pre_lg_hit_gz = 0;
+//   pre_lg_hit_adc = 0;
+//   pre_lg_hit_t = 0;
+//   pre_lg_hit_wofit_adc = 0;
+//   pre_lg_hit_wofit_t = 0;
+//   pre_lg_hit_npeaks = 0;
+//   pre_lg_hit_fflag = 0;
+
    lg_cluster_id = 0;
    lg_cluster_mid = 0;
    lg_cluster_max_cid = 0;
@@ -2584,14 +2939,14 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_hit_init_pos_gx = 0;
    rk_hit_init_pos_gy = 0;
    rk_hit_init_pos_gz = 0;
-   rk_hit_ssd_id = 0;
-   rk_hit_ssd_x = 0;
-   rk_hit_ssd_gx = 0;
-   rk_hit_ssd_gy = 0;
-   rk_hit_ssd_gz = 0;
-   rk_hit_ssd_adc = 0;
-   rk_hit_ssd_t = 0;
-   rk_hit_ssd_chi2 = 0;
+   rk_hit_sts_id = 0;
+   rk_hit_sts_x = 0;
+   rk_hit_sts_gx = 0;
+   rk_hit_sts_gy = 0;
+   rk_hit_sts_gz = 0;
+   rk_hit_sts_adc = 0;
+   rk_hit_sts_t = 0;
+   rk_hit_sts_chi2 = 0;
    rk_hit_gtr100_xid = 0;
    rk_hit_gtr100_yid = 0;
    rk_hit_gtr100_gx = 0;
@@ -2683,18 +3038,18 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_fit_init_pos_gx = 0;
    rk_fit_init_pos_gy = 0;
    rk_fit_init_pos_gz = 0;
-   rk_fit_ssd_mid = 0;
-   rk_fit_ssd_x = 0;
-   rk_fit_ssd_y = 0;
-   rk_fit_ssd_gx = 0;
-   rk_fit_ssd_gy = 0;
-   rk_fit_ssd_gz = 0;
-   rk_fit_ssd_mom_x = 0;
-   rk_fit_ssd_mom_y = 0;
-   rk_fit_ssd_mom_z = 0;
-   rk_fit_ssd_mom_gx = 0;
-   rk_fit_ssd_mom_gy = 0;
-   rk_fit_ssd_mom_gz = 0;
+   rk_fit_sts_mid = 0;
+   rk_fit_sts_x = 0;
+   rk_fit_sts_y = 0;
+   rk_fit_sts_gx = 0;
+   rk_fit_sts_gy = 0;
+   rk_fit_sts_gz = 0;
+   rk_fit_sts_mom_x = 0;
+   rk_fit_sts_mom_y = 0;
+   rk_fit_sts_mom_z = 0;
+   rk_fit_sts_mom_gx = 0;
+   rk_fit_sts_mom_gy = 0;
+   rk_fit_sts_mom_gz = 0;
    rk_fit_gtr100_mid = 0;
    rk_fit_gtr100_x = 0;
    rk_fit_gtr100_y = 0;
@@ -2785,7 +3140,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_res_init_mom_gx = 0;
    rk_res_init_mom_gy = 0;
    rk_res_init_mom_gz = 0;
-   rk_res_ssd_x = 0;
+   rk_res_sts_x = 0;
    rk_res_gtr100_x = 0;
    rk_res_gtr100_y = 0;
    rk_res_gtr200_x = 0;
@@ -2854,7 +3209,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_minus_mom_gx = 0;
    rk_pair_minus_mom_gy = 0;
    rk_pair_minus_mom_gz = 0;
-   rk_pair_minus_ssd_t = 0;
+   rk_pair_minus_sts_t = 0;
    rk_pair_minus_lg_t = 0;
    rk_pair_plus_track_id = 0;
    rk_pair_plus_gtr300_mid = 0;
@@ -2862,7 +3217,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_plus_mom_gx = 0;
    rk_pair_plus_mom_gy = 0;
    rk_pair_plus_mom_gz = 0;
-   rk_pair_plus_ssd_t = 0;
+   rk_pair_plus_sts_t = 0;
    rk_pair_plus_lg_t = 0;
    rk_pair_distance = 0;
    rk_pair_vtx_gx = 0;
@@ -2880,9 +3235,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_plus_mom_refit_gx = 0;
    rk_pair_plus_mom_refit_gy = 0;
    rk_pair_plus_mom_refit_gz = 0;
-   rk_pair_minus_ssd_pos_refit_gx = 0;
-   rk_pair_minus_ssd_pos_refit_gy = 0;
-   rk_pair_minus_ssd_pos_refit_gz = 0;
+   rk_pair_minus_sts_pos_refit_gx = 0;
+   rk_pair_minus_sts_pos_refit_gy = 0;
+   rk_pair_minus_sts_pos_refit_gz = 0;
    rk_pair_minus_gtr100_pos_refit_gx = 0;
    rk_pair_minus_gtr100_pos_refit_gy = 0;
    rk_pair_minus_gtr100_pos_refit_gz = 0;
@@ -2892,9 +3247,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_minus_gtr300_pos_refit_gx = 0;
    rk_pair_minus_gtr300_pos_refit_gy = 0;
    rk_pair_minus_gtr300_pos_refit_gz = 0;
-   rk_pair_plus_ssd_pos_refit_gx = 0;
-   rk_pair_plus_ssd_pos_refit_gy = 0;
-   rk_pair_plus_ssd_pos_refit_gz = 0;
+   rk_pair_plus_sts_pos_refit_gx = 0;
+   rk_pair_plus_sts_pos_refit_gy = 0;
+   rk_pair_plus_sts_pos_refit_gz = 0;
    rk_pair_plus_gtr100_pos_refit_gx = 0;
    rk_pair_plus_gtr100_pos_refit_gy = 0;
    rk_pair_plus_gtr100_pos_refit_gz = 0;
@@ -2904,9 +3259,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_plus_gtr300_pos_refit_gx = 0;
    rk_pair_plus_gtr300_pos_refit_gy = 0;
    rk_pair_plus_gtr300_pos_refit_gz = 0;
-   rk_pair_minus_ssd_mom_refit_gx = 0;
-   rk_pair_minus_ssd_mom_refit_gy = 0;
-   rk_pair_minus_ssd_mom_refit_gz = 0;
+   rk_pair_minus_sts_mom_refit_gx = 0;
+   rk_pair_minus_sts_mom_refit_gy = 0;
+   rk_pair_minus_sts_mom_refit_gz = 0;
    rk_pair_minus_gtr100_mom_refit_gx = 0;
    rk_pair_minus_gtr100_mom_refit_gy = 0;
    rk_pair_minus_gtr100_mom_refit_gz = 0;
@@ -2916,9 +3271,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_minus_gtr300_mom_refit_gx = 0;
    rk_pair_minus_gtr300_mom_refit_gy = 0;
    rk_pair_minus_gtr300_mom_refit_gz = 0;
-   rk_pair_plus_ssd_mom_refit_gx = 0;
-   rk_pair_plus_ssd_mom_refit_gy = 0;
-   rk_pair_plus_ssd_mom_refit_gz = 0;
+   rk_pair_plus_sts_mom_refit_gx = 0;
+   rk_pair_plus_sts_mom_refit_gy = 0;
+   rk_pair_plus_sts_mom_refit_gz = 0;
    rk_pair_plus_gtr100_mom_refit_gx = 0;
    rk_pair_plus_gtr100_mom_refit_gy = 0;
    rk_pair_plus_gtr100_mom_refit_gz = 0;
@@ -2928,9 +3283,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_plus_gtr300_mom_refit_gx = 0;
    rk_pair_plus_gtr300_mom_refit_gy = 0;
    rk_pair_plus_gtr300_mom_refit_gz = 0;
-   rk_pair_minus_ssd_res_refit_x = 0;
-   rk_pair_minus_ssd_res_refit_y = 0;
-   rk_pair_minus_ssd_res_refit_z = 0;
+   rk_pair_minus_sts_res_refit_x = 0;
+   rk_pair_minus_sts_res_refit_y = 0;
+   rk_pair_minus_sts_res_refit_z = 0;
    rk_pair_minus_gtr100_res_refit_x = 0;
    rk_pair_minus_gtr100_res_refit_y = 0;
    rk_pair_minus_gtr100_res_refit_z = 0;
@@ -2940,9 +3295,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    rk_pair_minus_gtr300_res_refit_x = 0;
    rk_pair_minus_gtr300_res_refit_y = 0;
    rk_pair_minus_gtr300_res_refit_z = 0;
-   rk_pair_plus_ssd_res_refit_x = 0;
-   rk_pair_plus_ssd_res_refit_y = 0;
-   rk_pair_plus_ssd_res_refit_z = 0;
+   rk_pair_plus_sts_res_refit_x = 0;
+   rk_pair_plus_sts_res_refit_y = 0;
+   rk_pair_plus_sts_res_refit_z = 0;
    rk_pair_plus_gtr100_res_refit_x = 0;
    rk_pair_plus_gtr100_res_refit_y = 0;
    rk_pair_plus_gtr100_res_refit_z = 0;
@@ -2965,15 +3320,15 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("timestamp_in_spill", &timestamp_in_spill, &b_timestamp_in_spill);
    fChain->SetBranchAddress("trigger_fine_time", &trigger_fine_time, &b_trigger_fine_time);
    fChain->SetBranchAddress("n_fill", &n_fill, &b_n_fill);
-   fChain->SetBranchAddress("n_ssd_hits", &n_ssd_hits, &b_n_ssd_hits);
-   fChain->SetBranchAddress("ssd_hit_id", &ssd_hit_id, &b_ssd_hit_id);
-   fChain->SetBranchAddress("ssd_hit_mid", &ssd_hit_mid, &b_ssd_hit_mid);
-   fChain->SetBranchAddress("ssd_hit_cid", &ssd_hit_cid, &b_ssd_hit_cid);
-   fChain->SetBranchAddress("ssd_hit_x", &ssd_hit_x, &b_ssd_hit_x);
-   fChain->SetBranchAddress("ssd_hit_gx", &ssd_hit_gx, &b_ssd_hit_gx);
-   fChain->SetBranchAddress("ssd_hit_gz", &ssd_hit_gz, &b_ssd_hit_gz);
-   fChain->SetBranchAddress("ssd_hit_t", &ssd_hit_t, &b_ssd_hit_t);
-   fChain->SetBranchAddress("ssd_hit_adc", &ssd_hit_adc, &b_ssd_hit_adc);
+   fChain->SetBranchAddress("n_sts_hits", &n_sts_hits, &b_n_sts_hits);
+   fChain->SetBranchAddress("sts_hit_id", &sts_hit_id, &b_sts_hit_id);
+   fChain->SetBranchAddress("sts_hit_mid", &sts_hit_mid, &b_sts_hit_mid);
+   fChain->SetBranchAddress("sts_hit_cid", &sts_hit_cid, &b_sts_hit_cid);
+   fChain->SetBranchAddress("sts_hit_x", &sts_hit_x, &b_sts_hit_x);
+   fChain->SetBranchAddress("sts_hit_gx", &sts_hit_gx, &b_sts_hit_gx);
+   fChain->SetBranchAddress("sts_hit_gz", &sts_hit_gz, &b_sts_hit_gz);
+   fChain->SetBranchAddress("sts_hit_t", &sts_hit_t, &b_sts_hit_t);
+   fChain->SetBranchAddress("sts_hit_adc", &sts_hit_adc, &b_sts_hit_adc);
    fChain->SetBranchAddress("n_gtr100x_hits", &n_gtr100x_hits, &b_n_gtr100x_hits);
    fChain->SetBranchAddress("gtr100x_hit_id", &gtr100x_hit_id, &b_gtr100x_hit_id);
    fChain->SetBranchAddress("gtr100x_hit_mid", &gtr100x_hit_mid, &b_gtr100x_hit_mid);
@@ -3047,22 +3402,28 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("hbd_hit_gz", &hbd_hit_gz, &b_hbd_hit_gz);
    fChain->SetBranchAddress("hbd_hit_t", &hbd_hit_t, &b_hbd_hit_t);
    fChain->SetBranchAddress("hbd_hit_adc", &hbd_hit_adc, &b_hbd_hit_adc);
-   fChain->SetBranchAddress("n_ssd_clusters", &n_ssd_clusters, &b_n_ssd_clusters);
-   fChain->SetBranchAddress("ssd_cluster_id", &ssd_cluster_id, &b_ssd_cluster_id);
-   fChain->SetBranchAddress("ssd_cluster_mid", &ssd_cluster_mid, &b_ssd_cluster_mid);
-   fChain->SetBranchAddress("ssd_cluster_x", &ssd_cluster_x, &b_ssd_cluster_x);
-   fChain->SetBranchAddress("ssd_cluster_gx", &ssd_cluster_gx, &b_ssd_cluster_gx);
-   fChain->SetBranchAddress("ssd_cluster_gz", &ssd_cluster_gz, &b_ssd_cluster_gz);
-   fChain->SetBranchAddress("ssd_cluster_adc", &ssd_cluster_adc, &b_ssd_cluster_adc);
-   fChain->SetBranchAddress("ssd_cluster_t", &ssd_cluster_t, &b_ssd_cluster_t);
-   fChain->SetBranchAddress("ssd_cluster_size", &ssd_cluster_size, &b_ssd_cluster_size);
-   fChain->SetBranchAddress("ssd_cluster_fit_x", &ssd_cluster_fit_x, &b_ssd_cluster_fit_x);
-   fChain->SetBranchAddress("ssd_cluster_fit_t", &ssd_cluster_fit_t, &b_ssd_cluster_fit_t);
-   fChain->SetBranchAddress("ssd_cluster_fit_adc", &ssd_cluster_fit_adc, &b_ssd_cluster_fit_adc);
-   fChain->SetBranchAddress("ssd_cluster_fit_chi2", &ssd_cluster_fit_chi2, &b_ssd_cluster_fit_chi2);
+   fChain->SetBranchAddress("n_sts_clusters", &n_sts_clusters, &b_n_sts_clusters);
+   fChain->SetBranchAddress("sts_cluster_id", &sts_cluster_id, &b_sts_cluster_id);
+   fChain->SetBranchAddress("sts_cluster_mid", &sts_cluster_mid, &b_sts_cluster_mid);
+   fChain->SetBranchAddress("sts_cluster_x", &sts_cluster_x, &b_sts_cluster_x);
+   fChain->SetBranchAddress("sts_cluster_gx", &sts_cluster_gx, &b_sts_cluster_gx);
+   fChain->SetBranchAddress("sts_cluster_gz", &sts_cluster_gz, &b_sts_cluster_gz);
+   fChain->SetBranchAddress("sts_cluster_adc", &sts_cluster_adc, &b_sts_cluster_adc);
+   fChain->SetBranchAddress("sts_cluster_t", &sts_cluster_t, &b_sts_cluster_t);
+   fChain->SetBranchAddress("sts_cluster_size", &sts_cluster_size, &b_sts_cluster_size);
+   fChain->SetBranchAddress("sts_cluster_fit_x", &sts_cluster_fit_x, &b_sts_cluster_fit_x);
+   fChain->SetBranchAddress("sts_cluster_fit_t", &sts_cluster_fit_t, &b_sts_cluster_fit_t);
+   fChain->SetBranchAddress("sts_cluster_fit_adc", &sts_cluster_fit_adc, &b_sts_cluster_fit_adc);
+   fChain->SetBranchAddress("sts_cluster_fit_chi2", &sts_cluster_fit_chi2, &b_sts_cluster_fit_chi2);
    fChain->SetBranchAddress("n_gtr100x_clusters", &n_gtr100x_clusters, &b_n_gtr100x_clusters);
    fChain->SetBranchAddress("gtr100x_cluster_id", &gtr100x_cluster_id, &b_gtr100x_cluster_id);
-//   fChain->SetBranchAddress("gtr100x_cluster_consist_hit_id", &gtr100x_cluster_consist_hit_id, &b_gtr100x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr100x_cluster_consist_hit_id", &gtr100x_cluster_consist_hit_id, &b_gtr100x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr200x_cluster_consist_hit_id", &gtr200x_cluster_consist_hit_id, &b_gtr200x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr300x_cluster_consist_hit_id", &gtr300x_cluster_consist_hit_id, &b_gtr300x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr100y_cluster_consist_hit_id", &gtr100y_cluster_consist_hit_id, &b_gtr100y_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr100yb_cluster_consist_hit_id", &gtr100yb_cluster_consist_hit_id, &b_gtr100yb_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr200y_cluster_consist_hit_id", &gtr200y_cluster_consist_hit_id, &b_gtr200y_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr300y_cluster_consist_hit_id", &gtr300y_cluster_consist_hit_id, &b_gtr300y_cluster_consist_hit_id);
    fChain->SetBranchAddress("gtr100x_cluster_mid", &gtr100x_cluster_mid, &b_gtr100x_cluster_mid);
    fChain->SetBranchAddress("gtr100x_cluster_x", &gtr100x_cluster_x, &b_gtr100x_cluster_x);
    fChain->SetBranchAddress("gtr100x_cluster_gx", &gtr100x_cluster_gx, &b_gtr100x_cluster_gx);
@@ -3193,7 +3554,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("lg_hit_gy", &lg_hit_gy, &b_lg_hit_gy);
    fChain->SetBranchAddress("lg_hit_gz", &lg_hit_gz, &b_lg_hit_gz);
    fChain->SetBranchAddress("lg_hit_adc", &lg_hit_adc, &b_lg_hit_adc);
-   fChain->SetBranchAddress("lg_hit_t", &lg_hit_t, &b_lg_hit_t);
+   fChain->SetBranchAddress("lg_hit_t"  , &lg_hit_t  , &b_lg_hit_t);
    fChain->SetBranchAddress("lg_hit_wofit_adc", &lg_hit_wofit_adc, &b_lg_hit_wofit_adc);
    fChain->SetBranchAddress("lg_hit_wofit_t", &lg_hit_wofit_t, &b_lg_hit_wofit_t);
    fChain->SetBranchAddress("lg_hit_npeaks", &lg_hit_npeaks, &b_lg_hit_npeaks);
@@ -3272,6 +3633,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("n_cands", &n_cands, &b_n_cands);
    fChain->SetBranchAddress("n_selected", &n_selected, &b_n_selected);
    fChain->SetBranchAddress("n_pairs", &n_pairs, &b_n_pairs);
+
+   fChain->SetBranchAddress("n_alive_tracks", &n_alive_tracks, &b_n_alive_tracks);//240613
+
    fChain->SetBranchAddress("n_refit_pairs", &n_refit_pairs, &b_n_refit_pairs);
    fChain->SetBranchAddress("track_id", &track_id, &b_track_id);
    fChain->SetBranchAddress("has_e_hbd_cluster", &has_e_hbd_cluster, &b_has_e_hbd_cluster);
@@ -3301,14 +3665,14 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_hit_init_pos_gx", &rk_hit_init_pos_gx, &b_rk_hit_init_pos_gx);
    fChain->SetBranchAddress("rk_hit_init_pos_gy", &rk_hit_init_pos_gy, &b_rk_hit_init_pos_gy);
    fChain->SetBranchAddress("rk_hit_init_pos_gz", &rk_hit_init_pos_gz, &b_rk_hit_init_pos_gz);
-   fChain->SetBranchAddress("rk_hit_ssd_id", &rk_hit_ssd_id, &b_rk_hit_ssd_id);
-   fChain->SetBranchAddress("rk_hit_ssd_x", &rk_hit_ssd_x, &b_rk_hit_ssd_x);
-   fChain->SetBranchAddress("rk_hit_ssd_gx", &rk_hit_ssd_gx, &b_rk_hit_ssd_gx);
-   fChain->SetBranchAddress("rk_hit_ssd_gy", &rk_hit_ssd_gy, &b_rk_hit_ssd_gy);
-   fChain->SetBranchAddress("rk_hit_ssd_gz", &rk_hit_ssd_gz, &b_rk_hit_ssd_gz);
-   fChain->SetBranchAddress("rk_hit_ssd_adc", &rk_hit_ssd_adc, &b_rk_hit_ssd_adc);
-   fChain->SetBranchAddress("rk_hit_ssd_t", &rk_hit_ssd_t, &b_rk_hit_ssd_t);
-   fChain->SetBranchAddress("rk_hit_ssd_chi2", &rk_hit_ssd_chi2, &b_rk_hit_ssd_chi2);
+   fChain->SetBranchAddress("rk_hit_sts_id", &rk_hit_sts_id, &b_rk_hit_sts_id);
+   fChain->SetBranchAddress("rk_hit_sts_x", &rk_hit_sts_x, &b_rk_hit_sts_x);
+   fChain->SetBranchAddress("rk_hit_sts_gx", &rk_hit_sts_gx, &b_rk_hit_sts_gx);
+   fChain->SetBranchAddress("rk_hit_sts_gy", &rk_hit_sts_gy, &b_rk_hit_sts_gy);
+   fChain->SetBranchAddress("rk_hit_sts_gz", &rk_hit_sts_gz, &b_rk_hit_sts_gz);
+   fChain->SetBranchAddress("rk_hit_sts_adc", &rk_hit_sts_adc, &b_rk_hit_sts_adc);
+   fChain->SetBranchAddress("rk_hit_sts_t", &rk_hit_sts_t, &b_rk_hit_sts_t);
+   fChain->SetBranchAddress("rk_hit_sts_chi2", &rk_hit_sts_chi2, &b_rk_hit_sts_chi2);
    fChain->SetBranchAddress("rk_hit_gtr100_xid", &rk_hit_gtr100_xid, &b_rk_hit_gtr100_xid);
    fChain->SetBranchAddress("rk_hit_gtr100_yid", &rk_hit_gtr100_yid, &b_rk_hit_gtr100_yid);
    fChain->SetBranchAddress("rk_hit_gtr100_gx", &rk_hit_gtr100_gx, &b_rk_hit_gtr100_gx);
@@ -3400,18 +3764,18 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_fit_init_pos_gx", &rk_fit_init_pos_gx, &b_rk_fit_init_pos_gx);
    fChain->SetBranchAddress("rk_fit_init_pos_gy", &rk_fit_init_pos_gy, &b_rk_fit_init_pos_gy);
    fChain->SetBranchAddress("rk_fit_init_pos_gz", &rk_fit_init_pos_gz, &b_rk_fit_init_pos_gz);
-   fChain->SetBranchAddress("rk_fit_ssd_mid", &rk_fit_ssd_mid, &b_rk_fit_ssd_mid);
-   fChain->SetBranchAddress("rk_fit_ssd_x", &rk_fit_ssd_x, &b_rk_fit_ssd_x);
-   fChain->SetBranchAddress("rk_fit_ssd_y", &rk_fit_ssd_y, &b_rk_fit_ssd_y);
-   fChain->SetBranchAddress("rk_fit_ssd_gx", &rk_fit_ssd_gx, &b_rk_fit_ssd_gx);
-   fChain->SetBranchAddress("rk_fit_ssd_gy", &rk_fit_ssd_gy, &b_rk_fit_ssd_gy);
-   fChain->SetBranchAddress("rk_fit_ssd_gz", &rk_fit_ssd_gz, &b_rk_fit_ssd_gz);
-   fChain->SetBranchAddress("rk_fit_ssd_mom_x", &rk_fit_ssd_mom_x, &b_rk_fit_ssd_mom_x);
-   fChain->SetBranchAddress("rk_fit_ssd_mom_y", &rk_fit_ssd_mom_y, &b_rk_fit_ssd_mom_y);
-   fChain->SetBranchAddress("rk_fit_ssd_mom_z", &rk_fit_ssd_mom_z, &b_rk_fit_ssd_mom_z);
-   fChain->SetBranchAddress("rk_fit_ssd_mom_gx", &rk_fit_ssd_mom_gx, &b_rk_fit_ssd_mom_gx);
-   fChain->SetBranchAddress("rk_fit_ssd_mom_gy", &rk_fit_ssd_mom_gy, &b_rk_fit_ssd_mom_gy);
-   fChain->SetBranchAddress("rk_fit_ssd_mom_gz", &rk_fit_ssd_mom_gz, &b_rk_fit_ssd_mom_gz);
+   fChain->SetBranchAddress("rk_fit_sts_mid", &rk_fit_sts_mid, &b_rk_fit_sts_mid);
+   fChain->SetBranchAddress("rk_fit_sts_x", &rk_fit_sts_x, &b_rk_fit_sts_x);
+   fChain->SetBranchAddress("rk_fit_sts_y", &rk_fit_sts_y, &b_rk_fit_sts_y);
+   fChain->SetBranchAddress("rk_fit_sts_gx", &rk_fit_sts_gx, &b_rk_fit_sts_gx);
+   fChain->SetBranchAddress("rk_fit_sts_gy", &rk_fit_sts_gy, &b_rk_fit_sts_gy);
+   fChain->SetBranchAddress("rk_fit_sts_gz", &rk_fit_sts_gz, &b_rk_fit_sts_gz);
+   fChain->SetBranchAddress("rk_fit_sts_mom_x", &rk_fit_sts_mom_x, &b_rk_fit_sts_mom_x);
+   fChain->SetBranchAddress("rk_fit_sts_mom_y", &rk_fit_sts_mom_y, &b_rk_fit_sts_mom_y);
+   fChain->SetBranchAddress("rk_fit_sts_mom_z", &rk_fit_sts_mom_z, &b_rk_fit_sts_mom_z);
+   fChain->SetBranchAddress("rk_fit_sts_mom_gx", &rk_fit_sts_mom_gx, &b_rk_fit_sts_mom_gx);
+   fChain->SetBranchAddress("rk_fit_sts_mom_gy", &rk_fit_sts_mom_gy, &b_rk_fit_sts_mom_gy);
+   fChain->SetBranchAddress("rk_fit_sts_mom_gz", &rk_fit_sts_mom_gz, &b_rk_fit_sts_mom_gz);
    fChain->SetBranchAddress("rk_fit_gtr100_mid", &rk_fit_gtr100_mid, &b_rk_fit_gtr100_mid);
    fChain->SetBranchAddress("rk_fit_gtr100_x", &rk_fit_gtr100_x, &b_rk_fit_gtr100_x);
    fChain->SetBranchAddress("rk_fit_gtr100_y", &rk_fit_gtr100_y, &b_rk_fit_gtr100_y);
@@ -3502,7 +3866,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_res_init_mom_gx", &rk_res_init_mom_gx, &b_rk_res_init_mom_gx);
    fChain->SetBranchAddress("rk_res_init_mom_gy", &rk_res_init_mom_gy, &b_rk_res_init_mom_gy);
    fChain->SetBranchAddress("rk_res_init_mom_gz", &rk_res_init_mom_gz, &b_rk_res_init_mom_gz);
-   fChain->SetBranchAddress("rk_res_ssd_x", &rk_res_ssd_x, &b_rk_res_ssd_x);
+   fChain->SetBranchAddress("rk_res_sts_x", &rk_res_sts_x, &b_rk_res_sts_x);
    fChain->SetBranchAddress("rk_res_gtr100_x", &rk_res_gtr100_x, &b_rk_res_gtr100_x);
    fChain->SetBranchAddress("rk_res_gtr100_y", &rk_res_gtr100_y, &b_rk_res_gtr100_y);
    fChain->SetBranchAddress("rk_res_gtr200_x", &rk_res_gtr200_x, &b_rk_res_gtr200_x);
@@ -3571,7 +3935,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_minus_mom_gx", &rk_pair_minus_mom_gx, &b_rk_pair_minus_mom_gx);
    fChain->SetBranchAddress("rk_pair_minus_mom_gy", &rk_pair_minus_mom_gy, &b_rk_pair_minus_mom_gy);
    fChain->SetBranchAddress("rk_pair_minus_mom_gz", &rk_pair_minus_mom_gz, &b_rk_pair_minus_mom_gz);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_t", &rk_pair_minus_ssd_t, &b_rk_pair_minus_ssd_t);
+   fChain->SetBranchAddress("rk_pair_minus_sts_t", &rk_pair_minus_sts_t, &b_rk_pair_minus_sts_t);
    fChain->SetBranchAddress("rk_pair_minus_lg_t", &rk_pair_minus_lg_t, &b_rk_pair_minus_lg_t);
    fChain->SetBranchAddress("rk_pair_plus_track_id", &rk_pair_plus_track_id, &b_rk_pair_plus_track_id);
    fChain->SetBranchAddress("rk_pair_plus_gtr300_mid", &rk_pair_plus_gtr300_mid, &b_rk_pair_plus_gtr300_mid);
@@ -3579,7 +3943,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_plus_mom_gx", &rk_pair_plus_mom_gx, &b_rk_pair_plus_mom_gx);
    fChain->SetBranchAddress("rk_pair_plus_mom_gy", &rk_pair_plus_mom_gy, &b_rk_pair_plus_mom_gy);
    fChain->SetBranchAddress("rk_pair_plus_mom_gz", &rk_pair_plus_mom_gz, &b_rk_pair_plus_mom_gz);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_t", &rk_pair_plus_ssd_t, &b_rk_pair_plus_ssd_t);
+   fChain->SetBranchAddress("rk_pair_plus_sts_t", &rk_pair_plus_sts_t, &b_rk_pair_plus_sts_t);
    fChain->SetBranchAddress("rk_pair_plus_lg_t", &rk_pair_plus_lg_t, &b_rk_pair_plus_lg_t);
    fChain->SetBranchAddress("rk_pair_distance", &rk_pair_distance, &b_rk_pair_distance);
    fChain->SetBranchAddress("rk_pair_vtx_gx", &rk_pair_vtx_gx, &b_rk_pair_vtx_gx);
@@ -3597,9 +3961,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_plus_mom_refit_gx", &rk_pair_plus_mom_refit_gx, &b_rk_pair_plus_mom_refit_gx);
    fChain->SetBranchAddress("rk_pair_plus_mom_refit_gy", &rk_pair_plus_mom_refit_gy, &b_rk_pair_plus_mom_refit_gy);
    fChain->SetBranchAddress("rk_pair_plus_mom_refit_gz", &rk_pair_plus_mom_refit_gz, &b_rk_pair_plus_mom_refit_gz);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_pos_refit_gx", &rk_pair_minus_ssd_pos_refit_gx, &b_rk_pair_minus_ssd_pos_refit_gx);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_pos_refit_gy", &rk_pair_minus_ssd_pos_refit_gy, &b_rk_pair_minus_ssd_pos_refit_gy);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_pos_refit_gz", &rk_pair_minus_ssd_pos_refit_gz, &b_rk_pair_minus_ssd_pos_refit_gz);
+   fChain->SetBranchAddress("rk_pair_minus_sts_pos_refit_gx", &rk_pair_minus_sts_pos_refit_gx, &b_rk_pair_minus_sts_pos_refit_gx);
+   fChain->SetBranchAddress("rk_pair_minus_sts_pos_refit_gy", &rk_pair_minus_sts_pos_refit_gy, &b_rk_pair_minus_sts_pos_refit_gy);
+   fChain->SetBranchAddress("rk_pair_minus_sts_pos_refit_gz", &rk_pair_minus_sts_pos_refit_gz, &b_rk_pair_minus_sts_pos_refit_gz);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_pos_refit_gx", &rk_pair_minus_gtr100_pos_refit_gx, &b_rk_pair_minus_gtr100_pos_refit_gx);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_pos_refit_gy", &rk_pair_minus_gtr100_pos_refit_gy, &b_rk_pair_minus_gtr100_pos_refit_gy);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_pos_refit_gz", &rk_pair_minus_gtr100_pos_refit_gz, &b_rk_pair_minus_gtr100_pos_refit_gz);
@@ -3609,9 +3973,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_minus_gtr300_pos_refit_gx", &rk_pair_minus_gtr300_pos_refit_gx, &b_rk_pair_minus_gtr300_pos_refit_gx);
    fChain->SetBranchAddress("rk_pair_minus_gtr300_pos_refit_gy", &rk_pair_minus_gtr300_pos_refit_gy, &b_rk_pair_minus_gtr300_pos_refit_gy);
    fChain->SetBranchAddress("rk_pair_minus_gtr300_pos_refit_gz", &rk_pair_minus_gtr300_pos_refit_gz, &b_rk_pair_minus_gtr300_pos_refit_gz);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_pos_refit_gx", &rk_pair_plus_ssd_pos_refit_gx, &b_rk_pair_plus_ssd_pos_refit_gx);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_pos_refit_gy", &rk_pair_plus_ssd_pos_refit_gy, &b_rk_pair_plus_ssd_pos_refit_gy);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_pos_refit_gz", &rk_pair_plus_ssd_pos_refit_gz, &b_rk_pair_plus_ssd_pos_refit_gz);
+   fChain->SetBranchAddress("rk_pair_plus_sts_pos_refit_gx", &rk_pair_plus_sts_pos_refit_gx, &b_rk_pair_plus_sts_pos_refit_gx);
+   fChain->SetBranchAddress("rk_pair_plus_sts_pos_refit_gy", &rk_pair_plus_sts_pos_refit_gy, &b_rk_pair_plus_sts_pos_refit_gy);
+   fChain->SetBranchAddress("rk_pair_plus_sts_pos_refit_gz", &rk_pair_plus_sts_pos_refit_gz, &b_rk_pair_plus_sts_pos_refit_gz);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_pos_refit_gx", &rk_pair_plus_gtr100_pos_refit_gx, &b_rk_pair_plus_gtr100_pos_refit_gx);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_pos_refit_gy", &rk_pair_plus_gtr100_pos_refit_gy, &b_rk_pair_plus_gtr100_pos_refit_gy);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_pos_refit_gz", &rk_pair_plus_gtr100_pos_refit_gz, &b_rk_pair_plus_gtr100_pos_refit_gz);
@@ -3621,9 +3985,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_plus_gtr300_pos_refit_gx", &rk_pair_plus_gtr300_pos_refit_gx, &b_rk_pair_plus_gtr300_pos_refit_gx);
    fChain->SetBranchAddress("rk_pair_plus_gtr300_pos_refit_gy", &rk_pair_plus_gtr300_pos_refit_gy, &b_rk_pair_plus_gtr300_pos_refit_gy);
    fChain->SetBranchAddress("rk_pair_plus_gtr300_pos_refit_gz", &rk_pair_plus_gtr300_pos_refit_gz, &b_rk_pair_plus_gtr300_pos_refit_gz);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_mom_refit_gx", &rk_pair_minus_ssd_mom_refit_gx, &b_rk_pair_minus_ssd_mom_refit_gx);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_mom_refit_gy", &rk_pair_minus_ssd_mom_refit_gy, &b_rk_pair_minus_ssd_mom_refit_gy);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_mom_refit_gz", &rk_pair_minus_ssd_mom_refit_gz, &b_rk_pair_minus_ssd_mom_refit_gz);
+   fChain->SetBranchAddress("rk_pair_minus_sts_mom_refit_gx", &rk_pair_minus_sts_mom_refit_gx, &b_rk_pair_minus_sts_mom_refit_gx);
+   fChain->SetBranchAddress("rk_pair_minus_sts_mom_refit_gy", &rk_pair_minus_sts_mom_refit_gy, &b_rk_pair_minus_sts_mom_refit_gy);
+   fChain->SetBranchAddress("rk_pair_minus_sts_mom_refit_gz", &rk_pair_minus_sts_mom_refit_gz, &b_rk_pair_minus_sts_mom_refit_gz);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_mom_refit_gx", &rk_pair_minus_gtr100_mom_refit_gx, &b_rk_pair_minus_gtr100_mom_refit_gx);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_mom_refit_gy", &rk_pair_minus_gtr100_mom_refit_gy, &b_rk_pair_minus_gtr100_mom_refit_gy);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_mom_refit_gz", &rk_pair_minus_gtr100_mom_refit_gz, &b_rk_pair_minus_gtr100_mom_refit_gz);
@@ -3633,9 +3997,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_minus_gtr300_mom_refit_gx", &rk_pair_minus_gtr300_mom_refit_gx, &b_rk_pair_minus_gtr300_mom_refit_gx);
    fChain->SetBranchAddress("rk_pair_minus_gtr300_mom_refit_gy", &rk_pair_minus_gtr300_mom_refit_gy, &b_rk_pair_minus_gtr300_mom_refit_gy);
    fChain->SetBranchAddress("rk_pair_minus_gtr300_mom_refit_gz", &rk_pair_minus_gtr300_mom_refit_gz, &b_rk_pair_minus_gtr300_mom_refit_gz);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_mom_refit_gx", &rk_pair_plus_ssd_mom_refit_gx, &b_rk_pair_plus_ssd_mom_refit_gx);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_mom_refit_gy", &rk_pair_plus_ssd_mom_refit_gy, &b_rk_pair_plus_ssd_mom_refit_gy);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_mom_refit_gz", &rk_pair_plus_ssd_mom_refit_gz, &b_rk_pair_plus_ssd_mom_refit_gz);
+   fChain->SetBranchAddress("rk_pair_plus_sts_mom_refit_gx", &rk_pair_plus_sts_mom_refit_gx, &b_rk_pair_plus_sts_mom_refit_gx);
+   fChain->SetBranchAddress("rk_pair_plus_sts_mom_refit_gy", &rk_pair_plus_sts_mom_refit_gy, &b_rk_pair_plus_sts_mom_refit_gy);
+   fChain->SetBranchAddress("rk_pair_plus_sts_mom_refit_gz", &rk_pair_plus_sts_mom_refit_gz, &b_rk_pair_plus_sts_mom_refit_gz);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_mom_refit_gx", &rk_pair_plus_gtr100_mom_refit_gx, &b_rk_pair_plus_gtr100_mom_refit_gx);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_mom_refit_gy", &rk_pair_plus_gtr100_mom_refit_gy, &b_rk_pair_plus_gtr100_mom_refit_gy);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_mom_refit_gz", &rk_pair_plus_gtr100_mom_refit_gz, &b_rk_pair_plus_gtr100_mom_refit_gz);
@@ -3645,9 +4009,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_plus_gtr300_mom_refit_gx", &rk_pair_plus_gtr300_mom_refit_gx, &b_rk_pair_plus_gtr300_mom_refit_gx);
    fChain->SetBranchAddress("rk_pair_plus_gtr300_mom_refit_gy", &rk_pair_plus_gtr300_mom_refit_gy, &b_rk_pair_plus_gtr300_mom_refit_gy);
    fChain->SetBranchAddress("rk_pair_plus_gtr300_mom_refit_gz", &rk_pair_plus_gtr300_mom_refit_gz, &b_rk_pair_plus_gtr300_mom_refit_gz);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_res_refit_x", &rk_pair_minus_ssd_res_refit_x, &b_rk_pair_minus_ssd_res_refit_x);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_res_refit_y", &rk_pair_minus_ssd_res_refit_y, &b_rk_pair_minus_ssd_res_refit_y);
-   fChain->SetBranchAddress("rk_pair_minus_ssd_res_refit_z", &rk_pair_minus_ssd_res_refit_z, &b_rk_pair_minus_ssd_res_refit_z);
+   fChain->SetBranchAddress("rk_pair_minus_sts_res_refit_x", &rk_pair_minus_sts_res_refit_x, &b_rk_pair_minus_sts_res_refit_x);
+   fChain->SetBranchAddress("rk_pair_minus_sts_res_refit_y", &rk_pair_minus_sts_res_refit_y, &b_rk_pair_minus_sts_res_refit_y);
+   fChain->SetBranchAddress("rk_pair_minus_sts_res_refit_z", &rk_pair_minus_sts_res_refit_z, &b_rk_pair_minus_sts_res_refit_z);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_res_refit_x", &rk_pair_minus_gtr100_res_refit_x, &b_rk_pair_minus_gtr100_res_refit_x);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_res_refit_y", &rk_pair_minus_gtr100_res_refit_y, &b_rk_pair_minus_gtr100_res_refit_y);
    fChain->SetBranchAddress("rk_pair_minus_gtr100_res_refit_z", &rk_pair_minus_gtr100_res_refit_z, &b_rk_pair_minus_gtr100_res_refit_z);
@@ -3657,9 +4021,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_minus_gtr300_res_refit_x", &rk_pair_minus_gtr300_res_refit_x, &b_rk_pair_minus_gtr300_res_refit_x);
    fChain->SetBranchAddress("rk_pair_minus_gtr300_res_refit_y", &rk_pair_minus_gtr300_res_refit_y, &b_rk_pair_minus_gtr300_res_refit_y);
    fChain->SetBranchAddress("rk_pair_minus_gtr300_res_refit_z", &rk_pair_minus_gtr300_res_refit_z, &b_rk_pair_minus_gtr300_res_refit_z);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_res_refit_x", &rk_pair_plus_ssd_res_refit_x, &b_rk_pair_plus_ssd_res_refit_x);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_res_refit_y", &rk_pair_plus_ssd_res_refit_y, &b_rk_pair_plus_ssd_res_refit_y);
-   fChain->SetBranchAddress("rk_pair_plus_ssd_res_refit_z", &rk_pair_plus_ssd_res_refit_z, &b_rk_pair_plus_ssd_res_refit_z);
+   fChain->SetBranchAddress("rk_pair_plus_sts_res_refit_x", &rk_pair_plus_sts_res_refit_x, &b_rk_pair_plus_sts_res_refit_x);
+   fChain->SetBranchAddress("rk_pair_plus_sts_res_refit_y", &rk_pair_plus_sts_res_refit_y, &b_rk_pair_plus_sts_res_refit_y);
+   fChain->SetBranchAddress("rk_pair_plus_sts_res_refit_z", &rk_pair_plus_sts_res_refit_z, &b_rk_pair_plus_sts_res_refit_z);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_res_refit_x", &rk_pair_plus_gtr100_res_refit_x, &b_rk_pair_plus_gtr100_res_refit_x);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_res_refit_y", &rk_pair_plus_gtr100_res_refit_y, &b_rk_pair_plus_gtr100_res_refit_y);
    fChain->SetBranchAddress("rk_pair_plus_gtr100_res_refit_z", &rk_pair_plus_gtr100_res_refit_z, &b_rk_pair_plus_gtr100_res_refit_z);
@@ -3672,320 +4036,338 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("rk_pair_mass_refit", &rk_pair_mass_refit, &b_rk_pair_mass_refit);
    Notify();
 
-   outtree->Branch("run_id",            &out_run_id  , "out_run_id/I"             );
-   outtree->Branch("event_id",          &out_event_id, "out_event_id/I"         );
-   outtree->Branch("spill_id",          &out_spill_id, "out_spill_id/I"          );
-   outtree->Branch("timestamp_in_spill",&out_timestamp_in_spill);
-   outtree->Branch("trigger_fine_time", &out_trigger_fine_time);
-   outtree->Branch("n_fill",            &out_n_fill           );
-   outtree->Branch("n_ssd_hits",        &out_n_ssd_hits  );
-   outtree->Branch("ssd_hit_id",        &out_ssd_hit_id  );
-   outtree->Branch("ssd_hit_mid",       &out_ssd_hit_mid );
-   outtree->Branch("ssd_hit_cid",       &out_ssd_hit_cid );
-   outtree->Branch("ssd_hit_x",         &out_ssd_hit_x  );
-   outtree->Branch("ssd_hit_gx",        &out_ssd_hit_gx );
-   outtree->Branch("ssd_hit_gz",        &out_ssd_hit_gz );
-   outtree->Branch("ssd_hit_t",         &out_ssd_hit_t  );
-   outtree->Branch("ssd_hit_adc",       &out_ssd_hit_adc );
-   outtree->Branch("n_gtr100x_hits",    &out_n_gtr100x_hits);
-   outtree->Branch("gtr100x_hit_id",    &out_gtr100x_hit_id);
-   outtree->Branch("gtr100x_hit_mid",   &out_gtr100x_hit_mid);
-   outtree->Branch("gtr100x_hit_cid",   &out_gtr100x_hit_cid);
-   outtree->Branch("gtr100x_hit_x",               &out_gtr100x_hit_x);
-   outtree->Branch("gtr100x_hit_tx",              &out_gtr100x_hit_tx);
-   outtree->Branch("gtr100x_hit_gx",              &out_gtr100x_hit_gx);
-   outtree->Branch("gtr100x_hit_gz",              &out_gtr100x_hit_gz);
-   outtree->Branch("gtr100x_hit_t",               &out_gtr100x_hit_t);
-   outtree->Branch("gtr100x_hit_adc",             &out_gtr100x_hit_adc);
-   outtree->Branch("n_gtr200x_hits",              &out_n_gtr200x_hits );
-   outtree->Branch("gtr200x_hit_id",              &out_gtr200x_hit_id );
-   outtree->Branch("gtr200x_hit_mid",             &out_gtr200x_hit_mid);
-   outtree->Branch("gtr200x_hit_cid",             &out_gtr200x_hit_cid);
-   outtree->Branch("gtr200x_hit_x",               &out_gtr200x_hit_x );
-   outtree->Branch("gtr200x_hit_tx",              &out_gtr200x_hit_tx);
-   outtree->Branch("gtr200x_hit_gx",              &out_gtr200x_hit_gx);
-   outtree->Branch("gtr200x_hit_gz",              &out_gtr200x_hit_gz);
-   outtree->Branch("gtr200x_hit_t",               &out_gtr200x_hit_t );
-   outtree->Branch("gtr200x_hit_adc",             &out_gtr200x_hit_adc);
-   outtree->Branch("n_gtr300x_hits",              &out_n_gtr300x_hits);
-   outtree->Branch("gtr300x_hit_id",              &out_gtr300x_hit_id);
-   outtree->Branch("gtr300x_hit_mid",             &out_gtr300x_hit_mid);
-   outtree->Branch("gtr300x_hit_cid",             &out_gtr300x_hit_cid);
-   outtree->Branch("gtr300x_hit_x",               &out_gtr300x_hit_x );
-   outtree->Branch("gtr300x_hit_tx",              &out_gtr300x_hit_tx);
-   outtree->Branch("gtr300x_hit_gx",              &out_gtr300x_hit_gx);
-   outtree->Branch("gtr300x_hit_gz",              &out_gtr300x_hit_gz);
-   outtree->Branch("gtr300x_hit_t",               &out_gtr300x_hit_t );
-   outtree->Branch("gtr300x_hit_adc",             &out_gtr300x_hit_adc);
-   outtree->Branch("n_gtr100y_hits",              &out_n_gtr100y_hits);
-   outtree->Branch("gtr100y_hit_id",              &out_gtr100y_hit_id);
-   outtree->Branch("gtr100y_hit_mid",             &out_gtr100y_hit_mid);
-   outtree->Branch("gtr100y_hit_cid",             &out_gtr100y_hit_cid);
-   outtree->Branch("gtr100y_hit_y",               &out_gtr100y_hit_y );
-   outtree->Branch("gtr100y_hit_ty",              &out_gtr100y_hit_ty);
-   outtree->Branch("gtr100y_hit_t",               &out_gtr100y_hit_t );
-   outtree->Branch("gtr100y_hit_adc",             &out_gtr100y_hit_adc);
-   outtree->Branch("n_gtr100yb_hits",             &out_n_gtr100yb_hits);
-   outtree->Branch("gtr100yb_hit_id",             &out_gtr100yb_hit_id);
-   outtree->Branch("gtr100yb_hit_mid",            &out_gtr100yb_hit_mid);
-   outtree->Branch("gtr100yb_hit_cid",            &out_gtr100yb_hit_cid);
-   outtree->Branch("gtr100yb_hit_y",              &out_gtr100yb_hit_y);
-   outtree->Branch("gtr100yb_hit_ty",             &out_gtr100yb_hit_ty );
-   outtree->Branch("gtr100yb_hit_t",              &out_gtr100yb_hit_t);
-   outtree->Branch("gtr100yb_hit_adc",            &out_gtr100yb_hit_adc);
-   outtree->Branch("n_gtr200y_hits",              &out_n_gtr200y_hits);
-   outtree->Branch("gtr200y_hit_id",              &out_gtr200y_hit_id);
-   outtree->Branch("gtr200y_hit_mid",             &out_gtr200y_hit_mid);
-   outtree->Branch("gtr200y_hit_cid",             &out_gtr200y_hit_cid);
-   outtree->Branch("gtr200y_hit_y",               &out_gtr200y_hit_y);
-   outtree->Branch("gtr200y_hit_ty",              &out_gtr200y_hit_ty);
-   outtree->Branch("gtr200y_hit_t",               &out_gtr200y_hit_t);
-   outtree->Branch("gtr200y_hit_adc",             &out_gtr200y_hit_adc);
-   outtree->Branch("n_gtr300y_hits",              &out_n_gtr300y_hits);
-   outtree->Branch("gtr300y_hit_id",              &out_gtr300y_hit_id);
-   outtree->Branch("gtr300y_hit_mid",             &out_gtr300y_hit_mid);
-   outtree->Branch("gtr300y_hit_cid",             &out_gtr300y_hit_cid);
-   outtree->Branch("gtr300y_hit_y",               &out_gtr300y_hit_y);
-   outtree->Branch("gtr300y_hit_ty",              &out_gtr300y_hit_ty);
-   outtree->Branch("gtr300y_hit_t",               &out_gtr300y_hit_t);
-   outtree->Branch("gtr300y_hit_adc",             &out_gtr300y_hit_adc);
-   outtree->Branch("n_hbd_hits",                  &out_n_hbd_hits      );
-   outtree->Branch("hbd_hit_id",                  &out_hbd_hit_id  );
-   outtree->Branch("hbd_hit_mid",                 &out_hbd_hit_mid );
-   outtree->Branch("hbd_hit_cid",                 &out_hbd_hit_cid );
-   outtree->Branch("hbd_hit_x",                   &out_hbd_hit_x);
-   outtree->Branch("hbd_hit_y",                   &out_hbd_hit_y);
-   outtree->Branch("hbd_hit_gx",                  &out_hbd_hit_gx);
-   outtree->Branch("hbd_hit_gy",                  &out_hbd_hit_gy);
-   outtree->Branch("hbd_hit_gz",                  &out_hbd_hit_gz);
-   outtree->Branch("hbd_hit_t",                   &out_hbd_hit_t );
-   outtree->Branch("hbd_hit_adc",                 &out_hbd_hit_adc);
-   outtree->Branch("n_ssd_clusters",              &out_n_ssd_clusters);
-   outtree->Branch("ssd_cluster_id",              &out_ssd_cluster_id);
-   outtree->Branch("ssd_cluster_mid",             &out_ssd_cluster_mid);
-   outtree->Branch("ssd_cluster_x",               &out_ssd_cluster_x);
-   outtree->Branch("ssd_cluster_gx",              &out_ssd_cluster_gx);
-   outtree->Branch("ssd_cluster_gz",              &out_ssd_cluster_gz);
-   outtree->Branch("ssd_cluster_adc",             &out_ssd_cluster_adc);
-   outtree->Branch("ssd_cluster_t",               &out_ssd_cluster_t );
-   outtree->Branch("ssd_cluster_size",            &out_ssd_cluster_size);
-   outtree->Branch("ssd_cluster_fit_x",           &out_ssd_cluster_fit_x);
-   outtree->Branch("ssd_cluster_fit_t",           &out_ssd_cluster_fit_t);
-   outtree->Branch("ssd_cluster_fit_adc",         &out_ssd_cluster_fit_adc);
-   outtree->Branch("ssd_cluster_fit_chi2",        &out_ssd_cluster_fit_chi2);
-   outtree->Branch("n_gtr100x_clusters",          &out_n_gtr100x_clusters );
-   outtree->Branch("gtr100x_cluster_id",          &out_gtr100x_cluster_id );
-//   outtree->Branch("gtr100x_cluster_consist_hit_id", &out_gtr100x_cluster_consist_hit_id, "out_gtr100x_cluster_consist_hit_id/S" );
-   outtree->Branch("gtr100x_cluster_mid",         &out_gtr100x_cluster_mid);
-   outtree->Branch("gtr100x_cluster_x",           &out_gtr100x_cluster_x );
-   outtree->Branch("gtr100x_cluster_gx",          &out_gtr100x_cluster_gx);
-   outtree->Branch("gtr100x_cluster_gz",          &out_gtr100x_cluster_gz);
-   outtree->Branch("gtr100x_cluster_adc",         &out_gtr100x_cluster_adc);
-   outtree->Branch("gtr100x_cluster_t",           &out_gtr100x_cluster_t );
-   outtree->Branch("gtr100x_cluster_t2",          &out_gtr100x_cluster_t2);
-   outtree->Branch("gtr100x_cluster_tx",          &out_gtr100x_cluster_tx);
-   outtree->Branch("gtr100x_cluster_the",         &out_gtr100x_cluster_the);
-   outtree->Branch("gtr100x_cluster_gtx",         &out_gtr100x_cluster_gtx);
-   outtree->Branch("gtr100x_cluster_nc",          &out_gtr100x_cluster_nc);
-   outtree->Branch("gtr100x_cluster_size",        &out_gtr100x_cluster_size);
-   outtree->Branch("gtr100x_cluster_last_tot_end",        &out_gtr100x_cluster_last_tot_end);
-   outtree->Branch("gtr200x_cluster_last_tot_end",        &out_gtr200x_cluster_last_tot_end);
-   outtree->Branch("gtr300x_cluster_last_tot_end",        &out_gtr300x_cluster_last_tot_end);
-   outtree->Branch("n_gtr200x_clusters",          &out_n_gtr200x_clusters );
-   outtree->Branch("gtr200x_cluster_id",          &out_gtr200x_cluster_id );
-   outtree->Branch("gtr200x_cluster_mid",         &out_gtr200x_cluster_mid);
-   outtree->Branch("gtr200x_cluster_x",           &out_gtr200x_cluster_x );
-   outtree->Branch("gtr200x_cluster_gx",          &out_gtr200x_cluster_gx);
-   outtree->Branch("gtr200x_cluster_gz",          &out_gtr200x_cluster_gz);
-   outtree->Branch("gtr200x_cluster_adc",         &out_gtr200x_cluster_adc);
-   outtree->Branch("gtr200x_cluster_t",           &out_gtr200x_cluster_t );
-   outtree->Branch("gtr200x_cluster_t2",          &out_gtr200x_cluster_t2);
-   outtree->Branch("gtr200x_cluster_tx",          &out_gtr200x_cluster_tx);
-   outtree->Branch("gtr200x_cluster_the",         &out_gtr200x_cluster_the);
-   outtree->Branch("gtr200x_cluster_nc",          &out_gtr200x_cluster_nc);
-   outtree->Branch("gtr200x_cluster_gtx",         &out_gtr200x_cluster_gtx);
-   outtree->Branch("gtr200x_cluster_size",        &out_gtr200x_cluster_size);
-   outtree->Branch("n_gtr300x_clusters",          &out_n_gtr300x_clusters );
-   outtree->Branch("gtr300x_cluster_id",          &out_gtr300x_cluster_id );
-   outtree->Branch("gtr300x_cluster_mid",         &out_gtr300x_cluster_mid);
-   outtree->Branch("gtr300x_cluster_x",           &out_gtr300x_cluster_x );
-   outtree->Branch("gtr300x_cluster_gx",          &out_gtr300x_cluster_gx);
-   outtree->Branch("gtr300x_cluster_gz",          &out_gtr300x_cluster_gz );
-   outtree->Branch("gtr300x_cluster_adc",         &out_gtr300x_cluster_adc);
-   outtree->Branch("gtr300x_cluster_t",           &out_gtr300x_cluster_t );
-   outtree->Branch("gtr300x_cluster_t2",          &out_gtr300x_cluster_t2);
-   outtree->Branch("gtr300x_cluster_tx",          &out_gtr300x_cluster_tx);
-   outtree->Branch("gtr300x_cluster_the",         &out_gtr300x_cluster_the);
-   outtree->Branch("gtr300x_cluster_nc",          &out_gtr300x_cluster_nc);
-   outtree->Branch("gtr300x_cluster_gtx",         &out_gtr300x_cluster_gtx );
-   outtree->Branch("gtr300x_cluster_size",        &out_gtr300x_cluster_size);
-   outtree->Branch("n_gtr100y_clusters",          &out_n_gtr100y_clusters);
-   outtree->Branch("gtr100y_cluster_id",          &out_gtr100y_cluster_id);
-   outtree->Branch("gtr100y_cluster_mid",         &out_gtr100y_cluster_mid );
-   outtree->Branch("gtr100y_cluster_y",           &out_gtr100y_cluster_y   );
-   outtree->Branch("gtr100y_cluster_adc",         &out_gtr100y_cluster_adc);
-   outtree->Branch("gtr100y_cluster_t",           &out_gtr100y_cluster_t );
-   outtree->Branch("gtr100y_cluster_t2",          &out_gtr100y_cluster_t2);
-   outtree->Branch("gtr100y_cluster_ty",          &out_gtr100y_cluster_ty);
-   outtree->Branch("gtr100y_cluster_the",         &out_gtr100y_cluster_the);
-   outtree->Branch("gtr100y_cluster_nc",          &out_gtr100y_cluster_nc);
-   outtree->Branch("gtr100y_cluster_size",        &out_gtr100y_cluster_size);
-   outtree->Branch("n_gtr100yb_clusters",         &out_n_gtr100yb_clusters);
-   outtree->Branch("gtr100yb_cluster_id",         &out_gtr100yb_cluster_id );
-   outtree->Branch("gtr100yb_cluster_mid",        &out_gtr100yb_cluster_mid);
-   outtree->Branch("gtr100yb_cluster_y",          &out_gtr100yb_cluster_y );
-   outtree->Branch("gtr100yb_cluster_adc",        &out_gtr100yb_cluster_adc);
-   outtree->Branch("gtr100yb_cluster_t",          &out_gtr100yb_cluster_t );
-   outtree->Branch("gtr100yb_cluster_t2",         &out_gtr100yb_cluster_t2);
-   outtree->Branch("gtr100yb_cluster_ty",         &out_gtr100yb_cluster_ty);
-   outtree->Branch("gtr100yb_cluster_the",        &out_gtr100yb_cluster_the);
-   outtree->Branch("gtr100yb_cluster_nc",         &out_gtr100yb_cluster_nc);
-   outtree->Branch("gtr100yb_cluster_size",     &out_gtr100yb_cluster_size);
-   outtree->Branch("n_gtr200y_clusters",        &out_n_gtr200y_clusters);
-   outtree->Branch("gtr200y_cluster_id",        &out_gtr200y_cluster_id);
-   outtree->Branch("gtr200y_cluster_mid",       &out_gtr200y_cluster_mid);
-   outtree->Branch("gtr200y_cluster_y",         &out_gtr200y_cluster_y);
-   outtree->Branch("gtr200y_cluster_adc",       &out_gtr200y_cluster_adc);
-   outtree->Branch("gtr200y_cluster_t",         &out_gtr200y_cluster_t);
-   outtree->Branch("gtr200y_cluster_t2",        &out_gtr200y_cluster_t2);
-   outtree->Branch("gtr200y_cluster_ty",        &out_gtr200y_cluster_ty);
-   outtree->Branch("gtr200y_cluster_the",       &out_gtr200y_cluster_the);
-   outtree->Branch("gtr200y_cluster_nc",        &out_gtr200y_cluster_nc);
-   outtree->Branch("gtr200y_cluster_size",      &out_gtr200y_cluster_size);
-   outtree->Branch("n_gtr300y_clusters",        &out_n_gtr300y_clusters);
-   outtree->Branch("gtr300y_cluster_id",        &out_gtr300y_cluster_id);
-   outtree->Branch("gtr300y_cluster_mid",       &out_gtr300y_cluster_mid);
-   outtree->Branch("gtr300y_cluster_y",         &out_gtr300y_cluster_y);
-   outtree->Branch("gtr300y_cluster_adc",       &out_gtr300y_cluster_adc);
-   outtree->Branch("gtr300y_cluster_t",         &out_gtr300y_cluster_t);
-   outtree->Branch("gtr300y_cluster_t2",        &out_gtr300y_cluster_t2);
-   outtree->Branch("gtr300y_cluster_ty",        &out_gtr300y_cluster_ty);
-   outtree->Branch("gtr300y_cluster_the",       &out_gtr300y_cluster_the);
-   outtree->Branch("gtr300y_cluster_nc",        &out_gtr300y_cluster_nc);
-   outtree->Branch("gtr300y_cluster_size",      &out_gtr300y_cluster_size);
-   outtree->Branch("n_hbd_clusters",            &out_n_hbd_clusters);
-   outtree->Branch("hbd_cluster_id",            &out_hbd_cluster_id);
-   outtree->Branch("hbd_cluster_mid",           &out_hbd_cluster_mid);
-   outtree->Branch("hbd_cluster_x",             &out_hbd_cluster_x);
-   outtree->Branch("hbd_cluster_y",             &out_hbd_cluster_y);
-   outtree->Branch("hbd_cluster_gx",            &out_hbd_cluster_gx);
-   outtree->Branch("hbd_cluster_gy",            &out_hbd_cluster_gy);
-   outtree->Branch("hbd_cluster_gz",            &out_hbd_cluster_gz);
-   outtree->Branch("hbd_cluster_adc",           &out_hbd_cluster_adc);
-   outtree->Branch("hbd_cluster_max_cid",       &out_hbd_cluster_max_cid);
-   outtree->Branch("hbd_cluster_t",             &out_hbd_cluster_t);
-   outtree->Branch("hbd_cluster_ftime",         &out_hbd_cluster_ftime);
-   outtree->Branch("hbd_cluster_tdiff",         &out_hbd_cluster_tdiff);
-   outtree->Branch("hbd_cluster_size",          &out_hbd_cluster_size);
-   outtree->Branch("hbd_cluster_eprob",         &out_hbd_cluster_eprob);
-   outtree->Branch("hbd_cluster_cprob",         &out_hbd_cluster_cprob);
-   outtree->Branch("n_hbd_clusters_wotime",     &out_n_hbd_clusters_wotime);
-   outtree->Branch("hbd_cluster_wotime_id",     &out_hbd_cluster_wotime_id);
-   outtree->Branch("hbd_cluster_wotime_mid",    &out_hbd_cluster_wotime_mid);
-   outtree->Branch("hbd_cluster_wotime_x",      &out_hbd_cluster_wotime_x);
-   outtree->Branch("hbd_cluster_wotime_y",      &out_hbd_cluster_wotime_y);
-   outtree->Branch("hbd_cluster_wotime_gx",     &out_hbd_cluster_wotime_gx);
-   outtree->Branch("hbd_cluster_wotime_gy",     &out_hbd_cluster_wotime_gy);
-   outtree->Branch("hbd_cluster_wotime_gz",     &out_hbd_cluster_wotime_gz);
-   outtree->Branch("hbd_cluster_wotime_adc",    &out_hbd_cluster_wotime_adc);
-   outtree->Branch("hbd_cluster_wotime_max_cid",&out_hbd_cluster_wotime_max_cid);
-   outtree->Branch("hbd_cluster_wotime_t",    &out_hbd_cluster_wotime_t);
-   outtree->Branch("hbd_cluster_wotime_ftime",&out_hbd_cluster_wotime_ftime);
-   outtree->Branch("hbd_cluster_wotime_tdiff",&out_hbd_cluster_wotime_tdiff);
-   outtree->Branch("hbd_cluster_wotime_size", &out_hbd_cluster_wotime_size );
-   outtree->Branch("hbd_cluster_wotime_eprob",&out_hbd_cluster_wotime_eprob);
-   outtree->Branch("hbd_cluster_wotime_cprob",&out_hbd_cluster_wotime_cprob);
-   outtree->Branch("n_lg_hits",               &out_n_lg_hits);
-   outtree->Branch("lg_hit_id",               &out_lg_hit_id);
-   outtree->Branch("lg_hit_mid",              &out_lg_hit_mid);
-   outtree->Branch("lg_hit_cid",              &out_lg_hit_cid);
-   outtree->Branch("lg_hit_x",                &out_lg_hit_x );
-   outtree->Branch("lg_hit_y",                &out_lg_hit_y );
-   outtree->Branch("lg_hit_z",                &out_lg_hit_z );
-   outtree->Branch("lg_hit_gx"  ,             &out_lg_hit_gx);
-   outtree->Branch("lg_hit_gy"  ,             &out_lg_hit_gy);
-   outtree->Branch("lg_hit_gz"  ,             &out_lg_hit_gz);
-   outtree->Branch("lg_hit_adc ",             &out_lg_hit_adc);
-   outtree->Branch("lg_hit_t",                &out_lg_hit_t );
-   outtree->Branch("lg_hit_wofit_adc",        &out_lg_hit_wofit_adc);
-   outtree->Branch("lg_hit_wofit_t",          &out_lg_hit_wofit_t);
-   outtree->Branch("lg_hit_npeaks",           &out_lg_hit_npeaks);
-   outtree->Branch("lg_hit_fflag",            &out_lg_hit_fflag);
-   outtree->Branch("n_lg_clusters",           &out_n_lg_clusters);
-   outtree->Branch("lg_cluster_id",           &out_lg_cluster_id);
-   outtree->Branch("lg_cluster_mid",          &out_lg_cluster_mid);
-   outtree->Branch("lg_cluster_max_cid",      &out_lg_cluster_max_cid);
-   outtree->Branch("lg_cluster_max_adc",      &out_lg_cluster_max_adc);
-   outtree->Branch("lg_cluster_x",            &out_lg_cluster_x);
-   outtree->Branch("lg_cluster_y",            &out_lg_cluster_y);
-   outtree->Branch("lg_cluster_z",            &out_lg_cluster_z);
-   outtree->Branch("lg_cluster_gx",           &out_lg_cluster_gx);
-   outtree->Branch("lg_cluster_gy",           &out_lg_cluster_gy);
-   outtree->Branch("lg_cluster_gz",           &out_lg_cluster_gz);
-   outtree->Branch("lg_cluster_adc"    ,      &out_lg_cluster_adc);
-   outtree->Branch("lg_cluster_t",            &out_lg_cluster_t  );
-   outtree->Branch("lg_cluster_tdiff",        &out_lg_cluster_tdiff);
-   outtree->Branch("lg_cluster_size",         &out_lg_cluster_size);
-   outtree->Branch("n_trg_gtr_hits",          &out_n_trg_gtr_hits);
-   outtree->Branch("trg_gtr_hit_id",          &out_trg_gtr_hit_id);
-   outtree->Branch("trg_gtr_hit_mid",         &out_trg_gtr_hit_mid);
-   outtree->Branch("trg_gtr_hit_cid",         &out_trg_gtr_hit_cid);
-   outtree->Branch("trg_gtr_hit_x",           &out_trg_gtr_hit_x);
-   outtree->Branch("trg_gtr_hit_y",           &out_trg_gtr_hit_y);
-   outtree->Branch("trg_gtr_hit_gx",          &out_trg_gtr_hit_gx);
-   outtree->Branch("trg_gtr_hit_gy",          &out_trg_gtr_hit_gy);
-   outtree->Branch("trg_gtr_hit_gz",          &out_trg_gtr_hit_gz);
-   outtree->Branch("trg_gtr_hit_t",           &out_trg_gtr_hit_t);
-   outtree->Branch("n_trg_hbd_hits",          &out_n_trg_hbd_hits);
-   outtree->Branch("trg_hbd_hit_id",          &out_trg_hbd_hit_id);
-   outtree->Branch("trg_hbd_hit_mid",         &out_trg_hbd_hit_mid);
-   outtree->Branch("trg_hbd_hit_cid",         &out_trg_hbd_hit_cid);
-   outtree->Branch("trg_hbd_hit_x",           &out_trg_hbd_hit_x);
-   outtree->Branch("trg_hbd_hit_y",           &out_trg_hbd_hit_y);
-   outtree->Branch("trg_hbd_hit_gx",          &out_trg_hbd_hit_gx);
-   outtree->Branch("trg_hbd_hit_gy",          &out_trg_hbd_hit_gy);
-   outtree->Branch("trg_hbd_hit_gz",          &out_trg_hbd_hit_gz);
-   outtree->Branch("trg_hbd_hit_t",           &out_trg_hbd_hit_t);
-   outtree->Branch("n_trg_lg_hits",           &out_n_trg_lg_hits);
-   outtree->Branch("trg_lg_hit_id",           &out_trg_lg_hit_id);
-   outtree->Branch("trg_lg_hit_mid",          &out_trg_lg_hit_mid);
-   outtree->Branch("trg_lg_hit_cid",          &out_trg_lg_hit_cid);
-   outtree->Branch("trg_lg_hit_x",            &out_trg_lg_hit_x); 
-   outtree->Branch("trg_lg_hit_y",            &out_trg_lg_hit_y); 
-   outtree->Branch("trg_lg_hit_z",            &out_trg_lg_hit_z); 
-   outtree->Branch("trg_lg_hit_gx",           &out_trg_lg_hit_gx);
-   outtree->Branch("trg_lg_hit_gy",           &out_trg_lg_hit_gy);
-   outtree->Branch("trg_lg_hit_gz",           &out_trg_lg_hit_gz);
-   outtree->Branch("trg_lg_hit_t",            &out_trg_lg_hit_t);
-   outtree->Branch("n_trg_tracks",            &out_n_trg_tracks); 
-   outtree->Branch("trg_track_n_gtr_hits",    &out_trg_track_n_gtr_hits);
-   outtree->Branch("trg_track_gtr_id",        &out_trg_track_gtr_id);
-   outtree->Branch("trg_track_gtr_mid",       &out_trg_track_gtr_mid);
-   outtree->Branch("trg_track_gtr_cid",       &out_trg_track_gtr_cid);
-   outtree->Branch("trg_track_gtr_x",         &out_trg_track_gtr_x);
-   outtree->Branch("trg_track_gtr_y",         &out_trg_track_gtr_y);
-   outtree->Branch("trg_track_gtr_t",         &out_trg_track_gtr_t);
-   outtree->Branch("trg_track_gtr_is_t_match",&out_trg_track_gtr_is_t_match);
-   outtree->Branch("trg_track_n_hbd_hits",    &out_trg_track_n_hbd_hits);
-   outtree->Branch("trg_track_hbd_id",        &out_trg_track_hbd_id);
-   outtree->Branch("trg_track_hbd_mid",       &out_trg_track_hbd_mid);
-   outtree->Branch("trg_track_hbd_cid",       &out_trg_track_hbd_cid);
-   outtree->Branch("trg_track_hbd_x",         &out_trg_track_hbd_x);
-   outtree->Branch("trg_track_hbd_y",         &out_trg_track_hbd_y);
-   outtree->Branch("trg_track_hbd_t",         &out_trg_track_hbd_t);
-   outtree->Branch("trg_track_hbd_is_t_match",&out_trg_track_hbd_is_t_match);
-   outtree->Branch("trg_track_lg_id",        &out_trg_track_lg_id);
-   outtree->Branch("trg_track_lg_mid",       &out_trg_track_lg_mid);
-   outtree->Branch("trg_track_lg_cid",       &out_trg_track_lg_cid);
-   outtree->Branch("trg_track_lg_x",         &out_trg_track_lg_x);
-   outtree->Branch("trg_track_lg_y",         &out_trg_track_lg_y);
-   outtree->Branch("trg_track_lg_t",         &out_trg_track_lg_t);
-   outtree->Branch("n_x_cands",              &out_n_x_cands);
-   outtree->Branch("n_y_cands",              &out_n_y_cands);
-   outtree->Branch("n_cands",                &out_n_cands);
-   outtree->Branch("n_selected",             &out_n_selected);
-   outtree->Branch("n_pairs",                &out_n_pairs);
-   outtree->Branch("n_refit_pairs",          &out_n_refit_pairs);
+   outtree->Branch("run_id",            &run_id  , "run_id/I"             );
+   outtree->Branch("event_id",          &event_id, "event_id/I"         );
+   outtree->Branch("spill_id",          &spill_id, "spill_id/I"          );
+   outtree->Branch("timestamp_in_spill",&timestamp_in_spill);
+   outtree->Branch("trigger_fine_time", &trigger_fine_time);
+   outtree->Branch("n_fill",            &n_fill           );
+   outtree->Branch("n_sts_hits",        &n_sts_hits  );
+   outtree->Branch("sts_hit_id",        &sts_hit_id  );
+   outtree->Branch("sts_hit_mid",       &sts_hit_mid );
+   outtree->Branch("sts_hit_cid",       &sts_hit_cid );
+   outtree->Branch("sts_hit_x",         &sts_hit_x  );
+   outtree->Branch("sts_hit_gx",        &sts_hit_gx );
+   outtree->Branch("sts_hit_gz",        &sts_hit_gz );
+   outtree->Branch("sts_hit_t",         &sts_hit_t  );
+   outtree->Branch("sts_hit_adc",       &sts_hit_adc );
+   outtree->Branch("n_gtr100x_hits",    &n_gtr100x_hits);
+   outtree->Branch("gtr100x_hit_id",    &gtr100x_hit_id);
+   outtree->Branch("gtr100x_hit_mid",   &gtr100x_hit_mid);
+   outtree->Branch("gtr100x_hit_cid",   &gtr100x_hit_cid);
+   outtree->Branch("gtr100x_hit_x",               &gtr100x_hit_x);
+   outtree->Branch("gtr100x_hit_tx",              &gtr100x_hit_tx);
+   outtree->Branch("gtr100x_hit_gx",              &gtr100x_hit_gx);
+   outtree->Branch("gtr100x_hit_gz",              &gtr100x_hit_gz);
+   outtree->Branch("gtr100x_hit_t",               &gtr100x_hit_t);
+   outtree->Branch("gtr100x_hit_adc",             &gtr100x_hit_adc);
+   outtree->Branch("n_gtr200x_hits",              &n_gtr200x_hits );
+   outtree->Branch("gtr200x_hit_id",              &gtr200x_hit_id );
+   outtree->Branch("gtr200x_hit_mid",             &gtr200x_hit_mid);
+   outtree->Branch("gtr200x_hit_cid",             &gtr200x_hit_cid);
+   outtree->Branch("gtr200x_hit_x",               &gtr200x_hit_x );
+   outtree->Branch("gtr200x_hit_tx",              &gtr200x_hit_tx);
+   outtree->Branch("gtr200x_hit_gx",              &gtr200x_hit_gx);
+   outtree->Branch("gtr200x_hit_gz",              &gtr200x_hit_gz);
+   outtree->Branch("gtr200x_hit_t",               &gtr200x_hit_t );
+   outtree->Branch("gtr200x_hit_adc",             &gtr200x_hit_adc);
+   outtree->Branch("n_gtr300x_hits",              &n_gtr300x_hits);
+   outtree->Branch("gtr300x_hit_id",              &gtr300x_hit_id);
+   outtree->Branch("gtr300x_hit_mid",             &gtr300x_hit_mid);
+   outtree->Branch("gtr300x_hit_cid",             &gtr300x_hit_cid);
+   outtree->Branch("gtr300x_hit_x",               &gtr300x_hit_x );
+   outtree->Branch("gtr300x_hit_tx",              &gtr300x_hit_tx);
+   outtree->Branch("gtr300x_hit_gx",              &gtr300x_hit_gx);
+   outtree->Branch("gtr300x_hit_gz",              &gtr300x_hit_gz);
+   outtree->Branch("gtr300x_hit_t",               &gtr300x_hit_t );
+   outtree->Branch("gtr300x_hit_adc",             &gtr300x_hit_adc);
+   outtree->Branch("n_gtr100y_hits",              &n_gtr100y_hits);
+   outtree->Branch("gtr100y_hit_id",              &gtr100y_hit_id);
+   outtree->Branch("gtr100y_hit_mid",             &gtr100y_hit_mid);
+   outtree->Branch("gtr100y_hit_cid",             &gtr100y_hit_cid);
+   outtree->Branch("gtr100y_hit_y",               &gtr100y_hit_y );
+   outtree->Branch("gtr100y_hit_ty",              &gtr100y_hit_ty);
+   outtree->Branch("gtr100y_hit_t",               &gtr100y_hit_t );
+   outtree->Branch("gtr100y_hit_adc",             &gtr100y_hit_adc);
+   outtree->Branch("n_gtr100yb_hits",             &n_gtr100yb_hits);
+   outtree->Branch("gtr100yb_hit_id",             &gtr100yb_hit_id);
+   outtree->Branch("gtr100yb_hit_mid",            &gtr100yb_hit_mid);
+   outtree->Branch("gtr100yb_hit_cid",            &gtr100yb_hit_cid);
+   outtree->Branch("gtr100yb_hit_y",              &gtr100yb_hit_y);
+   outtree->Branch("gtr100yb_hit_ty",             &gtr100yb_hit_ty );
+   outtree->Branch("gtr100yb_hit_t",              &gtr100yb_hit_t);
+   outtree->Branch("gtr100yb_hit_adc",            &gtr100yb_hit_adc);
+   outtree->Branch("n_gtr200y_hits",              &n_gtr200y_hits);
+   outtree->Branch("gtr200y_hit_id",              &gtr200y_hit_id);
+   outtree->Branch("gtr200y_hit_mid",             &gtr200y_hit_mid);
+   outtree->Branch("gtr200y_hit_cid",             &gtr200y_hit_cid);
+   outtree->Branch("gtr200y_hit_y",               &gtr200y_hit_y);
+   outtree->Branch("gtr200y_hit_ty",              &gtr200y_hit_ty);
+   outtree->Branch("gtr200y_hit_t",               &gtr200y_hit_t);
+   outtree->Branch("gtr200y_hit_adc",             &gtr200y_hit_adc);
+   outtree->Branch("n_gtr300y_hits",              &n_gtr300y_hits);
+   outtree->Branch("gtr300y_hit_id",              &gtr300y_hit_id);
+   outtree->Branch("gtr300y_hit_mid",             &gtr300y_hit_mid);
+   outtree->Branch("gtr300y_hit_cid",             &gtr300y_hit_cid);
+   outtree->Branch("gtr300y_hit_y",               &gtr300y_hit_y);
+   outtree->Branch("gtr300y_hit_ty",              &gtr300y_hit_ty);
+   outtree->Branch("gtr300y_hit_t",               &gtr300y_hit_t);
+   outtree->Branch("gtr300y_hit_adc",             &gtr300y_hit_adc);
+   outtree->Branch("n_hbd_hits",                  &n_hbd_hits      );
+   outtree->Branch("hbd_hit_id",                  &hbd_hit_id  );
+   outtree->Branch("hbd_hit_mid",                 &hbd_hit_mid );
+   outtree->Branch("hbd_hit_cid",                 &hbd_hit_cid );
+   outtree->Branch("hbd_hit_x",                   &hbd_hit_x);
+   outtree->Branch("hbd_hit_y",                   &hbd_hit_y);
+   outtree->Branch("hbd_hit_gx",                  &hbd_hit_gx);
+   outtree->Branch("hbd_hit_gy",                  &hbd_hit_gy);
+   outtree->Branch("hbd_hit_gz",                  &hbd_hit_gz);
+   outtree->Branch("hbd_hit_t",                   &hbd_hit_t );
+   outtree->Branch("hbd_hit_adc",                 &hbd_hit_adc);
+   outtree->Branch("n_sts_clusters",              &n_sts_clusters);
+   outtree->Branch("sts_cluster_id",              &sts_cluster_id);
+   outtree->Branch("sts_cluster_mid",             &sts_cluster_mid);
+   outtree->Branch("sts_cluster_x",               &sts_cluster_x);
+   outtree->Branch("sts_cluster_gx",              &sts_cluster_gx);
+   outtree->Branch("sts_cluster_gz",              &sts_cluster_gz);
+   outtree->Branch("sts_cluster_adc",             &sts_cluster_adc);
+   outtree->Branch("sts_cluster_t",               &sts_cluster_t );
+   outtree->Branch("sts_cluster_size",            &sts_cluster_size);
+   outtree->Branch("sts_cluster_fit_x",           &sts_cluster_fit_x);
+   outtree->Branch("sts_cluster_fit_t",           &sts_cluster_fit_t);
+   outtree->Branch("sts_cluster_fit_adc",         &sts_cluster_fit_adc);
+   outtree->Branch("sts_cluster_fit_chi2",        &sts_cluster_fit_chi2);
+   outtree->Branch("n_gtr100x_clusters",          &n_gtr100x_clusters );
+   outtree->Branch("gtr100x_cluster_id",          &gtr100x_cluster_id );
+   outtree->Branch("gtr100x_cluster_mid",         &gtr100x_cluster_mid);
+   outtree->Branch("gtr100x_cluster_x",           &gtr100x_cluster_x );
+   outtree->Branch("gtr100x_cluster_gx",          &gtr100x_cluster_gx);
+   outtree->Branch("gtr100x_cluster_gz",          &gtr100x_cluster_gz);
+   outtree->Branch("gtr100x_cluster_adc",         &gtr100x_cluster_adc);
+   outtree->Branch("gtr100x_cluster_t",           &gtr100x_cluster_t );
+   outtree->Branch("gtr100x_cluster_t2",          &gtr100x_cluster_t2);
+   outtree->Branch("gtr100x_cluster_tx",          &gtr100x_cluster_tx);
+   outtree->Branch("gtr100x_cluster_the",         &gtr100x_cluster_the);
+   outtree->Branch("gtr100x_cluster_gtx",         &gtr100x_cluster_gtx);
+   outtree->Branch("gtr100x_cluster_nc",          &gtr100x_cluster_nc);
+   outtree->Branch("gtr100x_cluster_size",        &gtr100x_cluster_size);
+   outtree->Branch("n_gtr200x_clusters",          &n_gtr200x_clusters );
+   outtree->Branch("gtr200x_cluster_id",          &gtr200x_cluster_id );
+   outtree->Branch("gtr200x_cluster_mid",         &gtr200x_cluster_mid);
+   outtree->Branch("gtr200x_cluster_x",           &gtr200x_cluster_x );
+   outtree->Branch("gtr200x_cluster_gx",          &gtr200x_cluster_gx);
+   outtree->Branch("gtr200x_cluster_gz",          &gtr200x_cluster_gz);
+   outtree->Branch("gtr200x_cluster_adc",         &gtr200x_cluster_adc);
+   outtree->Branch("gtr200x_cluster_t",           &gtr200x_cluster_t );
+   outtree->Branch("gtr200x_cluster_t2",          &gtr200x_cluster_t2);
+   outtree->Branch("gtr200x_cluster_tx",          &gtr200x_cluster_tx);
+   outtree->Branch("gtr200x_cluster_the",         &gtr200x_cluster_the);
+   outtree->Branch("gtr200x_cluster_nc",          &gtr200x_cluster_nc);
+   outtree->Branch("gtr200x_cluster_gtx",         &gtr200x_cluster_gtx);
+   outtree->Branch("gtr200x_cluster_size",        &gtr200x_cluster_size);
+   outtree->Branch("n_gtr300x_clusters",          &n_gtr300x_clusters );
+   outtree->Branch("gtr300x_cluster_id",          &gtr300x_cluster_id );
+   outtree->Branch("gtr300x_cluster_mid",         &gtr300x_cluster_mid);
+   outtree->Branch("gtr300x_cluster_x",           &gtr300x_cluster_x );
+   outtree->Branch("gtr300x_cluster_gx",          &gtr300x_cluster_gx);
+   outtree->Branch("gtr300x_cluster_gz",          &gtr300x_cluster_gz );
+   outtree->Branch("gtr300x_cluster_adc",         &gtr300x_cluster_adc);
+   outtree->Branch("gtr300x_cluster_t",           &gtr300x_cluster_t );
+   outtree->Branch("gtr300x_cluster_t2",          &gtr300x_cluster_t2);
+   outtree->Branch("gtr300x_cluster_tx",          &gtr300x_cluster_tx);
+   outtree->Branch("gtr300x_cluster_the",         &gtr300x_cluster_the);
+   outtree->Branch("gtr300x_cluster_nc",          &gtr300x_cluster_nc);
+   outtree->Branch("gtr300x_cluster_gtx",         &gtr300x_cluster_gtx );
+   outtree->Branch("gtr300x_cluster_size",        &gtr300x_cluster_size);
+   outtree->Branch("n_gtr100y_clusters",          &n_gtr100y_clusters);
+   outtree->Branch("gtr100y_cluster_id",          &gtr100y_cluster_id);
+   outtree->Branch("gtr100y_cluster_mid",         &gtr100y_cluster_mid );
+   outtree->Branch("gtr100y_cluster_y",           &gtr100y_cluster_y   );
+   outtree->Branch("gtr100y_cluster_adc",         &gtr100y_cluster_adc);
+   outtree->Branch("gtr100y_cluster_t",           &gtr100y_cluster_t );
+   outtree->Branch("gtr100y_cluster_t2",          &gtr100y_cluster_t2);
+   outtree->Branch("gtr100y_cluster_ty",          &gtr100y_cluster_ty);
+   outtree->Branch("gtr100y_cluster_the",         &gtr100y_cluster_the);
+   outtree->Branch("gtr100y_cluster_nc",          &gtr100y_cluster_nc);
+   outtree->Branch("gtr100y_cluster_size",        &gtr100y_cluster_size);
+   outtree->Branch("n_gtr100yb_clusters",         &n_gtr100yb_clusters);
+   outtree->Branch("gtr100yb_cluster_id",         &gtr100yb_cluster_id );
+   outtree->Branch("gtr100yb_cluster_mid",        &gtr100yb_cluster_mid);
+   outtree->Branch("gtr100yb_cluster_y",          &gtr100yb_cluster_y );
+   outtree->Branch("gtr100yb_cluster_adc",        &gtr100yb_cluster_adc);
+   outtree->Branch("gtr100yb_cluster_t",          &gtr100yb_cluster_t );
+   outtree->Branch("gtr100yb_cluster_t2",         &gtr100yb_cluster_t2);
+   outtree->Branch("gtr100yb_cluster_ty",         &gtr100yb_cluster_ty);
+   outtree->Branch("gtr100yb_cluster_the",        &gtr100yb_cluster_the);
+   outtree->Branch("gtr100yb_cluster_nc",         &gtr100yb_cluster_nc);
+   outtree->Branch("gtr100yb_cluster_size",     &gtr100yb_cluster_size);
+   outtree->Branch("n_gtr200y_clusters",        &n_gtr200y_clusters);
+   outtree->Branch("gtr200y_cluster_id",        &gtr200y_cluster_id);
+   outtree->Branch("gtr200y_cluster_mid",       &gtr200y_cluster_mid);
+   outtree->Branch("gtr200y_cluster_y",         &gtr200y_cluster_y);
+   outtree->Branch("gtr200y_cluster_adc",       &gtr200y_cluster_adc);
+   outtree->Branch("gtr200y_cluster_t",         &gtr200y_cluster_t);
+   outtree->Branch("gtr200y_cluster_t2",        &gtr200y_cluster_t2);
+   outtree->Branch("gtr200y_cluster_ty",        &gtr200y_cluster_ty);
+   outtree->Branch("gtr200y_cluster_the",       &gtr200y_cluster_the);
+   outtree->Branch("gtr200y_cluster_nc",        &gtr200y_cluster_nc);
+   outtree->Branch("gtr200y_cluster_size",      &gtr200y_cluster_size);
+   outtree->Branch("n_gtr300y_clusters",        &n_gtr300y_clusters);
+   outtree->Branch("gtr300y_cluster_id",        &gtr300y_cluster_id);
+   outtree->Branch("gtr300y_cluster_mid",       &gtr300y_cluster_mid);
+   outtree->Branch("gtr300y_cluster_y",         &gtr300y_cluster_y);
+   outtree->Branch("gtr300y_cluster_adc",       &gtr300y_cluster_adc);
+   outtree->Branch("gtr300y_cluster_t",         &gtr300y_cluster_t);
+   outtree->Branch("gtr300y_cluster_t2",        &gtr300y_cluster_t2);
+   outtree->Branch("gtr300y_cluster_ty",        &gtr300y_cluster_ty);
+   outtree->Branch("gtr300y_cluster_the",       &gtr300y_cluster_the);
+   outtree->Branch("gtr300y_cluster_nc",        &gtr300y_cluster_nc);
+   outtree->Branch("gtr300y_cluster_size",      &gtr300y_cluster_size);
+   outtree->Branch("n_hbd_clusters",            &n_hbd_clusters);
+   outtree->Branch("hbd_cluster_id",            &hbd_cluster_id);
+   outtree->Branch("hbd_cluster_mid",           &hbd_cluster_mid);
+   outtree->Branch("hbd_cluster_x",             &hbd_cluster_x);
+   outtree->Branch("hbd_cluster_y",             &hbd_cluster_y);
+   outtree->Branch("hbd_cluster_gx",            &hbd_cluster_gx);
+   outtree->Branch("hbd_cluster_gy",            &hbd_cluster_gy);
+   outtree->Branch("hbd_cluster_gz",            &hbd_cluster_gz);
+   outtree->Branch("hbd_cluster_adc",           &hbd_cluster_adc);
+   outtree->Branch("hbd_cluster_max_cid",       &hbd_cluster_max_cid);
+   outtree->Branch("hbd_cluster_t",             &hbd_cluster_t);
+   outtree->Branch("hbd_cluster_ftime",         &hbd_cluster_ftime);
+   outtree->Branch("hbd_cluster_tdiff",         &hbd_cluster_tdiff);
+   outtree->Branch("hbd_cluster_size",          &hbd_cluster_size);
+   outtree->Branch("hbd_cluster_eprob",         &hbd_cluster_eprob);
+   outtree->Branch("hbd_cluster_cprob",         &hbd_cluster_cprob);
+   outtree->Branch("n_hbd_clusters_wotime",     &n_hbd_clusters_wotime);
+   outtree->Branch("hbd_cluster_wotime_id",     &hbd_cluster_wotime_id);
+   outtree->Branch("hbd_cluster_wotime_mid",    &hbd_cluster_wotime_mid);
+   outtree->Branch("hbd_cluster_wotime_x",      &hbd_cluster_wotime_x);
+   outtree->Branch("hbd_cluster_wotime_y",      &hbd_cluster_wotime_y);
+   outtree->Branch("hbd_cluster_wotime_gx",     &hbd_cluster_wotime_gx);
+   outtree->Branch("hbd_cluster_wotime_gy",     &hbd_cluster_wotime_gy);
+   outtree->Branch("hbd_cluster_wotime_gz",     &hbd_cluster_wotime_gz);
+   outtree->Branch("hbd_cluster_wotime_adc",    &hbd_cluster_wotime_adc);
+   outtree->Branch("hbd_cluster_wotime_max_cid",&hbd_cluster_wotime_max_cid);
+   outtree->Branch("hbd_cluster_wotime_t",    &hbd_cluster_wotime_t);
+   outtree->Branch("hbd_cluster_wotime_ftime",&hbd_cluster_wotime_ftime);
+   outtree->Branch("hbd_cluster_wotime_tdiff",&hbd_cluster_wotime_tdiff);
+   outtree->Branch("hbd_cluster_wotime_size", &hbd_cluster_wotime_size );
+   outtree->Branch("hbd_cluster_wotime_eprob",&hbd_cluster_wotime_eprob);
+   outtree->Branch("hbd_cluster_wotime_cprob",&hbd_cluster_wotime_cprob);
+   outtree->Branch("n_lg_hits",               &n_lg_hits);
+   outtree->Branch("lg_hit_id",               &lg_hit_id);
+   outtree->Branch("lg_hit_mid",              &lg_hit_mid);
+   outtree->Branch("lg_hit_cid",              &lg_hit_cid);
+   outtree->Branch("lg_hit_x",                &lg_hit_x );
+   outtree->Branch("lg_hit_y",                &lg_hit_y );
+   outtree->Branch("lg_hit_z",                &lg_hit_z );
+   outtree->Branch("lg_hit_gx"  ,             &lg_hit_gx);
+   outtree->Branch("lg_hit_gy"  ,             &lg_hit_gy);
+   outtree->Branch("lg_hit_gz"  ,             &lg_hit_gz);
+   outtree->Branch("lg_hit_adc",             &lg_hit_adc);
+   outtree->Branch("lg_hit_t",                &lg_hit_t );
+   outtree->Branch("lg_hit_wofit_adc",        &lg_hit_wofit_adc);
+   outtree->Branch("lg_hit_wofit_t",          &lg_hit_wofit_t);
+   outtree->Branch("lg_hit_npeaks",           &lg_hit_npeaks);
+   outtree->Branch("lg_hit_fflag",            &lg_hit_fflag);
+   outtree->Branch("pre_n_lg_hits",               &pre_n_lg_hits);
+//   outtree->Branch("pre_lg_hit_id",               &pre_lg_hit_id);
+//   outtree->Branch("pre_lg_hit_mid",              &pre_lg_hit_mid);
+//   outtree->Branch("pre_lg_hit_cid",              &pre_lg_hit_cid);
+//   outtree->Branch("pre_lg_hit_x",                &pre_lg_hit_x );
+//   outtree->Branch("pre_lg_hit_y",                &pre_lg_hit_y );
+//   outtree->Branch("pre_lg_hit_z",                &pre_lg_hit_z );
+//   outtree->Branch("pre_lg_hit_gx"  ,             &pre_lg_hit_gx);
+//   outtree->Branch("pre_lg_hit_gy"  ,             &pre_lg_hit_gy);
+//   outtree->Branch("pre_lg_hit_gz"  ,             &pre_lg_hit_gz);
+//   outtree->Branch("pre_lg_hit_adc",              &pre_lg_hit_adc);
+//   outtree->Branch("pre_lg_hit_t",                &pre_lg_hit_t );
+//   outtree->Branch("pre_lg_hit_wofit_adc",        &pre_lg_hit_wofit_adc);
+//   outtree->Branch("pre_lg_hit_wofit_t",          &pre_lg_hit_wofit_t);
+//   outtree->Branch("pre_lg_hit_npeaks",           &pre_lg_hit_npeaks);
+//   outtree->Branch("pre_lg_hit_fflag",            &pre_lg_hit_fflag);
+
+   outtree->Branch("n_lg_clusters",           &n_lg_clusters);
+   outtree->Branch("lg_cluster_id",           &lg_cluster_id);
+   outtree->Branch("lg_cluster_mid",          &lg_cluster_mid);
+   outtree->Branch("lg_cluster_max_cid",      &lg_cluster_max_cid);
+   outtree->Branch("lg_cluster_max_adc",      &lg_cluster_max_adc);
+   outtree->Branch("lg_cluster_x",            &lg_cluster_x);
+   outtree->Branch("lg_cluster_y",            &lg_cluster_y);
+   outtree->Branch("lg_cluster_z",            &lg_cluster_z);
+   outtree->Branch("lg_cluster_gx",           &lg_cluster_gx);
+   outtree->Branch("lg_cluster_gy",           &lg_cluster_gy);
+   outtree->Branch("lg_cluster_gz",           &lg_cluster_gz);
+   outtree->Branch("lg_cluster_adc"    ,      &lg_cluster_adc);
+   outtree->Branch("lg_cluster_t",            &lg_cluster_t  );
+   outtree->Branch("lg_cluster_tdiff",        &lg_cluster_tdiff);
+   outtree->Branch("lg_cluster_size",         &lg_cluster_size);
+   outtree->Branch("n_trg_gtr_hits",          &n_trg_gtr_hits);
+   outtree->Branch("trg_gtr_hit_id",          &trg_gtr_hit_id);
+   outtree->Branch("trg_gtr_hit_mid",         &trg_gtr_hit_mid);
+   outtree->Branch("trg_gtr_hit_cid",         &trg_gtr_hit_cid);
+   outtree->Branch("trg_gtr_hit_x",           &trg_gtr_hit_x);
+   outtree->Branch("trg_gtr_hit_y",           &trg_gtr_hit_y);
+   outtree->Branch("trg_gtr_hit_gx",          &trg_gtr_hit_gx);
+   outtree->Branch("trg_gtr_hit_gy",          &trg_gtr_hit_gy);
+   outtree->Branch("trg_gtr_hit_gz",          &trg_gtr_hit_gz);
+   outtree->Branch("trg_gtr_hit_t",           &trg_gtr_hit_t);
+   outtree->Branch("n_trg_hbd_hits",          &n_trg_hbd_hits);
+   outtree->Branch("trg_hbd_hit_id",          &trg_hbd_hit_id);
+   outtree->Branch("trg_hbd_hit_mid",         &trg_hbd_hit_mid);
+   outtree->Branch("trg_hbd_hit_cid",         &trg_hbd_hit_cid);
+   outtree->Branch("trg_hbd_hit_x",           &trg_hbd_hit_x);
+   outtree->Branch("trg_hbd_hit_y",           &trg_hbd_hit_y);
+   outtree->Branch("trg_hbd_hit_gx",          &trg_hbd_hit_gx);
+   outtree->Branch("trg_hbd_hit_gy",          &trg_hbd_hit_gy);
+   outtree->Branch("trg_hbd_hit_gz",          &trg_hbd_hit_gz);
+   outtree->Branch("trg_hbd_hit_t",           &trg_hbd_hit_t);
+   outtree->Branch("n_trg_lg_hits",           &n_trg_lg_hits);
+   outtree->Branch("trg_lg_hit_id",           &trg_lg_hit_id);
+   outtree->Branch("trg_lg_hit_mid",          &trg_lg_hit_mid);
+   outtree->Branch("trg_lg_hit_cid",          &trg_lg_hit_cid);
+   outtree->Branch("trg_lg_hit_x",            &trg_lg_hit_x); 
+   outtree->Branch("trg_lg_hit_y",            &trg_lg_hit_y); 
+   outtree->Branch("trg_lg_hit_z",            &trg_lg_hit_z); 
+   outtree->Branch("trg_lg_hit_gx",           &trg_lg_hit_gx);
+   outtree->Branch("trg_lg_hit_gy",           &trg_lg_hit_gy);
+   outtree->Branch("trg_lg_hit_gz",           &trg_lg_hit_gz);
+   outtree->Branch("trg_lg_hit_t",            &trg_lg_hit_t);
+   outtree->Branch("n_trg_tracks",            &n_trg_tracks); 
+   outtree->Branch("trg_track_n_gtr_hits",    &trg_track_n_gtr_hits);
+   outtree->Branch("trg_track_gtr_id",        &trg_track_gtr_id);
+   outtree->Branch("trg_track_gtr_mid",       &trg_track_gtr_mid);
+   outtree->Branch("trg_track_gtr_cid",       &trg_track_gtr_cid);
+   outtree->Branch("trg_track_gtr_x",         &trg_track_gtr_x);
+   outtree->Branch("trg_track_gtr_y",         &trg_track_gtr_y);
+   outtree->Branch("trg_track_gtr_t",         &trg_track_gtr_t);
+   outtree->Branch("trg_track_gtr_is_t_match",&trg_track_gtr_is_t_match);
+   outtree->Branch("trg_track_n_hbd_hits",    &trg_track_n_hbd_hits);
+   outtree->Branch("trg_track_hbd_id",        &trg_track_hbd_id);
+   outtree->Branch("trg_track_hbd_mid",       &trg_track_hbd_mid);
+   outtree->Branch("trg_track_hbd_cid",       &trg_track_hbd_cid);
+   outtree->Branch("trg_track_hbd_x",         &trg_track_hbd_x);
+   outtree->Branch("trg_track_hbd_y",         &trg_track_hbd_y);
+   outtree->Branch("trg_track_hbd_t",         &trg_track_hbd_t);
+   outtree->Branch("trg_track_hbd_is_t_match",&trg_track_hbd_is_t_match);
+   outtree->Branch("trg_track_lg_id",        &trg_track_lg_id);
+   outtree->Branch("trg_track_lg_mid",       &trg_track_lg_mid);
+   outtree->Branch("trg_track_lg_cid",       &trg_track_lg_cid);
+   outtree->Branch("trg_track_lg_x",         &trg_track_lg_x);
+   outtree->Branch("trg_track_lg_y",         &trg_track_lg_y);
+   outtree->Branch("trg_track_lg_t",         &trg_track_lg_t);
+   outtree->Branch("n_x_cands",              &n_x_cands);
+   outtree->Branch("n_y_cands",              &n_y_cands);
+
+   outtree->Branch("n_selected",             &n_selected);
+   outtree->Branch("n_refit_pairs",          &n_refit_pairs);
+
+   outtree->Branch("n_cands",                &n_cands);
+   outtree->Branch("n_pairs",                &n_pairs);
+
+	outtree->Branch("n_alive_tracks",         &out_n_alive_tracks);
+
    outtree->Branch("track_id",               &out_track_id);
    outtree->Branch("has_e_hbd_cluster",      &out_has_e_hbd_cluster);
    outtree->Branch("has_e_lg_hit",           &out_has_e_lg_hit);
@@ -4004,8 +4386,8 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rough_fit_hbd_ress",     &out_rough_fit_hbd_ress);
    outtree->Branch("rough_fit_hbd_y_oks",    &out_rough_fit_hbd_y_oks);
    outtree->Branch("y_rough_fit_chi_square", &out_y_rough_fit_chi_square);
-   outtree->Branch("y_rough_fit_coef0",   &out_y_rough_fit_coef0);
-   outtree->Branch("y_rough_fit_coef1",   &out_y_rough_fit_coef1);
+   outtree->Branch("y_rough_fit_coef0",  	   &out_y_rough_fit_coef0);
+   outtree->Branch("y_rough_fit_coef1",      &out_y_rough_fit_coef1);
    outtree->Branch("chi_square",          &out_chi_square);
    outtree->Branch("n_steps",             &out_n_steps);
    outtree->Branch("n_calls",             &out_n_calls);
@@ -4016,14 +4398,14 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_init_pos_gx",  &out_rk_hit_init_pos_gx);
    outtree->Branch("rk_hit_init_pos_gy",  &out_rk_hit_init_pos_gy);
    outtree->Branch("rk_hit_init_pos_gz",  &out_rk_hit_init_pos_gz);
-   outtree->Branch("rk_hit_ssd_id",       &out_rk_hit_ssd_id);
-   outtree->Branch("rk_hit_ssd_x",        &out_rk_hit_ssd_x);
-   outtree->Branch("rk_hit_ssd_gx",       &out_rk_hit_ssd_gx);
-   outtree->Branch("rk_hit_ssd_gy",       &out_rk_hit_ssd_gy);
-   outtree->Branch("rk_hit_ssd_gz",       &out_rk_hit_ssd_gz);
-   outtree->Branch("rk_hit_ssd_adc"     , &out_rk_hit_ssd_adc);
-   outtree->Branch("rk_hit_ssd_t",        &out_rk_hit_ssd_t);
-   outtree->Branch("rk_hit_ssd_chi2",     &out_rk_hit_ssd_chi2);
+   outtree->Branch("rk_hit_sts_id",       &out_rk_hit_sts_id);
+   outtree->Branch("rk_hit_sts_x",        &out_rk_hit_sts_x);
+   outtree->Branch("rk_hit_sts_gx",       &out_rk_hit_sts_gx);
+   outtree->Branch("rk_hit_sts_gy",       &out_rk_hit_sts_gy);
+   outtree->Branch("rk_hit_sts_gz",       &out_rk_hit_sts_gz);
+   outtree->Branch("rk_hit_sts_adc"     , &out_rk_hit_sts_adc);
+   outtree->Branch("rk_hit_sts_t",        &out_rk_hit_sts_t);
+   outtree->Branch("rk_hit_sts_chi2",     &out_rk_hit_sts_chi2);
    outtree->Branch("rk_hit_gtr100_xid",   &out_rk_hit_gtr100_xid);
    outtree->Branch("rk_hit_gtr100_yid",   &out_rk_hit_gtr100_yid);
    outtree->Branch("rk_hit_gtr100_gx",    &out_rk_hit_gtr100_gx);
@@ -4096,18 +4478,18 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_fit_init_pos_gx",  &out_rk_fit_init_pos_gx);
    outtree->Branch("rk_fit_init_pos_gy",  &out_rk_fit_init_pos_gy);
    outtree->Branch("rk_fit_init_pos_gz",  &out_rk_fit_init_pos_gz);
-   outtree->Branch("rk_fit_ssd_mid",      &out_rk_fit_ssd_mid);
-   outtree->Branch("rk_fit_ssd_x",        &out_rk_fit_ssd_x);
-   outtree->Branch("rk_fit_ssd_y",        &out_rk_fit_ssd_y);
-   outtree->Branch("rk_fit_ssd_gx",       &out_rk_fit_ssd_gx);
-   outtree->Branch("rk_fit_ssd_gy",       &out_rk_fit_ssd_gy);
-   outtree->Branch("rk_fit_ssd_gz",       &out_rk_fit_ssd_gz);
-   outtree->Branch("rk_fit_ssd_mom_x",    &out_rk_fit_ssd_mom_x);
-   outtree->Branch("rk_fit_ssd_mom_y",    &out_rk_fit_ssd_mom_y);
-   outtree->Branch("rk_fit_ssd_mom_z",    &out_rk_fit_ssd_mom_z);
-   outtree->Branch("rk_fit_ssd_mom_gx",   &out_rk_fit_ssd_mom_gx);
-   outtree->Branch("rk_fit_ssd_mom_gy",   &out_rk_fit_ssd_mom_gy);
-   outtree->Branch("rk_fit_ssd_mom_gz",   &out_rk_fit_ssd_mom_gz);
+   outtree->Branch("rk_fit_sts_mid",      &out_rk_fit_sts_mid);
+   outtree->Branch("rk_fit_sts_x",        &out_rk_fit_sts_x);
+   outtree->Branch("rk_fit_sts_y",        &out_rk_fit_sts_y);
+   outtree->Branch("rk_fit_sts_gx",       &out_rk_fit_sts_gx);
+   outtree->Branch("rk_fit_sts_gy",       &out_rk_fit_sts_gy);
+   outtree->Branch("rk_fit_sts_gz",       &out_rk_fit_sts_gz);
+   outtree->Branch("rk_fit_sts_mom_x",    &out_rk_fit_sts_mom_x);
+   outtree->Branch("rk_fit_sts_mom_y",    &out_rk_fit_sts_mom_y);
+   outtree->Branch("rk_fit_sts_mom_z",    &out_rk_fit_sts_mom_z);
+   outtree->Branch("rk_fit_sts_mom_gx",   &out_rk_fit_sts_mom_gx);
+   outtree->Branch("rk_fit_sts_mom_gy",   &out_rk_fit_sts_mom_gy);
+   outtree->Branch("rk_fit_sts_mom_gz",   &out_rk_fit_sts_mom_gz);
    outtree->Branch("rk_fit_gtr100_mid",   &out_rk_fit_gtr100_mid);
    outtree->Branch("rk_fit_gtr100_x",     &out_rk_fit_gtr100_x);
    outtree->Branch("rk_fit_gtr100_y",     &out_rk_fit_gtr100_y);
@@ -4198,7 +4580,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_res_init_mom_gx",  &out_rk_res_init_mom_gx);
    outtree->Branch("rk_res_init_mom_gy",  &out_rk_res_init_mom_gy);
    outtree->Branch("rk_res_init_mom_gz",  &out_rk_res_init_mom_gz);
-   outtree->Branch("rk_res_ssd_x",        &out_rk_res_ssd_x      );
+   outtree->Branch("rk_res_sts_x",        &out_rk_res_sts_x      );
    outtree->Branch("rk_res_gtr100_x",     &out_rk_res_gtr100_x);
    outtree->Branch("rk_res_gtr100_y",     &out_rk_res_gtr100_y);
    outtree->Branch("rk_res_gtr200_x",     &out_rk_res_gtr200_x);
@@ -4267,7 +4649,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_minus_mom_gx",             &out_rk_pair_minus_mom_gx);
    outtree->Branch("rk_pair_minus_mom_gy",             &out_rk_pair_minus_mom_gy);
    outtree->Branch("rk_pair_minus_mom_gz",             &out_rk_pair_minus_mom_gz);
-   outtree->Branch("rk_pair_minus_ssd_t",              &out_rk_pair_minus_ssd_t);
+   outtree->Branch("rk_pair_minus_sts_t",              &out_rk_pair_minus_sts_t);
    outtree->Branch("rk_pair_minus_lg_t",               &out_rk_pair_minus_lg_t);
    outtree->Branch("rk_pair_plus_track_id",            &out_rk_pair_plus_track_id);
    outtree->Branch("rk_pair_plus_gtr300_mid",          &out_rk_pair_plus_gtr300_mid);
@@ -4275,7 +4657,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_plus_mom_gx",              &out_rk_pair_plus_mom_gx);
    outtree->Branch("rk_pair_plus_mom_gy",              &out_rk_pair_plus_mom_gy);
    outtree->Branch("rk_pair_plus_mom_gz",              &out_rk_pair_plus_mom_gz);
-   outtree->Branch("rk_pair_plus_ssd_t",               &out_rk_pair_plus_ssd_t );
+   outtree->Branch("rk_pair_plus_sts_t",               &out_rk_pair_plus_sts_t );
    outtree->Branch("rk_pair_plus_lg_t",                &out_rk_pair_plus_lg_t  );
    outtree->Branch("rk_pair_distance",                 &out_rk_pair_distance   );
    outtree->Branch("rk_pair_vtx_gx",                   &out_rk_pair_vtx_gx);
@@ -4293,9 +4675,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_plus_mom_refit_gx",        &out_rk_pair_plus_mom_refit_gx);
    outtree->Branch("rk_pair_plus_mom_refit_gy",        &out_rk_pair_plus_mom_refit_gy);
    outtree->Branch("rk_pair_plus_mom_refit_gz",        &out_rk_pair_plus_mom_refit_gz);
-   outtree->Branch("rk_pair_minus_ssd_pos_refit_gx",   &out_rk_pair_minus_ssd_pos_refit_gx);
-   outtree->Branch("rk_pair_minus_ssd_pos_refit_gy",   &out_rk_pair_minus_ssd_pos_refit_gy);
-   outtree->Branch("rk_pair_minus_ssd_pos_refit_gz",   &out_rk_pair_minus_ssd_pos_refit_gz);
+   outtree->Branch("rk_pair_minus_sts_pos_refit_gx",   &out_rk_pair_minus_sts_pos_refit_gx);
+   outtree->Branch("rk_pair_minus_sts_pos_refit_gy",   &out_rk_pair_minus_sts_pos_refit_gy);
+   outtree->Branch("rk_pair_minus_sts_pos_refit_gz",   &out_rk_pair_minus_sts_pos_refit_gz);
    outtree->Branch("rk_pair_minus_gtr100_pos_refit_gx",&out_rk_pair_minus_gtr100_pos_refit_gx);
    outtree->Branch("rk_pair_minus_gtr100_pos_refit_gy",&out_rk_pair_minus_gtr100_pos_refit_gy);
    outtree->Branch("rk_pair_minus_gtr100_pos_refit_gz",&out_rk_pair_minus_gtr100_pos_refit_gz);
@@ -4305,9 +4687,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_minus_gtr300_pos_refit_gx",&out_rk_pair_minus_gtr300_pos_refit_gx);
    outtree->Branch("rk_pair_minus_gtr300_pos_refit_gy",&out_rk_pair_minus_gtr300_pos_refit_gy);
    outtree->Branch("rk_pair_minus_gtr300_pos_refit_gz",&out_rk_pair_minus_gtr300_pos_refit_gz);
-   outtree->Branch("rk_pair_plus_ssd_pos_refit_gx",    &out_rk_pair_plus_ssd_pos_refit_gx   );
-   outtree->Branch("rk_pair_plus_ssd_pos_refit_gy",    &out_rk_pair_plus_ssd_pos_refit_gy   );
-   outtree->Branch("rk_pair_plus_ssd_pos_refit_gz",    &out_rk_pair_plus_ssd_pos_refit_gz   );
+   outtree->Branch("rk_pair_plus_sts_pos_refit_gx",    &out_rk_pair_plus_sts_pos_refit_gx   );
+   outtree->Branch("rk_pair_plus_sts_pos_refit_gy",    &out_rk_pair_plus_sts_pos_refit_gy   );
+   outtree->Branch("rk_pair_plus_sts_pos_refit_gz",    &out_rk_pair_plus_sts_pos_refit_gz   );
    outtree->Branch("rk_pair_plus_gtr100_pos_refit_gx", &out_rk_pair_plus_gtr100_pos_refit_gx);
    outtree->Branch("rk_pair_plus_gtr100_pos_refit_gy", &out_rk_pair_plus_gtr100_pos_refit_gy);
    outtree->Branch("rk_pair_plus_gtr100_pos_refit_gz", &out_rk_pair_plus_gtr100_pos_refit_gz);
@@ -4317,9 +4699,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_plus_gtr300_pos_refit_gx", &out_rk_pair_plus_gtr300_pos_refit_gx);
    outtree->Branch("rk_pair_plus_gtr300_pos_refit_gy", &out_rk_pair_plus_gtr300_pos_refit_gy);
    outtree->Branch("rk_pair_plus_gtr300_pos_refit_gz", &out_rk_pair_plus_gtr300_pos_refit_gz);
-   outtree->Branch("rk_pair_minus_ssd_mom_refit_gx",   &out_rk_pair_minus_ssd_mom_refit_gx);
-   outtree->Branch("rk_pair_minus_ssd_mom_refit_gy",   &out_rk_pair_minus_ssd_mom_refit_gy);
-   outtree->Branch("rk_pair_minus_ssd_mom_refit_gz",   &out_rk_pair_minus_ssd_mom_refit_gz);
+   outtree->Branch("rk_pair_minus_sts_mom_refit_gx",   &out_rk_pair_minus_sts_mom_refit_gx);
+   outtree->Branch("rk_pair_minus_sts_mom_refit_gy",   &out_rk_pair_minus_sts_mom_refit_gy);
+   outtree->Branch("rk_pair_minus_sts_mom_refit_gz",   &out_rk_pair_minus_sts_mom_refit_gz);
    outtree->Branch("rk_pair_minus_gtr100_mom_refit_gx",&out_rk_pair_minus_gtr100_mom_refit_gx);
    outtree->Branch("rk_pair_minus_gtr100_mom_refit_gy",&out_rk_pair_minus_gtr100_mom_refit_gy);
    outtree->Branch("rk_pair_minus_gtr100_mom_refit_gz",&out_rk_pair_minus_gtr100_mom_refit_gz);
@@ -4329,9 +4711,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_minus_gtr300_mom_refit_gx",&out_rk_pair_minus_gtr300_mom_refit_gx);
    outtree->Branch("rk_pair_minus_gtr300_mom_refit_gy",&out_rk_pair_minus_gtr300_mom_refit_gy);
    outtree->Branch("rk_pair_minus_gtr300_mom_refit_gz",&out_rk_pair_minus_gtr300_mom_refit_gz);
-   outtree->Branch("rk_pair_plus_ssd_mom_refit_gx",    &out_rk_pair_plus_ssd_mom_refit_gx);
-   outtree->Branch("rk_pair_plus_ssd_mom_refit_gy",    &out_rk_pair_plus_ssd_mom_refit_gy);
-   outtree->Branch("rk_pair_plus_ssd_mom_refit_gz",    &out_rk_pair_plus_ssd_mom_refit_gz);
+   outtree->Branch("rk_pair_plus_sts_mom_refit_gx",    &out_rk_pair_plus_sts_mom_refit_gx);
+   outtree->Branch("rk_pair_plus_sts_mom_refit_gy",    &out_rk_pair_plus_sts_mom_refit_gy);
+   outtree->Branch("rk_pair_plus_sts_mom_refit_gz",    &out_rk_pair_plus_sts_mom_refit_gz);
    outtree->Branch("rk_pair_plus_gtr100_mom_refit_gx", &out_rk_pair_plus_gtr100_mom_refit_gx);
    outtree->Branch("rk_pair_plus_gtr100_mom_refit_gy", &out_rk_pair_plus_gtr100_mom_refit_gy);
    outtree->Branch("rk_pair_plus_gtr100_mom_refit_gz", &out_rk_pair_plus_gtr100_mom_refit_gz);
@@ -4341,9 +4723,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_plus_gtr300_mom_refit_gx", &out_rk_pair_plus_gtr300_mom_refit_gx);
    outtree->Branch("rk_pair_plus_gtr300_mom_refit_gy", &out_rk_pair_plus_gtr300_mom_refit_gy);
    outtree->Branch("rk_pair_plus_gtr300_mom_refit_gz", &out_rk_pair_plus_gtr300_mom_refit_gz);
-   outtree->Branch("rk_pair_minus_ssd_res_refit_x",    &out_rk_pair_minus_ssd_res_refit_x);
-   outtree->Branch("rk_pair_minus_ssd_res_refit_y",    &out_rk_pair_minus_ssd_res_refit_y);
-   outtree->Branch("rk_pair_minus_ssd_res_refit_z",    &out_rk_pair_minus_ssd_res_refit_z);
+   outtree->Branch("rk_pair_minus_sts_res_refit_x",    &out_rk_pair_minus_sts_res_refit_x);
+   outtree->Branch("rk_pair_minus_sts_res_refit_y",    &out_rk_pair_minus_sts_res_refit_y);
+   outtree->Branch("rk_pair_minus_sts_res_refit_z",    &out_rk_pair_minus_sts_res_refit_z);
    outtree->Branch("rk_pair_minus_gtr100_res_refit_x", &out_rk_pair_minus_gtr100_res_refit_x);
    outtree->Branch("rk_pair_minus_gtr100_res_refit_y", &out_rk_pair_minus_gtr100_res_refit_y);
    outtree->Branch("rk_pair_minus_gtr100_res_refit_z", &out_rk_pair_minus_gtr100_res_refit_z);
@@ -4353,9 +4735,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_pair_minus_gtr300_res_refit_x", &out_rk_pair_minus_gtr300_res_refit_x);
    outtree->Branch("rk_pair_minus_gtr300_res_refit_y", &out_rk_pair_minus_gtr300_res_refit_y);
    outtree->Branch("rk_pair_minus_gtr300_res_refit_z", &out_rk_pair_minus_gtr300_res_refit_z);
-   outtree->Branch("rk_pair_plus_ssd_res_refit_x",     &out_rk_pair_plus_ssd_res_refit_x)   ;
-   outtree->Branch("rk_pair_plus_ssd_res_refit_y",     &out_rk_pair_plus_ssd_res_refit_y)   ;
-   outtree->Branch("rk_pair_plus_ssd_res_refit_z",     &out_rk_pair_plus_ssd_res_refit_z)   ;
+   outtree->Branch("rk_pair_plus_sts_res_refit_x",     &out_rk_pair_plus_sts_res_refit_x)   ;
+   outtree->Branch("rk_pair_plus_sts_res_refit_y",     &out_rk_pair_plus_sts_res_refit_y)   ;
+   outtree->Branch("rk_pair_plus_sts_res_refit_z",     &out_rk_pair_plus_sts_res_refit_z)   ;
    outtree->Branch("rk_pair_plus_gtr100_res_refit_x",  &out_rk_pair_plus_gtr100_res_refit_x);
    outtree->Branch("rk_pair_plus_gtr100_res_refit_y",  &out_rk_pair_plus_gtr100_res_refit_y);
    outtree->Branch("rk_pair_plus_gtr100_res_refit_z",  &out_rk_pair_plus_gtr100_res_refit_z);
@@ -4382,7 +4764,18 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_gtr200_yt4", &out_rk_hit_gtr200_yt4);
    outtree->Branch("rk_hit_gtr300_yt4", &out_rk_hit_gtr300_yt4);
 
-
+   outtree->Branch("gtr100x_cluster_last_tot_end",    gtr100x_cluster_last_tot_end);
+   outtree->Branch("gtr200x_cluster_last_tot_end",    gtr200x_cluster_last_tot_end);
+   outtree->Branch("gtr300x_cluster_last_tot_end",    gtr300x_cluster_last_tot_end);
+   outtree->Branch("gtr100x_cluster_consist_hit_id",  gtr100x_cluster_consist_hit_id);
+   outtree->Branch("gtr200x_cluster_consist_hit_id",  gtr200x_cluster_consist_hit_id);
+   outtree->Branch("gtr300x_cluster_consist_hit_id",  gtr300x_cluster_consist_hit_id);
+   outtree->Branch("gtr100y_cluster_consist_hit_id",  gtr100y_cluster_consist_hit_id);
+   outtree->Branch("gtr100yb_cluster_consist_hit_id", gtr100yb_cluster_consist_hit_id);
+   outtree->Branch("gtr200y_cluster_consist_hit_id",  gtr200y_cluster_consist_hit_id);
+   outtree->Branch("gtr300y_cluster_consist_hit_id",  gtr300y_cluster_consist_hit_id);
+//   outtree->Branch("re_lg_res_x", &out_re_lg_res_x);
+//   outtree->Branch("re_lg_res_y", &out_re_lg_res_y);
 
 
 
@@ -4416,11 +4809,11 @@ Int_t E16DSTN_ReStraightV2::Cut(Long64_t entry)
 
 
 
-void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
-	out_event_id = event_id;
-	out_spill_id = spill_id;
-	out_timestamp_in_spill = timestamp_in_spill;
-	out_trigger_fine_time  = trigger_fine_time;
+void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids){
+//	out_event_id = event_id;
+//	out_spill_id = spill_id;
+//	out_timestamp_in_spill = timestamp_in_spill;
+//	out_trigger_fine_time  = trigger_fine_time;
 
 
 
@@ -4428,7 +4821,29 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 
 //	int n_tracks = rk_hit_init_pos_gz->size() ;	
 	int n_tracks = alive_ids.size();	
-	
+	out_n_alive_tracks = n_tracks;
+
+    	out_track_id.resize(n_tracks);
+  	   out_has_e_hbd_cluster.resize(n_tracks);
+  	   out_has_e_lg_hit.resize(n_tracks);
+  	   out_is_large_residual.resize(n_tracks);   
+  	   out_is_near_target.resize(n_tracks);
+  	   out_is_cluster_used.resize(n_tracks); 
+  	   out_is_selected.resize(n_tracks);
+  	   out_x_rough_fit_chi_square.resize(n_tracks); 
+  	   out_x_rough_fit_dist0.resize(n_tracks);
+  	   out_x_rough_fit_dist1.resize(n_tracks);
+  	   out_x_rough_fit_coef0.resize(n_tracks);
+  	   out_x_rough_fit_coef1.resize(n_tracks);
+  	   out_x_rough_fit_coef2.resize(n_tracks);   
+  	   out_rough_fit_n_hbds.resize(n_tracks);
+  	   out_rough_fit_hbd_ids.resize(n_tracks);   
+  	   out_rough_fit_hbd_ress.resize(n_tracks); 
+  	   out_rough_fit_hbd_y_oks.resize(n_tracks);  
+  	   out_y_rough_fit_chi_square.resize(n_tracks);  
+  	   out_y_rough_fit_coef0.resize(n_tracks);
+  	   out_y_rough_fit_coef1.resize(n_tracks);
+
 	 out_gtr100x_cluster_last_tot_end.resize(n_tracks);
 	 out_gtr200x_cluster_last_tot_end.resize(n_tracks);
 	 out_gtr300x_cluster_last_tot_end.resize(n_tracks);
@@ -4440,14 +4855,14 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
     out_rk_hit_init_pos_gx.resize(n_tracks);
     out_rk_hit_init_pos_gy.resize(n_tracks);
     out_rk_hit_init_pos_gz.resize(n_tracks);
-    out_rk_hit_ssd_id.resize(n_tracks);
-    out_rk_hit_ssd_x.resize(n_tracks);
-    out_rk_hit_ssd_gx.resize(n_tracks);
-    out_rk_hit_ssd_gy.resize(n_tracks);
-    out_rk_hit_ssd_gz.resize(n_tracks);
-    out_rk_hit_ssd_adc.resize(n_tracks);
-    out_rk_hit_ssd_t.resize(n_tracks);
-    out_rk_hit_ssd_chi2.resize(n_tracks);
+    out_rk_hit_sts_id.resize(n_tracks);
+    out_rk_hit_sts_x.resize(n_tracks);
+    out_rk_hit_sts_gx.resize(n_tracks);
+    out_rk_hit_sts_gy.resize(n_tracks);
+    out_rk_hit_sts_gz.resize(n_tracks);
+    out_rk_hit_sts_adc.resize(n_tracks);
+    out_rk_hit_sts_t.resize(n_tracks);
+    out_rk_hit_sts_chi2.resize(n_tracks);
     out_rk_hit_gtr100_xid.resize(n_tracks);
     out_rk_hit_gtr100_yid.resize(n_tracks);
     out_rk_hit_gtr100_gx.resize(n_tracks);
@@ -4520,18 +4935,18 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
     out_rk_fit_init_pos_gx.resize(n_tracks);
     out_rk_fit_init_pos_gy.resize(n_tracks);
     out_rk_fit_init_pos_gz.resize(n_tracks);
-    out_rk_fit_ssd_mid.resize(n_tracks);
-    out_rk_fit_ssd_x.resize(n_tracks);
-    out_rk_fit_ssd_y.resize(n_tracks);
-    out_rk_fit_ssd_gx.resize(n_tracks);
-    out_rk_fit_ssd_gy.resize(n_tracks);
-    out_rk_fit_ssd_gz.resize(n_tracks);
-    out_rk_fit_ssd_mom_x.resize(n_tracks);
-    out_rk_fit_ssd_mom_y.resize(n_tracks);
-    out_rk_fit_ssd_mom_z.resize(n_tracks);
-    out_rk_fit_ssd_mom_gx.resize(n_tracks);
-    out_rk_fit_ssd_mom_gy.resize(n_tracks);
-    out_rk_fit_ssd_mom_gz.resize(n_tracks);
+    out_rk_fit_sts_mid.resize(n_tracks);
+    out_rk_fit_sts_x.resize(n_tracks);
+    out_rk_fit_sts_y.resize(n_tracks);
+    out_rk_fit_sts_gx.resize(n_tracks);
+    out_rk_fit_sts_gy.resize(n_tracks);
+    out_rk_fit_sts_gz.resize(n_tracks);
+    out_rk_fit_sts_mom_x.resize(n_tracks);
+    out_rk_fit_sts_mom_y.resize(n_tracks);
+    out_rk_fit_sts_mom_z.resize(n_tracks);
+    out_rk_fit_sts_mom_gx.resize(n_tracks);
+    out_rk_fit_sts_mom_gy.resize(n_tracks);
+    out_rk_fit_sts_mom_gz.resize(n_tracks);
     out_rk_fit_gtr100_mid.resize(n_tracks);
     out_rk_fit_gtr100_x.resize(n_tracks);
     out_rk_fit_gtr100_y.resize(n_tracks);
@@ -4636,7 +5051,7 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
     out_rk_res_init_mom_gx.resize(n_tracks);
     out_rk_res_init_mom_gy.resize(n_tracks);
     out_rk_res_init_mom_gz.resize(n_tracks);
-    out_rk_res_ssd_x.resize(n_tracks);
+    out_rk_res_sts_x.resize(n_tracks);
     out_rk_res_gtr100_x.resize(n_tracks);
     out_rk_res_gtr100_y.resize(n_tracks);
     out_rk_res_gtr200_x.resize(n_tracks);
@@ -4670,6 +5085,7 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
    out_rk_hit_gtr300_cogx.resize(n_tracks) ;
    out_rk_hit_gtr100_cogy.resize(n_tracks) ;
    out_rk_hit_gtr200_cogy.resize(n_tracks) ;
+   out_rk_hit_gtr300_cogy.resize(n_tracks) ;
 	
    out_rk_hit_gtr100_xt4.resize(n_tracks);
    out_rk_hit_gtr200_xt4.resize(n_tracks);
@@ -4702,48 +5118,157 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 		out_rk_hit_gtr300_gtz2.resize(n_tracks);
 	
 
+		n_pairs = track_pairs.size();
+		out_rk_pair_minus_track_id.resize(n_pairs);
+		out_rk_pair_minus_gtr300_mid.resize(n_pairs);
+		out_rk_pair_minus_chi_square.resize(n_pairs);
+		out_rk_pair_minus_mom_gx.resize(n_pairs);
+		out_rk_pair_minus_mom_gy.resize(n_pairs);
+		out_rk_pair_minus_mom_gz.resize(n_pairs);
+		out_rk_pair_minus_sts_t.resize(n_pairs);
+		out_rk_pair_minus_lg_t.clear();
+		out_rk_pair_minus_lg_t.resize(n_pairs);
+		out_rk_pair_plus_track_id.resize(n_pairs);
+		out_rk_pair_plus_gtr300_mid.resize(n_pairs);
+		out_rk_pair_plus_chi_square.resize(n_pairs);
+		out_rk_pair_plus_mom_gx.resize(n_pairs);
+		out_rk_pair_plus_mom_gy.resize(n_pairs);
+		out_rk_pair_plus_mom_gz.resize(n_pairs);
+		out_rk_pair_plus_sts_t.resize(n_pairs);
+		out_rk_pair_plus_lg_t.clear();
+		out_rk_pair_plus_lg_t.resize(n_pairs);
+		out_rk_pair_distance.resize(n_pairs);
+		out_rk_pair_vtx_gx.resize(n_pairs);
+		out_rk_pair_vtx_gy.resize(n_pairs);
+		out_rk_pair_vtx_gz.resize(n_pairs);
+		out_rk_pair_is_refit.resize(n_pairs);
+		out_rk_pair_is_selected.resize(n_pairs);
+		out_rk_pair_chi_square_refit.resize(n_pairs);
+		out_rk_pair_vtx_refit_gx.resize(n_pairs);
+		out_rk_pair_vtx_refit_gy.resize(n_pairs);
+		out_rk_pair_vtx_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_sts_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_sts_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_sts_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_gtr100_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_gtr100_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_gtr100_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_gtr200_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_gtr200_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_gtr200_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_gtr300_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_gtr300_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_gtr300_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_sts_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_sts_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_sts_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_gtr100_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_gtr100_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_gtr100_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_gtr200_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_gtr200_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_gtr200_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_gtr300_pos_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_gtr300_pos_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_gtr300_pos_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_sts_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_sts_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_sts_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_gtr100_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_gtr100_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_gtr100_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_gtr200_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_gtr200_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_gtr200_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_gtr300_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_minus_gtr300_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_minus_gtr300_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_sts_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_sts_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_sts_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_gtr100_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_gtr100_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_gtr100_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_gtr200_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_gtr200_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_gtr200_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_plus_gtr300_mom_refit_gx.resize(n_pairs);
+		out_rk_pair_plus_gtr300_mom_refit_gy.resize(n_pairs);
+		out_rk_pair_plus_gtr300_mom_refit_gz.resize(n_pairs);
+		out_rk_pair_minus_sts_res_refit_x.resize(n_pairs);
+		out_rk_pair_minus_sts_res_refit_y.resize(n_pairs);
+		out_rk_pair_minus_sts_res_refit_z.resize(n_pairs);
+		out_rk_pair_minus_gtr100_res_refit_x.resize(n_pairs);
+		out_rk_pair_minus_gtr100_res_refit_y.resize(n_pairs);
+		out_rk_pair_minus_gtr100_res_refit_z.resize(n_pairs);
+		out_rk_pair_minus_gtr200_res_refit_x.resize(n_pairs);
+		out_rk_pair_minus_gtr200_res_refit_y.resize(n_pairs);
+		out_rk_pair_minus_gtr200_res_refit_z.resize(n_pairs);
+		out_rk_pair_minus_gtr300_res_refit_x.resize(n_pairs);
+		out_rk_pair_minus_gtr300_res_refit_y.resize(n_pairs);
+		out_rk_pair_minus_gtr300_res_refit_z.resize(n_pairs);
+		out_rk_pair_plus_sts_res_refit_x.resize(n_pairs);
+		out_rk_pair_plus_sts_res_refit_y.resize(n_pairs);
+		out_rk_pair_plus_sts_res_refit_z.resize(n_pairs);
+		out_rk_pair_plus_gtr100_res_refit_x.resize(n_pairs);
+		out_rk_pair_plus_gtr100_res_refit_y.resize(n_pairs);
+		out_rk_pair_plus_gtr100_res_refit_z.resize(n_pairs);
+		out_rk_pair_plus_gtr200_res_refit_x.resize(n_pairs);
+		out_rk_pair_plus_gtr200_res_refit_y.resize(n_pairs);
+		out_rk_pair_plus_gtr200_res_refit_z.resize(n_pairs);
+		out_rk_pair_plus_gtr300_res_refit_x.resize(n_pairs);
+		out_rk_pair_plus_gtr300_res_refit_y.resize(n_pairs);
+		out_rk_pair_plus_gtr300_res_refit_z.resize(n_pairs);
+		
 
 
+//		out_re_lg_res_x.resize(n_tracks);
+//		out_re_lg_res_y.resize(n_tracks);
 
-//  out_n_cands = n_selected;
+   out_n_cands = n_tracks;//number of alive tracks
 	for(int i = 0 ; i < n_tracks ; i++){		
 		int tid = alive_ids[i];
-				
-//      int cl_size_100 = gtr100x_cluster_size->at(tid);
-//		for(int j=0; j < cl_size_100; j++){
-//			std::cout << "track id " << i << std::endl;
-//         std::cout << "cluster  " << &gtr100x_cluster_consist_hit_id->at(i) << std::endl;
-//			std::cout << "clsuter' id " << (gtr100x_cluster_consist_hit_id->at(i))[j] << std::endl;
-//			int id = (gtr100x_cluster_consist_hit_id->at(i))[j];
-//			for(int k=0; k < n_gtr100x_hits; k++){
-//				int hid = gtr100x_hit_id->at(k);
-//				if(hid == id){ 
-//					out_gtr100x_hit_t[i].push_back(gtr100x_hit_t->at(hid));
-//				}
-//			}
-//		}
-	  
+		out_track_id[i] = tid;
+	   out_has_e_hbd_cluster[i]=     	   has_e_hbd_cluster->at(tid);
+	   out_has_e_lg_hit[i]=          	   has_e_lg_hit->at(tid);
+	   out_is_large_residual[i]=     	   is_large_residual->at(tid);   
+	   out_is_near_target[i]=  is_near_target->at(tid);
+	   out_is_cluster_used[i]=     is_cluster_used->at(tid); 
+	   out_is_selected[i]=     is_selected->at(tid);
+	   out_x_rough_fit_chi_square[i]= 	   x_rough_fit_chi_square->at(tid); 
+//	   out_x_rough_fit_dist0[i]=     x_rough_fit_dist0->at(tid);
+//	   out_x_rough_fit_dist1[i]=     x_rough_fit_dist1->at(tid);
+	   out_x_rough_fit_coef0[i]=     x_rough_fit_coef0->at(tid);
+	   out_x_rough_fit_coef1[i]=     x_rough_fit_coef1->at(tid);
+	   out_x_rough_fit_coef2[i]=     x_rough_fit_coef2->at(tid);   
+	   out_rough_fit_n_hbds[i]=     rough_fit_n_hbds->at(tid);
+	   out_rough_fit_hbd_ids[i]=    rough_fit_hbd_ids->at(tid);   
+	   out_rough_fit_hbd_ress[i]=   rough_fit_hbd_ress->at(tid); 
+	   out_rough_fit_hbd_y_oks[i]=  rough_fit_hbd_y_oks->at(tid);  
+	   out_y_rough_fit_chi_square[i]=     y_rough_fit_chi_square->at(tid);  
+	   out_y_rough_fit_coef0[i]=     y_rough_fit_coef0->at(tid);
+	   out_y_rough_fit_coef1[i]=	   y_rough_fit_coef1->at(tid);
+
 
 		int cid_100 = rk_hit_gtr100_xid->at(tid);//cluster id which is used in a track
 		for(int j=0; j < n_gtr100x_clusters; j++){
 			int cid = gtr100x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_100 == cid){ //if both are matched
-            out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
+   	      out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
 			}
 		}
 
 		int cid_200 = rk_hit_gtr200_xid->at(tid);//cluster id which is used in a track
 		for(int j=0; j < n_gtr200x_clusters; j++){
 			int cid = gtr200x_cluster_id->at(j);//cluster id from all cluster
-//			std::cout << "cid = " << cid << std::endl;
-//			std::cout << "cid200 = " << cid_200 << std::endl;
-//			std::cout << "j  = " << j  << std::endl;
-			
 			if(cid_200 == cid){ //if both are matchej
-//				std::cout << "size " << gtr200x_cluster_last_tot_end->size() << std::endl;
-///				std::cout << "out_gtr size = i ,  " << i << ", " << out_gtr200x_cluster_last_tot_end.size() << std::endl;
             out_gtr200x_cluster_last_tot_end[i] = gtr200x_cluster_last_tot_end->at(j);//tot_end is filled
-//				std::cout<< "hello " << std::endl;
 			}
 		}	
    	int cid_300 = rk_hit_gtr300_xid->at(tid);//cluster id which is used in a track
@@ -4753,27 +5278,20 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
             out_gtr300x_cluster_last_tot_end[i] = gtr300x_cluster_last_tot_end->at(j);//tot_end is filled
 			}
 		}
-
-
-
-
 		
 
 	//	std::cout << "mom = " << rk_fit_init_mom_gz->at(tid) << std::endl;
-		out_chi_square[i]           = chi_square->at(tid);
-		
-
-		out_rk_hit_ssd_id[i]    = rk_hit_ssd_id->at(tid) ;
-		out_rk_hit_ssd_gx[i]     = rk_hit_ssd_gx->at(tid) ;
-		out_rk_hit_ssd_gy[i]     = rk_hit_ssd_gy->at(tid) ;
-		out_rk_hit_ssd_gz[i]     = rk_hit_ssd_gz->at(tid) ;
-		out_rk_hit_ssd_adc[i]   = rk_hit_ssd_adc->at(tid) ;
-		out_rk_hit_ssd_t[i]     = rk_hit_ssd_t->at(tid);
-		out_rk_hit_ssd_x[i]     = rk_hit_ssd_x->at(tid);
-		out_rk_hit_ssd_chi2[i]     = rk_hit_ssd_chi2->at(tid);
-	   
-	
-
+		out_chi_square[i]       = chi_square->at(tid);
+#ifndef NoExist_SSD
+		out_rk_hit_sts_id[i]    = rk_hit_sts_id->at(tid) ;
+		out_rk_hit_sts_gx[i]    = rk_hit_sts_gx->at(tid) ;
+		out_rk_hit_sts_gy[i]    = rk_hit_sts_gy->at(tid) ;
+		out_rk_hit_sts_gz[i]    = rk_hit_sts_gz->at(tid) ;
+		out_rk_hit_sts_adc[i]   = rk_hit_sts_adc->at(tid) ;
+		out_rk_hit_sts_t[i]     = rk_hit_sts_t->at(tid);
+		out_rk_hit_sts_x[i]     = rk_hit_sts_x->at(tid);
+		out_rk_hit_sts_chi2[i]  = rk_hit_sts_chi2->at(tid);
+#endif
 
 		out_rk_hit_gtr100_xid[i]    = rk_hit_gtr100_xid->at(tid) ;
 		out_rk_hit_gtr200_xid[i]    = rk_hit_gtr200_xid->at(tid) ;
@@ -4829,18 +5347,20 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 // -- fit res are 
 
 
-      out_rk_fit_ssd_mid[i]       = rk_fit_ssd_mid->at(tid);
- 	   out_rk_fit_ssd_x[i]         = rk_fit_ssd_x->at(tid)  ;
- 	   out_rk_fit_ssd_y[i] =   rk_fit_ssd_y         ->at(tid);
- 	   out_rk_fit_ssd_gx[i] =   rk_fit_ssd_gx       ->at(tid);
- 	   out_rk_fit_ssd_gy[i] =   rk_fit_ssd_gy       ->at(tid);
- 	   out_rk_fit_ssd_gz[i] =   rk_fit_ssd_gz       ->at(tid);
- 	   out_rk_fit_ssd_mom_x[i] =   rk_fit_ssd_mom_x ->at(tid);
- 	   out_rk_fit_ssd_mom_y[i] =   rk_fit_ssd_mom_y ->at(tid);
- 	   out_rk_fit_ssd_mom_z[i] =   rk_fit_ssd_mom_z ->at(tid);
- 	   out_rk_fit_ssd_mom_gx[i] =  rk_fit_ssd_mom_gx->at(tid);
- 	   out_rk_fit_ssd_mom_gy[i] =  rk_fit_ssd_mom_gy->at(tid);
- 	   out_rk_fit_ssd_mom_gz[i] =  rk_fit_ssd_mom_gz->at(tid);
+#ifndef NoExist_SSD
+      out_rk_fit_sts_mid[i]       = rk_fit_sts_mid->at(tid);
+ 	   out_rk_fit_sts_x[i]         = rk_fit_sts_x->at(tid)  ;
+ 	   out_rk_fit_sts_y[i] =   rk_fit_sts_y         ->at(tid);
+ 	   out_rk_fit_sts_gx[i] =   rk_fit_sts_gx       ->at(tid);
+ 	   out_rk_fit_sts_gy[i] =   rk_fit_sts_gy       ->at(tid);
+ 	   out_rk_fit_sts_gz[i] =   rk_fit_sts_gz       ->at(tid);
+ 	   out_rk_fit_sts_mom_x[i] =   rk_fit_sts_mom_x ->at(tid);
+ 	   out_rk_fit_sts_mom_y[i] =   rk_fit_sts_mom_y ->at(tid);
+ 	   out_rk_fit_sts_mom_z[i] =   rk_fit_sts_mom_z ->at(tid);
+ 	   out_rk_fit_sts_mom_gx[i] =  rk_fit_sts_mom_gx->at(tid);
+ 	   out_rk_fit_sts_mom_gy[i] =  rk_fit_sts_mom_gy->at(tid);
+ 	   out_rk_fit_sts_mom_gz[i] =  rk_fit_sts_mom_gz->at(tid);
+#endif
 
       out_rk_fit_init_mom_gx[i]   = rk_fit_init_mom_gx->at(tid);
       out_rk_fit_init_mom_gy[i]   = rk_fit_init_mom_gy->at(tid);
@@ -4890,7 +5410,9 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
       out_rk_res_init_mom_gx[i]   = rk_res_init_mom_gx->at(tid); 
       out_rk_res_init_mom_gy[i]   = rk_res_init_mom_gy->at(tid); 
       out_rk_res_init_mom_gz[i]   = rk_res_init_mom_gz->at(tid); 
-      out_rk_res_ssd_x[i]         = rk_res_ssd_x->at(tid);        
+#ifndef NoExist_SSD
+      out_rk_res_sts_x[i]         = rk_res_sts_x->at(tid);        
+#endif
       out_rk_res_gtr100_x[i]      = rk_res_gtr100_x->at(tid);
       out_rk_res_gtr100_y[i]      = rk_res_gtr100_y->at(tid);
       out_rk_res_gtr200_x[i]      = rk_res_gtr200_x->at(tid);
@@ -4907,22 +5429,63 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
 //      out_rk_res_gtr200_tx2[i]    = fit_results[2].residual_pos.X(); 
 //      out_rk_res_gtr300_tx2[i]    = fit_results[3].residual_pos.X(); 
 		
-     	out_rk_proj_lg_id[i]     = rk_proj_lg_id->at(i);
-		out_rk_proj_lg_mid[i]    = rk_proj_lg_mid->at(i);
-		out_rk_proj_lg_cid[i]    = rk_proj_lg_cid->at(i);
-	   out_rk_proj_lg_x[i]      = rk_proj_lg_x->at(i);
-		out_rk_proj_lg_y[i]      = rk_proj_lg_y->at(i);
-		out_rk_proj_lg_adc[i]    = rk_proj_lg_adc->at(i);
-		out_rk_proj_lg_t[i]      = rk_proj_lg_t->at(i);
-		out_rk_proj_lg_npeaks[i] = rk_proj_lg_npeaks->at(i);
-		out_rk_proj_lg_fflag[i]  = rk_proj_lg_fflag->at(i);
+    out_rk_fit_lg_c_mid[i]  = rk_fit_lg_c_mid->at(tid);
+    out_rk_fit_lg_c_x[i] =  rk_fit_lg_c_x->at(tid);
+    out_rk_fit_lg_c_y[i] =  rk_fit_lg_c_y->at(tid);
+    out_rk_fit_lg_c_gx[i] = rk_fit_lg_c_gx->at(tid);
+    out_rk_fit_lg_c_gy[i] = rk_fit_lg_c_gy->at(tid);
+    out_rk_fit_lg_c_gz[i] = rk_fit_lg_c_gz->at(tid);
+    out_rk_fit_lg_c_mom_x[i] = rk_fit_lg_c_mom_x->at(tid);
+    out_rk_fit_lg_c_mom_y[i] = rk_fit_lg_c_mom_y->at(tid);
+    out_rk_fit_lg_c_mom_z[i] = rk_fit_lg_c_mom_z->at(tid);
+    out_rk_fit_lg_c_mom_gx[i] =rk_fit_lg_c_mom_gx->at(tid);
+    out_rk_fit_lg_c_mom_gy[i] =rk_fit_lg_c_mom_gy->at(tid);
+    out_rk_fit_lg_c_mom_gz[i] =rk_fit_lg_c_mom_gz->at(tid);
+    out_rk_fit_lg_b_mid[i] =   rk_fit_lg_b_mid->at(tid);
+    out_rk_fit_lg_b_x[i] =      rk_fit_lg_b_x->at(tid);
+    out_rk_fit_lg_b_y[i] =      rk_fit_lg_b_y->at(tid);
+    out_rk_fit_lg_b_gx[i] =     rk_fit_lg_b_gx->at(tid);
+    out_rk_fit_lg_b_gy[i] =     rk_fit_lg_b_gy->at(tid);
+    out_rk_fit_lg_b_gz[i] =     rk_fit_lg_b_gz->at(tid);
+    out_rk_fit_lg_b_mom_x[i] =  rk_fit_lg_b_mom_x->at(tid);
+    out_rk_fit_lg_b_mom_y[i] =  rk_fit_lg_b_mom_y->at(tid);
+    out_rk_fit_lg_b_mom_z[i] =  rk_fit_lg_b_mom_z->at(tid);
+    out_rk_fit_lg_b_mom_gx[i] = rk_fit_lg_b_mom_gx->at(tid);
+    out_rk_fit_lg_b_mom_gy[i] = rk_fit_lg_b_mom_gy->at(tid);
+    out_rk_fit_lg_b_mom_gz[i] = rk_fit_lg_b_mom_gz->at(tid);
+    out_rk_fit_lg_a_mid[i] =    rk_fit_lg_a_mid->at(tid);
+    out_rk_fit_lg_a_x[i] =      rk_fit_lg_a_x->at(tid);
+    out_rk_fit_lg_a_y[i] =      rk_fit_lg_a_y->at(tid);
+    out_rk_fit_lg_a_gx[i] =     rk_fit_lg_a_gx->at(tid);
+    out_rk_fit_lg_a_gy[i] =     rk_fit_lg_a_gy->at(tid);
+    out_rk_fit_lg_a_gz[i] =     rk_fit_lg_a_gz->at(tid);
+    out_rk_fit_lg_a_mom_x[i] =  rk_fit_lg_a_mom_x->at(tid);
+    out_rk_fit_lg_a_mom_y[i] =  rk_fit_lg_a_mom_y->at(tid);
+    out_rk_fit_lg_a_mom_z[i] =  rk_fit_lg_a_mom_z->at(tid);
+    out_rk_fit_lg_a_mom_gx[i] = rk_fit_lg_a_mom_gx->at(tid);
+    out_rk_fit_lg_a_mom_gy[i] = rk_fit_lg_a_mom_gy->at(tid);
+    out_rk_fit_lg_a_mom_gz[i] = rk_fit_lg_a_mom_gz->at(tid);
+
+
+
+
+
+     	out_rk_proj_lg_id[i]     = rk_proj_lg_id->at(tid);
+		out_rk_proj_lg_mid[i]    = rk_proj_lg_mid->at(tid);
+		out_rk_proj_lg_cid[i]    = rk_proj_lg_cid->at(tid);
+	   out_rk_proj_lg_x[i]      = rk_proj_lg_x->at(tid);
+		out_rk_proj_lg_y[i]      = rk_proj_lg_y->at(tid);
+		out_rk_proj_lg_adc[i]    = rk_proj_lg_adc->at(tid);
+		out_rk_proj_lg_t[i]      = rk_proj_lg_t->at(tid);
+		out_rk_proj_lg_npeaks[i] = rk_proj_lg_npeaks->at(tid);
+		out_rk_proj_lg_fflag[i]  = rk_proj_lg_fflag->at(tid);
 
    out_rk_hit_gtr100_cogx[i] = rk_hit_gtr100_cogx->at(tid);
    out_rk_hit_gtr200_cogx[i] = rk_hit_gtr200_cogx->at(tid);
    out_rk_hit_gtr300_cogx[i] = rk_hit_gtr300_cogx->at(tid);
    out_rk_hit_gtr100_cogy[i] = rk_hit_gtr100_cogy->at(tid);
    out_rk_hit_gtr200_cogy[i] = rk_hit_gtr200_cogy->at(tid);
-   out_rk_hit_gtr200_cogy[i] = rk_hit_gtr200_cogy->at(tid);
+   out_rk_hit_gtr300_cogy[i] = rk_hit_gtr300_cogy->at(tid);
 	
    out_rk_hit_gtr100_xt4[i] = rk_hit_gtr100_xt4->at(tid);
    out_rk_hit_gtr200_xt4[i] = rk_hit_gtr200_xt4->at(tid);
@@ -4930,8 +5493,120 @@ void E16DSTN_ReStraightV2::AddRecord(std::vector<int> &alive_ids){
    //out_rk_hit_gtr100_yt4[i] = rk_hit_gtr100_yt4->at(i);
    //out_rk_hit_gtr200_yt4[i] = rk_hit_gtr200_yt4->at(i);
    //out_rk_hit_gtr300_yt4[i] = rk_hit_gtr300_yt4->at(i);
-		}
+   //
+   //
+ 
 
+	for(int i=0; i < n_pairs; i++){
+		auto& pair = track_pairs[i];
+		out_rk_pair_distance[i] = pair.distance;
+		out_rk_pair_minus_track_id[i] = pair.tid0;
+		out_rk_pair_plus_track_id[i]  = pair.tid1;
+      out_rk_pair_minus_chi_square[i] = chi_square->at(pair.tid0);	
+      out_rk_pair_plus_chi_square[i] = chi_square->at(pair.tid1);	
+
+		auto& pair_vtx = pair.vtx;
+		out_rk_pair_vtx_gx[i] = pair_vtx.X();
+		out_rk_pair_vtx_gy[i] = pair_vtx.Y();
+		out_rk_pair_vtx_gz[i] = pair_vtx.Z();
+	
+       out_rk_pair_is_refit[i] = pair.is_refit;
+       out_rk_pair_is_selected[i] = pair.is_selected;
+       out_rk_pair_chi_square_refit[i] = pair.chi_square_refit;
+       auto& pair_vtx_refit = pair.vtx_refit;
+       out_rk_pair_vtx_refit_gx[i] = pair_vtx_refit.X();
+       out_rk_pair_vtx_refit_gy[i] = pair_vtx_refit.Y();
+       out_rk_pair_vtx_refit_gz[i] = pair_vtx_refit.Z();
+       auto& mmom_refit = pair.mom_minus_refit;
+       out_rk_pair_minus_mom_refit_gx[i] = mmom_refit.X();
+       out_rk_pair_minus_mom_refit_gy[i] = mmom_refit.Y();
+       out_rk_pair_minus_mom_refit_gz[i] = mmom_refit.Z();
+       auto& pmom_refit = pair.mom_plus_refit;
+       out_rk_pair_plus_mom_refit_gx[i] = pmom_refit.X();
+       out_rk_pair_plus_mom_refit_gy[i] = pmom_refit.Y();
+       out_rk_pair_plus_mom_refit_gz[i] = pmom_refit.Z();
+       auto& mposs_refit = pair.track_minus_pos_refit;
+       auto& pposs_refit = pair.track_plus_pos_refit;
+       auto& mmoms_refit = pair.track_minus_mom_refit;
+       auto& pmoms_refit = pair.track_plus_mom_refit;
+       auto& mress_refit = pair.track_minus_res_refit;
+       auto& press_refit = pair.track_plus_res_refit;
+#ifndef NoExist_SSD
+       out_rk_pair_minus_sts_pos_refit_gx[i] = mposs_refit[0].X();
+       out_rk_pair_minus_sts_pos_refit_gy[i] = mposs_refit[0].Y();
+       out_rk_pair_minus_sts_pos_refit_gz[i] = mposs_refit[0].Z();
+       out_rk_pair_plus_sts_pos_refit_gx[i] = pposs_refit[0].X();
+       out_rk_pair_plus_sts_pos_refit_gy[i] = pposs_refit[0].Y();
+       out_rk_pair_plus_sts_pos_refit_gz[i] = pposs_refit[0].Z();
+       out_rk_pair_minus_sts_mom_refit_gx[i] = mmoms_refit[0].X();
+       out_rk_pair_minus_sts_mom_refit_gy[i] = mmoms_refit[0].Y();
+       out_rk_pair_minus_sts_mom_refit_gz[i] = mmoms_refit[0].Z();
+       out_rk_pair_plus_sts_mom_refit_gx[i] = pmoms_refit[0].X();
+       out_rk_pair_plus_sts_mom_refit_gy[i] = pmoms_refit[0].Y();
+       out_rk_pair_plus_sts_mom_refit_gz[i] = pmoms_refit[0].Z();
+       out_rk_pair_minus_sts_res_refit_x[i] = mress_refit[0].X();
+       out_rk_pair_minus_sts_res_refit_y[i] = mress_refit[0].Y();
+       out_rk_pair_minus_sts_res_refit_z[i] = mress_refit[0].Z();
+       out_rk_pair_plus_sts_res_refit_x[i] = press_refit[0].X();
+       out_rk_pair_plus_sts_res_refit_y[i] = press_refit[0].Y();
+       out_rk_pair_plus_sts_res_refit_z[i] = press_refit[0].Z();
+#endif
+       out_rk_pair_minus_gtr100_pos_refit_gx[i] = mposs_refit[1].X();
+       out_rk_pair_minus_gtr100_pos_refit_gy[i] = mposs_refit[1].Y();
+       out_rk_pair_minus_gtr100_pos_refit_gz[i] = mposs_refit[1].Z();
+       out_rk_pair_minus_gtr200_pos_refit_gx[i] = mposs_refit[2].X();
+       out_rk_pair_minus_gtr200_pos_refit_gy[i] = mposs_refit[2].Y();
+       out_rk_pair_minus_gtr200_pos_refit_gz[i] = mposs_refit[2].Z();
+       out_rk_pair_minus_gtr300_pos_refit_gx[i] = mposs_refit[3].X();
+       out_rk_pair_minus_gtr300_pos_refit_gy[i] = mposs_refit[3].Y();
+       out_rk_pair_minus_gtr300_pos_refit_gz[i] = mposs_refit[3].Z();
+       out_rk_pair_plus_gtr100_pos_refit_gx[i] = pposs_refit[1].X();
+       out_rk_pair_plus_gtr100_pos_refit_gy[i] = pposs_refit[1].Y();
+       out_rk_pair_plus_gtr100_pos_refit_gz[i] = pposs_refit[1].Z();
+       out_rk_pair_plus_gtr200_pos_refit_gx[i] = pposs_refit[2].X();
+       out_rk_pair_plus_gtr200_pos_refit_gy[i] = pposs_refit[2].Y();
+       out_rk_pair_plus_gtr200_pos_refit_gz[i] = pposs_refit[2].Z();
+       out_rk_pair_plus_gtr300_pos_refit_gx[i] = pposs_refit[3].X();
+       out_rk_pair_plus_gtr300_pos_refit_gy[i] = pposs_refit[3].Y();
+       out_rk_pair_plus_gtr300_pos_refit_gz[i] = pposs_refit[3].Z();
+       out_rk_pair_minus_gtr100_mom_refit_gx[i] = mmoms_refit[1].X();
+       out_rk_pair_minus_gtr100_mom_refit_gy[i] = mmoms_refit[1].Y();
+       out_rk_pair_minus_gtr100_mom_refit_gz[i] = mmoms_refit[1].Z();
+       out_rk_pair_minus_gtr200_mom_refit_gx[i] = mmoms_refit[2].X();
+       out_rk_pair_minus_gtr200_mom_refit_gy[i] = mmoms_refit[2].Y();
+       out_rk_pair_minus_gtr200_mom_refit_gz[i] = mmoms_refit[2].Z();
+       out_rk_pair_minus_gtr300_mom_refit_gx[i] = mmoms_refit[3].X();
+       out_rk_pair_minus_gtr300_mom_refit_gy[i] = mmoms_refit[3].Y();
+       out_rk_pair_minus_gtr300_mom_refit_gz[i] = mmoms_refit[3].Z();
+       out_rk_pair_plus_gtr100_mom_refit_gx[i] = pmoms_refit[1].X();
+       out_rk_pair_plus_gtr100_mom_refit_gy[i] = pmoms_refit[1].Y();
+       out_rk_pair_plus_gtr100_mom_refit_gz[i] = pmoms_refit[1].Z();
+       out_rk_pair_plus_gtr200_mom_refit_gx[i] = pmoms_refit[2].X();
+       out_rk_pair_plus_gtr200_mom_refit_gy[i] = pmoms_refit[2].Y();
+       out_rk_pair_plus_gtr200_mom_refit_gz[i] = pmoms_refit[2].Z();
+       out_rk_pair_plus_gtr300_mom_refit_gx[i] = pmoms_refit[3].X();
+       out_rk_pair_plus_gtr300_mom_refit_gy[i] = pmoms_refit[3].Y();
+       out_rk_pair_plus_gtr300_mom_refit_gz[i] = pmoms_refit[3].Z();
+       out_rk_pair_minus_gtr100_res_refit_x[i] = mress_refit[1].X();
+       out_rk_pair_minus_gtr100_res_refit_y[i] = mress_refit[1].Y();
+       out_rk_pair_minus_gtr100_res_refit_z[i] = mress_refit[1].Z();
+       out_rk_pair_minus_gtr200_res_refit_x[i] = mress_refit[2].X();
+       out_rk_pair_minus_gtr200_res_refit_y[i] = mress_refit[2].Y();
+       out_rk_pair_minus_gtr200_res_refit_z[i] = mress_refit[2].Z();
+       out_rk_pair_minus_gtr300_res_refit_x[i] = mress_refit[3].X();
+       out_rk_pair_minus_gtr300_res_refit_y[i] = mress_refit[3].Y();
+       out_rk_pair_minus_gtr300_res_refit_z[i] = mress_refit[3].Z();
+       out_rk_pair_plus_gtr100_res_refit_x[i] = press_refit[1].X();
+       out_rk_pair_plus_gtr100_res_refit_y[i] = press_refit[1].Y();
+       out_rk_pair_plus_gtr100_res_refit_z[i] = press_refit[1].Z();
+       out_rk_pair_plus_gtr200_res_refit_x[i] = press_refit[2].X();
+       out_rk_pair_plus_gtr200_res_refit_y[i] = press_refit[2].Y();
+       out_rk_pair_plus_gtr200_res_refit_z[i] = press_refit[2].Z();
+       out_rk_pair_plus_gtr300_res_refit_x[i] = press_refit[3].X();
+       out_rk_pair_plus_gtr300_res_refit_y[i] = press_refit[3].Y();
+       out_rk_pair_plus_gtr300_res_refit_z[i] = press_refit[3].Z();
+		}
+	}
 	outtree->Fill();	
 }//AddReco
 
