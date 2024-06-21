@@ -53,6 +53,9 @@ TVector3 E16DST_DST1STSCluster::GlobalPos(E16ANA_GeometryV2& geometry) {
 //  return TVector3();
 	return gpos;
 }
+TVector3 E16DST_DST1STSCluster::GlobalPos() const{
+  return gpos;
+}
 
 
 //double E16DST_DST1GTRHit::LocalX() {

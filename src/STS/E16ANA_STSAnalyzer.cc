@@ -1,14 +1,18 @@
 #include "STS/E16ANA_STSAnalyzer.hh"
 #include "E16DST_DST1.hh"
 #include <algorithm>
+#include "STS/E16ANA_STSGeometry.hh"
+#include "E16ANA_STSGlobalGeometry.hh"
 
 #define STS_VERB
+
+constexpr double sts_invalid = -10000000.;
 
 void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::vector<E16DST_DST1STSCluster>& clusters1){
   if ( hits1.size() == 0 ) return; // no hits to be clusterized.
   sort(hits1);
 
-  std::vector<E16ANA_STSCluster> vec_cluster;
+  vec_cluster.clear();
 
   // 1st clustering
   for( auto& hit : hits1 ) {
@@ -32,14 +36,14 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
     vec_cluster.emplace_back();
     vec_cluster.back().hits.push_back(hit);
   }
-
+  /*
 #ifdef STS_VERB
   std::for_each(begin(vec_cluster),end(vec_cluster),
 		[](auto& x){
 		  x.show();
 		});
 #endif
-
+  */
   // 2nd clustering.
   for( int iclus = 0; iclus < vec_cluster.size(); iclus++ ){
     if ( vec_cluster[iclus].hits.size() <= 1 ) continue;
@@ -114,6 +118,7 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
 #endif
 
   // fill DST1STSCluster
+  fill_dst1(clusters1);
 }
 
 void E16ANA_STSAnalyzer::sort(std::vector<E16DST_DST1STSHit>& hits1){
@@ -140,3 +145,71 @@ void E16ANA_STSAnalyzer::sort(std::vector<E16DST_DST1STSHit>& hits1){
   }
 }
 
+void E16ANA_STSAnalyzer::fill_dst1(std::vector<E16DST_DST1STSCluster>& clusters1){
+  if ( vec_cluster.size() == 0 ) return;
+  clusters1.clear();
+  auto lgeom = E16ANA_STSGeometry::instance();
+  auto ggeom = E16ANA_STSGlobalGeometry::instance();
+  for( auto& clus : vec_cluster ) {
+    if ( clus.hits.size() == 0 ) continue;
+    clusters1.emplace_back();
+    auto& cluster1 = clusters1.back();
+    cluster1.SetCogPos(clus.cog());
+    cluster1.SetTiming(clus.timing(param));
+    cluster1.SetPeakSum(clus.adc());
+    // fill lpos and gpos.
+    cluster1.SetPN(clus.hits.back().PN());
+    TVector3 lpos(lgeom->GetLocalX_fromN(clus.cog()),0.,0.);
+    double local[3] = {lpos.X(),lpos.Y(),lpos.Z()};
+    double global[3]={0.,0.,0.};
+    cluster1.SetModuleId(clus.hits.back().ModuleId());
+    // what else?
+    ggeom->Local2Global(cluster1.ModuleId(),local,global);
+    cluster1.SetLocalPos(lpos);
+    cluster1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
+  }
+}
+
+
+/////////////////// E16ANA_STSCluster
+
+int E16ANA_STSCluster::adc(){
+  return std::accumulate(hits.begin(), hits.end(), 0, [](int acc,const auto& x) { return acc+x.ADC(); });
+}
+
+double E16ANA_STSCluster::tdc(){
+  if ( hits.size() == 0 ) return sts_invalid;
+  double tmp = std::accumulate(hits.begin(), hits.end(), 0, []( double acc, const auto& x) { return acc+x.TDC()*x.ADC(); });
+    double adcsum = adc();
+    assert(adcsum>0);
+    return tmp/adcsum;
+}
+
+double E16ANA_STSCluster::timing(E16ANA_STSClusterParam& param){
+  if ( hits.size() == 0 ) return sts_invalid;
+  auto judge_less = [](const auto& a, const auto& b){
+    return a.Timing() < b.Timing();
+  };
+  auto minmax = std::minmax_element(hits.begin(),hits.end(),judge_less);
+  
+  auto acc_helper = [&](double acc, const auto&x) {
+    double tmp_time = (double) x.Timing();
+    if ( (tmp_time - minmax.first->Timing()) > param.tdc_window ) {
+      tmp_time -= 0x3fff;
+    }
+    return acc+tmp_time*x.ADC();
+  };
+
+  double tmp = std::accumulate(hits.begin(), hits.end(), 0, acc_helper);
+  double adcsum = adc();
+  assert(adcsum>0);
+  return tmp/adcsum;
+}
+
+double E16ANA_STSCluster::cog(){
+  if ( hits.size() == 0 ) return sts_invalid;
+  double tmp = std::accumulate(hits.begin(), hits.end(), 0, [] (double acc, const auto& x) { return acc + x.ADC()*x.StripId(); });
+  double adcsum = adc();
+  assert(adcsum>0);
+  return tmp /adcsum;
+}

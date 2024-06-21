@@ -105,18 +105,22 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   E16ANA_STSAnalyzer ana;
   ana.clusterize(hits1, clusters1);
 
+  return 1;
+
+  // The following will not be executed.
+
 //  std::cout << "sts dst0 num hits = " << sts_dst0.NumberOfHits() << std::endl;  
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
     if ( hit0.ADCinvalid() ) continue; // invalid
-	 clusters1.emplace_back();
-	 auto& cluster1 = clusters1.back();
+    clusters1.emplace_back();
+    auto& cluster1 = clusters1.back();
 #ifdef STS_MODULE_RAND
 //    cluster1.SetIds(get_module_rnd(), hit0.ChannelID());
 #else
 //    cluster1.SetIds(hit0.ModuleID(),  hit0.ChannelID());
 #endif
-	 cluster1.SetInvalid();
+    cluster1.SetInvalid();
     cluster1.SetClusterId(i);
 	 cluster1.SetModuleId(hit0.ModuleID());
 	 cluster1.SetPeakSum(hit0.ADC());
