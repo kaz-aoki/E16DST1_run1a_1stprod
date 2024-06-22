@@ -17,7 +17,7 @@
 using namespace std;
 
 //#define STS_MODULE_RAND
-#define STS_DO_CLUSTERING
+//#define STS_DO_CLUSTERING
 
 int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
@@ -115,7 +115,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
     if ( hit0.ADCinvalid() ) continue; // invalid
-    if ( hit0.PN() == 0 ) conitnue; // Eliminate P side data for fast process.
+    if ( hit0.PN() == 0 ) continue; // Eliminate P side data for fast process.
 
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
