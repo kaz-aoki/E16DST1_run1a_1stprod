@@ -12,16 +12,17 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
   if ( hits1.size() == 0 ) return; // no hits to be clusterized.
   sort(hits1);
 
-  vec_cluster.clear();
+  vec_cluster.clear();  // std::vector<E16ANA_STSCluster>
 
   // 1st clustering
   for( auto& hit : hits1 ) {
-    if ( hit.ADC() == 0 ) continue;
+    // loop over all hits in DST1.
+    if ( hit.ADC() == 0 ) continue; // remove dummy hit.
     if ( hit.Timing() < param.timing_min ) continue;
     if ( hit.Timing() > param.timing_max ) continue;
     if (vec_cluster.size() == 0 ){
-      vec_cluster.emplace_back();
-      vec_cluster.back().hits.push_back(hit);
+      vec_cluster.emplace_back(); // add the first cluster.
+      vec_cluster.back().hits.push_back(hit); // add a hit to the first cluster.
       continue;
     }
     auto& lasthit = vec_cluster.back().hits.back();
@@ -33,7 +34,7 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
 	continue;
       }
     }
-    vec_cluster.emplace_back();
+    vec_cluster.emplace_back(); // found a new cluster.
     vec_cluster.back().hits.push_back(hit);
   }
   /*
@@ -82,7 +83,6 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
       ihit++; // pass
     }
   }
-
   
   // remove same tdc hits.
   for( int iclus = 0; iclus < vec_cluster.size(); iclus++ ){
@@ -154,8 +154,7 @@ void E16ANA_STSAnalyzer::fill_dst1(std::vector<E16DST_DST1STSCluster>& clusters1
     if ( clus.hits.size() == 0 ) continue;
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
-    cluster1.SetCogPos(clus.cog());
-    cluster1.SetTiming(clus.timing(param));
+    cluster1.SetTiming(clus.timing());
     cluster1.SetPeakSum(clus.adc());
     // fill lpos and gpos.
     cluster1.SetPN(clus.hits.back().PN());
@@ -163,6 +162,7 @@ void E16ANA_STSAnalyzer::fill_dst1(std::vector<E16DST_DST1STSCluster>& clusters1
     double local[3] = {lpos.X(),lpos.Y(),lpos.Z()};
     double global[3]={0.,0.,0.};
     cluster1.SetModuleId(clus.hits.back().ModuleId());
+    cluster1.SetCogPos(lpos.X());
     // what else?
     ggeom->Local2Global(cluster1.ModuleId(),local,global);
     cluster1.SetLocalPos(lpos);
@@ -185,18 +185,20 @@ double E16ANA_STSCluster::tdc(){
     return tmp/adcsum;
 }
 
-double E16ANA_STSCluster::timing(E16ANA_STSClusterParam& param){
+double E16ANA_STSCluster::timing(){
   if ( hits.size() == 0 ) return sts_invalid;
+
+  /*
   auto judge_less = [](const auto& a, const auto& b){
     return a.Timing() < b.Timing();
   };
   auto minmax = std::minmax_element(hits.begin(),hits.end(),judge_less);
-  
+  */
   auto acc_helper = [&](double acc, const auto&x) {
     double tmp_time = (double) x.Timing();
-    if ( (tmp_time - minmax.first->Timing()) > param.tdc_window ) {
-      tmp_time -= 0x3fff;
-    }
+    //if ( (tmp_time - minmax.first->Timing()) > param.tdc_window ) {
+    //tmp_time -= 0x3fff;
+    //}
     return acc+tmp_time*x.ADC();
   };
 

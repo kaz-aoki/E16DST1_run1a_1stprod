@@ -21,15 +21,15 @@ public:
   int adc();
   double tdc();
   double cog();
-  double timing(E16ANA_STSClusterParam& param);
+  double timing();
   
   void show() {
     std::cout << "STSCluster:" << std::endl;
     for ( auto iter = hits.begin(); iter != hits.end(); iter++){
       std::cout << "mod=" << iter->ModuleId() << ", PN=" << iter->PN() << ", Strip=" << iter->StripId() <<
-	", tdc=" << iter->TDC() << ", adc=" << iter->ADC() << std::endl;
+	", tdc=" << iter->TDC() << ", timing=" << iter->Timing() << ", adc=" << iter->ADC() << std::endl;
     }
-    std::cout << "  adc_sum=" << adc() << ",  tdc=" << tdc() << " cog=" << cog() << std::endl;
+    std::cout << "  adc_sum=" << adc() << ",  tdc=" << tdc() << ", timing=" << timing() << ", cog=" << cog() << std::endl;
   }
 };
 
