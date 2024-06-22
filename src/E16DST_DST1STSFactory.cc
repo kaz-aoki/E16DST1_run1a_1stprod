@@ -66,6 +66,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     auto& hit0 = sts_dst0.Hit(i);
     if( hit0.ADCinvalid() ) continue;
     if( hit0.TDCinvalid() ) continue;
+    if ( hit0.PN() == 0 ) continue; // remove P side.
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -114,6 +115,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
     if ( hit0.ADCinvalid() ) continue; // invalid
+    if ( hit0.PN() == 0 ) conitnue; // Eliminate P side data for fast process.
+
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
 #ifdef STS_MODULE_RAND
