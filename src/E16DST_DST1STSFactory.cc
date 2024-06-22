@@ -17,7 +17,7 @@
 using namespace std;
 
 //#define STS_MODULE_RAND
-
+#define STS_DO_CLUSTERING
 
 int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
@@ -101,11 +101,12 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     ggeom->Local2Global(hit1.ModuleId(),local,global);
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
   }
-
+#ifdef STS_DO_CLUSTERING
   E16ANA_STSAnalyzer ana;
   ana.clusterize(hits1, clusters1);
 
   return 1;
+#endif
 
   // The following will not be executed.
 
