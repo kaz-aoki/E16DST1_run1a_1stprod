@@ -178,6 +178,9 @@ public:
 
   TVector3 GetGPos(const TVector3 &lpos) const;
   TVector3 GetLPos(const TVector3 &gpos) const;
+  TVector3 GetGMom(const TVector3 &lmom) const;
+  TVector3 GetLMom(const TVector3 &gmom) const;
+
   TVector3 GetDetectorCenter() const;
   ROOT::Math::Plane3D GetPlane(double local_z = 0.0) const;
 
