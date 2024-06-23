@@ -2685,16 +2685,29 @@ class E16ANA_TrackCheckFile {
       rk_hit_ssd_gx[i] = ssdhit_gpos.X();
       rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
       rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
+#ifndef NoExist_SSD
 #ifdef UseSTS
       auto ssd_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
+		if(ssd_clst !=0) {
+	      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
+ 	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+//       rk_hit_ssd_t[i]  = ssd_clst->Timing();
+      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+		}
+
 #else
       auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
+		if(ssd_clst !=0) {
+	      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
+ 	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+//       rk_hit_ssd_t[i]  = ssd_clst->Timing();
+      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+		}
+
 #endif
-      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
-      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-//      rk_hit_ssd_t[i]  = ssd_clst->Timing();
-      rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
-      rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+#endif
       auto& gtr100hit_lpos = pairs[1].LocalPosT();
       rk_hit_gtr100_tx2[i]  = gtr100hit_lpos.X();
       rk_hit_gtr100_ty[i]   = gtr100hit_lpos.Y();

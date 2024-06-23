@@ -230,6 +230,7 @@ public:
 private:
    enum {kInvalidValue = -100000};
    E16ANA_GeometryV2 *geom;
+	E16ANA_MagneticFieldMap *bfield_map;
    int n_tracks;
    double *track_charge;
    double rungekutta_step_size;
