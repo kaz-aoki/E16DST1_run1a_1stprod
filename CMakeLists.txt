@@ -58,8 +58,8 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 # *caution just a finding, not fitting
 
 #tracking //murakmai
-add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
-#add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking point, like Run0d 
+#add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
+add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking point, like Run0d 
 #add_definitions(-DREMOVE_GTR100) # 
 #add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
@@ -1188,7 +1188,12 @@ target_link_libraries(run_ReStraightV2
 	E16DST
 	E16DST_DST1
 )
-
+#--------------------------------------------------------------------
+add_executable(run_GeometryCheck usr/tmp_murakami/run_GeometryCheck.cc)
+target_link_libraries(run_GeometryCheck
+	E16DST
+	E16DST_DST1
+)
 
 
 
