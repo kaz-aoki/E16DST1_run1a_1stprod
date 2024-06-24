@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 //	int n_event = 0;
 //	int n_physics_event = 0;
 //	int print_cycle = 100;
-	TVector3 lpos = {0.0, 0.0, 0.0};
+	TVector3 lpos = {30, 0.0, 0.0};
 	TVector3 gpos;
 //	int mid2020[10] = {100, 101, 102, 103, 104, 105, 106, 107, 108, 109};//example	
 	int mid2020 = 106;//example
