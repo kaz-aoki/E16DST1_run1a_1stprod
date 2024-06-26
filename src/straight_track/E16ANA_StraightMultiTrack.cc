@@ -10,6 +10,7 @@
 const double E16ANA_StraightMultiTrack::chisq_sigma_min = 1.0e-4; // 0.1 um
 
 E16ANA_StraightMultiTrack::E16ANA_StraightMultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16ANA_GeometryV2 *_goem,  std::vector<TVector3> &_tgt_pos, int _n_tracks) : 
+  bfield_map(_bfield_map), 
   geom(_goem), n_tracks(_n_tracks),
   rungekutta_step_size(5.0), // 5.0 mm
   print_level(-1),
@@ -408,8 +409,10 @@ double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
     auto min_tgt = std::min_element(std::begin(t_distance), std::end(t_distance));
     int  min_i   = std::distance(std::begin(t_distance), min_tgt) ;
 
-	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/0.3;
-	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/2.0;
+//	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/0.3;
+//	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/2.0;
+	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/vertex_sigma.X();
+	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/vertex_sigma.Y();
 ////	 double dz = ((vertex_fit.Z()) - targets_pos[min_i].Z() )/vertex_sigma.Z();
 ////    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
 ////    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;

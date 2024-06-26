@@ -426,6 +426,9 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
   n_calls = fitter->GetNumCalls();
   //if(chisq<20) fitter->PrintHits();
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+	 #ifdef NoExist_SSD
+		if(l==0) continue;
+	 #endif
     fit_results[l].Clear();
     std::vector<TVector3> lpos;
     std::vector<TVector3> lmom;
@@ -1534,7 +1537,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
   if (n_y_cands > 400) {
     return;
   }
-  
+
   for (const auto& x_cand : cluster_sets[0]) {
     auto& gtrx = x_cand.gtr_clusters;
     std::array<int, kNumGTRLayers> x_module_ids = {gtrx[0]->ModuleId(), gtrx[1]->ModuleId(), gtrx[2]->ModuleId()};
