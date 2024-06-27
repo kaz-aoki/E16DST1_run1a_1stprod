@@ -110,6 +110,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     cluster1.SetClusterId(i);
 	 cluster1.SetModuleId(hit0.ModuleID());
 	 cluster1.SetPeakSum(hit0.ADC());
+    cluster1.SetPN(hit0.PN());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
     if ( hit0.TDC() != 0xffff ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
 	 cluster1.SetTiming(hit0.TDC() - emu_timestamp);

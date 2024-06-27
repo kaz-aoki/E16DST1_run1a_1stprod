@@ -10,6 +10,8 @@
 
 #include <TROOT.h>
 #include <TChain.h>
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
@@ -27,6 +29,7 @@
 #include <TF1.h> 
 #include "E16ANA_StraightStepTrack.hh"
 #include "E16DST_DST1Constant.hh" 
+#include "E16DSTN_ReStraightParameter.hh"
 
 using namespace std;
 
@@ -35,11 +38,46 @@ using namespace std;
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class E16DSTN_ReStraightV2 {
+
 public :
-
-
-
-
+  struct FitResult {
+    int set_flag;
+    int layer_order;
+    int module_id;
+    TVector3 local_pos;
+    TVector3 local_mom;
+    TVector3 global_pos;
+    TVector3 global_mom;
+//    TVector3 local_sigma;
+    TVector3 residual_pos;
+    TVector3 residual_post;
+    TVector3 residual_post2;
+    void Clear() {
+      set_flag = 0;
+      layer_order = E16DST_DST1Constant::kInvalidValue;
+      module_id = E16DST_DST1Constant::kInvalidValue;
+      local_pos = E16DST_DST1Constant::kInvalidVector;
+      local_mom = E16DST_DST1Constant::kInvalidVector;
+      global_pos = E16DST_DST1Constant::kInvalidVector;
+      global_mom = E16DST_DST1Constant::kInvalidVector;
+      residual_pos = E16DST_DST1Constant::kInvalidVector;
+      residual_post = E16DST_DST1Constant::kInvalidVector;
+      residual_post2 = E16DST_DST1Constant::kInvalidVector;
+    }
+    void Set(int _layer_order, int _module_id, TVector3 _local_pos, TVector3 _local_mom, TVector3 _global_pos, TVector3 _global_mom, TVector3 _residual_pos) {
+      set_flag = 1;
+      layer_order = _layer_order;
+      module_id = _module_id;
+      local_pos = _local_pos;
+      local_mom = _local_mom;
+      global_pos = _global_pos;
+      global_mom = _global_mom;
+      residual_pos = _residual_pos;
+    }
+    void SetT(TVector3 _residual_pos) { residual_post  = _residual_pos;}
+    void SetT2(TVector3 _residual_pos){ residual_post2 = _residual_pos;}
+    void SetC(TVector3 _residual_pos) { residual_pos   = _residual_pos;}
+  };
 
 	struct TrackPair {
 		int tid0;//track id //minus
@@ -106,6 +144,132 @@ public :
        track_plus_res_refit.fill(E16DST_DST1Constant::kInvalidVector);
      }
    };
+
+
+private:
+   E16ANA_StraightMultiTrack *fitter;
+   E16ANA_StraightMultiTrack *pair_fitter;
+#ifdef REMOVE_NOLAYER
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
+#else
+	#ifndef NoExist_SSD
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> used_cluster_ids;
+	#else
+   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> used_cluster_ids;
+	#endif
+#endif
+   E16ANA_GeometryV2 *geometry ;
+   bool isWire;
+   int n_targets;
+	bool vertex_xy_fix_flag;
+	bool py_fix_flag;
+	bool vertex_z_fix_flag;
+   std::vector<TVector3> targets_pos; 
+   std::vector<TrackPair> track_pairs;
+   std::vector<TrackPair*> selected_track_pairs;
+
+  std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
+
+	static constexpr int kPairMinuitStrategy = 2;
+	static constexpr int kPairMinuitMaxFunctionCalls = 1e4;
+	static inline const TVector3 kVertexSigma = {0, 0, 0};	
+   static const int n_modules = 10;
+	static const int n_layers  = 4;
+	static const int n_div = 8;
+// -- arrays for branch info -- // 
+	std::array<int, 4> mids;
+	std::array<int, 4> mids_tid0;
+	std::array<int, 4> mids_tid1;
+	std::array<double, 4> resx;
+	std::array<double, 4> pre_resx;
+	std::array<double, 4> resx_tid0;
+	std::array<double, 4> resx_tid1;
+	std::array<double, 4> resy;
+	std::array<double, 4> resy_tid0;
+	std::array<double, 4> resy_tid1;
+	std::array<double, 4> fitlxs;
+	std::array<double, 4> fitlys;
+	std::array<double, 4> tans;//tan thetas
+	std::array<double, 4> xt4s;//xt4
+	std::array<double, 4> yts;//
+	std::array<double, 4> xadcs;//
+	std::array<double, 4> yadcs;//
+	std::array<int, 4> xcids;//
+	std::array<double, 4> xtotend;//
+
+
+
+
+//Histograms
+   TH1D* h_chi2;
+   TH1D* h_t0diff;
+   TH1D* h_n_runid;
+   TH1D* h_n_eventid;
+   TH1D* h_n_spillid;
+   TH1D* h_chi2_mod[n_modules];
+   TH1D* h_lg_t_mod[n_modules];
+   TH1D* h_tgt_proj_z_raw[n_modules];
+   TH1D* h_tgt_proj_z_cut[n_modules];
+   TH1D* h_tgt_proj_z_chi2cut[n_modules];
+   TH1D* h_tgt_proj_x[n_modules];
+   TH1D* h_tgt_proj_y[n_modules];
+   TH2D* h_hitmap[n_modules][n_layers];
+   TH1D* h_hitmap_x[n_modules][n_layers];
+   TH1D* h_hitmap_y[n_modules][n_layers];
+   TH1D* h_res_x[n_modules][n_layers];
+   TH1D* h_pre_res_x[n_modules][n_layers];
+   TH1D* h_res_y[n_modules][n_layers];
+   TH1D* h_res_vtx_trk_x[n_modules][n_layers];
+   TH1D* h_res_vtx_trk_y[n_modules][n_layers];
+   TH1D* h_tan_theta[n_modules][n_layers];
+//   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
+   TH1D* h_hit_timing_x[n_modules][n_layers];
+	TH1D* h_cluster_t_diff[n_modules][n_layers];
+	TH2D* h_cluster_t_diff_2d[n_modules][n_layers];
+   TH1D* h_cluster_timing_x[n_modules][n_layers];
+   TH1D* h_cluster_timing_y[n_modules][n_layers];
+   TH1D* h_cluster_timing_chi2_xdependence[n_modules][n_layers][n_div];
+   TH1D* h_cluster_timing_chi2_ydependence[n_modules][n_layers][n_div];
+	TH1D* h_tot_end_fr[n_modules][n_layers];	
+	TH1D* h_tot_end_bg[n_modules][n_layers];	
+	TH1D* h_cluster_adc_xdependence[n_modules][n_layers][n_div];
+	TH1D* h_cluster_adc_ydependence[n_modules][n_layers][n_div];
+	TH2D* h_init_pos;
+	TH2D* h_tgt_pos_mod_raw[n_modules];
+	TH2D* h_tgt_pos_mod_cut[n_modules];
+	TH2D* h_cor_dz_time[n_modules][n_layers];
+	TH2D* h_cor_dz_time_t0cor[n_modules][n_layers];
+	TH2D* h_cor_res_fitlx[n_modules][n_layers];
+	TH2D* h_cor_res_fitly[n_modules][n_layers];
+	TH2D* h_cor_res_timing[n_modules][n_layers];
+	TH2D* h_slopevel[n_modules][n_layers][n_div];
+	TH1D* h_res_lg_x[n_modules];
+	TH1D* h_res_lg_y[n_modules];
+   
+   TH2D* h_res_lg_2d[n_modules];
+
+	TH1D* h_res_vtx_trk_lg_x[n_modules];
+	TH1D* h_res_vtx_trk_lg_y[n_modules];
+	TH1D* h_bak_res_lg_x[n_modules];
+	TH1D* h_bak_res_lg_y[n_modules];
+
+   TH2D* h_bak_res_lg_2d[n_modules];
+	
+
+	TH1D* h_bak_res_vtx_trk_lg_x[n_modules];
+	TH1D* h_bak_res_vtx_trk_lg_y[n_modules];
+
+//removed residual
+
+//pair
+	TH1D* h_vtx_gx;
+	TH1D* h_vtx_gy;
+	TH1D* h_vtx_gz;
+	TH2D* h_vtx_gx_gz;	
+	TH2D* h_vtx_gx_gy;	
+
+
+public:
 
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain
@@ -188,6 +352,25 @@ public :
    vector<double>  *gtr300y_hit_ty;
    vector<double>  *gtr300y_hit_t;
    vector<float>   *gtr300y_hit_adc;
+
+   Int_t           pre_n_gtrx_clusters = 0;
+   vector<int>     pre_gtrx_cluster_id;
+   vector<int>     pre_gtrx_cluster_mid;
+   vector<int>     pre_gtrx_cluster_cid;
+   vector<double>  pre_gtrx_cluster_x;
+   vector<double>  pre_gtrx_cluster_ty;
+   vector<double>  pre_gtrx_cluster_t;
+   vector<float>   pre_gtrx_cluster_adc;
+   Int_t           pre_n_gtry_clusters = 0;
+   vector<int>     pre_gtry_cluster_id;
+   vector<int>     pre_gtry_cluster_mid;
+   vector<int>     pre_gtry_cluster_cid;
+   vector<double>  pre_gtry_cluster_y;
+   vector<double>  pre_gtry_cluster_ty;
+   vector<double>  pre_gtry_cluster_t;
+   vector<float>   pre_gtry_cluster_adc;
+
+
    Int_t           n_hbd_hits;
    vector<int>     *hbd_hit_id;
    vector<int>     *hbd_hit_mid;
@@ -214,7 +397,7 @@ public :
    vector<double>  *sts_cluster_fit_chi2;
    Int_t           n_gtr100x_clusters;
    vector<int>     *gtr100x_cluster_id;
-//   vector<vector<int>>     *gtr100x_cluster_consist_hit_id;
+   vector<vector<double>>     *gtr100x_cluster_consist_hit_id;
    vector<int>     *gtr100x_cluster_mid;
    vector<double>  *gtr100x_cluster_x;
    vector<double>  *gtr100x_cluster_gx;
@@ -232,6 +415,7 @@ public :
    vector<double>  *gtr300x_cluster_last_tot_end;
    Int_t           n_gtr200x_clusters;
    vector<int>     *gtr200x_cluster_id;
+   vector<vector<double>>     *gtr200x_cluster_consist_hit_id;
    vector<int>     *gtr200x_cluster_mid;
    vector<double>  *gtr200x_cluster_x;
    vector<double>  *gtr200x_cluster_gx;
@@ -246,6 +430,7 @@ public :
    vector<int>     *gtr200x_cluster_size;
    Int_t           n_gtr300x_clusters;
    vector<int>     *gtr300x_cluster_id;
+   vector<vector<double>>     *gtr300x_cluster_consist_hit_id;
    vector<int>     *gtr300x_cluster_mid;
    vector<double>  *gtr300x_cluster_x;
    vector<double>  *gtr300x_cluster_gx;
@@ -260,6 +445,7 @@ public :
    vector<int>     *gtr300x_cluster_size;
    Int_t           n_gtr100y_clusters;
    vector<int>     *gtr100y_cluster_id;
+   vector<vector<double>>     *gtr100y_cluster_consist_hit_id;
    vector<int>     *gtr100y_cluster_mid;
    vector<double>  *gtr100y_cluster_y;
    vector<float>   *gtr100y_cluster_adc;
@@ -271,6 +457,7 @@ public :
    vector<int>     *gtr100y_cluster_size;
    Int_t           n_gtr100yb_clusters;
    vector<int>     *gtr100yb_cluster_id;
+   vector<vector<double>>     *gtr100yb_cluster_consist_hit_id;
    vector<int>     *gtr100yb_cluster_mid;
    vector<double>  *gtr100yb_cluster_y;
    vector<float>   *gtr100yb_cluster_adc;
@@ -282,6 +469,7 @@ public :
    vector<int>     *gtr100yb_cluster_size;
    Int_t           n_gtr200y_clusters;
    vector<int>     *gtr200y_cluster_id;
+   vector<vector<double>>     *gtr200y_cluster_consist_hit_id;
    vector<int>     *gtr200y_cluster_mid;
    vector<double>  *gtr200y_cluster_y;
    vector<float>   *gtr200y_cluster_adc;
@@ -293,6 +481,7 @@ public :
    vector<int>     *gtr200y_cluster_size;
    Int_t           n_gtr300y_clusters;
    vector<int>     *gtr300y_cluster_id;
+   vector<vector<double>>     *gtr300y_cluster_consist_hit_id;
    vector<int>     *gtr300y_cluster_mid;
    vector<double>  *gtr300y_cluster_y;
    vector<float>   *gtr300y_cluster_adc;
@@ -350,6 +539,23 @@ public :
    vector<float>   *lg_hit_wofit_t;
    vector<int>     *lg_hit_npeaks;
    vector<int>     *lg_hit_fflag;
+   Int_t           pre_n_lg_hits = 0;
+   vector<int>     pre_lg_hit_id;
+   vector<int>     pre_lg_hit_mid;
+   vector<int>     pre_lg_hit_cid;
+   vector<double>  pre_lg_hit_x;
+   vector<double>  pre_lg_hit_y;
+   vector<double>  pre_lg_hit_z;
+   vector<double>  pre_lg_hit_gx;
+   vector<double>  pre_lg_hit_gy;
+   vector<double>  pre_lg_hit_gz;
+   vector<float>   pre_lg_hit_adc;
+   vector<float>   pre_lg_hit_t;
+   vector<float>   pre_lg_hit_wofit_adc;
+   vector<float>   pre_lg_hit_wofit_t;
+   vector<int>     pre_lg_hit_npeaks;
+   vector<int>     pre_lg_hit_fflag;
+
    Int_t           n_lg_clusters;
    vector<int>     *lg_cluster_id;
    vector<int>     *lg_cluster_mid;
@@ -930,7 +1136,13 @@ public :
    TBranch        *b_sts_cluster_fit_chi2;   //!
    TBranch        *b_n_gtr100x_clusters;   //!
    TBranch        *b_gtr100x_cluster_id;   //!
-//   TBranch        *b_gtr100x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr100x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr200x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr300x_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr100y_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr100yb_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr200y_cluster_consist_hit_id;   //!
+   TBranch        *b_gtr300y_cluster_consist_hit_id;   //!
    TBranch        *b_gtr100x_cluster_mid;   //!
    TBranch        *b_gtr100x_cluster_x;   //!
    TBranch        *b_gtr100x_cluster_gx;   //!
@@ -1066,6 +1278,23 @@ public :
    TBranch        *b_lg_hit_wofit_t;   //!
    TBranch        *b_lg_hit_npeaks;   //!
    TBranch        *b_lg_hit_fflag;   //!
+//   TBranch        *b_pre_n_lg_hits;   //!
+//   TBranch        *b_pre_lg_hit_id;   //!
+//   TBranch        *b_pre_lg_hit_mid;   //!
+//   TBranch        *b_pre_lg_hit_cid;   //!
+//   TBranch        *b_pre_lg_hit_x;   //!
+//   TBranch        *b_pre_lg_hit_y;   //!
+//   TBranch        *b_pre_lg_hit_z;   //!
+//   TBranch        *b_pre_lg_hit_gx;   //!
+//   TBranch        *b_pre_lg_hit_gy;   //!
+//   TBranch        *b_pre_lg_hit_gz;   //!
+//   TBranch        *b_pre_lg_hit_adc;   //!
+//   TBranch        *b_pre_lg_hit_t;   //!
+//   TBranch        *b_pre_lg_hit_wofit_adc;   //!
+//   TBranch        *b_pre_lg_hit_wofit_t;   //!
+//   TBranch        *b_pre_lg_hit_npeaks;   //!
+//   TBranch        *b_pre_lg_hit_fflag;   //!
+// 
    TBranch        *b_n_lg_clusters;   //!
    TBranch        *b_lg_cluster_id;   //!
    TBranch        *b_lg_cluster_mid;   //!
@@ -1141,6 +1370,7 @@ public :
    TBranch        *b_n_selected;   //!
    TBranch        *b_n_pairs;   //!
 
+   TBranch        *b_n_alive_tracks;   //!
    TBranch        *b_n_refit_pairs;   //!
    TBranch        *b_track_id;   //!
    TBranch        *b_has_e_hbd_cluster;   //!
@@ -1858,7 +2088,7 @@ public :
    Int_t                out_n_pairs;
    Int_t                out_n_refit_pairs;
 
-//	Int_t out_n_alive_tracks;
+	Int_t out_n_alive_tracks;
 
    std::vector<int>     out_track_id;
    std::vector<bool>    out_has_e_hbd_cluster;
@@ -2262,28 +2492,36 @@ public :
    std::vector<double>     out_gtr200x_cluster_last_tot_end;
    std::vector<double>     out_gtr300x_cluster_last_tot_end;
 
+	std::vector<std::vector<double>>	out_gtr100x_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr200x_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr300x_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr100y_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr100yb_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr200y_cluster_consist_hit_id;
+	std::vector<std::vector<double>>	out_gtr300y_cluster_consist_hit_id;
 
 
-   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
+   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
    virtual ~E16DSTN_ReStraightV2();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, const char *out_file);
-   virtual void     Loop(TTree* tree, int print, int max, bool xy, bool py, bool z, int SW);
+   virtual void     Loop(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  
 	TFile *FileOut() {return fout;}
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
+   bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
    void ClearUsedClusterIDs();
    void AddRecord(TTree* intree, std::vector<int> &alive_ids);
 	void ChiSqSort(std::vector<int> &ids);
 	void SelectTracks(std::vector<int> &ids, std::vector<int> &outids);
 	void DuplicationClusterCut(std::vector<int> &ids, std::vector<int> &outids);
 
-   void DrawHist( TTree* tree, int n_maxevent, int print_cycle, const int residual_layer,  TString pdf_name);
 	bool IsGoodTrack(const int id);
 	bool IsRealTrack(const int id);
 	bool IsSameTarget(const int tid0, const int tid1);
@@ -2295,38 +2533,23 @@ public :
 	double SearchVertex(TrackPair *track_pair);
 	void SelectTrackPairs();
 
-   private:
-   E16ANA_StraightMultiTrack *pair_fitter;
-#ifdef REMOVE_NOLAYER
-   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
-#else
-	#ifndef NoExist_SSD
-   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> used_cluster_ids;
-	#else
-   std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> used_cluster_ids;
-	#endif
-#endif
-   E16ANA_GeometryV2 *geometry ;
-   bool isWire;
-   int n_targets;
-	bool vertex_xy_fix_flag;
-	bool py_fix_flag;
-	bool vertex_z_fix_flag;
-   std::vector<TVector3> targets_pos; 
-   std::vector<TrackPair> track_pairs;
-   std::vector<TrackPair*> selected_track_pairs;
-
-	static constexpr int kPairMinuitStrategy = 2;
-	static constexpr int kPairMinuitMaxFunctionCalls = 1e4;
-	static inline const TVector3 kVertexSigma = {0, 0, 0};	
-
+   void DrawHist( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
+	void FillPulseInfos(int i);
+	void InitHistos();
+	void FillVectors(int i);
+	void CalculateRemovedGTRMinResidual();
+	double Fit(int itk, E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag,  bool py_fix_flag, bool vertex_z_fix_flag);
+	void AddTrackHit(int itk, E16ANA_StraightMultiTrack* f);
+	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
+	TVector3 CorrectedLocalPos(int itk, int mid, int l);
+//	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
 };
 
 #endif
 
 #ifdef E16DSTN_ReStraightV2_cxx
 
-E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), pair_fitter(_pair_fitter), vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(E16ANA_StraightTrackParameter::kVtxZFixFlag)
+E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), fitter(_fitter),pair_fitter(_pair_fitter),  vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(E16ANA_StraightTrackParameter::kVtxZFixFlag)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -2339,9 +2562,9 @@ E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E1
    }
    Init(tree, out_file);
    n_targets = _tgt_pos.size();
-   if(n_targets = 2) {isWire = true;}
+   if(n_targets == 2) {isWire = true;}
 	else if (n_targets == 3) {isWire = false;}
-   else {std::cerr << "strange number of targerts" << std::endl; std::exit(0);}
+//   else {std::cerr << "strange number of targerts" << std::endl; std::exit(0);}
    targets_pos.resize(_tgt_pos.size());
    for(int i=0; i < _tgt_pos.size(); i++){
      targets_pos[i] = _tgt_pos[i];
@@ -2475,7 +2698,13 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    sts_cluster_fit_adc = 0;
    sts_cluster_fit_chi2 = 0;
    gtr100x_cluster_id = 0;
-//   gtr100x_cluster_consist_hit_id = 0;
+   gtr100x_cluster_consist_hit_id = 0;
+   gtr200x_cluster_consist_hit_id = 0;
+   gtr300x_cluster_consist_hit_id = 0;
+   gtr100y_cluster_consist_hit_id = 0;
+   gtr100yb_cluster_consist_hit_id = 0;
+   gtr200y_cluster_consist_hit_id = 0;
+   gtr300y_cluster_consist_hit_id = 0;
    gtr100x_cluster_mid = 0;
    gtr100x_cluster_x = 0;
    gtr100x_cluster_gx = 0;
@@ -2602,6 +2831,22 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    lg_hit_wofit_t = 0;
    lg_hit_npeaks = 0;
    lg_hit_fflag = 0;
+//   pre_lg_hit_id = 0;
+//   pre_lg_hit_mid = 0;
+//   pre_lg_hit_cid = 0;
+//   pre_lg_hit_x = 0;
+//   pre_lg_hit_y = 0;
+//   pre_lg_hit_z = 0;
+//   pre_lg_hit_gx = 0;
+//   pre_lg_hit_gy = 0;
+//   pre_lg_hit_gz = 0;
+//   pre_lg_hit_adc = 0;
+//   pre_lg_hit_t = 0;
+//   pre_lg_hit_wofit_adc = 0;
+//   pre_lg_hit_wofit_t = 0;
+//   pre_lg_hit_npeaks = 0;
+//   pre_lg_hit_fflag = 0;
+
    lg_cluster_id = 0;
    lg_cluster_mid = 0;
    lg_cluster_max_cid = 0;
@@ -3172,7 +3417,13 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("sts_cluster_fit_chi2", &sts_cluster_fit_chi2, &b_sts_cluster_fit_chi2);
    fChain->SetBranchAddress("n_gtr100x_clusters", &n_gtr100x_clusters, &b_n_gtr100x_clusters);
    fChain->SetBranchAddress("gtr100x_cluster_id", &gtr100x_cluster_id, &b_gtr100x_cluster_id);
-//   fChain->SetBranchAddress("gtr100x_cluster_consist_hit_id", &gtr100x_cluster_consist_hit_id, &b_gtr100x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr100x_cluster_consist_hit_id", &gtr100x_cluster_consist_hit_id, &b_gtr100x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr200x_cluster_consist_hit_id", &gtr200x_cluster_consist_hit_id, &b_gtr200x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr300x_cluster_consist_hit_id", &gtr300x_cluster_consist_hit_id, &b_gtr300x_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr100y_cluster_consist_hit_id", &gtr100y_cluster_consist_hit_id, &b_gtr100y_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr100yb_cluster_consist_hit_id", &gtr100yb_cluster_consist_hit_id, &b_gtr100yb_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr200y_cluster_consist_hit_id", &gtr200y_cluster_consist_hit_id, &b_gtr200y_cluster_consist_hit_id);
+   fChain->SetBranchAddress("gtr300y_cluster_consist_hit_id", &gtr300y_cluster_consist_hit_id, &b_gtr300y_cluster_consist_hit_id);
    fChain->SetBranchAddress("gtr100x_cluster_mid", &gtr100x_cluster_mid, &b_gtr100x_cluster_mid);
    fChain->SetBranchAddress("gtr100x_cluster_x", &gtr100x_cluster_x, &b_gtr100x_cluster_x);
    fChain->SetBranchAddress("gtr100x_cluster_gx", &gtr100x_cluster_gx, &b_gtr100x_cluster_gx);
@@ -3382,6 +3633,9 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    fChain->SetBranchAddress("n_cands", &n_cands, &b_n_cands);
    fChain->SetBranchAddress("n_selected", &n_selected, &b_n_selected);
    fChain->SetBranchAddress("n_pairs", &n_pairs, &b_n_pairs);
+
+   fChain->SetBranchAddress("n_alive_tracks", &n_alive_tracks, &b_n_alive_tracks);//240613
+
    fChain->SetBranchAddress("n_refit_pairs", &n_refit_pairs, &b_n_refit_pairs);
    fChain->SetBranchAddress("track_id", &track_id, &b_track_id);
    fChain->SetBranchAddress("has_e_hbd_cluster", &has_e_hbd_cluster, &b_has_e_hbd_cluster);
@@ -3885,7 +4139,6 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("sts_cluster_fit_chi2",        &sts_cluster_fit_chi2);
    outtree->Branch("n_gtr100x_clusters",          &n_gtr100x_clusters );
    outtree->Branch("gtr100x_cluster_id",          &gtr100x_cluster_id );
-//   outtree->Branch("gtr100x_cluster_consist_hit_id", &out_gtr100x_cluster_consist_hit_id, "out_gtr100x_cluster_consist_hit_id/S" );
    outtree->Branch("gtr100x_cluster_mid",         &gtr100x_cluster_mid);
    outtree->Branch("gtr100x_cluster_x",           &gtr100x_cluster_x );
    outtree->Branch("gtr100x_cluster_gx",          &gtr100x_cluster_gx);
@@ -4018,6 +4271,23 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("lg_hit_wofit_t",          &lg_hit_wofit_t);
    outtree->Branch("lg_hit_npeaks",           &lg_hit_npeaks);
    outtree->Branch("lg_hit_fflag",            &lg_hit_fflag);
+   outtree->Branch("pre_n_lg_hits",               &pre_n_lg_hits);
+//   outtree->Branch("pre_lg_hit_id",               &pre_lg_hit_id);
+//   outtree->Branch("pre_lg_hit_mid",              &pre_lg_hit_mid);
+//   outtree->Branch("pre_lg_hit_cid",              &pre_lg_hit_cid);
+//   outtree->Branch("pre_lg_hit_x",                &pre_lg_hit_x );
+//   outtree->Branch("pre_lg_hit_y",                &pre_lg_hit_y );
+//   outtree->Branch("pre_lg_hit_z",                &pre_lg_hit_z );
+//   outtree->Branch("pre_lg_hit_gx"  ,             &pre_lg_hit_gx);
+//   outtree->Branch("pre_lg_hit_gy"  ,             &pre_lg_hit_gy);
+//   outtree->Branch("pre_lg_hit_gz"  ,             &pre_lg_hit_gz);
+//   outtree->Branch("pre_lg_hit_adc",              &pre_lg_hit_adc);
+//   outtree->Branch("pre_lg_hit_t",                &pre_lg_hit_t );
+//   outtree->Branch("pre_lg_hit_wofit_adc",        &pre_lg_hit_wofit_adc);
+//   outtree->Branch("pre_lg_hit_wofit_t",          &pre_lg_hit_wofit_t);
+//   outtree->Branch("pre_lg_hit_npeaks",           &pre_lg_hit_npeaks);
+//   outtree->Branch("pre_lg_hit_fflag",            &pre_lg_hit_fflag);
+
    outtree->Branch("n_lg_clusters",           &n_lg_clusters);
    outtree->Branch("lg_cluster_id",           &lg_cluster_id);
    outtree->Branch("lg_cluster_mid",          &lg_cluster_mid);
@@ -4089,12 +4359,14 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("trg_track_lg_t",         &trg_track_lg_t);
    outtree->Branch("n_x_cands",              &n_x_cands);
    outtree->Branch("n_y_cands",              &n_y_cands);
-   outtree->Branch("n_cands",                &n_cands);
+
    outtree->Branch("n_selected",             &n_selected);
-   outtree->Branch("n_pairs",                &n_pairs);
    outtree->Branch("n_refit_pairs",          &n_refit_pairs);
 
-//	outtree->Branch("n_alive_tracks", &out_n_alive_tracks);
+   outtree->Branch("n_cands",                &n_cands);
+   outtree->Branch("n_pairs",                &n_pairs);
+
+	outtree->Branch("n_alive_tracks",         &out_n_alive_tracks);
 
    outtree->Branch("track_id",               &out_track_id);
    outtree->Branch("has_e_hbd_cluster",      &out_has_e_hbd_cluster);
@@ -4492,9 +4764,16 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
    outtree->Branch("rk_hit_gtr200_yt4", &out_rk_hit_gtr200_yt4);
    outtree->Branch("rk_hit_gtr300_yt4", &out_rk_hit_gtr300_yt4);
 
-   outtree->Branch("gtr100x_cluster_last_tot_end",        &out_gtr100x_cluster_last_tot_end);
-   outtree->Branch("gtr200x_cluster_last_tot_end",        &out_gtr200x_cluster_last_tot_end);
-   outtree->Branch("gtr300x_cluster_last_tot_end",        &out_gtr300x_cluster_last_tot_end);
+   outtree->Branch("gtr100x_cluster_last_tot_end",    gtr100x_cluster_last_tot_end);
+   outtree->Branch("gtr200x_cluster_last_tot_end",    gtr200x_cluster_last_tot_end);
+   outtree->Branch("gtr300x_cluster_last_tot_end",    gtr300x_cluster_last_tot_end);
+   outtree->Branch("gtr100x_cluster_consist_hit_id",  gtr100x_cluster_consist_hit_id);
+   outtree->Branch("gtr200x_cluster_consist_hit_id",  gtr200x_cluster_consist_hit_id);
+   outtree->Branch("gtr300x_cluster_consist_hit_id",  gtr300x_cluster_consist_hit_id);
+   outtree->Branch("gtr100y_cluster_consist_hit_id",  gtr100y_cluster_consist_hit_id);
+   outtree->Branch("gtr100yb_cluster_consist_hit_id", gtr100yb_cluster_consist_hit_id);
+   outtree->Branch("gtr200y_cluster_consist_hit_id",  gtr200y_cluster_consist_hit_id);
+   outtree->Branch("gtr300y_cluster_consist_hit_id",  gtr300y_cluster_consist_hit_id);
 //   outtree->Branch("re_lg_res_x", &out_re_lg_res_x);
 //   outtree->Branch("re_lg_res_y", &out_re_lg_res_y);
 
@@ -4542,7 +4821,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 
 //	int n_tracks = rk_hit_init_pos_gz->size() ;	
 	int n_tracks = alive_ids.size();	
-//	out_n_alive_tracks = n_tracks;
+	out_n_alive_tracks = n_tracks;
 
     	out_track_id.resize(n_tracks);
   	   out_has_e_hbd_cluster.resize(n_tracks);
@@ -4806,6 +5085,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
    out_rk_hit_gtr300_cogx.resize(n_tracks) ;
    out_rk_hit_gtr100_cogy.resize(n_tracks) ;
    out_rk_hit_gtr200_cogy.resize(n_tracks) ;
+   out_rk_hit_gtr300_cogy.resize(n_tracks) ;
 	
    out_rk_hit_gtr100_xt4.resize(n_tracks);
    out_rk_hit_gtr200_xt4.resize(n_tracks);
@@ -4951,7 +5231,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 //		out_re_lg_res_x.resize(n_tracks);
 //		out_re_lg_res_y.resize(n_tracks);
 
-//  out_n_cands = n_selected;
+   out_n_cands = n_tracks;//number of alive tracks
 	for(int i = 0 ; i < n_tracks ; i++){		
 		int tid = alive_ids[i];
 		out_track_id[i] = tid;
@@ -4976,40 +5256,19 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
 	   out_y_rough_fit_coef1[i]=	   y_rough_fit_coef1->at(tid);
 
 
-
-//      int cl_size_100 = gtr100x_cluster_size->at(tid);
-//		for(int j=0; j < cl_size_100; j++){
-//			std::cout << "track id " << i << std::endl;
-//         std::cout << "cluster  " << &gtr100x_cluster_consist_hit_id->at(i) << std::endl;
-//			std::cout << "clsuter' id " << (gtr100x_cluster_consist_hit_id->at(i))[j] << std::endl;
-//			int id = (gtr100x_cluster_consist_hit_id->at(i))[j];
-//			for(int k=0; k < n_gtr100x_hits; k++){
-//				int hid = gtr100x_hit_id->at(k);
-//				if(hid == id){ 
-//					out_gtr100x_hit_t[i].push_back(gtr100x_hit_t->at(hid));
-//				}
-//			}
-//		}
-
 		int cid_100 = rk_hit_gtr100_xid->at(tid);//cluster id which is used in a track
 		for(int j=0; j < n_gtr100x_clusters; j++){
 			int cid = gtr100x_cluster_id->at(j);//cluster id from all cluster
 			if(cid_100 == cid){ //if both are matched
-            out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
+   	      out_gtr100x_cluster_last_tot_end[i] = gtr100x_cluster_last_tot_end->at(j);//tot_end is filled
 			}
 		}
 
 		int cid_200 = rk_hit_gtr200_xid->at(tid);//cluster id which is used in a track
 		for(int j=0; j < n_gtr200x_clusters; j++){
 			int cid = gtr200x_cluster_id->at(j);//cluster id from all cluster
-//			std::cout << "cid = " << cid << std::endl;
-//			std::cout << "cid200 = " << cid_200 << std::endl;
-//			std::cout << "j  = " << j  << std::endl;
 			if(cid_200 == cid){ //if both are matchej
-//				std::cout << "size " << gtr200x_cluster_last_tot_end->size() << std::endl;
-///				std::cout << "out_gtr size = i ,  " << i << ", " << out_gtr200x_cluster_last_tot_end.size() << std::endl;
             out_gtr200x_cluster_last_tot_end[i] = gtr200x_cluster_last_tot_end->at(j);//tot_end is filled
-//				std::cout<< "hello " << std::endl;
 			}
 		}	
    	int cid_300 = rk_hit_gtr300_xid->at(tid);//cluster id which is used in a track
@@ -5019,10 +5278,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
             out_gtr300x_cluster_last_tot_end[i] = gtr300x_cluster_last_tot_end->at(j);//tot_end is filled
 			}
 		}
-
-
-
-
 		
 
 	//	std::cout << "mom = " << rk_fit_init_mom_gz->at(tid) << std::endl;
@@ -5230,7 +5485,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
    out_rk_hit_gtr300_cogx[i] = rk_hit_gtr300_cogx->at(tid);
    out_rk_hit_gtr100_cogy[i] = rk_hit_gtr100_cogy->at(tid);
    out_rk_hit_gtr200_cogy[i] = rk_hit_gtr200_cogy->at(tid);
-   out_rk_hit_gtr200_cogy[i] = rk_hit_gtr200_cogy->at(tid);
+   out_rk_hit_gtr300_cogy[i] = rk_hit_gtr300_cogy->at(tid);
 	
    out_rk_hit_gtr100_xt4[i] = rk_hit_gtr100_xt4->at(tid);
    out_rk_hit_gtr200_xt4[i] = rk_hit_gtr200_xt4->at(tid);
@@ -5305,8 +5560,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_minus_gtr300_pos_refit_gx[i] = mposs_refit[3].X();
        out_rk_pair_minus_gtr300_pos_refit_gy[i] = mposs_refit[3].Y();
        out_rk_pair_minus_gtr300_pos_refit_gz[i] = mposs_refit[3].Z();
-
-
        out_rk_pair_plus_gtr100_pos_refit_gx[i] = pposs_refit[1].X();
        out_rk_pair_plus_gtr100_pos_refit_gy[i] = pposs_refit[1].Y();
        out_rk_pair_plus_gtr100_pos_refit_gz[i] = pposs_refit[1].Z();
@@ -5352,16 +5605,8 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_plus_gtr300_res_refit_x[i] = press_refit[3].X();
        out_rk_pair_plus_gtr300_res_refit_y[i] = press_refit[3].Y();
        out_rk_pair_plus_gtr300_res_refit_z[i] = press_refit[3].Z();
-     
 		}
 	}
-
-	
-   
-
-
-
-
 	outtree->Fill();	
 }//AddReco
 

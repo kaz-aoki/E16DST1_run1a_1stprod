@@ -104,7 +104,7 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 	#endif
 #endif
 
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {80., 80., 80.};
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigmaIncTgt[0] * kXSigmaIncTgt[0]),
                                             1. / (kXSigmaIncTgt[1] * kXSigmaIncTgt[1]),
                                             1. / (kXSigmaIncTgt[2] * kXSigmaIncTgt[2]),
@@ -183,13 +183,13 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 2204
 #ifdef REMOVE_NOLAYER
 constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 300.}; // 
 #else
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 1000}; //
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {1000., 500}; //
 #endif
 
 
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015}; 
 #ifdef REMOVE_NOLAYER
-constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
 #else
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // coef[1] not used.
 #endif
