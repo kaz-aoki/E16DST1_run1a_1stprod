@@ -114,21 +114,21 @@ constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // c
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {3., 0.2}; // x, y from sim
 //constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.06, 0.1, 0.002};
 //constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {4., 10.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 50.}; // x, y from previous Ks peak
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015};
-constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {60., 0.}; // coef[1] not used.
 #endif // TRACK_FIND_WO_TARGET
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
-  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) { // 220418 for production
+//  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. )) { // 220418 for production
     return true;
-  }
-  return false;
+//  }
+//  return false;
 }
 
 // other
-constexpr bool kExecutePairFit = true;
+constexpr bool kExecutePairFit = false;
 constexpr bool kReqHBDAssociation = false;
 //constexpr double kHBDRadius = 1200.;
 constexpr double kHBDRadius = 1196.;

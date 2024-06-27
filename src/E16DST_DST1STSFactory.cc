@@ -118,6 +118,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
       // P
     }else{
       // N
+      std::cout << "lpos in facto : " << lpos.X()  << std::endl;
 	   cluster1.SetCogPos(lpos.X());
     }
     double local[3]= {lpos.X(),lpos.Y(),lpos.Z()};
@@ -127,6 +128,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   }
 
   
+  std::cout << "sts cluster size in facto : " << clusters1.size() << std::endl;
   
   //  auto lgeom = E16ANA_STSGeometry::instance();
   //std::cout << " local coordinte " << lgeom->GetLocalX_fromN(0) << std::endl;
