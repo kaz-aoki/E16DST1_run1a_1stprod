@@ -69,7 +69,7 @@ float E16ANA_STSADCCalibration::GetCorrespondingCharge(uint16_t module_id, uint1
 
 //==============================================================
 int E16ANA_STSADCCalibration::ConvertModuleID(uint16_t module_id) const {
-    std::vector<uint16_t> k_module_ids = {101, 102, 103, 104, 106, 107, 108, 109, 206, 207};
+    std::vector<uint16_t> k_module_ids = {101, 102, 103, 104, 106, 107, 108, 109, 206, 207};//using mod
 
     for (int i = 0; i < k_module_ids.size(); ++i) {
         if (k_module_ids[i] == module_id) {
