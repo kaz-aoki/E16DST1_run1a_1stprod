@@ -176,6 +176,21 @@ private:
    static const int n_modules = 10;
 	static const int n_layers  = 4;
 	static const int n_div = 8;
+	static const int n_wires = 4;
+	static constexpr double  kHistoTanMin= -0.3;
+	static constexpr double  kHistoTanMax= 0.3;
+
+//wire definition
+//              ^
+//              |
+//  w2----------|----------w1   
+//              |             
+//              |             
+//   <----------|-----------  x axis
+//              |             
+//              |             
+//  w3----------|----------w0
+//  				beam   
 // -- arrays for branch info -- // 
 	std::array<int, 4> mids;
 	std::array<int, 4> mids_tid0;
@@ -208,17 +223,14 @@ private:
    TH1D* h_n_spillid;
    TH1D* h_chi2_mod[n_modules];
    TH1D* h_lg_t_mod[n_modules];
-   TH1D* h_tgt_proj_z_raw[n_modules];
-   TH1D* h_tgt_proj_z_cut[n_modules];
-   TH1D* h_tgt_proj_z_chi2cut[n_modules];
-   TH1D* h_tgt_proj_x[n_modules];
-   TH1D* h_tgt_proj_y[n_modules];
    TH2D* h_hitmap[n_modules][n_layers];
    TH1D* h_hitmap_x[n_modules][n_layers];
    TH1D* h_hitmap_y[n_modules][n_layers];
    TH1D* h_res_x[n_modules][n_layers];
+   TH1D* h_res_x_wire[n_wires][n_modules][n_layers];
    TH1D* h_pre_res_x[n_modules][n_layers];
    TH1D* h_res_y[n_modules][n_layers];
+   TH1D* h_res_y_wire[n_wires][n_modules][n_layers];
    TH1D* h_res_vtx_trk_x[n_modules][n_layers];
    TH1D* h_res_vtx_trk_y[n_modules][n_layers];
    TH1D* h_tan_theta[n_modules][n_layers];
@@ -235,12 +247,17 @@ private:
 	TH1D* h_cluster_adc_xdependence[n_modules][n_layers][n_div];
 	TH1D* h_cluster_adc_ydependence[n_modules][n_layers][n_div];
 	TH2D* h_init_pos;
-	TH2D* h_tgt_pos_mod_raw[n_modules];
-	TH2D* h_tgt_pos_mod_cut[n_modules];
+	TH1D* h_init_posz_mod[n_modules];
 	TH2D* h_cor_dz_time[n_modules][n_layers];
 	TH2D* h_cor_dz_time_t0cor[n_modules][n_layers];
 	TH2D* h_cor_res_fitlx[n_modules][n_layers];
 	TH2D* h_cor_res_fitly[n_modules][n_layers];
+	TH2D* h_cor_res_fitlx_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_res_fitly_wire[n_wires][n_modules][n_layers];
+	
+	TH2D* h_cor_resx_tan_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resy_tan_wire[n_wires][n_modules][n_layers];
+
 	TH2D* h_cor_res_timing[n_modules][n_layers];
 	TH2D* h_slopevel[n_modules][n_layers][n_div];
 	TH1D* h_res_lg_x[n_modules];
@@ -2534,6 +2551,7 @@ public:
 	void SelectTrackPairs();
 
    void DrawHist( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
+   void DrawHistWire( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
 	void FillPulseInfos(int i);
 	void InitHistos();
 	void FillVectors(int i);

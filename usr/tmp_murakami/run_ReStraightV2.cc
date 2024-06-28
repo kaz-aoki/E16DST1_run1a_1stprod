@@ -50,7 +50,7 @@ int main (int argc, char** argv) {
 	int run_id           = stoi(argv[3]);
 	int event_start      = stoi(argv[4]);
 	int event_end        = stoi(argv[5]);
-	int CutDupFlag      = stoi(argv[6]); //cluster duplication cut flag
+	int CutDupFlag       = stoi(argv[6]); //cluster duplication cut flag
 	TFile *fin           = new TFile(in_file.c_str());
 	TTree *tree          = (TTree*)fin->Get("tree");
 	//E16DSTN_ReadStraightTree *rt = new E16DSTN_ReadStraightTree(tree, out_file.c_str());
@@ -70,15 +70,17 @@ int main (int argc, char** argv) {
 	E16ANA_GTRLorentzAngleCalibParamManager gtr_lorentz_angle_calib_param_manager;
 	gtr_lorentz_angle_calib_param_manager.ReadConstantData(calib.CurrentRunID());
 	auto gtr_lorentz_angle_calib_params = gtr_lorentz_angle_calib_param_manager.GTRLorentzAngleCalibParams();
-	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
-	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
+//	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(GeometryFile));
+//	std::cout << "Read Geometry : " << static_cast<std::string>(GeometryFile) << std::endl;
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240625.dat";
+	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240627.dat";
+	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(gfile));
+	std::cout << "Read Geometry : " << gfile << std::endl;
 	E16ANA_GeometryV2::SetGlobalPointer(geom);
 	 
 	auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
 	bfield_map->Initialize_binary();
 	E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
-
-
 
 //    pc->SetGeom(geom);
 	E16ANA_TriggerCalibParam trigger_param;
@@ -103,7 +105,6 @@ int main (int argc, char** argv) {
 	else {
 	  return -1;
 	}
-	
 
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 1);
 	E16ANA_StraightMultiTrack *pair_fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 2);
