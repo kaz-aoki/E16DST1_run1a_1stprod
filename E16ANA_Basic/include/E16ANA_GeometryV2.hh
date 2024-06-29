@@ -151,7 +151,7 @@ public:
    };
    void LocalTranslate(const TVector3 &delta_r);
 
-   ROOT::Math::Plane3D GetPlane(double local_z = 0.0) const;
+   virtual ROOT::Math::Plane3D GetPlane(double local_z = 0.0) const;
    bool IsCrossed(const TVector3 &gpos0, const TVector3 &gpos1, TVector3 &cross_lpos, double local_z = 0.0) const {
       double r0[3] = {gpos0.X(), gpos0.Y(), gpos0.Z()};
       double r1[3] = {gpos1.X(), gpos1.Y(), gpos1.Z()};

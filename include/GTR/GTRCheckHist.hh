@@ -18,6 +18,9 @@ public:
     void Fill(E16DST_DST1PhysicsRecord*  record);
     void Fill(std::vector<std::shared_ptr<E16DST_DST1StraightTrack3D>> st_tracks);
 	TH1D *h_hit_timing_x[10][3];
+	TH1D *h_hit_timing_y[10][3];
+	TH1D *h_hit_tot_x[10][3];
+	TH1D *h_hit_tot_y[10][3];
 	TH1D *h_hit_ph_x[10][3];
 	TH1D *h_hit_ph_y[10][3];
     TH1D *h_cl_ncluster_modall_x[3];
@@ -38,6 +41,7 @@ public:
     TH1D *h_cl_timing_x[10][3];
     TH1D *h_cl_timing_y[10][3];
     TH1D *h_cl_timing_yb[10][3];
+    TH1D *h_cl_timing_diff[10][3];
     TH1D *h_cl_max_peak_x[10][3];
     TH1D *h_cl_max_peak_y[10][3];
     TH1D *h_cl_max_peak_yb[10][3];

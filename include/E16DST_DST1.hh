@@ -236,15 +236,19 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
  public:
   E16DST_DST1STSHit()
       : peak_height(E16DST_DST1Constant::kInvalidValue),
+        type(E16DST_DST1Constant::kInvalidValue),
         hit_time(E16DST_DST1Constant::kInvalidValue),
         peak_time(E16DST_DST1Constant::kInvalidValue) {}
   ~E16DST_DST1STSHit() {}
   void     SetInvalid() override {
     SetBaseInvalid();
+    type        = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     hit_time    = E16DST_DST1Constant::kInvalidValue;
     peak_time   = E16DST_DST1Constant::kInvalidValue;
   }
+  void     SetType(int16_t _type) { type = _type; }
+  int16_t Type() override { return type; }
   void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
   void     SetPeakTime(float _peak_time) { peak_time = _peak_time; }
@@ -283,6 +287,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   uint64_t geriTimestamp;
   uint16_t tdc;
   uint16_t adc;
+  int type;
   uint16_t e16sts;
 };
 
@@ -290,6 +295,7 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
  public:
   E16DST_DST1STSCluster()
       : center_of_gravity(E16DST_DST1Constant::kInvalidValue),
+        type(E16DST_DST1Constant::kInvalidValue),
         tdc_pos(E16DST_DST1Constant::kInvalidValue),
         tan_incident_angle(E16DST_DST1Constant::kInvalidValue) {}
   ~E16DST_DST1STSCluster() {}
@@ -298,7 +304,12 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
     center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+    type        = E16DST_DST1Constant::kInvalidValue;
   }
+  int16_t  PN() { return pn; }
+  void     SetPN(int16_t _pn) { pn = _pn; }
+//  void     SetType(int16_t _type) { type = _type; }
+//  int16_t Type() override { return type; }
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
@@ -336,6 +347,8 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double charge_sum_fit;
   double timing_fit;
   double chi2_ndf_fit;
+  int16_t type;
+  int16_t pn;
   TVector3 gpos;
   TVector3 lpos;
 };
@@ -573,9 +586,9 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 
   double LocalX() {
     if (IsX()) {
-      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+//      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
 //      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//231115 temp respect for Wang
-//      return center_of_gravity;
+      return center_of_gravity;
     } else {
       return center_of_gravity;
     }
@@ -586,8 +599,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 //		std::cout << "lorent  = " <<  E16DST_DST1Constant::kGTRLorentzAngle[layer_id]<< std::endl;
 //      return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//23115 temp
 
-      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-//      return tdchit;
+//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      return tdchit;
     } else {
       return tdchit;
     }

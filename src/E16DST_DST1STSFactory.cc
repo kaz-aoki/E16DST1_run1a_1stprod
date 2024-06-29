@@ -35,7 +35,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   std::cout << "WARNING!!!! Module ID intentionally randomized for debugging purpose." << std::endl;
 #endif
   if ( stsg_dst0.NumberOfHits() > 1 ) {
-    std::cout << "STS Global has more than 1 entries. DST0 of STSs are merged." << std::endl;
+//    std::cout << "STS Global has more than 1 entries. DST0 of STSs are merged." << std::endl;
   }
   if ( stsg_dst0.NumberOfHits() == 0 ) return 0;
 
@@ -59,6 +59,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 
   auto lgeom = E16ANA_STSGeometry::instance();
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
+
+
 
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
@@ -108,6 +110,7 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     cluster1.SetClusterId(i);
 	 cluster1.SetModuleId(hit0.ModuleID());
 	 cluster1.SetPeakSum(hit0.ADC());
+    cluster1.SetPN(hit0.PN());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
     if ( hit0.TDC() != 0xffff ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
 	 cluster1.SetTiming(hit0.TDC() - emu_timestamp);

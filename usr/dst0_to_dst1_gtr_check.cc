@@ -1,5 +1,6 @@
 #include <iostream>
 #include <TROOT.h>
+#include <TStyle.h>
 #include <TH1.h>
 #include <TFile.h>
 #include <TCanvas.h>
@@ -202,16 +203,31 @@ auto& calib = E16ANA_CalibDBManager::Instance();
 //  pdf_name.Form("/ccj/w/data06a/E16/user/nakasuga/output/gtr/dst1check/pdf/gtrtest%06d.pdf",run_id);
   pdf_name.Form("c_gtr_check_run%d.pdf", run_id);
   c1->SaveAs(pdf_name + "[", "pdf");
+  
+  gStyle->SetOptStat(111111);
 
   TCanvas *c_hit_map = new TCanvas("hitmap", "hitmap", 1024, 768);
-  c_hit_map->Divide(10, 3);
+  c_hit_map->Divide(9, 3);
   for(int m=0; m< 10; m++){
+	 if(m == 0) continue;
     for(int l=0; l < 3; l++){
- 	   c_hit_map->cd(l*10 + m+1);
+ 	   c_hit_map->cd(10  + l*9 -  m );
 		gtrhist->h_hit_map[m][l]->Draw("colz");
     }
   }
   c_hit_map->SaveAs(pdf_name, "pdf");
+
+  TCanvas *c_timing_diff = new TCanvas("tdiff", "tdiff", 1024, 768);
+  c_timing_diff->Divide(9, 3);
+  for(int m=0; m< 10; m++){
+	 if(m == 0) continue;
+    for(int l=0; l < 3; l++){
+ 	   c_timing_diff->cd(10 + l*9 -  m);
+		gtrhist->h_cl_timing_diff[m][l]->Draw("colz");
+    }
+  }
+  c_timing_diff->SaveAs(pdf_name, "pdf");
+
 
 
   TCanvas *c_cluster_multiplicity_x = new TCanvas("mulx", "mulx", 1024, 768);
@@ -491,6 +507,49 @@ auto& calib = E16ANA_CalibDBManager::Instance();
     c_hit_timing_x[m-101]->SaveAs(pdf_name, "pdf");
   }
  
+  TCanvas *c_hit_timing_y[10]; 
+  //= new TCanvas("cl timing ", 100,0,100);
+  for(int m=101; m < 110 ; m++){
+    if(m == 105) continue;
+    c_hit_timing_y[m-101] = new TCanvas(Form("ctx%d", m-101) , Form("ctx%d", m-101), 1024, 768);
+    c_hit_timing_y[m-101]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_timing_y[m-101]->cd(l+1);
+        gtrhist->h_hit_timing_y[m-100][l]->Draw();
+    }
+    c_hit_timing_y[m-101]->SaveAs(pdf_name, "pdf");
+  }
+
+
+
+  TCanvas *c_hit_tot_x[10]; 
+  //= new TCanvas("cl tot ", 100,0,100);
+  for(int m=101; m < 110 ; m++){
+    if(m == 105) continue;
+    c_hit_tot_x[m-101] = new TCanvas(Form("ctx%d", m-101) , Form("ctx%d", m-101), 1024, 768);
+    c_hit_tot_x[m-101]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_tot_x[m-101]->cd(l+1);
+        gtrhist->h_hit_tot_x[m-100][l]->Draw();
+    }
+    c_hit_tot_x[m-101]->SaveAs(pdf_name, "pdf");
+  }
+
+
+  TCanvas *c_hit_tot_y[10]; 
+  //= new TCanvas("cl tot ", 100,0,100);
+  for(int m=101; m < 110 ; m++){
+    if(m == 105) continue;
+    c_hit_tot_y[m-101] = new TCanvas(Form("ctx%d", m-101) , Form("ctx%d", m-101), 1024, 768);
+    c_hit_tot_y[m-101]->Divide(2,2);
+    for(int l=0; l < 3; l++){
+        c_hit_tot_y[m-101]->cd(l+1);
+        gtrhist->h_hit_tot_y[m-100][l]->Draw();
+    }
+    c_hit_tot_y[m-101]->SaveAs(pdf_name, "pdf");
+  }
+
+
 TCanvas *c_hit_ph_x[10]; 
   //= new TCanvas("cl timing ", 100,0,100);
   for(int m=101; m < 110 ; m++){

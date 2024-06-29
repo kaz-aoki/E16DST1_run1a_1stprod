@@ -298,8 +298,8 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
 
          if (fadc_peak[ch] < fadc[ch][j]) {
             fadc_peak[ch] = fadc[ch][j];
-	    fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
-	    fadc_peak_tdc[ch] = j ;
+		      fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
+	         fadc_peak_tdc[ch] = j ;
             peak_count = j;
          }
       }
@@ -337,7 +337,7 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
          }
 		 fadc_peak_st[ch] = tot_start;
 		 fadc_peak_ed[ch] = tot_end;
-         fadc_tot[ch] = tot_end - tot_start;
+       fadc_tot[ch] = tot_end - tot_start;
 		 fadc_rise[ch] = fadc_peak_time[ch] - tot_start;
 	 //std::cout << fadc_tot[ch] << ", " << tot_start << ", " << tot_end << 
 	 //  std::endl;
@@ -414,7 +414,6 @@ void E16ANA_GTRStripAnalyzer::CalcCenterOfGravity(const std::vector<int> &strip_
    // temp_cog *= strip_pitch;
    // temp_cog += position_start;
    // temp_cog *= inverted;
-
    hit.SetMaxStrip(temp_max_strip);
    hit.SetMaxValue(temp_max_value);
    hit.SetNumHit(temp_num_hit);

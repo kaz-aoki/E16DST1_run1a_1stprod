@@ -145,7 +145,7 @@ private:
    E16ANA_GTRStripAnalyzer *strip_ana_yb;
 
 public:
-   E16ANA_GTR100Analyzer(int _n_fadc_chs = 432, int _n_fadc_counts = 24);
+   E16ANA_GTR100Analyzer(int _n_fadc_chs = 432, int _n_fadc_counts = 15);
    ~E16ANA_GTR100Analyzer();
 
    // 100 chamber has separated Y strip
@@ -177,7 +177,7 @@ public:
 
 class E16ANA_GTR200Analyzer : public E16ANA_GTRAnalyzer2 {
 public:
-   E16ANA_GTR200Analyzer(int _n_fadc_chs = 720, int _n_fadc_counts = 24)
+   E16ANA_GTR200Analyzer(int _n_fadc_chs = 720, int _n_fadc_counts = 15)
       : E16ANA_GTRAnalyzer2(576, 144, _n_fadc_chs, _n_fadc_counts){};
 
    void Analyze2Y(int hitid, int type)
@@ -189,7 +189,7 @@ public:
 
 class E16ANA_GTR300Analyzer : public E16ANA_GTRAnalyzer2 {
 public:
-   E16ANA_GTR300Analyzer(int _n_fadc_chs = 1080, int _n_fadc_counts = 24)
+   E16ANA_GTR300Analyzer(int _n_fadc_chs = 1080, int _n_fadc_counts = 15)
       : E16ANA_GTRAnalyzer2(864, 216, _n_fadc_chs, _n_fadc_counts){};
    void Analyze2Y(int hitid, int type)
    {

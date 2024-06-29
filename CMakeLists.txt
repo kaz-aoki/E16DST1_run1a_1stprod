@@ -46,11 +46,16 @@ elseif(${_host_name} MATCHES "^ccj")
    message("-- E16SYS_DIR will be set for ccj servers.")
    set(E16SYS_DIR /ccj/u/E16)
    add_definitions(-DCCJ_CALIB_FILE) # for calib files
+elseif(${_host_name} MATCHES "cc.kek.jp$")
+   message("-- E16SYS_DIR will be set for kekcc servers.")
+   set(E16SYS_DIR /opt/E16)
+   add_definitions(-DCCJ_CALIB_FILE) # for calib files
 endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 
-#add_definitions(-DTRACK_FIND_WO_TARGET) # \\ common for wire and three targets for straight track 
 
+#add_definitions(-DTRACK_FIND_WO_TARGET) # \\ common for wire and three targets for straight track, 
+# *caution just a finding, not fitting
 
 #tracking //murakmai
 #add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
@@ -58,7 +63,7 @@ add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking 
 #add_definitions(-DREMOVE_GTR100) # 
 #add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
-#add_definitions(-DEFFICIENCY_EVAL) # //turn on if you want to evaluate the efficiency
+#add_definitions(-DEFFICIENCY_EVAL) # //no used 
 
 
 
@@ -234,6 +239,7 @@ add_library(E16DST_DST1
   src/straight_track/E16ANA_StraightTrack.cc
   src/straight_track/E16ANA_StraightTrackCandidate.cc
   src/straight_track/E16ANA_StraightMultiTrack.cc
+  src/straight_track/E16ANA_StraightStepTrack.cc
 #  src/straight_track/StraightTrackAnalyzerForASDEffwithWireV0.cc
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
@@ -256,7 +262,6 @@ add_library(E16DST_DST1
 	src/tmp_murakami/E16DSTN_PosCorrection.cc
 	src/tmp_murakami/E16DSTN_ReadStraightTree.cc
 	src/tmp_murakami/E16DSTN_ReStraightV2.cc
-
 )
 
 
@@ -1218,7 +1223,12 @@ target_link_libraries(run_ReStraightV2
 	E16DST
 	E16DST_DST1
 )
-
+#--------------------------------------------------------------------
+add_executable(run_GeometryCheck usr/tmp_murakami/run_GeometryCheck.cc)
+target_link_libraries(run_GeometryCheck
+	E16DST
+	E16DST_DST1
+)
 
 
 
