@@ -72,7 +72,7 @@ void E16ANA_HBDADCwoTrack::MakeHist(int maxevent, char* out_pdf_name, char* out_
    TH1F* hadc[8][4];
    for(int i=0;i<8;i++){
      for(int j=0;j<4;j++){
-       hadc[i][j] = new TH1F(Form("hadc%d%d",i,j),Form("HBDadc_Mod%d_GEM%d",IndexToModule(i),IndexToGEM(j)),100,0,60);
+       hadc[i][j] = new TH1F(Form("hadc%d%d",i,j),Form("HBDadc_Mod%d_GEM%d",IndexToModule(i),IndexToGEM(j)),40,0,40);
      }
    }
 
