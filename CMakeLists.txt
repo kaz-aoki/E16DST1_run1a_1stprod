@@ -298,6 +298,20 @@ target_link_libraries(dst0_to_dst1
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_simple_check_deadch usr/dst0_to_dst1_sts_simple_check_deadch.cc)
+
+target_link_libraries(dst0_to_dst1_sts_simple_check_deadch
+        E16DST_DST1
+)
+
+#_______________________________________________________________________________
+add_executable(dst0_to_dst1_sts_simple_check_adccalib usr/dst0_to_dst1_sts_simple_check_adccalib.cc)
+
+target_link_libraries(dst0_to_dst1_sts_simple_check_adccalib
+        E16DST_DST1
+)
+
+#_______________________________________________________________________________
 add_executable(dst0_to_dst1_ssd_check usr/dst0_to_dst1_ssd_check.cc)
 
 target_link_libraries(dst0_to_dst1_ssd_check
