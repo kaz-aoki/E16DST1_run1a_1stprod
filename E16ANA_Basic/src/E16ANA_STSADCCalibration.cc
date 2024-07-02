@@ -63,7 +63,7 @@ float E16ANA_STSADCCalibration::GetCorrespondingCharge(uint16_t module_id, uint1
     if (k_module_id != -1) {
         return status[k_module_id][pol_id][ch_id][adc_id];
     } else {
-        return -1.0f; // or some other error value
+        return -10000.0f; // or some other error value
     }
 }
 
@@ -86,7 +86,7 @@ void E16ANA_STSADCCalibration::Init(){
         for (uint16_t j = 0; j < 2; ++j) {
             for (uint16_t k = 0; k < n_channels; ++k) {
                 for (uint16_t l = 0; l < n_adc_channels; ++l) {
-                    status[i][j][k][l] = -1;// Set default status to -1
+                    status[i][j][k][l] = -10000.;// Set default status to -10000
                 }
             }
         }
