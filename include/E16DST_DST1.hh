@@ -309,18 +309,14 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
 // The names have to be updated at some point.
 class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
  public:
-  E16DST_DST1STSCluster()
-      : center_of_gravity(E16DST_DST1Constant::kInvalidValue),
-        type(E16DST_DST1Constant::kInvalidValue),
-        tdc_pos(E16DST_DST1Constant::kInvalidValue),
-        tan_incident_angle(E16DST_DST1Constant::kInvalidValue) {}
+  E16DST_DST1STSCluster() {;}
   ~E16DST_DST1STSCluster() {}
   void SetInvalid() override {
     SetBaseInvalid();
-    center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
-    tdc_pos            = E16DST_DST1Constant::kInvalidValue;
-    tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
-    type        = E16DST_DST1Constant::kInvalidValue;
+    center_of_gravity  = sts_finvalid;
+    tdc_pos            = sts_finvalid;
+    tan_incident_angle = sts_finvalid;
+    type        = -1;
   }
   int16_t  PN() { return pn; }
   void     SetPN(int16_t _pn) { pn = _pn; }
@@ -348,8 +344,6 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   TVector3 GlobalPos() const ;
   void     SetGlobalPos(const TVector3& pos) { gpos = pos; }
   int      GetSize() override {}
-  int16_t  PN() const { return pn; }
-  void     SetPN(int16_t _pn) { pn = _pn; }
 //  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void     Print() override {
     std::cout << "E16DST_DST1STSCluster : "
