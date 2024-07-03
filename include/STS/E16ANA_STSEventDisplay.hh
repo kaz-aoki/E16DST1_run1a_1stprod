@@ -20,7 +20,6 @@
 #
 ***********************************************************************************/
 
-
 #ifndef __E16ANA_STSEventDisplay_h_
 #define __E16ANA_STSEventDisplay_h_
 
@@ -42,6 +41,7 @@ public:
   void SetMirror() { _mirror = true; }
   void SetNoMirror() { _mirror = false; }
   void SetHitColor(Color_t color) { color_hit = color; }
+  void SetLineColor(Color_t color) { color_line = color;}
   
  private:
   TCanvas* _canv = nullptr;
@@ -49,6 +49,7 @@ public:
   std::string _pdf_name;
   bool _mirror;
   Color_t color_hit;
+  Color_t color_line;
 };
 
 #endif

@@ -10,7 +10,9 @@ set(CMAKE_CXX_FLAGS "-O2 -lMinuit -lSpectrum")
 #set(CMAKE_SHARED_LINKER_FLAGS "-pg")
 
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../build)
+#if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/../install)
+#endif()
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_INSTALL_PREFIX}/lib)
 set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX}/share)
@@ -60,6 +62,7 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 #tracking //murakmai
 #add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
 add_definitions(-DUseSTS) # //turn on this if you do not have ssd as a tracking point, like Run0d 
+#add_definitions(-DSTS_DO_CLUSTERING) # //turn on this if you want STS clustering (Run0e)
 #add_definitions(-DREMOVE_GTR100) # 
 #add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
@@ -242,10 +245,11 @@ add_library(E16DST_DST1
 #  src/tmp/SingleTrackAnalyzerForRes.cc
 #  src/tmp/AnalyzerResidualHBD.cc
   #src/tmp/EfficiencyCalc.cc
-  
+
 	src/E16DST_DST1.cc
   src/E16DST_DST1SSDFactory.cc
   src/E16DST_DST1STSFactory.cc
+  src/STS/E16ANA_STSAnalyzer.cc
   src/E16DST_DST1GTRFactory.cc
   src/E16DST_DST1GTRFactory_ExOneGTR.cc
 #  src/GTR_ozawa/E16DST_DST1GTRFactory.cc
@@ -392,7 +396,6 @@ target_link_libraries(dst0_to_dst1_sts_check
 
 #_______________________________________________________________________________
 add_executable(dst0_to_dst1_sts_simple_check usr/dst0_to_dst1_sts_simple_check.cc)
-
 target_link_libraries(dst0_to_dst1_sts_simple_check
 	E16DST_DST1
 )
@@ -403,7 +406,9 @@ target_link_libraries(dst0_to_dst1_sts_straight_check
 	E16DST_DST1
 )
 #_______________________________________________________________________________
-add_executable(dst0_to_dst1_sts_local usr/dst0_to_dst1_sts_local.cc)
+add_executable(dst0_to_dst1_sts_local
+		usr/dst0_to_dst1_sts_local.cc
+	 	src/STS/E16ANA_STSHistos.cc)	
 
 target_link_libraries(dst0_to_dst1_sts_local
 	E16DST_DST1

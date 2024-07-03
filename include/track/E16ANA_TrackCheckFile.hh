@@ -968,7 +968,7 @@ class E16ANA_TrackCheckFile {
 #ifdef TRACK_EFF_CHECK
     cluster_merged = false;
 #endif // TRACK_EFF_CHECK
-#ifdef USeSTS
+#ifdef UseSTS
     n_ssd_hits = record.STS().NumHits();
 #else 
     n_ssd_hits = record.SSD().NumHits();
