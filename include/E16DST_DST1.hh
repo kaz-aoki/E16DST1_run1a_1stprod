@@ -250,7 +250,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
     adc = -1;
     e16sts = -1;
     strip_id = -1;
-    type = -1;
+    type = E16DST_DST1Constant::kInvalidValue;
   }
   void     SetType(int16_t _type) { type = _type; }
   int16_t Type() override { return type; }
@@ -318,7 +318,7 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
     center_of_gravity  = sts_finvalid;
     tdc_pos            = sts_finvalid;
     tan_incident_angle = sts_finvalid;
-    type        = -1;
+    type        = E16DST_DST1Constant::kInvalidValue;
   }
   int16_t  PN() { return pn; }
   void     SetPN(int16_t _pn) { pn = _pn; }
@@ -364,7 +364,7 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double charge_sum_fit{sts_finvalid};
   double timing_fit{sts_finvalid};
   double chi2_ndf_fit{sts_finvalid};
-  int16_t type{-1};
+  int16_t type{E16DST_DST1Constant::kInvalidValue};
   int16_t pn{-1};
 
   TVector3 gpos;
