@@ -671,7 +671,7 @@ void E16DSTN_ReStraightV2::InitHistos(){
 				h_tot_end_bg[m][l] = new TH1D (Form("h_tot_end_bg%d_%d", m+100, l), Form("h_tot_end_bg%d_%d", m+100, l), 50, -10 ,1000 ) ;
 //				h_slopevel[m][l][div] = new TH2D(Form("h_slopevel_%d_%d%d", m+100, l,div), Form("h_slopevel_%d%d%d", m+100, l,div),  25, -100, 100, 60, -2, 2);
 				if(l == 0){
-					h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -0.5, 0.5);//sts
+					h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -2.5, 2.5);//sts
 				}
 				else {
 					h_res_x[m][l] = new TH1D(Form("h_res_x_m%d_l%d", m+100, l), Form("h_res_x_m%d_l%d", m+100, l), 100, -1.5, 1.5);
@@ -681,7 +681,12 @@ void E16DSTN_ReStraightV2::InitHistos(){
 
 				h_res_vtx_trk_x[m][l] = new TH1D(Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), Form("h_res_vtx_trk_x_m%d_l%d", m+100, l), 100, -2, 2);
 				h_res_vtx_trk_y[m][l] = new TH1D(Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), Form("h_res_vtx_trk_y_m%d_l%d", m+100, l), 100, -4, 4);
+				if(l == 0 ) {
+					h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx_m%d_l%d", m+100, l), Form("h_cor_res_fitlx_m%d_l%d", m+100, l), 20, -30 , 30, 50, -2.5, 2.5);
+				}
+				else {
 				h_cor_res_fitlx[m][l]  = new TH2D(Form("h_cor_res_fitlx_m%d_l%d", m+100, l), Form("h_cor_res_fitlx_m%d_l%d", m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				}
 				h_cor_res_fitly[m][l]  = new TH2D(Form("h_cor_res_fitly_%d_%d", m+100, l), Form("h_cor_res_fitly_%d_%d", m+100, l), 20, -50*l , 50*l, 50, -2, 2);
 				h_cor_res_timing[m][l] = new TH2D(Form("h_cor_res_timing__%d_%d", m+100, l), Form("h_cor_res_timing_%d_%d", m+100, l), 20, 0 , 600, 100, -2, 2);
 				h_tan_theta[m][l] = new TH1D(Form("h_tan_theta_m%d_l%d",  m+100, l), Form("h_tan_theta_%d_%d", m+100, l), 20,  -0.5, 0.5);

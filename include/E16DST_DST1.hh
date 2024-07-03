@@ -251,6 +251,8 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
     e16sts = -1;
     strip_id = -1;
   }
+  void     SetType(int16_t _type) { type = _type; }
+  int16_t Type() override { return type; }
   void     SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void     SetHitTime(float _hit_time) { hit_time = _hit_time; }
   void     SetPeakTime(float _peak_time) { peak_time = _peak_time; }
@@ -282,6 +284,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   void SetStripId(int16_t _strip) { strip_id = _strip; }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
+
   static constexpr float sts_finvalid = -10000000.;
   float peak_height {sts_finvalid};
   float hit_time    {sts_finvalid};
@@ -290,6 +293,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   int16_t dataType{-1};
   TVector3 lpos;
   TVector3 gpos;
+
   int16_t elink{-1};
   uint64_t geriTimestamp{0xffffffffffffffffL};
   uint64_t emuTimestamp{0xffffffffffffffffL};
@@ -307,6 +311,7 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
  public:
   E16DST_DST1STSCluster()
       : center_of_gravity(E16DST_DST1Constant::kInvalidValue),
+        type(E16DST_DST1Constant::kInvalidValue),
         tdc_pos(E16DST_DST1Constant::kInvalidValue),
         tan_incident_angle(E16DST_DST1Constant::kInvalidValue) {}
   ~E16DST_DST1STSCluster() {}
@@ -315,7 +320,12 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
     center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
     tan_incident_angle = E16DST_DST1Constant::kInvalidValue;
+    type        = E16DST_DST1Constant::kInvalidValue;
   }
+  int16_t  PN() { return pn; }
+  void     SetPN(int16_t _pn) { pn = _pn; }
+//  void     SetType(int16_t _type) { type = _type; }
+//  int16_t Type() override { return type; }
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
@@ -349,15 +359,18 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   }
  private:
   int    ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
-  double center_of_gravity{E16DST_DST1Constant::kInvalidValue}; // mm
-  double tdc_pos{E16DST_DST1Constant::kInvalidValue};           // mm
-  float  tan_incident_angle{E16DST_DST1Constant::kInvalidValue};    // radian
-  double center_of_gravity_fit{E16DST_DST1Constant::kInvalidValue}; // mm
-  double charge_sum_fit{E16DST_DST1Constant::kInvalidValue};
-  double timing_fit{E16DST_DST1Constant::kInvalidValue};
-  double chi2_ndf_fit{E16DST_DST1Constant::kInvalidValue};
+  static constexpr float sts_finvalid = -10000000.;
+
+  double center_of_gravity{sts_finvalid}; // mm
+  double tdc_pos{sts_finvalid};           // mm
+  float  tan_incident_angle{sts_finvalid};    // radian
+  double center_of_gravity_fit{sts_finvalid}; // mm
+  double charge_sum_fit{sts_finvalid};
+  double timing_fit{sts_finvalid};
+  double chi2_ndf_fit{sts_finvalid};
+  int16_t type{-1};
   int16_t pn{-1};
-  double strip{E16DST_DST1Constant::kInvalidValue};
+
   TVector3 gpos;
   TVector3 lpos;
 };
