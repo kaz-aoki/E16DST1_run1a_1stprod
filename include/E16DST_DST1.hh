@@ -250,6 +250,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
     adc = -1;
     e16sts = -1;
     strip_id = -1;
+    type = -1;
   }
   void     SetType(int16_t _type) { type = _type; }
   int16_t Type() override { return type; }
@@ -290,6 +291,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   float hit_time    {sts_finvalid};
   float peak_time   {sts_finvalid};
   int16_t pn{-1};
+  int16_t type{-1};
   int16_t dataType{-1};
   TVector3 lpos;
   TVector3 gpos;
