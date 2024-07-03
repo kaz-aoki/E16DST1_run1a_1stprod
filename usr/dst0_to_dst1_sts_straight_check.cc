@@ -32,11 +32,14 @@
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-constexpr bool visualization = true;
+constexpr bool visualization = false;
 constexpr bool vis_gtr = false;
 
 constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
+
+bool mode_cluster = true;
+bool mode_fillonce = true;
 
 //const char* track_root = "/e16/w/data109y3/user/aoki/run050351_gtr_root/afterkill_240417_050351_sink0_000.root";
 
@@ -170,7 +173,7 @@ int main(int argc, char* argv[]) {
     hist_res_map[modules[i]] = new TH1D(str,str,1000,-10,10);
     std::cout << hist_res_map[modules[i]]->GetTitle() << std::endl;
   }
-  
+
   ////////////////////// PREPARE STS TREE
   check_file.cd();
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
@@ -299,6 +302,19 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_rk_fit_init_pos_gz",&sts_rk_fit_init_pos_gz);
   
   ////////////////////////////////////////////////
+
+  ////////////////////// PREPARE GTR TRACK COUNTER
+
+  int32_t gtrtrk_mid = 0;
+
+  check_file.cd();
+  TTree* tree_gtrtrk = new TTree("tree_gtrtrk","tree_gtrtrk");
+  tree_gtrtrk->Branch("event",&event_id,"event"+br_uint32);
+  tree_gtrtrk->Branch("spill",&spill_id,"spill"+br_uint32);
+  tree_gtrtrk->Branch("gtrtrk_mid",&gtrtrk_mid,"gtrtrk_mid/I");
+  auto clear_gtrtrk = [&]() {
+    gtrtrk_mid = 0;
+  };
 
   // PREPARE LG HITO
   TTree* tree_lg = new TTree("tree_lg","tree_lg");
@@ -634,6 +650,14 @@ int main(int argc, char* argv[]) {
 	int track_mod = rk_fit_gtr100_mid->at(i);
 	double global_interp[3];
 	ggeom->CalcPointOnPlane(track_mod,global,global2, global_interp);
+	double tmp_local[3];
+	ggeom->Global2Local(track_mod,global_interp,tmp_local);
+	if ( fabs(tmp_local[0]) > 30. || fabs(tmp_local[1]) > 30. ) {
+	  std::cout << "GTR track extrapolated to STS but it is out of acceptance." << std::endl;
+	  continue;
+	}
+	gtrtrk_mid = track_mod;
+	tree_gtrtrk->Fill();
 	display.SetHitColor(kGreen+3);
 	display.DrawHit(global_interp);
 	display.SetHitColor(kRed);
@@ -655,48 +679,76 @@ int main(int argc, char* argv[]) {
 	// TODO: calculate 2D angle between trk_mom and norm_plane.
 	// TODO: fill rk info into tree .
 	
-	/*
-	auto& sts_clus1 = record.STS().Clusters();
-	if ( sts_clus1.size() > 0 ) {
-	  for( auto& clus1 : sts_clus1 ) {
-	    if ( clus1.ModuleId() != track_mod ) continue;
-	    if ( clus1.PN() != 1 ) continue;
-	    if ( ! stscluscut_tdc(clus1) ) continue;
-	    if ( ! stscluscut_adc(clus1) ) continue;
-	    TVector3 sts_gpos = clus1.GlobalPos();
-	    TVector3 sts_lpos = clus1.LocalPos();
-	    double local_interp[3];
-	    ggeom->Global2Local(track_mod, global_interp,local_interp);
-	    float residual = sts_lpos.X()-local_interp[0];
-	    hist_res_map[track_mod]->Fill(residual);
-	    fill_sts_clus(clus1);
-	    sts_residual.push_back(residual);
-	    sts_rk_fit_init_pos_gx.push_back(global[0]);
-	    sts_rk_fit_init_pos_gy.push_back(global[1]);
-	    sts_rk_fit_init_pos_gz.push_back(global[2]);
-	    sts_rk_fit_init_mom_gx.push_back(mom[0]);
-	    sts_rk_fit_init_mom_gy.push_back(mom[1]);
-	    sts_rk_fit_init_mom_gz.push_back(mom[2]);
-	    sts_cost.push_back(cost);
+	auto fill_using_cluster = [&]() {
+	  auto& sts_clus1 = record.STS().Clusters();
+	  if ( sts_clus1.size() > 0 ) {
+	    for( auto& clus1 : sts_clus1 ) {
+	      if ( clus1.ModuleId() != track_mod ) continue;
+	      if ( clus1.PN() != 1 ) continue;
+	      if ( ! stscluscut_tdc(clus1) ) continue;
+	      if ( ! stscluscut_adc(clus1) ) continue;
+	      TVector3 sts_gpos = clus1.GlobalPos();
+	      TVector3 sts_lpos = clus1.LocalPos();
+	      double local_interp[3];
+	      ggeom->Global2Local(track_mod, global_interp,local_interp);
+	      float residual = sts_lpos.X()-local_interp[0];
+	      hist_res_map[track_mod]->Fill(residual);
+	      fill_sts_clus(clus1);
+	      sts_residual.push_back(residual);
+	      sts_rk_fit_init_pos_gx.push_back(global[0]);
+	      sts_rk_fit_init_pos_gy.push_back(global[1]);
+	      sts_rk_fit_init_pos_gz.push_back(global[2]);
+	      sts_rk_fit_init_mom_gx.push_back(mom[0]);
+	      sts_rk_fit_init_mom_gy.push_back(mom[1]);
+	      sts_rk_fit_init_mom_gz.push_back(mom[2]);
+	      //sts_cost.push_back(cost);
+	    }
 	  }
-	}
-	*/
-	
-	if ( sts_hits1.size() > 0 ) {
-	  for( auto& hit1 : sts_hits1 ) {
-	    if ( hit1.ModuleId() != track_mod ) continue;
-	    if ( hit1.PN() != 1 ) continue;
-	    if ( ! stscut_tdc(hit1) ) continue;
-	    if ( ! stscut_adc(hit1) ) continue;
-	    
-	    TVector3 sts_gpos = hit1.GlobalPos();
-	    TVector3 sts_lpos = hit1.LocalPos();
-	    double local_interp[3];
-	    ggeom->Global2Local(track_mod, global_interp,local_interp);
-	    float residual = sts_lpos.X()-local_interp[0];
-	    hist_res_map[track_mod]->Fill(residual);
-	    fill_sts(hit1);
-	    sts_residual.push_back(residual);
+	};
+
+
+	auto fill_using_hit = [&](){
+	  E16DST_DST1STSHit sts_hit1_stored;
+	  float min_residual = 1000000.;
+	  
+	  if ( sts_hits1.size() > 0 ) {
+	    for( auto& hit1 : sts_hits1 ) {
+	      if ( hit1.ModuleId() != track_mod ) continue;
+	      if ( hit1.PN() != 1 ) continue;
+	      if ( ! stscut_tdc(hit1) ) continue;
+	      if ( ! stscut_adc(hit1) ) continue;
+	      
+	      TVector3 sts_gpos = hit1.GlobalPos();
+	      TVector3 sts_lpos = hit1.LocalPos();
+	      double local_interp[3];
+	      ggeom->Global2Local(track_mod, global_interp,local_interp);
+	      float residual = sts_lpos.X()-local_interp[0];
+	      
+	      if ( mode_fillonce ) {
+		// fill once mode.
+		if ( fabs(residual) < fabs(min_residual) ) {
+		  min_residual = residual;
+		  sts_hit1_stored = hit1;
+		  continue;
+		}
+	      }else{
+		 hist_res_map[track_mod]->Fill(residual);
+		 fill_sts(hit1);
+		 sts_residual.push_back(min_residual);
+		 sts_rk_fit_init_pos_gx.push_back(global[0]);
+		 sts_rk_fit_init_pos_gy.push_back(global[1]);
+		 sts_rk_fit_init_pos_gz.push_back(global[2]);
+		 sts_rk_fit_init_mom_gx.push_back(mom[0]);
+		 sts_rk_fit_init_mom_gy.push_back(mom[1]);
+		 sts_rk_fit_init_mom_gz.push_back(mom[2]);
+		 sts_angle.push_back(angle);
+	      }
+	    }
+	  }
+	  if ( mode_fillonce && min_residual < 100000. ) {
+	    hist_res_map[track_mod]->Fill(min_residual);
+	    fill_sts(sts_hit1_stored);
+	    sts_residual.push_back(min_residual);
 	    sts_rk_fit_init_pos_gx.push_back(global[0]);
 	    sts_rk_fit_init_pos_gy.push_back(global[1]);
 	    sts_rk_fit_init_pos_gz.push_back(global[2]);
@@ -705,7 +757,10 @@ int main(int argc, char* argv[]) {
 	    sts_rk_fit_init_mom_gz.push_back(mom[2]);
 	    sts_angle.push_back(angle);
 	  }
-	}
+	};
+	
+	if ( mode_cluster ) fill_using_cluster();
+	else fill_using_hit();
 
       } // loop over all RK track candidates.
       
