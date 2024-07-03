@@ -15,7 +15,7 @@ static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2
 //static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/database/geometry_database/v2/geometry_Run0c_211006b.dat"};
 //static constexpr std::string_view GeometryFile {"/ccj/u/ymorino/geo/geometry_Run0c_211006b.dat"};
 //static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
-static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0b_210226_design.dat"};//kekcc 
+//static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0b_210226_design.dat"};//kekcc 
 //static constexpr std::string_view GeometryFile {"/ccj/u/ymorino/geometry_mod3.dat"};
 //static constexpr std::string_view GeometryFile {"/ccj/u/mtomoki/E16/Photogrametry/E16ANA_Photo/geometry/geometry_bfRun0d_011_modified.dat"};
 
