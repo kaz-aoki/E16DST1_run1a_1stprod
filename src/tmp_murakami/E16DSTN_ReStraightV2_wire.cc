@@ -6,11 +6,41 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TLegend.h>
+#include <sstream>
+#include <fstream>
 
 
 //using namespace E16ANA_StraightTrackParameter;
 using namespace E16ANA_StraightTrackConstant;
 using namespace E16DSTN_ReStraightParameter;
+
+
+void E16DSTN_ReStraightV2::SetGeomMovePattern(const std::string& file, int pid){
+	std::ifstream infile(file);
+	std::string line;
+	while(std::getline(infile, line)) {
+		if(line.empty() || line[0] == '#' ){
+			continue;
+		}	
+		std::istringstream iss(line);
+		GeomMovePattern p;
+		if (iss >> p.pattern_id >> p.dx >> p.dy >> p.dz >> p.rotx >> p.roty >> p.rotz){
+			if(p.pattern_id == pid){
+				gmove_pattern.pattern_id = p.pattern_id;
+				gmove_pattern.dx     = p.dx;
+				gmove_pattern.dy     = p.dy;
+				gmove_pattern.dz     = p.dz;
+				gmove_pattern.rotx   = p.rotx;
+				gmove_pattern.roty   = p.roty;
+				gmove_pattern.rotz   = p.rotz;
+				std::cerr << "Pattern was successfully found " << std::endl;
+				return;
+			}
+		}
+	}
+	std::cerr << "Pattern not found " << std::endl;
+	exit(0);
+}
 
 
 

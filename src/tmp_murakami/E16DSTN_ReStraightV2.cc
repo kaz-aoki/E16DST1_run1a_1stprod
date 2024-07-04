@@ -366,19 +366,31 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		 return TVector3(rk_hit_sts_x->at(itk), 0, 0);//sts
 	}
 	else if(lid == 1){//gtr100
-		double lx = rk_hit_gtr100_cogx->at(itk);	//cog
-		double ly = rk_hit_gtr100_cogy->at(itk);	//cog
-		return TVector3(lx, ly, 0);
+		double lx, ly, lz;
+		double cogx = rk_hit_gtr100_cogx->at(itk);	//cog
+		double cogy = rk_hit_gtr100_cogy->at(itk);	//cog
+		lx = cogx + gmove_pattern.dx;
+		ly = cogy + gmove_pattern.dy;
+		lz = 0    + gmove_pattern.dz;
+		return TVector3(lx, ly, lz);
 	}
 	else if(lid == 2){//gtr100
-		double lx = rk_hit_gtr200_cogx->at(itk);	//cog
-		double ly = rk_hit_gtr200_cogy->at(itk);	//cog
-		return TVector3(lx, ly, 0);
+		double lx, ly, lz;
+		double cogx = rk_hit_gtr200_cogx->at(itk);	//cog
+		double cogy = rk_hit_gtr200_cogy->at(itk);	//cog
+		lx = cogx + gmove_pattern.dx;
+		ly = cogy + gmove_pattern.dy;
+		lz = 0    + gmove_pattern.dz;
+		return TVector3(lx, ly, lz);
 	}
 	else if(lid == 3){//gtr100
-		double lx = rk_hit_gtr300_cogx->at(itk);	//cog
-		double ly = rk_hit_gtr300_cogy->at(itk);	//cog
-		return TVector3(lx, ly, 0);
+		double lx, ly, lz;
+		double cogx = rk_hit_gtr300_cogx->at(itk);	//cog
+		double cogy = rk_hit_gtr300_cogy->at(itk);	//cog
+		lx = cogx + gmove_pattern.dx;
+		ly = cogy + gmove_pattern.dy;
+		lz = 0    + gmove_pattern.dz;
+		return TVector3(lx, ly, lz);
 	}
 }
 
@@ -461,7 +473,7 @@ void E16DSTN_ReStraightV2::AnalyzeTrackPairs(std::vector<int> &in_ids){
 
 void E16DSTN_ReStraightV2::PairTracking(TrackPair *track_pair){
 	AddTracks(track_pair);
-	pair_fitter->SetRungeKuttaStepSize(15);
+	pair_fitter->SetRungeKuttaStepSize(5);
 	pair_fitter->SetMaxSteps(80);
 	track_pair->chi_square_refit = pair_fitter->Fit(vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag, kPairMinuitStrategy, kPairMinuitMaxFunctionCalls);
 	UpdateFitResult(track_pair);
@@ -711,8 +723,8 @@ void E16DSTN_ReStraightV2::InitHistos(){
 	for(int t=0; t < n_wires; t++){// see .hh for definitions
 		for(int m=0; m <n_modules;m++){
 			for(int l=0; l < n_layers; l++){
-				h_res_x_wire[t][m][l] = new TH1D(Form("h_res_x_wire%d_mod%d_n%d", t, m+100, l), Form("h_res_x_wire%d_mod%d_n%d", t, m+100, l), 100, -2.5, 2.5);
-				h_res_y_wire[t][m][l] = new TH1D(Form("h_res_y_wire%d_mod%d_n%d", t, m+100, l), Form("h_res_y_wire%d_mod%d_n%d", t, m+100, l), 100, -2.5, 2.5);
+				h_res_x_wire[t][m][l] = new TH1D(Form("h_res_x_wire%d_m%d_l%d", t, m+100, l), Form("h_res_x_wire%d_m%d_l%d", t, m+100, l), 100, -2.5, 2.5);
+				h_res_y_wire[t][m][l] = new TH1D(Form("h_res_y_wire%d_m%d_l%d", t, m+100, l), Form("h_res_y_wire%d_m%d_l%d", t, m+100, l), 100, -2.5, 2.5);
 			
 				if(l == 0 ){
 				h_cor_res_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -30 , 30, 50, -1.5, 1.5);
@@ -721,7 +733,7 @@ void E16DSTN_ReStraightV2::InitHistos(){
 				h_cor_res_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
 
 				}
-				h_cor_res_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitly_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_res_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitly_wire%d_m%d_l%d",t,  m+100, l), 10, -50*l , 50*l, 50, -2.5, 2.5);
 				h_cor_resx_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 50, -2.5, 2.5);
 				h_cor_resy_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resy_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resy_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 50, -2.5, 2.5);
 			}

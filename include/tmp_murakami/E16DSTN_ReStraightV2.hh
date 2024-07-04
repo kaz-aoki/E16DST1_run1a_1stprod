@@ -147,6 +147,20 @@ public :
 
 
 private:
+	struct GeomMovePattern {
+		int pattern_id = -100;
+		double dx = 0;
+		double dy = 0;
+		double dz = 0 ;
+		double rotx = 0;
+		double roty = 0;
+		double rotz = 0;
+	};	
+	
+	GeomMovePattern gmove_pattern;
+
+
+
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
@@ -2530,6 +2544,7 @@ public:
    virtual void     Show(Long64_t entry = -1);
  
 	TFile *FileOut() {return fout;}
+	TTree *TreeOut() {return outtree;}
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
@@ -2560,6 +2575,7 @@ public:
 	void AddTrackHit(int itk, E16ANA_StraightMultiTrack* f);
 	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
 	TVector3 CorrectedLocalPos(int itk, int mid, int l);
+	void SetGeomMovePattern(const std::string &s, int id);
 //	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
 };
 
