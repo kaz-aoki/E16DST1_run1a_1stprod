@@ -228,11 +228,11 @@ int main(int argc, char* argv[]) {
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
 
   //===============================================================================
-  E16ANA_STSDeadChannel *sts_deadch = new E16ANA_STSDeadChannel();
-  sts_deadch->ReadDeadChannelData(calib.CurrentRunID());
+  E16ANA_STSDeadChannel sts_deadch;
+  sts_deadch.ReadConstantData(calib.CurrentRunID() );
 
-  E16ANA_STSADCCalibration *sts_adccalib = new E16ANA_STSADCCalibration();
-  sts_adccalib->ReadADCCalibData(calib.CurrentRunID());
+  E16ANA_STSADCCalibration sts_adccalib;
+  sts_adccalib.ReadConstantData(calib.CurrentRunID());
   //===============================================================================
 
 //  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
@@ -674,18 +674,18 @@ int main(int argc, char* argv[]) {
   sts_adc.push_back(hit1.ADC());
   //sts_ch_status.push_back();
   //====================================================
-  if(sts_deadch->IsOK(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+  if(sts_deadch.IsOK(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
       sts_ch_status.push_back(0);
-  } else if(sts_deadch->IsDead(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+  } else if(sts_deadch.IsDead(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
       sts_ch_status.push_back(1);
-  } else if(sts_deadch->IsNoisy(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+  } else if(sts_deadch.IsNoisy(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
       sts_ch_status.push_back(2);
-  } else if(sts_deadch->IsHot(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+  } else if(sts_deadch.IsHot(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
       sts_ch_status.push_back(3);
   } else{
     sts_ch_status.push_back(-1);
   }
-  sts_adc_calib.push_back(sts_adccalib->GetCorrespondingCharge(hit1.ModuleId(), hit1.PN(), hit1.ChannelId(), hit1.ADC()));
+  sts_adc_calib.push_back(sts_adccalib.GetCorrespondingCharge(hit1.ModuleId(), hit1.PN(), hit1.ChannelId(), hit1.ADC()));
   //====================================================
 
 	if ( hit1.TDC() == 0xffff ) {
