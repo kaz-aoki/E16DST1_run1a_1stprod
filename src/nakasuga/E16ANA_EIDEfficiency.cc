@@ -929,8 +929,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      hexp[i] = new TH1F(Form("hexp%d",i),Form("expected_LG_AdcSum/Mom_TrackAssoc_mod%d",103+i),32,0,800/ienepar[bene]);
      hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_AdcSum_Fore_TrackAssoc_mod%d",103+i),128,0,800/ienepar[bene]);
      hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_AdcSum_Mix_TrackAssoc_mod%d",103+i),128,0,800/ienepar[bene]);
-     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),25,0,1.5,40,0,240/ienepar[bene]);
-     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),25,0,1.5,40,0,240/ienepar[bene]);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,1.5,50,0,900/ienepar[bene]);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,1.5,50,0,900/ienepar[bene]);
      hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
      hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
      // hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,2,200,0,1200/ienepar[bene]);
@@ -2058,11 +2058,11 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    //   cexp->cd(i+1);
    //   hexp[(i+3)%5]->Draw();
    // }
-   // TH2F* hevspsub[5];
-   // TCanvas* cevsp = new TCanvas("cevsp","cevsp",700,500);
-   // TCanvas* cevspd = new TCanvas("cevspd","cevspd",700,500);
-   // TCanvas* cevspsub = new TCanvas("cevspsub","cevspsub",700,500);
-   // DC2DForeMixFM(cevsp,cevspd,cevspsub,hevsp,hevspd,hevspsub,mixevent);
+   TH2F* hevspsub[5];
+   TCanvas* cevsp = new TCanvas("cevsp","cevsp",700,500);
+   TCanvas* cevspd = new TCanvas("cevspd","cevspd",700,500);
+   TCanvas* cevspsub = new TCanvas("cevspsub","cevspsub",700,500);
+   DC2DForeMixFM(cevsp,cevspd,cevspsub,hevsp,hevspd,hevspsub,mixevent);
    TH2F* hevsprsub[5];
    TCanvas* cevspr = new TCanvas("cevspr","cevspr",700,500);
    TCanvas* cevsprd = new TCanvas("cevsprd","cevsprd",700,500);
@@ -2810,9 +2810,9 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    //   ccogxcl[i]->SaveAs(outfile,"pdf");
    //   ccogycl[i]->SaveAs(outfile,"pdf");
    // }
-   // cevsp->SaveAs(outfile,"pdf");
-   // cevspd->SaveAs(outfile,"pdf");
-   // cevspsub->SaveAs(outfile,"pdf");
+   cevsp->SaveAs(outfile,"pdf");
+   cevspd->SaveAs(outfile,"pdf");
+   cevspsub->SaveAs(outfile,"pdf");
    cevspr->SaveAs(outfile,"pdf");
    cevsprd->SaveAs(outfile,"pdf");
    cevsprsub->SaveAs(outfile,"pdf");
