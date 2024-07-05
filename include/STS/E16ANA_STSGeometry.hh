@@ -36,7 +36,9 @@ class E16ANA_STSGeometry{
   bool IsZStrip(int iPStrip);
   bool IsNonZStrip(int iPStrip);
 
+  double X2StripN(double x);
   double GetLocalX_fromN(double iNStrip); // Get Local X from N-side strip number.
+
   std::pair<double, double> GetLocal(int iNStrip, int iPStrip);
 
   double CalcX(std::pair<double,double>& ref, double y); // Find x so that (x,y) and ref are on a stereo angled line.

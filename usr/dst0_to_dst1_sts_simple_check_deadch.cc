@@ -22,31 +22,135 @@
 #include "E16DST_DST1.hh"
 #include "E16DST_DST1DetectorFactory.hh"
 #include "E16DST_DST1DefaultFilePath.hh"
+#include "E16ANA_STSDeadChannel.hh"
 
 #include "E16ANA_TrackCheckFile.hh"
+
+#ifdef TRACK_EFF_CHECK
+#include "E16ANA_GTRAnalyzerMaker.hh"
+#include "E16ANA_MakeDummyDST1.hh"
+#include "E16ANA_MockTrackOutputData.hh"
+//#include "mockdataIOtestSimple.hh"
+#endif // TRACK_EFF_CHECK
 
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
 
-
 using namespace std;
 //namespace  bpo = boost::program_options;
 
-constexpr bool visualization = false;
-constexpr bool vis_gtr = false;
+const bool visualization = true;
 
 constexpr bool kIsElectronRun = false;
 constexpr bool kSelectEvent   = false;
 
-bool mode_cluster = true;
-bool mode_fillonce = true;
+#ifdef TRACK_EFF_CHECK
+enum {
+  kVectorMesonData,
+  kKsData
+};
+enum {
+  kMergeSingleTrack,
+  kMergeTrackPair
+};
+enum {
+  kReadMockAlive,
+  kReadMockDead,
+  kReadMockError
+};
 
-//const char* track_root = "/e16/w/data109y3/user/aoki/run050351_gtr_root/afterkill_240417_050351_sink0_000.root";
+int ReadAndAddMockVectorMesonTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
+                                       E16ANA_TrackCheckFile* check_file) {
+  bool is_dead = false;
+  for (int i = 0; i < 2; ++i) {
+    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+      cerr << "mock data finished at " << endl;
+      return kReadMockError;
+    }
+    if (mock_data->TrackID() % 2 != 1 - i)  {
+      cerr << "something error occured in mock track reading: " << mock_data->TrackID() << endl;
+      return kReadMockError;
+    }
+    mock_tracks[i] = mock_data->Track();
+    auto is_dead_track = data_merger.IsDeadRegion(mock_tracks[i]) || data_merger.IsDiscriDeadRegion(mock_tracks[i]);
+    check_file->AddSimTrack(is_dead_track, mock_tracks[i]);
+    if (is_dead_track) {
+      is_dead = true;
+    }
+  }
+  if (is_dead) {
+    return kReadMockDead;
+  }
+  return kReadMockAlive;
+}
+
+enum {
+  kKs,
+  kPiPlus,
+  kPiMinus,
+  kNumParticles
+};
+int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrackOutputData* mock_data, E16ANA_MockTrack mock_tracks[],
+                              E16ANA_TrackCheckFile* check_file) {
+  bool is_dead = false;
+  array<int, kNumParticles> charges;
+  for (int i = 0; i < 3; ++i) {
+    if (mock_data->ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+      cerr << "mock data finished at " << endl;
+      return kReadMockError;
+    }
+    auto& track = mock_data->Track();
+    charges[i] = track.Charge();
+    if (i == 0) {
+      if (charges[i] != 0) {
+        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+        return kReadMockError;
+      }
+      check_file->AddSimTrack(false, track);
+    } else {
+      if (charges[i] == 0) {
+        cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+        return kReadMockError;
+      }
+      if (i == 2) {
+        if (charges[1] == charges[2]) {
+          cerr << "unexpected particle: " << charges[i] << ", order: " << i << endl;
+          return kReadMockError;
+        }
+      }
+      if (charges[i] == 1) {
+        mock_tracks[0] = track;
+      } else {
+        mock_tracks[1] = track;
+      }
+//      auto is_dead_track = data_merger.IsDeadRegion(track) || data_merger.IsDiscriDeadRegion(track);
+      auto is_dead_track = data_merger.IsDeadRegion(track);
+      check_file->AddSimTrack(is_dead_track, track);
+      if (is_dead_track) {
+        is_dead = true;
+      }
+    }
+  }
+  if (is_dead) {
+    return kReadMockDead;
+  }
+  return kReadMockAlive;
+}
+#endif // TRACK_EFF_CHECK
 
 int main(int argc, char* argv[]) {
-  if (argc != 8) {
+#ifndef TRACK_EFF_CHECK
+  if (argc != 7) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] "
-	 << "[track_root] [display.pdf] " << std::endl;
+	 << "[display.pdf]" << endl;
+#else
+  if (argc != 11) {
+    cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] [mockdata.mockout] [mock flag] [merge mock flag] [smear flag] [dead region flag]" << endl;
+    cerr << "mock data flag 0: vector meson, 1: Ks" << endl;
+    cerr << "merge mock flag 0: merge single track (maybe doesn't work well), 1: merge track pair" << endl;
+    cerr << "smear flag 0: no smear, 1: design smear, 2: TDR2105 smear, 3: other" << endl;
+    cerr << "dead region flag 0: no dead region, 1: w/ dead region" << endl;
+#endif
     return -1;
   }
   auto in_file_name  = argv[1];
@@ -54,8 +158,30 @@ int main(int argc, char* argv[]) {
   auto run_id        = stoi(argv[3]);
   auto event_start   = stoi(argv[4]);
   auto event_end     = stoi(argv[5]);
-  TString track_root = argv[6];
-  std::string display_pdf = argv[7];
+  std::string display_pdf = argv[6];
+#ifdef TRACK_EFF_CHECK
+  auto mock_data_name   = argv[6];
+  auto mock_data_flag   = stoi(argv[7]);
+  auto merge_mock_flag  = stoi(argv[8]);
+  auto smear_flag       = stoi(argv[9]);
+  auto dead_region_flag = stoi(argv[10]);
+  if (mock_data_flag != 0 && mock_data_flag != 1) {
+    cerr << "Invalid dead region flag: " << smear_flag << endl;
+    return -1;
+  }
+  if (merge_mock_flag != 0 && merge_mock_flag != 1) {
+    cerr << "Invalid dead region flag: " << smear_flag << endl;
+    return -1;
+  }
+  if (smear_flag < 0 || smear_flag > 3) {
+    cerr << "Invalid smear flag: " << smear_flag << endl;
+    return -1;
+  }
+  if (dead_region_flag != 0 && dead_region_flag != 1) {
+    cerr << "Invalid dead region flag: " << smear_flag << endl;
+    return -1;
+  }
+#endif
 
   FILE* fp = fopen(in_file_name, "r");
   if (!fp) {
@@ -99,7 +225,12 @@ int main(int argc, char* argv[]) {
   auto bfield_map = new E16ANA_MagneticFieldMap3D(static_cast<std::string>(MagneticFieldMapFile));
   bfield_map->Initialize_binary();
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
-  
+
+  //===============================================================================
+  E16ANA_STSDeadChannel sts_deadch;
+  sts_deadch.ReadConstantData(calib.CurrentRunID() );
+  //===============================================================================
+
 //  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
   E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
   E16ANA_MultiTrack fitter(bfield_map, geometry, 1);
@@ -108,74 +239,17 @@ int main(int argc, char* argv[]) {
   E16ANA_TrackCheckFile check_file(out_file_name, run_id);
 
 
-  TFile* file_track = new TFile(track_root);
-  if (! file_track->IsOpen() )  {
-    std::cout << track_root << " not found." << std::endl;
-    return 0;
-  }
-
-  TTree* outtree = (TTree*) file_track->Get("outtree");
-  if ( outtree == nullptr ) {
-    std::cout << "outtree not found. I will try tree" << std::endl;
-    outtree = (TTree*) file_track->Get("tree");
-    if ( outtree == nullptr ) {
-      std::cout << "tree not found. abort." << std::endl;
-      return 0;
-    }
-  }
-  if ( outtree == nullptr ) {
-    std::cout << "TTree cannot be found" << std::endl;
-    return 0;
-  }
-  int itrack = 0;
-  int track_event;
-  std::vector<double>  *rk_fit_init_mom_gx;
-  std::vector<double>  *rk_fit_init_mom_gy;
-  std::vector<double>  *rk_fit_init_mom_gz;
-  std::vector<double>  *rk_fit_init_pos_gx;
-  std::vector<double>  *rk_fit_init_pos_gy;
-  std::vector<double>  *rk_fit_init_pos_gz;
-  std::vector<int>     *rk_fit_gtr100_mid;
-  std::vector<int>     *rk_fit_gtr200_mid;
-  std::vector<int>     *rk_fit_gtr300_mid;
-  std::vector<double>  *chi_square;
-  //std::vector<int>     *rk_proj_n_lg;  // This was not filled.
-  std::vector<std::vector<double> > *rk_proj_lg_t;
-  
-  outtree->SetBranchAddress("event_id",&track_event);
-  outtree->SetBranchAddress("rk_fit_init_mom_gx",&rk_fit_init_mom_gx);
-  outtree->SetBranchAddress("rk_fit_init_mom_gy",&rk_fit_init_mom_gy);
-  outtree->SetBranchAddress("rk_fit_init_mom_gz",&rk_fit_init_mom_gz);
-  outtree->SetBranchAddress("rk_fit_init_pos_gx",&rk_fit_init_pos_gx);
-  outtree->SetBranchAddress("rk_fit_init_pos_gy",&rk_fit_init_pos_gy);
-  outtree->SetBranchAddress("rk_fit_init_pos_gz",&rk_fit_init_pos_gz);
-  outtree->SetBranchAddress("rk_fit_gtr100_mid",&rk_fit_gtr100_mid);
-  outtree->SetBranchAddress("rk_fit_gtr200_mid",&rk_fit_gtr200_mid);
-  outtree->SetBranchAddress("rk_fit_gtr300_mid",&rk_fit_gtr300_mid);
-  outtree->SetBranchAddress("chi_square",&chi_square);
-  //outtree->SetBranchAddress("rk_proj_n_lg",&rk_proj_n_lg);
-  outtree->SetBranchAddress("rk_proj_lg_t",&rk_proj_lg_t);
-  
   ////////
   E16ANA_EventDisplay display;
   display.SetGeometry(geometry);
   display.SetMirror();
   bool pdf_first = true;
-  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
+  //  auto* ggeom = E16ANA_STSGlobalGeometry::instance();
   //auto* lgeom = E16ANA_STSGeometry::instance();
   if ( visualization ) display.SetPdfName(display_pdf);
- 
-  std::vector<int> modules = {101,102,103,104,106,107,108,109};
-  std::map<int,TH1D*> hist_res_map;
-  TString str;
-  for(int i = 0 ; i<modules.size(); i++){
-    str.Form("hist_residual_%d",modules[i]);
-    hist_res_map[modules[i]] = new TH1D(str,str,1000,-10,10);
-    std::cout << hist_res_map[modules[i]]->GetTitle() << std::endl;
-  }
+
 
   ////////////////////// PREPARE STS TREE
-  check_file.cd();
   TTree* tree_sts = new TTree("tree_sts","tree_sts");
 
   uint32_t event_id; // i
@@ -211,19 +285,13 @@ int main(int argc, char* argv[]) {
   std::vector<long> sts_geri_l1geri;
   std::vector<uint16_t> sts_tdc;
   std::vector<uint16_t> sts_adc;
-  std::vector<float> sts_residual;
-  std::vector<float> sts_rk_fit_init_mom_gx;
-  std::vector<float> sts_rk_fit_init_mom_gy;
-  std::vector<float> sts_rk_fit_init_mom_gz;
-  std::vector<float> sts_rk_fit_init_pos_gx;
-  std::vector<float> sts_rk_fit_init_pos_gy;
-  std::vector<float> sts_rk_fit_init_pos_gz;
-  //std::vector<float> sts_cost;
-  std::vector<float> sts_angle;
+  //==========================================
+  std::vector<int> sts_ch_status;
+  //=========================================
 
   auto clear_sts = [&](){
     sts_module.clear();
-    sts_pn.clear(); 
+    sts_pn.clear();
     sts_channel.clear();
     sts_peakheight.clear();
     sts_hittime.clear();
@@ -238,16 +306,11 @@ int main(int argc, char* argv[]) {
     sts_geri_l1geri.clear();
     sts_tdc.clear();
     sts_adc.clear();
-    sts_residual.clear();
-    sts_rk_fit_init_mom_gx.clear();
-    sts_rk_fit_init_mom_gy.clear();
-    sts_rk_fit_init_mom_gz.clear();
-    sts_rk_fit_init_pos_gx.clear();
-    sts_rk_fit_init_pos_gy.clear();
-    sts_rk_fit_init_pos_gz.clear();
-    sts_angle.clear();
+    //================================
+    sts_ch_status.clear();
+    //================================
   };
-  
+
   TString br_int16 = "/S";
   TString br_uint32 = "/i";
   TString br_uint64 = "/l";
@@ -281,40 +344,21 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_tdc_l1geri",&sts_tdc_l1geri);
   tree_sts->Branch("sts_tdc_l1geri2",&sts_tdc_l1geri2);
   tree_sts->Branch("sts_geri_l1geri",&sts_geri_l1geri);
-  
+
   tree_sts->Branch("sts_lx",&sts_lx);
   tree_sts->Branch("sts_gx",&sts_gx);
   tree_sts->Branch("sts_gy",&sts_gy);
   tree_sts->Branch("sts_gz",&sts_gz);
 
   tree_sts->Branch("sts_geriTimestamp",&sts_geriTimestamp);
-  tree_sts->Branch("sts_residual",&sts_residual);
 
-  //tree_sts->Branch("sts_cost",&sts_cost);
-  tree_sts->Branch("sts_angle",&sts_angle);
-  
-  tree_sts->Branch("sts_rk_fit_init_mom_gx",&sts_rk_fit_init_mom_gx);
-  tree_sts->Branch("sts_rk_fit_init_mom_gy",&sts_rk_fit_init_mom_gy);
-  tree_sts->Branch("sts_rk_fit_init_mom_gz",&sts_rk_fit_init_mom_gz);
+  tree_sts->Branch("sts_tdc",&sts_tdc);
+  tree_sts->Branch("sts_adc",&sts_adc);
 
-  tree_sts->Branch("sts_rk_fit_init_pos_gx",&sts_rk_fit_init_pos_gx);
-  tree_sts->Branch("sts_rk_fit_init_pos_gy",&sts_rk_fit_init_pos_gy);
-  tree_sts->Branch("sts_rk_fit_init_pos_gz",&sts_rk_fit_init_pos_gz);
-  
+  //====================================================
+  tree_sts->Branch("sts_ch_status",&sts_ch_status);
+  //======================================================
   ////////////////////////////////////////////////
-
-  ////////////////////// PREPARE GTR TRACK COUNTER
-
-  int32_t gtrtrk_mid = 0;
-
-  check_file.cd();
-  TTree* tree_gtrtrk = new TTree("tree_gtrtrk","tree_gtrtrk");
-  tree_gtrtrk->Branch("event",&event_id,"event"+br_uint32);
-  tree_gtrtrk->Branch("spill",&spill_id,"spill"+br_uint32);
-  tree_gtrtrk->Branch("gtrtrk_mid",&gtrtrk_mid,"gtrtrk_mid/I");
-  auto clear_gtrtrk = [&]() {
-    gtrtrk_mid = 0;
-  };
 
   // PREPARE LG HITO
   TTree* tree_lg = new TTree("tree_lg","tree_lg");
@@ -328,7 +372,7 @@ int main(int argc, char* argv[]) {
   std::vector<float> lg_gx;
   std::vector<float> lg_gy;
   std::vector<float> lg_gz;
-  
+
   auto clear_lg = [&](){
     lg_module.clear();
     lg_channel.clear();
@@ -339,7 +383,6 @@ int main(int argc, char* argv[]) {
     lg_gx.clear();
     lg_gy.clear();
     lg_gz.clear();
-    sts_residual.clear();
   };
 
   tree_lg->Branch("event",&event_id,"event"+br_uint32);
@@ -347,6 +390,7 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_module",&lg_module);
   tree_lg->Branch("lg_channel",&lg_channel);
   tree_lg->Branch("lg_peakheight",&lg_peakheight);
+  tree_lg->Branch("lg_peaktime",&lg_peaktime);
   tree_lg->Branch("lg_baseline",&lg_baseline);
   tree_lg->Branch("lg_baselinerms",&lg_baselinerms);
   tree_lg->Branch("lg_integral",&lg_integral);
@@ -354,14 +398,65 @@ int main(int argc, char* argv[]) {
   tree_lg->Branch("lg_gy",&lg_gy);
   tree_lg->Branch("lg_gz",&lg_gz);
 
-  ////////////////////// PREPARE EVENT TREE
-  TTree* tree_event = new TTree("tree_event_in_dst0","tree_event_in_dst0");
-  tree_event->Branch("event",&event_id,"event"+br_uint32);
+  /////////////////////////////////////////////
 
-  TTree* tree_analyzed = new TTree("tree_analyzed","tree_analyezd");
-  tree_analyzed->Branch("event",&event_id,"event"+br_uint32);
-  
-  
+  /*
+  ///////////////////// PREPARE STS TREE
+  TTree* tree_gtr = new TTree("tree_gtr","tree_gtr");
+
+  std::vector<int> gtr_module;
+  std::vector<int> gtr_layer;
+  std::vector<float> gtr_timing;
+  std::vector<float> gtr_peaksum;
+
+  auto clear_gtr = [&](){
+    gtr_module.clear();
+    gtr_layer.clear();
+    gtr_timing.clear();
+    gtr_peaksum.clear();
+  };
+
+  tree_gtr->Branch("event",&event_id,"event"+br_uint32);
+  tree_gtr->Branch("spill",&spill_id,"spill"+br_uint32);
+  tree_gtr->Branch("gtr_module",&gtr_module);
+  tree_gtr->Branch("gtr_layer",&gtr_layer);
+  tree_gtr->Branch("gtr_timing",&gtr_timing);
+  tree_gtr->Branch("gtr_peaksum",&gtr_peaksum);
+  */
+
+  //////////////////////////////////////////
+
+
+#ifdef TRACK_EFF_CHECK
+  auto mock_data = E16ANA_MockTrackOutputData();
+  if (mock_data.OpenReadFile(mock_data_name) != E16ANA_MockTrackOutputData::OK) {
+    cerr << "cannot open mock data file" << endl;
+    return -1;
+  }
+
+  E16ANA_GTRcalibParams gtr_params;
+  gtr_params.ReadCalibData(run_id);
+  auto gtr_analyzers = new E16ANA_GTRAnalyzerMaker(gtr_params);
+  for(int mid = 100; mid <= 110; ++mid) {
+    for(int lid = 0; lid < 3; ++lid) {
+      auto gtr_analyzer2 = gtr_analyzers->Chamber(mid, lid);
+      int n_strips = gtr_analyzer2->GetNumberOfStrips();
+      for(int strip_id = 0; strip_id < n_strips; ++strip_id) {
+        double ped = gtrped.GetPedestal(mid, lid, strip_id).Value();
+        double sigma = gtrped.GetPedestal(mid, lid, strip_id).Sigma();
+        gtr_analyzer2->SetPedestal(strip_id, ped);
+        gtr_analyzer2->SetPedestalSigma(strip_id, sigma);
+      }
+    }
+  }
+  auto gtr_stat = E16ANA_GTRStatus(run_id);
+  auto hbd_dead_ch = E16ANA_HBDDeadChannel();
+  hbd_dead_ch.ReadDeadChannelData(run_id);
+  auto lg_dead_ch = E16ANA_LGDeadChannel();
+  lg_dead_ch.ReadDeadChannelData();
+  auto data_merger = E16ANA_MakeDummyDST1(smear_flag, gtr_analyzers, &gtr_stat, gtr_stat.ASDDeadChannel(), &hbd_dead_ch, &lg_dead_ch);
+
+#endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
     std::cerr << "### Cannot open file ###" << std::endl;
@@ -413,7 +508,6 @@ int main(int argc, char* argv[]) {
 //      auto& trigger_lg_hits0  = event0->TriggerLG();
       event_id = event0->EventID();
       spill_id = event0->SpillID();
-      tree_event->Fill();
       if (kSelectEvent) {
         bool is_selected_event = false;
         while (true) {
@@ -439,41 +533,6 @@ int main(int argc, char* argv[]) {
           continue;
         }
       }
-
-
-//////////////////////// check GTR track root file.0
-
-      /////////// Search for Tomoki Track.
-      std::cout << " event = " << event_id << std::endl;
-      bool gtrtrk_found = false;
-      while(true) {
-	if ( itrack >= outtree->GetEntries() ) break;
-	outtree->GetEntry(itrack);
-	//std::cout << " event = " << event_id << "  track_event " << track_event << std::endl;
-	if ( track_event < event_id ) {
-	  std::cout << " event = " << event_id <<   " VS track_event " << track_event << std::endl;
-	  itrack++;
-	  continue;
-	}else if (track_event == event_id ){
-	  gtrtrk_found = true;
-	  break;
-	}else{
-	  break;
-	}
-      }
-      if ( ! gtrtrk_found ) {
-	std::cout << "track not found" << std::endl;
-	continue;
-      }
-      //std::cout << "track found" << std::endl;
-      ///////////////////// search Tomoki track finished.
-      if ( rk_fit_init_mom_gz->size() == 0 ) {
-	std::cout << " Event found in GTR tree but there is no track candidate. Skipping this event." << std::endl;
-	continue;
-      }
-
-
-//////////////////////// DST1 RECONSTRUCTION //////////////////////////////
 #ifndef REMOVE_REAL_HIT
 //      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
 //      record.SSD().AddHitAndClusterIds();
@@ -496,16 +555,63 @@ int main(int argc, char* argv[]) {
 ());
       record_for_another_hbd_cluster.HBD().AddHitAndClusterIds();
       record_for_another_hbd_cluster.HBD().UpdatePtrs();
-      check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
+      // kaz removed .
+      //check_file.AddHBDClusters(*geometry, record_for_another_hbd_cluster.HBD());
 // HBD clustering w/o timing selection end
 #endif // REMOVE_REAL_HIT
+#ifdef TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
-      record.STS().UpdatePtrs();
       record.Trigger().UpdatePtrs();
-
+      check_file.ClearSimTrack();
+      if (merge_mock_flag == kMergeSingleTrack) {
+        if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+          cerr << "mock data finished at " << n_physics_event << " events" << endl;
+          break;
+        }
+        bool is_finished = false;
+//        while (data_merger.IsDeadRegion(mock_data.Track())) {
+        while (data_merger.IsDeadRegion(mock_data.Track()) || data_merger.IsDiscriDeadRegion(mock_data.Track())) {
+          check_file.AddSimTrack(true, mock_data.Track());
+          if (mock_data.ReadATrack() != E16ANA_MockTrackOutputData::OK) {
+            cerr << "mock data finished at " << n_physics_event << " events" << endl;
+            is_finished = true;
+            break;
+          }
+        }
+        if (is_finished) {
+          break;
+        }
+        check_file.AddSimTrack(false, mock_data.Track());
+        data_merger.MergeMockToRealData(0, mock_data.Track(), &record);
+      } else if (merge_mock_flag == kMergeTrackPair) {
+        int mock_read_flag;
+        E16ANA_MockTrack mock_tracks[2];
+        while (true) {
+          if (mock_data_flag == kVectorMesonData) {
+            mock_read_flag = ReadAndAddMockVectorMesonTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
+          } else if (mock_data_flag == kKsData) {
+            mock_read_flag = ReadAndAddMockKsTrackPair(data_merger, &mock_data, mock_tracks, &check_file);
+          }
+          if (dead_region_flag == 1 && mock_read_flag == kReadMockDead) {
+            continue;
+          }
+          break;
+        }
+        if (mock_read_flag == kReadMockError) {
+          break;
+        }
+        data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
+        data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
+      }
+#endif // TRACK_EFF_CHECK
+      record.SSD().UpdatePtrs();
+      record.GTR().UpdatePtrs();
+      record.HBD().UpdatePtrs();
+      record.LG().UpdatePtrs();
+      record.Trigger().UpdatePtrs();
       std::cout << "Warning : AddRecord removed to avoid problem." << std::endl;
       //check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
@@ -519,21 +625,14 @@ int main(int argc, char* argv[]) {
       prev_record.GTR().AddHitAndClusterIds();
       prev_record.UpdatePtrs();
 #endif // DST1_EVENT_MIX
-
       std::cout << "################################################ my event loop" << std::endl;
-      tree_analyzed->Fill();
-
 
       if ( stsg_dst0.NumberOfHits() > 1 ){
 	std::cout << "++++++ STSGlobal: # of hits more than 1. Indication of merged DST0." << std::endl;
       }
 
       auto stscut_tdc = [](auto& hit){ return ( fabs(hit.Timing()+95)<100.);};
-      auto stscut_adc = [](auto& hit){ return ( hit.PeakHeight() > 0 ); };
-      auto stscluscut_tdc = [](auto& clus) { return (fabs(clus.Timing()+95)<100.); };
-      auto stscluscut_adc = [](auto& clus) { return clus.PeakSum()>0; };
-      
-      
+      auto stscut_adc = [](auto& hit){ return ( hit.PeakHeight() > 0.00001 ); };
 
       ///////////////// FILL STS STANDALONE TREE.
 
@@ -554,222 +653,125 @@ int main(int argc, char* argv[]) {
       }else{
 	continue;
       }
+
       clear_sts();
 
       auto fill_sts = [&](auto& hit1) {
-	  sts_module.push_back(hit1.ModuleId());
-	  sts_pn.push_back(hit1.PN());
-	  sts_channel.push_back(hit1.ChannelId());
-	  sts_peakheight.push_back(hit1.PeakHeight());
-	  sts_lx.push_back(hit1.LocalPos().X());
-	  sts_elink.push_back(hit1.Elink());
+	sts_module.push_back(hit1.ModuleId());
+	sts_pn.push_back(hit1.PN());
+	sts_channel.push_back(hit1.ChannelId());
+	sts_peakheight.push_back(hit1.PeakHeight());
+	sts_lx.push_back(hit1.LocalPos().X());
+	sts_elink.push_back(hit1.Elink());
+	sts_tdc.push_back(hit1.TDC());
+  sts_adc.push_back(hit1.ADC());
+  //sts_ch_status.push_back();
+  //====================================================
+  if(sts_deadch.IsOK(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+      sts_ch_status.push_back(0);
+  } else if(sts_deadch.IsDead(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+      sts_ch_status.push_back(1);
+  } else if(sts_deadch.IsNoisy(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+      sts_ch_status.push_back(2);
+  } else if(sts_deadch.IsHot(hit1.ModuleId(), hit1.PN(), hit1.ChannelId())){
+      sts_ch_status.push_back(3);
+  } else{
+    sts_ch_status.push_back(-1);
+  }
+  //====================================================
 
-	  if ( hit1.TDC() == 0xffff ) {
-	    sts_tdc_l1geri2.push_back(-1000000);
-	  }else{
-	    auto& hitg0 = stsg_dst0.Hit(0);
-	    int geri14 = (int) ( hitg0.get_l1_geritimestamp()&0b11111111111111 );
-	    sts_tdc_l1geri2.push_back((int)hit1.TDC() - geri14);
-	  }
+	if ( hit1.TDC() == 0xffff ) {
+	  sts_tdc_l1geri2.push_back(-1000000);
+	}else{
+	  auto& hitg0 = stsg_dst0.Hit(0);
+	  int geri14 = (int) ( hitg0.get_l1_geritimestamp()&0b11111111111111 );
+	  sts_tdc_l1geri2.push_back((int)hit1.TDC() - geri14);
+	}
 
-	  if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
-	    sts_hittime.push_back(hit1.Timing());
-	    sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
-	  }else{
-	    sts_hittime.push_back   (-1000000.);
-	    sts_tdc_l1geri.push_back(-1000000.);
-	  }
-	  
-	  TVector3 vec = hit1.GlobalPos();
-	  sts_gx.push_back(vec.X());
-	  sts_gy.push_back(vec.Y());
-	  sts_gz.push_back(vec.Z());
-	  sts_geriTimestamp.push_back(hit1.GeriTimestamp());
-	  int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
-	  sts_geri_l1geri.push_back(tmp);
-      };
-      auto fill_sts_clus = [&](auto& clus1){
-	sts_module.push_back(clus1.ModuleId());
-	sts_pn.push_back(clus1.PN());
-	sts_channel.push_back(-1);
-	sts_peakheight.push_back(clus1.PeakSum());
-	sts_lx.push_back(clus1.LocalPos().X());
-	sts_hittime.push_back(clus1.Timing());
-	sts_elink.push_back(-1);
-	TVector3 vec = clus1.GlobalPos();
+	if ( fabs(hit1.Timing()-E16DST_DST1Constant::kInvalidValue) > 0.000001 ) {
+	  sts_hittime.push_back(hit1.Timing());
+	  sts_tdc_l1geri.push_back(hit1.Timing()-(l1_geritimestamp&0b11111111111111));
+	}else{
+	  sts_hittime.push_back   (-1000000.);
+	  sts_tdc_l1geri.push_back(-1000000.);
+	}
+
+	TVector3 vec = hit1.GlobalPos();
 	sts_gx.push_back(vec.X());
 	sts_gy.push_back(vec.Y());
 	sts_gz.push_back(vec.Z());
-	
-	// fill gpos.
-	// check if clus1's tdc is emu_timestamp subtracted one.
+	sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
+	sts_geri_l1geri.push_back(tmp);
       };
+
       auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( visualization ){
-	display.DrawSensor();
-	display.DrawRun(run_id);
-	display.DrawEvent(event_id);
-	display.DrawWires();
-	display.DrawTargets();
+
+      if ( visualization ) display.DrawSensor();
+      if ( visualization ) {
+	  double global[3] = { 20., 0., 40.};
+	  display.DrawHit(global);
+	  double global2[3] = { 20., 0., -40.};
+	  display.DrawHit(global2);
+	  double global3[3] = {-20., 0., -40.};
+	  display.DrawHit(global3);
+	  double global4[3] = {-20., 0., 40.};
+	  display.DrawHit(global4);
       }
+
+      TVector3 wire[2] = { TVector3(20.,0.,40.), TVector3(20.,0.,-40.) };
+
       if ( sts_hits1.size() > 0 ) {
 	for( auto& hit1 : sts_hits1 ) {
-	  //fill_sts(hit1);
+	  fill_sts(hit1);
 	  if ( visualization ){
-	    if ( stscut_tdc(hit1) && stscut_adc(hit1) && hit1.PN()==1) {
+	    if ( fabs(hit1.Timing()+95.) <100  && hit1.PeakHeight()>0 ) {
 	      TVector3 vec = hit1.GlobalPos();
 	      double global[3]={vec.X(),vec.Y(),vec.Z()};
 	      display.DrawHit(global);
+
+	      /*
+	      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
+	      if ( lg_hits1.size() > 0 )  {
+		for ( auto& lghit : lg_hits1 ) {
+		  if( lghit.ModuleId() == hit1.ModuleId() ||
+		      abs(lghit.ModuleId() - hit1.ModuleId())<=1 ) {
+		    if ( lghit.PeakTime() > 90 || lghit.PeakTime() < 0 ) continue;
+		  }
+		}
+		}*/
+
+	      /*
+
+		  TVector3 gpos = lghit.GlobalPos(*geometry);
+		  //std::cout << "LG " << module << " ch=" << channel << "  ";
+		  //gpos.Print();
+		  lg_module.push_back(lghit.ModuleId());
+		  lg_channel.push_back(lghit.ChannelId());
+		  lg_peakheight.push_back(lghit.PeakHeight());
+		  lg_peaktime.push_back(lghit.PeakTime());
+		  lg_baseline.push_back(lghit.Baseline());
+		  lg_baseline.push_back(lghit.BaselineRms());
+		  lg_integral.push_back(lghit.Integral());
+		  lg_gx.push_back(gpos.X());
+		  lg_gy.push_back(gpos.Y());
+		  lg_gz.push_back(gpos.Z());
+		}
+	      }
+
+	      */
+
+
 	    }
 	  }
 	}
       }
-
-      for ( int i = 0;i<rk_fit_init_mom_gx->size(); i++){ // LOOP over all track candidates.
-	// TRACK SELECTION.
-	if ( chi_square->at(i) > 10 ) continue;
-	bool OK = false;
-	for( int ilg = 0;ilg < rk_proj_lg_t->at(i).size(); ilg++){
-	  if ( (rk_proj_lg_t->at(i)).at(ilg) > -1000 && (rk_proj_lg_t->at(i)).at(ilg) < 90. ) OK = true;
-	}
-	if (! OK ) continue;
-	
-	if ( (rk_fit_gtr100_mid->at(i) != rk_fit_gtr200_mid->at(i)) ||
-	     (rk_fit_gtr200_mid->at(i) != rk_fit_gtr300_mid->at(i)) ) continue;
-
-	double mom[3] = { rk_fit_init_mom_gx->at(i),
-			  rk_fit_init_mom_gy->at(i),
-			  rk_fit_init_mom_gz->at(i)};
-	double global[3] = { rk_fit_init_pos_gx->at(i),
-			     rk_fit_init_pos_gy->at(i),
-			     rk_fit_init_pos_gz->at(i)};
-	double global2[3] = { global[0] + mom[0]*1000.,
-			      global[1] + mom[1]*1000.,
-			      global[2] + mom[2]*1000. };
-	display.DrawLine(global,global2);
-	int track_mod = rk_fit_gtr100_mid->at(i);
-	double global_interp[3];
-	ggeom->CalcPointOnPlane(track_mod,global,global2, global_interp);
-	double tmp_local[3];
-	ggeom->Global2Local(track_mod,global_interp,tmp_local);
-	if ( fabs(tmp_local[0]) > 30. || fabs(tmp_local[1]) > 30. ) {
-	  std::cout << "GTR track extrapolated to STS but it is out of acceptance." << std::endl;
-	  continue;
-	}
-	gtrtrk_mid = track_mod;
-	tree_gtrtrk->Fill();
-	display.SetHitColor(kGreen+3);
-	display.DrawHit(global_interp);
-	display.SetHitColor(kRed);
-	TVector3 origin_plane;
-	ggeom->Local2Global(track_mod,TVector3(0.,0.,0.),origin_plane);
-	TVector3 arrow_plane;
-	ggeom->Local2Global(track_mod,TVector3(0.,0.,1.),arrow_plane);
-	TVector3 norm_plane = arrow_plane-origin_plane;
-	if ( arrow_plane.Mag2() < origin_plane.Mag2() ) norm_plane = -norm_plane;
-	// norm_plane always points outward.
-	
-	//TVector2 norm_plane2(norm_plane.X(),norm_plane.Z());
-	//TVector2 trk_mom2(mom[0],mom[2]);
-	//double cost = (trk_mom2 * norm_plane2)/trk_mom2.Mod()/norm_plane2.Mod();
-	TVector2 norm_plane2(norm_plane.Z(),norm_plane.X());
-	TVector2 trk_mom2(mom[2],mom[0]);
-	double angle = trk_mom2.Phi()-norm_plane2.Phi();
-
-	// TODO: calculate 2D angle between trk_mom and norm_plane.
-	// TODO: fill rk info into tree .
-	
-	auto fill_using_cluster = [&]() {
-	  auto& sts_clus1 = record.STS().Clusters();
-	  if ( sts_clus1.size() > 0 ) {
-	    for( auto& clus1 : sts_clus1 ) {
-	      if ( clus1.ModuleId() != track_mod ) continue;
-	      if ( clus1.PN() != 1 ) continue;
-	      if ( ! stscluscut_tdc(clus1) ) continue;
-	      if ( ! stscluscut_adc(clus1) ) continue;
-	      TVector3 sts_gpos = clus1.GlobalPos();
-	      TVector3 sts_lpos = clus1.LocalPos();
-	      double local_interp[3];
-	      ggeom->Global2Local(track_mod, global_interp,local_interp);
-	      float residual = sts_lpos.X()-local_interp[0];
-	      hist_res_map[track_mod]->Fill(residual);
-	      fill_sts_clus(clus1);
-	      sts_residual.push_back(residual);
-	      sts_rk_fit_init_pos_gx.push_back(global[0]);
-	      sts_rk_fit_init_pos_gy.push_back(global[1]);
-	      sts_rk_fit_init_pos_gz.push_back(global[2]);
-	      sts_rk_fit_init_mom_gx.push_back(mom[0]);
-	      sts_rk_fit_init_mom_gy.push_back(mom[1]);
-	      sts_rk_fit_init_mom_gz.push_back(mom[2]);
-	      //sts_cost.push_back(cost);
-	    }
-	  }
-	};
-
-
-	auto fill_using_hit = [&](){
-	  E16DST_DST1STSHit sts_hit1_stored;
-	  float min_residual = 1000000.;
-	  
-	  if ( sts_hits1.size() > 0 ) {
-	    for( auto& hit1 : sts_hits1 ) {
-	      if ( hit1.ModuleId() != track_mod ) continue;
-	      if ( hit1.PN() != 1 ) continue;
-	      if ( ! stscut_tdc(hit1) ) continue;
-	      if ( ! stscut_adc(hit1) ) continue;
-	      
-	      TVector3 sts_gpos = hit1.GlobalPos();
-	      TVector3 sts_lpos = hit1.LocalPos();
-	      double local_interp[3];
-	      ggeom->Global2Local(track_mod, global_interp,local_interp);
-	      float residual = sts_lpos.X()-local_interp[0];
-	      
-	      if ( mode_fillonce ) {
-		// fill once mode.
-		if ( fabs(residual) < fabs(min_residual) ) {
-		  min_residual = residual;
-		  sts_hit1_stored = hit1;
-		  continue;
-		}
-	      }else{
-		 hist_res_map[track_mod]->Fill(residual);
-		 fill_sts(hit1);
-		 sts_residual.push_back(min_residual);
-		 sts_rk_fit_init_pos_gx.push_back(global[0]);
-		 sts_rk_fit_init_pos_gy.push_back(global[1]);
-		 sts_rk_fit_init_pos_gz.push_back(global[2]);
-		 sts_rk_fit_init_mom_gx.push_back(mom[0]);
-		 sts_rk_fit_init_mom_gy.push_back(mom[1]);
-		 sts_rk_fit_init_mom_gz.push_back(mom[2]);
-		 sts_angle.push_back(angle);
-	      }
-	    }
-	  }
-	  if ( mode_fillonce && min_residual < 100000. ) {
-	    hist_res_map[track_mod]->Fill(min_residual);
-	    fill_sts(sts_hit1_stored);
-	    sts_residual.push_back(min_residual);
-	    sts_rk_fit_init_pos_gx.push_back(global[0]);
-	    sts_rk_fit_init_pos_gy.push_back(global[1]);
-	    sts_rk_fit_init_pos_gz.push_back(global[2]);
-	    sts_rk_fit_init_mom_gx.push_back(mom[0]);
-	    sts_rk_fit_init_mom_gy.push_back(mom[1]);
-	    sts_rk_fit_init_mom_gz.push_back(mom[2]);
-	    sts_angle.push_back(angle);
-	  }
-	};
-	
-	if ( mode_cluster ) fill_using_cluster();
-	else fill_using_hit();
-
-      } // loop over all RK track candidates.
-      
       tree_sts->Fill();
-
-      if ( vis_gtr ) {
-	auto& gtr_clusters1 = record.GTR().Clusters();
-	if ( gtr_clusters1.size() > 0 ) {
-	  for ( auto& gtr_clust1 : gtr_clusters1 ) {
+      auto& gtr_clusters1 = record.GTR().Clusters();
+      if ( gtr_clusters1.size() > 0 ) {
+	for ( auto& gtr_clust1 : gtr_clusters1 ) {
+	  if ( gtr_clust1.Type() != 0 ) continue; // show only X.
+	  if ( visualization ) {
 	    TVector3 pos = gtr_clust1.GlobalPos(*geometry);
 	    double global[3] = {pos.X(),pos.Y(),pos.Z()};
 	    display.DrawHit(global);
@@ -803,7 +805,7 @@ int main(int argc, char* argv[]) {
       ///display.DrawHit(global_interp);
       //display.SetHitColor(kRed);
       //}
-    
+
       /////////////////////// FILL LG STANDALONE TREE.
       clear_lg();
       auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
@@ -822,43 +824,11 @@ int main(int argc, char* argv[]) {
 	  lg_gx.push_back(gpos.X());
 	  lg_gy.push_back(gpos.Y());
 	  lg_gz.push_back(gpos.Z());
-
-	  if ( visualization ) {
-	    if ( lghit.PeakTime() < 90 && lghit.PeakTime() > 0 ) {
-	      display.DrawLGHitBox(lghit.ModuleId(),lghit.ChannelId());
-	    }
-	  }
 	}
       }
       tree_lg->Fill();
-      
-      
+
       ///////////////////////// STS-LG Correlation
-      
-
-
-      // 
-
-      /*
-      //auto LR = [](int mod) { return (mod < 105); };
-      auto* ggeom = E16ANA_STSGlobalGeometry::instance();
-      auto& lg_hits1 = record.LG().Hits(); // this is a std::vector<T>
-      if ( lg_hits1.size() == 0 ) continue;
-      auto& sts_hits1 = record.STS().Hits(); // hits1 is std::vector<T>;
-      if ( sts_hits1.size() > 0 ) {
-	for( auto& sts_hit : sts_hits1 ) {
-	  int module_sts = sts_hit.ModuleId();
-	  for ( auto& lg_hit : lg_hits1 ){
-	    int module_lg = lg_hit.ModuleId();
-	    if ( lr == LR(module_lg) ) {
-	      
-	      // Try
-	      //ggeom->CalcPointOnPlane();
-	    }
-	  }
-	}
-      }
-      */
 
       if ( visualization ) {
 	display.DrawUpdate();
@@ -868,20 +838,19 @@ int main(int argc, char* argv[]) {
 	}else{
 	  display.SavePdf();
 	}
+	display.DrawSensor();
       }
-
-
-      record.Tracks().Print();
-//      dst1->WriteAnEvent();
+      //record.Tracks().Print();
+      //      dst1->WriteAnEvent();
     } else if (event_type == E16DST_DST0EventType::Scaler) {
       auto event0 = dynamic_cast<E16DST_DST0ScalerEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
+      //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillStart) {
       auto event0 = dynamic_cast<E16DST_DST0SpillStartEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
+      //      dst1->WriteAnEvent(event0);
     } else if (event_type == E16DST_DST0EventType::SpillEnd) {
       auto event0 = dynamic_cast<E16DST_DST0SpillEndEvent*>(dst0->Event());
-//      dst1->WriteAnEvent(event0);
+      //      dst1->WriteAnEvent(event0);
     } else {
       std::cerr << "Invalid Event Type: " << event_type << std::endl;
       return -1;
@@ -890,24 +859,7 @@ int main(int argc, char* argv[]) {
     ++n_physics_event;
   }
 
-  if ( visualization ) {
-    display.DrawUpdate();
-    if ( pdf_first ) {
-      display.SavePdfStart();
-      pdf_first = false;
-    }else{
-      display.SavePdf();
-    }
-  }
-  for (int i = 0;i<modules.size(); i++){
-    
-  }
   if ( visualization ) display.SavePdfEnd();
-  check_file.cd();
-  for( auto& hist: hist_res_map ){
-    hist.second->Write();
-    std::cout << hist.first << "   " << hist.second->GetTitle() << std::endl;
-  }
 
   delete geometry;
   delete dst0;

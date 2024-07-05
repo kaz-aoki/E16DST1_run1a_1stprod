@@ -3086,7 +3086,12 @@ void E16ANA_TrackCandidates::Analyze() {
   SearchTrackCandidatesWithSTS();
 #endif
 E16INFO("number of track candidate: %d", track_candidates.size());
+ if ( track_candidates.size() > 5000 ) {
+   std::cerr << "Too many track candidates. skip event." << std::endl;
+   return;
+ }
 #ifndef WO_TRACK_FIT
+ std::cout << "Fit(); " << std::endl;
   Fit();
   ProjectionTarget();
   ProjectionX0();
