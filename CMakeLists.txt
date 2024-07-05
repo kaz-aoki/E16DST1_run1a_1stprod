@@ -221,7 +221,7 @@ add_library(E16DST_DST1
   ${E16ANA_SSD_SRCS}
   ${E16ANA_GTR_SRCS}
   ${E16ANA_HBD_SRCS}
- src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
+  src/nakasuga/E16ANA_EIDSingleTrackAnalyzer.cc
   src/nakasuga/E16ANA_EIDSingleTrackAnalyzerV2.cc
   src/nakasuga/E16ANA_EIDEfficiency.cc
   src/nakasuga/E16ANA_LGGainCalibwoTrack.cc
@@ -230,6 +230,8 @@ add_library(E16DST_DST1
   src/nakasuga/E16ANA_GammaAnalyzer.cc
   src/nakasuga/straightRoot.cc
   src/nakasuga/E16ANA_LGStraightTrackRoot.cc
+  src/nakasuga/E16ANA_HBDADCwoTrack.cc
+  src/nakasuga/CoincidenceMapWithLG.cc
 #  src/res/AnalyzerResidualHBD.cc
 #  src/res/AnalyzerTrackSelection.cc
 #  src/res/SingleTrackAnalyzerForRes.cc
@@ -469,16 +471,16 @@ target_link_libraries(dst0_to_dst1_lgct_check
 # )
 
 #_______________________________________________________________________________
-#add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency.cc)
-#
-#target_link_libraries(EIDana_MakeTree_EIDEfficiency
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
+add_executable(EIDana_MakeTree_EIDEfficiency usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency.cc)
+
+target_link_libraries(EIDana_MakeTree_EIDEfficiency
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 #add_executable(EIDana_MakeTree_EIDEfficiency_woY usr/tmp/nakasuga/EIDana_MakeTree_EIDEfficiency_woY.cc)
 #
@@ -512,17 +514,39 @@ target_link_libraries(dst0_to_dst1_lgct_check
 #	E16ANA
 #)
 #
-##_______________________________________________________________________________
-#add_executable(EIDana_ResidualandEfficiency usr/tmp/nakasuga/EIDana_ResidualandEfficiency.cc)
-#
-#target_link_libraries(EIDana_ResidualandEfficiency
-#	E16DST_DST1
-##E16ANA_CalibDB
-#	E16ANA_Basic
-#	E16DST
-#	E16ANA
-#)
-#
+#_______________________________________________________________________________
+add_executable(EIDana_ResidualandEfficiency usr/tmp/nakasuga/EIDana_ResidualandEfficiency.cc)
+
+target_link_libraries(EIDana_ResidualandEfficiency
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(HBDADCwoTrack usr/tmp/nakasuga/HBDADCwoTrack.cc)
+
+target_link_libraries(HBDADCwoTrack
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
+#_______________________________________________________________________________
+add_executable(DST1woTrack usr/tmp/nakasuga/DST1woTrack.cc)
+
+target_link_libraries(DST1woTrack
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 #add_executable(EIDana_LGGainCalibwTrack usr/tmp/nakasuga/EIDana_LGGainCalibwTrack.cc)
 #
@@ -655,6 +679,17 @@ target_link_libraries(dst0_to_dst1_lgct_check
 #	E16ANA
 #)
 #
+#_______________________________________________________________________________
+add_executable(LG_MakeHVTableOffline usr/tmp/nakasuga/LG_MakeHVTableOffline.cc)
+
+target_link_libraries(LG_MakeHVTableOffline
+	E16DST_DST1
+#E16ANA_CalibDB
+	E16ANA_Basic
+	E16DST
+	E16ANA
+)
+
 ##_______________________________________________________________________________
 #add_executable(LG_MakeHVTable usr/tmp/nakasuga/LG_MakeHVTable.cc)
 #
