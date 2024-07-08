@@ -5,6 +5,8 @@
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+#include <TRotation.h>
+#include <TMatrixD.h>
 
 
 //using namespace E16ANA_StraightTrackParameter;
@@ -341,15 +343,14 @@ void E16DSTN_ReStraightV2::AddTrackHit(int itk, E16ANA_StraightMultiTrack* singl
 	single_track->Clear();
 	int tid = 0; // only 1 track is fit
 	if(isWire){
-		single_track->SetInitialVertex(TVector3(rk_fit_init_pos_gx->at(itk), rk_fit_init_pos_gy->at(itk), rk_fit_init_pos_gz->at(itk)), kInitPosErrorWire );
+		single_track->SetInitialVertex(TVector3(rk_hit_init_pos_gx->at(itk), rk_hit_init_pos_gy->at(itk), rk_hit_init_pos_gz->at(itk)), kInitPosErrorWire );
 	}
 	else {
-		single_track->SetInitialVertex(TVector3(rk_fit_init_pos_gx->at(itk), rk_fit_init_pos_gy->at(itk), rk_fit_init_pos_gz->at(itk)), kInitPosError);//maybe not good
+		single_track->SetInitialVertex(TVector3(rk_hit_init_pos_gx->at(itk), rk_hit_init_pos_gy->at(itk), rk_hit_init_pos_gz->at(itk)), kInitPosError);//maybe not good
 	}
 
-
 	single_track->SetInitialMomentum(tid, TVector3(rk_fit_init_mom_gx->at(itk), rk_fit_init_mom_gy->at(itk), rk_fit_init_mom_gz->at(itk)));
-	
+
 	int rk_mids[4] = {rk_fit_sts_mid->at(itk), rk_fit_gtr100_mid->at(itk), rk_fit_gtr200_mid->at(itk), rk_fit_gtr300_mid->at(itk)};
 	for(int l=0; l < 4; ++l){
 		if(l == E16ANA_StraightTrackConstant::kSSD){
@@ -366,12 +367,26 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		 return TVector3(rk_hit_sts_x->at(itk), 0, 0);//sts
 	}
 	else if(lid == 1){//gtr100
-		double lx, ly, lz;
+		double s_lx, s_ly, s_lz, lx, ly, lz;//t means transform
 		double cogx = rk_hit_gtr100_cogx->at(itk);	//cog
 		double cogy = rk_hit_gtr100_cogy->at(itk);	//cog
-		lx = cogx + gmove_pattern.dx;
-		ly = cogy + gmove_pattern.dy;
-		lz = 0    + gmove_pattern.dz;
+		s_lx = cogx + gmove_pattern.dx;//shift
+		s_ly = cogy + gmove_pattern.dy;//shift	
+		s_lz = 0    + gmove_pattern.dz;//shift
+		
+		TRotation Rx, Ry, Rz;
+		Rx.RotateX(gmove_pattern.radx);	
+		Ry.RotateY(gmove_pattern.rady);	
+		Rz.RotateZ(gmove_pattern.radz);	
+		TRotation R = Rx * Ry * Rz;
+		TVector3 p = TVector3(s_lx, s_ly, s_lz);	
+		TVector3 q = R * p;
+		
+
+		lx = q.X();
+		ly = q.Y();
+		lz = q.Z();
+		
 		return TVector3(lx, ly, lz);
 	}
 	else if(lid == 2){//gtr100
@@ -727,19 +742,30 @@ void E16DSTN_ReStraightV2::InitHistos(){
 				h_res_y_wire[t][m][l] = new TH1D(Form("h_res_y_wire%d_m%d_l%d", t, m+100, l), Form("h_res_y_wire%d_m%d_l%d", t, m+100, l), 100, -2.5, 2.5);
 			
 				if(l == 0 ){
-				h_cor_res_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -30 , 30, 50, -1.5, 1.5);
+				h_cor_resx_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -30 , 30, 50, -1.5, 1.5);
+				h_cor_resx_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitly_wire%d_m%d_l%d",t,  m+100, l), 20, -30 , 30, 50, -1.5, 1.5);
 				}
 				else {
-				h_cor_res_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_resx_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_resx_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitly_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
 
 				}
-				h_cor_res_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_res_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_res_fitly_wire%d_m%d_l%d",t,  m+100, l), 10, -50*l , 50*l, 50, -2.5, 2.5);
-				h_cor_resx_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 50, -2.5, 2.5);
+				h_cor_resy_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_resy_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resy_fitly_wire%d_m%d_l%d",t,  m+100, l), 10, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_resx_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 40, -1.5, 1.5);
 				h_cor_resy_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resy_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resy_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 50, -2.5, 2.5);
 			}
 		}
 	}
 
+	for(int m=0; m < n_modules;m++){
+		for(int l=0; l < n_layers; l++){
+				h_resx_dz_wire_x[m][l] = new TH2D(Form("h_resx_dz_wire_x_m%d_l%d",  m+100, l), Form("h_resx_dz_wire_x_m%d_l%d", m+100, l), 80,  0 , 400, 40, -4, 4);
+			for(int div=0; div < n_div; div++){
+				h_resx_dz_wire_xdiv[m][l][div] = new TH2D(Form("h_resx_dz_wire_xdiv_m%d_l%d_div%d",  m+100, l, div), Form("h_resx_dz_wire_xdiv_wire_m%d_l%d_div%d", m+100, l, div), 80, 0 , 400, 40, -4.0, 4.0);
+				h_resx_dz_wire_ydiv[m][l][div] = new TH2D(Form("h_resx_dz_wire_ydiv_m%d_l%d_div%d",  m+100, l, div), Form("h_resx_dz_wire_ydiv_wire_m%d_l%d_div%d", m+100, l, div), 80, 0 , 400, 40, -4.0, 4.0);
+			}
+		}
+	}
 
 // vertex
    h_vtx_gx = new TH1D("h_vtx_gx", "h_vtx_gx", 80, -20, 20);
