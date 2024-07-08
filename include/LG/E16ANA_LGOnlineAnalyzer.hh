@@ -26,7 +26,7 @@ class E16ANA_LGOnlineAnalyzer {
 private :
 
   // int FMstate = 0;// 0: FMOFF, 1: FMON
-  double gain_index[2] = {9.28, 7.638};// 0: FMOFF, 1: FMON
+  constexpr static double gain_index[2] = {9.28, 7.638};// 0: FMOFF, 1: FMON
   double standard_phmean = 60.;//[mV] 
 
 public :
@@ -105,14 +105,15 @@ public :
    virtual ~E16ANA_LGOnlineAnalyzer();
    virtual Int_t    CutData(Long64_t entry);
    virtual Int_t    CutLED(Long64_t entry);
-   virtual int      IDtoModule(int id);
+   static  int      IDtoModule(int id);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
    virtual void     MakeHVTable(int FMstate, int run_id, char* prefile, char* newfile_prefix, int maxevent);
+   static  void     MakeHVTableOffline(char* gainfile, char* prefile, char* newfile_prefix);
    virtual void     TuneHVValue(int FMstate, double ph, double oldhv, double& newhv);
-   virtual void     ScaleHVValue(int FMstate, double gain, double oldhv, double& newhv);
+   static  void     ScaleHVValue(int FMstate, double gain, double oldhv, double& newhv);
    virtual void     DrawPDF(TString& f, TH1F** h);
    virtual void     LEDHist(int FMstate, int run_id, double scale, TH1F* (&h)[8], TH1F* (&hs)[8], TH1F* (&hoff)[8], TH1F* (&hsoff)[8], int maxevent);
    virtual void     MakePDF(int run_id, char* outfile, int maxevent);

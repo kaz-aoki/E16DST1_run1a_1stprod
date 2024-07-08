@@ -111,6 +111,11 @@ double E16ANA_STSGeometry::GetLocalX_fromN(double iNStrip)
   return x;
 }
 
+double E16ANA_STSGeometry::X2StripN(double x)
+{
+  return ( -x/StripPitch + 511.5 );
+}
+
 std::pair<double, double> E16ANA_STSGeometry::GetLocal(int iNStrip, int iPStrip){
   double x = GetLocalX_fromN(iNStrip);
   std::pair<double,double> posb(x,GetPosY_B(iPStrip,x));
