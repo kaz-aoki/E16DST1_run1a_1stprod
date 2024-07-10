@@ -3,7 +3,7 @@
 namespace E16DSTN_ReStraightParameter {
 
 
-constexpr double kchi2_threshold = 500;
+constexpr double kchi2_threshold = 9999999;
 const TVector3 kInitPosError = {3., 3.4, 3.};
 const TVector3 kInitPosErrorWire = {0.1, 3.0, 0.1};
 const std::array<TVector3, 4> kSigmas = {{

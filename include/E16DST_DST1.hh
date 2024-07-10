@@ -313,7 +313,7 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
+//  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
   void     SetPeakSumFit(double _charge_sum_fit)  { charge_sum_fit = _charge_sum_fit; }
   void     SetCogPosFit(double _center_of_gravity_fit)    { center_of_gravity_fit = _center_of_gravity_fit; }
   void     SetChi2NdfFit(double _chi2_ndf_fit)    { chi2_ndf_fit = _chi2_ndf_fit; }
@@ -321,7 +321,7 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double   TdcPos() { return tdc_pos; }
   float    TanTheta() { return tan_incident_angle; }
   double   CogPosFit() { return center_of_gravity_fit; }
-  double   TimingFit() { return  timing_fit;}
+//  double   TimingFit() { return  timing_fit;}
   double   PeakSumFit() { return  charge_sum_fit;}
   double   Chi2NdfFit() { return  chi2_ndf_fit;}
   double   LocalX() { return center_of_gravity; };

@@ -22,9 +22,9 @@ void E16DSTN_ReStraightV2::ChiSqSort( std::vector<int> &sorted_ids){
 	} 
 	std::multimap<double, int> chi2_trkid_map;
 	chi2_trkid_map.clear();
- for(int i=0; i < n_tracks; i++){
- 	chi2_trkid_map.insert(std::make_pair(chi_square->at(i), i));
- }
+	for(int i=0; i < n_tracks; i++){
+ 		chi2_trkid_map.insert(std::make_pair(chi_square->at(i), i));
+	}
 	for(const auto &el : chi2_trkid_map){
 		sorted_ids.push_back(el.second);
 	}
@@ -41,7 +41,15 @@ void E16DSTN_ReStraightV2::SelectTracks(std::vector<int> &sorted_ids, std::vecto
 }
 
 bool E16DSTN_ReStraightV2::IsGoodTrack(const int id){
-	return true;
+	//LG matching
+	bool flag = false;
+	for(int i=0 ; i < rk_proj_n_lg->at(id); i++){
+		double lg_t = rk_proj_lg_t->at(id)[i];
+		if(lg_t >  0){
+			flag = true;
+		}
+	}
+	return flag;
 }
 
 bool E16DSTN_ReStraightV2::IsRealTrack(const int id){
@@ -343,7 +351,18 @@ void E16DSTN_ReStraightV2::AddTrackHit(int itk, E16ANA_StraightMultiTrack* singl
 	single_track->Clear();
 	int tid = 0; // only 1 track is fit
 	if(isWire){
-		single_track->SetInitialVertex(TVector3(rk_hit_init_pos_gx->at(itk), rk_hit_init_pos_gy->at(itk), rk_hit_init_pos_gz->at(itk)), kInitPosErrorWire );
+		if(     rk_fit_init_pos_gx->at(itk) < 0 && rk_fit_init_pos_gz->at(itk) < 0){
+			single_track->SetInitialVertex(TVector3(-20 , 0, -40), kInitPosErrorWire );
+		}
+		else if(rk_fit_init_pos_gx->at(itk) > 0 && rk_fit_init_pos_gz->at(itk) < 0){
+			single_track->SetInitialVertex(TVector3( 20 , 0, -40), kInitPosErrorWire );
+		}
+		else if(rk_fit_init_pos_gx->at(itk) < 0 && rk_fit_init_pos_gz->at(itk) > 0){
+			single_track->SetInitialVertex(TVector3(-20 , 0, 40), kInitPosErrorWire );
+		}
+		else if(rk_fit_init_pos_gx->at(itk) > 0 && rk_fit_init_pos_gz->at(itk) > 0){
+			single_track->SetInitialVertex(TVector3( 20 , 0, 40), kInitPosErrorWire );
+		}
 	}
 	else {
 		single_track->SetInitialVertex(TVector3(rk_hit_init_pos_gx->at(itk), rk_hit_init_pos_gy->at(itk), rk_hit_init_pos_gz->at(itk)), kInitPosError);//maybe not good

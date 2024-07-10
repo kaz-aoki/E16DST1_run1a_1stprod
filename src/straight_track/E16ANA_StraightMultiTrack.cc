@@ -427,9 +427,9 @@ double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
 	 double dx = ((vertex_fit.X()) - vertex_init.X() )/vertex_sigma.X();
 	 double dy = ((vertex_fit.Y()) - vertex_init.Y() )/vertex_sigma.Y();
 	 double dz = ((vertex_fit.Z()) - vertex_init.Z() )/vertex_sigma.Z();
-////    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
-////    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
-////    if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
+    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
+    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
+    if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
     return dx*dx+dy*dy+dz*dz;
 }
 

@@ -152,9 +152,9 @@ private:
 		double dx = 0;
 		double dy = 0;
 		double dz = 0 ;
-		double rotx = 0;
-		double roty = 0;
-		double rotz = 0;
+		double radx = 0;//radian
+		double rady = 0;
+		double radz = 0;
 	};	
 	
 	GeomMovePattern gmove_pattern;
@@ -241,10 +241,8 @@ private:
    TH1D* h_hitmap_x[n_modules][n_layers];
    TH1D* h_hitmap_y[n_modules][n_layers];
    TH1D* h_res_x[n_modules][n_layers];
-   TH1D* h_res_x_wire[n_wires][n_modules][n_layers];
    TH1D* h_pre_res_x[n_modules][n_layers];
    TH1D* h_res_y[n_modules][n_layers];
-   TH1D* h_res_y_wire[n_wires][n_modules][n_layers];
    TH1D* h_res_vtx_trk_x[n_modules][n_layers];
    TH1D* h_res_vtx_trk_y[n_modules][n_layers];
    TH1D* h_tan_theta[n_modules][n_layers];
@@ -266,12 +264,6 @@ private:
 	TH2D* h_cor_dz_time_t0cor[n_modules][n_layers];
 	TH2D* h_cor_res_fitlx[n_modules][n_layers];
 	TH2D* h_cor_res_fitly[n_modules][n_layers];
-	TH2D* h_cor_res_fitlx_wire[n_wires][n_modules][n_layers];
-	TH2D* h_cor_res_fitly_wire[n_wires][n_modules][n_layers];
-	
-	TH2D* h_cor_resx_tan_wire[n_wires][n_modules][n_layers];
-	TH2D* h_cor_resy_tan_wire[n_wires][n_modules][n_layers];
-
 	TH2D* h_cor_res_timing[n_modules][n_layers];
 	TH2D* h_slopevel[n_modules][n_layers][n_div];
 	TH1D* h_res_lg_x[n_modules];
@@ -289,6 +281,21 @@ private:
 
 	TH1D* h_bak_res_vtx_trk_lg_x[n_modules];
 	TH1D* h_bak_res_vtx_trk_lg_y[n_modules];
+
+//wire
+   TH1D* h_res_x_wire[n_wires][n_modules][n_layers];
+   TH1D* h_res_y_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resy_fitly_wire[n_wires][n_modules][n_layers];
+	
+	TH2D* h_cor_resx_tan_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resy_tan_wire[n_wires][n_modules][n_layers];
+	
+	TH2D* h_resx_dz_wire_x[n_modules][n_layers];
+	TH2D* h_resx_dz_wire_xdiv[n_modules][n_layers][n_div];
+	TH2D* h_resx_dz_wire_ydiv[n_modules][n_layers][n_div];
+
 
 //removed residual
 
