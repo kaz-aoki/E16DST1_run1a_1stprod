@@ -12,11 +12,12 @@
 
 #include "STS/E16ANA_STSGeometry.hh"
 #include "E16ANA_STSGlobalGeometry.hh"
+#include "STS/E16ANA_STSAnalyzer.hh"
 
 using namespace std;
 
 //#define STS_MODULE_RAND
-
+//#define STS_DO_CLUSTERING
 
 int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
@@ -60,12 +61,13 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   auto lgeom = E16ANA_STSGeometry::instance();
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
 
-
+  /// filling sts hit information.
 
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-    //if( hit0.ADC() <= 0 ) continue;
-    if( hit0.ADC() == 0xffff ) continue; // invalid.
+    if( hit0.ADCinvalid() ) continue;
+    if( hit0.TDCinvalid() ) continue;
+    if ( hit0.PN() == 0 ) continue; // remove P side.
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -74,14 +76,21 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     hit1.SetIds(hit0.ModuleID(),hit0.ChannelID());
 #endif
     hit1.SetPeakHeight(hit0.ADC());
-    int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
-    if ( hit0.TDC() != 0xffff ) hit1.SetTiming(hit0.TDC()-emu_timestamp);
+    uint64_t original_emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp();
+    hit1.SetEmuTimestamp(original_emu_timestamp);
+    int emu_timestamp = original_emu_timestamp & bitmask_emu;
+    hit1.SetTiming(hit0.TDC()-emu_timestamp);
     hit1.SetPN(hit0.PN());
     hit1.SetElink(hit0.Elink());
     hit1.SetGeriTimestamp(hit0.GeriTimestamp());
     hit1.SetTDC(hit0.TDC());
     hit1.SetADC(hit0.ADC());
     hit1.SetE16sts(hit0.E16sts());
+    if ( hit1.PN() == 0 ) {
+      hit1.SetStripId(lgeom->Ch2StripP(hit1.ChannelId()));
+    }else{
+      hit1.SetStripId(hit1.ChannelId());
+    }
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {
       // P
@@ -94,25 +103,35 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     ggeom->Local2Global(hit1.ModuleId(),local,global);
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
   }
+#ifdef STS_DO_CLUSTERING
+  E16ANA_STSAnalyzer ana;
+  ana.clusterize(hits1, clusters1);
+
+  return 1;
+#endif
+
+  // The following will not be executed.
 
 //  std::cout << "sts dst0 num hits = " << sts_dst0.NumberOfHits() << std::endl;  
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-	 if (hit0.ADC() == 0xffff) continue; // invalid
-	 clusters1.emplace_back();
-	 auto& cluster1 = clusters1.back();
+    if ( hit0.ADCinvalid() ) continue; // invalid
+    if ( hit0.PN() == 0 ) continue; // Eliminate P side data for fast process.
+
+    clusters1.emplace_back();
+    auto& cluster1 = clusters1.back();
 #ifdef STS_MODULE_RAND
 //    cluster1.SetIds(get_module_rnd(), hit0.ChannelID());
 #else
 //    cluster1.SetIds(hit0.ModuleID(),  hit0.ChannelID());
 #endif
-	 cluster1.SetInvalid();
+    cluster1.SetInvalid();
     cluster1.SetClusterId(i);
 	 cluster1.SetModuleId(hit0.ModuleID());
 	 cluster1.SetPeakSum(hit0.ADC());
     cluster1.SetPN(hit0.PN());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
-    if ( hit0.TDC() != 0xffff ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
+    if ( ! hit0.TDCinvalid() ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
 	 cluster1.SetTiming(hit0.TDC() - emu_timestamp);
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {

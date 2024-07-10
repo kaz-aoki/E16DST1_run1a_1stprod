@@ -804,6 +804,25 @@ TVector3 E16ANA_PlanarSTSGeometry::GetLPos(const TVector3& gpos) const {
   return TVector3(local);
 }
 
+TVector3 E16ANA_PlanarSTSGeometry::GetGMom(const TVector3 &lmom) const {
+  auto ggeom = E16ANA_STSGlobalGeometry::instance();
+  double local[3] = {lmom.X(),lmom.Y(),lmom.Z()};
+  double global[3];
+  int e16module = KawamaToE16DST(module_id);
+  
+  ggeom->Local2Global_wotrans(e16module,local,global);
+  return TVector3(global);
+}
+
+TVector3 E16ANA_PlanarSTSGeometry::GetLMom(const TVector3 &gmom) const {
+  auto ggeom = E16ANA_STSGlobalGeometry::instance();
+  double global[3] = {gmom.X(),gmom.Y(),gmom.Z()};
+  int e16module = KawamaToE16DST(module_id);
+  double local[3];
+  ggeom->Global2Local(e16module,global,local);
+  return TVector3(local);
+}
+
 TVector3 E16ANA_PlanarSTSGeometry::GetDetectorCenter() const {
   auto ggeom = E16ANA_STSGlobalGeometry::instance();
   double local[3]={0.,0.,0.,};

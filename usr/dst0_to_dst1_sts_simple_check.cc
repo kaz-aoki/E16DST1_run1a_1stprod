@@ -34,6 +34,7 @@
 
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
+#include "STS/E16ANA_STSAnalyzer.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -266,6 +267,7 @@ int main(int argc, char* argv[]) {
   std::vector<int16_t> sts_module;
   std::vector<int16_t> sts_pn;
   std::vector<int16_t> sts_channel;
+  std::vector<int16_t> sts_strip;
   std::vector<float> sts_peakheight;
   std::vector<float> sts_hittime;
   std::vector<float> sts_lx;
@@ -273,6 +275,7 @@ int main(int argc, char* argv[]) {
   std::vector<float> sts_gy;
   std::vector<float> sts_gz;
   std::vector<uint64_t> sts_geriTimestamp;
+  std::vector<uint64_t> sts_emuTimestamp;
   std::vector<uint16_t> sts_elink;
   std::vector<int> sts_tdc_l1geri;
   std::vector<int> sts_tdc_l1geri2;
@@ -284,6 +287,7 @@ int main(int argc, char* argv[]) {
     sts_module.clear();
     sts_pn.clear(); 
     sts_channel.clear();
+    sts_strip.clear();
     sts_peakheight.clear();
     sts_hittime.clear();
     sts_lx.clear();
@@ -291,6 +295,7 @@ int main(int argc, char* argv[]) {
     sts_gy.clear();
     sts_gz.clear();
     sts_geriTimestamp.clear();
+    sts_emuTimestamp.clear();
     sts_elink.clear();
     sts_tdc_l1geri.clear();
     sts_tdc_l1geri2.clear();
@@ -325,6 +330,7 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_module",&sts_module);
   tree_sts->Branch("sts_pn",&sts_pn);
   tree_sts->Branch("sts_channel",&sts_channel);
+  tree_sts->Branch("sts_strip",&sts_strip);
 
   tree_sts->Branch("sts_peakheight",&sts_peakheight);
   tree_sts->Branch("sts_hittime",&sts_hittime);
@@ -339,6 +345,7 @@ int main(int argc, char* argv[]) {
   tree_sts->Branch("sts_gz",&sts_gz);
 
   tree_sts->Branch("sts_geriTimestamp",&sts_geriTimestamp);
+  tree_sts->Branch("sts_emuTimestamp",&sts_emuTimestamp);
 
   tree_sts->Branch("sts_tdc",&sts_tdc);
   tree_sts->Branch("sts_adc",&sts_adc);
@@ -444,7 +451,7 @@ int main(int argc, char* argv[]) {
 #endif // TRACK_EFF_CHECK
   auto dst0 = new E16DST_DST0();
   if (!dst0->Open(in_file_name, E16DST_DST0::ReadMode)) {
-    std::cerr << "### Cannot open file ###" << std::endl;
+    std::cerr << "### Cannot open file ### : " << in_file_name << std::endl;
     return -1;
   }
   E16DST_DST1PhysicsRecord record;
@@ -472,7 +479,7 @@ int main(int argc, char* argv[]) {
       break;
     }
 //    if (n_event % 1000 == 0) {
-      cout << "Number of event: " << n_event << endl;
+    std::cout << "Current event: " << event_id  << "     ---- Number of analyzed event: " << n_event << endl;
 //    }
     auto event_type = dst0->EventType();
     if (event_type == E16DST_DST0EventType::Physics) {
@@ -645,6 +652,7 @@ int main(int argc, char* argv[]) {
 	sts_module.push_back(hit1.ModuleId());
 	sts_pn.push_back(hit1.PN());
 	sts_channel.push_back(hit1.ChannelId());
+	sts_strip.push_back(hit1.StripId());
 	sts_peakheight.push_back(hit1.PeakHeight());
 	sts_lx.push_back(hit1.LocalPos().X());
 	sts_elink.push_back(hit1.Elink());
@@ -672,6 +680,7 @@ int main(int argc, char* argv[]) {
 	sts_gy.push_back(vec.Y());
 	sts_gz.push_back(vec.Z());
 	sts_geriTimestamp.push_back(hit1.GeriTimestamp());
+	sts_emuTimestamp.push_back(hit1.EmuTimestamp());
 	int tmp = (   (int)(hit1.GeriTimestamp() & 0xffffffff) - (int)(l1_geritimestamp &0xffffffff) );
 	sts_geri_l1geri.push_back(tmp);
       };

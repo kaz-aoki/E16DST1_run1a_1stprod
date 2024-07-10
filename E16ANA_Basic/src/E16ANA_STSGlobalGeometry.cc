@@ -111,6 +111,8 @@ void E16ANA_STSGlobalGeometry::PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor)
   //TGeoHMatrix hmat = corr_rot * rot * trans* spin;
   TGeoHMatrix hmat = rot * trans* spin;
   map_mat[sensor.mod] = hmat;
+  TGeoHMatrix hmat_wotrans = rot * spin;
+  map_mat_wotrans[sensor.mod] = hmat_wotrans;
 }
 
 void E16ANA_STSGlobalGeometry::Local2Global(int mod,const double* local, double* global)
@@ -119,9 +121,23 @@ void E16ANA_STSGlobalGeometry::Local2Global(int mod,const double* local, double*
   map_mat[mod].LocalToMaster(tmp,global);
 }
 
+void E16ANA_STSGlobalGeometry::Local2Global_wotrans(int mod,const double* local, double* global)
+{
+  double tmp[3] = {-local[0],local[1],local[2]};
+  map_mat_wotrans[mod].LocalToMaster(tmp,global);
+}
+
 void E16ANA_STSGlobalGeometry::Global2Local(int mod,const double* global, double* local){
   double tmp[3];
   map_mat[mod].MasterToLocal(global,tmp);
+  local[0] = -tmp[0];
+  local[1] = tmp[1];
+  local[2] = tmp[2];
+}
+
+void E16ANA_STSGlobalGeometry::Global2Local_wotrans(int mod,const double* global, double* local){
+  double tmp[3];
+  map_mat_wotrans[mod].MasterToLocal(global,tmp);
   local[0] = -tmp[0];
   local[1] = tmp[1];
   local[2] = tmp[2];
