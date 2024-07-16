@@ -74,6 +74,8 @@ public:
    virtual void Rotate(double alpha, double beta, double gamma) = 0;
    // translation along local axis
    virtual void LocalTranslate(const TVector3 &delta_r) = 0;
+   // rotation along local axis, the detector center will be used as the rotation center
+   virtual void LocalRotate(double alpha, double beta, double gamma) = 0;
 
    // cross determination and calculation of cross point
    virtual bool IsCrossed(const G4ThreeVector &gpos0, const G4ThreeVector &gpos1, G4ThreeVector &cross_lpos, double local_z = 0.0) const {
@@ -150,6 +152,7 @@ public:
       Rotate(alpha, beta, gamma, TVector3(0,0,0));
    };
    void LocalTranslate(const TVector3 &delta_r);
+   void LocalRotate(double alpha, double beta, double gamma);
 
    virtual ROOT::Math::Plane3D GetPlane(double local_z = 0.0) const;
    bool IsCrossed(const TVector3 &gpos0, const TVector3 &gpos1, TVector3 &cross_lpos, double local_z = 0.0) const {

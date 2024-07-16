@@ -120,6 +120,15 @@ void E16ANA_PlanarGeometry::LocalTranslate(const TVector3 &delta_r){
    detector_center += g_dir;
 }
 
+void E16ANA_PlanarGeometry::LocalRotate(double alpha, double beta, double gamma){
+   TRotation temp_rot;
+   temp_rot.RotateX(alpha);
+   temp_rot.RotateY(beta);
+   temp_rot.RotateZ(gamma);
+   // detector center is invariant for this rotation
+   rotation = rotation*temp_rot;
+}
+
 /* -------- E16ANA_GeometryV2 -------- */
 
 static E16ANA_GeometryV2* globalPointer=NULL;
@@ -809,7 +818,6 @@ TVector3 E16ANA_PlanarSTSGeometry::GetGMom(const TVector3 &lmom) const {
   double local[3] = {lmom.X(),lmom.Y(),lmom.Z()};
   double global[3];
   int e16module = KawamaToE16DST(module_id);
-  
   ggeom->Local2Global_wotrans(e16module,local,global);
   return TVector3(global);
 }
