@@ -149,9 +149,9 @@ public :
 private:
 	struct GeomMovePattern {
 		int pattern_id = -100;
-		double dx = 0;
-		double dy = 0;
-		double dz = 0 ;
+		double dx   = 0;
+		double dy   = 0;
+		double dz   = 0;
 		double radx = 0;//radian
 		double rady = 0;
 		double radz = 0;
@@ -164,7 +164,12 @@ private:
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
+	#ifdef WIRE_STS_TRACK
+   std::array<std::vector<int>, 2> used_cluster_ids_wire;
+		#else
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
+	#endif
+
 #else
 	#ifndef NoExist_SSD
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> used_cluster_ids;
@@ -173,6 +178,7 @@ private:
 	#endif
 #endif
    E16ANA_GeometryV2 *geometry ;
+	std::vector<E16ANA_PlanarGeometry*> geom_temp;
    bool isWire;
    int n_targets;
 	bool vertex_xy_fix_flag;
@@ -296,6 +302,12 @@ private:
 	TH2D* h_resx_dz_wire_xdiv[n_modules][n_layers][n_div];
 	TH2D* h_resx_dz_wire_ydiv[n_modules][n_layers][n_div];
 
+	TH2D* h_cor_resx_fitlx_center_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_center_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_center_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_edge_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_edge_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_edge_wire[n_wires][n_modules][n_layers];
 
 //removed residual
 
@@ -2539,19 +2551,22 @@ public:
 	std::vector<std::vector<double>>	out_gtr300y_cluster_consist_hit_id;
 
 
-   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
+   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom,  E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
    virtual ~E16DSTN_ReStraightV2();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, const char *out_file);
    virtual void     Loop(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
-   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+//   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+   virtual void     ReTrackingAndDuplicationCut(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z, int mid);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  
 	TFile *FileOut() {return fout;}
 	TTree *TreeOut() {return outtree;}
+   bool HasUsedClusterForWire(const std::array<int, 2>& cids, std::array<std::vector<int>, 2> &used_cluster_ids_wire);
+//   bool HasUsedCluster(const std::array<int, 1>& cids, std::array<std::vector<int>, 1> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
@@ -2560,6 +2575,7 @@ public:
 	void ChiSqSort(std::vector<int> &ids);
 	void SelectTracks(std::vector<int> &ids, std::vector<int> &outids);
 	void DuplicationClusterCut(std::vector<int> &ids, std::vector<int> &outids);
+	void DuplicationClusterCutForWire(std::vector<int> &ids, std::vector<int> &outids);
 
 	bool IsGoodTrack(const int id);
 	bool IsRealTrack(const int id);
@@ -2583,7 +2599,9 @@ public:
 	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
 	TVector3 CorrectedLocalPos(int itk, int mid, int l);
 	void SetGeomMovePattern(const std::string &s, int id);
+
 //	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
+	void SetGeomTemp(int mid);
 };
 
 #endif

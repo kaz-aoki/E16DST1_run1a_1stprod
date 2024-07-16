@@ -33,9 +33,9 @@ void E16DSTN_ReStraightV2::ChiSqSort( std::vector<int> &sorted_ids){
 void E16DSTN_ReStraightV2::SelectTracks(std::vector<int> &sorted_ids, std::vector<int> &selected_ids){
 	for(int i=0; i < n_cands; i++){
 //		if(IsRealTrack(i)){
-			if(IsGoodTrack(i)){
+//			if(IsGoodTrack(i)){
 				selected_ids.emplace_back(i);
-			}
+//			}
 //		}
 	}
 }
@@ -67,7 +67,37 @@ bool E16DSTN_ReStraightV2::IsRealTrack(const int id){
 	return flag;
 }
 
+//void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids, std::vector<int> &killdup_ids){
+//	int n_selected_ids = selected_ids.size();
+//	for(int i=0; i < n_selected_ids ; i++){
+////		std::cout << "i " << i << std::endl;
+////		std::cout << "sts id  = " << rk_hit_sts_id->at(i);
+//			std::array<int, 3> cids = {
+//			rk_hit_sts_id->at(i), 
+//			rk_hit_gtr100_xid->at(i), rk_hit_gtr100_yid->at(i)};
+////			rk_hit_gtr200_xid->at(i), rk_hit_gtr200_yid->at(i),
+////			rk_hit_gtr300_xid->at(i), rk_hit_gtr300_yid->at(i)};
+//// 			std::cout << "ids (" << rk_hit_sts_id->at(i)   
+////			 << ", " << rk_hit_gtr100_xid->at(i) 
+////			 << ", " << rk_hit_gtr200_xid->at(i) 
+////			 << ", " << rk_hit_gtr300_xid->at(i) 
+////			 << ", " << rk_hit_gtr100_yid->at(i) 
+////			 << ", " << rk_hit_gtr200_yid->at(i) 
+////			 << ", " << rk_hit_gtr300_yid->at(i) << std::endl;
+//         if(HasUsedCluster(cids, used_cluster_ids)){
+////			std::cout << "duplicated !" << std::endl;
+//			continue;			
+//			} else {
+////				std::cout << "NOT duplicated !" << std::endl;
+//				for (int j=0; j  <  3;j++){
+//					used_cluster_ids[j].emplace_back(cids[j]);
+//				}
+//			killdup_ids.emplace_back(i);
+//			}
+//    }
+//}
 
+#ifndef WIRE_STS_TRACK
 void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids, std::vector<int> &killdup_ids){
 	int n_selected_ids = selected_ids.size();
 #ifdef REMOVE_NOLAYER // all layer exist
@@ -164,47 +194,68 @@ void E16DSTN_ReStraightV2::DuplicationClusterCut(std::vector<int> &selected_ids,
 #endif // 
 #endif //
 }
-
+#endif
 
 
 void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int event_start, int event_end, bool vertex_xy_fix_flag, bool py_fix_flag, bool vetex_z_fix_flag )
 {
-   if (fChain == 0) return;
-   Long64_t nevent = fChain->GetEntries();
-   std::cout << "nevent = " << nevent << std::endl;
-   Long64_t nbytes = 0, nb = 0;
-   for(int n=0; n < nevent ; n++){
-		if(n < event_start) continue;
-		if(n > event_end){
-			std::cout << "N event analyzed readched to event_end that you decide" << std::endl;
-		   break;	
-      }
-      if( n% print_cycle == 0 ){
-         printf( "N analyzed = %d \n ", n);
-      }
-      tree->GetEntry(n);
-      std::vector<int> out_ids;
-      std::vector<int> sorted_ids;
-      std::vector<int> selected_ids;
-      std::vector<int> killdup_ids;
-      out_ids.clear();
-		sorted_ids.clear();
-		selected_ids.clear();
-		killdup_ids.clear();
-//      std::cout << "n_cands = " << n_cands << std::endl;
- 	ChiSqSort(sorted_ids);
- 	SelectTracks(sorted_ids, selected_ids);
-//	   std::cout << "n of selected tracks = " << selected_ids.size() << std::endl;
- 	ClearUsedClusterIDs();
- 	DuplicationClusterCut(selected_ids, killdup_ids);
-//	   std::cout << "n of duplication cut tracks = " << killdup_ids.size() << std::endl;
-		AnalyzeTrackPairs(killdup_ids);
-	 	AddRecord(tree,  killdup_ids);
-   }
+//   if (fChain == 0) return;
+//   Long64_t nevent = fChain->GetEntries();
+//   std::cout << "nevent = " << nevent << std::endl;
+//   Long64_t nbytes = 0, nb = 0;
+//   for(int n=0; n < nevent ; n++){
+//		if(n < event_start) continue;
+//		if(n > event_end){
+//			std::cout << "N event analyzed readched to event_end that you decide" << std::endl;
+//		   break;	
+//      }
+//      if( n% print_cycle == 0 ){
+//         printf( "N analyzed = %d \n ", n);
+//      }
+//      tree->GetEntry(n);
+//      std::vector<int> out_ids;
+//      std::vector<int> sorted_ids;
+//      std::vector<int> selected_ids;
+//      std::vector<int> killdup_ids;
+//      out_ids.clear();
+//		sorted_ids.clear();
+//		selected_ids.clear();
+//		killdup_ids.clear();
+////      std::cout << "n_cands = " << n_cands << std::endl;
+// 	ChiSqSort(sorted_ids);
+// 	SelectTracks(sorted_ids, selected_ids);
+////	   std::cout << "n of selected tracks = " << selected_ids.size() << std::endl;
+// 	ClearUsedClusterIDs();
+// 	DuplicationClusterCut(selected_ids, killdup_ids);
+////	   std::cout << "n of duplication cut tracks = " << killdup_ids.size() << std::endl;
+////		AnalyzeTrackPairs(killdup_ids);
+//	 	AddRecord(tree,  killdup_ids);
+//   }
+}
+
+void E16DSTN_ReStraightV2::DuplicationClusterCutForWire(std::vector<int> &in_ids, std::vector<int> &out_ids){
+	int n_in_ids = in_ids.size();
+	for(int i=0; i < n_in_ids ; i++){
+			std::array<int, 2> cids_sts100 = {
+			rk_hit_sts_id->at(i),
+			rk_hit_gtr100_xid->at(i)
+			};
+			if(HasUsedClusterForWire(cids_sts100, used_cluster_ids_wire)){
+//			std::cout << "duplicated !" << std::endl;
+			continue;			
+			} else {
+//				std::cout << "NOT duplicated !" << std::endl;
+				for (int j=0; j  <  1;j++){
+					used_cluster_ids_wire[j].emplace_back(cids_sts100[j]);
+				}
+				out_ids.emplace_back(i);
+			}
+    }
 }
 
 
-void E16DSTN_ReStraightV2::ReTracking(TTree* tree, int print_cycle, int event_start, int event_end, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag){
+
+void E16DSTN_ReStraightV2::ReTrackingAndDuplicationCut(TTree* tree, int print_cycle, int event_start, int event_end, bool vertex_xy_fix_flag, bool py_fix_flag, bool vertex_z_fix_flag, int target_mid){
    if (fChain == 0) return;
    Long64_t nevent = fChain->GetEntries();
    std::cout << "nevent = " << nevent << std::endl;
@@ -221,16 +272,29 @@ void E16DSTN_ReStraightV2::ReTracking(TTree* tree, int print_cycle, int event_st
       tree->GetEntry(n);
 		std::vector<int> alive_ids;
 		alive_ids.clear();
-		for(int itk=0; itk < n_alive_tracks; itk++){//ith track
+
+		std::vector<int> sorted_ids;
+		sorted_ids.clear();
+		std::vector<int> killdup_ids;
+		killdup_ids.clear();
+		
+		ChiSqSort(sorted_ids);
+		ClearUsedClusterIDs();
+		DuplicationClusterCutForWire(sorted_ids, killdup_ids);
+
+		for(int i=0; i < killdup_ids.size(); i++){
+			int itk = killdup_ids[i];//i th track
 			double chi2 = chi_square->at(itk);
+//module matching 
 			int mid_sts = rk_fit_sts_mid->at(itk);
 			int mid_gtr100 = rk_fit_gtr100_mid->at(itk);
 			int mid_gtr200 = rk_fit_gtr200_mid->at(itk);
 			int mid_gtr300 = rk_fit_gtr300_mid->at(itk);
-			if(mid_sts != 106) continue;
-			if(mid_gtr100 != 106) continue;
-			if(mid_gtr200 != 106) continue;
-			if(mid_gtr300 != 106) continue;
+			if(mid_sts    != target_mid) continue;
+			if(mid_gtr100 != target_mid) continue;
+			if(mid_gtr200 != target_mid) continue;
+			if(mid_gtr300 != target_mid) continue;
+
 			if(chi2 < E16DSTN_ReStraightParameter::kchi2_threshold){
 				Fit(itk, fitter, vertex_xy_fix_flag, py_fix_flag, vertex_z_fix_flag);
 				alive_ids.push_back(itk);	
@@ -254,6 +318,9 @@ double E16DSTN_ReStraightV2::Fit(int itk, E16ANA_StraightMultiTrack* fitter, boo
 void E16DSTN_ReStraightV2::UpdateFitResult(int itk, E16ANA_StraightMultiTrack *fitter){
 	int tid = 0;
 	for(int l=0; l < 4; l++){
+		#ifdef NoExist_SSD
+		if(l == 0 ) continue;
+		#endif
 		std::vector<TVector3> lpos;
       std::vector<TVector3> lmom;
       std::vector<int> mid;
@@ -373,10 +440,21 @@ void E16DSTN_ReStraightV2::AddTrackHit(int itk, E16ANA_StraightMultiTrack* singl
 	int rk_mids[4] = {rk_fit_sts_mid->at(itk), rk_fit_gtr100_mid->at(itk), rk_fit_gtr200_mid->at(itk), rk_fit_gtr300_mid->at(itk)};
 	for(int l=0; l < 4; ++l){
 		if(l == E16ANA_StraightTrackConstant::kSSD){
-			single_track->AddHit(tid, l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l])), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			#ifdef NoExist_SSD
+			continue;
+			#endif
+			#ifndef UseSTS
+			std::cerr << "ONLY STS case is defined " << std::endl;
+			exit(0);
+//			single_track->AddHit(tid, l, geometry->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l])), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			#else 
+//			single_track->AddHit(tid, l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l])), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			single_track->AddHit(tid, l, geom_temp[l], CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			#endif
 		}
 		else {
-			single_track->AddHit(tid, l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l]), l-1), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+//			single_track->AddHit(tid, l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l]), l-1), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			single_track->AddHit(tid, l, geom_temp[l], CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
 		}
 	}
 }
@@ -386,44 +464,44 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		 return TVector3(rk_hit_sts_x->at(itk), 0, 0);//sts
 	}
 	else if(lid == 1){//gtr100
-		double s_lx, s_ly, s_lz, lx, ly, lz;//t means transform
+//		double s_lx, s_ly, s_lz, lx, ly, lz;//t means transform
 		double cogx = rk_hit_gtr100_cogx->at(itk);	//cog
 		double cogy = rk_hit_gtr100_cogy->at(itk);	//cog
-		s_lx = cogx + gmove_pattern.dx;//shift
-		s_ly = cogy + gmove_pattern.dy;//shift	
-		s_lz = 0    + gmove_pattern.dz;//shift
+//		s_lx = cogx + gmove_pattern.dx;//shift
+//		s_ly = cogy + gmove_pattern.dy;//shift	
+//		s_lz = 0    + gmove_pattern.dz;//shift
+//		
+//		TRotation Rx, Ry, Rz;
+//		Rx.RotateX(gmove_pattern.radx);	
+//		Ry.RotateY(gmove_pattern.rady);	
+//		Rz.RotateZ(gmove_pattern.radz);	
+//		TRotation R = Rx * Ry * Rz;
+//		TVector3 p = TVector3(s_lx, s_ly, s_lz);	
+//		TVector3 q = R * p;
+//		
+//
+//		lx = q.X();
+//		ly = q.Y();
+//		lz = q.Z();
 		
-		TRotation Rx, Ry, Rz;
-		Rx.RotateX(gmove_pattern.radx);	
-		Ry.RotateY(gmove_pattern.rady);	
-		Rz.RotateZ(gmove_pattern.radz);	
-		TRotation R = Rx * Ry * Rz;
-		TVector3 p = TVector3(s_lx, s_ly, s_lz);	
-		TVector3 q = R * p;
-		
-
-		lx = q.X();
-		ly = q.Y();
-		lz = q.Z();
-		
-		return TVector3(lx, ly, lz);
+		return TVector3(cogx, cogy, 0);
 	}
-	else if(lid == 2){//gtr100
+	else if(lid == 2){//gtr200
 		double lx, ly, lz;
 		double cogx = rk_hit_gtr200_cogx->at(itk);	//cog
 		double cogy = rk_hit_gtr200_cogy->at(itk);	//cog
-		lx = cogx + gmove_pattern.dx;
-		ly = cogy + gmove_pattern.dy;
-		lz = 0    + gmove_pattern.dz;
+		lx = cogx;
+		ly = cogy;
+		lz = 0   ;
 		return TVector3(lx, ly, lz);
 	}
-	else if(lid == 3){//gtr100
+	else if(lid == 3){//gtr300
 		double lx, ly, lz;
 		double cogx = rk_hit_gtr300_cogx->at(itk);	//cog
 		double cogy = rk_hit_gtr300_cogy->at(itk);	//cog
-		lx = cogx + gmove_pattern.dx;
-		ly = cogy + gmove_pattern.dy;
-		lz = 0    + gmove_pattern.dz;
+		lx = cogx;
+		ly = cogy;
+		lz = 0   ;
 		return TVector3(lx, ly, lz);
 	}
 }
@@ -637,10 +715,37 @@ void E16DSTN_ReStraightV2::AddTracks(TrackPair *track_pair){
 
 
 void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
+#ifdef  WIRE_STS_TRACK
+	for(auto &ids : used_cluster_ids_wire){
+		ids.clear();
+	}
+
+#else
 	for(auto &ids : used_cluster_ids){
 		ids.clear();
 	}
+#endif
 	return;
+}
+
+
+bool E16DSTN_ReStraightV2::HasUsedClusterForWire(const array<int, 2> &cids,std::array<std::vector<int>, 2> &used_cluster_ids ){
+// No allow for STS duplication
+// allow for STS is different,gtr is same
+	for(int i = 0; i < 2; i++){
+		for(int j=0; j < used_cluster_ids[i].size() ; j++){// 
+			if(i == 0 ) {//sts
+     		if(cids[i] == used_cluster_ids[i][j]){     		
+			return true;
+     		}
+		} else {//gtr
+				if(cids[0] ==  used_cluster_ids[0][j] && cids[i] == used_cluster_ids[i][j]){ 
+				return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -678,13 +783,23 @@ bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips> &
 	return false;
 }
 
+//bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, 3> &cids,std::array<std::vector<int>, 3> &used_cluster_ids ){//only sts
+//	for (int i = 0; i < 1; ++i) {
+//		for(const auto& used_id : used_cluster_ids[i]){
+//	     if(cids[i] == used_id){
+//	       return true;
+//	     }
+//	   }
+//	  }
+//	return false;
+//}
 
 void E16DSTN_ReStraightV2::InitHistos(){	
 //basic 
 	h_n_runid = new TH1D("n of events of runid","n of events of runid", 15, 30331.5, 30346.5);
 	h_n_eventid = new TH1D("n of events of event id","n of events of eventid", 10000, -0.5, 9999.5);
 	h_n_spillid = new TH1D("n of events of spill id","n of events of spillid", 1000, -0.5, 999.5);
-	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 100);	
+	h_chi2    = new TH1D(Form("h_chi2"), Form("h_chi2"), 100, 0, 2000);	
 	h_t0diff    = new TH1D(Form("h_t0diff"), Form("h_t0diff"), 100, -100,100);	
 	h_init_pos = new TH2D(Form("h_init_pos"), Form("h_init_pos"), 50, -30, 30, 50, -60, 60);
 
@@ -692,7 +807,7 @@ void E16DSTN_ReStraightV2::InitHistos(){
 		for(int tg=0; tg < 2; tg++){
 //			h_trackmap[tg][m] = new TH2D(Form("h_track_map%d_%d", tg,  m+100), Form("h_track_map%d_%d",tg,  m+100), 25, -50, 50, 25, -50, 50);
 		}
-		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 100);
+		h_chi2_mod[m] = new TH1D(Form("h_chi2_mod%d", m+100), Form("h_chi2_mod%d", m+100), 100, 0, 2000);
 		h_lg_t_mod[m] = new TH1D(Form("h_lg_t_mod%d", m+100), Form("h_lg_t_mod%d", m+100), 100, 50, 150);
 		h_init_posz_mod[m] = new TH1D(Form("h_init_posz_mod%d", m+100), Form("h_init_posz_mod%d", m+100), 50, -60, 60);
 
@@ -709,7 +824,7 @@ void E16DSTN_ReStraightV2::InitHistos(){
 		h_bak_res_lg_2d[m]  = new TH2D(Form("h_bak_res_lg_2d_%d", m+100), Form("h_bak_res_lg_2d_%d", m+100), 50, -400, 400, 50, -400, 400 );
 
 		for(int l=0; l < n_layers; l++){// -- layer 
-				h_hitmap[m][l] = new TH2D (Form("h_hit_map_%d_%d", m+100, l), Form("h_hit_map_%d_%d", m+100, l), 50,  -50*l , 50 * l, 50, -50 * l , 50*l ) ;
+				h_hitmap[m][l]   = new TH2D (Form("h_hit_map_%d_%d", m+100, l), Form("h_hit_map_%d_%d", m+100, l), 50,  -50*l , 50 * l, 50, -50 * l , 50*l ) ;
 				h_hitmap_x[m][l] = new TH1D (Form("h_hit_map_x_%d_%d", m+100, l), Form("h_hit_map_x_%d_%d", m+100, l), 50,  -50*l , 50 * l ) ;
 				h_hitmap_y[m][l] = new TH1D (Form("h_hit_map_y_%d_%d", m+100, l), Form("h_hit_map_y_%d_%d", m+100, l), 50,  -50*l , 50 * l ) ;
 				h_hit_timing_x[m][l] = new TH1D (Form("h_hit_timing_x_%d_%d", m+100, l), Form("h_hit_timing_x_%d_%d", m+100, l), 100, 0 ,500 ) ;
@@ -767,10 +882,15 @@ void E16DSTN_ReStraightV2::InitHistos(){
 				else {
 				h_cor_resx_fitlx_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitlx_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitlx_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
 				h_cor_resx_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitly_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
-
+				h_cor_resx_fitlx_center_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitlx_center_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitlx_center_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_resx_fitly_center_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitly_center_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitly_center_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_resx_fitlx_edge_wire[t][m][l]  = new TH2D(Form("h_cor_resx_fitlx_edge_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitlx_edge_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
+				h_cor_resx_fitly_edge_wire[t][m][l]    = new TH2D(Form("h_cor_resx_fitly_edge_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_fitly_edge_wire%d_m%d_l%d",t,  m+100, l), 20, -50*l , 50*l, 50, -2.5, 2.5);
 				}
 				h_cor_resy_fitly_wire[t][m][l]  = new TH2D(Form("h_cor_resy_fitly_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resy_fitly_wire%d_m%d_l%d",t,  m+100, l), 10, -50*l , 50*l, 50, -2.5, 2.5);
 				h_cor_resx_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 40, -1.5, 1.5);
+				h_cor_resx_tan_center_wire[t][m][l]  = new TH2D(Form("h_cor_resx_tan_center_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_center_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 40, -1.5, 1.5);
+				h_cor_resx_tan_edge_wire[t][m][l]  = new TH2D(Form("h_cor_resx_tan_edge_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resx_edge_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 40, -1.5, 1.5);
 				h_cor_resy_tan_wire[t][m][l]  = new TH2D(Form("h_cor_resy_tan_wire%d_m%d_l%d",t,  m+100, l), Form("h_cor_resy_tan_wire%d_m%d_l%d",t,  m+100, l),  20, kHistoTanMin, kHistoTanMax, 50, -2.5, 2.5);
 			}
 		}
@@ -832,7 +952,7 @@ void E16DSTN_ReStraightV2::FillVectors(int i){
 			xadcs = {rk_hit_sts_adc->at(i), rk_hit_gtr100_xadc->at(i), rk_hit_gtr200_xadc->at(i), rk_hit_gtr300_xadc->at(i)};
 			yadcs = {0, rk_hit_gtr100_yadc->at(i), rk_hit_gtr200_yadc->at(i), rk_hit_gtr300_yadc->at(i)};
 			xcids = {rk_hit_sts_id->at(i), rk_hit_gtr100_xid->at(i), rk_hit_gtr200_xid->at(i), rk_hit_gtr300_xid->at(i)};
-         xtotend = {-100,gtr100x_cluster_last_tot_end->at(i), gtr200x_cluster_last_tot_end->at(i), gtr300x_cluster_last_tot_end->at(i) };
+//         xtotend = {-100,gtr100x_cluster_last_tot_end->at(i), gtr200x_cluster_last_tot_end->at(i), gtr300x_cluster_last_tot_end->at(i) };
 }
 
 

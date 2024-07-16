@@ -13,7 +13,19 @@
 //using namespace E16ANA_StraightTrackParameter;
 using namespace E16ANA_StraightTrackConstant;
 using namespace E16DSTN_ReStraightParameter;
+using namespace std;
 
+
+void E16DSTN_ReStraightV2::SetGeomTemp(int target_mid){
+	geom_temp.clear();
+	auto gp = static_cast<const E16ANA_PlanarSTSGeometry*>(geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(target_mid)));
+	geom_temp.push_back(new E16ANA_PlanarSTSGeometry(*gp));
+	for(int l = 1; l < 4; l++){
+	auto gp = static_cast<const E16ANA_PlanarGeometry*>(geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(target_mid), l-1));
+	geom_temp.push_back(new E16ANA_PlanarGeometry(*gp));	
+	}
+	geom_temp[1]->LocalTranslate(TVector3(gmove_pattern.dx, gmove_pattern.dy ,gmove_pattern.dz));
+}
 
 void E16DSTN_ReStraightV2::SetGeomMovePattern(const std::string& file, int pid){
 	std::ifstream infile(file);
@@ -50,7 +62,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 	int cnt_lgres_fore[10] = {0};
 	int cnt_lgres_bg[10]   = {0};
 //conditions 
-	double chi_sq_th  = 200;
+	double chi_sq_th  = 1000;
 //initialize Histos
 	InitHistos();
 //Analysis part
@@ -65,68 +77,76 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
       for(int i=0; i < n_tracks;i++){// track loop
 	      double chi2 = chi_square->at(i);
 			h_chi2->Fill(chi2);
+			h_chi2_mod[rk_fit_gtr100_mid->at(i)-100]->Fill(chi2);
 			if(chi2 > chi_sq_th) continue;
+			if(fabs(rk_fit_gtr100_x->at(i)) > 50) continue;
+			if(fabs(rk_fit_gtr200_x->at(i)) > 100) continue;
+			if(fabs(rk_fit_gtr300_x->at(i)) > 150) continue;
+			if(fabs(rk_fit_gtr100_y->at(i)) > 50) continue;
+			if(fabs(rk_fit_gtr200_y->at(i)) > 100) continue;
+			if(fabs(rk_fit_gtr300_y->at(i)) > 150) continue;
+
 			FillVectors(i);//
 
-// ----- LG Asssociation --------- // 
-				bool assoc_fore = false;
-				bool assoc_bg = false;
-				double plgx  = rk_fit_lg_b_x->at(i);
-				double mplgy = rk_fit_lg_b_gy->at(i);
-				if(fabs(mplgy) > 260){
-					plgx = rk_fit_lg_c_x->at(i);
-				}
-				if(fabs(mplgy) < 150){
-					plgx = rk_fit_lg_a_x->at(i);
-				}
-	// --- fore event --- //
-				for(int k=0; k < n_lg_hits;k++){
-					if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
-						int lg_mid = lg_hit_mid->at(k);
-						if(lg_hit_adc->at(k) < 10) continue;
-			//			if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
-						double dx     = lg_hit_x->at(k) - plgx;
-						double dy     = lg_hit_gy->at(k) - mplgy;
-						h_res_lg_x[lg_mid-100]->Fill(dx);
-						h_res_lg_y[lg_mid-100]->Fill(dy);
-						h_res_lg_2d[lg_mid-100]->Fill(dx,dy);
-						if(fabs(dx) < 80 & fabs(dy) < 80 ){//association
-							assoc_fore = true;
-						}
-					}
-				}
-	// ----- previous event ---- // 
-				for(int k=0; k < pre_n_lg_hits;k++){
-					if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
-						int lg_mid = pre_lg_hit_mid[k];
-						if(pre_lg_hit_adc[k] < 10) continue;
-			//			if(fabs(pre_lg_hit_x[k] - 310) < 1 && fabs(pre_lg_hit_gy[k] + 315) < 1) continue; 
-							double pre_dx = pre_lg_hit_x[k]  - plgx;
-							double pre_dy = pre_lg_hit_gy[k] - mplgy;
-							h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
-							h_bak_res_lg_y[lg_mid-100]->Fill(pre_dy);
-							h_bak_res_lg_2d[lg_mid-100]->Fill(pre_dx, pre_dy);
-						if(fabs(pre_dx) < 80 & fabs(pre_dy) < 80 ){//association
-							assoc_bg = true;
-						}
-					}
-				}
-			//
-				if(assoc_fore){
-					cnt_lgres_fore[rk_fit_lg_b_mid->at(i)-100]++;
-				}
-				if(assoc_bg){
-					cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
-				}
-// -- LG association finished ---- /// 
-
-//			pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
-//			pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
-//			h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
-////		h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
-////		h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
-////		h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
-////		h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
+//// ----- LG Asssociation --------- // 
+//				bool assoc_fore = false;
+//				bool assoc_bg = false;
+//				double plgx  = rk_fit_lg_b_x->at(i);
+//				double mplgy = rk_fit_lg_b_gy->at(i);
+//				if(fabs(mplgy) > 260){
+//					plgx = rk_fit_lg_c_x->at(i);
+//				}
+//				if(fabs(mplgy) < 150){
+//					plgx = rk_fit_lg_a_x->at(i);
+//				}
+//	// --- fore event --- //
+//				for(int k=0; k < n_lg_hits;k++){
+//					if(lg_hit_mid->at(k) == rk_fit_lg_b_mid->at(i)){
+//						int lg_mid = lg_hit_mid->at(k);
+//						if(lg_hit_adc->at(k) < 10) continue;
+//			//			if(fabs(lg_hit_x->at(k) - 310) < 1 && fabs(lg_hit_y->at(k) + 315) < 1) continue; 
+//						double dx     = lg_hit_x->at(k) - plgx;
+//						double dy     = lg_hit_gy->at(k) - mplgy;
+//						h_res_lg_x[lg_mid-100]->Fill(dx);
+//						h_res_lg_y[lg_mid-100]->Fill(dy);
+//						h_res_lg_2d[lg_mid-100]->Fill(dx,dy);
+//						if(fabs(dx) < 80 & fabs(dy) < 80 ){//association
+//							assoc_fore = true;
+//						}
+//					}
+//				}
+//	// ----- previous event ---- // 
+//				for(int k=0; k < pre_n_lg_hits;k++){
+//					if(pre_lg_hit_mid[k] == rk_fit_lg_b_mid->at(i)){
+//						int lg_mid = pre_lg_hit_mid[k];
+//						if(pre_lg_hit_adc[k] < 10) continue;
+//			//			if(fabs(pre_lg_hit_x[k] - 310) < 1 && fabs(pre_lg_hit_gy[k] + 315) < 1) continue; 
+//							double pre_dx = pre_lg_hit_x[k]  - plgx;
+//							double pre_dy = pre_lg_hit_gy[k] - mplgy;
+//							h_bak_res_lg_x[lg_mid-100]->Fill(pre_dx);
+//							h_bak_res_lg_y[lg_mid-100]->Fill(pre_dy);
+//							h_bak_res_lg_2d[lg_mid-100]->Fill(pre_dx, pre_dy);
+//						if(fabs(pre_dx) < 80 & fabs(pre_dy) < 80 ){//association
+//							assoc_bg = true;
+//						}
+//					}
+//				}
+//			//
+//				if(assoc_fore){
+//					cnt_lgres_fore[rk_fit_lg_b_mid->at(i)-100]++;
+//				}
+//				if(assoc_bg){
+//					cnt_lgres_bg[rk_fit_lg_b_mid->at(i) -100]++;
+//				}
+//// -- LG association finished ---- /// 
+//
+////			pre_mplgy[rk_fit_lg_b_mid->at(i)-100] = mplgy;
+////			pre_plgx[rk_fit_lg_b_mid->at(i)-100] = plgx;
+////			h_cluster_timing_chi2[m-100][l]->Fill(xt4s[l]);
+//////		h_cluster_timing_chi2_xdependence[m-100][l][nth_div]->Fill(xt4s[l]);
+//////		h_cluster_timing_chi2_ydependence[m-100][l][nth_divy]->Fill(xt4s[l]);
+//////		h_cluster_adc_xdependence[m-100][l][nth_div]->Fill(xadcs[l]);
+//////		h_cluster_adc_ydependence[m-100][l][nth_divy]->Fill(yadcs[l]);
 
 // Fill Histos Basic
 				double init_gx = rk_fit_init_pos_gx->at(i);
@@ -136,6 +156,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				h_init_posz_mod[mids[1]-100]->Fill(init_gz);//mod decided by gtr100
 
 // which wire
+				
 				int which_t;
 				if(init_gx > 0 && init_gz < 0){
 					which_t = 3;	
@@ -154,6 +175,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 			
 // Fill Histos detectors
 			for(int lid = 0; lid < n_layers; lid++){
+				if(lid == 0) continue;
 				h_hitmap[mids[lid]-100][lid]           ->Fill( fitlxs[lid], fitlys[lid]);
 				h_hitmap_x[mids[lid]-100][lid]         ->Fill( fitlxs[lid]);
 				h_hitmap_y[mids[lid]-100][lid]         ->Fill( fitlys[lid]);
@@ -172,28 +194,47 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				h_res_y_wire[which_t][mids[lid]-100][lid]->Fill(resy[lid]);
 				h_cor_resx_fitlx_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
 				h_cor_resx_fitly_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
+				h_cor_resx_tan_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
+				
+				if(fabs(fitlys[lid])  < 20) {//center part Y direction
+					h_cor_resx_fitlx_center_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
+					h_cor_resx_tan_center_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
+				}
+				else if(fabs(fitlys[lid])  >  35) {//edge part Y direction
+					h_cor_resx_fitlx_edge_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
+					h_cor_resx_tan_edge_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
+				}
+				if(fabs(fitlxs[lid])  < 20) {//center part X direction
+					h_cor_resx_fitly_center_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
+				}
+				else if(fabs(fitlxs[lid])   > 35 ) {//edge part X direction
+					h_cor_resx_fitly_edge_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
+				}
+
+
 				h_cor_resy_fitly_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resy[lid]);	
-				h_cor_resx_tan_wire[which_t][mids[lid]-100][lid] ->Fill(tans[lid], resx[lid]);
-
-
 				h_resx_dz_wire_x[mids[lid]-100][lid]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
 				
 				
+//				std::cout << " fitlx  = " << fitlxs[lid] << std::endl;
+//				std::cout << " fitly  = " << fitlys[lid] << std::endl;
+//				std::cout << h_res_x_wire[which_t][mids[lid]-100][lid]->GetName() << std::endl;
 //				std::cout << " xt4  = " << xt4s[lid] << std::endl;
 //				std::cout << " tan  = " << tans[lid] << std::endl;
 //				std::cout << " dz   = " << (xt4s[lid] - tcent) * tans[lid] << std::endl;
 
 				//which div
-				int i_div = (fitlxs[lid] + lid * 50)/n_div;
-				int i_div_y = (fitlys[lid] + lid * 50)/n_div;
-				h_resx_dz_wire_xdiv[mids[lid]-100][lid][i_div]  ->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
-				h_resx_dz_wire_ydiv[mids[lid]-100][lid][i_div_y]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
+//				int i_div   = (fitlxs[lid] + lid * 50)/ (lid * 50 / n_div);
+//				int i_div_y = (fitlys[lid] + lid * 50)/ (lid * 50 / n_div);
+//				
+//				h_resx_dz_wire_xdiv[mids[lid]-100][lid][i_div]  ->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
+//				h_resx_dz_wire_ydiv[mids[lid]-100][lid][i_div_y]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
 				
 				}
 			FillPulseInfos(i);
 		}//track loop
 	}
-   fout->Write();
+//   fout->Write();
 
 
 //	const int g_mod = 6; // geometry calibration module 

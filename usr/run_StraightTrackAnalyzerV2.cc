@@ -140,7 +140,7 @@ int main(int argc, char* argv[]){
     	if (event_end != -1 &&  n_physics_event > event_end) {
        		break;
       	}
-      if (n_event % 10 == 0) {
+      if (n_event % 2000 == 0) {
         cout << "Number of event: " << n_event << endl;
       }
       auto event_type = dst0->EventType();

@@ -4,7 +4,7 @@
 #include "STS/E16ANA_STSGeometry.hh"
 #include "E16ANA_STSGlobalGeometry.hh"
 
-#define STS_VERB
+//#define STS_VERB
 
 constexpr double sts_invalid = -10000000.;
 

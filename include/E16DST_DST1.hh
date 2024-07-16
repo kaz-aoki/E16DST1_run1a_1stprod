@@ -327,21 +327,10 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
-//  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
+  void     SetTimingFit(double _timing_fit)    { timing_fit = _timing_fit; }
   void     SetPeakSumFit(double _charge_sum_fit)  { charge_sum_fit = _charge_sum_fit; }
   void     SetCogPosFit(double _center_of_gravity_fit)    { center_of_gravity_fit = _center_of_gravity_fit; }
   void     SetChi2NdfFit(double _chi2_ndf_fit)    { chi2_ndf_fit = _chi2_ndf_fit; }
-<<<<<<< HEAD
-  double   CogPos() { return center_of_gravity; }
-  double   TdcPos() { return tdc_pos; }
-  float    TanTheta() { return tan_incident_angle; }
-  double   CogPosFit() { return center_of_gravity_fit; }
-//  double   TimingFit() { return  timing_fit;}
-  double   PeakSumFit() { return  charge_sum_fit;}
-  double   Chi2NdfFit() { return  chi2_ndf_fit;}
-  double   LocalX() { return center_of_gravity; };
-  double   LocalXFit() { return center_of_gravity_fit; };
-=======
   double   CogPos() const { return center_of_gravity; }
   double   TdcPos() const { return tdc_pos; }
   float    TanTheta() const { return tan_incident_angle; }
@@ -351,7 +340,6 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double   Chi2NdfFit() const { return  chi2_ndf_fit;}
   double   LocalX() const { return center_of_gravity; };
   double   LocalXFit() const { return center_of_gravity_fit; };
->>>>>>> upstream/main
   TVector3 LocalPos() override;
   void     SetLocalPos(const TVector3& pos) { lpos = pos; }
   TVector3 GlobalPos(E16ANA_GeometryV2& geometry) override;
@@ -629,8 +617,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 //		std::cout << "lorent  = " <<  E16DST_DST1Constant::kGTRLorentzAngle[layer_id]<< std::endl;
       // return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//23115 temp
 
-      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-      // return tdchit;
+//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+       return tdchit;
     } else {
       return tdchit;
     }
