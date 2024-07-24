@@ -613,8 +613,9 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    int ig = 0;
 
    int bene = 5;
-   double enepar[6] = {1.,40.,80.,1.,1.,1.};
-   int ienepar[6] = {1,40,80,1,1,1};
+   // double enepar[6] = {1.,40.,80.,1.,1.,1.};
+   double enepar[6] = {1.,40.,80.,1.,1.,551.};
+   int ienepar[6] = {1,40,80,1,1,600};
    // double enepar[4] = {1.,40.,80.,198.};
    // int ienepar[4] = {1,40,80,200};
 
@@ -929,19 +930,19 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      hexp[i] = new TH1F(Form("hexp%d",i),Form("expected_LG_AdcSum/Mom_TrackAssoc_mod%d",103+i),32,0,800/ienepar[bene]);
      hadc[i] = new TH1F(Form("hadc%d",i),Form("LG_AdcSum_Fore_TrackAssoc_mod%d",103+i),128,0,800/ienepar[bene]);
      hadcd[i] = new TH1F(Form("hadcd%d",i),Form("LG_AdcSum_Mix_TrackAssoc_mod%d",103+i),128,0,800/ienepar[bene]);
-     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,1.5,50,0,900/ienepar[bene]);
-     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,1.5,50,0,900/ienepar[bene]);
-     hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
-     hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
+     hevsp[i] = new TH2F(Form("hevsp%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
+     hevspd[i] = new TH2F(Form("hevspd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
+     hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),100,0,1.5,50,0,900/ienepar[bene]);
+     hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),100,0,1.5,50,0,900/ienepar[bene]);
      // hevspr[i] = new TH2F(Form("hevspr%d",i),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,2,200,0,1200/ienepar[bene]);
      // hevsprd[i] = new TH2F(Form("hevsprd%d",i),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,2,200,0,1200/ienepar[bene]);
      for(int j=0;j<42;j++){
        hevspe[i][j] = new TH2F(Form("hevspe%d%d",i,j),Form("LG_AdcSumVsMom_Fore_TrackAssoc_mod%d_blk%d",103+i,(int)j/7*10+j%7),50,0,2,50,0,1200/ienepar[bene]);
        hevsped[i][j] = new TH2F(Form("hevsped%d%d",i,j),Form("LG_AdcSumVsMom_Mix_TrackAssoc_mod%d_blk%d",103+i,(int)j/7*10+j%7),50,0,2,50,0,1200/ienepar[bene]);
-       hedivpe[i][j] = new TH1F(Form("hedivpe%d%d",i,j),Form("LG_AdcSum/Mom_Fore_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),16,0,800/ienepar[bene]);
-       hedivped[i][j] = new TH1F(Form("hedivped%d%d",i,j),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),16,0,800/ienepar[bene]);
-       hassee[i][j] = new TH1F(Form("hassee%d%d",i,j),Form("LG_AdcSum_Fore_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),50,0,300);
-       hasseed[i][j] = new TH1F(Form("hasseed%d%d",i,j),Form("LG_AdcSum_Mix_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),50,0,300);
+       hedivpe[i][j] = new TH1F(Form("hedivpe%d%d",i,j),Form("LG_AdcSum/Mom_Fore_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),24,0,1200/ienepar[bene]);
+       hedivped[i][j] = new TH1F(Form("hedivped%d%d",i,j),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),24,0,1200/ienepar[bene]);
+       hassee[i][j] = new TH1F(Form("hassee%d%d",i,j),Form("LG_AdcSum_Fore_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),50,0,300/ienepar[bene]);
+       hasseed[i][j] = new TH1F(Form("hasseed%d%d",i,j),Form("LG_AdcSum_Mix_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),50,0,300/ienepar[bene]);
        heffe[i][j] = new TH1F(Form("heffe%d%d",i,j),Form("LG_Efficiency_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),3,0,3);
        hmome[i][j] = new TH1F(Form("hmome%d%d",i,j),Form("LG_Mom_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),40,0,5);
        hange[i][j] = new TH1F(Form("hange%d%d",i,j),Form("LG_IncidentAngleX_TrackAssoc_%1.0fmV_mod%d_blk%d",lgthr[0],103+i,(int)j/7*10+j%7),40,-40,40);
@@ -953,8 +954,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      heovpvsp[i] = new TH2F(Form("heovpvsp%d",i),Form("LG_E/pVsMom_Fore_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
      heovpvspd[i] = new TH2F(Form("heovpovspd%d",i),Form("LG_E/pVsMom_Mix_TrackAssoc_mod%d",103+i),50,0,2,50,0,1200/ienepar[bene]);
      for(int j=0;j<4;j++){
-       hedivp[j][i] = new TH1F(Form("hedivp%d%d",j,i),Form("LG_AdcSum/Mom_Fore_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
-       hedivpd[j][i] = new TH1F(Form("hedivpd%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),32,0,800/ienepar[bene]);
+       hedivp[j][i] = new TH1F(Form("hedivp%d%d",j,i),Form("LG_AdcSum/Mom_Fore_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),48,0,1200/ienepar[bene]);
+       hedivpd[j][i] = new TH1F(Form("hedivpd%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),48,0,1200/ienepar[bene]);
        hassp[j][i] = new TH1F(Form("hassp%d%d",j,i),Form("Mom_Fore_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hasspd[j][i] = new TH1F(Form("hasspd%d%d",j,i),Form("Mom_Mix_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),50,0,5);
        hasse[j][i] = new TH1F(Form("hasse%d%d",j,i),Form("AdcSum_Fore_TrackAssoc_%1.0fmV_mod%d",lgthr[j],103+i),128,0,400/ienepar[bene]);
@@ -962,7 +963,7 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 
        hesubp[j][i] = new TH1F(Form("hesubp%d%d",j,i),Form("LG_AdcSum-%1.0f*Mom_Fore_TrackAssoc_mod%d",lgcon[j],103+i),16,-200,200);
        hesubpd[j][i] = new TH1F(Form("hesubpd%d%d",j,i),Form("LG_AdcSum-%1.0f*Mom_Mix_TrackAssoc_mod%d",lgcon[j],103+i),16,-200,200);
-       hedivpd_hmix[j][i] = new TH1F(Form("hedivpd_hmix%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d_hmix",lgthr[j],103+i),32,0,800/ienepar[bene]);
+       hedivpd_hmix[j][i] = new TH1F(Form("hedivpd_hmix%d%d",j,i),Form("LG_AdcSum/Mom_Mix_TrackAssoc_%1.0fmV_mod%d_hmix",lgthr[j],103+i),48,0,1200/ienepar[bene]);
        hasspd_hmix[j][i] = new TH1F(Form("hasspd_hmix%d%d",j,i),Form("Mom_Mix_TrackAssoc_%1.0fmV_mod%d_hmix",lgthr[j],103+i),50,0,5);
        hassed_hmix[j][i] = new TH1F(Form("hassed_hmix%d%d",j,i),Form("AdcSum_Mix_TrackAssoc_%1.0fmV_mod%d_hmix",lgthr[j],103+i),128,0,400/ienepar[bene]);
      }
@@ -1338,7 +1339,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	 double tmptdc = track_lg_allhit_ftime->at(itrack).at(ilg);
 	 double gain=1.;
 	 int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(resx+track_lg_lx->at(itrack),resy+track_lg_ly->at(itrack));
-	 if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10]*enepar[bene];}
+	 // if(tmpadc<thrlg[2][lmide][cid/10][cid%10]){continue;}
+	 if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10];}
 	 if(gaincalib){tmpadc = tmpadc*gain;}
 #ifdef LGWFHit
 	 if( tmpadc<lgresthr ||
@@ -1841,7 +1843,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
 	   double tmpa = track_lg_allhit_adc->at(itrack).at(ilg);
 	   double gain=1.;
 	   int cid = E16ANA_EIDSingleTrackAnalyzer::LocaltoCh(tmplx,tmply);
-	   if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10]*enepar[bene];}
+	   // if(tmpa<thrlg[2][lmide][cid/10][cid%10]){continue;}
+	   if(cid>=0&&cid<56){gain=relg[bene][lmide][cid/10][cid%10];}
 	   if(gaincalib){tmpa=tmpa*gain;}
 	   if( tmpa<lgresthr ||
 	     (tmpt-lgoffset)<(ssd_t_unit*(ssd_t_for_lg_hit-ssdoffset)-time_region) ||
@@ -2069,6 +2072,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    TCanvas* cevsprsub = new TCanvas("cevsprsub","cevsprsub",700,500);
    DC2DForeMixFM(cevspr,cevsprd,cevsprsub,hevspr,hevsprd,hevsprsub,mixevent);
    for(int i=0;i<4;i++){
+     hevspsub[i]->SetName(Form("hevspsub%d",(i+3)%5));
+     hevspsub[i]->SetTitle(Form("LG_AdcSumVsMom_Fore-Mix_TrackAssoc_mod%d",103+((i+3)%5)));
      hevsprsub[i]->SetName(Form("hevsprsub%d",(i+3)%5));
      hevsprsub[i]->SetTitle(Form("LG_AdcSumVsMom_Fore-Mix_TrackAssoc_mod%d",103+((i+3)%5)));
      // if(runoption==3&&i==2){
@@ -2080,6 +2085,40 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
      //   l2->Draw("sames");
      // }
    }
+
+   TH2F* hevspR = (TH2F*)hevsp[0]->Clone();
+   hevspR->SetName("hevspR");
+   hevspR->SetTitle("LG_AdcSumVsMom_Fore_TrackAssoc_R");
+   hevspR->Add(hevsp[1],1);
+   TH2F* hevspL = (TH2F*)hevsp[3]->Clone();
+   hevspL->SetName("hevspL");
+   hevspL->SetTitle("LG_AdcSumVsMom_Fore_TrackAssoc_L");
+   hevspL->Add(hevsp[4],1);
+   TCanvas* cevspa = new TCanvas("cevspa","cevspa",500,500);
+   cevspa->Divide(2,2);
+   cevspa->cd(1)->SetLogz();
+   hevspR->Draw("colz");
+   cevspa->cd(2)->SetLogz();
+   hevspL->Draw("colz");
+   cevspa->cd(3)->SetLogz();
+   hevsp[2]->Draw("colz");
+   TH2F* hevsprR = (TH2F*)hevspr[0]->Clone();
+   hevsprR->SetName("hevsprR");
+   hevsprR->SetTitle("LG_AdcSumVsMom_Fore_TrackAssoc_R");
+   hevsprR->Add(hevspr[1],1);
+   TH2F* hevsprL = (TH2F*)hevspr[3]->Clone();
+   hevsprL->SetName("hevsprL");
+   hevsprL->SetTitle("LG_AdcSumVsMom_Fore_TrackAssoc_L");
+   hevsprL->Add(hevspr[4],1);
+   TCanvas* cevspra = new TCanvas("cevspra","cevspra",500,500);
+   cevspra->Divide(2,2);
+   cevspra->cd(1)->SetLogz();
+   hevsprR->Draw("colz");
+   cevspra->cd(2)->SetLogz();
+   hevsprL->Draw("colz");
+   cevspra->cd(3)->SetLogz();
+   hevspr[2]->Draw("colz");
+
    TH2F* heovpvspsub[5];
    TCanvas* ceovpvsp = new TCanvas("ceovpvsp","ceovpvsp",700,500);
    TCanvas* ceovpvspd = new TCanvas("ceovpvspd","ceovpvspd",700,500);
@@ -2810,6 +2849,8 @@ void E16ANA_EIDEfficiency::ResidualandEfficiency(int runoption, int maxevent, ch
    //   ccogxcl[i]->SaveAs(outfile,"pdf");
    //   ccogycl[i]->SaveAs(outfile,"pdf");
    // }
+   cevspa->SaveAs(outfile,"pdf");
+   cevspra->SaveAs(outfile,"pdf");
    cevsp->SaveAs(outfile,"pdf");
    cevspd->SaveAs(outfile,"pdf");
    cevspsub->SaveAs(outfile,"pdf");
