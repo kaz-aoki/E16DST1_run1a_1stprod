@@ -1,5 +1,11 @@
 tmp/*
 
+.DS_Store
+*~
+*.swap
+*.swp
+#*#
+
 # nakasuga, 230905 untracked
 usr/CalcLGWFefficiency.cc
 usr/DrawForLGEfficiency.cc
