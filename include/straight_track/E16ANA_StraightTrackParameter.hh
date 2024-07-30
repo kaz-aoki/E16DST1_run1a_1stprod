@@ -38,8 +38,10 @@ constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 
 #ifndef TRACK_FIND_WO_TARGET
-const TVector3 kInitPosErrorWire = {1.0, 3.5, 1.0};
-constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
+const TVector3  kInitPosErrorWire = {0.05, 3.4, 0.05};
+constexpr const std::array<double, 5> kWireXSigma = {0.3, 0.1, 0.3, 0.3, 0.3}; 
+//const TVector3 kInitPosErrorWire = {1.0, 3.5, 1.0};
+//constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
 const TVector3 kInitPosError = {3., 3.4, 3.};
 //const TVector3 kInitPosError = {99999, 99999, 99999};
 #else 
@@ -196,10 +198,10 @@ constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {50., 0.}; // c
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
-  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) { // 220418 for production
+//  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) { // 220418 for production
     return true;
-  }
-  return false;
+//  }
+//  return false;
 }
 
 // other

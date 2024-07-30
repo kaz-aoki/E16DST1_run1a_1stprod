@@ -1194,8 +1194,10 @@ class E16ANA_TrackCheckFile {
     for (int i = 0; i < n_ssd_clusters; ++i) {
 #ifdef UseSTS
       auto& clst = record.STS().Cluster(i);
+      ssd_cluster_fit_t[i] = clst.Timing();
 #else
       auto& clst = record.SSD().Cluster(i);
+      ssd_cluster_fit_t[i] = clst.TimingFit();
 #endif
 //      ssd_cluster_id[i] = i;
       ssd_cluster_id[i] = clst.ClusterId();
@@ -1208,7 +1210,6 @@ class E16ANA_TrackCheckFile {
       ssd_cluster_t[i] = clst.Timing();
       ssd_cluster_size[i] = clst.NumHits();
       ssd_cluster_fit_x[i] = clst.LocalXFit();
-      ssd_cluster_fit_t[i] = clst.TimingFit();
       ssd_cluster_fit_adc[i] = clst.PeakSumFit();
       ssd_cluster_fit_chi2[i] = clst.Chi2NdfFit();
 #ifdef TRACK_EFF_CHECK
@@ -2691,8 +2692,8 @@ class E16ANA_TrackCheckFile {
 		if(ssd_clst !=0) {
 	      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
  	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-//       rk_hit_ssd_t[i]  = ssd_clst->Timing();
-      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+       rk_hit_ssd_t[i]  = ssd_clst->Timing();
+//      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
       	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
 		}
 

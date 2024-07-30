@@ -1426,7 +1426,7 @@ class E16ANA_StraightTrackCheckFile {
       sts_cluster_t[i] = clst.Timing();
       sts_cluster_size[i] = clst.NumHits();
       sts_cluster_fit_x[i] = clst.LocalXFit();
-      sts_cluster_fit_t[i] = clst.TimingFit();
+      sts_cluster_fit_t[i] = clst.Timing();
       sts_cluster_fit_adc[i] = clst.PeakSumFit();
       sts_cluster_fit_chi2[i] = clst.Chi2NdfFit();
 #ifdef TRACK_EFF_CHECK
@@ -3144,8 +3144,8 @@ class E16ANA_StraightTrackCheckFile {
       if(sts_clst != 0){
 	      rk_hit_sts_id[i] =  sts_clst->ClusterId();
 	      rk_hit_sts_adc[i] = sts_clst->PeakSum();
-	//      rk_hit_sts_t[i]  = sts_clst->Timing();
-   	   rk_hit_sts_t[i]  = sts_clst->TimingFit();
+	      rk_hit_sts_t[i]  = sts_clst->Timing();
+//   	   rk_hit_sts_t[i]  = sts_clst->TimingFit();
       	rk_hit_sts_chi2[i] = sts_clst->Chi2NdfFit();
       }
 #endif
