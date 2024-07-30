@@ -180,6 +180,11 @@ int main (int argc, char** argv) {
 	re->SetGeomTemp(target_mid);
 
 //tracking again
+	
+   TF2 *ft0 = new TF2("ft0","[0]*TMath::Gaus(x,[1],[2])*TMath::Gaus(y,[3],[4])+250",-50,50,-50,50);
+	ft0->SetParameters(100, 0, 30, 0, 30);
+	re->SetT0Func(ft0);
+
    re->ReTrackingAndDuplicationCut(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag, target_mid);
 	TTree *outtree = re->TreeOut();
 	fitter->Clear();

@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TF2.h>
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
@@ -159,8 +160,9 @@ private:
 	
 	GeomMovePattern gmove_pattern;
 
+	TF2 *ft0;
 
-
+	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
@@ -212,6 +214,7 @@ private:
 //  w3----------|----------w0
 //  				beam   
 // -- arrays for branch info -- // 
+
 	std::array<int, 4> mids;
 	std::array<int, 4> mids_tid0;
 	std::array<int, 4> mids_tid1;
@@ -254,6 +257,8 @@ private:
    TH1D* h_tan_theta[n_modules][n_layers];
 //   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
    TH1D* h_hit_timing_x[n_modules][n_layers];
+   TH1D* h_hit_timing_x_area[n_modules][n_layers][25];
+   TH1D* h_cluster_timing_x_area[n_modules][n_layers][25];
 	TH1D* h_cluster_t_diff[n_modules][n_layers];
 	TH2D* h_cluster_t_diff_2d[n_modules][n_layers];
    TH1D* h_cluster_timing_x[n_modules][n_layers];
@@ -294,20 +299,25 @@ private:
 	TH2D* h_cor_resx_fitlx_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resx_fitly_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resy_fitly_wire[n_wires][n_modules][n_layers];
+
+	TH1D* h_resx_div[n_wires][n_modules][n_layers][9];
 	
 	TH2D* h_cor_resx_tan_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resy_tan_wire[n_wires][n_modules][n_layers];
 	
-	TH2D* h_resx_dz_wire_x[n_modules][n_layers];
-	TH2D* h_resx_dz_wire_xdiv[n_modules][n_layers][n_div];
-	TH2D* h_resx_dz_wire_ydiv[n_modules][n_layers][n_div];
+	TH2D* h_resx_dz_wire_x[n_wires+1][n_modules][n_layers][25];
+//	TH2D* h_resx_dz_wire_xdiv[n_modules][n_layers][n_div];
+//	TH2D* h_resx_dz_wire_ydiv[n_modules][n_layers][n_div];
 
 	TH2D* h_cor_resx_fitlx_center_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resx_fitly_center_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resx_tan_center_wire[n_wires][n_modules][n_layers];
-	TH2D* h_cor_resx_fitlx_edge_wire[n_wires][n_modules][n_layers];
-	TH2D* h_cor_resx_fitly_edge_wire[n_wires][n_modules][n_layers];
-	TH2D* h_cor_resx_tan_edge_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_edge_top_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_edge_top_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_edge_bot_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_edge_bot_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_edge_top_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_edge_bot_wire[n_wires][n_modules][n_layers];
 
 //removed residual
 
@@ -2599,6 +2609,7 @@ public:
 	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
 	TVector3 CorrectedLocalPos(int itk, int mid, int l);
 	void SetGeomMovePattern(const std::string &s, int id);
+	void SetT0Func(TF2* _ft0) {ft0 = _ft0;}
 
 //	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
 	void SetGeomTemp(int mid);

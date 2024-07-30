@@ -25,6 +25,7 @@ void E16DSTN_ReStraightV2::SetGeomTemp(int target_mid){
 	geom_temp.push_back(new E16ANA_PlanarGeometry(*gp));	
 	}
 	geom_temp[1]->LocalTranslate(TVector3(gmove_pattern.dx, gmove_pattern.dy ,gmove_pattern.dz));
+	geom_temp[1]->LocalRotate(gmove_pattern.radx, gmove_pattern.rady ,gmove_pattern.radz);
 }
 
 void E16DSTN_ReStraightV2::SetGeomMovePattern(const std::string& file, int pid){
@@ -62,14 +63,14 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 	int cnt_lgres_fore[10] = {0};
 	int cnt_lgres_bg[10]   = {0};
 //conditions 
-	double chi_sq_th  = 1000;
+	double chi_sq_th  = 200;
 //initialize Histos
 	InitHistos();
 //Analysis part
 	for(int n=0; n < nevent; n++){
 		if(n > n_end) break;
 		if (n % print_cycle == 0) {
-			printf(" N Analyzed = %d \n", n);
+			printf(" N Analyzed wire = %d \n", n);
 		}
 		if(n < n_start) continue;
 		tree->GetEntry(n);
@@ -157,8 +158,8 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 
 // which wire
 				
-				int which_t;
-				if(init_gx > 0 && init_gz < 0){
+				int which_t = -1;
+					  if(init_gx > 0 && init_gz < 0){
 					which_t = 3;	
 				}
 				else if(init_gx > 0 && init_gz > 0){
@@ -171,7 +172,12 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 					which_t = 0;
 				}
 				
-				double tcent = 0;
+				if(which_t == -1) {
+					continue;
+				}
+				
+				double tcent =  rk_hit_sts_t->at(i);
+				std::cout << "tgt = " << which_t << std::endl;
 			
 // Fill Histos detectors
 			for(int lid = 0; lid < n_layers; lid++){
@@ -192,6 +198,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				h_tot_end_fr[mids[lid]-100][lid]->Fill(xtotend[lid]);
 				h_res_x_wire[which_t][mids[lid]-100][lid]->Fill(resx[lid]);
 				h_res_y_wire[which_t][mids[lid]-100][lid]->Fill(resy[lid]);
+
 				h_cor_resx_fitlx_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
 				h_cor_resx_fitly_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				h_cor_resx_tan_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
@@ -200,22 +207,46 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 					h_cor_resx_fitlx_center_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
 					h_cor_resx_tan_center_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
 				}
-				else if(fabs(fitlys[lid])  >  35) {//edge part Y direction
-					h_cor_resx_fitlx_edge_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
-					h_cor_resx_tan_edge_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
+				else if(fitlys[lid]  >  35) {//edge part Y direction
+					h_cor_resx_fitlx_edge_top_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
+					h_cor_resx_tan_edge_top_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
 				}
+				else if(fitlys[lid]  <  -35) {//edge part Y direction
+					h_cor_resx_fitlx_edge_bot_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
+					h_cor_resx_tan_edge_bot_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
+				}
+	
 				if(fabs(fitlxs[lid])  < 20) {//center part X direction
 					h_cor_resx_fitly_center_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				}
-				else if(fabs(fitlxs[lid])   > 35 ) {//edge part X direction
-					h_cor_resx_fitly_edge_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
+				else if(fitlxs[lid]   > 35 ) {//edge part X direction
+					h_cor_resx_fitly_edge_top_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
+				}
+				else if(fitlxs[lid]   < -35 ) {//edge part X direction
+					h_cor_resx_fitly_edge_bot_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				}
 
 
+				int area , area25;
+				double length = (double)100*lid/3;
+				area = floor((fitlxs[lid] + lid*50)/length) +  floor((fitlys[lid] + lid * 50)/length ) * 3;
+				double length25 = (double)100*lid/5;
+				area25 = floor((fitlxs[lid] + lid*50)/length25) +  floor((fitlys[lid] + lid * 50)/length25 ) * 5;
+				h_cluster_timing_x_area[mids[lid]-100][lid][area25]->Fill(xt4s[lid]);
+
+				h_resx_div[which_t][mids[lid]-100][lid][area]->Fill(resx[lid]);	
+				
+				h_resx_dz_wire_x[which_t][mids[lid]-100][lid][area25]->Fill((xt4s[lid] - tcent), (double)resx[lid]/tans[lid]);
+//				if(xt4s[lid] - tcent < 0){
+//					cout << "timing " << xt4s[lid] - tcent << " length = " << length <<  std::endl;
+//				}
+				h_resx_dz_wire_x[4][mids[lid]-100][lid][area25]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
+	
+				
+
+				
 				h_cor_resy_fitly_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resy[lid]);	
-				h_resx_dz_wire_x[mids[lid]-100][lid]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
-				
-				
+
 //				std::cout << " fitlx  = " << fitlxs[lid] << std::endl;
 //				std::cout << " fitly  = " << fitlys[lid] << std::endl;
 //				std::cout << h_res_x_wire[which_t][mids[lid]-100][lid]->GetName() << std::endl;
