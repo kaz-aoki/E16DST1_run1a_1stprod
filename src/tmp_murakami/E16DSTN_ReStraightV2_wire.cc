@@ -24,8 +24,20 @@ void E16DSTN_ReStraightV2::SetGeomTemp(int target_mid){
 	auto gp = static_cast<const E16ANA_PlanarGeometry*>(geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(target_mid), l-1));
 	geom_temp.push_back(new E16ANA_PlanarGeometry(*gp));	
 	}
-	geom_temp[1]->LocalTranslate(TVector3(gmove_pattern.dx, gmove_pattern.dy ,gmove_pattern.dz));
-	geom_temp[1]->LocalRotate(gmove_pattern.radx, gmove_pattern.rady ,gmove_pattern.radz);
+	for(int l = 1; l < 4; l++){
+		if(l == 1){
+		geom_temp[l]->LocalTranslate(TVector3(gmove_pattern0.dx, gmove_pattern0.dy ,gmove_pattern0.dz));
+		geom_temp[l]->LocalRotate(gmove_pattern0.radx, gmove_pattern0.rady ,gmove_pattern0.radz);
+		}
+		else if(l == 2){
+		geom_temp[l]->LocalTranslate(TVector3(gmove_pattern1.dx, gmove_pattern1.dy ,gmove_pattern1.dz));
+		geom_temp[l]->LocalRotate(gmove_pattern1.radx, gmove_pattern1.rady ,gmove_pattern1.radz);
+		}
+		else if(l == 3){
+		geom_temp[l]->LocalTranslate(TVector3(gmove_pattern2.dx, gmove_pattern2.dy ,gmove_pattern2.dz));
+		geom_temp[l]->LocalRotate(gmove_pattern2.radx, gmove_pattern2.rady ,gmove_pattern2.radz);
+		}
+	}
 }
 
 void E16DSTN_ReStraightV2::SetGeomMovePattern(const std::string& file, int pid){
@@ -37,17 +49,43 @@ void E16DSTN_ReStraightV2::SetGeomMovePattern(const std::string& file, int pid){
 		}	
 		std::istringstream iss(line);
 		GeomMovePattern p;
-		if (iss >> p.pattern_id >> p.dx >> p.dy >> p.dz >> p.radx >> p.rady >> p.radz){
-			if(p.pattern_id == pid){
-				gmove_pattern.pattern_id = p.pattern_id;
-				gmove_pattern.dx     = p.dx;
-				gmove_pattern.dy     = p.dy;
-				gmove_pattern.dz     = p.dz;
-				gmove_pattern.radx   = p.radx;
-				gmove_pattern.rady   = p.rady;
-				gmove_pattern.radz   = p.radz;
+		if (iss >> p.pattern_id >> p.gtrsize >> p.dx >> p.dy >> p.dz >> p.radx >> p.rady >> p.radz){
+			if(p.pattern_id == pid && p.gtrsize == 0){
+				std::cout << "gtrsize " << p.gtrsize <<", " << p.dx << std::endl;
+				gmove_pattern0.pattern_id = p.pattern_id;
+				gmove_pattern0.gtrsize     = p.gtrsize;
+				gmove_pattern0.dx     = p.dx;
+				gmove_pattern0.dy     = p.dy;
+				gmove_pattern0.dz     = p.dz;
+				gmove_pattern0.radx   = p.radx;
+				gmove_pattern0.rady   = p.rady;
+				gmove_pattern0.radz   = p.radz;
 				std::cerr << "Pattern was successfully found " << std::endl;
-				return;
+			}
+			if(p.pattern_id == pid && p.gtrsize == 1){
+				std::cout << "gtrsize " << p.gtrsize <<", " << p.dx << std::endl;
+				gmove_pattern1.pattern_id = p.pattern_id;
+				gmove_pattern1.gtrsize     = p.gtrsize;
+				gmove_pattern1.dx     = p.dx;
+				gmove_pattern1.dy     = p.dy;
+				gmove_pattern1.dz     = p.dz;
+				gmove_pattern1.radx   = p.radx;
+				gmove_pattern1.rady   = p.rady;
+				gmove_pattern1.radz   = p.radz;
+				std::cerr << "Pattern was successfully found " << std::endl;
+			}
+			if(p.pattern_id == pid && p.gtrsize == 2){
+				std::cout << "gtrsize " << p.gtrsize <<", " << p.dx << std::endl;
+				gmove_pattern2.pattern_id = p.pattern_id;
+				gmove_pattern2.gtrsize     = p.gtrsize;
+				gmove_pattern2.dx     = p.dx;
+				gmove_pattern2.dy     = p.dy;
+				gmove_pattern2.dz     = p.dz;
+				gmove_pattern2.radx   = p.radx;
+				gmove_pattern2.rady   = p.rady;
+				gmove_pattern2.radz   = p.radz;
+				std::cerr << "Pattern was successfully found " << std::endl;
+				return; 
 			}
 		}
 	}
@@ -70,7 +108,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 	for(int n=0; n < nevent; n++){
 		if(n > n_end) break;
 		if (n % print_cycle == 0) {
-			printf(" N Analyzed wire = %d \n", n);
+			printf(" N Analyzed = %d \n", n);
 		}
 		if(n < n_start) continue;
 		tree->GetEntry(n);
@@ -177,11 +215,12 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				}
 				
 				double tcent =  rk_hit_sts_t->at(i);
-				std::cout << "tgt = " << which_t << std::endl;
 			
 // Fill Histos detectors
 			for(int lid = 0; lid < n_layers; lid++){
 				if(lid == 0) continue;
+
+
 				h_hitmap[mids[lid]-100][lid]           ->Fill( fitlxs[lid], fitlys[lid]);
 				h_hitmap_x[mids[lid]-100][lid]         ->Fill( fitlxs[lid]);
 				h_hitmap_y[mids[lid]-100][lid]         ->Fill( fitlys[lid]);
@@ -243,6 +282,13 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				h_resx_dz_wire_x[4][mids[lid]-100][lid][area25]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
 	
 				
+				if(lid == 1){
+					double t0 = ft0->Eval(fitlxs[lid], fitlys[lid]);
+					double xt = xt4s[lid] - rk_hit_sts_t->at(i);
+					double dt = xt - t0;
+					double dtx = (0.015 * dt) * tans[lid];
+					h_dtx_tan->Fill(dtx, tans[lid]);
+				}
 
 				
 				h_cor_resy_fitly_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resy[lid]);	

@@ -236,9 +236,11 @@ void E16DSTN_ReStraightV2::Loop(TTree* tree, int print_cycle, int event_start, i
 void E16DSTN_ReStraightV2::DuplicationClusterCutForWire(std::vector<int> &in_ids, std::vector<int> &out_ids){
 	int n_in_ids = in_ids.size();
 	for(int i=0; i < n_in_ids ; i++){
-			std::array<int, 2> cids_sts100 = {
+			std::array<int, n_kill_strips> cids_sts100 = {
 			rk_hit_sts_id->at(i),
-			rk_hit_gtr100_xid->at(i)
+			rk_hit_gtr100_xid->at(i),
+			rk_hit_gtr100_yid->at(i),
+			rk_hit_gtr200_xid->at(i)
 			};
 			if(HasUsedClusterForWire(cids_sts100, used_cluster_ids_wire)){
 //			std::cout << "duplicated !" << std::endl;
@@ -467,34 +469,18 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		double lx, ly;
 		double cogx = rk_hit_gtr100_cogx->at(itk);	//cog
 		double cogy = rk_hit_gtr100_cogy->at(itk);	//cog
-//		s_lx = cogx + gmove_pattern.dx;//shift
-//		s_ly = cogy + gmove_pattern.dy;//shift	
-//		s_lz = 0    + gmove_pattern.dz;//shift
-//		
-//		TRotation Rx, Ry, Rz;
-//		Rx.RotateX(gmove_pattern.radx);	
-//		Ry.RotateY(gmove_pattern.rady);	
-//		Rz.RotateZ(gmove_pattern.radz);	
-//		TRotation R = Rx * Ry * Rz;
-//		TVector3 p = TVector3(s_lx, s_ly, s_lz);	
-//		TVector3 q = R * p;
-//		
-//
-//		lx = q.X();
-//		ly = q.Y();
-//		lz = q.Z();
-		
 		double t0  = ft0->Eval(rk_hit_gtr100_cogx->at(itk), rk_hit_gtr100_cogy->at(itk));	
 //		std::cout << "cog x : y " << rk_hit_gtr100_cogx->at(itk) << ", " <<  rk_hit_gtr100_cogy->at(itk) << std::endl;
 		double xt  = rk_hit_gtr100_xt4->at(itk) - rk_hit_sts_t->at(itk) ;
 		double dt  = xt - t0;
 		double tan_theta = rk_fit_gtr100_mom_x->at(itk) /  rk_fit_gtr100_mom_z->at(itk);
-		double dtx = (-0.015 * dt) * tan_theta; 
+		double dtx = (0.015 * dt) * tan_theta; 
+
 //		cout << " xt = " << xt << ",  dt =  " << dt << ", tan =" << tan_theta << ", dtx = " << dtx << endl;
 		lx = cogx - dtx;
 
-//		return TVector3(lx, cogy, 0);
-		return TVector3(cogx, cogy, 0);
+		return TVector3(lx, cogy, 0);
+//		return TVector3(cogx, cogy, 0);
 	}
 	else if(lid == 2){//gtr200
 		double lx, ly, lz;
@@ -739,10 +725,10 @@ void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 }
 
 
-bool E16DSTN_ReStraightV2::HasUsedClusterForWire(const array<int, 2> &cids,std::array<std::vector<int>, 2> &used_cluster_ids ){
+bool E16DSTN_ReStraightV2::HasUsedClusterForWire(const array<int, n_kill_strips> &cids,std::array<std::vector<int>, n_kill_strips> &used_cluster_ids ){
 // No allow for STS duplication
 // allow for STS is different,gtr is same
-	for(int i = 0; i < 2; i++){
+	for(int i = 0; i < n_kill_strips; i++){
 		for(int j=0; j < used_cluster_ids[i].size() ; j++){// 
 			if(i == 0 ) {//sts
      		if(cids[i] == used_cluster_ids[i][j]){     		
@@ -878,7 +864,7 @@ void E16DSTN_ReStraightV2::InitHistos(){
 			}
 		}	
 
-	for(int t=0; t < n_wires+1; t++){// see .hh for definitions// 1 is for h_resx_dz_wire to integrate all wires
+	for(int t=0; t < n_wires; t++){// see .hh for definitions// 1 is for h_resx_dz_wire to integrate all wires
 		for(int m=0; m <n_modules;m++){
 			for(int l=0; l < n_layers; l++){
 				h_res_x_wire[t][m][l] = new TH1D(Form("h_res_x_wire%d_m%d_l%d", t, m+100, l), Form("h_res_x_wire%d_m%d_l%d", t, m+100, l), 100, -2.5, 2.5);
@@ -901,10 +887,6 @@ void E16DSTN_ReStraightV2::InitHistos(){
 				for(int i=0; i < 9; i++ ){//sensitive area is divided into nine regions.
 					h_resx_div[t][m][l][i] = new TH1D(Form("h_resx_div_wire%d_m%d_l%d_div%d" , t, m+100, l, i), Form("h_resx_div_wire%d_m%d_l%d_div%d", t, m+100, l, i), 50, -2.5, 2.5); 
 				}
-				for(int i=0; i < 25; i++ ){//sensitive area is divided into nine regions.
-					h_resx_dz_wire_x[t][m][l][i] = new TH2D(Form("h_resx_dz_wire_x_wire%d_m%d_l%d_div%d", t,  m+100, l, i), Form("h_resx_dz_wire_x_wire%d_m%d_l%d_div%d",t,  m+100, l, i), 20,  50 , 450, 20, -2, 4);
-
-				}
 
 
 				}
@@ -921,6 +903,19 @@ void E16DSTN_ReStraightV2::InitHistos(){
 		}
 	}
 
+
+	for(int t=0; t < n_wires + 1; t++){// see .hh for definitions// 1 is for h_resx_dz_wire to integrate all wires
+		for(int m=0; m <n_modules;m++){
+			for(int l=0; l < n_layers; l++){
+				for(int i=0; i < 25; i++ ){//sensitive area is divided into nine regions.
+					h_resx_dz_wire_x[t][m][l][i] = new TH2D(Form("h_resx_dz_wire_x_wire%d_m%d_l%d_div%d", t,  m+100, l, i), Form("h_resx_dz_wire_x_wire%d_m%d_l%d_div%d",t,  m+100, l, i), 20,  50 , 450, 20, -2, 4);
+				}
+			}
+		}
+	}
+
+
+
 	for(int m=0; m < n_modules;m++){
 		for(int l=0; l < n_layers; l++){
 				if(l !=0){
@@ -936,6 +931,9 @@ void E16DSTN_ReStraightV2::InitHistos(){
 			}
 		}
 	}
+	h_dtx_tan = new TH2D("h_dtx_tan", "h_dtx_tan", 50, -0.3, 0.3, 50, -1,1);
+
+
 // vertex
    h_vtx_gx = new TH1D("h_vtx_gx", "h_vtx_gx", 80, -20, 20);
    h_vtx_gy = new TH1D("h_vtx_gy", "h_vtx_gy", 80, -20, 20);
@@ -1126,26 +1124,26 @@ void E16DSTN_ReStraightV2::FillPulseInfos(int tid){//ith track
 	std::array<vector<int>*, 4> hits_ids_x         = {sts_hit_id, gtr100x_hit_id, gtr200x_hit_id, gtr300x_hit_id};	
 	std::array<vector<int>*, 4> hit_mids_x         = {sts_hit_mid, gtr100x_hit_mid, gtr200x_hit_mid, gtr300x_hit_mid};	
 	std::array<vector<double>*, 4> hit_timings_x   = {sts_hit_t, gtr100x_hit_t,  gtr200x_hit_t, gtr300x_hit_t};	
-	for(int l=1; l < n_layers; l++){
-		for(int i=0; i < n_hits_x[l]; i++){
-			int hid = hits_ids_x[l]->at(i);	
-			int mid_track = mids[l];
-//			std::cout << "m " << hit_mids_x[l]->at(i) << ", layer " << l << ", hid = "  << hid << std::endl; 
-//			if(mid_track != hit_mids_x[l]->at(i) )	continue;
-			for(int j=0; j< consist_ids[l]->size(); j++){
-				int consist_id = consist_ids[l]->at(j);
-//				std::cout << "consist id  = " << consist_id << std::endl;
-				if(consist_id == hid){
-					h_hit_timing_x[hit_mids_x[l]->at(i) - 100][l]->Fill(hit_timings_x[l]->at(i));
-					int area ;
-					double length = (double)100*l/5;
-					area = floor((fitlxs[l] + l*50)/length) +  floor((fitlys[l] + l * 50)/length ) * 5;
-//					std::cout << "area " << area << std::endl;
-					h_hit_timing_x_area[hit_mids_x[l]->at(i) - 100][l][area]->Fill(hit_timings_x[l]->at(i));
-				}
-			}
-		}
-	}
+//	for(int l=1; l < n_layers; l++){
+//		for(int i=0; i < n_hits_x[l]; i++){
+//			int hid = hits_ids_x[l]->at(i);	
+//			int mid_track = mids[l];
+////			std::cout << "m " << hit_mids_x[l]->at(i) << ", layer " << l << ", hid = "  << hid << std::endl; 
+////			if(mid_track != hit_mids_x[l]->at(i) )	continue;
+//			for(int j=0; j< consist_ids[l]->size(); j++){
+//				int consist_id = consist_ids[l]->at(j);
+////				std::cout << "consist id  = " << consist_id << std::endl;
+//				if(consist_id == hid){
+//					h_hit_timing_x[hit_mids_x[l]->at(i) - 100][l]->Fill(hit_timings_x[l]->at(i));
+//					int area ;
+//					double length = (double)100*l/5;
+//					area = floor((fitlxs[l] + l*50)/length) +  floor((fitlys[l] + l * 50)/length ) * 5;
+////					std::cout << "area " << area << std::endl;
+//					h_hit_timing_x_area[hit_mids_x[l]->at(i) - 100][l][area]->Fill(hit_timings_x[l]->at(i));
+//				}
+//			}
+//		}
+//	}
 }
 
 void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_start, int n_end, int print_cycle, const int residual_layer,  TString pdf_name){	
@@ -1341,6 +1339,7 @@ void E16DSTN_ReStraightV2::DrawHist(TTree* tree, int n_start, int n_end, int pri
 ////										h_slopevel[mid-100][l][ith_div]->Fill((xt4s[l] - 250) * tans[l], resx[l] ); 
 				h_tot_end_fr[mids[lid]-100][lid]->Fill(xtotend[lid]);
 				}
+
 			FillPulseInfos(i);
 		}//track loop
 //

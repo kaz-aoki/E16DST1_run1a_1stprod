@@ -40,47 +40,66 @@
 //using namespace E16DSTN_StraightParameter;
 using namespace E16ANA_StraightTrackParameter;
 
-//struct GeomMovePattern {
-//	int pattern_id = -100;
-//	double dx = 0;	
-//	double dy = 0;	
-//	double dz = 0;	
-//	double radx = 0;
-//	double rady = 0;
-//	double radz = 0;
-//};
+Double_t customAsymmetricFunc(Double_t *x, Double_t *par) {
+
+     Double_t xx = x[0];
+    Double_t yy = x[1];
+    Double_t A = par[0];
+    Double_t A2 = par[1];
+    Double_t x0 = par[2];
+    Double_t x1 = par[3];
+    Double_t y0 = par[4];
+    Double_t sigmaX = par[5];
+    Double_t sigmaX2 = par[6];
+    Double_t sigmaY = par[7];
+    
+    Double_t gaussPart = A * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+    Double_t gaussPart2 = A2 * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+
+    if (xx < x0) {
+        return gaussPart * exp(-0.5 * pow((xx - x0) / sigmaX2, 2));
+    } else if (xx > x1) {
+        return gaussPart2 * exp(-0.5 * pow((xx - x1) / sigmaX, 2));
+    } else {
+        // x0からx1の間を線形補間
+    Double_t slope = (gaussPart2 - gaussPart) / (x1 - x0);
+            return gaussPart + slope * (xx - x0);
+                }
+
+//    Double_t xx = x[0];
+//    Double_t yy = x[1];
+//    Double_t A = par[0];
+//    Double_t A2 = par[1];
+//    Double_t x0 = par[2];
+//    Double_t x1 = par[3];
+//    Double_t y0 = par[4];
+//    Double_t sigmaX = par[5];
+//    Double_t sigmaX2 = par[6];
+//    Double_t sigmaY = par[7];
+////    Double_t lambda = par[8];
+//    
+//    Double_t gaussPart  = A *  exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+//    Double_t gaussPart2 = A2 * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+//    if (xx < x0 ) {
+//        return gaussPart * exp(-0.5 * pow((xx - x0) / sigmaX2, 2));
+//    } 
+//	 else if (xx > x1){
+//        return gaussPart2 * exp(-0.5 * pow((xx - x1) / sigmaX, 2));
+//	}	
+//	else {
+//        // 指数関数部分がガウス部分に連続するようにスケーリング
+//               Double_t slope = (gaussPart2 - gaussPart) / (x1 - x0);
+//        return gaussPart + slope * (xx - x0);
 //
-//
-//void SetGeomMovePattern(GeomMovePattern &gmove_pattern, const std::string& file, int pid){
-//	std::ifstream infile(file);
-//	std::string line;
-//	while(std::getline(infile, line)) {
-//		if(line.empty() || line[0] == '#' ){
-//			continue;
-//		}	
-//		std::istringstream iss(line);
-//		GeomMovePattern p;
-//		if (iss >> p.pattern_id >> p.dx >> p.dy >> p.dz >> p.radx >> p.rady >> p.radz){
-//			if(p.pattern_id == pid){
-//				gmove_pattern.pattern_id = p.pattern_id;
-//				gmove_pattern.dx     = p.dx;
-//				gmove_pattern.dy     = p.dy;
-//				gmove_pattern.dz     = p.dz;
-//				gmove_pattern.radx   = p.radx;
-//				gmove_pattern.rady   = p.rady;
-//				gmove_pattern.radz   = p.radz;
-//				std::cerr << "Pattern was successfully found " << std::endl;
-//				return;
-//			}
-//		}
-//	}
-//	std::cerr << "Pattern not found " << std::endl;
-//	exit(0);
 //}
+}
+
+
+
 
 int main (int argc, char** argv) {
-	if(argc != 7){
-		std::cout << "./bin/~~ [input.root] [output.root] [runID] [event_start] [event_end] [GeomMovePatternID]" << std::endl;
+	if(argc != 8){
+		std::cout << "./bin/~~ [input.root] [output.root] [runID] [event_start] [event_end] [GeomMovePatternID] [t0_params]" << std::endl;
 		return 0;	
 	}
 	std::string in_file  = argv[1];
@@ -89,7 +108,8 @@ int main (int argc, char** argv) {
 	int run_id           = stoi(argv[3]);
 	int event_start      = stoi(argv[4]);
 	int event_end        = stoi(argv[5]);
-	int geom_move_pid   = stoi(argv[6]); // pattern id
+	int geom_move_pid    = stoi(argv[6]); // pattern id
+	int t0_param_pid     = stoi(argv[7]);
 	TFile *fin           = new TFile(in_file.c_str());
 	TTree *tree          = (TTree*)fin->Get("tree");
 	int nevent           = tree->GetEntries();
@@ -176,21 +196,58 @@ int main (int argc, char** argv) {
 	E16ANA_StraightMultiTrack *pair_fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 2);
 	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file_temp.c_str(), geom,  fitter, pair_fitter, targets_pos);
 	
+	
+
 	re->SetGeomMovePattern("/home/had/mtomoki/E16/work_dst1/install/GeomMovePatterns.txt", geom_move_pid);
 	re->SetGeomTemp(target_mid);
 
 //tracking again
 	
-   TF2 *ft0 = new TF2("ft0","[0]*TMath::Gaus(x,[1],[2])*TMath::Gaus(y,[3],[4])+250",-50,50,-50,50);
-	ft0->SetParameters(100, 0, 30, 0, 30);
-	re->SetT0Func(ft0);
+
+
+//   TF2 *ft0 = new TF2("ft0","[0]*TMath::Gaus(x,[1],[2])*TMath::Gaus(y,[3],[4])+250",-50,50,-50,50);
+//	ft0->SetParameters(100, 0, 30, 0, 30);
+
+ //   TF2 *ft0 = new TF2("fitFunc", customAsymmetricFunc, -50, 50, -50, 50, 8);
+	
+    TF2 *ft0 = new TF2("fitFunc", customAsymmetricFunc, -50, 50, -50, 50, 10);
+//    fitFunc->SetParameters(300, 280, -25, 25, -30, 50, 50, 100, 0.0001); // パラメータの初期値
+    ft0->SetParameters(300, 279, -25, 29, 13, 25 , 22, 120); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
+//	 ft0->SetParLimits(2, -40, -35);
+//	 ft0->SetParLimits(3, 30, 40);
+//	 ft0->SetParLimits(4, -0.05, -0.04);
+//	 ft0->SetParLimits(5, -0.5, -0.4);
+//	 ft0->SetParLimits(9, -0.1, 0.1);
+//	 ft0->SetParLimits(10, -0.1, 0.1);
+
+	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
+	std::ifstream infile(t0_file);
+	std::string line;
+//	int p_id;
+//	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
+//	while (std::getline(infile, line)){
+//		if(line.empty() || line[0] == '#'){
+//			continue;
+//		}
+//		std::istringstream iss(line);
+//		if (iss >> p_id >> amp_x0 >> amp_x1 >> x0 >> x1 >> y0 >> sigma_x0 >> sigma_x1 >> sigma_y){
+//			if(p_id == t0_param_pid){
+////    			ft0->SetParameters(300, 280, -30, 28, 8.4, 32, 10, 116);
+//    			ft0->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
+//			}
+//		}
+//	}
+ 	re->SetT0Func(ft0);
+
+
 
    re->ReTrackingAndDuplicationCut(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag, target_mid);
 	TTree *outtree = re->TreeOut();
+	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
+	re_draw->SetT0Func(ft0);
 	fitter->Clear();
 	pair_fitter->Clear();
 
-	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
 	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
 //	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom, fitter, pair_fitter, targets_pos);
 //	re_draw->DrawHistWire(tree, event_start, event_end, print_cycle, -1, "temp.pdf");

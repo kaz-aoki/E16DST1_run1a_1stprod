@@ -150,6 +150,7 @@ public :
 private:
 	struct GeomMovePattern {
 		int pattern_id = -100;
+		int gtrsize = -1 ;
 		double dx   = 0;
 		double dy   = 0;
 		double dz   = 0;
@@ -157,17 +158,20 @@ private:
 		double rady = 0;
 		double radz = 0;
 	};	
-	
-	GeomMovePattern gmove_pattern;
+//	std::array<GeomMovePattern, 3> gmove_pattern;//gtrsize
+	GeomMovePattern gmove_pattern0;//gtrsize
+	GeomMovePattern gmove_pattern1;//gtrsize
+	GeomMovePattern gmove_pattern2;//gtrsize
 
 	TF2 *ft0;
 
+	static const int n_kill_strips = 4;
 	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
 	#ifdef WIRE_STS_TRACK
-   std::array<std::vector<int>, 2> used_cluster_ids_wire;
+   std::array<std::vector<int>, n_kill_strips> used_cluster_ids_wire;
 		#else
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
 	#endif
@@ -318,6 +322,9 @@ private:
 	TH2D* h_cor_resx_fitly_edge_bot_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resx_tan_edge_top_wire[n_wires][n_modules][n_layers];
 	TH2D* h_cor_resx_tan_edge_bot_wire[n_wires][n_modules][n_layers];
+
+	TH2D* h_dtx_tan;
+
 
 //removed residual
 
@@ -2575,7 +2582,7 @@ public:
  
 	TFile *FileOut() {return fout;}
 	TTree *TreeOut() {return outtree;}
-   bool HasUsedClusterForWire(const std::array<int, 2>& cids, std::array<std::vector<int>, 2> &used_cluster_ids_wire);
+   bool HasUsedClusterForWire(const std::array<int, n_kill_strips>& cids, std::array<std::vector<int>, n_kill_strips> &used_cluster_ids_wire);
 //   bool HasUsedCluster(const std::array<int, 1>& cids, std::array<std::vector<int>, 1> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);

@@ -113,7 +113,7 @@ int main (int argc, char** argv) {
    	re->Loop(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag );
 	}
 	else {
-   	re->ReTracking(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag );
+//   	re->ReTracking(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag );
 		}
 	re->FileOut()->Write();
 	
