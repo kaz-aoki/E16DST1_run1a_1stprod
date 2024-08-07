@@ -64,14 +64,23 @@ void E16ANA_STSGlobalGeometry::Prepare(){
      (+26.89) /* *deg2rad */,
      0,
      false);
-
+#if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor107
     (107,
      r_inner,
      (+26.89 + 23.66) /* *deg2rad */,
      0,
      true);
-
+#endif
+#if 1 // ymorino value for 107 (2024-08-07)
+  E16ANA_STSGlobalSensorGeom sensor107
+    (107,
+     r_inner+0.1,
+     //(+26.89 + 23.66 -0.0729) /* *deg2rad */,
+     (+26.89 + 23.66 -0.1219) /* *deg2rad */,
+     0,
+     true);
+#endif
   E16ANA_STSGlobalSensorGeom sensor108
     (108,
      r_outer,
