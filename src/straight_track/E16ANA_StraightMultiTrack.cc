@@ -392,33 +392,45 @@ double E16ANA_StraightMultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bo
    return chisq;
 }
 
-double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
-//  double dx = (vertex_fit.X()-20)/0.4;
-//  double dx = (vertex_fit.X()+0.8)/3;//what is this ? 
-//double dx = (vertex_fit.X())/1.5;
-//  double dy = (vertex_fit.Y()+1)/2;
-//  double dy = (vertex_fit.Y()+0.2)/2;
-    
-    std::vector<double> t_distance;
-    t_distance.clear();
-    for(int i=0; i < targets_pos.size(); i++){//wire or three targets 
-      t_distance.push_back (   pow(vertex_fit.X() - targets_pos[i].X(), 2) 
-                             + pow(vertex_fit.Y() - targets_pos[i].Y(), 2) ); 
-//                             + pow(vertex_fit.Z() - targets_pos[i].Z(), 2) );
-    }
-    auto min_tgt = std::min_element(std::begin(t_distance), std::end(t_distance));
-    int  min_i   = std::distance(std::begin(t_distance), min_tgt) ;
+//double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
+////  double dx = (vertex_fit.X()-20)/0.4;
+////  double dx = (vertex_fit.X()+0.8)/3;//what is this ? 
+////double dx = (vertex_fit.X())/1.5;
+////  double dy = (vertex_fit.Y()+1)/2;
+////  double dy = (vertex_fit.Y()+0.2)/2;
+//    
+//    std::vector<double> t_distance;
+//    t_distance.clear();
+//    for(int i=0; i < targets_pos.size(); i++){//wire or three targets 
+//      t_distance.push_back (   pow(vertex_fit.X() - targets_pos[i].X(), 2) 
+//                             + pow(vertex_fit.Y() - targets_pos[i].Y(), 2) ); 
+////                             + pow(vertex_fit.Z() - targets_pos[i].Z(), 2) );
+//    }
+//    auto min_tgt = std::min_element(std::begin(t_distance), std::end(t_distance));
+//    int  min_i   = std::distance(std::begin(t_distance), min_tgt) ;
+//
+////	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/0.3;
+////	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/2.0;
+//	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/vertex_sigma.X();
+//	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/vertex_sigma.Y();
+//////	 double dz = ((vertex_fit.Z()) - targets_pos[min_i].Z() )/vertex_sigma.Z();
+//////    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
+//////    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
+//////    if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
+//////    return dx*dx+dy*dy+dz*dz;
+//    return dx*dx+dy*dy;
+//}
 
+double E16ANA_StraightMultiTrack::CalcVertexChisquare(){
 //	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/0.3;
 //	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/2.0;
-	 double dx = ((vertex_fit.X()) - targets_pos[min_i].X() )/vertex_sigma.X();
-	 double dy = ((vertex_fit.Y()) - targets_pos[min_i].Y() )/vertex_sigma.Y();
-////	 double dz = ((vertex_fit.Z()) - targets_pos[min_i].Z() )/vertex_sigma.Z();
-////    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
-////    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
-////    if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
-////    return dx*dx+dy*dy+dz*dz;
-    return dx*dx+dy*dy;
+	 double dx = ((vertex_fit.X()) - vertex_init.X() )/vertex_sigma.X();
+	 double dy = ((vertex_fit.Y()) - vertex_init.Y() )/vertex_sigma.Y();
+	 double dz = ((vertex_fit.Z()) - vertex_init.Z() )/vertex_sigma.Z();
+    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
+    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
+    if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
+    return dx*dx+dy*dy+dz*dz;
 }
 
 double E16ANA_StraightMultiTrack::RungeKuttaTracking(int track_id, const TVector3 &vertex, const TVector3 &momentum, double charge){

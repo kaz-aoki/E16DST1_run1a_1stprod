@@ -20,6 +20,7 @@ class E16ANA_STSGlobalSensorGeom{
   int mod = 0;
   double radius = 0;
   double angle = 0;
+  double dx = 0;
   double dy = 0;
   bool bSpin = false;
   E16ANA_STSGlobalSensorGeom() {;}

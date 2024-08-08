@@ -252,14 +252,14 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
       single_track->AddHit(tid, c.LayerOrder(), geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
 		#endif
 		
-//cout << l << " " << c.LocalPos().X() << " " << c.LocalPos().Y() << " " << c.LocalPos().Z() << endl;
-//auto gpos = c.GlobalPos();
-//cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
+cout <<"Local: m= " << c.ModuleID() << ", " <<  l << " " << c.LocalPos().X() << " " << c.LocalPos().Y() << " " << c.LocalPos().Z() << endl;
+auto gpos = c.GlobalPos();
+cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     } else {
       single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPosT(), sigma[l]);
-//cout << l << " " << c.LocalPosT().X() << " " << c.LocalPosT().Y() << " " << c.LocalPosT().Z() << endl;
-//auto gpos = c.GlobalPosT();
-//cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
+cout << l << " " << c.LocalPosT().X() << " " << c.LocalPosT().Y() << " " << c.LocalPosT().Z() << endl;
+auto gpos = c.GlobalPosT();
+cout << "Global: " << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     }
   }
 #ifdef DEBUG_230209
@@ -874,9 +874,15 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set) {
 int E16ANA_TrackCandidates::ModuleSetType(const OneAxisClusterSet& cluster_set) {
   int t = 0;
 #ifndef NoExist_SSD
+  #ifndef UseSTS
   if (cluster_set.ssd_cluster->ModuleId() % 2 == 1) {
     t += 1;
   }
+  #else
+  if (cluster_set.sts_cluster->ModuleId() % 2 == 1) {
+    t += 1;
+  }
+ #endif
 #endif
   if (cluster_set.gtr_clusters[0]->ModuleId() % 2 == 0) {
     t += 2;
@@ -1224,6 +1230,19 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
   cluster_sets[0].reserve(kNumReserveTracks[0]);
   cluster_sets[1].reserve(kNumReserveTracks[1]);
   auto cluster_set = new OneAxisClusterSet();
+
+  
+  for (const auto& sts_module_id : E16ANA_TrackConstant::kModuleIDs) {
+    if (sts_module_id == 105) {
+      continue;
+    }
+    auto& sts_cluster_ptrs = sts.ClusterPtrs(sts_module_id, 0, 0);
+    std::cout << "sts module id  " << sts_module_id << 
+			 " sts clsuters size " << sts_cluster_ptrs.size() << std::endl;
+          for (const auto& sts_cluster : sts_cluster_ptrs) {
+          std::cout << "sts local pos " <<   sts_cluster->LocalPos().x() << std::endl;;
+}}
+
 
 #ifndef NoExist_SSD
   for (const auto& sts_module_id : E16ANA_TrackConstant::kModuleIDs) {
@@ -1623,6 +1642,7 @@ E16INFO("number of y candidates: %d", n_y_cands);
 #endif// No Exist SSD
       auto init_mom = TVector3(x_cand.mom_axis.X(), CalcRoughYMomentum(x_cand.mom, y_cand.coefs[1]), x_cand.mom_axis.Z());
       auto init_pos = BackInitPos(pre_init_pos, init_mom);
+      std::cout << "Init pos : " << init_pos.x() << ", " << init_pos.y() << ", " << init_pos.z() << std::endl;
       tmp_cand.SetInitX(init_pos.X());
       tmp_cand.SetInitY(init_pos.Y());
       tmp_cand.SetInitZ(init_pos.Z());

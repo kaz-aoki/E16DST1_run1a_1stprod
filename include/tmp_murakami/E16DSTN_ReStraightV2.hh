@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TF2.h>
 #include <TFile.h>
 
 // Header file for the classes stored in the TTree if any.
@@ -147,10 +148,30 @@ public :
 
 
 private:
+	struct GeomMovePattern {
+		int pattern_id = -100;
+		double dx   = 0;
+		double dy   = 0;
+		double dz   = 0;
+		double radx = 0;//radian
+		double rady = 0;
+		double radz = 0;
+	};	
+	
+	GeomMovePattern gmove_pattern;
+
+	TF2 *ft0;
+
+	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
+	#ifdef WIRE_STS_TRACK
+   std::array<std::vector<int>, 2> used_cluster_ids_wire;
+		#else
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
+	#endif
+
 #else
 	#ifndef NoExist_SSD
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> used_cluster_ids;
@@ -159,6 +180,7 @@ private:
 	#endif
 #endif
    E16ANA_GeometryV2 *geometry ;
+	std::vector<E16ANA_PlanarGeometry*> geom_temp;
    bool isWire;
    int n_targets;
 	bool vertex_xy_fix_flag;
@@ -176,7 +198,23 @@ private:
    static const int n_modules = 10;
 	static const int n_layers  = 4;
 	static const int n_div = 8;
+	static const int n_wires = 4;
+	static constexpr double  kHistoTanMin= -0.3;
+	static constexpr double  kHistoTanMax= 0.3;
+
+//wire definition
+//              ^
+//              |
+//  w2----------|----------w1   
+//              |             
+//              |             
+//   <----------|-----------  x axis
+//              |             
+//              |             
+//  w3----------|----------w0
+//  				beam   
 // -- arrays for branch info -- // 
+
 	std::array<int, 4> mids;
 	std::array<int, 4> mids_tid0;
 	std::array<int, 4> mids_tid1;
@@ -208,11 +246,6 @@ private:
    TH1D* h_n_spillid;
    TH1D* h_chi2_mod[n_modules];
    TH1D* h_lg_t_mod[n_modules];
-   TH1D* h_tgt_proj_z_raw[n_modules];
-   TH1D* h_tgt_proj_z_cut[n_modules];
-   TH1D* h_tgt_proj_z_chi2cut[n_modules];
-   TH1D* h_tgt_proj_x[n_modules];
-   TH1D* h_tgt_proj_y[n_modules];
    TH2D* h_hitmap[n_modules][n_layers];
    TH1D* h_hitmap_x[n_modules][n_layers];
    TH1D* h_hitmap_y[n_modules][n_layers];
@@ -224,6 +257,8 @@ private:
    TH1D* h_tan_theta[n_modules][n_layers];
 //   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
    TH1D* h_hit_timing_x[n_modules][n_layers];
+   TH1D* h_hit_timing_x_area[n_modules][n_layers][25];
+   TH1D* h_cluster_timing_x_area[n_modules][n_layers][25];
 	TH1D* h_cluster_t_diff[n_modules][n_layers];
 	TH2D* h_cluster_t_diff_2d[n_modules][n_layers];
    TH1D* h_cluster_timing_x[n_modules][n_layers];
@@ -235,8 +270,7 @@ private:
 	TH1D* h_cluster_adc_xdependence[n_modules][n_layers][n_div];
 	TH1D* h_cluster_adc_ydependence[n_modules][n_layers][n_div];
 	TH2D* h_init_pos;
-	TH2D* h_tgt_pos_mod_raw[n_modules];
-	TH2D* h_tgt_pos_mod_cut[n_modules];
+	TH1D* h_init_posz_mod[n_modules];
 	TH2D* h_cor_dz_time[n_modules][n_layers];
 	TH2D* h_cor_dz_time_t0cor[n_modules][n_layers];
 	TH2D* h_cor_res_fitlx[n_modules][n_layers];
@@ -258,6 +292,32 @@ private:
 
 	TH1D* h_bak_res_vtx_trk_lg_x[n_modules];
 	TH1D* h_bak_res_vtx_trk_lg_y[n_modules];
+
+//wire
+   TH1D* h_res_x_wire[n_wires][n_modules][n_layers];
+   TH1D* h_res_y_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resy_fitly_wire[n_wires][n_modules][n_layers];
+
+	TH1D* h_resx_div[n_wires][n_modules][n_layers][9];
+	
+	TH2D* h_cor_resx_tan_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resy_tan_wire[n_wires][n_modules][n_layers];
+	
+	TH2D* h_resx_dz_wire_x[n_wires+1][n_modules][n_layers][25];
+//	TH2D* h_resx_dz_wire_xdiv[n_modules][n_layers][n_div];
+//	TH2D* h_resx_dz_wire_ydiv[n_modules][n_layers][n_div];
+
+	TH2D* h_cor_resx_fitlx_center_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_center_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_center_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_edge_top_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_edge_top_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitlx_edge_bot_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_fitly_edge_bot_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_edge_top_wire[n_wires][n_modules][n_layers];
+	TH2D* h_cor_resx_tan_edge_bot_wire[n_wires][n_modules][n_layers];
 
 //removed residual
 
@@ -2501,18 +2561,22 @@ public:
 	std::vector<std::vector<double>>	out_gtr300y_cluster_consist_hit_id;
 
 
-   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
+   E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom,  E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> &tgt_pos);
    virtual ~E16DSTN_ReStraightV2();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree, const char *out_file);
    virtual void     Loop(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
-   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+//   virtual void     ReTracking(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z);
+   virtual void     ReTrackingAndDuplicationCut(TTree* tree, int print, int n_start, int n_end, bool xy, bool py, bool z, int mid);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
  
 	TFile *FileOut() {return fout;}
+	TTree *TreeOut() {return outtree;}
+   bool HasUsedClusterForWire(const std::array<int, 2>& cids, std::array<std::vector<int>, 2> &used_cluster_ids_wire);
+//   bool HasUsedCluster(const std::array<int, 1>& cids, std::array<std::vector<int>, 1> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 1>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-1> &used_cluster_ids);
@@ -2521,6 +2585,7 @@ public:
 	void ChiSqSort(std::vector<int> &ids);
 	void SelectTracks(std::vector<int> &ids, std::vector<int> &outids);
 	void DuplicationClusterCut(std::vector<int> &ids, std::vector<int> &outids);
+	void DuplicationClusterCutForWire(std::vector<int> &ids, std::vector<int> &outids);
 
 	bool IsGoodTrack(const int id);
 	bool IsRealTrack(const int id);
@@ -2534,6 +2599,7 @@ public:
 	void SelectTrackPairs();
 
    void DrawHist( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
+   void DrawHistWire( TTree* tree, int n_s, int n_e, int print_cycle, const int residual_layer,  TString pdf_name);
 	void FillPulseInfos(int i);
 	void InitHistos();
 	void FillVectors(int i);
@@ -2542,7 +2608,11 @@ public:
 	void AddTrackHit(int itk, E16ANA_StraightMultiTrack* f);
 	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
 	TVector3 CorrectedLocalPos(int itk, int mid, int l);
+	void SetGeomMovePattern(const std::string &s, int id);
+	void SetT0Func(TF2* _ft0) {ft0 = _ft0;}
+
 //	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
+	void SetGeomTemp(int mid);
 };
 
 #endif

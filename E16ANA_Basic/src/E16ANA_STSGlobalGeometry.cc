@@ -41,27 +41,46 @@ void E16ANA_STSGlobalGeometry::Prepare(){
      (-26.89 - 23.66*1) /* *deg2rad */,
      0,
      true);
-
+#if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor104
     (104,
      r_outer,
      (-26.89) /* *deg2rad */,
      0,
      false);
+#endif
+#if 1 // nakai value for 104 (2024-08-07)
+  E16ANA_STSGlobalSensorGeom sensor104
+    (104,
+     r_outer + 0.32161,
+     (-26.89) + 0.321257 /* *deg2rad */,
+     0,
+     false);
+  sensor104.dx = -0.538604;
+#endif
   E16ANA_STSGlobalSensorGeom sensor106
     (106,
      r_outer,
      (+26.89) /* *deg2rad */,
      0,
      false);
-
+#if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor107
     (107,
      r_inner,
      (+26.89 + 23.66) /* *deg2rad */,
      0,
      true);
-
+#endif
+#if 1 // ymorino value for 107 (2024-08-07)
+  E16ANA_STSGlobalSensorGeom sensor107
+    (107,
+     r_inner+0.1,
+     //(+26.89 + 23.66 -0.0729) /* *deg2rad */,
+     (+26.89 + 23.66 -0.1219) /* *deg2rad */,
+     0,
+     true);
+#endif
   E16ANA_STSGlobalSensorGeom sensor108
     (108,
      r_outer,
@@ -101,7 +120,7 @@ void E16ANA_STSGlobalGeometry::Prepare(){
 void E16ANA_STSGlobalGeometry::PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor){
   TGeoRotation spin;
   if (sensor.bSpin) spin.RotateY(180.);
-  TGeoTranslation trans(0,0,sensor.radius);
+  TGeoTranslation trans(sensor.dx,0,sensor.radius);
   TGeoRotation rot;
   rot.RotateY(sensor.angle);
 

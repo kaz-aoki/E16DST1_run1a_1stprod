@@ -26,7 +26,6 @@ int main (int argc, char** argv) {
    infile.close();
    std::cout << "Number of files in TChain: " << chain->GetListOfFiles()->GetEntries() << std::endl;
 
-
 //   TFile *fin = new TFile(in_file.c_str());
 //   TTree *tree = (TTree*)fin->Get("tree");
 
@@ -37,7 +36,8 @@ int main (int argc, char** argv) {
 	E16DSTN_ReStraightV2 *rt = new E16DSTN_ReStraightV2(chain, out_file.c_str(), nullptr, nullptr, nullptr, dummy);//initialize
 	int print_cycle      = 1000;
    
-	rt->DrawHist(chain, start_event, end_event,  print_cycle, residual_layer, pdf_name);
+//	rt->DrawHist(chain, start_event, end_event,  print_cycle, residual_layer, pdf_name);
+	rt->DrawHistWire(chain, start_event, end_event,  print_cycle, residual_layer, pdf_name);
 	
 	return 0;	
 }
