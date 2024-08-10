@@ -163,15 +163,19 @@ private:
 	GeomMovePattern gmove_pattern1;//gtrsize
 	GeomMovePattern gmove_pattern2;//gtrsize
 
-	TF2 *ft0;
+	TF2 *ft0_gtr100;
+	TF2 *ft0_gtr200;
+	TF2 *ft0_gtr300;
 
-	static const int n_kill_strips = 4;
+//	static const int n_kill_strips = 4;//gtr200 calib //sts x, 100 xy, 200x
+	static const int n_kill_strips = 2;//gtr100 calib, or gtr200 calib wo gtr100
 	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
 #ifdef REMOVE_NOLAYER
 	#ifdef WIRE_STS_TRACK
    std::array<std::vector<int>, n_kill_strips> used_cluster_ids_wire;
+	std::vector<std::array<int, n_kill_strips>> used_cid_sets;
 		#else
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
 	#endif
@@ -2582,7 +2586,7 @@ public:
  
 	TFile *FileOut() {return fout;}
 	TTree *TreeOut() {return outtree;}
-   bool HasUsedClusterForWire(const std::array<int, n_kill_strips>& cids, std::array<std::vector<int>, n_kill_strips> &used_cluster_ids_wire);
+   bool HasUsedClusterForWire(const std::array<int, n_kill_strips>& cids, std::vector<std::array<int, n_kill_strips>> &uster_ids_wire);
 //   bool HasUsedCluster(const std::array<int, 1>& cids, std::array<std::vector<int>, 1> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
@@ -2590,9 +2594,12 @@ public:
    void ClearUsedClusterIDs();
    void AddRecord(TTree* intree, std::vector<int> &alive_ids);
 	void ChiSqSort(std::vector<int> &ids);
+	void ChiSqSort(std::vector<int> &ind_ids, std::vector<int> &ids);
 	void SelectTracks(std::vector<int> &ids, std::vector<int> &outids);
 	void DuplicationClusterCut(std::vector<int> &ids, std::vector<int> &outids);
+#ifdef WIRE_STS_TRACK
 	void DuplicationClusterCutForWire(std::vector<int> &ids, std::vector<int> &outids);
+#endif
 
 	bool IsGoodTrack(const int id);
 	bool IsRealTrack(const int id);
@@ -2613,10 +2620,12 @@ public:
 	void CalculateRemovedGTRMinResidual();
 	double Fit(int itk, E16ANA_StraightMultiTrack* fitter, bool vertex_xy_fix_flag,  bool py_fix_flag, bool vertex_z_fix_flag);
 	void AddTrackHit(int itk, E16ANA_StraightMultiTrack* f);
-	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f);
+	void UpdateFitResult(int i, E16ANA_StraightMultiTrack *f, double chi);
 	TVector3 CorrectedLocalPos(int itk, int mid, int l);
 	void SetGeomMovePattern(const std::string &s, int id);
-	void SetT0Func(TF2* _ft0) {ft0 = _ft0;}
+	void SetT0Func_GTR100(TF2* _ft0) {ft0_gtr100 = _ft0;}
+	void SetT0Func_GTR200(TF2* _ft0) {ft0_gtr200 = _ft0;}
+	void SetT0Func_GTR300(TF2* _ft0) {ft0_gtr300 = _ft0;}
 
 //	void CalculateLGAllHitsResidual(int i, double &dx, double &dy, double &pre_dx, double &pre_dy);
 	void SetGeomTemp(int mid);
@@ -2686,6 +2695,7 @@ void E16DSTN_ReStraightV2::Init(TTree *tree, const char* out_file)
 
 	fout    = new TFile (out_file, "recreate");
 	outtree = new TTree("tree", "tree");
+//	outtree->SetDirectory(0);//forbid saving tree automatically
 
 
    // Set object pointer
@@ -5439,6 +5449,12 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
  	   out_rk_fit_sts_mom_gz[i] =  rk_fit_sts_mom_gz->at(tid);
 #endif
 
+//		double momgx = rk_fit_gtr200_mom_gx->at(tid);
+//		if(fabs(momgx) < 0.001){
+//			std::cout << "track id = " << tid << std::endl;
+//			std::cout << "momgx " << momgx << std::endl;
+//		}
+	
       out_rk_fit_init_mom_gx[i]   = rk_fit_init_mom_gx->at(tid);
       out_rk_fit_init_mom_gy[i]   = rk_fit_init_mom_gy->at(tid);
       out_rk_fit_init_mom_gz[i]   = rk_fit_init_mom_gz->at(tid);
@@ -5572,7 +5588,7 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
    //out_rk_hit_gtr300_yt4[i] = rk_hit_gtr300_yt4->at(i);
    //
    //
- 
+	} 
 
 	for(int i=0; i < n_pairs; i++){
 		auto& pair = track_pairs[i];
@@ -5682,7 +5698,6 @@ void E16DSTN_ReStraightV2::AddRecord(TTree *intree,  std::vector<int> &alive_ids
        out_rk_pair_plus_gtr300_res_refit_x[i] = press_refit[3].X();
        out_rk_pair_plus_gtr300_res_refit_y[i] = press_refit[3].Y();
        out_rk_pair_plus_gtr300_res_refit_z[i] = press_refit[3].Z();
-		}
 	}
 	outtree->Fill();	
 }//AddReco

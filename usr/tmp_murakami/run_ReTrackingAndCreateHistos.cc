@@ -113,12 +113,12 @@ int main (int argc, char** argv) {
 	TFile *fin           = new TFile(in_file.c_str());
 	TTree *tree          = (TTree*)fin->Get("tree");
 	int nevent           = tree->GetEntries();
-	int print_cycle      = 20000;
+	int print_cycle      = 2000;
 	bool vertex_xy_fix_flag = false;
    bool py_fix_flag        = false;
 	bool vetex_z_fix_flag   = false;
 
-	int target_mid = 106;
+	int target_mid = 104;
 
 	auto& calib = E16ANA_CalibDBManager::Instance();
 	calib.SetRunID(run_id);
@@ -194,7 +194,8 @@ int main (int argc, char** argv) {
 
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 1);
 	E16ANA_StraightMultiTrack *pair_fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 2);
-	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file_temp.c_str(), geom,  fitter, pair_fitter, targets_pos);
+//	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file_temp.c_str(), geom,  fitter, pair_fitter, targets_pos);
+	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
 	
 	
 
@@ -202,27 +203,13 @@ int main (int argc, char** argv) {
 	re->SetGeomTemp(target_mid);
 
 //tracking again
-	
-
-
-//   TF2 *ft0 = new TF2("ft0","[0]*TMath::Gaus(x,[1],[2])*TMath::Gaus(y,[3],[4])+250",-50,50,-50,50);
-//	ft0->SetParameters(100, 0, 30, 0, 30);
-
- //   TF2 *ft0 = new TF2("fitFunc", customAsymmetricFunc, -50, 50, -50, 50, 8);
-	
-    TF2 *ft0 = new TF2("fitFunc", customAsymmetricFunc, -50, 50, -50, 50, 10);
-//    fitFunc->SetParameters(300, 280, -25, 25, -30, 50, 50, 100, 0.0001); // パラメータの初期値
-    ft0->SetParameters(300, 279, -25, 29, 13, 25 , 22, 120); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
-//	 ft0->SetParLimits(2, -40, -35);
-//	 ft0->SetParLimits(3, 30, 40);
-//	 ft0->SetParLimits(4, -0.05, -0.04);
-//	 ft0->SetParLimits(5, -0.5, -0.4);
-//	 ft0->SetParLimits(9, -0.1, 0.1);
-//	 ft0->SetParLimits(10, -0.1, 0.1);
-
-	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
-	std::ifstream infile(t0_file);
-	std::string line;
+    TF2 *ft0_100 = new TF2("fitFunc", customAsymmetricFunc, -50, 50, -50, 50, 10);
+    ft0_100->SetParameters(300, 279, -25, 29, 13, 25 , 22, 120); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
+    TF2 *ft0_200 = new TF2("fitFunc", customAsymmetricFunc, -100, 100, -100, 100, 20);
+    ft0_200->SetParameters(300, 279, -25, 29, 13, 50 , 50, 200); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
+//	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
+//	std::ifstream infile(t0_file);
+//	std::string line;
 //	int p_id;
 //	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
 //	while (std::getline(infile, line)){
@@ -237,21 +224,23 @@ int main (int argc, char** argv) {
 //			}
 //		}
 //	}
- 	re->SetT0Func(ft0);
+ 	re->SetT0Func_GTR100(ft0_100);
+ 	re->SetT0Func_GTR200(ft0_200);
 
 
 
    re->ReTrackingAndDuplicationCut(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag, target_mid);
 	TTree *outtree = re->TreeOut();
-	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
-	re_draw->SetT0Func(ft0);
+	outtree->Write();
+//	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
+//	re_draw->SetT0Func_GTR100(ft0_100);
 	fitter->Clear();
 	pair_fitter->Clear();
 
-	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
-//	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom, fitter, pair_fitter, targets_pos);
-//	re_draw->DrawHistWire(tree, event_start, event_end, print_cycle, -1, "temp.pdf");
-	re_draw->FileOut()->Write();//outtree
+//	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
+//	re_draw->FileOut()->Write();//outtree
+	re->FileOut()->Close();
+//	re_draw->FileOut()->Close();
 	return 0;	
 }
 
