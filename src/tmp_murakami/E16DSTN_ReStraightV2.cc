@@ -242,12 +242,12 @@ void E16DSTN_ReStraightV2::DuplicationClusterCutForWire(std::vector<int> &in_ids
 			int tid = in_ids[i];
 			std::array<int, n_kill_strips> cids = {
 			rk_hit_sts_id->at(tid),
-			rk_hit_gtr100_xid->at(tid),
-			rk_hit_gtr100_yid->at(tid),
-			rk_hit_gtr200_xid->at(tid),
-			rk_hit_gtr200_yid->at(tid),
-			rk_hit_gtr300_xid->at(tid),
-			rk_hit_gtr300_yid->at(tid)
+			rk_hit_gtr100_xid->at(tid)
+//			rk_hit_gtr100_yid->at(tid),
+//			rk_hit_gtr200_xid->at(tid),
+//			rk_hit_gtr200_yid->at(tid),
+//			rk_hit_gtr300_xid->at(tid),
+//			rk_hit_gtr300_yid->at(tid)
 			};
 	
 			if(HasUsedClusterForWire(cids, used_cid_sets)){//combination match
@@ -329,8 +329,8 @@ void E16DSTN_ReStraightV2::ReTrackingAndDuplicationCut(TTree* tree, int print_cy
    	}
 		ClearUsedClusterIDs();
 		ChiSqSort(fit_ids, sorted_ids);
-//		DuplicationClusterCutForWire(sorted_ids, alive_ids);
-		DuplicationClusterCut(sorted_ids, alive_ids);
+		DuplicationClusterCutForWire(sorted_ids, alive_ids);
+//		DuplicationClusterCut(sorted_ids, alive_ids);
 		AnalyzeTrackPairs(alive_ids);
 	 	AddRecord(tree, alive_ids);
       if( n% print_cycle == 0 ){
@@ -525,8 +525,8 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 //		cout << " xt = " << xt << ",  dt =  " << dt << ", tan =" << tan_theta << ", dtx = " << dtx << endl;
 		lx = cogx - dtx;
 
-//		return TVector3(lx, cogy, 0);
-		return TVector3(cogx, cogy, 0);
+		return TVector3(lx, cogy, 0);
+//		return TVector3(cogx, cogy, 0);
 	}
 	else if(lid == 2){//gtr200
 		double lx, ly, lz;
@@ -543,8 +543,8 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		double dtx = (0.015 * dt) * tan_theta; 
 //		cout << " xt = " << xt << ",  dt =  " << dt << ", tan =" << tan_theta << ", dtx = " << dtx << endl;
 		lx = cogx - dtx;
-//		return TVector3(lx, cogy, 0);
-		return TVector3(cogx, cogy, 0);
+		return TVector3(lx, cogy, 0);
+//		return TVector3(cogx, cogy, 0);
 	
 	}
 	else if(lid == 3){//gtr300

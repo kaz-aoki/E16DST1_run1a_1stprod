@@ -118,7 +118,7 @@ int main (int argc, char** argv) {
    bool py_fix_flag        = false;
 	bool vetex_z_fix_flag   = false;
 
-	int target_mid = 104;
+	int target_mid = 106;
 
 	auto& calib = E16ANA_CalibDBManager::Instance();
 	calib.SetRunID(run_id);
@@ -194,8 +194,7 @@ int main (int argc, char** argv) {
 
 	E16ANA_StraightMultiTrack *fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 1);
 	E16ANA_StraightMultiTrack *pair_fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 2);
-//	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file_temp.c_str(), geom,  fitter, pair_fitter, targets_pos);
-	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
+	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file_temp.c_str(), geom,  fitter, pair_fitter, targets_pos);
 	
 	
 
@@ -232,15 +231,15 @@ int main (int argc, char** argv) {
    re->ReTrackingAndDuplicationCut(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag, target_mid);
 	TTree *outtree = re->TreeOut();
 	outtree->Write();
-//	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
-//	re_draw->SetT0Func_GTR100(ft0_100);
+	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
+	re_draw->SetT0Func_GTR100(ft0_100);
 	fitter->Clear();
 	pair_fitter->Clear();
 
-//	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
-//	re_draw->FileOut()->Write();//outtree
-	re->FileOut()->Close();
-//	re_draw->FileOut()->Close();
+	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
+	re_draw->FileOut()->Write();
+	re->FileOut()->Close();
+	re_draw->FileOut()->Close();
 	return 0;	
 }
 

@@ -254,7 +254,6 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 			FillPulseInfos(i);
 		}//track loop
 	}
-//   fout->Write();
 }
 
 
