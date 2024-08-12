@@ -182,26 +182,41 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				h_cor_resx_fitly_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				h_cor_resx_tan_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
 				
-				if(fabs(fitlys[lid])  < 40) {//center part Y direction
+				double center_range, edge_range;
+				if(lid == 1) {
+					center_range = 20;
+					edge_range   = 35;
+				}
+				else if(lid == 2) {
+					center_range = 40;
+					edge_range   = 70;
+				}
+				else if(lid == 3) {
+					center_range = 60;
+					edge_range   = 100;
+				}
+
+
+				if(fabs(fitlys[lid])  < center_range) {//center part Y direction
 					h_cor_resx_fitlx_center_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
 					h_cor_resx_tan_center_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
 				}
-				else if(fitlys[lid]  >  70) {//edge part Y direction
+				else if(fitlys[lid]  >  edge_range) {//edge part Y direction
 					h_cor_resx_fitlx_edge_top_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
 					h_cor_resx_tan_edge_top_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
 				}
-				else if(fitlys[lid]  <  -70) {//edge part Y direction
+				else if(fitlys[lid]  <  -edge_range) {//edge part Y direction
 					h_cor_resx_fitlx_edge_bot_wire[which_t][mids[lid]-100][lid]->Fill(fitlxs[lid], resx[lid]);	
 					h_cor_resx_tan_edge_bot_wire[which_t][mids[lid]-100][lid]  ->Fill(tans[lid], resx[lid]);
 				}
 	
-				if(fabs(fitlxs[lid])  < 40) {//center part X direction
+				if(fabs(fitlxs[lid])  < center_range) {//center part X direction
 					h_cor_resx_fitly_center_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				}
-				else if(fitlxs[lid]   > 70 ) {//edge part X direction
+				else if(fitlxs[lid]   > edge_range ) {//edge part X direction
 					h_cor_resx_fitly_edge_top_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				}
-				else if(fitlxs[lid]   < -70 ) {//edge part X direction
+				else if(fitlxs[lid]   < -edge_range ) {//edge part X direction
 					h_cor_resx_fitly_edge_bot_wire[which_t][mids[lid]-100][lid]->Fill(fitlys[lid], resx[lid]);	
 				}
 
@@ -223,6 +238,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 //					cout << "timing " << xt4s[lid] - tcent << " length = " << length <<  std::endl;
 //				}
 				h_resx_dz_wire_x[4][mids[lid]-100][lid][area16]->Fill((xt4s[lid] - tcent) , (double)resx[lid]/tans[lid]);
+				h_dz[mids[lid]-100][lid]->Fill(resx[lid]/tans[lid]);
 	
 				
 				if(lid == 1){

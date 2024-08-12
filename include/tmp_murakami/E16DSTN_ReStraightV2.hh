@@ -263,6 +263,7 @@ private:
    TH1D* h_res_vtx_trk_x[n_modules][n_layers];
    TH1D* h_res_vtx_trk_y[n_modules][n_layers];
    TH1D* h_tan_theta[n_modules][n_layers];
+   TH1D* h_dz[n_modules][n_layers];
 //   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
    TH1D* h_hit_timing_x[n_modules][n_layers];
    TH1D* h_hit_timing_x_area[n_modules][n_layers][25];

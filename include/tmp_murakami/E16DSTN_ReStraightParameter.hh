@@ -8,7 +8,7 @@ const TVector3 kInitPosError = {3., 3.4, 3.};
 const TVector3 kInitPosErrorWire = {0.05, 3.0, 0.05};
 const std::array<TVector3, 4> kSigmas = {{
 														{0.067, 0.,    0.},
-//														{0.15, 0.6, 0.},
+//														{0.20, 0.6, 0.},
 														{0, 0, 0.},
 														{0, 0, 0.},
 														{0, 0, 0.}

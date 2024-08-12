@@ -40,7 +40,7 @@
 //using namespace E16DSTN_StraightParameter;
 using namespace E16ANA_StraightTrackParameter;
 
-Double_t customAsymmetricFunc(Double_t *x, Double_t *par) {
+Double_t func_GTR100(Double_t *x, Double_t *par) {
 
      Double_t xx = x[0];
     Double_t yy = x[1];
@@ -61,39 +61,52 @@ Double_t customAsymmetricFunc(Double_t *x, Double_t *par) {
     } else if (xx > x1) {
         return gaussPart2 * exp(-0.5 * pow((xx - x1) / sigmaX, 2));
     } else {
-        // x0からx1の間を線形補間
     Double_t slope = (gaussPart2 - gaussPart) / (x1 - x0);
             return gaussPart + slope * (xx - x0);
                 }
 
-//    Double_t xx = x[0];
-//    Double_t yy = x[1];
-//    Double_t A = par[0];
-//    Double_t A2 = par[1];
-//    Double_t x0 = par[2];
-//    Double_t x1 = par[3];
-//    Double_t y0 = par[4];
-//    Double_t sigmaX = par[5];
-//    Double_t sigmaX2 = par[6];
-//    Double_t sigmaY = par[7];
-////    Double_t lambda = par[8];
-//    
-//    Double_t gaussPart  = A *  exp(-0.5 * pow((yy - y0) / sigmaY, 2));
-//    Double_t gaussPart2 = A2 * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
-//    if (xx < x0 ) {
-//        return gaussPart * exp(-0.5 * pow((xx - x0) / sigmaX2, 2));
-//    } 
-//	 else if (xx > x1){
-//        return gaussPart2 * exp(-0.5 * pow((xx - x1) / sigmaX, 2));
-//	}	
-//	else {
-//        // 指数関数部分がガウス部分に連続するようにスケーリング
-//               Double_t slope = (gaussPart2 - gaussPart) / (x1 - x0);
-//        return gaussPart + slope * (xx - x0);
-//
-//}
 }
 
+
+
+double gaussian(double x, double mean, double sigma, double amplitude) {
+    return amplitude * exp(-0.5 * pow((x - mean) / sigma, 2));
+}
+
+Double_t func_GTR200(Double_t *x, Double_t *params) {
+  double xx = x[0];
+    // 左側のガウス関数のパラメータ
+   double mean1 = params[0];
+   double sigma1 = params[1];
+   double amp1 = params[2];
+   double x1 = params[3];  // 左側ガウスと直線の接続点
+
+	 // 右側のガウス関数のパラメータ
+   double mean2 = params[4];
+   double sigma2 = params[5];
+   double amp2 = params[6];
+ 	double x2 = params[7];  // 右側ガウスと直線の接続点
+     // 直線のスロープと切片を滑らかに接続するように調整
+     double y1 = gaussian(x1, mean1, sigma1, amp1);
+     double y2 = gaussian(x2, mean2, sigma2, amp2);
+     double slope = (y2 - y1) / (x2 - x1);
+
+
+      double intercept = y1 - slope * x1;
+
+                  if (xx <= x1) {
+                          // 左側のガウス関数
+                                         return gaussian(xx, mean1, sigma1, amp1);
+		} else if (xx > x1 && xx <= x2) {
+        // 直線
+                return slope * xx + intercept;
+                    } else {
+       // 右側のガウス関数
+            return amp2 * 2- gaussian(xx, mean2, sigma2, amp2);
+       }
+
+
+}
 
 
 
@@ -135,7 +148,7 @@ int main (int argc, char** argv) {
 //
 //	SetGeomMovePattern("/home/had/mtomoki/E16/work_dst1/install/GeomMovePatterns.txt", geom_move_pid);
 	
-	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240627.dat";
+	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240813.dat";
 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(gfile));
 	std::cout << "Read Geometry : " << gfile << std::endl;
 
@@ -201,30 +214,43 @@ int main (int argc, char** argv) {
 	re->SetGeomMovePattern("/home/had/mtomoki/E16/work_dst1/install/GeomMovePatterns.txt", geom_move_pid);
 	re->SetGeomTemp(target_mid);
 
-//tracking again
-    TF2 *ft0_100 = new TF2("fitFunc", customAsymmetricFunc, -50, 50, -50, 50, 10);
+//t0 function
+    TF2 *ft0_100 = new TF2("func_gtr100", func_GTR100, -50, 50, -50, 50, 10);
     ft0_100->SetParameters(300, 279, -25, 29, 13, 25 , 22, 120); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
-    TF2 *ft0_200 = new TF2("fitFunc", customAsymmetricFunc, -100, 100, -100, 100, 20);
-    ft0_200->SetParameters(300, 279, -25, 29, 13, 50 , 50, 200); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
-//	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
-//	std::ifstream infile(t0_file);
-//	std::string line;
-//	int p_id;
-//	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
-//	while (std::getline(infile, line)){
-//		if(line.empty() || line[0] == '#'){
-//			continue;
-//		}
-//		std::istringstream iss(line);
-//		if (iss >> p_id >> amp_x0 >> amp_x1 >> x0 >> x1 >> y0 >> sigma_x0 >> sigma_x1 >> sigma_y){
-//			if(p_id == t0_param_pid){
-////    			ft0->SetParameters(300, 280, -30, 28, 8.4, 32, 10, 116);
-//    			ft0->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
-//			}
-//		}
-//	}
+    TF2 *ft0_200 = new TF2("func_gtr200", func_GTR200, -100, 100, -100, 100, 8);
+    ft0_200->SetParameters(-85, 9, 350, -85, 85, 40, 330, 70);//mean1, sigma1, amp1, connection1, mean2, sigma2 ,amp2,connecion2
+//pid 49   ft0_200->SetParameters(-85, 9, 350, -85, 80, 20, 330, 70);//mean1, sigma1, amp1, connection1, mean2, sigma2 ,amp2,connecion2
+
+
+
+	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
+	std::ifstream infile(t0_file);
+	std::string line;
+	int gtr_size, p_id;
+	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
+	while (std::getline(infile, line)){
+		if(line.empty() || line[0] == '#'){
+			continue;
+		}
+		std::istringstream iss(line);
+		if (iss >> p_id >> gtr_size >>  amp_x0 >> amp_x1 >> x0 >> x1 >> y0 >> sigma_x0 >> sigma_x1 >> sigma_y){
+			if(p_id == t0_param_pid){
+//    			ft0->SetParameters(300, 280, -30, 28, 8.4, 32, 10, 116);
+				if(gtr_size == 0 ) { 
+//    				ft0_100->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
+				}
+				else if(gtr_size == 1 ) { 
+//    				ft0_200->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
+				}
+				else if(gtr_size == 2 ) { 
+//    				ft0_300->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
+				}
+			}
+		}
+	}
  	re->SetT0Func_GTR100(ft0_100);
  	re->SetT0Func_GTR200(ft0_200);
+// 	re->SetT0Func_GTR300(ft0_300);
 
 
 
@@ -238,7 +264,7 @@ int main (int argc, char** argv) {
 
 	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
 	re_draw->FileOut()->Write();
-	re->FileOut()->Close();
+	re->FileOut()->Close();
 	re_draw->FileOut()->Close();
 	return 0;	
 }
