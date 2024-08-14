@@ -104,10 +104,29 @@ Double_t func_GTR200(Double_t *x, Double_t *params) {
        // 右側のガウス関数
             return amp2 * 2- gaussian(xx, mean2, sigma2, amp2);
        }
-
-
 }
 
+
+
+Double_t func_GTR300(Double_t *x, Double_t *params) {
+	double xx = x[0];
+   double amp1 = params[0];
+	 // 右側のガウス関数のパラメータ
+   double mean2 = params[1];
+   double sigma2 = params[2];
+   double amp2 = params[3];
+ 	double x2 = params[4];  // 右側ガウスと直線の接続点
+	double x1 = -150;//most left
+   double y2 = gaussian(x2, mean2, sigma2, amp2);
+	double slope = (y2 - amp1) / (x2-x1);
+	double intercept = amp1 - slope * x1;
+   if (xx <= x2) {
+			return slope * xx + intercept;
+     } else {
+            return amp2 * 2 - gaussian(xx, mean2, sigma2, amp2);
+//            return gaussian(xx, mean2, sigma2, amp2);
+       }
+}
 
 
 int main (int argc, char** argv) {
@@ -149,6 +168,7 @@ int main (int argc, char** argv) {
 //	SetGeomMovePattern("/home/had/mtomoki/E16/work_dst1/install/GeomMovePatterns.txt", geom_move_pid);
 	
 	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240813.dat";
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240627.dat";
 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(gfile));
 	std::cout << "Read Geometry : " << gfile << std::endl;
 
@@ -216,24 +236,44 @@ int main (int argc, char** argv) {
 
 //t0 function
     TF2 *ft0_100 = new TF2("func_gtr100", func_GTR100, -50, 50, -50, 50, 10);
-    ft0_100->SetParameters(300, 279, -25, 29, 13, 25 , 22, 120); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
+// p64   ft0_100->SetParameters(300, 279, -25, 29, 13, 25 , 22, 120); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
+    ft0_100->SetParameters(300, 279, -25, 29, 13, 25 , 22, 300); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY 
     TF2 *ft0_200 = new TF2("func_gtr200", func_GTR200, -100, 100, -100, 100, 8);
     ft0_200->SetParameters(-85, 9, 350, -85, 85, 40, 330, 70);//mean1, sigma1, amp1, connection1, mean2, sigma2 ,amp2,connecion2
+
+//pid 63
+//    TF2 *ft0_300 = new TF2("func_gtr300", func_GTR300, -150, 150, -150, 150, 5);
+//    ft0_300->SetParameters(250, 80, 120, 280, 80);// amp1, mean2, sigma2 ,amp2,connecion2
 //pid 49   ft0_200->SetParameters(-85, 9, 350, -85, 80, 20, 330, 70);//mean1, sigma1, amp1, connection1, mean2, sigma2 ,amp2,connecion2
 
+	
+//    TF2 *ft0_300 = new TF2("func_gtr300", "[0]*TMath::Gaus(x, [1], [2])*TMath::Gaus(y, [3], [4]) + 280", -150, 150, -150, 150);
+//    ft0_300->SetParameters(250, 80, 120, 280, 80);// amp1, mean2, sigma2 ,amp2,connecion2
+	
 
+	TF2 *ft0_300;
+ ft0_300= new TF2("ft0_300", "[0]*TMath::Gaus(x, [1], [2]) * TMath::Gaus(y, [3], [4]) + [5]", -150, 150, -150, 150);
+	ft0_300->SetParameter(0, 20);//amp
+	ft0_300->SetParameter(1, 0);//mean
+	ft0_300->SetParameter(2, 200);//sigma?
+	ft0_300->SetParameter(3, 0);//mean
+	ft0_300->SetParameter(4, 200);//sigma
+	ft0_300->SetParameter(5, 280);//sigma
+	
+ 
 
 	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
 	std::ifstream infile(t0_file);
 	std::string line;
 	int gtr_size, p_id;
-	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
+//	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
+	double p0, p1, p2, p3, p4, p5;
 	while (std::getline(infile, line)){
 		if(line.empty() || line[0] == '#'){
 			continue;
 		}
 		std::istringstream iss(line);
-		if (iss >> p_id >> gtr_size >>  amp_x0 >> amp_x1 >> x0 >> x1 >> y0 >> sigma_x0 >> sigma_x1 >> sigma_y){
+		if (iss >> p_id >> gtr_size >> p0 >> p1 >> p2 >> p3 >> p4 >> p5 ){
 			if(p_id == t0_param_pid){
 //    			ft0->SetParameters(300, 280, -30, 28, 8.4, 32, 10, 116);
 				if(gtr_size == 0 ) { 
@@ -243,14 +283,21 @@ int main (int argc, char** argv) {
 //    				ft0_200->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
 				}
 				else if(gtr_size == 2 ) { 
-//    				ft0_300->SetParameters(amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y);
+//    				ft0_300->SetParameters(p0, p1, p2, p3, p4, p5);
+						ft0_300->SetParameter(0, p0);//amp
+						ft0_300->SetParameter(1, p1);//mean
+						ft0_300->SetParameter(2, p2);//sigma?
+						ft0_300->SetParameter(3, p3);//mean
+						ft0_300->SetParameter(4, p4);//sigma
+						ft0_300->SetParameter(5, p5);//offset
+						std::cout << "p4 = " << p4 << std::endl;
 				}
 			}
 		}
 	}
  	re->SetT0Func_GTR100(ft0_100);
  	re->SetT0Func_GTR200(ft0_200);
-// 	re->SetT0Func_GTR300(ft0_300);
+ 	re->SetT0Func_GTR300(ft0_300);
 
 
 

@@ -230,6 +230,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 				area25 = floor((fitlxs[lid] + lid*50)/length25) +  floor((fitlys[lid] + lid * 50)/length25 ) * 5;
 //				h_cluster_timing_x_area[mids[lid]-100][lid][area25]->Fill(xt4s[lid]);
 				h_cluster_timing_x_area[mids[lid]-100][lid][area16]->Fill(xt4s[lid]);
+				h_dt_area[which_t][mids[lid]-100][lid][area16]->Fill(xt4s[lid] - tcent);
 
 				h_resx_div[which_t][mids[lid]-100][lid][area]->Fill(resx[lid]);	
 				

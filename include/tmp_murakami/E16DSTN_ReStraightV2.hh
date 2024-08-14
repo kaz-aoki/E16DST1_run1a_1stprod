@@ -25,7 +25,8 @@
 #include "E16ANA_StraightMultiTrack.hh"
 #include "E16DST_Constant.hh"
 #include "E16ANA_StraightTrackConstant.hh"
-#include "E16ANA_StraightTrackParameter.hh"
+#include "E16ANA_TrackConstant.hh"
+//#include "E16ANA_StraightTrackParameter.hh"
 #include <TGraphErrors.h> 
 #include <TF1.h> 
 #include "E16ANA_StraightStepTrack.hh"
@@ -93,12 +94,12 @@ public :
 		TVector3 vtx_refit;
 		TVector3 mom_minus_refit;
 		TVector3 mom_plus_refit;
-      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_pos_refit;
-      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_pos_refit;
-      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_mom_refit;
-      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_mom_refit;
-      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_minus_res_refit;
-      std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers> track_plus_res_refit;
+      std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> track_minus_pos_refit;
+      std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> track_plus_pos_refit;
+      std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> track_minus_mom_refit;
+      std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> track_plus_mom_refit;
+      std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> track_minus_res_refit;
+      std::array<TVector3, E16ANA_StraightTrackConstant::kNumTrackingLayers> track_plus_res_refit;
 	   TrackPair& operator = (const TrackPair& rhs) {
 	     Copy(rhs);
 	     return (*this);
@@ -167,8 +168,9 @@ private:
 	TF2 *ft0_gtr200;
 	TF2 *ft0_gtr300;
 
-//	static const int n_kill_strips = 4;//gtr200 calib //sts x, 100 xy, 200x
 	static const int n_kill_strips = 2;//gtr100 calib, or gtr200 calib wo gtr100
+//	static const int n_kill_strips = 4;//gtr200 calib //sts x, 100 xy, 200x
+//	static const int n_kill_strips = 6;//gtr300 calib
 	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
@@ -198,7 +200,7 @@ private:
    std::vector<TrackPair> track_pairs;
    std::vector<TrackPair*> selected_track_pairs;
 
-  std::array<FitResult, E16ANA_TrackConstant::kNumDetectorLayers> fit_results;
+  std::array<FitResult, E16ANA_StraightTrackConstant::kNumDetectorLayers> fit_results;
 
 	static constexpr int kPairMinuitStrategy = 2;
 	static constexpr int kPairMinuitMaxFunctionCalls = 1e4;
@@ -267,7 +269,9 @@ private:
 //   TH1D* h_fitlx[n_tgt][n_modules][n_layers];
    TH1D* h_hit_timing_x[n_modules][n_layers];
    TH1D* h_hit_timing_x_area[n_modules][n_layers][25];
+   TH1D* h_hit_adc_y_area[n_modules][n_layers][25];
    TH1D* h_cluster_timing_x_area[n_modules][n_layers][25];
+   TH1D* h_dt_area[n_wires][n_modules][n_layers][25];
 	TH1D* h_cluster_t_diff[n_modules][n_layers];
 	TH2D* h_cluster_t_diff_2d[n_modules][n_layers];
    TH1D* h_cluster_timing_x[n_modules][n_layers];
@@ -2636,7 +2640,7 @@ public:
 
 #ifdef E16DSTN_ReStraightV2_cxx
 
-E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), fitter(_fitter),pair_fitter(_pair_fitter),  vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(E16ANA_StraightTrackParameter::kVtxZFixFlag)
+E16DSTN_ReStraightV2::E16DSTN_ReStraightV2(TTree *tree, const char *out_file, E16ANA_GeometryV2 *_geom, E16ANA_StraightMultiTrack *_fitter, E16ANA_StraightMultiTrack *_pair_fitter, std::vector<TVector3> & _tgt_pos) : fChain(0), geometry(_geom), fitter(_fitter),pair_fitter(_pair_fitter),  vertex_xy_fix_flag(false), py_fix_flag(false), vertex_z_fix_flag(false)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
