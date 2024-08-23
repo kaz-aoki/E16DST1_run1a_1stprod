@@ -25,7 +25,6 @@
 #include "E16ANA_StraightMultiTrack.hh"
 #include "E16DST_Constant.hh"
 #include "E16ANA_StraightTrackConstant.hh"
-#include "E16ANA_TrackConstant.hh"
 //#include "E16ANA_StraightTrackParameter.hh"
 #include <TGraphErrors.h> 
 #include <TF1.h> 
@@ -169,15 +168,17 @@ private:
 	TF2 *ft0_gtr300;
 
 	static const int n_kill_strips = 2;//gtr100 calib, or gtr200 calib wo gtr100
+//	static const int n_kill_strips = 3;//gtr100 calib, or gtr200 calib wo gtr100
 //	static const int n_kill_strips = 4;//gtr200 calib //sts x, 100 xy, 200x
 //	static const int n_kill_strips = 6;//gtr300 calib
+//	static const int n_kill_strips = 7;//gtr300 calib
 	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
+	std::vector<std::array<int, n_kill_strips>> used_cid_sets;
 #ifdef REMOVE_NOLAYER
 	#ifdef WIRE_STS_TRACK
    std::array<std::vector<int>, n_kill_strips> used_cluster_ids_wire;
-	std::vector<std::array<int, n_kill_strips>> used_cid_sets;
 		#else
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
 	#endif

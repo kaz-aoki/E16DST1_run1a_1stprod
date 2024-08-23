@@ -242,12 +242,12 @@ void E16DSTN_ReStraightV2::DuplicationClusterCutForWire(std::vector<int> &in_ids
 			int tid = in_ids[i];
 			std::array<int, n_kill_strips> cids = {
 			rk_hit_sts_id->at(tid),
-			rk_hit_gtr100_xid->at(tid)
-//			rk_hit_gtr100_yid->at(tid),
-//			rk_hit_gtr200_xid->at(tid),
-//			rk_hit_gtr200_yid->at(tid),
-//			rk_hit_gtr300_xid->at(tid)
-//			rk_hit_gtr300_yid->at(tid)
+		rk_hit_gtr100_xid->at(tid)
+//		rk_hit_gtr100_yid->at(tid),
+//		rk_hit_gtr200_xid->at(tid),
+//		rk_hit_gtr200_yid->at(tid),
+//		rk_hit_gtr300_xid->at(tid),
+//		rk_hit_gtr300_yid->at(tid)
 			};
 	
 			if(HasUsedClusterForWire(cids, used_cid_sets)){//combination match
@@ -497,12 +497,12 @@ void E16DSTN_ReStraightV2::AddTrackHit(int itk, E16ANA_StraightMultiTrack* singl
 //			single_track->AddHit(tid, l, geometry->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l])), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
 			#else 
 //			single_track->AddHit(tid, l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l])), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
-			single_track->AddHit(tid, l, geom_temp[l], CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			single_track->AddHit(tid, l, geom_temp[l], CorrectedLocalPos(itk, rk_mids[l], l), kSigmas_re[l]);
 			#endif
 		}
 		else {
 //			single_track->AddHit(tid, l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(rk_mids[l]), l-1), CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
-			single_track->AddHit(tid, l, geom_temp[l], CorrectedLocalPos(itk, rk_mids[l], l), kSigmas[l]);
+			single_track->AddHit(tid, l, geom_temp[l], CorrectedLocalPos(itk, rk_mids[l], l), kSigmas_re[l]);
 		}
 	}
 }
@@ -542,8 +542,8 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		double dtx = (0.015 * dt) * tan_theta; 
 //		cout << " xt = " << xt << ",  dt =  " << dt << ", tan =" << tan_theta << ", dtx = " << dtx << endl;
 		lx = cogx - dtx;
-//		return TVector3(lx, cogy, 0);
-		return TVector3(cogx, cogy, 0);
+		return TVector3(lx, cogy, 0);
+//		return TVector3(cogx, cogy, 0);
 	
 	}
 	else if(lid == 3){//gtr300
@@ -560,8 +560,8 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 		double dtx = (0.015 * dt) * tan_theta; 
 //		cout << " xt = " << xt << ",  dt =  " << dt << ", tan =" << tan_theta << ", dtx = " << dtx << endl;
 		lx = cogx - dtx;
-//		return TVector3(lx, cogy, 0);
-		return TVector3(cogx, cogy, 0);
+		return TVector3(lx, cogy, 0);
+//		return TVector3(cogx, cogy, 0);
 	}
 }
 
@@ -759,13 +759,13 @@ void E16DSTN_ReStraightV2::AddTracks(TrackPair *track_pair){
 			#endif
 			if(l == E16ANA_TrackConstant::kSSD){
 				#ifdef UseSTS
-				pair_fitter->AddHit(tids[track_index], l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l])),      local_poss[track_index][l], kSigmas[l]);
+				pair_fitter->AddHit(tids[track_index], l, geometry->STS(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l])),      local_poss[track_index][l], kSigmas_re[l]);
 				#else
-				pair_fitter->AddHit(tids[track_index], l, geometry->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l])),  local_poss[track_index][l], kSigmas[l]);
+				pair_fitter->AddHit(tids[track_index], l, geometry->SSD(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l])),  local_poss[track_index][l], kSigmas_re[l]);
 				#endif
 			}
 			else {
-				pair_fitter->AddHit(tids[track_index], l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l]),  l-1), local_poss[track_index][l], kSigmas[l]);
+				pair_fitter->AddHit(tids[track_index], l, geometry->GTR(E16ANA_StraightTrackConstant::ModuleID2020To2013(mids[track_index][l]),  l-1), local_poss[track_index][l], kSigmas_re[l]);
 			}
 		}
 	}
@@ -935,16 +935,22 @@ void E16DSTN_ReStraightV2::InitHistos(){
 			}
 		}	
 
-// double n_bin_x = 50;//gtr100 calib
-	double n_bin_x = 40;//gtr200 calib
+ double n_bin_x = 50;//gtr100 calib
 	double tan_limit  = 1.5;
 	double resx_limit = 1.5;
 	int n_xdiv = 20;//gtr100
 	int n_xdiv2 = 8;//gtr100
+//	double n_bin_x = 40;//gtr200 calib
 //	double tan_limit  = 2.5;//gtr200
 //	double resx_limit = 2.5;//gtr200
-//	int n_xdiv = 16;//gtr200
+//	int n_xdiv = 14;//gtr200
 //	int n_xdiv2 = 6;//gtr200
+//	double n_bin_x = 30;//gtr300 calib
+//	double tan_limit  = 2.5;//gtr300
+//	double resx_limit = 2.5;//gtr300
+//	int n_xdiv = 14;//gtr300
+//	int n_xdiv2 = 6;//gtr300
+	
 	for(int t=0; t < n_wires; t++){// see .hh for definitions// 1 is for h_resx_dz_wire to integrate all wires
 		for(int m=0; m <n_modules;m++){
 			for(int l=0; l < n_layers; l++){

@@ -101,7 +101,7 @@ void E16DSTN_ReStraightV2::DrawHistWire(TTree* tree, int n_start, int n_end, int
 	int cnt_lgres_fore[10] = {0};
 	int cnt_lgres_bg[10]   = {0};
 //conditions 
-	double chi_sq_th  = 2000;
+	double chi_sq_th  = 200;
 //initialize Histos
 	InitHistos();
 //Analysis part

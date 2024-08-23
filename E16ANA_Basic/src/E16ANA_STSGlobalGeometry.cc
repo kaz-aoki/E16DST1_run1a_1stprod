@@ -58,12 +58,25 @@ void E16ANA_STSGlobalGeometry::Prepare(){
      false);
   sensor104.dx = -0.538604;
 #endif
+#if 0 //design value
   E16ANA_STSGlobalSensorGeom sensor106
     (106,
      r_outer,
      (+26.89) /* *deg2rad */,
      0,
      false);
+#endif
+#if 1 // murakami value
+  E16ANA_STSGlobalSensorGeom sensor106
+    (106,
+     r_outer,
+//     (+26.89) - 0.0619 /* *deg2rad */,//geom 03
+//     (+26.89) - 0.0600 + 0.017 + 0.017 + 0.02 + 0.03/* *deg2rad */,//geom 03
+     (+26.89) - 0.0600 + 0.017 + 0.017 /* *deg2rad */,//geom 03
+     0,
+     false);
+
+#endif
 #if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor107
     (107,
