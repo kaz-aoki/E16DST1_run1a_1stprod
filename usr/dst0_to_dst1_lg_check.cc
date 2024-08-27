@@ -318,11 +318,11 @@ int main(int argc, char* argv[]) {
 
 	tree->Fill();
 
-	// if(peakheight>20&&trg_lg_hit_t>3050&&trg_lg_hit_t<3200){
+	if(peakheight>20&&trg_lg_hit_t>3100&&trg_lg_hit_t<3170){//make t0calib
 	// if(peakheight>25&&peakheight<180&&trg_lg_hit_t>3120&&trg_lg_hit_t<3150){
 	// if(peakheight>25&&peakheight<180&&dst1flag&&timing>70&&timing<130){//tmp, wotrg
 	// if(dst1flag){
-	if(trg_lg_hit_t==0){//thr check
+	// if(trg_lg_hit_t==0){//thr check
 	// if(trg_lg_hit_t>3120&&trg_lg_hit_t<3150){ //thr check, tmp
 	  lghists->Fill(module,block,peakheight,peaktime,timing,baseline,baselinerms,integral,dst1flag);
 	}
@@ -358,24 +358,24 @@ int main(int argc, char* argv[]) {
     ++n_physics_event;
   }
 
-  TString pdfout = Form("%s",out_pdf_name);
-  TCanvas* c = new TCanvas("c","c",1400,700);
-  c->SaveAs(pdfout+"[","pdf");
-  c->cd();
-  TLegend *leg = new TLegend(0.1,0.1,0.9,0.9);
-  leg->AddEntry((TObject*)0,Form("run%06d",run_id),"");
-  leg->Draw();
-  c->SaveAs(pdfout,"pdf");
-  lghists->Draw(pdfout,c);
-  lghists->Draw2D(pdfout,c);
-  lghists->DrawEach(pdfout,c);
-  lghists->DrawEachTimeCorrelation(pdfout,c);
-  c->SaveAs(pdfout+"]","pdf");
+  // TString pdfout = Form("%s",out_pdf_name);
+  // TCanvas* c = new TCanvas("c","c",1400,700);
+  // c->SaveAs(pdfout+"[","pdf");
+  // c->cd();
+  // TLegend *leg = new TLegend(0.1,0.1,0.9,0.9);
+  // leg->AddEntry((TObject*)0,Form("run%06d",run_id),"");
+  // leg->Draw();
+  // c->SaveAs(pdfout,"pdf");
+  // lghists->Draw(pdfout,c);
+  // lghists->Draw2D(pdfout,c);
+  // lghists->DrawEach(pdfout,c);
+  // lghists->DrawEachTimeCorrelation(pdfout,c);
+  // c->SaveAs(pdfout+"]","pdf");
 
-  TString wfpdfout = Form("%s",out_wf_pdf_name);
-  lghists->DrawWaveform(wfpdfout);
+  // TString wfpdfout = Form("%s",out_wf_pdf_name);
+  // lghists->DrawWaveform(wfpdfout);
 
-  lghists->MakeT0CalibFile();
+  // lghists->MakeT0CalibFile();
 
   fout->Write();
   fout->Close();
