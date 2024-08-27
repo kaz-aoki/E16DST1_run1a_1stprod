@@ -91,10 +91,11 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030302.root");
 
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID5e9/240706/*.root");
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID1e9/240706/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID1e9/240706/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/VM/240708/run05154*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/woHBD1e9/240618/*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/Ks/240723/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/GTRcalib/240814-0/*.root");
     }
   }
   else if(argc==6||argc==8){

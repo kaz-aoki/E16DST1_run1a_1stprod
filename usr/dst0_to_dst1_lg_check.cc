@@ -375,6 +375,8 @@ int main(int argc, char* argv[]) {
   TString wfpdfout = Form("%s",out_wf_pdf_name);
   lghists->DrawWaveform(wfpdfout);
 
+  lghists->MakeT0CalibFile();
+
   fout->Write();
   fout->Close();
 
