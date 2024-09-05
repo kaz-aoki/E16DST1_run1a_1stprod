@@ -165,9 +165,9 @@ private:
 	
    E16ANA_StraightMultiTrack *fitter;
    E16ANA_StraightMultiTrack *pair_fitter;
+   std::array<std::vector<int>, 2> used_cluster_ids_wire;
 #ifdef REMOVE_NOLAYER
 	#ifdef WIRE_STS_TRACK
-   std::array<std::vector<int>, 2> used_cluster_ids_wire;
 		#else
    std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> used_cluster_ids;
 	#endif
