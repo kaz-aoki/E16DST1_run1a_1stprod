@@ -40,47 +40,171 @@
 //using namespace E16DSTN_StraightParameter;
 using namespace E16ANA_StraightTrackParameter;
 
-//struct GeomMovePattern {
-//	int pattern_id = -100;
-//	double dx = 0;	
-//	double dy = 0;	
-//	double dz = 0;	
-//	double radx = 0;
-//	double rady = 0;
-//	double radz = 0;
-//};
-//
-//
-//void SetGeomMovePattern(GeomMovePattern &gmove_pattern, const std::string& file, int pid){
-//	std::ifstream infile(file);
-//	std::string line;
-//	while(std::getline(infile, line)) {
-//		if(line.empty() || line[0] == '#' ){
-//			continue;
-//		}	
-//		std::istringstream iss(line);
-//		GeomMovePattern p;
-//		if (iss >> p.pattern_id >> p.dx >> p.dy >> p.dz >> p.radx >> p.rady >> p.radz){
-//			if(p.pattern_id == pid){
-//				gmove_pattern.pattern_id = p.pattern_id;
-//				gmove_pattern.dx     = p.dx;
-//				gmove_pattern.dy     = p.dy;
-//				gmove_pattern.dz     = p.dz;
-//				gmove_pattern.radx   = p.radx;
-//				gmove_pattern.rady   = p.rady;
-//				gmove_pattern.radz   = p.radz;
-//				std::cerr << "Pattern was successfully found " << std::endl;
-//				return;
-//			}
-//		}
-//	}
-//	std::cerr << "Pattern not found " << std::endl;
-//	exit(0);
+
+
+
+
+Double_t func_GTR100(Double_t *x, Double_t *par) {
+    Double_t xx = x[0];
+    Double_t yy = x[1];
+    Double_t A = par[0];
+    Double_t A2 = par[1];
+    Double_t x0 = par[2];
+    Double_t x1 = par[3];
+    Double_t y0 = par[4];
+    Double_t sigmaX = par[5];
+    Double_t sigmaX2 = par[6];
+    Double_t sigmaY = par[7];
+    
+    Double_t gaussPart = A * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+    Double_t gaussPart2 = A2 * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+
+    if (xx < x0) {
+          return gaussPart * exp(-0.5 * pow((xx - x0) / sigmaX, 2));
+//        return A* exp(-0.5 * pow((xx - x0) / sigmaX, 2));
+    } else if (xx > x1) {
+        return gaussPart2 * exp(-0.5 * pow((xx - x1) / sigmaX2, 2));
+    } else {
+    Double_t slope = (gaussPart2 - gaussPart) / (x1 - x0);
+            return gaussPart + slope * (xx - x0);
+    }
+
+}
+
+//Double_t func_GTR100(Double_t *x, Double_t *par) {
+//	Double_t xx = x[0];
+//	Double_t yy = x[1];
+//	Double_t A = par[0];
+//	Double_t A2 = par[1];
+//	Double_t x0 = par[2];
+//	Double_t x1 = par[3];
+//	Double_t y0 = par[4];
+//	Double_t sigmaX = par[5];
+//	Double_t sigmaX2 = par[6];
+//	Double_t sigmaY = par[7];
+//	
+//	Double_t gaussY = 1 +( 1 - exp(-0.5 * pow((yy - y0) / sigmaY, 2)));
+//	Double_t gaussX;
+//	if (xx < x0) {
+//	        gaussX = A * exp(-0.5 * pow((xx - x0) / sigmaX, 2));
+//	} else if (xx > x1) {
+//	      gaussX = A2 * exp(-0.5 * pow((xx - x1) / sigmaX2, 2));
+//	} else {
+//	Double_t slope = (A2 - A) / (x1 - x0);
+//       gaussX = A + slope * (xx - x0);
+//   }
+//	return gaussX * gaussY;
 //}
 
+
+
+double gaussian(double x, double mean, double sigma, double amplitude) {
+    return amplitude * exp(-0.5 * pow((x - mean) / sigma, 2));
+}
+
+Double_t func_GTR200(Double_t *x, Double_t *params) {
+   Double_t xx = x[0];  
+   Double_t yy = x[1];  
+	double a_x     = params[0];//smoothness
+	double min_x   = params[1];
+	double max_x   = params[2];
+	double x0      = params[3];//middle
+	double y0      = params[4];
+	double amp_y   = params[5];
+	double sigmaY = params[6];
+	double gaussPart = amp_y + amp_y *  -exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+//	double gaussPart =  amp_y *  exp(-0.5 * pow((yy - y0) / sigmaY, 2));
+   Double_t logistic_x = min_x + (max_x - min_x) / (1 + exp(-a_x * (xx - x0)));
+	if(xx > 0){
+		logistic_x = 	max_x -  (max_x - min_x) / (1 + exp(-a_x * (xx + x0)));
+	}
+   return logistic_x - gaussPart;
+//  double yy = x[1];
+//    // 左側のガウス関数のパラメータ
+//   double mean1 = params[0];
+//   double sigma1 = params[1];
+//   double amp1 = params[2];
+//   double x1 = params[3];  // 左側ガウスと直線の接続点
+//   double mean2 = params[4];
+//   double sigma2 = params[5];
+//   double amp2 = params[6];
+// 	double x2 = params[7];  // 右側ガウスと直線の接続点
+//
+//	double amp_y  = params[8];//
+//	double y0     = params[9];//y mean
+//	double sigmaY = params[10];
+//
+//   double g1 = gaussian(x1, mean1, sigma1, amp1);
+//   double g2 = gaussian(x2, mean2, sigma2, amp2);
+//   double gy = y0 - amp_y * exp(-0.5 * pow((yy - y0) / sigmaY, 2));//y
+//   double slope = (g2 - g1) / (x2 - x1);
+//   double intercept = g1 - slope * x1;
+//	
+//	double result;
+//	if (xx <= x1) {
+//   	result =  gaussian(xx, mean1, sigma1, amp1);
+//	} else if (xx > x1 && xx <= x2) {
+//        // 直線
+//      result = slope * xx + intercept;
+//                    } else {
+//       // 右側のガウス関数
+////            return amp2 * 2- gaussian(xx, mean2, sigma2, amp2);
+//          result =  gaussian(xx, mean2, sigma2, amp2);
+//       }
+//	return result + gy;
+
+}
+
+
+
+//Double_t func_GTR200(Double_t *x, Double_t *params) {
+//  double xx = x[0];
+//  double yy = x[1];
+//    // 左側のガウス関数のパラメータ
+//   double mean1 = params[0];
+//   double sigma1 = params[1];
+//   double amp1 = params[2];
+//   double x1 = params[3];  // 左側ガウスと直線の接続点
+//   double mean2 = params[4];
+//   double sigma2 = params[5];
+//   double amp2 = params[6];
+// 	double x2 = params[7];  // 右側ガウスと直線の接続点
+//
+//	double amp_y  = params[8];//
+//	double y0     = params[9];//y mean
+//	double sigmaY = params[10];
+//
+//   double g1 = gaussian(x1, mean1, sigma1, amp1);
+//   double g2 = gaussian(x2, mean2, sigma2, amp2);
+//   double gy = y0 - amp_y * exp(-0.5 * pow((yy - y0) / sigmaY, 2));//y
+//   double slope = (g2 - g1) / (x2 - x1);
+//   double intercept = g1 - slope * x1;
+//	
+//	double result;
+//	if (xx <= x1) {
+//   	result =  gaussian(xx, mean1, sigma1, amp1);
+//	} else if (xx > x1 && xx <= x2) {
+//        // 直線
+//      result = slope * xx + intercept;
+//                    } else {
+//       // 右側のガウス関数
+////            return amp2 * 2- gaussian(xx, mean2, sigma2, amp2);
+//          result =  gaussian(xx, mean2, sigma2, amp2);
+//       }
+//	return result + gy;
+//}
+//
+
+Double_t func_GTR300(Double_t *x, Double_t *params) {
+	double xx = x[0];
+	double amp1 = params[0];
+	return amp1;
+}
+
+
 int main (int argc, char** argv) {
-	if(argc != 7){
-		std::cout << "./bin/~~ [input.root] [output.root] [runID] [event_start] [event_end] [GeomMovePatternID]" << std::endl;
+	if(argc != 8){
+		std::cout << "./bin/~~ [input.root] [output.root] [runID] [event_start] [event_end] [GeomMovePatternID] [t0_params]" << std::endl;
 		return 0;	
 	}
 	std::string in_file  = argv[1];
@@ -89,16 +213,19 @@ int main (int argc, char** argv) {
 	int run_id           = stoi(argv[3]);
 	int event_start      = stoi(argv[4]);
 	int event_end        = stoi(argv[5]);
-	int geom_move_pid   = stoi(argv[6]); // pattern id
+	int geom_move_pid    = stoi(argv[6]); // pattern id
+	int t0_param_pid     = stoi(argv[7]);
 	TFile *fin           = new TFile(in_file.c_str());
 	TTree *tree          = (TTree*)fin->Get("tree");
 	int nevent           = tree->GetEntries();
-	int print_cycle      = 20000;
+	int print_cycle      = 2000;
 	bool vertex_xy_fix_flag = false;
    bool py_fix_flag        = false;
 	bool vetex_z_fix_flag   = false;
 
 	int target_mid = 106;
+//	int target_lid = 0;
+	int target_lid = 2;
 
 	auto& calib = E16ANA_CalibDBManager::Instance();
 	calib.SetRunID(run_id);
@@ -115,7 +242,11 @@ int main (int argc, char** argv) {
 //
 //	SetGeomMovePattern("/home/had/mtomoki/E16/work_dst1/install/GeomMovePatterns.txt", geom_move_pid);
 	
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240813.dat";
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240821.dat";
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_m104_106_107_240823.dat";
 	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240627.dat";
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_morino.dat";
 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(gfile));
 	std::cout << "Read Geometry : " << gfile << std::endl;
 
@@ -176,25 +307,90 @@ int main (int argc, char** argv) {
 	E16ANA_StraightMultiTrack *pair_fitter = new E16ANA_StraightMultiTrack( nullptr, geom,  targets_pos, 2);
 	E16DSTN_ReStraightV2 *re = new E16DSTN_ReStraightV2(tree, out_file_temp.c_str(), geom,  fitter, pair_fitter, targets_pos);
 	
+	
+
 	re->SetGeomMovePattern("/home/had/mtomoki/E16/work_dst1/install/GeomMovePatterns.txt", geom_move_pid);
 	re->SetGeomTemp(target_mid);
 
-//tracking again
+//t0 function
+    TF2 *ft0_100 = new TF2("func_gtr100", func_GTR100, -50, 50, -50, 50, 10);
+    ft0_100->SetParameters(300, 279, -25, 29, 25, 20 , 25, 300); // A1, A2, x0, x1, y0, sigmaX, sigmaX2, sigmaY //240822
+
+
+	 TF2 *ft0_200 = new TF2("func_gtr200", func_GTR200, -100, 100,-100, 100,  7);
+    ft0_200->SetParameters(0.2, 220, 290, -85, -40, 50, 70);
+
+
+
+
+
+//    TF2 *ft0_300 = new TF2("func_gtr300", "[0]*TMath::Gaus(x, [1], [2])*TMath::Gaus(y, [3], [4]) + 280", -150, 150, -150, 150);
+//    ft0_300->SetParameters(250, 80, 120, 280, 80);// amp1, mean2, sigma2 ,amp2,connecion2
 	
-   TF2 *ft0 = new TF2("ft0","[0]*TMath::Gaus(x,[1],[2])*TMath::Gaus(y,[3],[4])+250",-50,50,-50,50);
-	ft0->SetParameters(100, 0, 30, 0, 30);
-	re->SetT0Func(ft0);
+
+	TF2 *ft0_300 = new TF2("func_gtr300", func_GTR300, -150, 150,-150, 150,  1);
+	
+  ft0_300->SetParameter(0, 250);
+
+ 
+
+	std::string t0_file = "/home/had/mtomoki/E16/work_dst1/install/t0_func_params.txt";
+	std::ifstream infile(t0_file);
+	std::string line;
+	int   gtr_size;
+	int  p_id;
+//	double amp_x0, amp_x1, x0, x1, y0, sigma_x0, sigma_x1, sigma_y;
+	double p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11;
+	while (std::getline(infile, line)){
+		if(line.empty() || line[0] == '#'){
+			continue;
+		}
+		std::istringstream iss(line);
+			if(target_lid == 0 ){
+			if (iss >> p_id >> gtr_size >> p0 >> p1 >> p2 >> p3 >> p4 >> p5 >> p6 >> p7 ){
+						if(p_id == t0_param_pid ){
+   					ft0_100->SetParameters(p0, p1, p2, p3, p4, p5, p6, p7);
+						cout << "t0 function 100 set " << endl;
+						}
+				}
+			}
+		else if(target_lid == 1 ){
+//		if (iss >> p_id >> gtr_size >> p0 >> p1 >> p2 >> p3 >> p4 >> p5 >> p6 >> p7 >> p8 >> p9 >> p10  ){
+		if (iss >> p_id >> gtr_size >> p0 >> p1 >> p2 >> p3 >> p4 >> p5 >> p6  ){
+					if(p_id == t0_param_pid ){
+   				ft0_200->SetParameters(p0, p1, p2, p3, p4, p5, p6);
+					cout << "t0 function 200 set p0 = " << p0 << endl;
+   				}
+			}
+		}
+ 		else if(target_lid == 2 ){
+		cout << "gtr_size == 300 " << endl;
+		if (iss >> p_id >> gtr_size >> p0  ){
+					if(p_id == t0_param_pid ){
+   				ft0_300->SetParameter(0, p0);
+					cout << "t0 function 300 set p0 = " << p0 << endl;
+   			}
+			}
+		}
+	}
+ 	re->SetT0Func_GTR100(ft0_100);
+ 	re->SetT0Func_GTR200(ft0_200);
+ 	re->SetT0Func_GTR300(ft0_300);
+
+
 
    re->ReTrackingAndDuplicationCut(tree, print_cycle, event_start, event_end,vertex_xy_fix_flag, py_fix_flag, vetex_z_fix_flag, target_mid);
 	TTree *outtree = re->TreeOut();
+	outtree->Write();
+	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
+	re_draw->SetT0Func_GTR100(ft0_100);
 	fitter->Clear();
 	pair_fitter->Clear();
 
-	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(outtree, out_file.c_str(), geom,  fitter, pair_fitter, targets_pos);
 	re_draw->DrawHistWire(outtree, event_start, event_end, print_cycle, -1, "temp.pdf");
-//	E16DSTN_ReStraightV2 *re_draw = new E16DSTN_ReStraightV2(tree, out_file.c_str(), geom, fitter, pair_fitter, targets_pos);
-//	re_draw->DrawHistWire(tree, event_start, event_end, print_cycle, -1, "temp.pdf");
-	re_draw->FileOut()->Write();//outtree
+	re_draw->FileOut()->Write();
+	re->FileOut()->Close();
+	re_draw->FileOut()->Close();
 	return 0;	
 }
 
