@@ -244,9 +244,9 @@ void E16DSTN_ReStraightV2::DuplicationClusterCutForWire(std::vector<int> &in_ids
 			rk_hit_sts_id->at(tid),
 		rk_hit_gtr100_xid->at(tid)
 //		rk_hit_gtr100_yid->at(tid),
-//		rk_hit_gtr200_xid->at(tid),
+//		rk_hit_gtr200_xid->at(tid)
 //		rk_hit_gtr200_yid->at(tid),
-//		rk_hit_gtr300_xid->at(tid),
+//	rk_hit_gtr300_xid->at(tid)
 //		rk_hit_gtr300_yid->at(tid)
 			};
 	
@@ -329,8 +329,11 @@ void E16DSTN_ReStraightV2::ReTrackingAndDuplicationCut(TTree* tree, int print_cy
    	}
 		ClearUsedClusterIDs();
 		ChiSqSort(fit_ids, sorted_ids);
+#ifdef WIRE_STS_TRACK
 		DuplicationClusterCutForWire(sorted_ids, alive_ids);
-//		DuplicationClusterCut(sorted_ids, alive_ids);
+#else
+		DuplicationClusterCut(sorted_ids, alive_ids);
+#endif
 		AnalyzeTrackPairs(alive_ids);
 	 	AddRecord(tree, alive_ids);
       if( n% print_cycle == 0 ){
@@ -525,8 +528,8 @@ TVector3 E16DSTN_ReStraightV2::CorrectedLocalPos(const int itk, const int mid, c
 //		cout << " xt = " << xt << ",  dt =  " << dt << ", tan =" << tan_theta << ", dtx = " << dtx << endl;
 		lx = cogx - dtx;
 
-		return TVector3(lx, cogy, 0);
-//		return TVector3(cogx, cogy, 0);
+//		return TVector3(lx, cogy, 0);
+		return TVector3(cogx, cogy, 0);
 	}
 	else if(lid == 2){//gtr200
 		double lx, ly, lz;
@@ -786,6 +789,7 @@ void E16DSTN_ReStraightV2::ClearUsedClusterIDs() {
 }
 
 
+#ifdef WIRE_STS_TRACK
 bool E16DSTN_ReStraightV2::HasUsedClusterForWire(const array<int, n_kill_strips> &cids, std::vector<std::array<int, n_kill_strips>> &used_cid_sets ){
 // No allow for STS duplication
 // allow for STS is different,gtr is same
@@ -812,7 +816,7 @@ bool E16DSTN_ReStraightV2::HasUsedClusterForWire(const array<int, n_kill_strips>
 //No allow for Same combination 
 		return std::find(used_cid_sets.begin(), used_cid_sets.end(), cids) != used_cid_sets.end();
 }
-
+#endif
 
 bool E16DSTN_ReStraightV2::HasUsedCluster(const array<int, kNumTrackingStrips- 2> &cids,std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids ){
 	for (int i = 0; i < kNumTrackingStrips-2; ++i) {

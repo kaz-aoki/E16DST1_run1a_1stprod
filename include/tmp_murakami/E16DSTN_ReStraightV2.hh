@@ -2592,7 +2592,6 @@ public:
  
 	TFile *FileOut() {return fout;}
 	TTree *TreeOut() {return outtree;}
-   bool HasUsedClusterForWire(const std::array<int, n_kill_strips>& cids, std::vector<std::array<int, n_kill_strips>> &uster_ids_wire);
 //   bool HasUsedCluster(const std::array<int, 1>& cids, std::array<std::vector<int>, 1> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips> &used_cluster_ids);
    bool HasUsedCluster(const std::array<int, E16ANA_StraightTrackConstant::kNumTrackingStrips - 2>& cids, std::array<std::vector<int>, E16ANA_StraightTrackConstant::kNumTrackingStrips-2> &used_cluster_ids);
@@ -2604,6 +2603,7 @@ public:
 	void SelectTracks(std::vector<int> &ids, std::vector<int> &outids);
 	void DuplicationClusterCut(std::vector<int> &ids, std::vector<int> &outids);
 #ifdef WIRE_STS_TRACK
+	bool HasUsedClusterForWire(const std::array<int, n_kill_strips>& cids, std::vector<std::array<int, n_kill_strips>> &uster_ids_wire);
 	void DuplicationClusterCutForWire(std::vector<int> &ids, std::vector<int> &outids);
 #endif
 
