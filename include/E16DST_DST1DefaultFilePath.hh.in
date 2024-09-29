@@ -4,31 +4,12 @@
 #include <array>
 #include <string_view>
 
+static constexpr std::string_view CalibFilePath {"@E16_DB_DIR@/calib"};
+static constexpr std::string_view MagneticFieldMapFile("@E16_DB_DIR@/fieldmap/Bmap-SKS-block-far-191218-2450A-rev1.binary");
 #ifdef CCJ_CALIB_FILE // kekcc too.
-//static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/calib_database"};
-//static constexpr std::string_view CalibFilePath {"@CMAKE_INSTALL_DATADIR@/database/calib_database"};
-static constexpr std::string_view CalibFilePath {"/ccj/u/E16/database/calib"};
-//static constexpr std::string_view CalibFilePath {"/e16/u/E16/database_ccj_230524/calib"};
-
-//static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/geometry_database/v2/geometry_Run0b_210226_design.dat"};
-static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0b_210226_design.dat"};
-//static constexpr std::string_view GeometryFile {"@CMAKE_INSTALL_DATADIR@/database/geometry_database/v2/geometry_Run0c_211006b.dat"};
-//static constexpr std::string_view GeometryFile {"/ccj/u/ymorino/geo/geometry_Run0c_211006b.dat"};
-//static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
-//static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0b_210226_design.dat"};//kekcc 
-//static constexpr std::string_view GeometryFile {"/ccj/u/ymorino/geometry_mod3.dat"};
-//static constexpr std::string_view GeometryFile {"/ccj/u/mtomoki/E16/Photogrametry/E16ANA_Photo/geometry/geometry_bfRun0d_011_modified.dat"};
-
-//static constexpr std::string_view MagneticFieldMapFile("@CMAKE_INSTALL_DATADIR@/fieldmap/Bmap-SKS-block-far-191218-2450A.binary");
-//static constexpr std::string_view MagneticFieldMapFile("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary"); // evb
-//static constexpr std::string_view MagneticFieldMapFile("/ccj/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A.binary"); // ccj
-static constexpr std::string_view MagneticFieldMapFile("/ccj/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A-rev1.binary"); // ccj
+static constexpr std::string_view GeometryFile {"@E16_DB_DIR@/geometry/v2/geometry_Run0e_m103_104_106_107_240922.dat"};
 #else // CCJ_CALIB_FILE
-static constexpr std::string_view CalibFilePath {"/e16/u/E16/database/calib"};
-//static constexpr std::string_view GeometryFile {"/ccj/u/E16/database/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
-static constexpr std::string_view GeometryFile {"/e16/u/E16/database/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
-//static constexpr std::string_view GeometryFile {"/e16/u/E16/database_run0d/geometry/v2/geometry_bfRun0d_011_modified.dat"};
-static constexpr std::string_view MagneticFieldMapFile("/e16/u/E16/database/fieldmap/Bmap-SKS-block-far-191218-2450A-rev1.binary");
+static constexpr std::string_view GeometryFile {"@E16_DB_DIR@/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
 #endif // CCJ_CALIB_FILE
 
 

@@ -44,16 +44,20 @@ message("-- Building host is ${_host_name}")
 if(${_host_name} MATCHES "^e16")
    message("-- E16SYS_DIR will be set for e16 servers.")
    set(E16SYS_DIR /opt/E16)
+   set(E16_DB_DIR /e16/u/E16/database)
 elseif(${_host_name} MATCHES "^ccj")
    message("-- E16SYS_DIR will be set for ccj servers.")
    set(E16SYS_DIR /ccj/u/E16)
+   set(E16_DB_DIR /ccj/u/E16/database)
    add_definitions(-DCCJ_CALIB_FILE) # for calib files
 elseif(${_host_name} MATCHES "cc.kek.jp$")
    message("-- E16SYS_DIR will be set for kekcc servers.")
    set(E16SYS_DIR /opt/E16)
+   set(E16_DB_DIR /ccj/u/E16/database)
    add_definitions(-DCCJ_CALIB_FILE) # for calib files
 endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
+message(STATUS "E16_DB_DIR:  ${E16_DB_DIR}")
 
 
 #add_definitions(-DTRACK_FIND_WO_TARGET) # \\ common for wire and three targets for straight track, 
