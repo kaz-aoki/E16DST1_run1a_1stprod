@@ -7,6 +7,7 @@
 static constexpr std::string_view CalibFilePath {"@E16_DB_DIR@/calib"};
 static constexpr std::string_view MagneticFieldMapFile("@E16_DB_DIR@/fieldmap/Bmap-SKS-block-far-191218-2450A-rev1.binary");
 #ifdef CCJ_CALIB_FILE // kekcc too.
+//static constexpr std::string_view GeometryFile {"@E16_DB_DIR@/geometry/v2/geometry_Run0b_210226_design.dat"};
 static constexpr std::string_view GeometryFile {"@E16_DB_DIR@/geometry/v2/geometry_Run0e_m103_104_106_107_240922.dat"};
 #else // CCJ_CALIB_FILE
 static constexpr std::string_view GeometryFile {"@E16_DB_DIR@/geometry/v2/geometry_Run0c_211006b_ymorino_220122.dat"};
