@@ -48,27 +48,27 @@ namespace E16ANA_TrackParameter {
 //}
 
 // electron
-constexpr bool kVtxZFixFlag = false; // 220607
-//constexpr bool kVtxZFixFlag = true;
+  //constexpr bool kVtxZFixFlag = false; // 220607
+constexpr bool kVtxZFixFlag = true;
 //constexpr double kInitXRange[2] = {-40., 40.}; // 220607
 //constexpr double kInitYRange[2] = {-40., 40.}; // 220607
 //constexpr double kInitZRange[2] = {-40., 40.}; // 220607
-constexpr double kInitXRange[2] = {-150., 150.}; // 220607
-constexpr double kInitYRange[2] = {-150., 150.}; // 220607
-constexpr double kInitZRange[2] = {-150., 150.}; // 220607
+constexpr double kInitXRange[2] = {-20., 20.}; // 220607
+constexpr double kInitYRange[2] = {-20., 20.}; // 220607
+constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.1, 0., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}, {0.3, 1., 0.}}};
 const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
-                                          {0.265, 0.626, 0.},
-                                          {0.252, 0.542, 0.},
-                                          {0.262, 0.518, 0.}}}; // 220623 TDR2206
-//const TVector3 kInitPosError = {3., 3.4, 0.};
-const TVector3 kInitPosError = {0., 0., 0.}; // 220607
+                                          {0.265, 0.6, 0.},
+                                          {0.252, 0.6, 0.},
+                                          {0.262, 0.6, 0.}}}; // 220623 TDR2206
+const TVector3 kInitPosError = {2., 2, 0.};
+  //const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
 //const TVector3 kInitPosError = {2., 2., 0.};
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {40., 60., 60.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {45., 55., 60.};
 //constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
 #ifndef TRACK_FIND_WO_TARGET
-constexpr const std::array<double, 5> kXSigma = {3., 0.05, 0.1, 0.1, 0.1}; // 220413 for statistics check
+constexpr const std::array<double, 5> kXSigma = {3.5, 0.05, 0.3, 0.3, 0.3}; // 220413 for statistics check
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[1] * kXSigma[1]),
                                             1. / (kXSigma[2] * kXSigma[2]),
@@ -82,10 +82,11 @@ constexpr std::array<double, 5> kXWeight = {1. / (kXSigma[0] * kXSigma[0]),
                                             1. / (kXSigma[2] * kXSigma[2]),
                                             1. / (kXSigma[3] * kXSigma[3])};
 #endif // TRACK_FIND_WO_TARGET
-constexpr std::array<double, 3> kYSigma = {1., 1., 1.}; // y rough fit
-constexpr std::array<double, 3> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
+constexpr std::array<double, 4> kYSigma = {3, 1., 1., 1.}; // y rough fit
+constexpr std::array<double, 4> kYWeight = {1. / (kYSigma[0] * kYSigma[0]),
                                             1. / (kYSigma[1] * kYSigma[1]),
-                                            1. / (kYSigma[2] * kYSigma[2])};
+                                            1. / (kYSigma[2] * kYSigma[2]),
+                                            1. / (kYSigma[3] * kYSigma[3])};
 constexpr int kMinHitsInXCluster = 2;
 //constexpr int kMinHitsInXCluster = 1;
 constexpr double kGTRYDiffThreshold = 20.; // mm
@@ -103,7 +104,7 @@ constexpr double kInitPosBackRadius = 10.;
 #endif // TRACK_FIND_WO_TARGET
 #ifndef TRACK_FIND_WO_TARGET
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {500., 20.}; // x, y // 220413 for statistics check, 220418 for production
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {90., 15.}; // x, y // 220413 for statistics check, 220418 for production
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {25., 0., 0.001};
 //constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.01}; // 220413 for statistics check
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
@@ -114,17 +115,17 @@ constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // c
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {3., 0.2}; // x, y from sim
 //constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.06, 0.1, 0.002};
 //constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 50.}; // x, y from previous Ks peak
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {4., 10.}; // x, y from previous Ks peak
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {0.07, 0.08, 0.0015};
-constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {60., 0.}; // coef[1] not used.
+constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {20., 0.}; // coef[1] not used.
 #endif // TRACK_FIND_WO_TARGET
 
 static bool ExistADCCorrelation(int layer_id, float x_adc, float y_adc) {
 //  if (y_adc < 0.74 * x_adc + 600. && (y_adc > 0.74 * x_adc - 600. || y_adc > 1200.)) {
-//  if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. )) { // 220418 for production
+  //if (y_adc < 0.74 * x_adc + 1000. && (y_adc > 0.74 * x_adc - 1000. || y_adc > 1200.)) { // 220418 for production
     return true;
-//  }
-//  return false;
+    //}
+    //return false;
 }
 
 // other
