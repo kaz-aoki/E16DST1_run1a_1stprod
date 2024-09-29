@@ -64,8 +64,8 @@ message(STATUS "E16_DB_DIR:  ${E16_DB_DIR}")
 # *caution just a finding, not fitting
 
 #tracking //murakmai
-add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
-#add_definitions(-DUseSTS) # //turn on this if you have sts, like Run0e
+#add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
+add_definitions(-DUseSTS) # //turn on this if you have sts, like Run0e
 #add_definitions(-DSTS_DO_CLUSTERING) # //turn on this if you want STS clustering (Run0e)
 #add_definitions(-DWIRE_STS_TRACK) # //turn on this if you want STS clustering (Run0e)
 #add_definitions(-DREMOVE_GTR100) # 

@@ -43,9 +43,9 @@ class E16ANA_TrackClusterPair {
     module_id   = _module_id;
     clusters[0] = _x_cluster;
     clusters[1] = _y_cluster;
-    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(_x_cluster)->LocalPosT().X(), dynamic_cast<E16DST_DST1GTRCluster*>(_y_cluster)->LocalPosT().Y(), 0.}; // z = 0?
-//    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
-    global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
+    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(_x_cluster)->LocalPos().X(), dynamic_cast<E16DST_DST1GTRCluster*>(_y_cluster)->LocalPos().Y(), 0.}; // z = 0?
+    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
+    //global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
   void Clear() {
     set_flag = 0;
@@ -167,6 +167,10 @@ class E16ANA_TrackCandidate {
   void SetDefaultSigma();
   void SetPosAtX0(TVector3 _pos) { pos_at_x0 = _pos; }
   void SetMomAtX0(TVector3 _mom) { mom_at_x0 = _mom; }
+  void SetXqual(int _qual)  {xqual = _qual;}
+  void SetYqual(int _qual)  {yqual = _qual;}
+  int  Xqual() {return xqual;}
+  int  Yqual() {return yqual;}
 //  TVector3 Sigma() { return kSigma; }
   TVector3 EachSigma(int n);
   TVector3 InitPosError();
@@ -373,6 +377,8 @@ class E16ANA_TrackCandidate {
   E16ANA_MagneticFieldMap* bfield_map;
   int track_id;
   int target_id;
+  int xqual;
+  int yqual;
   bool has_e_hbd_cluster;
   bool has_e_lg_hit;
   bool is_large_residual;
@@ -613,6 +619,8 @@ class E16ANA_TrackCandidates {
     E16DST_DST1STSCluster* sts_cluster;
 //    std::array<E16DST_DST1GTRCluster*, kNumGTRLayers> gtr_clusters;
     std::array<E16DST_DST1GTRCluster*, 3> gtr_clusters;
+    int trkqual;
+
   };
   static constexpr int kNumTrackingLayersWTarget = 1 + E16ANA_TrackConstant::kNumTrackingLayers;
   static constexpr int kNumGTRLayers = E16ANA_TrackConstant::kNumTrackingLayers - 1;
@@ -677,7 +685,7 @@ class E16ANA_TrackCandidates {
 
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
 #ifndef TRACK_FIND_WO_TARGET
-  static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
+  static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set,int full);
   static TVector3 Rotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
     auto z = rot_sin * pos.X() + rot_cos * (pos.Z() - offset);
@@ -700,7 +708,7 @@ class E16ANA_TrackCandidates {
   static void CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
                             std::array<double, kNumTrackingLayersWTarget>* zz,
                             std::array<double, kNumRoughFitDegree[0]>* zx,
-                            std::array<double, kNumRoughFitDegree[0]>* coef);
+                            std::array<double, kNumRoughFitDegree[0]>* coef, int full);
   static void CalcInverseMatrix(const std::array<double, 5>& mz, std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>* matrix);
   static void CalcCoefficients(const std::array<double, kNumRoughFitDegree[0]>& zx,
                                const std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]>& line,
@@ -715,8 +723,8 @@ class E16ANA_TrackCandidates {
 //  static void CalcChiSquare();
   bool HasXAssociatedHBD(int tgt_id, const OneAxisClusterSet& cluster_set, const std::array<double, kNumRoughFitDegree[0]>& coef,
                          std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
-  bool IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set);
-  bool IsYTrackCandidate(OneAxisClusterSet* cluster_set);
+  bool IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set, int full);
+  bool IsYTrackCandidate(OneAxisClusterSet* cluster_set, int full);
 #else // TRACK_FIND_WO_TARGET
   int ModuleSetType(const OneAxisClusterSet& cluster_set);
   static bool IsCurveCorrelation(int module_set_type, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set, std::array<double, 2>* dists);
