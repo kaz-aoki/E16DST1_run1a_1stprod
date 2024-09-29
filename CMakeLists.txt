@@ -1587,5 +1587,14 @@ target_link_libraries(tmp_check_track_finding_230106
 #)
 #
 #_______________________________________________________________________________
+add_executable(check_lorentz_correction
+  usr/tmp/check_lorentz_correction.cc
+)
+
+target_link_libraries(check_lorentz_correction
+  E16ANA_Basic
+)
+
+#_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)
