@@ -211,16 +211,17 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
     double sumx =0;
     int nhit = c.NumCls();
     for(int j=0;j<nhit;j++){
-      double lz = c.CTiming(j)*kGTRDriftVelocity*cos(kGTRDriftLorentzAngle[lid]);//106
+      //double lz = c.CTiming(j)*kGTRDriftVelocity*cos(kGTRDriftLorentzAngle[lid]);//106
       //sumx  += c.CPos(j)  - (tthe*lz);
       sumx  += c.CPos(j)  ;
     }
     double intc  = sumx/nhit;
     //double ltdc2 = intc+tthe*kGTRTDCCenter[l - 1]*kGTRDriftVelocity*cos(kGTRDriftLorentzAngle[lid])+kGTRGEMLorentzLength[mid][lid];
-    double ltdc2 = intc+kGTRGEMLorentzLength[mid][lid];
+    double ltdc2 = intc;
     TVector3 lc(ltdc2,c.LocalPos().Y(),c.LocalPos().Z());
     //TVector3 lc(c.LocalPos().X()+kGTRGEMLorentzLength[lid],c.LocalPos().Y(),c.LocalPos().Z());
     cluster_pairs[l].SetT(geometry,l,c.ModuleID(), lc);
+    CalcCorrectedPos(cluster_pairs[l], l - E16ANA_TrackConstant::kGTR100, lc1 - lc0);
 #else // TRACK_FIND_WO_TARGET
     auto g_angle = atan2(c.GlobalPos().X() - circ_center.X(), c.GlobalPos().Z() - circ_center.Z());
     auto gpos0   = TVector3(circ_center.X() + sin(g_angle) * radius, 0., circ_center.Z() + cos(g_angle) * radius);
@@ -247,7 +248,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   }
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
-    if (l == E16ANA_TrackConstant::kSSD) {
+    if (l == E16ANA_TrackConstant::kSSD) { // SSD or STS
 		#ifdef NoExist_SSD
    		continue;
 		#endif
@@ -261,19 +262,20 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 		//auto gpos = c.GlobalPos();
 		//cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     } else {
-      if(l< E16ANA_TrackConstant::kNumTrackingLayers-1){
+      if(l< E16ANA_TrackConstant::kNumTrackingLayers-1){ // GTR100, GTR200
 	TVector3 tsigma;
 	tsigma = sigma[l];
 	//if(xqual==0) tsigma.SetX(9999);
 	if(l==1&&yqual<1)  tsigma.SetY(9999);
-	//single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), sigma[l]);
-	single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), tsigma);
-      }else{
+	//single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), tsigma);
+	single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.CorrectedLocalPos(), tsigma);
+      }else{ // GTR300
 	TVector3 tsigma;
 	tsigma = sigma[l];
 	if(xqual==0) tsigma.SetX(9999);
 	if(yqual<1)  tsigma.SetY(9999);
-	single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), tsigma);
+	//single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), tsigma);
+	single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.CorrectedLocalPos(), tsigma);
       }
       
       //cout << l << " " << c.LocalPos().X() << " " << c.LocalPos().Y() << " " << c.LocalPos().Z() << endl;
@@ -1289,7 +1291,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
   auto cluster_set = new OneAxisClusterSet();
 
   for (const auto& sts_module_id : E16ANA_TrackConstant::kModuleIDs) {
-    if (sts_module_id < 106) {
+    if (sts_module_id == 105) {
       continue;
     }
 
@@ -1327,7 +1329,8 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
                 continue;
 	      }
 	      cluster_set->gtr_clusters[0] = gtr100x_cluster;
-	      cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPos(*geometry);
+	      //cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPos(*geometry);
+	      cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = CalcCorrectedGlobalPos(gtr100x_cluster);
 		//TVector3 testg = gtr100x_cluster->GlobalPos(*geometry);
 		//printf("x:%f,%f    y:%f,%f     z:%f,%f \n",cluster_set->global_poss[E16ANA_TrackConstant::kGTR100].X(),testg.X(),
 		//     cluster_set->global_poss[E16ANA_TrackConstant::kGTR100].Y(),testg.Y(),
@@ -1341,7 +1344,8 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
                   continue;
                 }
                 cluster_set->gtr_clusters[1] = gtr200x_cluster;
-                cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPos(*geometry);
+                //cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPos(*geometry);
+                cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = CalcCorrectedGlobalPos(gtr200x_cluster);
 
 		int fulltr = -1;
                 for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
@@ -1352,7 +1356,8 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
                     continue;
                   }
                   cluster_set->gtr_clusters[2] = gtr300x_cluster;
-                  cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPos(*geometry);
+                  //cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPos(*geometry);
+                  cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = CalcCorrectedGlobalPos(gtr300x_cluster);
 		  
                   bool is_cand = false;
                   double chi2 = 10000000.;
@@ -1396,7 +1401,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 // ------------- Y AXIS PART Begin -------------- //
 
   for (const auto& gtr300_module_id : E16ANA_TrackConstant::kModuleIDs) {
-    if (gtr300_module_id <106) {
+    if (gtr300_module_id == 105) {
       continue;
     }
     auto is_l = IsLModule(gtr300_module_id);
@@ -1457,7 +1462,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 	      }
 	    }
 	    }else{
-	      if(gtr100_module_id ==106){
+	      if(gtr100_module_id ==106 || gtr100_module_id == 104){
 		for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
 		  if (gtr300y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
 		    continue;
@@ -1530,7 +1535,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
       auto& gtry = y_cand.gtr_clusters;
       bool is_same_module = true;
 
-      if(gtrx[0]->ModuleId()==106&&gtrx[0]->LocalPos().X() <= 0){
+      if((gtrx[0]->ModuleId()==106 || gtrx[0]->ModuleId()==104) &&gtrx[0]->LocalPos().X() <= 0){
 	
       }else {
 	if ((gtry[0]->IsY() && gtrx[0]->LocalPos().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPos().X() >= 0)) {
@@ -3072,9 +3077,42 @@ void E16ANA_TrackCandidates::Analyze() {
   return;
 }
 
+TVector3 E16ANA_TrackCandidates::CalcCorrectedGlobalPos(E16DST_DST1GTRCluster *cluster){
+   // cluster LocalPos -> CorrectedLocalPos -> CorrectedGlobalPos
+   auto &lc = E16ANA_GTRLorentzCorrectionManager::Instance();
+   int m = cluster->ModuleId();
+   int l = cluster->LayerId();
+   auto lpos = cluster->LocalPos(); // (cogx, 0, 0)
+   TVector3 lmom(0,0,1); // tan_theta_x = 0.0
+   auto corrected_lpos = lc.CorrectLocalPos(m, l, lpos, cluster->Timing4(), lmom);
+   return geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(m), l)->GetGPos(corrected_lpos);
+}
 
+void E16ANA_TrackCandidate::CalcCorrectedPos(E16ANA_TrackClusterPair &cluster_pair, int gtr_layer_id, const TVector3 &lmom){
+   // clusterPair LocalPos -> CorrectedLocalPos -> CorrectedGlobalPos
+   // clusterPair CPos -> CorrectedLocalPosT -> CorrectedGlobalPosT
+   auto &lc = E16ANA_GTRLorentzCorrectionManager::Instance();
+   int m = cluster_pair.ModuleID();
+   int l = gtr_layer_id;
+   auto lpos = cluster_pair.LocalPos(); // (cogx, cogy, 0)
+   double xt4 = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pair.Cluster(0))->Timing4();
+   auto corrected_lpos = lc.CorrectLocalPos(m, l, lpos, xt4, lmom);
+   auto corrected_gpos = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(m), l)->GetGPos(corrected_lpos);
 
-
+   double sumx =0;
+   int nhit = cluster_pair.NumCls();
+   for(int j=0;j<nhit;j++){
+      double lx = cluster_pair.CPos(j);
+      double time = cluster_pair.CTiming(j);
+      TVector3 lpos_t(lx, lpos.Y(), lpos.Z());
+      double corrected_cpos = lc.CorrectLocalPos(m, l, lpos_t, time, lmom).X(); // Correct cluster by cluster
+      sumx += corrected_cpos;
+   }
+   sumx = sumx/nhit; // averaged
+   TVector3 corrected_lpos_t(sumx, lpos.Y(), lpos.Z());
+   auto corrected_gpos_t = geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(m), l)->GetGPos(corrected_lpos_t);
+   cluster_pair.SetCorrectedPos(corrected_lpos, corrected_gpos, corrected_lpos_t, corrected_gpos_t);
+}
 
 
 void E16ANA_TrackCandidates::PrintParam() {

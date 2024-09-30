@@ -13,6 +13,7 @@
 #include "E16ANA_MultiTrack.hh"
 #include "E16ANA_StepTrack.hh"
 #include "E16DST_DST1.hh"
+#include "E16ANA_GTRLorentzCorrection.hh"
 
 class E16ANA_TrackClusterPair {
  public:
@@ -47,6 +48,12 @@ class E16ANA_TrackClusterPair {
     global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
     //global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
+  void SetCorrectedPos(const TVector3 &lpos, const TVector3 &gpos, const TVector3 &lpos_t, const TVector3 &gpos_t){
+     corrected_local_pos = lpos;
+     corrected_global_pos = gpos;
+     corrected_local_t2pos = lpos_t;
+     corrected_global_t2pos = gpos_t;
+  }
   void Clear() {
     set_flag = 0;
     layer_order = E16DST_DST1Constant::kInvalidValue;
@@ -65,6 +72,10 @@ class E16ANA_TrackClusterPair {
   TVector3& GlobalPos() { return global_pos; }
   TVector3& LocalPosT() { return local_t2pos; }
   TVector3& GlobalPosT() { return global_t2pos; }
+  TVector3& CorrectedLocalPos()   { return corrected_local_pos; }
+  TVector3& CorrectedGlobalPos()  { return corrected_global_pos; }
+  TVector3& CorrectedLocalPosT()  { return corrected_local_t2pos; }
+  TVector3& CorrectedGlobalPosT() { return corrected_global_t2pos; }
   
   void SetT(const E16ANA_GeometryV2* _geometry, int _layer_order, int _module_id, const TVector3& _x_local_pos) { // GTR
     local_t2pos  = {_x_local_pos.X(),_x_local_pos.Y(),_x_local_pos.Z()}; // z = 0?
@@ -89,6 +100,10 @@ class E16ANA_TrackClusterPair {
   TVector3 global_pos;
   TVector3 local_t2pos;
   TVector3 global_t2pos;
+  TVector3 corrected_local_pos;
+  TVector3 corrected_global_pos;
+  TVector3 corrected_local_t2pos;
+  TVector3 corrected_global_t2pos;
   double ctheta;
   std::vector<double> ctiming;
   std::vector<double> cpos;
@@ -373,6 +388,7 @@ class E16ANA_TrackCandidate {
   void AddTrackHit(E16ANA_MultiTrack* single_track);
   void Projection(E16ANA_MultiTrack* fitter);
   void UpdateFitResult(E16ANA_MultiTrack* fitter);
+  void CalcCorrectedPos(E16ANA_TrackClusterPair &cluster_pair, int gtr_layer_id, const TVector3 &lmom);
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   int track_id;
@@ -799,6 +815,7 @@ class E16ANA_TrackCandidates {
   void SelectTrackPairs();
   void AnalyzeTrackPairs();
   void AddTracksToRecord();
+  TVector3 CalcCorrectedGlobalPos(E16DST_DST1GTRCluster *cluster);
   E16ANA_GeometryV2* geometry;
   E16ANA_MagneticFieldMap* bfield_map;
   E16ANA_MultiTrack* fitter;
