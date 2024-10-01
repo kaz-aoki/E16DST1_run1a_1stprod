@@ -72,6 +72,8 @@ class E16ANA_TrackClusterPair {
   TVector3& GlobalPos() { return global_pos; }
   TVector3& LocalPosT() { return local_t2pos; }
   TVector3& GlobalPosT() { return global_t2pos; }
+  // CorrectedLocalPos : (cogx, cogy, 0) -> correction with GTRLorentzCorrection
+  // CorrectedLocalPosT : CPos(j) are corrected with GTRLorentzCorrection (cluster-by-cluster), then averaged
   TVector3& CorrectedLocalPos()   { return corrected_local_pos; }
   TVector3& CorrectedGlobalPos()  { return corrected_global_pos; }
   TVector3& CorrectedLocalPosT()  { return corrected_local_t2pos; }

@@ -570,6 +570,18 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr100_gtx2",&rk_hit_gtr100_gtx2);
     tree->Branch("rk_hit_gtr100_gty2",&rk_hit_gtr100_gty2);
     tree->Branch("rk_hit_gtr100_gtz2",&rk_hit_gtr100_gtz2);
+    tree->Branch("rk_hit_gtr100_cor_lx",&rk_hit_gtr100_cor_lx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_ly",&rk_hit_gtr100_cor_ly); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_lz",&rk_hit_gtr100_cor_lz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_ltx",&rk_hit_gtr100_cor_ltx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_lty",&rk_hit_gtr100_cor_lty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_ltz",&rk_hit_gtr100_cor_ltz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gx",&rk_hit_gtr100_cor_gx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gy",&rk_hit_gtr100_cor_gy); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gz",&rk_hit_gtr100_cor_gz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gtx",&rk_hit_gtr100_cor_gtx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gty",&rk_hit_gtr100_cor_gty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gtz",&rk_hit_gtr100_cor_gtz); // added 241001 by nakai
     tree->Branch("rk_hit_gtr100_nc",  &rk_hit_gtr100_nc);
     tree->Branch("rk_hit_gtr100_the", &rk_hit_gtr100_the);
     tree->Branch("rk_hit_gtr100_the2",&rk_hit_gtr100_the2);
@@ -599,6 +611,18 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr200_gtx2",&rk_hit_gtr200_gtx2);
     tree->Branch("rk_hit_gtr200_gty2",&rk_hit_gtr200_gty2);
     tree->Branch("rk_hit_gtr200_gtz2",&rk_hit_gtr200_gtz2);
+    tree->Branch("rk_hit_gtr200_cor_lx",&rk_hit_gtr200_cor_lx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_ly",&rk_hit_gtr200_cor_ly); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_lz",&rk_hit_gtr200_cor_lz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_ltx",&rk_hit_gtr200_cor_ltx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_lty",&rk_hit_gtr200_cor_lty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_ltz",&rk_hit_gtr200_cor_ltz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gx",&rk_hit_gtr200_cor_gx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gy",&rk_hit_gtr200_cor_gy); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gz",&rk_hit_gtr200_cor_gz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gtx",&rk_hit_gtr200_cor_gtx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gty",&rk_hit_gtr200_cor_gty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gtz",&rk_hit_gtr200_cor_gtz); // added 241001 by nakai
     tree->Branch("rk_hit_gtr200_nc",  &rk_hit_gtr200_nc);
     tree->Branch("rk_hit_gtr200_xt3", &rk_hit_gtr200_xt3);
     tree->Branch("rk_hit_gtr200_xt4", &rk_hit_gtr200_xt4);
@@ -628,6 +652,18 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr300_gtx2",&rk_hit_gtr300_gtx2);
     tree->Branch("rk_hit_gtr300_gty2",&rk_hit_gtr300_gty2);
     tree->Branch("rk_hit_gtr300_gtz2",&rk_hit_gtr300_gtz2);
+    tree->Branch("rk_hit_gtr300_cor_lx",&rk_hit_gtr300_cor_lx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_ly",&rk_hit_gtr300_cor_ly); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_lz",&rk_hit_gtr300_cor_lz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_ltx",&rk_hit_gtr300_cor_ltx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_lty",&rk_hit_gtr300_cor_lty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_ltz",&rk_hit_gtr300_cor_ltz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gx",&rk_hit_gtr300_cor_gx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gy",&rk_hit_gtr300_cor_gy); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gz",&rk_hit_gtr300_cor_gz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gtx",&rk_hit_gtr300_cor_gtx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gty",&rk_hit_gtr300_cor_gty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gtz",&rk_hit_gtr300_cor_gtz); // added 241001 by nakai
     tree->Branch("rk_hit_gtr300_nc",  &rk_hit_gtr300_nc);
     tree->Branch("rk_hit_gtr300_the", &rk_hit_gtr300_the);
     tree->Branch("rk_hit_gtr300_the2",&rk_hit_gtr300_the2);
@@ -2330,6 +2366,18 @@ class E16ANA_TrackCheckFile {
     rk_hit_gtr100_gtx2.resize(rn_cands);
     rk_hit_gtr100_gty2.resize(rn_cands);
     rk_hit_gtr100_gtz2.resize(rn_cands);
+    rk_hit_gtr100_cor_lx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_ly.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_lz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_ltx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_lty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_ltz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gy.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gtx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gtz.resize(rn_cands); // added 241001 by nakai
     rk_hit_gtr100_nc.resize(rn_cands);
     rk_hit_gtr100_the.resize(rn_cands);
     rk_hit_gtr100_the2.resize(rn_cands);
@@ -2343,6 +2391,18 @@ class E16ANA_TrackCheckFile {
     rk_hit_gtr200_gtx2.resize(rn_cands);
     rk_hit_gtr200_gty2.resize(rn_cands);
     rk_hit_gtr200_gtz2.resize(rn_cands);
+    rk_hit_gtr200_cor_lx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_ly.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_lz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_ltx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_lty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_ltz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gy.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gtx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gtz.resize(rn_cands); // added 241001 by nakai
     rk_hit_gtr200_nc.resize(rn_cands);
     rk_hit_gtr200_the.resize(rn_cands);
     rk_hit_gtr200_the2.resize(rn_cands);
@@ -2356,6 +2416,18 @@ class E16ANA_TrackCheckFile {
     rk_hit_gtr300_gtx2.resize(rn_cands);
     rk_hit_gtr300_gty2.resize(rn_cands);
     rk_hit_gtr300_gtz2.resize(rn_cands);
+    rk_hit_gtr300_cor_lx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_ly.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_lz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_ltx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_lty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_ltz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gy.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gtx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gtz.resize(rn_cands); // added 241001 by nakai
     rk_hit_gtr300_nc.resize(rn_cands);
     rk_hit_gtr300_the.resize(rn_cands);
     rk_hit_gtr300_the2.resize(rn_cands);
@@ -2772,6 +2844,18 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr100_gtx2[i] = gtr100hit_gpos2.X();
       rk_hit_gtr100_gty2[i] = gtr100hit_gpos2.Y();
       rk_hit_gtr100_gtz2[i] = gtr100hit_gpos2.Z();
+      rk_hit_gtr100_cor_lx[i]   = pairs[1].CorrectedLocalPos().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_ly[i]   = pairs[1].CorrectedLocalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_lz[i]   = pairs[1].CorrectedLocalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr100_cor_ltx[i]  = pairs[1].CorrectedLocalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_lty[i]  = pairs[1].CorrectedLocalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_ltz[i]  = pairs[1].CorrectedLocalPosT().Z(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gx[i]   = pairs[1].CorrectedGlobalPos().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gy[i]   = pairs[1].CorrectedGlobalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gz[i]   = pairs[1].CorrectedGlobalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gtx[i]  = pairs[1].CorrectedGlobalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gty[i]  = pairs[1].CorrectedGlobalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gtz[i]  = pairs[1].CorrectedGlobalPosT().Z(); // added 241001 by nakai
       rk_hit_gtr100_nc[i]   = pairs[1].NumCls();
       rk_hit_gtr100_the2[i] = pairs[1].Theta();
       auto gtr100_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
@@ -2814,6 +2898,18 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr200_gtx2[i] = gtr200hit_gpos2.X();
       rk_hit_gtr200_gty2[i] = gtr200hit_gpos2.Y();
       rk_hit_gtr200_gtz2[i] = gtr200hit_gpos2.Z();
+      rk_hit_gtr200_cor_lx[i]   = pairs[2].CorrectedLocalPos().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_ly[i]   = pairs[2].CorrectedLocalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_lz[i]   = pairs[2].CorrectedLocalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr200_cor_ltx[i]  = pairs[2].CorrectedLocalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_lty[i]  = pairs[2].CorrectedLocalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_ltz[i]  = pairs[2].CorrectedLocalPosT().Z(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gx[i]   = pairs[2].CorrectedGlobalPos().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gy[i]   = pairs[2].CorrectedGlobalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gz[i]   = pairs[2].CorrectedGlobalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gtx[i]  = pairs[2].CorrectedGlobalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gty[i]  = pairs[2].CorrectedGlobalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gtz[i]  = pairs[2].CorrectedGlobalPosT().Z(); // added 241001 by nakai
       rk_hit_gtr200_nc[i]   = pairs[2].NumCls();
       rk_hit_gtr200_the2[i] = pairs[2].Theta();
       auto gtr200_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[2].Cluster(0));
@@ -2851,6 +2947,18 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr300_gtx2[i] = gtr300hit_gpos2.X();
       rk_hit_gtr300_gty2[i] = gtr300hit_gpos2.Y();
       rk_hit_gtr300_gtz2[i] = gtr300hit_gpos2.Z();
+      rk_hit_gtr300_cor_lx[i]   = pairs[3].CorrectedLocalPos().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_ly[i]   = pairs[3].CorrectedLocalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_lz[i]   = pairs[3].CorrectedLocalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr300_cor_ltx[i]  = pairs[3].CorrectedLocalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_lty[i]  = pairs[3].CorrectedLocalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_ltz[i]  = pairs[3].CorrectedLocalPosT().Z(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gx[i]   = pairs[3].CorrectedGlobalPos().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gy[i]   = pairs[3].CorrectedGlobalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gz[i]   = pairs[3].CorrectedGlobalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gtx[i]  = pairs[3].CorrectedGlobalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gty[i]  = pairs[3].CorrectedGlobalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gtz[i]  = pairs[3].CorrectedGlobalPosT().Z(); // added 241001 by nakai
       rk_hit_gtr300_nc[i]   = pairs[3].NumCls();
       rk_hit_gtr300_the2[i] = pairs[3].Theta();
       auto gtr300_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[3].Cluster(0));
@@ -4067,6 +4175,18 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_gtr100_gtx2;//
   std::vector<double> rk_hit_gtr100_gty2;//
   std::vector<double> rk_hit_gtr100_gtz2;//
+  std::vector<double> rk_hit_gtr100_cor_lx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_ly;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_lz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_ltx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_lty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_ltz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gy;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gtx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gtz;// added 241001 by nakai
   std::vector<int>    rk_hit_gtr100_nc;//
   std::vector<double> rk_hit_gtr100_the;//
   std::vector<double> rk_hit_gtr100_the2;//;
@@ -4099,6 +4219,18 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_gtr200_gtx2;
   std::vector<double> rk_hit_gtr200_gty2;
   std::vector<double> rk_hit_gtr200_gtz2;
+  std::vector<double> rk_hit_gtr200_cor_lx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_ly;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_lz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_ltx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_lty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_ltz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gy;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gtx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gtz;// added 241001 by nakai
   std::vector<int>    rk_hit_gtr200_nc;
   std::vector<double> rk_hit_gtr200_the;
   std::vector<double> rk_hit_gtr200_the2;
@@ -4125,6 +4257,18 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_gtr300_gtx2;
   std::vector<double> rk_hit_gtr300_gty2;
   std::vector<double> rk_hit_gtr300_gtz2;
+  std::vector<double> rk_hit_gtr300_cor_lx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_ly;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_lz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_ltx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_lty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_ltz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gy;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gtx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gtz;// added 241001 by nakai
   std::vector<int>    rk_hit_gtr300_nc;
   std::vector<double> rk_hit_gtr300_the;
   std::vector<double> rk_hit_gtr300_the2;
