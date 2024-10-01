@@ -18,6 +18,7 @@ public:
    t0, vd_z : independent on mag field
    lorentz_const, vd_x : sign depends on the mag field
    */
+   void PrintParams(const TVector3 &lpos);
    void SetMagFieldSign(double sign){
       fVDriftXFunc.fSign = sign;
       fLorentzConstFunc.fSign = sign;
@@ -59,6 +60,7 @@ class E16ANA_GTRLorentzCorrectionManager {
 public:
    static E16ANA_GTRLorentzCorrectionManager& Instance();
    TVector3 CorrectLocalPos(int module_id, int layer_id, const TVector3 &lpos, double hit_time, const TVector3 &lmom);
+   void PrintParams(int module_id, int layer_id, const TVector3 &lpos);
 
 private:
    E16ANA_GTRLorentzCorrectionManager();
