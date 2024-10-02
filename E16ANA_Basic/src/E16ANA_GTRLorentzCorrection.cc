@@ -9,26 +9,30 @@ TVector3 E16ANA_GTRLorentzCorrection::CorrectLocalPos(const TVector3 &lpos, doub
    //double tan_theta_y = lmom.Y()/lmom.Z();
    double lx = lpos.X();
    double ly = lpos.Y();
-   double t0 = fT0Func(lx, ly);
-   double vd_z = fVDriftZFunc(lx, ly);
-   double vd_x = fVDriftXFunc(lx, ly);
-   double lconst = fLorentzConstFunc(lx, ly);
-   double corrected_lx = lx + (t0-hit_time)*vd_z*tan_theta_x + lconst - (t0-hit_time)*vd_x;
+   double lconst_rough = fLorentzConstRoughFunc(lx, ly);
+   double t0 = fT0Func(lx+lconst_rough, ly);
+   double vd_z = fVDriftZFunc(lx+lconst_rough, ly);
+   double vd_x = fVDriftXFunc(lx+lconst_rough, ly);
+   double lconst = fLorentzConstFunc(lx+lconst_rough, ly);
+   double corrected_lx = lx + (t0-hit_time)*vd_z*tan_theta_x + lconst_rough + lconst - (t0-hit_time)*vd_x;
    return TVector3(corrected_lx, ly, lpos.Z());
 }
 
 void E16ANA_GTRLorentzCorrection::PrintParams(const TVector3 &lpos){
    double lx = lpos.X();
    double ly = lpos.Y();
-   double t0 = fT0Func(lx, ly);
-   double vd_z = fVDriftZFunc(lx, ly);
-   double vd_x = fVDriftXFunc(lx, ly);
-   double lconst = fLorentzConstFunc(lx, ly);
+   double lconst_rough = fLorentzConstRoughFunc(lx, ly);
+   double t0 = fT0Func(lx+lconst_rough, ly);
+   double vd_z = fVDriftZFunc(lx+lconst_rough, ly);
+   double vd_x = fVDriftXFunc(lx+lconst_rough, ly);
+   double lconst = fLorentzConstFunc(lx+lconst_rough, ly);
    std::cout << "\tlpos = (" << lx << ", " << ly << ")"
              << ", t0 = " << t0
              << ", vd_z = " << vd_z
              << ", vd_x = " << vd_x
-             << ", lconst = " << lconst << std::endl;
+             << ", lconst_rough = " << lconst_rough
+             << ", lconst = " << lconst
+             << ", lconst_sum = " << lconst_rough + lconst << std::endl;
 }
 
 namespace E16ANA_GTRLorentzParamFunc {
@@ -51,7 +55,7 @@ double lconst_func_103_100(double *val, double *par){
   double s1   = par[6];
   double g1   = par[7];
   double g2   = par[8];
-  double lc   = par[9];
+  //double lc   = par[9];
 
   double pol  = p0+p1*yy+p2*yy*yy+p3*yy*yy*yy+p4*yy*yy*yy*yy;
   double st   = s0/(exp(0.4*(abs(yy)+s1))+1);
@@ -61,7 +65,8 @@ double lconst_func_103_100(double *val, double *par){
   double argx2 = (xx+3)/10;
   double argx3 = (xx+50)/10;
 
-  return -1*(-0.2*exp(-0.5*argx*argx) + pol -st*exp(-0.5*argx2*argx2) + gg*exp(-0.5*argx3*argx3)) + lc;
+  //return -1*(-0.2*exp(-0.5*argx*argx) + pol -st*exp(-0.5*argx2*argx2) + gg*exp(-0.5*argx3*argx3)) + lc;
+  return -1*(-0.2*exp(-0.5*argx*argx) + pol -st*exp(-0.5*argx2*argx2) + gg*exp(-0.5*argx3*argx3));
 }
 
 double lconst_func_103_200(double *val, double *par){
@@ -77,7 +82,7 @@ double lconst_func_103_200(double *val, double *par){
   double s1   = par[6];
   double g1   = par[7];
   double g2   = par[8];
-  double lc   = par[9];
+  //double lc   = par[9];
 
   double pol  = p0+p1*yy+p2*yy*yy+p3*yy*yy*yy+p4*yy*yy*yy*yy;
   double st   = s0/(exp(0.0636*(abs(yy-15)+s1))+1)-0.1;
@@ -86,7 +91,8 @@ double lconst_func_103_200(double *val, double *par){
   double argx  = (xx-10)/40;
   double argx2 = (xx-100)/15;
   
-  return  -1*pol*exp(-0.5*argx*argx) + st + gg*exp(-0.5*argx2*argx2) + lc;
+  //return  -1*pol*exp(-0.5*argx*argx) + st + gg*exp(-0.5*argx2*argx2) + lc;
+  return  -1*pol*exp(-0.5*argx*argx) + st + gg*exp(-0.5*argx2*argx2);
 }
 
 double lconst_func_103_300(double *val, double *par){
@@ -111,7 +117,7 @@ double lconst_func_103_300(double *val, double *par){
   double ppp4   = par[13];
   
   
-  double lc   = par[14];
+  //double lc   = par[14];
 
   double pol   = p0+p1*yy+p2*yy*yy+p3*yy*yy*yy+p4*yy*yy*yy*yy;
   double pol2  = pp0+pp1*yy+pp2*yy*yy+pp3*yy*yy*yy+0.8*exp(-0.5*(yy-105)/15*(yy-105)/15);
@@ -122,7 +128,7 @@ double lconst_func_103_300(double *val, double *par){
   double argx2 = (xx+95)/25;
   
   //return  pol2*exp(-0.5*argx*argx) + pol + st*gg*exp(-0.5*argx2*argx2) + lc;
-  return  pol2*exp(-0.5*argx*argx) + pol + st*exp(-0.5*argx2*argx2) + lc;
+  return  pol2*exp(-0.5*argx*argx) + pol + st*exp(-0.5*argx2*argx2);
 }
 
 double t0_func_103_100_200_300(double *val, double *pars){
@@ -182,7 +188,7 @@ double t0_func_104_200(double *val, double *pars){
 }
 
 double lconst_func_104_100(double *val, double *pars){
-  double lconst = 3.173;
+  //double lconst = 3.173;
   double x  = -1 * val[0];//rotate
   double y  = -1 * val[1];//rotate
   double ys = y*0.01;
@@ -192,11 +198,12 @@ double lconst_func_104_100(double *val, double *pars){
   double p3 = 0.036;
   double p4 =-0.00020 -0.000027*y;
   double func = p0 * exp( -0.5*((x-p1)/p2)*((x-p1)/p2) ) + p3 + p4*x;
-  return -func + lconst;
+  //return -func + lconst;
+  return -func;
 }
 
 double lconst_func_104_200(double *val, double *pars){
-  double lconst = -3.007;
+  //double lconst = -3.007;
   double x  = val[0];
   double y  = val[1];
   double p0 =  3.7;
@@ -205,11 +212,12 @@ double lconst_func_104_200(double *val, double *pars){
   double p3 = -3.8;
   double p4 = 0.00114 -0.000017*x;
   double func = p0/(exp( p1*(fabs(y)+p2) )+1) + p3 + p4*y;
-  return func + lconst;
+  //return func + lconst;
+  return func;
 }
 
 double lconst_func_104_300(double *val, double *pars){
-  double lconst = -1.080;
+  //double lconst = -1.080;
   double x  = val[0];
   double y  = val[1];
   double ys = y*0.01;
@@ -218,7 +226,8 @@ double lconst_func_104_300(double *val, double *pars){
   double p2 =  0.027;
   double p3 =  3.18  +0.27*ys +1.61*ys*ys +0.24*ys*ys*ys -1.46*ys*ys*ys*ys;
   double func = p0 + p1*sin( p2*x+p3 );
-  return func + lconst;
+  //return func + lconst;
+  return func;
 }
 
 double t0_func_106_100(double *val, double *pars){
@@ -349,7 +358,8 @@ double lconst_func_106_100(double *val, double *pars){
 
 
    //return -1 * (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 ) - 4.481 ;
-   return (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 ) + 4.481 ;
+   //return (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 ) + 4.481 ;
+   return (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 );
 }
 
 
@@ -421,7 +431,8 @@ double lconst_func_106_200(double  *val, double *pars){
 
 
    //return x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 + 3.134;
-   return -1 * (x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 + 3.134);
+   //return -1 * (x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 + 3.134);
+   return -1 * (x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 );
 }
 
 double lconst_func_106_300(double *val, double *pars){
@@ -442,7 +453,8 @@ double lconst_func_106_300(double *val, double *pars){
    double g_23 =  0.4*TMath::Gaus(yy,  60, 30) * TMath::Gaus(xx, -15, 30);
 
    //return g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 +1.955;
-   return -1 * (g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 +1.955);
+   //return -1 * (g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 +1.955);
+   return -1 * (g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 );
 }
 
 double t0_func_107_100_200_300(double *val, double *pars){
@@ -470,13 +482,14 @@ double lconst_func_107_100(double *val, double *par){
   double p4   = par[4];
   double s0   = par[5];
   double s1   = par[6];
-  double lc   = par[7];
+  //double lc   = par[7];
     
   double pol  = p0+p1*yy+p2*yy*yy+p3*yy*yy*yy+p4*yy*yy*yy*yy;
   double st   = s0/(exp(0.3*(abs(yy-3)+s1))+1)-0.15;
 
   double argx = (xx)/20;
-  return -1*(st*exp(-0.5*argx*argx)+pol)+lc;
+  //return -1*(st*exp(-0.5*argx*argx)+pol)+lc;
+  return -1*(st*exp(-0.5*argx*argx)+pol);
 }
 
 double lconst_func_107_200(double *val, double *par){
@@ -491,7 +504,7 @@ double lconst_func_107_200(double *val, double *par){
   double s1    = par[6];
   double ss0   = par[7];
   double ss1   = par[8];
-  double lc    = par[9];
+  //double lc    = par[9];
   
   double pol   = p0+p1*yy+p2*yy*yy+p3*yy*yy*yy+p4*yy*yy*yy*yy;
   double st1   = s0/(exp(0.25*(-yy+s1))+1);
@@ -499,15 +512,16 @@ double lconst_func_107_200(double *val, double *par){
   double argx  = (xx+100)/35;
   double argx2 = (xx-70)/40;
   
-  return st2*exp(-0.5*argx*argx)+pol+st1*exp(-0.5*argx2*argx2)+lc;
+  //return st2*exp(-0.5*argx*argx)+pol+st1*exp(-0.5*argx2*argx2)+lc;
+  return st2*exp(-0.5*argx*argx)+pol+st1*exp(-0.5*argx2*argx2);
 }
 
 
-double lconst_func_107_300(double *val, double *par){
-  double lc    = par[0];
-  
-  return lc;
-}
+//double lconst_func_107_300(double *val, double *par){
+//  double lc    = par[0];
+//  
+//  return lc;
+//}
 
 } // namespace E16ANA_GTRLorentzParamFunc
 
@@ -560,6 +574,24 @@ E16ANA_GTRLorentzCorrectionManager::E16ANA_GTRLorentzCorrectionManager(){
    // Set functions and parameters here.
    // fLorentzCorrections[module_id][layer_id]
    // and Set T0, VDriftZ, VDriftX, LorentzConst functions.
+
+   // LorentzConstant rough values
+   fLorentzCorrections[103][0].SetLorentzConstRoughFunc(const_func, {+2.891});
+   fLorentzCorrections[103][1].SetLorentzConstRoughFunc(const_func, {-2.324});
+   fLorentzCorrections[103][2].SetLorentzConstRoughFunc(const_func, {-1.005});
+
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-3.007});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.080});
+
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.481});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-3.134});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.955});
+
+   fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+3.461});
+   fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-2.004});
+   fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.505});
+
    //GTR-Module103
    fLorentzCorrections[103][0].SetT0Func(t0_func_103_100_200_300, {
          94.0687,
@@ -596,19 +628,18 @@ E16ANA_GTRLorentzCorrectionManager::E16ANA_GTRLorentzCorrectionManager(){
        0.252,0.00198,-3.84e-5,-7.346e-8,-3.926e-8,
        0.1,-30,
        -43,10,
-       2.891});
+       });
 
    fLorentzCorrections[103][1].SetLorentzConstFunc(lconst_func_103_200,{
        0.2389,0.00236,4.1488e-6,-1.9095e-7,-3.9017e-9,
        0.226,-93.72,
        75,15,
-       -2.324});
+       });
 
    fLorentzCorrections[103][2].SetLorentzConstFunc(lconst_func_103_300,{
        -0.1675,0.000824,3.958e-5,-3.4776e-8,-1.773e-9,
        0.3523,-0.00923,-5.0212e-5,4.93e-7,
        8.15,-0.2073,0.00536,4.673e-6,-4.03688e-7,
-       -1.005
        });
 
    fLorentzCorrections[103][0].SetVDriftXFunc(const_func, {0.005});
@@ -710,17 +741,15 @@ E16ANA_GTRLorentzCorrectionManager::E16ANA_GTRLorentzCorrectionManager(){
    fLorentzCorrections[107][0].SetLorentzConstFunc(lconst_func_107_100,{
        0.177,-0.0001986,0.000308,2.966e-7,-1.31e-7,
        -0.277,-44.39,
-       3.461});
+       });
 
    fLorentzCorrections[107][1].SetLorentzConstFunc(lconst_func_107_200,{
        -0.5813,0.000912,2.609e-6,-5.212e-9,1.856e-9,
        0.4,-80,
        0.65,-85,
-       -2.004});
+       });
 
-   fLorentzCorrections[107][2].SetLorentzConstFunc(lconst_func_107_300,{
-       -1.505});
-
+   fLorentzCorrections[107][2].SetLorentzConstFunc(nullptr);
 
    fLorentzCorrections[107][0].SetVDriftXFunc(const_func, {0.005});
    fLorentzCorrections[107][1].SetVDriftXFunc(const_func, {-0.0035});
@@ -779,6 +808,18 @@ void E16ANA_GTRLorentzCorrection::SetVDriftXFunc(std::function<double(double*, d
 void E16ANA_GTRLorentzCorrection::SetVDriftXFunc(std::function<double(double*, double*)> func, std::vector<double> &params){
    fVDriftXFunc.fFunc = func;
    fVDriftXFunc.fParams = params;
+}
+
+void E16ANA_GTRLorentzCorrection::SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetLorentzConstRoughFunc(func, p);
+}
+void E16ANA_GTRLorentzCorrection::SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fLorentzConstRoughFunc.fFunc = func;
+   fLorentzConstRoughFunc.fParams = params;
 }
 
 void E16ANA_GTRLorentzCorrection::SetLorentzConstFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params){

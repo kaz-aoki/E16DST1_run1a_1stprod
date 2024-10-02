@@ -21,16 +21,19 @@ public:
    void PrintParams(const TVector3 &lpos);
    void SetMagFieldSign(double sign){
       fVDriftXFunc.fSign = sign;
+      fLorentzConstRoughFunc.fSign = sign;
       fLorentzConstFunc.fSign = sign;
    };
    void SetT0Func(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
    void SetVDriftZFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
    void SetVDriftXFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
+   void SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
    void SetLorentzConstFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
 
    void SetT0Func(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetVDriftZFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetVDriftXFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
+   void SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetLorentzConstFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
 
 private:
@@ -52,6 +55,7 @@ private:
    Func2D fT0Func;
    Func2D fVDriftZFunc;
    Func2D fVDriftXFunc;
+   Func2D fLorentzConstRoughFunc;
    Func2D fLorentzConstFunc;
 
 };
