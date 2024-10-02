@@ -15,6 +15,14 @@ TVector3 E16ANA_GTRLorentzCorrection::CorrectLocalPos(const TVector3 &lpos, doub
    double vd_x = fVDriftXFunc(lx+lconst_rough, ly);
    double lconst = fLorentzConstFunc(lx+lconst_rough, ly);
    double corrected_lx = lx + (t0-hit_time)*vd_z*tan_theta_x + lconst_rough + lconst - (t0-hit_time)*vd_x;
+
+//	std::cout << "(lx, ly)     = " << lx + lconst_rough << ", " << ly << std::endl;
+//	std::cout << "t0           = " << t0 << std::endl;
+//	std::cout << "lconst_fine  = " << lconst << std::endl;
+//	std::cout << "correct lx   = " << corrected_lx << std::endl;
+//	std::cout << "dtx          = " << (t0-hit_time)*vd_z*tan_theta_x << std::endl;
+//	std::cout << "dax          = " << - (t0-hit_time)*vd_x << std::endl;
+
    return TVector3(corrected_lx, ly, lpos.Z());
 }
 
@@ -231,8 +239,8 @@ double lconst_func_104_300(double *val, double *pars){
 }
 
 double t0_func_106_100(double *val, double *pars){
-   double xx      = -1 * val[0];//rotate
-   double yy      = -1 * val[1];//rotate
+   double xx      =  val[0];//rotate
+   double yy      =  val[1];//rotate
    double A       = pars[0];
    double A2      = pars[1];
    double x0      = pars[2];
@@ -245,13 +253,14 @@ double t0_func_106_100(double *val, double *pars){
    double gauss1 = A  * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
    double gauss2 = A2 * exp(-0.5 * pow((yy - y0) / sigmaY, 2));
    
+//last 96 is ssd typical y
    if(xx < x0){
-      return gauss1 * exp(-0.5 * pow((xx-x0)/sigmaX, 2));
+      return gauss1 * exp(-0.5 * pow((xx-x0)/sigmaX, 2)) - 96;
    }else if (xx > x1) {
-      return gauss2 * exp(-0.5 * pow((xx-x1)/sigmaX2, 2));
+      return gauss2 * exp(-0.5 * pow((xx-x1)/sigmaX2, 2)) - 96;
    }else  {
       double slope = (gauss2 - gauss1)/(x1 - x0);
-      return gauss1 + slope * (xx - x0);
+      return gauss1 + slope * (xx - x0) - 96;
    }
 }
 
@@ -272,19 +281,19 @@ double t0_func_106_200(double *val, double *params){
     if(xx > 0){
        logistic_x =   max_x -  (max_x - min_x) / (1 + exp(-a_x * (xx + x0)));
     }
-    return logistic_x - gaussPart;
+    return logistic_x - gaussPart - 96;//ssd typical t
 }
 
 
 double t0_func_106_300(double *val, double *pars){
    double xx = val[0];
    double amp1 = pars[0];
-   return amp1;
+   return amp1 -96;//ssd typical t
 }
 
 double lconst_func_106_100(double *val, double *pars){
-   double xx = val[0];
-   double yy = val[1];
+   double xx = -1 * val[0];
+   double yy = -1 * val[1];
 
    double a_l6      = 0.2932;
    double min_l6    = 0.2884;
@@ -359,7 +368,7 @@ double lconst_func_106_100(double *val, double *pars){
 
    //return -1 * (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 ) - 4.481 ;
    //return (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 ) + 4.481 ;
-   return (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 );
+   return -1 * (logistic_l6 + logistic_l7 + logistic_l8 + logistic_l9 + g1 + g2 + logistic_l10 + logistic_l11 + g3 + g4 );
 }
 
 
@@ -432,7 +441,7 @@ double lconst_func_106_200(double  *val, double *pars){
 
    //return x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 + 3.134;
    //return -1 * (x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 + 3.134);
-   return -1 * (x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 );
+   return x_dep + y_dep + x_dep2 + y_dep2 + g_1 +g_2 + g_3 + g_4 + g_5 + g_6 + g_7 + g_8 + g_9 + g_10 + g_11 + g_12 + g_13 + g_15 ;
 }
 
 double lconst_func_106_300(double *val, double *pars){
@@ -454,7 +463,7 @@ double lconst_func_106_300(double *val, double *pars){
 
    //return g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 +1.955;
    //return -1 * (g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 +1.955);
-   return -1 * (g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 );
+   return  (g_1 + g_2 + g_3 + g_4 + g_5 + g_12 + g_13 + g_14 + g_15 + g_22 + g_23 );
 }
 
 double t0_func_107_100_200_300(double *val, double *pars){
