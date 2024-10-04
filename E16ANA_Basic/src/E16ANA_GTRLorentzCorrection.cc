@@ -207,7 +207,7 @@ double lconst_func_104_100(double *val, double *pars){
   double p4 =-0.00020 -0.000027*y;
   double func = p0 * exp( -0.5*((x-p1)/p2)*((x-p1)/p2) ) + p3 + p4*x;
   //return -func + lconst;
-  return -func;
+  return func;
 }
 
 double lconst_func_104_200(double *val, double *pars){
@@ -221,7 +221,7 @@ double lconst_func_104_200(double *val, double *pars){
   double p4 = 0.00114 -0.000017*x;
   double func = p0/(exp( p1*(fabs(y)+p2) )+1) + p3 + p4*y;
   //return func + lconst;
-  return func;
+  return -func;
 }
 
 double lconst_func_104_300(double *val, double *pars){
@@ -235,7 +235,7 @@ double lconst_func_104_300(double *val, double *pars){
   double p3 =  3.18  +0.27*ys +1.61*ys*ys +0.24*ys*ys*ys -1.46*ys*ys*ys*ys;
   double func = p0 + p1*sin( p2*x+p3 );
   //return func + lconst;
-  return func;
+  return -func;
 }
 
 double t0_func_106_100(double *val, double *pars){

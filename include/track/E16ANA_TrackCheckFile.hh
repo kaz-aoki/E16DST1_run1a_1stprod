@@ -2255,7 +2255,7 @@ class E16ANA_TrackCheckFile {
     n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
     int rn_cands = n_cands;
-    if(n_cands>40) rn_cands =0;
+    if(n_cands>60) rn_cands =0;
     n_selected = cands.NumSelectedTrackCandidates();
 //    n_pairs = cands.NumSelectedTrackCandidatePairs();
     n_pairs = cands.NumTrackCandidatePairs();
@@ -2804,35 +2804,46 @@ class E16ANA_TrackCheckFile {
       rk_hit_init_pos_gy[i] = hit_init_pos.Y();
       rk_hit_init_pos_gz[i] = hit_init_pos.Z();
       auto& pairs = cand.ClusterPairs();
-      auto& ssdhit_lpos = pairs[0].LocalPos();
-      rk_hit_ssd_x[i] = ssdhit_lpos.X();
-      auto& ssdhit_gpos = pairs[0].GlobalPos();
-      rk_hit_ssd_gx[i] = ssdhit_gpos.X();
-      rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
-      rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
+      if(xquality[i]!=-2){
+	auto& ssdhit_lpos = pairs[0].LocalPos();
+	rk_hit_ssd_x[i] = ssdhit_lpos.X();
+	auto& ssdhit_gpos = pairs[0].GlobalPos();
+	rk_hit_ssd_gx[i] = ssdhit_gpos.X();
+	rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
+	rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
 #ifndef NoExist_SSD
 #ifdef UseSTS
-      auto ssd_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
-      if(ssd_clst !=0) {
-	rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
-	rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-	rk_hit_ssd_t[i]   = ssd_clst->Timing();
-      	//rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
-      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
-		}
-
+	auto ssd_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
+	if(ssd_clst !=0) {
+	  rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
+	  rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+	  rk_hit_ssd_t[i]   = ssd_clst->Timing();
+	  //rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+	  rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+	}
+	
 #else
-      auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
-		if(ssd_clst !=0) {
-	      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
- 	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-//       rk_hit_ssd_t[i]  = ssd_clst->Timing();
-      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
-      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
-		}
+	auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
+	if(ssd_clst !=0) {
+	  rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
+	  rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+	  //       rk_hit_ssd_t[i]  = ssd_clst->Timing();
+	  rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+	  rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+	}
 
 #endif
 #endif
+      }else{
+	rk_hit_ssd_gx[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_gy[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_gz[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_x[i]    = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_id[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_adc[i]  = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_t[i]    = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_chi2[i] = E16DST_DST1Constant::kInvalidValue;
+      }
       auto& gtr100hit_lpos = pairs[1].LocalPosT();
       rk_hit_gtr100_tx2[i]  = gtr100hit_lpos.X();
       rk_hit_gtr100_ty[i]   = gtr100hit_lpos.Y();

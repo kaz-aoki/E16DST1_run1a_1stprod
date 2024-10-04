@@ -76,7 +76,7 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
 #ifdef NoExist_SSD
   n = 4;
 #endif
-  if(xqual==0) n=4;
+  if(xqual<1) n=4;
   double x[5],y[5];
   double By = 1.3; 
   x[0] = 0;
@@ -84,13 +84,25 @@ bool E16ANA_TrackCandidate::CalcRoughMomentumV2() {
 //  y[0] = 0.;
   double the;
 #ifndef NoExist_SSD
-  for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
-    auto& c = cluster_pairs[l];
-    x[l+1] = c.GlobalPos().X();
-    y[l+1] = c.GlobalPos().Z();
-    if(l==E16ANA_TrackConstant::kNumTrackingLayers-1){
-      double fr = sqrt(x[l+1]*x[l+1]+(y[l+1]-y[0])*(y[l+1]-y[0]));
-      the      = c.GlobalPos().Y()/fr;
+  if(xqual!=-2){
+    for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+      auto& c = cluster_pairs[l];
+      x[l+1] = c.GlobalPos().X();
+      y[l+1] = c.GlobalPos().Z();
+      if(l==E16ANA_TrackConstant::kNumTrackingLayers-1){
+        double fr = sqrt(x[l+1]*x[l+1]+(y[l+1]-y[0])*(y[l+1]-y[0]));
+        the      = c.GlobalPos().Y()/fr;
+      }
+    }
+  }else{
+    for (int l = 1; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+      auto& c = cluster_pairs[l];
+      x[l] = c.GlobalPos().X();
+      y[l] = c.GlobalPos().Z();
+      if(l==E16ANA_TrackConstant::kNumTrackingLayers-1){
+        double fr = sqrt(x[l]*x[l]+(y[l]-y[0])*(y[l]-y[0]));
+        the      = c.GlobalPos().Y()/fr;
+      }
     }
   }
 #else // if no ssd
@@ -249,31 +261,38 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
     if (l == E16ANA_TrackConstant::kSSD) { // SSD or STS
-		#ifdef NoExist_SSD
-   		continue;
-		#endif
-		#ifdef UseSTS
-		single_track->AddHit(tid, c.LayerOrder(), geometry->STS(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
-		#else
-		single_track->AddHit(tid, c.LayerOrder(), geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
-		#endif
-		
-		//cout << l << " " << c.LocalPos().X() << " " << c.LocalPos().Y() << " " << c.LocalPos().Z() << endl;
-		//auto gpos = c.GlobalPos();
-		//cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
+#ifdef NoExist_SSD
+      continue;
+#endif
+#ifdef UseSTS
+      if(xqual!=-2){
+	single_track->AddHit(tid, c.LayerOrder(), geometry->STS(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
+	}else{
+          TVector3 tsigma;
+          tsigma = sigma[l];
+          tsigma.SetX(9999);
+          single_track->AddHit(tid, 0, geometry->STS(E16ANA_TrackConstant::ModuleID2020To2013(103)), TVector3(0,0,0), tsigma);
+        }
+#else
+      single_track->AddHit(tid, c.LayerOrder(), geometry->SSD(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
+#endif
+      
+      //cout << l << " " << c.LocalPos().X() << " " << c.LocalPos().Y() << " " << c.LocalPos().Z() << endl;
+      //auto gpos = c.GlobalPos();
+      //cout << l << " " << gpos.X() << " " << gpos.Y() << " " << gpos.Z() << endl;
     } else {
       if(l< E16ANA_TrackConstant::kNumTrackingLayers-1){ // GTR100, GTR200
 	TVector3 tsigma;
 	tsigma = sigma[l];
 	//if(xqual==0) tsigma.SetX(9999);
-	if(l==1&&yqual<1)  tsigma.SetY(9999);
+	if(l==1&&yqual==-1)  tsigma.SetY(9999);
 	//single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), tsigma);
 	single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.CorrectedLocalPos(), tsigma);
       }else{ // GTR300
 	TVector3 tsigma;
 	tsigma = sigma[l];
 	if(xqual==0) tsigma.SetX(9999);
-	if(yqual<1)  tsigma.SetY(9999);
+	if(yqual==0)  tsigma.SetY(9999);
 	//single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.LocalPos(), tsigma);
 	single_track->AddHit(tid, c.LayerOrder(), geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID()), c.LayerOrder() - 1), c.CorrectedLocalPos(), tsigma);
       }
@@ -486,14 +505,16 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
     //printf("%f res:%f, modsize:%d lx:%f %f , z:%f \n",chisq,rpos.X(), mid.size(),cluster_pairs[l].LocalPos().X(),lpos[hid].X(),init_pos_fit.Z() );
     //}
     if(l != E16ANA_TrackConstant::kSSD) {
-      auto rpost2 = cluster_pairs[l].LocalPosT() - lpos[hid];
-      auto rpost  = cluster_pairs[l].LocalPos() - lpos[hid];
+      rpos = cluster_pairs[l].CorrectedLocalPos() - lpos[hid];
+      auto rpost2 = cluster_pairs[l].CorrectedLocalPosT() - lpos[hid];
+      auto rpost  = cluster_pairs[l].CorrectedLocalPos() - lpos[hid];
+      fit_results[l].SetC(rpos);
       fit_results[l].SetT(rpost);
       fit_results[l].SetT2(rpost2);
-      auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
-      auto yclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(1));
-      TVector3 lcx(xclst->LocalX()-lpos[hid].X(),yclst->LocalX()-lpos[hid].Y(),0);
-      fit_results[l].SetC(lcx);
+      //auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
+      //auto yclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(1));
+      //TVector3 lcx(xclst->LocalX()-lpos[hid].X(),yclst->LocalX()-lpos[hid].Y(),0);
+      //fit_results[l].SetC(lcx);
     }
   }
 #ifdef DEBUG_230209
@@ -550,6 +571,24 @@ void E16ANA_TrackCandidate::PrintParam() {
   std::cout << "Runge Kutta Tracking Max Steps : " << kTrackingMaxSteps << std::endl;
   std::cout << "Runge Kutta Projection Max Steps : " << kProjectionMaxSteps << std::endl;
 }
+
+bool E16ANA_TrackCandidates::IsCurveCorrelationwoSTS(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set) {
+
+  double coef1_0 = pos_set[2].X() / (pos_set[2].Z() - tgt_z);
+  double coef0_0 = -1. * coef1_0 * tgt_z;
+  double dist0   = fabs(coef1_0 * pos_set[1].Z() + coef0_0 + -1. * pos_set[1].X()) / sqrt(coef1_0 * coef1_0 + 1.);
+  double coef1_1 = (pos_set[3].X() - pos_set[1].X()) / (pos_set[3].Z() - pos_set[1].Z());
+  double coef0_1 = pos_set[1].X() -1. * coef1_1 * pos_set[1].Z();
+  double dist1   = fabs(coef1_1 * pos_set[2].Z() -1. * pos_set[2].X() + coef0_1) / sqrt(coef1_1 * coef1_1 + 1.);
+  if (dist1 > 0.45  * dist0  + 18. ||
+      dist1 <  0.5  * (dist0 - 15.)) {
+    return false;
+  }
+  return true;
+}
+
+
+
 
 #ifndef TRACK_FIND_WO_TARGET
 bool E16ANA_TrackCandidates::IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set, int full) {
@@ -666,6 +705,27 @@ void E16ANA_TrackCandidates::CalcQuadCurve(const std::array<TVector3, kNumTracki
   return;
 }
 
+void E16ANA_TrackCandidates::CalcQuadCurvewoSTS(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
+                   std::array<double, kNumTrackingLayersWTarget>* zz,
+                   std::array<double, kNumRoughFitDegree[0]>* zx,
+                   std::array<double, kNumRoughFitDegree[0]>* coef) {
+  zz->fill(0.);
+  zx->fill(0.);
+
+  for (int i = 0; i < kNumTrackingLayersWTarget; ++i) {
+    if(i == 1) continue;
+    AddMatrixElement(kXWeight[i], lotated_pos[i], zz, zx);
+  }
+
+  std::array<std::array<double, kNumRoughFitDegree[0]>, kNumRoughFitDegree[0]> line;
+  CalcInverseMatrix(*zz, &line);
+//  std::array<double, kNumTrackingLayersWTarget> fit_z_diff;
+  CalcCoefficients(*zx, line, coef);
+  return;
+}
+
+
+
 bool E16ANA_TrackCandidates::HasXAssociatedHBD(int tgt_id, const OneAxisClusterSet& cluster_set, const array<double, kNumRoughFitDegree[0]>& coef,
                                                vector<int>* hbd_indexs, vector<int>* hbd_ids, vector<double>* hbd_ress) {
   bool has_hbd = false;
@@ -723,6 +783,90 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(int tgt_id, const OneAxisClusterS
   }
   return has_hbd;
 }
+
+bool E16ANA_TrackCandidates::IsXTrackCandidatewoSTS(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set) {
+  auto& pos_set = cluster_set->global_poss;
+  auto& tgt_z = E16ANA_TrackConstant::kTargetZ[tgt_id];
+
+  if (!IsCurveCorrelationwoSTS(tgt_z, pos_set)) {
+    return false;
+  }
+
+  std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos;
+  auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kGTR100].X(), pos_set[E16ANA_TrackConstant::kGTR100].Z() - tgt_z); // ozawa v8
+  auto rot_cos = std::cos(rot_phi);
+  auto rot_sin = std::sin(rot_phi);
+  CalcRotatedPos(pos_set, tgt_z, rot_cos, rot_sin, &lotated_pos);
+
+  std::array<double, 5> zz;
+  std::array<double, kNumRoughFitDegree[0]> zx;
+  std::array<double, kNumRoughFitDegree[0]> coef;
+  CalcQuadCurvewoSTS(lotated_pos, &zz, &zx, &coef);
+
+  double grad = -1. * (rot_sin / rot_cos);
+  double BB_fit = coef[1] - grad;
+  double det_tgt_fit = BB_fit * BB_fit - 4 * coef[2] * coef[0];
+  double tgt_z_cand = E16DST_DST1Constant::kInvalidValue;
+  if (det_tgt_fit > 0) {
+    double fit_tgt1  = (-1. * BB_fit + sqrt(det_tgt_fit)) / (2. * coef[2]);
+    double fit_tgt2  = (-1. * BB_fit - sqrt(det_tgt_fit)) / (2. * coef[2]);
+    double tgt_z_prime_cand = fabs(fit_tgt1) < fabs(fit_tgt2) ? fit_tgt1 : fit_tgt2;
+    tgt_z_cand = rot_cos * tgt_z_prime_cand - rot_sin * grad * tgt_z_prime_cand;
+  }
+
+//  CalcTargetX();
+  double tgt_x_cand;
+  grad = rot_cos / rot_sin;
+  double BBtgt = coef[1] - grad;
+//  double CCtgt = coef[0] + tgt_z / rot_sin;
+  double CCtgt = coef[0];
+  det_tgt_fit = BBtgt * BBtgt - 4 * coef[2] * CCtgt;
+  double z0_cand = 0.;
+  double x0 = E16DST_DST1Constant::kInvalidValue;
+  if (det_tgt_fit > 0) {
+    double fit_tgt1 = (-1. * BBtgt + sqrt(det_tgt_fit)) / (2. * coef[2]);
+    double fit_tgt2 = (-1. * BBtgt - sqrt(det_tgt_fit)) / (2. * coef[2]);
+    z0_cand = fabs(fit_tgt1) < fabs(fit_tgt2) ? fit_tgt1 : fit_tgt2;
+    x0 = rot_sin * z0_cand + rot_cos * grad * z0_cand;
+  }
+  tgt_x_cand = x0;
+
+//  CalcChiSquare();
+  double chi2_cand = 0.;
+
+  for (int i = 0; i < kNumTrackingLayersWTarget; ++i) {
+    if( i  == 1 ) continue;
+    double fit_posx = coef[2] * lotated_pos[i].Z() * lotated_pos[i].Z() + coef[1] * lotated_pos[i].Z() + coef[0];
+    chi2_cand += kXWeight[i] * (fit_posx - lotated_pos[i].X()) * (fit_posx - lotated_pos[i].X());
+  }
+
+  vector<int> hbd_indexs;
+  vector<int> hbd_ids;
+  vector<double> hbd_ress;
+  double thchi = kRoughFitChiSquareThreshold[0]-45;
+  if (chi2_cand < thchi &&
+      fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2] &&
+      (!kReqHBDAssociation || HasXAssociatedHBD(tgt_id, *cluster_set, coef, &hbd_indexs, &hbd_ids, &hbd_ress))) {
+    cluster_set->charge = coef[2] > 0 ? 1 : -1;
+    cluster_set->target_id = tgt_id;
+    cluster_set->xy = tgt_x_cand;
+    cluster_set->chi_square = chi2_cand;
+    cluster_set->hbd_indexs.clear();
+    cluster_set->hbd_ids.clear();
+    cluster_set->hbd_ress.clear();
+    for (int i = 0; i < kNumRoughFitDegree[0]; ++i) {
+      cluster_set->coefs[i] = coef[i];
+    }
+    copy(hbd_indexs.begin(),  hbd_indexs.end(),  back_inserter(cluster_set->hbd_indexs));
+    copy(hbd_ids.begin(),     hbd_ids.end(),     back_inserter(cluster_set->hbd_ids));
+    copy(hbd_ress.begin(),    hbd_ress.end(),    back_inserter(cluster_set->hbd_ress));
+    return true;
+  }
+
+  return false;
+}
+
+
 
 bool E16ANA_TrackCandidates::IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set, int full) { //1::full, 0::3lay
   auto& pos_set = cluster_set->global_poss;
@@ -908,7 +1052,7 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set, i
     chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
   }
   double thchi = kRoughFitChiSquareThreshold[1];
-  if(full<1) thchi = kRoughFitChiSquareThreshold[1]-7;
+  if(full<1) thchi = kRoughFitChiSquareThreshold[1]-5;
 
   //printf("chi %f(%f) full %d, %f %f %f \n",chi2_cand,thchi,full,gtr_y[1],gtr_y[2],gtr_y[3]);
 
@@ -1395,9 +1539,70 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
       }
     }
   }
-	 
 
+  for (const auto& gtr100_module_id : E16ANA_TrackConstant::kModuleIDs) {
+    if (gtr100_module_id != 103) continue;
+    auto& gtr100x_cluster_ptrs = gtr.ClusterPtrs(gtr100_module_id, 0, E16DST_DST1Constant::kIsX);
+    for (const auto& gtr200_module_id : E16ANA_TrackConstant::kModuleIDs) {
+      if (abs(gtr200_module_id - gtr100_module_id) > 1) {
+        continue;
+      }
+      auto& gtr200x_cluster_ptrs = gtr.ClusterPtrs(gtr200_module_id, 1, E16DST_DST1Constant::kIsX);
+      for (const auto& gtr300_module_id : E16ANA_TrackConstant::kModuleIDs) {
+        if (abs(gtr300_module_id - gtr100_module_id) > 1) {
+          continue;
+        }
+        auto& gtr300x_cluster_ptrs = gtr.ClusterPtrs(gtr300_module_id, 2, E16DST_DST1Constant::kIsX);
+        for (const auto& gtr100x_cluster : gtr100x_cluster_ptrs) {
+          if (gtr100x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR100 - 1]) {
+            continue;
+          }
+          if (gtr100x_cluster->NumHits() < kMinHitsInXCluster) {
+            continue;
+          }
+          cluster_set->gtr_clusters[0] = gtr100x_cluster;
+          //cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100x_cluster->GlobalPos(*geometry);
+	  cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = CalcCorrectedGlobalPos(gtr100x_cluster);
+          for (const auto& gtr200x_cluster : gtr200x_cluster_ptrs) {
+            if (gtr200x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR200 - 1]) {
+              continue;
+            }
+            if (gtr200x_cluster->NumHits() < kMinHitsInXCluster) {
+              continue;
+            }
+            cluster_set->gtr_clusters[1] = gtr200x_cluster;
+            //cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = gtr200x_cluster->GlobalPos(*geometry);
+	    cluster_set->global_poss[E16ANA_TrackConstant::kGTR200] = CalcCorrectedGlobalPos(gtr200x_cluster);
 
+            for (const auto& gtr300x_cluster : gtr300x_cluster_ptrs) {
+              if (gtr300x_cluster->PeakSum() < kGTRPeakSumThresholdX[E16ANA_TrackConstant::kGTR300 - 1]) {
+                continue;
+              }
+              if (gtr300x_cluster->NumHits() < kMinHitsInXCluster) {
+                continue;
+              }
+              cluster_set->gtr_clusters[2] = gtr300x_cluster;
+              //cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300x_cluster->GlobalPos(*geometry);
+	      cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = CalcCorrectedGlobalPos(gtr300x_cluster);
+
+	      bool is_cand = false;
+	      double chi2 = 10000000.;
+	      for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
+		if (IsXTrackCandidatewoSTS(tgt_index, chi2, cluster_set)) {
+		  is_cand = true;
+		  chi2 = cluster_set->chi_square;
+		  cluster_set->trkqual = -2;
+		  cluster_sets[0].emplace_back(*cluster_set);
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+  
+  
 // ------------- Y AXIS PART Begin -------------- //
 
   for (const auto& gtr300_module_id : E16ANA_TrackConstant::kModuleIDs) {
@@ -1444,7 +1649,6 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 	      cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPos(*geometry);
 	      //printf("ADC:: %f %f %f \n",gtr100y_cluster->PeakSum(),gtr200y_cluster->PeakSum(),gtr300y_cluster->PeakSum() );
               if (IsYTrackCandidate(cluster_set,1)) {
-
 		cluster_set->trkqual = 1;
                 cluster_sets[1].emplace_back(*cluster_set);
 		fulltr =1;
@@ -1461,8 +1665,10 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 		}
 	      }
 	    }
-	    }else{
-	      if(gtr100_module_id ==106 || gtr100_module_id == 104){
+	    }
+	    /*
+	    else{
+	      if(gtr100_module_id ==106 || gtr100_module_id == 104 || gtr100_module_id == 103){
 		for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
 		  if (gtr300y_cluster->PeakSum() < kGTRPeakSumThresholdY) {
 		    continue;
@@ -1477,6 +1683,7 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 		}	
 	      }
 	    }
+	    */
 	  }
 	
 	  for (const auto& gtr100yb_cluster : gtr100yb_cluster_ptrs) {
@@ -1491,16 +1698,20 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
                 continue;
               }
               if(gtr300y_cluster->PeakSum()>99995) continue;
-	      //printf("ADC2:: %f %f %f \n",gtr100yb_cluster->PeakSum(),gtr200y_cluster->PeakSum(),gtr300y_cluster->PeakSum() );
+	      cluster_set->gtr_clusters[2] = gtr300y_cluster;
+	      cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPos(*geometry);
               if (IsYTrackCandidate(cluster_set,1)) {
                 cluster_set->trkqual = 1;
                 cluster_sets[1].emplace_back(*cluster_set);
                 fulltr =1;
               }
             }
+	    
             if(fulltr<0 && gtr200_module_id ==107 && gtr300_module_id ==107){
               for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
                 if(gtr300y_cluster->PeakSum()<99995) continue;
+		cluster_set->gtr_clusters[2] = gtr300y_cluster;
+		cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPos(*geometry);
                 if (IsYTrackCandidate(cluster_set,0)) {
                   cluster_set->trkqual = 0;
                   cluster_sets[1].emplace_back(*cluster_set);
@@ -1508,6 +1719,8 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
               }
             }
           }
+
+	  
 	}
       }
     }
@@ -1524,24 +1737,25 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
   }
   if(n_x_cands > 400) return;
   if(n_y_cands > 400) return;
-
+  int itr =0;
   for (const auto& x_cand : cluster_sets[0]) {
     auto& gtrx = x_cand.gtr_clusters;
     std::array<int, kNumGTRLayers> x_module_ids  = {gtrx[0]->ModuleId(), gtrx[1]->ModuleId(), gtrx[2]->ModuleId()};
     std::array<float, kNumGTRLayers> x_timings   = {gtrx[0]->Timing4(), gtrx[1]->Timing4(), gtrx[2]->Timing4()};
     std::array<float, kNumGTRLayers> x_peak_sums = {gtrx[0]->PeakSum(), gtrx[1]->PeakSum(), gtrx[2]->PeakSum()};
-    for (const auto& y_cand : cluster_sets[1]) {
 
+    for (const auto& y_cand : cluster_sets[1]) {
       auto& gtry = y_cand.gtr_clusters;
       bool is_same_module = true;
 
-      if((gtrx[0]->ModuleId()==106 || gtrx[0]->ModuleId()==104) &&gtrx[0]->LocalPos().X() <= 0){
-	
-      }else {
-	if ((gtry[0]->IsY() && gtrx[0]->LocalPos().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPos().X() >= 0)) {
-	  continue;
-	}
-	if(y_cand.trkqual<0) continue;
+      //if((gtrx[0]->ModuleId()==106 || gtrx[0]->ModuleId()==104 || gtrx[0]->ModuleId()==103) &&gtrx[0]->LocalPos().X() <= 0){
+
+      //}else {
+      if ((gtry[0]->IsY() && gtrx[0]->LocalPos().X() <= 0) || (gtry[0]->IsYb() && gtrx[0]->LocalPos().X() >= 0)) {
+	continue;
+      }
+      if(y_cand.trkqual<0) {
+	continue;
       }
       
       for (int i = 0; i < kNumGTRLayers; ++i) {
@@ -1549,10 +1763,13 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 	  is_same_module = false;
           break;
 	}
-	if((i==kNumGTRLayers-1)&&(x_cand.trkqual==0||y_cand.trkqual==0)) continue;
-	if(i==0&&y_cand.trkqual<0) continue;
-
-	if(fabs(x_timings[i] - gtry[i]->Timing4()) > kGTRTimeDiffThreshold[i]) { // ozawa v8
+	if((i==kNumGTRLayers-1)&&(x_cand.trkqual==0||y_cand.trkqual==0)) {
+	  continue;
+	}
+	if(i==0&&y_cand.trkqual<0) {
+	  continue;
+	}
+	if(fabs(x_timings[i] - gtry[i]->Timing4()-10) > kGTRTimeDiffThreshold[i]) { // ozawa v8
 	  is_same_module = false;
           break;
 	}
@@ -1584,6 +1801,10 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
 #ifndef NoExist_SSD
       auto sts_gpos = x_cand.sts_cluster->GlobalPos(*geometry);
       auto pre_init_pos = TVector3(sts_gpos.X(), CalcRoughYPosition(x_cand.sts_cluster->ModuleId(), y_cand.coefs), sts_gpos.Z());
+      if(x_cand.trkqual==-2){
+	auto gtr100_gpos = gtrx[0]->GlobalPos(*geometry);
+	pre_init_pos     = TVector3(gtr100_gpos.X(), gtr100_gpos.Y(),gtr100_gpos.Z());
+      }
 #else // NoExist_SSD
       auto gtr100_gpos = gtrx[0]->GlobalPos(*geometry);
       auto pre_init_pos = TVector3(gtr100_gpos.X(), gtr100_gpos.Y(),gtr100_gpos.Z());
@@ -1614,25 +1835,27 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesWithSTS() {
       //tmp_cand.SetAssociatedHBD(x_cand.hbd_ids, x_cand.hbd_ress, hbd_y_oks);
       auto& cluster_pairs = tmp_cand.ClusterPairs();
 #ifndef NoExist_SSD
-      auto& stsx = *x_cand.sts_cluster;
-      cluster_pairs[0].Set(geometry, 0, stsx.ModuleId(), x_cand.global_poss[0], &stsx);
+      if(x_cand.trkqual!=-2){
+	auto& stsx = *x_cand.sts_cluster;
+	cluster_pairs[0].Set(geometry, 0, stsx.ModuleId(), x_cand.global_poss[0], &stsx);
+      }
       for (int i = 0; i < kNumGTRLayers; ++i) {
         cluster_pairs[1 + i].Set(geometry, 1 + i, gtrx[i]->ModuleId(), x_cand.global_poss[1 + i], y_cand.global_poss[1 + i], gtrx[i], gtry[i]);
-	      int nhit = gtrx[i]->NumCls();
-	      for(int j=0;j<nhit;j++){
-	        cluster_pairs[1+i].SetCTiming((double)gtrx[i]->CTiming(j));
-	        cluster_pairs[1+i].SetCPos((double)gtrx[i]->CPos(j));
-	      }
+	int nhit = gtrx[i]->NumCls();
+	for(int j=0;j<nhit;j++){
+	  cluster_pairs[1+i].SetCTiming((double)gtrx[i]->CTiming(j));
+	  cluster_pairs[1+i].SetCPos((double)gtrx[i]->CPos(j));
+	}
       }
 #else 
-//	   cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);
+      //	   cluster_pairs[0].Set(geometry, 0, ssdx.ModuleId(), x_cand.global_poss[0], &ssdx);
       for (int i = 0; i < kNumGTRLayers; ++i) {
         cluster_pairs[1 + i].Set(geometry, 1 + i, gtrx[i]->ModuleId(), x_cand.global_poss[1 + i], y_cand.global_poss[1 + i], gtrx[i], gtry[i]);
-	      int nhit = gtrx[i]->NumCls();
-	      for(int j=0;j<nhit;j++){
-	        cluster_pairs[1+i].SetCTiming((double)gtrx[i]->CTiming(j));
-	        cluster_pairs[1+i].SetCPos((double)gtrx[i]->CPos(j));
-	      }
+	int nhit = gtrx[i]->NumCls();
+	for(int j=0;j<nhit;j++){
+	  cluster_pairs[1+i].SetCTiming((double)gtrx[i]->CTiming(j));
+	  cluster_pairs[1+i].SetCPos((double)gtrx[i]->CPos(j));
+	}
       }
 #endif
     }
@@ -3060,7 +3283,7 @@ void E16ANA_TrackCandidates::Analyze() {
   SearchTrackCandidatesWithSTS();
  
  
-  if ( track_candidates.size() > 40) {
+  if ( track_candidates.size() > 60) {
     std::cerr << "Too many track candidates. skip event.::" << track_candidates.size() <<std::endl;
     return;
   }

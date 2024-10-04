@@ -704,6 +704,7 @@ class E16ANA_TrackCandidates {
   static bool IsLModule(int module_id) { return module_id > 105 ? true : false; }
 #ifndef TRACK_FIND_WO_TARGET
   static bool IsCurveCorrelation(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set,int full);
+  static bool IsCurveCorrelationwoSTS(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set);
   static TVector3 Rotate(double rot_cos, double rot_sin, double offset, const TVector3& pos) {
     auto x = rot_cos * pos.X() - rot_sin * (pos.Z() - offset);
     auto z = rot_sin * pos.X() + rot_cos * (pos.Z() - offset);
@@ -723,6 +724,11 @@ class E16ANA_TrackCandidates {
     (*zx)[0] += w * x;
     return;
   }
+  static void CalcQuadCurvewoSTS(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
+                            std::array<double, kNumTrackingLayersWTarget>* zz,
+                            std::array<double, kNumRoughFitDegree[0]>* zx,
+                            std::array<double, kNumRoughFitDegree[0]>* coef);
+
   static void CalcQuadCurve(const std::array<TVector3, kNumTrackingLayersWTarget>& lotated_pos,
                             std::array<double, kNumTrackingLayersWTarget>* zz,
                             std::array<double, kNumRoughFitDegree[0]>* zx,
@@ -742,6 +748,7 @@ class E16ANA_TrackCandidates {
   bool HasXAssociatedHBD(int tgt_id, const OneAxisClusterSet& cluster_set, const std::array<double, kNumRoughFitDegree[0]>& coef,
                          std::vector<int>* hbd_indexs, std::vector<int>* hbd_ids, std::vector<double>* hbd_ress);
   bool IsXTrackCandidate(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set, int full);
+  bool IsXTrackCandidatewoSTS(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set);
   bool IsYTrackCandidate(OneAxisClusterSet* cluster_set, int full);
 #else // TRACK_FIND_WO_TARGET
   int ModuleSetType(const OneAxisClusterSet& cluster_set);

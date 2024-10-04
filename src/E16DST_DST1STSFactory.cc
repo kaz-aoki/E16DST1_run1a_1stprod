@@ -69,6 +69,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     //if( hit0.ADCinvalid() ) continue;
     //if( hit0.TDCinvalid() ) continue;
     if ( hit0.PN() == 0 ) continue; // remove P side.
+    if(hit0.ModuleID()<104)   continue; // invalid.
+    if(hit0.ModuleID()>108)   continue; // invalid
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -119,6 +121,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     //if ( hit0.ADCinvalid() ) continue; // invalid
     if (hit0.ADC() == 0xffff) continue; // invalid
     if ( hit0.PN() == 0 ) continue; // Eliminate P side data for fast process.
+    if(hit0.ModuleID()<104)   continue; // invalid.
+    if(hit0.ModuleID()>108)   continue; // invalid.
 
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();

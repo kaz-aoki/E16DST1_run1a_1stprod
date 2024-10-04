@@ -1149,6 +1149,15 @@ target_link_libraries(dst0_to_dst1_trigger_check
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_trigger_check2 usr/dst0_to_dst1_trigger_check2.cc)
+
+target_link_libraries(dst0_to_dst1_trigger_check2
+	E16ANA_Basic
+  E16DST_DST1
+  E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
 add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
 
 target_link_libraries(gtr_deadch_check
