@@ -41,9 +41,11 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
     is_fill_param = true;
   }
 //  check_file->AddEntry(n_calls, geometry, *record, track_candidates);
-  check_file->AddEntry(n_calls, geometry, track_candidates);
+  if(track_candidates.NumTrackCandidates()>0) check_file->AddEntry(n_calls, geometry, track_candidates);
   ++n_calls;
   n_cands += track_candidates.NumTrackCandidates();
-  std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;
+  if(track_candidates.NumTrackCandidates()>0){
+    std::cout << "Total Number of Track Candidates: " << n_cands << std::endl;
+  }
   return 0;
 }

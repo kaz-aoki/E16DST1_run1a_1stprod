@@ -73,6 +73,7 @@ class E16ANA_TrackCheckFile {
 #ifdef TRACK_EFF_CHECK
     tree->Branch("cluster_merged", &cluster_merged, "cluster_merged/O");
 #endif // TRACK_EFF_CHECK
+    /*
     tree->Branch("n_ssd_hits",  &n_ssd_hits, "n_ssd_hits/I");
     tree->Branch("ssd_hit_id",  &ssd_hit_id);
     tree->Branch("ssd_hit_mid", &ssd_hit_mid);
@@ -144,6 +145,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr300y_hit_ty",  &gtr300y_hit_ty);
     tree->Branch("gtr300y_hit_t",   &gtr300y_hit_t);
     tree->Branch("gtr300y_hit_adc", &gtr300y_hit_adc);
+    */
     tree->Branch("n_hbd_hits",  &n_hbd_hits, "n_hbd_hits/I");
     tree->Branch("hbd_hit_id",  &hbd_hit_id);
     tree->Branch("hbd_hit_mid", &hbd_hit_mid);
@@ -530,6 +532,8 @@ class E16ANA_TrackCheckFile {
     tree->Branch("y_rough_fit_coef0", &y_rough_fit_coef0);
     tree->Branch("y_rough_fit_coef1", &y_rough_fit_coef1);
     tree->Branch("chi_square", &chi_square);
+    tree->Branch("xquality", &xquality);
+    tree->Branch("yquality", &yquality);
     tree->Branch("n_steps", &n_steps);
     tree->Branch("n_calls", &n_calls);
     tree->Branch("rk_charge", &rk_charge);
@@ -566,9 +570,28 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr100_gtx2",&rk_hit_gtr100_gtx2);
     tree->Branch("rk_hit_gtr100_gty2",&rk_hit_gtr100_gty2);
     tree->Branch("rk_hit_gtr100_gtz2",&rk_hit_gtr100_gtz2);
+    tree->Branch("rk_hit_gtr100_cor_lx",&rk_hit_gtr100_cor_lx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_ly",&rk_hit_gtr100_cor_ly); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_lz",&rk_hit_gtr100_cor_lz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_ltx",&rk_hit_gtr100_cor_ltx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_lty",&rk_hit_gtr100_cor_lty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_ltz",&rk_hit_gtr100_cor_ltz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gx",&rk_hit_gtr100_cor_gx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gy",&rk_hit_gtr100_cor_gy); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gz",&rk_hit_gtr100_cor_gz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gtx",&rk_hit_gtr100_cor_gtx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gty",&rk_hit_gtr100_cor_gty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr100_cor_gtz",&rk_hit_gtr100_cor_gtz); // added 241001 by nakai
     tree->Branch("rk_hit_gtr100_nc",  &rk_hit_gtr100_nc);
     tree->Branch("rk_hit_gtr100_the", &rk_hit_gtr100_the);
     tree->Branch("rk_hit_gtr100_the2",&rk_hit_gtr100_the2);
+    tree->Branch("rk_hit_gtr100_xt3", &rk_hit_gtr100_xt3);
+    tree->Branch("rk_hit_gtr100_xt4", &rk_hit_gtr100_xt4);
+    tree->Branch("rk_hit_gtr100_yt2", &rk_hit_gtr100_yt2);
+    tree->Branch("rk_hit_gtr100_yt3", &rk_hit_gtr100_yt3);
+    tree->Branch("rk_hit_gtr100_yt4", &rk_hit_gtr100_yt4);
+    tree->Branch("rk_hit_gtr100_cpos",&rk_hit_gtr100_cpos);
+    tree->Branch("rk_hit_gtr100_ct",  &rk_hit_gtr100_ct);
     tree->Branch("rk_hit_gtr200_xid", &rk_hit_gtr200_xid);
     tree->Branch("rk_hit_gtr200_yid", &rk_hit_gtr200_yid);
     tree->Branch("rk_hit_gtr200_gx", &rk_hit_gtr200_gx);
@@ -588,7 +611,26 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr200_gtx2",&rk_hit_gtr200_gtx2);
     tree->Branch("rk_hit_gtr200_gty2",&rk_hit_gtr200_gty2);
     tree->Branch("rk_hit_gtr200_gtz2",&rk_hit_gtr200_gtz2);
+    tree->Branch("rk_hit_gtr200_cor_lx",&rk_hit_gtr200_cor_lx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_ly",&rk_hit_gtr200_cor_ly); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_lz",&rk_hit_gtr200_cor_lz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_ltx",&rk_hit_gtr200_cor_ltx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_lty",&rk_hit_gtr200_cor_lty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_ltz",&rk_hit_gtr200_cor_ltz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gx",&rk_hit_gtr200_cor_gx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gy",&rk_hit_gtr200_cor_gy); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gz",&rk_hit_gtr200_cor_gz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gtx",&rk_hit_gtr200_cor_gtx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gty",&rk_hit_gtr200_cor_gty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr200_cor_gtz",&rk_hit_gtr200_cor_gtz); // added 241001 by nakai
     tree->Branch("rk_hit_gtr200_nc",  &rk_hit_gtr200_nc);
+    tree->Branch("rk_hit_gtr200_xt3", &rk_hit_gtr200_xt3);
+    tree->Branch("rk_hit_gtr200_xt4", &rk_hit_gtr200_xt4);
+    tree->Branch("rk_hit_gtr200_yt2", &rk_hit_gtr200_yt2);
+    tree->Branch("rk_hit_gtr200_yt3", &rk_hit_gtr200_yt3);
+    tree->Branch("rk_hit_gtr200_yt4", &rk_hit_gtr200_yt4);
+    tree->Branch("rk_hit_gtr200_cpos",&rk_hit_gtr200_cpos);
+    tree->Branch("rk_hit_gtr200_ct",  &rk_hit_gtr200_ct);
     tree->Branch("rk_hit_gtr200_the", &rk_hit_gtr200_the);
     tree->Branch("rk_hit_gtr200_the2",&rk_hit_gtr200_the2);
     tree->Branch("rk_hit_gtr300_xid", &rk_hit_gtr300_xid);
@@ -610,9 +652,28 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_hit_gtr300_gtx2",&rk_hit_gtr300_gtx2);
     tree->Branch("rk_hit_gtr300_gty2",&rk_hit_gtr300_gty2);
     tree->Branch("rk_hit_gtr300_gtz2",&rk_hit_gtr300_gtz2);
+    tree->Branch("rk_hit_gtr300_cor_lx",&rk_hit_gtr300_cor_lx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_ly",&rk_hit_gtr300_cor_ly); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_lz",&rk_hit_gtr300_cor_lz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_ltx",&rk_hit_gtr300_cor_ltx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_lty",&rk_hit_gtr300_cor_lty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_ltz",&rk_hit_gtr300_cor_ltz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gx",&rk_hit_gtr300_cor_gx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gy",&rk_hit_gtr300_cor_gy); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gz",&rk_hit_gtr300_cor_gz); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gtx",&rk_hit_gtr300_cor_gtx); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gty",&rk_hit_gtr300_cor_gty); // added 241001 by nakai
+    tree->Branch("rk_hit_gtr300_cor_gtz",&rk_hit_gtr300_cor_gtz); // added 241001 by nakai
     tree->Branch("rk_hit_gtr300_nc",  &rk_hit_gtr300_nc);
     tree->Branch("rk_hit_gtr300_the", &rk_hit_gtr300_the);
     tree->Branch("rk_hit_gtr300_the2",&rk_hit_gtr300_the2);
+    tree->Branch("rk_hit_gtr300_xt3", &rk_hit_gtr300_xt3);
+    tree->Branch("rk_hit_gtr300_xt4", &rk_hit_gtr300_xt4);
+    tree->Branch("rk_hit_gtr300_yt2", &rk_hit_gtr300_yt2);
+    tree->Branch("rk_hit_gtr300_yt3", &rk_hit_gtr300_yt3);
+    tree->Branch("rk_hit_gtr300_yt4", &rk_hit_gtr300_yt4);
+    tree->Branch("rk_hit_gtr300_cpos",&rk_hit_gtr300_cpos);
+    tree->Branch("rk_hit_gtr300_ct",  &rk_hit_gtr300_ct);
     tree->Branch("rk_fit_init_mom_gx", &rk_fit_init_mom_gx);
     tree->Branch("rk_fit_init_mom_gy", &rk_fit_init_mom_gy);
     tree->Branch("rk_fit_init_mom_gz", &rk_fit_init_mom_gz);
@@ -798,6 +859,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_lg_t",      &rk_proj_lg_t);
     tree->Branch("rk_proj_lg_npeaks", &rk_proj_lg_npeaks);
     tree->Branch("rk_proj_lg_fflag",  &rk_proj_lg_fflag);
+    /*
     tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
     tree->Branch("rk_pair_minus_gtr300_mid", &rk_pair_minus_gtr300_mid);
     tree->Branch("rk_pair_minus_chi_square", &rk_pair_minus_chi_square);
@@ -903,6 +965,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_pair_plus_gtr300_res_refit_y", &rk_pair_plus_gtr300_res_refit_y);
     tree->Branch("rk_pair_plus_gtr300_res_refit_z", &rk_pair_plus_gtr300_res_refit_z);
     tree->Branch("rk_pair_mass_refit", &rk_pair_mass_refit);
+    */
   };
   ~E16ANA_TrackCheckFile() { file.Write(); }
   void AddParam(E16ANA_TrackCandidates& cands) {
@@ -1194,10 +1257,8 @@ class E16ANA_TrackCheckFile {
     for (int i = 0; i < n_ssd_clusters; ++i) {
 #ifdef UseSTS
       auto& clst = record.STS().Cluster(i);
-      ssd_cluster_fit_t[i] = clst.Timing();
 #else
       auto& clst = record.SSD().Cluster(i);
-      ssd_cluster_fit_t[i] = clst.TimingFit();
 #endif
 //      ssd_cluster_id[i] = i;
       ssd_cluster_id[i] = clst.ClusterId();
@@ -1210,6 +1271,7 @@ class E16ANA_TrackCheckFile {
       ssd_cluster_t[i] = clst.Timing();
       ssd_cluster_size[i] = clst.NumHits();
       ssd_cluster_fit_x[i] = clst.LocalXFit();
+      ssd_cluster_fit_t[i] = clst.TimingFit();
       ssd_cluster_fit_adc[i] = clst.PeakSumFit();
       ssd_cluster_fit_chi2[i] = clst.Chi2NdfFit();
 #ifdef TRACK_EFF_CHECK
@@ -2192,9 +2254,12 @@ class E16ANA_TrackCheckFile {
     n_x_cands = cands.NumXCandidates();
     n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
+    int rn_cands = n_cands;
+    if(n_cands>60) rn_cands =0;
     n_selected = cands.NumSelectedTrackCandidates();
 //    n_pairs = cands.NumSelectedTrackCandidatePairs();
     n_pairs = cands.NumTrackCandidatePairs();
+
     n_refit_pairs = 0;
 #ifdef TRACK_EFF_CHECK
 //    x_search_reject_point.clear();
@@ -2217,281 +2282,338 @@ class E16ANA_TrackCheckFile {
       reject_point[i]          = cands.RejectPoint(i);
       sim_track_detected[i]    = cands.SimTrackDetected(i);
     }
-    is_sim_track.resize(n_cands);
+    is_sim_track.resize(rn_cands);
 #endif // TRACK_EFF_CHECK
-    track_id.resize(n_cands);
-    has_e_hbd_cluster.resize(n_cands);
-    has_e_lg_hit.resize(n_cands);
-    is_large_residual.resize(n_cands);
-    is_near_target.resize(n_cands);
-    is_cluster_used.resize(n_cands);
-    is_selected.resize(n_cands);
-    x_rough_fit_chi_square.resize(n_cands);
+    track_id.resize(rn_cands);
+    has_e_hbd_cluster.resize(rn_cands);
+    has_e_lg_hit.resize(rn_cands);
+    is_large_residual.resize(rn_cands);
+    is_near_target.resize(rn_cands);
+    is_cluster_used.resize(rn_cands);
+    is_selected.resize(rn_cands);
+    x_rough_fit_chi_square.resize(rn_cands);
 #ifdef TRACK_FIND_WO_TARGET
-    x_rough_fit_dist0.resize(n_cands);
-    x_rough_fit_dist1.resize(n_cands);
+    x_rough_fit_dist0.resize(rn_cands);
+    x_rough_fit_dist1.resize(rn_cands);
 #endif // TRACK_FIND_WO_TARGET
-    x_rough_fit_coef0.resize(n_cands);
-    x_rough_fit_coef1.resize(n_cands);
-    x_rough_fit_coef2.resize(n_cands);
-    rough_fit_n_hbds.resize(n_cands);
+    x_rough_fit_coef0.resize(rn_cands);
+    x_rough_fit_coef1.resize(rn_cands);
+    x_rough_fit_coef2.resize(rn_cands);
+    rough_fit_n_hbds.resize(rn_cands);
     rough_fit_hbd_ids.clear();
     rough_fit_hbd_ress.clear();
     rough_fit_hbd_y_oks.clear();
-    rough_fit_hbd_ids.resize(n_cands);
-    rough_fit_hbd_ress.resize(n_cands);
-    rough_fit_hbd_y_oks.resize(n_cands);
-    y_rough_fit_chi_square.resize(n_cands);
-    y_rough_fit_coef0.resize(n_cands);
-    y_rough_fit_coef1.resize(n_cands);
-    chi_square.resize(n_cands);
-    n_steps.resize(n_cands);
-    n_calls.resize(n_cands);
-    rk_charge.resize(n_cands);
-    rk_hit_init_mom_gx.resize(n_cands);
-    rk_hit_init_mom_gy.resize(n_cands);
-    rk_hit_init_mom_gz.resize(n_cands);
-    rk_hit_init_pos_gx.resize(n_cands);
-    rk_hit_init_pos_gy.resize(n_cands);
-    rk_hit_init_pos_gz.resize(n_cands);
-    rk_hit_ssd_id.resize(n_cands);
-    rk_hit_ssd_x.resize(n_cands);
-    rk_hit_ssd_gx.resize(n_cands);
-    rk_hit_ssd_gy.resize(n_cands);
-    rk_hit_ssd_gz.resize(n_cands);
-    rk_hit_ssd_adc.resize(n_cands);
-    rk_hit_ssd_t.resize(n_cands);
-    rk_hit_ssd_chi2.resize(n_cands);
-    rk_hit_gtr100_xid.resize(n_cands);
-    rk_hit_gtr100_yid.resize(n_cands);
-    rk_hit_gtr100_gx.resize(n_cands);
-    rk_hit_gtr100_gy.resize(n_cands);
-    rk_hit_gtr100_gz.resize(n_cands);
-    rk_hit_gtr100_xadc.resize(n_cands);
-    rk_hit_gtr100_yadc.resize(n_cands);
-    rk_hit_gtr100_xt.resize(n_cands);
-    rk_hit_gtr100_yt.resize(n_cands);
-    rk_hit_gtr200_xid.resize(n_cands);
-    rk_hit_gtr200_yid.resize(n_cands);
-    rk_hit_gtr200_gx.resize(n_cands);
-    rk_hit_gtr200_gy.resize(n_cands);
-    rk_hit_gtr200_gz.resize(n_cands);
-    rk_hit_gtr200_xadc.resize(n_cands);
-    rk_hit_gtr200_yadc.resize(n_cands);
-    rk_hit_gtr200_xt.resize(n_cands);
-    rk_hit_gtr200_yt.resize(n_cands);
-    rk_hit_gtr300_xid.resize(n_cands);
-    rk_hit_gtr300_yid.resize(n_cands);
-    rk_hit_gtr300_gx.resize(n_cands);
-    rk_hit_gtr300_gy.resize(n_cands);
-    rk_hit_gtr300_gz.resize(n_cands);
-    rk_hit_gtr300_xadc.resize(n_cands);
-    rk_hit_gtr300_yadc.resize(n_cands);
-    rk_hit_gtr300_xt.resize(n_cands);
-    rk_hit_gtr300_yt.resize(n_cands);
-    rk_hit_gtr100_xt2.resize(n_cands);
-    rk_hit_gtr100_yt2.resize(n_cands);
-    rk_hit_gtr100_tx2.resize(n_cands);
-    rk_hit_gtr100_ty.resize(n_cands);
-    rk_hit_gtr100_gtx.resize(n_cands);
-    rk_hit_gtr100_gty.resize(n_cands);
-    rk_hit_gtr100_gtz.resize(n_cands);
-    rk_hit_gtr100_gtx2.resize(n_cands);
-    rk_hit_gtr100_gty2.resize(n_cands);
-    rk_hit_gtr100_gtz2.resize(n_cands);
-    rk_hit_gtr100_nc.resize(n_cands);
-    rk_hit_gtr100_the.resize(n_cands);
-    rk_hit_gtr100_the2.resize(n_cands);
-    rk_hit_gtr200_xt2.resize(n_cands);
-    rk_hit_gtr200_yt2.resize(n_cands);
-    rk_hit_gtr200_tx2.resize(n_cands);
-    rk_hit_gtr200_ty.resize(n_cands);
-    rk_hit_gtr200_gtx.resize(n_cands);
-    rk_hit_gtr200_gty.resize(n_cands);
-    rk_hit_gtr200_gtz.resize(n_cands);
-    rk_hit_gtr200_gtx2.resize(n_cands);
-    rk_hit_gtr200_gty2.resize(n_cands);
-    rk_hit_gtr200_gtz2.resize(n_cands);
-    rk_hit_gtr200_nc.resize(n_cands);
-    rk_hit_gtr200_the.resize(n_cands);
-    rk_hit_gtr200_the2.resize(n_cands);
-    rk_hit_gtr300_xt2.resize(n_cands);
-    rk_hit_gtr300_yt2.resize(n_cands);
-    rk_hit_gtr300_tx2.resize(n_cands);
-    rk_hit_gtr300_ty.resize(n_cands);
-    rk_hit_gtr300_gtx.resize(n_cands);
-    rk_hit_gtr300_gty.resize(n_cands);
-    rk_hit_gtr300_gtz.resize(n_cands);
-    rk_hit_gtr300_gtx2.resize(n_cands);
-    rk_hit_gtr300_gty2.resize(n_cands);
-    rk_hit_gtr300_gtz2.resize(n_cands);
-    rk_hit_gtr300_nc.resize(n_cands);
-    rk_hit_gtr300_the.resize(n_cands);
-    rk_hit_gtr300_the2.resize(n_cands);
-    rk_fit_init_mom_gx.resize(n_cands);
-    rk_fit_init_mom_gy.resize(n_cands);
-    rk_fit_init_mom_gz.resize(n_cands);
-    rk_fit_init_pos_gx.resize(n_cands);
-    rk_fit_init_pos_gy.resize(n_cands);
-    rk_fit_init_pos_gz.resize(n_cands);
-    rk_fit_ssd_mid.resize(n_cands);
-    rk_fit_ssd_x.resize(n_cands);
-    rk_fit_ssd_y.resize(n_cands);
-    rk_fit_ssd_gx.resize(n_cands);
-    rk_fit_ssd_gy.resize(n_cands);
-    rk_fit_ssd_gz.resize(n_cands);
-    rk_fit_ssd_mom_x.resize(n_cands);
-    rk_fit_ssd_mom_y.resize(n_cands);
-    rk_fit_ssd_mom_z.resize(n_cands);
-    rk_fit_ssd_mom_gx.resize(n_cands);
-    rk_fit_ssd_mom_gy.resize(n_cands);
-    rk_fit_ssd_mom_gz.resize(n_cands);
-    rk_fit_gtr100_mid.resize(n_cands);
-    rk_fit_gtr100_x.resize(n_cands);
-    rk_fit_gtr100_y.resize(n_cands);
-    rk_fit_gtr100_gx.resize(n_cands);
-    rk_fit_gtr100_gy.resize(n_cands);
-    rk_fit_gtr100_gz.resize(n_cands);
-    rk_fit_gtr100_mom_x.resize(n_cands);
-    rk_fit_gtr100_mom_y.resize(n_cands);
-    rk_fit_gtr100_mom_z.resize(n_cands);
-    rk_fit_gtr100_mom_gx.resize(n_cands);
-    rk_fit_gtr100_mom_gy.resize(n_cands);
-    rk_fit_gtr100_mom_gz.resize(n_cands);
-    rk_fit_gtr200_mid.resize(n_cands);
-    rk_fit_gtr200_x.resize(n_cands);
-    rk_fit_gtr200_y.resize(n_cands);
-    rk_fit_gtr200_gx.resize(n_cands);
-    rk_fit_gtr200_gy.resize(n_cands);
-    rk_fit_gtr200_gz.resize(n_cands);
-    rk_fit_gtr200_mom_x.resize(n_cands);
-    rk_fit_gtr200_mom_y.resize(n_cands);
-    rk_fit_gtr200_mom_z.resize(n_cands);
-    rk_fit_gtr200_mom_gx.resize(n_cands);
-    rk_fit_gtr200_mom_gy.resize(n_cands);
-    rk_fit_gtr200_mom_gz.resize(n_cands);
-    rk_fit_gtr300_mid.resize(n_cands);
-    rk_fit_gtr300_x.resize(n_cands);
-    rk_fit_gtr300_y.resize(n_cands);
-    rk_fit_gtr300_gx.resize(n_cands);
-    rk_fit_gtr300_gy.resize(n_cands);
-    rk_fit_gtr300_gz.resize(n_cands);
-    rk_fit_gtr300_mom_x.resize(n_cands);
-    rk_fit_gtr300_mom_y.resize(n_cands);
-    rk_fit_gtr300_mom_z.resize(n_cands);
-    rk_fit_gtr300_mom_gx.resize(n_cands);
-    rk_fit_gtr300_mom_gy.resize(n_cands);
-    rk_fit_gtr300_mom_gz.resize(n_cands);
-    rk_fit_hbd_mid.resize(n_cands);
-    rk_fit_hbd_x.resize(n_cands);
-    rk_fit_hbd_y.resize(n_cands);
-    rk_fit_hbd_gx.resize(n_cands);
-    rk_fit_hbd_gy.resize(n_cands);
-    rk_fit_hbd_gz.resize(n_cands);
-    rk_fit_hbd_mom_x.resize(n_cands);
-    rk_fit_hbd_mom_y.resize(n_cands);
-    rk_fit_hbd_mom_z.resize(n_cands);
-    rk_fit_hbd_mom_gx.resize(n_cands);
-    rk_fit_hbd_mom_gy.resize(n_cands);
-    rk_fit_hbd_mom_gz.resize(n_cands);
-    rk_fit_lg_c_mid.resize(n_cands);
-    rk_fit_lg_c_x.resize(n_cands);
-    rk_fit_lg_c_y.resize(n_cands);
-    rk_fit_lg_c_gx.resize(n_cands);
-    rk_fit_lg_c_gy.resize(n_cands);
-    rk_fit_lg_c_gz.resize(n_cands);
-    rk_fit_lg_c_mom_x.resize(n_cands);
-    rk_fit_lg_c_mom_y.resize(n_cands);
-    rk_fit_lg_c_mom_z.resize(n_cands);
-    rk_fit_lg_c_mom_gx.resize(n_cands);
-    rk_fit_lg_c_mom_gy.resize(n_cands);
-    rk_fit_lg_c_mom_gz.resize(n_cands);
-    rk_fit_lg_b_mid.resize(n_cands);
-    rk_fit_lg_b_x.resize(n_cands);
-    rk_fit_lg_b_y.resize(n_cands);
-    rk_fit_lg_b_gx.resize(n_cands);
-    rk_fit_lg_b_gy.resize(n_cands);
-    rk_fit_lg_b_gz.resize(n_cands);
-    rk_fit_lg_b_mom_x.resize(n_cands);
-    rk_fit_lg_b_mom_y.resize(n_cands);
-    rk_fit_lg_b_mom_z.resize(n_cands);
-    rk_fit_lg_b_mom_gx.resize(n_cands);
-    rk_fit_lg_b_mom_gy.resize(n_cands);
-    rk_fit_lg_b_mom_gz.resize(n_cands);
-    rk_fit_lg_a_mid.resize(n_cands);
-    rk_fit_lg_a_x.resize(n_cands);
-    rk_fit_lg_a_y.resize(n_cands);
-    rk_fit_lg_a_gx.resize(n_cands);
-    rk_fit_lg_a_gy.resize(n_cands);
-    rk_fit_lg_a_gz.resize(n_cands);
-    rk_fit_lg_a_mom_x.resize(n_cands);
-    rk_fit_lg_a_mom_y.resize(n_cands);
-    rk_fit_lg_a_mom_z.resize(n_cands);
-    rk_fit_lg_a_mom_gx.resize(n_cands);
-    rk_fit_lg_a_mom_gy.resize(n_cands);
-    rk_fit_lg_a_mom_gz.resize(n_cands);
+    rough_fit_hbd_ids.resize(rn_cands);
+    rough_fit_hbd_ress.resize(rn_cands);
+    rough_fit_hbd_y_oks.resize(rn_cands);
+    y_rough_fit_chi_square.resize(rn_cands);
+    y_rough_fit_coef0.resize(rn_cands);
+    y_rough_fit_coef1.resize(rn_cands);
+    chi_square.resize(rn_cands);
+    xquality.resize(rn_cands);
+    yquality.resize(rn_cands);
+    n_steps.resize(rn_cands);
+    n_calls.resize(rn_cands);
+    rk_charge.resize(rn_cands);
+    rk_hit_init_mom_gx.resize(rn_cands);
+    rk_hit_init_mom_gy.resize(rn_cands);
+    rk_hit_init_mom_gz.resize(rn_cands);
+    rk_hit_init_pos_gx.resize(rn_cands);
+    rk_hit_init_pos_gy.resize(rn_cands);
+    rk_hit_init_pos_gz.resize(rn_cands);
+    rk_hit_ssd_id.resize(rn_cands);
+    rk_hit_ssd_x.resize(rn_cands);
+    rk_hit_ssd_gx.resize(rn_cands);
+    rk_hit_ssd_gy.resize(rn_cands);
+    rk_hit_ssd_gz.resize(rn_cands);
+    rk_hit_ssd_adc.resize(rn_cands);
+    rk_hit_ssd_t.resize(rn_cands);
+    rk_hit_ssd_chi2.resize(rn_cands);
+    rk_hit_gtr100_xid.resize(rn_cands);
+    rk_hit_gtr100_yid.resize(rn_cands);
+    rk_hit_gtr100_gx.resize(rn_cands);
+    rk_hit_gtr100_gy.resize(rn_cands);
+    rk_hit_gtr100_gz.resize(rn_cands);
+    rk_hit_gtr100_xadc.resize(rn_cands);
+    rk_hit_gtr100_yadc.resize(rn_cands);
+    rk_hit_gtr100_xt.resize(rn_cands);
+    rk_hit_gtr100_yt.resize(rn_cands);
+    rk_hit_gtr200_xid.resize(rn_cands);
+    rk_hit_gtr200_yid.resize(rn_cands);
+    rk_hit_gtr200_gx.resize(rn_cands);
+    rk_hit_gtr200_gy.resize(rn_cands);
+    rk_hit_gtr200_gz.resize(rn_cands);
+    rk_hit_gtr200_xadc.resize(rn_cands);
+    rk_hit_gtr200_yadc.resize(rn_cands);
+    rk_hit_gtr200_xt.resize(rn_cands);
+    rk_hit_gtr200_yt.resize(rn_cands);
+    rk_hit_gtr300_xid.resize(rn_cands);
+    rk_hit_gtr300_yid.resize(rn_cands);
+    rk_hit_gtr300_gx.resize(rn_cands);
+    rk_hit_gtr300_gy.resize(rn_cands);
+    rk_hit_gtr300_gz.resize(rn_cands);
+    rk_hit_gtr300_xadc.resize(rn_cands);
+    rk_hit_gtr300_yadc.resize(rn_cands);
+    rk_hit_gtr300_xt.resize(rn_cands);
+    rk_hit_gtr300_yt.resize(rn_cands);
+    rk_hit_gtr100_xt2.resize(rn_cands);
+    rk_hit_gtr100_yt2.resize(rn_cands);
+    rk_hit_gtr100_tx2.resize(rn_cands);
+    rk_hit_gtr100_ty.resize(rn_cands);
+    rk_hit_gtr100_gtx.resize(rn_cands);
+    rk_hit_gtr100_gty.resize(rn_cands);
+    rk_hit_gtr100_gtz.resize(rn_cands);
+    rk_hit_gtr100_gtx2.resize(rn_cands);
+    rk_hit_gtr100_gty2.resize(rn_cands);
+    rk_hit_gtr100_gtz2.resize(rn_cands);
+    rk_hit_gtr100_cor_lx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_ly.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_lz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_ltx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_lty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_ltz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gy.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gtx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_cor_gtz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr100_nc.resize(rn_cands);
+    rk_hit_gtr100_the.resize(rn_cands);
+    rk_hit_gtr100_the2.resize(rn_cands);
+    rk_hit_gtr200_xt2.resize(rn_cands);
+    rk_hit_gtr200_yt2.resize(rn_cands);
+    rk_hit_gtr200_tx2.resize(rn_cands);
+    rk_hit_gtr200_ty.resize(rn_cands);
+    rk_hit_gtr200_gtx.resize(rn_cands);
+    rk_hit_gtr200_gty.resize(rn_cands);
+    rk_hit_gtr200_gtz.resize(rn_cands);
+    rk_hit_gtr200_gtx2.resize(rn_cands);
+    rk_hit_gtr200_gty2.resize(rn_cands);
+    rk_hit_gtr200_gtz2.resize(rn_cands);
+    rk_hit_gtr200_cor_lx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_ly.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_lz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_ltx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_lty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_ltz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gy.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gtx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_cor_gtz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr200_nc.resize(rn_cands);
+    rk_hit_gtr200_the.resize(rn_cands);
+    rk_hit_gtr200_the2.resize(rn_cands);
+    rk_hit_gtr300_xt2.resize(rn_cands);
+    rk_hit_gtr300_yt2.resize(rn_cands);
+    rk_hit_gtr300_tx2.resize(rn_cands);
+    rk_hit_gtr300_ty.resize(rn_cands);
+    rk_hit_gtr300_gtx.resize(rn_cands);
+    rk_hit_gtr300_gty.resize(rn_cands);
+    rk_hit_gtr300_gtz.resize(rn_cands);
+    rk_hit_gtr300_gtx2.resize(rn_cands);
+    rk_hit_gtr300_gty2.resize(rn_cands);
+    rk_hit_gtr300_gtz2.resize(rn_cands);
+    rk_hit_gtr300_cor_lx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_ly.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_lz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_ltx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_lty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_ltz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gy.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gtx.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gty.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_cor_gtz.resize(rn_cands); // added 241001 by nakai
+    rk_hit_gtr300_nc.resize(rn_cands);
+    rk_hit_gtr300_the.resize(rn_cands);
+    rk_hit_gtr300_the2.resize(rn_cands);
+    rk_hit_gtr100_xt3.resize(rn_cands);
+    rk_hit_gtr100_xt4.resize(rn_cands);
+    rk_hit_gtr100_yt3.resize(rn_cands);
+    rk_hit_gtr100_yt4.resize(rn_cands);
+    rk_hit_gtr100_cpos.resize(rn_cands);
+    rk_hit_gtr100_ct.resize(rn_cands);
+    rk_hit_gtr200_xt3.resize(rn_cands);
+    rk_hit_gtr200_xt4.resize(rn_cands);
+    rk_hit_gtr200_yt3.resize(rn_cands);
+    rk_hit_gtr200_yt4.resize(rn_cands);
+    rk_hit_gtr200_cpos.resize(rn_cands);
+    rk_hit_gtr200_ct.resize(rn_cands);
+    rk_hit_gtr300_xt3.resize(rn_cands);
+    rk_hit_gtr300_xt4.resize(rn_cands);
+    rk_hit_gtr300_yt3.resize(rn_cands);
+    rk_hit_gtr300_yt4.resize(rn_cands);
+    rk_hit_gtr300_cpos.resize(rn_cands);
+    rk_hit_gtr300_ct.resize(rn_cands);
+
+    rk_fit_init_mom_gx.resize(rn_cands);
+    rk_fit_init_mom_gy.resize(rn_cands);
+    rk_fit_init_mom_gz.resize(rn_cands);
+    rk_fit_init_pos_gx.resize(rn_cands);
+    rk_fit_init_pos_gy.resize(rn_cands);
+    rk_fit_init_pos_gz.resize(rn_cands);
+    rk_fit_ssd_mid.resize(rn_cands);
+    rk_fit_ssd_x.resize(rn_cands);
+    rk_fit_ssd_y.resize(rn_cands);
+    rk_fit_ssd_gx.resize(rn_cands);
+    rk_fit_ssd_gy.resize(rn_cands);
+    rk_fit_ssd_gz.resize(rn_cands);
+    rk_fit_ssd_mom_x.resize(rn_cands);
+    rk_fit_ssd_mom_y.resize(rn_cands);
+    rk_fit_ssd_mom_z.resize(rn_cands);
+    rk_fit_ssd_mom_gx.resize(rn_cands);
+    rk_fit_ssd_mom_gy.resize(rn_cands);
+    rk_fit_ssd_mom_gz.resize(rn_cands);
+    rk_fit_gtr100_mid.resize(rn_cands);
+    rk_fit_gtr100_x.resize(rn_cands);
+    rk_fit_gtr100_y.resize(rn_cands);
+    rk_fit_gtr100_gx.resize(rn_cands);
+    rk_fit_gtr100_gy.resize(rn_cands);
+    rk_fit_gtr100_gz.resize(rn_cands);
+    rk_fit_gtr100_mom_x.resize(rn_cands);
+    rk_fit_gtr100_mom_y.resize(rn_cands);
+    rk_fit_gtr100_mom_z.resize(rn_cands);
+    rk_fit_gtr100_mom_gx.resize(rn_cands);
+    rk_fit_gtr100_mom_gy.resize(rn_cands);
+    rk_fit_gtr100_mom_gz.resize(rn_cands);
+    rk_fit_gtr200_mid.resize(rn_cands);
+    rk_fit_gtr200_x.resize(rn_cands);
+    rk_fit_gtr200_y.resize(rn_cands);
+    rk_fit_gtr200_gx.resize(rn_cands);
+    rk_fit_gtr200_gy.resize(rn_cands);
+    rk_fit_gtr200_gz.resize(rn_cands);
+    rk_fit_gtr200_mom_x.resize(rn_cands);
+    rk_fit_gtr200_mom_y.resize(rn_cands);
+    rk_fit_gtr200_mom_z.resize(rn_cands);
+    rk_fit_gtr200_mom_gx.resize(rn_cands);
+    rk_fit_gtr200_mom_gy.resize(rn_cands);
+    rk_fit_gtr200_mom_gz.resize(rn_cands);
+    rk_fit_gtr300_mid.resize(rn_cands);
+    rk_fit_gtr300_x.resize(rn_cands);
+    rk_fit_gtr300_y.resize(rn_cands);
+    rk_fit_gtr300_gx.resize(rn_cands);
+    rk_fit_gtr300_gy.resize(rn_cands);
+    rk_fit_gtr300_gz.resize(rn_cands);
+    rk_fit_gtr300_mom_x.resize(rn_cands);
+    rk_fit_gtr300_mom_y.resize(rn_cands);
+    rk_fit_gtr300_mom_z.resize(rn_cands);
+    rk_fit_gtr300_mom_gx.resize(rn_cands);
+    rk_fit_gtr300_mom_gy.resize(rn_cands);
+    rk_fit_gtr300_mom_gz.resize(rn_cands);
+    rk_fit_hbd_mid.resize(rn_cands);
+    rk_fit_hbd_x.resize(rn_cands);
+    rk_fit_hbd_y.resize(rn_cands);
+    rk_fit_hbd_gx.resize(rn_cands);
+    rk_fit_hbd_gy.resize(rn_cands);
+    rk_fit_hbd_gz.resize(rn_cands);
+    rk_fit_hbd_mom_x.resize(rn_cands);
+    rk_fit_hbd_mom_y.resize(rn_cands);
+    rk_fit_hbd_mom_z.resize(rn_cands);
+    rk_fit_hbd_mom_gx.resize(rn_cands);
+    rk_fit_hbd_mom_gy.resize(rn_cands);
+    rk_fit_hbd_mom_gz.resize(rn_cands);
+    rk_fit_lg_c_mid.resize(rn_cands);
+    rk_fit_lg_c_x.resize(rn_cands);
+    rk_fit_lg_c_y.resize(rn_cands);
+    rk_fit_lg_c_gx.resize(rn_cands);
+    rk_fit_lg_c_gy.resize(rn_cands);
+    rk_fit_lg_c_gz.resize(rn_cands);
+    rk_fit_lg_c_mom_x.resize(rn_cands);
+    rk_fit_lg_c_mom_y.resize(rn_cands);
+    rk_fit_lg_c_mom_z.resize(rn_cands);
+    rk_fit_lg_c_mom_gx.resize(rn_cands);
+    rk_fit_lg_c_mom_gy.resize(rn_cands);
+    rk_fit_lg_c_mom_gz.resize(rn_cands);
+    rk_fit_lg_b_mid.resize(rn_cands);
+    rk_fit_lg_b_x.resize(rn_cands);
+    rk_fit_lg_b_y.resize(rn_cands);
+    rk_fit_lg_b_gx.resize(rn_cands);
+    rk_fit_lg_b_gy.resize(rn_cands);
+    rk_fit_lg_b_gz.resize(rn_cands);
+    rk_fit_lg_b_mom_x.resize(rn_cands);
+    rk_fit_lg_b_mom_y.resize(rn_cands);
+    rk_fit_lg_b_mom_z.resize(rn_cands);
+    rk_fit_lg_b_mom_gx.resize(rn_cands);
+    rk_fit_lg_b_mom_gy.resize(rn_cands);
+    rk_fit_lg_b_mom_gz.resize(rn_cands);
+    rk_fit_lg_a_mid.resize(rn_cands);
+    rk_fit_lg_a_x.resize(rn_cands);
+    rk_fit_lg_a_y.resize(rn_cands);
+    rk_fit_lg_a_gx.resize(rn_cands);
+    rk_fit_lg_a_gy.resize(rn_cands);
+    rk_fit_lg_a_gz.resize(rn_cands);
+    rk_fit_lg_a_mom_x.resize(rn_cands);
+    rk_fit_lg_a_mom_y.resize(rn_cands);
+    rk_fit_lg_a_mom_z.resize(rn_cands);
+    rk_fit_lg_a_mom_gx.resize(rn_cands);
+    rk_fit_lg_a_mom_gy.resize(rn_cands);
+    rk_fit_lg_a_mom_gz.resize(rn_cands);
 #ifdef TRACK_EFF_CHECK
-    rk_fit_lgvd_mid.resize(n_cands);
-    rk_fit_lgvd_x.resize(n_cands);
-    rk_fit_lgvd_y.resize(n_cands);
-    rk_fit_lgvd_gx.resize(n_cands);
-    rk_fit_lgvd_gy.resize(n_cands);
-    rk_fit_lgvd_gz.resize(n_cands);
-    rk_fit_lgvd_mom_x.resize(n_cands);
-    rk_fit_lgvd_mom_y.resize(n_cands);
-    rk_fit_lgvd_mom_z.resize(n_cands);
-    rk_fit_lgvd_mom_gx.resize(n_cands);
-    rk_fit_lgvd_mom_gy.resize(n_cands);
-    rk_fit_lgvd_mom_gz.resize(n_cands);
+    rk_fit_lgvd_mid.resize(rn_cands);
+    rk_fit_lgvd_x.resize(rn_cands);
+    rk_fit_lgvd_y.resize(rn_cands);
+    rk_fit_lgvd_gx.resize(rn_cands);
+    rk_fit_lgvd_gy.resize(rn_cands);
+    rk_fit_lgvd_gz.resize(rn_cands);
+    rk_fit_lgvd_mom_x.resize(rn_cands);
+    rk_fit_lgvd_mom_y.resize(rn_cands);
+    rk_fit_lgvd_mom_z.resize(rn_cands);
+    rk_fit_lgvd_mom_gx.resize(rn_cands);
+    rk_fit_lgvd_mom_gy.resize(rn_cands);
+    rk_fit_lgvd_mom_gz.resize(rn_cands);
 #endif
-    rk_res_init_pos_gx.resize(n_cands);
-    rk_res_init_pos_gy.resize(n_cands);
-    rk_res_init_pos_gz.resize(n_cands);
-    rk_res_init_mom_gx.resize(n_cands);
-    rk_res_init_mom_gy.resize(n_cands);
-    rk_res_init_mom_gz.resize(n_cands);
-    rk_res_ssd_x.resize(n_cands);
-    rk_res_gtr100_x.resize(n_cands);
-    rk_res_gtr100_y.resize(n_cands);
-    rk_res_gtr200_x.resize(n_cands);
-    rk_res_gtr200_y.resize(n_cands);
-    rk_res_gtr300_x.resize(n_cands);
-    rk_res_gtr300_y.resize(n_cands);
-    rk_res_gtr100_tx.resize(n_cands);
-    rk_res_gtr100_ty.resize(n_cands);
-    rk_res_gtr200_tx.resize(n_cands);
-    rk_res_gtr200_ty.resize(n_cands);
-    rk_res_gtr300_tx.resize(n_cands);
-    rk_res_gtr300_ty.resize(n_cands);
-    rk_res_gtr100_tx2.resize(n_cands);
-    rk_res_gtr200_tx2.resize(n_cands);
-    rk_res_gtr300_tx2.resize(n_cands);
-    rk_proj_tgt0_gx.resize(n_cands);
-    rk_proj_tgt0_gy.resize(n_cands);
-    rk_proj_tgt0_gz.resize(n_cands);
-    rk_proj_tgt1_gx.resize(n_cands);
-    rk_proj_tgt1_gy.resize(n_cands);
-    rk_proj_tgt1_gz.resize(n_cands);
-    rk_proj_tgt2_gx.resize(n_cands);
-    rk_proj_tgt2_gy.resize(n_cands);
-    rk_proj_tgt2_gz.resize(n_cands);
-    rk_proj_tgt0_mom_gx.resize(n_cands);
-    rk_proj_tgt0_mom_gy.resize(n_cands);
-    rk_proj_tgt0_mom_gz.resize(n_cands);
-    rk_proj_tgt1_mom_gx.resize(n_cands);
-    rk_proj_tgt1_mom_gy.resize(n_cands);
-    rk_proj_tgt1_mom_gz.resize(n_cands);
-    rk_proj_tgt2_mom_gx.resize(n_cands);
-    rk_proj_tgt2_mom_gy.resize(n_cands);
-    rk_proj_tgt2_mom_gz.resize(n_cands);
-    rk_proj_x0_gx.resize(n_cands);
-    rk_proj_x0_gy.resize(n_cands);
-    rk_proj_x0_gz.resize(n_cands);
-    rk_proj_x0_mom_gx.resize(n_cands);
-    rk_proj_x0_mom_gy.resize(n_cands);
-    rk_proj_x0_mom_gz.resize(n_cands);
-    rk_proj_is_search.resize(n_cands);
-    rk_proj_n_hbd.resize(n_cands);
+    rk_res_init_pos_gx.resize(rn_cands);
+    rk_res_init_pos_gy.resize(rn_cands);
+    rk_res_init_pos_gz.resize(rn_cands);
+    rk_res_init_mom_gx.resize(rn_cands);
+    rk_res_init_mom_gy.resize(rn_cands);
+    rk_res_init_mom_gz.resize(rn_cands);
+    rk_res_ssd_x.resize(rn_cands);
+    rk_res_gtr100_x.resize(rn_cands);
+    rk_res_gtr100_y.resize(rn_cands);
+    rk_res_gtr200_x.resize(rn_cands);
+    rk_res_gtr200_y.resize(rn_cands);
+    rk_res_gtr300_x.resize(rn_cands);
+    rk_res_gtr300_y.resize(rn_cands);
+    rk_res_gtr100_tx.resize(rn_cands);
+    rk_res_gtr100_ty.resize(rn_cands);
+    rk_res_gtr200_tx.resize(rn_cands);
+    rk_res_gtr200_ty.resize(rn_cands);
+    rk_res_gtr300_tx.resize(rn_cands);
+    rk_res_gtr300_ty.resize(rn_cands);
+    rk_res_gtr100_tx2.resize(rn_cands);
+    rk_res_gtr200_tx2.resize(rn_cands);
+    rk_res_gtr300_tx2.resize(rn_cands);
+    rk_proj_tgt0_gx.resize(rn_cands);
+    rk_proj_tgt0_gy.resize(rn_cands);
+    rk_proj_tgt0_gz.resize(rn_cands);
+    rk_proj_tgt1_gx.resize(rn_cands);
+    rk_proj_tgt1_gy.resize(rn_cands);
+    rk_proj_tgt1_gz.resize(rn_cands);
+    rk_proj_tgt2_gx.resize(rn_cands);
+    rk_proj_tgt2_gy.resize(rn_cands);
+    rk_proj_tgt2_gz.resize(rn_cands);
+    rk_proj_tgt0_mom_gx.resize(rn_cands);
+    rk_proj_tgt0_mom_gy.resize(rn_cands);
+    rk_proj_tgt0_mom_gz.resize(rn_cands);
+    rk_proj_tgt1_mom_gx.resize(rn_cands);
+    rk_proj_tgt1_mom_gy.resize(rn_cands);
+    rk_proj_tgt1_mom_gz.resize(rn_cands);
+    rk_proj_tgt2_mom_gx.resize(rn_cands);
+    rk_proj_tgt2_mom_gy.resize(rn_cands);
+    rk_proj_tgt2_mom_gz.resize(rn_cands);
+    rk_proj_x0_gx.resize(rn_cands);
+    rk_proj_x0_gy.resize(rn_cands);
+    rk_proj_x0_gz.resize(rn_cands);
+    rk_proj_x0_mom_gx.resize(rn_cands);
+    rk_proj_x0_mom_gy.resize(rn_cands);
+    rk_proj_x0_mom_gz.resize(rn_cands);
+    rk_proj_is_search.resize(rn_cands);
+    rk_proj_n_hbd.resize(rn_cands);
     rk_proj_hbd_id.clear();
     rk_proj_hbd_mid.clear();
     rk_proj_hbd_x.clear();
@@ -2503,18 +2625,18 @@ class E16ANA_TrackCheckFile {
     rk_proj_hbd_size.clear();
     rk_proj_hbd_eprob.clear();
     rk_proj_hbd_cprob.clear();
-    rk_proj_hbd_id.resize(n_cands);
-    rk_proj_hbd_mid.resize(n_cands);
-    rk_proj_hbd_x.resize(n_cands);
-    rk_proj_hbd_y.resize(n_cands);
-    rk_proj_hbd_adc.resize(n_cands);
-    rk_proj_hbd_t.resize(n_cands);
-    rk_proj_hbd_ftime.resize(n_cands);
-    rk_proj_hbd_tdiff.resize(n_cands);
-    rk_proj_hbd_size.resize(n_cands);
-    rk_proj_hbd_eprob.resize(n_cands);
-    rk_proj_hbd_cprob.resize(n_cands);
-    rk_proj_n_lg.resize(n_cands);
+    rk_proj_hbd_id.resize(rn_cands);
+    rk_proj_hbd_mid.resize(rn_cands);
+    rk_proj_hbd_x.resize(rn_cands);
+    rk_proj_hbd_y.resize(rn_cands);
+    rk_proj_hbd_adc.resize(rn_cands);
+    rk_proj_hbd_t.resize(rn_cands);
+    rk_proj_hbd_ftime.resize(rn_cands);
+    rk_proj_hbd_tdiff.resize(rn_cands);
+    rk_proj_hbd_size.resize(rn_cands);
+    rk_proj_hbd_eprob.resize(rn_cands);
+    rk_proj_hbd_cprob.resize(rn_cands);
+    rk_proj_n_lg.resize(rn_cands);
     rk_proj_lg_id.clear();
     rk_proj_lg_mid.clear();
     rk_proj_lg_cid.clear();
@@ -2524,15 +2646,15 @@ class E16ANA_TrackCheckFile {
     rk_proj_lg_t.clear();
     rk_proj_lg_npeaks.clear();
     rk_proj_lg_fflag.clear();
-    rk_proj_lg_id.resize(n_cands);
-    rk_proj_lg_mid.resize(n_cands);
-    rk_proj_lg_cid.resize(n_cands);
-    rk_proj_lg_x.resize(n_cands);
-    rk_proj_lg_y.resize(n_cands);
-    rk_proj_lg_adc.resize(n_cands);
-    rk_proj_lg_t.resize(n_cands);
-    rk_proj_lg_npeaks.resize(n_cands);
-    rk_proj_lg_fflag.resize(n_cands);
+    rk_proj_lg_id.resize(rn_cands);
+    rk_proj_lg_mid.resize(rn_cands);
+    rk_proj_lg_cid.resize(rn_cands);
+    rk_proj_lg_x.resize(rn_cands);
+    rk_proj_lg_y.resize(rn_cands);
+    rk_proj_lg_adc.resize(rn_cands);
+    rk_proj_lg_t.resize(rn_cands);
+    rk_proj_lg_npeaks.resize(rn_cands);
+    rk_proj_lg_fflag.resize(rn_cands);
     rk_pair_minus_track_id.resize(n_pairs);
     rk_pair_minus_gtr300_mid.resize(n_pairs);
     rk_pair_minus_chi_square.resize(n_pairs);
@@ -2640,7 +2762,7 @@ class E16ANA_TrackCheckFile {
     rk_pair_plus_gtr300_res_refit_y.resize(n_pairs);
     rk_pair_plus_gtr300_res_refit_z.resize(n_pairs);
     rk_pair_mass_refit.resize(n_pairs);
-    for (int i = 0; i < n_cands; ++i) {
+    for (int i = 0; i < rn_cands; ++i) {
       auto& cand = cands.TrackCandidates()[i];
       track_id[i] = cand.TrackID();
       has_e_hbd_cluster[i] = cand.HasElectronHBDCluster();
@@ -2650,6 +2772,8 @@ class E16ANA_TrackCheckFile {
       is_cluster_used[i] = cand.IsClusterUsed();
       is_selected[i] = cand.IsSelected();
       chi_square[i] = cand.ChiSquare();
+      xquality[i]   = cand.Xqual();
+      yquality[i]   = cand.Yqual();
       n_steps[i] = cand.NumSteps();
       n_calls[i] = cand.NumCalls();
       x_rough_fit_chi_square[i] = cand.XChiSquare();
@@ -2680,35 +2804,46 @@ class E16ANA_TrackCheckFile {
       rk_hit_init_pos_gy[i] = hit_init_pos.Y();
       rk_hit_init_pos_gz[i] = hit_init_pos.Z();
       auto& pairs = cand.ClusterPairs();
-      auto& ssdhit_lpos = pairs[0].LocalPos();
-      rk_hit_ssd_x[i] = ssdhit_lpos.X();
-      auto& ssdhit_gpos = pairs[0].GlobalPos();
-      rk_hit_ssd_gx[i] = ssdhit_gpos.X();
-      rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
-      rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
+      if(xquality[i]!=-2){
+	auto& ssdhit_lpos = pairs[0].LocalPos();
+	rk_hit_ssd_x[i] = ssdhit_lpos.X();
+	auto& ssdhit_gpos = pairs[0].GlobalPos();
+	rk_hit_ssd_gx[i] = ssdhit_gpos.X();
+	rk_hit_ssd_gy[i] = ssdhit_gpos.Y();
+	rk_hit_ssd_gz[i] = ssdhit_gpos.Z();
 #ifndef NoExist_SSD
 #ifdef UseSTS
-      auto ssd_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
-		if(ssd_clst !=0) {
-	      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
- 	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-       rk_hit_ssd_t[i]  = ssd_clst->Timing();
-//      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
-      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
-		}
-
+	auto ssd_clst = dynamic_cast<E16DST_DST1STSCluster*>(pairs[0].Cluster(0));
+	if(ssd_clst !=0) {
+	  rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
+	  rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+	  rk_hit_ssd_t[i]   = ssd_clst->Timing();
+	  //rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+	  rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+	}
+	
 #else
-      auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
-		if(ssd_clst !=0) {
-	      rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
- 	      rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
-//       rk_hit_ssd_t[i]  = ssd_clst->Timing();
-      	rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
-      	rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
-		}
+	auto ssd_clst = dynamic_cast<E16DST_DST1SSDCluster*>(pairs[0].Cluster(0));
+	if(ssd_clst !=0) {
+	  rk_hit_ssd_id[i]  = ssd_clst->ClusterId();
+	  rk_hit_ssd_adc[i] = ssd_clst->PeakSum();
+	  //       rk_hit_ssd_t[i]  = ssd_clst->Timing();
+	  rk_hit_ssd_t[i]  = ssd_clst->TimingFit();
+	  rk_hit_ssd_chi2[i] = ssd_clst->Chi2NdfFit();
+	}
 
 #endif
 #endif
+      }else{
+	rk_hit_ssd_gx[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_gy[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_gz[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_x[i]    = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_id[i]   = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_adc[i]  = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_t[i]    = E16DST_DST1Constant::kInvalidValue;
+        rk_hit_ssd_chi2[i] = E16DST_DST1Constant::kInvalidValue;
+      }
       auto& gtr100hit_lpos = pairs[1].LocalPosT();
       rk_hit_gtr100_tx2[i]  = gtr100hit_lpos.X();
       rk_hit_gtr100_ty[i]   = gtr100hit_lpos.Y();
@@ -2720,6 +2855,18 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr100_gtx2[i] = gtr100hit_gpos2.X();
       rk_hit_gtr100_gty2[i] = gtr100hit_gpos2.Y();
       rk_hit_gtr100_gtz2[i] = gtr100hit_gpos2.Z();
+      rk_hit_gtr100_cor_lx[i]   = pairs[1].CorrectedLocalPos().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_ly[i]   = pairs[1].CorrectedLocalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_lz[i]   = pairs[1].CorrectedLocalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr100_cor_ltx[i]  = pairs[1].CorrectedLocalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_lty[i]  = pairs[1].CorrectedLocalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_ltz[i]  = pairs[1].CorrectedLocalPosT().Z(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gx[i]   = pairs[1].CorrectedGlobalPos().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gy[i]   = pairs[1].CorrectedGlobalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gz[i]   = pairs[1].CorrectedGlobalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gtx[i]  = pairs[1].CorrectedGlobalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gty[i]  = pairs[1].CorrectedGlobalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr100_cor_gtz[i]  = pairs[1].CorrectedGlobalPosT().Z(); // added 241001 by nakai
       rk_hit_gtr100_nc[i]   = pairs[1].NumCls();
       rk_hit_gtr100_the2[i] = pairs[1].Theta();
       auto gtr100_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[1].Cluster(0));
@@ -2732,9 +2879,24 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr100_yt[i] = gtr100_yclst->Timing();
       rk_hit_gtr100_xt2[i] = gtr100_xclst->Timing2();
       rk_hit_gtr100_yt2[i] = gtr100_yclst->Timing2();
+      rk_hit_gtr100_xt3[i] = gtr100_xclst->Timing3();
+      rk_hit_gtr100_xt4[i] = gtr100_xclst->Timing4();
+      rk_hit_gtr100_yt3[i] = gtr100_yclst->Timing3();
+      rk_hit_gtr100_yt4[i] = gtr100_yclst->Timing4();
+      rk_hit_gtr100_ct[i].resize(rk_hit_gtr100_nc[i]);
+      rk_hit_gtr100_cpos[i].resize(rk_hit_gtr100_nc[i]);
+      for (int j = 0; j <rk_hit_gtr100_nc[i]; ++j){
+        rk_hit_gtr100_ct[i][j]    = pairs[1].CTiming(j);
+        rk_hit_gtr100_cpos[i][j]  = pairs[1].CPos(j);
+      }
+      /*
       rk_hit_gtr100_gx[i]  = gtr100_xclst->GlobalPos(geometry).X();
       rk_hit_gtr100_gy[i]  = gtr100_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr100_gz[i]  = gtr100_xclst->GlobalPos(geometry).Z();
+      */
+      rk_hit_gtr100_gx[i]  = pairs[1].GlobalPos().X();
+      rk_hit_gtr100_gy[i]  = pairs[1].GlobalPos().Y();
+      rk_hit_gtr100_gz[i]  = pairs[1].GlobalPos().Z();
       rk_hit_gtr100_the[i] = gtr100_xclst->TanTheta();
       auto& gtr200hit_lpos = pairs[2].LocalPosT();
       rk_hit_gtr200_tx2[i]  = gtr200hit_lpos.X();
@@ -2747,6 +2909,18 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr200_gtx2[i] = gtr200hit_gpos2.X();
       rk_hit_gtr200_gty2[i] = gtr200hit_gpos2.Y();
       rk_hit_gtr200_gtz2[i] = gtr200hit_gpos2.Z();
+      rk_hit_gtr200_cor_lx[i]   = pairs[2].CorrectedLocalPos().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_ly[i]   = pairs[2].CorrectedLocalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_lz[i]   = pairs[2].CorrectedLocalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr200_cor_ltx[i]  = pairs[2].CorrectedLocalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_lty[i]  = pairs[2].CorrectedLocalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_ltz[i]  = pairs[2].CorrectedLocalPosT().Z(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gx[i]   = pairs[2].CorrectedGlobalPos().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gy[i]   = pairs[2].CorrectedGlobalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gz[i]   = pairs[2].CorrectedGlobalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gtx[i]  = pairs[2].CorrectedGlobalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gty[i]  = pairs[2].CorrectedGlobalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr200_cor_gtz[i]  = pairs[2].CorrectedGlobalPosT().Z(); // added 241001 by nakai
       rk_hit_gtr200_nc[i]   = pairs[2].NumCls();
       rk_hit_gtr200_the2[i] = pairs[2].Theta();
       auto gtr200_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[2].Cluster(0));
@@ -2763,6 +2937,16 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr200_gy[i]  = gtr200_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr200_gz[i]  = gtr200_xclst->GlobalPos(geometry).Z();
       rk_hit_gtr200_the[i] = gtr200_xclst->TanTheta();
+      rk_hit_gtr200_xt3[i] = gtr200_xclst->Timing3();
+      rk_hit_gtr200_xt4[i] = gtr200_xclst->Timing4();
+      rk_hit_gtr200_yt3[i] = gtr200_yclst->Timing3();
+      rk_hit_gtr200_yt4[i] = gtr200_yclst->Timing4();
+      rk_hit_gtr200_ct[i].resize(rk_hit_gtr200_nc[i]);
+      rk_hit_gtr200_cpos[i].resize(rk_hit_gtr200_nc[i]);
+      for (int j = 0; j <rk_hit_gtr200_nc[i]; ++j){
+        rk_hit_gtr200_ct[i][j]    = pairs[2].CTiming(j);
+        rk_hit_gtr200_cpos[i][j]  = pairs[2].CPos(j);
+      }
       auto& gtr300hit_lpos = pairs[3].LocalPosT();
       rk_hit_gtr300_tx2[i]  = gtr300hit_lpos.X();
       rk_hit_gtr300_ty[i]   = gtr300hit_lpos.Y();
@@ -2774,6 +2958,18 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr300_gtx2[i] = gtr300hit_gpos2.X();
       rk_hit_gtr300_gty2[i] = gtr300hit_gpos2.Y();
       rk_hit_gtr300_gtz2[i] = gtr300hit_gpos2.Z();
+      rk_hit_gtr300_cor_lx[i]   = pairs[3].CorrectedLocalPos().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_ly[i]   = pairs[3].CorrectedLocalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_lz[i]   = pairs[3].CorrectedLocalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr300_cor_ltx[i]  = pairs[3].CorrectedLocalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_lty[i]  = pairs[3].CorrectedLocalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_ltz[i]  = pairs[3].CorrectedLocalPosT().Z(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gx[i]   = pairs[3].CorrectedGlobalPos().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gy[i]   = pairs[3].CorrectedGlobalPos().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gz[i]   = pairs[3].CorrectedGlobalPos().Z(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gtx[i]  = pairs[3].CorrectedGlobalPosT().X(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gty[i]  = pairs[3].CorrectedGlobalPosT().Y(); // added 241001 by nakai
+      rk_hit_gtr300_cor_gtz[i]  = pairs[3].CorrectedGlobalPosT().Z(); // added 241001 by nakai
       rk_hit_gtr300_nc[i]   = pairs[3].NumCls();
       rk_hit_gtr300_the2[i] = pairs[3].Theta();
       auto gtr300_xclst = dynamic_cast<E16DST_DST1GTRCluster*>(pairs[3].Cluster(0));
@@ -2790,6 +2986,16 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr300_gy[i]  = gtr300_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr300_gz[i]  = gtr300_xclst->GlobalPos(geometry).Z();
       rk_hit_gtr300_the[i] = gtr300_xclst->TanTheta();
+      rk_hit_gtr300_xt3[i] = gtr300_xclst->Timing3();
+      rk_hit_gtr300_xt4[i] = gtr300_xclst->Timing4();
+      rk_hit_gtr300_yt3[i] = gtr300_yclst->Timing3();
+      rk_hit_gtr300_yt4[i] = gtr300_yclst->Timing4();
+      rk_hit_gtr300_ct[i].resize(rk_hit_gtr300_nc[i]);
+      rk_hit_gtr300_cpos[i].resize(rk_hit_gtr300_nc[i]);
+      for (int j = 0; j <rk_hit_gtr300_nc[i]; ++j){
+        rk_hit_gtr300_ct[i][j]    = pairs[3].CTiming(j);
+        rk_hit_gtr300_cpos[i][j]  = pairs[3].CPos(j);
+      }
       auto fit_init_mom = cand.FitInitMom();
       rk_fit_init_mom_gx[i] = fit_init_mom.X();
       rk_fit_init_mom_gy[i] = fit_init_mom.Y();
@@ -3942,6 +4148,8 @@ class E16ANA_TrackCheckFile {
   std::vector<double> y_rough_fit_coef0;
   std::vector<double> y_rough_fit_coef1;
   std::vector<double> chi_square;
+  std::vector<int> xquality;
+  std::vector<int> yquality;
   std::vector<int> n_steps;
   std::vector<int> n_calls;
   std::vector<int> rk_charge;
@@ -3978,9 +4186,31 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_gtr100_gtx2;//
   std::vector<double> rk_hit_gtr100_gty2;//
   std::vector<double> rk_hit_gtr100_gtz2;//
+  std::vector<double> rk_hit_gtr100_cor_lx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_ly;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_lz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_ltx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_lty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_ltz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gy;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gtx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr100_cor_gtz;// added 241001 by nakai
   std::vector<int>    rk_hit_gtr100_nc;//
   std::vector<double> rk_hit_gtr100_the;//
   std::vector<double> rk_hit_gtr100_the2;//;
+  std::vector<float> rk_hit_gtr100_xt3;//
+  std::vector<float> rk_hit_gtr100_xt4;//
+  std::vector<float> rk_hit_gtr100_yt3;//
+  std::vector<float> rk_hit_gtr100_yt4;//
+  std::vector<std::vector<double>> rk_hit_gtr100_ct;//
+  std::vector<std::vector<double>> rk_hit_gtr100_cpos;//
+  std::vector<std::vector<double>> rk_hit_gtr200_ct;//
+  std::vector<std::vector<double>> rk_hit_gtr200_cpos;//
+  std::vector<std::vector<double>> rk_hit_gtr300_ct;//
+  std::vector<std::vector<double>> rk_hit_gtr300_cpos;//
   std::vector<int> rk_hit_gtr200_xid;
   std::vector<int> rk_hit_gtr200_yid;
   std::vector<double> rk_hit_gtr200_gx;
@@ -4000,9 +4230,25 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_gtr200_gtx2;
   std::vector<double> rk_hit_gtr200_gty2;
   std::vector<double> rk_hit_gtr200_gtz2;
+  std::vector<double> rk_hit_gtr200_cor_lx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_ly;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_lz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_ltx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_lty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_ltz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gy;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gtx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr200_cor_gtz;// added 241001 by nakai
   std::vector<int>    rk_hit_gtr200_nc;
   std::vector<double> rk_hit_gtr200_the;
   std::vector<double> rk_hit_gtr200_the2;
+  std::vector<float> rk_hit_gtr200_xt3;//
+  std::vector<float> rk_hit_gtr200_xt4;//
+  std::vector<float> rk_hit_gtr200_yt3;//
+  std::vector<float> rk_hit_gtr200_yt4;//
   std::vector<int> rk_hit_gtr300_xid;
   std::vector<int> rk_hit_gtr300_yid;
   std::vector<double> rk_hit_gtr300_gx;
@@ -4022,9 +4268,25 @@ class E16ANA_TrackCheckFile {
   std::vector<double> rk_hit_gtr300_gtx2;
   std::vector<double> rk_hit_gtr300_gty2;
   std::vector<double> rk_hit_gtr300_gtz2;
+  std::vector<double> rk_hit_gtr300_cor_lx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_ly;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_lz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_ltx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_lty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_ltz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gy;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gz;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gtx;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gty;// added 241001 by nakai
+  std::vector<double> rk_hit_gtr300_cor_gtz;// added 241001 by nakai
   std::vector<int>    rk_hit_gtr300_nc;
   std::vector<double> rk_hit_gtr300_the;
   std::vector<double> rk_hit_gtr300_the2;
+  std::vector<float> rk_hit_gtr300_xt3;//
+  std::vector<float> rk_hit_gtr300_xt4;//
+  std::vector<float> rk_hit_gtr300_yt3;//
+  std::vector<float> rk_hit_gtr300_yt4;//
   std::vector<double> rk_fit_init_mom_gx;
   std::vector<double> rk_fit_init_mom_gy;
   std::vector<double> rk_fit_init_mom_gz;

@@ -378,6 +378,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
  public:
   E16DST_DST1GTRHit()
       : layer_id(E16DST_DST1Constant::kInvalidValue),
+	mod_id(E16DST_DST1Constant::kInvalidValue),
         type(E16DST_DST1Constant::kInvalidValue),
         peak_height(E16DST_DST1Constant::kInvalidValue),
         tot(E16DST_DST1Constant::kInvalidValue) {
@@ -387,6 +388,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   void SetInvalid() override {
     SetBaseInvalid();
     layer_id    = E16DST_DST1Constant::kInvalidValue;
+    mod_id      = E16DST_DST1Constant::kInvalidValue;
     type        = E16DST_DST1Constant::kInvalidValue;
     peak_height = E16DST_DST1Constant::kInvalidValue;
     tot         = E16DST_DST1Constant::kInvalidValue;
@@ -399,6 +401,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   }
 
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
+  void SetModId(int16_t _mod_id) { mod_id = _mod_id-101; }
   void SetType(int16_t _type) { type = _type; }
   void SetPeakHeight(float _peak_height) override { peak_height = _peak_height; }
   void SetPeakt(float _pt){peakt = _pt;;}
@@ -468,6 +471,7 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
  private:
   int     ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
+  int16_t mod_id;
   int16_t type;
   float   peak_height;
   float   tot;
@@ -493,6 +497,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
  public:
   E16DST_DST1GTRCluster()
       : layer_id(E16DST_DST1Constant::kInvalidValue),
+	mod_id(E16DST_DST1Constant::kInvalidValue),
         type(E16DST_DST1Constant::kInvalidValue),
         center_of_gravity(E16DST_DST1Constant::kInvalidValue),
         tdc_pos(E16DST_DST1Constant::kInvalidValue),
@@ -501,6 +506,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   void SetInvalid() override {
     SetBaseInvalid();
     layer_id           = E16DST_DST1Constant::kInvalidValue;
+    mod_id             = E16DST_DST1Constant::kInvalidValue;
     type               = E16DST_DST1Constant::kInvalidValue;
     center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
@@ -531,6 +537,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 	cadc5.clear();
   }
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
+  void SetModId(int16_t _mod_id) { mod_id = _mod_id-101; }
   void SetType(int16_t _type) { type = _type; }
   void SetCogPos(double _center_of_gravity) { center_of_gravity = _center_of_gravity; }
   //void SetTdcPos(double _tdc_pos) { tdc_pos = _tdc_pos; }
@@ -604,8 +611,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 
   double LocalX() {
     if (IsX()) {
-//      return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
-//      return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//231115 temp respect for Wang
+      //return center_of_gravity + E16DST_DST1Constant::kGTRGEMLorentzLength[mod_id][layer_id];
+      //return center_of_gravity + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//231115 temp respect for Wang
       return center_of_gravity;
     } else {
       return center_of_gravity;
@@ -617,7 +624,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
 //		std::cout << "lorent  = " <<  E16DST_DST1Constant::kGTRLorentzAngle[layer_id]<< std::endl;
       // return tdchit + E16DST_DST1Constant::kGTRLorentzAngle[layer_id];//23115 temp
 
-//      return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[layer_id];
+      //return tdchit + E16DST_DST1Constant::kGTRGEMLorentzLength[mod_id][layer_id];
        return tdchit;
     } else {
       return tdchit;
@@ -642,6 +649,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
   int16_t layer_id;
+  int16_t mod_id;
   int16_t type;
   double center_of_gravity; // mm
   double tdc_pos;           // mm
@@ -1765,11 +1773,13 @@ class E16DST_DST1Tracks {
   int Write(std::fstream* fp);
   int Read(std::fstream* fp);
   void Print() {
+    /*
     E16INFO("Number of Tracks: %d", tracks.size());
     for (int i = 0; i < tracks.size(); ++i) {
       E16INFO("Track: %d", i);
       tracks[i].Print();
     }
+    */
     return;
   }
  private:

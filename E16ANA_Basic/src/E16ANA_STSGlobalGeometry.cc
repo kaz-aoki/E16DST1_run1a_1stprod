@@ -49,21 +49,31 @@ void E16ANA_STSGlobalGeometry::Prepare(){
      0,
      false);
 #endif
-#if 1 // nakai value for 104 (2024-08-07)
+#if 1 // nakai value for 104 (2024-08-21)
   E16ANA_STSGlobalSensorGeom sensor104
     (104,
-     r_outer + 0.32161,
-     (-26.89) + 0.321257 /* *deg2rad */,
+     r_outer - 0.000577,
+     (-26.89) + 0.221964 /* *deg2rad */,
      0,
      false);
-  sensor104.dx = -0.538604;
+  sensor104.dx = -0.346972;
 #endif
+#if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor106
     (106,
      r_outer,
      (+26.89) /* *deg2rad */,
      0,
      false);
+#endif
+#if 1 // mtomoki value for 106
+  E16ANA_STSGlobalSensorGeom sensor106
+    (106,
+     r_outer,
+     (+26.89-0.026) /* *deg2rad */,
+     0,
+     false);
+#endif
 #if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor107
     (107,

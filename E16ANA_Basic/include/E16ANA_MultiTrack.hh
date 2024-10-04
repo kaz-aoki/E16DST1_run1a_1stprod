@@ -107,6 +107,8 @@ public:
 
    /* Fit routine */
    // if flag==true, vertex is fixed to initial value
+  double RZFit();
+  double RXFit();
    double Fit(bool vertex_xy_fixflag = false, bool pyfixflag = false, bool vertex_z_fixflag = true);
    double Fit(bool vertex_xy_fixflag = false, bool pyfixflag = false, bool vertex_z_fixflag = true, int _strategy = 2, int _max_function_calls = 1.0e4); // 2021-10-25 ichikawa
    double Fit(bool vertex_xy_fixflag, bool pyfixflag, bool vertex_z_fixflag, int _strategy, int _max_function_calls,
