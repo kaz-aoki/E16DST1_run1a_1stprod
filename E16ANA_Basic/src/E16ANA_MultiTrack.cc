@@ -652,14 +652,15 @@ double E16ANA_MultiTrack::CalcVertexChisquare(){
 //   std::cout << "vertex fitinit y = " << vertex_init.Y() << std::endl;
 //   std::cout << "vertex fit z = " << vertex_fit.Z() << std::endl;
 //
-  double dx = (vertex_fit.X()  - vertex_init.X())/vertex_sigma.X();//ana2
+  //double dx = (vertex_fit.X()  - vertex_init.X())/vertex_sigma.X();//ana2
 //
-//  double dx = (vertex_fit.X()  + 1.0)/vertex_sigma.X();//normal
-//  double dx = (vertex_fit.X()  + 2.5)/vertex_sigma.X();//inverse
-
+  //double dx = (vertex_fit.X()  )/vertex_sigma.X();//normal
+  double dx = (vertex_fit.X() + 0.5)/vertex_sigma.X(); // for Run0e VM-run (intensity 1e10)
+  //double dx = (vertex_fit.X()  + 2.5)/vertex_sigma.X();//inverse
+    //
   double dy = (vertex_fit.Y() +1.0)/vertex_sigma.Y();
 //   double dy = (vertex_fit.Y() - vertex_init.Y())/vertex_sigma.Y();
-  //double dx = (vertex_fit.X() +2.5)/vertex_sigma.X(); //for neg field
+  // double dx = (vertex_fit.X() +2.5)/vertex_sigma.X(); //for neg field
   //double dx = (vertex_fit.X() +1.0)/vertex_sigma.X();
   //double dy = (vertex_fit.Y() +0.8)/vertex_sigma.Y();
    //double dz = (vertex_fit.Z()-vertex_init.Z())/vertex_sigma.Z();
