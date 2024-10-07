@@ -2255,7 +2255,7 @@ class E16ANA_TrackCheckFile {
     n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
     int rn_cands = n_cands;
-    if(n_cands>60) rn_cands =0;
+    if(n_cands>200) rn_cands =0;
     n_selected = cands.NumSelectedTrackCandidates();
 //    n_pairs = cands.NumSelectedTrackCandidatePairs();
     n_pairs = cands.NumTrackCandidatePairs();
@@ -2933,9 +2933,14 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr200_yt[i] = gtr200_yclst->Timing();
       rk_hit_gtr200_xt2[i] = gtr200_xclst->Timing2();
       rk_hit_gtr200_yt2[i] = gtr200_yclst->Timing2();
+      /*
       rk_hit_gtr200_gx[i]  = gtr200_xclst->GlobalPos(geometry).X();
       rk_hit_gtr200_gy[i]  = gtr200_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr200_gz[i]  = gtr200_xclst->GlobalPos(geometry).Z();
+      */
+      rk_hit_gtr200_gx[i]  = pairs[2].GlobalPos().X();
+      rk_hit_gtr200_gy[i]  = pairs[2].GlobalPos().Y();
+      rk_hit_gtr200_gz[i]  = pairs[2].GlobalPos().Z();
       rk_hit_gtr200_the[i] = gtr200_xclst->TanTheta();
       rk_hit_gtr200_xt3[i] = gtr200_xclst->Timing3();
       rk_hit_gtr200_xt4[i] = gtr200_xclst->Timing4();
@@ -2982,9 +2987,14 @@ class E16ANA_TrackCheckFile {
       rk_hit_gtr300_yt[i] = gtr300_yclst->Timing();
       rk_hit_gtr300_xt2[i] = gtr300_xclst->Timing2();
       rk_hit_gtr300_yt2[i] = gtr300_yclst->Timing2();
+      /*
       rk_hit_gtr300_gx[i]  = gtr300_xclst->GlobalPos(geometry).X();
       rk_hit_gtr300_gy[i]  = gtr300_yclst->GlobalPos(geometry).Y();
       rk_hit_gtr300_gz[i]  = gtr300_xclst->GlobalPos(geometry).Z();
+      */
+      rk_hit_gtr300_gx[i]  = pairs[3].GlobalPos().X();
+      rk_hit_gtr300_gy[i]  = pairs[3].GlobalPos().Y();
+      rk_hit_gtr300_gz[i]  = pairs[3].GlobalPos().Z();
       rk_hit_gtr300_the[i] = gtr300_xclst->TanTheta();
       rk_hit_gtr300_xt3[i] = gtr300_xclst->Timing3();
       rk_hit_gtr300_xt4[i] = gtr300_xclst->Timing4();

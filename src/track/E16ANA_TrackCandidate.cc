@@ -3283,7 +3283,7 @@ void E16ANA_TrackCandidates::Analyze() {
   SearchTrackCandidatesWithSTS();
  
  
-  if ( track_candidates.size() > 60) {
+  if ( track_candidates.size() > 200) {
     std::cerr << "Too many track candidates. skip event.::" << track_candidates.size() <<std::endl;
     return;
   }
