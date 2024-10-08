@@ -329,6 +329,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("lg_hit_gy",     &lg_hit_gy);
     tree->Branch("lg_hit_gz",     &lg_hit_gz);
     tree->Branch("lg_hit_adc",    &lg_hit_adc);
+    tree->Branch("lg_hit_ene",    &lg_hit_ene);
     tree->Branch("lg_hit_t",      &lg_hit_t);
     tree->Branch("lg_hit_wofit_adc",    &lg_hit_wofit_adc);
     tree->Branch("lg_hit_wofit_t",      &lg_hit_wofit_t);
@@ -1581,6 +1582,7 @@ class E16ANA_TrackCheckFile {
     lg_hit_gy.resize(n_lg_hits);
     lg_hit_gz.resize(n_lg_hits);
     lg_hit_adc.resize(n_lg_hits);
+    lg_hit_ene.resize(n_lg_hits);
     lg_hit_t.resize(n_lg_hits);
     lg_hit_wofit_adc.resize(n_lg_hits);
     lg_hit_wofit_t.resize(n_lg_hits);
@@ -1600,6 +1602,7 @@ class E16ANA_TrackCheckFile {
       lg_hit_gy[i]        = gpos.Y();
       lg_hit_gz[i]        = gpos.Z();
       lg_hit_adc[i]       = hit.FitPeak();
+      lg_hit_ene[i]       = hit.FitPeak()*lgbasic.GetGain(hit.ModuleId(),hit.ChannelId());
       lg_hit_t[i]         = hit.FitTiming();
       lg_hit_wofit_adc[i] = hit.PeakHeight();
 #ifndef TRACK_EFF_CHECK
@@ -3945,6 +3948,7 @@ class E16ANA_TrackCheckFile {
   std::vector<double> lg_hit_gy;
   std::vector<double> lg_hit_gz;
   std::vector<float>  lg_hit_adc;
+  std::vector<float>  lg_hit_ene;
   std::vector<float>  lg_hit_t;
   std::vector<float>  lg_hit_wofit_adc;
   std::vector<float>  lg_hit_wofit_t;

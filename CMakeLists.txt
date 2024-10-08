@@ -1440,16 +1440,16 @@ target_link_libraries(calc_ssd_rate
 #  usr/tmp/tmp_check_pos_smear_220627.C
 #)
 #
-##_______________________________________________________________________________
-#add_executable(track_analyzer_220715_wrapper
-#  usr/tmp/track_analyzer_220715_wrapper.cc
-#  usr/tmp/track_analyzer_220715.C
-#)
-#
-#target_link_libraries(track_analyzer_220715_wrapper
-#  E16DST_DST1
-#)
-#
+#_______________________________________________________________________________
+add_executable(track_analyzer_220715_wrapper
+  usr/tmp/track_analyzer_220715_wrapper.cc
+  usr/tmp/track_analyzer_220715.C
+)
+
+target_link_libraries(track_analyzer_220715_wrapper
+  E16DST_DST1
+)
+
 ##_______________________________________________________________________________
 #add_executable(tmp_check_n_events_220811
 #  usr/tmp/tmp_check_n_events_220811.cc
