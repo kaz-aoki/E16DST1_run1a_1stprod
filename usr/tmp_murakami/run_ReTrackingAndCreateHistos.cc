@@ -244,8 +244,8 @@ int main (int argc, char** argv) {
 	
 //	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240813.dat";
 //	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240821.dat";
-//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_m104_106_107_240823.dat";
-	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240627.dat";
+	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_m104_106_107_240823.dat";
+//	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_Run0e_240627.dat";
 //	std::string gfile = "/home/had/mtomoki/E16/work_dst1/E16DST1/geometry_morino.dat";
 	auto geom = new E16ANA_GeometryV2(static_cast <std::string>(gfile));
 	std::cout << "Read Geometry : " << gfile << std::endl;
