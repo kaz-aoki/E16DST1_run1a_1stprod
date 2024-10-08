@@ -17,7 +17,7 @@
 using namespace std;
 
 //#define STS_MODULE_RAND
-//#define STS_DO_CLUSTERING
+#define STS_DO_CLUSTERING
 
 int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
@@ -65,9 +65,12 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-    if( hit0.ADCinvalid() ) continue;
-    if( hit0.TDCinvalid() ) continue;
+    if( hit0.ADC() == 0xffff ) continue;
+    //if( hit0.ADCinvalid() ) continue;
+    //if( hit0.TDCinvalid() ) continue;
     if ( hit0.PN() == 0 ) continue; // remove P side.
+    if(hit0.ModuleID()<104)   continue; // invalid.
+    if(hit0.ModuleID()>108)   continue; // invalid
     hits1.emplace_back();
     auto& hit1 = hits1.back();
 #ifdef STS_MODULE_RAND
@@ -115,8 +118,11 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 //  std::cout << "sts dst0 num hits = " << sts_dst0.NumberOfHits() << std::endl;  
   for (int i=0; i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
-    if ( hit0.ADCinvalid() ) continue; // invalid
+    //if ( hit0.ADCinvalid() ) continue; // invalid
+    if (hit0.ADC() == 0xffff) continue; // invalid
     if ( hit0.PN() == 0 ) continue; // Eliminate P side data for fast process.
+    if(hit0.ModuleID()<104)   continue; // invalid.
+    if(hit0.ModuleID()>108)   continue; // invalid.
 
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
@@ -131,14 +137,13 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 	 cluster1.SetPeakSum(hit0.ADC());
     cluster1.SetPN(hit0.PN());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
-    if ( ! hit0.TDCinvalid() ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
+    if ( hit0.TDC() != 0xffff ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);
 	 cluster1.SetTiming(hit0.TDC() - emu_timestamp);
     TVector3 lpos(lgeom->GetLocalX_fromN(hit0.ChannelID()),0,0);
     if ( hit0.PN() == 0 ) {
       // P
     }else{
       // N
-      std::cout << "lpos in facto : " << lpos.X()  << std::endl;
 	   cluster1.SetCogPos(lpos.X());
     }
     double local[3]= {lpos.X(),lpos.Y(),lpos.Z()};
@@ -148,7 +153,6 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
   }
 
   
-  std::cout << "sts cluster size in facto : " << clusters1.size() << std::endl;
   
   //  auto lgeom = E16ANA_STSGeometry::instance();
   //std::cout << " local coordinte " << lgeom->GetLocalX_fromN(0) << std::endl;

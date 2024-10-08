@@ -44,16 +44,20 @@ message("-- Building host is ${_host_name}")
 if(${_host_name} MATCHES "^e16")
    message("-- E16SYS_DIR will be set for e16 servers.")
    set(E16SYS_DIR /opt/E16)
+   set(E16_DB_DIR /e16/u/E16/database)
 elseif(${_host_name} MATCHES "^ccj")
    message("-- E16SYS_DIR will be set for ccj servers.")
    set(E16SYS_DIR /ccj/u/E16)
+   set(E16_DB_DIR /ccj/u/E16/database)
    add_definitions(-DCCJ_CALIB_FILE) # for calib files
 elseif(${_host_name} MATCHES "cc.kek.jp$")
    message("-- E16SYS_DIR will be set for kekcc servers.")
    set(E16SYS_DIR /opt/E16)
+   set(E16_DB_DIR /ccj/u/E16/database)
    add_definitions(-DCCJ_CALIB_FILE) # for calib files
 endif()
 message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
+message(STATUS "E16_DB_DIR:  ${E16_DB_DIR}")
 
 
 #add_definitions(-DTRACK_FIND_WO_TARGET) # \\ common for wire and three targets for straight track, 
@@ -62,8 +66,8 @@ message(STATUS "E16SYS_DIR:  ${E16SYS_DIR}")
 #tracking //murakmai
 #add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d 
 add_definitions(-DUseSTS) # //turn on this if you have sts, like Run0e
-add_definitions(-DSTS_DO_CLUSTERING) # //turn on this if you want STS clustering (Run0e)
-add_definitions(-DWIRE_STS_TRACK) # //turn on this if you want STS clustering (Run0e)
+#add_definitions(-DSTS_DO_CLUSTERING) # //turn on this if you want STS clustering (Run0e)
+#add_definitions(-DWIRE_STS_TRACK) # //turn on this if you want STS clustering (Run0e)
 #add_definitions(-DREMOVE_GTR100) # 
 #add_definitions(-DREMOVE_GTR200) # 
 #add_definitions(-DREMOVE_GTR300) # 
@@ -1145,6 +1149,15 @@ target_link_libraries(dst0_to_dst1_trigger_check
 )
 
 #_______________________________________________________________________________
+add_executable(dst0_to_dst1_trigger_check2 usr/dst0_to_dst1_trigger_check2.cc)
+
+target_link_libraries(dst0_to_dst1_trigger_check2
+	E16ANA_Basic
+  E16DST_DST1
+  E16ANA_MockTrack
+)
+
+#_______________________________________________________________________________
 add_executable(gtr_deadch_check usr/gtr_deadch_check.cc)
 
 target_link_libraries(gtr_deadch_check
@@ -1586,6 +1599,15 @@ target_link_libraries(tmp_check_track_finding_230106
 #  E16DST_DST1
 #)
 #
+#_______________________________________________________________________________
+add_executable(check_lorentz_correction
+  usr/tmp/check_lorentz_correction.cc
+)
+
+target_link_libraries(check_lorentz_correction
+  E16ANA_Basic
+)
+
 #_______________________________________________________________________________
 add_subdirectory(E16ANA_Basic)
 add_subdirectory(E16DST)

@@ -13,7 +13,7 @@ E16ANA_MultiTrack::E16ANA_MultiTrack(E16ANA_MagneticFieldMap *_bfield_map, E16AN
    bfield_map(_bfield_map), geom(_goem), n_tracks(_n_tracks),
    rungekutta_step_size(1.0), // 1.0 mm
    print_level(-1),
-   momentum_step_size(0.001),
+   momentum_step_size(0.002),
    vertex_sigma(1.0, 1.0, 0.0)
 {
    GTRlPos = new std::vector<LayerHits_t>[n_tracks];
@@ -327,7 +327,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    }else{
 //        minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, -20.0, 20.0); // mm
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20.0, vertex_init.X()+20.0); // mm // update 2021-02-24
-      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-10., vertex_init.X()+10.); // mm // update 2021-09-20
+      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-20., vertex_init.X()+20.); // mm // update 2021-09-20
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-50., vertex_init.X()+50.); // mm // update 2021-11-06 for Ks?
 //      minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, vertex_init.X()-80., vertex_init.X()+80.); // mm // update 2022-02-23 for Ks?
       if(pyfixflag){
@@ -335,7 +335,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
       }else{
          //minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20.0, 20.0); // mm
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20.0, vertex_init.Y()+20.0); // mm // update 2021-02-24
-         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-10., vertex_init.Y()+10.); // mm // update 2021-09-20
+         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-20., vertex_init.Y()+20.); // mm // update 2021-09-20
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-50., vertex_init.Y()+50.); // mm // update 2021-11-06 for Ks?
 //         minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, vertex_init.Y()-80., vertex_init.Y()+80.); // mm // update 2022-02-23 for Ks?
       }
@@ -364,7 +364,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -50.0, 50.0); // update 2021-10-19
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 20., -20.0, 20.0); // update 2021-10-19
 //      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -40.0, 60.0); // update 2022-02-23 for Ks?
-      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -30.0, 30.0); // update 2022-02-23 for Ks?
+     minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.01, vertex_init.Z()-0.001, vertex_init.Z()+0.001); // update 2022-02-23 for Ks?
    }
    for(int i=0; i<n_tracks; i++){
       minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
@@ -470,7 +470,8 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    if(vertex_z_fixflag){
       minuit->SetFixedVariable(2, "Vertex_Z", vertex_init.Z());
    }else{
-      minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, z_min, z_max); // update 2022-02-23 for Ks?
+     //minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, z_min, z_max); // update 2022-02-23 for Ks?
+     minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.01, vertex_init.Z()-0.01, vertex_init.Z()+0.01); // update 2022-02-23 for Ks?
    }
    for(int i=0; i<n_tracks; i++){
       minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
@@ -530,6 +531,119 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
    return chisq;
 }
 
+double E16ANA_MultiTrack::RZFit(){
+  PreConditioning();
+  TMinuitMinimizer *minuit = new TMinuitMinimizer(ROOT::Minuit::kMigradImproved);
+  E16ANA_MultiTrackFunction func(this);
+  minuit->SetFunction(func);
+  minuit->SetPrintLevel(-1);
+  minuit->SetStrategy(0);
+  minuit->SetMaxFunctionCalls(1000);
+  minuit->SetTolerance(1.0e-5);
+  minuit->SetFixedVariable(  0, "Vertex_X", vertex_init.X());
+  minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20, 20); // mm // update 2021-09-20
+  minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, -100, 100); // mm // update 2021-09-20
+  for(int i=0; i<n_tracks; i++){
+    minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
+			       momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.8, momentum_init[i].X()+0.8); // GeV // 2021-10-19
+    minuit->SetLimitedVariable(i*3+4, Form("Momentum%02d_Y", i),
+			       momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.8, momentum_init[i].Y()+0.8); // GeV // 2021-10-19
+    minuit->SetLimitedVariable(i*3+5, Form("Momentum%02d_Z", i),
+			       momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.8, momentum_init[i].Z()+0.8); // GeV // 2021-02-24
+  }
+  minimize_status = minuit->Minimize();
+  matrix_status = minuit->CovMatrixStatus();
+  n_calls = minuit->NCalls();
+  double chisq = minuit->MinValue();
+  vertex_fit.SetXYZ(
+		    minuit->X()[0],
+		    minuit->X()[1],
+		    minuit->X()[2]
+		    );
+  for(int i=0; i<n_tracks; i++){
+    momentum_fit[i].SetXYZ(
+			   minuit->X()[i*3+3],
+			   //-track_charge[i]*minuit->X()[i*3+3], // 160928
+			   minuit->X()[i*3+4],
+			   minuit->X()[i*3+5]
+			   );
+  }
+  minuit->SetFixedVariable(0, "V_X", vertex_fit.X() );
+  minuit->SetFixedVariable(1, "V_Y", vertex_fit.Y() );
+  minuit->SetFixedVariable(2, "V_Z", vertex_fit.Z() );
+  for(int i=0; i<n_tracks; i++){
+    minuit->SetFixedVariable(i*3+3, Form("Momentum%02d_X", i), momentum_fit[i].X() );
+    minuit->SetFixedVariable(i*3+4, Form("Momentum%02d_Y", i), momentum_fit[i].Y() );
+    minuit->SetFixedVariable(i*3+5, Form("Momentum%02d_Z", i), momentum_fit[i].Z() );
+  }
+  minimize_status = minuit->Minimize();
+  if(chisq > 0.9e+10){
+    for(int i=0; i<n_tracks; i++){
+      //momentum_fit[i].SetXYZ(-10000.0, -10000.0, -10000.0);
+      momentum_fit[i].SetXYZ(kInvalidValue, kInvalidValue, kInvalidValue);
+    }
+  }
+  delete minuit;
+  return chisq;
+}
+
+double E16ANA_MultiTrack::RXFit(){
+  PreConditioning();
+  TMinuitMinimizer *minuit = new TMinuitMinimizer(ROOT::Minuit::kMigradImproved);
+  E16ANA_MultiTrackFunction func(this);
+  minuit->SetFunction(func);
+  minuit->SetPrintLevel(-1);
+  minuit->SetStrategy(0);
+  minuit->SetMaxFunctionCalls(1000);
+  minuit->SetTolerance(1.0e-5);
+  minuit->SetFixedVariable(  2, "Vertex_Z", vertex_init.Z());
+  minuit->SetLimitedVariable(1, "Vertex_Y", vertex_init.Y(), 0.1, -20, 20); // mm // update 2021-09-20
+  minuit->SetLimitedVariable(0, "Vertex_X", vertex_init.X(), 0.1, -20, 20); // mm // update 2021-09-20
+  for(int i=0; i<n_tracks; i++){
+    minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
+			       momentum_init[i].X(), momentum_step_size, momentum_init[i].X()-0.8, momentum_init[i].X()+0.8); // GeV // 2021-10-19
+    minuit->SetLimitedVariable(i*3+4, Form("Momentum%02d_Y", i),
+			       momentum_init[i].Y(), momentum_step_size, momentum_init[i].Y()-0.8, momentum_init[i].Y()+0.8); // GeV // 2021-10-19
+    minuit->SetLimitedVariable(i*3+5, Form("Momentum%02d_Z", i),
+			       momentum_init[i].Z(), momentum_step_size, momentum_init[i].Z()-0.8, momentum_init[i].Z()+0.8); // GeV // 2021-02-24
+  }
+  minimize_status = minuit->Minimize();
+  matrix_status = minuit->CovMatrixStatus();
+  n_calls = minuit->NCalls();
+  double chisq = minuit->MinValue();
+  vertex_fit.SetXYZ(
+		    minuit->X()[0],
+		    minuit->X()[1],
+		    minuit->X()[2]
+		    );
+  for(int i=0; i<n_tracks; i++){
+    momentum_fit[i].SetXYZ(
+			   minuit->X()[i*3+3],
+			   //-track_charge[i]*minuit->X()[i*3+3], // 160928
+			   minuit->X()[i*3+4],
+			   minuit->X()[i*3+5]
+			   );
+  }
+  minuit->SetFixedVariable(0, "V_X", vertex_fit.X() );
+  minuit->SetFixedVariable(1, "V_Y", vertex_fit.Y() );
+  minuit->SetFixedVariable(2, "V_Z", vertex_fit.Z() );
+  for(int i=0; i<n_tracks; i++){
+    minuit->SetFixedVariable(i*3+3, Form("Momentum%02d_X", i), momentum_fit[i].X() );
+    minuit->SetFixedVariable(i*3+4, Form("Momentum%02d_Y", i), momentum_fit[i].Y() );
+    minuit->SetFixedVariable(i*3+5, Form("Momentum%02d_Z", i), momentum_fit[i].Z() );
+  }
+  minimize_status = minuit->Minimize();
+  if(chisq > 0.9e+10){
+    for(int i=0; i<n_tracks; i++){
+      //momentum_fit[i].SetXYZ(-10000.0, -10000.0, -10000.0);
+      momentum_fit[i].SetXYZ(kInvalidValue, kInvalidValue, kInvalidValue);
+    }
+  }
+  delete minuit;
+  return chisq;
+}
+
+
 double E16ANA_MultiTrack::CalcVertexChisquare(){
    //double dx = (vertex_fit.X()-vertex_init.X())/vertex_sigma.X();
    //double dy = (vertex_fit.Y()-vertex_init.Y())/vertex_sigma.Y();
@@ -537,14 +651,22 @@ double E16ANA_MultiTrack::CalcVertexChisquare(){
 //   std::cout << "vertex fitinit x = " << vertex_init.X() << std::endl;
 //   std::cout << "vertex fitinit y = " << vertex_init.Y() << std::endl;
 //   std::cout << "vertex fit z = " << vertex_fit.Z() << std::endl;
-//   double dx = (vertex_fit.X()  - vertex_init.X())/vertex_sigma.X();
+//
+  //double dx = (vertex_fit.X()  - vertex_init.X())/vertex_sigma.X();//ana2
+//
+  //double dx = (vertex_fit.X()  )/vertex_sigma.X();//normal
+  double dx = (vertex_fit.X() + 0.5)/vertex_sigma.X(); // for Run0e VM-run (intensity 1e10)
+  //double dx = (vertex_fit.X()  + 2.5)/vertex_sigma.X();//inverse
+    //
+  double dy = (vertex_fit.Y() +1.0)/vertex_sigma.Y();
 //   double dy = (vertex_fit.Y() - vertex_init.Y())/vertex_sigma.Y();
-   double dx = (vertex_fit.X() )/vertex_sigma.X();
-   double dy = (vertex_fit.Y() )/vertex_sigma.Y();
-//   double dz = (vertex_fit.Z()-vertex_init.Z())/vertex_sigma.Z();
+  // double dx = (vertex_fit.X() +2.5)/vertex_sigma.X(); //for neg field
+  //double dx = (vertex_fit.X() +1.0)/vertex_sigma.X();
+  //double dy = (vertex_fit.Y() +0.8)/vertex_sigma.Y();
+   //double dz = (vertex_fit.Z()-vertex_init.Z())/vertex_sigma.Z();
    if(vertex_sigma.X() < chisq_sigma_min) dx = 0.0;
    if(vertex_sigma.Y() < chisq_sigma_min) dy = 0.0;
-//   if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
+   //if(vertex_sigma.Z() < chisq_sigma_min) dz = 0.0;
 //   return dx*dx+dy*dy+dz*dz;
    return dx*dx+dy*dy;
 }
