@@ -284,11 +284,12 @@ void E16ANA_LGOnlineAnalyzer::MakePDF(int run_id, char* outfile, int maxevent)
     if( maxevent!=-1&&nevent>maxevent ){break;}
     nevent++;
 
-    if(PeakHeight>20&&TrgTiming>3050&&TrgTiming<3200){
+    // if(PeakHeight>20&&TrgTiming>3050&&TrgTiming<3200){//run0d, t0calib
+    if(PeakHeight>20&&TrgTiming>3100&&TrgTiming<3170){//run0e, t0calib
     // if(Trg){
     // if(TrgTiming>3120&&TrgTiming<3150){
     // if(TrgTiming>3120&&TrgTiming<3150&&PeakHeight>25&&PeakHeight<180){
-      lghists->Fill(Module,Block,PeakHeight,PeakTime,Timing,Baseline,BaselineRms,Integral,Dst1Flag);
+      lghists->Fill(Module,Block,PeakHeight,PeakTime,CalibTiming,Baseline,BaselineRms,Integral,Dst1Flag);
     }
 
   }

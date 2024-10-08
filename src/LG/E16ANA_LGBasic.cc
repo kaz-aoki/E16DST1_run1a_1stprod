@@ -91,6 +91,8 @@ void E16ANA_LGBasic::SetCalibMap(){
 
         E16ANA_CalibDBManager& calib=E16ANA_CalibDBManager::Instance();
 	FILE* fp_t0 = calib.CalibFileOpenBinary("LG-t0bych", calib.CurrentRunID() );
+	// char* tmpname = "/home/had/nakasuga/E16/DST1/t0calibrun050663.txt";
+	// FILE* fp_t0 = fopen( tmpname, "r"  );
 	if ( fp_t0==NULL ) {
 		std::cout<<"[Error] t0 map file is not found !"<<std::endl;
 		exit(1);

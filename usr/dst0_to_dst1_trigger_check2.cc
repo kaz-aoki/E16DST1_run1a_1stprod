@@ -407,28 +407,26 @@ int main(int argc, char* argv[]) {
       record.Trigger().UpdatePtrs();
 
 // ------------------ Easy Event Selection by LG Trigger Hit ----------------------- // 240501 changed a litte from Morino-san ana
-      int nlg = record.Trigger().NumLGHits();
-      int tnlg = 0;
-      int tnlg2 = 0;
-      /*
-      for (int k=0; k < nlg; k++){
-	auto &hit = record.Trigger().LGHit(k);
-	if(fabs(hit.Timing()) > 10 && fabs(hit.Timing()) < 200 tnlg++;
-	   if(fabs(hit.Timing()) < 10 ) tnlg2++;
-	   }
-	if(tnlg2> 15) continue;
-	if(tnlg> 30) continue;
-      */
-      /*
-      int tngt = 0;
-      int ngt = record.Trigger().NumGTRHits();
-      for(int k=0; jk < ngt; k++){
-	auto &hit = record.Trigger().GTRHit(k);
-	if(hit.Timing() > -50 && hit.Timing() < 350) tngt++;
-      }
-      if(tngt > 36) continue;
-      */
-	
+   	int nlg = record.Trigger().NumLGHits();
+		int tnlg = 0;
+		int tnlg2 = 0;
+		for (int k=0; k < nlg; k++){
+			auto &hit = record.Trigger().LGHit(k);
+			if(fabs(hit.Timing()) > 10 && fabs(hit.Timing()) < 200 tnlg++;
+			if(fabs(hit.Timing()) < 10 ) tnlg2++;
+		}
+		if(tnlg2> 15) continue;
+		if(tnlg> 30) continue;
+		
+		int tngt = 0;
+		int ngt = record.Trigger().NumGTRHits();
+		for(int k=0; jk < ngt; k++){
+			auto &hit = record.Trigger().GTRHit(k);
+			if(hit.Timing() > -50 && hit.Timing() < 350) tngt++;
+		}
+//		if(tngt > 12) continue;
+		if(tngt > 36) continue;
+
 // -------------------------------------------------------------------------------------
 
       check_file.ClearSimTrack();

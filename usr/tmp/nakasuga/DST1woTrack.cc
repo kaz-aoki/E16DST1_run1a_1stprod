@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
       record.HBD().AddHitAndClusterIds();
       E16DST_DST1LGFactory(lg_hits0, &record.LG(), 1, geometry); // w/ fit
       record.LG().AddHitAndClusterIds();
-      E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
+      // E16DST_DST1TriggerFactory(trigger_param, event0->TriggerGTR(), event0->TriggerHBD(), event0->TriggerLG(), event0->UT3(), &record.Trigger());
       record.Trigger().AddHitAndClusterIDs();
 // HBD clustering w/o timing selection begin
       E16DST_DST1HBDFactory(hbd_hits0, hbd_calib, hbd_cut_wo_timing, wf1d_fitter, &record_for_another_hbd_cluster.HBD());

@@ -90,10 +90,12 @@ int main(int argc, char* argv[]) {
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030301.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/root/v59/track_run030302.root");
 
-      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID5e9/240601/*.root");
-      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID5e9/240703/*.root");
-      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID1e9/240616/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID5e9/240706/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/EID1e9/240706/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/VM/240708/run05154*.root");
       // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/woHBD1e9/240618/*.root");
+      // in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/Ks/240723/*.root");
+      in_chain->Add("/ccj/u/nakasuga/work/dst1ana/track/out/rootphi/run0e/GTRcalib/240814-0/*.root");
     }
   }
   else if(argc==6||argc==8){
@@ -104,7 +106,7 @@ int main(int argc, char* argv[]) {
   E16ANA_EIDEfficiency* t = new E16ANA_EIDEfficiency(in_chain);
   if(argc!=8){
     if(runtype==1){hbdthr=7.;hbdclthr=2;}
-    if(runtype==3){hbdthr=6.;hbdclthr=2;}
+    if(runtype==3){hbdthr=7.;hbdclthr=2;}
     // if(runtype==3){hbdthr=2.;hbdclthr=1;}
     if(runtype==0){hbdthr=0.;hbdclthr=1;}
     if(runtype==4){hbdthr=0.;hbdclthr=1;}
