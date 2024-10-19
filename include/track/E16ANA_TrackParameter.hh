@@ -65,7 +65,8 @@ const TVector3 kInitPosError = {2.5, 2, 0.};
   //const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
 //const TVector3 kInitPosError = {2., 2., 0.};
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {45., 70., 70.};
+//constexpr std::array<double, 3> kGTRTimeDiffThreshold = {45., 70., 70.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {110., 160., 160.};
 //constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
 #ifndef TRACK_FIND_WO_TARGET
 constexpr const std::array<double, 5> kXSigma = {3.5, 0.05, 0.3, 0.3, 0.3}; // 220413 for statistics check
@@ -104,7 +105,7 @@ constexpr double kInitPosBackRadius = 10.;
 #endif // TRACK_FIND_WO_TARGET
 #ifndef TRACK_FIND_WO_TARGET
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {90., 20.}; // x, y // 220413 for statistics check, 220418 for production
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {55., 15.}; // x, y // 220413 for statistics check, 220418 for production
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {25., 0., 0.001};
 //constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.01}; // 220413 for statistics check
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
