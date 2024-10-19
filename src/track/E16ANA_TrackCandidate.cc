@@ -845,7 +845,7 @@ bool E16ANA_TrackCandidates::IsXTrackCandidatewoSTS(int tgt_id, double prev_chi2
   vector<int> hbd_indexs;
   vector<int> hbd_ids;
   vector<double> hbd_ress;
-  double thchi = kRoughFitChiSquareThreshold[0]-45;
+  double thchi = kRoughFitChiSquareThreshold[0]-20;
   if (chi2_cand < thchi &&
       fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2] &&
       (!kReqHBDAssociation || HasXAssociatedHBD(tgt_id, *cluster_set, coef, &hbd_indexs, &hbd_ids, &hbd_ress))) {
@@ -952,7 +952,7 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(int tgt_id, double prev_chi2, One
   vector<int> hbd_ids;
   vector<double> hbd_ress;
   double thchi = kRoughFitChiSquareThreshold[0];
-  if(full==0) thchi = kRoughFitChiSquareThreshold[0]-45;
+  if(full==0) thchi = kRoughFitChiSquareThreshold[0]-20;
   if (chi2_cand < thchi &&
       fabs(coef[0]) < kRoughXFitCoefficientThreshold[0] && fabs(coef[2]) < kRoughXFitCoefficientThreshold[2] &&
       (!kReqHBDAssociation || HasXAssociatedHBD(tgt_id, *cluster_set, coef, &hbd_indexs, &hbd_ids, &hbd_ress))) {
@@ -1064,7 +1064,7 @@ bool E16ANA_TrackCandidates::IsYTrackCandidate(OneAxisClusterSet* cluster_set, i
     chi2_cand += kYWeight[i] * (fit_y[i] - gtr_y[i]) * (fit_y[i] - gtr_y[i]);
   }
   double thchi = kRoughFitChiSquareThreshold[1];
-  if(full<1) thchi = kRoughFitChiSquareThreshold[1]-5;
+  if(full<1) thchi = kRoughFitChiSquareThreshold[1]-10;
 
   //printf("chi %f(%f) full %d, %f %f %f \n",chi2_cand,thchi,full,gtr_y[1],gtr_y[2],gtr_y[3]);
 
@@ -3552,7 +3552,7 @@ void E16ANA_TrackCandidates::Analyze() {
   SearchTrackCandidatesWithSTS();
  
  
-  if ( track_candidates.size() > 300) {
+  if ( track_candidates.size() > 1200) {
     std::cerr << "Too many track candidates. skip event.::" << track_candidates.size() <<std::endl;
     return;
   }
