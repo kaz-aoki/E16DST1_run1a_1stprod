@@ -827,7 +827,7 @@ TVector3 E16ANA_PlanarSTSGeometry::GetLMom(const TVector3 &gmom) const {
   double global[3] = {gmom.X(),gmom.Y(),gmom.Z()};
   int e16module = KawamaToE16DST(module_id);
   double local[3];
-  ggeom->Global2Local(e16module,global,local);
+  ggeom->Global2Local_wotrans(e16module,global,local);
   return TVector3(local);
 }
 
