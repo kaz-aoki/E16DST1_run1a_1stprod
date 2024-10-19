@@ -2258,7 +2258,7 @@ class E16ANA_TrackCheckFile {
     n_y_cands = cands.NumYCandidates();
     n_cands = cands.NumTrackCandidates();
     int rn_cands = n_cands;
-    if(n_cands>200) rn_cands =0;
+    if(n_cands>300) rn_cands =0;
     n_selected = cands.NumSelectedTrackCandidates();
 //    n_pairs = cands.NumSelectedTrackCandidatePairs();
     n_pairs = cands.NumTrackCandidatePairs();

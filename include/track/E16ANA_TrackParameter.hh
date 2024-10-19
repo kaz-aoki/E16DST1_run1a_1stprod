@@ -65,7 +65,8 @@ const TVector3 kInitPosError = {2.5, 2, 0.};
   //const TVector3 kInitPosError = {0., 0., 0.}; // 220607
 //const std::array<TVector3, 4> kSigmas = {{{0.001, 0., 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}, {0.001, 0.001, 0.}}};
 //const TVector3 kInitPosError = {2., 2., 0.};
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {45., 70., 70.};
+//constexpr std::array<double, 3> kGTRTimeDiffThreshold = {45., 70., 70.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {100., 150., 150.};
 //constexpr const std::array<double, 5> kXSigma = {20., 0.05, 0.1, 0.1, 0.1};
 #ifndef TRACK_FIND_WO_TARGET
 constexpr const std::array<double, 5> kXSigma = {3.5, 0.05, 0.3, 0.3, 0.3}; // 220413 for statistics check
