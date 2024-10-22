@@ -1255,9 +1255,10 @@ target_link_libraries(gtr_deadch_check
 #add_executable(run_ReStraightV2 usr/tmp_murakami/run_ReStraightV2.cc)
 #target_link_libraries(run_ReStraightV2
 #	E16DST
-#	E16DST_DST1
+#E16DST_DST1
 #)
 #--------------------------------------------------------------------
+
 add_executable(run_GeometryCheck usr/tmp_murakami/run_GeometryCheck.cc)
 target_link_libraries(run_GeometryCheck
 	E16DST

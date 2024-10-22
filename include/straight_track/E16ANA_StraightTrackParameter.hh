@@ -15,6 +15,11 @@ const int kNoExistLayer = 0;
 const int kNoExistLayer = -1;
 #endif
 
+
+#ifdef REMOVE_NOLAYER
+const int kRemovedLayer = -1;
+#endif
+
 #ifdef REMOVE_GTR100
 const int kRemovedLayer = 1;
 #elif REMOVE_GTR200
@@ -23,8 +28,6 @@ const int kRemovedLayer = 2;
 const int kRemovedLayer = 3;
 #else 
 	#ifndef NoExist_SSD
-	#define REMOVE_NOLAYER
-const int kRemovedLayer = -1;
 	#endif
 #endif
 

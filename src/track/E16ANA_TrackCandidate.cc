@@ -2342,7 +2342,8 @@ E16INFO("number of GTR clusters: %d", gtr.NumClusters());
                   bool is_cand = false;
                   double chi2 = 10000000.;
                   for (int tgt_index = 0; tgt_index < 3; ++tgt_index) {
-                    if (IsXTrackCandidate(tgt_index, chi2, cluster_set)) {
+//                    if (IsXTrackCandidate(tgt_index, chi2, cluster_set)) {
+                    if (IsXTrackCandidatewoSTS(tgt_index, chi2, cluster_set)) {
                       is_cand = true;
                       chi2 = cluster_set->chi_square;
                     }
@@ -3549,8 +3550,12 @@ void E16ANA_TrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
 
+#ifndef NoExist_SSD
   SearchTrackCandidatesWithSTS();
- 
+#else
+  SearchTrackCandidates();
+#endif
+
  
   if ( track_candidates.size() > 1200) {
     std::cerr << "Too many track candidates. skip event.::" << track_candidates.size() <<std::endl;

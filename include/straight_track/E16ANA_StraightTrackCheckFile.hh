@@ -2518,6 +2518,8 @@ class E16ANA_StraightTrackCheckFile {
 #endif // TRACK_EFF_CHECK
   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_StraightTrackCandidates& cands) {
     n_fill = _n_fill;
+	 int n_cands = cands.NumTrackCandidates();
+    if(n_cands < 1 ) return;
     AddCandidate(geometry, cands);
     FillTree();
     return;
