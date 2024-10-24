@@ -93,7 +93,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
         }
     }
     dst1_hits.resize(dst1_hits_size);
-    dst1_clusters.resize(dst1_clusters_size+2);
+    dst1_clusters.resize(dst1_clusters_size+11);
     //dst1_clusters.resize(dst1_clusters_size);
 
 //
@@ -359,12 +359,11 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
 	  }
 	  cl_id++;
 	}       
-	
     }
-    /*
+    
     for(int mid=103; mid<=106; mid++){
       if(mid==105) continue;
-        for(int lid=0; lid< 1 ; lid++){
+	for(int lid=0; lid< 3 ; lid++){
 	  E16DST_DST1GTRCluster &cly = dst1_clusters[cl_id];
 	  cly.SetInvalid();
 	  cly.SetModuleId(mid);
@@ -412,10 +411,13 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
 	    cly.SetCPos5(0);
 	  }
 	  cl_id++;
-	}       
-	
+	}
     }
-    */
-    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+2);
+    
+
+    
+    
+    //return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+2);
+    return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size+11);
     //return sizeof(E16DST_DST1GTRHit) * dst1_hits_size + sizeof(E16DST_DST1GTRCluster) * (dst1_clusters_size);
 }
