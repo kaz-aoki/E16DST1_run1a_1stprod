@@ -80,8 +80,10 @@ public:
    virtual void SetBadPedestalThresholdY(double th);
    virtual void SetBadPedestalSigmaThresholdX(double th);
    virtual void SetBadPedestalSigmaThresholdY(double th);
-   virtual void SetTimeWindowMin(double th);
-   virtual void SetTimeWindowMax(double th);
+   virtual void SetTimeWindowMinX(double th);
+   virtual void SetTimeWindowMaxX(double th);
+   virtual void SetTimeWindowMinY(double th);
+   virtual void SetTimeWindowMaxY(double th);
    virtual void SetClusterMinimumGap(int th);
    virtual void SetClusterDeltaTdc(double th);
    virtual void SetRiseTimeMin(double th);
@@ -170,6 +172,8 @@ public:
    void SetPinAssign(std::string filename);
    void SetThresholdY(double th);
    void SetTOTThresholdY(double th);
+	void SetTimeWindowMinY(double th);
+	void SetTimeWindowMaxY(double th);
    void SetBadPedestalThresholdY(double th);
    void SetBadPedestalSigmaThresholdY(double th);
    int GetNumberOfStrips() { return n_strip_x + n_strip_y + n_strip_y; };

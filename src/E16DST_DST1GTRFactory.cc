@@ -127,35 +127,60 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     t_hit_indexs[0].clear();
                     t_hit_indexs[1].clear();
                     t_hit_indexs[2].clear();
-		    hit_orders.clear();
-		    double last_totend = -1000;
+			 		     hit_orders.clear();
+			 		     double last_totend = -1000;
+			 			  double max_tot  = -1000;//241022
+			 			  double min_tot  = 1000;//241022
+			 			  double min_rt   = 1000;//241022
+			 			  double max_rt   = -1000;//241022
+			 			  double last_st  = -1000;//241022
+						  double min_adc = 99990;//241022
                     E16ANA_GTRAnalyzedStripHit &anahit = v_anahits[t].get()[i];
                     for(int j=0; j<anahit.NumHit(); j++){
-		      E16DST_DST1GTRHit &h = dst1_hits[h_id];
-		      h.SetInvalid();
+		      				E16DST_DST1GTRHit &h = dst1_hits[h_id];
+		      				h.SetInvalid();
                         h.SetIds(mid, anahit.StripID(j));
                         h.SetLayerId(lid);
                         h.SetModId(mid);
                         h.SetTiming(anahit.StripTiming(j));
                         h.SetPeakHeight(anahit.StripCharge(j));
                         h.SetTot(anahit.StripTimeOverThreshold(j));
-			h.SetRiset(anahit.StripRiseTiming(j));
-			h.SetType(t);
+								h.SetRiset(anahit.StripRiseTiming(j));
+								h.SetType(t);
                         h.SetLocalX(E16ANA_StraightTrackNameSpace::E16ANA_GTRLocalX(lorentz_angle_calib_param, lid, t, anahit.StripID(j)));
-			h.SetPeakt(anahit.StripPeakt(j));
-			h.SetTotEnd(anahit.StripTotEd(j));
-			if(last_totend < anahit.StripTotEd(j)){
-			  last_totend = anahit.StripTotEd(j);
-			}
-			h.SetTotStart(anahit.StripTotSt(j));
-			std::vector<float> fadc;
-            //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
-			for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
-			  fadc.push_back((anahit.StripFadc(j))[k]);
-			  //				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
-			}
-			h.SetWaveForm(fadc);
-			fadc.clear();
+								h.SetPeakt(anahit.StripPeakt(j));
+								h.SetTotEnd(anahit.StripTotEd(j));
+								if(min_adc > anahit.StripCharge(j)){
+									min_adc = anahit.StripCharge(j);
+								}
+								if(last_totend < anahit.StripTotEd(j)){
+								  last_totend = anahit.StripTotEd(j);
+								}
+								if(last_st < anahit.StripTotSt(j)){
+									last_st = anahit.StripTotSt(j);	
+								}
+								if(max_tot < anahit.StripTimeOverThreshold(j)){
+									max_tot = anahit.StripTimeOverThreshold(j);
+								}
+								if(min_tot > anahit.StripTimeOverThreshold(j)){
+									min_tot = anahit.StripTimeOverThreshold(j);
+								}
+								if(max_rt < anahit.StripRiseTiming(j)){
+									max_rt = anahit.StripRiseTiming(j);
+								}
+								if(min_rt > anahit.StripRiseTiming(j)){
+									min_rt = anahit.StripRiseTiming(j);
+								}
+								
+								h.SetTotStart(anahit.StripTotSt(j));
+								std::vector<float> fadc;
+					            //            std::cout << "strip charge = " << anahit.StripCharge(j) << std::endl;
+								for(int k=0; k < anahit.StripFadc(j).size(); k++){//24 sampling
+								  fadc.push_back((anahit.StripFadc(j))[k]);
+								  //				std::cout << "stdipID, anahit fadc = "  << anahit.StripID(j) <<", " <<   anahit.StripFadc(j)[k] << std::endl;
+								}
+								h.SetWaveForm(fadc);
+								fadc.clear();
                         //t_hit_indexs[t].push_back(indexs[t]);
                         hit_orders.push_back(h_id);
                         h_id++;
@@ -166,24 +191,31 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
                     cl.SetModuleId(mid);
                     cl.SetLayerId(lid);
                     cl.SetModId(mid);
-		    cl.SetClusterId(cl_id);
+		     			  cl.SetClusterId(cl_id);
                     cl.SetHitOrders(hit_orders);
                     cl.SetType(t);
+						  cl.SetClusterSize(anahit.NumHit());
                     cl.SetMaxPeakCh(anahit.MaxStripId());
                     cl.SetMaxPeakHeight(anahit.MaxValue());
                     cl.SetTiming(anahit.Timing());
                     cl.SetPeakSum(anahit.ClusterCharge());//cluster charge
                     cl.SetCogPos(anahit.CogHit());
-		    cl.SetTiming2(anahit.Timing2());
+		    			  cl.SetTiming2(anahit.Timing2());
                     cl.SetTanTheta(anahit.TanTheta());
-		    cl.SetTdcPos(anahit.TdcHit());
-		    cl.SetTdcPos2(anahit.TdcHit2());
-		    cl.SetTanTheta2(anahit.TanTheta2());
-		    cl.SetMaxRiset(anahit.MaxRiset());
-		    cl.SetMaxTot(anahit.MaxTot());
-		    cl.SetTiming3(anahit.Timing3());
-		    cl.SetTiming4(anahit.Timing4());
-		    cl.SetLastTotEnd(last_totend);//240426
+						  cl.SetTdcPos(anahit.TdcHit());
+						  cl.SetTdcPos2(anahit.TdcHit2());
+						  cl.SetTanTheta2(anahit.TanTheta2());
+						  cl.SetMinAdc(min_adc);
+//						  cl.SetMaxRiset(anahit.MaxRiset());//241022
+						  cl.SetMaxRiset(max_rt);//241022
+						  cl.SetMinRiset(min_rt);
+//						  cl.SetMaxTot(anahit.MaxTot());//241022
+						  cl.SetMaxTot(max_tot);//241022
+						  cl.SetMinTot(min_tot);
+						  cl.SetTiming3(anahit.Timing3());
+						  cl.SetTiming4(anahit.Timing4());
+						  cl.SetLastTotStart(last_st);
+						  cl.SetLastTotEnd(last_totend);//240426
 		    int nhit = anahit.NumCls();
 		    for(int i=0;i<nhit;i++){
 	        	           cl.SetCTiming(anahit.CTiming(i));
@@ -247,7 +279,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
 	  cl.SetTdcPos2(0);
 	  cl.SetTanTheta2(0);
 	  cl.SetMaxRiset(0);
-	  cl.SetMaxTot(0);
+	  cl.SetMaxTot(9999);//shold be over the totmax threshold  
 	  cl.SetTiming3(300);
 	  cl.SetTiming4(300);
 	  cl.SetLastTotEnd(0);//240426
@@ -298,7 +330,7 @@ int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& dst0_hits, E16
 	  cly.SetTdcPos2(0);
 	  cly.SetTanTheta2(0);
 	  cly.SetMaxRiset(0);
-	  cly.SetMaxTot(0);
+	  cly.SetMaxTot(9999);
 	  cly.SetTiming3(300);
 	  cly.SetTiming4(300);
 	  cly.SetLastTotEnd(0);//240426
