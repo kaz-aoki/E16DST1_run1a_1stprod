@@ -236,20 +236,24 @@ void E16ANA_GTRAnalyzer2::SetBadPedestalSigmaThresholdY(double th)
    strip_ana_y->SetBadPedestalSigmaThreshold(th);
 }
 
-void E16ANA_GTRAnalyzer2::SetTimeWindowMin(double th)
+void E16ANA_GTRAnalyzer2::SetTimeWindowMinX(double th)
 {
-   for (int i = 0; i < (int)strip_list.size(); i++) {
-      strip_list[i]->gem_tdc_min = th;
-   }
+	strip_ana_x->gem_tdc_min = th;
 }
 
-void E16ANA_GTRAnalyzer2::SetTimeWindowMax(double th)
+void E16ANA_GTRAnalyzer2::SetTimeWindowMaxX(double th)
 {
-   for (int i = 0; i < (int)strip_list.size(); i++) {
-      strip_list[i]->gem_tdc_max = th;
-   }
+	strip_ana_x->gem_tdc_max = th;
+}
+void E16ANA_GTRAnalyzer2::SetTimeWindowMinY(double th)
+{
+	strip_ana_y->gem_tdc_min = th;
 }
 
+void E16ANA_GTRAnalyzer2::SetTimeWindowMaxY(double th)
+{
+	strip_ana_y->gem_tdc_max = th;
+}
 void E16ANA_GTRAnalyzer2::SetClusterMinimumGap(int th)
 {
    for (int i = 0; i < (int)strip_list.size(); i++) {
@@ -555,6 +559,16 @@ void E16ANA_GTR100Analyzer::SetTOTThresholdY(double th)
    strip_ana_yb->gem_tot_threshold = th;
 }
 
+void E16ANA_GTR100Analyzer::SetTimeWindowMaxY(double th)
+{
+   E16ANA_GTRAnalyzer2::SetTimeWindowMaxY(th);
+   strip_ana_yb->gem_tdc_max = th;
+}
+void E16ANA_GTR100Analyzer::SetTimeWindowMinY(double th)
+{
+   E16ANA_GTRAnalyzer2::SetTimeWindowMinY(th);
+   strip_ana_yb->gem_tdc_min = th;
+}
 void E16ANA_GTR100Analyzer::SetBadPedestalThresholdY(double th)
 {
    E16ANA_GTRAnalyzer2::SetBadPedestalThresholdY(th);

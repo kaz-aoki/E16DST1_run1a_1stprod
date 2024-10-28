@@ -507,6 +507,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     SetBaseInvalid();
     layer_id           = E16DST_DST1Constant::kInvalidValue;
     mod_id             = E16DST_DST1Constant::kInvalidValue;
+    csize              = E16DST_DST1Constant::kInvalidValue;
     type               = E16DST_DST1Constant::kInvalidValue;
     center_of_gravity  = E16DST_DST1Constant::kInvalidValue;
     tdc_pos            = E16DST_DST1Constant::kInvalidValue;
@@ -520,6 +521,10 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     tanthe2         = E16DST_DST1Constant::kInvalidValue;
     maxriset         = E16DST_DST1Constant::kInvalidValue;
     maxtot         = E16DST_DST1Constant::kInvalidValue;
+    mintot         = E16DST_DST1Constant::kInvalidValue;
+    minadc         = E16DST_DST1Constant::kInvalidValue;
+    minrt         = E16DST_DST1Constant::kInvalidValue;
+    last_st         = E16DST_DST1Constant::kInvalidValue;
     ctiming.clear();
     ctiming2.clear();
     ctiming3.clear();
@@ -604,6 +609,17 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   void             SetMaxRiset(float t){maxriset = t;}
   float            MaxTot() {return maxtot;}
   void             SetMaxTot(float t){maxtot = t;}
+
+  void             SetClusterSize(int a){csize = a;}
+  int              ClusterSize(){return csize;}
+  void             SetMinAdc(float a){minadc = a;}
+  float            MinAdc(){return minadc;}
+  void             SetMinTot(float t){mintot = t;}
+  float            MinTot(){return mintot;}
+  void             SetMinRiset(float t){minrt = t;}
+  float            MinRiset(){return minrt;}
+  void             SetLastTotStart(float t){last_st = t;}
+  float            LastTotStart(){return last_st;}
   
   void                          SetLastTotEnd(float tote){ last_tot_end = tote;}
   float                         LastTotEnd(){ return last_tot_end;}
@@ -665,6 +681,11 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   float                        peak_sum;
   float                        maxriset;
   float                        maxtot;
+  float                        mintot;
+  float                        minadc;
+  float                        minrt;
+  float                        last_st;
+  int                          csize;
   std::vector<float>           ctiming; //cluster timing
   std::vector<float>           ctiming2; //cluster timing
   std::vector<float>           ctiming3; //cluster timing

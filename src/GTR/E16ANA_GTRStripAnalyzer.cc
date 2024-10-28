@@ -346,7 +346,12 @@ void E16ANA_GTRStripAnalyzer::CalcWaveParamsPeak(int ch, double t_cutoff)
          //if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0 ) {
 //	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > 0 ) { // Morino Updates
 //	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > gem_tot_threshold ) { // murakami
-	 if (fadc_tot[ch] < gem_tot_threshold ) { // murakami
+//	 if (fadc_tot[ch] < gem_tot_threshold ) { // murakami
+//
+
+	 if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0) { // murakami
+//	 if (fadc_tot[ch] < gem_tot_threshold ) { // murakami
+
 	 //if (fabs(fadc_tot[ch]) < gem_tot_threshold) { // Morino
             fadc_peak[ch] = -255.0;
             fadc_tdc[ch] = -1000.0;

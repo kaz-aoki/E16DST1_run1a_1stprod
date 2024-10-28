@@ -92,7 +92,13 @@ constexpr int kMinHitsInXCluster = 2;
 //constexpr int kMinHitsInXCluster = 1;
 constexpr double kGTRYDiffThreshold = 20.; // mm
 //constexpr std::array<double, 3> kGTRPeakSumThresholdX = {80., 150., 250.};
-constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
+//
+
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {165., 130., 110.}; //
+constexpr std::array<double, 3> kGTRMaxTotThresholdX = {90, 90., 90.}; //declines under this value
+constexpr std::array<double, 3> kGTRMaxTotThresholdY = {70, 70., 70.}; //declines under this value
+
+
 ////constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 220.}; // Ozawa modification 220618
 ////constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 60.}; // Ozawa modification 220620
 //constexpr std::array<double, 3> kGTRPeakSumThresholdX = {200., 220., 100.}; // Ozawa modification 220620-2 Ozawa's final value?
@@ -105,7 +111,10 @@ constexpr double kInitPosBackRadius = 10.;
 #endif // TRACK_FIND_WO_TARGET
 #ifndef TRACK_FIND_WO_TARGET
 //constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {200., 20.}; // x, y
-constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {55., 15.}; // x, y // 220413 for statistics check, 220418 for production
+//constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {90., 20.}; // x, y // 220413 for statistics check, 220418 for production
+constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {50., 20.};   // x, y // 220413 for statistics check, 220418 for production
+//constexpr std::array<double, 2> kRoughFitChiSquareThreshold = {55., 15.}; // x, y // 220413 for statistics check, 220418 for production
+
 constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {25., 0., 0.001};
 //constexpr std::array<double, 3> kRoughXFitCoefficientThreshold = {100., 0., 0.01}; // 220413 for statistics check
 constexpr std::array<double, 2> kRoughYFitCoefficientThreshold = {25., 0.}; // coef[1] not used.
