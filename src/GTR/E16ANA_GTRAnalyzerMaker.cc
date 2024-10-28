@@ -11,15 +11,19 @@ E16ANA_GTRAnalyzerMaker::E16ANA_GTRAnalyzerMaker(E16ANA_GTRcalibParams &gtr_para
 		for(int layer_id=0; layer_id<3; layer_id++){
 //tuned
 			if(layer_id == 0){
-				Chamber(module_id, layer_id)->SetThresholdX(80);
-				Chamber(module_id, layer_id)->SetThresholdY(100);
+//				Chamber(module_id, layer_id)->SetThresholdX(80);
+				Chamber(module_id, layer_id)->SetThresholdX(60);
+//				Chamber(module_id, layer_id)->SetThresholdY(100);
+				Chamber(module_id, layer_id)->SetThresholdY(70);
 				Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
 				Chamber(module_id, layer_id)->SetTimeWindowMaxX(350);
 				Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
 				Chamber(module_id, layer_id)->SetTimeWindowMaxY(330);
 			} else if (layer_id == 1) {
-				Chamber(module_id, layer_id)->SetThresholdX(60);
-				Chamber(module_id, layer_id)->SetThresholdY(80);
+//				Chamber(module_id, layer_id)->SetThresholdX(60);
+				Chamber(module_id, layer_id)->SetThresholdX(50);
+//				Chamber(module_id, layer_id)->SetThresholdY(80);
+				Chamber(module_id, layer_id)->SetThresholdY(60);
 				Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
 				Chamber(module_id, layer_id)->SetTimeWindowMaxX(450);
 				Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
