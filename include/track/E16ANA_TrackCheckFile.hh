@@ -1079,6 +1079,20 @@ class E16ANA_TrackCheckFile {
     tree->Branch("rk_proj_lg_t",      &rk_proj_lg_t);
     tree->Branch("rk_proj_lg_npeaks", &rk_proj_lg_npeaks);
     tree->Branch("rk_proj_lg_fflag",  &rk_proj_lg_fflag);
+
+    tree->Branch("rk_proj_ssd_mid",    &rk_proj_ssd_mid);
+    tree->Branch("rk_proj_ssd_x",      &rk_proj_ssd_x);
+    tree->Branch("rk_proj_ssd_y",      &rk_proj_ssd_y);
+    tree->Branch("rk_proj_ssd_gx",     &rk_proj_ssd_gx);
+    tree->Branch("rk_proj_ssd_gy",     &rk_proj_ssd_gy);
+    tree->Branch("rk_proj_ssd_gz",     &rk_proj_ssd_gz);
+    tree->Branch("rk_proj_ssd_mom_x",  &rk_proj_ssd_mom_x);
+    tree->Branch("rk_proj_ssd_mom_y",  &rk_proj_ssd_mom_y);
+    tree->Branch("rk_proj_ssd_mom_z",  &rk_proj_ssd_mom_z);
+    tree->Branch("rk_proj_ssd_mom_gx", &rk_proj_ssd_mom_gx);
+    tree->Branch("rk_proj_ssd_mom_gy", &rk_proj_ssd_mom_gy);
+    tree->Branch("rk_proj_ssd_mom_gz", &rk_proj_ssd_mom_gz);
+    
     /*
     tree->Branch("rk_pair_minus_track_id", &rk_pair_minus_track_id);
     tree->Branch("rk_pair_minus_gtr300_mid", &rk_pair_minus_gtr300_mid);
@@ -3213,6 +3227,33 @@ class E16ANA_TrackCheckFile {
     rk_proj_lg_t.resize(n_cands);
     rk_proj_lg_npeaks.resize(n_cands);
     rk_proj_lg_fflag.resize(n_cands);
+
+    rk_proj_ssd_mid.clear();
+    rk_proj_ssd_x.clear();
+    rk_proj_ssd_y.clear();
+    rk_proj_ssd_gx.clear();
+    rk_proj_ssd_gy.clear();
+    rk_proj_ssd_gz.clear();
+    rk_proj_ssd_mom_x.clear();
+    rk_proj_ssd_mom_y.clear();
+    rk_proj_ssd_mom_z.clear();
+    rk_proj_ssd_mom_gx.clear();
+    rk_proj_ssd_mom_gy.clear();
+    rk_proj_ssd_mom_gz.clear();
+
+    rk_proj_ssd_mid.resize(n_cands);
+    rk_proj_ssd_x.resize(n_cands);
+    rk_proj_ssd_y.resize(n_cands);
+    rk_proj_ssd_gx.resize(n_cands);
+    rk_proj_ssd_gy.resize(n_cands);
+    rk_proj_ssd_gz.resize(n_cands);
+    rk_proj_ssd_mom_x.resize(n_cands);
+    rk_proj_ssd_mom_y.resize(n_cands);
+    rk_proj_ssd_mom_z.resize(n_cands);
+    rk_proj_ssd_mom_gx.resize(n_cands);
+    rk_proj_ssd_mom_gy.resize(n_cands);
+    rk_proj_ssd_mom_gz.resize(n_cands);
+    
     rk_pair_minus_track_id.resize(n_pairs);
     rk_pair_minus_gtr300_mid.resize(n_pairs);
     rk_pair_minus_chi_square.resize(n_pairs);
@@ -4053,6 +4094,26 @@ class E16ANA_TrackCheckFile {
         rk_proj_lg_npeaks[ii][j] = lghit->Npeaks();
         rk_proj_lg_fflag[ii][j]  = lghit->FitFlag();
       }
+
+      const auto& ssd_projs = cand.SSDProjectionResults();
+      
+      for (const auto& proj : ssd_projs) {
+	rk_proj_ssd_mid[ii].push_back(proj.module_id);
+	
+	rk_proj_ssd_x[ii].push_back(proj.local_pos.X());
+	rk_proj_ssd_y[ii].push_back(proj.local_pos.Y());
+	rk_proj_ssd_gx[ii].push_back(proj.global_pos.X());
+	rk_proj_ssd_gy[ii].push_back(proj.global_pos.Y());
+	rk_proj_ssd_gz[ii].push_back(proj.global_pos.Z());
+	
+	rk_proj_ssd_mom_x[ii].push_back(proj.local_mom.X());
+	rk_proj_ssd_mom_y[ii].push_back(proj.local_mom.Y());
+	rk_proj_ssd_mom_z[ii].push_back(proj.local_mom.Z());
+	rk_proj_ssd_mom_gx[ii].push_back(proj.global_mom.X());
+	rk_proj_ssd_mom_gy[ii].push_back(proj.global_mom.Y());
+	rk_proj_ssd_mom_gz[ii].push_back(proj.global_mom.Z());
+      }
+      
 #ifdef TRACK_EFF_CHECK
       std::array<int, 7> cids = {rk_hit_ssd_id[ii] / 10000,
                                  rk_hit_gtr100_xid[ii] / 10000, rk_hit_gtr100_yid[ii] / 10000,
@@ -5513,6 +5574,22 @@ class E16ANA_TrackCheckFile {
   std::vector<std::vector<double>>  rk_proj_lg_t;
   std::vector<std::vector<double>>    rk_proj_lg_npeaks;
   std::vector<std::vector<double>>    rk_proj_lg_fflag;
+
+  //  std::vector<std::vector<int>> rk_proj_ssd_mid; // somewho this vector cannot be filled.
+  std::vector<std::vector<double>> rk_proj_ssd_mid;
+  std::vector<std::vector<double>> rk_proj_ssd_x;
+  std::vector<std::vector<double>> rk_proj_ssd_y;
+  std::vector<std::vector<double>> rk_proj_ssd_gx;
+  std::vector<std::vector<double>> rk_proj_ssd_gy;
+  std::vector<std::vector<double>> rk_proj_ssd_gz;
+  std::vector<std::vector<double>> rk_proj_ssd_mom_x;
+  std::vector<std::vector<double>> rk_proj_ssd_mom_y;
+  std::vector<std::vector<double>> rk_proj_ssd_mom_z;
+  std::vector<std::vector<double>> rk_proj_ssd_mom_gx;
+  std::vector<std::vector<double>> rk_proj_ssd_mom_gy;
+  std::vector<std::vector<double>> rk_proj_ssd_mom_gz;
+
+
   std::vector<int> rk_pair_minus_track_id;
   std::vector<int> rk_pair_minus_gtr300_mid;
   std::vector<double> rk_pair_minus_chi_square;

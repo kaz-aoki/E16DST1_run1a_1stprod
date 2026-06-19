@@ -487,8 +487,7 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
 
 
 void E16ANA_TrackCandidate::ProjectToSTS(E16ANA_MultiTrack* fitter) {
-  auto& result = fit_results[E16ANA_TrackConstant::kSSD];
-  result.Clear();
+  ssd_projection_results.clear();
   
   if (chisq >= 1.0e10) return;
   
@@ -500,8 +499,6 @@ void E16ANA_TrackCandidate::ProjectToSTS(E16ANA_MultiTrack* fitter) {
   TVector3 dummy_sigma(0., 0., 0.);
   
   auto gtr100_mid = cluster_pairs[E16ANA_TrackConstant::kGTR100].ModuleID();
-  
-  int best_steps = 999999;
   
   for (int mid = gtr100_mid - 1; mid <= gtr100_mid + 1; ++mid) {
     if (mid == 105) continue;
@@ -527,28 +524,23 @@ void E16ANA_TrackCandidate::ProjectToSTS(E16ANA_MultiTrack* fitter) {
       auto lpos = lposs[hid];
       auto lmom = lmoms[hid];
       
-      if (fabs(lpos.X()) >= fabs(E16DST_DST1Constant::kInvalidValue)) continue;
-
+      //if (fabs(lpos.X()) >= fabs(E16DST_DST1Constant::kInvalidValue)) continue;
+      if (fabs(lpos.X()) >= 40.0) continue;
+      
       // STS active area check
       auto sts_geom = E16ANA_STSGeometry::instance();
       if (!sts_geom->IsActiveArea(std::make_pair(lpos.X(), lpos.Y()))) continue;
 
       auto gpos = geometry->STS(mid2013)->GetGPos(lpos);
       auto gmom = geometry->STS(mid2013)->GetGMom(lmom);
-      
-      int nsteps = fitter->GetTrackSteps(tid).size();
-      if (result.set_flag == 0 || nsteps < best_steps) {
-        result.Set(
-		   E16ANA_TrackConstant::kSSD,
-		   mid,
-		   lpos,
-		   lmom,
-		   gpos,
-		   gmom,
-		   E16DST_DST1Constant::kInvalidVector
-		   );
-        best_steps = nsteps;
-      }
+      SSDProjectionResult proj;
+      proj.module_id = mid;
+      proj.local_pos = lpos;
+      proj.local_mom = lmom;
+      proj.global_pos = geometry->STS(mid2013)->GetGPos(lpos);
+      proj.global_mom = geometry->STS(mid2013)->GetGMom(lmom);
+
+      ssd_projection_results.emplace_back(proj);
   }
 }
 
@@ -563,10 +555,10 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
   n_calls = fitter->GetNumCalls();
   //if(chisq<20) fitter->PrintHits();
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
+    fit_results[l].Clear();
 #if defined(NoExist_SSD) || defined(GTR_ONLY_TRACKING)
 		if(l==0) continue;
 #endif
-    fit_results[l].Clear();
     std::vector<TVector3> lpos;
     std::vector<TVector3> lmom;
     std::vector<int> mid;

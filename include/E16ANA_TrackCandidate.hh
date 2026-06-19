@@ -179,6 +179,17 @@ class E16ANA_TrackCandidate {
     void SetT2(TVector3 _residual_pos){ residual_post2 = _residual_pos;}
     void SetC(TVector3 _residual_pos) { residual_pos   = _residual_pos;}
   };
+  struct SSDProjectionResult {
+    int module_id = -1;
+    TVector3 local_pos = E16DST_DST1Constant::kInvalidVector;
+    TVector3 local_mom = E16DST_DST1Constant::kInvalidVector;
+    TVector3 global_pos = E16DST_DST1Constant::kInvalidVector;
+    TVector3 global_mom = E16DST_DST1Constant::kInvalidVector;
+  };
+  std::vector<SSDProjectionResult>& SSDProjectionResults() { return ssd_projection_results; }
+  const std::vector<SSDProjectionResult>& SSDProjectionResults() const { return ssd_projection_results; }
+  void ClearSSDProjectionResults() { ssd_projection_results.clear(); }
+  
   E16ANA_TrackCandidate(E16ANA_GeometryV2* _geometry, E16ANA_MagneticFieldMap* _bfield_map)
       : geometry(_geometry), bfield_map(_bfield_map), is_selected(false),
         pos_at_targets({E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector, E16DST_DST1Constant::kInvalidVector}),
@@ -480,6 +491,7 @@ class E16ANA_TrackCandidate {
   std::vector<E16DST_DST1HBDCluster*> hbd_clusters;
   std::vector<E16DST_DST1LGHit*> lg_hits;
   std::vector<E16DST_DST1LGCluster*> lg_clusters;
+  std::vector<SSDProjectionResult> ssd_projection_results;
 };
 
 class E16ANA_TrackCandidates {
