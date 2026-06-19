@@ -1,0 +1,29 @@
+#
+# gbt module  conversion table for Run0e.
+#
+# group_type = 0 : uplink  0-15 data through EMU SFP0
+# group_type = 1 : uplink 16-31 data through EMU SFP0
+# group_type = 2 : uplink 0-7  and 16-23 through EMU SFP0
+# group_type = 3 : uplink 8-15 and 24-31 through EMU SFP0
+#
+# 106_PB/108_PB/107_PA
+#
+# e16sts1/2	gbt	gtype  gi	mod	P0/N1	PA0/PB1
+1 		0	0      0	104	1	0
+1		1	2      0	103	1	1
+1		1	2      1	103	0	1
+1		2	2      0	102	1	0
+1		2	2      1	102	0	0
+1		3	0      0	101	0	1
+1		4	0      0	999	1	1
+1		5	0      0	999	1	1
+1		6	0      0	999	1	1
+2		0	0      0	106	1	1
+2               1       0      0        106     0       1
+2               2       2      0        107     1       0
+2               2       2      1        107     0       0
+2               3       2      0        109     1       0
+2               3       2      1        109     0       0
+2               4       0      0        207     1       0
+2		5	0      0	999	0	0
+2		6	0      0	999	0	0

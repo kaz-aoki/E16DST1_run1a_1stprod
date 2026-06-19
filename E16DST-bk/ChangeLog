@@ -1,0 +1,116 @@
+Changelog of E16DST
+[2024-03-22]
+	- DST0
+		- add trigger hit and scaler of the new scintillator
+
+[2024-03-21]
+	- DST0
+		- E16DST_GammaVetoScintillatorHit etc... are added
+		- Version 5 -> 6
+
+[2021-06-21]
+	- DST0
+		- dst0 for run0c trigger data
+		- Version 4 -> 5
+
+[2020-12-25]
+	- DST0
+	  - dst0 for run0b trigger data
+		- Version 3 -> 4
+
+[2020-12-04]
+	- DST0
+		- fix number of max track from 16 to 128
+
+[2020-09-14]
+	- DST0
+		- fix number of max track from 8 to 16
+
+[2020-08-12]
+	- DST0
+		- add time stamp in spill to EventHeader
+		- Version 2 -> 3
+
+[2020-08-06]
+	- make this independent repository
+
+[2020-07-21]
+	- DST0
+		- add auto mode to compress type
+			- compress mode will be decided by file extensions
+
+[2020-07-15]
+	- DST0
+		- add triggerAccept, physicsTriggerAccept, and physicsTriggerRequest to E16DST_DST0UT3
+		- add DST0UT3 to ScalerEvent
+
+[2020-07-11]
+	- DST0
+		- add number of events in spill and shot number to SpillStartEvent
+		- update Version 1 -> 2
+
+[2020-07-10]
+	- DST0
+		- modify EventHeader check logic
+			- this is impremented in "E16DST_DST0EventHeader::Append"
+			- only EventID, TimeStamp, SpillID will be checked
+
+[2020-07-07]
+	- DST0
+		- add E16DST_File class, this is abstract class for file interface
+		- add gzip mode (E16DST_GZFile)
+		- change default value of compression type (NonCompressed -> ZlibGzip)
+
+[2020-06-30]
+	- DST0
+		- add MRPC hits (and DetectorHeader of MRPC) to PhysicsEvent
+		- add ESC hits (and DetectorHeader of ESC) to PhysicsEvent
+		- add TSC hits (and DetectorHeader of TSC) to PhysicsEvent
+		- update Version 0 -> Version 1
+		- remove codes (already commented out from before) related to HitV
+
+[2020-05-30]
+	- DST0
+		- add EventHeader check to EventHeader::Append
+		- add discard flag to EventBuilder
+
+[2020-05-25]
+	- DST0
+		- add TriggerData to EventHeader
+		- bug fix for E16DST_DST0EventBuilder
+			- EventHeader was reset when previous version of dst0_merger was used
+
+[2020-05-21]
+	- DST0
+		- add TDC (uint32_t) to SSDHit
+
+[2020-05-20]
+	- DST0
+		- change the type of UT3Track::time (uint32_t -> int64_t)
+
+[2020-05-19]
+	- DST0
+		- remove busyTime from E16DST_DSt0Scaler
+		- add busyTimeMerger[NMerger] to E16DST_DST0UT3
+		- add SpillStartEvent and SpillEndEvent, NEventTypes is 4
+		- uint32_t UT3::triggerType -> uint16_t UT3::triggerFlag + uint16_t UT3::triggerType
+		- rename runID to runNumber
+		- rename table directory from "table" to "channel_map"
+
+[2020-05-15]
+	- DST0
+		- remove timestamp from LGHit
+		- add timestamp (64 bits) to EventHeader
+
+[2020-05-11]
+	- DST0
+		- rename the periodically cleared scaler from "ScalerEvSol" to "ShortScaler"
+
+[2020-05-06]
+	- DST0
+		- release version 0
+		- version 0 should not be used for the production of Run0a
+
+[2020-04-17]
+	- 1st commit
+

@@ -420,6 +420,7 @@ class E16ANA_TrackCandidate {
 #endif // TRACK_FIND_WO_TARGET
   void AddTrackHit(E16ANA_MultiTrack* single_track);
   void Projection(E16ANA_MultiTrack* fitter);
+  void ProjectToSTS(E16ANA_MultiTrack* fitter);
   void UpdateFitResult(E16ANA_MultiTrack* fitter);
   void CalcCorrectedPos(E16ANA_TrackClusterPair &cluster_pair, int gtr_layer_id, const TVector3 &lmom,double ssdt);
   E16ANA_GeometryV2* geometry;
@@ -860,6 +861,7 @@ class E16ANA_TrackCandidates {
 #endif // TRACK_FIND_WO_TARGET
   void SearchTrackCandidates();
   void SearchTrackCandidatesWithSTS();
+  void SearchTrackCandidatesGTROnly();
   void ReSearchTrackCandidatesWithSTS();
   void ReReSearchTrackCandidatesWithSTS();
   void Fit();

@@ -1,0 +1,2 @@
+# IP_address    Detector_name    Mezzanine_ID
+192.168.35.71             GTR               0

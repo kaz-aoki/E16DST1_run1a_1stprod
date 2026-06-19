@@ -854,6 +854,7 @@ class E16ANA_TrackCandidates {
   TVector3 BackInitPos(const TVector3& pos, const TVector3& mom);
 #endif // TRACK_FIND_WO_TARGET
   void SearchTrackCandidates();
+  void SearchTrackCandidatesGTROnly();
   void SearchTrackCandidatesWithSTS();
   void ReSearchTrackCandidatesWithSTS();
   void ReReSearchTrackCandidatesWithSTS();
