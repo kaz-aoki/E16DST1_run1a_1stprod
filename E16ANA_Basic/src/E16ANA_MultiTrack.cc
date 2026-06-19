@@ -471,7 +471,7 @@ double E16ANA_MultiTrack::Fit(bool vertex_xy_fixflag, bool pyfixflag, bool verte
       minuit->SetFixedVariable(2, "Vertex_Z", vertex_init.Z());
    }else{
      //minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.1, z_min, z_max); // update 2022-02-23 for Ks?
-     minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.01, vertex_init.Z()-0.01, vertex_init.Z()+0.01); // update 2022-02-23 for Ks?
+     minuit->SetLimitedVariable(2, "Vertex_Z", vertex_init.Z(), 0.01, vertex_init.Z()-0.001, vertex_init.Z()+0.001); // update 2022-02-23 for Ks?
    }
    for(int i=0; i<n_tracks; i++){
       minuit->SetLimitedVariable(i*3+3, Form("Momentum%02d_X", i),
@@ -653,13 +653,13 @@ double E16ANA_MultiTrack::CalcVertexChisquare(){
 //   std::cout << "vertex fit z = " << vertex_fit.Z() << std::endl;
 //
   //double dx = (vertex_fit.X()  - vertex_init.X())/vertex_sigma.X();//ana2
-//
-  double dx = (vertex_fit.X()  + 1.1)/vertex_sigma.X();//1e9 normal
-//  double dx = (vertex_fit.X() + 0.5)/vertex_sigma.X(); // for Run0e VM-run (intensity 1e10)
-  //double dx = (vertex_fit.X()  + 2.4)/vertex_sigma.X();//1e9 inverse
-    //
-  double dy = (vertex_fit.Y() +1.0)/vertex_sigma.Y();
-//   double dy = (vertex_fit.Y() - vertex_init.Y())/vertex_sigma.Y();
+  //double dy = (vertex_fit.Y() - vertex_init.Y())/vertex_sigma.Y();
+
+  //double dx = (vertex_fit.X()+1.2 )/vertex_sigma.X();//ana2
+  double dx = (vertex_fit.X()-0.1 )/vertex_sigma.X();//ana2
+  double dy = (vertex_fit.Y()+1.2 )/vertex_sigma.Y();
+
+
   // double dx = (vertex_fit.X() +2.5)/vertex_sigma.X(); //for neg field
   //double dx = (vertex_fit.X() +1.0)/vertex_sigma.X();
   //double dy = (vertex_fit.Y() +0.8)/vertex_sigma.Y();

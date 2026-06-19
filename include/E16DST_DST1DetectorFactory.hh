@@ -1,6 +1,6 @@
 #ifndef E16DST_DST1FACTORY_HH
 #define E16DST_DST1FACTORY_HH
-
+#include "experimental/optional"
 #include "E16ANA_WaveformFitter.hh"
 #include "E16ANA_WaveformFitterCRRC.hh"
 #include "E16ANA_HBDCalibration.hh"
@@ -13,15 +13,18 @@
 
 #include "E16ANA_TrackCheckFile.hh"
 #include "E16ANA_StraightTrackCheckFile.hh"
+#include "E16ANA_SimulatedHits.hh"
 //#include "E16ANA_TrackCheckFile_wolgfit.hh"
 
 int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0,
 			  E16DST_DST1Detector<E16DST_DST1SSDHit,
 			  E16DST_DST1SSDCluster>* ssd1);
-
+const std::vector<E16ANA_STSSimulatedHit*>& getEmptyVector();
 int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
-			  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>* sts_dst1);
+			  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>* sts_dst1,
+            std::vector<E16ANA_STSSimulatedHit*> sts_simhits = const_cast<std::vector<E16ANA_STSSimulatedHit*>&>(getEmptyVector())
+           );
 
 int E16DST_DST1GTRFactory(E16DST_DST0Detector<E16DST_DST0GTRHit>& hits0, E16DST_DST1Detector<E16DST_DST1GTRHit, E16DST_DST1GTRCluster>* gtr1, E16ANA_GTRcalibPedestal& gtrped,
                           const std::array<double, 3>& lorentz_angle_calib_params);

@@ -42,9 +42,9 @@ class E16ANA_StraightTrackClusterPair {
     module_id = _module_id;
     clusters[0] = x_cluster;
     clusters[1] = y_cluster;
-    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(x_cluster)->LocalPosT().X(), dynamic_cast<E16DST_DST1GTRCluster*>(y_cluster)->LocalPosT().Y(), 0.}; // z = 0?
-//    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
-    global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
+    local_pos = {dynamic_cast<E16DST_DST1GTRCluster*>(x_cluster)->LocalPos().X(), dynamic_cast<E16DST_DST1GTRCluster*>(y_cluster)->LocalPos().Y(), 0.}; // z = 0?
+    global_pos = _geometry->GTR(E16ANA_TrackConstant::ModuleID2020To2013(module_id), layer_order - 1)->GetGPos(local_pos);
+    //global_pos = {_x_global_pos.X(), _y_global_pos.Y(), _x_global_pos.Z()};
   }
   void Clear() {
     set_flag = 0;

@@ -36,12 +36,18 @@ private:
    double timing2;                // ns
    double timing3;                // ns
    double timing4;                // ns
+   double timing5;                // ns
+   double crt;                // ns
+   double ced;                // ns
+   double ctot;                // ns
    double tdchit; // 50% of peak
    double tdchit2; // 50% of peak
    double tanthe;
    double tanthe2;
    double maxtot;
    double maxriset;
+   int    cqual;
+   double cpeak;
    std::vector<float>           ctiming;
    std::vector<float>           ctiming2;
    std::vector<float>           ctiming3;
@@ -52,6 +58,7 @@ private:
    std::vector<float>           cpos3;
    std::vector<float>           cpos4;
    std::vector<float>           cpos5;
+   std::vector<float>           cadc;
    std::vector<float>           cadc1;
    std::vector<float>           cadc2;
    std::vector<float>           cadc3;
@@ -111,15 +118,23 @@ public:
       tanthe  = kInvalidValue;
       tanthe2 = kInvalidValue;
       maxtot  = kInvalidValue;
-	  maxriset= kInvalidValue;
-	  timing3 = kInvalidValue;
-	  timing4 = kInvalidValue;
+      maxriset= kInvalidValue;
+      timing3 = kInvalidValue;
+      timing4 = kInvalidValue;
+      timing5 = kInvalidValue;
+      crt     = kInvalidValue;
+      ctot    = kInvalidValue;
+      ced     = kInvalidValue;
+      cqual   = kInvalidValue;
+      cpeak   = kInvalidValue;
+      
+      cadc1.clear();
+      cadc2.clear();
+      cadc3.clear();
+      cadc4.clear();
+      cadc5.clear();
+      cadc.clear();
 
-	  cadc1.clear();
-	  cadc2.clear();
-	  cadc3.clear();
-	  cadc4.clear();
-	  cadc5.clear();
       cpos.clear();
       ctiming.clear();
       cpos2.clear();
@@ -168,6 +183,7 @@ public:
    void SetMtot(double t) {maxtot = t;}
    void SetTiming3(double t) { timing3 = t; }
    void SetTiming4(double t) { timing4 = t; }
+   void SetTiming5(double t) { timing5 = t; }
    void SetCTiming2(double t) { ctiming2.push_back(t); }
    void SetCPos2(double t)    { cpos2.push_back(t); }
    void SetCTiming3(double t) { ctiming3.push_back(t); }
@@ -182,9 +198,13 @@ public:
    void SetCAdc3(double t)   { cadc3.push_back(t); }
    void SetCAdc4(double t)   { cadc4.push_back(t); }
    void SetCAdc5(double t)   { cadc5.push_back(t); }
-
-   
-
+   void SetCAdc(double t)    { cadc.push_back(t); }
+   void SetCrt(double t)     { crt   = t; }
+   void SetCed(double t)     { ced   = t; }
+   void SetCtot(double t)    { ctot  = t; }
+   void SetQual(int t)       {cqual  = t; }
+   void SetCpeak(double t)   {cpeak  = t; }
+  
    void SetLayerAndModuleIDandType(int id1, int id2, int itype)
    {
       layerID = id1;
@@ -196,7 +216,17 @@ public:
    bool IsY() { return type == is_y; }
    bool IsYb() { return type == is_yb; }
    int Type() { return type; }
-
+  void PushBackStrip2(int id, double pos, double charge, double t, double tot , double pt, double st, double ed, double riset){
+    strip_id.push_back(id);
+    strip_pos.push_back(pos);
+    strip_charge.push_back(charge);
+    strip_timing.push_back(t);
+    strip_tot.push_back(tot);
+    strip_peakt.push_back(pt);
+    strip_st.push_back(st);
+    strip_ed.push_back(ed);
+    strip_riset.push_back(riset);
+  }
    void PushBackStrip(int id, double pos, double charge, double t, double tot , double pt, double st, double ed, double riset, double *fadc = nullptr)
    {
       strip_id.push_back(id);
@@ -208,18 +238,18 @@ public:
       strip_st.push_back(st);
       strip_ed.push_back(ed);
       strip_riset.push_back(riset);
-	  if (fadc != nullptr){
-         std::array<double, n_sampling> a_fadc;
-		 std::copy_n(fadc, n_sampling, a_fadc.begin());
-	     strip_fadc.push_back(a_fadc);
-	  } else {
-         strip_fadc.emplace_back();
+      if (fadc != nullptr){
+	std::array<double, n_sampling> a_fadc;
+	std::copy_n(fadc, n_sampling, a_fadc.begin());
+	strip_fadc.push_back(a_fadc);
+      } else {
+	strip_fadc.emplace_back();
       }
-//	  std::array<double, n_sampling> a_fadc; 
-//	  for(int i=0; i < n_sampling; i++){
-//	     a_fadc[i] = fadc[i];
-//	  }
-//      strip_fadc.push_back(a_fadc);
+      //	  std::array<double, n_sampling> a_fadc; 
+      //	  for(int i=0; i < n_sampling; i++){
+      //	     a_fadc[i] = fadc[i];
+      //	  }
+      //      strip_fadc.push_back(a_fadc);
    };
 
    int MaxStripId() { return gem_max_strip; };
@@ -244,8 +274,13 @@ public:
    double Timing2() { return timing2; }
    double Timing3() { return timing3; }
    double Timing4() { return timing4; }
+   double Timing5() { return timing5; }
    double TdcHit2() { return tdchit2; }
    double TanTheta2() { return tanthe2; }
+   double Crt()   { return crt;   }
+   double Ced()   { return ced;   }
+   double Ctot()  { return ctot;  }
+   double Cpeak() { return cpeak; }
    double            CTiming(int i) { return  ctiming[i]; }
    double            CTiming2(int i) { return ctiming2[i]; }
    double            CTiming3(int i) { return ctiming3[i]; }
@@ -261,12 +296,15 @@ public:
    double            CAdc3(int i)    {return cadc3[i];}
    double            CAdc4(int i)    {return cadc4[i];}
    double            CAdc5(int i)    {return cadc5[i];}
+   double            CAdc(int i)     {return cadc[i];}
    int               NumCls() { return ctiming.size(); }
    int               NumCls2() { return ctiming2.size(); }
    int               NumCls3() { return ctiming3.size(); }
    int               NumCls4() { return ctiming4.size(); }
+   int               Qual(){ return cqual;}
    double MaxTot() {return maxtot;}
    double MaxRiset() {return maxriset;}
+
    std::array<double, n_sampling> &StripFadc(int i){return strip_fadc[i];}
 //   double StripFadc(int i, int j){return strip_fadc[i][j];}
 
@@ -294,6 +332,7 @@ public:
    virtual ~E16ANA_GTRStripAnalyzer();
    virtual void Clear();
    virtual void SetFadc(int strip_id, int16_t *waveform);
+   virtual void SetLFadc(int strip_id, int16_t *waveform);
    virtual void SetPedestal(double _fadc_ped[]) { memcpy(fadc_ped, _fadc_ped, sizeof(double) * n_strips); };
    virtual void SetPedestalSigma(double _fadc_ped_sigma[])
    {
@@ -368,15 +407,19 @@ protected:
    double **fadc;
    double *fadc_ped;
    double *fadc_ped_sigma;
-   double *fadc_peak;
-   double *fadc_peak_time;
-   double *fadc_peak_tdc;
-   double *fadc_peak_st;
-   double *fadc_peak_ed;
-   double *fadc_tdc;
-   double *fadc_tot;
-   double *fadc_rise;
-
+   double *fadc_tped;
+  
+   std::vector<std::vector<double>> fadc_peak;
+   std::vector<std::vector<double>> fadc_peak_time;
+   std::vector<std::vector<int>>    fadc_peak_tdc;
+   std::vector<std::vector<double>> fadc_peak_st;
+   std::vector<std::vector<double>> fadc_peak_ed;
+   std::vector<std::vector<double>> fadc_tdc;
+   std::vector<std::vector<double>> fadc_tot;
+   std::vector<std::vector<double>> fadc_rise;
+   std::vector<std::vector<int>>    fadc_used;
+   std::vector<std::vector<int>>    fadc_qual;
+  
    double bad_pedestal_threshold;
    double bad_pedestal_sigma_threshold;
 
@@ -443,26 +486,42 @@ protected:
    std::vector<std::vector<double>> clustered_z;
    std::vector<std::vector<double>> clustered_peak;
 
-   void CalcCenterOfGravity(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit);
-   void CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
-   void CalcTdcHit12(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
-   void CalcTdcHit12V2(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
+  
+  void CalcCenterOfGravity(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit);
+  void CalcTdcHit1(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
+  void CalcTdcHit12(const std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
+  void CalcTdcHit12V2(std::vector<int> &strip_ids, E16ANA_GTRAnalyzedStripHit &hit, int hitID,int pid,int ppt,int &cid, int &cpt, double npt, double &rpt);
 
-   void
-   CalcTdcHit2(const std::vector<int> &strip_ids, double tan_theta, E16ANA_GTRAnalyzedStripHit &hit); // fixed method
-   void SetArraysForTdcMethods(const std::vector<int> &strip_ids, std::vector<double> &x_array,
-                               std::vector<double> &time_array, std::vector<double> &peak_array);
-   void SetArraysForTdcMethods2(const std::vector<int> &strip_ids, std::vector<double> &x_array,
-				std::vector<double> &time_array, std::vector<double> &peak_array);
+  void
+  CalcTdcHit2(const std::vector<int> &strip_ids, double tan_theta, E16ANA_GTRAnalyzedStripHit &hit); // fixed method
+  void SetArraysForTdcMethods(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+			      std::vector<double> &time_array, std::vector<double> &peak_array);
+  void SetArraysForTdcMethods2(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+			       std::vector<double> &time_array, std::vector<double> &peak_array);
+  /*
    void SetArraysForTdcMethods3(const std::vector<int> &strip_ids, std::vector<double> &x_array,
 				std::vector<double> &time_array, std::vector<double> &peak_array, 
 				std::vector<double> &xcent, std::vector<double> &xtime, 
 				std::vector<double> &adc1, std::vector<double> &adc2, 
 				std::vector<double> &adc3, std::vector<double> &adc4, std::vector<double> &adc5, double &time4);
-   void SetArraysForTdcMethods4(const std::vector<int> &strip_ids, std::vector<double> &x_array, std::vector<double> &x_array2, 
-				std::vector<double> &time_array, std::vector<double> &time_array2);
-
-   // void CalcTdcHit3(bool fix_flag, const std::vector<double> &x, const std::vector<double> &z, const
+  */
+  void SetArraysForTdcMethods30(const std::vector<int> &strip_ids,
+				std::vector<double> &xcent, std::vector<double> &xtime, 
+				std::vector<double> &adc1, std::vector<double> &adc2, 
+				std::vector<double> &adc3, std::vector<double> &adc4, std::vector<double> &adc5, int &tpeak, int &idpeak);
+  
+  //void SetArraysForTdcMethods3(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+  //std::vector<double> &time_array, std::vector<double> &peak_array, double &tdc4, double &tdc5);
+  void SetArraysForTdcMethods3(const std::vector<int> &strip_ids, std::vector<double> &x_array,
+			       std::vector<double> &time_array, std::vector<double> &peak_array, double &tdc4, double &tdc5, std::vector<double> &cadc, double &ed, double &tot, double &rt, double &cpeak);
+  
+  
+  
+  void SetArraysForTdcMethods4(const std::vector<int> &strip_ids, std::vector<double> &x_array, std::vector<double> &x_array2, 
+			       std::vector<double> &time_array, std::vector<double> &time_array2);
+  
+  void FindSecPeak(std::vector<double> &adc,int tpeak, double &charge, double &t, double &tot , double &pt, double &st, double &ed, double &riset);
+  // void CalcTdcHit3(bool fix_flag, const std::vector<double> &x, const std::vector<double> &z, const
    // std::vector<double> &peak, E16ANA_GTRAnalyzedStripHit &hit, int hitID);
 };
 

@@ -23,46 +23,54 @@ void E16ANA_STSGlobalGeometry::Prepare(){
   double r_inner = 117.386;
   double r_outer = 148.81;
   const double deg2rad = 3.141592/180.;
+  double globalmis = 0;
   E16ANA_STSGlobalSensorGeom sensor101
     (101,
      r_inner,
-     (-26.89 - 23.66*3)/* *deg2rad */,
+     (-26.89 - 23.66*3+globalmis)/* *deg2rad */,
      0,
      true);
   E16ANA_STSGlobalSensorGeom sensor102
     (102,
      r_outer,
-     (-26.89 - 23.66*2) /* *deg2rad */,
+     (-26.89 - 23.66*2+globalmis) /* *deg2rad */,
      0,
      false);
   E16ANA_STSGlobalSensorGeom sensor103
     (103,
      r_inner,
-     (-26.89 - 23.66*1) /* *deg2rad */,
+     (-26.89 - 23.66*1+globalmis) /* *deg2rad */,
      0,
      true);
 #if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor104
     (104,
      r_outer,
-     (-26.89) /* *deg2rad */,
+     (-26.89+globalmis) /* *deg2rad */,
      0,
      false);
 #endif
 #if 1 // nakai value for 104 (2024-08-21)
   E16ANA_STSGlobalSensorGeom sensor104
     (104,
+     r_outer,
+     (-26.89+0.081+globalmis) /* *deg2rad */,
+     0,
+     false);
+    /*
+    (104,
      r_outer - 0.000577,
-     (-26.89) + 0.221964 /* *deg2rad */,
+     (-26.89) + 0.221964 
      0,
      false);
   sensor104.dx = -0.346972;
+  */
 #endif
 #if 0 // design value
   E16ANA_STSGlobalSensorGeom sensor106
     (106,
      r_outer,
-     (+26.89) /* *deg2rad */,
+     (+26.89+globalmis) /* *deg2rad */,
      0,
      false);
 #endif
@@ -70,45 +78,36 @@ void E16ANA_STSGlobalGeometry::Prepare(){
   E16ANA_STSGlobalSensorGeom sensor106
     (106,
      r_outer,
-     (+26.89-0.026) /* *deg2rad */,
+     (+26.89-0.056+globalmis) /* *deg2rad */,
      0,
      false);
 #endif
-#if 0 // design value
+
   E16ANA_STSGlobalSensorGeom sensor107
     (107,
      r_inner,
-     (+26.89 + 23.66) /* *deg2rad */,
+     (+26.89 + 23.66+globalmis) /* *deg2rad */,
      0,
      true);
-#endif
-#if 1 // ymorino value for 107 (2024-08-07)
-  E16ANA_STSGlobalSensorGeom sensor107
-    (107,
-     r_inner+0.1,
-     //(+26.89 + 23.66 -0.0729) /* *deg2rad */,
-     (+26.89 + 23.66 -0.1219) /* *deg2rad */,
-     0,
-     true);
-#endif
+
   E16ANA_STSGlobalSensorGeom sensor108
     (108,
      r_outer,
-     (+26.89 + 23.66*2) /* *deg2rad */,
+     (+26.89 + 23.66*2+globalmis) /* *deg2rad */,
      0,
      false);
 
   E16ANA_STSGlobalSensorGeom sensor109
     (109,
      r_inner,
-     (+26.89 + 23.66*3) /* *deg2rad */,
+     (+26.89 + 23.66*3+globalmis) /* *deg2rad */,
      0,
      true);
 
   E16ANA_STSGlobalSensorGeom sensor207
     (207,
      r_inner,
-     (+26.89 + 23.66) /* *deg2rad */,
+     (+26.89 + 23.66+globalmis) /* *deg2rad */,
      0,
      true);
 
@@ -215,4 +214,10 @@ void E16ANA_STSGlobalGeometry::CalcPointOnPlane(int mod, double* global1, double
   std::cout << "x0 "; x0.Print();
   std::cout << "x  "; x.Print();
   */
+}
+
+void E16ANA_STSGlobalGeometry::PrepareMatrixAll(){
+  for( auto iter = map_sensor.begin(); iter != map_sensor.end(); iter++){
+    PrepareMatrix(iter->second);
+  }
 }

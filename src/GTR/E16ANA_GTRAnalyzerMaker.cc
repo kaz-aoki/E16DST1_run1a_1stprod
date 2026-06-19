@@ -8,72 +8,48 @@ E16ANA_GTRAnalyzerMaker::E16ANA_GTRAnalyzerMaker(E16ANA_GTRcalibParams &gtr_para
         analyzer_map[OnlineGTR::IDs(module_id, 2).value64] = new E16ANA_GTR300Analyzer();
     }
     for (int module_id = 100; module_id <= 110; module_id++){
-		for(int layer_id=0; layer_id<3; layer_id++){
-//tuned
-			if(layer_id == 0){
-//				Chamber(module_id, layer_id)->SetThresholdX(80);
-				Chamber(module_id, layer_id)->SetThresholdX(60);
-//				Chamber(module_id, layer_id)->SetThresholdY(100);
-				Chamber(module_id, layer_id)->SetThresholdY(70);
-				Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
-				Chamber(module_id, layer_id)->SetTimeWindowMaxX(350);
-				Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
-				Chamber(module_id, layer_id)->SetTimeWindowMaxY(330);
-			} else if (layer_id == 1) {
-//				Chamber(module_id, layer_id)->SetThresholdX(60);
-				Chamber(module_id, layer_id)->SetThresholdX(50);
-//				Chamber(module_id, layer_id)->SetThresholdY(80);
-				Chamber(module_id, layer_id)->SetThresholdY(60);
-				Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
-				Chamber(module_id, layer_id)->SetTimeWindowMaxX(450);
-				Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
-				Chamber(module_id, layer_id)->SetTimeWindowMaxY(350);
-			} else if (layer_id == 2) {
-				Chamber(module_id, layer_id)->SetThresholdX(50);
-				Chamber(module_id, layer_id)->SetThresholdY(60);
-				Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
-				Chamber(module_id, layer_id)->SetTimeWindowMaxX(450);
-				Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
-				Chamber(module_id, layer_id)->SetTimeWindowMaxY(400);
-			}
-			Chamber(module_id, layer_id)->SetTOTThresholdX(50);
-			Chamber(module_id, layer_id)->SetTOTThresholdY(50);
-
-//original 
-//			Chamber(module_id, layer_id)->SetThresholdX(150);
-//			Chamber(module_id, layer_id)->SetThresholdY(150);
-//			Chamber(module_id, layer_id)->SetTimeWindowMinX(0);
-//			Chamber(module_id, layer_id)->SetTimeWindowMaxX(1000);
-//			Chamber(module_id, layer_id)->SetTimeWindowMinY(0);
-//			Chamber(module_id, layer_id)->SetTimeWindowMaxY(1000);
-//			Chamber(module_id, layer_id)->SetTOTThresholdX(100);
-//			Chamber(module_id, layer_id)->SetTOTThresholdY(100);
-
-
-
-
-//			Chamber(module_id, layer_id)->SetThresholdX(gtr_params.GetParams(module_id, layer_id).ThresholdX());
-//			Chamber(module_id, layer_id)->SetThresholdY(gtr_params.GetParams(module_id, layer_id).ThresholdY());
-//			Chamber(module_id, layer_id)->SetTOTThresholdX(gtr_params.GetParams(module_id, layer_id).TOTThresholdX());
-//			Chamber(module_id, layer_id)->SetTOTThresholdY(gtr_params.GetParams(module_id, layer_id).TOTThresholdY());
-			Chamber(module_id, layer_id)->SetBadPedestalThresholdX(gtr_params.GetParams(module_id, layer_id).BadPedestalThresholdX());
-			Chamber(module_id, layer_id)->SetBadPedestalThresholdY(gtr_params.GetParams(module_id, layer_id).BadPedestalThresholdY());
-			Chamber(module_id, layer_id)->SetBadPedestalSigmaThresholdX(gtr_params.GetParams(module_id, layer_id).BadPedestalSigmaThresholdX());
-			Chamber(module_id, layer_id)->SetBadPedestalSigmaThresholdY(gtr_params.GetParams(module_id, layer_id).BadPedestalSigmaThresholdY());
-//			Chamber(module_id, layer_id)->SetTimeWindowMin(gtr_params.GetParams(module_id, layer_id).TimeWindowMin());
-//			Chamber(module_id, layer_id)->SetTimeWindowMax(gtr_params.GetParams(module_id, layer_id).TimeWindowMax());
-			Chamber(module_id, layer_id)->SetClusterMinimumGap(gtr_params.GetParams(module_id, layer_id).ClusterMinGap());
-			Chamber(module_id, layer_id)->SetClusterDeltaTdc(gtr_params.GetParams(module_id, layer_id).ClusterDeltaTDC());
-			Chamber(module_id, layer_id)->SetRiseTimeMin(gtr_params.GetParams(module_id, layer_id).RiseTimeMin());
-			Chamber(module_id, layer_id)->SetRiseTimeMax(gtr_params.GetParams(module_id, layer_id).RiseTimeMax());
-//			Chamber(module_id, layer_id)->SetTdcMin(gtr_params.GetParams(module_id, layer_id).TdcMin());
-//			Chamber(module_id, layer_id)->SetTdcMax(gtr_params.GetParams(module_id, layer_id).TdcMax());
-			Chamber(module_id, layer_id)->SetDriftVelocity(gtr_params.GetParams(module_id, layer_id).DriftVelocity());
-			Chamber(module_id, layer_id)->SetCenterOfDriftGap(gtr_params.GetParams(module_id, layer_id).CenterOfDriftGap());
-			Chamber(module_id,layer_id)->SetPeakTimeMin(gtr_params.GetParams(module_id,layer_id).PeakTimeMin());
-			Chamber(module_id,layer_id)->SetPeakTimeMax(gtr_params.GetParams(module_id,layer_id).PeakTimeMax());
-		}
+      for(int layer_id=0; layer_id<3; layer_id++){
+	/*
+	if(layer_id == 0){
+	  Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
+	  Chamber(module_id, layer_id)->SetTimeWindowMaxX(350);
+	  Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
+	  Chamber(module_id, layer_id)->SetTimeWindowMaxY(330);
+	} else if (layer_id == 1) {
+	  Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
+	  Chamber(module_id, layer_id)->SetTimeWindowMaxX(450);
+	  Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
+	  Chamber(module_id, layer_id)->SetTimeWindowMaxY(350);
+	} else if (layer_id == 2) {
+	  Chamber(module_id, layer_id)->SetTimeWindowMinX(100);
+	  Chamber(module_id, layer_id)->SetTimeWindowMaxX(450);
+	  Chamber(module_id, layer_id)->SetTimeWindowMinY(100);
+	  Chamber(module_id, layer_id)->SetTimeWindowMaxY(400);
 	}
+	*/
+	Chamber(module_id, layer_id)->SetThresholdX(gtr_params.GetParams(module_id, layer_id).ThresholdX());
+	Chamber(module_id, layer_id)->SetThresholdY(gtr_params.GetParams(module_id, layer_id).ThresholdY());
+	Chamber(module_id, layer_id)->SetTOTThresholdX(gtr_params.GetParams(module_id, layer_id).TOTThresholdX());
+	Chamber(module_id, layer_id)->SetTOTThresholdY(gtr_params.GetParams(module_id, layer_id).TOTThresholdY());
+	Chamber(module_id, layer_id)->SetBadPedestalThresholdX(gtr_params.GetParams(module_id, layer_id).BadPedestalThresholdX());
+	Chamber(module_id, layer_id)->SetBadPedestalThresholdY(gtr_params.GetParams(module_id, layer_id).BadPedestalThresholdY());
+	Chamber(module_id, layer_id)->SetBadPedestalSigmaThresholdX(gtr_params.GetParams(module_id, layer_id).BadPedestalSigmaThresholdX());
+	Chamber(module_id, layer_id)->SetBadPedestalSigmaThresholdY(gtr_params.GetParams(module_id, layer_id).BadPedestalSigmaThresholdY());
+	Chamber(module_id, layer_id)->SetTimeWindowMin(gtr_params.GetParams(module_id, layer_id).TimeWindowMin()); //obsolete
+	Chamber(module_id, layer_id)->SetTimeWindowMax(gtr_params.GetParams(module_id, layer_id).TimeWindowMax()); //obsolete
+	Chamber(module_id, layer_id)->SetClusterMinimumGap(gtr_params.GetParams(module_id, layer_id).ClusterMinGap());
+	Chamber(module_id, layer_id)->SetClusterDeltaTdc(gtr_params.GetParams(module_id, layer_id).ClusterDeltaTDC());
+	Chamber(module_id, layer_id)->SetRiseTimeMin(gtr_params.GetParams(module_id, layer_id).RiseTimeMin());
+	Chamber(module_id, layer_id)->SetRiseTimeMax(gtr_params.GetParams(module_id, layer_id).RiseTimeMax());
+	//			Chamber(module_id, layer_id)->SetTdcMin(gtr_params.GetParams(module_id, layer_id).TdcMin());
+	//			Chamber(module_id, layer_id)->SetTdcMax(gtr_params.GetParams(module_id, layer_id).TdcMax());
+	Chamber(module_id, layer_id)->SetDriftVelocity(gtr_params.GetParams(module_id, layer_id).DriftVelocity());
+	Chamber(module_id, layer_id)->SetCenterOfDriftGap(gtr_params.GetParams(module_id, layer_id).CenterOfDriftGap());
+	Chamber(module_id,layer_id)->SetPeakTimeMin(gtr_params.GetParams(module_id,layer_id).PeakTimeMin());
+	Chamber(module_id,layer_id)->SetPeakTimeMax(gtr_params.GetParams(module_id,layer_id).PeakTimeMax());
+	
+      }
+    }
 }
 
 E16ANA_GTRAnalyzerMaker::~E16ANA_GTRAnalyzerMaker()

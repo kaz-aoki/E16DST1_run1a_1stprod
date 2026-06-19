@@ -9,7 +9,9 @@
 // P-side is front. Fix your view point so that you always look at the p-side surface.
 // P-side Strip 0 is at the top left corner.
 // N-side Strip 0 is on the right.
+//
 // 
+//
 ////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef E16ANA_STSGeometry_h__
@@ -24,7 +26,7 @@ class E16ANA_STSGeometry{
 
  public:
   static E16ANA_STSGeometry* instance();
-
+  static int verbosity;
   
   //const TVector3& GetLPos(int mod,int ch);
 
@@ -32,14 +34,15 @@ class E16ANA_STSGeometry{
   std::pair<double, double> GetTopRef(int iStrip); // Get top reference point of iStrip on P-side.
 
   bool IsValidStrip(int iStrip);
-  bool IsActiveArea(std::pair<double,double>& pos);
+  bool IsActiveArea(const std::pair<double,double>& pos);
   bool IsZStrip(int iPStrip);
   bool IsNonZStrip(int iPStrip);
 
   double X2StripN(double x);
-  double GetLocalX_fromN(double iNStrip); // Get Local X from N-side strip number.
+  double GetLocalX_fromN(double strip); // Get Local X from N-side strip number.
 
   std::pair<double, double> GetLocal(int iNStrip, int iPStrip);
+  std::pair<double, double> GetLocalD(double x, double pstrip);
 
   double CalcX(std::pair<double,double>& ref, double y); // Find x so that (x,y) and ref are on a stereo angled line.
   double CalcY(std::pair<double,double>& ref, double x); // Find y so that (x,y) and ref are on a stereo angled line.
@@ -74,6 +77,8 @@ class E16ANA_STSGeometry{
   const double p134_TX = -21875.2657/1000.;
   const double p134_TY = 29666.9945/1000.;
 
+  public:
+  
   const double p_phi = 7.5 /180.*3.14159265;
   const double p_tan_phi = tan(p_phi);
   const double error = -9999.;

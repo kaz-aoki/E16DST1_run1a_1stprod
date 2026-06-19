@@ -29,6 +29,7 @@ class TCanvas;
 class E16ANA_GeometryV2;
 #include "E16DST_DST1Constant.hh"
 class TString;
+class TH2F;
 
 class E16ANA_EventDisplay{
 public:
@@ -55,6 +56,9 @@ public:
   void SetMirror() { _mirror = true; }
   void SetNoMirror() { _mirror = false; }
   void SetHitColor(Color_t color) { color_hit = color; }
+  void SetHitType(int type) { type_hit = type; }
+  Color_t  GetHitColor() const { return color_hit; }
+  int GetHitType() const { return type_hit; }
   void SetLineColor(Color_t color) { color_line = color; }
   void SetGeometry(E16ANA_GeometryV2* geom) { geome16 = geom;}
 
@@ -71,6 +75,10 @@ public:
   void DrawRun(int run_id);
   void DrawEvent(int event_id);
 
+  void ZoomGTR();
+  void ZoomOut();
+  void Zoom(double xy[4]);
+  
  private:
   E16ANA_GeometryV2* geome16 {nullptr};
   TCanvas* _canv = nullptr;
@@ -79,8 +87,11 @@ public:
   bool _mirror;
   Color_t color_hit;
   Color_t color_line{kBlue};
+  int type_hit;
 
-  double frame_xy[4]={-2000.,-2000.,2000.,2000.}; // frame for LG
+  TH2F* _frame = nullptr;
+  //double frame_xy[4]={-2000.,-2000.,2000.,2000.}; // frame for LG
+  double frame_xy[4]={-2000.,2000.,-2000.,2000.}; // frame for LG
 };
 
 #endif

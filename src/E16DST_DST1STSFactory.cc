@@ -9,21 +9,49 @@
 #include <TF1.h>
 #include <TText.h>
 #include <TRandom.h>
+#include <limits>
 
 #include "STS/E16ANA_STSGeometry.hh"
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_STSAnalyzer.hh"
+#include "E16ANA_STSADCCalibration.hh"
+#include "E16ANA_STSTDCCalibration.hh"
+#include "E16ANA_SimulatedHits.hh"
+#include "E16ANA_TrackConstant.hh"
 
 using namespace std;
 
 //#define STS_MODULE_RAND
-#define STS_DO_CLUSTERING
+//#define STS_DO_CLUSTERING
+const bool sts_do_tdccalib = true;
+
+const std::vector<E16ANA_STSSimulatedHit*>& getEmptyVector() {
+   static std::vector<E16ANA_STSSimulatedHit*> emptyVec;
+   return emptyVec;
+}
 
 int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 			  E16DST_DST0Detector<E16DST_DST0STSHit>& sts_dst0,
-			  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>* sts_dst1) {
-  //std::cout << "DST1STSFactory." << std::endl;
+			  E16DST_DST1Detector<E16DST_DST1STSHit, E16DST_DST1STSCluster>* sts_dst1, 
+           std::vector<E16ANA_STSSimulatedHit*> sts_simhits
+           ) {
+  static E16ANA_STSADCCalibration * sts_adccalib = nullptr;
 
+  //std::cout << "DST1STSFactory." << std::endl;
+  if ( sts_adccalib == nullptr ) {
+    E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
+    //std::cout << "calib.CurrentRunID()=" << calib.CurrentRunID() << std::endl;
+    sts_adccalib = new E16ANA_STSADCCalibration();
+    sts_adccalib->ReadConstantData(calib.CurrentRunID());
+  }
+  
+  static E16ANA_STSTDCCalibration * sts_tdccalib = nullptr;
+  if ( sts_tdccalib == nullptr ) {
+    E16ANA_CalibDBManager& calib = E16ANA_CalibDBManager::Instance();
+    sts_tdccalib = new E16ANA_STSTDCCalibration();
+    sts_tdccalib->ReadConstantData(calib.CurrentRunID());
+  }
+  
   //auto& hitsg0 = sts_dst0.Hits();
 #ifdef STS_MODULE_RAND
   static TRandom rnd;
@@ -63,31 +91,43 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 
   /// filling sts hit information.
 
+#ifndef REMOVE_REAL_HIT
   for (int i = 0;i < sts_dst0.NumberOfHits(); i++){
     auto& hit0 = sts_dst0.Hit(i);
     if( hit0.ADC() == 0xffff ) continue;
     //if( hit0.ADCinvalid() ) continue;
     //if( hit0.TDCinvalid() ) continue;
-    if ( hit0.PN() == 0 ) continue; // remove P side.
-    if(hit0.ModuleID()<104)   continue; // invalid.
-    if(hit0.ModuleID()>108)   continue; // invalid
+    //if ( hit0.PN() == 0 ) continue; // remove P side.
+    //if(hit0.ModuleID()<104)   continue; // invalid.
+    //if(hit0.ModuleID()>108)   continue; // invalid
     hits1.emplace_back();
     auto& hit1 = hits1.back();
-#ifdef STS_MODULE_RAND
+   #ifdef STS_MODULE_RAND
     hit1.SetIds(get_module_rnd(),hit0.ChannelID());
-#else
+   #else
     hit1.SetIds(hit0.ModuleID(),hit0.ChannelID());
-#endif
+   #endif
     hit1.SetPeakHeight(hit0.ADC());
     uint64_t original_emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp();
     hit1.SetEmuTimestamp(original_emu_timestamp);
     int emu_timestamp = original_emu_timestamp & bitmask_emu;
-    hit1.SetTiming(hit0.TDC()-emu_timestamp);
+    if ( sts_do_tdccalib ){
+      double stscal_mean,stscal_sigma;
+      sts_tdccalib->Get(hit0.ModuleID(), hit0.PN(), stscal_mean, stscal_sigma);
+      //int  i_stscal_mean = std::floor(stscal_mean);
+      //hit1.SetTiming(hit0.TDC()-emu_timestamp-i_stscal_mean);
+      hit1.SetTiming(hit0.TDC()-emu_timestamp-stscal_mean);
+    }else{
+      hit1.SetTiming(hit0.TDC()-emu_timestamp);
+    }
     hit1.SetPN(hit0.PN());
+    if ( hit0.PN() == 1 ) hit1.SetType(0);
+    else hit1.SetType(1);
     hit1.SetElink(hit0.Elink());
     hit1.SetGeriTimestamp(hit0.GeriTimestamp());
     hit1.SetTDC(hit0.TDC());
     hit1.SetADC(hit0.ADC());
+    hit1.SetCharge(sts_adccalib->GetCorrespondingCharge(hit0.ModuleID(), hit0.PN(), hit0.ChannelID(), hit0.ADC()));
     hit1.SetE16sts(hit0.E16sts());
     if ( hit1.PN() == 0 ) {
       hit1.SetStripId(lgeom->Ch2StripP(hit1.ChannelId()));
@@ -106,12 +146,48 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     ggeom->Local2Global(hit1.ModuleId(),local,global);
     hit1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
   }
+   #endif //REMOVE_REAL_HIT
 #ifdef STS_DO_CLUSTERING
   E16ANA_STSAnalyzer ana;
   ana.clusterize(hits1, clusters1);
-
-  return 1;
 #endif
+
+#ifdef TRACK_EFF_CHECK
+//added by mtomoki 250225
+   // executed if simulated hits are filled.
+   int n_simhits = sts_simhits.size();
+   std::cout << "debug : FAC : n_simhits = " << n_simhits << std::endl;
+   for(int i=0;i<n_simhits;i++){
+      E16ANA_STSSimulatedHit *sim_hit = sts_simhits[i];
+      clusters1.emplace_back();
+      auto& cluster1 = clusters1.back();
+      cluster1.SetTiming(sim_hit->Timing());
+      cluster1.SetPeakSum(sim_hit->PeakSum());
+      cluster1.SetPN(1);//only N side
+      cluster1.SetType(0);
+      //std::cout << "Cogpos = " << sim_hit->CogPosX() << std::endl;
+//      TVector3 lpos(lgeom->GetLocalX_fromN(sim_hit->CogPosX()), 0., 0.);
+      TVector3 lpos((-1)*sim_hit->CogPosX(), 0., 0.);//m103, m104, m106, m107
+      double local[3] = {lpos.X(), lpos.Y(), lpos.Z()};
+      double global[3] = {0.,0.,0};
+      std::cout << "debug FAC: sts mid = " << sim_hit->ModuleID() << std::endl;
+      cluster1.SetModuleId(sim_hit->ModuleID());
+      cluster1.SetCogPos(sim_hit->CogPosX());
+      ggeom->Local2Global(cluster1.ModuleId(), local, global);
+      //std::cout << "GPos = " << global[0] << ", " << global[1] << ", " << global[2] <<  std::endl;
+      cluster1.SetLocalPos(lpos);
+      cluster1.SetGlobalPos(TVector3(global[0], global[1], global[2]));
+      //int mock_id = sim_hit->MockTrackID();
+      int mock_id = i;
+      if(mock_id == 0){
+         cluster1.SetClusterId(E16ANA_TrackConstant::kMockClusterID);
+      }else {
+         cluster1.SetClusterId(E16ANA_TrackConstant::kMockClusterID*2);
+      }
+   }
+// --- by mtomoki
+#endif //TRACK_EFF_CHECK
+  return 1;
 
   // The following will not be executed.
 
@@ -121,8 +197,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
     //if ( hit0.ADCinvalid() ) continue; // invalid
     if (hit0.ADC() == 0xffff) continue; // invalid
     if ( hit0.PN() == 0 ) continue; // Eliminate P side data for fast process.
-    if(hit0.ModuleID()<104)   continue; // invalid.
-    if(hit0.ModuleID()>108)   continue; // invalid.
+    //if(hit0.ModuleID()<104)   continue; // invalid.
+    //if(hit0.ModuleID()>108)   continue; // invalid.
 
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
@@ -133,8 +209,8 @@ int E16DST_DST1STSFactory(E16DST_DST0Detector<E16DST_DST0STSGlobal>& stsg_dst0,
 #endif
     cluster1.SetInvalid();
     cluster1.SetClusterId(i);
-	 cluster1.SetModuleId(hit0.ModuleID());
-	 cluster1.SetPeakSum(hit0.ADC());
+    cluster1.SetModuleId(hit0.ModuleID());
+    cluster1.SetPeakSum(hit0.ADC());
     cluster1.SetPN(hit0.PN());
     int emu_timestamp = stsg_dst0.Hit(hitgmap[hit0.E16sts()]).get_emu_timestamp() & bitmask_emu;
     if ( hit0.TDC() != 0xffff ) cluster1.SetTiming(hit0.TDC()-emu_timestamp);

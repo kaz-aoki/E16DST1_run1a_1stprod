@@ -42,7 +42,7 @@ constexpr double kInitZRange[2] = {-60., 60.}; // 220607
 
 #ifndef TRACK_FIND_WO_TARGET
 const TVector3  kInitPosErrorWire = {0.05, 3.4, 0.05};
-constexpr const std::array<double, 5> kWireXSigma = {0.3, 0.1, 0.3, 0.3, 0.3}; 
+constexpr const std::array<double, 5> kWireXSigma = {0.3, 0.05, 0.3, 0.3, 0.3}; 
 //const TVector3 kInitPosErrorWire = {1.0, 3.5, 1.0};
 //constexpr const std::array<double, 5> kWireXSigma = {1.0, 2.0, 0.5, 0.5, 0.5}; 
 const TVector3 kInitPosError = {3., 3.4, 3.};
@@ -55,7 +55,7 @@ const TVector3 kInitPosError = {999999, 3.4, 999999};
 
 const std::array<double, 3> kWeightInit = {1/(kInitPosError.x() * kInitPosError.x()), 1/(kInitPosError.y() * kInitPosError.y()), 1/(kInitPosError.z() * kInitPosError.z())};
 
-const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
+const std::array<TVector3, 4> kSigmas = {{{0.035, 0.,    0.},
 #ifndef REMOVE_GTR100
                                           {0.265, 0.626, 0.},
 #else 
@@ -109,7 +109,7 @@ const std::array<TVector3, 4> kSigmas = {{{0.067, 0.,    0.},
 	#endif
 #endif
 
-constexpr std::array<double, 3> kGTRTimeDiffThreshold = {80., 80., 80.};
+constexpr std::array<double, 3> kGTRTimeDiffThreshold = {60., 70., 80.};
 constexpr std::array<double, 5> kXWeight = {1. / (kXSigmaIncTgt[0] * kXSigmaIncTgt[0]),
                                             1. / (kXSigmaIncTgt[1] * kXSigmaIncTgt[1]),
                                             1. / (kXSigmaIncTgt[2] * kXSigmaIncTgt[2]),
@@ -153,8 +153,8 @@ constexpr std::array<double, 3> kGTRPeakSumThresholdY = {100, kGTRFakeADC - 1., 
 constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100, 100, kGTRFakeADC - 1.}; // 220418 for production
 constexpr std::array<double, 3> kGTRPeakSumThresholdY = {100, 100, kGTRFakeADC - 1.}; // 220418 for production
 #else 
-constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production
-constexpr std::array<double, 3> kGTRPeakSumThresholdY = {50., 50., 50.}; // 220418 for production
+constexpr std::array<double, 3> kGTRPeakSumThresholdX = {150., 150., 150.}; // 220418 for production
+constexpr std::array<double, 3> kGTRPeakSumThresholdY = {130., 130., 130.}; // 220418 for production
 #endif
 //#ifndef EFFICIENCY_EVAL
 //  constexpr std::array<double, 3> kGTRPeakSumThresholdX = {100., 100., 100.}; // 220418 for production

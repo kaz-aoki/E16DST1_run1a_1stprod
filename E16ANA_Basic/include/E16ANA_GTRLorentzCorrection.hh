@@ -10,7 +10,7 @@ class E16ANA_GTRLorentzCorrection {
 public:
    E16ANA_GTRLorentzCorrection() = default;
    ~E16ANA_GTRLorentzCorrection() = default;
-   TVector3 CorrectLocalPos(const TVector3 &lpos, double hit_time, const TVector3 &lmom);
+  TVector3 CorrectLocalPos(const TVector3 &lpos, double hit_time, const TVector3 &lmom,double corr[]);
    /*
    corrected_lx = lx + (t0-hit_time)*vd_z*tan_theta_x
                      + lorentz_const
@@ -29,12 +29,14 @@ public:
    void SetVDriftXFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
    void SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
    void SetLorentzConstFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
-
+   void SetFGeom(std::function<double(double*, double*)> func, std::initializer_list<double> params = {});
+  
    void SetT0Func(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetVDriftZFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetVDriftXFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
    void SetLorentzConstFunc(std::function<double(double*, double*)> func, std::vector<double> &params);
+   void SetFGeom(std::function<double(double*, double*)> func, std::vector<double> &params);
 
 private:
    class Func2D {
@@ -57,13 +59,13 @@ private:
    Func2D fVDriftXFunc;
    Func2D fLorentzConstRoughFunc;
    Func2D fLorentzConstFunc;
-
+   Func2D fFGeom;
 };
 
 class E16ANA_GTRLorentzCorrectionManager {
 public:
    static E16ANA_GTRLorentzCorrectionManager& Instance();
-   TVector3 CorrectLocalPos(int module_id, int layer_id, const TVector3 &lpos, double hit_time, const TVector3 &lmom);
+  TVector3 CorrectLocalPos(int module_id, int layer_id, const TVector3 &lpos, double hit_time, const TVector3 &lmom,double corr[]);
    void PrintParams(int module_id, int layer_id, const TVector3 &lpos);
 
 private:

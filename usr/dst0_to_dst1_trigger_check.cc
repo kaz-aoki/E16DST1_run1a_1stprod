@@ -33,6 +33,9 @@
 
 #include "E16ANA_STSGlobalGeometry.hh"
 #include "STS/E16ANA_EventDisplay.hh"
+///#include "STS/E16ANA_STSGlobalGeometry.hh"
+#include <experimental/optional>
+#include "E16ANA_STSGlobalGeometryCalib.hh"
 
 using namespace std;
 //namespace  bpo = boost::program_options;
@@ -253,7 +256,8 @@ int main(int argc, char* argv[]) {
   E16ANA_MagneticFieldMap::SetGlobalPointer(bfield_map);
   
   auto *sts_geom = E16ANA_STSGlobalGeometry::instance();
-  
+  E16ANA_STSGlobalGeometryCalib sts_ggeomcalib;
+  sts_ggeomcalib.ReadConstantData(calib.CurrentRunID());//run1a calibration
 
 //  E16ANA_WaveformFitter *wf1d_fitter = new E16ANA_WaveformFitter(hbd_waveform_template);
   E16ANA_WaveformFitterCRRC *wf1d_fitter = new E16ANA_WaveformFitterCRRC();
@@ -371,12 +375,12 @@ int main(int argc, char* argv[]) {
 
 #ifndef NoExist_SSD
 		#ifndef UseSTS
-	   E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
+      E16DST_DST1SSDFactory(ssd_hits0, &record.SSD());
       record.SSD().AddHitAndClusterIds();
       record.SSD().UpdatePtrs();
-		#else
-		E16DST_DST1STSFactory(stsg_hits0, sts_hits0, &record.STS());
-		record.STS().AddHitAndClusterIds();
+#else
+      E16DST_DST1STSFactory(stsg_hits0, sts_hits0, &record.STS());
+      record.STS().AddHitAndClusterIds();
       record.STS().UpdatePtrs();
 		#endif
 #endif
@@ -478,7 +482,7 @@ int main(int argc, char* argv[]) {
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
       record.Trigger().UpdatePtrs();
-      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
+      check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStamp(),  event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
 #ifndef DST1_EVENT_MIX
       E16DST_DST1TrackFactory(*geometry, *bfield_map, &fitter, &pair_fitter, kIsElectronRun, &record, &check_file);

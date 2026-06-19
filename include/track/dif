@@ -1,0 +1,1446 @@
+12a13,15
+> #include "E16ANA_EmbedManager.hh"
+> #include "E16ANA_SimulatedHits.hh"
+> 
+21c24
+<   E16ANA_TrackCheckFile(char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
+---
+>   E16ANA_TrackCheckFile(const char* file_name = "tmp.root", int _run_id = E16DST_DST1Constant::kInvalidValue)
+76c79
+<     /*
+---
+> #ifdef FILL_HITS
+85a89,92
+>     tree->Branch("ssd_hit_pn", &ssd_hit_pn);
+> #ifdef FillSTSCharge
+>     tree->Branch("ssd_hit_c",   &ssd_hit_c);
+> #endif // FillSTSCharge
+148c155
+<     */
+---
+> #endif // FILL_HITS
+159a167
+>     tree->Branch("hbd_hit_baseline", &hbd_hit_baseline);
+170,171d177
+<     
+<     /*
+174a181
+> //    tree->Branch("ssd_cluster_cid", &ssd_cluster_cid);
+178a186,190
+>     tree->Branch("ssd_cluster_pn",   &ssd_cluster_pn);
+> #ifdef FillSTSCharge
+>     tree->Branch("ssd_cluster_c",  &ssd_cluster_c);
+>     tree->Branch("ssd_cluster_sat",  &ssd_cluster_sat);
+> #endif // FillSTSCharge
+185d196
+< 
+188a200
+> //    tree->Branch("gtr100x_cluster_cid", &gtr100x_cluster_cid);
+202a215
+>  //   tree->Branch("gtr200x_cluster_cid", &gtr200x_cluster_cid);
+216a230
+> //    tree->Branch("gtr300x_cluster_cid", &gtr300x_cluster_cid);
+230a245
+> //    tree->Branch("gtr100y_cluster_cid", &gtr100y_cluster_cid);
+241a257
+> //    tree->Branch("gtr100yb_cluster_cid", &gtr100yb_cluster_cid);
+252a269
+> //    tree->Branch("gtr200y_cluster_cid", &gtr200y_cluster_cid);
+263a281
+> //    tree->Branch("gtr300y_cluster_cid", &gtr300y_cluster_cid);
+271a290
+> //241022 mtomoki
+280,288d298
+<     tree->Branch("gtr100x_cluster_csize",   &gtr100x_cluster_csize);
+<     tree->Branch("gtr200x_cluster_csize",   &gtr200x_cluster_csize);
+<     tree->Branch("gtr300x_cluster_csize",   &gtr300x_cluster_csize);
+<     tree->Branch("gtr100y_cluster_csize",   &gtr100y_cluster_csize);
+<     tree->Branch("gtr100yb_cluster_csize",   &gtr100yb_cluster_csize);
+<     tree->Branch("gtr200y_cluster_csize",   &gtr200y_cluster_csize);
+<     tree->Branch("gtr300y_cluster_csize",   &gtr300y_cluster_csize);
+< 
+< 
+340c350
+<     */    
+---
+> 
+358a369
+>     tree->Branch("hbd_cluster_baseline", &hbd_cluster_baseline);
+402a414,415
+>     tree->Branch("lg_hit_baseline",    &lg_hit_baseline);
+>     tree->Branch("lg_hit_baselinerms",    &lg_hit_baselinerms);
+471a485,502
+>     tree->Branch("trg_scaler",               &trg_scaler);
+>     tree->Branch("trg_nim_scaler",           &trg_nim_scaler);
+> #ifdef REMAIN_GTR_WAVEFORM
+>       tree->Branch("gtr100x_cluster_sids", &gtr100x_cluster_sids);
+>       tree->Branch("gtr200x_cluster_sids", &gtr200x_cluster_sids);
+>       tree->Branch("gtr300x_cluster_sids", &gtr300x_cluster_sids);
+>       tree->Branch("gtr100y_cluster_sids", &gtr100y_cluster_sids);
+>       tree->Branch("gtr200y_cluster_sids", &gtr200y_cluster_sids);
+>       tree->Branch("gtr300y_cluster_sids", &gtr300y_cluster_sids);
+>       tree->Branch("gtr100x_cluster_waveforms", &gtr100x_cluster_waveforms);
+>       tree->Branch("gtr200x_cluster_waveforms", &gtr200x_cluster_waveforms);
+>       tree->Branch("gtr300x_cluster_waveforms", &gtr300x_cluster_waveforms);
+>       tree->Branch("gtr100y_cluster_waveforms", &gtr100y_cluster_waveforms);
+>       tree->Branch("gtr200y_cluster_waveforms", &gtr200y_cluster_waveforms);
+>       tree->Branch("gtr300y_cluster_waveforms", &gtr300y_cluster_waveforms);
+> #endif//REMAIN_GTR_WAVEFORM
+> 
+>     
+560a592,607
+>     tree->Branch("mock_pulse_gtr100_sids", &mock_pulse_gtr100_sids);
+>     tree->Branch("mock_pulse_gtr200_sids", &mock_pulse_gtr200_sids);
+>     tree->Branch("mock_pulse_gtr300_sids", &mock_pulse_gtr300_sids);
+>     tree->Branch("mock_pulse_gtr100_waveforms", &mock_pulse_gtr100_waveforms);
+>     tree->Branch("mock_pulse_gtr200_waveforms", &mock_pulse_gtr200_waveforms);
+>     tree->Branch("mock_pulse_gtr300_waveforms", &mock_pulse_gtr300_waveforms);
+>     tree->Branch("mock_bg_gtr100_waveforms", &mock_bg_gtr100_waveforms);
+>     tree->Branch("mock_bg_gtr200_waveforms", &mock_bg_gtr200_waveforms);
+>     tree->Branch("mock_bg_gtr300_waveforms", &mock_bg_gtr300_waveforms);
+>     tree->Branch("mock_merged_gtr100_waveforms", &mock_merged_gtr100_waveforms);
+>     tree->Branch("mock_merged_gtr200_waveforms", &mock_merged_gtr200_waveforms);
+>     tree->Branch("mock_merged_gtr300_waveforms", &mock_merged_gtr300_waveforms);
+>     tree->Branch("mock_merged_gtr100_peds", &mock_merged_gtr100_peds);
+>     tree->Branch("mock_merged_gtr200_peds", &mock_merged_gtr200_peds);
+>     tree->Branch("mock_merged_gtr300_peds", &mock_merged_gtr300_peds);
+> 
+576a624,625
+>     tree->Branch("cluster_dismiss_point",          &cluster_dismiss_point);
+>     tree->Branch("track_dismiss_point",          &track_dismiss_point);
+624a674,675
+>     tree->Branch("rk_hit_gtr100_cogx", &rk_hit_gtr100_cogx);
+>     tree->Branch("rk_hit_gtr100_cogy", &rk_hit_gtr100_cogy);
+658a710
+>     tree->Branch("rk_hit_gtr100_xt5", &rk_hit_gtr100_xt5);
+662d713
+<     tree->Branch("rk_hit_gtr100_xt5", &rk_hit_gtr100_xt5);
+667a719,720
+>     tree->Branch("rk_hit_gtr200_cogx", &rk_hit_gtr200_cogx);
+>     tree->Branch("rk_hit_gtr200_cogy", &rk_hit_gtr200_cogy);
+699a753
+>     tree->Branch("rk_hit_gtr200_xt5", &rk_hit_gtr200_xt5);
+703d756
+<     tree->Branch("rk_hit_gtr200_xt5", &rk_hit_gtr200_xt5);
+710a764,765
+>     tree->Branch("rk_hit_gtr300_cogx", &rk_hit_gtr300_cogx);
+>     tree->Branch("rk_hit_gtr300_cogy", &rk_hit_gtr300_cogy);
+744a800
+>     tree->Branch("rk_hit_gtr300_xt5", &rk_hit_gtr300_xt5);
+748d803
+<     tree->Branch("rk_hit_gtr300_xt5", &rk_hit_gtr300_xt5);
+827d881
+<     
+835,874d888
+<     /*
+<     tree->Branch("rk_hit_gtr300_xcadc" ,&rk_hit_gtr300_xcadc);
+<     tree->Branch("rk_hit_gtr300_ycadc" ,&rk_hit_gtr300_ycadc);    
+<     tree->Branch("rk_hit_gtr300_xadc1",&rk_hit_gtr300_xadc1);
+<     tree->Branch("rk_hit_gtr300_xadc2",&rk_hit_gtr300_xadc2);
+<     tree->Branch("rk_hit_gtr300_xadc3",&rk_hit_gtr300_xadc3);
+<     tree->Branch("rk_hit_gtr300_xadc4",&rk_hit_gtr300_xadc4);
+<     tree->Branch("rk_hit_gtr300_xadc5",&rk_hit_gtr300_xadc5);
+<     tree->Branch("rk_hit_gtr300_yadc1",&rk_hit_gtr300_yadc1);
+<     tree->Branch("rk_hit_gtr300_yadc2",&rk_hit_gtr300_yadc2);
+<     tree->Branch("rk_hit_gtr300_yadc3",&rk_hit_gtr300_yadc3);
+<     tree->Branch("rk_hit_gtr300_yadc4",&rk_hit_gtr300_yadc4);
+<     tree->Branch("rk_hit_gtr300_yadc5",&rk_hit_gtr300_yadc5);
+< 
+<     tree->Branch("rk_hit_gtr200_xcadc" ,&rk_hit_gtr200_xcadc);
+<     tree->Branch("rk_hit_gtr200_ycadc" ,&rk_hit_gtr200_ycadc);    
+<     tree->Branch("rk_hit_gtr200_xadc1",&rk_hit_gtr200_xadc1);
+<     tree->Branch("rk_hit_gtr200_xadc2",&rk_hit_gtr200_xadc2);
+<     tree->Branch("rk_hit_gtr200_xadc3",&rk_hit_gtr200_xadc3);
+<     tree->Branch("rk_hit_gtr200_xadc4",&rk_hit_gtr200_xadc4);
+<     tree->Branch("rk_hit_gtr200_xadc5",&rk_hit_gtr200_xadc5);
+<     tree->Branch("rk_hit_gtr200_yadc1",&rk_hit_gtr200_yadc1);
+<     tree->Branch("rk_hit_gtr200_yadc2",&rk_hit_gtr200_yadc2);
+<     tree->Branch("rk_hit_gtr200_yadc3",&rk_hit_gtr200_yadc3);
+<     tree->Branch("rk_hit_gtr200_yadc4",&rk_hit_gtr200_yadc4);
+<     tree->Branch("rk_hit_gtr200_yadc5",&rk_hit_gtr200_yadc5);
+< 
+<     tree->Branch("rk_hit_gtr100_xcadc" ,&rk_hit_gtr100_xcadc);
+<     tree->Branch("rk_hit_gtr100_ycadc" ,&rk_hit_gtr100_ycadc);    
+<     tree->Branch("rk_hit_gtr100_xadc1",&rk_hit_gtr100_xadc1);
+<     tree->Branch("rk_hit_gtr100_xadc2",&rk_hit_gtr100_xadc2);
+<     tree->Branch("rk_hit_gtr100_xadc3",&rk_hit_gtr100_xadc3);
+<     tree->Branch("rk_hit_gtr100_xadc4",&rk_hit_gtr100_xadc4);
+<     tree->Branch("rk_hit_gtr100_xadc5",&rk_hit_gtr100_xadc5);
+<     tree->Branch("rk_hit_gtr100_yadc1",&rk_hit_gtr100_yadc1);
+<     tree->Branch("rk_hit_gtr100_yadc2",&rk_hit_gtr100_yadc2);
+<     tree->Branch("rk_hit_gtr100_yadc3",&rk_hit_gtr100_yadc3);
+<     tree->Branch("rk_hit_gtr100_yadc4",&rk_hit_gtr100_yadc4);
+<     tree->Branch("rk_hit_gtr100_yadc5",&rk_hit_gtr100_yadc5);
+<     */
+1060c1074
+<     /*
+---
+> #ifdef PAIR_TRACKING 
+1061a1076,1078
+>     tree->Branch("rk_pair_minus_ssd_mid", &rk_pair_minus_ssd_mid);
+>     tree->Branch("rk_pair_minus_gtr100_mid", &rk_pair_minus_gtr100_mid);
+>     tree->Branch("rk_pair_minus_gtr200_mid", &rk_pair_minus_gtr200_mid);
+1069a1087,1089
+>     tree->Branch("rk_pair_plus_ssd_mid", &rk_pair_plus_ssd_mid);
+>     tree->Branch("rk_pair_plus_gtr100_mid", &rk_pair_plus_gtr100_mid);
+>     tree->Branch("rk_pair_plus_gtr200_mid", &rk_pair_plus_gtr200_mid);
+1166c1186
+<     */
+---
+> #endif//PAIR_TRACKING
+1225d1244
+<     std::cout<<"event::"<<event_id <<std::endl;
+1245a1265,1266
+>     ssd_hit_pn.resize(n_ssd_hits);
+>     ssd_hit_c.resize(n_ssd_hits);
+1261a1283,1286
+>       ssd_hit_pn[i] = hit.PN();
+> #ifdef UseSTS
+>       ssd_hit_c[i] = hit.Charge();
+> #endif
+1420a1446
+>     hbd_hit_baseline.resize(n_hbd_hits);
+1425c1451
+<       hbd_hit_cid[i] = hit.ModuleId();
+---
+>       hbd_hit_cid[i] = hit.ChannelId();
+1434a1461
+>       hbd_hit_baseline[i] = hit.Baseline();
+1446a1474,1476
+>     ssd_cluster_pn.resize(n_ssd_clusters);
+>     ssd_cluster_c.resize(n_ssd_clusters);
+>     ssd_cluster_sat.resize(n_ssd_clusters);
+1469a1500,1504
+>       ssd_cluster_pn[i] = clst.PN();
+> #ifdef UseSTS
+>       ssd_cluster_c[i] = clst.Charge();
+>       ssd_cluster_sat[i] = clst.ADCSaturated();
+> #endif
+1581,1586c1616
+<     
+<     gtr100x_cluster_adc1.clear();//
+<     gtr100x_cluster_adc2.clear();//
+<     gtr100x_cluster_adc3.clear();//
+<     gtr100x_cluster_adc4.clear();//
+<     gtr100x_cluster_adc5.clear();//
+---
+> 
+1638a1669,1682
+> #ifdef REMAIN_GTR_WAVEFORM
+>     gtr100x_cluster_sids.clear();
+>     gtr200x_cluster_sids.clear();
+>     gtr300x_cluster_sids.clear();
+>     gtr100y_cluster_sids.clear();
+>     gtr200y_cluster_sids.clear();
+>     gtr300y_cluster_sids.clear();
+>     gtr100x_cluster_waveforms.clear();
+>     gtr200x_cluster_waveforms.clear();
+>     gtr300x_cluster_waveforms.clear();
+>     gtr100y_cluster_waveforms.clear();
+>     gtr200y_cluster_waveforms.clear();
+>     gtr300y_cluster_waveforms.clear();
+> #endif //REMAIN_GTR_WAVEFORM
+1639a1684
+>     auto n_gtr_clusters = record.GTR().NumClusters();
+1641c1686,1729
+< 
+---
+> #ifdef REMAIN_GTR_WAVEFORM
+>    auto CollectClusterWaveforms = [&](int target_lid, int target_type, std::vector<std::vector<double>>& cluster_sids, std::vector<std::vector<double>>& cluster_waveforms) {
+>       auto n_gtr_clusters = record.GTR().NumClusters();
+>       for (int i = 0; i < n_gtr_clusters; ++i) {//all cluster
+>          auto& clst = record.GTR().Cluster(i);
+>          if (clst.LayerId() == target_lid && clst.Type() == target_type) {
+>             if(clst.PeakSum() > 99995){//fake clusters
+>                cluster_sids.push_back({-9999});
+>                cluster_waveforms.push_back(std::vector<double>(E16DST_DST1Constant::n_gtr_samples*E16ANA_TrackConstant::kFakeClusterSize, 0.0));
+>                continue;
+>             }
+>             //std::cout << "clst id = " << clst.ClusterId() << std::endl;
+>             //std::cout << "clst type = " << clst.Type() << std::endl;
+>             int type = clst.Type();
+>             std::vector<double> hit_waveforms;
+>             std::vector<double>    hit_sids;
+>             hit_waveforms.clear();
+>             hit_sids.clear();
+>             for (auto h_id : clst.HitOrders()) {
+>                auto& hit = record.GTR().Hit(h_id);
+>                //std::cout << "hit.HitId() = " << hit.HitId() << ", h_id = " <<  h_id << std::endl;//checked identical 250301
+>                const auto& waveform = hit.WaveForm();
+>                int waveform_size = E16DST_DST1Constant::n_gtr_samples;
+>                //std::cout << "waveform original size = " << waveform.size() << ", resized to " << waveform_size << std::endl;
+>                int sid = hit.ChannelId(); //yb 0-71
+>                if(type == 2){
+>                   sid = sid + 72;
+>                }
+>                hit_sids.push_back(sid);//yb: 72-143 
+>                hit_waveforms.insert(hit_waveforms.end(), waveform.begin(), waveform.begin() + waveform_size);
+>             }
+>             cluster_sids.push_back(hit_sids);
+>             cluster_waveforms.push_back(hit_waveforms);
+>          }
+>       }
+>    };
+>    CollectClusterWaveforms(0, 0, gtr100x_cluster_sids, gtr100x_cluster_waveforms);
+>    CollectClusterWaveforms(1, 0, gtr200x_cluster_sids, gtr200x_cluster_waveforms);
+>    CollectClusterWaveforms(2, 0, gtr300x_cluster_sids, gtr300x_cluster_waveforms);
+>    CollectClusterWaveforms(0, 1, gtr100y_cluster_sids, gtr100y_cluster_waveforms);
+>    CollectClusterWaveforms(0, 2, gtr100y_cluster_sids, gtr100y_cluster_waveforms);
+>    CollectClusterWaveforms(1, 1, gtr200y_cluster_sids, gtr200y_cluster_waveforms);
+>    CollectClusterWaveforms(2, 1, gtr300y_cluster_sids, gtr300y_cluster_waveforms);
+> #endif//REMAIN_GTR_WAVEFORM
+1653,1671d1740
+<     auto n_gtr_clusters = record.GTR().NumClusters();
+<     
+<     int g1x =0;
+<     for (int i = 0; i < n_gtr_clusters; ++i) {
+<       auto& clst = record.GTR().Cluster(i);
+<       auto lid = clst.LayerId();
+<       auto type = clst.Type();
+<       if (lid == 0) {
+<         if (type == 0) {
+<           g1x++;
+< 	}
+<       }
+<     }
+<     gtr100x_cluster_adc1.resize(g1x);
+<     gtr100x_cluster_adc2.resize(g1x);
+<     gtr100x_cluster_adc3.resize(g1x);
+<     gtr100x_cluster_adc4.resize(g1x);
+<     gtr100x_cluster_adc5.resize(g1x);
+<     
+1678,1689d1746
+< 	  gtr100x_cluster_adc1[n_gtr100x_clusters].resize(15);
+< 	  gtr100x_cluster_adc2[n_gtr100x_clusters].resize(15);
+< 	  gtr100x_cluster_adc3[n_gtr100x_clusters].resize(15);
+< 	  gtr100x_cluster_adc4[n_gtr100x_clusters].resize(15);
+< 	  gtr100x_cluster_adc5[n_gtr100x_clusters].resize(15);
+< 	  for (int j = 0; j <15; ++j){
+< 	    gtr100x_cluster_adc1[n_gtr100x_clusters][j] = (double)clst.CAdc1(j);
+<             gtr100x_cluster_adc2[n_gtr100x_clusters][j] = (double)clst.CAdc2(j);
+<             gtr100x_cluster_adc3[n_gtr100x_clusters][j] = (double)clst.CAdc3(j);
+<             gtr100x_cluster_adc4[n_gtr100x_clusters][j] = (double)clst.CAdc4(j);
+<             gtr100x_cluster_adc5[n_gtr100x_clusters][j] = (double)clst.CAdc5(j);
+< 	  }
+1699,1703c1756,1760
+< 	  gtr100x_cluster_t2.emplace_back(clst.Timing2());
+< 	  gtr100x_cluster_nc.emplace_back(clst.NumCls());
+< 	  gtr100x_cluster_the.emplace_back(clst.TanTheta());
+< 	  gtr100x_cluster_tx.emplace_back(clst.LocalXT());
+< 	  auto gpost = clst.GlobalPosT(geometry);
+---
+> 	        gtr100x_cluster_t2.emplace_back(clst.Timing2());
+> 	        gtr100x_cluster_nc.emplace_back(clst.NumCls());
+> 	        gtr100x_cluster_the.emplace_back(clst.TanTheta());
+> 	        gtr100x_cluster_tx.emplace_back(clst.LocalXT());
+> 	        auto gpost = clst.GlobalPosT(geometry);
+1706,1715c1763,1773
+< 	  gtr100x_cluster_csize.emplace_back(clst.ClusterSize());
+< 	  gtr100x_cluster_minadc.emplace_back(clst.MinAdc());
+< 	  gtr100x_cluster_maxtot.emplace_back(clst.MaxTot());
+< 	  gtr100x_cluster_mintot.emplace_back(clst.MinTot());
+< 	  gtr100x_cluster_last_st.emplace_back(clst.LastTotStart());
+< 	  gtr100x_cluster_last_et.emplace_back(clst.LastTotEnd());
+< 	  gtr100x_cluster_maxrt.emplace_back(clst.MaxRiset());
+< 	  gtr100x_cluster_minrt.emplace_back(clst.MinRiset());
+< 	  
+< 	  
+---
+> 
+> 
+> 	       gtr100x_cluster_csize.emplace_back(clst.ClusterSize());
+> 	       gtr100x_cluster_minadc.emplace_back(clst.MinAdc());
+> 	       gtr100x_cluster_maxtot.emplace_back(clst.MaxTot());
+> 	       gtr100x_cluster_mintot.emplace_back(clst.MinTot());
+> 	       gtr100x_cluster_last_st.emplace_back(clst.LastTotStart());
+> 	       gtr100x_cluster_last_et.emplace_back(clst.LastTotEnd());
+> 	       gtr100x_cluster_maxrt.emplace_back(clst.MaxRiset());
+> 	       gtr100x_cluster_minrt.emplace_back(clst.MinRiset());
+>          
+1917a1976
+>     hbd_cluster_baseline.resize(n_hbd_clusters);
+1936a1996
+>       hbd_cluster_baseline[i] = clst.Baseline();
+1954a2015,2016
+>     lg_hit_baseline.resize(n_lg_hits);
+>     lg_hit_baselinerms.resize(n_lg_hits);
+1968a2031
+>    #ifndef TRACK_EFF_CHECK
+1969a2033
+>    #endif
+1978a2043,2044
+>       lg_hit_baseline[i]       = hit.Baseline();
+>       lg_hit_baselinerms[i]       = hit.BaselineRms();
+2125a2192,2193
+>     trg_scaler.resize(E16DST_Constant::NTriggerTypes);
+>     trg_nim_scaler.resize(E16DST_Constant::NNIMScalersUT3);
+2363a2432,2439
+>    #ifndef TRACK_EFF_CHECK //evacuation from segmentation faults //temp 250224 mtomoki
+>     for(int i=0;i<E16DST_Constant::NTriggerTypes;++i) {
+>       trg_scaler[i]     = record.Trigger().ReqScaler(i); 
+>     }
+>     for(int i=0;i<E16DST_Constant::NNIMScalersUT3;++i) {
+>       trg_nim_scaler[i]     = record.Trigger().NimScaler(i); 
+>     }
+>    #endif
+2496c2572,2747
+<   void AddSimTrack(bool is_dead, E16ANA_MockTrack& track) {
+---
+> 
+> 
+>   void ClearSimPulse(){
+>      mock_pulse_gtr100_sids.clear();
+>      mock_pulse_gtr200_sids.clear();
+>      mock_pulse_gtr300_sids.clear();
+>      mock_merged_gtr100_peds.clear();
+>      mock_merged_gtr200_peds.clear();
+>      mock_merged_gtr300_peds.clear();
+>  
+>      mock_pulse_gtr100_waveforms.clear();
+>      mock_pulse_gtr200_waveforms.clear();
+>      mock_pulse_gtr300_waveforms.clear();
+>      mock_bg_gtr100_waveforms.clear();
+>      mock_bg_gtr200_waveforms.clear();
+>      mock_bg_gtr300_waveforms.clear();
+>      mock_merged_gtr100_waveforms.clear();
+>      mock_merged_gtr200_waveforms.clear();
+>      mock_merged_gtr300_waveforms.clear();
+> 
+> 
+>    }
+>    void AddSimPulse(int mock_id, E16ANA_MockTrack& track, E16ANA_SimulatedHits *sim ){
+>      mock_pulse_gtr100_sids.resize(2);
+>      mock_pulse_gtr200_sids.resize(2);
+>      mock_pulse_gtr300_sids.resize(2);
+>      mock_pulse_gtr100_waveforms.resize(2);
+>      mock_pulse_gtr200_waveforms.resize(2);
+>      mock_pulse_gtr300_waveforms.resize(2);
+>      auto collect_sim_pulse = [&](int mid, int lid, std::vector<std::vector<double>>& mock_pulse_sids,
+>          std::vector<std::vector<double>>& mock_pulse_waveforms) {
+>          std::vector<GTRSimulatedCluster>& clusters = sim->GTR(mock_id)->GetClusterOnAChamber(mid, lid);
+>          std::vector<double> hit_sids;
+>          std::vector<double> hit_waveforms;
+>          for(auto &cl : clusters){
+>             int csize = cl.csize;
+>             for(int i=0;i<csize;i++){
+>                int sid = cl.strip_ids[i];
+>                const auto& waveform = cl.waveforms[i];
+>                hit_sids.push_back(sid);
+>                hit_waveforms.insert(hit_waveforms.end(), waveform.begin(), waveform.end());
+>             }
+>          } 
+>          if(!hit_sids.empty()){
+>             mock_pulse_sids[mock_id] = hit_sids;
+>             mock_pulse_waveforms[mock_id] = hit_waveforms;
+>          }
+>       };
+>       collect_sim_pulse(track.GTR1().ModuleID(), 0, mock_pulse_gtr100_sids, mock_pulse_gtr100_waveforms);
+>       collect_sim_pulse(track.GTR2().ModuleID(), 1, mock_pulse_gtr200_sids, mock_pulse_gtr200_waveforms);
+>       collect_sim_pulse(track.GTR3().ModuleID(), 2, mock_pulse_gtr300_sids, mock_pulse_gtr300_waveforms);
+> 
+> //      auto collect_sim_pulse = [&](int mid, int lid, std::vector<std::vector<double>>& mock_pulse_sids,
+> //         std::vector<std::vector<double>>& mock_pulse_waveforms) {
+> //            auto fadc_data = sim->GTR(mock_id)->GetFadcOnChamber(mid, lid);
+> //            std::vector<double> hit_sids;
+> //            std::vector<double> hit_waveforms;
+> //            for (const auto& pair : fadc_data) {
+> //               int sid = pair.first;
+> //               const auto& waveform = pair.second;
+> //               hit_sids.push_back(sid);
+> //               hit_waveforms.insert(hit_waveforms.end(), waveform.begin(), waveform.end()); 
+> //            }
+> //            if (!hit_sids.empty()) {
+> ////               mock_pulse_sids.push_back(hit_sids);
+> ////               mock_pulse_waveforms.push_back(hit_waveforms);
+> //               mock_pulse_sids[mock_id] = hit_sids;
+> //               mock_pulse_waveforms[mock_id] = hit_waveforms;
+> //            }
+> //      };
+> //      collect_sim_pulse(track.GTR1().ModuleID(), 0, mock_pulse_gtr100_sids, mock_pulse_gtr100_waveforms);
+> //      collect_sim_pulse(track.GTR2().ModuleID(), 1, mock_pulse_gtr200_sids, mock_pulse_gtr200_waveforms);
+> //      collect_sim_pulse(track.GTR3().ModuleID(), 2, mock_pulse_gtr300_sids, mock_pulse_gtr300_waveforms);
+>    }
+> 
+> /*
+>    void AddDismissedPulse(E16ANA_SimulatedHits* sim_hits){
+>      mock_miss_gtr100_sids.resize(2);
+>      mock_miss_gtr200_sids.resize(2);
+>      mock_miss_gtr300_sids.resize(2);
+>      mock_miss_gtr100_waveforms.resize(2);
+>      mock_miss_gtr200_waveforms.resize(2);
+>      mock_miss_gtr300_waveforms.resize(2);
+>      for(int i=0; i < 2;i++){//mock i
+>          std::vector<E16ANA_GTRSimulatedHits::DismissedMockCluster>& missed_fadc = sim_hits->GTR(i)->GetMissedFadc();
+>          if(missed_fadc.empty()){
+>              mock_miss_gtr100_sids[i] = {};
+>              mock_miss_gtr100_waveforms[i] = {};
+>              mock_miss_gtr200_sids[i] = {};
+>              mock_miss_gtr200_waveforms[i] = {};
+>              mock_miss_gtr300_sids[i] = {};
+>              mock_miss_gtr300_waveforms[i] = {};
+>             
+>         }
+>          else {for (const auto& cluster : missed_fadc) {
+>             std::vector<double> sids(cluster.sids.begin(), cluster.sids.end());
+>             std::vector<double> waveforms;
+>             for (const auto& wf : cluster.waveforms) {
+>                waveforms.insert(waveforms.end(), wf.begin(), wf.end());
+>             }
+>             if (cluster.lid == 0) {
+>                mock_miss_gtr100_sids[i].insert(mock_miss_gtr100_sids[i].end(), sids.begin(), sids.end());
+>                mock_miss_gtr100_waveforms[i].insert(mock_miss_gtr100_waveforms[i].end(), waveforms.begin(), waveforms.end());
+>                } else if (cluster.lid == 1) {
+>                 mock_miss_gtr200_sids[i].insert(mock_miss_gtr200_sids[i].end(), sids.begin(), sids.end());
+>                 mock_miss_gtr200_waveforms[i].insert(mock_miss_gtr200_waveforms[i].end(), waveforms.begin(), waveforms.end());
+>                } else if (cluster.lid == 2) {
+>                  mock_miss_gtr300_sids[i].insert(mock_miss_gtr300_sids[i].end(), sids.begin(), sids.end());
+>                  mock_miss_gtr300_waveforms[i].insert(mock_miss_gtr300_waveforms[i].end(), waveforms.begin(), waveforms.end());
+>             }
+> 
+>         }
+> 
+>       }
+>      }
+>       for(int i=0; i< 2;i++){
+>          for(int j=0; j< mock_miss_gtr300_sids[i].size();j++){
+>             std::cout << "mock miss siddddd = " << mock_miss_gtr300_sids[i][j] << std::endl;
+>          }
+>       }
+>    }
+> */
+> 
+>    void AddMergedAndBackGroundPulse(E16ANA_SimulatedHits *sim ){
+>      mock_bg_gtr100_waveforms.resize(2);
+>      mock_bg_gtr200_waveforms.resize(2);
+>      mock_bg_gtr300_waveforms.resize(2);
+>      mock_merged_gtr100_waveforms.resize(2);
+>      mock_merged_gtr200_waveforms.resize(2);
+>      mock_merged_gtr300_waveforms.resize(2);
+>      mock_merged_gtr100_peds.resize(2);
+>      mock_merged_gtr200_peds.resize(2);
+>      mock_merged_gtr300_peds.resize(2);
+>      auto collect_sim_merged_bg = [&](int mock_id, int mid, int lid, 
+>          std::vector<std::vector<double>>& mock_bg_waveforms,
+>          std::vector<std::vector<double>>& mock_merged_waveforms,
+>          std::vector<std::vector<double>>& mock_merged_peds
+>          ) {
+>          std::vector<GTRSimulatedCluster> clusters = sim->GTR(mock_id)->GetClusterOnAChamber(mid, lid);
+>          std::vector<double> hit_waveforms_bg;
+>          std::vector<double> hit_waveforms_merged;
+>          std::vector<double> hit_pedestals;
+>          for(const auto &cl : clusters){
+>             int csize = cl.csize;
+>             for(int i=0;i<csize;i++){
+>                int sid = cl.strip_ids[i];
+>                int ped = cl.pedestals[i];
+>                const auto& waveform_bg = cl.dst0_waveforms[i];
+>                const auto& waveform_merged = cl.merged_waveforms[i];
+>                //std::cout << "sid       = " << sid << std::endl;
+>                //std::cout << "waveform dst0 = " << waveform_bg[0] << std::endl;
+>                //std::cout << "waveform merged size = " << waveform_merged.size() << std::endl;
+>                hit_waveforms_bg.insert(hit_waveforms_bg.end(), waveform_bg.begin(), waveform_bg.end());
+>                hit_waveforms_merged.insert(hit_waveforms_merged.end(), waveform_merged.begin(), waveform_merged.end());
+>                hit_pedestals.push_back(ped);
+>             }
+>         } 
+>         if(!hit_waveforms_bg.empty()){
+>            mock_bg_waveforms[mock_id] = hit_waveforms_bg;
+>         }
+>         if(!hit_waveforms_merged.empty()){
+>            mock_merged_waveforms[mock_id] = hit_waveforms_merged;
+>         }
+>         if(!hit_pedestals.empty()){
+>            mock_merged_peds[mock_id] = hit_pedestals;
+>         }
+>       };
+>       for(int mock_id=0; mock_id<2; mock_id++){
+>          collect_sim_merged_bg(mock_id, sim->GTR(mock_id)->ModuleID(0), 0,  mock_bg_gtr100_waveforms, mock_merged_gtr100_waveforms, mock_merged_gtr100_peds);
+>          collect_sim_merged_bg(mock_id, sim->GTR(mock_id)->ModuleID(1), 1,  mock_bg_gtr200_waveforms, mock_merged_gtr200_waveforms, mock_merged_gtr200_peds);
+>          collect_sim_merged_bg(mock_id, sim->GTR(mock_id)->ModuleID(2), 2,  mock_bg_gtr300_waveforms, mock_merged_gtr300_waveforms, mock_merged_gtr300_peds);
+>       }
+>    }
+> 
+> 
+>    void AddSimTrack(bool is_dead, E16ANA_MockTrack& track) {
+2595c2846
+<     return;
+---
+>    return;
+2598,2599c2849,2850
+<   void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands, int _refind) {
+<     n_fill      = _n_fill;
+---
+>    void AddEntry(int _n_fill, E16ANA_GeometryV2& geometry, E16ANA_TrackCandidates& cands, E16ANA_EmbedManager* embed_manager,int _refind) {
+>     n_fill = _n_fill;
+2601a2853,2855
+> #ifdef TRACK_EFF_CHECK
+>     AddEmbedInfo(embed_manager);
+> #endif
+2617c2871,2872
+<  private:
+---
+>   // private:
+>   public:
+2620a2876,2887
+> #ifdef TRACK_EFF_CHECK
+>   void AddEmbedInfo(E16ANA_EmbedManager *embed_manager){
+>     cluster_dismiss_point.resize(2);
+>     track_dismiss_point.resize(2);
+>     for (int i = 0; i < 2; ++i) {
+>        cluster_dismiss_point[i] = embed_manager->ClusterDismissPoint(i);
+>        track_dismiss_point[i] = embed_manager->TrackDismissPoint(i);
+>     }
+>   }
+> 
+> #endif
+> 
+2640,2643d2906
+<     //int rn_cands = n_cands;
+<     //if(n_cands>1500) rn_cands =0;
+<     //if(n_cands>800) rn_cands =0;
+<     //if(n_cands>1500) rn_cands =0;
+2649d2911
+< //    n_pairs = cands.NumSelectedTrackCandidatePairs();
+2665a2928,2929
+> 
+>     
+2722a2987,2988
+>     rk_hit_gtr100_cogx.resize(n_cands);
+>     rk_hit_gtr100_cogy.resize(n_cands);
+2732a2999,3000
+>     rk_hit_gtr200_cogx.resize(n_cands);
+>     rk_hit_gtr200_cogy.resize(n_cands);
+2741a3010,3011
+>     rk_hit_gtr300_cogx.resize(n_cands);
+>     rk_hit_gtr300_cogy.resize(n_cands);
+2825a3096
+>     rk_hit_gtr100_xt5.resize(n_cands);
+2827a3099
+>     rk_hit_gtr100_yt5.resize(n_cands);
+2831a3104
+>     rk_hit_gtr200_xt5.resize(n_cands);
+2833a3107
+>     rk_hit_gtr200_yt5.resize(n_cands);
+2837a3112
+>     rk_hit_gtr300_xt5.resize(n_cands);
+2839a3115
+>     rk_hit_gtr300_yt5.resize(n_cands);
+2842,2848d3117
+<     rk_hit_gtr100_yt5.resize(n_cands);
+<     rk_hit_gtr100_xt5.resize(n_cands);
+<     rk_hit_gtr200_yt5.resize(n_cands);
+<     rk_hit_gtr200_xt5.resize(n_cands);
+<     rk_hit_gtr300_yt5.resize(n_cands);
+<     rk_hit_gtr300_xt5.resize(n_cands);
+<     
+2856,2894c3125,3155
+<     rk_hit_gtr300_xadc1.resize(n_cands);
+<     rk_hit_gtr300_xadc2.resize(n_cands);
+<     rk_hit_gtr300_xadc3.resize(n_cands);
+<     rk_hit_gtr300_xadc4.resize(n_cands);
+<     rk_hit_gtr300_xadc5.resize(n_cands);
+<     rk_hit_gtr300_yadc1.resize(n_cands);
+<     rk_hit_gtr300_yadc2.resize(n_cands);
+<     rk_hit_gtr300_yadc3.resize(n_cands);
+<     rk_hit_gtr300_yadc4.resize(n_cands);
+<     rk_hit_gtr300_yadc5.resize(n_cands);
+<     rk_hit_gtr300_xcadc.resize(n_cands);
+<     rk_hit_gtr300_ycadc.resize(n_cands);
+< 
+<     rk_hit_gtr200_xadc1.resize(n_cands);
+<     rk_hit_gtr200_xadc2.resize(n_cands);
+<     rk_hit_gtr200_xadc3.resize(n_cands);
+<     rk_hit_gtr200_xadc4.resize(n_cands);
+<     rk_hit_gtr200_xadc5.resize(n_cands);
+<     rk_hit_gtr200_yadc1.resize(n_cands);
+<     rk_hit_gtr200_yadc2.resize(n_cands);
+<     rk_hit_gtr200_yadc3.resize(n_cands);
+<     rk_hit_gtr200_yadc4.resize(n_cands);
+<     rk_hit_gtr200_yadc5.resize(n_cands);
+<     rk_hit_gtr200_xcadc.resize(n_cands);
+<     rk_hit_gtr200_ycadc.resize(n_cands);
+< 
+<     rk_hit_gtr100_xadc1.resize(n_cands);
+<     rk_hit_gtr100_xadc2.resize(n_cands);
+<     rk_hit_gtr100_xadc3.resize(n_cands);
+<     rk_hit_gtr100_xadc4.resize(n_cands);
+<     rk_hit_gtr100_xadc5.resize(n_cands);
+<     rk_hit_gtr100_yadc1.resize(n_cands);
+<     rk_hit_gtr100_yadc2.resize(n_cands);
+<     rk_hit_gtr100_yadc3.resize(n_cands);
+<     rk_hit_gtr100_yadc4.resize(n_cands);
+<     rk_hit_gtr100_yadc5.resize(n_cands);
+<     rk_hit_gtr100_xcadc.resize(n_cands);
+<     rk_hit_gtr100_ycadc.resize(n_cands);
+<     
+---
+>     rk_hit_gtr100_x_ctot.resize(n_cands);
+>     rk_hit_gtr100_x_crt.resize(n_cands);
+>     rk_hit_gtr100_x_ced.resize(n_cands);
+>     rk_hit_gtr100_y_ctot.resize(n_cands);
+>     rk_hit_gtr100_y_crt.resize(n_cands);
+>     rk_hit_gtr100_y_ced.resize(n_cands);      
+>     rk_hit_gtr200_x_ctot.resize(n_cands);
+>     rk_hit_gtr200_x_crt.resize(n_cands);
+>     rk_hit_gtr200_x_ced.resize(n_cands);
+>     rk_hit_gtr200_y_ctot.resize(n_cands);
+>     rk_hit_gtr200_y_crt.resize(n_cands);
+>     rk_hit_gtr200_y_ced.resize(n_cands);      
+>     rk_hit_gtr300_x_ctot.resize(n_cands);
+>     rk_hit_gtr300_x_crt.resize(n_cands);
+>     rk_hit_gtr300_x_ced.resize(n_cands);
+>     rk_hit_gtr300_y_ctot.resize(n_cands);
+>     rk_hit_gtr300_y_crt.resize(n_cands);
+>     rk_hit_gtr300_y_ced.resize(n_cands);
+>     rk_hit_gtr100_x_cpeak.resize(n_cands);
+>     rk_hit_gtr200_x_cpeak.resize(n_cands);
+>     rk_hit_gtr300_x_cpeak.resize(n_cands);
+>     rk_hit_gtr100_y_cpeak.resize(n_cands);
+>     rk_hit_gtr200_y_cpeak.resize(n_cands);
+>     rk_hit_gtr300_y_cpeak.resize(n_cands);
+>     rk_hit_gtr100_x_qual.resize(n_cands);
+>     rk_hit_gtr100_y_qual.resize(n_cands);
+>     rk_hit_gtr200_x_qual.resize(n_cands);
+>     rk_hit_gtr200_y_qual.resize(n_cands);
+>     rk_hit_gtr300_x_qual.resize(n_cands);
+>     rk_hit_gtr300_y_qual.resize(n_cands);
+> 
+2939,2969c3200,3201
+<     rk_hit_gtr100_x_ctot.resize(n_cands);
+<     rk_hit_gtr100_x_crt.resize(n_cands);
+<     rk_hit_gtr100_x_ced.resize(n_cands);
+<     rk_hit_gtr100_y_ctot.resize(n_cands);
+<     rk_hit_gtr100_y_crt.resize(n_cands);
+<     rk_hit_gtr100_y_ced.resize(n_cands);      
+<     rk_hit_gtr200_x_ctot.resize(n_cands);
+<     rk_hit_gtr200_x_crt.resize(n_cands);
+<     rk_hit_gtr200_x_ced.resize(n_cands);
+<     rk_hit_gtr200_y_ctot.resize(n_cands);
+<     rk_hit_gtr200_y_crt.resize(n_cands);
+<     rk_hit_gtr200_y_ced.resize(n_cands);      
+<     rk_hit_gtr300_x_ctot.resize(n_cands);
+<     rk_hit_gtr300_x_crt.resize(n_cands);
+<     rk_hit_gtr300_x_ced.resize(n_cands);
+<     rk_hit_gtr300_y_ctot.resize(n_cands);
+<     rk_hit_gtr300_y_crt.resize(n_cands);
+<     rk_hit_gtr300_y_ced.resize(n_cands);
+<     rk_hit_gtr100_x_cpeak.resize(n_cands);
+<     rk_hit_gtr200_x_cpeak.resize(n_cands);
+<     rk_hit_gtr300_x_cpeak.resize(n_cands);
+<     rk_hit_gtr100_y_cpeak.resize(n_cands);
+<     rk_hit_gtr200_y_cpeak.resize(n_cands);
+<     rk_hit_gtr300_y_cpeak.resize(n_cands);
+<     
+<     rk_hit_gtr100_x_qual.resize(n_cands);
+<     rk_hit_gtr100_y_qual.resize(n_cands);
+<     rk_hit_gtr200_x_qual.resize(n_cands);
+<     rk_hit_gtr200_y_qual.resize(n_cands);
+<     rk_hit_gtr300_x_qual.resize(n_cands);
+<     rk_hit_gtr300_y_qual.resize(n_cands);
+---
+> 
+> 
+3176a3409,3411
+>     rk_pair_minus_ssd_mid.resize(n_pairs);
+>     rk_pair_minus_gtr100_mid.resize(n_pairs);
+>     rk_pair_minus_gtr200_mid.resize(n_pairs);
+3185a3421,3423
+>     rk_pair_plus_ssd_mid.resize(n_pairs);
+>     rk_pair_plus_gtr100_mid.resize(n_pairs);
+>     rk_pair_plus_gtr200_mid.resize(n_pairs);
+3284c3522
+<     for (int i = 0; i < rrn_cands; ++i) {  
+---
+>     for (int i = 0; i < rrn_cands; ++i) {
+3341d3578
+< #ifndef NoExist_SSD
+3351,3352c3588,3589
+< 	
+< #else
+---
+> #endif // UseSTS
+> 	/*  old ssd filler commented out.
+3361,3363c3598
+< 
+< #endif
+< #endif
+---
+> 	*/
+3388d3622
+<       //std::cout<<" fill;;"<<rk_hit_gtr100_cor_lx[ii]<<" ,"<<rk_hit_gtr100_cor_ly[ii]<<std::endl;
+3398c3632
+<       //rk_hit_gtr100_nc[ii]   = pairs[1].NumCls();
+---
+>       rk_hit_gtr100_nc[ii]   = pairs[1].NumCls();
+3411a3646
+>       rk_hit_gtr100_xt5[ii] = gtr100_xclst->Timing5();
+3414d3648
+<       rk_hit_gtr100_xt5[ii] = gtr100_xclst->Timing5();
+3416,3418d3649
+< 
+< 
+<       rk_hit_gtr100_nc[ii]  = gtr100_xclst->NumCls();
+3421d3651
+<       
+3426,3459d3655
+< 
+<       rk_hit_gtr100_xadc1[ii].resize(rk_hit_gtr100_nc[ii]);
+<       rk_hit_gtr100_xadc2[ii].resize(rk_hit_gtr100_nc[ii]);
+<       rk_hit_gtr100_xadc3[ii].resize(rk_hit_gtr100_nc[ii]);
+<       rk_hit_gtr100_xadc4[ii].resize(rk_hit_gtr100_nc[ii]);
+<       rk_hit_gtr100_xadc5[ii].resize(rk_hit_gtr100_nc[ii]);
+<       rk_hit_gtr100_xcadc[ii].resize(rk_hit_gtr100_nc[ii]);
+<       
+<       for (int j = 0; j <rk_hit_gtr100_nc[ii]; ++j){
+< 	rk_hit_gtr100_xadc1[ii][j] = (double)gtr100_xclst->CAdc1(j);
+< 	rk_hit_gtr100_xadc2[ii][j] = (double)gtr100_xclst->CAdc2(j);
+<         rk_hit_gtr100_xadc3[ii][j] = (double)gtr100_xclst->CAdc3(j);
+<         rk_hit_gtr100_xadc4[ii][j] = (double)gtr100_xclst->CAdc4(j);
+<         rk_hit_gtr100_xadc5[ii][j] = (double)gtr100_xclst->CAdc5(j);
+< 	rk_hit_gtr100_xcadc[ii][j]  = (double)gtr100_xclst->CAdc(j);
+<       }
+<       
+<       int ycls1  = gtr100_yclst->NumCls();
+<       rk_hit_gtr100_yadc1[ii].resize(ycls1);
+<       rk_hit_gtr100_yadc2[ii].resize(ycls1);
+<       rk_hit_gtr100_yadc3[ii].resize(ycls1);
+<       rk_hit_gtr100_yadc4[ii].resize(ycls1);
+<       rk_hit_gtr100_yadc5[ii].resize(ycls1);
+<       rk_hit_gtr100_ycadc[ii].resize(ycls1);
+<       
+<        for (int j = 0; j <ycls1; ++j){
+<         rk_hit_gtr100_yadc1[ii][j] = (double)gtr100_yclst->CAdc1(j);
+<         rk_hit_gtr100_yadc2[ii][j] = (double)gtr100_yclst->CAdc2(j);
+<         rk_hit_gtr100_yadc3[ii][j] = (double)gtr100_yclst->CAdc3(j);
+<         rk_hit_gtr100_yadc4[ii][j] = (double)gtr100_yclst->CAdc4(j);
+<         rk_hit_gtr100_yadc5[ii][j] = (double)gtr100_yclst->CAdc5(j);
+< 	rk_hit_gtr100_ycadc[ii][j]  = (double)gtr100_yclst->CAdc(j);
+<       }
+<       
+3464a3661,3663
+> 
+>       rk_hit_gtr100_cogx[ii]  = pairs[1].LocalPos().X();
+>       rk_hit_gtr100_cogy[ii]  = pairs[1].LocalPos().Y();
+3486d3684
+< 
+3497c3695,3699
+<       
+---
+> 
+> 
+> 
+> 
+> 
+3537a3740,3742
+> 
+>       rk_hit_gtr200_cogx[ii]  = pairs[2].LocalPos().X();
+>       rk_hit_gtr200_cogy[ii]  = pairs[2].LocalPos().Y();
+3543a3749
+>       rk_hit_gtr200_xt5[ii] = gtr200_xclst->Timing5();
+3546d3751
+<       rk_hit_gtr200_xt5[ii] = gtr200_xclst->Timing5();
+3554,3588d3758
+< 
+<       rk_hit_gtr200_xadc1[ii].resize(rk_hit_gtr200_nc[ii]);
+<       rk_hit_gtr200_xadc2[ii].resize(rk_hit_gtr200_nc[ii]);
+<       rk_hit_gtr200_xadc3[ii].resize(rk_hit_gtr200_nc[ii]);
+<       rk_hit_gtr200_xadc4[ii].resize(rk_hit_gtr200_nc[ii]);
+<       rk_hit_gtr200_xadc5[ii].resize(rk_hit_gtr200_nc[ii]);
+<       rk_hit_gtr200_xcadc[ii].resize(rk_hit_gtr200_nc[ii]);
+<       
+<       for (int j = 0; j <rk_hit_gtr200_nc[ii]; ++j){
+< 	rk_hit_gtr200_xadc1[ii][j] = (double)gtr200_xclst->CAdc1(j);
+< 	rk_hit_gtr200_xadc2[ii][j] = (double)gtr200_xclst->CAdc2(j);
+<         rk_hit_gtr200_xadc3[ii][j] = (double)gtr200_xclst->CAdc3(j);
+<         rk_hit_gtr200_xadc4[ii][j] = (double)gtr200_xclst->CAdc4(j);
+<         rk_hit_gtr200_xadc5[ii][j] = (double)gtr200_xclst->CAdc5(j);
+< 	rk_hit_gtr200_xcadc[ii][j]  = (double)gtr200_xclst->CAdc(j);
+<       }
+<       
+<       int ycls2  = gtr200_yclst->NumCls();
+<       rk_hit_gtr200_yadc1[ii].resize(ycls2);
+<       rk_hit_gtr200_yadc2[ii].resize(ycls2);
+<       rk_hit_gtr200_yadc3[ii].resize(ycls2);
+<       rk_hit_gtr200_yadc4[ii].resize(ycls2);
+<       rk_hit_gtr200_yadc5[ii].resize(ycls2);
+<       rk_hit_gtr200_ycadc[ii].resize(ycls2);
+<       
+<        for (int j = 0; j <ycls2; ++j){
+<         rk_hit_gtr200_yadc1[ii][j] = (double)gtr200_yclst->CAdc1(j);
+<         rk_hit_gtr200_yadc2[ii][j] = (double)gtr200_yclst->CAdc2(j);
+<         rk_hit_gtr200_yadc3[ii][j] = (double)gtr200_yclst->CAdc3(j);
+<         rk_hit_gtr200_yadc4[ii][j] = (double)gtr200_yclst->CAdc4(j);
+<         rk_hit_gtr200_yadc5[ii][j] = (double)gtr200_yclst->CAdc5(j);
+< 	rk_hit_gtr200_ycadc[ii][j]  = (double)gtr200_yclst->CAdc(j);
+<       }
+< 
+<       
+3616a3787
+> 
+3657a3829,3830
+>       rk_hit_gtr300_cogx[ii]  = pairs[3].LocalPos().X();
+>       rk_hit_gtr300_cogy[ii]  = pairs[3].LocalPos().Y();
+3663a3837
+>       rk_hit_gtr300_xt5[ii] = gtr300_xclst->Timing5();
+3666d3839
+<       rk_hit_gtr300_xt5[ii] = gtr300_xclst->Timing5();
+3670,3676d3842
+< 
+<       rk_hit_gtr300_xadc1[ii].resize(rk_hit_gtr300_nc[ii]);
+<       rk_hit_gtr300_xadc2[ii].resize(rk_hit_gtr300_nc[ii]);
+<       rk_hit_gtr300_xadc3[ii].resize(rk_hit_gtr300_nc[ii]);
+<       rk_hit_gtr300_xadc4[ii].resize(rk_hit_gtr300_nc[ii]);
+<       rk_hit_gtr300_xadc5[ii].resize(rk_hit_gtr300_nc[ii]);
+<       rk_hit_gtr300_xcadc[ii].resize(rk_hit_gtr300_nc[ii]);
+3680,3702d3845
+< 	rk_hit_gtr300_xadc1[ii][j] = (double)gtr300_xclst->CAdc1(j);
+< 	rk_hit_gtr300_xadc2[ii][j] = (double)gtr300_xclst->CAdc2(j);
+<         rk_hit_gtr300_xadc3[ii][j] = (double)gtr300_xclst->CAdc3(j);
+<         rk_hit_gtr300_xadc4[ii][j] = (double)gtr300_xclst->CAdc4(j);
+<         rk_hit_gtr300_xadc5[ii][j] = (double)gtr300_xclst->CAdc5(j);
+< 	rk_hit_gtr300_xcadc[ii][j]  = (double)gtr300_xclst->CAdc(j);
+<       }
+< 
+<       int ycls  = gtr300_yclst->NumCls();
+<       rk_hit_gtr300_yadc1[ii].resize(ycls);
+<       rk_hit_gtr300_yadc2[ii].resize(ycls);
+<       rk_hit_gtr300_yadc3[ii].resize(ycls);
+<       rk_hit_gtr300_yadc4[ii].resize(ycls);
+<       rk_hit_gtr300_yadc5[ii].resize(ycls);
+<       rk_hit_gtr300_ycadc[ii].resize(ycls);
+<       
+<        for (int j = 0; j <ycls; ++j){
+<         rk_hit_gtr300_yadc1[ii][j] = (double)gtr300_yclst->CAdc1(j);
+<         rk_hit_gtr300_yadc2[ii][j] = (double)gtr300_yclst->CAdc2(j);
+<         rk_hit_gtr300_yadc3[ii][j] = (double)gtr300_yclst->CAdc3(j);
+<         rk_hit_gtr300_yadc4[ii][j] = (double)gtr300_yclst->CAdc4(j);
+<         rk_hit_gtr300_yadc5[ii][j] = (double)gtr300_yclst->CAdc5(j);
+< 	rk_hit_gtr300_ycadc[ii][j]  = (double)gtr300_yclst->CAdc(j);
+3732c3875
+<       
+---
+> 
+4013,4056c4156,4202
+< //      rk_proj_hbd0_id[ii] = -10000;
+< //      rk_proj_hbd0_mid[ii] = -10000;
+< //      rk_proj_hbd0_x[ii] = -10000.;
+< //      rk_proj_hbd0_y[ii] = -10000.;
+< //      rk_proj_hbd0_adc[ii] = -10000.;
+< //      rk_proj_hbd0_t[ii] = -10000.;
+< //      rk_proj_hbd0_ftime[ii] = -10000.;
+< //      rk_proj_hbd0_tdiff[ii] = -10000.;
+< //      rk_proj_hbd0_size[ii] = -10000.;
+< //      rk_proj_hbd0_eprob[ii] = -10000.;
+< //      rk_proj_hbd0_cprob[ii] = -10000.;
+< //      rk_proj_hbd1_id[ii] = -10000;
+< //      rk_proj_hbd1_mid[ii] = -10000;
+< //      rk_proj_hbd1_x[ii] = -10000.;
+< //      rk_proj_hbd1_y[ii] = -10000.;
+< //      rk_proj_hbd1_adc[ii] = -10000.;
+< //      rk_proj_hbd1_t[ii] = -10000.;
+< //      rk_proj_hbd1_ftime[ii] = -10000.;
+< //      rk_proj_hbd1_tdiff[ii] = -10000.;
+< //      rk_proj_hbd1_size[ii] = -10000.;
+< //      rk_proj_hbd1_eprob[ii] = -10000.;
+< //      rk_proj_hbd1_cprob[ii] = -10000.;
+< //      rk_proj_hbd2_id[ii] = -10000;
+< //      rk_proj_hbd2_mid[ii] = -10000;
+< //      rk_proj_hbd2_x[ii] = -10000.;
+< //      rk_proj_hbd2_y[ii] = -10000.;
+< //      rk_proj_hbd2_adc[ii] = -10000.;
+< //      rk_proj_hbd2_t[ii] = -10000.;
+< //      rk_proj_hbd2_ftime[ii] = -10000.;
+< //      rk_proj_hbd2_tdiff[ii] = -10000.;
+< //      rk_proj_hbd2_size[ii] = -10000.;
+< //      rk_proj_hbd2_eprob[ii] = -10000.;
+< //      rk_proj_hbd2_cprob[ii] = -10000.;
+< //      rk_proj_hbd3_id[ii] = -10000;
+< //      rk_proj_hbd3_mid[ii] = -10000;
+< //      rk_proj_hbd3_x[ii] = -10000.;
+< //      rk_proj_hbd3_y[ii] = -10000.;
+< //      rk_proj_hbd3_adc[ii] = -10000.;
+< //      rk_proj_hbd3_t[ii] = -10000.;
+< //      rk_proj_hbd3_ftime[ii] = -10000.;
+< //      rk_proj_hbd3_tdiff[ii] = -10000.;
+< //      rk_proj_hbd3_size[ii] = -10000.;
+< //      rk_proj_hbd3_eprob[ii] = -10000.;
+< //      rk_proj_hbd3_cprob[ii] = -10000.;
+---
+> 
+> 
+> 
+> //      rk_proj_hbd0_id[i] = -10000;
+> //      rk_proj_hbd0_mid[i] = -10000;
+> //      rk_proj_hbd0_x[i] = -10000.;
+> //      rk_proj_hbd0_y[i] = -10000.;
+> //      rk_proj_hbd0_adc[i] = -10000.;
+> //      rk_proj_hbd0_t[i] = -10000.;
+> //      rk_proj_hbd0_ftime[i] = -10000.;
+> //      rk_proj_hbd0_tdiff[i] = -10000.;
+> //      rk_proj_hbd0_size[i] = -10000.;
+> //      rk_proj_hbd0_eprob[i] = -10000.;
+> //      rk_proj_hbd0_cprob[i] = -10000.;
+> //      rk_proj_hbd1_id[i] = -10000;
+> //      rk_proj_hbd1_mid[i] = -10000;
+> //      rk_proj_hbd1_x[i] = -10000.;
+> //      rk_proj_hbd1_y[i] = -10000.;
+> //      rk_proj_hbd1_adc[i] = -10000.;
+> //      rk_proj_hbd1_t[i] = -10000.;
+> //      rk_proj_hbd1_ftime[i] = -10000.;
+> //      rk_proj_hbd1_tdiff[i] = -10000.;
+> //      rk_proj_hbd1_size[i] = -10000.;
+> //      rk_proj_hbd1_eprob[i] = -10000.;
+> //      rk_proj_hbd1_cprob[i] = -10000.;
+> //      rk_proj_hbd2_id[i] = -10000;
+> //      rk_proj_hbd2_mid[i] = -10000;
+> //      rk_proj_hbd2_x[i] = -10000.;
+> //      rk_proj_hbd2_y[i] = -10000.;
+> //      rk_proj_hbd2_adc[i] = -10000.;
+> //      rk_proj_hbd2_t[i] = -10000.;
+> //      rk_proj_hbd2_ftime[i] = -10000.;
+> //      rk_proj_hbd2_tdiff[i] = -10000.;
+> //      rk_proj_hbd2_size[i] = -10000.;
+> //      rk_proj_hbd2_eprob[i] = -10000.;
+> //      rk_proj_hbd2_cprob[i] = -10000.;
+> //      rk_proj_hbd3_id[i] = -10000;
+> //      rk_proj_hbd3_mid[i] = -10000;
+> //      rk_proj_hbd3_x[i] = -10000.;
+> //      rk_proj_hbd3_y[i] = -10000.;
+> //      rk_proj_hbd3_adc[i] = -10000.;
+> //      rk_proj_hbd3_t[i] = -10000.;
+> //      rk_proj_hbd3_ftime[i] = -10000.;
+> //      rk_proj_hbd3_tdiff[i] = -10000.;
+> //      rk_proj_hbd3_size[i] = -10000.;
+> //      rk_proj_hbd3_eprob[i] = -10000.;
+> //      rk_proj_hbd3_cprob[i] = -10000.;
+4060,4061c4206,4207
+< //        rk_proj_hbd0_id[ii] = hbdclst->ClusterId();
+< //        rk_proj_hbd0_mid[ii] = hbdclst->ModuleId();
+---
+> //        rk_proj_hbd0_id[i] = hbdclst->ClusterId();
+> //        rk_proj_hbd0_mid[i] = hbdclst->ModuleId();
+4063,4071c4209,4217
+< //        rk_proj_hbd0_x[ii] = proj_hbdlpos.X();
+< //        rk_proj_hbd0_y[ii] = proj_hbdlpos.Y();
+< //        rk_proj_hbd0_adc[ii] = hbdclst->PeakSum();
+< //        rk_proj_hbd0_t[ii] = hbdclst->Timing();
+< //        rk_proj_hbd0_ftime[ii] = hbdclst->FastestTiming();
+< //        rk_proj_hbd0_tdiff[ii] = hbdclst->TimeDifference();
+< //        rk_proj_hbd0_size[ii] = hbdclst->ClusterSize();
+< //        rk_proj_hbd0_eprob[ii] = hbdclst->IsE();
+< //        rk_proj_hbd0_cprob[ii] = hbdclst->IsChargedParticle();
+---
+> //        rk_proj_hbd0_x[i] = proj_hbdlpos.X();
+> //        rk_proj_hbd0_y[i] = proj_hbdlpos.Y();
+> //        rk_proj_hbd0_adc[i] = hbdclst->PeakSum();
+> //        rk_proj_hbd0_t[i] = hbdclst->Timing();
+> //        rk_proj_hbd0_ftime[i] = hbdclst->FastestTiming();
+> //        rk_proj_hbd0_tdiff[i] = hbdclst->TimeDifference();
+> //        rk_proj_hbd0_size[i] = hbdclst->ClusterSize();
+> //        rk_proj_hbd0_eprob[i] = hbdclst->IsE();
+> //        rk_proj_hbd0_cprob[i] = hbdclst->IsChargedParticle();
+4075,4076c4221,4222
+< //        rk_proj_hbd1_id[ii] = hbdclst->ClusterId();
+< //        rk_proj_hbd1_mid[ii] = hbdclst->ModuleId();
+---
+> //        rk_proj_hbd1_id[i] = hbdclst->ClusterId();
+> //        rk_proj_hbd1_mid[i] = hbdclst->ModuleId();
+4078,4086c4224,4232
+< //        rk_proj_hbd1_x[ii] = proj_hbdlpos.X();
+< //        rk_proj_hbd1_y[ii] = proj_hbdlpos.Y();
+< //        rk_proj_hbd1_adc[ii] = hbdclst->PeakSum();
+< //        rk_proj_hbd1_t[ii] = hbdclst->Timing();
+< //        rk_proj_hbd1_ftime[ii] = hbdclst->FastestTiming();
+< //        rk_proj_hbd1_tdiff[ii] = hbdclst->TimeDifference();
+< //        rk_proj_hbd1_size[ii] = hbdclst->ClusterSize();
+< //        rk_proj_hbd1_eprob[ii] = hbdclst->IsE();
+< //        rk_proj_hbd1_cprob[ii] = hbdclst->IsChargedParticle();
+---
+> //        rk_proj_hbd1_x[i] = proj_hbdlpos.X();
+> //        rk_proj_hbd1_y[i] = proj_hbdlpos.Y();
+> //        rk_proj_hbd1_adc[i] = hbdclst->PeakSum();
+> //        rk_proj_hbd1_t[i] = hbdclst->Timing();
+> //        rk_proj_hbd1_ftime[i] = hbdclst->FastestTiming();
+> //        rk_proj_hbd1_tdiff[i] = hbdclst->TimeDifference();
+> //        rk_proj_hbd1_size[i] = hbdclst->ClusterSize();
+> //        rk_proj_hbd1_eprob[i] = hbdclst->IsE();
+> //        rk_proj_hbd1_cprob[i] = hbdclst->IsChargedParticle();
+4090,4091c4236,4237
+< //        rk_proj_hbd2_id[ii] = hbdclst->ClusterId();
+< //        rk_proj_hbd2_mid[ii] = hbdclst->ModuleId();
+---
+> //        rk_proj_hbd2_id[i] = hbdclst->ClusterId();
+> //        rk_proj_hbd2_mid[i] = hbdclst->ModuleId();
+4093,4101c4239,4247
+< //        rk_proj_hbd2_x[ii] = proj_hbdlpos.X();
+< //        rk_proj_hbd2_y[ii] = proj_hbdlpos.Y();
+< //        rk_proj_hbd2_adc[ii] = hbdclst->PeakSum();
+< //        rk_proj_hbd2_t[ii] = hbdclst->Timing();
+< //        rk_proj_hbd2_ftime[ii] = hbdclst->FastestTiming();
+< //        rk_proj_hbd2_tdiff[ii] = hbdclst->TimeDifference();
+< //        rk_proj_hbd2_size[ii] = hbdclst->ClusterSize();
+< //        rk_proj_hbd2_eprob[ii] = hbdclst->IsE();
+< //        rk_proj_hbd2_cprob[ii] = hbdclst->IsChargedParticle();
+---
+> //        rk_proj_hbd2_x[i] = proj_hbdlpos.X();
+> //        rk_proj_hbd2_y[i] = proj_hbdlpos.Y();
+> //        rk_proj_hbd2_adc[i] = hbdclst->PeakSum();
+> //        rk_proj_hbd2_t[i] = hbdclst->Timing();
+> //        rk_proj_hbd2_ftime[i] = hbdclst->FastestTiming();
+> //        rk_proj_hbd2_tdiff[i] = hbdclst->TimeDifference();
+> //        rk_proj_hbd2_size[i] = hbdclst->ClusterSize();
+> //        rk_proj_hbd2_eprob[i] = hbdclst->IsE();
+> //        rk_proj_hbd2_cprob[i] = hbdclst->IsChargedParticle();
+4105,4106c4251,4252
+< //        rk_proj_hbd3_id[ii] = hbdclst->ClusterId();
+< //        rk_proj_hbd3_mid[ii] = hbdclst->ModuleId();
+---
+> //        rk_proj_hbd3_id[i] = hbdclst->ClusterId();
+> //        rk_proj_hbd3_mid[i] = hbdclst->ModuleId();
+4108,4116c4254,4262
+< //        rk_proj_hbd3_x[ii] = proj_hbdlpos.X();
+< //        rk_proj_hbd3_y[ii] = proj_hbdlpos.Y();
+< //        rk_proj_hbd3_adc[ii] = hbdclst->PeakSum();
+< //        rk_proj_hbd3_t[ii] = hbdclst->Timing();
+< //        rk_proj_hbd3_ftime[ii] = hbdclst->FastestTiming();
+< //        rk_proj_hbd3_tdiff[ii] = hbdclst->TimeDifference();
+< //        rk_proj_hbd3_size[ii] = hbdclst->ClusterSize();
+< //        rk_proj_hbd3_eprob[ii] = hbdclst->IsE();
+< //        rk_proj_hbd3_cprob[ii] = hbdclst->IsChargedParticle();
+---
+> //        rk_proj_hbd3_x[i] = proj_hbdlpos.X();
+> //        rk_proj_hbd3_y[i] = proj_hbdlpos.Y();
+> //        rk_proj_hbd3_adc[i] = hbdclst->PeakSum();
+> //        rk_proj_hbd3_t[i] = hbdclst->Timing();
+> //        rk_proj_hbd3_ftime[i] = hbdclst->FastestTiming();
+> //        rk_proj_hbd3_tdiff[i] = hbdclst->TimeDifference();
+> //        rk_proj_hbd3_size[i] = hbdclst->ClusterSize();
+> //        rk_proj_hbd3_eprob[i] = hbdclst->IsE();
+> //        rk_proj_hbd3_cprob[i] = hbdclst->IsChargedParticle();
+4119,4155c4265,4301
+< //      rk_proj_n_lg[ii] = proj_lg_hits.size();
+< //      rk_proj_lg0_id[ii] = -10000;
+< //      rk_proj_lg0_mid[ii] = -10000;
+< //      rk_proj_lg0_cid[ii] = -10000;
+< //      rk_proj_lg0_x[ii] = -10000.;
+< //      rk_proj_lg0_y[ii] = -10000.;
+< //      rk_proj_lg0_adc[ii] = -10000.;
+< //      rk_proj_lg0_t[ii] = -10000.;
+< //      rk_proj_lg0_npeaks[ii] = -10000.;
+< //      rk_proj_lg0_fflag[ii] = -10000.;
+< //      rk_proj_lg1_id[ii] = -10000;
+< //      rk_proj_lg1_mid[ii] = -10000;
+< //      rk_proj_lg1_cid[ii] = -10000;
+< //      rk_proj_lg1_x[ii] = -10000.;
+< //      rk_proj_lg1_y[ii] = -10000.;
+< //      rk_proj_lg1_adc[ii] = -10000.;
+< //      rk_proj_lg1_t[ii] = -10000.;
+< //      rk_proj_lg1_npeaks[ii] = -10000.;
+< //      rk_proj_lg1_fflag[ii] = -10000.;
+< //      rk_proj_lg2_id[ii] = -10000;
+< //      rk_proj_lg2_mid[ii] = -10000;
+< //      rk_proj_lg2_cid[ii] = -10000;
+< //      rk_proj_lg2_x[ii] = -10000.;
+< //      rk_proj_lg2_y[ii] = -10000.;
+< //      rk_proj_lg2_adc[ii] = -10000.;
+< //      rk_proj_lg2_t[ii] = -10000.;
+< //      rk_proj_lg2_npeaks[ii] = -10000.;
+< //      rk_proj_lg2_fflag[ii] = -10000.;
+< //      rk_proj_lg3_id[ii] = -10000;
+< //      rk_proj_lg3_mid[ii] = -10000;
+< //      rk_proj_lg3_cid[ii] = -10000;
+< //      rk_proj_lg3_x[ii] = -10000.;
+< //      rk_proj_lg3_y[ii] = -10000.;
+< //      rk_proj_lg3_adc[ii] = -10000.;
+< //      rk_proj_lg3_t[ii] = -10000.;
+< //      rk_proj_lg3_npeaks[ii] = -10000.;
+< //      rk_proj_lg3_fflag[ii] = -10000.;
+---
+> //      rk_proj_n_lg[i] = proj_lg_hits.size();
+> //      rk_proj_lg0_id[i] = -10000;
+> //      rk_proj_lg0_mid[i] = -10000;
+> //      rk_proj_lg0_cid[i] = -10000;
+> //      rk_proj_lg0_x[i] = -10000.;
+> //      rk_proj_lg0_y[i] = -10000.;
+> //      rk_proj_lg0_adc[i] = -10000.;
+> //      rk_proj_lg0_t[i] = -10000.;
+> //      rk_proj_lg0_npeaks[i] = -10000.;
+> //      rk_proj_lg0_fflag[i] = -10000.;
+> //      rk_proj_lg1_id[i] = -10000;
+> //      rk_proj_lg1_mid[i] = -10000;
+> //      rk_proj_lg1_cid[i] = -10000;
+> //      rk_proj_lg1_x[i] = -10000.;
+> //      rk_proj_lg1_y[i] = -10000.;
+> //      rk_proj_lg1_adc[i] = -10000.;
+> //      rk_proj_lg1_t[i] = -10000.;
+> //      rk_proj_lg1_npeaks[i] = -10000.;
+> //      rk_proj_lg1_fflag[i] = -10000.;
+> //      rk_proj_lg2_id[i] = -10000;
+> //      rk_proj_lg2_mid[i] = -10000;
+> //      rk_proj_lg2_cid[i] = -10000;
+> //      rk_proj_lg2_x[i] = -10000.;
+> //      rk_proj_lg2_y[i] = -10000.;
+> //      rk_proj_lg2_adc[i] = -10000.;
+> //      rk_proj_lg2_t[i] = -10000.;
+> //      rk_proj_lg2_npeaks[i] = -10000.;
+> //      rk_proj_lg2_fflag[i] = -10000.;
+> //      rk_proj_lg3_id[i] = -10000;
+> //      rk_proj_lg3_mid[i] = -10000;
+> //      rk_proj_lg3_cid[i] = -10000;
+> //      rk_proj_lg3_x[i] = -10000.;
+> //      rk_proj_lg3_y[i] = -10000.;
+> //      rk_proj_lg3_adc[i] = -10000.;
+> //      rk_proj_lg3_t[i] = -10000.;
+> //      rk_proj_lg3_npeaks[i] = -10000.;
+> //      rk_proj_lg3_fflag[i] = -10000.;
+4159,4161c4305,4307
+< //        rk_proj_lg0_id[ii] = lghit->HitId();
+< //        rk_proj_lg0_mid[ii] = lghit->ModuleId();
+< //        rk_proj_lg0_cid[ii] = lghit->ChannelId();
+---
+> //        rk_proj_lg0_id[i] = lghit->HitId();
+> //        rk_proj_lg0_mid[i] = lghit->ModuleId();
+> //        rk_proj_lg0_cid[i] = lghit->ChannelId();
+4163,4168c4309,4314
+< //        rk_proj_lg0_x[ii] = lglpos.X();
+< //        rk_proj_lg0_y[ii] = lglpos.Y();
+< //        rk_proj_lg0_adc[ii] = lghit->FitPeak();
+< //        rk_proj_lg0_t[ii] = lghit->Timing();
+< //        rk_proj_lg0_npeaks[ii] = lghit->Npeaks();
+< //        rk_proj_lg0_fflag[ii] = lghit->FitFlag();
+---
+> //        rk_proj_lg0_x[i] = lglpos.X();
+> //        rk_proj_lg0_y[i] = lglpos.Y();
+> //        rk_proj_lg0_adc[i] = lghit->FitPeak();
+> //        rk_proj_lg0_t[i] = lghit->Timing();
+> //        rk_proj_lg0_npeaks[i] = lghit->Npeaks();
+> //        rk_proj_lg0_fflag[i] = lghit->FitFlag();
+4172,4174c4318,4320
+< //        rk_proj_lg1_id[ii] = lghit->HitId();
+< //        rk_proj_lg1_mid[ii] = lghit->ModuleId();
+< //        rk_proj_lg1_cid[ii] = lghit->ChannelId();
+---
+> //        rk_proj_lg1_id[i] = lghit->HitId();
+> //        rk_proj_lg1_mid[i] = lghit->ModuleId();
+> //        rk_proj_lg1_cid[i] = lghit->ChannelId();
+4176,4181c4322,4327
+< //        rk_proj_lg1_x[ii] = lglpos.X();
+< //        rk_proj_lg1_y[ii] = lglpos.Y();
+< //        rk_proj_lg1_adc[ii] = lghit->FitPeak();
+< //        rk_proj_lg1_t[ii] = lghit->Timing();
+< //        rk_proj_lg1_npeaks[ii] = lghit->Npeaks();
+< //        rk_proj_lg1_fflag[ii] = lghit->FitFlag();
+---
+> //        rk_proj_lg1_x[i] = lglpos.X();
+> //        rk_proj_lg1_y[i] = lglpos.Y();
+> //        rk_proj_lg1_adc[i] = lghit->FitPeak();
+> //        rk_proj_lg1_t[i] = lghit->Timing();
+> //        rk_proj_lg1_npeaks[i] = lghit->Npeaks();
+> //        rk_proj_lg1_fflag[i] = lghit->FitFlag();
+4185,4187c4331,4333
+< //        rk_proj_lg2_id[ii] = lghit->HitId();
+< //        rk_proj_lg2_mid[ii] = lghit->ModuleId();
+< //        rk_proj_lg2_cid[ii] = lghit->ChannelId();
+---
+> //        rk_proj_lg2_id[i] = lghit->HitId();
+> //        rk_proj_lg2_mid[i] = lghit->ModuleId();
+> //        rk_proj_lg2_cid[i] = lghit->ChannelId();
+4189,4194c4335,4340
+< //        rk_proj_lg2_x[ii] = lglpos.X();
+< //        rk_proj_lg2_y[ii] = lglpos.Y();
+< //        rk_proj_lg2_adc[ii] = lghit->FitPeak();
+< //        rk_proj_lg2_t[ii] = lghit->Timing();
+< //        rk_proj_lg2_npeaks[ii] = lghit->Npeaks();
+< //        rk_proj_lg2_fflag[ii] = lghit->FitFlag();
+---
+> //        rk_proj_lg2_x[i] = lglpos.X();
+> //        rk_proj_lg2_y[i] = lglpos.Y();
+> //        rk_proj_lg2_adc[i] = lghit->FitPeak();
+> //        rk_proj_lg2_t[i] = lghit->Timing();
+> //        rk_proj_lg2_npeaks[i] = lghit->Npeaks();
+> //        rk_proj_lg2_fflag[i] = lghit->FitFlag();
+4198,4200c4344,4346
+< //        rk_proj_lg3_id[ii] = lghit->HitId();
+< //        rk_proj_lg3_mid[ii] = lghit->ModuleId();
+< //        rk_proj_lg3_cid[ii] = lghit->ChannelId();
+---
+> //        rk_proj_lg3_id[i] = lghit->HitId();
+> //        rk_proj_lg3_mid[i] = lghit->ModuleId();
+> //        rk_proj_lg3_cid[i] = lghit->ChannelId();
+4202,4207c4348,4353
+< //        rk_proj_lg3_x[ii] = lglpos.X();
+< //        rk_proj_lg3_y[ii] = lglpos.Y();
+< //        rk_proj_lg3_adc[ii] = lghit->FitPeak();
+< //        rk_proj_lg3_t[ii] = lghit->Timing();
+< //        rk_proj_lg3_npeaks[ii] = lghit->Npeaks();
+< //        rk_proj_lg3_fflag[ii] = lghit->FitFlag();
+---
+> //        rk_proj_lg3_x[i] = lglpos.X();
+> //        rk_proj_lg3_y[i] = lglpos.Y();
+> //        rk_proj_lg3_adc[i] = lghit->FitPeak();
+> //        rk_proj_lg3_t[i] = lghit->Timing();
+> //        rk_proj_lg3_npeaks[i] = lghit->Npeaks();
+> //        rk_proj_lg3_fflag[i] = lghit->FitFlag();
+4215a4362,4364
+>       rk_pair_minus_ssd_mid[i] = pair.cand_minus->ClusterPair(0).ModuleID();
+>       rk_pair_minus_gtr100_mid[i] = pair.cand_minus->ClusterPair(1).ModuleID();
+>       rk_pair_minus_gtr200_mid[i] = pair.cand_minus->ClusterPair(2).ModuleID();
+4217a4367,4369
+>       rk_pair_plus_ssd_mid[i] = pair.cand_plus->ClusterPair(0).ModuleID();
+>       rk_pair_plus_gtr100_mid[i] = pair.cand_plus->ClusterPair(1).ModuleID();
+>       rk_pair_plus_gtr200_mid[i] = pair.cand_plus->ClusterPair(2).ModuleID();
+4224a4377
+>       if(pair.cand_minus->Xqual() != -2){
+4230a4384
+>       }
+4260a4415
+>       if(pair.cand_plus->Xqual() != -2){
+4266c4421,4422
+<       rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
+---
+>          rk_pair_plus_ssd_t[i] = ssd_plus->Timing();
+>       }
+4431d4586
+<   int search_flag;
+4444a4600,4601
+>   std::vector<short>  ssd_hit_pn;
+>   std::vector<float>  ssd_hit_c;
+4517a4675
+>   std::vector<float>  hbd_hit_baseline;
+4534a4693,4695
+>   std::vector<short> ssd_cluster_pn;
+>   std::vector<float> ssd_cluster_c;
+>   std::vector<bool> ssd_cluster_sat;
+4555,4559d4715
+<   std::vector<std::vector<double>> gtr100x_cluster_adc1;//
+<   std::vector<std::vector<double>> gtr100x_cluster_adc2;//
+<   std::vector<std::vector<double>> gtr100x_cluster_adc3;//
+<   std::vector<std::vector<double>> gtr100x_cluster_adc4;//
+<   std::vector<std::vector<double>> gtr100x_cluster_adc5;//
+4697a4854,4867
+> #ifdef REMAIN_GTR_WAVEFORM
+>    std::vector<std::vector<double>> gtr100x_cluster_sids;
+>    std::vector<std::vector<double>> gtr200x_cluster_sids;
+>    std::vector<std::vector<double>> gtr300x_cluster_sids;
+>    std::vector<std::vector<double>> gtr100y_cluster_sids;//0-71:ya, 72-143:yb 
+>    std::vector<std::vector<double>> gtr200y_cluster_sids;
+>    std::vector<std::vector<double>> gtr300y_cluster_sids;
+>    std::vector<std::vector<double>> gtr100x_cluster_waveforms;
+>    std::vector<std::vector<double>> gtr200x_cluster_waveforms;
+>    std::vector<std::vector<double>> gtr300x_cluster_waveforms;
+>    std::vector<std::vector<double>> gtr100y_cluster_waveforms;
+>    std::vector<std::vector<double>> gtr200y_cluster_waveforms;
+>    std::vector<std::vector<double>> gtr300y_cluster_waveforms;
+> #endif//REMAIN_GTR_WAVEFORM
+4718a4889
+>   std::vector<float> hbd_cluster_baseline;
+4751a4923,4924
+>   std::vector<float>  lg_hit_baseline;
+>   std::vector<float>  lg_hit_baselinerms;
+4830a5004,5005
+>   std::vector<uint32_t> trg_scaler;
+>   std::vector<uint32_t> trg_nim_scaler;
+4919a5095,5110
+>   std::vector<std::vector<double>> mock_pulse_gtr100_sids;
+>   std::vector<std::vector<double>> mock_pulse_gtr200_sids;
+>   std::vector<std::vector<double>> mock_pulse_gtr300_sids;
+>   std::vector<std::vector<double>> mock_pulse_gtr100_waveforms;
+>   std::vector<std::vector<double>> mock_pulse_gtr200_waveforms;
+>   std::vector<std::vector<double>> mock_pulse_gtr300_waveforms;
+>   std::vector<std::vector<double>> mock_bg_gtr100_waveforms;
+>   std::vector<std::vector<double>> mock_bg_gtr200_waveforms;
+>   std::vector<std::vector<double>> mock_bg_gtr300_waveforms;
+>   std::vector<std::vector<double>> mock_merged_gtr100_waveforms;
+>   std::vector<std::vector<double>> mock_merged_gtr200_waveforms;
+>   std::vector<std::vector<double>> mock_merged_gtr300_waveforms;
+>   std::vector<std::vector<double>> mock_merged_gtr100_peds;
+>   std::vector<std::vector<double>> mock_merged_gtr200_peds;
+>   std::vector<std::vector<double>> mock_merged_gtr300_peds;
+> 
+4925d5115
+<   int rn_cands;
+4929a5120,5121
+>   std::vector<std::vector<double>> cluster_dismiss_point;//T.M version
+>   std::vector<std::vector<double>> track_dismiss_point;//T.M version
+4982a5175,5176
+>   std::vector<double> rk_hit_gtr100_cogx;
+>   std::vector<double> rk_hit_gtr100_cogy;
+5016a5211
+>   std::vector<float> rk_hit_gtr100_xt5;//
+5019d5213
+<   std::vector<float> rk_hit_gtr100_xt5;//
+5021,5024d5214
+<   std::vector<float> rk_hit_gtr200_xt5;//
+<   std::vector<float> rk_hit_gtr200_yt5;//
+<   std::vector<float> rk_hit_gtr300_xt5;//
+<   std::vector<float> rk_hit_gtr300_yt5;//
+5031,5073d5220
+<   std::vector<std::vector<double>> rk_hit_gtr300_xadc1;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_xadc2;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_xadc3;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_xadc4;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_xadc5;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_yadc1;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_yadc2;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_yadc3;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_yadc4;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_yadc5;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_xcadc;//
+<   std::vector<std::vector<double>> rk_hit_gtr300_ycadc;//
+<   
+< 
+<   std::vector<std::vector<double>> rk_hit_gtr200_xadc1;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_xadc2;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_xadc3;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_xadc4;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_xadc5;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_yadc1;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_yadc2;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_yadc3;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_yadc4;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_yadc5;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_xcadc;//
+<   std::vector<std::vector<double>> rk_hit_gtr200_ycadc;//
+<   
+< 
+<   std::vector<std::vector<double>> rk_hit_gtr100_xadc1;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_xadc2;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_xadc3;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_xadc4;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_xadc5;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_yadc1;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_yadc2;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_yadc3;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_yadc4;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_yadc5;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_xcadc;//
+<   std::vector<std::vector<double>> rk_hit_gtr100_ycadc;//
+<   
+< 
+< 
+5075a5223,5224
+>   std::vector<double> rk_hit_gtr200_cogx;
+>   std::vector<double> rk_hit_gtr200_cogy;
+5109a5259
+>   std::vector<float> rk_hit_gtr200_xt5;//
+5111a5262
+>   std::vector<float> rk_hit_gtr200_yt5;//
+5113a5265,5266
+>   std::vector<double> rk_hit_gtr300_cogx;
+>   std::vector<double> rk_hit_gtr300_cogy;
+5147a5301
+>   std::vector<float> rk_hit_gtr300_xt5;//
+5149a5304
+>   std::vector<float> rk_hit_gtr300_yt5;//
+5237a5393,5395
+> 
+> 
+> 
+5439a5598,5600
+>   std::vector<int> rk_pair_minus_ssd_mid;
+>   std::vector<int> rk_pair_minus_gtr100_mid;
+>   std::vector<int> rk_pair_minus_gtr200_mid;
+5447a5609,5611
+>   std::vector<int> rk_pair_plus_ssd_mid;
+>   std::vector<int> rk_pair_plus_gtr100_mid;
+>   std::vector<int> rk_pair_plus_gtr200_mid;

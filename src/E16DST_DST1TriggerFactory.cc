@@ -48,6 +48,20 @@ int E16ANA_TriggerHitAndClusterFactory(E16ANA_TriggerCalibParam& trigger_param, 
   return hits1->size() * sizeof(E16DST_DST1TriggerHit);
 }
 
+bool E16ANA_TriggerScalerFactory(E16DST_DST0UT3& ut3, E16DST_DST1Trigger* trigger){
+  trigger->ReqScalers().resize(E16DST_Constant::NTriggerTypes);
+  trigger->NimScalers().resize(E16DST_Constant::NNIMScalersUT3);
+  for (int n_trg = 0; n_trg < E16DST_Constant::NTriggerTypes; ++n_trg) {
+    //cout<<"n_trg="<<n_trg<<", E16DST_Constant::NTriggerTypes="<<E16DST_Constant::NTriggerTypes<<endl;
+    //trigger->ReqScaler(n_trg) = ut3.TriggerAccept(n_trg);
+    trigger->ReqScaler(n_trg) = ut3.PhysicsTriggerAccept(n_trg);//?
+  }
+  for (int n_nim = 0; n_nim < E16DST_Constant::NNIMScalersUT3; ++n_nim) {
+    trigger->NimScaler(n_nim) = ut3.NIMScaler(n_nim);
+  }
+  return true;
+}
+
 bool E16ANA_TriggerIsGenerateTrigger(E16ANA_TriggerCalibParam& trigger_param, E16DST_DST0TriggerHit& track0, E16DST_DST0TriggerHit& track1) {
   auto min_width    = trigger_param.MinimumWidth();
   auto max_width    = trigger_param.MaximumWidth();
@@ -154,10 +168,10 @@ int E16DST_DST1TriggerFactory(E16ANA_TriggerCalibParam& trigger_param, E16DST_DS
   for (int n_track = 0; n_track < max_track; ++n_track) {
     E16ANA_TriggerSingleHitFactory(trigger_param, ut3.Track(n_track), trigger_tdc, E16DST_DST1Constant::kLG, &trigger->Tracks()[n_track]);
   }
-  
 
 
 
+  E16ANA_TriggerScalerFactory(ut3, trigger);
   // track_set
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsGTR>, 2> gtr_maps;
   static std::array<std::array<bool, E16DST_Constant::NModules * E16DST_Constant::NTriggerChannelsHBD>, 2> hbd_maps;

@@ -196,13 +196,21 @@ bool E16ANA_HBDCalibration::HitDecision(const int module_id, const int pad_id, c
 bool E16ANA_HBDCalibration::GetCalibratedSignal(const int module_id, const int pad_id, const int16_t *in_waveform, double *out_waveform)
 {
   double cms = 0.; //TO DO
+  double localped = 0;
+  for(int i=0; i<2; i++){
+    localped +=  in_waveform[i];
+  }
+  localped = localped/2.;
+  
+
   
   if(E16ANA_HBDChannelManager::IsValidID(module_id, pad_id)){
     int index = E16ANA_HBDChannelManager::ConvMIDE16ToK(module_id);
     
     if(pedestal[index][pad_id].size() > 1){
       for(int i=0; i<n_samples; i++){
-	out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(i);
+	//out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(i);
+	out_waveform[i] = in_waveform[i] - localped;
 	if(in_waveform[i]<-10000){
 	  out_waveform[i] = 0;
 	}
@@ -211,14 +219,16 @@ bool E16ANA_HBDCalibration::GetCalibratedSignal(const int module_id, const int p
     }
     else{
       for(int i=0; i<n_samples; i++){
-	out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(0);
+	//out_waveform[i] = in_waveform[i] - cms - pedestal[index][pad_id].at(0);
+	out_waveform[i] = in_waveform[i] - localped;
       }
       return true;
     }
   }
   else{
     for(int i=0; i<n_samples; i++){
-      out_waveform[i] = in_waveform[i] - cms;
+      //out_waveform[i] = in_waveform[i] - cms;
+      out_waveform[i] = in_waveform[i] - localped;
     }
     return false;
   }

@@ -71,6 +71,7 @@ CalibDBManager memo
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <TFile.h>
 
 class E16ANA_CalibDBManager{
 
@@ -103,6 +104,7 @@ private:
   std::ifstream*     CalibStreamOpen(std::string key, int runID, bool binaryflag);
   std::ifstream*     CalibStreamOpen(std::string filename,  bool binaryflag);
 
+  TFile* CalibROOTOpen(std::string filename);
 public:
   int CurrentRunID(){ return currentRunID; }//default is 0, set in constructor
   void SetRunID(int runID); //should be set around run-header, or beginning of program
@@ -141,10 +143,10 @@ public:
   std::ifstream*     CalibStreamOpenTextByLocalName(std::string localfilename);
   std::ifstream*     CalibStreamOpenBinaryByLocalName(std::string localfilename);
 
+  TFile* CalibOpenROOTFile(std::string key, int runID);
 
 };
 
 
 #endif// E16ANA_CalibDBManager_h
-
 

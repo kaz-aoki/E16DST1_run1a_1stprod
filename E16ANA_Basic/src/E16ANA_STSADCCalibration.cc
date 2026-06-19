@@ -50,7 +50,9 @@ bool E16ANA_STSADCCalibration::ReadConstantDataCore(int _run_id, std::string _in
 
 bool E16ANA_STSADCCalibration::ReadConstantData(int run_id) {
     auto& calib = E16ANA_CalibDBManager::Instance();
+    std::cout << "E16ANA_STSADCCalibration::ReadConstantData  run_id = " << run_id << std::endl;
     auto index_file_name = calib.CalibFileName("STS-adccalib", run_id);
+    std::cout << "E16ANA_STSADCCalibration index_file " << index_file_name << std::endl;
     return ReadConstantDataCore(run_id, index_file_name);
 }
 

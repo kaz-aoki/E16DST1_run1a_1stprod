@@ -1,8 +1,15 @@
+#if defined(__CLING__) || defined(__ACLIC__)
+#include "E16ANA_STSGeometry.hh"
+#else
 #include "STS/E16ANA_STSGeometry.hh"
+#endif
+
 #include <iostream>
+#include <cmath>
 
 //static E16ANA_STSGeometry* E16ANA_STSGeometry::pInstance = NULL;
 E16ANA_STSGeometry* E16ANA_STSGeometry::pInstance = NULL;
+int E16ANA_STSGeometry::verbosity = 10;
 
 E16ANA_STSGeometry* E16ANA_STSGeometry::instance(){
     if (pInstance == NULL )  pInstance = new E16ANA_STSGeometry();
@@ -38,10 +45,10 @@ bool E16ANA_STSGeometry::IsValidStrip(int iStrip)
   return true;  
 }
 
-bool E16ANA_STSGeometry::IsActiveArea(std::pair<double,double>& pos)
+bool E16ANA_STSGeometry::IsActiveArea(const std::pair<double,double>& pos)
 {
-  if ( fabs(pos.first)>DX_active ) return false;
-  if ( fabs(pos.second)>DY_active) return false;
+  if ( fabs(pos.first)  > halfDX_active ) return false;
+  if ( fabs(pos.second) > halfDY_active) return false;
   return true;
 }
 
@@ -104,10 +111,10 @@ int E16ANA_STSGeometry::Ch2StripP(int iChannel){
   return iStrip;
 }
 
-double E16ANA_STSGeometry::GetLocalX_fromN(double iNStrip)
+double E16ANA_STSGeometry::GetLocalX_fromN(double strip)
 {
-  if (! IsValidStrip(iNStrip) ) return error;
-  double x = -((double)iNStrip - 511.5)*StripPitch;
+  if (! IsValidStrip(strip) ) return error;
+  double x = -((double)strip - 511.5)*StripPitch;
   return x;
 }
 
@@ -124,12 +131,58 @@ std::pair<double, double> E16ANA_STSGeometry::GetLocal(int iNStrip, int iPStrip)
   bool tOK = IsActiveArea(post);
 
   if ( bOK && tOK && IsZStrip(iPStrip) ) {
-    std::cout << "Intersect points based on Top and bottom OK but P-side is Z strip" << std::endl;
+    std::cout << "WARNING: Intersect points based on Top and bottom are OK but P-side is Z strip which is impossible..." << std::endl;
   }
   if ( bOK ) return posb;
   if ( tOK ) return post;
   return std::pair<double,double>(error,error);
 }
+
+std::pair<double, double> E16ANA_STSGeometry::GetLocalD(double x, double pstrip){
+  int lower = static_cast<int>(std::floor(pstrip));
+  int higher = static_cast<int>(std::ceil(pstrip));
+  double lower_weight = 0.;
+  double higher_weight = 0.;
+  lower_weight = higher-pstrip;
+  higher_weight = pstrip-lower;
+  if ( higher >= 1024 ) higher = 0;
+
+  std::cout << "pstrip : " << pstrip << "   Lower: " << lower << ", Higher:" << higher << std::endl;
+  std::cout << "   weight " << lower_weight << ", " << higher_weight << std::endl;
+  
+  auto get_pos = [&](double x, int iPStrip)->std::pair<double, double>{
+    std::pair<double,double> posb(x,GetPosY_B(iPStrip,x));
+    std::pair<double,double> post(x,GetPosY_T(iPStrip,x));
+    bool bOK = IsActiveArea(posb);
+    bool tOK = IsActiveArea(post);
+    
+    if ( bOK && tOK && IsZStrip(iPStrip) ) {
+      std::cout << "WARNING: Intersect points based on Top and bottom are OK but P-side is Z strip which is impossible..." << std::endl;
+    }
+    if ( bOK ) return posb;
+    if ( tOK ) return post;
+    return std::pair<double,double>(error,error);
+  };
+  
+  std::pair<double, double> posl = get_pos(x,lower);
+
+  if ( lower == higher ) return posl; // pstrip is integer.
+
+  std::pair<double, double> posh = get_pos(x,higher);
+
+  auto show_pair = [](std::pair<double, double> pos) {
+    std::cout << "(" << pos.first << "," << pos.second << ")" << std::endl;
+  };
+  show_pair(posl);
+  show_pair(posh);
+
+  auto results = posl;
+  results.first = x;
+  results.second = posl.second*lower_weight + posh.second*higher_weight;
+  return results;
+}
+
+
 
 bool E16ANA_STSGeometry::IsZStrip(int iPStrip)
 {

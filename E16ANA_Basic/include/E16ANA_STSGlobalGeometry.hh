@@ -31,6 +31,7 @@ class E16ANA_STSGlobalSensorGeom{
 class E16ANA_STSGlobalGeometry{
  public:
   E16ANA_STSGlobalGeometry(); // Does not prohibit multiple instantiation. But use it with precaution.
+  virtual ~E16ANA_STSGlobalGeometry() = default;
   static E16ANA_STSGlobalGeometry* instance();
   void Local2Global(int mod,const double* local, double* global);
   void Global2Local(int mod,const double* global, double* local);
@@ -50,12 +51,14 @@ class E16ANA_STSGlobalGeometry{
   }
 
   void CalcPointOnPlane(int mod,double* global0, double* global1, double* global_out);
-
- private:
-  void Prepare();
+protected:
   static E16ANA_STSGlobalGeometry* pInstance;
-  void PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor);
   std::map<int,E16ANA_STSGlobalSensorGeom> map_sensor;
+  void PrepareMatrixAll();
+
+private:
+  void Prepare();
+  void PrepareMatrix(E16ANA_STSGlobalSensorGeom& sensor);
   std::map<int,TGeoHMatrix> map_mat;
   std::map<int,TGeoHMatrix> map_mat_wotrans;
 };

@@ -262,8 +262,8 @@ int E16DST_DST1SSDFactory(E16DST_DST0Detector<E16DST_DST0SSDHit>& hits0, E16DST_
       cluster1.SetTdcPos(ha.TdcHit());
       cluster1.SetTanTheta(ha.TanTheta());
       cluster1.SetHitOrders(hit_indexs);
-
-
+      cluster1.SetNumHits(hit_indexs.size());
+      printf("size %d \n",hit_indexs.size());
       cluster1.SetCogPosFit(ha.CogHitFit());
       cluster1.SetTimingFit(ha.TimingFit());
       cluster1.SetPeakSumFit(ha.ClusterChargeFit());

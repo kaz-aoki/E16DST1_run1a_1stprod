@@ -1,0 +1,1097 @@
+#include "E16ANA_GTRLorentzCorrection.hh"
+#include "E16ANA_CalibDBManager.hh"
+#include "E16ANA_FieldMapCalib.hh"
+
+#include <TMath.h>
+
+TVector3 E16ANA_GTRLorentzCorrection::CorrectLocalPos(const TVector3 &lpos, double hit_time, const TVector3 &lmom){
+   double tan_theta_x = lmom.X()/lmom.Z();
+   //double tan_theta_y = lmom.Y()/lmom.Z();
+   double lx = lpos.X();
+   double ly = lpos.Y();
+   double lconst_rough = fLorentzConstRoughFunc(lx, ly);
+   double t0 = fT0Func(lx+lconst_rough, ly);
+   double vd_z = fVDriftZFunc(lx+lconst_rough, ly);
+   double vd_x = fVDriftXFunc(lx+lconst_rough, ly);
+   double lconst = fLorentzConstFunc(lx+lconst_rough, ly);
+   double fgeom  = fFGeom(lx+lconst_rough, ly);
+   double corrected_lx = lx + (t0-hit_time)*vd_z*tan_theta_x + lconst_rough + lconst - (t0-hit_time)*vd_x - fgeom;
+   
+   //if(fabs(t0-165)>0.0001&&fabs(lconst)>0.001){
+   //printf("%f %f %f %f %f %f \n",lx+lconst_rough,ly,t0,lconst,corrected_lx-lx,corrected_lx);
+   //}
+   
+//	std::cout << "(lx, ly)     = " << lx + lconst_rough << ", " << ly << std::endl;
+//	std::cout << "t0           = " << t0 << std::endl;
+//	std::cout << "lconst_fine  = " << lconst << std::endl;
+//	std::cout << "correct lx   = " << corrected_lx << std::endl;
+//	std::cout << "dtx          = " << (t0-hit_time)*vd_z*tan_theta_x << std::endl;
+//	std::cout << "dax          = " << - (t0-hit_time)*vd_x << std::endl;
+
+   return TVector3(corrected_lx, ly, lpos.Z());
+}
+
+void E16ANA_GTRLorentzCorrection::PrintParams(const TVector3 &lpos){
+   double lx = lpos.X();
+   double ly = lpos.Y();
+   double lconst_rough = fLorentzConstRoughFunc(lx, ly);
+   double t0 = fT0Func(lx+lconst_rough, ly);
+   double vd_z = fVDriftZFunc(lx+lconst_rough, ly);
+   double vd_x = fVDriftXFunc(lx+lconst_rough, ly);
+   double lconst = fLorentzConstFunc(lx+lconst_rough, ly);
+   std::cout << "\tlpos = (" << lx << ", " << ly << ")"
+             << ", t0 = " << t0
+             << ", vd_z = " << vd_z
+             << ", vd_x = " << vd_x
+             << ", lconst_rough = " << lconst_rough
+             << ", lconst = " << lconst
+             << ", lconst_sum = " << lconst_rough + lconst << std::endl;
+}
+
+namespace E16ANA_GTRLorentzParamFunc {
+// Implement functions here.
+double const_func(double *val, double *pars){
+   return pars[0];
+}
+
+
+double lconst_func_103_100(double *val, double *par){
+  double x    = val[0];
+  double y    = -1*val[1];
+  double ret  = (0.26*TMath::Gaus(y,34,7)+0.08*TMath::Gaus(y,-34,5)-0.0068+0.00072*y)
+    +x*(0.0018-5.6e-6*y-1.5e-6*y*y+1.8e-8*y*y*y)+x*x*(5e-5-3e-6*y-9.3e-8*y*y+1.5e-9*y*y*y+3.9e-11*y*y*y*y);
+  double ret2 = (-0.032+0.001*y+7.1e-5*y*y-3.7e-7*y*y*y-2.7e-8*y*y*y*y)+x*(0.00095+1.2e-5*y-6e-7*y*y)
+    +x*x*(-1.3e-4*TMath::Gaus(y,36,7)+6e-5*TMath::Gaus(y,-25,5)+4e-5+1.3e-6*y);
+
+  return -1*(ret+0.5*ret2);
+  //return -1*ret;
+}
+
+double lconst_func_103_200(double *val, double *par){
+  double x    = -1*val[0];
+  double y    = val[1];
+  double ret  = (-0.062+0.0002*y+1.2e-5*y*y-1e-8*y*y*y)+x*(-1e-5+2.5e-6*y-6e-8*y*y)+
+    x*x*(1.5e-5-1.5e-7*y-1.5e-9*y*y+3e-11*y*y*y);
+
+  double ret2 = (-0.13*TMath::Gaus(y,74,15)-0.026+1.3e-5*y+8.9e-6*y*y)+x*(-0.00028-1.7e-6*y+3.8e-8*y*y)
+    +x*x*(5e-5*TMath::Gaus(y,77,17)-1.4e-6-1.4e-7*y-2.5e-9*y*y);
+  
+  return (ret+ret2);
+}
+
+double lconst_func_103_300(double *val, double *par){
+  double x    = -1*val[0];
+  double y    = val[1];
+  double ret  = (-0.021-0.00018*y+2.4e-5*y*y+1.7e-8*y*y*y-1.4e-9*y*y*y*y)+x*(-0.00035-5.5e-6*y-6.5e-9*y*y+3.9e-10*y*y*y)
+    +x*x*(-2.5e-7+1.5e-8*y-1.7e-9*y*y-1.9e-12*y*y*y+1e-13*y*y*y*y);
+  
+  
+  
+  double dt  = (39-0.25*y+0.0026*y*y+9e-6*y*y*y-2.4e-7*y*y*y*y)+x*(0.23-0.0024*y-1.4e-5*y*y+2.1e-7*y*y*y)
+    +x*x*(-0.0077+3.3e-5*y+6.1e-7*y*y-2.2e-9*y*y*y);
+  if(dt> 90) dt =  90;
+  if(dt<-90) dt = -90;
+
+
+  
+  return (ret+0.8*0.0039*dt);
+}
+
+double t0_func_103_300(double *val, double *pars){
+  double x    = -1*val[0];
+  double y    = val[1];
+
+  double ret  = (39-0.25*y+0.0026*y*y+9e-6*y*y*y-2.4e-7*y*y*y*y)+x*(0.23-0.0024*y-1.4e-5*y*y+2.1e-7*y*y*y)
+    +x*x*(-0.0077+3.3e-5*y+6.1e-7*y*y-2.2e-9*y*y*y);
+  if(ret> 90) ret =  90;
+  if(ret<-90) ret = -90;
+  
+  return 210+0.8*ret;
+}
+  
+double t0_func_103_100_200_300(double *val, double *pars){
+   double xx = val[0];
+   double yy = val[1];
+   double sx = pars[0];
+   return sx;
+   double sy = pars[1];
+   double rho = pars[2];
+   double mx = pars[3];
+   double my = pars[4];
+   double amp = pars[5];
+   double ped = pars[6];
+   double det = 1.0 - rho*rho;
+   double f = (xx-mx)*(xx-mx)/2.0/sx/sx + (yy-my)*(yy-my)/2.0/sy/sy - (xx-mx)*(yy-my)*rho/sx/sy;
+   //return exp(-f/det) * amp + ped;
+}
+
+double t0_func_104_100(double *val, double *pars){
+   double x  = -1*val[0];
+   double y  = -1*val[1];
+
+   //double yA  = (60.7-0.017*yy-0.0045*yy*yy);
+   //double ret = yA/(exp(0.2*(fabs(xx)-34))+1)+100;
+   //double yA1  = (-255 - 0.204*yy - 0.0152*yy*yy);
+   //double yA2  = (3.61 - 0.159*yy + 0.0017*yy*yy);
+   //double yA3  = (30.3 - 0.081*yy + 0.0048*yy*yy);
+   double yA1  = (-267 - 0.166*y - 0.0123*y*y);
+   double yA2  = (4.49 - 0.142*y + 0.0011*y*y);
+   double yA3  = (32.1 - 0.027*y + 0.0036*y*y);
+
+   return 280+yA1*TMath::Gaus(x,yA2,yA3)+145;
+
+   //return ret+ret2;
+   //return 135;
+}
+
+double t0_func_104_200(double *val, double *pars){
+   double xx  = val[0];
+   double yy  = val[1];
+   
+   //double yA  = 210*TMath::Gaus(yy,10,40);
+   //double ret = yA/(exp(0.15*(-fabs(xx+10)+80))+1)/(exp(1.2*(fabs(xx+5)-91))+1)+200;
+   //double yA  = 1.1*TMath::Gaus(yy,10,80);
+   //double ret = yA*(90+170/(exp(0.14*(-fabs(xx)+72))+1))/(exp(0.9*(fabs(xx)-92))+1)+50+80*TMath::Gaus(xx,-10,25);
+   //return ret;
+   double yA1  = (20   - 0.091*yy - 0.0024*yy*yy);
+   double yA2  = (92.5 + 0.072*yy - 0.00066*yy*yy);
+   double yA3  = (-300 - 0.296*yy - 0.0027*yy*yy);
+   
+   return 180-(300*TMath::Gaus(xx,yA1,yA2)+yA3);
+}
+
+double t0_func_104_300(double *val, double *pars){
+  double xx  = val[0];
+  double yy  = val[1];
+  
+  //double yA  = 60*TMath::Gaus(yy,30,85);
+  //double ret = yA/(exp(0.15*(fabs(xx-15)-60))+1) + 180;
+  //double yA  = 105*TMath::Gaus(yy,10,85);
+  //double ret = yA/(exp(0.15*(fabs(xx-10)-85))+1)+150;
+  //return ret;
+  double ret = 350*TMath::Gaus(xx,(-27*TMath::Gaus(yy,-12.5,43)+15),110)-300;
+  if(xx<0&&ret<0) ret = 0;
+  return 200 -ret;
+}
+
+  
+double lconst_func_104_100(double *val, double *pars){
+  /*
+  double x  = -1 * val[0];//rotate
+  double y  = -1 * val[1];//rotate
+  double ys = y*0.01;
+  double p0 = 0.48 +0.0225*ys -3.54*ys*ys -2.*ys*ys*ys +20.*ys*ys*ys*ys;
+  double p1 = 0.56 -0.235*y;
+  double p2 = 19.;
+  double p3 = 0.036;
+  double p4 =-0.00020 -0.000027*y;
+  double func = p0 * exp( -0.5*((x-p1)/p2)*((x-p1)/p2) ) + p3 + p4*x;
+  return func;
+  */
+  double x  = -1 * val[0];//rotate
+  double y  = -1 * val[1];//rotate
+  /*
+  double yA1  = (-255 - 0.204*y - 0.0152*y*y);
+  double yA2  = (3.61 - 0.159*y + 0.0017*y*y);
+  double yA3  = (30.3 - 0.081*y + 0.0048*y*y);
+  double dt   =  280+yA1*TMath::Gaus(x,yA2,yA3);
+  */
+  double yA1  = (-267 - 0.166*y - 0.0123*y*y);
+  double yA2  = (4.49 - 0.142*y + 0.0011*y*y);
+  double yA3  = (32.1 - 0.027*y + 0.0036*y*y);
+  double dt   =  280+yA1*TMath::Gaus(x,yA2,yA3);
+  //double dt   =  (-263+0.074*y+0.022*y*y-6.6e-5*y*y*y-1.06e-5*y*y*y*y)*TMath::Gaus(x,-4,36)+280;
+  double dl   =  0.43*TMath::Gaus(x,(-2.03-0.079*y+0.0016*y*y),25)+(-0.52+0.00056*y+6.44e-5*y*y);
+
+  double cor  = (-0.413-0.00076*y+0.00018*y*y)*TMath::Gaus(x,0,35)+(0.384+0.00064*y-0.00015*y*y);
+  
+  return dl + 0.0062*dt +cor;
+
+}
+
+double lconst_func_104_200(double *val, double *pars){
+  double x  = val[0];
+  double y  = val[1];
+
+   double yA1  = (20   - 0.091*y - 0.0024*y*y);
+   double yA2  = (92.5 + 0.072*y - 0.00066*y*y);
+   double yA3  = (-300 - 0.296*y - 0.0027*y*y);
+   double dt   = -(300*TMath::Gaus(x,yA1,yA2)+yA3);
+   double dl   = (0.49/(exp(0.18*(abs(y-6)-83))+1))/(exp(0.17*(x-72))+1)-0.4+(0.002-1.42e-5*y-2.03e-7*y*y)*x;
+   
+   return -1*(dl + 0.0057*dt);
+  //return -0.8*(0.79/(exp(0.13*(fabs(x+10)-92.5))+1)/(exp(0.19*(fabs(y)-71))+1)-0.7);
+  /*
+  double x  = val[0];
+  double y  = val[1];
+  double p0 =  3.7;
+  double p1 =  0.05;
+  double p2 = -124.;
+  double p3 = -3.8;
+  double p4 = 0.00114 -0.000017*x;
+  double func = p0/(exp( p1*(fabs(y)+p2) )+1) + p3 + p4*y;
+  return -func;
+  */
+}
+
+double lconst_func_104_300(double *val, double *pars){
+  double x  = val[0];
+  double y  = val[1];
+  
+  double dt = 350*TMath::Gaus(x,(-27*TMath::Gaus(y,-12.5,43)+15),110)-300;
+  if(x<0&&dt<0) dt = 0;
+  dt = -1*dt;
+  double dl1 = (0.84+0.003*y-5.2e-5*y*y-9.7e-7*y*y*y+4.2e-9*y*y*y*y+3.5e-11*y*y*y*y*y)/(exp(0.04*(fabs(x+30)-120))+1)-0.9+(0.0009-2e-6*y)*x;
+  double dl2 = 0.14/(exp(0.2*(-y+100))+1)+x*(0.002/(exp(0.3*(y+125))+1));
+  
+  double y1 =-63-0.1*y-0.001*y*y+1.5e-5*y*y*y;
+  double y2 =0.32+0.0019*y-2.3e-5*y*y-2.5e-7*y*y*y+2.0e-9*y*y*y*y;
+  if(y2>0.55) y2=0.55;
+  double y3 =119+0.3*y-0.013*y*y-1.6e-5*y*y*y+6e-7*y*y*y*y;
+  double y4 =38-0.21*y-0.001*y*y+2.4e-5*y*y*y+1.3e-7*y*y*y*y;
+  if(y4>100) y4=100;
+  double y5 =109+0.19*y-0.018*y*y-0.00013*y*y*y;
+  if(y5<30) y5=30;
+  double dl3 = 0.35*TMath::Gaus(x,y1,y4)+y2*TMath::Gaus(x,y3,y5)-0.3;
+  return -1*(dl1 + dl2 + dl3 + 0.0039*dt);
+  /*
+  double x  = val[0];
+  double y  = val[1];
+  double ys = y*0.01;
+  double p0 = -0.036 +0.19*ys -0.25*ys*ys -0.71*ys*ys*ys +0.15*ys*ys*ys*ys +0.35*ys*ys*ys*ys*ys;
+  double p1 =  0.314;
+  double p2 =  0.027;
+  double p3 =  3.18  +0.27*ys +1.61*ys*ys +0.24*ys*ys*ys -1.46*ys*ys*ys*ys;
+  double func = p0 + p1*sin( p2*x+p3 );
+  return -func;
+  */
+}
+
+double t0_func_106_100(double *val, double *pars){
+  double x     = -1*val[0];
+  double y     = -1*val[1];
+  
+  //double yA1    = (-218.3  +  0.226*yy  -0.035*yy*yy);
+  //double yA2    = (-6.73   +  0.351*yy  -0.0013*yy*yy - 0.00016*yy*yy*yy);
+  //double ret = (23.5+0.57*y-0.028*y*y-0.0003*y*y*y)+(0.77-0.044*y-5.4e-5*y*y+2.2e-5*y*y*y)*x+(0.078+0.00024*y-2.86e-6*y*y)*x*x;
+  //double ret = (10.7+0.058*y-0.01*y*y)+x*(0.54-0.024*y-2.7e-5*y*y+1.3e-5*y*y*y)+x*x*(0.025+0.00027*y);
+  double ret = (-0.3+0.35*y-0.024*y*y+3.8e-5*y*y*y+1.6e-5*y*y*y*y)+x*(0.75+0.0049*y-0.00075*y*y)+x*x*(0.024-0.0012*y-2.6e-5*y*y+7.2e-7*y*y*y);
+  if(ret> 50) ret =  50;
+  if(ret<-50) ret = -50;
+  return 180 + 0.75*ret;
+  //return 180 ;
+    //return 180 + 250+yA1*TMath::Gaus(xx,yA2,40);
+}
+
+
+
+double t0_func_106_200(double *val, double *params){
+  Double_t x = val[0];
+  Double_t y = val[1];
+
+  //double yA   = (118+0.027*yy-0.0056*yy*yy);
+  //double ret  = yA/(exp(0.7*(fabs(xx+1)-89))+1)+105;
+  //return ret;
+  //double ret  = 300*TMath::Gaus(x,(-18*TMath::Gaus(y,-34,24)+0.3),110)+(-325-0.6*y+0.016*y*y+5.6e-5*y*y*y-1.47e-6*y*y*y*y);
+  //double ret2 = 150+(-151-0.16*y-0.01*y*y+3.1e-5*y*y*y+1.4e-6*y*y*y*y)*TMath::Gaus(x,0,(79-0.45*y-0.0085*y*y+6.3e-5*y*y*y+2.1e-6*y*y*y*y));
+  //double ret = 300+(-278+0.46*y-0.027*y*y-2.5e-5*y*y*y+3e-6*y*y*y*y)*TMath::Gaus(x,(-8.3+0.077*y+0.0013*y*y),(75-0.34*y-0.0055*y*y+5.5e-5*y*y*y+1.4e-6*y*y*y*y));
+  double ret = (-5.7+0.062*y+0.0034*y*y)+x*(0.24+0.00019*y-0.00015*y*y+6.5e-8*y*y*y+1.4e-8*y*y*y*y)+x*x*(0.006-2.1e-5*y-2.8e-6*y*y);
+  if(ret> 50) ret =  50;
+  if(ret<-50) ret = -50;
+  return 215 -0.8*ret;
+  //return 215 -(ret+ret2);
+
+}
+
+
+double t0_func_106_300(double *val, double *pars){
+  Double_t x = val[0];
+  Double_t y = val[1];
+
+  //double yA   = 0.7*(118+0.027*yy-0.007*yy*yy);
+  //double ret  = yA*(1-1/(exp(0.25*(fabs(xx)-132))+1))+185;
+  //double ret = (204-0.27*y+0.002*y*y)*TMath::Gaus(x,(5.6+0.9*y+0.007*y*y-6e-5*y*y*y-7.6e-7*y*y*y*y),130)-200;
+  //return 185 -ret;
+  /*
+  double ret = (27.6+0.75*y+0.0016*y*y-3.8e-5*y*y*y-2.5e-7*y*y*y*y)+x*x*(-0.012-0.00011*y-5.5e-7*y*y+9.6e-9*y*y*y+9.3e-11*y*y*y*y);
+  if(ret> 100) ret =  100;
+  if(ret<-100) ret = -100;
+  */
+  //return 185 ;
+  double ret = (27.6+0.75*y+0.0016*y*y-3.8e-5*y*y*y-2.5e-7*y*y*y*y)+x*x*(-0.012-0.00011*y-5.5e-7*y*y+9.6e-9*y*y*y+9.3e-11*y*y*y*y);
+  if(ret> 100) ret =  100;
+  if(ret<-100) ret = -100;
+  return 185 -0.75*ret;
+  //return 0.7*(118+0.027*y-0.007*y*y)+155 ;
+  //return -1*(118+0.027*y-0.007*y*y)+225 ;
+
+}
+
+double lconst_func_106_100(double *val, double *pars){
+  double x     = -1*val[0];
+  double y     = -1*val[1];
+  /*
+  double yA1   = (-218.3  +  0.226*y  -0.035*y*y);
+  double yA2   = (-6.73   +  0.351*y  -0.0013*y*y - 0.00016*y*y*y);
+  double dt    = 250+yA1*TMath::Gaus(x,yA2,40);
+  */
+  //double dt    = (23.5+0.57*y-0.028*y*y-0.0003*y*y*y)+(0.77-0.044*y-5.4e-5*y*y+2.2e-5*y*y*y)*x+(0.078+0.00024*y-2.86e-6*y*y)*x*x;
+  //double dt    = (10.7+0.058*y-0.01*y*y)+x*(0.54-0.024*y-2.7e-5*y*y+1.3e-5*y*y*y)+x*x*(0.025+0.00027*y);
+  //double dl    = (-0.78*TMath::Gaus(y,2.74,30.7)+0.9)*TMath::Gaus(x,(-24*TMath::Gaus(y,-7.3,11.8)+0.06),25)-0.35;
+  //double dl2   = (-0.25*TMath::Gaus(y,0.4,14.5))*(1./(exp(0.14*(abs(x+1)-37))+1)-1);
+  double dt    = (-0.3+0.35*y-0.024*y*y+3.8e-5*y*y*y+1.6e-5*y*y*y*y)+x*(0.75+0.0049*y-0.00075*y*y)+x*x*(0.024-0.0012*y-2.6e-5*y*y+7.2e-7*y*y*y);
+  if(dt> 50) dt =  50;
+  if(dt<-50) dt = -50;
+  
+  double dl    = (-0.48*TMath::Gaus(y,-10,19)+0.05)*TMath::Gaus(x,20,40)+
+    +(-0.023-0.0046*y+0.0008*y*y+1.7e-6*y*y*y-2.7e-7*y*y*y*y)*TMath::Gaus(x,0,25)+(0.05-0.0038*y-0.0006*y*y+1.6e-6*y*y*y+2.3e-7*y*y*y*y);
+  double dl2   = (-0.3+TMath::Gaus(y,-24,8.4)+1.5*TMath::Gaus(y,22,14))*(0.2-0.4/(exp(0.2*(fabs(x)-38))+1)+0.25*TMath::Gaus(x,5,18));
+  return (dl + dl2 +0.007*(dt*0.75));
+  
+  //return 0;
+}
+
+
+
+
+double lconst_func_106_200(double  *val, double *pars){
+  Double_t x = val[0];
+  Double_t y = val[1];
+
+  //double dt  =  -1*(300*TMath::Gaus(x,(-18*TMath::Gaus(y,-34,24)+0.3),110)+(-325-0.6*y+0.016*y*y+5.6e-5*y*y*y-1.47e-6*y*y*y*y));
+  //double dt2 =  -1*(150+(-151-0.16*y-0.01*y*y+3.1e-5*y*y*y+1.4e-6*y*y*y*y)*TMath::Gaus(x,0,(79-0.45*y-0.0085*y*y+6.3e-5*y*y*y+2.1e-6*y*y*y*y)));
+  double dt  =  -1*((-5.7+0.062*y+0.0034*y*y)+x*(0.24+0.00019*y-0.00015*y*y+6.5e-8*y*y*y+1.4e-8*y*y*y*y)+x*x*(0.006-2.1e-5*y-2.8e-6*y*y));
+  if(dt> 50) dt =  50;
+  if(dt<-50) dt = -50;
+  double dl = (0.47/(exp(0.2*(fabs(y+5)-90))+1)-0.2)*TMath::Gaus(x,(-54-0.25*y+0.009*y*y),40)-0.08+(0.0033/(exp(0.2*(fabs(y-25)-63))+1)-0.0015)*x;
+  return -1*(dl + 0.006*(dt*0.8));
+  
+  //return 0;
+}
+
+double lconst_func_106_300(double *val, double *pars){
+  Double_t x = val[0];
+  Double_t y = val[1];
+  
+  //double dt = -1*(118+0.027*y-0.007*y*y)+40;
+  //double dt = -1*((204-0.27*y+0.002*y*y)*TMath::Gaus(x,(5.6+0.9*y+0.007*y*y-6e-5*y*y*y-7.6e-7*y*y*y*y),130)-200);
+  
+  double dt = -1*((27.6+0.75*y+0.0016*y*y-3.8e-5*y*y*y-2.5e-7*y*y*y*y)+x*x*(-0.012-0.00011*y-5.5e-7*y*y+9.6e-9*y*y*y+9.3e-11*y*y*y*y));
+  if(dt> 100) dt =  100;
+  if(dt<-100) dt = -100;
+
+  //double dt = 0;
+  double dl  = (1.05-0.5*(TMath::Gaus(y,67,24)+TMath::Gaus(y,-64,24)))*TMath::Gaus(x,(44+0.41*y-0.0046*y*y),80)
+    -0.7+(-0.0043-1.2e-5*y+7.5e-7*y*y+1.7e-10*y*y*y-3e-11*y*y*y*y)*x;
+  double dl2 = (0.45+0.001*y-3e-5*y*y)*TMath::Gaus(x,(-20-0.78*y-0.012*y*y+9e-5*y*y*y+8.4e-7*y*y*y*y),35)
+    +(0.44+0.001*y-2.9e-5*y*y)*TMath::Gaus(x,90+0.19*y+0.00057*y*y-1e-6*y*y*y,25)
+    +(-0.37-0.00024*y+1.6e-5*y*y);
+
+    
+  return -1*(dl + dl2 + 0.004*dt*0.75);
+  //return -1*0.004*dt;
+}
+
+double t0_func_107_100_200_300(double *val, double *pars){
+  double xx   = val[0];
+  double yy   = val[1];
+  double mag  = pars[0];
+  double sx   = pars[1];
+  double mx   = pars[2];
+  double sy   = pars[3];
+  double my   = pars[4];
+  double ped  = pars[5];
+  double argx = (xx-sx)/mx;
+  double argy = (yy-sy)/my;
+  //return mag*exp(-0.5*argx*argx)*exp(-0.5*argy*argy)+ped;
+  return mag;
+  
+}
+
+double t0_func_107_100(double *val, double *pars){
+  double x   = val[0];
+  double y   = -1*val[1];
+  double ret = -(-57-0.0053*y+0.034*y*y+0.00012*y*y*y+120*TMath::Gaus(y,9,9)+x*(0.7-1.8*TMath::Gaus(y,2.3,16))
+		 +x*x*((0.02-0.001*y-2.6e-5*y*y+2.1e-6*y*y*y+5.1e-9*pow(y,4)-8.2e-10*pow(y,5))));
+  if(ret>60)  ret =  60;
+  if(ret<-50) ret = -50;
+
+  //printf("time %f %f %f \n",x,y,ret);
+  return ret+159;
+  
+}
+
+  
+double lconst_func_107_100(double *val, double *par){
+  double x   = val[0];
+  double y   = -1*val[1];
+  double dt = -(-57-0.0053*y+0.034*y*y+0.00012*y*y*y+120*TMath::Gaus(y,9,9)+x*(0.7-1.8*TMath::Gaus(y,2.3,16))
+                 +x*x*((0.02-0.001*y-2.6e-5*y*y+2.1e-6*y*y*y+5.1e-9*pow(y,4)-8.2e-10*pow(y,5))));
+  if(dt>60)  dt =  60;
+  if(dt<-50) dt = -50;
+
+  double dl = -1.45*((-0.13-0.001*y-0.00021*y*y+3.5e-7*y*y*y+9.6e-8*y*y*y*y)*TMath::Gaus(x,(-5.9*TMath::Gaus(y,-13,9.4)+0.7),18)
+	       +(-0.037-7.3e-5*y+0.00017*y*y-5.5e-8*y*y*y-6.6e-8*y*y*y*y));
+
+  //printf("lc %f %f %f \n",x,y,dl);
+  //return dl;
+  return (dl+0.0062*dt);
+  
+}
+
+double lconst_func_107_200(double *val, double *par){
+  double x    = -1*val[0];
+  double y    = val[1];
+  double ret  = (0.25+0.0025*y-9.5e-5*y*y-2.2e-7*y*y*y+9.5e-9*y*y*y*y)+x*(-0.00056-4.5e-6*y+4.2e-7*y*y+1.9e-9*y*y*y)+
+    +x*x*(-1e-5-1.9e-7*y+1.4e-9*y*y+2.5e-11*y*y*y);
+  double ret2 = (-0.35-0.0014*y+2.3e-5*y*y+1.4e-7*y*y*y)+x*(-0.001-2.7e-5*y-1.9e-9*y*y+3.3e-9*y*y*y)+
+    x*x*(9.8e-6+1.4e-7*y+1.2e-8*y*y-2.8e-11*y*y*y-1.6e-12*y*y*y*y);
+
+  double ret3 = (0.35*TMath::Gaus(y,15,16))+x*(-5.7e-5+4.1e-6*y+1.9e-7*y*y)+x*x*(-4.8e-7+2.7e-8*y+8.3e-10*y*y);
+
+  return (ret+ret2+ret3);
+  //return st2*exp(-0.5*argx*argx)+pol+st1*exp(-0.5*argx2*argx2)+lc;
+  //return st2*exp(-0.5*argx*argx)+pol+st1*exp(-0.5*argx2*argx2);
+}
+  
+double fgeom_func_103_100(double *val, double *par){
+  return 0;
+}
+
+double fgeom_func_103_200(double *val, double *par){
+  double x    = -1*val[0];
+  double y    = val[1];
+
+  double ret  = (0.022+6.1e-5*y-9.8e-6*y*y-8.9e-9*y*y*y+1.3e-9*y*y*y*y)+x*(0.00075-1.2e-6*y-9.8e-8*y*y)+
+    x*x*(3.9e-6-1.2e-8*y-6.5e-10*y*y);
+  double ret2 = (0.023+0.00011*y)+x*(0.00095-4.2e-6*y+1.5e-8*y*y)+x*x*(-8.5e-8-6.2e-8*y+5.1e-10*y*y+1.1e-11*y*y*y);
+
+  
+  return -1*(ret+0.5*ret2);
+}
+
+double fgeom_func_103_300(double *val, double *par){
+  return 0;
+}
+
+
+double fgeom_func_104_100(double *val, double *par){
+  double x  = -1*val[0];
+  double y  = -1*val[1];
+
+  double ret = -0.6/(exp(0.18*(x+(-37.8+0.14*y-0.0020*y*y) ))+1)+0.6/(exp(0.18*(-x+(-36-0.011*y-0.00157*y*y)))+1);
+  double cor = -0.4/(exp(0.3*(x+(-42+0.068*y-0.004*y*y)))+1)+0.4/(exp(0.3*(-x+(-42-0.12*y+0.0004*y*y)))+1);
+  
+  return -1*(ret+cor);
+  //return -1*(-0.65/(exp(0.15*(xx-50))+1)+0.65/(exp(0.15*(-xx-42))+1));
+  //return 0;
+}
+
+double fgeom_func_104_200(double *val, double *par){
+  double x  = val[0];
+  double y  = val[1];
+  double ret = (0.065+3.34e-6*y+4.07e-6*y*y)+x*(0.00082+6.78e-6*y+4.2e-7*y*y);
+  return ret;
+  //return 0.5/(exp(0.2*(fabs(xx+5)-75))+1)-0.45;
+  //return 0;
+}
+
+double fgeom_func_104_300(double *val, double *par){
+  double x   = val[0];
+  double y   = val[1];
+  double ret = (-1.06-0.00038*y+5.1e-5*y*y)/(exp(0.1*(x-100))+1)+(0.94+0.00044*y-5.5e-5*y*y)
+    +(0.00054+1.2e-5*y-4.8e-7*y*y-1.4e-9*y*y*y+2.4e-11*y*y*y*y)*x;
+  return ret;
+  //return 0;
+}
+
+
+double fgeom_func_106_100(double *val, double *par){
+  double x   = -1*val[0];
+  double y   = -1*val[1];
+  //double ret = -0.6/(exp(0.3*(x+(-37+0.0059*y-0.0038*y*y)))+1)+0.6/(exp(0.3*(-x+(-42+0.049*y-0.0025*y*y)))+1);
+  //double ret = -0.75/(exp(0.14*(x+(-41-0.082*y-0.0042*y*y+0.00011*y*y*y)))+1)+0.75/(exp(0.14*(-x+(-45+0.25*y-0.0049*y*y-6.2e-5*y*y*y)))+1)-0.003*x;
+  double ret = -0.35/(exp(0.14*(x+(-36.7-0.054*y-0.0077*y*y)))+1)+0.35/(exp(0.14*(-x+(-37-0.093*y-0.005*y*y+0.00011*y*y*y)))+1)-0.0035*x;
+  return -1*ret;
+  //return 0;
+}
+
+  
+double fgeom_func_106_200(double *val, double *par){
+  double x   = val[0];
+  double y   = val[1];
+  //double ret = (-0.012-0.00036*y+9e-7*y*y+1.45e-7*y*y*y)+x*(0.00055+2.4e-5*y+2.9e-7*y*y);
+  double ret = (-0.00075+2.1e-6*y+2.8e-7*y*y)*x+0.25/(exp(0.25*(-x+88))+1);
+  return ret;  
+  //return 0;
+}
+
+double fgeom_func_106_300(double *val, double *par){
+  double x   = val[0];
+  double y   = val[1];
+  //return 0;
+  //double ret = (-1.3/(exp(0.13*(-fabs(y+5)+125))+1)+0.0036*y-0.45)*(TMath::Gaus(x,(-52-0.23*y+0.0038*y*y),90)-1)
+  //+(-0.16-0.0018*y+2.6e-5*y*y+1.6e-7*y*y*y-1.4e-9*y*y*y*y)+0.0019*x;
+  double ret = -0.75/(exp(0.1*(x+(-82-0.004*y-0.004*y*y-2.7e-6*y*y*y+1.4e-7*y*y*y*y)))+1)
+    +(0.0029-1.1e-5*y-3.8e-7*y*y)*x+(0.65-0.0007*y+2.3e-5*y*y-3.3e-9*y*y*y-1.2e-9*y*y*y*y);
+  return ret;
+
+}
+
+double fgeom_func_107_100(double *val, double *par){  
+  return 0;
+}
+
+double fgeom_func_107_200(double *val, double *par){
+  double x     = -1*val[0];
+  double y     = val[1];
+  double ret   = (0.07+0.00033*y-5.4e-6*y*y-1.4e-7*y*y*y)+x*(-0.0046-2.1e-5*y+2e-6*y*y+2e-10*y*y*y-1.3e-10*y*y*y*y);
+
+  double ret2  = (0.05+0.00051*y-3.4e-6*y*y-1.1e-7*y*y*y)+x*(-0.0022-1.1e-5*y+4.5e-7*y*y);
+  return -1*(ret+ret2);
+}
+
+double fgeom_func_107_300(double *val, double *par){
+  return 0;
+}
+
+
+  
+  
+//double lconst_func_107_300(double *val, double *par){
+//  double lc    = par[0];
+//  
+//  return lc;
+//}
+
+} // namespace E16ANA_GTRLorentzParamFunc
+
+E16ANA_GTRLorentzCorrectionManager::E16ANA_GTRLorentzCorrectionManager(){
+   E16ANA_FieldMapCalibParam field_map_param;
+   auto &calib = E16ANA_CalibDBManager::Instance();
+   field_map_param.ReadConstantData(calib.CurrentRunID());
+   double fm_current = field_map_param.FMCurrent();
+   std::cout << "E16ANA_GTRLorentzCorrectionManager: FMCurrent = " << field_map_param.FMCurrent() << std::endl;
+   double sign = +1.0; // this value will be multiplied by vd_x, lorentz_const
+   if (fabs(fm_current) < 10) { // < 10 Ampere, thus zero field run
+      sign = 0.0;
+   } else if (fm_current < -10.0) { // negative field run
+      sign = -1.0;
+   }
+
+   using namespace E16ANA_GTRLorentzParamFunc;
+   double default_t0[3] = {180.0, 180.0, 180.0};
+   double default_vd_z[3] = {0.010, 0.010, 0.010};
+   double default_vd_x[3] = {0.35 * 0.91 * 0.010, -0.75 * 0.94 * 0.010, -0.14 * 0.010};
+   double default_lconst[3] = {3.18 * 0.91, -2.4 * 0.94, -1.15};
+   double default_fgeom[3] = {0,0,0};
+   for (int module_id=1; module_id<10; module_id++) {
+      for (int layer_id=0; layer_id<3; layer_id++) {
+         fLorentzCorrections[module_id][layer_id].SetMagFieldSign(sign);
+         fLorentzCorrections[module_id][layer_id].SetT0Func(const_func, {default_t0[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetVDriftZFunc(const_func, {default_vd_z[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetVDriftXFunc(const_func, {default_vd_x[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetLorentzConstFunc(const_func, {default_lconst[layer_id]});
+	 fLorentzCorrections[module_id][layer_id].SetFGeom(const_func, {default_fgeom[layer_id]});
+      }
+   }
+   for (int module_id=101; module_id<110; module_id++) {
+      for (int layer_id=0; layer_id<3; layer_id++) {
+         fLorentzCorrections[module_id][layer_id].SetMagFieldSign(sign);
+         fLorentzCorrections[module_id][layer_id].SetT0Func(const_func, {default_t0[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetVDriftZFunc(const_func, {default_vd_z[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetVDriftXFunc(const_func, {default_vd_x[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetLorentzConstFunc(const_func, {default_lconst[layer_id]});
+	 fLorentzCorrections[module_id][layer_id].SetFGeom(const_func, {default_fgeom[layer_id]});
+      }
+   }
+   for (int module_id=201; module_id<210; module_id++) {
+      for (int layer_id=0; layer_id<3; layer_id++) {
+         fLorentzCorrections[module_id][layer_id].SetMagFieldSign(sign);
+         fLorentzCorrections[module_id][layer_id].SetT0Func(const_func, {default_t0[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetVDriftZFunc(const_func, {default_vd_z[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetVDriftXFunc(const_func, {default_vd_x[layer_id]});
+         fLorentzCorrections[module_id][layer_id].SetLorentzConstFunc(const_func, {default_lconst[layer_id]});
+	 fLorentzCorrections[module_id][layer_id].SetFGeom(const_func, {default_fgeom[layer_id]});
+      }
+   }
+
+   // Set functions and parameters here.
+   // fLorentzCorrections[module_id][layer_id]
+   // and Set T0, VDriftZ, VDriftX, LorentzConst functions.
+
+   // LorentzConstant rough values
+   fLorentzCorrections[103][0].SetLorentzConstRoughFunc(const_func, {+2.891});
+   fLorentzCorrections[103][1].SetLorentzConstRoughFunc(const_func, {-2.524});
+   fLorentzCorrections[103][2].SetLorentzConstRoughFunc(const_func, {-1.155});
+
+   /* v0
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-3.007});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.080});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.481});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-3.134});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.955});
+   */
+   
+   /* v1
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+2.698});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.556});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-0.918});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+3.809});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.664});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.662});
+   */
+   /* v2
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+4.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-3.007});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.080});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+3.137});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.193});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.369});
+   */
+   /*v3
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.007});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.080});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+3.781});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-3.134});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.955});
+   */
+   /* v4
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-3.007});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-2.080});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.481});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.434});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.955});
+   */
+   /*v5
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.498});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.556});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-0.918});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.481});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-3.134});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.255});
+   */
+   /*v6
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+2.698});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-1.756});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-0.918});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+3.737});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.193});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.369});
+   */
+   /*v7
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+2.698});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.556});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-0.418});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+3.137});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.793});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.369});
+   */
+   /*v8
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.507});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.880});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.009});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.364});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.362});
+   */
+   /*v9
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.173});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.707});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.580});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.009});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.364});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-1.362});
+   */
+   /*v10
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.233});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.347});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-1.960});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.009});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.614});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-2.062});
+   */
+   /*v11
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+2.983});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.497});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-2.060});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.009});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-2.614});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-2.062});
+   */
+   fLorentzCorrections[104][0].SetLorentzConstRoughFunc(const_func, {+3.483});
+   fLorentzCorrections[104][1].SetLorentzConstRoughFunc(const_func, {-2.997});
+   fLorentzCorrections[104][2].SetLorentzConstRoughFunc(const_func, {-2.560});
+   fLorentzCorrections[106][0].SetLorentzConstRoughFunc(const_func, {+4.209});
+   fLorentzCorrections[106][1].SetLorentzConstRoughFunc(const_func, {-3.064});
+   fLorentzCorrections[106][2].SetLorentzConstRoughFunc(const_func, {-2.462});
+   //v1
+   /*
+   fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+3.461});
+   fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-2.004});
+   fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.505});
+   */
+   
+   //v2
+   /*
+     fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+2.861});
+     fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-1.404});
+     fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.205});
+   */
+
+   /*v3
+   fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+4.261});
+   fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-2.604});
+   fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.805});
+   */
+   
+   /*v4
+     fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+3.961});
+     fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-2.004});
+     fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.505});
+   */
+   //v5
+     fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+3.361});
+     fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-2.404});
+     fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.505});
+   
+   /*v6
+     fLorentzCorrections[107][0].SetLorentzConstRoughFunc(const_func, {+3.461});
+     fLorentzCorrections[107][1].SetLorentzConstRoughFunc(const_func, {-2.004});
+     fLorentzCorrections[107][2].SetLorentzConstRoughFunc(const_func, {-1.905});
+   */
+   //GTR-Module103
+   fLorentzCorrections[103][0].SetT0Func(t0_func_103_100_200_300, {
+       145,
+         590.154,
+         -0.985214,
+         233.857,
+         -1503.67,
+         870.409,
+         134.171
+         });
+   fLorentzCorrections[103][1].SetT0Func(t0_func_103_100_200_300, {
+       215,
+       //52.1901,
+         50.5459,
+         -0.221594,
+         -0.198514,
+         2.20718,
+         125.667,
+         137.904
+         });
+   fLorentzCorrections[103][2].SetT0Func(t0_func_103_300, {});
+   /*
+   fLorentzCorrections[103][2].SetT0Func(t0_func_103_100_200_300, {
+       210,
+       //117.737,
+         167.237,
+         -0.105471,
+         8.01617,
+         -11.0619,
+         158.059,
+         99.538
+         });
+   */
+   //fLorentzCorrections[103][0].SetVDriftZFunc(const_func, {0.0078});
+   fLorentzCorrections[103][0].SetVDriftZFunc(const_func, {0.015});
+   fLorentzCorrections[103][1].SetVDriftZFunc(const_func, {0.015});
+   fLorentzCorrections[103][2].SetVDriftZFunc(const_func, {0.015});
+
+   fLorentzCorrections[103][0].SetLorentzConstFunc(lconst_func_103_100,{
+       0.252,0.00198,-3.84e-5,-7.346e-8,-3.926e-8,
+       0.1,-30,
+       -43,10,
+       });
+
+   fLorentzCorrections[103][1].SetLorentzConstFunc(lconst_func_103_200,{
+       0.2389,0.00236,4.1488e-6,-1.9095e-7,-3.9017e-9,
+       0.226,-93.72,
+       75,15,
+       });
+
+   fLorentzCorrections[103][2].SetLorentzConstFunc(lconst_func_103_300,{
+       -0.1675,0.000824,3.958e-5,-3.4776e-8,-1.773e-9,
+       0.3523,-0.00923,-5.0212e-5,4.93e-7,
+       8.15,-0.2073,0.00536,4.673e-6,-4.03688e-7,
+       });
+
+   fLorentzCorrections[103][0].SetVDriftXFunc(const_func, {0.0062});
+   fLorentzCorrections[103][1].SetVDriftXFunc(const_func, {-0.0057});
+   fLorentzCorrections[103][2].SetVDriftXFunc(const_func, {-0.0039});
+   fLorentzCorrections[103][0].SetFGeom(fgeom_func_103_100, {0});
+   fLorentzCorrections[103][1].SetFGeom(fgeom_func_103_200, {0});
+   fLorentzCorrections[103][2].SetFGeom(fgeom_func_103_300, {0});   
+   
+   //GTR-Module104
+   fLorentzCorrections[104][0].SetT0Func(t0_func_104_100, {
+         54.8305,
+         91.8214,
+         -0.859271,
+         -27.3381,
+         49.0041,
+         94.8484,
+         97.6324
+         });
+   fLorentzCorrections[104][1].SetT0Func(t0_func_104_200, {
+         927.533,
+         203.666,
+         -0.845532,
+         1184.03,
+         -218.078,
+         385.489,
+         63.2379,
+         45.5075,
+         -0.281632,
+         205.572
+         });
+   fLorentzCorrections[104][2].SetT0Func(t0_func_104_300, {0});   
+
+   fLorentzCorrections[104][0].SetFGeom(fgeom_func_104_100, {0});
+   fLorentzCorrections[104][1].SetFGeom(fgeom_func_104_200, {0});
+   fLorentzCorrections[104][2].SetFGeom(fgeom_func_104_300, {0});   
+   
+   //fLorentzCorrections[104][2].SetT0Func(const_func, {184.981});
+   //VdriftZ
+   /*
+   fLorentzCorrections[104][0].SetVDriftZFunc(const_func, {0.0105});
+   fLorentzCorrections[104][1].SetVDriftZFunc(const_func, {0.010});
+   fLorentzCorrections[104][2].SetVDriftZFunc(const_func, {0.010});
+   */
+   fLorentzCorrections[104][0].SetVDriftZFunc(const_func, {0.018});
+   fLorentzCorrections[104][1].SetVDriftZFunc(const_func, {0.018});
+   fLorentzCorrections[104][2].SetVDriftZFunc(const_func, {0.015});
+   //VdriftX
+   /*
+   fLorentzCorrections[104][0].SetVDriftXFunc(const_func, {0.004});
+   fLorentzCorrections[104][1].SetVDriftXFunc(const_func, {-0.0029});
+   fLorentzCorrections[104][2].SetVDriftXFunc(const_func, {-0.0019});
+   */
+   fLorentzCorrections[104][0].SetVDriftXFunc(const_func, {0.0062});
+   fLorentzCorrections[104][1].SetVDriftXFunc(const_func, {-0.0057});
+   fLorentzCorrections[104][2].SetVDriftXFunc(const_func, {-0.0039});
+   //Lorentz function
+   fLorentzCorrections[104][0].SetLorentzConstFunc(lconst_func_104_100);
+   fLorentzCorrections[104][1].SetLorentzConstFunc(lconst_func_104_200);
+   fLorentzCorrections[104][2].SetLorentzConstFunc(lconst_func_104_300);
+
+   //GTR-Module106
+   //t0
+   /*
+   fLorentzCorrections[106][0].SetT0Func(t0_func_106_100, {
+         300, 279, -25, 29, 25, 20, 25, 300
+         });
+   fLorentzCorrections[106][1].SetT0Func(t0_func_106_200, {
+         0.2, 220, 290, -85, -40, 50, 70
+         });
+   fLorentzCorrections[106][2].SetT0Func(t0_func_106_300, {
+         210
+         });
+   */
+   
+   fLorentzCorrections[106][0].SetT0Func(t0_func_106_100, {
+       200, 300, -40, -130, 35, -55, 25,70, 10, 0.50
+     });
+   fLorentzCorrections[106][1].SetT0Func(t0_func_106_200, {
+       0.2, 220, 290, -85, -40, 50, 70
+     });
+   fLorentzCorrections[106][2].SetT0Func(t0_func_106_300, {
+       300
+     });
+   
+   
+   //VdriftZ
+   fLorentzCorrections[106][0].SetVDriftZFunc(const_func, {0.016});
+   fLorentzCorrections[106][1].SetVDriftZFunc(const_func, {0.016});
+   fLorentzCorrections[106][2].SetVDriftZFunc(const_func, {0.016});
+   //VdriftX
+   fLorentzCorrections[106][0].SetVDriftXFunc(const_func, {0.007});
+   //fLorentzCorrections[106][1].SetVDriftXFunc(const_func, {-0.005});
+   //fLorentzCorrections[106][2].SetVDriftXFunc(const_func, {-0.0025});
+   fLorentzCorrections[106][1].SetVDriftXFunc(const_func, {-0.006});
+   fLorentzCorrections[106][2].SetVDriftXFunc(const_func, {-0.004});
+   //Lorentz function
+   fLorentzCorrections[106][0].SetLorentzConstFunc(lconst_func_106_100);
+   fLorentzCorrections[106][1].SetLorentzConstFunc(lconst_func_106_200);
+   fLorentzCorrections[106][2].SetLorentzConstFunc(lconst_func_106_300);
+
+   fLorentzCorrections[106][0].SetFGeom(fgeom_func_106_100, {0});
+   fLorentzCorrections[106][1].SetFGeom(fgeom_func_106_200, {0});
+   fLorentzCorrections[106][2].SetFGeom(fgeom_func_106_300, {0});
+   
+   fLorentzCorrections[106][0].SetLorentzConstFunc(lconst_func_106_100,{
+       0.33,-45,-0.41,-42
+     });
+
+   fLorentzCorrections[106][1].SetLorentzConstFunc(lconst_func_106_200,{
+       0.026,-0.00106,1.51e-5,3.51e-7,
+       -0.00123,-3.54e-5,6.28e-7,6.23e-9,-1.36e-10
+     });
+   fLorentzCorrections[106][2].SetLorentzConstFunc(lconst_func_106_300,{
+       0.4,0.15,-50,
+       -1,
+       0.6,0.12,-30
+     });
+   
+   //GTR-Module107
+   /*
+   fLorentzCorrections[107][0].SetT0Func(t0_func_107_100_200_300, {
+       159,
+       0,
+       20,
+       6,
+       17.5,
+       155
+     });
+   */
+   fLorentzCorrections[107][0].SetT0Func(t0_func_107_100, {});
+
+   fLorentzCorrections[107][1].SetT0Func(t0_func_107_100_200_300, {
+       165,
+       //78,
+       0,
+       25,
+       0,
+       25,
+       180
+     });
+
+   fLorentzCorrections[107][2].SetT0Func(t0_func_107_100_200_300, {
+       165,
+       //80,
+       0,
+       40,
+       0,
+       40,
+       180
+     });
+   /*
+   fLorentzCorrections[107][0].SetVDriftZFunc(const_func, {0.013});
+   fLorentzCorrections[107][1].SetVDriftZFunc(const_func, {0.018});
+   fLorentzCorrections[107][2].SetVDriftZFunc(const_func, {0.020});
+   */
+   fLorentzCorrections[107][0].SetVDriftZFunc(const_func, {0.013});
+   fLorentzCorrections[107][1].SetVDriftZFunc(const_func, {0.014});
+   fLorentzCorrections[107][2].SetVDriftZFunc(const_func, {0.014});
+   /*
+   fLorentzCorrections[107][0].SetLorentzConstFunc(lconst_func_107_100,{
+       0.177,-0.0001986,0.000308,2.966e-7,-1.31e-7,
+       -0.277,-44.39,
+       });
+   */
+   fLorentzCorrections[107][0].SetLorentzConstFunc(lconst_func_107_100,{});
+   fLorentzCorrections[107][1].SetLorentzConstFunc(lconst_func_107_200,{
+       -0.5813,0.000912,2.609e-6,-5.212e-9,1.856e-9,
+       0.4,-80,
+       0.65,-85,
+       });
+
+   fLorentzCorrections[107][2].SetLorentzConstFunc(nullptr);
+   fLorentzCorrections[107][0].SetFGeom(fgeom_func_107_100, {0});
+   fLorentzCorrections[107][1].SetFGeom(fgeom_func_107_200, {0});
+   fLorentzCorrections[107][2].SetFGeom(fgeom_func_107_300, {0});
+   /*
+   fLorentzCorrections[107][0].SetVDriftXFunc(const_func, {0.005});
+   fLorentzCorrections[107][1].SetVDriftXFunc(const_func, {-0.0035});
+   fLorentzCorrections[107][2].SetVDriftXFunc(const_func, {-0.002});
+   */
+   fLorentzCorrections[107][0].SetVDriftXFunc(const_func, {0.0062});
+   fLorentzCorrections[107][1].SetVDriftXFunc(const_func, {-0.0057});
+   fLorentzCorrections[107][2].SetVDriftXFunc(const_func, {-0.0039});
+}
+
+E16ANA_GTRLorentzCorrectionManager* E16ANA_GTRLorentzCorrectionManager::fInstance = nullptr;
+
+E16ANA_GTRLorentzCorrectionManager& E16ANA_GTRLorentzCorrectionManager::Instance(){
+   if (fInstance == nullptr) {
+      fInstance = new E16ANA_GTRLorentzCorrectionManager();
+   }
+   return *fInstance;
+}
+
+TVector3 E16ANA_GTRLorentzCorrectionManager::CorrectLocalPos(int module_id, int layer_id, const TVector3 &lpos, double hit_time, const TVector3 &lmom){
+   return fLorentzCorrections[module_id][layer_id].CorrectLocalPos(lpos, hit_time, lmom);
+}
+
+void E16ANA_GTRLorentzCorrectionManager::PrintParams(int module_id, int layer_id, const TVector3 &lpos){
+   return fLorentzCorrections[module_id][layer_id].PrintParams(lpos);
+}
+
+void E16ANA_GTRLorentzCorrection::SetT0Func(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetT0Func(func, p);
+}
+
+void E16ANA_GTRLorentzCorrection::SetT0Func(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fT0Func.fFunc = func;
+   fT0Func.fParams = params;
+}
+
+void E16ANA_GTRLorentzCorrection::SetFGeom(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetFGeom(func, p);
+}
+
+void E16ANA_GTRLorentzCorrection::SetFGeom(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fFGeom.fFunc = func;
+   fFGeom.fParams = params;
+}
+
+
+void E16ANA_GTRLorentzCorrection::SetVDriftZFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetVDriftZFunc(func, p);
+}
+void E16ANA_GTRLorentzCorrection::SetVDriftZFunc(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fVDriftZFunc.fFunc = func;
+   fVDriftZFunc.fParams = params;
+}
+
+void E16ANA_GTRLorentzCorrection::SetVDriftXFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetVDriftXFunc(func, p);
+}
+void E16ANA_GTRLorentzCorrection::SetVDriftXFunc(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fVDriftXFunc.fFunc = func;
+   fVDriftXFunc.fParams = params;
+}
+
+void E16ANA_GTRLorentzCorrection::SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetLorentzConstRoughFunc(func, p);
+}
+void E16ANA_GTRLorentzCorrection::SetLorentzConstRoughFunc(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fLorentzConstRoughFunc.fFunc = func;
+   fLorentzConstRoughFunc.fParams = params;
+}
+
+void E16ANA_GTRLorentzCorrection::SetLorentzConstFunc(std::function<double(double*, double*)> func, std::initializer_list<double> params){
+   std::vector<double> p;
+   for (auto &e : params) {
+      p.push_back(e);
+   }
+   SetLorentzConstFunc(func, p);
+}
+void E16ANA_GTRLorentzCorrection::SetLorentzConstFunc(std::function<double(double*, double*)> func, std::vector<double> &params){
+   fLorentzConstFunc.fFunc = func;
+   fLorentzConstFunc.fParams = params;
+}
+

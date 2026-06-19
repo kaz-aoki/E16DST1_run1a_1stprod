@@ -26,7 +26,7 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
   static int n_calls;
   static int n_cands;
   static bool is_fill_param;
-  track_candidates.Analyze();
+  int refind = track_candidates.Analyze();
 
 //  track_candidates.Print(3);
   
@@ -42,8 +42,9 @@ int E16DST_DST1TrackFactory(E16ANA_GeometryV2& geometry, E16ANA_MagneticFieldMap
     is_fill_param = true;
   }
   //check_file->AddEntry(n_calls, geometry, *record, track_candidates);
-  //if(track_candidates.NumTrackCandidates()>0) check_file->AddEntry(n_calls, geometry, track_candidates);
-  check_file->AddEntry(n_calls, geometry, track_candidates);
+  if(track_candidates.NumTrackCandidates()>0) check_file->AddEntry(n_calls, geometry, track_candidates,refind);
+  //check_file->AddEntry(n_calls, geometry, track_candidates,refind);
+  //check_file->AddEntry(n_calls, geometry, track_candidates);
   ++n_calls;
   n_cands += track_candidates.NumTrackCandidates();
   if(track_candidates.NumTrackCandidates()>0){

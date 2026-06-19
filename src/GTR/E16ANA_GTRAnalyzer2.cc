@@ -1,3 +1,4 @@
+
 // 2015-11-02, uploaded by yokkaich
 // 2015-11-02, uploaded by komatsu
 // 2015-10-05, uploaded by yokkaich
@@ -236,24 +237,20 @@ void E16ANA_GTRAnalyzer2::SetBadPedestalSigmaThresholdY(double th)
    strip_ana_y->SetBadPedestalSigmaThreshold(th);
 }
 
-void E16ANA_GTRAnalyzer2::SetTimeWindowMinX(double th)
+void E16ANA_GTRAnalyzer2::SetTimeWindowMin(double th)
 {
-	strip_ana_x->gem_tdc_min = th;
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->gem_tdc_min = th;
+   }
 }
 
-void E16ANA_GTRAnalyzer2::SetTimeWindowMaxX(double th)
+void E16ANA_GTRAnalyzer2::SetTimeWindowMax(double th)
 {
-	strip_ana_x->gem_tdc_max = th;
-}
-void E16ANA_GTRAnalyzer2::SetTimeWindowMinY(double th)
-{
-	strip_ana_y->gem_tdc_min = th;
+   for (int i = 0; i < (int)strip_list.size(); i++) {
+      strip_list[i]->gem_tdc_max = th;
+   }
 }
 
-void E16ANA_GTRAnalyzer2::SetTimeWindowMaxY(double th)
-{
-	strip_ana_y->gem_tdc_max = th;
-}
 void E16ANA_GTRAnalyzer2::SetClusterMinimumGap(int th)
 {
    for (int i = 0; i < (int)strip_list.size(); i++) {
@@ -427,6 +424,16 @@ void E16ANA_GTRAnalyzer2::SetFadc(int ch, int16_t *_fadc)
    }
 }
 
+void E16ANA_GTRAnalyzer2::SetLFadc(int ch, int16_t *_fadc)
+{
+   if (strip_num[ch] < n_strip_x && strip_num[ch] > -1) {
+      strip_ana_x->SetLFadc(strip_num[ch], _fadc);
+   } else if (strip_num[ch] >= n_strip_x && strip_num[ch] < n_strip_x + n_strip_y) {
+      strip_ana_y->SetLFadc(strip_num[ch] - n_strip_x, _fadc);
+   }
+}
+
+
 void E16ANA_GTRAnalyzer2::SetPedestal(int ch, double _fadc_ped)
 {
    if (strip_num[ch] < n_strip_x && strip_num[ch] > -1) {
@@ -450,9 +457,20 @@ void E16ANA_GTRAnalyzer2::SetFadcX(int strip_id, int16_t *_fadc)
    strip_ana_x->SetFadc(strip_id, _fadc);
 }
 
+void E16ANA_GTRAnalyzer2::SetLFadcX(int strip_id, int16_t *_fadc)
+{
+   strip_ana_x->SetLFadc(strip_id, _fadc);
+}
+
 void E16ANA_GTRAnalyzer2::SetFadcY(int strip_id, int16_t *_fadc)
 {
    strip_ana_y->SetFadc(strip_id, _fadc);
+}
+
+
+void E16ANA_GTRAnalyzer2::SetLFadcY(int strip_id, int16_t *_fadc)
+{
+   strip_ana_y->SetLFadc(strip_id, _fadc);
 }
 
 void E16ANA_GTRAnalyzer2::Analyze()
@@ -559,16 +577,6 @@ void E16ANA_GTR100Analyzer::SetTOTThresholdY(double th)
    strip_ana_yb->gem_tot_threshold = th;
 }
 
-void E16ANA_GTR100Analyzer::SetTimeWindowMaxY(double th)
-{
-   E16ANA_GTRAnalyzer2::SetTimeWindowMaxY(th);
-   strip_ana_yb->gem_tdc_max = th;
-}
-void E16ANA_GTR100Analyzer::SetTimeWindowMinY(double th)
-{
-   E16ANA_GTRAnalyzer2::SetTimeWindowMinY(th);
-   strip_ana_yb->gem_tdc_min = th;
-}
 void E16ANA_GTR100Analyzer::SetBadPedestalThresholdY(double th)
 {
    E16ANA_GTRAnalyzer2::SetBadPedestalThresholdY(th);
@@ -590,6 +598,19 @@ void E16ANA_GTR100Analyzer::SetFadcYb(int strip_id, int16_t *_fadc)
 {
    strip_ana_yb->SetFadc(strip_id, _fadc);
 }
+
+
+void E16ANA_GTR100Analyzer::SetLFadcYa(int strip_id, int16_t *_fadc)
+{
+   strip_ana_y->SetLFadc(strip_id, _fadc);
+}
+
+void E16ANA_GTR100Analyzer::SetLFadcYb(int strip_id, int16_t *_fadc)
+{
+   strip_ana_yb->SetLFadc(strip_id, _fadc);
+}
+
+
 void E16ANA_GTR100Analyzer::AnalyzeYb()
 {
    strip_ana_yb->Analyze();
@@ -622,6 +643,18 @@ void E16ANA_GTR100Analyzer::SetFadc(int ch, int16_t *_fadc)
       strip_ana_y->SetFadc(strip_num[ch] - n_strip_x, _fadc);
    } else if (strip_num[ch] >= n_strip_x + n_strip_y && strip_num[ch] < n_strip_x + n_strip_y + n_strip_y) {
       strip_ana_yb->SetFadc(strip_num[ch] - n_strip_x - n_strip_y, _fadc);
+   }
+}
+
+
+void E16ANA_GTR100Analyzer::SetLFadc(int ch, int16_t *_fadc)
+{
+   if (strip_num[ch] < n_strip_x && strip_num[ch] > -1) {
+      strip_ana_x->SetLFadc(strip_num[ch], _fadc);
+   } else if (strip_num[ch] >= n_strip_x && strip_num[ch] < n_strip_x + n_strip_y) {
+      strip_ana_y->SetLFadc(strip_num[ch] - n_strip_x, _fadc);
+   } else if (strip_num[ch] >= n_strip_x + n_strip_y && strip_num[ch] < n_strip_x + n_strip_y + n_strip_y) {
+      strip_ana_yb->SetLFadc(strip_num[ch] - n_strip_x - n_strip_y, _fadc);
    }
 }
 

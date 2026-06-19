@@ -1,0 +1,50 @@
+Loading /usr/share/emacs/site-lisp/site-start.d/autoconf-init.el (source)...done
+Loading /usr/share/emacs/site-lisp/site-start.d/cmake-init.el (source)...done
+Loading /usr/share/emacs/site-lisp/site-start.d/desktop-entry-mode-init.el (source)...done
+Loading /usr/share/emacs/site-lisp/site-start.d/mercurial-site-start.el (source)...done
+Loading /usr/share/emacs/site-lisp/site-start.d/systemtap-init.el (source)...done
+For information about GNU Emacs and the GNU system, type C-h C-a.
+Mark saved where search started
+Auto-saving...done
+Mark saved where search started
+Mark set
+Auto-saving...done
+Mark saved where search started
+Mark set [4 times]
+Auto-saving...done
+Mark set [3 times]
+Auto-saving...done
+Mark set [2 times]
+<f1> DEL is undefined
+Auto-saving...done
+Saving file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/E16ANA_GTRStripAnalyzer.cc...
+Wrote /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/E16ANA_GTRStripAnalyzer.cc
+(No changes need to be saved) [2 times]
+Auto-saving...done
+Mark set [2 times]
+Saving file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/E16ANA_GTRStripAnalyzer.cc...
+Wrote /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/E16ANA_GTRStripAnalyzer.cc
+(No changes need to be saved)
+Mark set [2 times]
+Auto-saving...done
+Saving file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/E16ANA_GTRStripAnalyzer.cc...
+Wrote /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/E16ANA_GTRStripAnalyzer.cc
+(No changes need to be saved) [2 times]
+Mark saved where search started [2 times]
+user-error: Beginning of history; no preceding item
+Mark saved where search started
+Auto-saving...done
+Mark set [3 times]
+Auto-saving...
+Mark set [2 times]
+Saving file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/track/E16ANA_TrackCandidate.cc...
+Wrote /home/had/ymorino/prod_run0e_dev6/E16DST1/src/track/E16ANA_TrackCandidate.cc
+(No changes need to be saved) [2 times]
+user-error: End of defaults; no next item
+C-z is undefined
+Wrote /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/*Messages*
+Save file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/*Messages*? (y, n, !, ., q, C-r, C-f, d or C-h) 
+Save file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/*Messages*? (y, n, !, ., q, C-r, C-f, d or C-h) n
+(No changes need to be saved) [2 times]
+Save file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/*Messages*? (y, n, !, ., q, C-r, C-f, d or C-h) 
+Save file /home/had/ymorino/prod_run0e_dev6/E16DST1/src/GTR/*Messages*? (y, n, !, ., q, C-r, C-f, d or C-h) n

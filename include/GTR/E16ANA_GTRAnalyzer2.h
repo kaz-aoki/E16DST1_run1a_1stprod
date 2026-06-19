@@ -54,10 +54,13 @@ public:
    */
    void Clear();
    virtual void SetFadc(int ch, int16_t *_fadc);                  // use this
+   virtual void SetLFadc(int ch, int16_t *_fadc);                  // use this
    virtual void SetPedestal(int ch, double _fadc_ped);            // use this
    virtual void SetPedestalSigma(int ch, double _fadc_ped_sigma); // use this
    void SetFadcX(int strip_id, int16_t *_fadc);                   // use this
    void SetFadcY(int strip_id, int16_t *_fadc);                   // use this
+   void SetLFadcX(int strip_id, int16_t *_fadc);                   // use this
+   void SetLFadcY(int strip_id, int16_t *_fadc);                   // use this
 
    void SetFadcT0CorrectionParameter(int _fadc_t0) { fadc_t0_correction = _fadc_t0 * tdc_lsb; };
 
@@ -80,10 +83,8 @@ public:
    virtual void SetBadPedestalThresholdY(double th);
    virtual void SetBadPedestalSigmaThresholdX(double th);
    virtual void SetBadPedestalSigmaThresholdY(double th);
-   virtual void SetTimeWindowMinX(double th);
-   virtual void SetTimeWindowMaxX(double th);
-   virtual void SetTimeWindowMinY(double th);
-   virtual void SetTimeWindowMaxY(double th);
+   virtual void SetTimeWindowMin(double th);
+   virtual void SetTimeWindowMax(double th);
    virtual void SetClusterMinimumGap(int th);
    virtual void SetClusterDeltaTdc(double th);
    virtual void SetRiseTimeMin(double th);
@@ -163,17 +164,18 @@ public:
    void Analyze2Y(int hitid, int type); // a(is_y) or b(is_yb):
 
    void SetFadc(int ch, int16_t *_fadc);                  // use this
+   void SetLFadc(int ch, int16_t *_fadc);                  // use this
    void SetPedestal(int ch, double _fadc_ped);            // use this
    void SetPedestalSigma(int ch, double _fadc_ped_sigma); // use this
    void SetFadcYa(int strip_id, int16_t *_fadc);
    void SetFadcYb(int strip_id, int16_t *_fadc);
+   void SetLFadcYa(int strip_id, int16_t *_fadc);
+   void SetLFadcYb(int strip_id, int16_t *_fadc);
 
    void SetParameters(std::string filename);
    void SetPinAssign(std::string filename);
    void SetThresholdY(double th);
    void SetTOTThresholdY(double th);
-	void SetTimeWindowMinY(double th);
-	void SetTimeWindowMaxY(double th);
    void SetBadPedestalThresholdY(double th);
    void SetBadPedestalSigmaThresholdY(double th);
    int GetNumberOfStrips() { return n_strip_x + n_strip_y + n_strip_y; };

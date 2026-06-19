@@ -1,0 +1,1448 @@
+18c18
+<      gem_tdc_min(-10000.0), gem_tdc_max(10000.0), gem_tr(75.0), threshold_fraction(0.5), inverted(1.0),cluster_minimum_gap(1), cluster_delta_tdc(10000.0),  
+---
+>      gem_tdc_min(-10000.0), gem_tdc_max(10000.0), gem_tr(75.0), threshold_fraction(0.5), inverted(1.0),cluster_minimum_gap(2), cluster_delta_tdc(10000.0),  
+27,39c27,32
+<    
+<    fadc_peak.resize(n_strips);
+<    fadc_peak_tdc.resize(n_strips);
+<    fadc_peak_time.resize(n_strips);
+<    fadc_tdc.resize(n_strips);
+<    fadc_tot.resize(n_strips);
+<    fadc_rise.resize(n_strips);
+<    fadc_peak_st.resize(n_strips);
+<    fadc_peak_ed.resize(n_strips);
+<    fadc_used.resize(n_strips);
+<    fadc_qual.resize(n_strips);
+< 
+<    fadc_ped       = new double[n_strips];
+---
+>    fadc_peak = new double[n_strips];
+>    fadc_peak_time = new double[n_strips];
+>    fadc_peak_tdc  = new double[n_strips];
+>    fadc_tdc = new double[n_strips];
+>    fadc_tot = new double[n_strips];
+>    fadc_ped = new double[n_strips];
+41c34,36
+<    fadc_tped      = new double[n_sampling];
+---
+>    fadc_peak_st = new double[n_strips];//tot start time
+>    fadc_peak_ed = new double[n_strips];//tot end time
+>    fadc_rise = new double[n_strips];//peak time - tot start
+59a55,59
+>    delete[] fadc_peak;
+>    delete[] fadc_peak_time;
+>    delete[] fadc_peak_tdc;
+>    delete[] fadc_tdc;
+>    delete[] fadc_tot;
+61d60
+<    delete[] fadc_tped;
+63,73c62,65
+< 
+<    fadc_peak.clear();
+<    fadc_peak_time.clear();
+<    fadc_peak_tdc.clear();
+<    fadc_tdc.clear();
+<    fadc_tot.clear();
+<    fadc_rise.clear();
+<    fadc_peak_st.clear();
+<    fadc_peak_ed.clear();
+<    fadc_used.clear();
+<    fadc_qual.clear();
+---
+>    delete[] fadc_rise;
+>    delete[] fadc_peak_st;
+>    delete[] fadc_peak_ed;
+>    
+114c106
+<     local_pedestal += (double)waveform[j];
+---
+>     local_pedestal += waveform[j];
+121d112
+<      fadc_tped[j]      = 0;
+124a116,131
+> void E16ANA_GTRStripAnalyzer::SetLFadc(int strip_id, int16_t *waveform, std::vector<int> &sim_waveform, bool hasRealHit)
+> {
+>   double local_pedestal = 0.0;
+>   for (int j = 0; j < 3; j++) {
+>     local_pedestal += waveform[j];
+>   }
+>   local_pedestal /= 3.0;
+>    
+>    for (int j = 0; j < n_sampling; j++) {
+>       if(hasRealHit){
+>          fadc[strip_id][j] = waveform[j] + sim_waveform[j] - local_pedestal;//will be seg fault if # of sampling is not identical.
+>       }else{
+>          fadc[strip_id][j] =  sim_waveform[j];//ONLY Simulated Waveform
+>       }
+>    }
+> }
+187,189d193
+< 
+< 
+< 
+222c226
+<       //      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);//original
+---
+> //      CalcTdcHit12(clustered_strip_id[i], gem_analyzed_hits[i], i);//original
+239,240c243,244
+<   /*
+<   CalcWaveParamsPeak();
+---
+>    CalcWaveParamsPeak();
+>    // const int min_gap = 2;
+242c246
+<    
+---
+> 
+244c248
+<      clustered_strip_id[i].clear();
+---
+>       clustered_strip_id[i].clear();
+247a252
+>    // double pre_tdc = fadc_tdc[0];
+249a255,256
+>       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
+> //      std::cout << "i  = " << i << ", peak = " << fadc_peak[i] << std::endl;
+251,252c258,262
+< 	if (signal_gap >= min_gap) {
+< 	  clustered_strip_id.push_back(std::vector<int>());
+---
+>          // double delta_tdc = fadc_tdc[i]-pre_tdc;
+>          // pre_tdc = fadc_tdc[i];
+>          // if(signal_gap>=min_gap || fabs(delta_tdc)>100.0){ // V1
+>          if (signal_gap >= min_gap) { // V0
+>             clustered_strip_id.push_back(std::vector<int>());
+254,258c264,268
+< 	} else if (fadc_peak[i] < cluster_threshold) {
+< 	  clustered_strip_id.push_back(std::vector<int>());
+< 	}
+< 	clustered_strip_id.back().push_back(i);
+< 	signal_gap = 0;
+---
+>          } else if (fadc_peak[i] < cluster_threshold) {
+>             clustered_strip_id.push_back(std::vector<int>());
+>          }
+>          clustered_strip_id.back().push_back(i);
+>          signal_gap = 0;
+260c270
+< 	signal_gap++;
+---
+>          signal_gap++;
+263d272
+<    */
+268a278
+>   //return HitClusteringV1(2, 150);
+272a283
+>   //std::cout<<"hello cluster v1::"<< min_gap<< ", " << delta_tdc_threshold<<std::endl;
+273a285,288
+>    // const int min_gap = 2;
+>    int signal_gap = 100;
+>    // const double delta_tdc_threshold = 150.0;
+> 
+275c290
+<      clustered_strip_id[i].clear();
+---
+>       clustered_strip_id[i].clear();
+278,439d292
+<    
+<    int nhit=0;
+<    std::vector<int> lastcls;
+<    lastcls.clear();
+<    for(int it = 0; it < 3; it++) {
+<      int signal_gap = 100;   
+<      int    pre_id  = -10;
+<      double pre_tdc =  0;
+<      for (int i = 0; i < n_strips; i++) {
+<        if((int)fadc_tdc.at(i).size()>0){
+< 	 pre_tdc = fadc_tdc.at(i).at(0);
+<        }
+<      }
+<      for(int i = 0; i < n_strips; i++) {
+<        if((int)fadc_tdc.at(i).size()>0) {
+< 	 for(int jj = 0; jj < (int)fadc_tdc.at(i).size(); jj++) {
+< 	   if(it==0) nhit++;
+< 	   int j=jj;
+< 	   if(it==2) j = fadc_tdc.at(i).size() - jj - 1;
+< 	   
+< 	   if(fadc_used.at(i).at(j)>0) 	  continue;
+< 	   //if(it==0) std::cout<<"id::"<<i<<", "<<j<<" pulse::"<<fadc_tdc.at(i).at(j)<<", "<< fadc_peak_ed.at(i).at(j)<<", " <<fadc_peak.at(i).at(j) <<std::endl;
+< 	   int sid = j*1000+i;	 
+< 	   double delta_tdc = fadc_tdc.at(i).at(j) - pre_tdc;
+< 	   double delta_id  = i - pre_id;
+< 	   if(delta_id==0) {
+< 	     //if(it==0) std::cout<<"same pad " <<std::endl;
+< 	     int csize = clustered_strip_id.back().size();
+< 	     if(csize>1){
+< 	       int psid2 = clustered_strip_id.back().at(csize-2);
+< 	       int pi2   = (int)psid2%1000;
+< 	       int pj2   = (int)(psid2/1000);
+< 	       double pre_tdc2  = fadc_tdc.at(pi2).at(pj2) ;
+< 	       if(fabs(fadc_tdc.at(i).at(j)-pre_tdc2)<delta_tdc_threshold){
+< 		 int psid  = clustered_strip_id.back().at(csize-1);
+< 		 int pi    = (int)psid%1000;
+< 		 int pj    = (int)(psid/1000);
+< 		 double cur_tdc = fadc_tdc.at(i).at(j) ;
+< 		 if(fabs(pre_tdc2-cur_tdc)<fabs(pre_tdc2-fadc_tdc.at(pi).at(pj))){
+< 		   clustered_strip_id.back().pop_back();
+< 		   fadc_used.at(pi).at(pj) = -1;
+< 		   fadc_used.at(i).at(j)   =  1;
+< 		   pre_tdc = fadc_tdc.at(i).at(j);
+< 		   pre_id  = i;
+< 		   clustered_strip_id.back().push_back(sid);
+< 		   signal_gap = 0;
+< 		   if(it==2) lastcls.push_back(psid);
+< 		   //std::cout<<"re-find close hit1" <<std::endl;
+< 		   continue;
+< 		 }
+< 	       }
+< 	     }
+< 	     if(it==2) lastcls.push_back(sid);
+< 	     continue;
+< 	   }
+< 	   
+< 	   if(signal_gap<min_gap && (fabs(delta_tdc)>delta_tdc_threshold) && (j<(int)(fadc_tdc.at(i).size()-1)) ) {
+< 	     //if(it==0) std::cout<<"search other hit " <<std::endl;
+< 	     if(it==2) lastcls.push_back(sid);
+< 	     continue;
+< 	   }
+< 	   if (signal_gap >= min_gap){
+< 	     if(pre_id>-1&&it<2){
+< 	       if(clustered_strip_id.back().size()==1) clustered_strip_id.pop_back();
+< 	     }
+< 	     clustered_strip_id.push_back(std::vector<int>());
+< 	     //if(it==0) std::cout<<"find isolate hit " <<std::endl;
+< 	   }
+< 	   if( signal_gap<min_gap && fabs(delta_tdc) >delta_tdc_threshold ){
+< 	     if(pre_id>-1&&it<2){
+< 	       if(clustered_strip_id.back().size()==1) clustered_strip_id.pop_back();
+< 	     }
+< 	     clustered_strip_id.push_back(std::vector<int>());
+< 	     //if(it==0) std::cout<<"find different tdc hit "<< pre_tdc<<", "<<fadc_tdc.at(i).at(j) <<std::endl;
+< 	   }
+< 
+< 	   int sflag = -1;
+< 	   
+< 	   if(clustered_strip_id.back().size()>1){
+< 	     int id1   = clustered_strip_id.back().at(clustered_strip_id.back().size()-1);
+< 	     int i1    = (int)id1%1000;
+< 	     int j1    = (int)(id1/1000);
+< 	     int id2   = clustered_strip_id.back().at(clustered_strip_id.back().size()-2);
+< 	     int i2    = (int)id2%1000;
+< 	     int j2    = (int)(id2/1000);
+< 
+< 	     if( ((fadc_peak.at(i2).at(j2)-20>fadc_peak.at(i1).at(j1)) &&(fadc_peak.at(i).at(j)-20  >fadc_peak.at(i1).at(j1)))
+< 		 ||  ((fadc_peak.at(i).at(j)-20>fadc_peak.at(i1).at(j1)) &&(fadc_peak.at(i).at(j)-20  >fadc_peak.at(i2).at(j2)))
+< 		 ){
+< 	       double maxadc = -1000;
+< 	       for(int ic=0;ic<clustered_strip_id.back().size();ic++){
+< 		 int psid  = clustered_strip_id.back().at(ic);
+< 		 int pi    = (int)psid%1000;
+< 		 int pj    = (int)(psid/1000);
+< 		 if(maxadc<fadc_peak.at(pi).at(pj)) maxadc = fadc_peak.at(pi).at(pj);
+< 	       }
+< 	       if(0.4*maxadc>fadc_peak.at(i1).at(j1)){
+< 		 sflag = 1;
+< 		 clustered_strip_id.push_back(std::vector<int>());
+< 		 //std::cout<<"split cluster " <<std::endl;
+< 	       }
+< 
+< 
+< 	       
+< 	     }
+< 	   }
+< 	   
+< 	   //if(delta_id>0 && delta_id<=min_gap && fabs(delta_tdc) < delta_tdc_threshold){
+< 	   if(signal_gap<min_gap && fabs(delta_tdc) <= delta_tdc_threshold && sflag<0){
+< 	     if(pre_id>-1){
+< 	       int psid  = clustered_strip_id.back().back();
+< 	       int pi    = (int)psid%1000;
+< 	       int pj    = (int)(psid/1000);
+< 	       int rflag = -1;
+< 	       if(fadc_tdc.at(pi).size()>1){
+< 		 double min_dtdc = fadc_tdc.at(i).at(j) - fadc_tdc.at(pi).at(pj);
+< 		 for(int ii=0;ii<fadc_tdc.at(pi).size();ii++){
+< 		   if(fadc_used.at(pi).at(ii)>0) continue;
+< 		   if(ii==pj)                    continue;
+< 		   double pre_tdc2  = fadc_tdc.at(pi).at(ii) ;
+< 		   if(fabs(pre_tdc2-fadc_tdc.at(i).at(j))<=delta_tdc_threshold){
+< 		     if(fabs(min_dtdc)>fabs(pre_tdc2-fadc_tdc.at(i).at(j))){
+< 		       min_dtdc = pre_tdc2-fadc_tdc.at(i).at(j);
+< 		       
+< 		       if(clustered_strip_id.back().size()==1) {
+< 			 clustered_strip_id.pop_back();
+< 			 fadc_used.at(pi).at(pj) = -1;
+< 			 if(it==2) lastcls.push_back(psid);
+< 		       }
+< 		       
+< 		       
+< 		       clustered_strip_id.push_back(std::vector<int>());
+< 		       clustered_strip_id.back().push_back(ii*1000+pi);
+< 		       fadc_used.at(pi).at(ii) = 1;
+< 		       rflag = 1;
+< 		       //std::cout<<"re-find close hit2" <<std::endl;
+< 		     }
+< 		   }
+< 		 }  
+< 	       }
+< 	       
+< 	       if(rflag<0){
+< 		 fadc_used.at(pi).at(pj) = 1;
+< 	       }
+< 	       
+< 	     }
+< 	     fadc_used.at(i).at(j) = 1;
+< 	     //std::cout<<"try::"<<it <<", find cluster::" <<i<<", "<<j<<", "<<clustered_strip_id.back().size() <<std::endl;
+< 	   }
+< 	   pre_tdc = fadc_tdc.at(i).at(j);
+< 	   pre_id  = i;
+< 	   clustered_strip_id.back().push_back(sid);
+< 	   signal_gap = 0;
+< 	 }
+<        }else {
+< 	 signal_gap++;
+<        }
+<      }
+<      if(clustered_strip_id.size()>0&&it<2){
+<        if(clustered_strip_id.back().size()==1) clustered_strip_id.pop_back();
+<      }
+<    }
+441c294
+<    
+---
+>    double pre_tdc = fadc_tdc[0];
+443,465c296,300
+<    //if(nhit>0) std::cout<<"remaining cls::"<< lastcls.size()<<std::endl;
+<    for(int i=0;i<lastcls.size();i++){
+<      int lid     = lastcls.at(i);
+<      int li      = (int)lid%1000;
+<      int lj      = (int)(lid/1000);
+<      double ltdc = fadc_tdc.at(li).at(lj);
+<      int iflag   = -1;
+< 
+<      for(int j=0;j<clustered_strip_id.size();j++){
+<        int i0    = (int)clustered_strip_id.at(j).front()%1000;
+<        int j0    = (int)(clustered_strip_id.at(j).front()/1000);
+<        int i1    = (int)clustered_strip_id.at(j).back()%1000;
+<        int j1    = (int)(clustered_strip_id.at(j).back()/1000);
+<        if(li==(i0-1) &&  fabs(ltdc-fadc_tdc.at(i0).at(j0)) <= delta_tdc_threshold){
+< 	 clustered_strip_id.at(j).insert(clustered_strip_id.at(j).begin(),lid);
+< 	 iflag = 1;
+< 	 break;
+<        }
+<        if(li==(i1+1) &&  fabs(ltdc-fadc_tdc.at(i1).at(j1)) <= delta_tdc_threshold){
+< 	 clustered_strip_id.at(j).push_back(lid);
+< 	 iflag = 1;
+< 	 break;
+<        }
+---
+>    for (int i = 0; i < n_strips; i++) {
+>       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
+>      /*
+>      if(n_strips==288 && 200<i &&i<210){
+>        std::cout<<i<<", "<< fadc_tdc[i]<<", "<<fadc_peak[i] <<", "<<fadc_peak_time[i]<<", " <<signal_gap<<std::endl;
+466a302,303
+>      */
+>       if (fadc_peak[i] > 0.0 && fadc_peak_time[i] > 0.0) {
+468,480c305,319
+<      if(iflag<0){
+<        clustered_strip_id.push_back(std::vector<int>());
+<        clustered_strip_id.back().push_back(lastcls.at(i));
+<      }
+<    }
+<    lastcls.clear();
+<    int renhit = 0;
+<    
+<    for(int i=0;i<clustered_strip_id.size();i++){
+<      renhit += clustered_strip_id.at(i).size();
+<      //for(int ii=0;ii<clustered_strip_id.at(i).size();ii++){
+<      //std::cout<<i<<", "<<ii<<", "<<clustered_strip_id.at(i).at(ii)<<std::endl;
+<      //}
+---
+>          double delta_tdc = fadc_tdc[i] - pre_tdc;
+> 	 //		 std::cout << "fadc tdc " << fadc_tdc[i] << std::endl;
+> 
+> 	 //std::cout<<n_strips<<"::"<<i<<", "<< fadc_tdc[i]<<", "<<fadc_peak[i] <<", "<<GetPosition(i)<<", " <<signal_gap<<std::endl;
+> 	 
+>          pre_tdc = fadc_tdc[i];
+>          if (signal_gap >= min_gap || fabs(delta_tdc) > delta_tdc_threshold) { // V1
+>             // if(signal_gap>=min_gap){ // V0
+>             clustered_strip_id.push_back(std::vector<int>());
+>          }
+>          clustered_strip_id.back().push_back(i);
+>          signal_gap = 0;
+>       } else {
+>          signal_gap++;
+>       }
+482,483d320
+<    //if(nhit>0)   std::cout<<"hit::"<<nhit<<",  ncls::"<<clustered_strip_id.size()<<", "<<renhit<<std::endl;
+<    //std::cout<<std::endl;
+488a326,333
+>    for (int i = 0; i < n_strips; i++) {
+>       fadc_peak[i] = -255.0;
+>       fadc_peak_time[i] = -1000.0;
+>       fadc_tdc[i] = -1000.0;
+>       fadc_peak_st[i] = -1000.0;
+>       fadc_peak_ed[i] = -1000.0;
+>       
+>    }
+490,497c335,351
+<   
+<   for (int i = 0; i < n_strips; i++) {
+<     if (fadc[i][0] < -255.0) {
+<       continue;
+<     }
+<     this->CalcWaveParamsPeak(i, 10000.0);
+<   }
+<   
+---
+>    for (int i = 0; i < n_strips; i++) {
+>       // for(int i=left_strip_x; i<right_strip_x; i++){
+>       if (fadc[i][0] < -255.0) {
+>          continue;
+>       }
+>       /*
+>       if (IsBadStrip(i)) {
+>          continue;
+>       }
+>       */
+>       // gem_threshold = 4.0 * fadc_ped_sigma[i]; // 4sigma
+>       this->CalcWaveParamsPeak(i, 10000.0);
+>       // this->CalcWaveParamsPeak(i, gem_tdc_max+gem_tr+50.0);
+>       // if(fadc_tdc[i]>gem_tdc_max){
+>       //   this->CalcWaveParamsPeak(i, gem_tdc_max-gem_tr);
+>       //}
+>    }
+502,559c356,392
+< 
+<   int npeak = 0;
+<   int peak_count[3];
+<   int qual[3];
+<   double tot_start[3];
+<   double tot_end[3];
+<   double peakadc[3];
+<   double peaktime[3];
+< 
+<   for(int i=0;i<3;i++){
+<     peak_count[i] =  -1;
+<     tot_start[i]  =   1000;
+<     tot_end[i]    =  -1000;
+<     peakadc[i]    =  -1000;
+<     peaktime[i]   =  -1000;
+<   }
+<   
+<   if (ch > (n_strips-1)) return;
+<   double tempfadc[15];  
+<   int      peakc = -1;
+<   double tempmax = -100;
+<   for (int j = 1; j < n_sampling-1; j++) {
+<     tempfadc[j] = fadc[ch][j];
+<     if (tempmax < fadc[ch][j]) {
+<       tempmax = fadc[ch][j];
+<       peakc = j;
+<     }
+<   }
+< 
+<   int      peakc2 = -1;
+<   double tempmax2 = -100;
+<   for (int j = 1; j < n_sampling-1; j++) {
+<     if(j==peakc) continue;
+<     if (tempmax2 < fadc[ch][j]) {
+<       tempmax2 = fadc[ch][j];
+<       peakc2 = j;
+<     }
+<   }
+< 
+<   //remove noise
+<   if(tempmax*threshold_fraction*0.75>fadc[ch][peakc-1]){
+<     if(tempmax*threshold_fraction*0.75>fadc[ch][peakc+1]){
+<       if(tempmax2*threshold_fraction*0.75>fadc[ch][peakc2-1]){
+< 	if(tempmax2*threshold_fraction*0.75>fadc[ch][peakc2+1]){
+< 	  for (int j = 0; j < n_sampling; j++) {
+< 	    fadc[ch][j] = fadc[ch][j] - fadc_tped[j]; 
+< 	  }
+< 	}
+<       }
+<     }
+<   }
+<   
+<   /*
+<   if(tempmax>gem_threshold){
+<     if(tempmax*threshold_fraction/2>fadc[ch][peakc-1]){
+<       if(tempmax*threshold_fraction/2>fadc[ch][peakc+1]){
+< 	if(tempmax2*threshold_fraction/2>fadc[ch][peakc2-1]){
+< 	  if(tempmax2*threshold_fraction/2>fadc[ch][peakc2+1]){
+---
+>    int peak_count;
+>    double tot_start = 1000.0;
+>    double tot_end = 0.0;
+>    if (ch < n_strips) {
+>       fadc_peak[ch] = -255.0;
+>       fadc_tdc[ch] = -1000.0;
+>       fadc_tot[ch] = -1000.0;
+>       fadc_peak_time[ch] = -1000.0;
+>       fadc_peak_tdc[ch]  = -1000.0;
+>       fadc_peak_st[ch]   = -1000;
+>       fadc_peak_ed[ch]   = -1000;
+>       fadc_rise[ch]   = -1000;
+>       
+>       peak_count = -1;
+>       for (int j = 0; j < n_sampling; j++) {
+>          // for(int l=0; l<(int)fadc_valid_count.size(); l++){
+>          // int j= fadc_valid_count[l];
+>          double tdc_j = j * fadc_clock_period + fadc_t0_correction;
+> 	 //		 std::cout << "j, fadc_period, t0" << j << ", " << fadc_clock_period << ", " << fadc_t0_correction << std::endl;
+>          if (tdc_j > t_cutoff)
+> 	   break;
+>          // if(tdc_j<t_cutoff) continue;
+> 	 
+>          if (fadc_peak[ch] < fadc[ch][j]) {
+>             fadc_peak[ch] = fadc[ch][j];
+> 	    fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
+> 	    fadc_peak_tdc[ch] = j ;
+>             peak_count = j;
+>          }
+>       }
+> 
+>       if(0<peak_count&&peak_count<n_sampling-1){
+> 	if(fadc_peak[ch]*0.3>fadc[ch][peak_count-1]){
+> 	  if(fadc_peak[ch]*0.3>fadc[ch][peak_count+11]){
+> 	    fadc[ch][peak_count] = 0;
+> 	    peak_count    = -1;
+> 	    fadc_peak[ch] = -1000;
+561,726c394,395
+< 	      fadc[ch][j] = fadc[ch][j] - fadc_tped[j]; 
+< 	    }
+< 	  }
+< 	}
+<       }
+<     }
+<   }else{
+<     for (int j = 0; j < n_sampling; j++) {
+<       fadc_tped[j] = fadc[ch][j];
+<     }
+<   }
+<   */
+<     
+<   //remove spike
+<   /*
+<   int      peakc3 = -1;
+<   double tempmax3 = -100;
+<   for (int j = 0; j < n_sampling; j++) {
+<     if (tempmax3 < fadc[ch][j]) {
+<       tempmax3 = fadc[ch][j];
+<       peakc3 = j;
+<     }
+<   }
+<   if(0<peakc3&&peakc3<n_sampling-1&&tempmax3>gem_threshold){
+<     if(tempmax3*threshold_fraction/2>fadc[ch][peakc-1]){
+<       if(tempmax3*threshold_fraction/2>fadc[ch][peakc+1]){
+< 	fadc[ch][peakc] = fadc[ch][peakc-1];
+<       }
+<     }
+<   }
+<   */
+<   
+<   for (int j = 3; j < n_sampling; j++) {
+<     if(npeak>2)                      continue;
+<     if(fadc[ch][j]<gem_threshold)    continue;
+<     if(fadc[ch][j-1]>fadc[ch][j])    continue;
+<     if(fadc[ch][j-2]>fadc[ch][j])    continue;
+<     if(j<(n_sampling-2)){
+<       if(fadc[ch][j+2]>fadc[ch][j])  continue;
+<     }
+<     if(j<(n_sampling-1)){
+<       if(fadc[ch][j+1]>fadc[ch][j])  continue;
+<     }
+<     
+<     peak_count[npeak] = j;
+<     peakadc[npeak]    = fadc[ch][j];
+<     peaktime[npeak]   = j * fadc_clock_period + fadc_t0_correction;
+<     int nflag1 = -1;
+<     int nflag2 = -1;
+<     int st = -1;
+<     
+<     if(npeak>0){
+<       double minadc = 10000;
+<       int    mint   = 0;
+<       for (int j =  peak_count[npeak-1]; j<peak_count[npeak];j++) {
+< 	if(fadc[ch][j]<minadc) {
+< 	  minadc = fadc[ch][j];
+< 	}
+<       }
+<       if (minadc < peakadc[npeak]*threshold_fraction) {
+< 	st = peak_count[npeak-1];
+<       }else{
+< 	double dadc      = (peakadc[npeak] - fadc[ch][mint])/(peak_count[npeak]-mint);
+< 	double dtbin     = peakadc[npeak]*threshold_fraction/dadc;
+< 	double tdc_j     = peak_count[npeak] - dtbin;
+< 	tot_start[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+<       }
+<     }
+<     
+<     if(npeak==0 || (st>-1&&npeak>0) ){
+<       double temp_start = -10;
+<       for (int jj = peak_count[npeak]; jj > st; jj--) {
+< 	if (fadc[ch][jj] < peakadc[npeak] * threshold_fraction) {
+< 	  double w_j0      =  peakadc[npeak] * threshold_fraction - fadc[ch][jj];
+< 	  double w_j1      = -peakadc[npeak] * threshold_fraction + fadc[ch][jj+1];
+< 	  double tdc_j     = (jj * w_j1 + (jj + 1.0) * w_j0) / (w_j0 + w_j1);
+< 	  tot_start[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	  if(jj==0)    break;
+< 	  if(nflag1>0) break;
+< 	  if( (fadc[ch][jj-1]>peakadc[npeak]*threshold_fraction)&&(jj==(peak_count[npeak]-1))){
+< 	    nflag1     = 1;
+< 	    temp_start = tot_start[npeak];
+< 	  }else{
+< 	    break;
+< 	  }
+< 	}
+<       }
+<       if(nflag1>0&&temp_start>0) tot_start[npeak] = (tot_start[npeak]+temp_start)/2;
+<     }  
+<     
+<     /*
+<     if(npeak==0 || (npeak>0 && fadc[ch][peak_count[npeak]-3]<peakadc[npeak]*threshold_fraction)){
+<       for (int jj = peak_count[npeak]; jj > -1; jj--) {
+< 	if (fadc[ch][jj] < peakadc[npeak] * threshold_fraction) {
+< 	  double w_j0      =  peakadc[npeak] * threshold_fraction - fadc[ch][jj];
+< 	  double w_j1      = -peakadc[npeak] * threshold_fraction + fadc[ch][jj+1];
+< 	  double tdc_j     = (jj * w_j1 + (jj + 1.0) * w_j0) / (w_j0 + w_j1);
+< 	  tot_start[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	  if(jj==0)    break;
+< 	  if(nflag1>0) break;
+< 	  if( (fadc[ch][jj-1]>peakadc[npeak]*threshold_fraction)&&(jj==(peak_count[npeak]-1))){
+< 	    nflag1 = 1;
+< 	  }else{
+< 	    break;
+< 	  }
+< 	}
+<       }
+<     }else{
+<       double dadc   = peakadc[npeak] - fadc[ch][peak_count[npeak]-1];
+<       double dtbin  = peakadc[npeak]*threshold_fraction/dadc;
+<       double tdc_j  = peak_count[npeak] - dtbin;
+<       tot_start[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+<     }
+<     */
+< 
+<     
+<     if(j==(n_sampling-1)) tot_end[npeak] = -1000;
+<     if(j==(n_sampling-2)) {
+<       double dadc   = peakadc[npeak] - fadc[ch][peak_count[npeak]+1];
+<       double dtbin  = peakadc[npeak]*threshold_fraction/dadc;
+<       double tdc_j  = peak_count[npeak] + dtbin +1;
+<       tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+<       //std::cout<<"end case1::"<<tot_end[npeak]<<std::endl;
+<     }
+<     if(j==(n_sampling-3)){
+<       if(fadc[ch][peak_count[npeak]+2]<peakadc[npeak]*threshold_fraction){
+< 	for (int jj = peak_count[npeak]; jj < n_sampling; jj++) {
+< 	  if (fadc[ch][jj] < peakadc[npeak] * threshold_fraction) {
+< 	    double w_j0 =  peakadc[npeak] * threshold_fraction - fadc[ch][jj-1];
+< 	    double w_j1 = -peakadc[npeak] * threshold_fraction + fadc[ch][jj];
+< 	    double tdc_j = (jj * w_j1 + (jj + 1.0) * w_j0) / (w_j0 + w_j1);
+< 	    tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	    //std::cout<<"end case2::"<<tot_end[npeak]<<std::endl;
+< 	    break;
+< 	  }
+< 	}
+<       }else{
+< 	double dadc   = peakadc[npeak] - fadc[ch][peak_count[npeak]+2];
+< 	double dtbin  = 2*(peakadc[npeak]*threshold_fraction/dadc);
+< 	double tdc_j  = peak_count[npeak] + dtbin +1;
+< 	tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	//std::cout<<"end case3::"<<tot_end[npeak]<<std::endl;
+<       }
+<     }
+<     
+<     if(j<(n_sampling-3)){
+<       if(fadc[ch][peak_count[npeak]+2]<fadc[ch][peak_count[npeak]+3]
+< 	 && fadc[ch][peak_count[npeak]+3]>peakadc[npeak]*threshold_fraction) {
+< 	double dadc   = peakadc[npeak] - fadc[ch][peak_count[npeak]+2];
+< 	double dtbin  = 2*(peakadc[npeak]*threshold_fraction/dadc);
+< 	double tdc_j  = peak_count[npeak] + dtbin +1;
+< 	tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	//std::cout<<"end case4::"<<tot_end[npeak]<<std::endl;
+<       }else{
+< 	if(fadc[ch][peak_count[npeak]+3]<peakadc[npeak]*threshold_fraction){
+< 	  for (int jj = peak_count[npeak]; jj < n_sampling; jj++) {
+< 	    if (fadc[ch][jj] < peakadc[npeak] * threshold_fraction) {
+< 	      double w_j0 =  peakadc[npeak] * threshold_fraction - fadc[ch][jj-1];
+< 	      double w_j1 = -peakadc[npeak] * threshold_fraction + fadc[ch][jj];
+< 	      double tdc_j = (jj * w_j1 + (jj + 1.0) * w_j0) / (w_j0 + w_j1);
+< 	      tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	      if(jj==(n_sampling-1))    break;
+< 	      if(nflag2>0)              break;
+< 	      if( (fadc[ch][jj+1]>peakadc[npeak]*threshold_fraction)&&(jj==(peak_count[npeak]+1))){
+< 		nflag2 = 1;
+< 	      }else{
+---
+> 	      double tdc_j = j * fadc_clock_period + fadc_t0_correction;
+> 	      if (tdc_j > t_cutoff)
+727a397,401
+> 	      if (fadc_peak[ch] < fadc[ch][j]) {
+> 		fadc_peak[ch] = fadc[ch][j];
+> 		fadc_peak_time[ch] = j * fadc_clock_period + fadc_t0_correction;
+> 		fadc_peak_tdc[ch] = j ;
+> 		peak_count = j;
+731,769d404
+< 	}else if(j==(n_sampling-4)){
+< 	  double dadc   = peakadc[npeak] - fadc[ch][peak_count[npeak]+3];
+< 	  double dtbin  = 3*(peakadc[npeak]*threshold_fraction/dadc);
+< 	  double tdc_j  = peak_count[npeak] + dtbin  + 1;
+< 	  tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	  //std::cout<<"end case6::"<<tot_end[npeak]<<std::endl;
+< 	}else{
+< 	  double minadc = 99999;
+< 	  int    minit  = -1;
+< 	  for (int jj = peak_count[npeak]; jj < n_sampling; jj++) {
+< 	    if(fadc[ch][jj]<minadc){
+< 	      minadc = fadc[ch][jj];
+< 	      minit  = jj;
+< 	    }
+< 	  }
+< 	  if(minadc<peakadc[npeak]*threshold_fraction){
+< 	    for (int jj = peak_count[npeak]; jj < n_sampling; jj++) {
+< 	      if (fadc[ch][jj] < peakadc[npeak] * threshold_fraction) {
+< 		double w_j0 =  peakadc[npeak] * threshold_fraction - fadc[ch][jj-1];
+< 		double w_j1 = -peakadc[npeak] * threshold_fraction + fadc[ch][jj];
+< 		double tdc_j = (jj * w_j1 + (jj + 1.0) * w_j0) / (w_j0 + w_j1);
+< 		tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 		//std::cout<<"end case7::"<<tot_end[npeak]<<std::endl;
+< 		if(jj==(n_sampling-1))    break;
+< 		if(nflag2>0)              break;
+< 		if( (fadc[ch][jj+1]>peakadc[npeak]*threshold_fraction)&&(jj==(peak_count[npeak]+1))){
+< 		  nflag2 = 1;
+< 		}else{
+< 		  break;
+< 		}
+< 	      }
+< 	    }
+< 	  }else{
+< 	    double dadc   = peakadc[npeak] - fadc[ch][minit];
+< 	    double dtbin  = (minit-npeak)*(peakadc[npeak]*threshold_fraction/dadc);
+< 	    double tdc_j  = peak_count[npeak] + dtbin +1;
+< 	    tot_end[npeak] = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	    //std::cout<<"end case8::"<<tot_end[npeak]<<std::endl;
+< 	  }
+772,776d406
+<     }
+<   
+<     int wcut = 1;
+<     double temptot = tot_end[npeak]   - tot_start[npeak];
+<     double temprt  = peaktime[npeak]  - tot_start[npeak];
+777a408,505
+>       
+>       
+>       if (fadc_peak[ch] < gem_threshold ) {
+>          fadc_peak[ch] = -255.0;
+>          peak_count = -1;
+>       } else {
+> //        std::cout << "Peak detection, peak_value = " << fadc_peak[ch] << ", peak_count = " << peak_count <<   std::endl;
+>       }
+> 
+>       if (peak_count > -1) {
+>          for (int j = peak_count; j > -1; j--) {
+>             if (fadc[ch][j] < fadc_peak[ch] * threshold_fraction) {
+>                // double tdc_j = j;
+>                double w_j0 = fadc_peak[ch] * threshold_fraction - fadc[ch][j];
+>                double w_j1 = -fadc_peak[ch] * threshold_fraction + fadc[ch][j + 1];
+>                double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
+>                // std::cout << "tdc_j = " << tdc_j << std::endl;
+>                fadc_tdc[ch] = tdc_j * fadc_clock_period + fadc_t0_correction;
+>                tot_start = fadc_tdc[ch];
+>        //        fadc_peak_time[ch] = peak_count * fadc_clock_period + fadc_t0_correction;
+>                break;
+>             }
+>          }
+>          for (int j = peak_count; j < n_sampling; j++) {
+>             if (fadc[ch][j] < fadc_peak[ch] * threshold_fraction) {
+>                // double tdc_j = j;
+>                double w_j0 = fadc_peak[ch] * threshold_fraction - fadc[ch][j - 1];
+>                double w_j1 = -fadc_peak[ch] * threshold_fraction + fadc[ch][j];
+>                double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
+>                tot_end = tdc_j * fadc_clock_period + fadc_t0_correction;
+>                break;
+>             }
+>          }
+> 	 fadc_peak_st[ch] = tot_start;
+> 	 fadc_peak_ed[ch] = tot_end;
+> 	 fadc_tot[ch] = tot_end - tot_start;
+> 	 fadc_rise[ch] = fadc_peak_time[ch] - tot_start;
+> 	 //if(n_strips==288 && 200<ch &&ch<210) std::cout << fadc_tot[ch] << ", " << tot_start << ", " << tot_end <<","<< fadc_rise[ch] <<std::endl;
+> // 230207 changed for a test, originally Morino Update was used
+> //         if (fadc_tot[ch] < gem_tot_threshold ) { // Original
+>          //if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0 ) {
+> //	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > 0 ) { // Morino Updates
+> //	 if (tot_end - fadc_peak_time[ch] < gem_tot_threshold 	 && fadc_tot[ch] > gem_tot_threshold ) { // murakami
+> //	 if (fadc_tot[ch] < gem_tot_threshold ) { // murakami
+> //
+> 
+> 	 if (fadc_tot[ch] < gem_tot_threshold && fadc_tot[ch] > 0) { // murakami
+> //	 if (fadc_tot[ch] < gem_tot_threshold ) { // murakami
+> 
+> 	 //if (fabs(fadc_tot[ch]) < gem_tot_threshold) { // Morino
+>             fadc_peak[ch] = -255.0;
+>             fadc_tdc[ch] = -1000.0;
+>             fadc_peak_time[ch] = -1000.0;
+> 	    fadc_peak_tdc[ch]  = -1000.0;
+>             peak_count = -1;
+> 	    // if(n_strips==288 && 200<ch &&ch<210) std::cout << "tot cut " << std::endl;
+>          }
+> 	 if (fadc_rise[ch]<rise_time_min){
+>            fadc_peak[ch] = -255.0;
+>            fadc_tdc[ch] = -1000.0;
+>            fadc_peak_time[ch] = -1000.0;
+>            fadc_peak_tdc[ch]  = -1000.0;
+>            peak_count = -1;
+> 	   //if(n_strips==288 && 200<ch &&ch<210)  std::cout << "RT cut " << std::endl;
+>          }
+> 
+> 	 if (fadc_peak_ed[ch]>0 && (fadc_peak_ed[ch]-fadc_peak_time[ch])<18 ){
+> 	   fadc_peak[ch] = -255.0;
+>            fadc_tdc[ch] = -1000.0;
+>            fadc_peak_time[ch] = -1000.0;
+>            fadc_peak_tdc[ch]  = -1000.0;
+>            peak_count = -1;
+>          }
+> 	 
+>       } else {//peakcount == -1
+>          fadc_tdc[ch] = -1000.0;
+>          fadc_peak_time[ch] = -1000.0;
+> 	 //if(n_strips==288 && 200<ch &&ch<210)  std::cout << "peak cut " << std::endl;
+> //		std::cout << "peak count is -1 " << std::endl;
+>       }
+> //230207 comment out for a test
+> //      if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min ||
+> //	  fadc_peak_time[ch] > peak_time_max || 
+> //	  fadc_peak_time[ch] < peak_time_min ||
+> //	  (fadc_peak_time[ch] - fadc_tdc[ch]) > rise_time_max ||
+> //	  (fadc_peak_time[ch] - fadc_tdc[ch]) < rise_time_min 
+> //	  ) {
+> //         fadc_tdc[ch] = -1000.0;
+> //         fadc_peak_time[ch] = -1000.0;
+> //	 fadc_peak_tdc[ch]  = -1000.0;
+> //      }
+> //	std::cout << "fadc_tdc :" << fadc_tdc[ch] << std::endl;
+> 
+>       if (fadc_tdc[ch] > gem_tdc_max || fadc_tdc[ch] < gem_tdc_min) {
+> 	//if(n_strips==288 && 200<ch &&ch<210)  std::cout << "tdc max cut::"<<fadc_tdc[ch]<<", "<<  gem_tdc_min <<","<< gem_tdc_max << std::endl;
+>          fadc_tdc[ch] = -1000.0;
+>          fadc_peak_time[ch] = -1000.0;
+> 	 fadc_peak[ch] = -255.0;
+779,783d506
+<     /*
+<     std::cout<<"ch::"<<ch<<", "<<GetPosition(ch)<<", "<< peakadc[npeak]<<", "<<tot_start[npeak]<<", "<<tot_end[npeak] <<std::endl;
+<     if(ch==50){
+<       for(int ii=0;ii<15;ii++){
+< 	std::cout<<fadc[ch][ii]<<std::endl;
+785,818c508,514
+<     }
+<     */
+<     if(tot_end[npeak]<0 && temprt<(rise_time_min+50)){
+<       wcut = -1;
+<     }
+<     if(temptot<gem_tot_threshold){
+<       //std::cout<<"ch::"<<ch<<", tot cut"<<std::endl;
+<       wcut = -1;
+<     }
+<     if(nflag1>0 && nflag2>0&&peakadc[npeak]<2*gem_threshold ){
+<       //std::cout<<"ch::"<<ch<<", noise cut"<<std::endl;
+<       wcut = -1;
+<     }
+<     if(temprt<rise_time_min&&peakadc[npeak]<2*gem_threshold){
+<       //std::cout<<"ch::"<<ch<<", RT cut"<<std::endl;
+<       wcut = -1;
+<     }
+<     if(tot_end[npeak]-peaktime[npeak]<18&&tot_end[npeak]>0){
+<       //std::cout<<"ch::"<<ch<<", ET cut"<<std::endl;
+<       wcut = -1;
+<     }
+<     if(tot_start[npeak]>gem_tdc_max||tot_start[npeak]<gem_tdc_min){
+<       //std::cout<<"ch::"<<ch<<", TDC MAX cut"<<std::endl;
+<       wcut = -1;
+<     }
+<     if(tot_end[npeak]>1 && tot_end[npeak]<peak_time_max){
+<       //std::cout<<"ch::"<<ch<<", TDC END cut"<<std::endl;
+<       wcut = -1;
+<     }
+<     if(npeak>0){
+<       //if(fabs(tot_start[npeak] - tot_start[npeak-1])<cluster_delta_tdc && ){
+<       if(fabs(peaktime[npeak] - peaktime[npeak-1])<cluster_delta_tdc){
+< 	//std::cout<<"ch::"<<ch<<", too close cut"<<std::endl;
+< 	wcut = -1;
+---
+> 
+>       if(fadc_peak_ed[ch]>1 && fadc_peak_ed[ch]<peak_time_max){
+> 	//if(n_strips==288 && 200<ch &&ch<210)  std::cout << "peak time cut::"<<fadc_peak_ed[ch]<< ", "<<peak_time_max<< std::endl;
+>          fadc_tdc[ch] = -1000.0;
+>          fadc_peak_time[ch] = -1000.0;
+>          fadc_peak[ch] = -255.0;
+> 
+820,833d515
+<     }
+<     if(peakadc[npeak]>3.5*gem_threshold) {
+<       //std::cout<<"ch::"<<ch<<", OK"<<std::endl;
+<       wcut = 1;
+<     }
+<     qual[npeak] = -1-(nflag1+nflag2)/2;
+<     if(wcut>0) npeak++;
+<   }
+<   
+<   if(npeak==0){
+<     for (int j = 0; j < n_sampling; j++) {
+<       fadc_tped[j] = tempfadc[j];
+<     }
+<   }
+835,857c517,518
+<   fadc_peak[ch].resize(npeak);
+<   fadc_peak_tdc[ch].resize(npeak);
+<   fadc_peak_time[ch].resize(npeak);
+<   fadc_tdc[ch].resize(npeak);
+<   fadc_tot[ch].resize(npeak);
+<   fadc_rise[ch].resize(npeak);
+<   fadc_peak_st[ch].resize(npeak);
+<   fadc_peak_ed[ch].resize(npeak);
+<   fadc_used[ch].resize(npeak);
+<   fadc_qual[ch].resize(npeak);
+<   
+<   for(int i=0;i<npeak;i++){
+<     fadc_peak[ch][i]      = peakadc[i];
+<     fadc_peak_time[ch][i] = peaktime[i];
+<     fadc_peak_tdc[ch][i]  = peak_count[i];
+<     fadc_tdc[ch][i]       = tot_start[i];
+<     fadc_tot[ch][i]       = tot_end[i]   - tot_start[i];
+<     fadc_rise[ch][i]      = peaktime[i]  - tot_start[i];
+<     fadc_peak_st[ch][i]   = tot_start[i];
+<     fadc_peak_ed[ch][i]   = tot_end[i];
+<     fadc_used[ch][i]      = -1;
+<     fadc_qual[ch][i]      = qual[i];
+<   }
+---
+>       
+>    }
+869c530
+<    int temp_qual = 0;
+---
+> 
+874,886d534
+<    
+<    int tempid = -1;
+<    for (int i = 0; i < (int)strip_ids.size(); i++) {
+<      int sid = strip_ids.at(i);
+<      int pi   = (int)sid%1000;
+<      int pj   = (int)(sid/1000);
+<      if (fadc_peak.at(pi).at(pj) > temp_max_value) {
+<        tempid = pi;
+<        temp_max_value = fadc_peak.at(pi).at(pj);
+<      }
+<    }
+<    
+<    temp_max_value = -255.0;
+889,908c537,549
+<      int sid = strip_ids.at(i);
+<      int pi   = (int)sid%1000;
+<      int pj   = (int)(sid/1000);
+< 
+<      if( (tempid-2) <=pi && pi<=(tempid+2)){
+<        if (fadc_peak.at(pi).at(pj) > temp_max_value) {
+<          temp_max_strip = pi;
+<          temp_max_value = fadc_peak.at(pi).at(pj);
+< 	 temp_tot       = fadc_tot.at(pi).at(pj);
+<          temp_rise      = fadc_rise.at(pi).at(pj);
+< 	 temp_qual      = fadc_qual.at(pi).at(pj);
+<        }
+<        temp_cc += fadc_peak.at(pi).at(pj);
+<        temp_cog += fadc_peak.at(pi).at(pj) * GetPosition(pi);
+<      }
+<      temp_num_hit++;
+< 
+<      // temp_cog += fadc_peak[id]*id;
+<      // hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id], fadc[id]);//original
+<      hit.PushBackStrip(pi, GetPosition(pi), fadc_peak.at(pi).at(pj), fadc_tdc.at(pi).at(pj), fadc_tot.at(pi).at(pj),  fadc_peak_time.at(pi).at(pj), fadc_peak_st.at(pi).at(pj), fadc_peak_ed.at(pi).at(pj), fadc_rise.at(pi).at(pj), fadc[pi]);
+---
+>       int id = strip_ids[i];
+>       if (fadc_peak[id] > temp_max_value) {
+>          temp_max_strip = id;
+>          temp_max_value = fadc_peak[id];
+> 	 temp_tot       = fadc_tot[id];
+>          temp_rise      = fadc_rise[id];
+>       }
+>       temp_num_hit++;
+>       temp_cc += fadc_peak[id];
+>       // temp_cog += fadc_peak[id]*id;
+>       temp_cog += fadc_peak[id] * GetPosition(id);
+> //      hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id], fadc[id]);//original
+>       hit.PushBackStrip(id, GetPosition(id), fadc_peak[id], fadc_tdc[id], fadc_tot[id],  fadc_peak_time[id], fadc_peak_st[id], fadc_peak_ed[id], fadc_rise[id], fadc[id]);
+911d551
+< 
+915,916d554
+< 
+<    
+922d559
+<    hit.SetQual(temp_qual);
+928,936c565,578
+<   for (int i = 0; i < (int)strip_ids.size(); i++) {
+<     int sid  = strip_ids.at(i);
+<     int pi   = (int)sid%1000;
+<     int pj   = (int)(sid/1000);
+<     
+<     x_array.push_back(GetPosition(pi));
+<     time_array.push_back(fadc_tdc.at(pi).at(pj) * drift_velocity);
+<     peak_array.push_back(fadc_peak.at(pi).at(pj));
+<   }
+---
+>    //   std::cerr<<std::endl<<"fadctime/peak ";
+>    for (int i = 0; i < (int)strip_ids.size(); i++) {
+>       // if(gem_peak_x[i]>gem_th_x && gem_t0_x[i]<800){
+>       // if(gem_peak_x[i]>gem_th_x && gem_t0_x[i]>0.0 && gem_t0_x[i]<gem_t0_max){
+>       int id = strip_ids[i];
+>       // if (fadc_peak[id] > gem_threshold && fadc_tdc[id] > 0.0) {
+>       // if (fadc_tdc[id] > 0.0) {
+>       // x_array.push_back(((double)id*strip_pitch+position_start)*inverted);
+>       x_array.push_back(GetPosition(id));
+>       time_array.push_back(fadc_tdc[id] * drift_velocity);
+>       peak_array.push_back(fadc_peak[id]);
+>       // std::cerr<<id<<" "<<fadc_tdc[id]<<" "<<fadc_peak_time[id]<<" "<<drift_velocity<<" ";
+>       //}
+>    }
+942c584
+<   /*
+---
+> 
+962c604
+<   */
+---
+> 
+972,978c614,616
+<     int sid  = strip_ids.at(i);
+<     int pi   = (int)sid%1000;
+<     int pj   = (int)(sid/1000);
+< 
+<     int it     = (int)(fadc_peak_tdc.at(pi).at(pj));
+<     int imax   = 1;
+<     
+---
+>     int id = strip_ids[i];
+>     int it = fadc_peak_tdc[id];
+>     int imax    = 1;
+982,984c620,622
+<       int   id2  = (int)strip_ids.at(j)%1000;
+<       double tq  = fadc[id2][it];
+<       if(tq>fadc[pi][it]) imax = -1;
+---
+>       int id2     = strip_ids[j];
+>       double tq   = fadc[id2][it];
+>       if(tq>fadc[id][it]) imax = -1;
+987c625
+<     
+---
+> 
+993,995c631
+<       int sid2  = strip_ids.at(j);
+<       int id2   = (int)sid2%1000;
+<       int pj2   = (int)(sid2/1000);
+---
+>       int id2   = strip_ids[j];
+1000c636
+<       sumt += tq * fadc_tdc.at(id2).at(pj2);
+---
+>       sumt += tq * fadc_tdc[id2];;
+1006,1007c642,643
+<       x_array.push_back(GetPosition(pi));
+<       time_array.push_back(fadc_tdc.at(pi).at(pj));
+---
+>       x_array.push_back(GetPosition(id));
+>       time_array.push_back(fadc_tdc[id]);
+1024,1028c660,661
+<     int id   = strip_ids.at(i);
+<     int pi   = (int)id%1000;
+<     int pj   = (int)(id/1000);
+<     
+<     double adc = fadc_peak.at(pi).at(pj);
+---
+>     int id = strip_ids[i];
+>     double adc = fadc_peak[id];
+1031,1032c664,665
+<       mid2  = pi;
+<       tpeak = (int)(fadc_peak_tdc.at(pi).at(pj));
+---
+>       mid2  = id;
+>       tpeak = fadc_peak_tdc[id];
+1035d667
+<   
+1036a669
+>   
+1037a671
+>     
+1061,1066c695
+< 						      double &tdc4, double &tdc5,  std::vector<double> &cadc,
+< 						      double &ced, double &ctot, double &crt,double &cpeak){
+<   double temppeak= 0;
+<   double tempsumq= 0;
+<   double tempmax = -100;
+<   int    tempid  = 0;
+---
+> 						      double &tdc4, double &tdc5){
+1068,1091c697,699
+<     int sid  = strip_ids.at(i);
+<     int pi   = (int)sid%1000;
+<     int pj   = (int)(sid/1000);
+<     if(fadc_peak_tdc.at(pi).size()>0){
+<       if(tempmax<fadc_peak.at(pi).at(pj)){
+< 	tempmax = fadc_peak.at(pi).at(pj);
+< 	tempid  = pi;
+<       }
+<     }
+<   }
+<   
+<   
+<   for (int i = 0; i < (int)strip_ids.size(); i++) {
+<     int sid  = strip_ids.at(i);
+<     int pi   = (int)sid%1000;
+<     int pj   = (int)(sid/1000);
+<     int it    = fadc_peak_tdc.at((int)strip_ids.at(0)%1000).at(0);
+<     if(pi<tempid-2)  continue;
+<     if(pi>tempid+2)  continue;
+<     if(fadc_peak_tdc.at(pi).size()>0){
+<       it        = fadc_peak_tdc.at(pi).at(pj);
+<       temppeak += it*fadc_peak.at(pi).at(pj);
+<       tempsumq += fadc_peak.at(pi).at(pj);
+<     }
+---
+> 
+>     int id = strip_ids[i];
+>     int it = fadc_peak_tdc[id];
+1092a701
+> 
+1096,1098c705
+<       int id2   = (int)strip_ids.at(j)%1000;
+<       if(id2<tempid-2)  continue;
+<       if(id2>tempid+2)  continue;
+---
+>       int id2 = strip_ids[j];
+1106,1110c713,719
+<       if(fadc_peak_tdc.at(pi).size()>0){
+< 	x_array.push_back(lx);
+< 	time_array.push_back(fadc_tdc.at(pi).at(pj));
+< 	peak_array.push_back(fadc_peak.at(pi).at(pj));
+<       }
+---
+>       x_array.push_back(lx);
+>       //std::cout<<"1::"<< lx <<std::endl;
+> 
+>       time_array.push_back(fadc_tdc[id]);
+>       //std::cout<<"2::"<< fadc_tdc[id] <<std::endl;
+>       peak_array.push_back(fadc_peak[id]);
+>       //std::cout<<"3::"<< fadc_peak[id] <<std::endl;
+1113,1114d721
+<   temppeak = int(temppeak/tempsumq);
+<     
+1117,1119c724,725
+<   int    peakc   = -1;
+<   double peakq   = -9999;
+<   int secondpeak = -1;
+---
+>   int    peakc = -1;
+>   double peakq = -9999;
+1125,1128c731
+<       int id    = (int)strip_ids.at(j)%1000;
+<       if(id<tempid-2)  continue;
+<       if(id>tempid+2)  continue;
+<       if((int)strip_ids.at(j)/1000>0) secondpeak = 1;
+---
+>       int id  = strip_ids[j];
+1130,1133c733
+<       if(id!=tempid && (int)strip_ids.at(j)/1000>0) tq=0;
+<       if(tq<0) tq=0;
+<       //std::cout<<i<<"  strip::"<<id<<", "<<j<<", "<<fadc[id][i]<<", "<<tq<<std::endl;
+<       sadc[i]  += tq;
+---
+>       sadc[i] += tq;
+1139,1163c739,741
+<     cadc.push_back(sadc[i]);
+<     if(temppeak-2<=i && i<= temppeak+2 && 2<i){
+<       if(sadc[i]>peakq){
+< 	peakq = sadc[i];
+< 	peakc = i;
+<       }
+<     }
+<   }
+<   cpeak = 0;
+<   for (int j = 0; j < (int)strip_ids.size(); j++) {
+<     int id    = (int)strip_ids.at(j)%1000;
+<     if(id<tempid-2)  continue;
+<     if(id>tempid+2)  continue;
+<     cpeak += fadc[id][peakc];
+<   }
+< 
+<   
+<   int fpeak      = 0;
+<   if(secondpeak>0){
+<     //for (int j = peakc-1; j>2;j--) {
+<     //if(sadc[j]>sadc[j-1]+20&&sadc[j]>sadc[j-2]+20&&sadc[j]>sadc[j+1]+20 ) {
+<     for (int j = 2; j<peakc;j++) {
+<       if(sadc[j]>sadc[j-1]&&sadc[j]>sadc[j-2]&&sadc[j]>sadc[j+1] && sadc[j]>peakq*threshold_fraction ) {
+< 	fpeak = j;
+<       }
+---
+>     if(sadc[i]>peakq){
+>       peakq = sadc[i];
+>       peakc = i;
+1167,1168d744
+<   
+<   
+1170,1232c746,754
+<   ced  =  1000;
+<   if(peakc>-1&&peakc<n_sampling-1){
+<     double minadc = 10000;
+<     int    mint   = 0;
+<     //for (int j = 0; j<peakc;j++) {
+<     for (int j = fpeak; j<peakc;j++) {
+<       if(sadc[j]<minadc) {
+< 	minadc = sadc[j];
+< 	mint   = j;
+<       }
+<     }
+<     if(minadc<peakq * threshold_fraction){
+<       double ftdc = -1000;
+<       for (int j = peakc; j > -1; j--) {
+< 	if (sadc[j] < peakq * threshold_fraction) {
+< 	  // double tdc_j = j;
+< 	  double w_j0 =  peakq * threshold_fraction - sadc[j];
+< 	  double w_j1 = -peakq * threshold_fraction + sadc[j+1];
+< 	  double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
+< 	  tdc4 = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	  if(j==0)   break;
+< 	  if(ftdc>0) break;
+< 	  if( (sadc[j-1]> peakq*threshold_fraction)&&(j==(peakc-1))){
+< 	    ftdc = tdc4;
+< 	  }else{
+< 	    break;
+< 	  }
+< 	}
+<       }
+<       if(ftdc>0) tdc4 = (tdc4+ftdc)/2;
+<     }else{
+<       double dadc   = (peakq - sadc[mint])/(peakc-mint);
+<       double dtbin  = peakq*threshold_fraction/dadc;
+<       double tdc_j  = peakc - dtbin;
+<       tdc4          = tdc_j * fadc_clock_period + fadc_t0_correction;
+<     }
+<     
+<     double minadc2 = 10000;
+<     int   mint2   = 14;
+<     for (int j = peakc; j<n_sampling;j++) {
+<       if(sadc[j]<minadc2) {
+< 	minadc2 = sadc[j];
+< 	mint2   = j;
+<       }
+<     }
+< 
+<     if(minadc2<peakq * threshold_fraction){
+<       double fed = -1000;
+<       for (int j = peakc; j < n_sampling; j++) {
+< 	if (sadc[j] < peakq * threshold_fraction) {
+< 	  // double tdc_j = j;
+< 	  double w_j0  = peakq * threshold_fraction - sadc[j - 1];
+< 	  double w_j1  = -peakq * threshold_fraction + sadc[j];
+< 	  double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
+< 	  ced          = tdc_j * fadc_clock_period + fadc_t0_correction;
+< 	  if(j==(n_sampling-1))  break;
+< 	  if(fed>0)              break;
+< 	  if( (sadc[j+1]>peakq*threshold_fraction)&&(j==(peakc+1))){
+< 	    fed= ced;
+< 	  }else{
+< 	    break;
+< 	  }
+< 	}
+---
+>   if(peakc>-1){
+>     for (int j = peakc; j > -1; j--) {
+>       if (sadc[j] < peakq * threshold_fraction) {
+>         // double tdc_j = j;
+>         double w_j0 =  peakq * threshold_fraction - sadc[j];
+>         double w_j1 = -peakq * threshold_fraction + sadc[j+1];
+>         double tdc_j = (j * w_j1 + (j + 1.0) * w_j0) / (w_j0 + w_j1);
+>         tdc4 = tdc_j * fadc_clock_period + fadc_t0_correction;
+>         break;
+1234,1239d755
+<       if(fed>0) fed = (ced+fed)/2;
+<     }else{
+<       double dadc   = (peakq - sadc[mint2])/(mint2-peakc);
+<       double dtbin  = peakq*threshold_fraction/dadc;
+<       double tdc_j  = peakc + dtbin + 1;
+<       ced = tdc_j * fadc_clock_period + fadc_t0_correction;
+1242,1244d757
+< 
+<   ctot = ced - tdc4;
+<   crt  = peakc*fadc_clock_period+fadc_t0_correction - tdc4;
+1249d761
+<   
+1275c787
+< 
+---
+>     
+1283d794
+<   /*
+1287a799,800
+>    // int temp_max_strip = -1;
+>    // double temp_max_value = -255.0;
+1313a827,828
+>       //      std::cerr<<time_array[i]<<" ";
+>       // hit.PushBackStrip(x_array[i], peak_array[i], time_array[i]);
+1320a836,837
+>    // hit.SetMaxStrip(temp_max_strip);
+>    // hit.SetMaxValue(temp_max_value);
+1330c847,848
+<   */
+---
+>    //   std::cerr<<"t0/mean "<<t0<<" "<<meantime<<std::endl;
+>    //   t0 is bad
+1334,1335c852
+< {
+<   /*
+---
+> {// updated to morino-ana 
+1390c907
+<   */
+---
+> 
+1398,1399c915,916
+<   int    peakc  = -1;
+<   double qmax   =  0;
+---
+>   int    peakc = -1;
+>   double qmax  =  0;
+1401c918
+<   for(int i=tpeak-4;i<=tpeak+4;i++){
+---
+>   for(int i=tpeak-2;i<=tpeak+2;i++){
+1408a926
+>   if(qmax<(gem_threshold+5)) return;
+1410,1411d927
+<   if(peakc<tpeak-2 || peakc>tpeak+2)  return;
+<   if(qmax<(gem_threshold-15))         return;
+1413c929
+<   
+---
+>     
+1428c944
+< 	double w_j0  =  qmax * threshold_fraction - adc[j-1];
+---
+> 	double w_j0  = qmax * threshold_fraction - adc[j - 1];
+1437,1438c953,954
+<   if(st>0 && pt-st<17) return;
+<   if(ed>0 && ed-pt<17) return;
+---
+>   if(st>0 && pt-st<18) return;
+>   if(ed>0 && ed-pt<18) return;
+1440c956
+<   if(tot<(gem_tot_threshold-10)&&st>0&&ed>0) return;
+---
+>   if(tot<gem_tot_threshold&&st>0&&ed>0) return;
+1456d971
+<   std::vector<double> cadc;
+1469d983
+<   
+1479d992
+<   
+1486d998
+<   
+1502,1505c1014,1017
+<     if(int(strip_ids[i]%1000)==idpeak-2) fll = 1; 
+<     if(int(strip_ids[i]%1000)==idpeak-1) fl  = 1;
+<     if(int(strip_ids[i]%1000)==idpeak+1) fr  = 1;
+<     if(int(strip_ids[i]%1000)==idpeak+2) frr = 1;
+---
+>     if(strip_ids[i]==idpeak-2) fll = 1;
+>     if(strip_ids[i]==idpeak-1) fl  = 1;
+>     if(strip_ids[i]==idpeak+1) fr  = 1;
+>     if(strip_ids[i]==idpeak+2) frr = 1;
+1507,1508c1019
+<   
+<   if(rqmax>(gem_threshold-10)) prpt = rpt;
+---
+>   if(rqmax>50) prpt = rpt;
+1514c1025
+<     //std::cout<<"previous clus1::"<<", "<<sid1<<", "<< ptime-lpt<<", "<<fl <<std::endl;
+---
+>     //std::cout<<"previous clus::"<<", "<<sid1<<", "<<fl <<std::endl;
+1517,1518c1028,1029
+<   if(pid==(idpeak-2) && fabs(prpt-lpt)<10){
+<     //if(pid==(idpeak-2) ){
+---
+>   if(pid==(idpeak-2) && fabs( prpt-lpt)<10){
+>   //if(pid==(idpeak-2) ){
+1520c1031
+<     //std::cout<<"previous clus2::"<<", "<<sid1<<", "<< prpt-lpt<<", "<<fl  <<std::endl;
+---
+>     //std::cout<<"previous clus2::"<<", "<<sid1<<", "<< prpt-lpt<<", "<<fl <<std::endl;
+1527c1038
+<   if(fl<0 && lqmax>(gem_threshold-15) &&fadd>0 && lqmax< qmax){
+---
+>   if(fl<0 && lqmax>50 &&fadd>0 ){
+1544c1055
+<   if(fr<0 && rqmax>(gem_threshold-15) &&fadd>0 && rqmax<qmax){
+---
+>   if(fr<0 && rqmax>50 &&fadd>0){
+1561,1569c1072
+<   //if(fmod>0&&sid1==1){
+<   if(fmod>0){
+<     hit.SetNumHit(strip_ids.size());
+<       double sumq,sumx;
+<     sumq=sumx=0;
+<     for (int i = 0; i < (int)strip_ids.size(); i++) {
+<       sumx += (double)hit.StripPos(i)*hit.StripCharge(i);
+<       sumq += (double)hit.StripCharge(i);
+<     }
+---
+>   if(fmod>0&&sid1==1){
+1570a1074
+>     hit.SetNumHit(strip_ids.size());
+1578,1579c1082,1084
+<   double ced,crt,ctot,cpeak;
+<   SetArraysForTdcMethods3(strip_ids, x_array, time_array, peak_array, time4, time5,cadc,ced,ctot,crt,cpeak);
+---
+>   //if(sid2>1) std::cout<< "size::"<<sid1<< ", "<<sid2<<", "<<idpeak<<", "<<strip_ids[sid2-1]<<", "<< qmax<<", "<<sumq <<", "<<n_strips <<std::endl;
+> 
+>   SetArraysForTdcMethods3(strip_ids, x_array, time_array, peak_array, time4, time5);
+1622,1625d1126
+<   hit.SetCtot(ctot);
+<   hit.SetCed(ced);
+<   hit.SetCrt(crt);
+<   hit.SetCpeak(cpeak);
+1634d1134
+<     hit.SetCAdc(cadc[i]);
+1645d1144
+<   //std::cout<<"size::"<<x_array3.size()<<", "<<time_array3.size()<<", "<<x_array4.size()<<", "<<time_array4.size()<<std::endl;
+1649,1655c1148,1149
+<     hit.SetCTiming5(time_array4[i]);
+<     hit.SetCPos5(x_array4[i]);
+<   }
+<   
+<   //std::cout<< "size::"<<sid1<< ", "<<sid2<<", "<<idpeak<<", "<<strip_ids[sid2-1]<<", "<<hit.CogHit() <<", "<< qmax<<", "<<hit.ClusterCharge()<<", "<<hit.Timing4() <<", "<<hit.Ctot() <<", " <<n_strips <<std::endl;
+<   /*for(int i=0;i<hit.NumHit();i++){
+<     std::cout<< "info::"<<hit.StripID(i)<<", "<<hit.StripCharge(i) <<", "<<hit.StripTotSt(i)<<", "<<hit.StripTotEd(i)<<", "<<hit.StripTimeOverThreshold(i)<<", "<<hit.StripRiseTiming(i)<<", "<< hit.StripPos(i)<<std::endl;
+---
+> 	hit.SetCTiming5(time_array4[i]);
+> 	hit.SetCPos5(x_array4[i]);
+1657c1151
+<   */
+---
+> 
+1667d1160
+<   /*
+1671a1165,1166
+>    // int temp_max_strip = -1;
+>    // double temp_max_value = -255.0;
+1693a1189,1190
+>    // hit.SetMaxStrip(temp_max_strip);
+>    // hit.SetMaxValue(temp_max_value);
+1697a1195
+> 
+1699c1197
+<    */
+---
+>    // std::cerr<<"t02 "<<std::endl;

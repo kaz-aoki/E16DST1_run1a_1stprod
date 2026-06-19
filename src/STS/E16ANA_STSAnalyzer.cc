@@ -4,9 +4,8 @@
 #include "STS/E16ANA_STSGeometry.hh"
 #include "E16ANA_STSGlobalGeometry.hh"
 
-//#define STS_VERB
-
 constexpr double sts_invalid = -10000000.;
+int E16ANA_STSAnalyzer::verbosity = 0;
 
 void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::vector<E16DST_DST1STSCluster>& clusters1){
   if ( hits1.size() == 0 ) return; // no hits to be clusterized.
@@ -55,23 +54,23 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
     
     auto minmax = std::minmax_element(vec_cluster[iclus].hits.begin(),vec_cluster[iclus].hits.end(),judge_less);
     if ( fabs(minmax.second->TDC() - minmax.first->TDC()) < param.tdc_window ) continue; 
-#ifdef STS_VERB
-    std::cout << "ALERT: maybe different event :" << minmax.first->TDC() << " VS " << minmax.second->TDC() << std::endl;
-#endif
+    if ( verbosity > 9 ) {
+      std::cout << "ALERT: maybe different event :" << minmax.first->TDC() << " VS " << minmax.second->TDC() << std::endl;
+    }
      // There is more than a hit that has different TDCs.
     vec_cluster.emplace_back();
     for( int ihit = 0; ihit < vec_cluster[iclus].hits.size();){
       if ( fabs(vec_cluster[iclus].hits[ihit].TDC() - minmax.first->TDC()) > param.tdc_window){
 	if (minmax.first->TDC() < param.tdc_window ) {
 	  // have to search for the other side of TDC.
-#ifdef STS_VERB
-	  std::cout << "TDC is less than window. Have to look for the other side of TDC also." << std::endl;
-#endif
+	  if ( verbosity > 9 ) {
+	    std::cout << "TDC is less than window. Have to look for the other side of TDC also." << std::endl;
+	  }
 	  if ( fabs( vec_cluster[iclus].hits[ihit].TDC()-minmax.first->TDC()- 0x3fff ) < param.tdc_window ) {
 	    // OK.
-#ifdef STS_VERB
-	    std::cout << vec_cluster[iclus].hits[ihit].TDC() << " is compared to minimum TDC " << minmax.first->TDC() << " and grouped into the same as minmum" << std::endl;
-#endif
+	    if ( verbosity > 9 ) {
+	      std::cout << vec_cluster[iclus].hits[ihit].TDC() << " is compared to minimum TDC " << minmax.first->TDC() << " and grouped into the same as minmum" << std::endl;
+	    }
 	    ihit++; continue;
 	  }
 	}
@@ -91,9 +90,9 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
       auto& hita = vec_cluster[iclus].hits[ihit];
       auto& hitb = vec_cluster[iclus].hits[ihit+1];
       if ( hita.StripId() == hitb.StripId() ){
-#ifdef STS_VERB
-	cout << "Same TDC pair found. stripID=" << hita.StripId() << std::endl;
-#endif
+	if ( verbosity > 9 ){
+	  cout << "Same TDC pair found. stripID=" << hita.StripId() << std::endl;
+	}
 	if ( hita.TDC()== hitb.TDC() ) {
 	  if ( hita.ADC() > hitb.ADC() ) {
 	    auto iter = vec_cluster[iclus].hits.begin()+ihit+1;
@@ -109,13 +108,13 @@ void E16ANA_STSAnalyzer::clusterize(std::vector<E16DST_DST1STSHit>& hits1, std::
     }
   }
 
-#ifdef STS_VERB
-  std::cout << "AFTER DIVIDING CLUSTERS according to TDC" << std::endl;
-  std::for_each(begin(vec_cluster),end(vec_cluster),
-		[](auto& x){
-		  x.show();
-		});
-#endif
+  if ( verbosity > 9 ) {
+    std::cout << "AFTER DIVIDING CLUSTERS according to TDC" << std::endl;
+    std::for_each(begin(vec_cluster),end(vec_cluster),
+		  [](auto& x){
+		    x.show();
+		  });
+  }
 
   // fill DST1STSCluster
   fill_dst1(clusters1);
@@ -146,6 +145,7 @@ void E16ANA_STSAnalyzer::sort(std::vector<E16DST_DST1STSHit>& hits1){
 }
 
 void E16ANA_STSAnalyzer::fill_dst1(std::vector<E16DST_DST1STSCluster>& clusters1){
+  int cid=0;//mtomoki
   if ( vec_cluster.size() == 0 ) return;
   clusters1.clear();
   auto lgeom = E16ANA_STSGeometry::instance();
@@ -154,19 +154,38 @@ void E16ANA_STSAnalyzer::fill_dst1(std::vector<E16DST_DST1STSCluster>& clusters1
     if ( clus.hits.size() == 0 ) continue;
     clusters1.emplace_back();
     auto& cluster1 = clusters1.back();
+    #ifdef TRACK_EFF_CHECK
+    cluster1.SetClusterId(cid);//mtomoki
+    #endif
     cluster1.SetTiming(clus.timing());
     cluster1.SetPeakSum(clus.adc());
+    cluster1.SetCharge(clus.charge());
+    cluster1.SetNumHits(clus.hits.size());
     // fill lpos and gpos.
     cluster1.SetPN(clus.hits.back().PN());
-    TVector3 lpos(lgeom->GetLocalX_fromN(clus.cog()),0.,0.);
-    double local[3] = {lpos.X(),lpos.Y(),lpos.Z()};
-    double global[3]={0.,0.,0.};
+    cluster1.SetType(clus.hits.back().Type());
+    cluster1.SetADCSaturated(clus.is_ADC_saturated());
     cluster1.SetModuleId(clus.hits.back().ModuleId());
-    cluster1.SetCogPos(lpos.X());
-    // what else?
-    ggeom->Local2Global(cluster1.ModuleId(),local,global);
-    cluster1.SetLocalPos(lpos);
-    cluster1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
+    if ( clus.hits.back().PN() == 1 ) {
+      TVector3 lpos(lgeom->GetLocalX_fromN(clus.cog()),0.,0.);
+      double local[3] = {lpos.X(),lpos.Y(),lpos.Z()};
+      double global[3]={0.,0.,0.};
+      cluster1.SetCogPos(lpos.X());
+      // what else?
+      ggeom->Local2Global(cluster1.ModuleId(),local,global);
+      cluster1.SetLocalPos(lpos);
+      cluster1.SetGlobalPos(TVector3(global[0],global[1],global[2]));
+      //if(clus.hits.back().ModuleId()==107){
+      //printf("Fact local  %f %f %f \n",lpos.X(),lpos.Y(),lpos.Z());
+      //printf("Fact global %f %f %f \n",global[0],global[1],global[2]);
+      //}
+    }else{
+      // p-side
+      TVector3 lpos(clus.cog(),0,0);
+      cluster1.SetCogPos(lpos.X());
+      cluster1.SetLocalPos(lpos);
+    }
+    cid++;
   }
 }
 
@@ -179,7 +198,7 @@ int E16ANA_STSCluster::adc(){
 
 double E16ANA_STSCluster::tdc(){
   if ( hits.size() == 0 ) return sts_invalid;
-  double tmp = std::accumulate(hits.begin(), hits.end(), 0, []( double acc, const auto& x) { return acc+x.TDC()*x.ADC(); });
+  double tmp = std::accumulate(hits.begin(), hits.end(), (double)0., []( double acc, const auto& x) { return acc+x.TDC()*x.ADC(); });
     double adcsum = adc();
     assert(adcsum>0);
     return tmp/adcsum;
@@ -202,7 +221,7 @@ double E16ANA_STSCluster::timing(){
     return acc+tmp_time*x.ADC();
   };
 
-  double tmp = std::accumulate(hits.begin(), hits.end(), 0, acc_helper);
+  double tmp = std::accumulate(hits.begin(), hits.end(), (double)0., acc_helper);
   double adcsum = adc();
   assert(adcsum>0);
   return tmp/adcsum;
@@ -210,8 +229,19 @@ double E16ANA_STSCluster::timing(){
 
 double E16ANA_STSCluster::cog(){
   if ( hits.size() == 0 ) return sts_invalid;
-  double tmp = std::accumulate(hits.begin(), hits.end(), 0, [] (double acc, const auto& x) { return acc + x.ADC()*x.StripId(); });
+  double tmp = std::accumulate(hits.begin(), hits.end(), (double)0., [] (double acc, const auto& x) { return acc + x.ADC()*x.StripId(); });
   double adcsum = adc();
   assert(adcsum>0);
   return tmp /adcsum;
+}
+
+double E16ANA_STSCluster::charge(){
+  return std::accumulate(hits.begin(), hits.end(), (double)0., [](double acc,const auto& x) { return acc+x.Charge(); });
+}
+
+bool E16ANA_STSCluster::is_ADC_saturated(){
+  for ( auto iter = hits.begin(); iter != hits.end(); iter++){
+    if ( iter->ADC() == 31 ) return true; // iter is int16;
+  }
+  return false;
 }

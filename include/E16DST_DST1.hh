@@ -78,7 +78,9 @@ class E16DST_DST1Cluster {
         timing(E16DST_DST1Constant::kInvalidValue),
         peak_sum(E16DST_DST1Constant::kInvalidValue),
 #ifndef TRACK_EFF_CHECK
+	//n_hits(E16DST_DST1Constant::kInvalidValue),
         hit_orders({}) {}
+  
 #else
         hit_orders({}),
         n_hits(E16DST_DST1Constant::kInvalidValue),
@@ -114,7 +116,8 @@ class E16DST_DST1Cluster {
 //  E16DST_DST0Detector<int16_t>& HitOrders() { return hit_orders; }
 //  int16_t                       HitOrder(int n) { return hit_orders.Hit(n); }
 #ifndef TRACK_EFF_CHECK
-  int                           NumHits() { return hit_orders.size(); }
+  int                           NumHits() { return n_hits; }
+  void                          SetNumHits(int _n_hits) { n_hits = _n_hits; }
 #else
   void                          SetNumHits(int _n_hits) { n_hits = _n_hits; }
   int                           NumHits() {
@@ -144,6 +147,7 @@ class E16DST_DST1Cluster {
   float                        max_peak_height;
   float                        timing;
   float                        peak_sum;
+  int n_hits;
 //  E16DST_DST0Detector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
   std::vector<int16_t> hit_orders; // Order in E16DST_DST0Detector<E16DST_DST1xxxHit>
 #ifdef TRACK_EFF_CHECK
@@ -231,7 +235,6 @@ class E16DST_DST1SSDCluster : public E16DST_DST1Cluster {
   double timing_fit;
   double chi2_ndf_fit;
 };
-
 class E16DST_DST1STSHit : public E16DST_DST1Hit {
  public:
   E16DST_DST1STSHit(){}
@@ -251,6 +254,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
     e16sts = -1;
     strip_id = -1;
     type = E16DST_DST1Constant::kInvalidValue;
+    charge = -1;
   }
   void     SetType(int16_t _type) { type = _type; }
   int16_t Type() override { return type; }
@@ -283,6 +287,8 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   void SetE16sts(int16_t _e16sts) { e16sts = _e16sts; }
   int16_t StripId() const { return strip_id; }
   void SetStripId(int16_t _strip) { strip_id = _strip; }
+  void SetCharge(float _charge) { charge = _charge; }
+  float Charge() const { return charge; }
  private:
   int   ModuleId2020To2013(int module_id) override { return E16DST_DST1Constant::kModuleId2020To2013[module_id / 100][module_id % 100]; }
 
@@ -290,6 +296,7 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   float peak_height {sts_finvalid};
   float hit_time    {sts_finvalid};
   float peak_time   {sts_finvalid};
+  float charge      {sts_finvalid};
   int16_t pn{-1};
   int16_t type{-1};
   int16_t dataType{-1};
@@ -305,7 +312,6 @@ class E16DST_DST1STSHit : public E16DST_DST1Hit {
   int16_t e16sts{-1};
   int16_t strip_id{-1};
 };
-
 // Methods of STSClusters are just copy of old cluster codes.
 // The names does not represent the actual content.
 // The names have to be updated at some point.
@@ -322,8 +328,8 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   }
   int16_t  PN() { return pn; }
   void     SetPN(int16_t _pn) { pn = _pn; }
-//  void     SetType(int16_t _type) { type = _type; }
-//  int16_t Type() override { return type; }
+  void     SetType(int16_t _type) { type = _type; }
+  int16_t Type() override { return type; }
   void     SetCogPos(double _center_of_gravity)    { center_of_gravity = _center_of_gravity; }
   void     SetTdcPos(double _tdc_pos)              { tdc_pos = _tdc_pos; }
   void     SetTanTheta(float _tan_incident_angle) { tan_incident_angle = _tan_incident_angle; }
@@ -346,6 +352,12 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   TVector3 GlobalPos() const ;
   void     SetGlobalPos(const TVector3& pos) { gpos = pos; }
   int      GetSize() override {}
+  double   Charge() const {return charge; }
+  void     SetCharge(double _charge) { charge = _charge; }
+  bool     ADCSaturated() const { return ADC_saturated;}
+  void     SetADCSaturated(bool _saturated) { ADC_saturated = _saturated; }
+
+
 //  int      GetSize() override { return GetBaseEventSize() + sizeof(center_of_gravity) + sizeof(tdc_pos) + sizeof(tan_incident_angle); }
   void     Print() override {
     std::cout << "E16DST_DST1STSCluster : "
@@ -364,12 +376,15 @@ class E16DST_DST1STSCluster : public E16DST_DST1Cluster {
   double charge_sum_fit{sts_finvalid};
   double timing_fit{sts_finvalid};
   double chi2_ndf_fit{sts_finvalid};
+  double charge{sts_finvalid};
   int16_t type{E16DST_DST1Constant::kInvalidValue};
   int16_t pn{-1};
+  bool ADC_saturated{false};
 
   TVector3 gpos;
   TVector3 lpos;
 };
+
 
 
 
@@ -482,11 +497,17 @@ class E16DST_DST1GTRHit : public E16DST_DST1Hit {
   float   peakt;
   float   timing2; // fastest timing
   float   timing3; // 
-  float   timing4; // 
+  float   timing4; //
+   float   timing5;
   float   tdchit; // timing method1
   float   tdchit2; // timing method2
   float   tanthe;//angle method1
   float   tanthe2;//angle method2
+  float   crt; //
+  float   ctot; //
+  float   ced; //
+  float   cpeak; //
+  int     cqual; //
 //  float   riset;
 //  // float   mtot;
   
@@ -515,6 +536,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     timing2         = E16DST_DST1Constant::kInvalidValue;
     timing3         = E16DST_DST1Constant::kInvalidValue;
     timing4         = E16DST_DST1Constant::kInvalidValue;
+    timing5         = E16DST_DST1Constant::kInvalidValue;
     tdchit          = E16DST_DST1Constant::kInvalidValue;
     tdchit2         = E16DST_DST1Constant::kInvalidValue;
     tanthe          = E16DST_DST1Constant::kInvalidValue;
@@ -523,8 +545,14 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     maxtot         = E16DST_DST1Constant::kInvalidValue;
     mintot         = E16DST_DST1Constant::kInvalidValue;
     minadc         = E16DST_DST1Constant::kInvalidValue;
-    minrt         = E16DST_DST1Constant::kInvalidValue;
-    last_st         = E16DST_DST1Constant::kInvalidValue;
+    minrt          = E16DST_DST1Constant::kInvalidValue;
+    last_st        = E16DST_DST1Constant::kInvalidValue;
+    crt            = E16DST_DST1Constant::kInvalidValue;
+    cpeak          = E16DST_DST1Constant::kInvalidValue;
+    ced            = E16DST_DST1Constant::kInvalidValue;
+    ctot           = E16DST_DST1Constant::kInvalidValue;
+    cqual          = E16DST_DST1Constant::kInvalidValue;
+	
     ctiming.clear();
     ctiming2.clear();
     ctiming3.clear();
@@ -535,11 +563,12 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
     cpos3.clear();
     cpos4.clear();
     cpos5.clear();
-	cadc1.clear();
-	cadc2.clear();
-	cadc3.clear();
-	cadc4.clear();
-	cadc5.clear();
+    cadc1.clear();
+    cadc2.clear();
+    cadc3.clear();
+    cadc4.clear();
+    cadc5.clear();
+    cadc.clear();
   }
   void SetLayerId(int16_t _layer_id) { layer_id = _layer_id; }
   void SetModId(int16_t _mod_id) { mod_id = _mod_id-101; }
@@ -556,9 +585,20 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   //double TdcPos() { return tdc_pos; }
   //float TanTheta() { return tan_incident_angle; }
   //double LocalX() { return center_of_gravity; }; // 211127 nakasuga
+  void                          SetCrt(float _timing)  { crt   = _timing; }
+  void                          SetCtot(float _timing) { ctot  = _timing; }
+  void                          SetCed(float _timing)  { ced   = _timing; }
+  void                          SetCqual(int _qual)    { cqual = _qual; }
+  void                          SetCpeak(float _timing){ cpeak = _timing; }
+  float                         Crt()  { return crt; }
+  float                         Ced()  { return ced; }
+  float                         Ctot() { return ctot; }
+  int                           Cqual(){ return cqual; }
+  float                         Cpeak(){ return cpeak; }
   void                          SetTiming2(float _timing) { timing2 = _timing; }
   void                          SetTiming3(float _timing) { timing3 = _timing; }
   void                          SetTiming4(float _timing) { timing4 = _timing; }
+  void                          SetTiming5(float _timing) { timing5 = _timing; }
   void                          SetTdcPos(float _tdchit) { tdchit = _tdchit; }
   void                          SetTanTheta(float _tanthe) { tanthe = _tanthe; }
   void                          SetTdcPos2(float _tdchit2) { tdchit2 = _tdchit2; }
@@ -566,6 +606,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   float                         Timing2() { return timing2; }
   float                         Timing3() { return timing3; }
   float                         Timing4() { return timing4; }
+  float                         Timing5() { return timing5; }
   float                         TdcPos() { return tdchit; }
   float                         TdcPos2() { return tdchit2; }
   float                         TanTheta() { return tanthe; }
@@ -585,6 +626,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   void                          SetCAdc3(float a)    { cadc3.push_back(a); }
   void                          SetCAdc4(float a)    { cadc4.push_back(a); }
   void                          SetCAdc5(float a)    { cadc5.push_back(a); }
+  void                          SetCAdc(float a)    { cadc.push_back(a); }
   int                           NumCls() { return ctiming.size(); }
   int                           NumCls2() { return ctiming2.size(); }
   int                           NumCls3() { return ctiming3.size(); }
@@ -605,6 +647,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   float                         CAdc3(int i)    { return cadc3[i]; }
   float                         CAdc4(int i)    { return cadc4[i]; }
   float                         CAdc5(int i)    { return cadc5[i]; }
+  float                         CAdc(int i)    { return cadc[i]; }
   float            MaxRiset() {return maxriset;}
   void             SetMaxRiset(float t){maxriset = t;}
   float            MaxTot() {return maxtot;}
@@ -670,6 +713,10 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   double center_of_gravity; // mm
   double tdc_pos;           // mm
   float tan_incident_angle;    // radian
+  float                        crt;
+  float                        cpeak;
+  float                        ctot;
+  float                        ced;
   float                        timing2;
   float                        timing3;
   float                        timing4;
@@ -686,6 +733,7 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   float                        minrt;
   float                        last_st;
   int                          csize;
+  int                          cqual;
   std::vector<float>           ctiming; //cluster timing
   std::vector<float>           ctiming2; //cluster timing
   std::vector<float>           ctiming3; //cluster timing
@@ -700,7 +748,8 @@ class E16DST_DST1GTRCluster : public E16DST_DST1Cluster {
   std::vector<float>           cadc2; 
   std::vector<float>           cadc3; 
   std::vector<float>           cadc4; 
-  std::vector<float>           cadc5; 
+  std::vector<float>           cadc5;
+  std::vector<float>           cadc; 
   float                        last_tot_end;
 
 };
@@ -1157,6 +1206,8 @@ class E16DST_DST1Trigger {
     tracks.clear();
     hit_sets.clear();
     track_sets.clear();
+    req_scalers.clear();
+    nim_scalers.clear();
   }
   void SetValidFlag(int16_t _valid_flag) { valid_flag = _valid_flag; }
   void SetNumTriggers(int16_t _n_triggers) { n_triggers = _n_triggers; }
@@ -1171,6 +1222,8 @@ class E16DST_DST1Trigger {
   int NumLGClusters()  { return lg_clusters.size(); }
   int NumHitSets()     { return hit_sets.size(); }
   int NumTrackSets()   { return track_sets.size(); }
+  int NumReqScaler()   { return req_scalers.size(); }
+  int NumNimScaler()   { return nim_scalers.size(); }
   E16DST_DST1TriggerHit&      GTRHit(int n)     { return gtr_hits[n]; }
   E16DST_DST1TriggerCluster&  GTRCluster(int n) { return gtr_clusters[n]; }
   E16DST_DST1TriggerHit&      HBDHit(int n)     { return hbd_hits[n]; }
@@ -1179,6 +1232,8 @@ class E16DST_DST1Trigger {
   E16DST_DST1TriggerCluster&  LGCluster(int n)  { return lg_clusters[n]; }
   E16DST_DST1TriggerTrackSet& HitSet(int n)     { return hit_sets[n]; }
   E16DST_DST1TriggerTrackSet& TrackSet(int n)   { return track_sets[n]; }
+  uint32_t&                        ReqScaler(int n)  { return req_scalers[n]; }
+  uint32_t&                        NimScaler(int n)  { return nim_scalers[n]; }
   std::vector<E16DST_DST1TriggerHit>&      GTRHits()     { return gtr_hits; }
   std::vector<E16DST_DST1TriggerCluster>&  GTRClusters() { return gtr_clusters; }
   std::vector<E16DST_DST1TriggerHit>&      HBDHits()     { return hbd_hits; }
@@ -1188,6 +1243,8 @@ class E16DST_DST1Trigger {
   std::vector<E16DST_DST1TriggerHit>&      Tracks()      { return tracks; }
   std::vector<E16DST_DST1TriggerTrackSet>& HitSets()     { return hit_sets; }
   std::vector<E16DST_DST1TriggerTrackSet>& TrackSets()   { return track_sets; }
+  std::vector<uint32_t>&                        ReqScalers()  { return req_scalers; }
+  std::vector<uint32_t>&                        NimScalers()  { return nim_scalers; }
   int16_t NumTriggers() { return n_triggers; }
   bool IsTriggerHit(E16DST_DST1GTRHit& hit);
   bool IsTriggerHit(E16DST_DST1HBDHit& hit);
@@ -1271,6 +1328,8 @@ class E16DST_DST1Trigger {
   std::vector<E16DST_DST1TriggerHit>      tracks;
   std::vector<E16DST_DST1TriggerTrackSet> hit_sets;
   std::vector<E16DST_DST1TriggerTrackSet> track_sets;
+  std::vector<uint32_t> req_scalers;
+  std::vector<uint32_t> nim_scalers;
   std::array<std::unordered_map<int, std::vector<E16DST_DST1TriggerHit*>>,     3> hit_ptrs;
   std::array<std::unordered_map<int, std::vector<E16DST_DST1TriggerCluster*>>, 3> cluster_ptrs;
 };
@@ -2037,7 +2096,8 @@ class E16DST_DST1RecordHeader {
   E16DST_DST1RecordHeader()
       : run_number(E16DST_DST1Constant::kInvalidValue), 
         spill_id(E16DST_DST1Constant::kInvalidValue), 
-        event_id(E16DST_DST1Constant::kInvalidValue), 
+        event_id(E16DST_DST1Constant::kInvalidValue),
+	timestamp(E16DST_DST1Constant::kInvalidValue),
         timestamp_in_spill(E16DST_DST1Constant::kInvalidValue), 
         type(E16DST_DST1Constant::kInvalidValue), 
         version(E16DST_DST1Constant::kInvalidValue), 
@@ -2048,6 +2108,7 @@ class E16DST_DST1RecordHeader {
     run_number         = E16DST_DST1Constant::kInvalidValue;
     spill_id           = E16DST_DST1Constant::kInvalidValue;
     event_id           = E16DST_DST1Constant::kInvalidValue;
+    timestamp          = E16DST_DST1Constant::kInvalidValue;
     timestamp_in_spill = E16DST_DST1Constant::kInvalidValue;
     type               = E16DST_DST1Constant::kInvalidValue;
     version            = E16DST_DST1Constant::kInvalidValue;
@@ -2056,12 +2117,14 @@ class E16DST_DST1RecordHeader {
   void    SetRunNumber(int _run_number) { run_number = _run_number; }
   void    SetSpillId(int _spill_id) { spill_id = _spill_id; }
   void    SetEventId(int _event_id) { event_id = _event_id; }
+   void    SetTimestamp(int _timestamp) { timestamp = _timestamp; }
   void    SetTimestampInSpill(int _timestamp_in_spill) { timestamp_in_spill = _timestamp_in_spill; }
   void    SetType(int _type)       { type = _type; }
   void    SetVersion(int _version) { version= _version; }
   int     RunNumber() { return run_number; }
   int     EventId() { return event_id; }
   int     SpillId() { return spill_id; }
+  int     Timestamp() { return timestamp; }
   int     TimestampInSpill() { return timestamp_in_spill; }
   int16_t Type()                   { return type; }
   int16_t Version()                { return version; }
@@ -2072,6 +2135,7 @@ class E16DST_DST1RecordHeader {
   int     run_number;
   int     spill_id;
   int     event_id;
+  int     timestamp;
   int     timestamp_in_spill;
   int16_t type;
   int16_t version;

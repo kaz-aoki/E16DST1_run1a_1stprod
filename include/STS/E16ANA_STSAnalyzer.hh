@@ -13,8 +13,10 @@ struct E16ANA_STSClusterParam {
   
   //int timing_min = -115;
   //int timing_max = -86;
-  int timing_min = -120;
-  int timing_max = -70;
+  //int timing_min = -120;
+  //int timing_max = -70;
+  int timing_min = -30;
+  int timing_max = 30;
 };
 
 class E16ANA_STSCluster{
@@ -24,6 +26,8 @@ public:
   double tdc();
   double cog();
   double timing();
+  double charge();
+  bool is_ADC_saturated();
   
   void show() {
     std::cout << "STSCluster:" << std::endl;
@@ -45,10 +49,12 @@ public:
   
   void set_param(E16ANA_STSClusterParam _param) { param = _param; }
   E16ANA_STSClusterParam get_param() { return param; }
+  static void set_verbosity(int _verbosity) { verbosity = _verbosity; }
+  static int get_verbosity() { return verbosity;}
 private:
   E16ANA_STSClusterParam param;
   std::vector<E16ANA_STSCluster> vec_cluster;
-
+  static int verbosity;
 };
 
 #endif

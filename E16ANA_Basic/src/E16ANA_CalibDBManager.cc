@@ -84,7 +84,11 @@ string E16ANA_CalibDBManager::SearchIndexFileForCalibFileName(string indexfilena
 
   // key is sorted in "map"
   auto item1=map.lower_bound(runID);
-
+  if ( item1 == map.end() ) {
+    std::string ret = "Looking for run " + std::to_string(runID) + " in " + indexfilename + " but not found. ERROR-CALIB-RUNNUM-OUT-OF-RANGE";
+    return ret;
+  }
+  
   stringstream s;
   string filename, comment;
   s << (string)item1->second;
@@ -285,3 +289,19 @@ ifstream* E16ANA_CalibDBManager::CalibStreamOpen(string filename, bool binaryfla
 
 }
 
+TFile* E16ANA_CalibDBManager::CalibOpenROOTFile(string key, int runID){
+   string filename = CalibFileName(key, runID);
+   return CalibROOTOpen(filename);
+}
+
+TFile* E16ANA_CalibDBManager::CalibROOTOpen(string filename){
+   TFile* file = new TFile(filename.c_str(), "READ"); 
+   if (!file || file->IsZombie()) { 
+      std::cerr << "Error: Cannot open ROOT file: " << filename << std::endl;
+      E16FATAL("File open ERROR : %s", filename.c_str());
+      delete file;
+      return nullptr;
+   }
+   E16INFO("calib file open : %s", filename.c_str());
+   return file;
+}
