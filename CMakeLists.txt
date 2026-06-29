@@ -70,7 +70,7 @@ message(STATUS "E16_DB_DIR:  ${E16_DB_DIR}")
 
 #tracking //murakmai
 #add_definitions(-DNoExist_SSD) # //turn on this if you do not have silicon trackers as a tracking point, like Run0d
-add_definitions(-DGTR_ONLY_TRACKING )
+#add_definitions(-DGTR_ONLY_TRACKING ) // This will not be used anymore.
 add_definitions(-DUseSTS) # //turn on this if you have sts, like Run0e
 add_definitions(-DSTS_DO_CLUSTERING) # //turn on this if you do not have ssd as a tracking point, like Run0d 
 #add_definitions(-DSTS_DO_CLUSTERING) # //turn on this if you want STS clustering (Run0e)

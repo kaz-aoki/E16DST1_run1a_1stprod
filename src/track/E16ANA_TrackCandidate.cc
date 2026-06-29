@@ -1,5 +1,6 @@
 #include "E16ANA_TrackCandidate.hh"
 #include "STS/E16ANA_STSGeometry.hh"
+#include "E16_OPTIONS.h"
 
 using namespace std;
 using namespace E16DST_DST1Constant;
@@ -267,12 +268,11 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
 //    auto xclst = dynamic_cast<E16DST_DST1GTRCluster*>(cluster_pairs[l].Cluster(0));
 //    printf("l:%d,  nhit:%d,  the1:%f, the2:%f,  x1:%f,  x2:%f, time:%f  \n",l,nhit,xclst->TanTheta(),tthe,c.LocalPos().X(),ltdc2,xclst->Timing());
   }
+  auto& e16_options = E16_OPTIONS::instance();
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
     if (l == E16ANA_TrackConstant::kSSD) { // SSD or STS
-#if defined(NoExist_SSD) || defined (GTR_ONLY_TRACKING)
-      continue;
-#endif
+      if ( e16_options.FLAG_GTR_ONLY_TRACKING() ) continue;
 #ifdef UseSTS
       if(xqual!=-2){
 	single_track->AddHit(tid, c.LayerOrder(), geometry->STS(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
@@ -355,9 +355,8 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
   if (chisq >= 1.0e10) {
     return;
   }
-#ifdef GTR_ONLY_TRACKING
-  ProjectToSTS(fitter);
-#endif
+  auto& e16_options = E16_OPTIONS::instance();
+  if ( e16_options.FLAG_GTR_ONLY_TRACKING() ) ProjectToSTS(fitter);
   
   int tid = 0;
   TVector3 lpos(0., 0., 0.);
@@ -554,11 +553,12 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
   n_steps = fitter->GetTrackSteps(tid).size();
   n_calls = fitter->GetNumCalls();
   //if(chisq<20) fitter->PrintHits();
+  auto& e16_options = E16_OPTIONS::instance();
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     fit_results[l].Clear();
-#if defined(NoExist_SSD) || defined(GTR_ONLY_TRACKING)
-		if(l==0) continue;
-#endif
+    if (e16_options.FLAG_GTR_ONLY_TRACKING() ) {
+      if ( l==0 ) continue;
+    }
     std::vector<TVector3> lpos;
     std::vector<TVector3> lmom;
     std::vector<int> mid;
@@ -4661,7 +4661,10 @@ void E16ANA_TrackCandidates::AddTracksToRecord() {
 int E16ANA_TrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
-
+  auto& e16_options = E16_OPTIONS::instance();
+  if ( e16_options.FLAG_GTR_ONLY_TRACKING() ) SearchTrackCandidatesGTROnly();
+  else SearchTrackCandidatesWithSTS();
+  /*  
 #ifdef GTR_ONLY_TRACKING
   SearchTrackCandidatesGTROnly();
 #elif defined(NoExist_SSD)
@@ -4669,7 +4672,7 @@ int E16ANA_TrackCandidates::Analyze() {
 #else
   SearchTrackCandidatesWithSTS();
 #endif
-
+  */
  
   //if ( track_candidates.size() > 1500) {
   //if ( track_candidates.size() > 2200) {
