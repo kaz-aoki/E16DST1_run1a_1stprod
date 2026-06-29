@@ -174,6 +174,7 @@ class E16ANA_TrackCheckFile {
     tree->Branch("n_ssd_clusters",  &n_ssd_clusters, "n_ssd_clusters/I");
     tree->Branch("ssd_cluster_id", &ssd_cluster_id);
     tree->Branch("ssd_cluster_mid", &ssd_cluster_mid);
+    tree->Branch("ssd_cluster_pn", &ssd_cluster_pn);
     tree->Branch("ssd_cluster_x",    &ssd_cluster_x);
     tree->Branch("ssd_cluster_gx",   &ssd_cluster_gx);
     tree->Branch("ssd_cluster_gz",   &ssd_cluster_gz);
@@ -193,11 +194,15 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr100x_cluster_adc",   &gtr100x_cluster_adc);
     tree->Branch("gtr100x_cluster_t",     &gtr100x_cluster_t);
     tree->Branch("gtr100x_cluster_t2",    &gtr100x_cluster_t2);
+    tree->Branch("gtr100x_cluster_t4",    &gtr100x_cluster_t4);
     tree->Branch("gtr100x_cluster_tx",    &gtr100x_cluster_tx);
     tree->Branch("gtr100x_cluster_the",   &gtr100x_cluster_the);
     tree->Branch("gtr100x_cluster_gtx",   &gtr100x_cluster_gtx);
     tree->Branch("gtr100x_cluster_nc",    &gtr100x_cluster_nc);
     tree->Branch("gtr100x_cluster_size",  &gtr100x_cluster_size);
+    tree->Branch("gtr100x_cluster_maxtot",   &gtr100x_cluster_maxtot);
+    tree->Branch("gtr100x_cluster_maxrt",    &gtr100x_cluster_maxrt);
+
     tree->Branch("n_gtr200x_clusters",    &n_gtr200x_clusters, "n_gtr200x_clusters/I");
     tree->Branch("gtr200x_cluster_id",    &gtr200x_cluster_id);
     tree->Branch("gtr200x_cluster_mid",   &gtr200x_cluster_mid);
@@ -207,11 +212,14 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr200x_cluster_adc",   &gtr200x_cluster_adc);
     tree->Branch("gtr200x_cluster_t",     &gtr200x_cluster_t);
     tree->Branch("gtr200x_cluster_t2",    &gtr200x_cluster_t2);
+    tree->Branch("gtr200x_cluster_t4",    &gtr200x_cluster_t4);
     tree->Branch("gtr200x_cluster_tx",    &gtr200x_cluster_tx);
     tree->Branch("gtr200x_cluster_the",   &gtr200x_cluster_the);
     tree->Branch("gtr200x_cluster_nc",    &gtr200x_cluster_nc);
     tree->Branch("gtr200x_cluster_gtx",   &gtr200x_cluster_gtx);
     tree->Branch("gtr200x_cluster_size",  &gtr200x_cluster_size);
+    tree->Branch("gtr200x_cluster_maxtot",   &gtr200x_cluster_maxtot);
+    tree->Branch("gtr200x_cluster_maxrt",    &gtr200x_cluster_maxrt);
     tree->Branch("n_gtr300x_clusters",    &n_gtr300x_clusters, "n_gtr300x_clusters/I");
     tree->Branch("gtr300x_cluster_id",    &gtr300x_cluster_id);
     tree->Branch("gtr300x_cluster_mid",   &gtr300x_cluster_mid);
@@ -221,11 +229,14 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr300x_cluster_adc",   &gtr300x_cluster_adc);
     tree->Branch("gtr300x_cluster_t",     &gtr300x_cluster_t);
     tree->Branch("gtr300x_cluster_t2",    &gtr300x_cluster_t2);
+    tree->Branch("gtr300x_cluster_t4",    &gtr300x_cluster_t4);
     tree->Branch("gtr300x_cluster_tx",    &gtr300x_cluster_tx);
     tree->Branch("gtr300x_cluster_the",   &gtr300x_cluster_the);
     tree->Branch("gtr300x_cluster_nc",    &gtr300x_cluster_nc);
     tree->Branch("gtr300x_cluster_gtx",   &gtr300x_cluster_gtx);
     tree->Branch("gtr300x_cluster_size",  &gtr300x_cluster_size);
+    tree->Branch("gtr300x_cluster_maxtot",   &gtr300x_cluster_maxtot);
+    tree->Branch("gtr300x_cluster_maxrt",    &gtr300x_cluster_maxrt);
     tree->Branch("n_gtr100y_clusters",    &n_gtr100y_clusters, "n_gtr100y_clusters/I");
     tree->Branch("gtr100y_cluster_id",    &gtr100y_cluster_id);
     tree->Branch("gtr100y_cluster_mid",   &gtr100y_cluster_mid);
@@ -233,10 +244,13 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr100y_cluster_adc",   &gtr100y_cluster_adc);
     tree->Branch("gtr100y_cluster_t",     &gtr100y_cluster_t);
     tree->Branch("gtr100y_cluster_t2",    &gtr100y_cluster_t2);
+    tree->Branch("gtr100y_cluster_t4",    &gtr100y_cluster_t4);
     tree->Branch("gtr100y_cluster_ty",    &gtr100y_cluster_ty);
     tree->Branch("gtr100y_cluster_the",   &gtr100y_cluster_the);
     tree->Branch("gtr100y_cluster_nc",    &gtr100y_cluster_nc);
     tree->Branch("gtr100y_cluster_size",  &gtr100y_cluster_size);
+    tree->Branch("gtr100y_cluster_maxtot",   &gtr100y_cluster_maxtot);
+    tree->Branch("gtr100y_cluster_maxrt",    &gtr100y_cluster_maxrt);
     tree->Branch("n_gtr100yb_clusters",   &n_gtr100yb_clusters, "n_gtr100yb_clusters/I");
     tree->Branch("gtr100yb_cluster_id",   &gtr100yb_cluster_id);
     tree->Branch("gtr100yb_cluster_mid",  &gtr100yb_cluster_mid);
@@ -244,10 +258,13 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr100yb_cluster_adc",  &gtr100yb_cluster_adc);
     tree->Branch("gtr100yb_cluster_t",    &gtr100yb_cluster_t);
     tree->Branch("gtr100yb_cluster_t2",   &gtr100yb_cluster_t2);
+    tree->Branch("gtr100yb_cluster_t4",   &gtr100yb_cluster_t4);
     tree->Branch("gtr100yb_cluster_ty",   &gtr100yb_cluster_ty);
     tree->Branch("gtr100yb_cluster_the",  &gtr100yb_cluster_the);
     tree->Branch("gtr100yb_cluster_nc",   &gtr100yb_cluster_nc);
     tree->Branch("gtr100yb_cluster_size", &gtr100yb_cluster_size);
+    tree->Branch("gtr100yb_cluster_maxtot",   &gtr100yb_cluster_maxtot);
+    tree->Branch("gtr100yb_cluster_maxrt",    &gtr100yb_cluster_maxrt);
     tree->Branch("n_gtr200y_clusters",    &n_gtr200y_clusters, "n_gtr200y_clusters/I");
     tree->Branch("gtr200y_cluster_id",    &gtr200y_cluster_id);
     tree->Branch("gtr200y_cluster_mid",   &gtr200y_cluster_mid);
@@ -255,10 +272,13 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr200y_cluster_adc",   &gtr200y_cluster_adc);
     tree->Branch("gtr200y_cluster_t",     &gtr200y_cluster_t);
     tree->Branch("gtr200y_cluster_t2",    &gtr200y_cluster_t2);
+    tree->Branch("gtr200y_cluster_t4",    &gtr200y_cluster_t4);
     tree->Branch("gtr200y_cluster_ty",    &gtr200y_cluster_ty);
     tree->Branch("gtr200y_cluster_the",   &gtr200y_cluster_the);
     tree->Branch("gtr200y_cluster_nc",    &gtr200y_cluster_nc);
     tree->Branch("gtr200y_cluster_size",  &gtr200y_cluster_size);
+    tree->Branch("gtr200y_cluster_maxtot",   &gtr200y_cluster_maxtot);
+    tree->Branch("gtr200y_cluster_maxrt",    &gtr200y_cluster_maxrt);
     tree->Branch("n_gtr300y_clusters",    &n_gtr300y_clusters, "n_gtr300y_clusters/I");
     tree->Branch("gtr300y_cluster_id",    &gtr300y_cluster_id);
     tree->Branch("gtr300y_cluster_mid",   &gtr300y_cluster_mid);
@@ -266,9 +286,12 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr300y_cluster_adc",   &gtr300y_cluster_adc);
     tree->Branch("gtr300y_cluster_t",     &gtr300y_cluster_t);
     tree->Branch("gtr300y_cluster_t2",    &gtr300y_cluster_t2);
+    tree->Branch("gtr300y_cluster_t4",    &gtr300y_cluster_t4);
     tree->Branch("gtr300y_cluster_ty",    &gtr300y_cluster_ty);
     tree->Branch("gtr300y_cluster_the",   &gtr300y_cluster_the);
     tree->Branch("gtr300y_cluster_nc",    &gtr300y_cluster_nc);
+    tree->Branch("gtr300y_cluster_maxtot",   &gtr300y_cluster_maxtot);
+    tree->Branch("gtr300y_cluster_maxrt",    &gtr300y_cluster_maxrt);
     tree->Branch("gtr300y_cluster_size",  &gtr300y_cluster_size);
     /*
     tree->Branch("gtr100x_cluster_csize",   &gtr100x_cluster_csize);
@@ -295,49 +318,35 @@ class E16ANA_TrackCheckFile {
     tree->Branch("gtr100yb_cluster_minadc",   &gtr100yb_cluster_minadc);
     tree->Branch("gtr200y_cluster_minadc",   &gtr200y_cluster_minadc);
     tree->Branch("gtr300y_cluster_minadc",   &gtr300y_cluster_minadc);
-
-    tree->Branch("gtr100x_cluster_maxtot",   &gtr100x_cluster_maxtot);
+    
     tree->Branch("gtr100x_cluster_mintot",   &gtr100x_cluster_mintot);
     tree->Branch("gtr100x_cluster_last_st",  &gtr100x_cluster_last_st);
     tree->Branch("gtr100x_cluster_last_et",  &gtr100x_cluster_last_et);
-    tree->Branch("gtr100x_cluster_maxrt",    &gtr100x_cluster_maxrt);
     tree->Branch("gtr100x_cluster_minrt",    &gtr100x_cluster_minrt);
-    tree->Branch("gtr200x_cluster_maxtot",   &gtr200x_cluster_maxtot);
     tree->Branch("gtr200x_cluster_mintot",   &gtr200x_cluster_mintot);
     tree->Branch("gtr200x_cluster_last_st",  &gtr200x_cluster_last_st);
     tree->Branch("gtr200x_cluster_last_et",  &gtr200x_cluster_last_et);
-    tree->Branch("gtr200x_cluster_maxrt",    &gtr200x_cluster_maxrt);
     tree->Branch("gtr200x_cluster_minrt",    &gtr200x_cluster_minrt);
-    tree->Branch("gtr300x_cluster_maxtot",   &gtr300x_cluster_maxtot);
     tree->Branch("gtr300x_cluster_mintot",   &gtr300x_cluster_mintot);
     tree->Branch("gtr300x_cluster_last_st",  &gtr300x_cluster_last_st);
     tree->Branch("gtr300x_cluster_last_et",  &gtr300x_cluster_last_et);
-    tree->Branch("gtr300x_cluster_maxrt",    &gtr300x_cluster_maxrt);
     tree->Branch("gtr300x_cluster_minrt",    &gtr300x_cluster_minrt);
 
-    tree->Branch("gtr100y_cluster_maxtot",   &gtr100y_cluster_maxtot);
     tree->Branch("gtr100y_cluster_mintot",   &gtr100y_cluster_mintot);
     tree->Branch("gtr100y_cluster_last_st",  &gtr100y_cluster_last_st);
     tree->Branch("gtr100y_cluster_last_et",  &gtr100y_cluster_last_et);
-    tree->Branch("gtr100y_cluster_maxrt",    &gtr100y_cluster_maxrt);
     tree->Branch("gtr100y_cluster_minrt",    &gtr100y_cluster_minrt);
-    tree->Branch("gtr100yb_cluster_maxtot",   &gtr100yb_cluster_maxtot);
     tree->Branch("gtr100yb_cluster_mintot",   &gtr100yb_cluster_mintot);
     tree->Branch("gtr100yb_cluster_last_st",  &gtr100yb_cluster_last_st);
     tree->Branch("gtr100yb_cluster_last_et",  &gtr100yb_cluster_last_et);
-    tree->Branch("gtr100yb_cluster_maxrt",    &gtr100yb_cluster_maxrt);
     tree->Branch("gtr100yb_cluster_minrt",    &gtr100yb_cluster_minrt);
-    tree->Branch("gtr200y_cluster_maxtot",   &gtr200y_cluster_maxtot);
     tree->Branch("gtr200y_cluster_mintot",   &gtr200y_cluster_mintot);
     tree->Branch("gtr200y_cluster_last_st",  &gtr200y_cluster_last_st);
     tree->Branch("gtr200y_cluster_last_et",  &gtr200y_cluster_last_et);
-    tree->Branch("gtr200y_cluster_maxrt",    &gtr200y_cluster_maxrt);
     tree->Branch("gtr200y_cluster_minrt",    &gtr200y_cluster_minrt);
-    tree->Branch("gtr300y_cluster_maxtot",   &gtr300y_cluster_maxtot);
     tree->Branch("gtr300y_cluster_mintot",   &gtr300y_cluster_mintot);
     tree->Branch("gtr300y_cluster_last_st",  &gtr300y_cluster_last_st);
     tree->Branch("gtr300y_cluster_last_et",  &gtr300y_cluster_last_et);
-    tree->Branch("gtr300y_cluster_maxrt",    &gtr300y_cluster_maxrt);
     tree->Branch("gtr300y_cluster_minrt",    &gtr300y_cluster_minrt);
     */    
 
@@ -1477,6 +1486,7 @@ class E16ANA_TrackCheckFile {
 #endif
     ssd_cluster_id.resize(n_ssd_clusters);
     ssd_cluster_mid.resize(n_ssd_clusters);
+    ssd_cluster_pn.resize(n_ssd_clusters);
     ssd_cluster_x.resize(n_ssd_clusters);
     ssd_cluster_gx.resize(n_ssd_clusters);
     ssd_cluster_gz.resize(n_ssd_clusters);
@@ -1499,6 +1509,7 @@ class E16ANA_TrackCheckFile {
 //      ssd_cluster_id[i] = i;
       ssd_cluster_id[i] = clst.ClusterId();
       ssd_cluster_mid[i] = clst.ModuleId();
+      ssd_cluster_pn[i] = clst.PN();
       ssd_cluster_x[i] = clst.LocalX();
       auto gpos = clst.GlobalPos(geometry);
       ssd_cluster_gx[i] = gpos.X();
@@ -1574,36 +1585,43 @@ class E16ANA_TrackCheckFile {
     gtr300y_cluster_t.clear();
     gtr300y_cluster_size.clear();
     gtr100x_cluster_t2.clear();
+    gtr100x_cluster_t4.clear();
     gtr100x_cluster_tx.clear();
     gtr100x_cluster_the.clear();
     gtr100x_cluster_nc.clear();
     gtr100x_cluster_gtx.clear();
     gtr200x_cluster_t2.clear();
+    gtr200x_cluster_t4.clear();
     gtr200x_cluster_tx.clear();
     gtr200x_cluster_the.clear();
     gtr200x_cluster_nc.clear();
     gtr200x_cluster_gtx.clear();
     gtr300x_cluster_t2.clear();
+    gtr300x_cluster_t4.clear();
     gtr300x_cluster_tx.clear();
     gtr300x_cluster_the.clear();
     gtr300x_cluster_nc.clear();
     gtr300x_cluster_gtx.clear();
     gtr100y_cluster_t2.clear();
+    gtr100y_cluster_t4.clear();
     gtr100y_cluster_ty.clear();
     gtr100y_cluster_the.clear();
     gtr100y_cluster_nc.clear();
     gtr100y_cluster_gty.clear();
     gtr200y_cluster_t2.clear();
+    gtr200y_cluster_t4.clear();
     gtr200y_cluster_ty.clear();
     gtr200y_cluster_the.clear();
     gtr200y_cluster_nc.clear();
     gtr200y_cluster_gty.clear();
     gtr300y_cluster_t2.clear();
+    gtr300y_cluster_t4.clear();
     gtr300y_cluster_ty.clear();
     gtr300y_cluster_the.clear();
     gtr300y_cluster_nc.clear();
     gtr300y_cluster_gty.clear();
     gtr100yb_cluster_t2.clear();
+    gtr100yb_cluster_t4.clear();
     gtr100yb_cluster_ty.clear();
     gtr100yb_cluster_the.clear();
     gtr100yb_cluster_nc.clear();
@@ -1735,6 +1753,7 @@ class E16ANA_TrackCheckFile {
           gtr100x_cluster_adc.emplace_back(clst.PeakSum());
           gtr100x_cluster_t.emplace_back(clst.Timing());
 	  gtr100x_cluster_t2.emplace_back(clst.Timing2());
+	  gtr100x_cluster_t4.emplace_back(clst.Timing4());
 	  gtr100x_cluster_nc.emplace_back(clst.NumCls());
 	  gtr100x_cluster_the.emplace_back(clst.TanTheta());
 	  gtr100x_cluster_tx.emplace_back(clst.LocalXT());
@@ -1765,6 +1784,7 @@ class E16ANA_TrackCheckFile {
           gtr100y_cluster_adc.emplace_back(clst.PeakSum());
           gtr100y_cluster_t.emplace_back(clst.Timing());
 	        gtr100y_cluster_t2.emplace_back(clst.Timing2());
+	        gtr100y_cluster_t4.emplace_back(clst.Timing4());
           gtr100y_cluster_nc.emplace_back(clst.NumCls());
           gtr100y_cluster_the.emplace_back(clst.TanTheta());
           gtr100y_cluster_ty.emplace_back(clst.LocalXT());
@@ -1792,6 +1812,7 @@ class E16ANA_TrackCheckFile {
           gtr100yb_cluster_adc.emplace_back(clst.PeakSum());
           gtr100yb_cluster_t.emplace_back(clst.Timing());
 	  gtr100yb_cluster_t2.emplace_back(clst.Timing2());
+	  gtr100yb_cluster_t4.emplace_back(clst.Timing4());
           gtr100yb_cluster_nc.emplace_back(clst.NumCls());
           gtr100yb_cluster_the.emplace_back(clst.TanTheta());
           gtr100yb_cluster_ty.emplace_back(clst.LocalXT());
@@ -1823,7 +1844,8 @@ class E16ANA_TrackCheckFile {
           gtr200x_cluster_gz.emplace_back(gpos.Z());
           gtr200x_cluster_adc.emplace_back(clst.PeakSum());
           gtr200x_cluster_t.emplace_back(clst.Timing());
-	        gtr200x_cluster_t2.emplace_back(clst.Timing2());
+	  gtr200x_cluster_t2.emplace_back(clst.Timing2());
+	  gtr200x_cluster_t4.emplace_back(clst.Timing4());
           gtr200x_cluster_nc.emplace_back(clst.NumCls());
           gtr200x_cluster_the.emplace_back(clst.TanTheta());
           gtr200x_cluster_tx.emplace_back(clst.LocalXT());
@@ -1853,6 +1875,7 @@ class E16ANA_TrackCheckFile {
           gtr200y_cluster_adc.emplace_back(clst.PeakSum());
           gtr200y_cluster_t.emplace_back(clst.Timing());
 	        gtr200y_cluster_t2.emplace_back(clst.Timing2());
+	        gtr200y_cluster_t4.emplace_back(clst.Timing4());
           gtr200y_cluster_nc.emplace_back(clst.NumCls());
           gtr200y_cluster_the.emplace_back(clst.TanTheta());
           gtr200y_cluster_ty.emplace_back(clst.LocalXT());
@@ -1885,6 +1908,7 @@ class E16ANA_TrackCheckFile {
           gtr300x_cluster_adc.emplace_back(clst.PeakSum());
           gtr300x_cluster_t.emplace_back(clst.Timing());
 	        gtr300x_cluster_t2.emplace_back(clst.Timing2());
+	        gtr300x_cluster_t4.emplace_back(clst.Timing4());
           gtr300x_cluster_nc.emplace_back(clst.NumCls());
           gtr300x_cluster_the.emplace_back(clst.TanTheta());
           gtr300x_cluster_tx.emplace_back(clst.LocalXT());
@@ -1915,6 +1939,7 @@ class E16ANA_TrackCheckFile {
           gtr300y_cluster_adc.emplace_back(clst.PeakSum());
           gtr300y_cluster_t.emplace_back(clst.Timing());
       	  gtr300y_cluster_t2.emplace_back(clst.Timing2());
+      	  gtr300y_cluster_t4.emplace_back(clst.Timing4());
           gtr300y_cluster_nc.emplace_back(clst.NumCls());
           gtr300y_cluster_the.emplace_back(clst.TanTheta());
           gtr300y_cluster_ty.emplace_back(clst.LocalXT());
@@ -4649,6 +4674,7 @@ class E16ANA_TrackCheckFile {
   int n_ssd_clusters;
   std::vector<int> ssd_cluster_id;
   std::vector<int> ssd_cluster_mid;
+  std::vector<int> ssd_cluster_pn;
   std::vector<double> ssd_cluster_x;
   std::vector<double> ssd_cluster_gx;
   std::vector<double> ssd_cluster_gz;
@@ -4668,6 +4694,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr100x_cluster_adc;
   std::vector<double> gtr100x_cluster_t;
   std::vector<double> gtr100x_cluster_t2;
+  std::vector<double> gtr100x_cluster_t4;
   std::vector<double> gtr100x_cluster_tx;
   std::vector<double> gtr100x_cluster_the;
   std::vector<int>    gtr100x_cluster_nc;
@@ -4687,6 +4714,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr200x_cluster_adc;
   std::vector<double> gtr200x_cluster_t;
   std::vector<double> gtr200x_cluster_t2;
+  std::vector<double> gtr200x_cluster_t4;
   std::vector<double> gtr200x_cluster_tx;
   std::vector<double> gtr200x_cluster_the;
   std::vector<int>    gtr200x_cluster_nc;
@@ -4701,6 +4729,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr300x_cluster_adc;
   std::vector<double> gtr300x_cluster_t;
   std::vector<double> gtr300x_cluster_t2;
+  std::vector<double> gtr300x_cluster_t4;
   std::vector<double> gtr300x_cluster_tx;
   std::vector<double> gtr300x_cluster_the;
   std::vector<int>    gtr300x_cluster_nc;
@@ -4713,6 +4742,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr100y_cluster_adc;
   std::vector<double> gtr100y_cluster_t;
   std::vector<double> gtr100y_cluster_t2;
+  std::vector<double> gtr100y_cluster_t4;
   std::vector<double> gtr100y_cluster_ty;
   std::vector<double> gtr100y_cluster_the;
   std::vector<int>    gtr100y_cluster_nc;
@@ -4725,6 +4755,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr100yb_cluster_adc;
   std::vector<double> gtr100yb_cluster_t;
   std::vector<double> gtr100yb_cluster_t2;
+  std::vector<double> gtr100yb_cluster_t4;
   std::vector<double> gtr100yb_cluster_ty;
   std::vector<double> gtr100yb_cluster_the;
   std::vector<int>    gtr100yb_cluster_nc;
@@ -4737,6 +4768,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr200y_cluster_adc;
   std::vector<double> gtr200y_cluster_t;
   std::vector<double> gtr200y_cluster_t2;
+  std::vector<double> gtr200y_cluster_t4;
   std::vector<double> gtr200y_cluster_ty;
   std::vector<double> gtr200y_cluster_the;
   std::vector<int>    gtr200y_cluster_nc;
@@ -4749,6 +4781,7 @@ class E16ANA_TrackCheckFile {
   std::vector<float> gtr300y_cluster_adc;
   std::vector<double> gtr300y_cluster_t;
   std::vector<double> gtr300y_cluster_t2;
+  std::vector<double> gtr300y_cluster_t4;
   std::vector<double> gtr300y_cluster_ty;
   std::vector<double> gtr300y_cluster_the;
   std::vector<int>    gtr300y_cluster_nc;
@@ -5574,7 +5607,7 @@ class E16ANA_TrackCheckFile {
   std::vector<std::vector<double>>  rk_proj_lg_t;
   std::vector<std::vector<double>>    rk_proj_lg_npeaks;
   std::vector<std::vector<double>>    rk_proj_lg_fflag;
-
+  
   //  std::vector<std::vector<int>> rk_proj_ssd_mid; // somewho this vector cannot be filled.
   std::vector<std::vector<double>> rk_proj_ssd_mid;
   std::vector<std::vector<double>> rk_proj_ssd_x;
@@ -5588,7 +5621,6 @@ class E16ANA_TrackCheckFile {
   std::vector<std::vector<double>> rk_proj_ssd_mom_gx;
   std::vector<std::vector<double>> rk_proj_ssd_mom_gy;
   std::vector<std::vector<double>> rk_proj_ssd_mom_gz;
-
 
   std::vector<int> rk_pair_minus_track_id;
   std::vector<int> rk_pair_minus_gtr300_mid;
