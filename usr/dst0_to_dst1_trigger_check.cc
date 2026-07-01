@@ -23,6 +23,7 @@
 #include "E16DST_DST1DefaultFilePath.hh"
 
 #include "E16ANA_TrackCheckFile.hh"
+#include "E16_OPTIONS.h"
 
 #ifdef TRACK_EFF_CHECK
 #include "E16ANA_GTRAnalyzerMaker.hh"
@@ -138,6 +139,9 @@ int ReadAndAddMockKsTrackPair(E16ANA_MakeDummyDST1& data_merger, E16ANA_MockTrac
 #endif // TRACK_EFF_CHECK
 
 int main(int argc, char* argv[]) {
+  auto& e16_options = E16_OPTIONS::instance();
+  e16_options.show_flags();
+
 #ifndef TRACK_EFF_CHECK
   if (argc != 6) {
     cerr << "./bin [input.dst0] [output.root] [run ID] [physics event start] [physics event end (all : -1)] " << endl;
@@ -326,7 +330,7 @@ int main(int argc, char* argv[]) {
       break;
     }
 //    if (n_event % 1000 == 0) {
-      cout << "Number of event: " << n_event << endl;
+    cout << "Start of event loop. Number of event processed so far: " << n_event << endl;
 //    }
     auto event_type = dst0->EventType();
     if (event_type == E16DST_DST0EventType::Physics) {
@@ -346,6 +350,7 @@ int main(int argc, char* argv[]) {
 //      auto& trigger_hbd_hits0 = event0->TriggerHBD();
 //      auto& trigger_lg_hits0  = event0->TriggerLG();
       auto event_id = event0->EventID();
+      std::cout << "event_id : " << event_id << std::endl;
       if (kSelectEvent) {
         bool is_selected_event = false;
         while (true) {
@@ -475,13 +480,14 @@ int main(int argc, char* argv[]) {
         }
         data_merger.MergeMockToRealData(0, mock_tracks[0], &record);
         data_merger.MergeMockToRealData(1, mock_tracks[1], &record);
-      }
+      } 
 #endif // TRACK_EFF_CHECK
       record.SSD().UpdatePtrs();
       record.GTR().UpdatePtrs();
       record.HBD().UpdatePtrs();
       record.LG().UpdatePtrs();
       record.Trigger().UpdatePtrs();
+      std::cout << "check_file.AddRecord   event_id=" << event_id << "  EventID():" << event0->EventID() << std::endl;
       check_file.AddRecord(*geometry, event0->EventID(), event0->SpillID(), event0->TimeStamp(),  event0->TimeStampInSpill(), event0->UT3().TriggerTime() % 8, record, lgbasic);
 //      check_file.FillTree();
 #ifndef DST1_EVENT_MIX

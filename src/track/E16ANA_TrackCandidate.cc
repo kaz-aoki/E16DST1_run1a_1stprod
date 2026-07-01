@@ -272,7 +272,7 @@ void E16ANA_TrackCandidate::AddTrackHit(E16ANA_MultiTrack* single_track) {
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     auto& c = cluster_pairs[l];
     if (l == E16ANA_TrackConstant::kSSD) { // SSD or STS
-      if ( e16_options.FLAG_GTR_ONLY_TRACKING() ) continue;
+      if ( e16_options.GTR_ONLY_TRACKING() ) continue;
 #ifdef UseSTS
       if(xqual!=-2){
 	single_track->AddHit(tid, c.LayerOrder(), geometry->STS(E16ANA_TrackConstant::ModuleID2020To2013(c.ModuleID())), c.LocalPos(), sigma[l]);
@@ -356,7 +356,7 @@ void E16ANA_TrackCandidate::Projection(E16ANA_MultiTrack* fitter) {
     return;
   }
   auto& e16_options = E16_OPTIONS::instance();
-  if ( e16_options.FLAG_GTR_ONLY_TRACKING() ) ProjectToSTS(fitter);
+  if ( e16_options.GTR_ONLY_TRACKING() ) ProjectToSTS(fitter);
   
   int tid = 0;
   TVector3 lpos(0., 0., 0.);
@@ -556,7 +556,7 @@ void E16ANA_TrackCandidate::UpdateFitResult(E16ANA_MultiTrack* fitter) {
   auto& e16_options = E16_OPTIONS::instance();
   for (int l = 0; l < E16ANA_TrackConstant::kNumTrackingLayers; ++l) {
     fit_results[l].Clear();
-    if (e16_options.FLAG_GTR_ONLY_TRACKING() ) {
+    if (e16_options.GTR_ONLY_TRACKING() ) {
       if ( l==0 ) continue;
     }
     std::vector<TVector3> lpos;
@@ -668,13 +668,15 @@ void E16ANA_TrackCandidate::PrintParam() {
 }
 
 bool E16ANA_TrackCandidates::IsCurveCorrelationwoSTS(double tgt_z, const std::array<TVector3, E16ANA_TrackConstant::kNumTrackingLayers>& pos_set) {
-
-  double coef1_0 = pos_set[2].X() / (pos_set[2].Z() - tgt_z);
+  
+  double coef1_0 = pos_set[2].X() / (pos_set[2].Z() - tgt_z); // TGTZ--GTR200 vs GTR100
   double coef0_0 = -1. * coef1_0 * tgt_z;
   double dist0   = fabs(coef1_0 * pos_set[1].Z() + coef0_0 + -1. * pos_set[1].X()) / sqrt(coef1_0 * coef1_0 + 1.);
-  double coef1_1 = (pos_set[3].X() - pos_set[1].X()) / (pos_set[3].Z() - pos_set[1].Z());
+  double coef1_1 = (pos_set[3].X() - pos_set[1].X()) / (pos_set[3].Z() - pos_set[1].Z()); // GTR100--GTR300 vs GTR200
   double coef0_1 = pos_set[1].X() -1. * coef1_1 * pos_set[1].Z();
   double dist1   = fabs(coef1_1 * pos_set[2].Z() -1. * pos_set[2].X() + coef0_1) / sqrt(coef1_1 * coef1_1 + 1.);
+  
+  //std::cout << "rough : " << dist0 << " , " << dist1 << std::endl;
   if (dist1 > 0.45  * dist0  + 18. ||
       dist1 <  0.5  * (dist0 - 15.)) {
     return false;
@@ -704,12 +706,12 @@ bool E16ANA_TrackCandidates::IsCurveCorrelation(double tgt_z, const std::array<T
 }
 #else // this is for all layer tracking case, wo gtr case has not been developed yet.
 
-  double coef1_0 = pos_set[1].X() / (pos_set[1].Z() - tgt_z);
+  double coef1_0 = pos_set[1].X() / (pos_set[1].Z() - tgt_z); // TGT-Z--GTR100 vs STS
   double coef0_0 = -1. * coef1_0 * tgt_z;
   double dist0   = fabs(coef1_0 * pos_set[0].Z() + coef0_0 + -1. * pos_set[0].X()) / sqrt(coef1_0 * coef1_0 + 1.);
 
   if(full==1){
-    double coef1_1 = (pos_set[3].X() - pos_set[1].X()) / (pos_set[3].Z() - pos_set[1].Z());
+    double coef1_1 = (pos_set[3].X() - pos_set[1].X()) / (pos_set[3].Z() - pos_set[1].Z()); // GTR300--GTR100 vs GTR2
     double coef0_1 = pos_set[1].X() -1. * coef1_1 * pos_set[1].Z();
     double dist1   = fabs(coef1_1 * pos_set[2].Z() -1. * pos_set[2].X() + coef0_1) / sqrt(coef1_1 * coef1_1 + 1.);
 
@@ -918,12 +920,14 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(int tgt_id, const OneAxisClusterS
 }
 
 bool E16ANA_TrackCandidates::IsXTrackCandidatewoSTS(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set) {
+  std::cout << "Inside IsXTrackCandidatewoSTS" << std::endl;
   auto& pos_set = cluster_set->global_poss;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[tgt_id];
 
   if (!IsCurveCorrelationwoSTS(tgt_z, pos_set)) {
     return false;
   }
+  std::cout << "IsIsCurveCorrelationwoSTS passed" << std::endl;
 
   std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos;
   auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kGTR100].X(), pos_set[E16ANA_TrackConstant::kGTR100].Z() - tgt_z); // ozawa v8
@@ -1088,7 +1092,6 @@ bool E16ANA_TrackCandidates::IsXTrackCandidate(int tgt_id, double prev_chi2, One
   #endif // TRACK_EFF_CHECK
     return false;
   }
-  
   std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos;
 //  auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kGTR300].X(), pos_set[E16ANA_TrackConstant::kGTR300].Z() - tgt_z);
 
@@ -2466,12 +2469,12 @@ void E16ANA_TrackCandidates::SearchTrackCandidatesGTROnly() {
 	    cluster_set->global_poss[E16ANA_TrackConstant::kGTR100] = gtr100y_cluster->GlobalPos(*geometry);
 	    int fulltr = -1;
 	    for (const auto& gtr300y_cluster : gtr300y_cluster_ptrs) {
-	      if(gtr300y_cluster->PeakSum()>99995) return;
-	      if (gtr300y_cluster->PeakSum()  < kGTRPeakSumThresholdY[E16ANA_TrackConstant::kGTR300-1])    return;
-	      if (gtr300y_cluster->MaxTot()   < kGTRMaxTotThresholdY[E16ANA_TrackConstant::kGTR300-1])     return;
-	      if (gtr300y_cluster->MaxRiset() < kGTRMaxRtY[E16ANA_TrackConstant::kGTR300-1])               return;
-	      if (gtr300y_cluster->Timing4()  < kGTRstY1[E16ANA_TrackConstant::kGTR300-1] )                return;
-	      if (gtr300y_cluster->Timing4()  > kGTRstY2[E16ANA_TrackConstant::kGTR300-1] )                return;
+	      if(gtr300y_cluster->PeakSum()>99995) continue;
+	      if (gtr300y_cluster->PeakSum()  < kGTRPeakSumThresholdY[E16ANA_TrackConstant::kGTR300-1])    continue;
+	      if (gtr300y_cluster->MaxTot()   < kGTRMaxTotThresholdY[E16ANA_TrackConstant::kGTR300-1])     continue;
+	      if (gtr300y_cluster->MaxRiset() < kGTRMaxRtY[E16ANA_TrackConstant::kGTR300-1])               continue;
+	      if (gtr300y_cluster->Timing4()  < kGTRstY1[E16ANA_TrackConstant::kGTR300-1] )                continue;
+	      if (gtr300y_cluster->Timing4()  > kGTRstY2[E16ANA_TrackConstant::kGTR300-1] )                continue;
 	      
 	      cluster_set->gtr_clusters[2] = gtr300y_cluster;
 	      cluster_set->global_poss[E16ANA_TrackConstant::kGTR300] = gtr300y_cluster->GlobalPos(*geometry);
@@ -4662,7 +4665,7 @@ int E16ANA_TrackCandidates::Analyze() {
   track_candidates.clear();
   selected_track_candidates.clear();
   auto& e16_options = E16_OPTIONS::instance();
-  if ( e16_options.FLAG_GTR_ONLY_TRACKING() ) SearchTrackCandidatesGTROnly();
+  if ( e16_options.GTR_ONLY_TRACKING() ) SearchTrackCandidatesGTROnly();
   else SearchTrackCandidatesWithSTS();
   /*  
 #ifdef GTR_ONLY_TRACKING

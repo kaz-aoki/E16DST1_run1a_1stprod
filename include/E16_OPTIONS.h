@@ -27,8 +27,14 @@ public:
       loadFromEnvironment();
     }
 
-    bool FLAG_GTR_ONLY_TRACKING() const { return FLAG_GTR_ONLY_TRACKING_; }
-    
+    bool GTR_ONLY_TRACKING() const { return GTR_ONLY_TRACKING_; }
+
+    void show_flags(){
+    std::cout << "E16_OPTIONS --START" << std::endl;
+    if ( GTR_ONLY_TRACKING_ ) std::cout << "GTR_ONLY_TRACKING" << std::endl;
+    std::cout << "E16_OPTIONS --END" << std::endl;
+  }
+
 private:
     E16_OPTIONS() {
       loadFromEnvironment();
@@ -36,7 +42,7 @@ private:
     ~E16_OPTIONS() = default;
 
     void loadFromEnvironment() {
-      FLAG_GTR_ONLY_TRACKING_ = environmentVariableExists("E16_GTR_ONLY_TRACKING");
+      GTR_ONLY_TRACKING_ = environmentVariableExists("E16_GTR_ONLY_TRACKING");
       //data_directory_ = getEnvironmentVariable("E16_DATA_DIR").value_or("./data");
     }
 
@@ -55,7 +61,7 @@ private:
     }
 
 private:
-  bool FLAG_GTR_ONLY_TRACKING_ = false;
+  bool GTR_ONLY_TRACKING_ = false;
   //std::string data_directory_ = "./data";
 };
 
