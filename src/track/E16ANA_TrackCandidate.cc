@@ -920,14 +920,14 @@ bool E16ANA_TrackCandidates::HasXAssociatedHBD(int tgt_id, const OneAxisClusterS
 }
 
 bool E16ANA_TrackCandidates::IsXTrackCandidatewoSTS(int tgt_id, double prev_chi2, OneAxisClusterSet* cluster_set) {
-  std::cout << "Inside IsXTrackCandidatewoSTS" << std::endl;
+  //std::cout << "Inside IsXTrackCandidatewoSTS" << std::endl;
   auto& pos_set = cluster_set->global_poss;
   auto& tgt_z = E16ANA_TrackConstant::kTargetZ[tgt_id];
 
   if (!IsCurveCorrelationwoSTS(tgt_z, pos_set)) {
     return false;
   }
-  std::cout << "IsIsCurveCorrelationwoSTS passed" << std::endl;
+  //std::cout << "IsIsCurveCorrelationwoSTS passed" << std::endl;
 
   std::array<TVector3, kNumTrackingLayersWTarget> lotated_pos;
   auto rot_phi = std::atan2(pos_set[E16ANA_TrackConstant::kGTR100].X(), pos_set[E16ANA_TrackConstant::kGTR100].Z() - tgt_z); // ozawa v8
