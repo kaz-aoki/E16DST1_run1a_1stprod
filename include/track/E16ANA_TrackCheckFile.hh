@@ -1267,7 +1267,7 @@ class E16ANA_TrackCheckFile {
     t_param->Fill();
   }
   void AddRecord(E16ANA_GeometryV2& geometry, int _event_id, int _spill_id,  uint64_t _timestamp,uint64_t _timestamp_in_spill, int _trigger_fine_time, E16DST_DST1PhysicsRecord& record, E16ANA_LGBasic& lgbasic) {
-    std::cout<<"event::"<<event_id <<std::endl;
+    std::cout<<"E16ANA_TrackCheckFile. saving event::"<< _event_id <<std::endl;
     event_id = _event_id;
     spill_id = _spill_id;
     timestamp = _timestamp;
